@@ -453,6 +453,11 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when accessing a field on operator module that has been '
                   'removed in Python 3.',
                   {'maxversion': (3, 0)}),
+        'W1658': ('Accessing a removed attribute on the urllib module',
+                  'deprecated-urllib-function',
+                  'Used when accessing a field on urllib module that has been '
+                  'removed or moved in Python 3.',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -556,7 +561,20 @@ class Python3Checker(checkers.BaseChecker):
         },
         'deprecated-operator-function': {
             'operator': frozenset({'div'}),
-        }
+        },
+        'deprecated-urllib-function': {
+            'urllib': frozenset({
+                'addbase', 'addclosehook', 'addinfo', 'addinfourl', 'always_safe',
+                'basejoin', 'ftpcache', 'ftperrors', 'ftpwrapper', 'getproxies',
+                'getproxies_environment', 'getproxies_macosx_sysconf', 'main', 'noheaders',
+                'pathname2url', 'proxy_bypass', 'proxy_bypass_environment',
+                'proxy_bypass_macosx_sysconf', 'quote', 'quote_plus', 'reporthook',
+                'splitattr', 'splithost', 'splitnport', 'splitpasswd', 'splitport',
+                'splitquery', 'splittag', 'splittype', 'splituser', 'splitvalue', 'unquote',
+                'unquote_plus', 'unwrap', 'url2pathname', 'urlcleanup', 'urlencode',
+                'urlopen', 'urlretrieve'
+            }),
+        },
     }
 
     if (3, 4) <= sys.version_info < (3, 4, 4):
