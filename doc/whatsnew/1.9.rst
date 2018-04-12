@@ -1,0 +1,35 @@
+**************************
+  What's New In Pylint 1.9
+**************************
+
+:Release: 1.9
+:Date: |TBA|
+
+
+Summary -- Release highlights
+=============================
+
+* None so far
+
+New checkers
+============
+
+* A new Python 3 checker was added to warn about the removed ``operator.div`` function.
+
+* A new Python 3 checker was added to warn about accessing functions that have been
+  moved from the urllib module in corresponding subpackages, such as ``urllib.request``.
+
+  .. code-block:: python
+
+      from urllib import urlencode
+
+  Instead the previous code should use ``urllib.parse`` or ``six.moves`` to import a
+  module in a Python 2 and 3 compatible fashion:
+
+  .. code-block:: python
+
+      from six.moves.urllib.parse import urlencode
+
+
+Other Changes
+=============
