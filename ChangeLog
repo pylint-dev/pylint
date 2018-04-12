@@ -4,6 +4,10 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
+    * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
+
+     Close #1936
+
     * `logging-format-interpolation` also emits when f-strings are used instead of % syntax.
 
        Close #1788
