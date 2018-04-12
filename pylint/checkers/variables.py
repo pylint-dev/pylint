@@ -442,7 +442,7 @@ class VariablesChecker(BaseChecker):
                           'end with one of those strings.'}
                ),
                ("redefining-builtins-modules",
-                {'default': ('six.moves', 'past.builtins', 'future.builtins', 'builtins'),
+                {'default': ('six.moves', 'past.builtins', 'future.builtins', 'builtins', 'io'),
                  'type': 'csv',
                  'metavar': '<comma separated list>',
                  'help': 'List of qualified module names which can have objects '
