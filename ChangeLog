@@ -7,6 +7,9 @@ What's New in Pylint 1.9.0?
 
 Release date:
 
+   * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
+
+     Close #1936
 
 
 What's New in Pylint 1.8.4?

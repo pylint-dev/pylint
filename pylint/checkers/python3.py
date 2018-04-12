@@ -451,6 +451,11 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when dict.values is referenced in a non-iterating '
                   'context (returns an iterator in Python 3)',
                   {'maxversion': (3, 0)}),
+        'W1657': ('Accessing a removed attribute on the operator module',
+                  'deprecated-operator-function',
+                  'Used when accessing a field on operator module that has been '
+                  'removed in Python 3.',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -551,6 +556,9 @@ class Python3Checker(checkers.BaseChecker):
                 'lowercase', 'letters', 'uppercase', 'atol_error',
                 'atof_error', 'atoi_error', 'index_error'
             ])
+        },
+        'deprecated-operator-function': {
+            'operator': frozenset({'div'}),
         }
     }
 
