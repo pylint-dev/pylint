@@ -398,9 +398,9 @@ class MessagesHandlerMixIn(object):
             # This line won't appear in the ast tree and won't be referred in
             # self.file_state._module_msgs_state
             # This happens for example with a commented line at the end of a module.
-            if (self.file_state.get_effective_max_line_number() and
-                    line > self.file_state.get_effective_max_line_number()):
-                return not msgid in self.file_state._raw_module_msgs_state
+            max_line_number = self.file_state.get_effective_max_line_number()
+            if (max_line_number and line > max_line_number):
+                return msgid not in self.file_state._raw_module_msgs_state
             return self._msgs_state.get(msgid, True)
 
     def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
@@ -694,7 +694,7 @@ class FileState(object):
     def get_effective_max_line_number(self):
         """Return the maximum line number present in _module_msgs_state."""
         if self._module_msgs_state:
-            return max([max(d.keys()) for d in self._module_msgs_state.values()])
+            return max((max(d.keys()) for d in self._module_msgs_state.values()))
         return None
 
 
