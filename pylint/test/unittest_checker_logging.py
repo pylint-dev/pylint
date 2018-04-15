@@ -27,6 +27,13 @@ class TestLoggingModuleDetection(CheckerTestCase):
         with self.assertAddsMessages(Message('logging-not-lazy', node=stmts[1])):
             self.checker.visit_call(stmts[1])
 
+    def test_dont_crash_on_invalid_format_string(self):
+        node = astroid.parse('''
+        import logging
+        logging.error('0} - {1}'.format(1, 2))
+        ''')
+        self.walk(node)
+
     def test_detects_renamed_standard_logging_module(self):
         stmts = astroid.extract_node("""
         import logging as blogging #@

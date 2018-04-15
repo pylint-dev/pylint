@@ -184,7 +184,7 @@ class ColorizedTextReporter(TextReporter):
         "I" : ("green", None),
         'C' : (None, "bold"),
         'R' : ("magenta", "bold, italic"),
-        'W' : ("blue", None),
+        'W' : ("magenta", None),
         'E' : ("red", "bold"),
         'F' : ("red", "bold, underline"),
         'S' : ("yellow", "inverse"), # S stands for module Separator

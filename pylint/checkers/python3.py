@@ -85,7 +85,7 @@ def _in_iterating_context(node):
         return True
     # Need to make sure the use of the node is in the iterator part of the
     # comprehension.
-    elif isinstance(parent, astroid.Comprehension):
+    if isinstance(parent, astroid.Comprehension):
         if parent.iter == node:
             return True
     # Various built-ins can take in an iterable or list and lead to the same
@@ -411,7 +411,7 @@ class Python3Checker(checkers.BaseChecker):
                   'bad-python3-import',
                   'Used when importing a module that no longer exists in Python 3.',
                   {'maxversion': (3, 0)}),
-        'W1649': ('Accessing a function method on the string module',
+        'W1649': ('Accessing a deprecated function on the string module',
                   'deprecated-string-function',
                   'Used when accessing a string function that has been deprecated in Python 3.',
                   {'maxversion': (3, 0)}),
@@ -447,6 +447,16 @@ class Python3Checker(checkers.BaseChecker):
                   'dict-values-not-iterating',
                   'Used when dict.values is referenced in a non-iterating '
                   'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1657': ('Accessing a removed attribute on the operator module',
+                  'deprecated-operator-function',
+                  'Used when accessing a field on operator module that has been '
+                  'removed in Python 3.',
+                  {'maxversion': (3, 0)}),
+        'W1658': ('Accessing a removed attribute on the urllib module',
+                  'deprecated-urllib-function',
+                  'Used when accessing a field on urllib module that has been '
+                  'removed or moved in Python 3.',
                   {'maxversion': (3, 0)}),
     }
 
@@ -542,11 +552,29 @@ class Python3Checker(checkers.BaseChecker):
         'deprecated-string-function': {
             'string': frozenset([
                 'maketrans', 'atof', 'atoi', 'atol', 'capitalize', 'expandtabs', 'find', 'rfind',
-                'index', 'rindex', 'count', 'lower', 'split', 'rsplit', 'splitfields', 'join',
-                'joinfields', 'lstrip', 'rstrip', 'strip', 'swapcase', 'translate', 'upper',
-                'ljust', 'rjust', 'center', 'zfill', 'replace'
+                'index', 'rindex', 'count', 'lower', 'letters', 'split', 'rsplit', 'splitfields',
+                'join', 'joinfields', 'lstrip', 'rstrip', 'strip', 'swapcase', 'translate',
+                'upper', 'ljust', 'rjust', 'center', 'zfill', 'replace',
+                'lowercase', 'letters', 'uppercase', 'atol_error',
+                'atof_error', 'atoi_error', 'index_error'
             ])
-        }
+        },
+        'deprecated-operator-function': {
+            'operator': frozenset({'div'}),
+        },
+        'deprecated-urllib-function': {
+            'urllib': frozenset({
+                'addbase', 'addclosehook', 'addinfo', 'addinfourl', 'always_safe',
+                'basejoin', 'ftpcache', 'ftperrors', 'ftpwrapper', 'getproxies',
+                'getproxies_environment', 'getproxies_macosx_sysconf', 'main', 'noheaders',
+                'pathname2url', 'proxy_bypass', 'proxy_bypass_environment',
+                'proxy_bypass_macosx_sysconf', 'quote', 'quote_plus', 'reporthook',
+                'splitattr', 'splithost', 'splitnport', 'splitpasswd', 'splitport',
+                'splitquery', 'splittag', 'splittype', 'splituser', 'splitvalue', 'unquote',
+                'unquote_plus', 'unwrap', 'url2pathname', 'urlcleanup', 'urlencode',
+                'urlopen', 'urlretrieve'
+            }),
+        },
     }
 
     if (3, 4) <= sys.version_info < (3, 4, 4):
@@ -894,12 +922,11 @@ class Python3Checker(checkers.BaseChecker):
         expr = node.exc
         if self._check_raise_value(node, expr):
             return
-        else:
-            try:
-                value = next(astroid.unpack_infer(expr))
-            except astroid.InferenceError:
-                return
-            self._check_raise_value(node, value)
+        try:
+            value = next(astroid.unpack_infer(expr))
+        except astroid.InferenceError:
+            return
+        self._check_raise_value(node, value)
 
     def _check_raise_value(self, node, expr):
         if isinstance(expr, astroid.Const):

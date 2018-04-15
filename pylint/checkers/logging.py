@@ -190,6 +190,8 @@ class LoggingChecker(checkers.BaseChecker):
             self._check_call_func(node.args[format_pos])
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)
+        elif isinstance(node.args[format_pos], astroid.JoinedStr):
+            self.add_message('logging-format-interpolation', node=node)
 
     @staticmethod
     def _is_operand_literal_str(operand):
@@ -261,7 +263,12 @@ def is_complex_format_str(node):
     inferred = utils.safe_infer(node)
     if inferred is None or not isinstance(inferred.value, str):
         return True
-    for _, _, format_spec, _ in string.Formatter().parse(inferred.value):
+    try:
+        parsed = list(string.Formatter().parse(inferred.value))
+    except ValueError:
+        # This format string is invalid
+        return False
+    for _, _, format_spec, _ in parsed:
         if format_spec:
             return True
     return False

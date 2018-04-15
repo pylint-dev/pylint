@@ -11,7 +11,9 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
+import os
+from datetime import datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -46,7 +48,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pylint'
-copyright = u'2003-2017, Logilab, PyCQA and contributors'
+current_year = datetime.utcnow().year
+copyright = '2003-{year}, Logilab, PyCQA and contributors'.format(year=current_year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -131,9 +134,7 @@ html_static_path = ['_static']
 # using the given strftime format.
 #html_last_updated_fmt = '%b %d, %Y'
 
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-#html_use_smartypants = True
+smartquotes = False
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
