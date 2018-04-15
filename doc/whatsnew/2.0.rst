@@ -110,3 +110,5 @@ Other Changes
     class definitions
 
 * Suppress false-positive ``not-callable`` messages from certain staticmethod descriptors
+
+* Fix false positive ``line-too-long`` for commented lines at the end of module
