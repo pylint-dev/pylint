@@ -980,3 +980,22 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
         self._test_token_message("lambda (a): a", "lambda-parameter-parens")
         self._test_token_message("lambda(a): a", "lambda-parameter-parens")
         self._test_token_message("lambda  (a, b, c): a", "lambda-parameter-parens")
+
+    def test_invalid_raise_syntax(self):
+        self._test_token_message("raise Exception,'1', None", "invalid-raise-syntax")
+        self._test_token_message("raise  Exception,'1', None", "invalid-raise-syntax")
+        self._test_token_message("raise Exception , '1', None", "invalid-raise-syntax")
+
+        codes = [
+            "raise Exception",
+            "raise Exception;",
+            "raise 1",
+            "raise a",
+            "raise",
+            "raise Exception(2)",
+            "raise Exception('abc')",
+        ]
+        for code in codes:
+            tokens = testutils._tokenize_str(code)
+            with self.assertNoMessages():
+                self.checker.process_tokens(tokens)

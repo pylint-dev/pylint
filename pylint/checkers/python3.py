@@ -975,6 +975,11 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                   'Used when a lambda definition contains parantheses for the parameter '
                   'list. This is invalid syntax in Python 3.X.',
                   {'maxversion': (3, 0)}),
+        'E1612': ('Cannot raise on Python 3 using this raise form',
+                  'invalid-raise-syntax',
+                  'Used when an invalid raise construct that will not work on Python 3 was '
+                  'deteted.',
+                  {'maxversion': (3, 0)}),
     }
 
     def process_tokens(self, tokens):
@@ -991,12 +996,19 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                 if any(elem for elem in token if ord(elem) > 127):
                     self.add_message('non-ascii-bytes-literal', line=start[0])
 
-            if (tok_type == tokenize.NAME
-                    and token == 'lambda'
-                    and idx < len(tokens)
-                    and tokens[idx + 1][0] == tokenize.OP
-                    and tokens[idx + 1][1] == '('):
-                self.add_message('lambda-parameter-parens', line=start[0])
+            if tok_type == tokenize.NAME:
+                if (token == 'lambda'
+                        and idx < len(tokens)
+                        and tokens[idx + 1][0] == tokenize.OP
+                        and tokens[idx + 1][1] == '('):
+                    self.add_message('lambda-parameter-parens', line=start[0])
+                elif (token == 'raise'
+                        and idx < len(tokens) - 1
+                        and tokens[idx + 1][0] == tokenize.NAME
+                        and tokens[idx + 2][0] == tokenize.OP
+                        and tokens[idx + 2][1] == ','):
+                    self.add_message('invalid-raise-syntax', line=start[0])
+
 
 def register(linter):
     linter.register_checker(Python3Checker(linter))
