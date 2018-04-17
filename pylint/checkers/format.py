@@ -1044,7 +1044,8 @@ class FormatChecker(BaseTokenChecker):
                     # allow empty lines
                     pass
                 elif line[len(stripped_line):] not in ('\n', '\r\n'):
-                    self.add_message('trailing-whitespace', line=i)
+                    self.add_message('trailing-whitespace', line=i,
+                                     col_offset=len(stripped_line))
                 # Don't count excess whitespace in the line length.
                 line = stripped_line
             mobj = OPTION_RGX.search(line)
