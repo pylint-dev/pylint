@@ -21,9 +21,6 @@ value != 1 and value != 2  # [consider-using-in]
 value1 == value2 or value2 == value1  # [consider-using-in]
 a_list == [1, 2, 3] or a_list == []  # [consider-using-in]
 
-# Undecided
-'value' == 1 or 'value' == 2  # no variables
-
 # Negative
 value != 1 or value != 2  # not a "not in"-case because of "or"
 value == 1 and value == 2  # not a "in"-case because of "and"
@@ -39,3 +36,4 @@ value1 == value2 == 1 or value1 == 2  # not checking multi-compares for '=='
 value1 != 1 == value2 and value2 != value1 != 2  # not checking multi-compares for '!='
 value1 == 1 or value1 == value2 or value2 == 3  # value1 or value2 do not occur in every check
 value1 == 1 or value1 == 2 or value2 == 1 or value2 == 2  # value1 or value2 do not occur in every check
+'value' == 1 or 'value' == 2  # only detect variables for now

@@ -136,7 +136,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'Using str.join(sequence) is faster, uses less memory '
                   'and increases readability compared to for-loop iteration.'
                  ),
-        'R1714': ('Consider merging these comparisons with "in" to %s %s (%s)',
+        'R1714': ('Consider merging these comparisons with "in" to %r',
                   'consider-using-in',
                   'To check if a variable is equal to one of many values,'
                   'combine the values into a tuple and check if the variable is contained "in" it '
@@ -496,32 +496,31 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     or value.ops[0][0] not in allowed_ops[node.op]):
                 return
 
-        variable_sets = []
-        values = []
+        # Gather variables and values from comparisons
+        variables, values = [], []
         for value in node.values:
-            variables = set()
+            variable_set = set()
             for comparable in value.left, value.ops[0][1]:
                 if isinstance(comparable, astroid.Name):
-                    variables.add(comparable.as_string())
+                    variable_set.add(comparable.as_string())
                 values.append(comparable.as_string())
-            variable_sets.append(variables)
-        # Check if there exists at least one variable in all the comparisons
-        # which can be used for the "variable in (...)"-check
-        common_variables = reduce(lambda a, b: a.intersection(b), variable_sets)
+            variables.append(variable_set)
+
+        # Look for (common-)variables that occur in all comparisons
+        common_variables = reduce(lambda a, b: a.intersection(b), variables)
 
         if not common_variables:
             return
 
         # Gather information for the suggestion
-        variable = sorted(list(common_variables))[0]
+        common_variable = sorted(list(common_variables))[0]
         comprehension = 'in' if node.op == 'or' else 'not in'
         values = list(collections.OrderedDict.fromkeys(values))
-        values.remove(variable)
+        values.remove(common_variable)
         values_string = ', '.join(values) if len(values) != 1 else values[0] + ','
+        suggestion = "%s %s (%s)" % (common_variable, comprehension, values_string)
 
-        self.add_message('consider-using-in',
-                         node=node,
-                         args=(variable, comprehension, values_string))
+        self.add_message('consider-using-in', node=node, args=(suggestion,))
 
     @utils.check_messages('consider-merging-isinstance', 'consider-using-in')
     def visit_boolop(self, node):
