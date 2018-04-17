@@ -970,6 +970,11 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                   'Used when non-ascii bytes literals are found in a program. '
                   'They are no longer supported in Python 3.',
                   {'maxversion': (3, 0)}),
+        'E1611': ('Drop invalid lambda parantheses',
+                  'lambda-parameter-parens',
+                  'Used when a lambda definition contains parantheses for the parameter '
+                  'list. This is invalid syntax in Python 3.X.',
+                  {'maxversion': (3, 0)}),
     }
 
     def process_tokens(self, tokens):
@@ -986,6 +991,12 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                 if any(elem for elem in token if ord(elem) > 127):
                     self.add_message('non-ascii-bytes-literal', line=start[0])
 
+            if (tok_type == tokenize.NAME
+                    and token == 'lambda'
+                    and idx < len(tokens)
+                    and tokens[idx + 1][0] == tokenize.OP
+                    and tokens[idx + 1][1] == '('):
+                self.add_message('lambda-parameter-parens', line=start[0])
 
 def register(linter):
     linter.register_checker(Python3Checker(linter))

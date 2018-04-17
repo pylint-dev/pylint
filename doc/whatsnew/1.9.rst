@@ -31,5 +31,13 @@ New checkers
       from six.moves.urllib.parse import urlencode
 
 
+* A new Python 3 checker was added to warn about invalid lambda parameter list when
+  using parantheses. This is invalid in Python 3 and will result in a SyntaxError:
+
+  .. code-block:: python
+
+      lambda (some_param, some_other_param): ...
+
+
 Other Changes
 =============

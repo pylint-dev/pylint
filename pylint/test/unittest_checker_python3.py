@@ -975,3 +975,8 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
             tokens = testutils._tokenize_str(code)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)
+
+    def test_drop_lambda_parens(self):
+        self._test_token_message("lambda (a): a", "lambda-parameter-parens")
+        self._test_token_message("lambda(a): a", "lambda-parameter-parens")
+        self._test_token_message("lambda  (a, b, c): a", "lambda-parameter-parens")
