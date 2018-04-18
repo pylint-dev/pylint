@@ -47,3 +47,14 @@ New checkers
 
 Other Changes
 =============
+
+* `defaultdict` and subclasses of `dict` are now handled for `dict-iter-*` checks. That
+  means that the following code will now emit warnings for when `iteritems` and friends
+  are accessed:
+
+  .. code-block:: python
+
+      some_dict = defaultdict(list)
+      ...
+      some_dict.iterkeys()
+

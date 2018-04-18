@@ -7,6 +7,10 @@ What's New in Pylint 1.9.0?
 
 Release date:
 
+   * defaultdict and subclasses of dict are now handled for dict-iter-* checks
+
+     Close #2005
+
    * Added a new Python 2/3 check for invalid raise syntax.
 
      Close #1937
