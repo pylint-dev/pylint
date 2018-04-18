@@ -50,6 +50,12 @@ def _is_old_octal(literal):
     return None
 
 
+def _inferred_value_is_dict(value):
+    if isinstance(value, astroid.Dict):
+        return True
+    return isinstance(value, astroid.Instance) and 'dict' in value.basenames
+
+
 def _check_dict_node(node):
     inferred_types = set()
     try:
@@ -59,8 +65,10 @@ def _check_dict_node(node):
                 inferred_types.add(inferred_node)
     except astroid.InferenceError:
         pass
-    return (not inferred_types
-            or any(isinstance(x, astroid.Dict) for x in inferred_types))
+
+    if not inferred_types:
+        return True
+    return any(_inferred_value_is_dict(value) for value in inferred_types)
 
 
 def _is_builtin(node):
@@ -792,7 +800,7 @@ class Python3Checker(checkers.BaseChecker):
                         self._warn_if_deprecated(node, inferred_receiver.name,
                                                  {node.func.attrname},
                                                  report_on_modules=False)
-                    if (isinstance(inferred_receiver, astroid.Dict)
+                    if (_inferred_value_is_dict(inferred_receiver)
                             and node.func.attrname in DICT_METHODS):
                         if not _in_iterating_context(node):
                             checker = 'dict-{}-not-iterating'.format(node.func.attrname)

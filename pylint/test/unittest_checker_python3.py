@@ -181,17 +181,34 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.as_argument_to_callable_constructor_test(fxn, func)
 
     @python2_only
+    def test_dict_subclasses_methods_in_iterating_context(self):
+        iterating, not_iterating = astroid.extract_node('''
+        from __future__ import absolute_import
+        from collections import defaultdict
+        d = defaultdict(list)
+        a, b = d.keys() #@
+        x = d.keys() #@
+        ''')
+
+        with self.assertNoMessages():
+            self.checker.visit_call(iterating.value)
+
+        message = testutils.Message('dict-keys-not-iterating', node=not_iterating.value)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(not_iterating.value)
+
+    @python2_only
     def test_dict_methods_in_iterating_context(self):
         iterating_code = [
             'for x in {}: pass',
             '(x for x in {})',
             '[x for x in {}]',
             'func({})',
-            'a, b = {}'
+            'a, b = {}',
         ]
         non_iterating_code = [
             'x = __({}())',
-            '__({}())[0]'
+            '__({}())[0]',
         ]
 
         for method in ('keys', 'items', 'values'):
@@ -384,10 +401,18 @@ class TestPython3Checker(testutils.CheckerTestCase):
                 self.checker.visit_call(node)
 
     def test_dict_iter_method_on_dict(self):
-        node = astroid.extract_node('{}.iterkeys()')
-        message = testutils.Message('dict-iter-method', node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_call(node)
+        nodes = astroid.extract_node('''
+        from collections import defaultdict
+        {}.iterkeys() #@
+        defaultdict(list).iterkeys() #@
+        class Someclass(dict):
+            pass
+        Someclass().iterkeys() #@
+        ''')
+        for node in nodes:
+            message = testutils.Message('dict-iter-method', node=node)
+            with self.assertAddsMessages(message):
+                self.checker.visit_call(node)
 
     def test_dict_not_iter_method(self):
         arg_node = astroid.extract_node('x.iterkeys(x)  #@')
@@ -406,10 +431,18 @@ class TestPython3Checker(testutils.CheckerTestCase):
                 self.checker.visit_call(node)
 
     def test_dict_view_method_on_dict(self):
-        node = astroid.extract_node('{}.viewkeys()')
-        message = testutils.Message('dict-view-method', node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_call(node)
+        nodes = astroid.extract_node('''
+        from collections import defaultdict
+        {}.viewkeys() #@
+        defaultdict(list).viewkeys() #@
+        class Someclass(dict):
+            pass
+        Someclass().viewkeys() #@
+        ''')
+        for node in nodes:
+            message = testutils.Message('dict-view-method', node=node)
+            with self.assertAddsMessages(message):
+                self.checker.visit_call(node)
 
     def test_dict_not_view_method(self):
         arg_node = astroid.extract_node('x.viewkeys(x)  #@')
