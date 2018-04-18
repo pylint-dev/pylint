@@ -31,13 +31,6 @@ New checkers
       from six.moves.urllib.parse import urlencode
 
 
-* A new Python 3 checker was added to warn about invalid raise syntax:
-
-  .. code-block:: python
-
-      raise Exception, "value", tb
-
-
   To have this working on Python 3 as well, please use the ``six`` library:
 
   .. code-block:: python

@@ -156,12 +156,11 @@ class Python3Checker(checkers.BaseChecker):
                   'See http://www.python.org/dev/peps/pep-3110/',
                   {'maxversion': (3, 0),
                    'old_names': [('W0712', 'unpacking-in-except')]}),
-        'E1604': ('Use raise ErrorClass(args) instead of '
-                  'raise ErrorClass, args.',
+        'E1604': ('Use raise ErrorClass(args) instead of raise ErrorClass, args.',
                   'old-raise-syntax',
-                  "Used when the alternate raise syntax "
-                  "'raise foo, bar' is used "
-                  "instead of 'raise foo(bar)'.",
+                  "Used when the alternate raise syntax 'raise foo, bar' is used "
+                  "instead of 'raise foo(bar)'. If you need to also raise with a traceback, "
+                  "consider using six.reraise instead.",
                   {'maxversion': (3, 0),
                    'old_names': [('W0121', 'old-raise-syntax')]}),
         'E1605': ('Use of the `` operator',
@@ -923,8 +922,7 @@ class Python3Checker(checkers.BaseChecker):
         strings or old-raise-syntax.
         """
         if (node.exc is not None and
-                node.inst is not None and
-                node.tback is None):
+                node.inst is not None):
             self.add_message('old-raise-syntax', node=node)
 
         # Ignore empty raise.
@@ -978,11 +976,6 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                   'Used when non-ascii bytes literals are found in a program. '
                   'They are no longer supported in Python 3.',
                   {'maxversion': (3, 0)}),
-        'E1612': ('Cannot raise on Python 3 using this raise form',
-                  'invalid-raise-syntax',
-                  'Used when an invalid raise construct that will not work on Python 3 was '
-                  'deteted.',
-                  {'maxversion': (3, 0)}),
     }
 
     def process_tokens(self, tokens):
@@ -998,14 +991,6 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
             if tok_type == tokenize.STRING and token.startswith('b'):
                 if any(elem for elem in token if ord(elem) > 127):
                     self.add_message('non-ascii-bytes-literal', line=start[0])
-
-            if tok_type == tokenize.NAME:
-                if (token == 'raise'
-                        and idx < len(tokens) - 1
-                        and tokens[idx + 1][0] == tokenize.NAME
-                        and tokens[idx + 2][0] == tokenize.OP
-                        and tokens[idx + 2][1] == ','):
-                    self.add_message('invalid-raise-syntax', line=start[0])
 
 
 def register(linter):

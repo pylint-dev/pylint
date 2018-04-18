@@ -494,6 +494,11 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)
 
+        node = astroid.extract_node('raise Exception, "test", tb')
+        message = testutils.Message('old-raise-syntax', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_raise(node)
+
     @python2_only
     def test_exception_message_attribute(self):
         node = astroid.extract_node("""
@@ -1005,25 +1010,6 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
         code = 'b"测试"'
         self._test_token_message(code, 'non-ascii-bytes-literal')
         for code in ("测试", u"测试", u'abcdef', b'\x80'):
-            tokens = testutils._tokenize_str(code)
-            with self.assertNoMessages():
-                self.checker.process_tokens(tokens)
-
-    def test_invalid_raise_syntax(self):
-        self._test_token_message("raise Exception,'1', None", "invalid-raise-syntax")
-        self._test_token_message("raise  Exception,'1', None", "invalid-raise-syntax")
-        self._test_token_message("raise Exception , '1', None", "invalid-raise-syntax")
-
-        codes = [
-            "raise Exception",
-            "raise Exception;",
-            "raise 1",
-            "raise a",
-            "raise",
-            "raise Exception(2)",
-            "raise Exception('abc')",
-        ]
-        for code in codes:
             tokens = testutils._tokenize_str(code)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)
