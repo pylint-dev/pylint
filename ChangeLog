@@ -11,10 +11,6 @@ Release date:
 
      Close #1937
 
-   * Added a new Python 2/3 check for invalid lambda parameter list, `lambda-parameter-parens`
-
-     Close #1995
-
    * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
 
      Close #1936
