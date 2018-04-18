@@ -384,10 +384,18 @@ class TestPython3Checker(testutils.CheckerTestCase):
                 self.checker.visit_call(node)
 
     def test_dict_iter_method_on_dict(self):
-        node = astroid.extract_node('{}.iterkeys()')
-        message = testutils.Message('dict-iter-method', node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_call(node)
+        nodes = astroid.extract_node('''
+        from collections import defaultdict
+        {}.iterkeys() #@
+        defaultdict(list).iterkeys() #@
+        class Someclass(dict):
+            pass
+        Someclass().iterkeys() #@
+        ''')
+        for node in nodes:
+            message = testutils.Message('dict-iter-method', node=node)
+            with self.assertAddsMessages(message):
+                self.checker.visit_call(node)
 
     def test_dict_not_iter_method(self):
         arg_node = astroid.extract_node('x.iterkeys(x)  #@')
@@ -406,10 +414,18 @@ class TestPython3Checker(testutils.CheckerTestCase):
                 self.checker.visit_call(node)
 
     def test_dict_view_method_on_dict(self):
-        node = astroid.extract_node('{}.viewkeys()')
-        message = testutils.Message('dict-view-method', node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_call(node)
+        nodes = astroid.extract_node('''
+        from collections import defaultdict
+        {}.viewkeys() #@
+        defaultdict(list).viewkeys() #@
+        class Someclass(dict):
+            pass
+        Someclass().viewkeys() #@
+        ''')
+        for node in nodes:
+            message = testutils.Message('dict-view-method', node=node)
+            with self.assertAddsMessages(message):
+                self.checker.visit_call(node)
 
     def test_dict_not_view_method(self):
         arg_node = astroid.extract_node('x.viewkeys(x)  #@')

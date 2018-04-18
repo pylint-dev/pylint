@@ -59,8 +59,15 @@ def _check_dict_node(node):
                 inferred_types.add(inferred_node)
     except astroid.InferenceError:
         pass
-    return (not inferred_types
-            or any(isinstance(x, astroid.Dict) for x in inferred_types))
+
+    if not inferred_types:
+        return True
+    for elem in inferred_types:
+        if isinstance(elem, astroid.Dict):
+            return True
+        if isinstance(elem, astroid.Instance) and 'dict' in elem.basenames:
+            return True
+    return False
 
 
 def _is_builtin(node):

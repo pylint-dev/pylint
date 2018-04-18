@@ -4,6 +4,11 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
+
+   * defaultdict and subclasses of dict are now handled for dict-iter-* checks
+
+     Close #2005
+
     * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
 
      Close #1936
