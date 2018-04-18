@@ -115,7 +115,7 @@ def find_pylintrc():
         pylintrc = os.environ['PYLINTRC']
     else:
         user_home = os.path.expanduser('~')
-        if user_home == '~' or user_home == '/root':
+        if user_home in ('~', '/root'):
             pylintrc = ".pylintrc"
         else:
             pylintrc = os.path.join(user_home, '.pylintrc')

@@ -113,7 +113,7 @@ def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
         qname = owner.qname()
     else:
         qname = ''
-    return any(name == ignore or qname == ignore for ignore in ignored_classes)
+    return any(ignore in (name, qname) for ignore in ignored_classes)
 
 
 @singledispatch

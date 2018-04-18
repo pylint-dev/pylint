@@ -4,6 +4,11 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
+    * Add a check `consider-using-in` for comparisons of a variable against
+      multiple values with "==" and "or"s instead of checking if the variable
+      is contained "in" a tuple of those values.
+
+      Close #1977
 
    * defaultdict and subclasses of dict are now handled for dict-iter-* checks
 
@@ -11,15 +16,15 @@ What's New in Pylint 2.0?
 
     * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
 
-     Close #1936
+      Close #1936
 
-   * Added a new Python 2/3 check for accessing removed urllib functions
+    * Added a new Python 2/3 check for accessing removed urllib functions
 
-     Close #1997
+      Close #1997
 
     * `logging-format-interpolation` also emits when f-strings are used instead of % syntax.
 
-       Close #1788
+      Close #1788
 
     * Don't trigger misplaced-bare-raise when the raise is in a finally clause
 
