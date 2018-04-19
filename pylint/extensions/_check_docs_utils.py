@@ -428,6 +428,7 @@ class GoogleDocstring(Docstring):
         \s*  \*{{0,2}}(\w+)             # identifier potentially with asterisks
         \s*  ( [(]
             {type}
+            (?:,\s+optional)?
             [)] )? \s* :                # optional type declaration
         \s*  (.*)                       # beginning of optional description
     """.format(
