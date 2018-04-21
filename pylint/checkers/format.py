@@ -37,7 +37,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 import keyword
 import sys
 import tokenize
-from functools import reduce # pylint: disable=redefined-builtin
+from functools import reduce  # pylint: disable=redefined-builtin
 
 from astroid import nodes
 
@@ -82,7 +82,7 @@ MSGS = {
     'C0302': ('Too many lines in module (%s/%s)', # was W0302
               'too-many-lines',
               'Used when a module has too much lines, reducing its readability.'
-             ),
+              ),
     'C0303': ('Trailing whitespace',
               'trailing-whitespace',
               'Used when there is whitespace between the end of a line and the '
@@ -103,7 +103,7 @@ MSGS = {
     'W0312': ('Found indentation with %ss instead of %ss',
               'mixed-indentation',
               'Used when there are some mixed tabs and spaces in a module.'),
-    'W0301': ('Unnecessary semicolon', # was W0106
+    'W0301': ('Unnecessary semicolon',  # was W0106
               'unnecessary-semicolon',
               'Used when a statement is ended by a semi-colon (";"), which \
               isn\'t necessary (that\'s python, not C ;).'),
@@ -122,12 +122,6 @@ MSGS = {
               {'old_names': [('C0323', 'no-space-after-operator'),
                              ('C0324', 'no-space-after-comma'),
                              ('C0322', 'no-space-before-operator')]}),
-    'W0332': ('Use of "l" as long integer identifier',
-              'lowercase-l-suffix',
-              'Used when a lower case "l" is used to mark a long integer. You '
-              'should use an upper case "L" since the letter "l" looks too much '
-              'like the digit "1"',
-              {'maxversion': (3, 0)}),
     'C0327': ('Mixed line endings LF and CRLF',
               'mixed-line-endings',
               'Used when there are mixed (LF and CRLF) newline signs in a file.'),
@@ -145,6 +139,7 @@ def _underline_token(token):
     if referenced_line[-1] != '\n':
         referenced_line += '\n'
     return referenced_line + (' ' * offset) + ('^' * length)
+
 
 def _column_distance(token1, token2):
     if token1 == token2:
@@ -260,6 +255,7 @@ _CONTINUATION_MSG_PARTS = {
 }
 
 _CONTINUATION_HINT_MESSAGE = ' (%s %d space%s)'  # Ex: (remove 2 spaces)
+
 
 def _Indentations(*args):
     """Valid indentation strings for a continued line."""

@@ -114,10 +114,6 @@ MSGS = {
               'duplicate-except',
               'Used when an except catches a type that was already caught by '
               'a previous handler.'),
-    'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
-              'nonstandard-exception',
-              'Used when a custom exception class is raised but doesn\'t \
-              inherit from the builtin "Exception" class.'),
     'W0711': ('Exception to catch is the result of a binary "%s" operation',
               'binary-op-exception',
               'Used when the exception to catch is of the form \
