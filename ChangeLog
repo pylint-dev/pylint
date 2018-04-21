@@ -7,6 +7,24 @@ What's New in Pylint 2.0?
     * Remove Python 2 specific checks
 
       Close   #1896
+      
+    * Add a check `consider-using-in` for comparisons of a variable against
+      multiple values with "==" and "or"s instead of checking if the variable
+      is contained "in" a tuple of those values.
+
+      Close #1977
+
+   * defaultdict and subclasses of dict are now handled for dict-iter-* checks
+
+     Close #2005
+
+    * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
+
+      Close #1936
+
+    * Added a new Python 2/3 check for accessing removed urllib functions
+
+      Close #1997
 
     * `logging-format-interpolation` also emits when f-strings are used instead of % syntax.
 
