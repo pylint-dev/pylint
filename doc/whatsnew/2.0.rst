@@ -123,3 +123,5 @@ Other Changes
     class definitions
 
 * Suppress false-positive ``not-callable`` messages from certain staticmethod descriptors
+
+* `singleton-comparison` will suggest better boolean conditions for negative conditions.

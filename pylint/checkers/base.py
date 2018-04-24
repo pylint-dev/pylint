@@ -1721,21 +1721,31 @@ class ComparisonChecker(_BasicChecker):
                       'literal than what was expected altogether.'),
            }
 
-    def _check_singleton_comparison(self, singleton, root_node):
+    def _check_singleton_comparison(self, singleton, root_node, negative_check=False):
         if singleton.value is True:
-            suggestion = "just 'expr' or 'expr is True'"
+            if not negative_check:
+                suggestion = "just 'expr' or 'expr is True'"
+            else:
+                suggestion = "just 'not expr' or 'expr is False'"
             self.add_message('singleton-comparison',
                              node=root_node,
                              args=(True, suggestion))
         elif singleton.value is False:
-            suggestion = "'not expr' or 'expr is False'"
+            if not negative_check:
+                suggestion = "'not expr' or 'expr is False'"
+            else:
+                suggestion = "'expr' or 'expr is not False'"
             self.add_message('singleton-comparison',
                              node=root_node,
                              args=(False, suggestion))
         elif singleton.value is None:
+            if not negative_check:
+                suggestion = "'expr is None'"
+            else:
+                suggestion = "'expr is not None'"
             self.add_message('singleton-comparison',
                              node=root_node,
-                             args=(None, "'expr is None'"))
+                             args=(None, suggestion))
 
     def _check_literal_comparison(self, literal, node):
         """Check if we compare to a literal, which is usually what we do not want to do."""
@@ -1782,6 +1792,9 @@ class ComparisonChecker(_BasicChecker):
                 self._check_singleton_comparison(left, node)
             elif isinstance(right, astroid.Const):
                 self._check_singleton_comparison(right, node)
+        if operator == '!=':
+            if isinstance(right, astroid.Const):
+                self._check_singleton_comparison(right, node, negative_check=True)
         if operator in ('is', 'is not'):
             self._check_literal_comparison(right, node)
 
