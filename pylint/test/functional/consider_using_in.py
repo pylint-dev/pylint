@@ -37,3 +37,10 @@ value1 != 1 == value2 and value2 != value1 != 2  # not checking multi-compares f
 value1 == 1 or value1 == value2 or value2 == 3  # value1 or value2 do not occur in every check
 value1 == 1 or value1 == 2 or value2 == 1 or value2 == 2  # value1 or value2 do not occur in every check
 'value' == 1 or 'value' == 2  # only detect variables for now
+
+
+def oops():
+    return 5 / 0
+
+
+some_value = value == 4 or value == 5 or value == oops() # We only look for names and constants

@@ -495,6 +495,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     or len(value.ops) != 1
                     or value.ops[0][0] not in allowed_ops[node.op]):
                 return
+            for comparable in value.left, value.ops[0][1]:
+                if isinstance(comparable, astroid.Call):
+                    return
 
         # Gather variables and values from comparisons
         variables, values = [], []
