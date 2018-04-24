@@ -12,6 +12,10 @@ Release date: |TBA|
 
       Close #1867
 
+   * Add support for nupmydoc optional return value names.
+
+      Close #2030
+
 
 What's New in Pylint 1.9.3?
 ===========================
