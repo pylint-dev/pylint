@@ -102,8 +102,8 @@ class EncodingChecker(BaseChecker):
         # but rather only on lines which may actually contain one of the notes.
         # This prevents a pathological problem with lines that are hundreds
         # of thousands of characters long.
-        for note in self.config.notes:
-            if note in line:
+        for note in map(str.lower, self.config.notes):
+            if note in line.lower():
                 break
         else:
             return
@@ -151,7 +151,7 @@ class EncodingChecker(BaseChecker):
         """
         if self.config.notes:
             notes = re.compile(
-                r'.*?#\s*(%s)(:*\s*.*)' % "|".join(self.config.notes))
+                r'.*?#\s*(%s)(:*\s*.*)' % "|".join(self.config.notes), re.I)
         else:
             notes = None
         if module.file_encoding:
