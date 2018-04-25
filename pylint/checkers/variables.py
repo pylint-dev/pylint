@@ -38,6 +38,7 @@ import re
 import astroid
 from astroid import decorators
 from astroid import modutils
+from astroid import objects
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.utils import get_global_option
 from pylint.checkers import BaseChecker
@@ -930,11 +931,37 @@ class VariablesChecker(BaseChecker):
                 continue
             _astmts.append(stmt)
         astmts = _astmts
-        if len(astmts) == 1:
-            assign = astmts[0].assign_type()
-            if (isinstance(assign, (astroid.For, astroid.Comprehension,
-                                    astroid.GeneratorExp))
-                    and assign.statement() is not node.statement()):
+        if len(astmts) != 1:
+            return
+
+        assign = astmts[0].assign_type()
+        if not (isinstance(assign, (astroid.For, astroid.Comprehension, astroid.GeneratorExp))
+                and assign.statement() is not node.statement()):
+            return
+
+        # For functions we can do more by inferring the length of the iterred object
+        if not isinstance(assign, astroid.For):
+            self.add_message('undefined-loop-variable', args=name, node=node)
+            return
+
+        try:
+            inferred = next(assign.iter.infer())
+        except astroid.InferenceError:
+            self.add_message('undefined-loop-variable', args=name, node=node)
+        else:
+            sequences = (
+                astroid.List,
+                astroid.Tuple,
+                astroid.Dict,
+                astroid.Set,
+                objects.FrozenSet,
+            )
+            if not isinstance(inferred, sequences):
+                self.add_message('undefined-loop-variable', args=name, node=node)
+                return
+
+            elements = getattr(inferred,  'elts', getattr(inferred, 'items', []))
+            if not elements:
                 self.add_message('undefined-loop-variable', args=name, node=node)
 
     def _should_ignore_redefined_builtin(self, stmt):

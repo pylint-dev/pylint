@@ -125,3 +125,9 @@ Other Changes
 * Suppress false-positive ``not-callable`` messages from certain staticmethod descriptors
 
 * `singleton-comparison` will suggest better boolean conditions for negative conditions.
+
+* `undefined-loop-variable` takes in consideration non-empty iterred objects before emitting.
+
+  For instance, if the loop iterable is not empty, this check will no longer be emitted.
+
+

@@ -35,3 +35,27 @@ for x in []:
     pass
 for x in range(3):
     VAR5 = (lambda: x)()
+
+
+def do_stuff_with_a_list():
+    for var in [1, 2, 3]:
+        pass
+    return var
+
+
+def do_stuff_with_a_set():
+    for var in {1, 2, 3}:
+        pass
+    return var
+
+
+def do_stuff_with_a_dict():
+    for var in {1: 2, 3: 4}:
+        pass
+    return var
+
+
+def do_stuff_with_a_tuple():
+    for var in (1, 2, 3):
+        pass
+    return var
