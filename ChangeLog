@@ -6,6 +6,14 @@ What's New in Pylint 2.0?
 =========================
 
 Release date: |TBA|
+    * Add a check `chained-comparison` for checking chained comparisons
+      like "a < b and b < c", which can be simplified as "a < b < c".
+
+      Close #2032
+
+    * Add a check `consider-using-in` for comparisons of a variable against
+      multiple values with "==" and "or"s instead of checking if the variable
+      is contained "in" a tuple of those values.
 
     * `in` is considered iterating context for some of the Python 3 porting checkers
 
