@@ -155,6 +155,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'if a key is present or a default if not, is simpler and considered '
                   'more idiomatic, although sometimes a bit slower'
                  ),
+        'R1716': ('simplify chained comparison',
+                  'chained-comparison',
+                  'Chained comparisons like "a < b and b < c" can be simplified as "a < b < c"',
+                  ),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -586,10 +590,72 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         self.add_message('consider-using-in', node=node, args=(suggestion,))
 
-    @utils.check_messages('consider-merging-isinstance', 'consider-using-in')
+    def check_chained_comparison(self, node):
+        """Check if there is any chained comparison in the expression.
+        If it exists, give message to simplify it."""
+        if node.op != 'and':
+            return
+
+        total_compares = len(node.values)
+        if total_compares < 2:
+            return
+
+        # all node values must be compare
+        for i in range(0, total_compares):
+            if not isinstance(node.values[i], astroid.node_classes.Compare):
+                return
+
+        # collect all compares as tuple
+        Comparison = collections.namedtuple('Comparison', ['left_operand',
+                                                           'right_operand',
+                                                           'operator'])
+        names = []
+        comparisons = []
+        for i in range(0, total_compares):
+            if isinstance(node.values[i].left, astroid.node_classes.Name):
+                names.append(node.values[i].left.name)
+                left_operand = (node.values[i].left.name, 'name')
+            else:
+                left_operand = (node.values[i].left.name, 'const')
+
+            if isinstance(node.values[i].ops[0][1], astroid.node_classes.Name):
+                names.append(node.values[i].ops[0][1].name)
+                right_operand = (node.values[i].ops[0][1].name, 'name')
+            else:
+                right_operand = (node.values[i].ops[0][1], 'const')
+
+            operator = node.values[i].ops[0][0]
+            comparisons.append(Comparison(left_operand, right_operand, operator))
+
+        counter = collections.Counter(names)
+        for item in counter.items():
+            if item[1] > 1:
+                lower_bound = False
+                upper_bound = False
+                # search this name in comparisons
+                for i in range(0, total_compares):
+                    if comparisons[i].left_operand[1] == 'name' and comparisons[i].left_operand[0] == item[0]:
+                        if comparisons[i].operator == '<' or comparisons[i].operator == '<=':
+                            upper_bound = True
+                        elif comparisons[i].operator == '>' or comparisons[i].operator == '>=':
+                            lower_bound = True
+                    elif comparisons[i].right_operand[1] == 'name' and comparisons[i].right_operand[0] == item[0]:
+                        if comparisons[i].operator == '<' or comparisons[i].operator == '<=':
+                            lower_bound = True
+                        elif comparisons[i].operator == '>' or comparisons[i].operator == '>=':
+                            upper_bound = True
+
+                # suggestion = "variable '%s' can be chained in comparison" % (item[0])
+
+                if lower_bound and upper_bound:
+                    self.add_message('chained-comparison',
+                                     node=node)
+
+    @utils.check_messages('consider-merging-isinstance', 'consider-using-in', 'chained-comparison')
     def visit_boolop(self, node):
         self._check_consider_merging_isinstance(node)
         self._check_consider_using_in(node)
+        self.check_chained_comparison(node)
 
     @staticmethod
     def _is_simple_assignment(node):
