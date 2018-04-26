@@ -187,6 +187,8 @@ contributors:
   Added new check 'useless-import-alias'.
   Added support of annotations in missing-type-doc and missing-return-type-doc.
   Added new check 'comparison-with-callable'.
+  Removed six package dependency.
+  Added new check 'chained-comparison'.
 
 * Mariatta Wijaya: contributor
   Added new check `logging-fstring-interpolation`
