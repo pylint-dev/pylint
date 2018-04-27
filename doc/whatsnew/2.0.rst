@@ -130,4 +130,9 @@ Other Changes
 
   For instance, if the loop iterable is not empty, this check will no longer be emitted.
 
+* Enum classes no longer trigger `too-few-methods`
 
+* Special methods now count towards `too-few-methods`,
+  and are considered part of the public API.
+  They are still not counted towards the number of methods for
+  `too-many-methods`.

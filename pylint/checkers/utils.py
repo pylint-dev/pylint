@@ -914,3 +914,28 @@ def get_node_last_lineno(node):
         return get_node_last_lineno(node.body[-1])
     # Not a compound statement
     return node.lineno
+
+
+def is_enum_class(node):
+    """Check if a class definition defines an Enum class.
+
+    :param node: The class node to check.
+    :type node: astroid.ClassDef
+
+    :returns: True if the given node represents an Enum class. False otherwise.
+    :rtype: bool
+    """
+    for base in node.bases:
+        try:
+            inferred_bases = base.inferred()
+        except astroid.InferenceError:
+            continue
+
+        for ancestor in inferred_bases:
+            if not isinstance(ancestor, astroid.ClassDef):
+                continue
+
+            if ancestor.name == 'Enum' and ancestor.root().name == 'enum':
+                return True
+
+    return False
