@@ -7,9 +7,16 @@ What's New in Pylint 1.9.0?
 
 Release date:
 
-   * defaultdict and subclasses of dict are now handled for dict-iter-* checks
+    * Special methods do not count towards `too-few-methods`,
+      and are considered part of the public API.
 
-     Close #2005
+    * Enum classes do not trigger `too-few-methods`
+
+      Close #605
+
+    * defaultdict and subclasses of dict are now handled for dict-iter-* checks
+
+      Close #2005
 
    * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
 
