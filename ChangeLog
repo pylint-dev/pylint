@@ -4,17 +4,24 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
+    * Special methods do not count towards `too-few-methods`,
+      and are considered part of the public API.
+
+    * Enum classes do not trigger `too-few-methods`
+
+      Close #605
+
     * `undefined-loop-variable` takes in consideration non-empty iterred objects before emitting
 
-       Close #2039
+      Close #2039
 
-	* Add support for nupmydoc optional return value names.
+    * Add support for nupmydoc optional return value names.
 
-	  Close #2030
+      Close #2030
 
     * `singleton-comparison` accounts for negative checks
 
-       Close #2037
+      Close #2037
 
     * Add a check `consider-using-in` for comparisons of a variable against
       multiple values with "==" and "or"s instead of checking if the variable
@@ -22,9 +29,9 @@ What's New in Pylint 2.0?
 
       Close #1977
 
-   * defaultdict and subclasses of dict are now handled for dict-iter-* checks
+    * defaultdict and subclasses of dict are now handled for dict-iter-* checks
 
-     Close #2005
+      Close #2005
 
     * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
 
