@@ -720,6 +720,9 @@ class ImportsChecker(BaseChecker):
     def _check_import_as_rename(self, node):
 #        import pdb;pdb.set_trace()
         names = node.names
+        if names[0][0] is None or names[0][1] is None:
+            return
+
         real_name = names[0][0]
         head, tail = os.path.splitext(real_name)
         if tail == '':
