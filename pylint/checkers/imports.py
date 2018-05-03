@@ -720,23 +720,21 @@ class ImportsChecker(BaseChecker):
     def _check_import_as_rename(self, node):
 #        import pdb;pdb.set_trace()
         names = node.names
-        if names[0][0] is None or names[0][1] is None:
+#        if names[0][0] is None or names[0][1] is None:
+        if not all(names[0]):
             return
 
         real_name = names[0][0]
         head, tail = os.path.splitext(real_name)
         if tail == '':
             real_name = head
-            imported_from = node.modname
         else:
             real_name = tail[1:]
-            imported_from = head
         imported_name = names[0][1]
         print('real_name:{}, imported_name:{}'.format(real_name, imported_name))
         if real_name == imported_name:
-            msg = "'%s' from %s is renamed as same package '%s'. Rename it to different one." % (real_name,
-                                                                                                 imported_from,
-                                                                                                 imported_name)
+            msg = "'%s' is renamed as same package '%s', rename it to different one." % (real_name,
+                                                                                         imported_name)
             self.add_message('rename-import-as',
                              args=msg, node=node)
 

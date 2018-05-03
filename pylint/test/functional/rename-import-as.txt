@@ -1,3 +1,3 @@
-rename-import-as:2::"Imported package not renamed:'OrderedDict' from collections is renamed as same package 'OrderedDict'. Rename it to different one."
-rename-import-as:4::"Imported package not renamed:'path' from os is renamed as same package 'path'. Rename it to different one."
-rename-import-as:6::"Imported package not renamed:'foobar' from foo.bar is renamed as same package 'foobar'. Rename it to different one."
+rename-import-as:2::"Imported package not renamed:'OrderedDict' is renamed as same package 'OrderedDict', rename it to different one."
+rename-import-as:4::"Imported package not renamed:'path' is renamed as same package 'path', rename it to different one."
+rename-import-as:6::"Imported package not renamed:'foobar' is renamed as same package 'foobar', rename it to different one."
