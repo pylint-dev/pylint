@@ -238,6 +238,9 @@ MSGS = {
               'module',
               'wrong-import-position',
               'Used when code and imports are mixed'),
+    'C0414': ('Imported package not renamed:%s',
+              'rename-import-as',
+              'Used when import as does not rename package to different than original package'),
     }
 
 
@@ -386,6 +389,7 @@ class ImportsChecker(BaseChecker):
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         self._check_reimport(node)
+        self._check_import_as_rename(node)
 
         modnode = node.root()
         names = [name for name, _ in node.names]
@@ -413,6 +417,7 @@ class ImportsChecker(BaseChecker):
         basename = node.modname
         imported_module = self._get_imported_module(node, basename)
 
+        self._check_import_as_rename(node)
         self._check_misplaced_future(node)
         self._check_deprecated_module(node, basename)
         self._check_wildcard_imports(node, imported_module)
@@ -711,6 +716,26 @@ class ImportsChecker(BaseChecker):
         for mod_name in self.config.deprecated_modules:
             if mod_path == mod_name or mod_path.startswith(mod_name + '.'):
                 self.add_message('deprecated-module', node=node, args=mod_path)
+
+    def _check_import_as_rename(self, node):
+#        import pdb;pdb.set_trace()
+        names = node.names
+        real_name = names[0][0]
+        head, tail = os.path.splitext(real_name)
+        if tail == '':
+            real_name = head
+            imported_from = node.modname
+        else:
+            real_name = tail[1:]
+            imported_from = head
+        imported_name = names[0][1]
+        print('real_name:{}, imported_name:{}'.format(real_name, imported_name))
+        if real_name == imported_name:
+            msg = "'%s' from %s is renamed as same package '%s'. Rename it to different one." % (real_name,
+                                                                                                 imported_from,
+                                                                                                 imported_name)
+            self.add_message('rename-import-as',
+                             args=msg, node=node)
 
     def _check_reimport(self, node, basename=None, level=None):
         """check if the import is necessary (i.e. not already done)"""
