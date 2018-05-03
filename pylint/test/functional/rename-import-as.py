@@ -5,3 +5,5 @@ import os.path as path # [rename-import-as]
 import os.path as p
 import foo.bar.foobar as foobar # [rename-import-as]
 import os
+import os as OS
+from sys import version
