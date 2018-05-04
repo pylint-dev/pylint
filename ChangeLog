@@ -4,6 +4,12 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
+    * docparams extension allows abstract methods to document what overriding
+      implementations should return, and to raise NotImplementedError without
+      documenting it.
+
+      Closes #2044
+
     * Special methods do not count towards `too-few-methods`,
       and are considered part of the public API.
 
