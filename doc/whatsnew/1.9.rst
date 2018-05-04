@@ -65,3 +65,7 @@ Other Changes
   and are considered part of the public API.
   They are still not counted towards the number of methods for
   `too-many-methods`.
+
+* docparams allows abstract methods to document returns documentation even
+  if the default implementation does not return something.
+  They also no longer need to document raising a NotImplementedError.
