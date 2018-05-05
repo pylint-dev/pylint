@@ -960,7 +960,7 @@ class VariablesChecker(BaseChecker):
                 self.add_message('undefined-loop-variable', args=name, node=node)
                 return
 
-            elements = getattr(inferred,  'elts', getattr(inferred, 'items', []))
+            elements = getattr(inferred, 'elts', getattr(inferred, 'items', []))
             if not elements:
                 self.add_message('undefined-loop-variable', args=name, node=node)
 
