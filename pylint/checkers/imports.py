@@ -718,9 +718,7 @@ class ImportsChecker(BaseChecker):
                 self.add_message('deprecated-module', node=node, args=mod_path)
 
     def _check_import_as_rename(self, node):
-#        import pdb;pdb.set_trace()
         names = node.names
-#        if names[0][0] is None or names[0][1] is None:
         if not all(names[0]):
             return
 
@@ -731,7 +729,6 @@ class ImportsChecker(BaseChecker):
         else:
             real_name = tail[1:]
         imported_name = names[0][1]
-        print('real_name:{}, imported_name:{}'.format(real_name, imported_name))
         if real_name == imported_name:
             msg = "'%s' is renamed as same package '%s', rename it to different one." % (real_name,
                                                                                          imported_name)
