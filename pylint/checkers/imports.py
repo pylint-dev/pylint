@@ -730,8 +730,8 @@ class ImportsChecker(BaseChecker):
             real_name = tail[1:]
         imported_name = names[0][1]
         if real_name == imported_name:
-            msg = "'%s' is renamed as same package '%s', rename it to different one." % (real_name,
-                                                                                         imported_name)
+            msg = "'%s' is renamed as same package '%s', rename it to different one."
+            msg = msg % (real_name, imported_name)
             self.add_message('rename-import-as',
                              args=msg, node=node)
 
