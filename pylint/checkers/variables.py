@@ -711,8 +711,7 @@ class VariablesChecker(BaseChecker):
                     continue
 
                 line = definition.fromlineno
-                dummy_rgx = self.config.dummy_variables_rgx
-                if not dummy_rgx.match(name):
+                if not self._is_name_ignored(stmt, name):
                     self.add_message('redefined-outer-name',
                                      args=(name, line), node=stmt)
 
