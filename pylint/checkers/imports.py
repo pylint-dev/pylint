@@ -723,7 +723,6 @@ class ImportsChecker(BaseChecker):
             return
 
         real_name = names[0][0]
-        head, tail = os.path.splitext(real_name)
         packages = real_name.rsplit('.', 1)
         real_name = packages[1] if len(packages) == 2 else packages[0]
         imported_name = names[0][1]
