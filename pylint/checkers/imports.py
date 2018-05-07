@@ -238,9 +238,9 @@ MSGS = {
               'module',
               'wrong-import-position',
               'Used when code and imports are mixed'),
-    'C0414': ('Imported package not renamed:%s',
-              'rename-import-as',
-              'Used when import as does not rename package to different than original package'),
+    'C0414': ('Useless import alias:%s',
+              'useless-import-alias',
+              'Used when an import alias does not rename the import'),
     }
 
 
@@ -724,15 +724,12 @@ class ImportsChecker(BaseChecker):
 
         real_name = names[0][0]
         head, tail = os.path.splitext(real_name)
-        if tail == '':
-            real_name = head
-        else:
-            real_name = tail[1:]
+        packages = real_name.rsplit('.', 1)
+        real_name = packages[1] if len(packages) == 2 else packages[0]
         imported_name = names[0][1]
         if real_name == imported_name:
-            msg = "'%s' is renamed as same package '%s', rename it to different one."
-            msg = msg % (real_name, imported_name)
-            self.add_message('rename-import-as',
+            msg = "Import alias does not rename '%s' and can be rewritten." % (imported_name)
+            self.add_message('useless-import-alias',
                              args=msg, node=node)
 
     def _check_reimport(self, node, basename=None, level=None):
