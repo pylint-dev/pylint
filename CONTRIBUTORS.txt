@@ -152,3 +152,6 @@ Order doesn't matter (not that much, at least ;)
 * Jacques Kvam: contributor
 
 * Brian Shaginaw: prevent error on exception check for functions
+
+* Sushobhit (sushobhit27): contributor
+  Added new py3k check invalid-unicode-literal.

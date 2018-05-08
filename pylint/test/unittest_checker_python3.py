@@ -933,6 +933,9 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
     def test_old_ne_operator(self):
         self._test_token_message("1 <> 2", "old-ne-operator")
 
+    def test_invalid_string_literal(self):
+        self._test_token_message("a = ur'aaa'", 'invalid-unicode-literal')
+
     def test_old_octal_literal(self):
         for octal in ("045", "055", "075", "077", "076543"):
             self._test_token_message(octal, "old-octal-literal")

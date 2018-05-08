@@ -944,6 +944,11 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                   'Used when non-ascii bytes literals are found in a program. '
                   'They are no longer supported in Python 3.',
                   {'maxversion': (3, 0)}),
+        'E1611': ('unicode raw string literals not supported in 3.x',
+                  'invalid-unicode-literal',
+                  'Used when raw unicode literals are found in a program. '
+                  'They are no longer supported in Python 3.',
+                  {'maxversion': (3, 0)}),
     }
 
     def process_tokens(self, tokens):
@@ -959,6 +964,8 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
             if tok_type == tokenize.STRING and token.startswith('b'):
                 if any(elem for elem in token if ord(elem) > 127):
                     self.add_message('non-ascii-bytes-literal', line=start[0])
+            if tok_type == tokenize.STRING and token.startswith('ur'):
+                self.add_message('invalid-unicode-literal', line=start[0])
 
 
 def register(linter):
