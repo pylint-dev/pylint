@@ -46,8 +46,8 @@ if not PY3K:
     EXCEPTIONS_MODULE = "exceptions"
 else:
     EXCEPTIONS_MODULE = "builtins"
-ABC_METHODS = set(('abc.abstractproperty', 'abc.abstractmethod',
-                   'abc.abstractclassmethod', 'abc.abstractstaticmethod'))
+ABC_METHODS = {'abc.abstractproperty', 'abc.abstractmethod',
+               'abc.abstractclassmethod', 'abc.abstractstaticmethod'}
 ITER_METHOD = '__iter__'
 NEXT_METHOD = '__next__'
 GETITEM_METHOD = '__getitem__'
