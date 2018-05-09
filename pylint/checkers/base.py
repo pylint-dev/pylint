@@ -137,6 +137,10 @@ TYPE_QNAME = "%s.type" % BUILTINS
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
 PY35 = sys.version_info >= (3, 5)
+ABC_METACLASSES = {
+    '_py_abc.ABCMeta', # Python 3.7+,
+    'abc.ABCMeta',
+}
 
 # Name categories that are always consistent with all naming conventions.
 EXEMPT_NAME_CATEGORIES = {'exempt', 'ignore'}
@@ -664,7 +668,7 @@ class BasicErrorChecker(_BasicChecker):
                                      node=node)
                     break
             return
-        if metaclass.qname() == 'abc.ABCMeta' and abstract_methods:
+        if metaclass.qname() in ABC_METACLASSES and abstract_methods:
             self.add_message('abstract-class-instantiated',
                              args=(infered.name, ),
                              node=node)
