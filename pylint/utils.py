@@ -1203,7 +1203,7 @@ def _ini_format(stream, options):
 format_section = _ini_format_section
 
 
-def _rest_format_section(stream, section, options, encoding=None, doc=None):
+def _rest_format_section(stream, section, options, doc=None):
     """format an options section using as ReST formatted output"""
     if section:
         print('%s\n%s' % (section, "'"*len(section)), file=stream)
