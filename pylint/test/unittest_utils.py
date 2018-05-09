@@ -104,7 +104,7 @@ def store():
 @pytest.mark.parametrize("messages,expected", [
     ({'W1234': ('message one', 'msg-symbol-one', 'msg description'),
       'W4321': ('message two', 'msg-symbol-two', 'msg description')},
-     r"Inconsistent checker part in message id 'W4321' (expected 'x12xx')"),
+     r"Inconsistent checker part in message id 'W4321' (expected 'x12xx' because we already had ['W1234'])."),
 
     ({'W1233': ('message two', 'msg-symbol-two', 'msg description',
                 {'old_names': [('W1234', 'old-symbol')]}),
