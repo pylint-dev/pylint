@@ -12,6 +12,9 @@ Summary -- Release highlights
 
   If you need to use `pylint` on Python 2, you can use Pylint 1.8. We'll continue
   to do bug releases until 2020, when Python 2 goes officially EOL.
+  `pylint` will still be able to analyze Python 2 files, but some checks might not work
+  as they will assume that their running environment was Python 2.
+
 
 New checkers
 ============
