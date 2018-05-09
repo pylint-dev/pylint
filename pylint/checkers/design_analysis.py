@@ -83,6 +83,17 @@ def _count_boolean_expressions(bool_op):
     return nb_bool_expr
 
 
+def _count_methods_in_class(node):
+    all_methods = sum(1 for method in node.methods()
+                      if not method.name.startswith('_'))
+    # Special methods count towards the number of public methods,
+    # but don't count towards there being too many methods.
+    for method in node.mymethods():
+        if SPECIAL_OBJ.search(method.name) and method.name != '__init__':
+            all_methods += 1
+    return all_methods
+
+
 class MisdesignChecker(BaseChecker):
     """checks for sign of poor/misdesign:
     * number of methods, attributes, local variables...
@@ -208,17 +219,10 @@ class MisdesignChecker(BaseChecker):
         if node.type != 'class' or checker_utils.is_enum_class(node):
             return
 
-        all_methods = sum(1 for method in node.methods()
-                          if not method.name.startswith('_'))
-        # Special methods count towards the number of public methods,
-        # but don't count towards there being too many methods.
-        for method in node.mymethods():
-            if SPECIAL_OBJ.search(method.name) and method.name != '__init__':
-                all_methods += 1
-
         # Does the class contain more than n public methods ?
         # This checks all the methods defined by ancestors and
         # by the current class.
+        all_methods = _count_methods_in_class(node)
         if all_methods < self.config.min_public_methods:
             self.add_message('too-few-public-methods', node=node,
                              args=(all_methods,
