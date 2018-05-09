@@ -215,8 +215,12 @@ class MisdesignChecker(BaseChecker):
             self.add_message('too-many-public-methods', node=node,
                              args=(my_methods,
                                    self.config.max_public_methods))
-        # stop here for exception, metaclass and interface classes
-        if node.type != 'class' or checker_utils.is_enum_class(node):
+
+        # Stop here for exception, metaclass, interface classes and other
+        # classes for which we don't need to count the methods.
+        if (node.type != 'class'
+                or checker_utils.is_enum_class(node)
+                or checker_utils.is_dataclass(node)):
             return
 
         # Does the class contain more than n public methods ?
