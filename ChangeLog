@@ -26,6 +26,10 @@ What's New in Pylint 1.8.4?
 
 Release date: 2018-04-05
 
+    * Fix invalid string literal like a = ur'xxx' with --py3k.
+
+    Close #1938
+
     * Stop early when we already detected a disable for a line too long
 
     Close #1974
