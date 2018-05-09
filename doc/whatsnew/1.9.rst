@@ -38,6 +38,14 @@ New checkers
       six.reraise(Exception, "value", tb)
 
 
+* A new check was added to warn about using unicode raw string literals. This is
+  a syntax error in Python 3:
+
+  .. code-block:: python
+
+      a = ur'...'
+
+
 Other Changes
 =============
 
