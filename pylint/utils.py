@@ -1227,6 +1227,6 @@ def _rest_format_section(stream, section, options, encoding=None, doc=None):
             help_opt = _normalize_text(help_opt, line_len=79, indent='  ')
             print(help_opt, file=stream)
         if value:
-            value = _format_option_value(optdict, value)
+            value = str(_format_option_value(optdict, value))
             print(file=stream)
             print('  Default: ``%s``' % value.replace("`` ", "```` ``"), file=stream)
