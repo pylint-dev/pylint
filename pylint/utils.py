@@ -711,10 +711,12 @@ class MessagesStore(object):
         msg.old_names.append((old_id, old_symbol))
         self._register_alternative_name(msg, old_id, old_symbol)
 
-    def get_checker_message_definitions(self, checker):
+    @staticmethod
+    def get_checker_message_definitions(checker):
         """ Return the list of messages definitions for a checker.
 
         :param BaseChecker checker:
+        :rtype: list
         :return: A list of MessageDefinition. """
         message_definitions = []
         for msgid, msg_tuple in sorted(six.iteritems(checker.msgs)):
@@ -726,8 +728,8 @@ class MessagesStore(object):
         """ Register messages from a checker.
 
         :param BaseChecker checker: """
-        messages = self.get_checker_message_definitions(checker)
-        self._check_checker_consistency(messages)
+        messages = MessagesStore.get_checker_message_definitions(checker)
+        MessagesStore._check_checker_consistency(messages)
         for message in messages:
             self.register_message(message)
 
@@ -746,7 +748,8 @@ class MessagesStore(object):
             self._register_alternative_name(message, old_id, old_symbol)
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
 
-    def _check_checker_consistency(self, messages):
+    @staticmethod
+    def _check_checker_consistency(messages):
         """ Check the msgid consistency in a list of messages definitions.
 
         msg ids for a checker should be a string of len 4, where the two first
@@ -778,7 +781,7 @@ class MessagesStore(object):
         """ Check that a symbol is not already used. """
         if symbol in self._messages:
             other_msgid = self._messages[symbol].msgid
-            self._raise_duplicate_msg_id(symbol, msgid, other_msgid)
+            MessagesStore._raise_duplicate_msg_id(symbol, msgid, other_msgid)
         if symbol in self._alternative_names:
             msg = self._alternative_names[symbol]
             if msg.symbol == symbol:
@@ -789,13 +792,13 @@ class MessagesStore(object):
                         other_msgid = old_msgid
                         break
             if msgid != other_msgid:
-                self._raise_duplicate_msg_id(symbol, msgid, other_msgid)
+                MessagesStore._raise_duplicate_msg_id(symbol, msgid, other_msgid)
 
     def _check_msgid(self, msgid, symbol):
-        for m_symbol in self._messages:
-            msg = self._messages[m_symbol]
-            if msg.msgid == msgid:
-                self._raise_duplicate_symbol(msgid, symbol, msg.symbol)
+        for message_symbol in self._messages:
+            message = self._messages[message_symbol]
+            if message.msgid == msgid:
+                MessagesStore._raise_duplicate_symbol(msgid, symbol, message.symbol)
 
     def _check_id_and_symbol_consistency(self, msgid, symbol):
         try:
@@ -811,27 +814,40 @@ class MessagesStore(object):
             return None
         old_symbolic_name = None
         old_symbolic_id = None
-        for tuple_ in alternative.old_names:
-            if tuple_[0] == msgid or tuple_[1] == symbol:
-                old_symbolic_id = tuple_[0]
-                old_symbolic_name = tuple_[1]
-        if alternative.symbol != symbol and symbol != old_symbolic_name:
+        for alternate_msgid, alternate_symbol in alternative.old_names:
+            if alternate_msgid == msgid or alternate_symbol == symbol:
+                old_symbolic_id = alternate_msgid
+                old_symbolic_name = alternate_symbol
+        if symbol not in (alternative.symbol, old_symbolic_name):
             if msgid == old_symbolic_id:
-                self._raise_duplicate_symbol(msgid, symbol, old_symbolic_name)
+                MessagesStore._raise_duplicate_symbol(msgid, symbol, old_symbolic_name)
             else:
-                self._raise_duplicate_symbol(msgid, symbol, alternative.symbol)
+                MessagesStore._raise_duplicate_symbol(msgid, symbol, alternative.symbol)
+        return None
 
-    def _raise_duplicate_symbol(self, msgid, symbol, other_symbol):
-        """Raise an InvalidMessageError when a msgid is duplicated. """
-        ime = "Message id '%s' cannot have both '%s'" % (msgid, other_symbol)
-        ime += " and '%s' as symbolic name." % symbol
-        raise InvalidMessageError(ime)
+    @staticmethod
+    def _raise_duplicate_symbol(msgid, symbol, other_symbol):
+        """ Raise an error when a symbol is duplicated.
 
-    def _raise_duplicate_msg_id(self, symbol, msgid, other_msgid):
-        """Raise an InvalidMessageError when a symbol is duplicated. """
-        ime = "Message symbol '%s' cannot be used for " % symbol
-        ime += "'%s' and '%s' at the same time." % (other_msgid, msgid)
-        raise InvalidMessageError(ime)
+        :param str msgid: The msgid corresponding to the symbols
+        :param str symbol: Offending symbol
+        :param str other_symbol: Other offending symbol
+        :raises InvalidMessageError: when a symbol is duplicated. """
+        error_message = f"Message id '{msgid}' cannot have both "
+        error_message += f"'{other_symbol}' and '{symbol}' as symbolic name."
+        raise InvalidMessageError(error_message)
+
+    @staticmethod
+    def _raise_duplicate_msg_id(symbol, msgid, other_msgid):
+        """ Raise an error when a msgid is duplicated.
+
+        :param str symbol: The symbol corresponding to the msgids
+        :param str msgid: Offending msgid
+        :param str other_msgid: Other offending msgid
+        :raises InvalidMessageError: when a msgid is duplicated. """
+        error_message = f"Message symbol '{symbol}' cannot be used for "
+        error_message += f"'{other_msgid}' and '{msgid}' at the same time."
+        raise InvalidMessageError(error_message)
 
     def check_message_id(self, msgid):
         """returns the Message object for this message.
@@ -847,13 +863,12 @@ class MessagesStore(object):
                 return source[msgid]
             except KeyError:
                 pass
-        raise UnknownMessageError('No such message id %s' % msgid)
+        raise UnknownMessageError(f'No such message id {msgid}')
 
     def get_msg_display_string(self, msgid):
-        """Generates a user-consumable representation of a message.
+        """ Generates a user-consumable representation of a message.
 
-        Can be just the message ID or the ID and the symbol.
-        """
+        Can be just the message ID or the ID and the symbol. """
         return repr(self.check_message_id(msgid).symbol)
 
     def help_message(self, msgids):
@@ -868,12 +883,12 @@ class MessagesStore(object):
                 continue
 
     def list_messages(self):
-        """output full messages list documentation in ReST format"""
-        msgs = sorted(six.itervalues(self._messages), key=lambda msg: msg.msgid)
-        for msg in msgs:
-            if not msg.may_be_emitted():
+        """ Output full messages list documentation in ReST format. """
+        messages = sorted(six.itervalues(self._messages), key=lambda m: m.msgid)
+        for message in messages:
+            if not message.may_be_emitted():
                 continue
-            print(msg.format_help(checkerref=False))
+            print(message.format_help(checkerref=False))
         print("")
 
 
