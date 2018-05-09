@@ -1147,14 +1147,6 @@ def _check_csv(value):
     return _splitstrip(value)
 
 
-def _get_encoding(encoding, stream):
-    encoding = encoding or getattr(stream, 'encoding', None)
-    if not encoding:
-        import locale
-        encoding = locale.getpreferredencoding()
-    return encoding
-
-
 def _comment(string):
     """return string as a comment"""
     lines = [line.strip() for line in string.splitlines()]
@@ -1177,7 +1169,7 @@ def _format_option_value(optdict, value):
     return value
 
 
-def _ini_format_section(stream, section, options, encoding=None, doc=None):
+def _ini_format_section(stream, section, options, doc=None):
     """format an options section using the INI format"""
     if doc:
         print(_comment(doc), file=stream)
@@ -1213,7 +1205,6 @@ format_section = _ini_format_section
 
 def _rest_format_section(stream, section, options, encoding=None, doc=None):
     """format an options section using as ReST formatted output"""
-    encoding = _get_encoding(encoding, stream)
     if section:
         print('%s\n%s' % (section, "'"*len(section)), file=stream)
     if doc:
