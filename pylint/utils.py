@@ -154,19 +154,9 @@ def decoding_stream(stream, encoding, errors='strict'):
     return reader_cls(stream, errors)
 
 
-def _decoding_readline(stream, encoding):
-    '''return lambda function for tokenize with safe decode'''
-    return decoding_stream(stream, encoding, errors='replace').readline
-
-
 def tokenize_module(module):
     with module.stream() as stream:
         readline = stream.readline
-        if sys.version_info < (3, 0):
-            if module.file_encoding is not None:
-                readline = _decoding_readline(stream, module.file_encoding)
-
-            return list(tokenize.generate_tokens(readline))
         return list(tokenize.tokenize(readline))
 
 def build_message_def(checker, msgid, msg_tuple):
@@ -1157,16 +1147,6 @@ def _check_csv(value):
     return _splitstrip(value)
 
 
-if six.PY2:
-    def _encode(string, encoding):
-        # pylint: disable=undefined-variable
-        if isinstance(string, unicode):
-            return string.encode(encoding)
-        return str(string)
-else:
-    def _encode(string, _):
-        return str(string)
-
 def _get_encoding(encoding, stream):
     encoding = encoding or getattr(stream, 'encoding', None)
     if not encoding:
@@ -1201,7 +1181,7 @@ def _ini_format_section(stream, section, options, encoding=None, doc=None):
     """format an options section using the INI format"""
     encoding = _get_encoding(encoding, stream)
     if doc:
-        print(_encode(_comment(doc), encoding), file=stream)
+        print(_comment(doc), file=stream)
     print('[%s]' % section, file=stream)
     _ini_format(stream, options, encoding)
 
@@ -1214,13 +1194,13 @@ def _ini_format(stream, options, encoding):
         if help_opt:
             help_opt = _normalize_text(help_opt, line_len=79, indent='# ')
             print(file=stream)
-            print(_encode(help_opt, encoding), file=stream)
+            print(help_opt, file=stream)
         else:
             print(file=stream)
         if value is None:
             print('#%s=' % optname, file=stream)
         else:
-            value = _encode(value, encoding).strip()
+            value = str(value).strip()
             if re.match(r'^([\w-]+,)+[\w-]+$', str(value)):
                 separator = '\n ' + ' ' * len(optname)
                 value = separator.join(
@@ -1238,15 +1218,15 @@ def _rest_format_section(stream, section, options, encoding=None, doc=None):
     if section:
         print('%s\n%s' % (section, "'"*len(section)), file=stream)
     if doc:
-        print(_encode(_normalize_text(doc, line_len=79, indent=''), encoding), file=stream)
+        print(_normalize_text(doc, line_len=79, indent=''), file=stream)
         print(file=stream)
     for optname, optdict, value in options:
         help_opt = optdict.get('help')
         print(':%s:' % optname, file=stream)
         if help_opt:
             help_opt = _normalize_text(help_opt, line_len=79, indent='  ')
-            print(_encode(help_opt, encoding), file=stream)
+            print(help_opt, file=stream)
         if value:
-            value = _encode(_format_option_value(optdict, value), encoding)
+            value = _format_option_value(optdict, value)
             print(file=stream)
             print('  Default: ``%s``' % value.replace("`` ", "```` ``"), file=stream)

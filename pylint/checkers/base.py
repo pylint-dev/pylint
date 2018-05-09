@@ -249,10 +249,7 @@ def _is_multi_naming_match(match, node_type, confidence):
             and (node_type != 'method' or confidence != interfaces.INFERENCE_FAILURE))
 
 
-if sys.version_info < (3, 0):
-    BUILTIN_PROPERTY = '__builtin__.property'
-else:
-    BUILTIN_PROPERTY = 'builtins.property'
+BUILTIN_PROPERTY = 'builtins.property'
 
 
 def _get_properties(config):

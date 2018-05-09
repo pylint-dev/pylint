@@ -180,25 +180,6 @@ def test_create_invalid_message_type(msgid, expected):
     assert str(cm.value) == expected
 
 
-def test__decoding_readline():
-    """_decoding_readline should yield line at a time even if the binary
-    representation of the text is not splittable line-by-line.
-
-    For convenience this test uses a codec that is easy to understand, though
-    this *specific* codec is unlikely to be seen in the wild for files.
-    """
-    binary_io = io.BytesIO(b'foo\\nbaz\\n')
-    readline = utils._decoding_readline(binary_io, 'unicode_escape')
-
-    ret = []
-    s = readline()
-    while s != '':
-        ret.append(s)
-        s = readline()
-
-    assert ret == ['foo\n', 'baz\n']
-
-
 def test_decoding_stream_unknown_encoding():
     """decoding_stream should fall back to *some* decoding when given an
     unknown encoding.
