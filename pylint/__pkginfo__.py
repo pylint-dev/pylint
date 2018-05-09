@@ -33,7 +33,9 @@ install_requires = [
     'mccabe',
 ]
 
-dependency_links = []
+dependency_links = [
+    'https://github.com/PyCQA/astroid/tarball/master#egg=astroid-master-2.0'
+]
 
 extras_require = {}
 extras_require[':sys_platform=="win32"'] = ['colorama']
