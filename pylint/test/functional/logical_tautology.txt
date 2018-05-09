@@ -1,0 +1,7 @@
+logical-tautology:6:foo:Logical tautology in comparison - arg == arg
+logical-tautology:8:foo:Logical tautology in comparison - arg != arg
+logical-tautology:10:foo:Logical tautology in comparison - arg > arg
+logical-tautology:12:foo:Logical tautology in comparison - arg <= arg
+logical-tautology:14:foo:Logical tautology in comparison - None == None
+logical-tautology:16:foo:Logical tautology in comparison - 786 == 786
+logical-tautology:26:bar:Logical tautology in comparison - arg != arg
