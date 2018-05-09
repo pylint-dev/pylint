@@ -757,12 +757,15 @@ class MessagesStore(object):
         :raises InvalidMessageError: If the checker id in the messages are not
         always the same """
         checker_id = None
+        existing_ids = []
         for message in messages:
             if checker_id is not None and checker_id != message.msgid[1:3]:
-                error_msg = "Inconsistent checker part in message id %r" % message.msgid
-                error_msg += " (expected 'x%sxx')" % checker_id
+                error_msg = f"Inconsistent checker part in message id "
+                error_msg += f"'{message.msgid}' (expected 'x{checker_id}xx' "
+                error_msg += f"because we already had {existing_ids})."
                 raise InvalidMessageError(error_msg)
             checker_id = message.msgid[1:3]
+            existing_ids.append(message.msgid)
 
 
     def _register_alternative_name(self, msg, msgid, symbol):
