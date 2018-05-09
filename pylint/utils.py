@@ -1179,14 +1179,13 @@ def _format_option_value(optdict, value):
 
 def _ini_format_section(stream, section, options, encoding=None, doc=None):
     """format an options section using the INI format"""
-    encoding = _get_encoding(encoding, stream)
     if doc:
         print(_comment(doc), file=stream)
     print('[%s]' % section, file=stream)
-    _ini_format(stream, options, encoding)
+    _ini_format(stream, options)
 
 
-def _ini_format(stream, options, encoding):
+def _ini_format(stream, options):
     """format options using the INI format"""
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)
