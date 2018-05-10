@@ -713,11 +713,12 @@ class MessagesStore(object):
 
     @staticmethod
     def get_checker_message_definitions(checker):
-        """ Return the list of messages definitions for a checker.
+        """Return the list of messages definitions for a checker.
 
         :param BaseChecker checker:
         :rtype: list
-        :return: A list of MessageDefinition. """
+        :return: A list of MessageDefinition.
+        """
         message_definitions = []
         for msgid, msg_tuple in sorted(six.iteritems(checker.msgs)):
             message = build_message_def(checker, msgid, msg_tuple)
@@ -725,18 +726,20 @@ class MessagesStore(object):
         return message_definitions
 
     def register_messages(self, checker):
-        """ Register messages from a checker.
+        """Register messages from a checker.
 
-        :param BaseChecker checker: """
-        messages = MessagesStore.get_checker_message_definitions(checker)
-        MessagesStore._check_checker_consistency(messages)
+        :param BaseChecker checker:
+        """
+        messages = self.get_checker_message_definitions(checker)
+        self._check_checker_consistency(messages)
         for message in messages:
             self.register_message(message)
 
     def register_message(self, message):
-        """ Register a MessageDefinition with consistency in mind.
+        """Register a MessageDefinition with consistency in mind.
 
-        :param MessageDefinition message: The message definition being added. """
+        :param MessageDefinition message: The message definition being added.
+        """
         self._check_id_and_symbol_consistency(message.msgid, message.symbol)
         self._check_symbol(message.msgid, message.symbol)
         self._check_msgid(message.msgid, message.symbol)
@@ -750,7 +753,7 @@ class MessagesStore(object):
 
     @staticmethod
     def _check_checker_consistency(messages):
-        """ Check the msgid consistency in a list of messages definitions.
+        """Check the msgid consistency in a list of messages definitions.
 
         msg ids for a checker should be a string of len 4, where the two first
         characters are the checker id and the two last the msg id in this
@@ -758,7 +761,8 @@ class MessagesStore(object):
 
         :param list messages: List of MessageDefinition.
         :raises InvalidMessageError: If the checker id in the messages are not
-        always the same """
+        always the same
+        """
         checker_id = None
         existing_ids = []
         for message in messages:
@@ -782,27 +786,28 @@ class MessagesStore(object):
         self._alternative_names[symbol] = msg
 
     def _check_symbol(self, msgid, symbol):
-        """ Check that a symbol is not already used. """
-        if symbol in self._messages:
-            other_msgid = self._messages[symbol].msgid
-            MessagesStore._raise_duplicate_msg_id(symbol, msgid, other_msgid)
-        if symbol in self._alternative_names:
-            msg = self._alternative_names[symbol]
-            if msg.symbol == symbol:
-                other_msgid = msg.msgid
+        """Check that a symbol is not already used. """
+        other_message = self._messages.get(symbol)
+        if other_message:
+            self._raise_duplicate_msg_id(symbol, msgid, other_message.msgid)
+        else:
+            alternative_msgid = None
+        alternative_message = self._alternative_names.get(symbol)
+        if alternative_message:
+            if alternative_message.symbol == symbol:
+                alternative_msgid = alternative_message.msgid
             else:
-                for old_msgid, old_symbol in msg.old_names:
+                for old_msgid, old_symbol in alternative_message.old_names:
                     if old_symbol == symbol:
-                        other_msgid = old_msgid
+                        alternative_msgid = old_msgid
                         break
-            if msgid != other_msgid:
-                MessagesStore._raise_duplicate_msg_id(symbol, msgid, other_msgid)
+            if msgid != alternative_msgid:
+                self._raise_duplicate_msg_id(symbol, msgid, alternative_msgid)
 
     def _check_msgid(self, msgid, symbol):
-        for message_symbol in self._messages:
-            message = self._messages[message_symbol]
+        for message in self._messages.values():
             if message.msgid == msgid:
-                MessagesStore._raise_duplicate_symbol(msgid, symbol, message.symbol)
+                self._raise_duplicate_symbol(msgid, symbol, message.symbol)
 
     def _check_id_and_symbol_consistency(self, msgid, symbol):
         try:
@@ -824,19 +829,20 @@ class MessagesStore(object):
                 old_symbolic_name = alternate_symbol
         if symbol not in (alternative.symbol, old_symbolic_name):
             if msgid == old_symbolic_id:
-                MessagesStore._raise_duplicate_symbol(msgid, symbol, old_symbolic_name)
+                self._raise_duplicate_symbol(msgid, symbol, old_symbolic_name)
             else:
-                MessagesStore._raise_duplicate_symbol(msgid, symbol, alternative.symbol)
+                self._raise_duplicate_symbol(msgid, symbol, alternative.symbol)
         return None
 
     @staticmethod
     def _raise_duplicate_symbol(msgid, symbol, other_symbol):
-        """ Raise an error when a symbol is duplicated.
+        """Raise an error when a symbol is duplicated.
 
         :param str msgid: The msgid corresponding to the symbols
         :param str symbol: Offending symbol
         :param str other_symbol: Other offending symbol
-        :raises InvalidMessageError: when a symbol is duplicated. """
+        :raises InvalidMessageError: when a symbol is duplicated.
+        """
         error_message = "Message id '{msgid}' cannot have both ".format(msgid=msgid)
         error_message += "'{other_symbol}' and '{symbol}' as symbolic name.".format(
             other_symbol=other_symbol, symbol=symbol
@@ -845,12 +851,13 @@ class MessagesStore(object):
 
     @staticmethod
     def _raise_duplicate_msg_id(symbol, msgid, other_msgid):
-        """ Raise an error when a msgid is duplicated.
+        """Raise an error when a msgid is duplicated.
 
         :param str symbol: The symbol corresponding to the msgids
         :param str msgid: Offending msgid
         :param str other_msgid: Other offending msgid
-        :raises InvalidMessageError: when a msgid is duplicated. """
+        :raises InvalidMessageError: when a msgid is duplicated.
+        """
         error_message = "Message symbol '{symbol}' cannot be used for ".format(symbol=symbol)
         error_message += "'{other_msgid}' and '{msgid}' at the same time.".format(
             other_msgid=other_msgid, msgid=msgid
@@ -858,11 +865,12 @@ class MessagesStore(object):
         raise InvalidMessageError(error_message)
 
     def check_message_id(self, msgid):
-        """returns the Message object for this message.
+        """Returns the Message object for this message.
 
-        msgid may be either a numeric or symbolic id.
-
-        Raises UnknownMessageError if the message id is not defined.
+        :param str msgid: msgid may be either a numeric or symbolic id.
+        :raises UnknownMessageError: if the message id is not defined.
+        :rtype: MessageDefinition
+        :return: A message definition corresponding to msgid
         """
         if msgid[1:].isdigit():
             msgid = msgid.upper()
@@ -874,13 +882,14 @@ class MessagesStore(object):
         raise UnknownMessageError('No such message id {msgid}'.format(msgid=msgid))
 
     def get_msg_display_string(self, msgid):
-        """ Generates a user-consumable representation of a message.
+        """Generates a user-consumable representation of a message.
 
-        Can be just the message ID or the ID and the symbol. """
+        Can be just the message ID or the ID and the symbol.
+        """
         return repr(self.check_message_id(msgid).symbol)
 
     def help_message(self, msgids):
-        """display help messages for the given message identifiers"""
+        """Display help messages for the given message identifiers"""
         for msgid in msgids:
             try:
                 print(self.check_message_id(msgid).format_help(checkerref=True))
@@ -891,7 +900,7 @@ class MessagesStore(object):
                 continue
 
     def list_messages(self):
-        """ Output full messages list documentation in ReST format. """
+        """Output full messages list documentation in ReST format. """
         messages = sorted(six.itervalues(self._messages), key=lambda m: m.msgid)
         for message in messages:
             if not message.may_be_emitted():

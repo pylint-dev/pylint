@@ -716,8 +716,10 @@ class TestMessagesStore(object):
         with pytest.raises(InvalidMessageError) as cm:
             store.add_renamed_message(
                 'W1234', 'old-msg-symbol', 'duplicate-keyword-arg')
-        expected = "Message id 'W1234' cannot have both 'msg-symbol' and \
-'old-msg-symbol' as symbolic name."
+        expected = (
+            "Message id 'W1234' cannot have both 'msg-symbol' and 'old-msg-symbol' "
+            "as symbolic name."
+        )
         assert str(cm.value) == expected
 
     def test_renamed_message_register(self, store):
