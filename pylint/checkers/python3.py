@@ -28,6 +28,7 @@ import tokenize
 
 import astroid
 from astroid import bases
+import six
 
 from pylint import checkers, interfaces
 from pylint.interfaces import INFERENCE_FAILURE, INFERENCE
