@@ -180,7 +180,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
                      'enumerate', 'dict'):
             self.as_argument_to_callable_constructor_test(fxn, func)
 
-    @python2_only
     def test_dict_subclasses_methods_in_iterating_context(self):
         iterating, not_iterating = astroid.extract_node('''
         from __future__ import absolute_import
@@ -197,7 +196,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_call(not_iterating.value)
 
-    @python2_only
     def test_dict_methods_in_iterating_context(self):
         iterating_code = [
             'for x in {}: pass',
@@ -229,19 +227,15 @@ class TestPython3Checker(testutils.CheckerTestCase):
                 with self.assertAddsMessages(message):
                     self.checker.visit_call(node)
 
-    @python2_only
     def test_map_in_iterating_context(self):
         self.iterating_context_tests('map')
 
-    @python2_only
     def test_zip_in_iterating_context(self):
         self.iterating_context_tests('zip')
 
-    @python2_only
     def test_range_in_iterating_context(self):
         self.iterating_context_tests('range')
 
-    @python2_only
     def test_filter_in_iterating_context(self):
         self.iterating_context_tests('filter')
 
@@ -494,7 +488,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)
 
-    @python2_only
     def test_exception_message_attribute(self):
         node = astroid.extract_node("""
         try:
@@ -506,7 +499,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
-    @python2_only
     def test_normal_message_attribute(self):
         node = astroid.extract_node("""
         e.message #@
@@ -514,33 +506,28 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
-    @python2_only
     def test_invalid_codec(self):
         node = astroid.extract_node('foobar.encode("hex") #@')
         message = testutils.Message('invalid-str-codec', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
-    @python2_only
     def test_valid_codec(self):
         node = astroid.extract_node('foobar.encode("ascii", "ignore")  #@')
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
-    @python2_only
     def test_visit_call_with_kwarg(self):
         node = astroid.extract_node('foobar.raz(encoding="hex")  #@')
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
-    @python2_only
     def test_invalid_open_codec(self):
         node = astroid.extract_node('open(foobar, encoding="hex") #@')
         message = testutils.Message('invalid-str-codec', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
-    @python2_only
     def test_valid_open_codec(self):
         node = astroid.extract_node('open(foobar, encoding="palmos") #@')
         with self.assertNoMessages():
@@ -577,7 +564,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_call(node)
 
-    @python2_only
     def test_sys_maxint(self):
         node = astroid.extract_node('''
         import sys
@@ -587,7 +573,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
-    @python2_only
     def test_itertools_izip(self):
         node = astroid.extract_node('''
         from itertools import izip #@
@@ -597,7 +582,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(absolute_import_message, message):
             self.checker.visit_importfrom(node)
 
-    @python2_only
     def test_deprecated_types_fields(self):
         node = astroid.extract_node('''
         from types import StringType #@
@@ -607,7 +591,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(absolute_import_message, message):
             self.checker.visit_importfrom(node)
 
-    @python2_only
     def test_sys_maxint_imort_from(self):
         node = astroid.extract_node('''
         from sys import maxint #@
@@ -617,7 +600,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(absolute_import_message, message):
             self.checker.visit_importfrom(node)
 
-    @python2_only
     def test_object_maxint(self):
         node = astroid.extract_node('''
         sys = object()
@@ -626,7 +608,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
-    @python2_only
     def test_bad_import(self):
         node = astroid.extract_node('''
         import urllib2, sys #@
@@ -649,7 +630,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
                 self.checker.visit_importfrom(node)
             self.checker._future_absolute_import = False
 
-    @python2_only
     def test_bad_import_conditional(self):
         node = astroid.extract_node('''
         import six
@@ -660,7 +640,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(absolute_import_message):
             self.checker.visit_import(node)
 
-    @python2_only
     def test_bad_import_try_except_handler(self):
         node = astroid.extract_node('''
         try:
@@ -672,7 +651,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(absolute_import_message):
             self.checker.visit_import(node)
 
-    @python2_only
     def test_bad_import_try(self):
         node = astroid.extract_node('''
         try:
@@ -686,7 +664,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(absolute_import_message):
             self.checker.visit_import(node)
 
-    @python2_only
     def test_bad_import_try_finally(self):
         node = astroid.extract_node('''
         try:
@@ -699,7 +676,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(absolute_import_message, message):
             self.checker.visit_import(node)
 
-    @python2_only
     def test_bad_import_from(self):
         node = astroid.extract_node('''
         from cStringIO import StringIO #@
@@ -709,7 +685,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(absolute_import_message, message):
             self.checker.visit_importfrom(node)
 
-    @python2_only
     def test_bad_string_attribute(self):
         node = astroid.extract_node('''
         import string
@@ -719,7 +694,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
-    @python2_only
     def test_bad_operator_attribute(self):
         node = astroid.extract_node('''
         import operator
@@ -729,7 +703,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
-    @python2_only
     def test_bad_urllib_attribute(self):
         nodes = astroid.extract_node('''
         import urllib
@@ -744,7 +717,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_attribute(node)
 
-    @python2_only
     def test_ok_string_attribute(self):
         node = astroid.extract_node('''
         import string
@@ -753,7 +725,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
-    @python2_only
     def test_bad_string_call(self):
         node = astroid.extract_node('''
         import string
@@ -763,7 +734,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
-    @python2_only
     def test_ok_shadowed_call(self):
         node = astroid.extract_node('''
         import six.moves.configparser
@@ -772,7 +742,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
-    @python2_only
     def test_ok_string_call(self):
         node = astroid.extract_node('''
         import string
@@ -781,7 +750,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
-    @python2_only
     def test_bad_string_import_from(self):
         node = astroid.extract_node('''
          from string import atoi #@
@@ -791,7 +759,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(absolute_import_message, message):
             self.checker.visit_importfrom(node)
 
-    @python2_only
     def test_ok_string_import_from(self):
         node = astroid.extract_node('''
          from string import digits #@
@@ -800,7 +767,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(absolute_import_message):
             self.checker.visit_importfrom(node)
 
-    @python2_only
     def test_bad_str_translate_call_string_literal(self):
         node = astroid.extract_node('''
          foobar.translate(None, 'abc123') #@
@@ -810,7 +776,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
-    @python2_only
     def test_bad_str_translate_call_variable(self):
         node = astroid.extract_node('''
          def raz(foobar):
@@ -821,7 +786,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
-    @python2_only
     def test_bad_str_translate_call_infer_str(self):
         node = astroid.extract_node('''
          foobar = "hello world"
@@ -832,7 +796,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
-    @python2_only
     def test_ok_str_translate_call_integer(self):
         node = astroid.extract_node('''
          foobar.translate(None, 33) #@
@@ -840,7 +803,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
-    @python2_only
     def test_ok_str_translate_call_keyword(self):
         node = astroid.extract_node('''
          foobar.translate(None, 'foobar', raz=33) #@
@@ -848,7 +810,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
-    @python2_only
     def test_ok_str_translate_call_not_str(self):
         node = astroid.extract_node('''
          foobar = {}
@@ -883,7 +844,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
-    @python2_only
     def test_versioninfo_conditional(self):
         code = '''
         from __future__ import absolute_import
@@ -896,7 +856,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
-    @python2_only
     def test_versioninfo_tuple_conditional(self):
         code = '''
         from __future__ import absolute_import
@@ -909,7 +868,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
-    @python2_only
     def test_six_ifexp_conditional(self):
         code = '''
         from __future__ import absolute_import
@@ -921,7 +879,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
-    @python2_only
     def test_next_defined(self):
         node = astroid.extract_node("""
             class Foo(object):
@@ -931,7 +888,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(node)
 
-    @python2_only
     def test_next_defined_too_many_args(self):
         node = astroid.extract_node("""
             class Foo(object):
@@ -940,7 +896,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    @python2_only
     def test_next_defined_static_method_too_many_args(self):
         node = astroid.extract_node("""
             class Foo(object):
@@ -950,7 +905,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    @python2_only
     def test_next_defined_static_method(self):
         node = astroid.extract_node("""
             class Foo(object):
@@ -961,7 +915,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(node)
 
-    @python2_only
     def test_next_defined_class_method(self):
         node = astroid.extract_node("""
             class Foo(object):

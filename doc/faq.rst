@@ -123,12 +123,6 @@ For example::
 
 Much probably. Read :ref:`ide-integration`
 
-3.5 Option --py3k not working under Python 3?
----------------------------------------------
-
-If you run pylint with Python 3 intepreter, --py3k option will temporarily
-not work as expected. The porting checker is only enabled on Python 2.
-
 
 4. Message Control
 ==================

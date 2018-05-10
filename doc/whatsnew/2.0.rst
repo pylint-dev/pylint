@@ -15,6 +15,13 @@ Summary -- Release highlights
   `pylint` will still be able to analyze Python 2 files, but some checks might not work
   as they will assume that their running environment was Python 2.
 
+* Given the dropping of Python 2, the Python 3 porting mode (enabled via `--py3k`) can now
+  also run with Python 3.
+
+  The porting mode used to be a no-op on Python 3, but most of the messages can now be emitted
+  when the running interpreter is Python 3. The only messages that won't be emitted are those that
+  rely on a particular syntax specific to Python 2, for instance `print` as a statement.
+
 
 New checkers
 ============
