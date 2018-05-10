@@ -1,5 +1,5 @@
 """Check for logical tautology, when a value is compared against itself."""
-# pylint: disable=missing-docstring, blacklisted-name, singleton-comparison, too-many-return-statements, inconsistent-return-statements, no-else-return
+# pylint: disable=missing-docstring, blacklisted-name, singleton-comparison, too-many-return-statements, inconsistent-return-statements, no-else-return, too-many-branches, literal-comparison, bad-whitespace
 
 def foo():
     arg = 786
@@ -14,6 +14,16 @@ def foo():
     elif None == None: # [logical-tautology]
         return None
     elif 786 == 786: # [logical-tautology]
+        return True
+    elif 786 is 786: # [logical-tautology]
+        return True
+    elif 786 is not 786: # [logical-tautology]
+        return True
+    elif arg is arg: # [logical-tautology]
+        return True
+    elif arg is not arg: # [logical-tautology]
+        return True
+    elif True is True: # [logical-tautology]
         return True
     elif 666 == 786:
         return False

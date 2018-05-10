@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, logical-tautology
 
 
 if 2 is 2: # [literal-comparison]
