@@ -763,9 +763,13 @@ class MessagesStore(object):
         existing_ids = []
         for message in messages:
             if checker_id is not None and checker_id != message.msgid[1:3]:
-                error_msg = f"Inconsistent checker part in message id "
-                error_msg += f"'{message.msgid}' (expected 'x{checker_id}xx' "
-                error_msg += f"because we already had {existing_ids})."
+                error_msg = "Inconsistent checker part in message id "
+                error_msg += "'{}' (expected 'x{checker_id}xx' ".format(
+                    message.msgid, checker_id=checker_id
+                )
+                error_msg += "because we already had {existing_ids}).".format(
+                    existing_ids=existing_ids
+                )
                 raise InvalidMessageError(error_msg)
             checker_id = message.msgid[1:3]
             existing_ids.append(message.msgid)
@@ -833,8 +837,10 @@ class MessagesStore(object):
         :param str symbol: Offending symbol
         :param str other_symbol: Other offending symbol
         :raises InvalidMessageError: when a symbol is duplicated. """
-        error_message = f"Message id '{msgid}' cannot have both "
-        error_message += f"'{other_symbol}' and '{symbol}' as symbolic name."
+        error_message = "Message id '{msgid}' cannot have both ".format(msgid=msgid)
+        error_message += "'{other_symbol}' and '{symbol}' as symbolic name.".format(
+            other_symbol=other_symbol, symbol=symbol
+        )
         raise InvalidMessageError(error_message)
 
     @staticmethod
@@ -845,8 +851,10 @@ class MessagesStore(object):
         :param str msgid: Offending msgid
         :param str other_msgid: Other offending msgid
         :raises InvalidMessageError: when a msgid is duplicated. """
-        error_message = f"Message symbol '{symbol}' cannot be used for "
-        error_message += f"'{other_msgid}' and '{msgid}' at the same time."
+        error_message = "Message symbol '{symbol}' cannot be used for ".format(symbol=symbol)
+        error_message += "'{other_msgid}' and '{msgid}' at the same time.".format(
+            other_msgid=other_msgid, msgid=msgid
+        )
         raise InvalidMessageError(error_message)
 
     def check_message_id(self, msgid):
@@ -863,7 +871,7 @@ class MessagesStore(object):
                 return source[msgid]
             except KeyError:
                 pass
-        raise UnknownMessageError(f'No such message id {msgid}')
+        raise UnknownMessageError('No such message id {msgid}'.format(msgid=msgid))
 
     def get_msg_display_string(self, msgid):
         """ Generates a user-consumable representation of a message.
