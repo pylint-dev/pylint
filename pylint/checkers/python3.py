@@ -859,8 +859,7 @@ class Python3Checker(checkers.BaseChecker):
         strings or old-raise-syntax.
         """
         if (node.exc is not None and
-                node.inst is not None and
-                node.tback is None):
+                node.inst is not None):
             self.add_message('old-raise-syntax', node=node)
 
         # Ignore empty raise.
