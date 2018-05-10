@@ -1787,7 +1787,7 @@ class ComparisonChecker(_BasicChecker):
             left_operand = left_operand.value
             right_operand = right_operand.value
         elif (isinstance(left_operand, astroid.Name)
-                and isinstance(right_operand, astroid.Name)):
+              and isinstance(right_operand, astroid.Name)):
             left_operand = left_operand.name
             right_operand = right_operand.name
 
