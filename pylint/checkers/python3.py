@@ -21,13 +21,10 @@
 """Check Python 2 code for Python 2/3 source-compatible issues."""
 from __future__ import absolute_import, print_function
 
+from collections import namedtuple
 import re
 import sys
 import tokenize
-
-from collections import namedtuple
-
-import six
 
 import astroid
 from astroid import bases
@@ -79,7 +76,7 @@ def _is_builtin(node):
 
 
 _ACCEPTS_ITERATOR = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
-                     'all', 'enumerate', 'dict', 'filter'}
+                     'all', 'enumerate', 'dict', 'filter', 'reversed'}
 DICT_METHODS = {'items', 'keys', 'values'}
 
 
@@ -96,7 +93,7 @@ def _in_iterating_context(node):
         return True
     # Need to make sure the use of the node is in the iterator part of the
     # comprehension.
-    elif isinstance(parent, astroid.Comprehension):
+    if isinstance(parent, astroid.Comprehension):
         if parent.iter == node:
             return True
     # Various built-ins can take in an iterable or list and lead to the same
@@ -119,7 +116,7 @@ def _in_iterating_context(node):
 
 
 def _is_conditional_import(node):
-    """Checks if a import node is in the context of a conditional.
+    """Checks if an import node is in the context of a conditional.
     """
     parent = node.parent
     return isinstance(parent, (astroid.TryExcept, astroid.ExceptHandler,
@@ -141,34 +138,30 @@ class Python3Checker(checkers.BaseChecker):
         'E1601': ('print statement used',
                   'print-statement',
                   'Used when a print statement is used '
-                  '(`print` is a function in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(`print` is a function in Python 3)'),
         'E1602': ('Parameter unpacking specified',
                   'parameter-unpacking',
                   'Used when parameter unpacking is specified for a function'
-                  "(Python 3 doesn't allow it)",
-                  {'maxversion': (3, 0)}),
+                  "(Python 3 doesn't allow it)"),
         'E1603': ('Implicit unpacking of exceptions is not supported '
                   'in Python 3',
                   'unpacking-in-except',
                   'Python3 will not allow implicit unpacking of '
                   'exceptions in except clauses. '
                   'See http://www.python.org/dev/peps/pep-3110/',
-                  {'maxversion': (3, 0),
-                   'old_names': [('W0712', 'unpacking-in-except')]}),
-        'E1604': ('Use raise ErrorClass(args) instead of raise ErrorClass, args.',
+                  {'old_names': [('W0712', 'unpacking-in-except')]}),
+        'E1604': ('Use raise ErrorClass(args) instead of '
+                  'raise ErrorClass, args.',
                   'old-raise-syntax',
-                  "Used when the alternate raise syntax 'raise foo, bar' is used "
-                  "instead of 'raise foo(bar)'. If you need to also raise with a traceback, "
-                  "consider using six.reraise instead.",
-                  {'maxversion': (3, 0),
-                   'old_names': [('W0121', 'old-raise-syntax')]}),
+                  "Used when the alternate raise syntax "
+                  "'raise foo, bar' is used "
+                  "instead of 'raise foo(bar)'.",
+                  {'old_names': [('W0121', 'old-raise-syntax')]}),
         'E1605': ('Use of the `` operator',
                   'backtick',
                   'Used when the deprecated "``" (backtick) operator is used '
                   'instead  of the str() function.',
                   {'scope': WarningScope.NODE,
-                   'maxversion': (3, 0),
                    'old_names': [('W0333', 'backtick')]}),
         'E1609': ('Import * only allowed at module level',
                   'import-star-module-level',
@@ -178,296 +171,239 @@ class Python3Checker(checkers.BaseChecker):
         'W1601': ('apply built-in referenced',
                   'apply-builtin',
                   'Used when the apply built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1602': ('basestring built-in referenced',
                   'basestring-builtin',
                   'Used when the basestring built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1603': ('buffer built-in referenced',
                   'buffer-builtin',
                   'Used when the buffer built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1604': ('cmp built-in referenced',
                   'cmp-builtin',
                   'Used when the cmp built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1605': ('coerce built-in referenced',
                   'coerce-builtin',
                   'Used when the coerce built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1606': ('execfile built-in referenced',
                   'execfile-builtin',
                   'Used when the execfile built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1607': ('file built-in referenced',
                   'file-builtin',
                   'Used when the file built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1608': ('long built-in referenced',
                   'long-builtin',
                   'Used when the long built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1609': ('raw_input built-in referenced',
                   'raw_input-builtin',
                   'Used when the raw_input built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1610': ('reduce built-in referenced',
                   'reduce-builtin',
                   'Used when the reduce built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1611': ('StandardError built-in referenced',
                   'standarderror-builtin',
                   'Used when the StandardError built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1612': ('unicode built-in referenced',
                   'unicode-builtin',
                   'Used when the unicode built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1613': ('xrange built-in referenced',
                   'xrange-builtin',
                   'Used when the xrange built-in function is referenced '
-                  '(missing from Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(missing from Python 3)'),
         'W1614': ('__coerce__ method defined',
                   'coerce-method',
                   'Used when a __coerce__ method is defined '
-                  '(method is not used by Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(method is not used by Python 3)'),
         'W1615': ('__delslice__ method defined',
                   'delslice-method',
                   'Used when a __delslice__ method is defined '
-                  '(method is not used by Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(method is not used by Python 3)'),
         'W1616': ('__getslice__ method defined',
                   'getslice-method',
                   'Used when a __getslice__ method is defined '
-                  '(method is not used by Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(method is not used by Python 3)'),
         'W1617': ('__setslice__ method defined',
                   'setslice-method',
                   'Used when a __setslice__ method is defined '
-                  '(method is not used by Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(method is not used by Python 3)'),
         'W1618': ('import missing `from __future__ import absolute_import`',
                   'no-absolute-import',
                   'Used when an import is not accompanied by '
                   '``from __future__ import absolute_import`` '
-                  '(default behaviour in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(default behaviour in Python 3)'),
         'W1619': ('division w/o __future__ statement',
                   'old-division',
                   'Used for non-floor division w/o a float literal or '
                   '``from __future__ import division`` '
-                  '(Python 3 returns a float for int division unconditionally)',
-                  {'maxversion': (3, 0)}),
+                  '(Python 3 returns a float for int division unconditionally)'),
         'W1620': ('Calling a dict.iter*() method',
                   'dict-iter-method',
                   'Used for calls to dict.iterkeys(), itervalues() or iteritems() '
-                  '(Python 3 lacks these methods)',
-                  {'maxversion': (3, 0)}),
+                  '(Python 3 lacks these methods)'),
         'W1621': ('Calling a dict.view*() method',
                   'dict-view-method',
                   'Used for calls to dict.viewkeys(), viewvalues() or viewitems() '
-                  '(Python 3 lacks these methods)',
-                  {'maxversion': (3, 0)}),
+                  '(Python 3 lacks these methods)'),
         'W1622': ('Called a next() method on an object',
                   'next-method-called',
                   "Used when an object's next() method is called "
-                  '(Python 3 uses the next() built-in function)',
-                  {'maxversion': (3, 0)}),
+                  '(Python 3 uses the next() built-in function)'),
         'W1623': ("Assigning to a class's __metaclass__ attribute",
                   'metaclass-assignment',
                   "Used when a metaclass is specified by assigning to __metaclass__ "
-                  '(Python 3 specifies the metaclass as a class statement argument)',
-                  {'maxversion': (3, 0)}),
+                  '(Python 3 specifies the metaclass as a class statement argument)'),
         'W1624': ('Indexing exceptions will not work on Python 3',
                   'indexing-exception',
                   'Indexing exceptions will not work on Python 3. Use '
                   '`exception.args[index]` instead.',
-                  {'maxversion': (3, 0),
-                   'old_names': [('W0713', 'indexing-exception')]}),
+                  {'old_names': [('W0713', 'indexing-exception')]}),
         'W1625': ('Raising a string exception',
                   'raising-string',
                   'Used when a string exception is raised. This will not '
                   'work on Python 3.',
-                  {'maxversion': (3, 0),
-                   'old_names': [('W0701', 'raising-string')]}),
+                  {'old_names': [('W0701', 'raising-string')]}),
         'W1626': ('reload built-in referenced',
                   'reload-builtin',
                   'Used when the reload built-in function is referenced '
                   '(missing from Python 3). You can use instead imp.reload '
-                  'or importlib.reload.',
-                  {'maxversion': (3, 0)}),
+                  'or importlib.reload.'),
         'W1627': ('__oct__ method defined',
                   'oct-method',
-                  'Used when a __oct__ method is defined '
-                  '(method is not used by Python 3)',
-                  {'maxversion': (3, 0)}),
+                  'Used when an __oct__ method is defined '
+                  '(method is not used by Python 3)'),
         'W1628': ('__hex__ method defined',
                   'hex-method',
                   'Used when a __hex__ method is defined '
-                  '(method is not used by Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(method is not used by Python 3)'),
         'W1629': ('__nonzero__ method defined',
                   'nonzero-method',
                   'Used when a __nonzero__ method is defined '
-                  '(method is not used by Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(method is not used by Python 3)'),
         'W1630': ('__cmp__ method defined',
                   'cmp-method',
                   'Used when a __cmp__ method is defined '
-                  '(method is not used by Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(method is not used by Python 3)'),
         # 'W1631': replaced by W1636
         'W1632': ('input built-in referenced',
                   'input-builtin',
                   'Used when the input built-in is referenced '
-                  '(backwards-incompatible semantics in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(backwards-incompatible semantics in Python 3)'),
         'W1633': ('round built-in referenced',
                   'round-builtin',
                   'Used when the round built-in is referenced '
-                  '(backwards-incompatible semantics in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(backwards-incompatible semantics in Python 3)'),
         'W1634': ('intern built-in referenced',
                   'intern-builtin',
                   'Used when the intern built-in is referenced '
-                  '(Moved to sys.intern in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(Moved to sys.intern in Python 3)'),
         'W1635': ('unichr built-in referenced',
                   'unichr-builtin',
                   'Used when the unichr built-in is referenced '
-                  '(Use chr in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(Use chr in Python 3)'),
         'W1636': ('map built-in referenced when not iterating',
                   'map-builtin-not-iterating',
                   'Used when the map built-in is referenced in a non-iterating '
                   'context (returns an iterator in Python 3)',
-                  {'maxversion': (3, 0),
-                   'old_names': [('W1631', 'implicit-map-evaluation')]}),
+                  {'old_names': [('W1631', 'implicit-map-evaluation')]}),
         'W1637': ('zip built-in referenced when not iterating',
                   'zip-builtin-not-iterating',
                   'Used when the zip built-in is referenced in a non-iterating '
-                  'context (returns an iterator in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  'context (returns an iterator in Python 3)'),
         'W1638': ('range built-in referenced when not iterating',
                   'range-builtin-not-iterating',
                   'Used when the range built-in is referenced in a non-iterating '
-                  'context (returns an iterator in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  'context (returns an iterator in Python 3)'),
         'W1639': ('filter built-in referenced when not iterating',
                   'filter-builtin-not-iterating',
                   'Used when the filter built-in is referenced in a non-iterating '
-                  'context (returns an iterator in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  'context (returns an iterator in Python 3)'),
         'W1640': ('Using the cmp argument for list.sort / sorted',
                   'using-cmp-argument',
                   'Using the cmp argument for list.sort or the sorted '
                   'builtin should be avoided, since it was removed in '
                   'Python 3. Using either `key` or `functools.cmp_to_key` '
-                  'should be preferred.',
-                  {'maxversion': (3, 0)}),
+                  'should be preferred.'),
         'W1641': ('Implementing __eq__ without also implementing __hash__',
                   'eq-without-hash',
                   'Used when a class implements __eq__ but not __hash__.  In Python 2, objects '
                   'get object.__hash__ as the default implementation, in Python 3 objects get '
-                  'None as their default __hash__ implementation if they also implement __eq__.',
-                  {'maxversion': (3, 0)}),
+                  'None as their default __hash__ implementation if they also implement __eq__.'),
         'W1642': ('__div__ method defined',
                   'div-method',
                   'Used when a __div__ method is defined.  Using `__truediv__` and setting'
                   '__div__ = __truediv__ should be preferred.'
-                  '(method is not used by Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(method is not used by Python 3)'),
         'W1643': ('__idiv__ method defined',
                   'idiv-method',
-                  'Used when a __idiv__ method is defined.  Using `__itruediv__` and setting'
+                  'Used when an __idiv__ method is defined.  Using `__itruediv__` and setting'
                   '__idiv__ = __itruediv__ should be preferred.'
-                  '(method is not used by Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(method is not used by Python 3)'),
         'W1644': ('__rdiv__ method defined',
                   'rdiv-method',
                   'Used when a __rdiv__ method is defined.  Using `__rtruediv__` and setting'
                   '__rdiv__ = __rtruediv__ should be preferred.'
-                  '(method is not used by Python 3)',
-                  {'maxversion': (3, 0)}),
+                  '(method is not used by Python 3)'),
         'W1645': ('Exception.message removed in Python 3',
                   'exception-message-attribute',
                   'Used when the message attribute is accessed on an Exception.  Use '
-                  'str(exception) instead.',
-                  {'maxversion': (3, 0)}),
+                  'str(exception) instead.'),
         'W1646': ('non-text encoding used in str.decode',
                   'invalid-str-codec',
                   'Used when using str.encode or str.decode with a non-text encoding.  Use '
-                  'codecs module to handle arbitrary codecs.',
-                  {'maxversion': (3, 0)}),
+                  'codecs module to handle arbitrary codecs.'),
         'W1647': ('sys.maxint removed in Python 3',
                   'sys-max-int',
-                  'Used when accessing sys.maxint.  Use sys.maxsize instead.',
-                  {'maxversion': (3, 0)}),
+                  'Used when accessing sys.maxint.  Use sys.maxsize instead.'),
         'W1648': ('Module moved in Python 3',
                   'bad-python3-import',
-                  'Used when importing a module that no longer exists in Python 3.',
-                  {'maxversion': (3, 0)}),
+                  'Used when importing a module that no longer exists in Python 3.'),
         'W1649': ('Accessing a deprecated function on the string module',
                   'deprecated-string-function',
-                  'Used when accessing a string function that has been deprecated in Python 3.',
-                  {'maxversion': (3, 0)}),
+                  'Used when accessing a string function that has been deprecated in Python 3.'),
         'W1650': ('Using str.translate with deprecated deletechars parameters',
                   'deprecated-str-translate-call',
-                  'Used when using the deprecated deletechars parameters from str.translate.  Use'
-                  're.sub to remove the desired characters ',
-                  {'maxversion': (3, 0)}),
+                  'Used when using the deprecated deletechars parameters from str.translate.  Use '
+                  're.sub to remove the desired characters '),
         'W1651': ('Accessing a deprecated function on the itertools module',
                   'deprecated-itertools-function',
-                  'Used when accessing a function on itertools that has been removed in Python 3.',
-                  {'maxversion': (3, 0)}),
+                  'Used when accessing a function on itertools that has been removed in Python 3.'),
         'W1652': ('Accessing a deprecated fields on the types module',
                   'deprecated-types-field',
-                  'Used when accessing a field on types that has been removed in Python 3.',
-                  {'maxversion': (3, 0)}),
+                  'Used when accessing a field on types that has been removed in Python 3.'),
         'W1653': ('next method defined',
                   'next-method-defined',
                   'Used when a next method is defined that would be an iterator in Python 2 but '
-                  'is treated as a normal function in Python 3.',
-                  {'maxversion': (3, 0)}),
+                  'is treated as a normal function in Python 3.',),
         'W1654': ('dict.items referenced when not iterating',
                   'dict-items-not-iterating',
                   'Used when dict.items is referenced in a non-iterating '
-                  'context (returns an iterator in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  'context (returns an iterator in Python 3)',),
         'W1655': ('dict.keys referenced when not iterating',
                   'dict-keys-not-iterating',
                   'Used when dict.keys is referenced in a non-iterating '
-                  'context (returns an iterator in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  'context (returns an iterator in Python 3)',),
         'W1656': ('dict.values referenced when not iterating',
                   'dict-values-not-iterating',
                   'Used when dict.values is referenced in a non-iterating '
-                  'context (returns an iterator in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  'context (returns an iterator in Python 3)',),
         'W1657': ('Accessing a removed attribute on the operator module',
                   'deprecated-operator-function',
                   'Used when accessing a field on operator module that has been '
-                  'removed in Python 3.',
-                  {'maxversion': (3, 0)}),
+                  'removed in Python 3.',),
         'W1658': ('Accessing a removed attribute on the urllib module',
                   'deprecated-urllib-function',
                   'Used when accessing a field on urllib module that has been '
-                  'removed or moved in Python 3.',
-                  {'maxversion': (3, 0)}),
+                  'removed or moved in Python 3.',),
     }
 
     _bad_builtins = frozenset([
@@ -650,7 +586,7 @@ class Python3Checker(checkers.BaseChecker):
             elif node.name == 'next':
                 # If there is a method named `next` declared, if it is invokable
                 # with zero arguments then it implements the Iterator protocol.
-                # This means if the method is a instance method or a
+                # This means if the method is an instance method or a
                 # classmethod 1 argument should cause a failure, if it is a
                 # staticmethod 0 arguments should cause a failure.
                 failing_arg_count = 1
@@ -679,7 +615,7 @@ class Python3Checker(checkers.BaseChecker):
         self.add_message('print-statement', node=node, always_warn=True)
 
     def _warn_if_deprecated(self, node, module, attributes, report_on_modules=True):
-        for message, module_map in six.iteritems(self._bad_python3_module_map):
+        for message, module_map in self._bad_python3_module_map.items():
             if module in module_map and module not in self._modules_warned_about:
                 if isinstance(module_map, frozenset):
                     if report_on_modules:
@@ -922,7 +858,8 @@ class Python3Checker(checkers.BaseChecker):
         strings or old-raise-syntax.
         """
         if (node.exc is not None and
-                node.inst is not None):
+                node.inst is not None and
+                node.tback is None):
             self.add_message('old-raise-syntax', node=node)
 
         # Ignore empty raise.
@@ -931,12 +868,11 @@ class Python3Checker(checkers.BaseChecker):
         expr = node.exc
         if self._check_raise_value(node, expr):
             return
-        else:
-            try:
-                value = next(astroid.unpack_infer(expr))
-            except astroid.InferenceError:
-                return
-            self._check_raise_value(node, value)
+        try:
+            value = next(astroid.unpack_infer(expr))
+        except astroid.InferenceError:
+            return
+        self._check_raise_value(node, value)
 
     def _check_raise_value(self, node, expr):
         if isinstance(expr, astroid.Const):

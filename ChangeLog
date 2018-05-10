@@ -5,7 +5,11 @@ Pylint's ChangeLog
 What's New in Pylint 1.9.0?
 ===========================
 
+
 Release date:
+
+
+    * The Python 3 porting mode can now run with Python 3 as well.
 
     * docparams extension allows abstract methods to document what overriding
       implementations should return, and to raise NotImplementedError without
