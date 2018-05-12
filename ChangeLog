@@ -10,6 +10,10 @@ What's New in Pylint 2.0?
 
        Close #1793
 
+    * Added `xreadlines-attribute`, emitted when the `xreadlines()` attribute is accessed.
+
+    * The Python 3 porting mode can now run with Python 3 as well.
+
     * docparams extension allows abstract methods to document what overriding
       implementations should return, and to raise NotImplementedError without
       documenting it.

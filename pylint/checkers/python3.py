@@ -404,6 +404,10 @@ class Python3Checker(checkers.BaseChecker):
                   'deprecated-urllib-function',
                   'Used when accessing a field on urllib module that has been '
                   'removed or moved in Python 3.',),
+        'W1659': ('Accessing a removed xreadlines attribute',
+                  'xreadlines-attribute',
+                  'Used when accessing the xreadlines() function on a file stream, '
+                  'removed in Python 3.',),
     }
 
     _bad_builtins = frozenset([
@@ -822,18 +826,22 @@ class Python3Checker(checkers.BaseChecker):
     def visit_delattr(self, node):
         self.visit_attribute(node)
 
-    @utils.check_messages('exception-message-attribute')
+    @utils.check_messages('exception-message-attribute', 'xreadlines-attribute')
     def visit_attribute(self, node):
-        """Look for accessing message on exceptions. """
-        message = 'message'
+        """Look for removed attributes"""
+        if node.attrname == 'xreadlines':
+            self.add_message('xreadlines-attribute', node=node)
+            return
+
+        exception_message = 'message'
         try:
             for inferred in node.expr.infer():
                 if (isinstance(inferred, astroid.Instance) and
                         utils.inherit_from_std_ex(inferred)):
-                    if node.attrname == message:
+                    if node.attrname == exception_message:
 
                         # Exceptions with .message clearly defined are an exception
-                        if message in inferred.instance_attrs:
+                        if exception_message in inferred.instance_attrs:
                             continue
                         self.add_message('exception-message-attribute', node=node)
                 if isinstance(inferred, astroid.Module):
