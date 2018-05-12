@@ -494,6 +494,14 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)
 
+    def test_xreadlines_attribute(self):
+        node = astroid.extract_node("""
+        f.xreadlines #@
+        """)
+        message = testutils.Message('xreadlines-attribute', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
     def test_exception_message_attribute(self):
         node = astroid.extract_node("""
         try:

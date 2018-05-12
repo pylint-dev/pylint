@@ -8,6 +8,7 @@ What's New in Pylint 1.9.0?
 
 Release date:
 
+    * Added `xreadlines-attribute`, emitted when the `xreadlines()` attribute is accessed.
 
     * The Python 3 porting mode can now run with Python 3 as well.
 
