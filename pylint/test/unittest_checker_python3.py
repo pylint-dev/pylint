@@ -711,6 +711,15 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
+    def test_bad_sys_attribute(self):
+        node = astroid.extract_node('''
+        import sys
+        sys.exc_clear #@
+        ''')
+        message = testutils.Message('deprecated-sys-function', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
     def test_bad_urllib_attribute(self):
         nodes = astroid.extract_node('''
         import urllib

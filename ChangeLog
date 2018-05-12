@@ -10,6 +10,8 @@ What's New in Pylint 2.0?
 
        Close #1793
 
+    * Added a new `deprecated-sys-function`, emitted when accessing removed sys members.
+
     * Added `xreadlines-attribute`, emitted when the `xreadlines()` attribute is accessed.
 
     * The Python 3 porting mode can now run with Python 3 as well.
