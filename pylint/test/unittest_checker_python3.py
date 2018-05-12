@@ -717,6 +717,41 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
+    def test_comprehension_escape(self):
+        list_comp, set_comp, dict_comp = astroid.extract_node('''
+        [i for i in range(10)]
+        i #@
+        {c for c in range(10)}
+        c #@
+        {j:j for j in range(10)}
+        j #@
+        ''')
+        message = testutils.Message('comprehension-escape', node=list_comp)
+        with self.assertAddsMessages(message):
+            self.checker.visit_name(list_comp)
+
+        for node in (set_comp, dict_comp):
+            with self.assertNoMessages():
+                self.checker.visit_name(node)
+
+    def test_exception_escape(self):
+        bad, good = astroid.extract_node('''
+        try: 1/0
+        except ValueError as exc:
+            pass
+        exc #@
+        try:
+           2/0
+        except (ValueError, TypeError) as exc:
+           exc = 2
+        exc #@
+        ''')
+        message = testutils.Message('exception-escape', node=bad)
+        with self.assertAddsMessages(message):
+            self.checker.visit_name(bad)
+        with self.assertNoMessages():
+            self.checker.visit_name(good)
+
     def test_bad_sys_attribute(self):
         node = astroid.extract_node('''
         import sys

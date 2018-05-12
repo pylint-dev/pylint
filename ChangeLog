@@ -8,6 +8,11 @@ What's New in Pylint 1.9.0?
 
 Release date:
 
+    * Added two new Python 3 porting checks, `exception-escape` and `comprehension-escape`
+
+      These two are emitted whenever pylint detects that a variable defined in the
+      said blocks is used outside of the given block. On Python 3 these values are deleted.
+
     * Added a new `deprecated-sys-function`, emitted when accessing removed sys members.
 
     * Added `xreadlines-attribute`, emitted when the `xreadlines()` attribute is accessed.

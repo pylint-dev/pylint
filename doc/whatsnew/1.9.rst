@@ -45,10 +45,26 @@ New checkers
 
       a = ur'...'
 
-* Added a new `deprecated-sys-function`, emitted when accessing removed `sys` members.
+* Added a new `deprecated-sys-function` check, emitted when accessing removed `sys` members.
 
-* Added `xreadlines-attribute`, emitted when the `xreadlines()` attribute is accessed
+* Added `xreadlines-attribute` check, emitted when the `xreadlines()` attribute is accessed
   on a file object.
+
+* Added two new Python 3 porting checks, `exception-escape` and `comprehension-escape`
+
+  These two are emitted whenever pylint detects that a variable defined in the
+  said blocks is used outside of the given block. On Python 3 these values are deleted.
+
+  .. code-block:: python
+
+      try:
+        1/0
+      except ZeroDivisionError as exc:
+         ...
+      print(exc) # This will raise a NameError on Python 3
+
+      [i for i in some_iterator if some_condition(i)]
+      print(i) # This will raise a NameError on Python 3
 
 
 Other Changes

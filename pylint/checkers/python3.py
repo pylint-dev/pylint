@@ -413,6 +413,16 @@ class Python3Checker(checkers.BaseChecker):
                   'deprecated-sys-function',
                   'Used when accessing a field on sys module that has been '
                   'removed in Python 3.',),
+        'W1661': ('Using an exception object that was bound by an except handler',
+                  'exception-escape',
+                  'Emitted when using an exception, that was bound in an except handler, outside '
+                  'of the except handler. On Python 3 these exceptions will be deleted once they get out '
+                  'of the except handler.'),
+        'W1662': ('Using a variable that was bound inside a comprehension',
+                  'comprehension-escape',
+                  'Emitted when using a variable, that was bound in a comprehension handler, outside '
+                  'of the comprehension itself. On Python 3 these variables will be deleted outside of the '
+                  'comprehension.'),
     }
 
     _bad_builtins = frozenset([
@@ -616,11 +626,27 @@ class Python3Checker(checkers.BaseChecker):
 
     def visit_name(self, node):
         """Detect when a "bad" built-in is referenced."""
-        found_node = node.lookup(node.name)[0]
+        found_node, located_statements = node.lookup(node.name)
         if _is_builtin(found_node):
             if node.name in self._bad_builtins:
                 message = node.name.lower() + '-builtin'
                 self.add_message(message, node=node)
+
+        if len(located_statements) == 1:
+            assign_statement = located_statements[0].statement()
+            if isinstance(assign_statement, astroid.ExceptHandler):
+                current = node
+                while current and not isinstance(current.parent, astroid.ExceptHandler):
+                    current = current.parent
+
+                if current and isinstance(current.parent, astroid.ExceptHandler):
+                    return
+                self.add_message('exception-escape', node=node)
+
+            if isinstance(assign_statement, (astroid.Expr, astroid.Assign)):
+                if (isinstance(assign_statement.value, astroid.ListComp)
+                        and not assign_statement.parent_of(node)):
+                    self.add_message('comprehension-escape', node=node)
 
     @utils.check_messages('print-statement')
     def visit_print(self, node):
