@@ -409,6 +409,10 @@ class Python3Checker(checkers.BaseChecker):
                   'xreadlines-attribute',
                   'Used when accessing the xreadlines() function on a file stream, '
                   'removed in Python 3.',),
+        'W1660': ('Accessing a removed attribute on the sys module',
+                  'deprecated-sys-function',
+                  'Used when accessing a field on sys module that has been '
+                  'removed in Python 3.',),
     }
 
     _bad_builtins = frozenset([
@@ -526,6 +530,9 @@ class Python3Checker(checkers.BaseChecker):
                 'urlopen', 'urlretrieve'
             }),
         },
+        'deprecated-sys-function': {
+            'sys': frozenset({'exc_clear'}),
+        }
     }
 
     if (3, 4) <= sys.version_info < (3, 4, 4):

@@ -45,6 +45,11 @@ New checkers
 
       a = ur'...'
 
+* Added a new `deprecated-sys-function`, emitted when accessing removed `sys` members.
+
+* Added `xreadlines-attribute`, emitted when the `xreadlines()` attribute is accessed
+  on a file object.
+
 
 Other Changes
 =============
