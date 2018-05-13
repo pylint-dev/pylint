@@ -626,27 +626,42 @@ class Python3Checker(checkers.BaseChecker):
 
     def visit_name(self, node):
         """Detect when a "bad" built-in is referenced."""
-        found_node, located_statements = node.lookup(node.name)
+        found_node, _ = node.lookup(node.name)
         if _is_builtin(found_node):
             if node.name in self._bad_builtins:
                 message = node.name.lower() + '-builtin'
                 self.add_message(message, node=node)
 
-        if len(located_statements) == 1:
-            assign_statement = located_statements[0].statement()
-            if isinstance(assign_statement, astroid.ExceptHandler):
-                current = node
-                while current and not isinstance(current.parent, astroid.ExceptHandler):
-                    current = current.parent
+        # On Python 3 we don't find the leaked objects as
+        # they are already deleted, so instead look for them manually.
+        scope = node.scope()
+        assign_names = (node_ for node_ in scope.nodes_of_class(astroid.AssignName)
+                        if node_.name == node.name and node_.lineno < node.lineno)
+        assigned = next(assign_names, None)
+        if not assigned:
+            return
 
-                if current and isinstance(current.parent, astroid.ExceptHandler):
+        assign_statement = assigned.statement()
+        assigns = (node_ for node_ in scope.nodes_of_class(astroid.Assign)
+                   if node_.lineno < node.lineno)
+
+        for assign in assigns:
+            for target in assign.targets:
+                if getattr(target, 'name', None) == node.name:
                     return
-                self.add_message('exception-escape', node=node)
 
-            if isinstance(assign_statement, (astroid.Expr, astroid.Assign)):
-                if (isinstance(assign_statement.value, astroid.ListComp)
-                        and not assign_statement.parent_of(node)):
-                    self.add_message('comprehension-escape', node=node)
+        if isinstance(assign_statement, astroid.ExceptHandler):
+            current = node
+            while current and not isinstance(current.parent, astroid.ExceptHandler):
+                current = current.parent
+            if current and isinstance(current.parent, astroid.ExceptHandler):
+                return
+            self.add_message('exception-escape', node=node)
+
+        if isinstance(assign_statement, (astroid.Expr, astroid.Assign)):
+            if (isinstance(assign_statement.value, astroid.ListComp)
+                    and not assign_statement.parent_of(node)):
+                self.add_message('comprehension-escape', node=node)
 
     @utils.check_messages('print-statement')
     def visit_print(self, node):
