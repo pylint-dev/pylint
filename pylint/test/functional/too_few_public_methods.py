@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring
 from __future__ import print_function
 
-import collections
+
 from enum import Enum
 
 
@@ -38,13 +38,13 @@ class BossMonster(Enum):
     octopus = 2
 
 
-class DumbList(collections.Sequence):
+class DumbList(object):
     """A class can define only special methods."""
-    def __init__(self, iterable):
-        self._list = list(iterable)
+    def __setattr__(self, key, value):
+        return key + value
 
     def __len__(self):
-        return len(self._list)
+        return 0
 
     def __getitem__(self, index):
-        return self._list[index]
+        return index
