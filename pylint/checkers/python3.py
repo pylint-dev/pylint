@@ -415,13 +415,15 @@ class Python3Checker(checkers.BaseChecker):
                   'removed in Python 3.',),
         'W1661': ('Using an exception object that was bound by an except handler',
                   'exception-escape',
-                  'Emitted when using an exception, that was bound in an except handler, outside '
-                  'of the except handler. On Python 3 these exceptions will be deleted once they get out '
+                  'Emitted when using an exception, that was bound in an except '
+                  'handler, outside of the except handler. On Python 3 these '
+                  'exceptions will be deleted once they get out '
                   'of the except handler.'),
         'W1662': ('Using a variable that was bound inside a comprehension',
                   'comprehension-escape',
-                  'Emitted when using a variable, that was bound in a comprehension handler, outside '
-                  'of the comprehension itself. On Python 3 these variables will be deleted outside of the '
+                  'Emitted when using a variable, that was bound in a comprehension '
+                  'handler, outside of the comprehension itself. On Python 3 these '
+                  'variables will be deleted outside of the '
                   'comprehension.'),
     }
 
