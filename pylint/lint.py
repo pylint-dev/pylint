@@ -549,7 +549,7 @@ class PyLinter(utils.MessagesHandlerMixIn, checkers.BaseTokenChecker):
         self.current_name = None
         self.current_file = None
 
-        super().__init__()
+        super().__init__(config)
         # provided reports
         self._dynamic_plugins = set()
         self._python3_porting_mode = False
@@ -568,17 +568,71 @@ class PyLinter(utils.MessagesHandlerMixIn, checkers.BaseTokenChecker):
                 module.load_configuration(self)
 
     # checkers manipulation methods ############################################
+    def disable(self, msgid, scope="module", line=None, ignore_unknown=False):
+        """Do not output messages that have the given ID.
 
-    def disable_noerror_messages(self):
-        for msgcat, msgids in self.msgs_store._msgs_by_category.items():
-            # enable only messages with 'error' severity and above ('fatal')
-            if msgcat in ["E", "F"]:
-                for msgid in msgids:
-                    self.enable(msgid)
-            else:
-                for msgid in msgids:
-                    self.disable(msgid)
+        :param msgid: The ID of the message to disable.
+            This can also be "all" to disable all messages,
+            the ID of a category to disable all messages of that category,
+            or the name of a checker to disable all messages from the checker.
+        :type msgid: str
 
+        :param scope: Must be "module". Provided for backwards compatibility.
+        :type scope: str.
+
+        :param line: The line number that the message is disabled on.
+        :type line: int
+
+        :param ignore_unknown: If this is False,
+            an :exc:`UnknownMessageError` is raised when a message with the
+            given ID cannot be found.
+            If this is True, the exception is not raised.
+        :param ignore_unknown: bool
+
+        :raises ValueError: If `scope` is anything other than "module".
+        """
+        if scope != "module":
+            msg = "Messages can be configured on only a module level"
+            raise ValueError(msg)
+
+        self._set_msg_status(
+            msgid, enable=False, scope=scope, line=line, ignore_unknown=ignore_unknown
+        )
+
+    def enable(self, msgid, scope="module", line=None, ignore_unknown=False):
+        """Enable outputting messages that have the given ID.
+
+        :param msgid: The ID of the message to enable.
+            This can also be "all" to enable all messages,
+            the ID of a category to enable all messages of that category,
+            or the name of a checker to enable all messages from the checker.
+        :type msgid: str
+
+        :param scope: Must be "module". Provided for backwards compatibility.
+        :type scope: str.
+
+        :param line: The line number that the message is enabled on.
+        :type line: int
+
+        :param ignore_unknown: If this is False,
+            an :exc:`UnknownMessageError` is raised when a message with the
+            given ID cannot be found.
+            If this is True, the exception is not raised.
+        :param ignore_unknown: bool
+
+        :raises ValueError: If `scope` is anything other than "module".
+        """
+        if scope != "module":
+            msg = "Messages can be configured on only a module level"
+            raise ValueError(msg)
+
+        self._set_msg_status(
+            msgid, enable=True, scope=scope, line=line, ignore_unknown=ignore_unknown
+        )
+
+    # checkers manipulation methods ############################################
+
+    # TODO: Move to plugin registry
     def error_mode(self):
         """error mode: enable only errors; no reports, no persistent"""
         self._error_mode = True
@@ -703,11 +757,6 @@ class PyLinter(utils.MessagesHandlerMixIn, checkers.BaseTokenChecker):
         return path.endswith(".py")
 
     # pylint: enable=unused-argument
-
-    def _init_msg_states(self):
-        for msg in self.msgs_store.messages:
-            if not msg.may_be_emitted():
-                self._msgs_state[msg.msgid] = False
 
     def check(self, files_or_modules, checkers_):
         """main checking entry: check a list of files or modules from their
@@ -837,7 +886,9 @@ class PyLinter(utils.MessagesHandlerMixIn, checkers.BaseTokenChecker):
 
     def open(self):
         """initialize counters"""
-        self.stats = {"by_module": {}, "by_msg": {}}
+        self.stats.clear()
+        self.stats["by_module"] = {}
+        self.stats["by_msg"] = {}
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.max_inferable_values = self.config.limit_inference_results
         MANAGER.extension_package_whitelist.update(self.config.extension_pkg_whitelist)
@@ -948,11 +999,11 @@ class ReportRegistry:
         return self._reports_state.get(reportid, True)
 
 
-class PluginRegistry(ReportRegistry):
+class PluginRegistry(utils.MessagesHandlerMixIn, ReportRegistry):
     """A class to register checkers to."""
 
     def __init__(self, linter, register_options=(lambda options: None)):
-        super(PluginRegistry, self).__init__()
+        super().__init__(linter.config, linter.msgs_store, linter.stats)
         self.register_options = register_options
         self._checkers = collections.defaultdict(list)
         # TODO: Remove. This is needed for the MessagesHandlerMixIn for now.
@@ -965,8 +1016,7 @@ class PluginRegistry(ReportRegistry):
 
         self.register_options(linter.options)
 
-        # TODO: Move elsewhere
-        linter.msgs_store.register_messages_from_checker(linter)
+        self.msgs_store.register_messages_from_checker(linter)
 
     def for_all_checkers(self):
         """Loop through all registered checkers.
@@ -1012,14 +1062,13 @@ class PluginRegistry(ReportRegistry):
 
         self.register_options(checker.options)
 
-        # TODO: Move elsewhere
         if hasattr(checker, "msgs"):
-            self._linter.msgs_store.register_messages_from_checker(checker)
+            self.msgs_store.register_messages_from_checker(checker)
 
         # Register the checker, but disable all of its messages.
         # TODO(cpopa): we should have a better API for this.
         if not getattr(checker, "enabled", True):
-            self._linter.disable(checker.name)
+            self.disable(checker.name)
 
     def register_reporter(self, reporter_class):
         if reporter_class.name in self._reporters:
@@ -1035,6 +1084,70 @@ class PluginRegistry(ReportRegistry):
     # until we know what API we want.
     def __getattr__(self, attribute):
         return getattr(self._linter, attribute)
+
+    def disable(self, msgid, scope="package", line=None, ignore_unknown=False):
+        """Do not output messages that have the given ID.
+
+        :param msgid: The ID of the message to disable.
+            This can also be "all" to disable all messages,
+            the ID of a category to disable all messages of that category,
+            or the name of a checker to disable all messages from the checker.
+        :type msgid: str
+
+        :param scope: Must be "package". Provided for backwards compatibility.
+        :type scope: str.
+
+        :param line: The line number that the message is disabled on.
+            This is not used and is provided for backwards compatibility only.
+        :type line: int
+
+        :param ignore_unknown: If this is False,
+            an :exc:`UnknownMessageError` is raised when a message with the
+            given ID cannot be found.
+            If this is True, the exception is not raised.
+        :param ignore_unknown: bool
+
+        :raises ValueError: If `scope` is anything other than "package".
+        """
+        if scope != "package":
+            msg = "Messages can be configured on only a package level"
+            raise ValueError(msg)
+
+        self._set_msg_status(
+            msgid, enable=False, scope=scope, line=line, ignore_unknown=ignore_unknown
+        )
+
+    def enable(self, msgid, scope="package", line=None, ignore_unknown=False):
+        """Enable outputting messages that have the given ID.
+
+        :param msgid: The ID of the message to enable.
+            This can also be "all" to enable all messages,
+            the ID of a category to enable all messages of that category,
+            or the name of a checker to enable all messages from the checker.
+        :type msgid: str
+
+        :param scope: Must be "package". Provided for backwards compatibility.
+        :type scope: str.
+
+        :param line: The line number that the message is enabled on.
+            This is not used and is provided for backwards compatibility only.
+        :type line: int
+
+        :param ignore_unknown: If this is False,
+            an :exc:`UnknownMessageError` is raised when a message with the
+            given ID cannot be found.
+            If this is True, the exception is not raised.
+        :param ignore_unknown: bool
+
+        :raises ValueError: If `scope` is anything other than "package".
+        """
+        if scope != "package":
+            msg = "Messages can be configured on only a package level"
+            raise ValueError(msg)
+
+        self._set_msg_status(
+            msgid, enable=True, scope=scope, line=line, ignore_unknown=ignore_unknown
+        )
 
 
 class Runner(object):
@@ -1187,10 +1300,10 @@ group are mutually exclusive.",
 
     def __init__(self):
         super().__init__()
-        self._linter = PyLinter()
+        self._global_config = config.Configuration()
+        self._linter = PyLinter(self._global_config)
         self._plugin_registry = PluginRegistry(self._linter)
         self._loaded_plugins = set()
-        self._global_config = config.Configuration()
         self._reporter = None
 
     def run(self, args):
@@ -1307,18 +1420,18 @@ group are mutually exclusive.",
             sys.exit(0)
 
         if self._global_config.list_msgs:
-            self._linter.msgs_store.list_messages()
+            self._plugin_registry.msgs_store.list_messages()
             sys.exit(0)
 
         if self._global_config.help_msg:
             msg = utils._splitstrip(self._global_config.help_msg)
-            self._linter.msgs_store.help_message(msg)
+            self._plugin_registry.msgs_store.help_message(msg)
             sys.exit(0)
 
         self.load_default_plugins()
 
-        self._linter.disable("I")
-        self._linter.enable("c-extension-no-member")
+        self._plugin_registry.disable("I")
+        self._plugin_registry.enable("c-extension-no-member")
 
         for checker in self._plugin_registry.for_all_checkers():
             checker.config = self._global_config
@@ -1369,6 +1482,7 @@ group are mutually exclusive.",
         if name in self._plugin_registry._reporters:
             self._reporter = self._plugin_registry._reporters[name]()
             self._linter.reporter = self._reporter
+            self._plugin_registry.reporter = self._reporter
             # TODO: Remove the need to do this
             self._reporter.linter = self._linter
         else:
@@ -1500,7 +1614,9 @@ group are mutually exclusive.",
         neededcheckers = [self._linter]
         for checker in self.get_checkers()[1:]:
             messages = set(
-                msg for msg in checker.msgs if self._linter.is_message_enabled(msg)
+                msg
+                for msg in checker.msgs
+                if self._plugin_registry.is_message_enabled(msg)
             )
             if messages or any(
                 self._plugin_registry.report_is_enabled(r[0]) for r in checker.reports
