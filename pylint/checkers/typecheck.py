@@ -288,6 +288,10 @@ MSGS = {
               'Emitted whenever we can detect that a class is using, '
               'as a metaclass, something which might be invalid for using as '
               'a metaclass.'),
+    'E1140': ("Key '%s' is unhashable",
+              'unhashable-dict-key',
+              "Emitted when a dict key is not hashable"
+              "(i.e. doesn't define __hash__ method)"),
     'W1113': ('Keyword argument before variable positional arguments list '
               'in the definition of %s function',
               'keyword-arg-before-vararg',
@@ -1241,12 +1245,27 @@ accessed. Python regular expressions are accepted.'}
         if op in ['in', 'not in']:
             self._check_membership_test(right)
 
-    @check_messages('unsubscriptable-object', 'unsupported-assignment-operation',
-                    'unsupported-delete-operation')
+    @check_messages('unsubscriptable-object',
+                    'unsupported-assignment-operation',
+                    'unsupported-delete-operation',
+                    'unhashable-dict-key')
     def visit_subscript(self, node):
         supported_protocol = None
         if isinstance(node.value, (astroid.ListComp, astroid.DictComp)):
             return
+
+        if isinstance(node.value, astroid.Dict):
+            # Assert dict key is hashable
+            try:
+                hash_fn = next(next(
+                    node.slice.value.infer()).igetattr('__hash__'))
+            except astroid.InferenceError:
+                pass
+            else:
+                if getattr(hash_fn, 'value', True) is None:
+                    self.add_message('unhashable-dict-key',
+                                     args=node.slice.as_string(),
+                                     node=node.value)
 
         if node.ctx == astroid.Load:
             supported_protocol = supports_getitem
