@@ -118,10 +118,14 @@ class TestRunTC(object):
                     Run(args, reporter=reporter)
             return cm.value.code
 
+    def _clean_paths(self, output):
+        """Remove version-specific tox parent directories from paths."""
+        return re.sub(r'py\d\d/.+/site-packages/', '', output)
+
     def _test_output(self, args, expected_output):
         out = six.StringIO()
         self._run_pylint(args, out=out)
-        actual_output = out.getvalue()
+        actual_output = self._clean_paths(out.getvalue())
         assert expected_output.strip() in actual_output.strip()
 
     def test_pkginfo(self):
@@ -297,9 +301,9 @@ class TestRunTC(object):
         module = join(HERE, 'data', 'clientmodule_test.py')
         expected = textwrap.dedent("""
         ************* Module data.clientmodule_test
-        W: 10, 8: Unused variable 'local_variable' (unused-variable)
-        C: 18, 4: Missing method docstring (missing-docstring)
-        C: 22, 0: Missing class docstring (missing-docstring)
+        pylint/test/data/clientmodule_test.py:10:8: W0612: Unused variable 'local_variable' (unused-variable)
+        pylint/test/data/clientmodule_test.py:18:4: C0111: Missing method docstring (missing-docstring)
+        pylint/test/data/clientmodule_test.py:22:0: C0111: Missing class docstring (missing-docstring)
         """)
         self._test_output([module, "--disable=all", "--enable=all", "-rn"],
                           expected_output=expected)
@@ -307,7 +311,7 @@ class TestRunTC(object):
     def test_wrong_import_position_when_others_disabled(self):
         expected_output = textwrap.dedent('''
         ************* Module wrong_import_position
-        C: 11, 0: Import "import os" should be placed at the top of the module (wrong-import-position)
+        pylint/test/regrtest_data/wrong_import_position.py:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
         ''')
         module1 = join(HERE, 'regrtest_data', 'import_something.py')
         module2 = join(HERE, 'regrtest_data', 'wrong_import_position.py')
@@ -316,7 +320,7 @@ class TestRunTC(object):
                 "-rn", "-sn"]
         out = six.StringIO()
         self._run_pylint(args, out=out)
-        actual_output = out.getvalue().strip()
+        actual_output = self._clean_paths(out.getvalue().strip())
 
         to_remove = "No config file found, using default configuration"
         if to_remove in actual_output:
@@ -391,7 +395,7 @@ class TestRunTC(object):
     def test_error_mode_shows_no_score(self):
         expected_output = textwrap.dedent('''
         ************* Module application_crash
-        E:  1, 6: Undefined variable 'something_undefined' (undefined-variable)
+        pylint/test/regrtest_data/application_crash.py:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
         ''')
         module = join(HERE, 'regrtest_data', 'application_crash.py')
         self._test_output([module, "-E"], expected_output=expected_output)
@@ -439,9 +443,9 @@ class TestRunTC(object):
         config_path = join(HERE, 'regrtest_data', 'comments_pylintrc')
         expected = textwrap.dedent('''
         ************* Module test_pylintrc_comments
-        W:  2, 0: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
-        C:  1, 0: Missing module docstring (missing-docstring)
-        C:  1, 0: Missing function docstring (missing-docstring)
+        pylint/test/regrtest_data/test_pylintrc_comments.py:2:0: W0311: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
+        pylint/test/regrtest_data/test_pylintrc_comments.py:1:0: C0111: Missing module docstring (missing-docstring)
+        pylint/test/regrtest_data/test_pylintrc_comments.py:1:0: C0111: Missing function docstring (missing-docstring)
         ''')
         self._test_output([path, "--rcfile=%s" % config_path, "-rn"],
                           expected_output=expected)
@@ -453,7 +457,7 @@ class TestRunTC(object):
     def test_getdefaultencoding_crashes_with_lc_ctype_utf8(self):
         expected_output = textwrap.dedent('''
         ************* Module application_crash
-        E:  1, 6: Undefined variable 'something_undefined' (undefined-variable)
+        pylint/test/regrtest_data/application_crash.py:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
         ''')
         module = join(HERE, 'regrtest_data', 'application_crash.py')
         with _configure_lc_ctype('UTF-8'):
