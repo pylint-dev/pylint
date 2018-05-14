@@ -120,7 +120,7 @@ class TestRunTC(object):
 
     def _clean_paths(self, output):
         """Remove version-specific tox parent directories from paths."""
-        return re.sub(r'py\d\d/.+/site-packages/', '', output)
+        return re.sub('^py.+/site-packages/', '', output.replace('\\', '/'), flags=re.MULTILINE)
 
     def _test_output(self, args, expected_output):
         out = six.StringIO()
