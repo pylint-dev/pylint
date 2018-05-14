@@ -243,13 +243,14 @@ class MessagesHandlerMixIn(object):
     """
     __by_id_managed_msgs = []
 
-    def __init__(self):
-        self.file_state = FileState()
+    def __init__(self, config, msgs_store=None, stats=None):
+        self.config = config
+        self.file_state = None
         self._msgs_state = {}
         self.msg_status = 0
-        self.msgs_store = MessagesStore()
+        self.msgs_store = msgs_store or MessagesStore()
         self.reporter = None
-        self.stats = {
+        self.stats = stats or {
             'by_module': {},
             'by_msg': {},
         }
@@ -356,12 +357,27 @@ class MessagesHandlerMixIn(object):
         except UnknownMessageError:
             return msgid
 
+    def disable_noerror_messages(self):
+        """Enable only error and fatal level messages, disabling all others."""
+        for msgcat, msgids in self.msgs_store._msgs_by_category.items():
+            if msgcat in ('E', 'F'):
+                for msgid in msgids:
+                    self.enable(msgid)
+            else:
+                for msgid in msgids:
+                    self.disable(msgid)
+
+    def _init_msg_states(self):
+        for msg in self.msgs_store.messages:
+            if not msg.may_be_emitted():
+                self._msgs_state[msg.msgid] = False
+
     def get_message_state_scope(self, msgid, line=None, confidence=UNDEFINED):
         """Returns the scope at which a message was enabled/disabled."""
         if self.config.confidence and confidence.name not in self.config.confidence:
             return MSG_STATE_CONFIDENCE
         try:
-            if line in self.file_state._module_msgs_state[msgid]:
+            if self.file_state and line in self.file_state._module_msgs_state[msgid]:
                 return MSG_STATE_SCOPE_MODULE
         except (KeyError, TypeError):
             return MSG_STATE_SCOPE_CONFIG
@@ -385,10 +401,13 @@ class MessagesHandlerMixIn(object):
             msgid = msg_descr
         if line is None:
             return self._msgs_state.get(msgid, True)
-        try:
-            return self.file_state._module_msgs_state[msgid][line]
-        except KeyError:
-            return self._msgs_state.get(msgid, True)
+        if self.file_state:
+            try:
+                return self.file_state._module_msgs_state[msgid][line]
+            except KeyError:
+                pass
+
+        return self._msgs_state.get(msgid, True)
 
     def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
                     col_offset=None):
@@ -428,9 +447,10 @@ class MessagesHandlerMixIn(object):
 
         # should this message be displayed
         if not self.is_message_enabled(msgid, line, confidence):
-            self.file_state.handle_ignored_message(
-                self.get_message_state_scope(msgid, line, confidence),
-                msgid, line, node, args, confidence)
+            if self.file_state:
+                self.file_state.handle_ignored_message(
+                    self.get_message_state_scope(msgid, line, confidence),
+                    msgid, line, node, args, confidence)
             return
         # update stats
         msg_cat = MSG_TYPES[msgid[0]]
