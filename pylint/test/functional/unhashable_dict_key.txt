@@ -1,3 +1,3 @@
-unhashable-dict-key:6::Key '[]' is unhashable
-unhashable-dict-key:7::Key '{}' is unhashable
-unhashable-dict-key:8::Key 'Unhashable()' is unhashable
+unhashable-dict-key:7::Dict key is unhashable
+unhashable-dict-key:8::Dict key is unhashable
+unhashable-dict-key:9::Dict key is unhashable

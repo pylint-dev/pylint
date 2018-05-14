@@ -288,7 +288,7 @@ MSGS = {
               'Emitted whenever we can detect that a class is using, '
               'as a metaclass, something which might be invalid for using as '
               'a metaclass.'),
-    'E1140': ("Key '%s' is unhashable",
+    'E1140': ("Dict key is unhashable",
               'unhashable-dict-key',
               "Emitted when a dict key is not hashable"
               "(i.e. doesn't define __hash__ method)"),
@@ -1256,16 +1256,16 @@ accessed. Python regular expressions are accepted.'}
 
         if isinstance(node.value, astroid.Dict):
             # Assert dict key is hashable
-            try:
-                hash_fn = next(next(
-                    node.slice.value.infer()).igetattr('__hash__'))
-            except astroid.InferenceError:
-                pass
-            else:
-                if getattr(hash_fn, 'value', True) is None:
-                    self.add_message('unhashable-dict-key',
-                                     args=node.slice.as_string(),
-                                     node=node.value)
+            inferred = safe_infer(node.slice.value)
+            if inferred is not None:
+                try:
+                    hash_fn = next(inferred.igetattr('__hash__'))
+                except astroid.InferenceError:
+                    pass
+                else:
+                    if getattr(hash_fn, 'value', True) is None:
+                        self.add_message('unhashable-dict-key',
+                                         node=node.value)
 
         if node.ctx == astroid.Load:
             supported_protocol = supports_getitem
