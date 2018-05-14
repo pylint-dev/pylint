@@ -230,7 +230,8 @@ class StdlibChecker(BaseChecker):
                           'bad-thread-instantiation',
                           'shallow-copy-environ',
                           'invalid-envvar-value',
-                          'invalid-envvar-default')
+                          'invalid-envvar-default',
+                          'subprocess-popen-preexec-fn')
     def visit_call(self, node):
         """Visit a Call node."""
         try:
