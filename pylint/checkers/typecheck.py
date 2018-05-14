@@ -1260,7 +1260,7 @@ accessed. Python regular expressions are accepted.'}
             if inferred is not None:
                 try:
                     hash_fn = next(inferred.igetattr('__hash__'))
-                except astroid.InferenceError:
+                except (astroid.InferenceError, TypeError):
                     pass
                 else:
                     if getattr(hash_fn, 'value', True) is None:
