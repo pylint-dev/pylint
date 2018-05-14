@@ -34,6 +34,7 @@ THREADING_THREAD = 'threading.Thread'
 COPY_COPY = 'copy.copy'
 OS_ENVIRON = 'os._Environ'
 ENV_GETTERS = {'os.getenv'}
+SUBPROCESS_POPEN = 'subprocess.Popen'
 
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
@@ -120,6 +121,14 @@ class StdlibChecker(BaseChecker):
                   'Env manipulation functions return None or str values. '
                   'Supplying anything different as a default may cause bugs. '
                   'See https://docs.python.org/3/library/os.html#os.getenv. '),
+        'W1509': ('Using preexec_fn keyword which may be unsafe in the presence '
+                  'of threads',
+                  'subprocess-popen-preexec-fn',
+                  'The preexec_fn parameter is not safe to use in the presence '
+                  'of threads in your application. The child process could '
+                  'deadlock before exec is called. If you must use it, keep it '
+                  'trivial! Minimize the number of libraries you call into.'
+                  'https://docs.python.org/3/library/subprocess.html#popen-constructor'),
 
     }
 
@@ -202,6 +211,12 @@ class StdlibChecker(BaseChecker):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
             self.add_message('bad-thread-instantiation', node=node)
 
+    def _check_for_preexec_fn_in_Popen(self, node):
+        if node.keywords:
+            for keyword in node.keywords:
+                if keyword.arg == 'preexec_fn':
+                    self.add_message('subprocess-popen-preexec-fn', node=node)
+
     def _check_shallow_copy_environ(self, node):
         arg = utils.get_argument_from_call(node, position=0)
         for inferred in arg.inferred():
@@ -215,7 +230,8 @@ class StdlibChecker(BaseChecker):
                           'bad-thread-instantiation',
                           'shallow-copy-environ',
                           'invalid-envvar-value',
-                          'invalid-envvar-default')
+                          'invalid-envvar-default',
+                          'subprocess-popen-preexec-fn')
     def visit_call(self, node):
         """Visit a Call node."""
         try:
@@ -227,9 +243,11 @@ class StdlibChecker(BaseChecker):
                         self._check_open_mode(node)
                 elif inferred.root().name == UNITTEST_CASE:
                     self._check_redundant_assert(node, inferred)
-                elif (isinstance(inferred, astroid.ClassDef)
-                      and inferred.qname() == THREADING_THREAD):
-                    self._check_bad_thread_instantiation(node)
+                elif isinstance(inferred, astroid.ClassDef):
+                    if inferred.qname() == THREADING_THREAD:
+                        self._check_bad_thread_instantiation(node)
+                    elif inferred.qname() == SUBPROCESS_POPEN:
+                        self._check_for_preexec_fn_in_Popen(node)
                 elif isinstance(inferred, astroid.FunctionDef):
                     name = inferred.qname()
                     if name == COPY_COPY:
