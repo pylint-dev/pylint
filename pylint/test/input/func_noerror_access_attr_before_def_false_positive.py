@@ -1,4 +1,4 @@
-#pylint: disable=C0103,R0904,R0903,W0201,old-style-class,no-absolute-import
+#pylint: disable=C0103,R0904,R0903,W0201,no-absolute-import
 """
 This module demonstrates a possible problem of pyLint with calling __init__ s
 from inherited classes.

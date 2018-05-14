@@ -1,4 +1,4 @@
-# pylint:disable=too-few-public-methods,old-style-class,no-init,import-error,missing-docstring, not-callable
+# pylint:disable=too-few-public-methods,no-init,import-error,missing-docstring, not-callable
 """test pb with exceptions and old/new style classes"""
 
 

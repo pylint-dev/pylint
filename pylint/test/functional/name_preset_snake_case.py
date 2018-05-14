@@ -1,4 +1,4 @@
-# pylint: disable=old-style-class,missing-docstring,too-few-public-methods
+# pylint: disable=missing-docstring,too-few-public-methods
 __version__ = "1.0"
 SOME_CONSTANT = 42  # [invalid-name]
 
