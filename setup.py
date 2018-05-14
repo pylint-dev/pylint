@@ -51,7 +51,6 @@ modname = __pkginfo__['modname']
 distname = __pkginfo__.get('distname', modname)
 scripts = __pkginfo__.get('scripts', [])
 data_files = __pkginfo__.get('data_files', None)
-include_dirs = __pkginfo__.get('include_dirs', [])
 ext_modules = __pkginfo__.get('ext_modules', None)
 install_requires = __pkginfo__.get('install_requires', None)
 dependency_links = __pkginfo__.get('dependency_links', [])
@@ -95,33 +94,6 @@ def _filter_tests(files):
     return [f for f in files if testdir not in f]
 
 
-class MyInstallLib(install_lib.install_lib):
-    """extend install_lib command to handle package __init__.py and
-    include_dirs variable if necessary
-    """
-    def run(self):
-        """overridden from install_lib class"""
-        install_lib.install_lib.run(self)
-        # manually install included directories if any
-        if include_dirs:
-            for directory in include_dirs:
-                dest = join(self.install_dir, directory)
-                if sys.version_info >= (3, 0):
-                    exclude = {'invalid_encoded_data*', 'unknown_encoding*'}
-                else:
-                    exclude = set()
-                shutil.rmtree(dest, ignore_errors=True)
-                shutil.copytree(directory, dest,
-                                ignore=shutil.ignore_patterns(*exclude))
-
-    # override this since pip/easy_install attempt to byte compile test data
-    # files, some of them being syntactically wrong by design, and this scares
-    # the end-user
-    def byte_compile(self, files):
-        files = _filter_tests(files)
-        install_lib.install_lib.byte_compile(self, files)
-
-
 if easy_install_lib:
     class easy_install(easy_install_lib.easy_install):
         # override this since pip/easy_install attempt to byte compile
@@ -149,8 +121,7 @@ def install(**kwargs):
             'symilar = pylint:run_symilar',
         ]}
     kwargs['packages'] = packages
-    cmdclass = {'install_lib': MyInstallLib,
-                'build_py': build_py}
+    cmdclass = {'build_py': build_py}
     if easy_install_lib:
         cmdclass['easy_install'] = easy_install
     return setup(name=distname,
