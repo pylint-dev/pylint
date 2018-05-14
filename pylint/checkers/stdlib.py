@@ -212,9 +212,10 @@ class StdlibChecker(BaseChecker):
             self.add_message('bad-thread-instantiation', node=node)
 
     def _check_for_preexec_fn_in_Popen(self, node):
-        for keyword in node.keywords:
-            if keyword.arg == 'preexec_fn':
-                self.add_message('subprocess-popen-preexec-fn', node=node)
+        if node.keywords:
+            for keyword in node.keywords:
+                if keyword.arg == 'preexec_fn':
+                    self.add_message('subprocess-popen-preexec-fn', node=node)
 
     def _check_shallow_copy_environ(self, node):
         arg = utils.get_argument_from_call(node, position=0)
