@@ -223,8 +223,6 @@ class StdlibChecker(BaseChecker):
                 self.add_message('shallow-copy-environ', node=node)
                 break
 
-
-
     @utils.check_messages('bad-open-mode',
                           'redundant-unittest-assert',
                           'deprecated-method',
