@@ -81,7 +81,7 @@ MSGS = {
               'Used when a line is longer than a given number of characters.'),
     'C0302': ('Too many lines in module (%s/%s)',  # was W0302
               'too-many-lines',
-              'Used when a module has too much lines, reducing its readability.'
+              'Used when a module has too many lines, reducing its readability.'
              ),
     'C0303': ('Trailing whitespace',
               'trailing-whitespace',
