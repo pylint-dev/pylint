@@ -29,7 +29,7 @@
 
 By default try to follow Guido's style guide :
 
-http://www.python.org/doc/essays/styleguide.html
+https://www.python.org/doc/essays/styleguide/
 
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
