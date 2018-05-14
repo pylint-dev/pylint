@@ -123,7 +123,7 @@ class StdlibChecker(BaseChecker):
                   'See https://docs.python.org/3/library/os.html#os.getenv. '),
         'W1509': ('Using preexec_fn keyword which may be unsafe in the presence '
                   'of threads',
-                  'subprocess-popen-preexec-fc',
+                  'subprocess-popen-preexec-fn',
                   'The preexec_fn parameter is not safe to use in the presence '
                   'of threads in your application. The child process could '
                   'deadlock before exec is called. If you must use it, keep it '
@@ -211,10 +211,10 @@ class StdlibChecker(BaseChecker):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
             self.add_message('bad-thread-instantiation', node=node)
 
-    def _check_for_preexec_fc_in_Popen(self, node):
+    def _check_for_preexec_fn_in_Popen(self, node):
         for keyword in node.keywords:
             if keyword.arg == 'preexec_fn':
-                self.add_message('subprocess-popen-preexec_fc', node=node)
+                self.add_message('subprocess-popen-preexec-fn', node=node)
 
     def _check_shallow_copy_environ(self, node):
         arg = utils.get_argument_from_call(node, position=0)
@@ -245,7 +245,7 @@ class StdlibChecker(BaseChecker):
                     if inferred.qname() == THREADING_THREAD:
                         self._check_bad_thread_instantiation(node)
                     elif inferred.qname() == SUBPROCESS_POPEN:
-                        self._check_for_preexec_fc_in_Popen(node)
+                        self._check_for_preexec_fn_in_Popen(node)
                 elif isinstance(inferred, astroid.FunctionDef):
                     name = inferred.qname()
                     if name == COPY_COPY:

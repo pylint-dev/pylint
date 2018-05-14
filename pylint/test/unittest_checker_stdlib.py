@@ -116,7 +116,7 @@ class TestStdlibChecker(CheckerTestCase):
         """)
         with self.assertAddsMessages(
             Message(
-                msg_id='subprocess-popen-preexec_fc', node=node, confidence=UNDEFINED)
+                msg_id='subprocess-popen-preexec-fn', node=node, confidence=UNDEFINED)
         ):
             self.checker.visit_call(node)
 
