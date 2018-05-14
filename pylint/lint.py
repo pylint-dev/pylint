@@ -422,8 +422,6 @@ class PyLinter(utils.MessagesHandlerMixIn,
         super().__init__(config)
         # provided reports
         self._dynamic_plugins = set()
-        self._python3_porting_mode = False
-        self._error_mode = False
 
     def disable(self, msgid, scope='module', line=None, ignore_unknown=False):
         """Do not output messages that have the given ID.
@@ -494,44 +492,6 @@ class PyLinter(utils.MessagesHandlerMixIn,
             line=line,
             ignore_unknown=ignore_unknown,
         )
-    # checkers manipulation methods ############################################
-
-    # TODO: Move to plugin registry
-    def error_mode(self):
-        """error mode: enable only errors; no reports, no persistent"""
-        self._error_mode = True
-        self.disable_noerror_messages()
-        self.disable('miscellaneous')
-        if self._python3_porting_mode:
-            self.disable('all')
-            for msg_id in self._checker_messages('python3'):
-                if msg_id.startswith('E'):
-                    self.enable(msg_id)
-            config_parser = self.cfgfile_parser
-            if config_parser.has_option('MESSAGES CONTROL', 'disable'):
-                value = config_parser.get('MESSAGES CONTROL', 'disable')
-                self.global_set_option('disable', value)
-        else:
-            self.disable('python3')
-
-    def python3_porting_mode(self):
-        """Disable all other checkers and enable Python 3 warnings."""
-        self.disable('all')
-        self.enable('python3')
-        if self._error_mode:
-            # The error mode was activated, using the -E flag.
-            # So we'll need to enable only the errors from the
-            # Python 3 porting checker.
-            for msg_id in self._checker_messages('python3'):
-                if msg_id.startswith('E'):
-                    self.enable(msg_id)
-                else:
-                    self.disable(msg_id)
-        config_parser = self.cfgfile_parser
-        if config_parser.has_option('MESSAGES CONTROL', 'disable'):
-            value = config_parser.get('MESSAGES CONTROL', 'disable')
-            self.global_set_option('disable', value)
-        self._python3_porting_mode = True
 
     # block level option handling #############################################
     #
@@ -874,6 +834,9 @@ class PluginRegistry(utils.MessagesHandlerMixIn, ReportRegistry):
         self._reporters = {}
         self._linter = linter
 
+        self._python3_porting_mode = False
+        self._error_mode = False
+
         for r_id, r_title, r_cb in linter.reports:
             self.register_report(r_id, r_title, r_cb, linter)
 
@@ -1019,6 +982,34 @@ class PluginRegistry(utils.MessagesHandlerMixIn, ReportRegistry):
             line=line,
             ignore_unknown=ignore_unknown,
         )
+
+    def error_mode(self):
+        """Enable only errors; no reports, no persistent"""
+        self._error_mode = True
+        self.disable_noerror_messages()
+        self.disable('miscellaneous')
+        if self._python3_porting_mode:
+            self.disable('all')
+            for msg_id in self._checker_messages('python3'):
+                if msg_id.startswith('E'):
+                    self.enable(msg_id)
+        else:
+            self.disable('python3')
+
+    def python3_porting_mode(self):
+        """Disable all other checkers and enable Python 3 warnings."""
+        self.disable('all')
+        self.enable('python3')
+        if self._error_mode:
+            # The error mode was activated, using the -E flag.
+            # So we'll need to enable only the errors from the
+            # Python 3 porting checker.
+            for msg_id in self._checker_messages('python3'):
+                if msg_id.startswith('E'):
+                    self.enable(msg_id)
+                else:
+                    self.disable(msg_id)
+        self._python3_porting_mode = True
 
 
 class Runner(object):
@@ -1212,12 +1203,18 @@ group are mutually exclusive.'),
 
         if self._global_config.errors_only:
             self._linter.error_mode()
+            if file_parser.has_option('MESSAGES CONTROL', 'disable'):
+                value = file_parser.get('MESSAGES CONTROL', 'disable')
+                self.config.set_option('disable', value)
             self._global_config.reports = False
             self._global_config.persistent = False
             self._global_config.score = False
 
         if self._global_config.py3k:
             self._linter.python3_porting_mode()
+            if file_parser.has_option('MESSAGES CONTROL', 'disable'):
+                value = file_parser.get('MESSAGES CONTROL', 'disable')
+                self._global_config.set_option('disable', value)
 
         if self._global_config.full_documentation:
             self._linter.print_full_documentation()
