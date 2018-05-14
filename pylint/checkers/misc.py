@@ -128,7 +128,7 @@ class EncodingChecker(BaseChecker):
     def _check_encoding(self, lineno, line, file_encoding):
         try:
             return line.decode(file_encoding)
-        except LookupError as ex:
+        except LookupError:
             if (line.startswith('#') and
                     "coding" in line and file_encoding in line):
                 self.add_message('syntax-error',

@@ -24,7 +24,6 @@ from __future__ import absolute_import, print_function
 from collections import namedtuple
 import re
 import sys
-import tokenize
 
 import astroid
 from astroid import bases

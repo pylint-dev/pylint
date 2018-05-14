@@ -17,7 +17,7 @@ import sys
 
 import astroid
 
-from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
+from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     check_messages,

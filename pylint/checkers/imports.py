@@ -382,7 +382,6 @@ class ImportsChecker(BaseChecker):
         """triggered when an import statement is seen"""
         self._check_reimport(node)
 
-        modnode = node.root()
         names = [name for name, _ in node.names]
         if len(names) >= 2:
             self.add_message('multiple-imports', args=', '.join(names), node=node)
@@ -420,7 +419,6 @@ class ImportsChecker(BaseChecker):
             self._record_import(node, imported_module)
         if imported_module is None:
             return
-        modnode = node.root()
 
         for name, _ in node.names:
             if name != '*':
