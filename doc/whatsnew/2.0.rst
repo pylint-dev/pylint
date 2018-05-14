@@ -150,3 +150,5 @@ Other Changes
 * docparams allows abstract methods to document returns documentation even
   if the default implementation does not return something.
   They also no longer need to document raising a NotImplementedError.
+
+* Skip wildcard import check for `__init__.py`.
