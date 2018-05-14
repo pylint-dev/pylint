@@ -73,9 +73,7 @@ class NewStyleConflictChecker(BaseChecker):
                     call.func.name == 'super'):
                 continue
 
-            if not klass.newstyle and has_known_bases(klass):
-                # super should not be used on an old style class
-            else:
+            if klass.newstyle or not has_known_bases(klass):
                 # super first arg should be the class
                 if not call.args:
                     if sys.version_info[0] == 3:

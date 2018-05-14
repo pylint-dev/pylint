@@ -1,5 +1,5 @@
 """Checks import order rule in a right case"""
-# pylint: disable=unused-import,relative-import,ungrouped-imports,import-error,no-name-in-module
+# pylint: disable=unused-import,ungrouped-imports,import-error,no-name-in-module
 
 
 # Standard imports

@@ -33,7 +33,6 @@ def good_case3():
 
 def bad_case0():
     """raise"""
-    # +2:<3.0:[nonstandard-exception]
     # +1:>=3.0:[raising-non-exception]
     raise OldStyleClass('hop')
 
@@ -43,7 +42,6 @@ def bad_case1():
 
 def bad_case2():
     """raise"""
-    # +2:<3.0:[nonstandard-exception]
     # +1:>=3.0:[raising-non-exception]
     raise OldStyleClass('hop')
 

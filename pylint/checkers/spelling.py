@@ -29,7 +29,7 @@ try:
                                   WikiWordFilter)
 except ImportError:
     enchant = None
-    # pylint: disable=old-style-class,no-init
+    # pylint: disable=no-init
     class Filter:
         def _skip(self, word):
             raise NotImplementedError
