@@ -122,12 +122,6 @@ MSGS = {
               {'old_names': [('C0323', 'no-space-after-operator'),
                              ('C0324', 'no-space-after-comma'),
                              ('C0322', 'no-space-before-operator')]}),
-    'W0332': ('Use of "l" as long integer identifier',
-              'lowercase-l-suffix',
-              'Used when a lower case "l" is used to mark a long integer. You '
-              'should use an upper case "L" since the letter "l" looks too much '
-              'like the digit "1"',
-              {'maxversion': (3, 0)}),
     'C0327': ('Mixed line endings LF and CRLF',
               'mixed-line-endings',
               'Used when there are mixed (LF and CRLF) newline signs in a file.'),
@@ -875,9 +869,6 @@ class FormatChecker(BaseTokenChecker):
                 if check_equal:
                     check_equal = False
                     self.check_indent_level(line, indents[-1], line_num)
-
-            if tok_type == tokenize.NUMBER and token.endswith('l'):
-                self.add_message('lowercase-l-suffix', line=line_num)
 
             try:
                 handler = token_handlers[token]

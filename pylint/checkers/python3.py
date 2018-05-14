@@ -163,11 +163,6 @@ class Python3Checker(checkers.BaseChecker):
                   'instead  of the str() function.',
                   {'scope': WarningScope.NODE,
                    'old_names': [('W0333', 'backtick')]}),
-        'E1609': ('Import * only allowed at module level',
-                  'import-star-module-level',
-                  'Used when the import star syntax is used somewhere '
-                  'else than the module level.',
-                  {'maxversion': (3, 0)}),
         'W1601': ('apply built-in referenced',
                   'apply-builtin',
                   'Used when the apply built-in function is referenced '
@@ -693,11 +688,6 @@ class Python3Checker(checkers.BaseChecker):
             if not _is_conditional_import(node) and not node.level:
                 self._warn_if_deprecated(node, node.modname, {x[0] for x in node.names})
 
-        if node.names[0][0] == '*':
-            if self.linter.is_message_enabled('import-star-module-level'):
-                if not isinstance(node.scope(), astroid.Module):
-                    self.add_message('import-star-module-level', node=node)
-
     def visit_import(self, node):
         if not self._future_absolute_import:
             if self.linter.is_message_enabled('no-absolute-import'):
@@ -941,52 +931,5 @@ class Python3Checker(checkers.BaseChecker):
         return None
 
 
-class Python3TokenChecker(checkers.BaseTokenChecker):
-    __implements__ = interfaces.ITokenChecker
-    name = 'python3'
-    enabled = False
-
-    msgs = {
-        'E1606': ('Use of long suffix',
-                  'long-suffix',
-                  'Used when "l" or "L" is used to mark a long integer. '
-                  'This will not work in Python 3, since `int` and `long` '
-                  'types have merged.',
-                  {'maxversion': (3, 0)}),
-        'E1607': ('Use of the <> operator',
-                  'old-ne-operator',
-                  'Used when the deprecated "<>" operator is used instead '
-                  'of "!=". This is removed in Python 3.',
-                  {'maxversion': (3, 0),
-                   'old_names': [('W0331', 'old-ne-operator')]}),
-        'E1608': ('Use of old octal literal',
-                  'old-octal-literal',
-                  'Used when encountering the old octal syntax, '
-                  'removed in Python 3. To use the new syntax, '
-                  'prepend 0o on the number.',
-                  {'maxversion': (3, 0)}),
-        'E1610': ('Non-ascii bytes literals not supported in 3.x',
-                  'non-ascii-bytes-literal',
-                  'Used when non-ascii bytes literals are found in a program. '
-                  'They are no longer supported in Python 3.',
-                  {'maxversion': (3, 0)}),
-    }
-
-    def process_tokens(self, tokens):
-        for idx, (tok_type, token, start, _, _) in enumerate(tokens):
-            if tok_type == tokenize.NUMBER:
-                if token.lower().endswith('l'):
-                    # This has a different semantic than lowercase-l-suffix.
-                    self.add_message('long-suffix', line=start[0])
-                elif _is_old_octal(token):
-                    self.add_message('old-octal-literal', line=start[0])
-            if tokens[idx][1] == '<>':
-                self.add_message('old-ne-operator', line=tokens[idx][2][0])
-            if tok_type == tokenize.STRING and token.startswith('b'):
-                if any(elem for elem in token if ord(elem) > 127):
-                    self.add_message('non-ascii-bytes-literal', line=start[0])
-
-
 def register(linter):
     linter.register_checker(Python3Checker(linter))
-    linter.register_checker(Python3TokenChecker(linter))

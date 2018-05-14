@@ -206,11 +206,6 @@ MSGS = {
     'W0402': ('Uses of a deprecated module %r',
               'deprecated-module',
               'Used a module marked as deprecated is imported.'),
-    'W0403': ('Relative import %r, should be %r',
-              'relative-import',
-              'Used when an import relative to the package directory is '
-              'detected.',
-              {'maxversion': (3, 0)}),
     'W0404': ('Reimport %r (imported line %s)',
               'reimported',
               'Used when a module is reimported multiple times.'),
@@ -404,7 +399,6 @@ class ImportsChecker(BaseChecker):
             if imported_module is None:
                 continue
 
-            self._check_relative_import(modnode, node, imported_module, name)
             self._add_imported_module(node, imported_module.name)
 
     @check_messages(*(MSGS.keys()))
@@ -427,7 +421,6 @@ class ImportsChecker(BaseChecker):
         if imported_module is None:
             return
         modnode = node.root()
-        self._check_relative_import(modnode, node, imported_module, basename)
 
         for name, _ in node.names:
             if name != '*':
@@ -651,27 +644,6 @@ class ImportsChecker(BaseChecker):
             dotted_modname = _get_import_name(importnode, modname)
             self.add_message('import-error', args=repr(dotted_modname),
                              node=importnode)
-
-    def _check_relative_import(self, modnode, importnode, importedmodnode,
-                               importedasname):
-        """check relative import. node is either an Import or From node, modname
-        the imported module name.
-        """
-        if not self.linter.is_message_enabled('relative-import'):
-            return None
-        if importedmodnode.file is None:
-            return False # built-in module
-        if modnode is importedmodnode:
-            return False # module importing itself
-        if modnode.absolute_import_activated() or getattr(importnode, 'level', None):
-            return False
-        if importedmodnode.name != importedasname:
-            # this must be a relative import...
-            self.add_message('relative-import',
-                             args=(importedasname, importedmodnode.name),
-                             node=importnode)
-            return None
-        return None
 
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""
