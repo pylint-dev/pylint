@@ -105,28 +105,3 @@ class TestStdlibChecker(CheckerTestCase):
         """)
         with self.assertNoMessages():
             self.checker.visit_call(node)
-
-    def test_preexec_fn_warning(self):
-        # preexec_fn parameter is not safe to use in the presence of threads
-        node = astroid.extract_node("""
-        import subprocess
-        def foo():
-            pass
-        subprocess.Popen(preexec_fn=foo)
-        """)
-        with self.assertAddsMessages(
-            Message(
-                msg_id='subprocess-popen-preexec-fn', node=node, confidence=UNDEFINED)
-        ):
-            self.checker.visit_call(node)
-
-    def test_no_preexec_fn_warning(self):
-        # env and start_new_session are preferred over preexec_fn
-        node = astroid.extract_node("""
-        import subprocess
-        def foo():
-            pass
-        subprocess.Popen(env=None, start_new_session=False)
-        """)
-        with self.assertNoMessages():
-            self.checker.visit_call(node)
