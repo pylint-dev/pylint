@@ -121,7 +121,7 @@ class TestNameChecker(CheckerTestCase):
     @set_config(attr_rgx=re.compile('[A-Z]+'),
                 property_classes=('abc.abstractproperty', '.custom_prop'))
     def test_property_names(self):
-        # If a method is annotated with @property, it's name should
+        # If a method is annotated with @property, its name should
         # match the attr regex. Since by default the attribute regex is the same
         # as the method regex, we override it here.
         methods = astroid.extract_node("""
