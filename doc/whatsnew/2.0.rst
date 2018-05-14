@@ -91,7 +91,8 @@ New checkers
   when creating subprocess.Popen instances which may be unsafe when used in
   the presence of threads.
 
-  See https://docs.python.org/3/library/subprocess.html#popen-constructor for details
+  See `subprocess.Popen <https://docs.python.org/3/library/subprocess.html#popen-constructor>`_
+  for full warning details.
 
 * New ``try-except-raise`` message when an except handler block has a bare
   `raise` statement as its first operator or the exception type being raised
