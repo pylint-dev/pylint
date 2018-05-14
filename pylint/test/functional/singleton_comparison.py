@@ -9,3 +9,7 @@ f = x is 1
 g = 123 is "123"
 h = None is x
 i = None == x  # [singleton-comparison]
+
+j = x != True  # [singleton-comparison]
+j1 = x != False  # [singleton-comparison]
+j2 = x != None # [singleton-comparison]

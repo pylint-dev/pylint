@@ -641,6 +641,8 @@ class ImportsChecker(BaseChecker):
             self.add_message('relative-beyond-top-level', node=importnode)
 
         except astroid.AstroidBuildingException:
+            if not self.linter.is_message_enabled('import-error'):
+                return None
             if _ignore_import_failure(importnode, modname, self._ignored_modules):
                 return None
             if not self.config.analyse_fallback_blocks and is_from_fallback_block(importnode):

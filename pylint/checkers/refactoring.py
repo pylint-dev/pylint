@@ -16,6 +16,8 @@
 
 """Looks for code which can be refactored."""
 import builtins
+from functools import reduce
+
 import collections
 import itertools
 import tokenize
@@ -37,23 +39,15 @@ def _all_elements_are_true(gen):
 def _if_statement_is_always_returning(if_node):
     def _has_return_node(elems, scope):
         for node in elems:
-            if isinstance(node, astroid.If):
+            if isinstance(node, astroid.If) and node.orelse:
                 yield _if_statement_is_always_returning(node)
-            elif isinstance(node, astroid.Return):
+            if isinstance(node, astroid.Return):
                 yield node.scope() is scope
 
     scope = if_node.scope()
-    body_returns = _all_elements_are_true(
+    return _all_elements_are_true(
         _has_return_node(if_node.body, scope=scope)
     )
-    if if_node.orelse:
-        orelse_returns = _all_elements_are_true(
-            _has_return_node(if_node.orelse, scope=scope)
-        )
-    else:
-        orelse_returns = False
-
-    return body_returns and orelse_returns
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
@@ -141,6 +135,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'consider-using-join',
                   'Using str.join(sequence) is faster, uses less memory '
                   'and increases readability compared to for-loop iteration.'
+                 ),
+        'R1714': ('Consider merging these comparisons with "in" to %r',
+                  'consider-using-in',
+                  'To check if a variable is equal to one of many values,'
+                  'combine the values into a tuple and check if the variable is contained "in" it '
+                  'instead of checking for equality against each of the values.'
+                  'This is faster and less verbose.'
                  ),
     }
     options = (('max-nested-blocks',
@@ -470,9 +471,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return {key: value for key, value in all_types.items()
                 if key in duplicated_objects}
 
-    @utils.check_messages('consider-merging-isinstance')
-    def visit_boolop(self, node):
-        '''Check isinstance calls which can be merged together.'''
+    def _check_consider_merging_isinstance(self, node):
+        """Check isinstance calls which can be merged together."""
         if node.op != 'or':
             return
 
@@ -482,6 +482,53 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self.add_message('consider-merging-isinstance',
                              node=node,
                              args=(duplicated_name, ', '.join(names)))
+
+    def _check_consider_using_in(self, node):
+        allowed_ops = {'or': '==',
+                       'and': '!='}
+
+        if node.op not in allowed_ops or len(node.values) < 2:
+            return
+
+        for value in node.values:
+            if (not isinstance(value, astroid.Compare)
+                    or len(value.ops) != 1
+                    or value.ops[0][0] not in allowed_ops[node.op]):
+                return
+            for comparable in value.left, value.ops[0][1]:
+                if isinstance(comparable, astroid.Call):
+                    return
+
+        # Gather variables and values from comparisons
+        variables, values = [], []
+        for value in node.values:
+            variable_set = set()
+            for comparable in value.left, value.ops[0][1]:
+                if isinstance(comparable, astroid.Name):
+                    variable_set.add(comparable.as_string())
+                values.append(comparable.as_string())
+            variables.append(variable_set)
+
+        # Look for (common-)variables that occur in all comparisons
+        common_variables = reduce(lambda a, b: a.intersection(b), variables)
+
+        if not common_variables:
+            return
+
+        # Gather information for the suggestion
+        common_variable = sorted(list(common_variables))[0]
+        comprehension = 'in' if node.op == 'or' else 'not in'
+        values = list(collections.OrderedDict.fromkeys(values))
+        values.remove(common_variable)
+        values_string = ', '.join(values) if len(values) != 1 else values[0] + ','
+        suggestion = "%s %s (%s)" % (common_variable, comprehension, values_string)
+
+        self.add_message('consider-using-in', node=node, args=(suggestion,))
+
+    @utils.check_messages('consider-merging-isinstance', 'consider-using-in')
+    def visit_boolop(self, node):
+        self._check_consider_merging_isinstance(node)
+        self._check_consider_using_in(node)
 
     @staticmethod
     def _is_simple_assignment(node):
@@ -550,6 +597,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         result_assign_names = {target.name for target in assign.targets}
 
         is_concat_loop = (aug_assign.op == '+='
+                          and isinstance(aug_assign.target, astroid.AssignName)
                           and len(for_loop.body) == 1
                           and aug_assign.target.name in result_assign_names
                           and isinstance(assign.value, astroid.node_classes.Const)

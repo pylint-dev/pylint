@@ -1,0 +1,13 @@
+consider-using-in:10::Consider merging these comparisons with "in" to 'value in (1,)'
+consider-using-in:11::Consider merging these comparisons with "in" to 'value in (1, 2)'
+consider-using-in:12::Consider merging these comparisons with "in" to "value in ('value',)"
+consider-using-in:13::Consider merging these comparisons with "in" to 'value in (1, undef_value)'
+consider-using-in:14::Consider merging these comparisons with "in" to 'value in (1, 2, 3)'
+consider-using-in:15::Consider merging these comparisons with "in" to "value in ('2', 1)"
+consider-using-in:16::Consider merging these comparisons with "in" to 'value in (1, 2)'
+consider-using-in:17::Consider merging these comparisons with "in" to 'value in (1, 2)'
+consider-using-in:18::Consider merging these comparisons with "in" to 'value in (1, a_list)'
+consider-using-in:19::Consider merging these comparisons with "in" to 'value in (a_set, a_list, a_str)'
+consider-using-in:20::Consider merging these comparisons with "in" to 'value not in (1, 2)'
+consider-using-in:21::Consider merging these comparisons with "in" to 'value1 in (value2,)'
+consider-using-in:22::Consider merging these comparisons with "in" to 'a_list in ([1, 2, 3], [])'

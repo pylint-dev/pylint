@@ -620,7 +620,7 @@ class FormatChecker(BaseTokenChecker):
                     return
                 # 'and' and 'or' are the only boolean operators with lower precedence
                 # than 'not', so parens are only required when they are found.
-                elif token[1] in ('and', 'or'):
+                if token[1] in ('and', 'or'):
                     found_and_or = True
                 # A yield inside an expression must always be in parentheses,
                 # quit early without error.
@@ -774,7 +774,7 @@ class FormatChecker(BaseTokenChecker):
             count, state = _policy_string(policy)
             self.add_message('bad-whitespace', line=token[2][0],
                              args=(count, state, position, construct,
-                                   _underline_token(token)), col_offset=token[2][1]+1)
+                                   _underline_token(token)), col_offset=token[2][1])
 
     def _inside_brackets(self, left):
         return self._bracket_stack[-1] == left
@@ -890,7 +890,7 @@ class FormatChecker(BaseTokenChecker):
         if line_num > self.config.max_module_lines:
             # Get the line where the too-many-lines (or its message id)
             # was disabled or default to 1.
-            symbol = self.linter.msgs_store.check_message_id('too-many-lines')
+            symbol = self.linter.msgs_store.get_message_definition('too-many-lines')
             names = (symbol.msgid, 'too-many-lines')
             line = next(filter(None,
                                map(self.linter._pragma_lineno.get, names)), 1)
@@ -1044,14 +1044,16 @@ class FormatChecker(BaseTokenChecker):
                     # allow empty lines
                     pass
                 elif line[len(stripped_line):] not in ('\n', '\r\n'):
-                    self.add_message('trailing-whitespace', line=i)
+                    self.add_message('trailing-whitespace', line=i,
+                                     col_offset=len(stripped_line))
                 # Don't count excess whitespace in the line length.
                 line = stripped_line
             mobj = OPTION_RGX.search(line)
             if mobj and '=' in line:
                 front_of_equal, back_of_equal = mobj.group(1).split('=', 1)
                 if front_of_equal.strip() == 'disable':
-                    if 'line-too-long' in [_msg_id.strip() for _msg_id in back_of_equal.split(',')]:
+                    if 'line-too-long' in set(_msg_id.strip()
+                                              for _msg_id in back_of_equal.split(',')):
                         return None
                     line = line.rsplit('#', 1)[0].rstrip()
 
@@ -1083,6 +1085,8 @@ class FormatChecker(BaseTokenChecker):
                 unsplit = []
 
             i = check_line(line, i)
+            if i is None:
+                break
 
         if unsplit:
             check_line(''.join(unsplit), i)

@@ -108,3 +108,7 @@ for number in ['1', '2', '3']:
 
 result = ''
 for number in ['1', '2', '3']: result += number  # [consider-using-join]
+
+result = ''
+for number in ['1']:
+    result.result += number

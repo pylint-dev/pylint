@@ -428,6 +428,7 @@ class GoogleDocstring(Docstring):
         \s*  \*{{0,2}}(\w+)             # identifier potentially with asterisks
         \s*  ( [(]
             {type}
+            (?:,\s+optional)?
             [)] )? \s* :                # optional type declaration
         \s*  (.*)                       # beginning of optional description
     """.format(
@@ -693,8 +694,9 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_returns_line = re.compile(r"""
-        \s* ({type})$ # type declaration
-        \s* (.*)                       # optional description
+        \s* (?:\w+\s+:\s+)? # optional name
+        ({type})$                         # type declaration
+        \s* (.*)                          # optional description
     """.format(
         type=GoogleDocstring.re_multiple_type,
     ), re.X | re.S | re.M)

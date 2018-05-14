@@ -4,6 +4,95 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
+    * The Python 3 porting mode can now run with Python 3 as well.
+
+    * `too-few-public-methods` is not emitted for dataclasses.
+
+       Close #1793
+
+    * Added two new Python 3 porting checks, `exception-escape` and `comprehension-escape`
+
+      These two are emitted whenever pylint detects that a variable defined in the
+      said blocks is used outside of the given block. On Python 3 these values are deleted.
+
+    * Added a new `deprecated-sys-function`, emitted when accessing removed sys members.
+
+    * Added `xreadlines-attribute`, emitted when the `xreadlines()` attribute is accessed.
+
+    * The Python 3 porting mode can now run with Python 3 as well.
+
+    * docparams extension allows abstract methods to document what overriding
+      implementations should return, and to raise NotImplementedError without
+      documenting it.
+
+      Closes #2044
+
+    * Special methods do not count towards `too-few-methods`,
+      and are considered part of the public API.
+
+    * Enum classes do not trigger `too-few-methods`
+
+      Close #605
+
+    * `undefined-loop-variable` takes in consideration non-empty iterred objects before emitting
+
+      Close #2039
+
+    * Add support for nupmydoc optional return value names.
+
+      Close #2030
+
+    * `singleton-comparison` accounts for negative checks
+
+      Close #2037
+
+    * Add a check `consider-using-in` for comparisons of a variable against
+      multiple values with "==" and "or"s instead of checking if the variable
+      is contained "in" a tuple of those values.
+
+      Close #1977
+
+    * defaultdict and subclasses of dict are now handled for dict-iter-* checks
+
+      Close #2005
+
+    * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
+
+      Close #1936
+
+    * Added a new Python 2/3 check for accessing removed urllib functions
+
+      Close #1997
+
+    * `logging-format-interpolation` also emits when f-strings are used instead of % syntax.
+
+      Close #1788
+
+    * Don't trigger misplaced-bare-raise when the raise is in a finally clause
+
+      Close #1924
+
+    * Add a new check, `possibly-unused-variable`.
+
+      This is similar to `unused-variable`, the only difference is that it is
+      emitted when we detect a locals() call in the scope of the unused variable.
+      The `locals()` call could potentially use the said variable, by consuming
+      all values that are present up to the point of the call. This new check
+      allows to disable this error when the user intentionally uses `locals()`
+      to consume everything.
+
+      Close #1909.
+
+    * `no-else-return` accounts for multiple cases
+
+       The check was a bit overrestrictive because we were checking for
+       return nodes in the .orelse node. At that point though the if statement
+       can be refactored to not have the orelse. This improves the detection of
+       other cases, for instance it now detects TryExcept nodes that are part of
+       the .else branch.
+
+       Close #1852
+
     * Added two new checks, `invalid-envvar-value` and `invalid-envvar-default`.
 
       The former is trigger whenever pylint detects that environment variable manipulation

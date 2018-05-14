@@ -190,6 +190,8 @@ class LoggingChecker(checkers.BaseChecker):
             self._check_call_func(node.args[format_pos])
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)
+        elif isinstance(node.args[format_pos], astroid.JoinedStr):
+            self.add_message('logging-format-interpolation', node=node)
 
     @staticmethod
     def _is_operand_literal_str(operand):

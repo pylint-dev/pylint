@@ -12,9 +12,32 @@ Summary -- Release highlights
 
   If you need to use `pylint` on Python 2, you can use Pylint 1.8. We'll continue
   to do bug releases until 2020, when Python 2 goes officially EOL.
+  `pylint` will still be able to analyze Python 2 files, but some checks might not work
+  as they will assume that their running environment was Python 2.
+
+* Given the dropping of Python 2, the Python 3 porting mode (enabled via `--py3k`) can now
+  also run with Python 3.
+
+  The porting mode used to be a no-op on Python 3, but most of the messages can now be emitted
+  when the running interpreter is Python 3. The only messages that won't be emitted are those that
+  rely on a particular syntax specific to Python 2, for instance `print` as a statement.
+
 
 New checkers
 ============
+
+* A new check was added, ``consider-using-in``.
+
+  This refactoring message is emitted when a variable is compared against multiple
+  values concatenated by ors instead of using the faster, more idiomatic "in" check.
+
+  .. code-block:: python
+
+    if variable == 1 or variable == 2 or variable == 3:  # bad
+        pass
+
+    if variable in (1, 2, 3):  # good
+        pass
 
 * A new check was added, ``consider-using-join``.
 
@@ -66,6 +89,23 @@ New checkers
   `raise` statement as its first operator or the exception type being raised
   is the same as the one being handled.
 
+*  New `possibly-unused-variable` check added.
+
+  This is similar to `unused-variable`, the only difference is that it is
+  emitted when we detect a locals() call in the scope of the unused variable.
+  The `locals()` call could potentially use the said variable, by consuming
+  all values that are present up to the point of the call. This new check
+  allows to disable this error when the user intentionally uses `locals()`
+  to consume everything.
+
+  For instance, the following code will now trigger this new error:
+
+  .. code-block:: python
+
+     def func():
+         some_value = some_call()
+         return locals()
+
 Other Changes
 =============
 
@@ -93,3 +133,20 @@ Other Changes
     class definitions
 
 * Suppress false-positive ``not-callable`` messages from certain staticmethod descriptors
+
+* `singleton-comparison` will suggest better boolean conditions for negative conditions.
+
+* `undefined-loop-variable` takes in consideration non-empty iterred objects before emitting.
+
+  For instance, if the loop iterable is not empty, this check will no longer be emitted.
+
+* Enum classes no longer trigger `too-few-methods`
+
+* Special methods now count towards `too-few-methods`,
+  and are considered part of the public API.
+  They are still not counted towards the number of methods for
+  `too-many-methods`.
+
+* docparams allows abstract methods to document returns documentation even
+  if the default implementation does not return something.
+  They also no longer need to document raising a NotImplementedError.

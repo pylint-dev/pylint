@@ -67,7 +67,7 @@ class Similar(object):
                     couples.add((lineset2, idx2))
                     break
             else:
-                duplicate.append(set([(lineset1, idx1), (lineset2, idx2)]))
+                duplicate.append({(lineset1, idx1), (lineset2, idx2)})
         sims = []
         for num, ensembles in no_duplicates.items():
             for couples in ensembles:

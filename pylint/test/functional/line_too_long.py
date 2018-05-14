@@ -39,3 +39,12 @@ STRING_TWO = "Yet another verrrrrrrrrrrrrrrryyyyyyyyyyyyy looooooooooooooooooooo
 
 # pylint: disable=line-too-long
 STRING_THREE = "Yet another verrrrrrrrrrrrrrrryyyyyyyyyyyyy looooooooooooooooooooooooooooooooooooooooooooooonnnnnnnnnnnnnnnnnnnnnnnnnnnnng and stupid line"
+
+
+# Don't crash when the line is in a docstring
+def func_with_long(parameter):
+    """
+    # pylint: disable=line-too-long
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccc
+    """
+    return parameter

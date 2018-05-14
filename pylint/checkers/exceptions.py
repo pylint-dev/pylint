@@ -286,7 +286,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         current = node
         # Stop when a new scope is generated or when the raise
         # statement is found inside a TryFinally.
-        ignores = (astroid.ExceptHandler, astroid.FunctionDef, astroid.TryFinally)
+        ignores = (astroid.ExceptHandler, astroid.FunctionDef,)
         while current and not isinstance(current.parent, ignores):
             current = current.parent
 

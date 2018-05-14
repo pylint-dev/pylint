@@ -1464,6 +1464,27 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
+    def test_ignores_optional_specifier_google(self):
+        node = astroid.extract_node('''
+        def do_something(param1, param2, param3=(), param4=[], param5=[], param6=True):
+            """Do something.
+
+            Args:
+                param1 (str): Description.
+                param2 (dict(str, int)): Description.
+                param3 (tuple(str), optional): Defaults to empty. Description.
+                param4 (List[str], optional): Defaults to empty. Description.
+                param5 (list[tuple(str)], optional): Defaults to empty. Description.
+                param6 (bool, optional): Defaults to True. Description.
+
+            Returns:
+                int: Description.
+            """
+            return param1, param2, param3, param4, param5, param6
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
     def test_ignores_optional_specifier_numpy(self):
         node = astroid.extract_node('''
         def do_something(param, param2='all'):
@@ -1898,3 +1919,114 @@ class TestParamDocChecker(CheckerTestCase):
                 node=func_node),
         ):
             self.checker.visit_return(node)
+
+    def test_ignores_return_in_abstract_method_sphinx(self):
+        """Example of an abstract method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node("""
+        import abc
+        class Foo(object):
+            @abc.abstractmethod
+            def foo(self): #@
+                '''docstring ...
+
+                :returns: Ten
+                :rtype: int
+                '''
+                return 10
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_return_in_abstract_method_google(self):
+        """Example of an abstract method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node("""
+        import abc
+        class Foo(object):
+            @abc.abstractmethod
+            def foo(self): #@
+                '''docstring ...
+
+                Returns:
+                    int: Ten
+                '''
+                return 10
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_return_in_abstract_method_numpy(self):
+        """Example of an abstract method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node("""
+        import abc
+        class Foo(object):
+            @abc.abstractmethod
+            def foo(self): #@
+                '''docstring ...
+
+                Returns
+                -------
+                int
+                    Ten
+                '''
+                return 10
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_raise_notimplementederror_sphinx(self):
+        """Example of an abstract
+        """
+        node = astroid.extract_node("""
+        class Foo(object):
+            def foo(self, arg): #@
+                '''docstring ...
+
+                :param arg: An argument.
+                :type arg: int
+                '''
+                raise NotImplementedError()
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_return_in_abstract_method_google(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node("""
+        class Foo(object):
+            def foo(self, arg): #@
+                '''docstring ...
+
+                Args:
+                    arg (int): An argument.
+                '''
+                raise NotImplementedError()
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_return_in_abstract_method_numpy(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node("""
+        class Foo(object):
+            def foo(self, arg): #@
+                '''docstring ...
+
+                Parameters
+                ----------
+                arg : int
+                    An argument.
+                '''
+                raise NotImplementedError()
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)

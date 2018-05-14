@@ -9,8 +9,8 @@ class MetaOldIterable(type):
     def __getitem__(cls, key):
         if key < 10:
             return key ** 2
-        else:
-            raise IndexError("bad index")
+
+        raise IndexError("bad index")
 
 class MetaContainer(type):
     def __contains__(cls, key):

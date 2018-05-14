@@ -137,6 +137,10 @@ TYPE_QNAME = "%s.type" % BUILTINS
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
 PY35 = sys.version_info >= (3, 5)
+ABC_METACLASSES = {
+    '_py_abc.ABCMeta', # Python 3.7+,
+    'abc.ABCMeta',
+}
 
 # Name categories that are always consistent with all naming conventions.
 EXEMPT_NAME_CATEGORIES = {'exempt', 'ignore'}
@@ -245,10 +249,7 @@ def _is_multi_naming_match(match, node_type, confidence):
             and (node_type != 'method' or confidence != interfaces.INFERENCE_FAILURE))
 
 
-if sys.version_info < (3, 0):
-    BUILTIN_PROPERTY = '__builtin__.property'
-else:
-    BUILTIN_PROPERTY = 'builtins.property'
+BUILTIN_PROPERTY = 'builtins.property'
 
 
 def _get_properties(config):
@@ -257,7 +258,7 @@ def _get_properties(config):
     Property classes are fully qualified, such as 'abc.abstractproperty' and
     property names are the actual names, such as 'abstract_property'.
     """
-    property_classes = set((BUILTIN_PROPERTY,))
+    property_classes = {BUILTIN_PROPERTY}
     property_names = set()  # Not returning 'property', it has its own check.
     if config is not None:
         property_classes.update(config.property_classes)
@@ -664,7 +665,7 @@ class BasicErrorChecker(_BasicChecker):
                                      node=node)
                     break
             return
-        if metaclass.qname() == 'abc.ABCMeta' and abstract_methods:
+        if metaclass.qname() in ABC_METACLASSES and abstract_methods:
             self.add_message('abstract-class-instantiated',
                              args=(infered.name, ),
                              node=node)
@@ -717,7 +718,7 @@ class BasicChecker(_BasicChecker):
     """checks for :
     * doc strings
     * number of arguments, local variables, branches, returns and statements in
-functions, methods
+    functions, methods
     * required module attributes
     * dangerous default values as arguments
     * redefinition of function / method / class
@@ -1165,8 +1166,8 @@ functions, methods
                         utils.is_builtin_object(argument._proxied)):
                     self.add_message('bad-reversed-sequence', node=node)
                     return
-                elif any(ancestor.name == 'dict' and utils.is_builtin_object(ancestor)
-                         for ancestor in argument._proxied.ancestors()):
+                if any(ancestor.name == 'dict' and utils.is_builtin_object(ancestor)
+                       for ancestor in argument._proxied.ancestors()):
                     # Mappings aren't accepted by reversed(), unless
                     # they provide explicitly a __reversed__ method.
                     try:
@@ -1252,7 +1253,7 @@ DEFAULT_NAMING_STYLES = {
 
 def _create_naming_options():
     name_options = []
-    for name_type in KNOWN_NAME_TYPES:
+    for name_type in sorted(KNOWN_NAME_TYPES):
         human_readable_name = HUMAN_READABLE_TYPES[name_type]
         default_style = DEFAULT_NAMING_STYLES[name_type]
         name_type = name_type.replace('_', '-')
@@ -1594,8 +1595,10 @@ class DocStringChecker(_BasicChecker):
                 self._check_docstring(ftype, node,
                                       report_missing=not overridden,
                                       confidence=confidence)
-            else:
+            elif isinstance(node.parent.frame(), astroid.Module):
                 self._check_docstring(ftype, node)
+            else:
+                return
 
     visit_asyncfunctiondef = visit_functiondef
 
@@ -1626,7 +1629,7 @@ class DocStringChecker(_BasicChecker):
                     # Strings in Python 3, others in Python 2.
                     if PY3K and func.bound.name == 'str':
                         return
-                    elif func.bound.name in ('str', 'unicode', 'bytes'):
+                    if func.bound.name in ('str', 'unicode', 'bytes'):
                         return
             self.add_message('missing-docstring', node=node, args=(node_type,),
                              confidence=confidence)
@@ -1719,21 +1722,31 @@ class ComparisonChecker(_BasicChecker):
                       'literal than what was expected altogether.'),
            }
 
-    def _check_singleton_comparison(self, singleton, root_node):
+    def _check_singleton_comparison(self, singleton, root_node, negative_check=False):
         if singleton.value is True:
-            suggestion = "just 'expr' or 'expr is True'"
+            if not negative_check:
+                suggestion = "just 'expr' or 'expr is True'"
+            else:
+                suggestion = "just 'not expr' or 'expr is False'"
             self.add_message('singleton-comparison',
                              node=root_node,
                              args=(True, suggestion))
         elif singleton.value is False:
-            suggestion = "'not expr' or 'expr is False'"
+            if not negative_check:
+                suggestion = "'not expr' or 'expr is False'"
+            else:
+                suggestion = "'expr' or 'expr is not False'"
             self.add_message('singleton-comparison',
                              node=root_node,
                              args=(False, suggestion))
         elif singleton.value is None:
+            if not negative_check:
+                suggestion = "'expr is None'"
+            else:
+                suggestion = "'expr is not None'"
             self.add_message('singleton-comparison',
                              node=root_node,
-                             args=(None, "'expr is None'"))
+                             args=(None, suggestion))
 
     def _check_literal_comparison(self, literal, node):
         """Check if we compare to a literal, which is usually what we do not want to do."""
@@ -1780,6 +1793,9 @@ class ComparisonChecker(_BasicChecker):
                 self._check_singleton_comparison(left, node)
             elif isinstance(right, astroid.Const):
                 self._check_singleton_comparison(right, node)
+        if operator == '!=':
+            if isinstance(right, astroid.Const):
+                self._check_singleton_comparison(right, node, negative_check=True)
         if operator in ('is', 'is not'):
             self._check_literal_comparison(right, node)
 

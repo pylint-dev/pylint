@@ -38,6 +38,7 @@ import re
 import astroid
 from astroid import decorators
 from astroid import modutils
+from astroid import objects
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.utils import get_global_option
 from pylint.checkers import BaseChecker
@@ -244,6 +245,16 @@ def _assigned_locally(name_node):
     return any(a.name == name_node.name for a in assign_stmts)
 
 
+def _has_locals_call_after_node(stmt, scope):
+    skip_nodes = (astroid.FunctionDef, astroid.ClassDef)
+    for call in scope.nodes_of_class(astroid.Call, skip_klass=skip_nodes):
+        inferred = utils.safe_infer(call.func)
+        if utils.is_builtin_object(inferred) and getattr(inferred, 'name', None) == 'locals':
+            if stmt.lineno < call.lineno:
+                return True
+    return False
+
+
 MSGS = {
     'E0601': ('Using variable %r before assignment',
               'used-before-assignment',
@@ -330,6 +341,11 @@ MSGS = {
               'This will result in all closures using the same value for '
               'the closed-over variable.'),
 
+    'W0641': ('Possibly unused variable %r',
+              'possibly-unused-variable',
+              'Used when a variable is defined but might not be used. '
+              'The possibility comes from the fact that locals() might be used, '
+              'which could consume or not the said variable'),
     }
 
 
@@ -427,7 +443,8 @@ class VariablesChecker(BaseChecker):
                           'end with one of those strings.'}
                ),
                ("redefining-builtins-modules",
-                {'default': ('six.moves', 'past.builtins', 'future.builtins'), 'type': 'csv',
+                {'default': ('six.moves', 'past.builtins', 'future.builtins', 'builtins', 'io'),
+                 'type': 'csv',
                  'metavar': '<comma separated list>',
                  'help': 'List of qualified module names which can have objects '
                          'that can redefine builtins.'}
@@ -705,8 +722,7 @@ class VariablesChecker(BaseChecker):
                     continue
 
                 line = definition.fromlineno
-                dummy_rgx = self.config.dummy_variables_rgx
-                if not dummy_rgx.match(name):
+                if not self._is_name_ignored(stmt, name):
                     self.add_message('redefined-outer-name',
                                      args=(name, line), node=stmt)
 
@@ -785,12 +801,17 @@ class VariablesChecker(BaseChecker):
                 qname, asname = stmt.names[0]
                 name = asname or qname
 
-            self.add_message('unused-variable', args=name, node=stmt)
+            if _has_locals_call_after_node(stmt, node.scope()):
+                message_name = 'possibly-unused-variable'
+            else:
+                message_name = 'unused-variable'
+            self.add_message(message_name, args=name, node=stmt)
 
     def leave_functiondef(self, node):
         """leave function: check function's locals are consumed"""
         not_consumed = self._to_consume.pop().to_consume
         if not (self.linter.is_message_enabled('unused-variable') or
+                self.linter.is_message_enabled('possibly-unused-variable') or
                 self.linter.is_message_enabled('unused-argument')):
             return
 
@@ -909,11 +930,37 @@ class VariablesChecker(BaseChecker):
                 continue
             _astmts.append(stmt)
         astmts = _astmts
-        if len(astmts) == 1:
-            assign = astmts[0].assign_type()
-            if (isinstance(assign, (astroid.For, astroid.Comprehension,
-                                    astroid.GeneratorExp))
-                    and assign.statement() is not node.statement()):
+        if len(astmts) != 1:
+            return
+
+        assign = astmts[0].assign_type()
+        if not (isinstance(assign, (astroid.For, astroid.Comprehension, astroid.GeneratorExp))
+                and assign.statement() is not node.statement()):
+            return
+
+        # For functions we can do more by inferring the length of the iterred object
+        if not isinstance(assign, astroid.For):
+            self.add_message('undefined-loop-variable', args=name, node=node)
+            return
+
+        try:
+            inferred = next(assign.iter.infer())
+        except astroid.InferenceError:
+            self.add_message('undefined-loop-variable', args=name, node=node)
+        else:
+            sequences = (
+                astroid.List,
+                astroid.Tuple,
+                astroid.Dict,
+                astroid.Set,
+                objects.FrozenSet,
+            )
+            if not isinstance(inferred, sequences):
+                self.add_message('undefined-loop-variable', args=name, node=node)
+                return
+
+            elements = getattr(inferred, 'elts', getattr(inferred, 'items', []))
+            if not elements:
                 self.add_message('undefined-loop-variable', args=name, node=node)
 
     def _should_ignore_redefined_builtin(self, stmt):
