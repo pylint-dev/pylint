@@ -170,3 +170,5 @@ Order doesn't matter (not that much, at least ;)
 * Thomas Snowden: fix missing-docstring for inner functions
 
 * Mitchell Young: minor adjustment to docparams
+
+* Benjamin Freeman: contributor
