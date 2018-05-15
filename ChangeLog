@@ -4,6 +4,10 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
+    * Warn if the first argument of an instance/ class method gets assigned
+
+      Close #977
+
     * New check `comparison-with-itself` to check comparison between same value.
 
       Close #2051
@@ -15,7 +19,7 @@ What's New in Pylint 2.0?
     * Add `unhashable-dict-key` check.
 
       Closes #586
-    
+
     * Don't warn that a global variable is unused if it is defined by an import
 
       Close #1453
