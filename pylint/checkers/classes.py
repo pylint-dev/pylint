@@ -842,6 +842,7 @@ a metaclass class method.'}
 
         # Check values of default args
         klass = function.parent.frame()
+        meth_node = None
         for overridden in klass.local_attr_ancestors(function.name):
             # get astroid for the searched method
             try:
@@ -862,6 +863,16 @@ a metaclass class method.'}
         # Detect if the parameters are the same as the call's arguments.
         params = _signature_from_arguments(function.args)
         args = _signature_from_call(call)
+
+        if meth_node is not None:
+            def form_annotations(annotations):
+                return [a.name if a is not None else a for a in annotations]
+            called_annotations = form_annotations(function.args.annotations)
+            overridden_annotations = form_annotations(meth_node.args.annotations)
+            if called_annotations and overridden_annotations:
+                if called_annotations != overridden_annotations:
+                    return
+
         if _definition_equivalent_to_call(params, args):
             self.add_message('useless-super-delegation', node=function,
                              args=(function.name, ))
