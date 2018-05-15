@@ -115,6 +115,10 @@ New checkers
          some_value = some_call()
          return locals()
 
+  * New `unhashable-dict-key` check added to detect dict lookups using
+  unhashable keys such as lists or dicts.
+
+
 Other Changes
 =============
 

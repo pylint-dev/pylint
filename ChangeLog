@@ -8,6 +8,10 @@ What's New in Pylint 2.0?
 
       Close #1923
 
+    * Add `unhashable-dict-key` check.
+
+      Closes #586
+    
     * Don't warn that a global variable is unused if it is defined by an import
 
       Close #1453
