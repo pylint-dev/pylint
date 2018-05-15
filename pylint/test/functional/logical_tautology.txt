@@ -1,12 +1,12 @@
-logical-tautology:6:foo:Logical tautology in comparison - arg == arg
-logical-tautology:8:foo:Logical tautology in comparison - arg != arg
-logical-tautology:10:foo:Logical tautology in comparison - arg > arg
-logical-tautology:12:foo:Logical tautology in comparison - arg <= arg
-logical-tautology:14:foo:Logical tautology in comparison - None == None
-logical-tautology:16:foo:Logical tautology in comparison - 786 == 786
-logical-tautology:18:foo:Logical tautology in comparison - 786 is 786
-logical-tautology:20:foo:Logical tautology in comparison - 786 is not 786
-logical-tautology:22:foo:Logical tautology in comparison - arg is arg
-logical-tautology:24:foo:Logical tautology in comparison - arg is not arg
-logical-tautology:26:foo:Logical tautology in comparison - True is True
-logical-tautology:36:bar:Logical tautology in comparison - arg != arg
+comparison-with-itself:6:foo:Redundant comparison - arg == arg
+comparison-with-itself:8:foo:Redundant comparison - arg != arg
+comparison-with-itself:10:foo:Redundant comparison - arg > arg
+comparison-with-itself:12:foo:Redundant comparison - arg <= arg
+comparison-with-itself:14:foo:Redundant comparison - None == None
+comparison-with-itself:16:foo:Redundant comparison - 786 == 786
+comparison-with-itself:18:foo:Redundant comparison - 786 is 786
+comparison-with-itself:20:foo:Redundant comparison - 786 is not 786
+comparison-with-itself:22:foo:Redundant comparison - arg is arg
+comparison-with-itself:24:foo:Redundant comparison - arg is not arg
+comparison-with-itself:26:foo:Redundant comparison - True is True
+comparison-with-itself:36:bar:Redundant comparison - arg != arg

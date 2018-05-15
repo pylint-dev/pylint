@@ -1719,8 +1719,8 @@ class ComparisonChecker(_BasicChecker):
                       'Used when comparing an object to a literal, which is usually '
                       'what you do not want to do, since you can compare to a different '
                       'literal than what was expected altogether.'),
-            'R0124': ('Logical tautology in comparison - %s',
-                      'logical-tautology',
+            'R0124': ('Redundant comparison - %s',
+                      'comparison-with-itself',
                       'Used when something is compared against itself.',
                       ),
 
@@ -1778,7 +1778,13 @@ class ComparisonChecker(_BasicChecker):
                          args=(suggestion,))
 
     def _check_logical_tautology(self, node):
-        # import pdb;pdb.set_trace()
+        """Check if identifier is compared against itself.
+        :param node: astroid.Compare node
+        :Example:
+        val = 786
+        if val == val:  # [comparison-with-itself]
+            pass
+        """
         left_operand = node.left
         right_operand = node.ops[0][1]
         operator = node.ops[0][0]
@@ -1793,10 +1799,10 @@ class ComparisonChecker(_BasicChecker):
 
         if left_operand == right_operand:
             suggestion = "%s %s %s" % (left_operand, operator, right_operand)
-            self.add_message('logical-tautology', node=node, args=(suggestion,))
+            self.add_message('comparison-with-itself', node=node, args=(suggestion,))
 
     @utils.check_messages('singleton-comparison', 'misplaced-comparison-constant',
-                          'unidiomatic-typecheck', 'literal-comparison', 'logical-tautology')
+                          'unidiomatic-typecheck', 'literal-comparison', 'comparison-with-itself')
     def visit_compare(self, node):
         self._check_logical_tautology(node)
         self._check_unidiomatic_typecheck(node)
