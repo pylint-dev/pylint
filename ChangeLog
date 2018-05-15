@@ -39,6 +39,12 @@ What's New in Pylint 2.0?
 
        Close #1793
 
+
+What's New in Pylint 1.9?
+=========================
+
+Release date: 2018-05-15
+
     * Added two new Python 3 porting checks, `exception-escape` and `comprehension-escape`
 
       These two are emitted whenever pylint detects that a variable defined in the
