@@ -39,9 +39,9 @@ For example, the former (pre 1.0) default format can be obtained with::
 
 A few other examples:
 
-* the new default format::
+* the default format::
 
-    {C}:{line:3d},{column:2d}: {msg} ({symbol})
+    {path}:{line}:{column}: {msg_id}: {msg} ({symbol})
 
 * Visual Studio compatible format (former 'msvs' output format)::
 

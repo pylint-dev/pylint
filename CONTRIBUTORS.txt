@@ -176,3 +176,5 @@ Order doesn't matter (not that much, at least ;)
 * Benjamin Freeman: contributor
 
 * Fureigh: contributor
+
+* Jace Browning: updated default report format with clickable paths
