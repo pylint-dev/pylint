@@ -346,6 +346,10 @@ MSGS = {
               'Used when a variable is defined but might not be used. '
               'The possibility comes from the fact that locals() might be used, '
               'which could consume or not the said variable'),
+    'W0642': ('Invalid assignment to %s in method',
+              'self-cls-assignment',
+              'Invalid assignment to self or cls in instance or class method '
+              'respectively.'),
     }
 
 
@@ -412,6 +416,7 @@ class VariablesChecker(BaseChecker):
     * redefinition of variable from builtins or from an outer scope
     * use of variable before assignment
     * __all__ consistency
+    * self/cls assignment
     """
 
     __implements__ = IAstroidChecker
@@ -1309,11 +1314,15 @@ class VariablesChecker(BaseChecker):
                 continue
             self._check_module_attrs(node, module, name.split('.'))
 
-    @utils.check_messages('unbalanced-tuple-unpacking', 'unpacking-non-sequence')
+    @utils.check_messages(
+        'unbalanced-tuple-unpacking', 'unpacking-non-sequence',
+        'self-cls-assignment')
     def visit_assign(self, node):
         """Check unbalanced tuple unpacking for assignments
-        and unpacking non-sequences.
+        and unpacking non-sequences as well as in case self/cls
+        get assigned.
         """
+        self._check_self_cls_assign(node)
         if not isinstance(node.targets[0], (astroid.Tuple, astroid.List)):
             return
 
@@ -1324,6 +1333,24 @@ class VariablesChecker(BaseChecker):
                 self._check_unpacking(infered, node, targets)
         except astroid.InferenceError:
             return
+
+    def _check_self_cls_assign(self, node):
+        """Check that self/cls don't get assigned"""
+        scope = node.scope()
+        if not (isinstance(scope, astroid.scoped_nodes.FunctionDef) and
+                scope.is_method() and
+                "builtins.staticmethod" not in scope.decoratornames()):
+            return
+        argument_names = scope.argnames()
+        if not argument_names:
+            return
+        self_cls_name = argument_names[0]
+        target_assign_names = (
+            target.name for target in node.targets
+            if isinstance(target, astroid.node_classes.AssignName))
+        if self_cls_name in target_assign_names:
+            self.add_message(
+                'self-cls-assignment', node=node, args=(self_cls_name))
 
     def _check_unpacking(self, infered, node, targets):
         """ Check for unbalanced tuple unpacking
