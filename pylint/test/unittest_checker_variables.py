@@ -17,6 +17,7 @@ import astroid
 
 from pylint.checkers import variables
 from pylint.testutils import CheckerTestCase, linter, set_config, Message
+from pylint.interfaces import UNDEFINED
 
 class TestVariablesChecker(CheckerTestCase):
 
@@ -88,6 +89,16 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_module(node.root())
             self.checker.visit_functiondef(node)
+
+    def test_unassigned_global(self):
+        node = astroid.extract_node('''
+            def func():
+                global sys  #@
+                import sys, lala
+        ''')
+        msg = Message('global-statement', node=node, confidence=UNDEFINED)
+        with self.assertAddsMessages(msg):
+            self.checker.visit_global(node)
 
 
 class TestVariablesCheckerWithTearDown(CheckerTestCase):
