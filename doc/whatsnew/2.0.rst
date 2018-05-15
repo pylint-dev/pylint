@@ -123,8 +123,19 @@ New checkers
          some_value = some_call()
          return locals()
 
-  * New `unhashable-dict-key` check added to detect dict lookups using
+* New `unhashable-dict-key` check added to detect dict lookups using
   unhashable keys such as lists or dicts.
+
+* New `self-cls-assignment` warning check added.
+
+  This is warning if the first argument of an instance/ class method gets
+  assigned
+
+  .. code-block:: python
+
+     class Foo(object):
+         def foo(self, bar):
+             self = bar
 
 
 Other Changes
