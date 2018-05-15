@@ -149,6 +149,12 @@ class TestRunTC(object):
     def test_w0704_ignored(self):
         self._runtest([join(HERE, 'input', 'ignore_except_pass_by_default.py')], code=0)
 
+    def test_exit_zero(self):
+        self._runtest([
+            '--exit-zero',
+            join(HERE, 'regrtest_data', 'syntax_error.py')
+        ], code=0)
+
     def test_generate_config_option(self):
         self._runtest(['--generate-rcfile'], code=0)
 
