@@ -161,3 +161,11 @@ Other Changes
   They also no longer need to document raising a NotImplementedError.
 
 * Skip wildcard import check for `__init__.py`.
+
+* Don't warn that a global variable is unused if it is defined by an import
+
+  .. code-block:: python
+
+    def func():
+        global sys
+        import sys
