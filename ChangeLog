@@ -3,6 +3,9 @@ Pylint's ChangeLog
 ------------------
 What's New in Pylint 2.0?
 =========================
+    * New check `logical-tautology` to check comparison between same value.
+
+      Close #2051
 
     * Don't show 'useless-super-delegation' if the subclass method has different type annotations.
 

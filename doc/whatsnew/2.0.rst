@@ -25,6 +25,14 @@ Summary -- Release highlights
 
 New checkers
 ============
+* A new check was added, ``comparison-with-itself``.
+
+  This refactoring message is emitted when a variable is compared against itself.
+
+  .. code-block:: python
+
+    if variable == variable:  # bad
+        pass
 
 * A new check was added, ``consider-using-in``.
 
