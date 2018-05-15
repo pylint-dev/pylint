@@ -83,6 +83,17 @@ def _count_boolean_expressions(bool_op):
     return nb_bool_expr
 
 
+def _count_methods_in_class(node):
+    all_methods = sum(1 for method in node.methods()
+                      if not method.name.startswith('_'))
+    # Special methods count towards the number of public methods,
+    # but don't count towards there being too many methods.
+    for method in node.mymethods():
+        if SPECIAL_OBJ.search(method.name) and method.name != '__init__':
+            all_methods += 1
+    return all_methods
+
+
 class MisdesignChecker(BaseChecker):
     """checks for sign of poor/misdesign:
     * number of methods, attributes, local variables...
@@ -204,21 +215,18 @@ class MisdesignChecker(BaseChecker):
             self.add_message('too-many-public-methods', node=node,
                              args=(my_methods,
                                    self.config.max_public_methods))
-        # stop here for exception, metaclass and interface classes
-        if node.type != 'class' or checker_utils.is_enum_class(node):
-            return
 
-        all_methods = sum(1 for method in node.methods()
-                          if not method.name.startswith('_'))
-        # Special methods count towards the number of public methods,
-        # but don't count towards there being too many methods.
-        for method in node.mymethods():
-            if SPECIAL_OBJ.search(method.name) and method.name != '__init__':
-                all_methods += 1
+        # Stop here for exception, metaclass, interface classes and other
+        # classes for which we don't need to count the methods.
+        if (node.type != 'class'
+                or checker_utils.is_enum_class(node)
+                or checker_utils.is_dataclass(node)):
+            return
 
         # Does the class contain more than n public methods ?
         # This checks all the methods defined by ancestors and
         # by the current class.
+        all_methods = _count_methods_in_class(node)
         if all_methods < self.config.min_public_methods:
             self.add_message('too-few-public-methods', node=node,
                              args=(all_methods,

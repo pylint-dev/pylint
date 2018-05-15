@@ -137,6 +137,10 @@ TYPE_QNAME = "%s.type" % BUILTINS
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
 PY35 = sys.version_info >= (3, 5)
+ABC_METACLASSES = {
+    '_py_abc.ABCMeta', # Python 3.7+,
+    'abc.ABCMeta',
+}
 
 # Name categories that are always consistent with all naming conventions.
 EXEMPT_NAME_CATEGORIES = {'exempt', 'ignore'}
@@ -245,10 +249,7 @@ def _is_multi_naming_match(match, node_type, confidence):
             and (node_type != 'method' or confidence != interfaces.INFERENCE_FAILURE))
 
 
-if sys.version_info < (3, 0):
-    BUILTIN_PROPERTY = '__builtin__.property'
-else:
-    BUILTIN_PROPERTY = 'builtins.property'
+BUILTIN_PROPERTY = 'builtins.property'
 
 
 def _get_properties(config):
@@ -257,7 +258,7 @@ def _get_properties(config):
     Property classes are fully qualified, such as 'abc.abstractproperty' and
     property names are the actual names, such as 'abstract_property'.
     """
-    property_classes = set((BUILTIN_PROPERTY,))
+    property_classes = {BUILTIN_PROPERTY}
     property_names = set()  # Not returning 'property', it has its own check.
     if config is not None:
         property_classes.update(config.property_classes)
@@ -664,7 +665,7 @@ class BasicErrorChecker(_BasicChecker):
                                      node=node)
                     break
             return
-        if metaclass.qname() == 'abc.ABCMeta' and abstract_methods:
+        if metaclass.qname() in ABC_METACLASSES and abstract_methods:
             self.add_message('abstract-class-instantiated',
                              args=(infered.name, ),
                              node=node)

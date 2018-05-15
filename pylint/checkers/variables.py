@@ -844,6 +844,7 @@ class VariablesChecker(BaseChecker):
 
         module = frame.root()
         default_message = True
+        locals_ = node.scope().locals
         for name in node.names:
             try:
                 assign_nodes = module.getattr(name)
@@ -851,7 +852,10 @@ class VariablesChecker(BaseChecker):
                 # unassigned global, skip
                 assign_nodes = []
 
-            if not assign_nodes:
+            not_defined_locally_by_import = not any(
+                isinstance(local, astroid.node_classes.Import)
+                for local in locals_.get(name, ()))
+            if not assign_nodes and not_defined_locally_by_import:
                 self.add_message('global-variable-not-assigned',
                                  args=name, node=node)
                 default_message = False
@@ -866,9 +870,10 @@ class VariablesChecker(BaseChecker):
                     # module level assignment
                     break
             else:
-                # global undefined at the module scope
-                self.add_message('global-variable-undefined', args=name, node=node)
-                default_message = False
+                if not_defined_locally_by_import:
+                    # global undefined at the module scope
+                    self.add_message('global-variable-undefined', args=name, node=node)
+                    default_message = False
 
         if default_message:
             self.add_message('global-statement', node=node)
