@@ -1,5 +1,5 @@
 # Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2017 guillaume2 <guillaume.peillex@gmail.col>

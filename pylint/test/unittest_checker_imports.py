@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
 # Copyright (c) 2015 Cezar <celnazli@bitdefender.com>
 # Copyright (c) 2015 James Morgensen <james.morgensen@gmail.com>

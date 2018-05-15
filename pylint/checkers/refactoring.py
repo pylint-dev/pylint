@@ -3,9 +3,9 @@
 # Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Hugo <hugovk@users.noreply.github.com>
 # Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Łukasz Sznuk <ls@rdprojekt.pl>
 # Copyright (c) 2017 Alex Hearn <alex.d.hearn@gmail.com>
 # Copyright (c) 2017 Antonio Ossa <aaossa@uc.cl>

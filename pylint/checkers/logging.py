@@ -4,7 +4,7 @@
 # Copyright (c) 2012 Mike Bryant <leachim@leachim.info>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Chris Murray <chris@chrismurray.scot>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
