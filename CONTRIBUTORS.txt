@@ -172,4 +172,4 @@ Order doesn't matter (not that much, at least ;)
 * Mitchell Young: minor adjustment to docparams
 
 * Sushobhit (sushobhit27): contributor
-  Added new check 'logical-tautology'.
+  Added new check 'comparison-with-itself'.

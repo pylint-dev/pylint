@@ -24,17 +24,3 @@ def foo():
     elif arg is not arg: # [comparison-with-itself]
         return True
     elif True is True: # [comparison-with-itself]
-        return True
-    elif 666 == 786:
-        return False
-    else:
-        return None
-
-
-def bar():
-    arg = 666
-    return 666 if arg != arg else 786 # [comparison-with-itself]
-
-def foobar():
-    arg = 786
-    return arg > 786
