@@ -1,0 +1,3 @@
+unhashable-dict-key:7::Dict key is unhashable
+unhashable-dict-key:8::Dict key is unhashable
+unhashable-dict-key:9::Dict key is unhashable
