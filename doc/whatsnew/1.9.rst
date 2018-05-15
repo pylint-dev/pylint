@@ -3,7 +3,7 @@
 **************************
 
 :Release: 1.9
-:Date: |TBA|
+:Date: 2018-05-15
 
 
 Summary -- Release highlights

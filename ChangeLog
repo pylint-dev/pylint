@@ -6,7 +6,7 @@ What's New in Pylint 1.9.0?
 ===========================
 
 
-Release date:
+Release date: 2018-05-15
 
     * Added two new Python 3 porting checks, `exception-escape` and `comprehension-escape`
 
