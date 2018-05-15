@@ -1257,15 +1257,14 @@ accessed. Python regular expressions are accepted.'}
         if isinstance(node.value, astroid.Dict):
             # Assert dict key is hashable
             inferred = safe_infer(node.slice.value)
-            if inferred is not None:
+            if inferred not in (None, astroid.Uninferable):
                 try:
                     hash_fn = next(inferred.igetattr('__hash__'))
-                except (astroid.InferenceError, TypeError):
+                except astroid.InferenceError:
                     pass
                 else:
                     if getattr(hash_fn, 'value', True) is None:
-                        self.add_message('unhashable-dict-key',
-                                         node=node.value)
+                        self.add_message('unhashable-dict-key', node=node.value)
 
         if node.ctx == astroid.Load:
             supported_protocol = supports_getitem
