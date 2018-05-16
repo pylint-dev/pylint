@@ -13,12 +13,14 @@
 """check for signs of poor design"""
 
 from collections import defaultdict
+import re
 
 from astroid import If, BoolOp
 from astroid import decorators
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
+from pylint.checkers import utils as checker_utils
 from pylint.checkers.utils import check_messages
 from pylint import utils
 
@@ -64,6 +66,7 @@ MSGS = {
               'Used when an if statement contains too many boolean '
               'expressions'),
     }
+SPECIAL_OBJ = re.compile('^_{2}[a-z]+_{2}$')
 
 
 def _count_boolean_expressions(bool_op):
@@ -78,6 +81,17 @@ def _count_boolean_expressions(bool_op):
         else:
             nb_bool_expr += 1
     return nb_bool_expr
+
+
+def _count_methods_in_class(node):
+    all_methods = sum(1 for method in node.methods()
+                      if not method.name.startswith('_'))
+    # Special methods count towards the number of public methods,
+    # but don't count towards there being too many methods.
+    for method in node.mymethods():
+        if SPECIAL_OBJ.search(method.name) and method.name != '__init__':
+            all_methods += 1
+    return all_methods
 
 
 class MisdesignChecker(BaseChecker):
@@ -189,8 +203,6 @@ class MisdesignChecker(BaseChecker):
         """check number of public methods"""
         my_methods = sum(1 for method in node.mymethods()
                          if not method.name.startswith('_'))
-        all_methods = sum(1 for method in node.methods()
-                          if not method.name.startswith('_'))
 
         # Does the class contain less than n public methods ?
         # This checks only the methods defined in the current class,
@@ -203,13 +215,18 @@ class MisdesignChecker(BaseChecker):
             self.add_message('too-many-public-methods', node=node,
                              args=(my_methods,
                                    self.config.max_public_methods))
-        # stop here for exception, metaclass and interface classes
-        if node.type != 'class':
+
+        # Stop here for exception, metaclass, interface classes and other
+        # classes for which we don't need to count the methods.
+        if (node.type != 'class'
+                or checker_utils.is_enum_class(node)
+                or checker_utils.is_dataclass(node)):
             return
 
         # Does the class contain more than n public methods ?
         # This checks all the methods defined by ancestors and
         # by the current class.
+        all_methods = _count_methods_in_class(node)
         if all_methods < self.config.min_public_methods:
             self.add_message('too-few-public-methods', node=node,
                              args=(all_methods,

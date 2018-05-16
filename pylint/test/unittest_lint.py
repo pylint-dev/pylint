@@ -666,12 +666,12 @@ class TestMessagesStore(object):
         assert desc == msg.format_help(checkerref=checkerref)
 
     def test_check_message_id(self, store):
-        assert isinstance(store.check_message_id('W1234'), MessageDefinition)
+        assert isinstance(store.get_message_definition('W1234'), MessageDefinition)
         with pytest.raises(UnknownMessageError):
-            store.check_message_id('YB12')
+            store.get_message_definition('YB12')
 
     def test_message_help(self, store):
-        msg = store.check_message_id('W1234')
+        msg = store.get_message_definition('W1234')
         self._compare_messages(
             ''':msg-symbol (W1234): *message*
   msg description. This message belongs to the achecker checker.''',
@@ -683,7 +683,7 @@ class TestMessagesStore(object):
 
     def test_message_help_minmax(self, store):
         # build the message manually to be python version independent
-        msg = store.check_message_id('E1234')
+        msg = store.get_message_definition('E1234')
         self._compare_messages(
             ''':duplicate-keyword-arg (E1234): *Duplicate keyword argument %r in %s call*
   Used when a function call passes the same keyword argument multiple times.
@@ -708,24 +708,23 @@ class TestMessagesStore(object):
 
     def test_add_renamed_message(self, store):
         store.add_renamed_message('W1234', 'old-bad-name', 'msg-symbol')
-        assert 'msg-symbol' == store.check_message_id('W1234').symbol
-        assert 'msg-symbol' == store.check_message_id('old-bad-name').symbol
+        assert 'msg-symbol' == store.get_message_definition('W1234').symbol
+        assert 'msg-symbol' == store.get_message_definition('old-bad-name').symbol
 
     def test_add_renamed_message_invalid(self, store):
         # conflicting message ID
         with pytest.raises(InvalidMessageError) as cm:
             store.add_renamed_message(
                 'W1234', 'old-msg-symbol', 'duplicate-keyword-arg')
-        assert str(cm.value) == "Message id 'W1234' is already defined"
-        # conflicting message symbol
-        with pytest.raises(InvalidMessageError) as cm:
-            store.add_renamed_message(
-                'W1337', 'msg-symbol', 'duplicate-keyword-arg')
-        assert str(cm.value) == "Message symbol 'msg-symbol' is already defined"
+        expected = (
+            "Message id 'W1234' cannot have both 'msg-symbol' and 'old-msg-symbol' "
+            "as symbolic name."
+        )
+        assert str(cm.value) == expected
 
     def test_renamed_message_register(self, store):
-        assert 'msg-symbol' == store.check_message_id('W0001').symbol
-        assert 'msg-symbol' == store.check_message_id('old-symbol').symbol
+        assert 'msg-symbol' == store.get_message_definition('W0001').symbol
+        assert 'msg-symbol' == store.get_message_definition('old-symbol').symbol
 
 
 def test_custom_should_analyze_file():

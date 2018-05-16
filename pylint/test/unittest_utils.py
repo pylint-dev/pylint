@@ -104,42 +104,43 @@ def store():
 @pytest.mark.parametrize("messages,expected", [
     ({'W1234': ('message one', 'msg-symbol-one', 'msg description'),
       'W4321': ('message two', 'msg-symbol-two', 'msg description')},
-     r"Inconsistent checker part in message id 'W4321' (expected 'x12xx')"),
+     r"Inconsistent checker part in message id 'W4321' (expected 'x12xx' because we already had ['W1234'])."),
 
     ({'W1233': ('message two', 'msg-symbol-two', 'msg description',
                 {'old_names': [('W1234', 'old-symbol')]}),
       'W1234': ('message one', 'msg-symbol-one', 'msg description')},
-     "Message id 'W1234' is already defined"),
+     "Message id 'W1234' cannot have both 'old-symbol' and 'msg-symbol-one' as symbolic name."),
 
     ({'W1234': ('message one', 'msg-symbol-one', 'msg description'),
       'W1235': ('message two', 'msg-symbol-two', 'msg description',
                 {'old_names': [('W1234', 'old-symbol')]})},
-     "Message id 'W1234' is already defined"),
+     "Message id 'W1234' cannot have both 'msg-symbol-one' and 'old-symbol' as symbolic name."),
 
     ({'W1234': ('message one', 'msg-symbol-one', 'msg description',
                 {'old_names': [('W1201', 'old-symbol-one')]}),
       'W1235': ('message two', 'msg-symbol-two', 'msg description',
                 {'old_names': [('W1201', 'old-symbol-two')]})},
-     "Message id 'W1201' is already defined"),
+     "Message id 'W1201' cannot have both 'old-symbol-one' and 'old-symbol-two' as symbolic name."),
+
     ({'W1234': ('message one', 'msg-symbol', 'msg description'),
       'W1235': ('message two', 'msg-symbol', 'msg description')},
-     "Message symbol 'msg-symbol' is already defined"),
+     "Message symbol 'msg-symbol' cannot be used for 'W1234' and 'W1235' at the same time."),
 
     ({'W1233': ('message two', 'msg-symbol-two', 'msg description',
                 {'old_names': [('W1230', 'msg-symbol-one')]}),
       'W1234': ('message one', 'msg-symbol-one', 'msg description')},
-     "Message symbol 'msg-symbol-one' is already defined"),
+     "Message symbol 'msg-symbol-one' cannot be used for 'W1230' and 'W1234' at the same time."),
 
     ({'W1234': ('message one', 'msg-symbol-one', 'msg description'),
       'W1235': ('message two', 'msg-symbol-two', 'msg description',
                 {'old_names': [('W1230', 'msg-symbol-one')]})},
-     "Message symbol 'msg-symbol-one' is already defined"),
+     "Message symbol 'msg-symbol-one' cannot be used for 'W1234' and 'W1235' at the same time."),
 
     ({'W1234': ('message one', 'msg-symbol-one', 'msg description',
                 {'old_names': [('W1230', 'old-symbol-one')]}),
       'W1235': ('message two', 'msg-symbol-two', 'msg description',
                 {'old_names': [('W1231', 'old-symbol-one')]})},
-     "Message alternate name 'old-symbol-one' is already defined"),
+     "Message symbol 'old-symbol-one' cannot be used for 'W1230' and 'W1235' at the same time."),
 
 ])
 def test_register_error(store, messages, expected):
@@ -156,17 +157,19 @@ def test_register_error_new_id_duplicate_of_new(store):
         name = 'checker_one'
         msgs = {
             'W1234': ('message one', 'msg-symbol-one', 'msg description.'),
-            }
+        }
 
     class CheckerTwo(object):
         name = 'checker_two'
         msgs = {
             'W1234': ('message two', 'msg-symbol-two', 'another msg description.'),
-            }
+        }
+
     store.register_messages(CheckerOne())
-    test_register_error(store,
-                        {'W1234': ('message two', 'msg-symbol-two', 'another msg description.')},
-                        "Message id 'W1234' is already defined")
+    test_register_error(
+        store, {'W1234': ('message two', 'msg-symbol-two', 'another msg description.')},
+        "Message id 'W1234' cannot have both 'msg-symbol-one' and 'msg-symbol-two' as symbolic name."
+    )
 
 
 @pytest.mark.parametrize("msgid,expected", [
@@ -178,25 +181,6 @@ def test_create_invalid_message_type(msgid, expected):
         utils.MessageDefinition('checker', msgid,
                                 'msg', 'descr', 'symbol', 'scope')
     assert str(cm.value) == expected
-
-
-def test__decoding_readline():
-    """_decoding_readline should yield line at a time even if the binary
-    representation of the text is not splittable line-by-line.
-
-    For convenience this test uses a codec that is easy to understand, though
-    this *specific* codec is unlikely to be seen in the wild for files.
-    """
-    binary_io = io.BytesIO(b'foo\\nbaz\\n')
-    readline = utils._decoding_readline(binary_io, 'unicode_escape')
-
-    ret = []
-    s = readline()
-    while s != '':
-        ret.append(s)
-        s = readline()
-
-    assert ret == ['foo\n', 'baz\n']
 
 
 def test_decoding_stream_unknown_encoding():

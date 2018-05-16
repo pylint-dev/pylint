@@ -598,14 +598,12 @@ class OptionsManagerMixIn(object):
                 alloptions = options_by_section.setdefault(section, [])
                 alloptions += options
         stream = stream or sys.stdout
-        encoding = utils._get_encoding(encoding, stream)
         printed = False
         for section in sections:
             if printed:
                 print('\n', file=stream)
             utils.format_section(stream, section.upper(),
-                                 sorted(options_by_section[section]),
-                                 encoding)
+                                 sorted(options_by_section[section]))
             printed = True
 
     def generate_manpage(self, pkginfo, section=1, stream=None):

@@ -29,7 +29,7 @@
 
 By default try to follow Guido's style guide :
 
-http://www.python.org/doc/essays/styleguide.html
+https://www.python.org/doc/essays/styleguide/
 
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
@@ -37,7 +37,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 import keyword
 import sys
 import tokenize
-from functools import reduce # pylint: disable=redefined-builtin
+from functools import reduce  # pylint: disable=redefined-builtin
 
 from astroid import nodes
 
@@ -79,9 +79,9 @@ MSGS = {
     'C0301': ('Line too long (%s/%s)',
               'line-too-long',
               'Used when a line is longer than a given number of characters.'),
-    'C0302': ('Too many lines in module (%s/%s)', # was W0302
+    'C0302': ('Too many lines in module (%s/%s)',  # was W0302
               'too-many-lines',
-              'Used when a module has too much lines, reducing its readability.'
+              'Used when a module has too many lines, reducing its readability.'
              ),
     'C0303': ('Trailing whitespace',
               'trailing-whitespace',
@@ -103,7 +103,7 @@ MSGS = {
     'W0312': ('Found indentation with %ss instead of %ss',
               'mixed-indentation',
               'Used when there are some mixed tabs and spaces in a module.'),
-    'W0301': ('Unnecessary semicolon', # was W0106
+    'W0301': ('Unnecessary semicolon',  # was W0106
               'unnecessary-semicolon',
               'Used when a statement is ended by a semi-colon (";"), which \
               isn\'t necessary (that\'s python, not C ;).'),
@@ -111,10 +111,10 @@ MSGS = {
               'multiple-statements',
               'Used when more than on statement are found on the same line.',
               {'scope': WarningScope.NODE}),
-    'C0325' : ('Unnecessary parens after %r keyword',
-               'superfluous-parens',
-               'Used when a single item in parentheses follows an if, for, or '
-               'other keyword.'),
+    'C0325': ('Unnecessary parens after %r keyword',
+              'superfluous-parens',
+              'Used when a single item in parentheses follows an if, for, or '
+              'other keyword.'),
     'C0326': ('%s space %s %s %s\n%s',
               'bad-whitespace',
               ('Used when a wrong number of spaces is used around an operator, '
@@ -145,6 +145,7 @@ def _underline_token(token):
     if referenced_line[-1] != '\n':
         referenced_line += '\n'
     return referenced_line + (' ' * offset) + ('^' * length)
+
 
 def _column_distance(token1, token2):
     if token1 == token2:
@@ -260,6 +261,7 @@ _CONTINUATION_MSG_PARTS = {
 }
 
 _CONTINUATION_HINT_MESSAGE = ' (%s %d space%s)'  # Ex: (remove 2 spaces)
+
 
 def _Indentations(*args):
     """Valid indentation strings for a continued line."""
@@ -482,22 +484,22 @@ class FormatChecker(BaseTokenChecker):
     # configuration options
     # for available dict keys/values see the optik parser 'add_option' method
     options = (('max-line-length',
-                {'default' : 100, 'type' : "int", 'metavar' : '<int>',
-                 'help' : 'Maximum number of characters on a single line.'}),
+                {'default': 100, 'type': "int", 'metavar': '<int>',
+                 'help': 'Maximum number of characters on a single line.'}),
                ('ignore-long-lines',
                 {'type': 'regexp', 'metavar': '<regexp>',
                  'default': r'^\s*(# )?<?https?://\S+>?$',
                  'help': ('Regexp for a line that is allowed to be longer than '
                           'the limit.')}),
                ('single-line-if-stmt',
-                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'help' : ('Allow the body of an if to be on the same '
-                           'line as the test if there is no else.')}),
+                {'default': False, 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': ('Allow the body of an if to be on the same '
+                          'line as the test if there is no else.')}),
                ('single-line-class-stmt',
-                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'help' : ('Allow the body of a class to be on the same '
-                           'line as the declaration if body contains '
-                           'single statement.')}),
+                {'default': False, 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': ('Allow the body of a class to be on the same '
+                          'line as the declaration if body contains '
+                          'single statement.')}),
                ('no-space-check',
                 {'default': ','.join(_DEFAULT_NO_SPACE_CHECK_CHOICES),
                  'metavar': ','.join(_NO_SPACE_CHECK_CHOICES),
@@ -511,13 +513,13 @@ class FormatChecker(BaseTokenChecker):
                           'and closing bracket: (a, ). '
                           '`'+ _EMPTY_LINE + '` allows space-only lines.')}),
                ('max-module-lines',
-                {'default' : 1000, 'type' : 'int', 'metavar' : '<int>',
+                {'default': 1000, 'type': 'int', 'metavar': '<int>',
                  'help': 'Maximum number of lines in a module'}
                ),
                ('indent-string',
-                {'default' : '    ', 'type' : "non_empty_string", 'metavar' : '<string>',
-                 'help' : 'String used as indentation unit. This is usually '
-                          '"    " (4 spaces) or "\\t" (1 tab).'}),
+                {'default': '    ', 'type': "non_empty_string", 'metavar': '<string>',
+                 'help': 'String used as indentation unit. This is usually '
+                         '"    " (4 spaces) or "\\t" (1 tab).'}),
                ('indent-after-paren',
                 {'type': 'int', 'metavar': '<int>', 'default': 4,
                  'help': 'Number of spaces of indent required inside a hanging '
@@ -890,7 +892,7 @@ class FormatChecker(BaseTokenChecker):
         if line_num > self.config.max_module_lines:
             # Get the line where the too-many-lines (or its message id)
             # was disabled or default to 1.
-            symbol = self.linter.msgs_store.check_message_id('too-many-lines')
+            symbol = self.linter.msgs_store.get_message_definition('too-many-lines')
             names = (symbol.msgid, 'too-many-lines')
             line = next(filter(None,
                                map(self.linter._pragma_lineno.get, names)), 1)

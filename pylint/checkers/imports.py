@@ -646,6 +646,8 @@ class ImportsChecker(BaseChecker):
             self.add_message('relative-beyond-top-level', node=importnode)
 
         except astroid.AstroidBuildingException:
+            if not self.linter.is_message_enabled('import-error'):
+                return None
             if _ignore_import_failure(importnode, modname, self._ignored_modules):
                 return None
             if not self.config.analyse_fallback_blocks and is_from_fallback_block(importnode):
@@ -804,6 +806,11 @@ class ImportsChecker(BaseChecker):
         return self.__int_dep_info
 
     def _check_wildcard_imports(self, node, imported_module):
+        root = node.root()
+        if root.package and root.name == "__init__":
+            # Skip the check if in __init__.py issue #2026
+            return
+
         wildcard_import_is_allowed = (
             self._wildcard_import_is_allowed(imported_module)
         )

@@ -169,7 +169,8 @@ class DocstringParameterChecker(BaseChecker):
             node_doc, node.args, node, node_allow_no_param)
 
     def check_functiondef_returns(self, node, node_doc):
-        if not node_doc.supports_yields and node.is_generator():
+        if ((not node_doc.supports_yields and node.is_generator())
+                or node.is_abstract()):
             return
 
         return_nodes = node.nodes_of_class(astroid.Return)
@@ -180,7 +181,7 @@ class DocstringParameterChecker(BaseChecker):
                 node=node)
 
     def check_functiondef_yields(self, node, node_doc):
-        if not node_doc.supports_yields:
+        if not node_doc.supports_yields or node.is_abstract():
             return
 
         if ((node_doc.has_yields() or node_doc.has_yields_type()) and
@@ -418,6 +419,12 @@ class DocstringParameterChecker(BaseChecker):
         :param node: The node show the message on.
         :type node: astroid.node_classes.NodeNG
         """
+        if node.is_abstract():
+            try:
+                missing_excs.remove('NotImplementedError')
+            except ValueError:
+                pass
+
         if not missing_excs:
             return
 

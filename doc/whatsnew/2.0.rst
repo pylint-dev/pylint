@@ -12,9 +12,27 @@ Summary -- Release highlights
 
   If you need to use `pylint` on Python 2, you can use Pylint 1.8. We'll continue
   to do bug releases until 2020, when Python 2 goes officially EOL.
+  `pylint` will still be able to analyze Python 2 files, but some checks might not work
+  as they will assume that their running environment was Python 2.
+
+* Given the dropping of Python 2, the Python 3 porting mode (enabled via `--py3k`) can now
+  also run with Python 3.
+
+  The porting mode used to be a no-op on Python 3, but most of the messages can now be emitted
+  when the running interpreter is Python 3. The only messages that won't be emitted are those that
+  rely on a particular syntax specific to Python 2, for instance `print` as a statement.
+
 
 New checkers
 ============
+* A new check was added, ``comparison-with-itself``.
+
+  This refactoring message is emitted when a variable is compared against itself.
+
+  .. code-block:: python
+
+    if variable == variable:  # bad
+        pass
 
 * A new check was added, ``consider-using-in``.
 
@@ -75,6 +93,15 @@ New checkers
   functions uses a different type than strings, while the latter is emitted whenever
   the said functions are using a default variable of different type than expected.
 
+* A new check was added, `subprocess-popen-preexec-fn`,
+
+  This refactoring message is emitted when using the keyword argument preexec_fn
+  when creating subprocess.Popen instances which may be unsafe when used in
+  the presence of threads.
+
+  See `subprocess.Popen <https://docs.python.org/3/library/subprocess.html#popen-constructor>`_
+  for full warning details.
+
 * New ``try-except-raise`` message when an except handler block has a bare
   `raise` statement as its first operator or the exception type being raised
   is the same as the one being handled.
@@ -95,6 +122,21 @@ New checkers
      def func():
          some_value = some_call()
          return locals()
+
+* New `unhashable-dict-key` check added to detect dict lookups using
+  unhashable keys such as lists or dicts.
+
+* New `self-cls-assignment` warning check added.
+
+  This is warning if the first argument of an instance/ class method gets
+  assigned
+
+  .. code-block:: python
+
+     class Foo(object):
+         def foo(self, bar):
+             self = bar
+
 
 Other Changes
 =============
@@ -130,4 +172,25 @@ Other Changes
 
   For instance, if the loop iterable is not empty, this check will no longer be emitted.
 
+* Enum classes no longer trigger `too-few-methods`
 
+* Special methods now count towards `too-few-methods`,
+  and are considered part of the public API.
+  They are still not counted towards the number of methods for
+  `too-many-methods`.
+
+* docparams allows abstract methods to document returns documentation even
+  if the default implementation does not return something.
+  They also no longer need to document raising a NotImplementedError.
+
+* Skip wildcard import check for `__init__.py`.
+
+* Don't warn 'useless-super-delegation' if the subclass method has different type annotations.
+
+* Don't warn that a global variable is unused if it is defined by an import
+
+  .. code-block:: python
+
+    def func():
+        global sys
+        import sys

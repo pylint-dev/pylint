@@ -137,6 +137,10 @@ TYPE_QNAME = "%s.type" % BUILTINS
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
 PY35 = sys.version_info >= (3, 5)
+ABC_METACLASSES = {
+    '_py_abc.ABCMeta', # Python 3.7+,
+    'abc.ABCMeta',
+}
 
 # Name categories that are always consistent with all naming conventions.
 EXEMPT_NAME_CATEGORIES = {'exempt', 'ignore'}
@@ -245,10 +249,7 @@ def _is_multi_naming_match(match, node_type, confidence):
             and (node_type != 'method' or confidence != interfaces.INFERENCE_FAILURE))
 
 
-if sys.version_info < (3, 0):
-    BUILTIN_PROPERTY = '__builtin__.property'
-else:
-    BUILTIN_PROPERTY = 'builtins.property'
+BUILTIN_PROPERTY = 'builtins.property'
 
 
 def _get_properties(config):
@@ -257,7 +258,7 @@ def _get_properties(config):
     Property classes are fully qualified, such as 'abc.abstractproperty' and
     property names are the actual names, such as 'abstract_property'.
     """
-    property_classes = set((BUILTIN_PROPERTY,))
+    property_classes = {BUILTIN_PROPERTY}
     property_names = set()  # Not returning 'property', it has its own check.
     if config is not None:
         property_classes.update(config.property_classes)
@@ -664,7 +665,7 @@ class BasicErrorChecker(_BasicChecker):
                                      node=node)
                     break
             return
-        if metaclass.qname() == 'abc.ABCMeta' and abstract_methods:
+        if metaclass.qname() in ABC_METACLASSES and abstract_methods:
             self.add_message('abstract-class-instantiated',
                              args=(infered.name, ),
                              node=node)
@@ -1719,7 +1720,12 @@ class ComparisonChecker(_BasicChecker):
                       'Used when comparing an object to a literal, which is usually '
                       'what you do not want to do, since you can compare to a different '
                       'literal than what was expected altogether.'),
-           }
+            'R0124': ('Redundant comparison - %s',
+                      'comparison-with-itself',
+                      'Used when something is compared against itself.',
+                      ),
+
+            }
 
     def _check_singleton_comparison(self, singleton, root_node, negative_check=False):
         if singleton.value is True:
@@ -1772,9 +1778,35 @@ class ComparisonChecker(_BasicChecker):
         self.add_message('misplaced-comparison-constant', node=node,
                          args=(suggestion,))
 
+    def _check_logical_tautology(self, node):
+        """Check if identifier is compared against itself.
+        :param node: Compare node
+        :type node: astroid.node_classes.Compare
+        :Example:
+        val = 786
+        if val == val:  # [comparison-with-itself]
+            pass
+        """
+        left_operand = node.left
+        right_operand = node.ops[0][1]
+        operator = node.ops[0][0]
+        if (isinstance(left_operand, astroid.Const)
+                and isinstance(right_operand, astroid.Const)):
+            left_operand = left_operand.value
+            right_operand = right_operand.value
+        elif (isinstance(left_operand, astroid.Name)
+              and isinstance(right_operand, astroid.Name)):
+            left_operand = left_operand.name
+            right_operand = right_operand.name
+
+        if left_operand == right_operand:
+            suggestion = "%s %s %s" % (left_operand, operator, right_operand)
+            self.add_message('comparison-with-itself', node=node, args=(suggestion,))
+
     @utils.check_messages('singleton-comparison', 'misplaced-comparison-constant',
-                          'unidiomatic-typecheck', 'literal-comparison')
+                          'unidiomatic-typecheck', 'literal-comparison', 'comparison-with-itself')
     def visit_compare(self, node):
+        self._check_logical_tautology(node)
         self._check_unidiomatic_typecheck(node)
         # NOTE: this checker only works with binary comparisons like 'x == 42'
         # but not 'x == y == 42'

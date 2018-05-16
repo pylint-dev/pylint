@@ -46,6 +46,17 @@ MSGS = {
               '. Such calls should use % formatting instead, but leave '
               'interpolation to the logging function by passing the parameters '
               'as arguments.'),
+    'W1203': ('Use % formatting in logging functions and pass the % '
+              'parameters as arguments',
+              'logging-fstring-interpolation',
+              'Used when a logging statement has a call form of '
+              '"logging.<logging method>(format_string.format(format_args...))"'
+              '. Such calls should use % formatting instead, but leave '
+              'interpolation to the logging function by passing the parameters '
+              'as arguments.'
+              'This message is emitted if f-string was used, and it can be '
+              'disabled if you like'
+              ),
     'E1200': ('Unsupported logging format character %r (%#02x) at index %d',
               'logging-unsupported-format',
               'Used when an unsupported format character is used in a logging\
@@ -191,7 +202,7 @@ class LoggingChecker(checkers.BaseChecker):
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)
         elif isinstance(node.args[format_pos], astroid.JoinedStr):
-            self.add_message('logging-format-interpolation', node=node)
+            self.add_message('logging-fstring-interpolation', node=node)
 
     @staticmethod
     def _is_operand_literal_str(operand):
