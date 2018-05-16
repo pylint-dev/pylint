@@ -2,6 +2,15 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 1.9.1?
+===========================
+
+
+Release date: 2018-05-14
+
+    * Fixed old-raise-syntax always erroring in Python 3.
+
+
 What's New in Pylint 1.9.0?
 ===========================
 
