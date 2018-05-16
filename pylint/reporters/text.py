@@ -127,13 +127,13 @@ class TextReporter(BaseReporter):
     extension = 'txt'
     line_format = '{path}:{line}:{column}: {msg_id}: {msg} ({symbol})'
 
-    def __init__(self, output=None):
-        BaseReporter.__init__(self, output)
+    def __init__(self, output=None, config=None):
+        super().__init__(output, config)
         self._modules = set()
         self._template = self.line_format
 
     def on_set_current_module(self, module, filepath):
-        self._template = str(self.linter.config.msg_template or self.line_format)
+        self._template = str(self.config.msg_template or self.line_format)
 
     def write_message(self, msg):
         """Convenience method to write a formated message with class default template"""
@@ -155,28 +155,6 @@ class TextReporter(BaseReporter):
         TextWriter().format(layout, self.out)
 
 
-class ParseableTextReporter(TextReporter):
-    """a reporter very similar to TextReporter, but display messages in a form
-    recognized by most text editors :
-
-    <filename>:<linenum>:<msg>
-    """
-    name = 'parseable'
-    line_format = '{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'
-
-    def __init__(self, output=None):
-        warnings.warn('%s output format is deprecated. This is equivalent '
-                      'to --msg-template=%s' % (self.name, self.line_format),
-                      DeprecationWarning)
-        TextReporter.__init__(self, output)
-
-
-class VSTextReporter(ParseableTextReporter):
-    """Visual studio text reporter"""
-    name = 'msvs'
-    line_format = '{path}({line}): [{msg_id}({symbol}){obj}] {msg}'
-
-
 class ColorizedTextReporter(TextReporter):
     """Simple TextReporter that colorizes text output"""
 
@@ -191,8 +169,8 @@ class ColorizedTextReporter(TextReporter):
         'S' : ("yellow", "inverse"), # S stands for module Separator
     }
 
-    def __init__(self, output=None, color_mapping=None):
-        TextReporter.__init__(self, output)
+    def __init__(self, output=None, color_mapping=None, config=None):
+        super().__init__(output, config)
         self.color_mapping = color_mapping or \
                              dict(ColorizedTextReporter.COLOR_MAPPING)
         ansi_terms = ['xterm-16color', 'xterm-256color']
@@ -236,6 +214,4 @@ class ColorizedTextReporter(TextReporter):
 def register(linter):
     """Register the reporter classes with the linter."""
     linter.register_reporter(TextReporter)
-    linter.register_reporter(ParseableTextReporter)
-    linter.register_reporter(VSTextReporter)
     linter.register_reporter(ColorizedTextReporter)
