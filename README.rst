@@ -79,5 +79,3 @@ Pylint is shipped with following additional commands:
 * pyreverse: an UML diagram generator
 * symilar: an independent similarities checker
 * epylint: Emacs and Flymake compatible Pylint
-
-
