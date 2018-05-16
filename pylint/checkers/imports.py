@@ -120,6 +120,7 @@ def _ignore_import_failure(node, modname, ignored_modules):
 
 # utilities to represents import dependencies as tree and dot graph ###########
 
+
 def _make_tree_defs(mod_files_list):
     """get a list of 2-uple (module, list_of_files_which_import_this_module),
     it will return a dictionary to represent this as a tree
@@ -206,11 +207,6 @@ MSGS = {
     'W0402': ('Uses of a deprecated module %r',
               'deprecated-module',
               'Used a module marked as deprecated is imported.'),
-    'W0403': ('Relative import %r, should be %r',
-              'relative-import',
-              'Used when an import relative to the package directory is '
-              'detected.',
-              {'maxversion': (3, 0)}),
     'W0404': ('Reimport %r (imported line %s)',
               'reimported',
               'Used when a module is reimported multiple times.'),
@@ -264,48 +260,48 @@ class ImportsChecker(BaseChecker):
     else:
         deprecated_modules = ('optparse', 'tkinter.tix')
     options = (('deprecated-modules',
-                {'default' : deprecated_modules,
-                 'type' : 'csv',
-                 'metavar' : '<modules>',
-                 'help' : 'Deprecated modules which should not be used,'
-                          ' separated by a comma'}
-               ),
+                {'default': deprecated_modules,
+                 'type': 'csv',
+                 'metavar': '<modules>',
+                 'help': 'Deprecated modules which should not be used,'
+                         'separated by a comma'}
+                ),
                ('import-graph',
-                {'default' : '',
-                 'type' : 'string',
-                 'metavar' : '<file.dot>',
-                 'help' : 'Create a graph of every (i.e. internal and'
-                          ' external) dependencies in the given file'
-                          ' (report RP0402 must not be disabled)'}
-               ),
+                {'default': '',
+                 'type': 'string',
+                 'metavar': '<file.dot>',
+                 'help': 'Create a graph of every (i.e. internal and'
+                         ' external) dependencies in the given file'
+                         '(report RP0402 must not be disabled)'}
+                ),
                ('ext-import-graph',
-                {'default' : '',
-                 'type' : 'string',
-                 'metavar' : '<file.dot>',
-                 'help' : 'Create a graph of external dependencies in the'
-                          ' given file (report RP0402 must not be disabled)'}
-               ),
+                {'default': '',
+                 'type': 'string',
+                 'metavar': '<file.dot>',
+                 'help': 'Create a graph of external dependencies in the'
+                         ' given file (report RP0402 must not be disabled)'}
+                ),
                ('int-import-graph',
-                {'default' : '',
-                 'type' : 'string',
-                 'metavar' : '<file.dot>',
-                 'help' : 'Create a graph of internal dependencies in the'
-                          ' given file (report RP0402 must not be disabled)'}
-               ),
+                {'default': '',
+                 'type': 'string',
+                 'metavar': '<file.dot>',
+                 'help': 'Create a graph of internal dependencies in the'
+                         'given file (report RP0402 must not be disabled)'}
+                ),
                ('known-standard-library',
                 {'default': DEFAULT_STANDARD_LIBRARY,
                  'type': 'csv',
                  'metavar': '<modules>',
                  'help': 'Force import order to recognize a module as part of'
                          ' the standard compatibility libraries.'}
-               ),
+                ),
                ('known-third-party',
                 {'default': DEFAULT_KNOWN_THIRD_PARTY,
                  'type': 'csv',
                  'metavar': '<modules>',
                  'help': 'Force import order to recognize a module as part of'
                          ' a third party library.'}
-               ),
+                ),
                ('analyse-fallback-blocks',
                 {'default': False,
                  'type': 'yn',
@@ -314,13 +310,13 @@ class ImportsChecker(BaseChecker):
                          'support both Python 2 and 3 compatible code, which means that '
                          'the block might have code that exists only in one or another '
                          'interpreter, leading to false positives when analysed.'},
-               ),
+                ),
                ('allow-wildcard-with-all',
                 {'default': False,
                  'type': 'yn',
                  'metavar': '<y_or_n>',
                  'help': 'Allow wildcard imports from modules that define __all__.'}),
-              )
+               )
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -333,7 +329,7 @@ class ImportsChecker(BaseChecker):
                          self._report_external_dependencies),
                         ('RP0402', 'Modules dependencies graph',
                          self._report_dependencies_graph),
-                       )
+                        )
 
         self._site_packages = self._compute_site_packages()
 
@@ -575,7 +571,7 @@ class ImportsChecker(BaseChecker):
         std_imports = []
         third_party_imports = []
         first_party_imports = []
-        # need of a list that holds third or first party ordered import
+        # need of a list that holds third or first party ordered import
         external_imports = []
         local_imports = []
         third_party_not_ignored = []
@@ -660,9 +656,9 @@ class ImportsChecker(BaseChecker):
         if not self.linter.is_message_enabled('relative-import'):
             return None
         if importedmodnode.file is None:
-            return False # built-in module
+            return False  # built-in module
         if modnode is importedmodnode:
-            return False # module importing itself
+            return False  # module importing itself
         if modnode.absolute_import_activated() or getattr(importnode, 'level', None):
             return False
         if importedmodnode.name != importedasname:
