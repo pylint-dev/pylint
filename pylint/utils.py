@@ -247,14 +247,14 @@ class MessagesHandlerMixIn:
     """
     __by_id_managed_msgs = []
 
-    def __init__(self, config, msgs_store=None, stats=None):
+    def __init__(self, config):
         self.config = config
         self.file_state = None
         self._msgs_state = {}
         self.msg_status = 0
-        self.msgs_store = msgs_store or MessagesStore()
+        self.msgs_store = MessagesStore()
         self.reporter = None
-        self.stats = stats or {
+        self.stats = {
             'by_module': {},
             'by_msg': {},
         }
@@ -371,7 +371,7 @@ class MessagesHandlerMixIn:
                 for msgid in msgids:
                     self.disable(msgid)
 
-    def _init_msg_states(self):
+    def init_msg_states(self):
         for msg in self.msgs_store.messages:
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
