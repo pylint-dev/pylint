@@ -47,8 +47,8 @@ class BaseReporter(object):
 
     extension = ''
 
-    def __init__(self, output=None):
-        self.linter = None
+    def __init__(self, output=None, config=None):
+        self.config = config
         self.section = 0
         self.out = None
         self.out_encoding = None
