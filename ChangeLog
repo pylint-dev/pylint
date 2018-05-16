@@ -223,6 +223,9 @@ Release date: |TBA|
 
     * Updated the default report format to include paths that can be clicked on in some terminals (e.g. iTerm).
 
+    * Fix `KeyError` raised when using docparams and NotImplementedError is documented.
+
+      Fixes #2102
 
 What's New in Pylint 1.9?
 =========================
