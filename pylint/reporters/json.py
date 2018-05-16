@@ -24,8 +24,8 @@ class JSONReporter(BaseReporter):
     name = "json"
     extension = "json"
 
-    def __init__(self, output=sys.stdout):
-        BaseReporter.__init__(self, output)
+    def __init__(self, output=sys.stdout, config=None):
+        super().__init__(output, config)
         self.messages = []
 
     def handle_message(self, msg):

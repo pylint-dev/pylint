@@ -1404,20 +1404,18 @@ group are mutually exclusive.",
     def load_reporter(self):
         name = self._global_config.output_format.lower()
         if name in self._plugin_registry._reporters:
-            self._reporter = self._plugin_registry._reporters[name]()
-            self._linter.reporter = self._reporter
+            self._reporter = self._plugin_registry._reporters[name](
+                config=self._global_config
+            )
             self._plugin_registry.reporter = self._reporter
-            # TODO: Remove the need to do this
-            self._reporter.linter = self._linter
         else:
             try:
                 reporter_class = self._load_reporter_class()
             except (ImportError, AttributeError):
                 raise exceptions.InvalidReporterError(name)
             else:
-                self._reporter = reporter_class()
-                self._linter.reporter = self._reporter
-                self._reporter.linter = self._linter
+                self._reporter = reporter_class(config=self._global_config)
+                self._plugin_registry.reporter = self._reporter
 
     def _load_reporter_class(self):
         qname = self._global_config.output_format
@@ -1621,6 +1619,7 @@ group are mutually exclusive.",
             ):
                 continue
 
+            self._linter.reporter = self._reporter
             self._linter.check(module_desc, walker, rawcheckers, tokencheckers)
 
         # notify global end
