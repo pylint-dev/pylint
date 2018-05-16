@@ -155,3 +155,5 @@ Order doesn't matter (not that much, at least ;)
 
 * Sushobhit (sushobhit27): contributor
   Added new py3k check invalid-unicode-literal.
+
+* Adam Dangoor: contributor

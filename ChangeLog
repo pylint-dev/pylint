@@ -2,6 +2,16 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 1.9.x?
+===========================
+
+
+Release date:
+
+    * Fix `KeyError` raised when using docparams and NotImplementedError is
+documented.
+
+
 What's New in Pylint 1.9.1?
 ===========================
 

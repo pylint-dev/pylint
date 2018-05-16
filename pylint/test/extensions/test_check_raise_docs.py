@@ -515,3 +515,15 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
+
+    def test_no_error_notimplemented_documented(self):
+        raise_node = astroid.extract_node('''
+        def my_func():
+            """
+            Raises:
+                NotImplementedError: When called.
+            """
+            raise NotImplementedError #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
