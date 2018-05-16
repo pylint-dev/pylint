@@ -39,6 +39,11 @@ What's New in Pylint 2.0?
 
        Close #1793
 
+    * New quiet mode option, enabled with `--quiet` command line flag, to
+      suppress display of extra non-checker-related output.
+
+      Close #1863
+
 
 What's New in Pylint 1.9?
 =========================

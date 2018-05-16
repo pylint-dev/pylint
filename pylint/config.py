@@ -655,7 +655,7 @@ class OptionsManagerMixIn(object):
             for sect, values in list(parser._sections.items()):
                 if not sect.isupper() and values:
                     parser._sections[sect.upper()] = values
-        
+
         if quiet:
             return
 
