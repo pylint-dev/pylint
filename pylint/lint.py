@@ -780,25 +780,21 @@ class ReportRegistry:
 class PluginRegistry(utils.MessagesHandlerMixIn, ReportRegistry):
     """A class to register checkers to."""
 
-    def __init__(self, linter, register_options=(lambda options: None)):
-        super().__init__(
-            linter.config, linter.msgs_store, linter.stats,
-        )
+    def __init__(self, config, register_options=(lambda options: None)):
+        super().__init__(config)
         self.register_options = register_options
         self._checkers = collections.defaultdict(list)
-        # TODO: Remove. This is needed for the MessagesHandlerMixIn for now.
-        linter._checkers = self._checkers
         self._reporters = {}
 
         self._python3_porting_mode = False
         self._error_mode = False
 
-        for r_id, r_title, r_cb in linter.reports:
-            self.register_report(r_id, r_title, r_cb, linter)
+        for r_id, r_title, r_cb in PyLinter.reports:
+            self.register_report(r_id, r_title, r_cb, PyLinter)
 
-        self.register_options(linter.options)
+        self.register_options(PyLinter.options)
 
-        self.msgs_store.register_messages(linter)
+        self.msgs_store.register_messages(PyLinter)
 
     def for_all_checkers(self):
         """Loop through all registered checkers.
@@ -1057,8 +1053,7 @@ group are mutually exclusive.'),
     def __init__(self):
         super().__init__()
         self._global_config = config.Configuration()
-        self._linter = PyLinter(self._global_config)
-        self._plugin_registry = PluginRegistry(self._linter)
+        self._plugin_registry = PluginRegistry(self._global_config)
         self._loaded_plugins = set()
         self._reporter = None
 
@@ -1097,7 +1092,6 @@ group are mutually exclusive.'),
                                 level=1)
 
         self._global_config.add_options(option_definitions)
-        self._linter.config = self._global_config
 
         parsed = parser.preprocess(
             args,
@@ -1198,13 +1192,13 @@ group are mutually exclusive.'),
 
         with fix_import_path(self._global_config.module_or_package):
             assert self._global_config.jobs == 1
-            base_name = self.check(
+            base_name, status_code = self.check(
                 self._global_config.module_or_package, self.prepare_checkers(),
             )
 
             self.generate_reports(base_name)
 
-        sys.exit(self._linter.msg_status)
+        sys.exit(status_code)
 
     def load_plugin(self, module_name):
         if module_name in self._loaded_plugins:
@@ -1293,11 +1287,11 @@ group are mutually exclusive.'),
         reports = self._plugin_registry.reports
         reports = sorted(reports, key=lambda x: getattr(x, 'name', ''))
         try:
-            reports.remove(self._linter)
+            reports.remove(PyLinter)
         except ValueError:
             pass
         else:
-            reports.append(self._linter)
+            reports.append(PyLinter)
         return reports
 
     def make_reports(self, stats, old_stats):
@@ -1314,7 +1308,7 @@ group are mutually exclusive.'),
         sect = report_nodes.Section('Report',
                        '%s statements analysed.'% (stats['statement']))
         for checker in self.report_order():
-            for reportid, r_title, r_cb in self.reports[checker]:
+            for reportid, r_title, r_cb in self._plugin_registry.reports[checker]:
                 if not self.report_is_enabled(reportid):
                     continue
                 report_sect = report_nodes.Section(r_title)
@@ -1353,22 +1347,20 @@ group are mutually exclusive.'),
 
     def get_checkers(self):
         """return all available checkers as a list"""
-        return [self._linter] + [
-            c for c in self._plugin_registry.for_all_checkers() if c is not self._linter
+        return [
+            c for c in self._plugin_registry.for_all_checkers()
         ]
 
     def prepare_checkers(self):
         """return checkers needed for activated messages and reports"""
         # get needed checkers
-        neededcheckers = [self._linter]
+        neededcheckers = []
         for checker in self.get_checkers()[1:]:
             messages = set(msg for msg in checker.msgs
                            if self._plugin_registry.is_message_enabled(msg))
             if (messages or
                     any(self._plugin_registry.report_is_enabled(r[0]) for r in checker.reports)):
                 neededcheckers.append(checker)
-                # TODO: Remove need for this
-                checker.linter = self._linter
         # Sort checkers by priority
         neededcheckers = sorted(neededcheckers,
                                 key=operator.attrgetter('priority'),
@@ -1405,20 +1397,24 @@ group are mutually exclusive.'),
         """
         # initialize msgs_state now that all messages have been registered into
         # the store
-        # TODO: Move this
-        self._plugin_registry._init_msg_states()
+        self._plugin_registry.init_msg_states()
 
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
 
         walker = utils.PyLintASTWalker(self._plugin_registry)
         tokencheckers = [c for c in checkers_
-                         if interfaces.implements(c, interfaces.ITokenChecker)
-                         and c is not self._linter]
+                         if interfaces.implements(c, interfaces.ITokenChecker)]
         rawcheckers = [c for c in checkers_
                        if interfaces.implements(c, interfaces.IRawChecker)]
         # notify global begin
+        linter = PyLinter(self._global_config)
+        linter.config = self._global_config
+        linter.msgs_store = self._plugin_registry.msgs_store
+        linter.stats = self._plugin_registry.stats
+        linter.open()
         for checker in checkers_:
+            checker.linter = linter
             checker.open()
             if interfaces.implements(checker, interfaces.IAstroidChecker):
                 walker.add_checker(checker)
@@ -1435,15 +1431,16 @@ group are mutually exclusive.'),
             if not module_desc.isarg and not self.should_analyze_file(modname, filepath):
                 continue
 
-            self._linter.reporter = self._reporter
-            self._linter.check(module_desc, walker, rawcheckers, tokencheckers)
+            linter.reporter = self._reporter
+            linter.check(module_desc, walker, rawcheckers, tokencheckers)
 
         # notify global end
         self._plugin_registry.stats['statement'] = walker.nbstatements
         for checker in reversed(checkers_):
             checker.close()
+        linter.close()
 
-        return module_desc.basename
+        return module_desc.basename, linter.msg_status
 
 
 if __name__ == '__main__':
