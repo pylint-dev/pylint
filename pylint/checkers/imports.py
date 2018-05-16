@@ -238,9 +238,10 @@ MSGS = {
               'module',
               'wrong-import-position',
               'Used when code and imports are mixed'),
-    'C0414': ('Useless import alias:%s',
+    'C0414': ('Import alias does not rename original package',
               'useless-import-alias',
-              'Used when an import alias does not rename the import'),
+              'Used when an import alias is same as original package.'
+              'e.g using import numpy as numpy instead of import numpy as np'),
     }
 
 
@@ -721,17 +722,16 @@ class ImportsChecker(BaseChecker):
 
     def _check_import_as_rename(self, node):
         names = node.names
-        if not all(names[0]):
-            return
+        for name in names:
+            if not all(name):
+                return
 
-        real_name = names[0][0]
-        packages = real_name.rsplit('.', 1)
-        real_name = packages[1] if len(packages) == 2 else packages[0]
-        imported_name = names[0][1]
-        if real_name == imported_name:
-            msg = "Import alias does not rename '%s' and can be rewritten." % (imported_name)
-            self.add_message('useless-import-alias',
-                             args=msg, node=node)
+            real_name = name[0]
+            packages = real_name.rsplit('.', 1)
+            real_name = packages[1] if len(packages) == 2 else packages[0]
+            imported_name = name[1]
+            if real_name == imported_name:
+                self.add_message('useless-import-alias', node=node)
 
     def _check_reimport(self, node, basename=None, level=None):
         """check if the import is necessary (i.e. not already done)"""

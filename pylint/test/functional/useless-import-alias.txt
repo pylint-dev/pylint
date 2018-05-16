@@ -1,6 +1,8 @@
-useless-import-alias:2::"Useless import alias:Import alias does not rename 'OrderedDict' and can be rewritten."
-useless-import-alias:4::"Useless import alias:Import alias does not rename 'path' and can be rewritten."
-useless-import-alias:6::"Useless import alias:Import alias does not rename 'foobar' and can be rewritten."
-useless-import-alias:10::"Useless import alias:Import alias does not rename 'bar' and can be rewritten."
-useless-import-alias:13::"Useless import alias:Import alias does not rename 'bar' and can be rewritten."
-useless-import-alias:14::"Useless import alias:Import alias does not rename 'foobar' and can be rewritten."
+useless-import-alias:2::Import alias does not rename original package
+useless-import-alias:4::Import alias does not rename original package
+useless-import-alias:6::Import alias does not rename original package
+useless-import-alias:10::Import alias does not rename original package
+useless-import-alias:13::Import alias does not rename original package
+useless-import-alias:14::Import alias does not rename original package
+useless-import-alias:16::Import alias does not rename original package
+useless-import-alias:17::Import alias does not rename original package

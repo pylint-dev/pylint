@@ -13,3 +13,6 @@ from . import bar
 from ..foo import bar as bar # [useless-import-alias]
 from ..foo.bar import foobar as foobar # [useless-import-alias]
 from ..foo.bar import foobar as anotherfoobar
+from . import foo as foo, foo2 as bar2  # [useless-import-alias]
+from . import foo as bar, foo2 as foo2  # [useless-import-alias]
+from . import foo as bar, foo2 as bar2
