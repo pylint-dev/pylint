@@ -460,7 +460,7 @@ Please report bugs on the project\'s mailing list:
 class OptionsManagerMixIn(object):
     """Handle configuration from both a configuration file and command line options"""
 
-    def __init__(self, usage, config_file=None, version=None, quiet=0):
+    def __init__(self, usage, config_file=None, version=None):
         self.config_file = config_file
         self.reset_parsers(usage, version=version)
         # list of registered options providers

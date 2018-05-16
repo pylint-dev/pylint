@@ -1278,7 +1278,7 @@ group are mutually exclusive.'),
             ('quiet',
              {'action' : 'callback', 'callback' : self.cb_quiet_mode,
               'help' : 'In quiet mode, extra non-checker-related info '
-                       'will be disabled, like the config file path' })
+                       'will not be displayed' })
 
             ), option_groups=self.option_groups, pylintrc=self._rcfile)
         # register standard checkers
