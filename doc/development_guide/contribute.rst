@@ -89,7 +89,7 @@ your patch gets accepted.
 
 - Relate your change to an issue in the tracker if such an issue exists (see
   `Closing issues via commit messages`_ of the GitHub documentation for more
-   information on this)
+  information on this)
 
 - Document your change, if it is a non-trivial one.
 

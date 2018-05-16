@@ -124,7 +124,7 @@ class TextReporter(BaseReporter):
     __implements__ = IReporter
     name = 'text'
     extension = 'txt'
-    line_format = '{C}:{line:3d},{column:2d}: {msg} ({symbol})'
+    line_format = '{path}:{line}:{column}: {msg_id}: {msg} ({symbol})'
 
     def __init__(self, output=None):
         BaseReporter.__init__(self, output)
