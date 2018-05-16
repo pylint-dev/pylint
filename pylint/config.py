@@ -471,7 +471,6 @@ class OptionsManagerMixIn(object):
         self._nocallback_options = {}
         self._mygroups = {}
         # verbosity
-        self.quiet = quiet
         self._maxlevel = 0
 
     def reset_parsers(self, usage='', version=None):
@@ -617,7 +616,7 @@ class OptionsManagerMixIn(object):
         for provider in self.options_providers:
             provider.load_defaults()
 
-    def read_config_file(self, config_file=None):
+    def read_config_file(self, config_file=None, quiet=None):
         """read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
         """
@@ -656,8 +655,8 @@ class OptionsManagerMixIn(object):
             for sect, values in list(parser._sections.items()):
                 if not sect.isupper() and values:
                     parser._sections[sect.upper()] = values
-
-        if self.quiet:
+        
+        if quiet:
             return
 
         if use_config_file:
