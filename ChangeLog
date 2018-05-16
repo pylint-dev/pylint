@@ -4,6 +4,10 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
+    * Remove Python 2 specific checks
+
+      Close   #1896
+
     * Warn if the first argument of an instance/ class method gets assigned
 
       Close #977

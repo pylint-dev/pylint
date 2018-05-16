@@ -399,12 +399,6 @@ class BasicErrorChecker(_BasicChecker):
                   'yield-outside-function',
                   'Used when a "yield" statement is found outside a function or '
                   'method.'),
-        'E0106': ('Return with argument inside generator',
-                  'return-arg-in-generator',
-                  'Used when a "return" statement with an argument is found '
-                  'outside in a generator function or method (e.g. with some '
-                  '"yield" statements).',
-                  {'maxversion': (3, 3)}),
         'E0107': ("Use of the non-existent %s operator",
                   'nonexistent-operator',
                   "Used when you attempt to use the C-style pre-increment or "
@@ -1651,37 +1645,6 @@ class PassChecker(_BasicChecker):
     def visit_pass(self, node):
         if len(node.parent.child_sequence(node)) > 1:
             self.add_message('unnecessary-pass', node=node)
-
-
-class LambdaForComprehensionChecker(_BasicChecker):
-    """check for using a lambda where a comprehension would do.
-
-    See <http://www.artima.com/weblogs/viewpost.jsp?thread=98196>
-    where GvR says comprehensions would be clearer.
-    """
-
-    msgs = {'W0110': ('map/filter on lambda could be replaced by comprehension',
-                      'deprecated-lambda',
-                      'Used when a lambda is the first argument to "map" or '
-                      '"filter". It could be clearer as a list '
-                      'comprehension or generator expression.',
-                      {'maxversion': (3, 0)}),
-           }
-
-    @utils.check_messages('deprecated-lambda')
-    def visit_call(self, node):
-        """visit a Call node, check if map or filter are called with a
-        lambda
-        """
-        if not node.args:
-            return
-        if not isinstance(node.args[0], astroid.Lambda):
-            return
-        infered = utils.safe_infer(node.func)
-        if (utils.is_builtin_object(infered)
-                and infered.name in ['map', 'filter']):
-            self.add_message('deprecated-lambda', node=node)
-
 
 def _is_one_arg_pos_call(call):
     """Is this a call with exactly 1 argument,
