@@ -1826,5 +1826,4 @@ def register(linter):
     linter.register_checker(NameChecker(linter))
     linter.register_checker(DocStringChecker(linter))
     linter.register_checker(PassChecker(linter))
-    linter.register_checker(LambdaForComprehensionChecker(linter))
     linter.register_checker(ComparisonChecker(linter))
