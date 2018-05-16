@@ -692,95 +692,29 @@ class PyLinter(utils.MessagesHandlerMixIn, checkers.BaseTokenChecker):
 
     # code checking methods ###################################################
 
-    # pylint: disable=unused-argument
-    @staticmethod
-    def should_analyze_file(modname, path, is_argument=False):
-        """Returns whether or not a module should be checked.
-
-        This implementation returns True for all python source file, indicating
-        that all files should be linted.
-
-        Subclasses may override this method to indicate that modules satisfying
-        certain conditions should not be linted.
-
-        :param str modname: The name of the module to be checked.
-        :param str path: The full path to the source code of the module.
-        :param bool is_argument: Whetter the file is an argument to pylint or not.
-                                 Files which respect this property are always
-                                 checked, since the user requested it explicitly.
-        :returns: True if the module should be checked.
-        :rtype: bool
-        """
-        if is_argument:
-            return True
-        return path.endswith(".py")
-
-    # pylint: enable=unused-argument
-
-    def check(self, files_or_modules, checkers_):
-        """main checking entry: check a list of files or modules from their
-        name.
-        """
-        # initialize msgs_state now that all messages have been registered into
-        # the store
-        self._init_msg_states()
-
-        if not isinstance(files_or_modules, (list, tuple)):
-            files_or_modules = (files_or_modules,)
-
-        self._do_check(files_or_modules, checkers_)
-
-    def _do_check(self, files_or_modules, checkers_):
-        walker = utils.PyLintASTWalker(self)
-        tokencheckers = [
-            c
-            for c in checkers_
-            if interfaces.implements(c, interfaces.ITokenChecker) and c is not self
-        ]
-        rawcheckers = [
-            c for c in checkers_ if interfaces.implements(c, interfaces.IRawChecker)
-        ]
-        # notify global begin
-        for checker in checkers_:
-            checker.open()
-            if interfaces.implements(checker, interfaces.IAstroidChecker):
-                walker.add_checker(checker)
-        # build ast and check modules or packages
-        expanded_files = utils.expand_files(
-            files_or_modules, self, self.config.black_list, self.config.black_list_re
+    def check(self, module_desc, walker, rawcheckers, tokencheckers):
+        modname = module_desc.name
+        filepath = module_desc.path
+        self.set_current_module(modname, filepath)
+        # get the module representation
+        ast_node = self.get_ast(filepath, modname)
+        if ast_node is None:
+            return
+        # XXX to be correct we need to keep module_msgs_state for every
+        # analyzed module (the problem stands with localized messages which
+        # are only detected in the .close step)
+        self.file_state = utils.FileState(module_desc.basename)
+        self._ignore_file = False
+        # fix the current file (if the source file was not available or
+        # if it's actually a c extension)
+        self.current_file = ast_node.file  # pylint: disable=maybe-no-member
+        self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
+        # warn about spurious inline messages handling
+        spurious_messages = self.file_state.iter_spurious_suppression_messages(
+            self.msgs_store
         )
-        for module_desc in expanded_files:
-            modname = module_desc.name
-            filepath = module_desc.path
-            if not module_desc.isarg and not self.should_analyze_file(
-                modname, filepath
-            ):
-                continue
-
-            self.set_current_module(modname, filepath)
-            # get the module representation
-            ast_node = self.get_ast(filepath, modname)
-            if ast_node is None:
-                continue
-            # XXX to be correct we need to keep module_msgs_state for every
-            # analyzed module (the problem stands with localized messages which
-            # are only detected in the .close step)
-            self.file_state = utils.FileState(module_desc.basename)
-            self._ignore_file = False
-            # fix the current file (if the source file was not available or
-            # if it's actually a c extension)
-            self.current_file = ast_node.file  # pylint: disable=maybe-no-member
-            self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
-            # warn about spurious inline messages handling
-            spurious_messages = self.file_state.iter_spurious_suppression_messages(
-                self.msgs_store
-            )
-            for msgid, line, args in spurious_messages:
-                self.add_message(msgid, line, None, args)
-        # notify global end
-        self.stats["statement"] = walker.nbstatements
-        for checker in reversed(checkers_):
-            checker.close()
+        for msgid, line, args in spurious_messages:
+            self.add_message(msgid, line, None, args)
 
     def set_current_module(self, modname, filepath=None):
         """set the name of the currently analyzed module and
@@ -968,7 +902,6 @@ class PluginRegistry(utils.MessagesHandlerMixIn, ReportRegistry):
         # TODO: Remove. This is needed for the MessagesHandlerMixIn for now.
         linter._checkers = self._checkers
         self._reporters = {}
-        self._linter = linter
 
         self._python3_porting_mode = False
         self._error_mode = False
@@ -1041,11 +974,6 @@ class PluginRegistry(utils.MessagesHandlerMixIn, ReportRegistry):
             warnings.warn(msg)
 
         self._reporters[reporter_class.name] = reporter_class
-
-    # For now simply defer missing attributes to the linter,
-    # until we know what API we want.
-    def __getattr__(self, attribute):
-        return getattr(self._linter, attribute)
 
     def disable(self, msgid, scope="package", line=None, ignore_unknown=False):
         """Do not output messages that have the given ID.
@@ -1392,7 +1320,7 @@ group are mutually exclusive.",
         # TODO: if global_config.generate_man
 
         if self._global_config.errors_only:
-            self._linter.error_mode()
+            self._plugin_registry.error_mode()
             if file_parser.has_option("MESSAGES CONTROL", "disable"):
                 value = file_parser.get("MESSAGES CONTROL", "disable")
                 self.config.set_option("disable", value)
@@ -1401,13 +1329,13 @@ group are mutually exclusive.",
             self._global_config.score = False
 
         if self._global_config.py3k:
-            self._linter.python3_porting_mode()
+            self._plugin_registry.python3_porting_mode()
             if file_parser.has_option("MESSAGES CONTROL", "disable"):
                 value = file_parser.get("MESSAGES CONTROL", "disable")
                 self._global_config.set_option("disable", value)
 
         if self._global_config.full_documentation:
-            self._linter.print_full_documentation()
+            self._plugin_registry.print_full_documentation()
             sys.exit(0)
 
         if self._global_config.list_conf_levels:
@@ -1437,11 +1365,11 @@ group are mutually exclusive.",
 
         with fix_import_path(self._global_config.module_or_package):
             assert self._global_config.jobs == 1
-            self._linter.check(
+            base_name = self.check(
                 self._global_config.module_or_package, self.prepare_checkers()
             )
 
-            self.generate_reports()
+            self.generate_reports(base_name)
 
         if linter.config.exit_zero:
             sys.exit(0)
@@ -1498,7 +1426,7 @@ group are mutually exclusive.",
         reporter_class = getattr(module, class_name)
         return reporter_class
 
-    def generate_reports(self):
+    def generate_reports(self, base_name):
         """close the whole package /module, it's time to make reports !
 
         if persistent run, pickle results for later comparison
@@ -1506,29 +1434,27 @@ group are mutually exclusive.",
         # Display whatever messages are left on the reporter.
         self._reporter.display_messages(report_nodes.Section())
 
-        if self._linter.file_state.base_name is not None:
+        if base_name is not None:
             # load previous results if any
-            previous_stats = config.load_results(self._linter.file_state.base_name)
+            previous_stats = config.load_results(base_name)
             # XXX code below needs refactoring to be more reporter agnostic
-            self._reporter.on_close(self._linter.stats, previous_stats)
+            self._reporter.on_close(self._plugin_registry.stats, previous_stats)
             if self._global_config.reports:
                 # TODO: The Runner should make reports, not the registry.
                 sect = self._plugin_registry.make_reports(
-                    self._linter.stats, previous_stats
+                    self._plugin_registry.stats, previous_stats
                 )
             else:
                 sect = report_nodes.Section()
 
             if self._global_config.reports:
                 self._reporter.display_reports(sect)
-            self._report_evaluation()
+            self._report_evaluation(base_name)
             # save results if persistent run
             if self._global_config.persistent:
-                config.save_results(
-                    self._linter.stats, self._linter.file_state.base_name
-                )
+                config.save_results(self._plugin_registry.stats, base_name)
         else:
-            self._reporter.on_close(self._linter.stats, {})
+            self._reporter.on_close(self._plugin_registry.stats, {})
 
     def report_order(self):
         """A list of reports, sorted in the order in which they must be called.
@@ -1573,22 +1499,24 @@ group are mutually exclusive.",
                 sect.append(report_sect)
         return sect
 
-    def _report_evaluation(self):
+    def _report_evaluation(self, base_name):
         """make the global evaluation report"""
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
-        previous_stats = config.load_results(self._linter.file_state.base_name)
-        if self._linter.stats["statement"] == 0:
+        previous_stats = config.load_results(base_name)
+        if self._plugin_registry.stats["statement"] == 0:
             return
 
         # get a global note for the code
         evaluation = self._global_config.evaluation
         try:
-            note = eval(evaluation, {}, self._linter.stats)  # pylint: disable=eval-used
+            note = eval(
+                evaluation, {}, self._plugin_registry.stats
+            )  # pylint: disable=eval-used
         except Exception as ex:
             msg = "An exception occurred while rating: %s" % ex
         else:
-            self._linter.stats["global_note"] = note
+            self._plugin_registry.stats["global_note"] = note
             msg = "Your code has been rated at %.2f/10" % note
             pnote = previous_stats.get("global_note")
             if pnote is not None:
@@ -1618,11 +1546,89 @@ group are mutually exclusive.",
                 self._plugin_registry.report_is_enabled(r[0]) for r in checker.reports
             ):
                 neededcheckers.append(checker)
+                # TODO: Remove need for this
+                checker.linter = self._linter
         # Sort checkers by priority
         neededcheckers = sorted(
             neededcheckers, key=operator.attrgetter("priority"), reverse=True
         )
         return neededcheckers
+
+    # pylint: disable=unused-argument
+    @staticmethod
+    def should_analyze_file(modname, path, is_argument=False):
+        """Returns whether or not a module should be checked.
+
+        This implementation returns True for all python source files,
+        indicating that all files should be linted.
+
+        Subclasses may override this method to indicate that modules satisfying
+        certain conditions should not be linted.
+
+        :param str modname: The name of the module to be checked.
+        :param str path: The full path to the source code of the module.
+        :param bool is_argument: Whetter the file is an argument to pylint or not.
+                                 Files which respect this property are always
+                                 checked, since the user requested it explicitly.
+        :returns: True if the module should be checked.
+        :rtype: bool
+        """
+        if is_argument:
+            return True
+        return path.endswith(".py")
+
+    # pylint: enable=unused-argument
+
+    def check(self, files_or_modules, checkers_):
+        """main checking entry: check a list of files or modules from their
+        name.
+        """
+        # initialize msgs_state now that all messages have been registered into
+        # the store
+        # TODO: Move this
+        self._plugin_registry._init_msg_states()
+
+        if not isinstance(files_or_modules, (list, tuple)):
+            files_or_modules = (files_or_modules,)
+
+        walker = utils.PyLintASTWalker(self._plugin_registry)
+        tokencheckers = [
+            c
+            for c in checkers_
+            if interfaces.implements(c, interfaces.ITokenChecker)
+            and c is not self._linter
+        ]
+        rawcheckers = [
+            c for c in checkers_ if interfaces.implements(c, interfaces.IRawChecker)
+        ]
+        # notify global begin
+        for checker in checkers_:
+            checker.open()
+            if interfaces.implements(checker, interfaces.IAstroidChecker):
+                walker.add_checker(checker)
+        # build ast and check modules or packages
+        expanded_files = utils.expand_files(
+            files_or_modules,
+            self._plugin_registry,
+            self._global_config.black_list,
+            self._global_config.black_list_re,
+        )
+        for module_desc in expanded_files:
+            modname = module_desc.name
+            filepath = module_desc.path
+            if not module_desc.isarg and not self.should_analyze_file(
+                modname, filepath
+            ):
+                continue
+
+            self._linter.check(module_desc, walker, rawcheckers, tokencheckers)
+
+        # notify global end
+        self._plugin_registry.stats["statement"] = walker.nbstatements
+        for checker in reversed(checkers_):
+            checker.close()
+
+        return module_desc.basename
 
 
 if __name__ == "__main__":
