@@ -1198,14 +1198,14 @@ group are mutually exclusive.'),
     def __init__(self, args, reporter=None, do_exit=True):
         self._rcfile = None
         self._plugins = []
-        self.quiet = None
+        self.verbose = None
         try:
             preprocess_options(args, {
                 # option: (callback, takearg)
                 'init-hook':   (cb_init_hook, True),
                 'rcfile':       (self.cb_set_rcfile, True),
                 'load-plugins': (self.cb_add_plugins, True),
-                'quiet': (self.cb_quiet_mode, False)
+                'verbose': (self.cb_verbose_mode, False),
                 })
         except ArgumentPreprocessingError as ex:
             print(ex, file=sys.stderr)
@@ -1275,10 +1275,11 @@ group are mutually exclusive.'),
                        'disabled and only messages emitted by the porting '
                        'checker will be displayed'}),
 
-            ('quiet',
-             {'action' : 'callback', 'callback' : self.cb_quiet_mode,
-              'help' : 'In quiet mode, extra non-checker-related info '
-                       'will not be displayed' })
+            ('verbose',
+             {'action' : 'callback', 'callback' : self.cb_verbose_mode,
+              'short': 'v',
+              'help' : 'In verbose mode, extra non-checker-related info '
+                       'will be displayed' })
 
             ), option_groups=self.option_groups, pylintrc=self._rcfile)
         # register standard checkers
@@ -1317,7 +1318,7 @@ group are mutually exclusive.'),
         # read configuration
         linter.disable('I')
         linter.enable('c-extension-no-member')
-        linter.read_config_file(quiet=self.quiet)
+        linter.read_config_file(verbose=self.verbose)
         config_parser = linter.cfgfile_parser
         # run init hook, if present, before loading plugins
         if config_parser.has_option('MASTER', 'init-hook'):
@@ -1416,8 +1417,8 @@ group are mutually exclusive.'),
         """Activate only the python3 porting checker."""
         self.linter.python3_porting_mode()
 
-    def cb_quiet_mode(self, name, value):
-        self.quiet = True
+    def cb_verbose_mode(self, *args, **kwargs):
+        self.verbose = True
 
 def cb_list_confidence_levels(option, optname, value, parser):
     for level in interfaces.CONFIDENCE_LEVELS:

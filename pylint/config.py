@@ -616,7 +616,7 @@ class OptionsManagerMixIn(object):
         for provider in self.options_providers:
             provider.load_defaults()
 
-    def read_config_file(self, config_file=None, quiet=None):
+    def read_config_file(self, config_file=None, verbose=None):
         """read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
         """
@@ -656,7 +656,7 @@ class OptionsManagerMixIn(object):
                 if not sect.isupper() and values:
                     parser._sections[sect.upper()] = values
 
-        if quiet:
+        if not verbose:
             return
 
         if use_config_file:

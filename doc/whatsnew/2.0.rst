@@ -137,7 +137,7 @@ New checkers
          def foo(self, bar):
              self = bar
 
-* New quiet mode option `--quiet` to suppress display of extra non-checker-related output.
+* New verbose mode option `--verbose` to display of extra non-checker-related output. Disabled by default.
 
 Other Changes
 =============

@@ -189,3 +189,5 @@ Order doesn't matter (not that much, at least ;)
   Documentation typo fixes
 
 * Adam Dangoor: contributor
+
+* Gary Tyler McLeod: contributor

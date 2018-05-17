@@ -41,8 +41,8 @@ Release date: |TBA|
 
        Close #1793
        
-    * New quiet mode option, enabled with `--quiet` command line flag, to
-      suppress display of extra non-checker-related output.
+    * New verbose mode option, enabled with `--verbose` command line flag, to
+      display of extra non-checker-related output. It is disabled by default.
 
       Close #1863
       
