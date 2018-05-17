@@ -1015,7 +1015,7 @@ class FormatChecker(BaseTokenChecker):
                 line = stripped_line
             mobj = OPTION_RGX.search(line)
             if mobj and '=' in line:
-                front_of_equal, back_of_equal = mobj.group(1).split('=', 1)
+                front_of_equal, _, back_of_equal = mobj.group(1).partition('=')
                 if front_of_equal.strip() == 'disable':
                     if 'line-too-long' in [_msg_id.strip() for _msg_id in back_of_equal.split(',')]:
                         return None
