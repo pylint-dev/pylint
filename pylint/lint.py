@@ -1285,7 +1285,7 @@ group are mutually exclusive.'),
              {'action' : 'callback', 'callback' : self.cb_verbose_mode,
               'short': 'v',
               'help' : 'In verbose mode, extra non-checker-related info '
-                       'will be displayed' })
+                       'will be displayed'})
 
             ), option_groups=self.option_groups, pylintrc=self._rcfile)
         # register standard checkers
