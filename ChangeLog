@@ -227,6 +227,10 @@ Release date: |TBA|
       Close #638
 
     * Updated the default report format to include paths that can be clicked on in some terminals (e.g. iTerm).
+    
+    * Fix inline def behavior with ``too-many-statements`` checker
+
+      Close #1978
 
     * Fix `KeyError` raised when using docparams and NotImplementedError is documented.
 
