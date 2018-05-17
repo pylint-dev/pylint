@@ -414,7 +414,7 @@ class DocstringParameterChecker(BaseChecker):
         Adds a message on :param:`node` for the missing exception type.
 
         :param missing_excs: A list of missing exception types.
-        :type missing_excs: list
+        :type missing_excs: set(str)
 
         :param node: The node show the message on.
         :type node: astroid.node_classes.NodeNG
@@ -422,7 +422,7 @@ class DocstringParameterChecker(BaseChecker):
         if node.is_abstract():
             try:
                 missing_excs.remove('NotImplementedError')
-            except ValueError:
+            except KeyError:
                 pass
 
         if not missing_excs:
