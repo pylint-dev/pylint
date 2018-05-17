@@ -203,13 +203,12 @@ def build_message_def(checker, msgid, msg_tuple):
         )
         symbol = None
     options.setdefault("scope", default_scope)
-    return MessageDefinition(checker, msgid, msg, descr, symbol, **options)
+    return MessageDefinition(msgid, msg, descr, symbol, **options)
 
 
 class MessageDefinition:
     def __init__(
         self,
-        checker,
         msgid,
         msg,
         descr,
@@ -219,7 +218,6 @@ class MessageDefinition:
         maxversion=None,
         old_names=None,
     ):
-        self.checker = checker
         if len(msgid) != 5:
             raise InvalidMessageError("Invalid message id %r" % msgid)
         if not msgid[0] in MSG_TYPES:
@@ -287,7 +285,7 @@ class MessagesHandlerMixIn:
         self.msg_status = 0
         self.msgs_store = MessagesStore()
         self.reporter = None
-        self.stats = {"by_module": {}, "by_msg": {}}
+        self.stats = {"by_module": {}, "by_msg": {}, "statement": 0}
         super().__init__()
 
     def _checker_messages(self, checker):
@@ -418,10 +416,13 @@ class MessagesHandlerMixIn:
                 for msgid in msgids:
                     self.disable(msgid)
 
-    def init_msg_states(self):
+    def _init_msg_states(self):
         for msg in self.msgs_store.messages:
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
+
+        for msg_cat in MSG_TYPES.values():
+            self.stats[msg_cat] = 0
 
     def get_message_state_scope(self, msgid, line=None, confidence=UNDEFINED):
         """Returns the scope at which a message was enabled/disabled."""
