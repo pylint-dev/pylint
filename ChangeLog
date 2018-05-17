@@ -46,7 +46,12 @@ Release date: |TBA|
     * `too-few-public-methods` is not emitted for dataclasses.
 
        Close #1793
+       
+    * New verbose mode option, enabled with `--verbose` command line flag, to
+      display of extra non-checker-related output. It is disabled by default.
 
+      Close #1863
+      
     * `undefined-loop-variable` takes in consideration non-empty iterred objects before emitting
 
       Close #2039
@@ -228,7 +233,14 @@ Release date: |TBA|
       Close #638
 
     * Updated the default report format to include paths that can be clicked on in some terminals (e.g. iTerm).
+    
+    * Fix inline def behavior with ``too-many-statements`` checker
 
+      Close #1978
+
+    * Fix `KeyError` raised when using docparams and NotImplementedError is documented.
+
+      Fixes #2102
 
 What's New in Pylint 1.9?
 =========================

@@ -137,6 +137,7 @@ New checkers
          def foo(self, bar):
              self = bar
 
+* New verbose mode option `--verbose` to display of extra non-checker-related output. Disabled by default.
 
 Other Changes
 =============
