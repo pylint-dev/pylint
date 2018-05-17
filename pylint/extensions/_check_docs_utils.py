@@ -106,7 +106,7 @@ def possible_exc_types(node):
     :type node: astroid.node_classes.NodeNG
 
     :returns: A list of exception types possibly raised by :param:`node`.
-    :rtype: list(str)
+    :rtype: set(str)
     """
     excs = []
     if isinstance(node.exc, astroid.Name):
@@ -142,7 +142,7 @@ def possible_exc_types(node):
     try:
         return set(exc for exc in excs if not utils.node_ignores_exception(node, exc))
     except astroid.InferenceError:
-        return ()
+        return set()
 
 
 def docstringify(docstring):
