@@ -104,6 +104,7 @@ def _get_python_path(filepath):
 def _merge_stats(stats):
     merged = {}
     by_msg = collections.Counter()
+    nested_keys = set()
     for stat in stats:
         message_stats = stat.pop('by_msg', {})
         by_msg.update(message_stats)
@@ -113,11 +114,17 @@ def _merge_stats(stats):
                 merged[key] = item
             else:
                 if isinstance(item, dict):
+                    nested_keys.add(key)
+                elif isinstance(item, set):
                     merged[key].update(item)
                 else:
                     merged[key] = merged[key] + item
 
-    merged['by_msg'] = by_msg
+    for key in nested_keys:
+        merged[key] = _merge_stats(stat.get(key, {}) for stat in stats)
+
+    if by_msg:
+        merged['by_msg'] = by_msg
     return merged
 
 
@@ -409,6 +416,12 @@ class PyLinter(utils.MessagesHandlerMixIn,
                ' are imported into the active Python interpreter and'
                ' may run arbitrary code.')}),
 
+    ('limit-inference-results',
+     {'type': 'int', 'metavar': '<number-of-results>', 'default': 100,
+      'help': ('Control the amount of potential inferred values when inferring '
+               'a single object. This can help the performance when dealing with '
+               'large functions or complex, nested conditions. ')}),
+
     ('extension-pkg-whitelist',
      {'type': 'csv', 'metavar': '<pkg>,...', 'default': [],
       'help': ('A comma-separated list of package or module names'
@@ -421,7 +434,7 @@ class PyLinter(utils.MessagesHandlerMixIn,
                'misconfiguration and emit user-friendly hints instead '
                'of false-positive error messages')}),
     ('exit-zero',
-     {'action': 'store_true',
+     {'type': 'yn', 'default': False,
       'help': ('Always return a 0 (non-error) status code, even if '
                'lint errors are found. This is primarily useful in '
                'continuous integration scripts.')}),
@@ -673,19 +686,19 @@ class PyLinter(utils.MessagesHandlerMixIn,
         walker.walk(ast_node)
         return True
 
-    # IAstroidChecker interface #################################################
-
     def open(self):
-        """initialize counters"""
-        self.stats.clear()
-        self.stats['by_module'] = {}
-        self.stats['by_msg'] = {}
-        MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
-        MANAGER.max_inferable_values = self.config.limit_inference_results
-        MANAGER.extension_package_whitelist.update(
-            self.config.extension_pkg_whitelist)
-        for msg_cat in utils.MSG_TYPES.values():
-            self.stats[msg_cat] = 0
+        self._init_msg_states()
+
+    def add_stats(self, **kwargs):
+        """add some stats entries to the statistic dictionary
+        raise an AssertionError if there is a key conflict
+        """
+        for key, value in kwargs.items():
+            if key[-1] == '_':
+                key = key[:-1]
+            assert key not in self.stats
+            self.stats[key] = value
+        return self.stats
 
 
 # utilities ###################################################################
@@ -829,18 +842,21 @@ class PluginRegistry(utils.MessagesHandlerMixIn, ReportRegistry):
         :raises InvalidCheckerError: If the priority of the checker is
             invalid.
         """
+        # Allow instances to be passed for backwards compatibility
+        if isinstance(checker, checkers.BaseChecker):
+            checker = checker.__class__
+
         existing_checker_types = set(
-            type(existing_checker)
+            existing_checker
             for name_checkers in self._checkers.values()
             for existing_checker in name_checkers
         )
-        checker_type = type(checker)
-        if checker_type in existing_checker_types:
+        if checker in existing_checker_types:
             msg_fmt = (
                 'Not registering checker {}. A checker of type {} has '
                 'already been registered.'
             )
-            msg = msg_fmt.format(checker.name, checker_type.__name__)
+            msg = msg_fmt.format(checker.name, checker.__name__)
             warnings.warn(msg)
             return
 
@@ -1213,7 +1229,7 @@ group are mutually exclusive.'),
 
             self.generate_reports(base_name)
 
-        if self._global_config.config.exit_zero:
+        if self._global_config.exit_zero:
             sys.exit(0)
         else:
             sys.exit(status_code)
@@ -1409,33 +1425,26 @@ group are mutually exclusive.'),
         return path.endswith('.py')
     # pylint: enable=unused-argument
 
+    def close_registration(self):
+        """Stop registering plugins and prepare everything for checking."""
+        MANAGER.always_load_extensions = self._global_config.unsafe_load_any_extension
+        MANAGER.max_inferable_values = self._global_config.limit_inference_results
+        MANAGER.extension_package_whitelist.update(
+            self._global_config.extension_pkg_whitelist
+        )
+
     def check(self, files_or_modules, checkers_):
         """main checking entry: check a list of files or modules from their
         name.
         """
-        # initialize msgs_state now that all messages have been registered into
-        # the store
-        self._plugin_registry.init_msg_states()
+        # initialize msgs_state now that all messages have been registered into the store
+        self.close_registration()
 
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
 
-        walker = utils.PyLintASTWalker(self._plugin_registry)
-        tokencheckers = [c for c in checkers_
-                         if interfaces.implements(c, interfaces.ITokenChecker)]
-        rawcheckers = [c for c in checkers_
-                       if interfaces.implements(c, interfaces.IRawChecker)]
         # notify global begin
-        linter = PyLinter(self._global_config)
-        linter.config = self._global_config
-        linter.msgs_store = self._plugin_registry.msgs_store
-        linter.stats = self._plugin_registry.stats
-        linter.open()
-        for checker in checkers_:
-            checker.linter = linter
-            checker.open()
-            if interfaces.implements(checker, interfaces.IAstroidChecker):
-                walker.add_checker(checker)
+        all_stats = [self._plugin_registry.stats]
         # build ast and check modules or packages
         expanded_files = utils.expand_files(
             files_or_modules,
@@ -1444,6 +1453,26 @@ group are mutually exclusive.'),
             self._global_config.black_list_re
         )
         for module_desc in expanded_files:
+            linter = PyLinter(self._global_config)
+            linter.msgs_store = self._plugin_registry.msgs_store
+            linter.open()
+
+            walker = utils.PyLintASTWalker(self._plugin_registry)
+            allcheckers = []
+            tokencheckers = [linter]
+            rawcheckers = []
+            for checker_cls in checkers_:
+                checker = checker_cls(linter)
+                checker.linter = linter
+                checker.open()
+                allcheckers.append(checker)
+                if interfaces.implements(checker, interfaces.ITokenChecker):
+                    tokencheckers.append(checker)
+                if interfaces.implements(checker, interfaces.IRawChecker):
+                    rawcheckers.append(checker)
+                if interfaces.implements(checker, interfaces.IAstroidChecker):
+                    walker.add_checker(checker)
+
             modname = module_desc.name
             filepath = module_desc.path
             if not module_desc.isarg and not self.should_analyze_file(modname, filepath):
@@ -1451,12 +1480,13 @@ group are mutually exclusive.'),
 
             linter.reporter = self._reporter
             linter.check(module_desc, walker, rawcheckers, tokencheckers)
+            self._plugin_registry.stats['statement'] += walker.nbstatements
+            all_stats.append(linter.stats)
 
-        # notify global end
-        self._plugin_registry.stats['statement'] = walker.nbstatements
-        for checker in reversed(checkers_):
-            checker.close()
-        linter.close()
+            for checker in reversed(allcheckers):
+                checker.close()
+
+        self._plugin_registry.stats = _merge_stats(all_stats)
 
         return module_desc.basename, linter.msg_status
 
