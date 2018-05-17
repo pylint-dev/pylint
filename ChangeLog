@@ -40,7 +40,12 @@ Release date: |TBA|
     * `too-few-public-methods` is not emitted for dataclasses.
 
        Close #1793
+       
+    * New quiet mode option, enabled with `--quiet` command line flag, to
+      suppress display of extra non-checker-related output.
 
+      Close #1863
+      
     * `undefined-loop-variable` takes in consideration non-empty iterred objects before emitting
 
       Close #2039
