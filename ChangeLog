@@ -17,6 +17,12 @@ Release date: |TBA|
 
       Close #2186
 
+    * Add `--exit-zero` option for continuous integration scripts to more
+      easily call Pylint in environments that abort when a program returns a
+      non-zero (error) status code.
+
+      Close #2042
+
 
 What's New in Pylint 1.9.2?
 ===========================

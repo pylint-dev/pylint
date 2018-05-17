@@ -417,6 +417,12 @@ class PyLinter(config.OptionsManagerMixIn,
                   'help': ('When enabled, pylint would attempt to guess common '
                            'misconfiguration and emit user-friendly hints instead '
                            'of false-positive error messages')}),
+
+                ('exit-zero',
+                 {'action': 'store_true',
+                  'help': ('Always return a 0 (non-error) status code, even if '
+                           'lint errors are found. This is primarily useful in '
+                           'continuous integration scripts.')}),
                )
 
     option_groups = (
@@ -1347,7 +1353,10 @@ group are mutually exclusive.'),
             linter.check(args)
             linter.generate_reports()
         if exit:
-            sys.exit(self.linter.msg_status)
+            if linter.config.exit_zero:
+                sys.exit(0)
+            else:
+                sys.exit(self.linter.msg_status)
 
     def cb_set_rcfile(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""
