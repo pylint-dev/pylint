@@ -237,6 +237,9 @@ class DocstringParameterChecker(BaseChecker):
                 node=func_node
             )
 
+        if func_node.returns:
+            return
+
         if not (doc.has_rtype() or
                 (doc.has_property_type() and is_property)):
             self.add_message(
@@ -388,6 +391,11 @@ class DocstringParameterChecker(BaseChecker):
 
         _compare_missing_args(params_with_doc, 'missing-param-doc',
                               self.not_needed_param_in_docstring)
+
+        for index, arg_name in enumerate(arguments_node.args):
+            if arguments_node.annotations[index]:
+                params_with_type.add(arg_name.name)
+
         _compare_missing_args(params_with_type, 'missing-type-doc',
                               not_needed_type_in_docstring)
 
