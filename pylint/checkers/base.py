@@ -1731,6 +1731,11 @@ class ComparisonChecker(_BasicChecker):
                       'comparison-with-itself',
                       'Used when something is compared against itself.',
                       ),
+            'W0143': ('Comparing bare callable, might have skipped parenthesis after callable',
+                      'comparison-with-callable',
+                      'Used when callable is used in a comparison without parenthesis, '
+                      'which means instead of comparing result of callable, callable itself is compared',
+                      ),
 
             }
 
@@ -1810,9 +1815,45 @@ class ComparisonChecker(_BasicChecker):
             suggestion = "%s %s %s" % (left_operand, operator, right_operand)
             self.add_message('comparison-with-itself', node=node, args=(suggestion,))
 
+    def _check_callable_comparison(self, node):
+        def get_all_callable(node, callables):
+            for item in node:
+                if isinstance(item, astroid.FunctionDef):
+                    # skip properties as they calling them without parenthesis is valid case.
+                    decorator = item.decorators.nodes[0] if item.decorators else None
+                    if decorator and isinstance(decorator, astroid.Name):
+                        decorator_name = decorator.name
+                    elif decorator and isinstance(decorator, astroid.Name):
+                        decorator_name = decorator.attrname
+
+                    if not decorator or not decorator_name in ('property', 'setter', 'deleter'):
+                        callables.add(item.name)
+                    print(decorator, callables)
+                elif isinstance(item, astroid.ClassDef):
+                    get_all_callable(item.body, callables)
+
+        functions = set()
+        get_all_callable(node.frame().body, functions)
+
+        left_operand, right_operand = node.left, node.ops[0][1]
+
+        names = []
+        for operand in [left_operand, right_operand]:
+            if isinstance(operand, astroid.Name) and operand.name in functions:
+                names.append(operand.name)
+            elif isinstance(operand, astroid.Attribute) and operand.attrname in functions:
+                names.append(operand.attrname)
+        print(functions, left_operand, right_operand, names)
+        # len(names) == 2 means that comparison compares two bare callables which is valid
+        if len(names) == 1:
+            self.add_message('comparison-with-callable', node=node)
+
+
     @utils.check_messages('singleton-comparison', 'misplaced-comparison-constant',
-                          'unidiomatic-typecheck', 'literal-comparison', 'comparison-with-itself')
+                          'unidiomatic-typecheck', 'literal-comparison', 'comparison-with-itself',
+                          'comparison-with-callable')
     def visit_compare(self, node):
+        self._check_callable_comparison(node)
         self._check_logical_tautology(node)
         self._check_unidiomatic_typecheck(node)
         # NOTE: this checker only works with binary comparisons like 'x == 42'

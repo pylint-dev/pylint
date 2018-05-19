@@ -73,6 +73,10 @@ Release date: |TBA|
 
       Close #2052
 
+    * Add `comparison-with-callable` to warn for comparison with bare callable, without calling it.
+
+      Close #2082
+
     * Don't warn for ``missing-type-doc`` and/or ``missing-return-type-doc``, if type
       annotations exist on the function signature for a parameter and/or return type.
       Close #2083
