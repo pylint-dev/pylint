@@ -460,7 +460,7 @@ Please report bugs on the project\'s mailing list:
 class OptionsManagerMixIn(object):
     """Handle configuration from both a configuration file and command line options"""
 
-    def __init__(self, usage, config_file=None, version=None, quiet=0):
+    def __init__(self, usage, config_file=None, version=None):
         self.config_file = config_file
         self.reset_parsers(usage, version=version)
         # list of registered options providers
@@ -471,7 +471,6 @@ class OptionsManagerMixIn(object):
         self._nocallback_options = {}
         self._mygroups = {}
         # verbosity
-        self.quiet = quiet
         self._maxlevel = 0
 
     def reset_parsers(self, usage='', version=None):
@@ -617,7 +616,7 @@ class OptionsManagerMixIn(object):
         for provider in self.options_providers:
             provider.load_defaults()
 
-    def read_config_file(self, config_file=None):
+    def read_config_file(self, config_file=None, verbose=None):
         """read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
         """
@@ -657,7 +656,7 @@ class OptionsManagerMixIn(object):
                 if not sect.isupper() and values:
                     parser._sections[sect.upper()] = values
 
-        if self.quiet:
+        if not verbose:
             return
 
         if use_config_file:

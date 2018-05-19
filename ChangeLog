@@ -7,6 +7,18 @@ What's New in Pylint 2.0?
 
       Close #2052
 
+Release date: |TBA|
+
+    * Don't warn for ``missing-type-doc`` and/or ``missing-return-type-doc``, if type
+      annotations exist on the function signature for a parameter and/or return type.
+      Close #2083
+
+    * Add `--exit-zero` option for continuous integration scripts to more
+      easily call Pylint in environments that abort when a program returns a
+      non-zero (error) status code.
+
+      Close #2042
+
     * Warn if the first argument of an instance/ class method gets assigned
 
       Close #977
@@ -41,37 +53,12 @@ What's New in Pylint 2.0?
     * `too-few-public-methods` is not emitted for dataclasses.
 
        Close #1793
+       
+    * New verbose mode option, enabled with `--verbose` command line flag, to
+      display of extra non-checker-related output. It is disabled by default.
 
-
-What's New in Pylint 1.9?
-=========================
-
-Release date: 2018-05-15
-
-    * Added two new Python 3 porting checks, `exception-escape` and `comprehension-escape`
-
-      These two are emitted whenever pylint detects that a variable defined in the
-      said blocks is used outside of the given block. On Python 3 these values are deleted.
-
-    * Added a new `deprecated-sys-function`, emitted when accessing removed sys members.
-
-    * Added `xreadlines-attribute`, emitted when the `xreadlines()` attribute is accessed.
-
-    * The Python 3 porting mode can now run with Python 3 as well.
-
-    * docparams extension allows abstract methods to document what overriding
-      implementations should return, and to raise NotImplementedError without
-      documenting it.
-
-      Closes #2044
-
-    * Special methods do not count towards `too-few-methods`,
-      and are considered part of the public API.
-
-    * Enum classes do not trigger `too-few-methods`
-
-      Close #605
-
+      Close #1863
+      
     * `undefined-loop-variable` takes in consideration non-empty iterred objects before emitting
 
       Close #2039
@@ -93,14 +80,6 @@ Release date: 2018-05-15
     * defaultdict and subclasses of dict are now handled for dict-iter-* checks
 
       Close #2005
-
-    * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
-
-      Close #1936
-
-    * Added a new Python 2/3 check for accessing removed urllib functions
-
-      Close #1997
 
     * `logging-format-interpolation` also emits when f-strings are used instead of % syntax.
 
@@ -261,6 +240,51 @@ Release date: 2018-05-15
       Close #638
 
     * Updated the default report format to include paths that can be clicked on in some terminals (e.g. iTerm).
+    
+    * Fix inline def behavior with ``too-many-statements`` checker
+
+      Close #1978
+
+    * Fix `KeyError` raised when using docparams and NotImplementedError is documented.
+
+      Fixes #2102
+
+What's New in Pylint 1.9?
+=========================
+
+Release date: 2018-05-15
+
+    * Added two new Python 3 porting checks, `exception-escape` and `comprehension-escape`
+
+      These two are emitted whenever pylint detects that a variable defined in the
+      said blocks is used outside of the given block. On Python 3 these values are deleted.
+
+    * Added a new `deprecated-sys-function`, emitted when accessing removed sys members.
+
+    * Added `xreadlines-attribute`, emitted when the `xreadlines()` attribute is accessed.
+
+    * The Python 3 porting mode can now run with Python 3 as well.
+
+    * docparams extension allows abstract methods to document what overriding
+      implementations should return, and to raise NotImplementedError without
+      documenting it.
+
+      Closes #2044
+
+    * Special methods do not count towards `too-few-methods`,
+      and are considered part of the public API.
+
+    * Enum classes do not trigger `too-few-methods`
+
+      Close #605
+
+    * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
+
+      Close #1936
+
+    * Added a new Python 2/3 check for accessing removed urllib functions
+
+      Close #1997
 
 
 What's New in Pylint 1.8.1?

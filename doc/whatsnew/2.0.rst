@@ -147,9 +147,12 @@ New checkers
          def foo(self, bar):
              self = bar
 
+* New verbose mode option `--verbose` to display of extra non-checker-related output. Disabled by default.
 
 Other Changes
 =============
+* Don't warn for ``missing-type-doc`` and/or ``missing-return-type-doc``, if type annotations
+  exist on the function signature for a parameter and/or return type.
 
 * Fix a false positive ``inconsistent-return-statements`` message when if
   statement is inside try/except.
@@ -204,3 +207,12 @@ Other Changes
     def func():
         global sys
         import sys
+
+* A new command line option was added, `--exit-zero`, for the use of continuous integration
+  scripts which abort if a command returns a non-zero status code.  If the
+  option is specified, and Pylint runs successfully, it will exit with 0
+  regardless of the number of lint issues detected.
+
+  Configuration errors, parse errors, and calling Pylint with invalid
+  command-line options all still return a non-zero error code, even if
+  `--exit-zero` is specified.
