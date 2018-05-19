@@ -238,6 +238,10 @@ MSGS = {
               'module',
               'wrong-import-position',
               'Used when code and imports are mixed'),
+    'C0414': ('Import alias does not rename original package',
+              'useless-import-alias',
+              'Used when an import alias is same as original package.'
+              'e.g using import numpy as numpy instead of import numpy as np'),
     }
 
 
@@ -386,6 +390,7 @@ class ImportsChecker(BaseChecker):
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         self._check_reimport(node)
+        self._check_import_as_rename(node)
 
         modnode = node.root()
         names = [name for name, _ in node.names]
@@ -413,6 +418,7 @@ class ImportsChecker(BaseChecker):
         basename = node.modname
         imported_module = self._get_imported_module(node, basename)
 
+        self._check_import_as_rename(node)
         self._check_misplaced_future(node)
         self._check_deprecated_module(node, basename)
         self._check_wildcard_imports(node, imported_module)
@@ -713,6 +719,19 @@ class ImportsChecker(BaseChecker):
         for mod_name in self.config.deprecated_modules:
             if mod_path == mod_name or mod_path.startswith(mod_name + '.'):
                 self.add_message('deprecated-module', node=node, args=mod_path)
+
+    def _check_import_as_rename(self, node):
+        names = node.names
+        for name in names:
+            if not all(name):
+                return
+
+            real_name = name[0]
+            packages = real_name.rsplit('.', 1)
+            real_name = packages[1] if len(packages) == 2 else packages[0]
+            imported_name = name[1]
+            if real_name == imported_name:
+                self.add_message('useless-import-alias', node=node)
 
     def _check_reimport(self, node, basename=None, level=None):
         """check if the import is necessary (i.e. not already done)"""
