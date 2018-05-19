@@ -25,6 +25,24 @@ Summary -- Release highlights
 
 New checkers
 ============
+* A new check was added, ``comparison-with-callable``.
+
+  This refactoring message is emitted when a comparison involves callable without parenthesis, which if compared
+  can result in unwanted behaviour.
+
+  .. code-block:: python
+    def foo():
+    return None
+
+    def goo():
+        return None
+
+    if foo == 786:  # bad
+        pass
+
+    if foo() == 786:    # good
+        pass
+
 * A new check was added, ``useless-import-alias``.
 
   This refactoring message is emitted when a import alias does not rename the original package.
@@ -166,6 +184,7 @@ New checkers
 
 Other Changes
 =============
+
 * Don't warn for ``missing-type-doc`` and/or ``missing-return-type-doc``, if type annotations
   exist on the function signature for a parameter and/or return type.
 

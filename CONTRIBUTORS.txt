@@ -186,6 +186,7 @@ contributors:
   Added new check 'comparison-with-itself'.
   Added new check 'useless-import-alias'.
   Added support of annotations in missing-type-doc and missing-return-type-doc.
+  Added new check 'comparison-with-callable'.
 
 * Mariatta Wijaya: contributor
   Added new check `logging-fstring-interpolation`
