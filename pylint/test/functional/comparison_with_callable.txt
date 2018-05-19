@@ -1,4 +1,5 @@
 comparison-with-callable:8::Comparing bare callable, might have skipped parenthesis after callable
 comparison-with-callable:11::Comparing bare callable, might have skipped parenthesis after callable
+comparison-with-callable:45::Comparing bare callable, might have skipped parenthesis after callable
 comparison-with-callable:48::Comparing bare callable, might have skipped parenthesis after callable
 comparison-with-callable:51::Comparing bare callable, might have skipped parenthesis after callable

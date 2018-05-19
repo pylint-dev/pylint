@@ -1837,7 +1837,7 @@ class ComparisonChecker(_BasicChecker):
                     if not decorator or (decorator_name and
                                          decorator_name not in ('property', 'setter', 'deleter')):
                         callables.add(item.name)
-                elif isinstance(item, astroid.ClassDef):
+               elif isinstance(item, astroid.ClassDef):
                     get_all_callable(item.body, callables)
 
         functions = set()
@@ -1850,7 +1850,6 @@ class ComparisonChecker(_BasicChecker):
                 names.append(operand.name)
             elif isinstance(operand, astroid.Attribute) and operand.attrname in functions:
                 names.append(operand.attrname)
-
         # len(names) == 2 means that comparison compares two bare callables which is valid
         if len(names) == 1:
             self.add_message('comparison-with-callable', node=node)
