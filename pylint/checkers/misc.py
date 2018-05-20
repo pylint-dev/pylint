@@ -67,13 +67,7 @@ class EncodingChecker(BaseChecker):
     name = 'miscellaneous'
     msgs = {'W0511': ('%s',
                       'fixme',
-                      'Used when a warning note as FIXME or XXX is detected.'),
-            'W0512': ('Cannot decode using encoding "%s",'
-                      ' unexpected byte at position %d',
-                      'invalid-encoded-data',
-                      'Used when a source line cannot be decoded using the specified '
-                      'source file encoding.',
-                      {'maxversion': (3, 0)}),}
+                      'Used when a warning note as FIXME or XXX is detected.'), }
 
     options = (('notes',
                 {'type': 'csv', 'metavar': '<comma separated values>',
@@ -134,10 +128,7 @@ class EncodingChecker(BaseChecker):
     def _check_encoding(self, lineno, line, file_encoding):
         try:
             return line.decode(file_encoding)
-        except UnicodeDecodeError as ex:
-            self.add_message('invalid-encoded-data', line=lineno,
-                             args=(file_encoding, ex.args[2]))
-        except LookupError as ex:
+        except LookupError:
             if (line.startswith('#') and
                     "coding" in line and file_encoding in line):
                 self.add_message('syntax-error',

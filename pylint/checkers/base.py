@@ -399,12 +399,6 @@ class BasicErrorChecker(_BasicChecker):
                   'yield-outside-function',
                   'Used when a "yield" statement is found outside a function or '
                   'method.'),
-        'E0106': ('Return with argument inside generator',
-                  'return-arg-in-generator',
-                  'Used when a "return" statement with an argument is found '
-                  'outside in a generator function or method (e.g. with some '
-                  '"yield" statements).',
-                  {'maxversion': (3, 3)}),
         'E0107': ("Use of the non-existent %s operator",
                   'nonexistent-operator',
                   "Used when you attempt to use the C-style pre-increment or "
@@ -488,7 +482,7 @@ class BasicErrorChecker(_BasicChecker):
             self.add_message('star-needs-assignment-target', node=node)
 
     @utils.check_messages('init-is-generator', 'return-in-init',
-                          'function-redefined', 'return-arg-in-generator',
+                          'function-redefined',
                           'duplicate-argument-name', 'nonlocal-and-global',
                           'used-prior-global-declaration')
     def visit_functiondef(self, node):
@@ -509,14 +503,7 @@ class BasicErrorChecker(_BasicChecker):
                 # Are we returning anything but None from constructors
                 if any(v for v in values if not utils.is_none(v)):
                     self.add_message('return-in-init', node=node)
-        elif node.is_generator():
-            # make sure we don't mix non-None returns and yields
-            if not PY33:
-                for retnode in returns:
-                    if isinstance(retnode.value, astroid.Const) and \
-                           retnode.value.value is not None:
-                        self.add_message('return-arg-in-generator', node=node,
-                                         line=retnode.fromlineno)
+
         # Check for duplicate names
         args = set()
         for name in node.argnames():
@@ -1653,36 +1640,6 @@ class PassChecker(_BasicChecker):
             self.add_message('unnecessary-pass', node=node)
 
 
-class LambdaForComprehensionChecker(_BasicChecker):
-    """check for using a lambda where a comprehension would do.
-
-    See <http://www.artima.com/weblogs/viewpost.jsp?thread=98196>
-    where GvR says comprehensions would be clearer.
-    """
-
-    msgs = {'W0110': ('map/filter on lambda could be replaced by comprehension',
-                      'deprecated-lambda',
-                      'Used when a lambda is the first argument to "map" or '
-                      '"filter". It could be clearer as a list '
-                      'comprehension or generator expression.',
-                      {'maxversion': (3, 0)}),
-           }
-
-    @utils.check_messages('deprecated-lambda')
-    def visit_call(self, node):
-        """visit a Call node, check if map or filter are called with a
-        lambda
-        """
-        if not node.args:
-            return
-        if not isinstance(node.args[0], astroid.Lambda):
-            return
-        infered = utils.safe_infer(node.func)
-        if (utils.is_builtin_object(infered)
-                and infered.name in ['map', 'filter']):
-            self.add_message('deprecated-lambda', node=node)
-
-
 def _is_one_arg_pos_call(call):
     """Is this a call with exactly 1 argument,
     where that argument is positional?
@@ -1863,5 +1820,4 @@ def register(linter):
     linter.register_checker(NameChecker(linter))
     linter.register_checker(DocStringChecker(linter))
     linter.register_checker(PassChecker(linter))
-    linter.register_checker(LambdaForComprehensionChecker(linter))
     linter.register_checker(ComparisonChecker(linter))

@@ -1,4 +1,4 @@
-# pylint: disable=invalid-encoded-data, fixme
+# pylint: disable=fixme
 # +1: [line-too-long]
 #####################################################################################################
 # +1: [line-too-long]

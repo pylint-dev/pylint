@@ -114,11 +114,6 @@ MSGS = {
               'duplicate-except',
               'Used when an except catches a type that was already caught by '
               'a previous handler.'),
-    'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
-              'nonstandard-exception',
-              'Used when a custom exception class is raised but doesn\'t \
-              inherit from the builtin "Exception" class.',
-              {'maxversion': (3, 0)}),
     'W0711': ('Exception to catch is the result of a binary "%s" operation',
               'binary-op-exception',
               'Used when the exception to catch is of the form \
@@ -196,8 +191,6 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
                 utils.has_known_bases(cls)):
             if cls.newstyle:
                 self._checker.add_message('raising-non-exception', node=self._node)
-            else:
-                self._checker.add_message('nonstandard-exception', node=self._node)
 
     def visit_tuple(self, tuple_node):
         if PY3K or not tuple_node.elts:
@@ -252,7 +245,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         self._builtin_exceptions = _builtin_exceptions()
         super(ExceptionsChecker, self).open()
 
-    @utils.check_messages('nonstandard-exception', 'misplaced-bare-raise',
+    @utils.check_messages('misplaced-bare-raise',
                           'raising-bad-type', 'raising-non-exception',
                           'notimplemented-raised', 'bad-exception-context',
                           'raising-format-tuple')
