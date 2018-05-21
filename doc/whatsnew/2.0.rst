@@ -141,6 +141,8 @@ New checkers
 Other Changes
 =============
 
+* Added functionality to ignore trailing-whitespace in comment
+
 * Fix a false positive ``inconsistent-return-statements`` message when if
   statement is inside try/except.
 
