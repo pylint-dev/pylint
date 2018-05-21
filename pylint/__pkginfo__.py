@@ -47,7 +47,7 @@ mailinglist = "mailto:code-quality@python.org"
 author = 'Python Code Quality Authority'
 author_email = 'code-quality@python.org'
 
-classifiers = ['Development Status :: 4 - Beta',
+classifiers = ['Development Status :: 6 - Mature',
                'Environment :: Console',
                'Intended Audience :: Developers',
                'License :: OSI Approved :: GNU General Public License (GPL)',
