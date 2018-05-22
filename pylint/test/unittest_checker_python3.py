@@ -243,7 +243,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
         """Helper for verifying that a certain method is not defined."""
         node = astroid.extract_node("""
             class Foo(object):
-                def __{0}__(self, other):  #@
+                def __{}__(self, other):  #@
                     pass""".format(method))
         message = testutils.Message(warning, node=node)
         with self.assertAddsMessages(message):
@@ -1018,7 +1018,7 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
     def test_non_ascii_bytes_literal(self):
         code = 'b"测试"'
         self._test_token_message(code, 'non-ascii-bytes-literal')
-        for code in ("测试", u"测试", u'abcdef', b'\x80'):
+        for code in ("测试", "测试", 'abcdef', b'\x80'):
             tokens = testutils._tokenize_str(code)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)

@@ -297,7 +297,7 @@ class SpellingChecker(BaseTokenChecker):
                 self.add_message(msgid, line=line_num,
                                  args=(word, original_line,
                                        indicator,
-                                       "'{0}'".format("' or '".join(suggestions))))
+                                       "'{}'".format("' or '".join(suggestions))))
 
     def process_tokens(self, tokens):
         if not self.initialized:

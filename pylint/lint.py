@@ -733,8 +733,8 @@ class PyLinter(config.OptionsManagerMixIn,
         # get needed checkers
         neededcheckers = [self]
         for checker in self.get_checkers()[1:]:
-            messages = set(msg for msg in checker.msgs
-                           if self.is_message_enabled(msg))
+            messages = {msg for msg in checker.msgs
+                        if self.is_message_enabled(msg)}
             if (messages or
                     any(self.report_is_enabled(r[0]) for r in checker.reports)):
                 neededcheckers.append(checker)

@@ -265,7 +265,7 @@ _CONTINUATION_HINT_MESSAGE = ' (%s %d space%s)'  # Ex: (remove 2 spaces)
 
 def _Indentations(*args):
     """Valid indentation strings for a continued line."""
-    return dict((a, None) for a in args)
+    return {a: None for a in args}
 
 
 def _BeforeBlockIndentations(single, with_body):
@@ -1054,8 +1054,8 @@ class FormatChecker(BaseTokenChecker):
             if mobj and '=' in line:
                 front_of_equal, _, back_of_equal = mobj.group(1).partition('=')
                 if front_of_equal.strip() == 'disable':
-                    if 'line-too-long' in set(_msg_id.strip()
-                                              for _msg_id in back_of_equal.split(',')):
+                    if 'line-too-long' in {_msg_id.strip()
+                                           for _msg_id in back_of_equal.split(',')}:
                         return None
                     line = line.rsplit('#', 1)[0].rstrip()
 
@@ -1064,16 +1064,16 @@ class FormatChecker(BaseTokenChecker):
             return i + 1
 
         unsplit_ends = {
-            u'\v',
-            u'\x0b',
-            u'\f',
-            u'\x0c',
-            u'\x1c',
-            u'\x1d',
-            u'\x1e',
-            u'\x85',
-            u'\u2028',
-            u'\u2029'
+            '\v',
+            '\x0b',
+            '\f',
+            '\x0c',
+            '\x1c',
+            '\x1d',
+            '\x1e',
+            '\x85',
+            '\u2028',
+            '\u2029'
         }
         unsplit = []
         for line in lines.splitlines(True):

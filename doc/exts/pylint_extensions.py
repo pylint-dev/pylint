@@ -55,7 +55,7 @@ def builder_inited(app):
         stream.write("=================================================\n\n")
         stream.write("Pylint provides the following optional plugins:\n\n")
         for module in modules:
-            stream.write("- :ref:`{0}`\n".format(module))
+            stream.write("- :ref:`{}`\n".format(module))
         stream.write("\n")
         stream.write("You can activate any or all of these extensions "
                      "by adding a ``load-plugins`` line to the ``MASTER`` "
