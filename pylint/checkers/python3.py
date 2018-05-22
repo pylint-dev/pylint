@@ -637,9 +637,10 @@ class Python3Checker(checkers.BaseChecker):
         # On Python 3 we don't find the leaked objects as
         # they are already deleted, so instead look for them manually.
         scope = node.scope()
-        assign_names = (node_ for node_ in scope.nodes_of_class(astroid.AssignName)
-                        if node_.name == node.name and node_.lineno < node.lineno)
-        assigned = next(assign_names, None)
+        assigned = None
+        for node_ in scope.nodes_of_class(astroid.AssignName):
+            if node_.name == node.name and node_.lineno < node.lineno:
+                assigned = node_
         if not assigned:
             return
 
