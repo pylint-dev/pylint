@@ -94,7 +94,7 @@ class MultiReporter(BaseReporter):
 
 class TestRunTC(object):
 
-    def _runtest(self, args, reporter=None, out=None, code=28):
+    def _runtest(self, args, reporter=None, out=None, code=None):
         if out is None:
             out = six.StringIO()
         pylint_code = self._run_pylint(args, reporter=reporter, out=out)
@@ -140,8 +140,8 @@ class TestRunTC(object):
             ColorizedTextReporter(six.StringIO()),
             JSONReporter(six.StringIO())
         ]
-        self._runtest(['pylint/test/functional/arguments.py'],
-                      reporter=MultiReporter(reporters), code=1)
+        self._runtest([join(HERE, 'functional/arguments.py')],
+                      reporter=MultiReporter(reporters), code=2)
 
     def test_no_ext_file(self):
         self._runtest([join(HERE, 'input', 'noext')], code=0)
@@ -221,8 +221,9 @@ class TestRunTC(object):
                       out=strio, code=28)
 
     def test_parallel_execution(self):
-        self._runtest(['-j 2', 'pylint/test/functional/arguments.py',
-                       'pylint/test/functional/bad_continuation.py'], code=1)
+        self._runtest(['-j 2',
+                       join(HERE, 'functional/arguments.py'),
+                       join(HERE, 'functional/bad_continuation.py')], code=18)
 
     def test_parallel_execution_missing_arguments(self):
         self._runtest(['-j 2', 'not_here', 'not_here_too'], code=1)
