@@ -140,7 +140,7 @@ def possible_exc_types(node):
 
 
     try:
-        return set(exc for exc in excs if not utils.node_ignores_exception(node, exc))
+        return {exc for exc in excs if not utils.node_ignores_exception(node, exc)}
     except astroid.InferenceError:
         return set()
 
@@ -216,7 +216,7 @@ class SphinxDocstring(Docstring):
 
     re_xref = r"""
         (?::\w+:)?                    # optional tag
-        `{0}`                         # what to reference
+        `{}`                         # what to reference
         """.format(re_type)
 
     re_param_raw = r"""

@@ -195,9 +195,9 @@ def test_decoding_stream_unknown_encoding():
 
 
 def test_decoding_stream_known_encoding():
-    binary_io = io.BytesIO(u'€'.encode('cp1252'))
+    binary_io = io.BytesIO('€'.encode('cp1252'))
     stream = utils.decoding_stream(binary_io, 'cp1252')
-    assert stream.read() == u'€'
+    assert stream.read() == '€'
 
 class TestGetNodeLastLineno:
 

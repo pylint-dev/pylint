@@ -438,9 +438,9 @@ def test_enable_checkers(linter):
 def test_errors_only(linter):
     linter.error_mode()
     checkers = linter.prepare_checkers()
-    checker_names = set(c.name for c in checkers)
-    should_not = set(('design', 'format', 'metrics',
-                      'miscellaneous', 'similarities'))
+    checker_names = {c.name for c in checkers}
+    should_not = {'design', 'format', 'metrics',
+                  'miscellaneous', 'similarities'}
     assert set() == should_not & checker_names
 
 

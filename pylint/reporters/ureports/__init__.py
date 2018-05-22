@@ -41,7 +41,7 @@ class BaseWriter(object):
         for child in getattr(layout, 'children', ()):
             child.accept(self)
 
-    def writeln(self, string=u''):
+    def writeln(self, string=''):
         """write a line in the output buffer"""
         self.write(string + os.linesep)
 
@@ -71,7 +71,7 @@ class BaseWriter(object):
             result[-1].append(cell)
         # fill missing cells
         while len(result[-1]) < cols:
-            result[-1].append(u'')
+            result[-1].append('')
         return result
 
     def compute_content(self, layout):

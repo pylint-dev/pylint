@@ -350,7 +350,7 @@ def _is_attribute_property(name, klass):
         attributes = klass.getattr(name)
     except astroid.NotFoundError:
         return False
-    property_name = "{0}.property".format(BUILTINS)
+    property_name = "{}.property".format(BUILTINS)
     for attr in attributes:
         try:
             infered = next(attr.infer())

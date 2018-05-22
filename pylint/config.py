@@ -660,7 +660,7 @@ class OptionsManagerMixIn(object):
             return
 
         if use_config_file:
-            msg = 'Using config file {0}'.format(os.path.abspath(config_file))
+            msg = 'Using config file {}'.format(os.path.abspath(config_file))
         else:
             msg = 'No config file found, using default configuration'
         print(msg, file=sys.stderr)

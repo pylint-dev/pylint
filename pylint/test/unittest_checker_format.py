@@ -151,7 +151,7 @@ class TestSuperfluousParentheses(CheckerTestCase):
 
     def testCheckIfArgsAreNotUnicode(self):
         self.checker._keywords_with_parens = set()
-        cases = [(u'if (foo):', 0), (u'assert (1 == 1)', 0)]
+        cases = [('if (foo):', 0), ('assert (1 == 1)', 0)]
 
         for code, offset in cases:
             self.checker._check_keyword_parentheses(_tokenize_str(code), offset)

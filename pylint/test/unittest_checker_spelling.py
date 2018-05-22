@@ -41,7 +41,7 @@ class TestSpellingChecker(CheckerTestCase):
         reason="missing python-enchant package or missing spelling dictionaries")
 
     def _get_msg_suggestions(self, word, count=4):
-        return "'{0}'".format("' or '".join(self.checker.spelling_dict.suggest(word)[:count]))
+        return "'{}'".format("' or '".join(self.checker.spelling_dict.suggest(word)[:count]))
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
@@ -174,7 +174,7 @@ class TestSpellingChecker(CheckerTestCase):
         for ccn in ('xmlHttpRequest', 'newCustomer', 'newCustomerId',
                     'innerStopwatch', 'supportsIpv6OnIos', 'affine3D'):
             stmt = astroid.extract_node(
-                'class TestClass(object):\n   """{0} comment"""\n   pass'.format(ccn))
+                'class TestClass(object):\n   """{} comment"""\n   pass'.format(ccn))
             self.checker.visit_classdef(stmt)
             assert self.linter.release_messages() == []
 

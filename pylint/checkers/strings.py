@@ -389,8 +389,8 @@ class StringFormatChecker(BaseChecker):
             self.add_message('bad-format-string', node=node)
             return
 
-        named_fields = set(field[0] for field in fields
-                           if isinstance(field[0], str))
+        named_fields = {field[0] for field in fields
+                        if isinstance(field[0], str)}
         if num_args and manual_pos:
             self.add_message('format-combined-specification',
                              node=node)

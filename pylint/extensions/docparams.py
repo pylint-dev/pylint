@@ -323,7 +323,7 @@ class DocstringParameterChecker(BaseChecker):
         tolerate_missing_params = doc.params_documented_elsewhere()
 
         # Collect the function arguments.
-        expected_argument_names = set(arg.name for arg in arguments_node.args)
+        expected_argument_names = {arg.name for arg in arguments_node.args}
         expected_argument_names.update(arg.name for arg in arguments_node.kwonlyargs)
         not_needed_type_in_docstring = (
             self.not_needed_param_in_docstring.copy())
