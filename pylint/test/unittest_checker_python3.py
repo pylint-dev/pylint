@@ -735,6 +735,15 @@ class TestPython3Checker(testutils.CheckerTestCase):
             with self.assertNoMessages():
                 self.checker.visit_name(node)
 
+    def test_comprehension_escape_newly_introduced(self):
+        node = astroid.extract_node('''
+        [i for i in range(3)]
+        for i in range(3):
+            i
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
+
     def test_exception_escape(self):
         bad, good = astroid.extract_node('''
         try: 1/0
