@@ -752,12 +752,17 @@ class TestPython3Checker(testutils.CheckerTestCase):
         except (ValueError, TypeError) as exc:
            exc = 2
         exc #@
+        try:
+           2/0
+        except (ValueError, TypeError): #@
+           exc = 2
         ''')
         message = testutils.Message('exception-escape', node=module.body[1].value)
         with self.assertAddsMessages(message):
             self.checker.visit_excepthandler(module.body[0].handlers[0])
         with self.assertNoMessages():
             self.checker.visit_excepthandler(module.body[2].handlers[0])
+            self.checker.visit_excepthandler(module.body[4].handlers[0])
 
     def test_bad_sys_attribute(self):
         node = astroid.extract_node('''
