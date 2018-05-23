@@ -1,6 +1,6 @@
-# pylint: disable=invalid-name,trailing-newlines
-
 """Test logging-fstring-interpolation for Python 3.6"""
+# pylint: disable=invalid-name
+
 from datetime import datetime
 
 import logging as renamed_logging

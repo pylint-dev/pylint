@@ -201,7 +201,7 @@ class LoggingChecker(checkers.BaseChecker):
             self._check_call_func(node.args[format_pos])
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)
-        elif isinstance(node.args[format_pos], astroid.JoinedStr):
+        elif isinstance(node.args[format_pos], (astroid.FormattedValue, astroid.JoinedStr)):
             self.add_message('logging-fstring-interpolation', node=node)
 
     @staticmethod
