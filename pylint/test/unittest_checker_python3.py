@@ -203,6 +203,8 @@ class TestPython3Checker(testutils.CheckerTestCase):
             '[x for x in {}()]',
             'iter({}())',
             'a, b = {}()',
+            'max({}())',
+            'min({}())',
         ]
         non_iterating_code = [
             'x = __({}())',
