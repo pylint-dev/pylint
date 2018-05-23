@@ -33,6 +33,7 @@ python2_only = pytest.mark.skipif(sys.version_info[0] > 2, reason='Python 2 only
 # TODO(cpopa): Port these to the functional test framework instead.
 
 class TestPython3Checker(testutils.CheckerTestCase):
+
     CHECKER_CLASS = checker.Python3Checker
 
     def check_bad_builtin(self, builtin_name):
@@ -714,21 +715,22 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.checker.visit_attribute(node)
 
     def test_comprehension_escape(self):
-        list_comp, set_comp, dict_comp = astroid.extract_node('''
-        [i for i in range(10)]
+        assign, escaped_node = astroid.extract_node('''
+        a = [i for i in range(10)] #@
         i #@
-        {c for c in range(10)}
-        c #@
-        {j:j for j in range(10)}
-        j #@
         ''')
-        message = testutils.Message('comprehension-escape', node=list_comp)
+        good_module = astroid.parse('''
+        {c for c in range(10)} #@
+        {j:j for j in range(10)} #@
+        [image_child] = [x for x in range(10)]
+        thumbnail = func(__(image_child))
+        ''')
+        message = testutils.Message('comprehension-escape', node=escaped_node)
         with self.assertAddsMessages(message):
-            self.checker.visit_name(list_comp)
+            self.checker.visit_listcomp(assign.value)
 
-        for node in (set_comp, dict_comp):
-            with self.assertNoMessages():
-                self.checker.visit_name(node)
+        with self.assertNoMessages():
+            self.walk(good_module)
 
     def test_comprehension_escape_newly_introduced(self):
         node = astroid.extract_node('''
@@ -740,7 +742,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.walk(node)
 
     def test_exception_escape(self):
-        bad, good = astroid.extract_node('''
+        module = astroid.parse('''
         try: 1/0
         except ValueError as exc:
             pass
@@ -751,11 +753,11 @@ class TestPython3Checker(testutils.CheckerTestCase):
            exc = 2
         exc #@
         ''')
-        message = testutils.Message('exception-escape', node=bad)
+        message = testutils.Message('exception-escape', node=module.body[1].value)
         with self.assertAddsMessages(message):
-            self.checker.visit_name(bad)
+            self.checker.visit_excepthandler(module.body[0].handlers[0])
         with self.assertNoMessages():
-            self.checker.visit_name(good)
+            self.checker.visit_excepthandler(module.body[2].handlers[0])
 
     def test_bad_sys_attribute(self):
         node = astroid.extract_node('''
