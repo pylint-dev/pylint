@@ -906,6 +906,9 @@ class Python3Checker(checkers.BaseChecker):
             self.add_message('unpacking-in-except', node=node)
             return
 
+        if not node.name:
+            return
+
         # Find any names
         scope = node.parent.scope()
         scope_names = scope.nodes_of_class(
