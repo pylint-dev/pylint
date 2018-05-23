@@ -627,6 +627,34 @@ class Python3Checker(checkers.BaseChecker):
             if isinstance(arg, astroid.Tuple):
                 self.add_message('parameter-unpacking', node=arg)
 
+    @utils.check_messages('comprehension-escape')
+    def visit_listcomp(self, node):
+        names = {
+            generator.target.name for generator in node.generators
+            if isinstance(generator.target, astroid.AssignName)
+        }
+        scope = node.parent.scope()
+        scope_names = scope.nodes_of_class(
+            astroid.Name,
+            skip_klass=astroid.FunctionDef,
+        )
+        has_redefined_assign_name = any(
+            assign_name
+            for assign_name in
+            scope.nodes_of_class(
+                astroid.AssignName,
+                skip_klass=astroid.FunctionDef,
+            )
+            if assign_name.name in names and assign_name.lineno > node.lineno
+        )
+        if has_redefined_assign_name:
+            return
+        scope_names = list(scope_names)
+        for scope_name in scope_names:
+            if scope_name.name not in names or scope_name.lineno <= node.lineno:
+                continue
+            self.add_message('comprehension-escape', node=scope_name)
+
     def visit_name(self, node):
         """Detect when a "bad" built-in is referenced."""
         found_node, _ = node.lookup(node.name)
@@ -634,38 +662,6 @@ class Python3Checker(checkers.BaseChecker):
             if node.name in self._bad_builtins:
                 message = node.name.lower() + '-builtin'
                 self.add_message(message, node=node)
-
-        # On Python 3 we don't find the leaked objects as
-        # they are already deleted, so instead look for them manually.
-        scope = node.scope()
-        assigned = None
-        for node_ in scope.nodes_of_class(astroid.AssignName):
-            if node_.name == node.name and node_.lineno < node.lineno:
-                assigned = node_
-        if not assigned:
-            return
-
-        assign_statement = assigned.statement()
-        assigns = (node_ for node_ in scope.nodes_of_class(astroid.Assign)
-                   if node_.lineno < node.lineno)
-
-        for assign in assigns:
-            for target in assign.targets:
-                if getattr(target, 'name', None) == node.name:
-                    return
-
-        if isinstance(assign_statement, astroid.ExceptHandler):
-            current = node
-            while current and not isinstance(current.parent, astroid.ExceptHandler):
-                current = current.parent
-            if current and isinstance(current.parent, astroid.ExceptHandler):
-                return
-            self.add_message('exception-escape', node=node)
-
-        if isinstance(assign_statement, (astroid.Expr, astroid.Assign)):
-            if (isinstance(assign_statement.value, astroid.ListComp)
-                    and not assign_statement.parent_of(node)):
-                self.add_message('comprehension-escape', node=node)
 
     @utils.check_messages('print-statement')
     def visit_print(self, node):
@@ -903,11 +899,38 @@ class Python3Checker(checkers.BaseChecker):
         except astroid.InferenceError:
             return
 
-    @utils.check_messages('unpacking-in-except')
+    @utils.check_messages('unpacking-in-except', 'comprehension-escape')
     def visit_excepthandler(self, node):
         """Visit an except handler block and check for exception unpacking."""
         if isinstance(node.name, (astroid.Tuple, astroid.List)):
             self.add_message('unpacking-in-except', node=node)
+            return
+
+        # Find any names
+        scope = node.parent.scope()
+        scope_names = scope.nodes_of_class(
+            astroid.Name,
+            skip_klass=astroid.FunctionDef,
+        )
+        scope_names = list(scope_names)
+        potential_leaked_names = [
+            scope_name
+            for scope_name in scope_names
+            if scope_name.name == node.name.name and scope_name.lineno > node.lineno
+        ]
+        reassignments_for_same_name = {
+            assign_name.lineno
+            for assign_name in
+            scope.nodes_of_class(
+                astroid.AssignName,
+                skip_klass=astroid.FunctionDef,
+            )
+            if assign_name.name == node.name.name
+        }
+        for leaked_name in potential_leaked_names:
+            if any(node.lineno < elem < leaked_name.lineno for elem in reassignments_for_same_name):
+                continue
+            self.add_message('exception-escape', node=leaked_name)
 
     @utils.check_messages('backtick')
     def visit_repr(self, node):
