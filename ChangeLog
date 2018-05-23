@@ -7,6 +7,11 @@ What's New in Pylint 2.0?
 
 Release date: |TBA|
 
+    * Add a check `consider-using-get` for unidiomatic usage of value/default-retrieval
+      for a key from a dictionary
+
+      Close #2076
+
     * Don't emit `unused-import` anymore for typing imports used in type comments.
 
     * Add a new check 'useless-import-alias'.
@@ -57,12 +62,12 @@ Release date: |TBA|
     * `too-few-public-methods` is not emitted for dataclasses.
 
        Close #1793
-       
+
     * New verbose mode option, enabled with `--verbose` command line flag, to
       display of extra non-checker-related output. It is disabled by default.
 
       Close #1863
-      
+
     * `undefined-loop-variable` takes in consideration non-empty iterred objects before emitting
 
       Close #2039
@@ -243,7 +248,7 @@ Release date: |TBA|
       Close #638
 
     * Updated the default report format to include paths that can be clicked on in some terminals (e.g. iTerm).
-    
+
     * Fix inline def behavior with ``too-many-statements`` checker
 
       Close #1978

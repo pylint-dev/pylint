@@ -57,6 +57,21 @@ New checkers
     if variable in (1, 2, 3):  # good
         pass
 
+* A new check was added, ``consider-using-get``.
+
+  This refactoring message is emitted when manually checking if a key is in a dictionary
+  and getting its value if it is (and optionally a default if not)
+  instead of the more idiomatic dict.get.
+
+  .. code-block:: python
+
+    if 'key' in dictionary:  # bad
+        variable = dictionary['key']
+    else:
+        variable = 'default'
+
+    variable = dictionary.get('key', 'default')  # good
+
 * A new check was added, ``consider-using-join``.
 
   This refactoring message is emitted when using a for loop over a iterable to join strings
