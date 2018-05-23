@@ -200,11 +200,11 @@ class TestPython3Checker(testutils.CheckerTestCase):
 
     def test_dict_methods_in_iterating_context(self):
         iterating_code = [
-            'for x in {}: pass',
-            '(x for x in {})',
-            '[x for x in {}]',
-            'func({})',
-            'a, b = {}',
+            'for x in {}(): pass',
+            '(x for x in {}())',
+            '[x for x in {}()]',
+            'iter({}())',
+            'a, b = {}()',
         ]
         non_iterating_code = [
             'x = __({}())',
