@@ -1130,9 +1130,6 @@ class PyLintASTWalker(object):
         # In this case, favour the methods for the deprecated
         # alias if any,  in order to maintain backwards
         # compatibility.
-        visit_events = ()
-        leave_events = ()
-
         visit_events = self.visit_events.get(cid, ())
         leave_events = self.leave_events.get(cid, ())
 
