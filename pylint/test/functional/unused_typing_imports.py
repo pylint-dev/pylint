@@ -6,7 +6,7 @@ which means we were never processing them.
 """
 
 
-from typing import Optional, Callable, Iterable
+from typing import Optional, Callable, Iterable, Any, List, Tuple, Set
 
 
 def func1(arg: Optional[Callable]=None):
@@ -15,3 +15,20 @@ def func1(arg: Optional[Callable]=None):
 
 def func2(*, arg: Optional[Iterable]=None):
     return arg
+
+
+SOME_VALUE = [1] # type: List[Any]
+for VALUE in [[1], [2], [3]]:  # type: Tuple[Any]
+    print(VALUE)
+
+
+class ContextManager:
+    def __enter__(self):
+        return {1}
+
+    def __exit__(self, *_args):
+        pass
+
+
+with ContextManager() as SOME_DICT: # type: Set[int]
+    print(SOME_DICT)

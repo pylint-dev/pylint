@@ -472,6 +472,7 @@ class VariablesChecker(BaseChecker):
         self._to_consume = None  # list of tuples: (to_consume:dict, consumed:dict, scope_type:str)
         self._checking_mod_attr = None
         self._loop_variables = []
+        self._type_annotation_names = []
 
     # Relying on other checker's options, which might not have been initialized yet.
     @decorators.cachedproperty
@@ -508,8 +509,9 @@ class VariablesChecker(BaseChecker):
         self._loop_variables.append((node, assigned_to))
 
     @utils.check_messages('redefined-outer-name')
-    def leave_for(self, _):
+    def leave_for(self, node):
         self._loop_variables.pop()
+        self._store_type_annotation_names(node)
 
     def visit_module(self, node):
         """visit module : update consumption analysis variable
@@ -639,6 +641,10 @@ class VariablesChecker(BaseChecker):
                     if _is_from_future_import(stmt, name):
                         # Check if the name is in fact loaded from a
                         # __future__ import in another module.
+                        continue
+
+                    if imported_name in self._type_annotation_names:
+                        # Most likely a typing import if it wasn't used so far.
                         continue
 
                     if imported_name == '*':
@@ -1333,6 +1339,20 @@ class VariablesChecker(BaseChecker):
                 self._check_unpacking(infered, node, targets)
         except astroid.InferenceError:
             return
+
+    def _store_type_annotation_names(self, node):
+        type_annotation = node.type_annotation
+        if not type_annotation:
+            return
+        if isinstance(node.type_annotation, astroid.Name):
+            self._type_annotation_names.append(node.type_annotation.name)
+        else:
+            self._type_annotation_names.extend(list(
+                (annotation.name for annotation in type_annotation.nodes_of_class(astroid.Name))
+            ))
+
+    leave_assign = _store_type_annotation_names
+    leave_with = _store_type_annotation_names
 
     def _check_self_cls_assign(self, node):
         """Check that self/cls don't get assigned"""

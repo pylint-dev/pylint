@@ -216,3 +216,12 @@ Other Changes
   Configuration errors, parse errors, and calling Pylint with invalid
   command-line options all still return a non-zero error code, even if
   `--exit-zero` is specified.
+
+* Don't emit `unused-import` anymore for typing imports used in type comments. For instance,
+  in the following example pylint used to complain that `Any` and `List` are not used,
+  while they should be considered used by a type checker.
+
+  .. code-block:: python
+
+      from typing import Any, List
+      a = 1 # type: List[Any]

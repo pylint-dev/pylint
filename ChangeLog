@@ -7,6 +7,8 @@ What's New in Pylint 2.0?
 
 Release date: |TBA|
 
+    * Don't emit `unused-import` anymore for typing imports used in type comments.
+
     * Add a new check 'useless-import-alias'.
 
       Close #2052
