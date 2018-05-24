@@ -660,7 +660,7 @@ a metaclass class method.'}
         """
         for base in node.bases:
             ancestor = safe_infer(base)
-            if ancestor in (astroid.YES, None):
+            if ancestor in (astroid.Uninferable, None):
                 continue
             if (isinstance(ancestor, astroid.Instance) and
                     ancestor.is_subtype_of('%s.type' % (BUILTINS,))):
@@ -882,7 +882,7 @@ a metaclass class method.'}
             return
         for slots in node.igetattr('__slots__'):
             # check if __slots__ is a valid type
-            if slots is astroid.YES:
+            if slots is astroid.Uninferable:
                 continue
             if not is_iterable(slots) and not is_comprehension(slots):
                 self.add_message('invalid-slots', node=node)
@@ -900,7 +900,7 @@ a metaclass class method.'}
                 values = [item[0] for item in slots.items]
             else:
                 values = slots.itered()
-            if values is astroid.YES:
+            if values is astroid.Uninferable:
                 return
 
             for elt in values:
@@ -1456,8 +1456,8 @@ class SpecialMethodsChecker(BaseChecker):
 
     @staticmethod
     def _is_iterator(node):
-        if node is astroid.YES:
-            # Just ignore YES objects.
+        if node is astroid.Uninferable:
+            # Just ignore Uninferable objects.
             return True
         if isinstance(node, Generator):
             # Generators can be itered.

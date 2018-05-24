@@ -457,7 +457,7 @@ class StringFormatChecker(BaseChecker):
                 if key not in named:
                     continue
                 argname = named[key]
-            if argname in (astroid.YES, None):
+            if argname in (astroid.Uninferable, None):
                 continue
             try:
                 argument = next(argname.infer())

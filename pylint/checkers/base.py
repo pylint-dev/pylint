@@ -885,7 +885,7 @@ class BasicChecker(_BasicChecker):
                 else:
                     sibling = expr.previous_sibling()
                     if (sibling is not None and sibling.scope() is scope and
-                            isinstance(sibling, astroid.Assign)):
+                            isinstance(sibling, (astroid.Assign, astroid.AnnAssign))):
                         return
             self.add_message('pointless-string-statement', node=node)
             return
@@ -1146,7 +1146,7 @@ class BasicChecker(_BasicChecker):
         except utils.NoSuchArgumentError:
             pass
         else:
-            if argument is astroid.YES:
+            if argument is astroid.Uninferable:
                 return
             if argument is None:
                 # Nothing was infered.

@@ -12,6 +12,11 @@ Release date: |TBA|
 
       Close #2076
 
+    * invalid-slice-index is not emitted when the slice is used as index for a complex object.
+
+      We only use a handful of known objects (list, set and friends) to figure out if
+      we should emit invalid-slice-index when the slice is used to subscript an object.
+
     * Don't emit `unused-import` anymore for typing imports used in type comments.
 
     * Add a new check 'useless-import-alias'.

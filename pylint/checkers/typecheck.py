@@ -831,7 +831,7 @@ accessed. Python regular expressions are accepted.'}
 
         expr = node.func.expr
         klass = safe_infer(expr)
-        if (klass is None or klass is astroid.YES or
+        if (klass is None or klass is astroid.Uninferable or
                 not isinstance(klass, astroid.Instance)):
             return
 
@@ -841,7 +841,7 @@ accessed. Python regular expressions are accepted.'}
             return
 
         for attr in attrs:
-            if attr is astroid.YES:
+            if attr is astroid.Uninferable:
                 continue
             if not isinstance(attr, astroid.FunctionDef):
                 continue
@@ -1062,7 +1062,7 @@ accessed. Python regular expressions are accepted.'}
         # that override __getitem__ and which may allow non-integer indices.
         try:
             methods = dunder_lookup.lookup(parent_type, methodname)
-            if methods is astroid.YES:
+            if methods is astroid.Uninferable:
                 return None
             itemmethod = methods[0]
         except (exceptions.NotFoundError,
@@ -1083,7 +1083,7 @@ accessed. Python regular expressions are accepted.'}
             index_type = node
         else:
             index_type = safe_infer(node)
-        if index_type is None or index_type is astroid.YES:
+        if index_type is None or index_type is astroid.Uninferable:
             return None
         # Constants must be of type int
         if isinstance(index_type, astroid.Const):
@@ -1111,12 +1111,13 @@ accessed. Python regular expressions are accepted.'}
     @check_messages('invalid-slice-index')
     def visit_slice(self, node):
         # Check the type of each part of the slice
+        invalid_slices = 0
         for index in (node.lower, node.upper, node.step):
             if index is None:
                 continue
 
             index_type = safe_infer(index)
-            if index_type is None or index_type is astroid.YES:
+            if index_type is None or index_type is astroid.Uninferable:
                 continue
 
             # Constants must of type int or None
@@ -1135,8 +1136,32 @@ accessed. Python regular expressions are accepted.'}
                     return
                 except exceptions.NotFoundError:
                     pass
+            invalid_slices += 1
 
-            # Anything else is an error
+        if not invalid_slices:
+            return
+
+        # Anything else is an error, unless the object that is indexed
+        # is a custom object, which knows how to handle this kind of slices
+        parent = node.parent
+        if isinstance(parent, astroid.ExtSlice):
+            parent = parent.parent
+        if isinstance(parent, astroid.Subscript):
+            inferred = safe_infer(parent.value)
+            if inferred is None or inferred is astroid.Uninferable:
+                # Don't know what this is
+                return
+            known_objects = (
+                astroid.List,
+                astroid.Dict,
+                astroid.Tuple,
+                astroid.objects.FrozenSet,
+                astroid.Set,
+            )
+            if not isinstance(inferred, known_objects):
+                # Might be an instance that knows how to handle this slice object
+                return
+        for _ in range(invalid_slices):
             self.add_message('invalid-slice-index', node=node)
 
     @check_messages('not-context-manager')
@@ -1144,7 +1169,7 @@ accessed. Python regular expressions are accepted.'}
         for ctx_mgr, _ in node.items:
             context = astroid.context.InferenceContext()
             infered = safe_infer(ctx_mgr, context=context)
-            if infered is None or infered is astroid.YES:
+            if infered is None or infered is astroid.Uninferable:
                 continue
 
             if isinstance(infered, bases.Generator):
@@ -1229,7 +1254,7 @@ accessed. Python regular expressions are accepted.'}
         if is_comprehension(node):
             return
         infered = safe_infer(node)
-        if infered is None or infered is astroid.YES:
+        if infered is None or infered is astroid.Uninferable:
             return
         if not supports_membership_test(infered):
             self.add_message('unsupported-membership-test',
@@ -1285,7 +1310,7 @@ accessed. Python regular expressions are accepted.'}
             return
 
         inferred = safe_infer(node.value)
-        if inferred is None or inferred is astroid.YES:
+        if inferred is None or inferred is astroid.Uninferable:
             return
 
         if not supported_protocol(inferred):
@@ -1323,7 +1348,7 @@ class IterableChecker(BaseChecker):
         if is_comprehension(node):
             return
         infered = safe_infer(node)
-        if infered is None or infered is astroid.YES:
+        if infered is None or infered is astroid.Uninferable:
             return
         if not is_iterable(infered):
             self.add_message('not-an-iterable',
@@ -1336,7 +1361,7 @@ class IterableChecker(BaseChecker):
         if isinstance(node, astroid.DictComp):
             return
         infered = safe_infer(node)
-        if infered is None or infered is astroid.YES:
+        if infered is None or infered is astroid.Uninferable:
             return
         if not is_mapping(infered):
             self.add_message('not-a-mapping',
