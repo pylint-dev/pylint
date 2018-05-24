@@ -1111,6 +1111,7 @@ accessed. Python regular expressions are accepted.'}
     @check_messages('invalid-slice-index')
     def visit_slice(self, node):
         # Check the type of each part of the slice
+        invalid_slices = 0
         for index in (node.lower, node.upper, node.step):
             if index is None:
                 continue
@@ -1135,8 +1136,32 @@ accessed. Python regular expressions are accepted.'}
                     return
                 except exceptions.NotFoundError:
                     pass
+            invalid_slices += 1
 
-            # Anything else is an error
+        if not invalid_slices:
+            return
+
+        # Anything else is an error, unless the object that is indexed
+        # is a custom object, which knows how to handle this kind of slices
+        parent = node.parent
+        if isinstance(parent, astroid.ExtSlice):
+            parent = parent.parent
+        if isinstance(parent, astroid.Subscript):
+            inferred = safe_infer(parent.value)
+            if inferred is None or inferred is astroid.Uninferable:
+                # Don't know what this is
+                return
+            known_objects = (
+                astroid.List,
+                astroid.Dict,
+                astroid.Tuple,
+                astroid.objects.FrozenSet,
+                astroid.Set,
+            )
+            if not isinstance(inferred, known_objects):
+                # Might be an instance that knows how to handle this slice object
+                return
+        for _ in range(invalid_slices):
             self.add_message('invalid-slice-index', node=node)
 
     @check_messages('not-context-manager')
