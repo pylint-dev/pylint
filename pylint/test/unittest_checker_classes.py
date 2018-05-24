@@ -70,7 +70,7 @@ class TestVariablesChecker(CheckerTestCase):
         # This should not emit a super-init-not-called
         # warning. It previously did this, because
         # ``next(node.infer())`` was used in that checker's
-        # logic and the first inferred node was an YES object,
+        # logic and the first inferred node was an Uninferable object,
         # leading to this false positive.
         node = astroid.extract_node("""
         import ctypes

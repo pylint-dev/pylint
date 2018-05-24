@@ -43,7 +43,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
 
             handled_in_clause = []
             for part, exc in excs:
-                if exc is astroid.YES:
+                if exc is astroid.Uninferable:
                     continue
                 if (isinstance(exc, astroid.Instance) and
                         utils.inherit_from_std_ex(exc)):

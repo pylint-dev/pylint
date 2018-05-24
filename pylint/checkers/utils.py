@@ -845,7 +845,7 @@ def is_none(node):
 def node_type(node):
     """Return the inferred type for `node`
 
-    If there is more than one possible type, or if inferred type is YES or None,
+    If there is more than one possible type, or if inferred type is Uninferable or None,
     return None
     """
     # check there is only one possible type for the assign node. Else we

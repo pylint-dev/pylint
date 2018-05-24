@@ -47,11 +47,11 @@ def _annotated_unpack_infer(stmt, context=None):
     if isinstance(stmt, (astroid.List, astroid.Tuple)):
         for elt in stmt.elts:
             inferred = utils.safe_infer(elt)
-            if inferred and inferred is not astroid.YES:
+            if inferred and inferred is not astroid.Uninferable:
                 yield elt, inferred
         return
     for infered in stmt.infer(context):
-        if infered is astroid.YES:
+        if infered is astroid.Uninferable:
             continue
         yield stmt, infered
 
@@ -300,7 +300,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         An exception context can be only `None` or an exception.
         """
         cause = utils.safe_infer(node.cause)
-        if cause in (astroid.YES, None):
+        if cause in (astroid.Uninferable, None):
             return
 
         if isinstance(cause, astroid.Const):
@@ -316,7 +316,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         if isinstance(exc, astroid.Tuple):
             # Check if it is a tuple of exceptions.
             inferred = [utils.safe_infer(elt) for elt in exc.elts]
-            if any(node is astroid.YES for node in inferred):
+            if any(node is astroid.Uninferable for node in inferred):
                 # Don't emit if we don't know every component.
                 return
             if all(node and (utils.inherit_from_std_ex(node) or
@@ -403,7 +403,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                     continue
 
                 for part, exc in excs:
-                    if exc is astroid.YES:
+                    if exc is astroid.Uninferable:
                         continue
                     if (isinstance(exc, astroid.Instance)
                             and utils.inherit_from_std_ex(exc)):

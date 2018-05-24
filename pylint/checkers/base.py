@@ -1146,7 +1146,7 @@ class BasicChecker(_BasicChecker):
         except utils.NoSuchArgumentError:
             pass
         else:
-            if argument is astroid.YES:
+            if argument is astroid.Uninferable:
                 return
             if argument is None:
                 # Nothing was infered.

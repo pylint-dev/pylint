@@ -547,7 +547,7 @@ class VariablesChecker(BaseChecker):
 
     def _check_all(self, node, not_consumed):
         assigned = next(node.igetattr('__all__'))
-        if assigned is astroid.YES:
+        if assigned is astroid.Uninferable:
             return
 
         for elt in getattr(assigned, 'elts', ()):
@@ -1380,7 +1380,7 @@ class VariablesChecker(BaseChecker):
             return
         if utils.is_comprehension(node):
             return
-        if infered is astroid.YES:
+        if infered is astroid.Uninferable:
             return
         if (isinstance(infered.parent, astroid.Arguments) and
                 isinstance(node.value, astroid.Name) and
