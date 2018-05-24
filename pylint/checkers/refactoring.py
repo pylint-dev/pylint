@@ -347,15 +347,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 return node_a.value == node_b.value
             return False
 
-        if_block_ok = \
-            (isinstance(node.test, astroid.Compare)
-             and len(node.body) == 1
-             and isinstance(node.body[0], astroid.Assign)
-             and isinstance(node.body[0].value, astroid.Subscript)
-             and type_and_name_are_equal(node.body[0].value.value, node.test.ops[0][1])
-             and type_and_name_are_equal(node.body[0].value.slice.value, node.test.left)
-             and len(node.body[0].targets) == 1
-             and isinstance(utils.safe_infer(node.test.ops[0][1]), astroid.Dict))
+        if_block_ok = (
+            isinstance(node.test, astroid.Compare)
+            and len(node.body) == 1
+            and isinstance(node.body[0], astroid.Assign)
+            and isinstance(node.body[0].value, astroid.Subscript)
+            and type_and_name_are_equal(node.body[0].value.value, node.test.ops[0][1])
+            and type_and_name_are_equal(node.body[0].value.slice.value, node.test.left)
+            and len(node.body[0].targets) == 1
+            and isinstance(utils.safe_infer(node.test.ops[0][1]), astroid.Dict))
 
         if if_block_ok and not node.orelse:
             self.add_message('consider-using-get', node=node)

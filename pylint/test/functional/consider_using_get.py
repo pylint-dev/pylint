@@ -68,3 +68,13 @@ elif 'key2' in dictionary:  # [consider-using-get]
     variable = dictionary['key2']
 else:
     variable = 'default'
+
+if 'key' in dictionary and bool(key):  # not a simple compare
+    variable = dictionary['key1']
+else:
+    variable = 'default'
+
+if bool(key) and 'key' in dictionary:  # not a simple compare
+    variable = dictionary['key1']
+else:
+    variable = 'default'
