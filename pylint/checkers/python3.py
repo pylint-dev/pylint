@@ -649,10 +649,17 @@ class Python3Checker(checkers.BaseChecker):
         )
         if has_redefined_assign_name:
             return
+
+        emitted_for_names = set()
         scope_names = list(scope_names)
         for scope_name in scope_names:
-            if scope_name.name not in names or scope_name.lineno <= node.lineno:
+            if (scope_name.name not in names
+                    or scope_name.lineno <= node.lineno
+                    or scope_name.name in emitted_for_names
+                    or scope_name.scope() == node):
                 continue
+
+            emitted_for_names.add(scope_name.name)
             self.add_message('comprehension-escape', node=scope_name)
 
     def visit_name(self, node):
