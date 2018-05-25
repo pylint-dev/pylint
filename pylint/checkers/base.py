@@ -81,7 +81,7 @@ class SnakeCaseStyle(NamingStyle):
     MOD_NAME_RGX = re.compile('([a-z_][a-z0-9_]*)$')
     CONST_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|(__.*__))$')
     COMP_VAR_RGX = re.compile('[a-z_][a-z0-9_]*$')
-    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-z0-9_]{2,30})|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$')
+    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-z0-9_]{2,})|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$')
     CLASS_ATTRIBUTE_RGX = re.compile(r'(([a-z_][a-z0-9_]{2,30}|(__.*__)))$')
 
 
