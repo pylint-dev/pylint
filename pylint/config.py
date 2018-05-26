@@ -828,7 +828,6 @@ class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
     def __init__(self, *args, **kwargs):
         if not args:
             kwargs.setdefault('usage', '')
-        kwargs.setdefault('quiet', 1)
         OptionsManagerMixIn.__init__(self, *args, **kwargs)
         OptionsProviderMixIn.__init__(self)
         if not getattr(self, 'option_groups', None):
