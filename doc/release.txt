@@ -16,6 +16,11 @@ Pre-release
 -----------
 
 1. Preparation
+   0. Run the acceptance tests to see if everything is alright with this release.
+      We don't run them on CI:
+
+      pytest -m acceptance
+
    1. Check if the dependencies of the package are correct
    2. Update the version number in __pkginfo__
    3. Put the version number and the release date into the changelog
