@@ -1434,19 +1434,19 @@ class NameChecker(_BasicChecker):
         """check module level assigned names"""
         self._check_assign_to_new_keyword_violation(node.name, node)
         frame = node.frame()
-        ass_type = node.assign_type()
-        if isinstance(ass_type, astroid.Comprehension):
+        assign_type = node.assign_type()
+        if isinstance(assign_type, astroid.Comprehension):
             self._check_name('inlinevar', node.name, node)
         elif isinstance(frame, astroid.Module):
-            if isinstance(ass_type, astroid.Assign) and not in_loop(ass_type):
-                if isinstance(utils.safe_infer(ass_type.value), astroid.ClassDef):
+            if isinstance(assign_type, astroid.Assign) and not in_loop(assign_type):
+                if isinstance(utils.safe_infer(assign_type.value), astroid.ClassDef):
                     self._check_name('class', node.name, node)
                 else:
                     if not _redefines_import(node):
                         # Don't emit if the name redefines an import
                         # in an ImportError except handler.
                         self._check_name('const', node.name, node)
-            elif isinstance(ass_type, astroid.ExceptHandler):
+            elif isinstance(assign_type, astroid.ExceptHandler):
                 self._check_name('variable', node.name, node)
         elif isinstance(frame, astroid.FunctionDef):
             # global introduced variable aren't in the function locals
