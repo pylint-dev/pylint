@@ -11,7 +11,7 @@
 
 import warnings
 
-import six
+from io import StringIO
 
 from pylint.lint import PyLinter
 from pylint import checkers
@@ -30,7 +30,7 @@ def disable(disable):
 
 
 def test_template_option(linter):
-    output = six.StringIO()
+    output = StringIO()
     linter.reporter.set_output(output)
     linter.set_option('msg-template', '{msg_id}:{line:03d}')
     linter.open()
@@ -53,7 +53,7 @@ def test_parseable_output_deprecated():
 
 
 def test_parseable_output_regression():
-    output = six.StringIO()
+    output = StringIO()
     with warnings.catch_warnings(record=True):
         linter = PyLinter(reporter=ParseableTextReporter())
 
