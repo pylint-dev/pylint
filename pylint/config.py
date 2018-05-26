@@ -47,7 +47,6 @@ import sys
 import time
 
 import configparser
-from six.moves import range
 
 from pylint import utils
 
