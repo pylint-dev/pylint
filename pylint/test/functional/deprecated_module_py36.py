@@ -2,4 +2,3 @@
 # pylint: disable=unused-import
 
 import optparse # [deprecated-module]
-import tkinter.tix # [deprecated-module]
