@@ -1519,15 +1519,6 @@ def _ancestors_to_call(klass_node, method='__init__'):
     return to_call
 
 
-def node_method(node, method_name):
-    """get astroid for <method_name> on the given class node, ensuring it
-    is a Function node
-    """
-    for node_attr in node.local_attr(method_name):
-        if isinstance(node_attr, astroid.Function):
-            return node_attr
-    raise astroid.NotFoundError(method_name)
-
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(ClassChecker(linter))
