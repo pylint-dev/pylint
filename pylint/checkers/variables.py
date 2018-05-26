@@ -918,16 +918,10 @@ class VariablesChecker(BaseChecker):
 
     def _loopvar_name(self, node, name):
         # filter variables according to node's scope
-        # XXX used to filter parents but don't remember why, and removing this
-        # fixes a W0631 false positive reported by Paul Hachmann on 2008/12 on
-        # python-projects (added to func_use_for_or_listcomp_var test)
-        #astmts = [stmt for stmt in node.lookup(name)[1]
-        #          if hasattr(stmt, 'ass_type')] and
-        #          not stmt.statement().parent_of(node)]
         if not self.linter.is_message_enabled('undefined-loop-variable'):
             return
         astmts = [stmt for stmt in node.lookup(name)[1]
-                  if hasattr(stmt, 'ass_type')]
+                  if hasattr(stmt, 'assign_type')]
         # filter variables according their respective scope test is_statement
         # and parent to avoid #74747. This is not a total fix, which would
         # introduce a mechanism similar to special attribute lookup in
