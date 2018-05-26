@@ -7,6 +7,7 @@ import os
 import sys
 
 import pytest
+import six
 
 import pylint.lint
 
@@ -41,7 +42,7 @@ MODULES_NAMES = [m[1] for m in MODULES_TO_CHECK]
                          MODULES_TO_CHECK, ids=MODULES_NAMES)
 def test_libmodule(test_module_location, test_module_name):
     os.chdir(test_module_location)
-    with _patch_stdout(io.StringIO()):
+    with _patch_stdout(six.StringIO()):
         try:
             pylint.lint.Run([test_module_name, '--enable=all'])
         except SystemExit as ex:
