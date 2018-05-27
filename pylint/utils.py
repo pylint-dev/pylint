@@ -46,9 +46,6 @@ import tokenize
 import warnings
 import textwrap
 
-import six
-from six.moves import zip  # pylint: disable=redefined-builtin
-
 from astroid import nodes, Module
 from astroid import modutils
 
@@ -65,7 +62,7 @@ MSG_TYPES = {
     'E' : 'error',
     'F' : 'fatal'
     }
-MSG_TYPES_LONG = {v: k for k, v in six.iteritems(MSG_TYPES)}
+MSG_TYPES_LONG = {v: k for k, v in MSG_TYPES.items()}
 
 MSG_TYPES_STATUS = {
     'I' : 0,
@@ -340,9 +337,9 @@ class MessagesHandlerMixIn(object):
             msgs[msg.msgid] = enable
             # sync configuration object
             self.config.enable = [self._message_symbol(mid) for mid, val
-                                  in sorted(six.iteritems(msgs)) if val]
+                                  in sorted(msgs.items()) if val]
             self.config.disable = [self._message_symbol(mid) for mid, val
-                                   in sorted(six.iteritems(msgs)) if not val]
+                                   in sorted(msgs.items()) if not val]
 
     def _message_symbol(self, msgid):
         """Get the message symbol of the given message id
@@ -506,7 +503,7 @@ class MessagesHandlerMixIn(object):
         print("Below is a list of all checkers and their features.", file=stream)
         print("", file=stream)
 
-        for checker, info in sorted(six.iteritems(by_checker)):
+        for checker, info in sorted(by_checker.items()):
             self._print_checker_doc(checker, info, stream=stream)
 
     @staticmethod
@@ -552,7 +549,7 @@ class MessagesHandlerMixIn(object):
             title = 'Messages'
             print(title, file=stream)
             print('^' * len(title), file=stream)
-            for msgid, msg in sorted(six.iteritems(msgs),
+            for msgid, msg in sorted(msgs.items(),
                                      key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
                 msg = build_message_def(checker_name, msgid, msg)
                 print(msg.format_help(checkerref=False), file=stream)
@@ -578,7 +575,7 @@ class FileState(object):
 
     def collect_block_lines(self, msgs_store, module_node):
         """Walk the AST to collect block level options line numbers."""
-        for msg, lines in six.iteritems(self._module_msgs_state):
+        for msg, lines in self._module_msgs_state.items():
             self._raw_module_msgs_state[msg] = lines.copy()
         orig_state = self._module_msgs_state.copy()
         self._module_msgs_state = {}
@@ -613,7 +610,7 @@ class FileState(object):
             firstchildlineno = node.body[0].fromlineno
         else:
             firstchildlineno = last
-        for msgid, lines in six.iteritems(msg_state):
+        for msgid, lines in msg_state.items():
             for lineno, state in list(lines.items()):
                 original_lineno = lineno
                 if first > lineno or last < lineno:
@@ -666,8 +663,8 @@ class FileState(object):
                 pass
 
     def iter_spurious_suppression_messages(self, msgs_store):
-        for warning, lines in six.iteritems(self._raw_module_msgs_state):
-            for line, enable in six.iteritems(lines):
+        for warning, lines in self._raw_module_msgs_state.items():
+            for line, enable in lines.items():
                 if not enable and (warning, line) not in self._ignored_msgs:
                     yield 'useless-suppression', line, \
                         (msgs_store.get_msg_display_string(warning),)
@@ -700,7 +697,7 @@ class MessagesStore(object):
     @property
     def messages(self):
         """The list of all active messages."""
-        return six.itervalues(self._messages)
+        return self._messages.values()
 
     def add_renamed_message(self, old_id, old_symbol, new_symbol):
         """Register the old ID and symbol for a warning that was renamed.
@@ -720,7 +717,7 @@ class MessagesStore(object):
         :return: A list of MessageDefinition.
         """
         message_definitions = []
-        for msgid, msg_tuple in sorted(six.iteritems(checker.msgs)):
+        for msgid, msg_tuple in sorted(checker.msgs.items()):
             message = build_message_def(checker, msgid, msg_tuple)
             message_definitions.append(message)
         return message_definitions
@@ -903,7 +900,7 @@ class MessagesStore(object):
 
     def list_messages(self):
         """Output full messages list documentation in ReST format. """
-        messages = sorted(six.itervalues(self._messages), key=lambda m: m.msgid)
+        messages = sorted(self._messages.values(), key=lambda m: m.msgid)
         for message in messages:
             if not message.may_be_emitted():
                 continue
@@ -973,7 +970,7 @@ class ReportsHandlerMixIn(object):
         """add some stats entries to the statistic dictionary
         raise an AssertionError if there is a key conflict
         """
-        for key, value in six.iteritems(kwargs):
+        for key, value in kwargs.items():
             if key[-1] == '_':
                 key = key[:-1]
             assert key not in self.stats
@@ -1281,7 +1278,7 @@ def _format_option_value(optdict, value):
         value = value.pattern
     elif optdict.get('type') == 'yn':
         value = 'yes' if value else 'no'
-    elif isinstance(value, six.string_types) and value.isspace():
+    elif isinstance(value, str) and value.isspace():
         value = "'%s'" % value
     return value
 

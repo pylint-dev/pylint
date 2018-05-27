@@ -28,9 +28,8 @@ import tempfile
 from shutil import rmtree
 from os import getcwd, chdir
 from os.path import join, basename, dirname, isdir, abspath, sep
-
-import six
-from six.moves import reload_module
+from importlib import reload
+from io import StringIO
 
 from pylint import config, lint
 from pylint.lint import PyLinter, Run, preprocess_options, ArgumentPreprocessingError
@@ -244,7 +243,7 @@ def test_pylint_visit_method_taken_in_account(linter):
 
     linter.register_checker(CustomChecker(linter))
     linter.open()
-    out = six.moves.StringIO()
+    out = StringIO()
     linter.set_reporter(text.TextReporter(out))
     linter.check('abc')
 
@@ -510,7 +509,7 @@ def test_python3_checker_disabled(linter):
 
 
 def test_full_documentation(linter):
-    out = six.StringIO()
+    out = StringIO()
     linter.print_full_documentation(out)
     output = out.getvalue()
     # A few spot checks only
@@ -545,7 +544,7 @@ def test_pylint_home():
         pylintd = join(tempfile.gettempdir(), '.pylint.d')
         os.environ['PYLINTHOME'] = pylintd
         try:
-            reload_module(config)
+            reload(config)
             assert config.PYLINT_HOME == pylintd
         finally:
             try:
@@ -573,7 +572,7 @@ def test_pylintrc():
             assert config.find_pylintrc() is None
         finally:
             chdir(current_dir)
-            reload_module(config)
+            reload(config)
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
@@ -697,7 +696,7 @@ class TestMessagesStore(object):
             msg, checkerref=False)
 
     def test_list_messages(self, store):
-        sys.stdout = six.StringIO()
+        sys.stdout = StringIO()
         try:
             store.list_messages()
             output = sys.stdout.getvalue()

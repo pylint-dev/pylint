@@ -55,8 +55,7 @@ import os.path as osp
 import sys
 import shlex
 from subprocess import Popen, PIPE
-
-import six
+from io import StringIO
 
 
 def _get_env():
@@ -158,7 +157,7 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None):
     proc_stdout, proc_stderr = process.communicate()
     # Return standard output and error
     if return_std:
-        return six.moves.StringIO(proc_stdout), six.moves.StringIO(proc_stderr)
+        return StringIO(proc_stdout), StringIO(proc_stderr)
     return None
 
 

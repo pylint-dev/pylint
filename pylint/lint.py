@@ -61,8 +61,6 @@ import sys
 import tokenize
 import warnings
 
-import six
-
 import astroid
 from astroid.__pkginfo__ import version as astroid_version
 from astroid import modutils
@@ -117,7 +115,7 @@ def _merge_stats(stats):
         message_stats = stat.pop('by_msg', {})
         by_msg.update(message_stats)
 
-        for key, item in six.iteritems(stat):
+        for key, item in stat.items():
             if key not in merged:
                 merged[key] = item
             else:
@@ -600,7 +598,7 @@ class PyLinter(config.OptionsManagerMixIn,
             self.disable(checker.name)
 
     def disable_noerror_messages(self):
-        for msgcat, msgids in six.iteritems(self.msgs_store._msgs_by_category):
+        for msgcat, msgids in self.msgs_store._msgs_by_category.items():
             # enable only messages with 'error' severity and above ('fatal')
             if msgcat in ['E', 'F']:
                 for msgid in msgids:
@@ -611,7 +609,7 @@ class PyLinter(config.OptionsManagerMixIn,
 
     def disable_reporters(self):
         """disable all reporters"""
-        for _reporters in six.itervalues(self._reports):
+        for _reporters in self._reports.values():
             for report_id, _, _ in _reporters:
                 self.disable_report(report_id)
 
@@ -723,7 +721,7 @@ class PyLinter(config.OptionsManagerMixIn,
 
     def get_checkers(self):
         """return all available checkers as a list"""
-        return [self] + [c for _checkers in six.itervalues(self._checkers)
+        return [self] + [c for _checkers in self._checkers.values()
                          for c in _checkers if c is not self]
 
     def prepare_checkers(self):
@@ -791,7 +789,7 @@ class PyLinter(config.OptionsManagerMixIn,
         child_config = collections.OrderedDict()
         filter_options = {'long-help'}
         filter_options.update((opt_name for opt_name, _ in self._external_opts))
-        for opt_providers in six.itervalues(self._all_options):
+        for opt_providers in self._all_options.values():
             for optname, optdict, val in opt_providers.options_and_values():
                 if optdict.get('deprecated'):
                     continue
@@ -950,7 +948,7 @@ class PyLinter(config.OptionsManagerMixIn,
         self.current_file = filepath or modname
         self.stats['by_module'][modname] = {}
         self.stats['by_module'][modname]['statement'] = 0
-        for msg_cat in six.itervalues(utils.MSG_TYPES):
+        for msg_cat in utils.MSG_TYPES.values():
             self.stats['by_module'][modname][msg_cat] = 0
 
     def get_ast(self, filepath, modname):
@@ -1008,7 +1006,7 @@ class PyLinter(config.OptionsManagerMixIn,
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.extension_package_whitelist.update(
             self.config.extension_pkg_whitelist)
-        for msg_cat in six.itervalues(utils.MSG_TYPES):
+        for msg_cat in utils.MSG_TYPES.values():
             self.stats[msg_cat] = 0
 
     def generate_reports(self):
@@ -1079,7 +1077,7 @@ def report_messages_stats(sect, stats, _):
         # don't print this report when we didn't detected any errors
         raise exceptions.EmptyReportError()
     in_order = sorted([(value, msg_id)
-                       for msg_id, value in six.iteritems(stats['by_msg'])
+                       for msg_id, value in stats['by_msg'].items()
                        if not msg_id.startswith('I')])
     in_order.reverse()
     lines = ('message id', 'occurrences')
@@ -1095,7 +1093,7 @@ def report_messages_by_module_stats(sect, stats, _):
     by_mod = collections.defaultdict(dict)
     for m_type in ('fatal', 'error', 'warning', 'refactor', 'convention'):
         total = stats[m_type]
-        for module in six.iterkeys(stats['by_module']):
+        for module in stats['by_module'].keys():
             mod_total = stats['by_module'][module][m_type]
             if total == 0:
                 percent = 0
@@ -1103,7 +1101,7 @@ def report_messages_by_module_stats(sect, stats, _):
                 percent = float((mod_total)*100) / total
             by_mod[module][m_type] = percent
     sorted_result = []
-    for module, mod_info in six.iteritems(by_mod):
+    for module, mod_info in by_mod.items():
         sorted_result.append((mod_info['error'],
                               mod_info['warning'],
                               mod_info['refactor'],
