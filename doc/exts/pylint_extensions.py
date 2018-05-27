@@ -9,7 +9,6 @@ import re
 import sys
 
 import pkg_resources
-import six
 import sphinx
 
 from pylint.lint import PyLinter
@@ -63,7 +62,7 @@ def builder_inited(app):
         stream.write("\n    load-plugins=pylint.extensions.docparams,"
                      "pylint.extensions.docstyle\n\n")
         by_module = get_plugins_info(linter, doc_files)
-        for module, info in sorted(six.iteritems(by_module)):
+        for module, info in sorted(by_module.items()):
             linter._print_checker_doc(info['name'], info, stream=stream)
 
 
