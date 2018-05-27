@@ -41,7 +41,6 @@ except ImportError:
 from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-from pylint.utils import safe_decode
 
 if enchant is not None:
     br = enchant.Broker()
