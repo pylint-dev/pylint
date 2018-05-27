@@ -21,7 +21,6 @@ import locale
 import os
 import warnings
 
-import six
 
 CMPS = ['=', '-', '+']
 
@@ -63,24 +62,9 @@ class BaseReporter(object):
         """set output stream"""
         self.out = output or sys.stdout
 
-    if six.PY3:
-        encode = lambda self, string: string
-    else:
-        def encode(self, string):
-            if not isinstance(string, six.text_type):
-                return string
-
-            encoding = (getattr(self.out, 'encoding', None) or
-                        locale.getpreferredencoding(do_setlocale=False) or
-                        sys.getdefaultencoding())
-            # errors=replace, we don't want to crash when attempting to show
-            # source code line that can't be encoded with the current locale
-            # settings
-            return string.encode(encoding, 'replace')
-
     def writeln(self, string=''):
         """write a line in the output buffer"""
-        print(self.encode(string), file=self.out)
+        print(string, file=self.out)
 
     def display_reports(self, layout):
         """display results encapsulated in the layout tree"""

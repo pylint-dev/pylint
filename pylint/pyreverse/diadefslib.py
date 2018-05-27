@@ -14,14 +14,12 @@
 """handle diagram generation options for class diagram or default diagrams
 """
 
-from six.moves import builtins
-
 import astroid
 
 from pylint.pyreverse.diagrams import PackageDiagram, ClassDiagram
 from pylint.pyreverse.utils import LocalsVisitor
 
-BUILTINS_NAME = builtins.__name__
+BUILTINS_NAME = 'builtins'
 
 # diagram generators ##########################################################
 

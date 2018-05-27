@@ -11,7 +11,7 @@ formatted as text and html.
 import os
 import sys
 
-import six
+from io import StringIO
 
 
 class BaseWriter(object):
@@ -86,7 +86,7 @@ class BaseWriter(object):
         out = self.out
         try:
             for child in layout.children:
-                stream = six.StringIO()
+                stream = StringIO()
                 self.out = stream
                 child.accept(self)
                 yield stream.getvalue()
