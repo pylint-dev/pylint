@@ -590,20 +590,22 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         self.add_message('consider-using-in', node=node, args=(suggestion,))
 
-    def check_chained_comparison(self, node):
+   def _check_chained_comparison(self, node):
         """Check if there is any chained comparison in the expression.
-        If it exists, give message to simplify it."""
+
+        Add a refactoring message if a boolOp contains comparison like a < b and b < c,
+        which can be chained as  a < b < c.
+        :param node: astroid.BoolOp
+        """
         if node.op != 'and':
             return
 
-        total_compares = len(node.values)
-        if total_compares < 2:
+        if len(node.values) < 2:
             return
 
         # all node values must be compare
-        for i in range(0, total_compares):
-            if not isinstance(node.values[i], astroid.node_classes.Compare):
-                return
+        if not all(isinstance(value, astroid.Compare) for value in node.values):
+            return
 
         # collect all compares as tuple
         Comparison = collections.namedtuple('Comparison', ['left_operand',
@@ -611,51 +613,58 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                                                            'operator'])
         names = []
         comparisons = []
-        for i in range(0, total_compares):
-            if isinstance(node.values[i].left, astroid.node_classes.Name):
-                names.append(node.values[i].left.name)
-                left_operand = (node.values[i].left.name, 'name')
-            else:
-                left_operand = (node.values[i].left.name, 'const')
+        for node in node.values:
+            operator = node.ops[0][0]
+            if operator in ('==', '!='):
+                continue
+            if isinstance(node.left, astroid.Name):
+                names.append(node.left.name)
+                left_operand = (node.left.name, 'name')
+            elif isinstance(node.left, astroid.Const):
+                left_operand = (node.left.name, 'const')
 
-            if isinstance(node.values[i].ops[0][1], astroid.node_classes.Name):
-                names.append(node.values[i].ops[0][1].name)
-                right_operand = (node.values[i].ops[0][1].name, 'name')
-            else:
-                right_operand = (node.values[i].ops[0][1], 'const')
+            if isinstance(node.ops[0][1], astroid.Name):
+                names.append(node.ops[0][1].name)
+                right_operand = (node.ops[0][1].name, 'name')
+            elif isinstance(node.ops[0][1], astroid.Const):
+                right_operand = (node.ops[0][1], 'const')
 
-            operator = node.values[i].ops[0][0]
+
             comparisons.append(Comparison(left_operand, right_operand, operator))
 
         counter = collections.Counter(names)
         for item in counter.items():
             if item[1] > 1:
+               # variable with only single occurrence need not to be analyzed
                 lower_bound = False
                 upper_bound = False
                 # search this name in comparisons
-                for i in range(0, total_compares):
-                    if comparisons[i].left_operand[1] == 'name' and comparisons[i].left_operand[0] == item[0]:
-                        if comparisons[i].operator == '<' or comparisons[i].operator == '<=':
+                for comparison in comparisons:
+                    if (comparison.left_operand[1] == 'name'
+                            and comparison.left_operand[0] == item[0]):
+                        if comparison.operator == '<' or comparison.operator == '<=':
                             upper_bound = True
-                        elif comparisons[i].operator == '>' or comparisons[i].operator == '>=':
+                        elif comparison.operator == '>' or comparison.operator == '>=':
                             lower_bound = True
-                    elif comparisons[i].right_operand[1] == 'name' and comparisons[i].right_operand[0] == item[0]:
-                        if comparisons[i].operator == '<' or comparisons[i].operator == '<=':
+                    elif (comparison.right_operand[1] == 'name'
+                          and comparison.right_operand[0] == item[0]):
+                        if comparison.operator == '<' or comparison.operator == '<=':
                             lower_bound = True
-                        elif comparisons[i].operator == '>' or comparisons[i].operator == '>=':
+                        elif comparison.operator == '>' or comparison.operator == '>=':
                             upper_bound = True
 
-                # suggestion = "variable '%s' can be chained in comparison" % (item[0])
+                    # chained comparison is possible only if both lower value and upper value
+                    # exists.
+                    if lower_bound and upper_bound:
+                        self.add_message('chained-comparison',
+                                         node=node)
 
-                if lower_bound and upper_bound:
-                    self.add_message('chained-comparison',
-                                     node=node)
-
-    @utils.check_messages('consider-merging-isinstance', 'consider-using-in', 'chained-comparison')
+    @utils.check_messages('consider-merging-isinstance', 'consider-using-in',
+                          'chained-comparison')
     def visit_boolop(self, node):
         self._check_consider_merging_isinstance(node)
         self._check_consider_using_in(node)
-        self.check_chained_comparison(node)
+        self._check_chained_comparison(node)
 
     @staticmethod
     def _is_simple_assignment(node):
