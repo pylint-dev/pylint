@@ -613,23 +613,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                                                            'operator'])
         names = []
         comparisons = []
-        for node in node.values:
-            operator = node.ops[0][0]
+        for comparison_node in node.values:
+            operator = comparison_node.ops[0][0]
             if operator in ('==', '!='):
                 continue
             right_operand = None
             left_operand = None
-            if isinstance(node.left, astroid.Name):
-                names.append(node.left.name)
-                left_operand = (node.left.name, 'name')
-            elif isinstance(node.left, astroid.Const):
-                left_operand = (node.left.name, 'const')
+            if isinstance(comparison_node.left, astroid.Name):
+                names.append(comparison_node.left.name)
+                left_operand = (comparison_node.left.name, 'name')
+            elif isinstance(comparison_node.left, astroid.Const):
+                left_operand = (comparison_node.left.name, 'const')
 
-            if isinstance(node.ops[0][1], astroid.Name):
-                names.append(node.ops[0][1].name)
-                right_operand = (node.ops[0][1].name, 'name')
-            elif isinstance(node.ops[0][1], astroid.Const):
-                right_operand = (node.ops[0][1], 'const')
+            if isinstance(comparison_node.ops[0][1], astroid.Name):
+                names.append(comparison_node.ops[0][1].name)
+                right_operand = (comparison_node.ops[0][1].name, 'name')
+            elif isinstance(comparison_node.ops[0][1], astroid.Const):
+                right_operand = (comparison_node.ops[0][1], 'const')
 
             if left_operand is None or right_operand is None:
                 continue
