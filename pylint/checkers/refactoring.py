@@ -590,12 +590,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         self.add_message('consider-using-in', node=node, args=(suggestion,))
 
-   def _check_chained_comparison(self, node):
+    def _check_chained_comparison(self, node):
         """Check if there is any chained comparison in the expression.
 
         Add a refactoring message if a boolOp contains comparison like a < b and b < c,
         which can be chained as  a < b < c.
-        :param node: astroid.BoolOp
+        :param astroid.BoolOp node: bool operator node.
         """
         if node.op != 'and':
             return
@@ -617,6 +617,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             operator = node.ops[0][0]
             if operator in ('==', '!='):
                 continue
+            right_operand = None
+            left_operand = None
             if isinstance(node.left, astroid.Name):
                 names.append(node.left.name)
                 left_operand = (node.left.name, 'name')
@@ -629,7 +631,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             elif isinstance(node.ops[0][1], astroid.Const):
                 right_operand = (node.ops[0][1], 'const')
 
-
+            if left_operand is None or right_operand is None:
+                continue
             comparisons.append(Comparison(left_operand, right_operand, operator))
 
         counter = collections.Counter(names)
