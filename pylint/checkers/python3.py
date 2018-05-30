@@ -28,7 +28,6 @@ import tokenize
 
 import astroid
 from astroid import bases
-import six
 
 from pylint import checkers, interfaces
 from pylint.interfaces import INFERENCE_FAILURE, INFERENCE
@@ -951,10 +950,6 @@ class Python3Checker(checkers.BaseChecker):
         """Visit a raise statement and check for raising
         strings or old-raise-syntax.
         """
-        if six.PY2:
-            if (node.exc is not None and
-                    node.inst is not None):
-                self.add_message('old-raise-syntax', node=node)
 
         # Ignore empty raise.
         if node.exc is None:

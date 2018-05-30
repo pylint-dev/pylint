@@ -38,12 +38,9 @@ except ImportError:
         pass
 
 
-import six
-
 from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-from pylint.utils import safe_decode
 
 if enchant is not None:
     br = enchant.Broker()
@@ -243,10 +240,7 @@ class SpellingChecker(BaseTokenChecker):
         else:
             starts_with_comment = False
         for word, _ in self.tokenizer(line.strip()):
-            if six.PY2:
-                lower_cased_word = word.lower()
-            else:
-                lower_cased_word = word.casefold()
+            lower_cased_word = word.casefold()
 
             # Skip words from ignore list.
             if word in self.ignore_list or lower_cased_word in self.ignore_list:
@@ -342,9 +336,6 @@ class SpellingChecker(BaseTokenChecker):
             return
 
         start_line = node.lineno + 1
-        if six.PY2:
-            encoding = node.root().file_encoding
-            docstring = safe_decode(docstring, encoding, 'replace')
 
         # Go through lines of docstring
         for idx, line in enumerate(docstring.splitlines()):
