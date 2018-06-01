@@ -656,7 +656,7 @@ class Python3Checker(checkers.BaseChecker):
             if (scope_name.name not in names
                     or scope_name.lineno <= node.lineno
                     or scope_name.name in emitted_for_names
-                    or scope_name.scope() == node):
+                    or scope_name.statement().parent_of(node)):
                 continue
 
             emitted_for_names.add(scope_name.name)
