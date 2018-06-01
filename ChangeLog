@@ -7,6 +7,10 @@ What's New in Pylint 2.0?
 
 Release date: |TBA|
 
+    * Don't warn about `stop-iteration-return` when using `next()` over `itertools.count`
+
+      Close #2158
+
     * Add a check `consider-using-get` for unidiomatic usage of value/default-retrieval
       for a key from a dictionary
 

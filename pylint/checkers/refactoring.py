@@ -31,6 +31,11 @@ from pylint import utils as lint_utils
 from pylint.checkers import utils
 
 
+KNOWN_INFINITE_ITERATORS = {
+    'itertools.count',
+}
+
+
 def _all_elements_are_true(gen):
     values = list(gen)
     return values and all(values)
@@ -423,6 +428,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         :param node: Check to see if this Call node is a next function
         :type node: :class:`astroid.node_classes.Call`
         """
+
+        def _looks_like_infinite_iterator(param):
+            inferred = utils.safe_infer(param)
+            if inferred is not None or inferred is not astroid.Uninferable:
+                return inferred.qname() in KNOWN_INFINITE_ITERATORS
+            return False
+
         inferred = utils.safe_infer(node.func)
         if getattr(inferred, 'name', '') == 'next':
             frame = node.frame()
@@ -432,7 +444,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if (isinstance(frame, astroid.FunctionDef)
                     and frame.is_generator()
                     and not has_sentinel_value
-                    and not utils.node_ignores_exception(node, StopIteration)):
+                    and not utils.node_ignores_exception(node, StopIteration)
+                    and not _looks_like_infinite_iterator(node.args[0])):
                 self.add_message('stop-iteration-return', node=node)
 
     def _check_nested_blocks(self, node):
