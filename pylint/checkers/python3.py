@@ -909,6 +909,13 @@ class Python3Checker(checkers.BaseChecker):
     @utils.check_messages('unpacking-in-except', 'comprehension-escape')
     def visit_excepthandler(self, node):
         """Visit an except handler block and check for exception unpacking."""
+        def _is_used_in_except_block(node):
+            scope = node.scope()
+            current = node
+            while current and current != scope and not isinstance(current, astroid.ExceptHandler):
+                current = current.parent
+            return isinstance(current, astroid.ExceptHandler) and current.type != node
+
         if isinstance(node.name, (astroid.Tuple, astroid.List)):
             self.add_message('unpacking-in-except', node=node)
             return
@@ -927,6 +934,7 @@ class Python3Checker(checkers.BaseChecker):
             scope_name
             for scope_name in scope_names
             if scope_name.name == node.name.name and scope_name.lineno > node.lineno
+            and not _is_used_in_except_block(scope_name)
         ]
         reassignments_for_same_name = {
             assign_name.lineno
