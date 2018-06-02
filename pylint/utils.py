@@ -384,6 +384,13 @@ class MessagesHandlerMixIn(object):
         try:
             return self.file_state._module_msgs_state[msgid][line]
         except KeyError:
+            # Check if the message's line is after the maximum line existing in ast tree.
+            # This line won't appear in the ast tree and won't be referred in
+            # self.file_state._module_msgs_state
+            # This happens for example with a commented line at the end of a module.
+            max_line_number = self.file_state.get_effective_max_line_number()
+            if (max_line_number and line > max_line_number):
+                return msgid not in self.file_state._raw_module_msgs_state
             return self._msgs_state.get(msgid, True)
 
     def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
@@ -572,6 +579,7 @@ class FileState(object):
         self._raw_module_msgs_state = {}
         self._ignored_msgs = collections.defaultdict(set)
         self._suppression_mapping = {}
+        self._effective_max_line_number = None
 
     def collect_block_lines(self, msgs_store, module_node):
         """Walk the AST to collect block level options line numbers."""
@@ -580,6 +588,7 @@ class FileState(object):
         orig_state = self._module_msgs_state.copy()
         self._module_msgs_state = {}
         self._suppression_mapping = {}
+        self._effective_max_line_number = module_node.tolineno
         self._collect_block_lines(msgs_store, module_node, orig_state)
 
     def _collect_block_lines(self, msgs_store, node, msg_state):
@@ -673,6 +682,9 @@ class FileState(object):
             for line in lines:
                 yield 'suppressed-message', line, \
                     (msgs_store.get_msg_display_string(warning), from_)
+
+    def get_effective_max_line_number(self):
+        return self._effective_max_line_number
 
 
 class MessagesStore(object):
