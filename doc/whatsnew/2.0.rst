@@ -240,3 +240,5 @@ Other Changes
 
       from typing import Any, List
       a = 1 # type: List[Any]
+
+* Fix false positive ``line-too-long`` for commented lines at the end of module
