@@ -16,6 +16,7 @@ Raw metrics checker
 """
 
 import tokenize
+from typing import List, NamedTuple, Tuple
 
 from pylint.interfaces import ITokenChecker
 from pylint.exceptions import EmptyReportError
@@ -62,7 +63,7 @@ class RawMetricsChecker(BaseTokenChecker):
     # configuration options
     options = ()
     # messages
-    msgs = {}
+    msgs = {}   # type: ignore
     # reports
     reports = (('RP0701', 'Raw metrics', report_raw_stats),)
 
@@ -88,7 +89,7 @@ class RawMetricsChecker(BaseTokenChecker):
 
 JUNK = (tokenize.NL, tokenize.INDENT, tokenize.NEWLINE, tokenize.ENDMARKER)
 
-def get_type(tokens, start_index):
+def get_type(tokens: List[NamedTuple], start_index: int) -> Tuple[int, int, str]:
     """return the line type : docstring, comment, code, empty"""
     i = start_index
     tok_type = tokens[i][0]

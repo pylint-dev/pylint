@@ -42,6 +42,7 @@ import collections
 import itertools
 import sys
 import re
+from typing import Pattern
 
 import astroid
 import astroid.bases
@@ -62,12 +63,12 @@ class NamingStyle:
     # has multiple "accepted" forms of regular expressions,
     # but we need to special-case stuff like dunder names
     # in method names.
-    CLASS_NAME_RGX = None
-    MOD_NAME_RGX = None
-    CONST_NAME_RGX = None
-    COMP_VAR_RGX = None
-    DEFAULT_NAME_RGX = None
-    CLASS_ATTRIBUTE_RGX = None
+    CLASS_NAME_RGX = Pattern[str]
+    MOD_NAME_RGX = Pattern[str]
+    CONST_NAME_RGX = Pattern[str]
+    COMP_VAR_RGX = Pattern[str]
+    DEFAULT_NAME_RGX = Pattern[str]
+    CLASS_ATTRIBUTE_RGX = Pattern[str]
 
     @classmethod
     def get_regex(cls, name_type):

@@ -20,6 +20,7 @@
 from __future__ import print_function
 import sys
 from collections import defaultdict
+from typing import List
 
 from pylint.utils import decoding_stream
 from pylint.interfaces import IRawChecker
@@ -133,7 +134,8 @@ class Similar:
                 for sim in self._find_common(lineset, lineset2):
                     yield sim
 
-def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
+def stripped_lines(lines: List[str], ignore_comments: bool, ignore_docstrings: bool,
+                   ignore_imports: bool) -> List[str]:
     """return lines with leading/trailing whitespace and any ignored code
     features removed
     """
@@ -221,7 +223,7 @@ MSGS = {'R0801': ('Similar lines in %s files\n%s',
                   among multiple file. This usually means that the code should \
                   be refactored to avoid this duplication.')}
 
-def report_similarities(sect, stats, old_stats):
+def report_similarities(sect: List[Table], stats, old_stats):
     """make a layout with some stats about duplication"""
     lines = ['', 'now', 'previous', 'difference']
     lines += table_lines_from_stats(stats, old_stats,

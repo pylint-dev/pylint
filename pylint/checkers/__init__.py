@@ -79,7 +79,7 @@ class BaseChecker(OptionsProviderMixIn):
     # ordered list of options to control the ckecker behaviour
     options = ()
     # messages issued by this checker
-    msgs = {}
+    msgs = {}   # type: ignore
     # reports issued by this checker
     reports = ()
     # mark this checker as enabled or not.

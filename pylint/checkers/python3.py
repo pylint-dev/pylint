@@ -573,7 +573,7 @@ class Python3Checker(checkers.BaseChecker):
     if (3, 4) <= sys.version_info < (3, 4, 4):
         # Python 3.4.0 -> 3.4.3 has a bug which breaks `repr_tree()`:
         # https://bugs.python.org/issue23572
-        _python_2_tests = frozenset()
+        _python_2_tests = frozenset()   # type: ignore
     else:
         _python_2_tests = frozenset(
             [astroid.extract_node(x).repr_tree() for x in [

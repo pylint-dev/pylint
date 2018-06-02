@@ -24,7 +24,7 @@ import re
 
 try:
     import enchant
-    from enchant.tokenize import (get_tokenizer,
+    from enchant.tokenize import (get_tokenizer,    # type: ignore
                                   Chunker,
                                   Filter,
                                   EmailFilter,
@@ -33,11 +33,11 @@ try:
 except ImportError:
     enchant = None
     # pylint: disable=old-style-class,no-init
-    class Filter:
+    class Filter:   # type: ignore
         def _skip(self, word):
             raise NotImplementedError
 
-    class Chunker:
+    class Chunker:  # type: ignore
         pass
 
 
