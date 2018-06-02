@@ -769,6 +769,14 @@ a metaclass class method.'}
                     # attribute affectation will either call a setter or raise
                     # an attribute error, anyway not hiding the function
                     return
+                try:
+                    for infered in decorator.infer():
+                        if (isinstance(infered, astroid.ClassDef)
+                                and infered.getattr('__get__')
+                                and infered.getattr('__set__')):
+                            return
+                except (astroid.InferenceError, astroid.AttributeInferenceError):
+                    pass
         # check if the method is hidden by an attribute
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX

@@ -266,6 +266,8 @@ Release date: |TBA|
 
       Fixes #2102
 
+   * Fix 'method-hidden' raised when assigning to a property or data descriptor.
+
 What's New in Pylint 1.9?
 =========================
 
