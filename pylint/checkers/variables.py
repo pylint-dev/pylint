@@ -820,6 +820,12 @@ class VariablesChecker(BaseChecker):
 
     def leave_functiondef(self, node):
         """leave function: check function's locals are consumed"""
+        if node.type_comment_returns:
+            self._store_type_annotation_node(node.type_comment_returns)
+        if node.type_comment_args:
+            for argument_annotation in node.type_comment_args:
+                self._store_type_annotation_node(argument_annotation)
+
         not_consumed = self._to_consume.pop().to_consume
         if not (self.linter.is_message_enabled('unused-variable') or
                 self.linter.is_message_enabled('possibly-unused-variable') or
@@ -1334,16 +1340,20 @@ class VariablesChecker(BaseChecker):
         except astroid.InferenceError:
             return
 
-    def _store_type_annotation_names(self, node):
-        type_annotation = node.type_annotation
-        if not type_annotation:
-            return
-        if isinstance(node.type_annotation, astroid.Name):
-            self._type_annotation_names.append(node.type_annotation.name)
+    def _store_type_annotation_node(self, type_annotation):
+
+        if isinstance(type_annotation, astroid.Name):
+            self._type_annotation_names.append(type_annotation.name)
         else:
             self._type_annotation_names.extend(list(
                 (annotation.name for annotation in type_annotation.nodes_of_class(astroid.Name))
             ))
+
+    def _store_type_annotation_names(self, node):
+        type_annotation = node.type_annotation
+        if not type_annotation:
+            return
+        self._store_type_annotation_node(node.type_annotation)
 
     leave_assign = _store_type_annotation_names
     leave_with = _store_type_annotation_names

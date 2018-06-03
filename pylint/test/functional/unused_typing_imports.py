@@ -5,8 +5,8 @@ The problem was that we weren't handling keyword-only arguments annotations,
 which means we were never processing them.
 """
 
-
-from typing import Optional, Callable, Iterable, Any, List, Tuple, Set
+import re
+from typing import Optional, Callable, Iterable, Any, List, Tuple, Set, NamedTuple, Pattern
 
 
 def func1(arg: Optional[Callable]=None):
@@ -32,3 +32,8 @@ class ContextManager:
 
 with ContextManager() as SOME_DICT: # type: Set[int]
     print(SOME_DICT)
+
+
+def func_test_type_comment(param):
+    # type: (NamedTuple) -> Tuple[NamedTuple, Pattern]
+    return param, re.compile('good')
