@@ -978,6 +978,9 @@ def _is_len_call(node):
 def _is_constant_zero(node):
     return isinstance(node, astroid.Const) and node.value == 0
 
+def _has_constant_value(node, value):
+    return isinstance(node, astroid.Const) and node.value == value
+
 def _node_is_test_condition(node):
     """ Checks if node is an if, while, assert or if expression statement."""
     return isinstance(node, (astroid.If, astroid.While, astroid.Assert, astroid.IfExp))
@@ -1000,6 +1003,8 @@ class LenChecker(checkers.BaseChecker):
     * if len(sequence) == 0:
     * if len(sequence) != 0:
     * if len(sequence) > 0:
+    * if len(sequence) < 1:
+    * if len(sequence) <= 0:
     """
 
     __implements__ = (interfaces.IAstroidChecker,)
@@ -1065,10 +1070,14 @@ class LenChecker(checkers.BaseChecker):
             error_detected = False
 
             # 0 ?? len()
-            if _is_constant_zero(op_1) and op_2 in ['==', '!=', '<'] and _is_len_call(op_3):
+            if _is_constant_zero(op_1) and op_2 in ['==', '!=', '<', '>='] and _is_len_call(op_3):
                 error_detected = True
             # len() ?? 0
-            elif _is_len_call(op_1) and op_2 in ['==', '!=', '>'] and _is_constant_zero(op_3):
+            elif _is_len_call(op_1) and op_2 in ['==', '!=', '>', '<='] and _is_constant_zero(op_3):
+                error_detected = True
+            elif _has_constant_value(op_1, value=1) and op_2 == '>' and _is_len_call(op_3):
+                error_detected = True
+            elif _is_len_call(op_1) and op_2 == '<' and _has_constant_value(op_3, value=1):
                 error_detected = True
 
             if error_detected:

@@ -10,3 +10,7 @@ len-as-condition:30::Do not use `len(SEQUENCE)` to determine if a sequence is em
 len-as-condition:43::Do not use `len(SEQUENCE)` to determine if a sequence is empty
 len-as-condition:61:github_issue_1331_v2:Do not use `len(SEQUENCE)` to determine if a sequence is empty
 len-as-condition:65:github_issue_1331_v3:Do not use `len(SEQUENCE)` to determine if a sequence is empty
+len-as-condition:67::Do not use `len(SEQUENCE)` to determine if a sequence is empty
+len-as-condition:70::Do not use `len(SEQUENCE)` to determine if a sequence is empty
+len-as-condition:73::Do not use `len(SEQUENCE)` to determine if a sequence is empty
+len-as-condition:76::Do not use `len(SEQUENCE)` to determine if a sequence is empty
