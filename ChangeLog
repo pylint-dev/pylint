@@ -269,9 +269,14 @@ Release date: |TBA|
 
     * Fix `KeyError` raised when using docparams and NotImplementedError is documented.
 
-      Fixes #2102
+      Close #2102
 
-   * Fix 'method-hidden' raised when assigning to a property or data descriptor.
+    * Fix 'method-hidden' raised when assigning to a property or data descriptor.
+
+    * Fix emitting ``useless-super-delegation`` when changing the default value of keyword arguments.
+
+      Close #2022
+
 
 What's New in Pylint 1.9?
 =========================

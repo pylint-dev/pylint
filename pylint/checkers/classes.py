@@ -26,7 +26,7 @@
 from __future__ import generators
 
 import collections
-from itertools import zip_longest
+from itertools import chain, zip_longest
 import sys
 
 import astroid
@@ -189,7 +189,8 @@ def _has_different_parameters_default_value(original, overridden):
     if original.args is None or overridden.args is None:
         return False
 
-    original_param_names = [param.name for param in original.args]
+    all_args = chain(original.args, original.kwonlyargs)
+    original_param_names = [param.name for param in all_args]
     default_missing = object()
     for param_name in original_param_names:
         try:

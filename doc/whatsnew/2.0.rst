@@ -242,3 +242,5 @@ Other Changes
       a = 1 # type: List[Any]
 
 * Fix false positive ``line-too-long`` for commented lines at the end of module
+
+* Fix emitting ``useless-super-delegation`` when changing the default value of keyword arguments.

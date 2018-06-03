@@ -10,6 +10,12 @@ class NotUselessSuper(object):
         return super(NotUselessSuper, self).passing_keyword_only_with_modifications(
             first, second + 1)
 
+
+class AlsoNotUselessSuper(NotUselessSuper):
+    def not_passing_keyword_only(self, first, *, second="second"):
+        return super().not_passing_keyword_only(first, second=second)
+
+
 class UselessSuper(object):
 
     def useless(self, *, first): # [useless-super-delegation]
