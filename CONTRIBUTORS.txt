@@ -201,3 +201,5 @@ contributors:
 
 * Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
   Maarten ter Huurne, Mirko Friedenhagen and all the Logilab's team (among others).
+
+* Matej Marusak: contributor
