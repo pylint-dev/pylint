@@ -422,7 +422,7 @@ def is_attr_private(attrname) -> Optional[Match[str]]:
     regex = re.compile('^_{2,}.*[^_]+_?$')
     return regex.match(attrname)
 
-def get_argument_from_call(call_node, position, keyword) -> astroid.Name:
+def get_argument_from_call(call_node, position=None, keyword=None) -> astroid.Name:
     """Returns the specified argument from a function call.
 
     :param astroid.Call call_node: Node representing a function call to check.
