@@ -58,30 +58,30 @@ your patch gets accepted.
 
 - Test your code
 
-    - Pylint is very well tested, with a high good code coverage.
-      It has two types of tests, usual unittests and functional tests.
+  * Pylint is very well tested, with a high good code coverage.
+    It has two types of tests, usual unittests and functional tests.
 
-      The usual unittests can be found under `/pylint/test` directory and they can
-      be used for testing almost anything Pylint related. But for the ease
-      of testing Pylint's messages, we also have the concept of functional tests.             
+    The usual unittests can be found under `/pylint/test` directory and they can
+    be used for testing almost anything Pylint related. But for the ease
+    of testing Pylint's messages, we also have the concept of functional tests.
 
-    - You should also run all the tests to ensure that your change isn't
-      breaking one. You can run the tests using the tox_ package, as in::
+  * You should also run all the tests to ensure that your change isn't
+    breaking one. You can run the tests using the tox_ package, as in::
 
-          python -m tox
-          python -m tox -epy36 # for Python 3.6 suite only
-          python -m tox -epylint # for running Pylint over Pylint's codebase
+      python -m tox
+      python -m tox -epy36 # for Python 3.6 suite only
+      python -m tox -epylint # for running Pylint over Pylint's codebase
 
-    - To run only a specific test suite, use a pattern for the test filename
-      (**without** the ``.py`` extension), as in::
+  * To run only a specific test suite, use a pattern for the test filename
+    (**without** the ``.py`` extension), as in::
 
-        python -m tox -e py36 -- -k test_functional
-        python -m tox -e py36 -- -k  \*func\*
+      python -m tox -e py36 -- -k test_functional
+      python -m tox -e py36 -- -k  \*func\*
 
-    - Since we just use pytest_ to run the tests, you can also use it as well,
-      although we highly recommend using tox_ instead::
+  * Since we just use pytest_ to run the tests, you can also use it as well,
+    although we highly recommend using tox_ instead::
 
-        pytest pylint -k test_functional
+      pytest pylint -k test_functional
 
 
 - Add a short entry to the ChangeLog describing the change, except for internal
@@ -151,10 +151,12 @@ Tips for Getting Started with Pylint Development
 * Read the :ref:`technical-reference`. It gives a short walkthrough of the pylint
   codebase and will help you identify where you will need to make changes
   for what you are trying to implement.
+
 * :func:`astroid.extract_node` is your friend. Most checkers are AST based,
   so you will likely need to interact with :mod:`astroid`.
   A short example of how to use :func:`astroid.extract_node` is given
   :ref:`here <astroid_extract_node>`.
+
 * When fixing a bug for a specific check, search the code for the warning
   message to find where the warning is raised,
   and therefore where the logic for that code exists.

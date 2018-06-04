@@ -46,11 +46,11 @@ necessarily be alarmed if it gives you a hell lot of messages for your project!
 
 The best way to tackle pylint's verboseness is to:
 
-  * enable or disable the messages or message categories that you want to be
-    activated or not for when pylint is analyzing your code.
-    This can be done easily through a command line flag. For instance, disabling
-    all convention messages is simple as a ``--disable=C`` option added to pylint
-    command.
+* enable or disable the messages or message categories that you want to be
+  activated or not for when pylint is analyzing your code.
+  This can be done easily through a command line flag. For instance, disabling
+  all convention messages is simple as a ``--disable=C`` option added to pylint
+  command.
 
-  * create a custom configuration file, tailored to your needs. You can generate
-    one using pylint's command ``--generate-rcfile``.
+* create a custom configuration file, tailored to your needs. You can generate
+  one using pylint's command ``--generate-rcfile``.
