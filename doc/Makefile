@@ -4,6 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
+PIP           = pip
 PAPER         =
 BUILDDIR      = _build
 PYTHONPATH    =
@@ -40,6 +41,10 @@ clean:
 	-rm -f extensions.rst
 
 html: features.rst extensions.rst
+	@echo
+	@echo "Install dependencies"
+	$(PIP) install python-docs-theme
+	@echo "Finished installing dependencies"
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
@@ -131,6 +136,7 @@ doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
+
 
 extensions.rst: exts/pylint_extensions.py
 extensions.rst: ../pylint/utils.py
