@@ -107,6 +107,8 @@ html_theme = 'python_docs_theme'
 html_theme_options = {
     'collapsiblesidebar': True,
     'issues_url': 'https://github.com/pycqa/pylint/issues/new',
+    'root_name': 'PyCQA',
+    'root_url': 'https://pylint.pycqa.org',
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
