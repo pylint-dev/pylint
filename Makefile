@@ -36,6 +36,7 @@ tests: $(TOX)
 docs: $(PIP)
 	$(PIP) install .
 	$(PIP) install Sphinx
+	$(PIP) install python-docs-theme
 	. $(PYVE)/bin/activate; make all -C doc
 
 deb: $(PKG_DEB)
