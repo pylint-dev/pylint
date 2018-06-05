@@ -964,3 +964,11 @@ def is_dataclass(node):
         if name == DATACLASS_DECORATOR and DATACLASS_DECORATOR in node.root().locals:
             return True
     return False
+
+
+def is_postponed_evaluation_enabled(node):
+    """Check if the postponed evaluation of annotations is enabled"""
+    name = 'annotations'
+    module = node.root()
+    stmt = module.locals.get(name)
+    return stmt and isinstance(stmt[0], astroid.ImportFrom) and stmt[0].modname == '__future__'

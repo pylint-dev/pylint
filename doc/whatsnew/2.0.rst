@@ -223,6 +223,15 @@ Other Changes
         global sys
         import sys
 
+* Added basic support for postponed evaluation of function annotations.
+
+  If **pylint** detects the corresponding ``from __future__ import annotations`` import,
+  it will not emit **used-before-assignment** and **undefined-variable** in the cases
+  triggered by the annotations.
+
+  More details on the postponed evaluation of annotations can be read in
+  `PEP 563`_.
+
 * A new command line option was added, `--exit-zero`, for the use of continuous integration
   scripts which abort if a command returns a non-zero status code.  If the
   option is specified, and Pylint runs successfully, it will exit with 0
@@ -244,3 +253,5 @@ Other Changes
 * Fix false positive ``line-too-long`` for commented lines at the end of module
 
 * Fix emitting ``useless-super-delegation`` when changing the default value of keyword arguments.
+
+.. _PEP 563: https://www.python.org/dev/peps/pep-0563/

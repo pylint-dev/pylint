@@ -39,6 +39,8 @@ import astroid
 from astroid import decorators
 from astroid import modutils
 from astroid import objects
+
+from pylint.checkers.utils import is_postponed_evaluation_enabled
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.utils import get_global_option
 from pylint.checkers import BaseChecker
@@ -473,6 +475,7 @@ class VariablesChecker(BaseChecker):
         self._checking_mod_attr = None
         self._loop_variables = []
         self._type_annotation_names = []
+        self._postponed_evaluation_enabled = False
 
     # Relying on other checker's options, which might not have been initialized yet.
     @decorators.cachedproperty
@@ -518,6 +521,8 @@ class VariablesChecker(BaseChecker):
         checks globals doesn't overrides builtins
         """
         self._to_consume = [NamesConsumer(node, 'module')]
+        self._postponed_evaluation_enabled = is_postponed_evaluation_enabled(node)
+
         for name, stmts in node.locals.items():
             if utils.is_builtin(name) and not utils.is_inside_except(stmts[0]):
                 if self._should_ignore_redefined_builtin(stmts[0]) or name == '__doc__':
@@ -1194,6 +1199,7 @@ class VariablesChecker(BaseChecker):
 
             # checks for use before assignment
             defnode = utils.assign_parent(current_consumer.to_consume[name][0])
+
             if defnode is not None:
                 self._check_late_binding_closure(node, defnode)
                 defstmt = defnode.statement()
@@ -1226,11 +1232,20 @@ class VariablesChecker(BaseChecker):
                             or annotation_return
                             or isinstance(defstmt, astroid.Delete)):
                         if not utils.node_ignores_exception(node, NameError):
-                            self.add_message('undefined-variable', args=name,
-                                             node=node)
+
+                            # Handle postponed evaluation of annotations
+                            if not (self._postponed_evaluation_enabled
+                                    and annotation_return
+                                    and name in node.root().locals):
+                                self.add_message('undefined-variable', args=name,
+                                                 node=node)
                     elif base_scope_type != 'lambda':
                         # E0601 may *not* occurs in lambda scope.
-                        self.add_message('used-before-assignment', args=name, node=node)
+
+                        # Handle postponed evaluation of annotations
+                        if not (self._postponed_evaluation_enabled
+                                and isinstance(stmt, astroid.FunctionDef)):
+                            self.add_message('used-before-assignment', args=name, node=node)
                     elif base_scope_type == 'lambda':
                         # E0601 can occur in class-level scope in lambdas, as in
                         # the following example:
