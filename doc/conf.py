@@ -108,7 +108,7 @@ html_theme_options = {
     'collapsiblesidebar': True,
     'issues_url': 'https://github.com/pycqa/pylint/issues/new',
     'root_name': 'PyCQA',
-    'root_url': 'https://pylint.pycqa.org',
+    'root_url': 'http://meta.pycqa.org/en/latest/',
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
