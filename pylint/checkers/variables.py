@@ -1360,7 +1360,16 @@ class VariablesChecker(BaseChecker):
 
     def _check_self_cls_assign(self, node):
         """Check that self/cls don't get assigned"""
+        assign_names = {target.name for target in node.targets
+                        if isinstance(target, astroid.AssignName)}
         scope = node.scope()
+        nonlocals_with_same_name = any(
+            child for child in scope.body
+            if isinstance(child, astroid.Nonlocal) and assign_names & set(child.names)
+        )
+        if nonlocals_with_same_name:
+            scope = node.scope().parent.scope()
+
         if not (isinstance(scope, astroid.scoped_nodes.FunctionDef) and
                 scope.is_method() and
                 "builtins.staticmethod" not in scope.decoratornames()):

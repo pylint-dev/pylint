@@ -1,6 +1,6 @@
 """Warning about assigning self/cls variable."""
 from __future__ import print_function
-
+# pylint: disable=too-few-public-methods
 
 class Foo(object):
     """Class with methods that check for self/cls assignment"""
@@ -31,3 +31,17 @@ class Foo(object):
 def free_foo(bar_, lala):
     """Free function, no warnings"""
     bar_ = lala
+
+
+class TestNonLocal:
+    """Test class for nonlocal assignment of self"""
+
+    def function(self, param):
+        """This function uses nonlocal to reassign self"""
+
+        def _set_param(param):
+            nonlocal self
+            self = param  # [self-cls-assignment]
+
+        _set_param(param)
+        return self
