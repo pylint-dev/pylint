@@ -243,6 +243,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         elif isinstance(first_branch, astroid.Assign):
             if not isinstance(else_branch, astroid.Assign):
                 return
+
+            # Check if we assign to the same value
+            first_branch_targets = [
+                target.name for target in first_branch.targets
+                if isinstance(target, astroid.AssignName)
+            ]
+            else_branch_targets = [
+                target.name for target in else_branch.targets
+                if isinstance(target, astroid.AssignName)
+            ]
+            if sorted(first_branch_targets) != sorted(else_branch_targets):
+                return
+
             first_branch_is_bool = self._is_bool_const(first_branch)
             else_branch_is_bool = self._is_bool_const(else_branch)
             reduced_to = "'var = bool(test)'"

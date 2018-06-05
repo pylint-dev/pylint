@@ -7,6 +7,10 @@ What's New in Pylint 2.0?
 
 Release date: |TBA|
 
+    * `simplifiable-if-statement` takes in account only when assigning to same targets
+
+       Close #1984
+
     * Make `len-as-condition` test more cases, such as `len() < 1` or `len <= 0'
 
     * Fix false-positive ``line-too-long`` message emission for
