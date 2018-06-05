@@ -1,6 +1,6 @@
 
-README for Pylint - http://www.pylint.org/
-==========================================
+README for Pylint - http://pylint.pycqa.org/
+============================================
 
 .. image:: https://travis-ci.org/PyCQA/pylint.svg?branch=master
     :target: https://travis-ci.org/PyCQA/pylint
@@ -72,7 +72,7 @@ may be found in the user manual in the *doc* subdirectory.
 Documentation
 -------------
 
-Look in the doc/ subdirectory or at http://docs.pylint.org
+Look in the doc/ subdirectory or at http://pylint.pycqa.org/
 
 Pylint is shipped with following additional commands:
 
