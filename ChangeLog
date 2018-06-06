@@ -7,6 +7,11 @@ What's New in Pylint 2.0?
 
 Release date: |TBA|
 
+    * Inferred classes at a function level no longer emit `invalid-name`
+      when they don't respect the variable regular expression
+
+      Close #1049
+
     * Added basic support for postponed evaluation of function annotations.
 
       Close #2069

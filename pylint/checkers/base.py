@@ -1485,6 +1485,13 @@ class NameChecker(_BasicChecker):
 
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
+        def _should_exempt_from_invalid_name(node):
+            if node_type == 'variable':
+                inferred = utils.safe_infer(node)
+                if isinstance(inferred, astroid.ClassDef):
+                    return True
+            return False
+
         if utils.is_inside_except(node):
             clobbering, _ = utils.clobber_in_except(node)
             if clobbering:
@@ -1504,7 +1511,7 @@ class NameChecker(_BasicChecker):
             warnings = bad_name_group.setdefault(match.lastgroup, [])
             warnings.append((node, node_type, name, confidence))
 
-        if match is None:
+        if match is None and not _should_exempt_from_invalid_name(node):
             self._raise_name_warning(node, node_type, name, confidence)
 
     def _check_assign_to_new_keyword_violation(self, name, node):
