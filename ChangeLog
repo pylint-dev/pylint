@@ -11,6 +11,10 @@ Release date: |TBA|
 
       Close #2069
 
+    * Fix a bug with `missing-kwoa` and variadics parameters
+
+      Close #1111
+
     * `simplifiable-if-statement` takes in account only when assigning to same targets
 
        Close #1984
