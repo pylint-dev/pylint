@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,no-self-use,unused-argument,pointless-statement
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,no-name-in-module
 from __future__ import annotations
 
 class Class:
