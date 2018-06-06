@@ -259,4 +259,10 @@ Other Changes
   When modules are imported under ``typing.TYPE_CHECKING`` guard, **pylint**
   will no longer emit *unused-import*.
 
+* ``assignment-from-no-return`` considers methods as well as functions.
+
+  If you have a method that doesn't return a value, but later on you assign
+  a value to a function call to that method (so basically it will be `None`),
+  then **pylint** is going to emit an ``assignment-from-no-return`` error.
+
 .. _PEP 563: https://www.python.org/dev/peps/pep-0563/

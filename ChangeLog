@@ -7,6 +7,10 @@ What's New in Pylint 2.0?
 
 Release date: |TBA|
 
+    * `assignment-from-no-return` considers methods as well.
+
+       Close #2081
+
     * Support typing.TYPE_CHECKING for *unused-import* errors
 
       Close #1948

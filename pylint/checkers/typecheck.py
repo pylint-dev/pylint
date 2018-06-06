@@ -796,11 +796,16 @@ accessed. Python regular expressions are accepted.'}
             return
         function_node = safe_infer(node.value.func)
         # skip class, generator and incomplete function definition
-        if not (isinstance(function_node, astroid.FunctionDef) and
+        funcs = (
+            astroid.FunctionDef,
+            astroid.UnboundMethod,
+            astroid.BoundMethod,
+        )
+        if not (isinstance(function_node, funcs) and
                 function_node.root().fully_defined()):
             return
-        if function_node.is_generator() \
-               or function_node.is_abstract(pass_is_abstract=False):
+        if (function_node.is_generator()
+               or function_node.is_abstract(pass_is_abstract=False)):
             return
         returns = list(function_node.nodes_of_class(astroid.Return,
                                                     skip_klass=astroid.FunctionDef))
