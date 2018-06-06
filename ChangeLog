@@ -2,14 +2,28 @@
 Pylint's ChangeLog
 ------------------
 
-What's New in Pylint 1.9.x?
+What's New in Pylint 1.9.2?
 ===========================
 
 
-Release date:
+Release date: 2018-06-06
 
-    * Fix `KeyError` raised when using docparams and NotImplementedError is
-documented.
+    * Fix `KeyError` raised when using docparams and NotImplementedError is documented.
+
+    * Don't include excepthandlers that don't have a name when looking for exception-escape
+
+    * Rewrite the comprehension-escape and exception-escape to work only on the corresponding nodes
+
+    These two checks were implemented in terms of visit_namne, that is, for every name in the tree,
+    we looked to see if that name leaked. This was resulting in a couple of false positives
+    and also in a performance issue, since we were calling nodes_of_class() and scope() for each
+    name node. Instead, this approach uses the visit methods for exception and comprehension nodes
+    and looks to see from there if the current scope uses leaked names.
+    This is not the ideal situation as well, ideal would be to have access to the definition
+    frame of each name, but that requires some extra engineering effort in astroid to get it right.
+    Close #2106
+
+    * builtins is allowed to redefine builtins. Close #1966
 
 
 What's New in Pylint 1.9.1?
