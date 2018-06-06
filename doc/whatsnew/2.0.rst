@@ -254,4 +254,9 @@ Other Changes
 
 * Fix emitting ``useless-super-delegation`` when changing the default value of keyword arguments.
 
+* Support ``typing.TYPE_CHECKING`` for *unused-import* errors
+
+  When modules are imported under ``typing.TYPE_CHECKING`` guard, **pylint**
+  will no longer emit *unused-import*.
+
 .. _PEP 563: https://www.python.org/dev/peps/pep-0563/

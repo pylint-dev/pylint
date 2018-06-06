@@ -16,3 +16,13 @@ class SomeClass(object):
     SomeOtherName = SomeOtherName
 
 from never import __all__
+# pylint: disable=wrong-import-order,ungrouped-imports
+import typing
+
+
+if typing.TYPE_CHECKING:
+    import collections
+
+
+def get_ordered_dict() -> 'collections.OrderedDict':
+    return []

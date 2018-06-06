@@ -598,6 +598,15 @@ class VariablesChecker(BaseChecker):
                             # when the file will be checked
                             pass
 
+    @staticmethod
+    def _is_type_checking_import(node):
+        parent = node.parent
+        if (not isinstance(parent, astroid.If)
+                or not isinstance(parent.test, astroid.Attribute)):
+            return False
+        test = parent.test
+        return test.as_string() == 'typing.TYPE_CHECKING'
+
     def _check_globals(self, not_consumed):
         if self._allow_global_unused_variables:
             return
@@ -634,7 +643,8 @@ class VariablesChecker(BaseChecker):
                         msg = "import %s" % imported_name
                     else:
                         msg = "%s imported as %s" % (imported_name, as_name)
-                    self.add_message('unused-import', args=msg, node=stmt)
+                    if not self._is_type_checking_import(stmt):
+                        self.add_message('unused-import', args=msg, node=stmt)
                 elif (isinstance(stmt, astroid.ImportFrom)
                       and stmt.modname != FUTURE):
 
@@ -661,7 +671,8 @@ class VariablesChecker(BaseChecker):
                         else:
                             fields = (imported_name, stmt.modname, as_name)
                             msg = "%s imported from %s as %s" % fields
-                        self.add_message('unused-import', args=msg, node=stmt)
+                        if not self._is_type_checking_import(stmt):
+                            self.add_message('unused-import', args=msg, node=stmt)
         del self._to_consume
 
     def visit_classdef(self, node):
