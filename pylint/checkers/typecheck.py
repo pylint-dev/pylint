@@ -805,7 +805,7 @@ accessed. Python regular expressions are accepted.'}
                 function_node.root().fully_defined()):
             return
         if (function_node.is_generator()
-               or function_node.is_abstract(pass_is_abstract=False)):
+                or function_node.is_abstract(pass_is_abstract=False)):
             return
         returns = list(function_node.nodes_of_class(astroid.Return,
                                                     skip_klass=astroid.FunctionDef))
