@@ -358,15 +358,19 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
 def _determine_callable(callable_obj):
     # Ordering is important, since BoundMethod is a subclass of UnboundMethod,
     # and Function inherits Lambda.
+    parameters = 0
+    if hasattr(callable_obj, 'implicit_parameters'):
+        # TODO: replace with a Callable check
+        parameters = callable_obj.implicit_parameters()
     if isinstance(callable_obj, astroid.BoundMethod):
         # Bound methods have an extra implicit 'self' argument.
-        return callable_obj, 1, callable_obj.type
+        return callable_obj, parameters, callable_obj.type
     if isinstance(callable_obj, astroid.UnboundMethod):
-        return callable_obj, 0, 'unbound method'
+        return callable_obj, parameters, 'unbound method'
     if isinstance(callable_obj, astroid.FunctionDef):
-        return callable_obj, 0, callable_obj.type
+        return callable_obj, parameters, callable_obj.type
     if isinstance(callable_obj, astroid.Lambda):
-        return callable_obj, 0, 'lambda'
+        return callable_obj, parameters, 'lambda'
     if isinstance(callable_obj, astroid.ClassDef):
         # Class instantiation, lookup __new__ instead.
         # If we only find object.__new__, we can safely check __init__
@@ -395,7 +399,7 @@ def _determine_callable(callable_obj):
         if not isinstance(callable_obj, astroid.FunctionDef):
             raise ValueError
         # both have an extra implicit 'cls'/'self' argument.
-        return callable_obj, 1, 'constructor'
+        return callable_obj, parameters, 'constructor'
     else:
         raise ValueError
 
