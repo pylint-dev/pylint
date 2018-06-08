@@ -1821,37 +1821,23 @@ class ComparisonChecker(_BasicChecker):
         if operator not in ('==', '!=', '<', '>', '<=', '>='):
             return
 
-        def get_all_callable(node, callables):
-            if not isinstance(node, list):
-                return
-            for item in node:
-                if isinstance(item, astroid.FunctionDef):
-                    # skip properties as they calling them without parenthesis is valid case.
-                    decorator = item.decorators.nodes[0] if item.decorators else None
-                    decorator_name = None
-                    if decorator and isinstance(decorator, astroid.Name):
-                        decorator_name = decorator.name
-                    elif decorator and isinstance(decorator, astroid.Attribute):
-                        decorator_name = decorator.attrname
-
-                    if not decorator or (decorator_name and
-                                         decorator_name not in ('property', 'setter', 'deleter')):
-                        callables.add(item.name)
-               elif isinstance(item, astroid.ClassDef):
-                    get_all_callable(item.body, callables)
-
-        functions = set()
-        get_all_callable(node.frame().body, functions)
+        def _is_bare_callable(node):
+            bare_callables = (astroid.FunctionDef, astroid.BoundMethod)
+            if (isinstance(node, bare_callables) or
+                    isinstance(utils.safe_infer(node), bare_callables)):
+                return True
+            return False
 
         left_operand, right_operand = node.left, node.ops[0][1]
-        names = []
-        for operand in [left_operand, right_operand]:
-            if isinstance(operand, astroid.Name) and operand.name in functions:
-                names.append(operand.name)
-            elif isinstance(operand, astroid.Attribute) and operand.attrname in functions:
-                names.append(operand.attrname)
-        # len(names) == 2 means that comparison compares two bare callables which is valid
-        if len(names) == 1:
+        bare_callables_count = [True for operand in (left_operand, right_operand)
+                                if _is_bare_callable(operand)]
+        # this message should be emitted only when there is comparison of bare callable
+        #  with non bare callable.
+        # len(bare_callables_count) == 2 means that comparison compares two bare
+        # callables which is valid.
+        # len(bare_callables_count) == 0 means that comparison compares two non bare
+        # callables which is also valid.
+        if len(bare_callables_count) == 1:
             self.add_message('comparison-with-callable', node=node)
 
     @utils.check_messages('singleton-comparison', 'misplaced-comparison-constant',

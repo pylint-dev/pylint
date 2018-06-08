@@ -50,3 +50,11 @@ if obj1.fake_method != 786: # [comparison-with-callable]
 
 if obj1.fake_method != obj2.fake_property: # [comparison-with-callable]
     pass
+
+if 666 == 786:
+    pass
+
+a = 666
+b = 786
+if a == b:
+    pass
