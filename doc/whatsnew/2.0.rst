@@ -265,4 +265,13 @@ Other Changes
   a value to a function call to that method (so basically it will be `None`),
   then **pylint** is going to emit an ``assignment-from-no-return`` error.
 
+* A new flag was added, ``--ignore-none`` which controls the **no-member**
+  behaviour with respect to ``None`` values.
+
+  Previously **pylint** was not emitting **no-member** if it inferred that
+  the owner of an attribute access is a ``None`` value. In some cases,
+  this might actually cause bugs, so if you want to check for ``None`` values
+  as well, pass ``--ignore-none=n`` to pylint.
+
+
 .. _PEP 563: https://www.python.org/dev/peps/pep-0563/

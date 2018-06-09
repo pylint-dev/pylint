@@ -7,6 +7,8 @@ What's New in Pylint 2.0?
 
 Release date: |TBA|
 
+    * Add `--ignore-none` flag to control if pylint should warn about `no-member` where the owner is None
+
     * Fix a false positive related to `too-many-arguments` and bounded `__get__` methods
 
       Close #2172

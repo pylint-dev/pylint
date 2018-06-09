@@ -307,7 +307,7 @@ SEQUENCE_TYPES = {
 }
 
 
-def _emit_no_member(node, owner, owner_name, ignored_mixins):
+def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=True):
     """Try to see if no-member should be emitted for the given owner.
 
     The following cases are ignored:
@@ -321,8 +321,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
     """
     if node_ignores_exception(node, AttributeError):
         return False
-    # skip None anyway
-    if isinstance(owner, astroid.Const) and owner.value is None:
+    if ignored_none and isinstance(owner, astroid.Const) and owner.value is None:
         return False
     if is_super(owner) or getattr(owner, 'type', None) == 'metaclass':
         return False
@@ -565,6 +564,12 @@ class TypeChecker(BaseChecker):
 class should be ignored. A mixin class is detected if its name ends with \
 "mixin" (case insensitive).'}
                ),
+               ('ignore-none',
+                {'default': True, 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': 'Tells whether to warn about missing members when the owner '
+                         'of the attribute is inferred to be None'
+                }
+                ),
                ('ignored-modules',
                 {'default': (),
                  'type': 'csv',
@@ -750,7 +755,8 @@ accessed. Python regular expressions are accepted.'}
                 # attribute, then we'll have a false positive.
                 # So call this only after the call has been made.
                 if not _emit_no_member(node, owner, name,
-                                       self.config.ignore_mixin_members):
+                                       ignored_mixins=self.config.ignore_mixin_members,
+                                       ignored_none=self.config.ignore_none):
 
                     continue
                 missingattr.add((owner, name))
