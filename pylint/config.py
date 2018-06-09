@@ -424,10 +424,10 @@ class CLIParser(ConfigParser):
             group, args, kwargs = self._convert_definition(option, definition)
             option_groups[group].append((args, kwargs))
 
-        for args, kwargs in option_groups["DEFAULT"]:
+        for args, kwargs in option_groups["MASTER"]:
             self._parser.add_argument(*args, **kwargs)
 
-        del option_groups["DEFAULT"]
+        del option_groups["MASTER"]
 
         for group, arguments in option_groups.items():
             self._option_groups.add(group)
@@ -480,7 +480,7 @@ class CLIParser(ConfigParser):
         if definition.get("hide"):
             kwargs["help"] = argparse.SUPPRESS
 
-        group = definition.get("group", "DEFAULT").upper()
+        group = definition.get("group", "MASTER").upper()
         return group, args, kwargs
 
     def parse(self, to_parse, config):
@@ -563,7 +563,9 @@ class IniFileParser(FileParser):
 
     def __init__(self):
         super(IniFileParser, self).__init__()
-        self._parser = configparser.ConfigParser(inline_comment_prefixes=("#", ";"))
+        self._parser = configparser.ConfigParser(
+            inline_comment_prefixes=("#", ";"), default_section="MASTER"
+        )
 
     def add_option_definitions(self, option_definitions):
         self._option_definitions.update(option_definitions)
@@ -579,7 +581,7 @@ class IniFileParser(FileParser):
                     self._option_groups.add(group)
 
             if default is not None:
-                self._parser["DEFAULT"].update(default)
+                self._parser["MASTER"].update(default)
 
     @staticmethod
     def _convert_definition(option, definition):
@@ -599,7 +601,7 @@ class IniFileParser(FileParser):
             default_value = unvalidator(definition["default"])
             default = {option: default_value}
 
-        group = definition.get("group", "DEFAULT").upper()
+        group = definition.get("group", "MASTER").upper()
         return group, default
 
     def parse(self, to_parse, config):
