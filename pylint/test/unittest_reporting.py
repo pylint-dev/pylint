@@ -17,7 +17,7 @@ from io import StringIO
 import pylint.config
 from pylint.lint import PluginRegistry, PyLinter
 from pylint import checkers
-from pylint.reporters.text import TextReporter, ParseableTextReporter
+from pylint.reporters.text import TextReporter
 import pytest
 
 
@@ -43,36 +43,6 @@ def test_template_option(linter):
         '************* Module 0123\n' \
         'C0301:001\n' \
         'C0301:002\n'
-
-
-def test_parseable_output_deprecated():
-    with warnings.catch_warnings(record=True) as cm:
-        warnings.simplefilter("always")
-        ParseableTextReporter()
-
-    assert len(cm) == 1
-    assert isinstance(cm[0].message, DeprecationWarning)
-
-
-def test_parseable_output_regression():
-    output = StringIO()
-    with warnings.catch_warnings(record=True):
-        global_config = pylint.config.Configuration()
-        linter = PyLinter(global_config)
-        registry = PluginRegistry(linter, register_options=global_config.add_options)
-        linter.set_reporter(ParseableTextReporter())
-
-    checkers.initialize(registry)
-    linter.config.persistent = 0
-    linter.reporter.set_output(output)
-    linter.config.output_format = 'parseable'
-    linter.open()
-    linter.set_current_module('0123')
-    linter.add_message('line-too-long', line=1, args=(1, 2))
-    assert output.getvalue() == \
-        '************* Module 0123\n' \
-        '0123:1: [C0301(line-too-long), ] ' \
-        'Line too long (1/2)\n'
 
 
 def test_display_results_is_renamed():
