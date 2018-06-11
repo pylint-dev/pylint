@@ -374,7 +374,7 @@ class ConfigurationStore(object):
 
 class ConfigParser(metaclass=abc.ABCMeta):
     def __init__(self):
-        self._option_definitions = {}
+        self._option_definitions = collections.OrderedDict()
         self._option_groups = set()
 
     def add_option_definitions(self, option_definitions):
@@ -534,28 +534,6 @@ class FileParser(ConfigParser, metaclass=abc.ABCMeta):
         pass
 
 
-def make_commenter(description):
-    """Make a function to add comments from re.sub."""
-    def make_comment(match):
-        """Make the replacement string including commented desciption."""
-        comment = '\n'.join(
-            '# {}'.format(line) for line in textwrap.wrap(description))
-        return match.expand(r'{}\n\g<0>'.format(comment))
-    return make_comment
-
-
-def make_commented_config_text(option_definitions, config_text):
-    """Make config ini text with descriptions added as comments."""
-    for name, definition in option_definitions.items():
-        config_text = re.sub(
-            r'^{}[ =]'.format(re.escape(name)),
-            make_commenter(definition['help']),
-            config_text,
-            flags=re.MULTILINE
-        )
-    return config_text
-
-
 class IniFileParser(FileParser):
     """Parses a config files into config objects."""
 
@@ -603,9 +581,7 @@ class IniFileParser(FileParser):
         group = definition.get('group', 'MASTER').upper()
         return group, default
 
-    def parse(self, to_parse, config):
-        self._parser.read(to_parse)
-
+    def apply_to_configuration(self, configuration):
         for section in self._parser.sections():
             # Normalise the section titles
             if not section.isupper():
@@ -621,15 +597,69 @@ class IniFileParser(FileParser):
                     type_ = definition.get('type')
                     validator = VALIDATORS.get(type_, lambda x: x)
                     value = validator(value)
-                config.set_option(option, value)
+                configuration.set_option(option, value)
+
+    def parse(self, to_parse, config):
+        self._parser.read(to_parse)
+        self.apply_to_configuration(config)
 
     def write(self, stream=sys.stdout):
-        with six.StringIO() as temp_stream:
-            self._parser.write(temp_stream)
-            config_text = temp_stream.getvalue()
-        config_text = make_commented_config_text(
-            self._option_definitions, config_text)
-        stream.write(config_text)
+        """
+        Write out config to stream.
+
+        Includes option help and options with default values as
+        comments.
+        """
+        # We can't reuse self._parser because it doesn't have the help
+        # comments. allow_no_value lets us add comments as keys.
+        write_parser = configparser.ConfigParser(
+            default_section='MASTER',
+            allow_no_value=True,
+        )
+
+        # This makes keys case sensitive, needed for preserving comment
+        # formatting.
+        write_parser.optionxform = str
+
+        configuration = Configuration()
+        self.apply_to_configuration(configuration)
+        config_set_args = self.make_set_args(
+            self._option_definitions,
+            configuration
+        )
+        for args in config_set_args:
+            section = args[0]
+            if section != 'MASTER' and not write_parser.has_section(section):
+                write_parser.add_section(section)
+            write_parser.set(*args)
+        write_parser.write(stream)
+
+    @staticmethod
+    def make_set_args(option_definitions, configuration):
+        """Make args for configparser.ConfigParser.set."""
+        for option, definition in option_definitions.items():
+            section = definition.get('group', 'MASTER').upper()
+            help_lines = [
+                '# {}'.format(line)
+                for line in textwrap.wrap(definition.get('help', ''))
+            ]
+            for help_line in help_lines:
+                # Calling set with only two args does not leave an =
+                # symbol at the end of the line.
+                yield (section, help_line)
+            default = definition.get('default')
+            option_type = definition.get('type', 'string')
+            value = getattr(configuration, option)
+            if option_type == 'csv':
+                str_value = ',\n'.join(value)
+            else:
+                str_value = UNVALIDATORS[option_type](value)
+            if value == default:
+                key = '# {}'.format(option)
+                str_value = '\n# '.join(str_value.split('\n'))
+            else:
+                key = option
+            yield (section, key, str_value)
 
 
 class LongHelpFormatter(argparse.HelpFormatter):

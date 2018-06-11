@@ -9,6 +9,7 @@
 
 """Unit tests for the config module."""
 
+from argparse import Namespace
 import re
 import sre_constants
 
@@ -59,60 +60,127 @@ def test__regexp_csv_validator_invalid():
 
 
 @pytest.mark.comments
-def test_make_commenter():
-    """Test make_commenter."""
-    commenter = config.make_commenter(
-        (
-            'This is a long description, I am trying to test wrapping '
-            'works OK. I hope this test passes.'
-        )
-    )
-    match = re.match('^check ', 'check = hey')
+def test_make_set_args_default():
+    """Test IniFileParser.make_set_args comments default values."""
     assert (
-        commenter(match) ==
-        (
-            '# This is a long description, I am trying to test '
-            'wrapping works OK. I\n'
-            '# hope this test passes.\n'
-            'check '
-        )
+        list(config.IniFileParser.make_set_args(
+            {
+                'validate': {
+                    'help': 'Validate something.',
+                    'group': 'checks',
+                    'default': 'strictly'
+                }
+            },
+            Namespace(validate='strictly')
+        )) ==
+        [
+            ('CHECKS', '# Validate something.'),
+            ('CHECKS', '# validate', 'strictly'),
+        ]
     )
 
 
 @pytest.mark.comments
-def test_make_commented_config_text():
-    """Test make_commented_config_text."""
+def test_make_set_args_long():
+    """Test IniFileParser.make_set_args wraps long help comments."""
     assert (
-        config.make_commented_config_text(
+        list(config.IniFileParser.make_set_args(
             {
-                'check': {'help': 'Check something.'},
-                'validate': {'help': 'Validate a thing.'},
+                'check': {
+                    'help': (
+                        'Check something. I am continuing to type '
+                        'because I want a long line to test multiline '
+                        'comments.'
+                    ),
+                    'group': 'checks'
+                }
             },
-            'check = 1\nvalidate=2\nother = 3'
-        ) ==
-        (
-            '# Check something.\n'
-            'check = 1\n'
-            '# Validate a thing.\n'
-            'validate=2\n'
-            'other = 3'
-        )
+            Namespace(check='1')
+        )) ==
+        [
+            (
+                'CHECKS',
+                (
+                    '# Check something. I am continuing to type '
+                    'because I want a long line to'
+                )
+            ),
+            ('CHECKS', '# test multiline comments.'),
+            ('CHECKS', 'check', '1'),
+        ]
+    )
+
+
+@pytest.mark.comments
+def test_make_set_args_csv():
+    """Test IniFileParser.make_set_args writes multiline csv values."""
+    assert (
+        list(config.IniFileParser.make_set_args(
+            {
+                'assess': {
+                    'help': 'Assess something.',
+                    'group': 'checks',
+                    'type': 'csv'
+                }
+            },
+            Namespace(assess=['somewhat', 'completely'])
+        )) ==
+        [
+            ('CHECKS', '# Assess something.'),
+            ('CHECKS', 'assess', 'somewhat,\ncompletely'),
+        ]
+    )
+
+
+@pytest.mark.comments
+def test_make_set_args_comment_csv():
+    """Test IniFileParser.make_set_args comments out every line."""
+    assert (
+        list(config.IniFileParser.make_set_args(
+            {
+                'confirm': {
+                    'help': 'Confirm something.',
+                    'group': 'checks',
+                    'type': 'csv',
+                    'default': ['present', 'accurate']
+                }
+            },
+            Namespace(confirm=['present', 'accurate'])
+        )) ==
+        [
+            ('CHECKS', '# Confirm something.'),
+            ('CHECKS', '# confirm', 'present,\n# accurate'),
+        ]
     )
 
 
 @pytest.mark.comments
 def test_write(tmpdir):
-    """Test IniFileParser.write."""
+    """Test IniFileParser.write writes and INI file with comments."""
     parser = config.IniFileParser()
     parser.add_option_definitions(
         (
-            ('check', {'help': 'Check something.', 'group': 'checks'}),
+            (
+                'check',
+                {
+                    'help': 'Check something.',
+                    'group': 'checks'
+                }
+            ),
         )
     )
     config_path = tmpdir.join('config.cfg')
-    config_path.write('[checks]\ncheck = 1')
+    config_path.write(
+        '[CHECKS]\n'
+        'check = 1'
+    )
     parser.parse(str(config_path), config.Configuration())
     output_path = tmpdir.join('output.cfg')
     with output_path.open('w') as output:
         parser.write(stream=output)
-    assert output_path.read() == '[CHECKS]\n# Check something.\ncheck = 1\n\n'
+    assert output_path.read() == (
+        '[CHECKS]\n'
+        '# Check something.\n'
+        'check = 1\n'
+        '\n'
+    )
