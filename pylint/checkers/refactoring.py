@@ -607,60 +607,38 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not all(isinstance(value, astroid.Compare) for value in node.values):
             return
 
-        # collect all compares as tuple
-        Comparison = collections.namedtuple('Comparison', ['left_operand',
-                                                           'right_operand',
-                                                           'operator'])
-        names = []
-        comparisons = []
-        for comparison_node in node.values:
+        def _find_lower_upper_bounds(comparison_node, l_bounds, u_bounds):
             operator = comparison_node.ops[0][0]
-            if operator in ('==', '!='):
-                continue
-            right_operand = None
-            left_operand = None
-            if isinstance(comparison_node.left, astroid.Name):
-                names.append(comparison_node.left.name)
-                left_operand = (comparison_node.left.name, 'name')
-            elif isinstance(comparison_node.left, astroid.Const):
-                left_operand = (comparison_node.left.name, 'const')
+            left_operand, right_operand = comparison_node.left, comparison_node.ops[0][1]
+            for operand in (left_operand, right_operand):
+                value = None
+                if isinstance(operand, astroid.Name):
+                    value = operand.name
+                elif isinstance(operand, astroid.Const):
+                    value = operand.value
 
-            if isinstance(comparison_node.ops[0][1], astroid.Name):
-                names.append(comparison_node.ops[0][1].name)
-                right_operand = (comparison_node.ops[0][1].name, 'name')
-            elif isinstance(comparison_node.ops[0][1], astroid.Const):
-                right_operand = (comparison_node.ops[0][1], 'const')
+                if not value:
+                    continue
 
-            if left_operand is None or right_operand is None:
-                continue
-            comparisons.append(Comparison(left_operand, right_operand, operator))
+                if operator in ('<', '<='):
+                    if operand is left_operand:
+                        l_bounds.append(value)
+                    else:
+                        u_bounds.append(value)
+                elif operator in ('>', '>='):
+                    if operand is left_operand:
+                        u_bounds.append(value)
+                    else:
+                        l_bounds.append(value)
 
-        counter = collections.Counter(names)
-        for item in counter.items():
-            if item[1] > 1:
-               # variable with only single occurrence need not to be analyzed
-                lower_bound = False
-                upper_bound = False
-                # search this name in comparisons
-                for comparison in comparisons:
-                    if (comparison.left_operand[1] == 'name'
-                            and comparison.left_operand[0] == item[0]):
-                        if comparison.operator == '<' or comparison.operator == '<=':
-                            upper_bound = True
-                        elif comparison.operator == '>' or comparison.operator == '>=':
-                            lower_bound = True
-                    elif (comparison.right_operand[1] == 'name'
-                          and comparison.right_operand[0] == item[0]):
-                        if comparison.operator == '<' or comparison.operator == '<=':
-                            lower_bound = True
-                        elif comparison.operator == '>' or comparison.operator == '>=':
-                            upper_bound = True
+        lower_bounds = []
+        upper_bounds = []
+        for comparison_node in node.values:
+            _find_lower_upper_bounds(comparison_node, lower_bounds, upper_bounds)
 
-                    # chained comparison is possible only if both lower value and upper value
-                    # exists.
-                    if lower_bound and upper_bound:
-                        self.add_message('chained-comparison',
-                                         node=node)
+        if set(lower_bounds).intersection(upper_bounds):
+            self.add_message('chained-comparison',
+                             node=node)
 
     @utils.check_messages('consider-merging-isinstance', 'consider-using-in',
                           'chained-comparison')
