@@ -1353,7 +1353,7 @@ group are mutually exclusive.'),
             sys.exit(32)
 
         if linter.config.jobs < 0:
-            print("Jobs number (%d) should be greater than 0"
+            print("Jobs number (%d) should be greater than or equal to 0"
                   % linter.config.jobs, file=sys.stderr)
             sys.exit(32)
         if linter.config.jobs > 1 or linter.config.jobs == 0:
