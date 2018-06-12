@@ -402,7 +402,7 @@ class _ManHelpFormatter(optparse.HelpFormatter):
 
     @staticmethod
     def format_title(pgm, section):
-        date = '-'.join(str(num) for num in time.localtime()[:3])
+        date = '%d-%02d-%02d' % time.localtime()[:3]
         return '.TH %s %s "%s" %s' % (pgm, section, date, pgm)
 
     @staticmethod
