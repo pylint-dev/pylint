@@ -53,7 +53,7 @@ Pickle collected data for later comparisons. [current: yes]
 .IP "--load-plugins=<modules>"
 List of plugins (as comma separated values of python modules names) to load, usually to register additional checkers. [current: none]
 .IP "--jobs=<n-processes>, -j <n-processes>"
-Use multiple processes to speed up Pylint. [current: 1]
+Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use. [current: 1]
 .IP "--extension-pkg-whitelist=<pkg[,pkg]>"
 A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into the active Python interpreter and may run arbitrary code [current: none]
 
