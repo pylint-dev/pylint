@@ -398,7 +398,8 @@ class PyLinter(config.OptionsManagerMixIn,
                  {'type' : 'int', 'metavar': '<n-processes>',
                   'short': 'j',
                   'default': 1,
-                  'help' : '''Use multiple processes to speed up Pylint.''',
+                  'help' : 'Use multiple processes to speed up Pylint. Specifying 0 will '
+                           'auto-detect the number of processors available to use.',
                  }),
 
                 ('unsafe-load-any-extension',
