@@ -748,7 +748,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return True
         if isinstance(node, astroid.Call):
             try:
-                funcdef_node = node.func.infered()[0]
+                funcdef_node = node.func.inferred()[0]
                 if self._is_function_def_never_returning(funcdef_node):
                     return True
             except astroid.InferenceError:

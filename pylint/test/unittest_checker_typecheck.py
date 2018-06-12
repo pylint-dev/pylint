@@ -214,7 +214,7 @@ class TestTypeChecker(CheckerTestCase):
         named = Named(1, 2)
         """)
         call = module.body[-1].value
-        callables = call.func.infered()
+        callables = call.func.inferred()
         assert len(callables) == 1
         assert callables[0].callable()
         with self.assertNoMessages():
