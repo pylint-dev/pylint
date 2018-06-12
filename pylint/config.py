@@ -378,6 +378,7 @@ class _ManHelpFormatter(optparse.HelpFormatter):
         if option.help:
             help_text = self.expand_default(option)
             help_string = ' '.join([l.strip() for l in help_text.splitlines()])
+            help_string = help_string.replace('\\', '\\\\')
         else:
             help_string = ''
         return '''.IP "%s"
