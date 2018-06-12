@@ -153,10 +153,10 @@ features.rst: $(shell find ../pylint/checkers -type f -regex '.*\.py')
 
 gen-examples:
 	chmod u+w ../examples/pylintrc
-	pylint --generate-rcfile > ../examples/pylintrc
+	pylint --rcfile=/dev/null --generate-rcfile > ../examples/pylintrc
 
 gen-man:
 	chmod u+w ../man/pylint.1
-	pylint --generate-man > ../man/pylint.1
+	pylint --rcfile=/dev/null --generate-man > ../man/pylint.1
 
 all: html gen-man gen-examples
