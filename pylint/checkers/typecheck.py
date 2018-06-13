@@ -918,7 +918,12 @@ accessed. Python regular expressions are accepted.'}
             # those errors are handled by different warnings.
             return
 
-        num_positional_args += implicit_args
+        # These are coming from the functools.partial implementation in astroid
+        already_filled_positionals = getattr(called, 'filled_positionals', 0)
+        already_filled_keywords = getattr(called, 'filled_keywords', {})
+
+        keyword_args += list(already_filled_keywords)
+        num_positional_args += implicit_args + already_filled_positionals
         if called.args.args is None:
             # Built-in functions have no argument information.
             return
@@ -938,6 +943,7 @@ accessed. Python regular expressions are accepted.'}
             return
 
         # Analyze the list of formal parameters.
+
         num_mandatory_parameters = len(called.args.args) - len(called.args.defaults)
         parameters = []
         parameter_name_to_index = {}
