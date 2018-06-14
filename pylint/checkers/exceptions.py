@@ -366,22 +366,6 @@ class ExceptionsChecker(checkers.BaseChecker):
                 # flags when there is a bare raise
                 if handler.body[0].exc is None:
                     self.add_message('try-except-raise', node=handler)
-                else:
-                    # not a bare raise
-                    raise_type = None
-                    if isinstance(handler.body[0].exc, astroid.Call):
-                        raise_type = handler.body[0].exc.func
-
-                    # flags only when the exception types of the handler
-                    # and the raise statement match b/c we're raising the same
-                    # type of exception that we're trying to handle. Example:
-                    #
-                    # except ValueError:
-                    #   raise ValueError('some user friendly message')
-                    if (isinstance(handler.type, astroid.Name)
-                            and isinstance(raise_type, astroid.Name)
-                            and raise_type.name == handler.type.name):
-                        self.add_message('try-except-raise', node=handler)
 
             if handler.type is None:
                 if not utils.is_raising(handler.body):
