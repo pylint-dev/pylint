@@ -892,7 +892,7 @@ def _modpath_from_file(filename, is_namespace):
     return modutils.modpath_from_file_with_callback(filename, is_package_cb=_is_package_cb)
 
 
-def expand_modules(files_or_modules, black_list, black_list_re):
+def expand_modules(files_or_modules, black_list, black_list_re, lint_all):
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
     """
@@ -939,13 +939,15 @@ def expand_modules(files_or_modules, black_list, black_list_re):
             is_namespace = modutils.is_namespace(spec)
             is_directory = modutils.is_directory(spec)
 
+        # if we're ignoring __init__.py files
+        is_namespace = lint_all or is_namespace
+
         if not is_namespace:
             result.append({'path': filepath, 'name': modname, 'isarg': True,
                            'basepath': filepath, 'basename': modname})
 
         has_init = (not (modname.endswith('.__init__') or modname == '__init__')
                     and basename(filepath) == '__init__.py')
-
         if has_init or is_namespace or is_directory:
             for subfilepath in modutils.get_module_files(dirname(filepath), black_list,
                                                          list_all=is_namespace):

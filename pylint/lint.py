@@ -298,6 +298,12 @@ class PyLinter(config.OptionsManagerMixIn,
                   'help' : 'Add files or directories to the blacklist. '
                            'They should be base names, not paths.'}),
 
+                ('lint-all',
+                 {'default': False, 'type': 'yn', 'metavar': '<y_or_n>',
+                  'help':'When set to False - not processing directories without __init__.py.'
+                         ' When set to True - processsing directories without __init__.py'}),
+
+
                 ('ignore-patterns',
                  {'type' : 'regexp_csv', 'metavar' : '<pattern>[,<pattern>...]',
                   'dest' : 'black_list_re', 'default' : (),
@@ -439,6 +445,7 @@ class PyLinter(config.OptionsManagerMixIn,
         self._checkers = collections.defaultdict(list)
         self._pragma_lineno = {}
         self._ignore_file = False
+        self.lint_all = False
         # visit variables
         self.file_state = utils.FileState()
         self.current_name = None
@@ -923,7 +930,7 @@ class PyLinter(config.OptionsManagerMixIn,
         """get modules and errors from a list of modules and handle errors
         """
         result, errors = utils.expand_modules(modules, self.config.black_list,
-                                              self.config.black_list_re)
+                                              self.config.black_list_re, self.config.lint_all)
         for error in errors:
             message = modname = error["mod"]
             key = error["key"]
