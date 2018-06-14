@@ -113,6 +113,11 @@ def _in_iterating_context(node):
           isinstance(parent.targets[0], (astroid.List, astroid.Tuple))):
         if len(parent.targets[0].elts) > 1:
             return True
+    # If the call is in a containment check, we consider that to
+    # be an iterating context
+    elif (isinstance(parent, astroid.Compare)
+          and len(parent.ops) == 1 and parent.ops[0][0] == 'in'):
+        return True
     return False
 
 
