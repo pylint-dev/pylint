@@ -27,12 +27,13 @@ New checkers
 ============
 * A new check was added, ``comparison-with-callable``.
 
-  This refactoring message is emitted when a comparison involves callable without parenthesis, which if compared
-  can result in unwanted behaviour.
+  This refactoring message is emitted when pylint detects that a comparison with a callable was
+  made, which might suggest that some parenthesis were omitted, resulting in potential unwanted
+  behaviour.
 
   .. code-block:: python
     def foo():
-    return None
+        return None
 
     def goo():
         return None
