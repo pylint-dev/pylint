@@ -152,6 +152,7 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
         ['set()', '{}', '[]'])
 )
 REVERSED_COMPS = {'<': '>', '<=': '>=', '>': '<', '>=': '<='}
+COMPARISON_OPERATORS = frozenset(('==', '!=', '<', '>', '<=', '>='))
 
 
 def _redefines_import(node):
@@ -1731,11 +1732,11 @@ class ComparisonChecker(_BasicChecker):
                       'comparison-with-itself',
                       'Used when something is compared against itself.',
                       ),
-            'W0143': ('Comparing bare callable, might have skipped parenthesis after callable',
+            'W0143': ('Comparing against a callable, did you omit the parenthesis?',
                       'comparison-with-callable',
-                      'Used when callable is used in a comparison without parenthesis, '
-                      'which means instead of comparing result of callable, '
-                      'callable itself is compared',
+                      'This message is emitted when pylint detects that a comparison with a '
+                      'callable was made, which might suggest that some parenthesis were omitted, '
+                      'resulting in potential unwanted behaviour.'
                       ),
 
             }
@@ -1818,26 +1819,15 @@ class ComparisonChecker(_BasicChecker):
 
     def _check_callable_comparison(self, node):
         operator = node.ops[0][0]
-        if operator not in ('==', '!=', '<', '>', '<=', '>='):
+        if operator not in COMPARISON_OPERATORS:
             return
 
-        def _is_bare_callable(node):
-            bare_callables = (astroid.FunctionDef, astroid.BoundMethod)
-            if (isinstance(node, bare_callables) or
-                    isinstance(utils.safe_infer(node), bare_callables)):
-                return True
-            return False
-
+        bare_callables = (astroid.FunctionDef, astroid.BoundMethod)
         left_operand, right_operand = node.left, node.ops[0][1]
-        bare_callables_count = [True for operand in (left_operand, right_operand)
-                                if _is_bare_callable(operand)]
         # this message should be emitted only when there is comparison of bare callable
-        #  with non bare callable.
-        # len(bare_callables_count) == 2 means that comparison compares two bare
-        # callables which is valid.
-        # len(bare_callables_count) == 0 means that comparison compares two non bare
-        # callables which is also valid.
-        if len(bare_callables_count) == 1:
+        # with non bare callable.
+        if sum([1 for operand in (left_operand, right_operand)
+                if isinstance(utils.safe_infer(operand), bare_callables)]) == 1:
             self.add_message('comparison-with-callable', node=node)
 
     @utils.check_messages('singleton-comparison', 'misplaced-comparison-constant',
@@ -1854,7 +1844,7 @@ class ComparisonChecker(_BasicChecker):
 
         left = node.left
         operator, right = node.ops[0]
-        if (operator in ('<', '<=', '>', '>=', '!=', '==')
+        if (operator in COMPARISON_OPERATORS
                 and isinstance(left, astroid.Const)):
             self._check_misplaced_constant(node, left, right, operator)
 
