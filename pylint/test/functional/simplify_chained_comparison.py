@@ -41,6 +41,8 @@ def test_simplify_chained_comparison_3():
         pass
     elif a < b and b < c and c == 786: # [chained-comparison]
         pass
+    elif a < b and b < 0 and c == 786: # [chained-comparison]
+        pass
 
 
 def test_not_simplify_chained_comparison_1():

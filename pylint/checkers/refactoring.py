@@ -155,9 +155,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'if a key is present or a default if not, is simpler and considered '
                   'more idiomatic, although sometimes a bit slower'
                  ),
-        'R1716': ('simplify chained comparison',
+        'R1716': ('Simplify chained comparison between the operands',
                   'chained-comparison',
-                  'Chained comparisons like "a < b and b < c" can be simplified as "a < b < c"',
+                  'This message is emitted when pylint encounters boolean operation like'
+                  '"a < b and b < c", suggesting instead to refactor it to "a < b < c"',
                   ),
     }
     options = (('max-nested-blocks',
@@ -595,19 +596,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Add a refactoring message if a boolOp contains comparison like a < b and b < c,
         which can be chained as  a < b < c.
-        :param astroid.BoolOp node: bool operator node.
         """
-        if node.op != 'and':
+        if (node.op != 'and' or len(node.values) < 2
+                or not all(isinstance(value, astroid.Compare) for value in node.values)):
             return
 
-        if len(node.values) < 2:
-            return
-
-        # all node values must be compare
-        if not all(isinstance(value, astroid.Compare) for value in node.values):
-            return
-
-        def _find_lower_upper_bounds(comparison_node, l_bounds, u_bounds):
+        def _find_lower_upper_bounds(comparison_node, lower_bounds, upper_bounds):
             operator = comparison_node.ops[0][0]
             left_operand, right_operand = comparison_node.left, comparison_node.ops[0][1]
             for operand in (left_operand, right_operand):
@@ -617,19 +611,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 elif isinstance(operand, astroid.Const):
                     value = operand.value
 
-                if not value:
+                if value is None:
                     continue
 
                 if operator in ('<', '<='):
                     if operand is left_operand:
-                        l_bounds.append(value)
+                        lower_bounds.append(value)
                     else:
-                        u_bounds.append(value)
+                        upper_bounds.append(value)
                 elif operator in ('>', '>='):
                     if operand is left_operand:
-                        u_bounds.append(value)
+                        upper_bounds.append(value)
                     else:
-                        l_bounds.append(value)
+                        lower_bounds.append(value)
 
         lower_bounds = []
         upper_bounds = []

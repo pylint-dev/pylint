@@ -46,15 +46,15 @@ New checkers
 
 * A new check was added, ``chained-comparison``.
 
-  This refactoring message is emitted if a boolOp contains comparison like a < b and b < c,
-  which can be chained as  a < b < c.
+  This refactoring message is emitted if a boolean operation can be simplified by chaining some
+  of its operations. check below example:
 
   .. code-block:: python
 
-    if a < b and b < c:  # bad
+    if a < b and b < c:
         pass
 
-    if a < b < c:   # good
+    if a < b < c:   # better
         pass
 
 * A new check was added, ``useless-import-alias``.
