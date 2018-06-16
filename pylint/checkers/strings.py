@@ -116,7 +116,7 @@ MSGS = {
               {'minversion': (2, 7)})
     }
 
-OTHER_NODES = (astroid.Const, astroid.List, astroid.Repr,
+OTHER_NODES = (astroid.Const, astroid.List,
                astroid.Lambda, astroid.FunctionDef,
                astroid.ListComp, astroid.SetComp, astroid.GeneratorExp)
 
