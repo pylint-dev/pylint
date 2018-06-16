@@ -21,3 +21,6 @@ debian/pylint
 .coverage
 .coverage.*
 .idea
+.cache/
+.eggs/
+.pytest_cache/
