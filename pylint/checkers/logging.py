@@ -193,9 +193,14 @@ class LoggingChecker(checkers.BaseChecker):
 
         if isinstance(node.args[format_pos], astroid.BinOp):
             binop = node.args[format_pos]
-            if (binop.op == '%' or binop.op == '+' and
-                    len([_operand for _operand in (binop.left, binop.right)
-                         if self._is_operand_literal_str(_operand)]) == 1):
+            emit = binop.op == '%'
+            if binop.op == '+':
+                total_number_of_strings = sum(
+                    1 for operand in (binop.left, binop.right)
+                    if self._is_operand_literal_str(utils.safe_infer(operand))
+                )
+                emit = total_number_of_strings > 0
+            if emit:
                 self.add_message('logging-not-lazy', node=node)
         elif isinstance(node.args[format_pos], astroid.Call):
             self._check_call_func(node.args[format_pos])

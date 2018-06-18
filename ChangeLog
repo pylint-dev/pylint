@@ -6,6 +6,11 @@ What's New in Pylint 2.0?
 =========================
 
 Release date: |TBA|
+
+    * `logging-not-lazy` is emitted whenever pylint infers that a string is built with addition
+
+      Close #2193
+
     * Add a check `chained-comparison` which is emitted if a boolean operation can be simplified
       by chaining some of its operations.
       e.g "a < b and b < c", can be simplified as "a < b < c".
