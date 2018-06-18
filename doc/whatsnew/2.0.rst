@@ -44,6 +44,19 @@ New checkers
     if foo() == 786:    # good
         pass
 
+* A new check was added, ``chained-comparison``.
+
+  This refactoring message is emitted if a boolean operation can be simplified by chaining some
+  of its operations. check below example:
+
+  .. code-block:: python
+
+    if a < b and b < c:
+        pass
+
+    if a < b < c:   # better
+        pass
+
 * A new check was added, ``useless-import-alias``.
 
   This refactoring message is emitted when a import alias does not rename the original package.

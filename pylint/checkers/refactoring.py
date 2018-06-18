@@ -155,6 +155,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'if a key is present or a default if not, is simpler and considered '
                   'more idiomatic, although sometimes a bit slower'
                  ),
+        'R1716': ('Simplify chained comparison between the operands',
+                  'chained-comparison',
+                  'This message is emitted when pylint encounters boolean operation like'
+                  '"a < b and b < c", suggesting instead to refactor it to "a < b < c"',
+                  ),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -586,10 +591,55 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         self.add_message('consider-using-in', node=node, args=(suggestion,))
 
-    @utils.check_messages('consider-merging-isinstance', 'consider-using-in')
+    def _check_chained_comparison(self, node):
+        """Check if there is any chained comparison in the expression.
+
+        Add a refactoring message if a boolOp contains comparison like a < b and b < c,
+        which can be chained as  a < b < c.
+        """
+        if (node.op != 'and' or len(node.values) < 2
+                or not all(isinstance(value, astroid.Compare) for value in node.values)):
+            return
+
+        def _find_lower_upper_bounds(comparison_node, lower_bounds, upper_bounds):
+            operator = comparison_node.ops[0][0]
+            left_operand, right_operand = comparison_node.left, comparison_node.ops[0][1]
+            for operand in (left_operand, right_operand):
+                value = None
+                if isinstance(operand, astroid.Name):
+                    value = operand.name
+                elif isinstance(operand, astroid.Const):
+                    value = operand.value
+
+                if value is None:
+                    continue
+
+                if operator in ('<', '<='):
+                    if operand is left_operand:
+                        lower_bounds.append(value)
+                    else:
+                        upper_bounds.append(value)
+                elif operator in ('>', '>='):
+                    if operand is left_operand:
+                        upper_bounds.append(value)
+                    else:
+                        lower_bounds.append(value)
+
+        lower_bounds = []
+        upper_bounds = []
+        for comparison_node in node.values:
+            _find_lower_upper_bounds(comparison_node, lower_bounds, upper_bounds)
+
+        if set(lower_bounds).intersection(upper_bounds):
+            self.add_message('chained-comparison',
+                             node=node)
+
+    @utils.check_messages('consider-merging-isinstance', 'consider-using-in',
+                          'chained-comparison')
     def visit_boolop(self, node):
         self._check_consider_merging_isinstance(node)
         self._check_consider_using_in(node)
+        self._check_chained_comparison(node)
 
     @staticmethod
     def _is_simple_assignment(node):

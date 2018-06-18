@@ -1,0 +1,13 @@
+chained-comparison:10:test_simplify_chained_comparison_1:Simplify chained comparison between the operands
+chained-comparison:15:test_simplify_chained_comparison_2:Simplify chained comparison between the operands
+chained-comparison:22:test_simplify_chained_comparison_3:Simplify chained comparison between the operands
+chained-comparison:24:test_simplify_chained_comparison_3:Simplify chained comparison between the operands
+chained-comparison:26:test_simplify_chained_comparison_3:Simplify chained comparison between the operands
+chained-comparison:28:test_simplify_chained_comparison_3:Simplify chained comparison between the operands
+chained-comparison:30:test_simplify_chained_comparison_3:Simplify chained comparison between the operands
+chained-comparison:32:test_simplify_chained_comparison_3:Simplify chained comparison between the operands
+chained-comparison:36:test_simplify_chained_comparison_3:Simplify chained comparison between the operands
+chained-comparison:38:test_simplify_chained_comparison_3:Simplify chained comparison between the operands
+chained-comparison:40:test_simplify_chained_comparison_3:Simplify chained comparison between the operands
+chained-comparison:42:test_simplify_chained_comparison_3:Simplify chained comparison between the operands
+chained-comparison:44:test_simplify_chained_comparison_3:Simplify chained comparison between the operands
