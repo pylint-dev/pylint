@@ -1376,10 +1376,8 @@ class VariablesChecker(BaseChecker):
             ))
 
     def _store_type_annotation_names(self, node):
-        type_annotation = node.type_annotation
-        if not type_annotation:
-            return
-        self._store_type_annotation_node(node.type_annotation)
+        if hasattr(node, 'type_annotation') and node.type_annotation:
+            self._store_type_annotation_node(node.type_annotation)
 
     leave_assign = _store_type_annotation_names
     leave_with = _store_type_annotation_names
