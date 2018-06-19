@@ -27,13 +27,13 @@ numversion = (2, 0, 0)
 version = '.'.join(str(num) for num in numversion) + '.dev1'
 
 install_requires = [
-    'astroid>=1.6',
+    'astroid>=2.0.0.dev2',
     'isort >= 4.2.5',
     'mccabe',
 ]
 
 dependency_links = [
-    'https://github.com/PyCQA/astroid/tarball/master#egg=astroid-master-2.0'
+    'https://github.com/PyCQA/astroid/tarball/master#egg=astroid-2.0'
 ]
 
 extras_require = {}
