@@ -212,28 +212,28 @@ MSGS = {
               'but it may be performed by introspecting living objects in run-time.'),
     'E1102': ('%s is not callable',
               'not-callable',
-              'Used when an object being called has been inferred to a non \
-              callable object'),
+              'Used when an object being called has been inferred to a non '
+              'callable object.'),
     'E1111': ('Assigning to function call which doesn\'t return',
               'assignment-from-no-return',
-              'Used when an assignment is done on a function call but the \
-              inferred function doesn\'t return anything.'),
+              'Used when an assignment is done on a function call but the '
+              'inferred function doesn\'t return anything.'),
     'E1120': ('No value for argument %s in %s call',
               'no-value-for-parameter',
               'Used when a function call passes too few arguments.'),
     'E1121': ('Too many positional arguments for %s call',
               'too-many-function-args',
-              'Used when a function call passes too many positional \
-              arguments.'),
+              'Used when a function call passes too many positional '
+              'arguments.'),
     'E1123': ('Unexpected keyword argument %r in %s call',
               'unexpected-keyword-arg',
-              'Used when a function call passes a keyword argument that \
-              doesn\'t correspond to one of the function\'s parameter names.'),
+              'Used when a function call passes a keyword argument that '
+              'doesn\'t correspond to one of the function\'s parameter names.'),
     'E1124': ('Argument %r passed by position and keyword in %s call',
               'redundant-keyword-arg',
-              'Used when a function call would result in assigning multiple \
-              values to a function parameter, one value from a positional \
-              argument and one from a keyword argument.'),
+              'Used when a function call would result in assigning multiple '
+              'values to a function parameter, one value from a positional '
+              'argument and one from a keyword argument.'),
     'E1125': ('Missing mandatory keyword argument %r in %s call',
               'missing-kwoa',
               ('Used when a function call does not pass a mandatory'
@@ -245,8 +245,8 @@ MSGS = {
               'method.'),
     'E1127': ('Slice index is not an int, None, or instance with __index__',
               'invalid-slice-index',
-              'Used when a slice index is not an integer, None, or an object \
-               with an __index__ method.'),
+              'Used when a slice index is not an integer, None, or an object '
+              'with an __index__ method.'),
     'E1128': ('Assigning to function call which only returns None',
               'assignment-from-none',
               'Used when an assignment is done on a function call but the '
@@ -259,7 +259,7 @@ MSGS = {
     'E1130': ('%s',
               'invalid-unary-operand-type',
               'Emitted when a unary operand is used on an object which does not '
-              'support this type of operation'),
+              'support this type of operation.'),
     'E1131': ('%s',
               'unsupported-binary-operation',
               'Emitted when a binary arithmetic operation between two '
@@ -270,19 +270,19 @@ MSGS = {
     'E1135': ("Value '%s' doesn't support membership test",
               'unsupported-membership-test',
               'Emitted when an instance in membership test expression doesn\'t '
-              'implement membership protocol (__contains__/__iter__/__getitem__)'),
+              'implement membership protocol (__contains__/__iter__/__getitem__).'),
     'E1136': ("Value '%s' is unsubscriptable",
               'unsubscriptable-object',
-              "Emitted when a subscripted value doesn't support subscription"
-              "(i.e. doesn't define __getitem__ method)"),
+              "Emitted when a subscripted value doesn't support subscription "
+              "(i.e. doesn't define __getitem__ method)."),
     'E1137': ("%r does not support item assignment",
               'unsupported-assignment-operation',
               "Emitted when an object does not support item assignment "
-              "(i.e. doesn't define __setitem__ method)"),
+              "(i.e. doesn't define __setitem__ method)."),
     'E1138': ("%r does not support item deletion",
               'unsupported-delete-operation',
               "Emitted when an object does not support item deletion "
-              "(i.e. doesn't define __delitem__ method)"),
+              "(i.e. doesn't define __delitem__ method)."),
     'E1139': ('Invalid metaclass %r used',
               'invalid-metaclass',
               'Emitted whenever we can detect that a class is using, '
@@ -290,8 +290,8 @@ MSGS = {
               'a metaclass.'),
     'E1140': ("Dict key is unhashable",
               'unhashable-dict-key',
-              "Emitted when a dict key is not hashable"
-              "(i.e. doesn't define __hash__ method)"),
+              'Emitted when a dict key is not hashable '
+              "(i.e. doesn't define __hash__ method)."),
     'W1113': ('Keyword argument before variable positional arguments list '
               'in the definition of %s function',
               'keyword-arg-before-vararg',
@@ -567,7 +567,7 @@ class should be ignored. A mixin class is detected if its name ends with \
                ('ignore-none',
                 {'default': True, 'type': 'yn', 'metavar': '<y_or_n>',
                  'help': 'Tells whether to warn about missing members when the owner '
-                         'of the attribute is inferred to be None'
+                         'of the attribute is inferred to be None.'
                 }
                 ),
                ('ignored-modules',

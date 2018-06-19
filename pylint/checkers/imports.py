@@ -272,7 +272,7 @@ class ImportsChecker(BaseChecker):
                  'type' : 'csv',
                  'metavar' : '<modules>',
                  'help' : 'Deprecated modules which should not be used,'
-                          ' separated by a comma'}
+                          ' separated by a comma.'}
                ),
                ('import-graph',
                 {'default' : '',
@@ -280,21 +280,21 @@ class ImportsChecker(BaseChecker):
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of every (i.e. internal and'
                           ' external) dependencies in the given file'
-                          ' (report RP0402 must not be disabled)'}
+                          ' (report RP0402 must not be disabled).'}
                ),
                ('ext-import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of external dependencies in the'
-                          ' given file (report RP0402 must not be disabled)'}
+                          ' given file (report RP0402 must not be disabled).'}
                ),
                ('int-import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of internal dependencies in the'
-                          ' given file (report RP0402 must not be disabled)'}
+                          ' given file (report RP0402 must not be disabled).'}
                ),
                ('known-standard-library',
                 {'default': DEFAULT_STANDARD_LIBRARY,
