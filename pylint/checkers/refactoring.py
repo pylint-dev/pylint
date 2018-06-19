@@ -160,10 +160,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'This message is emitted when pylint encounters boolean operation like'
                   '"a < b and b < c", suggesting instead to refactor it to "a < b < c"',
                  ),
-        'R1717': ('Consider using new dict initialization syntax',
+        'R1717': ('Consider using a dictionary comprehension',
                   'consider-using-dict-comprehension',
                   'Although there is nothing syntactically wrong with this code, '
-                  'it is hard to read and can be simplified to a dict comprehension',
+                  'it is hard to read and can be simplified to a dict comprehension.'
+                  'Also it is faster since you don\'t need to create another '
+                  'transient list',
                  ),
     }
     options = (('max-nested-blocks',
@@ -440,10 +442,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return any(_class.qname() == stopiteration_qname for _class in exc.mro())
 
     def _check_consider_using_dict_comprehension(self, node):
-        if (hasattr(node, 'func') and
-                hasattr(node.func, 'name') and
+        if (isinstance(node.func, astroid.Name) and
                 node.func.name == 'dict' and
-                len(node.args) and
+                node.args and
                 isinstance(node.args[0], astroid.ListComp)):
             self.add_message('consider-using-dict-comprehension', node=node)
 
