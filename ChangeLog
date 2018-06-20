@@ -23,6 +23,10 @@ Release date: |TBA|
 
       Close #2042
 
+    * [].extend and similar builtin operations don't emit `dict-*-not-iterating` with the Python 3 porting checker
+
+      Close #2187
+
 
 What's New in Pylint 1.9.2?
 ===========================
