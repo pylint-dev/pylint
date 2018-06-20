@@ -1,5 +1,5 @@
 """ Checks that reversed() receive proper argument """
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, useless-object-inheritance
 # pylint: disable=too-few-public-methods,no-self-use,no-absolute-import
 from collections import deque
 

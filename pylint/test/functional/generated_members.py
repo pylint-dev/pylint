@@ -1,5 +1,5 @@
 """Test the generated-members config option."""
-# pylint: disable=pointless-statement, invalid-name
+# pylint: disable=pointless-statement, invalid-name, useless-object-inheritance
 from __future__ import print_function
 from astroid import node_classes
 from pylint import checkers

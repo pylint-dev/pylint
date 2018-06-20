@@ -1,6 +1,6 @@
 """Check invalid value returned by __len__ """
 
-# pylint: disable=too-few-public-methods,missing-docstring,no-self-use,import-error
+# pylint: disable=too-few-public-methods,missing-docstring,no-self-use,import-error, useless-object-inheritance
 import sys
 
 import six

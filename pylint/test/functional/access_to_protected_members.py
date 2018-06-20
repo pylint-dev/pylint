@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods, W0231, print-statement
+# pylint: disable=too-few-public-methods, W0231, print-statement, useless-object-inheritance
 # pylint: disable=no-classmethod-decorator
 """Test external access to protected class members."""
 from __future__ import print_function

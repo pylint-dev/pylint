@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,import-error,unused-import,assignment-from-no-return
-# pylint: disable=invalid-name, too-few-public-methods
+# pylint: disable=invalid-name, too-few-public-methods, useless-object-inheritance
 from __future__ import print_function
 from UNINFERABLE import uninferable_func
 

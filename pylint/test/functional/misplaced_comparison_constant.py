@@ -1,6 +1,6 @@
 """Check that the constants are on the right side of the comparisons"""
 
-# pylint: disable=singleton-comparison, missing-docstring, too-few-public-methods
+# pylint: disable=singleton-comparison, missing-docstring, too-few-public-methods, useless-object-inheritance
 
 class MyClass(object):
     def __init__(self):

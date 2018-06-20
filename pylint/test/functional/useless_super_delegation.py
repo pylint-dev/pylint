@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring, no-member, no-self-use, bad-super-call
 # pylint: disable=too-few-public-methods, unused-argument, invalid-name, too-many-public-methods
-# pylint: disable=line-too-long
+# pylint: disable=line-too-long, useless-object-inheritance
 
 
 def not_a_method(param, param2):

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods,no-member,unused-argument
+# pylint: disable=missing-docstring,too-few-public-methods,no-member,unused-argument, useless-object-inheritance
 
 class NotUselessSuper(object):
 

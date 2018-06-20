@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,no-self-use, no-absolute-import,import-error
+# pylint: disable=too-few-public-methods,no-self-use, no-absolute-import,import-error, useless-object-inheritance
 """Test Pylint's use of __all__.
 
 * NonExistant is not defined in this module, and it is listed in

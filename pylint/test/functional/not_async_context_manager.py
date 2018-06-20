@@ -1,5 +1,5 @@
 """Test that an async context manager receives a proper object."""
-# pylint: disable=missing-docstring, import-error, too-few-public-methods
+# pylint: disable=missing-docstring, import-error, too-few-public-methods, useless-object-inheritance
 import contextlib
 
 from ala import Portocala

@@ -1,4 +1,4 @@
-# pylint: disable=R0903,W0403
+# pylint: disable=R0903,W0403,useless-object-inheritance
 """package's __init__ file"""
 
 from . import subpackage

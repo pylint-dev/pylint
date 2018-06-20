@@ -538,7 +538,7 @@ MSGS = {
               'single-string-used-for-slots',
               'Used when a class __slots__ is a simple string, rather '
               'than an iterable.'),
-    'R0204': ('Class %r inherits from object, can be safely removed from bases in python3',
+    'R0205': ('Class %r inherits from object, can be safely removed from bases in python3',
               'useless-object-inheritance',
               'Used when a class inherit from object, which under python3 is implicit, '
               'hence can be safely removed from bases.')

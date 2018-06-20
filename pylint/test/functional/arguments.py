@@ -1,5 +1,5 @@
 # pylint: disable=too-few-public-methods, no-absolute-import,missing-docstring,import-error,wrong-import-position
-# pylint: disable=wrong-import-order
+# pylint: disable=wrong-import-order, useless-object-inheritance
 
 def decorator(fun):
     """Decorator"""

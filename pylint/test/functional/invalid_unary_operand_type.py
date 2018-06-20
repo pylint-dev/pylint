@@ -1,6 +1,6 @@
 """Detect problems with invalid operands used on invalid objects."""
 # pylint: disable=missing-docstring,too-few-public-methods,invalid-name
-# pylint: disable=unused-variable
+# pylint: disable=unused-variable, useless-object-inheritance
 
 import collections
 

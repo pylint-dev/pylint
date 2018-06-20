@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, useless-object-inheritance
 
 def test_regression_737():
     import xml # [unused-variable]

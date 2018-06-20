@@ -19,7 +19,7 @@ class TestVariablesChecker(CheckerTestCase):
     def test_bitbucket_issue_164(self):
         """Issue 164 report a false negative for access-member-before-definition"""
         n1, n2 = astroid.extract_node("""
-        class MyClass1(object):
+        class MyClass1:
           def __init__(self):
             self.first += 5 #@
             self.first = 0  #@
@@ -36,7 +36,7 @@ class TestVariablesChecker(CheckerTestCase):
         """
 
         node = astroid.parse("""
-        class Protected(object):
+        class Protected:
             '''empty'''
             def __init__(self):
                 self._meta = 42

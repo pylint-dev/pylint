@@ -1,5 +1,5 @@
 """Regression test case for bad-continuation with tabs"""
-# pylint: disable=too-few-public-methods,missing-docstring,invalid-name,unused-variable
+# pylint: disable=too-few-public-methods,missing-docstring,invalid-name,unused-variable, useless-object-inheritance
 # Various alignment for brackets
 
 # Issue 638

@@ -10,7 +10,7 @@ def function2():
     """Test Ok"""
     pass
 
-class FFFF(object):
+class FFFF:
     """
     Test Docstring First Line Empty
     """

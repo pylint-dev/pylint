@@ -2,7 +2,7 @@
 
 Based on test/functional/arguments.py
 """
-# pylint: disable=C0111,R0903,W0231
+# pylint: disable=C0111,R0903,W0231, useless-object-inheritance
 
 
 class Class1Arg(object):

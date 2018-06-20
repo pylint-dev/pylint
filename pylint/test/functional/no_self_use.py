@@ -1,4 +1,4 @@
-# pylint: disable=R0903,W0232,missing-docstring
+# pylint: disable=R0903,W0232,missing-docstring, useless-object-inheritance
 """test detection of method which could be a function"""
 
 from __future__ import print_function

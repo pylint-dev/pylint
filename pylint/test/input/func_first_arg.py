@@ -1,4 +1,4 @@
-# pylint: disable=C0111, W0232
+# pylint: disable=C0111, W0232, useless-object-inheritance
 """check for methods first arguments
 """
 
