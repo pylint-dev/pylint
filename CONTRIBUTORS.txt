@@ -189,6 +189,7 @@ contributors:
   Added new check 'comparison-with-callable'.
   Removed six package dependency.
   Added new check 'chained-comparison'.
+  Added new check 'useless-object-inheritance'.
 
 * Mariatta Wijaya: contributor
   Added new check `logging-fstring-interpolation`

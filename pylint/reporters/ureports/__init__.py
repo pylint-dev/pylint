@@ -14,7 +14,7 @@ import sys
 from io import StringIO
 
 
-class BaseWriter(object):
+class BaseWriter:
     """base class for ureport writers"""
 
     def format(self, layout, stream=None, encoding=None):

@@ -38,7 +38,7 @@ def diff_string(old, new):
     return diff_str
 
 
-class BaseReporter(object):
+class BaseReporter:
     """base class for reporters
 
     symbols: show short symbolic names for messages.

@@ -217,7 +217,7 @@ def _get_indent_hint_line(bar_positions, bad_position):
     return (''.join(line), delta_message)
 
 
-class _ContinuedIndent(object):
+class _ContinuedIndent:
     __slots__ = ('valid_outdent_strings',
                  'valid_continuation_strings',
                  'context_type',
@@ -281,7 +281,7 @@ def _BeforeBlockIndentations(single, with_body):
     return {single: SINGLE_LINE, with_body: WITH_BODY}
 
 
-class TokenWrapper(object):
+class TokenWrapper:
     """A wrapper for readable access to token information."""
 
     def __init__(self, tokens):
@@ -318,7 +318,7 @@ class TokenWrapper(object):
         return line_indent + ' ' * (self.start_col(idx) - len(line_indent))
 
 
-class ContinuedLineState(object):
+class ContinuedLineState:
     """Tracker for continued indentation inside a logical line."""
 
     def __init__(self, tokens, config):

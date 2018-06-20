@@ -1189,7 +1189,7 @@ def fix_import_path(args):
         sys.path[:] = orig
 
 
-class Run(object):
+class Run:
     """helper class to use as main for pylint :
 
     run(*sys.argv[1:])

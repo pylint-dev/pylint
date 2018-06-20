@@ -458,7 +458,7 @@ Please report bugs on the project\'s mailing list:
         return tail
 
 
-class OptionsManagerMixIn(object):
+class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options"""
 
     def __init__(self, usage, config_file=None, version=None):
@@ -725,7 +725,7 @@ class OptionsManagerMixIn(object):
             return self.cmdline_parser.format_help()
 
 
-class OptionsProviderMixIn(object):
+class OptionsProviderMixIn:
     """Mixin to provide options to an OptionsManager"""
 
     # those attributes should be overridden
