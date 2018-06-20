@@ -78,6 +78,11 @@ def _is_builtin(node):
 _ACCEPTS_ITERATOR = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
                      'all', 'enumerate', 'dict', 'filter', 'reversed',
                      'max', 'min'}
+_BUILTIN_METHOD_ACCEPTS_ITERATOR = {
+    'builtins.list.extend',
+    'builtins.dict.update',
+    'builtins.set.update',
+}
 DICT_METHODS = {'items', 'keys', 'values'}
 
 
@@ -107,6 +112,14 @@ def _in_iterating_context(node):
         elif isinstance(parent.func, astroid.Attribute):
             if parent.func.attrname == 'join':
                 return True
+            try:
+                inferred = next(parent.func.infer())
+            except astroid.InferenceError:
+                pass
+            else:
+                if inferred is not astroid.Uninferable:
+                    if inferred.qname() in _BUILTIN_METHOD_ACCEPTS_ITERATOR:
+                        return True
     # If the call is in an unpacking, there's no need to warn,
     # since it can be considered iterating.
     elif (isinstance(parent, astroid.Assign) and
