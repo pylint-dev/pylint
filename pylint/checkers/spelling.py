@@ -161,7 +161,7 @@ class SpellingChecker(BaseTokenChecker):
                 {'default' : '', 'type' : 'choice', 'metavar' : '<dict name>',
                  'choices': dict_choices,
                  'help' : 'Spelling dictionary name. '
-                          'Available dictionaries: %s.%s' % (dicts, instr)}),
+                          'Available dictionaries: %s.%s.' % (dicts, instr)}),
                ('spelling-ignore-words',
                 {'default' : '',
                  'type' : 'string',
@@ -183,7 +183,7 @@ class SpellingChecker(BaseTokenChecker):
                ('max-spelling-suggestions',
                 {'default': 4, 'type': 'int', 'metavar': 'N',
                  'help': 'Limits count of emitted suggestions for '
-                         'spelling mistakes'}),
+                         'spelling mistakes.'}),
               )
 
     def open(self):

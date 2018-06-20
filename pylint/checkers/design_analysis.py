@@ -28,29 +28,29 @@ from pylint import utils
 MSGS = {
     'R0901': ('Too many ancestors (%s/%s)',
               'too-many-ancestors',
-              'Used when class has too many parent classes, try to reduce \
-              this to get a simpler (and so easier to use) class.'),
+              'Used when class has too many parent classes, try to reduce '
+              'this to get a simpler (and so easier to use) class.'),
     'R0902': ('Too many instance attributes (%s/%s)',
               'too-many-instance-attributes',
-              'Used when class has too many instance attributes, try to reduce \
-              this to get a simpler (and so easier to use) class.'),
+              'Used when class has too many instance attributes, try to reduce '
+              'this to get a simpler (and so easier to use) class.'),
     'R0903': ('Too few public methods (%s/%s)',
               'too-few-public-methods',
-              'Used when class has too few public methods, so be sure it\'s \
-              really worth it.'),
+              'Used when class has too few public methods, so be sure it\'s '
+              'really worth it.'),
     'R0904': ('Too many public methods (%s/%s)',
               'too-many-public-methods',
-              'Used when class has too many public methods, try to reduce \
-              this to get a simpler (and so easier to use) class.'),
+              'Used when class has too many public methods, try to reduce '
+              'this to get a simpler (and so easier to use) class.'),
 
     'R0911': ('Too many return statements (%s/%s)',
               'too-many-return-statements',
-              'Used when a function or method has too many return statement, \
-              making it hard to follow.'),
+              'Used when a function or method has too many return statement, '
+              'making it hard to follow.'),
     'R0912': ('Too many branches (%s/%s)',
               'too-many-branches',
-              'Used when a function or method has too many branches, \
-              making it hard to follow.'),
+              'Used when a function or method has too many branches, '
+              'making it hard to follow.'),
     'R0913': ('Too many arguments (%s/%s)',
               'too-many-arguments',
               'Used when a function or method takes too many arguments.'),
@@ -59,12 +59,12 @@ MSGS = {
               'Used when a function or method has too many local variables.'),
     'R0915': ('Too many statements (%s/%s)',
               'too-many-statements',
-              'Used when a function or method has too many statements. You \
-              should then split it in smaller functions / methods.'),
+              'Used when a function or method has too many statements. You '
+              'should then split it in smaller functions / methods.'),
     'R0916': ('Too many boolean expressions in if statement (%s/%s)',
               'too-many-boolean-expressions',
               'Used when an if statement contains too many boolean '
-              'expressions'),
+              'expressions.'),
     }
 SPECIAL_OBJ = re.compile('^_{2}[a-z]+_{2}$')
 
@@ -110,25 +110,25 @@ class MisdesignChecker(BaseChecker):
     # configuration options
     options = (('max-args',
                 {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of arguments for function / method'}
+                 'help': 'Maximum number of arguments for function / method.'}
                ),
                ('max-locals',
                 {'default' : 15, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of locals for function / method body'}
+                 'help': 'Maximum number of locals for function / method body.'}
                ),
                ('max-returns',
                 {'default' : 6, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of return / yield for function / '
-                         'method body'}
+                         'method body.'}
                ),
                ('max-branches',
                 {'default' : 12, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of branch for function / method body'}
+                 'help': 'Maximum number of branch for function / method body.'}
                ),
                ('max-statements',
                 {'default' : 50, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of statements in function / method '
-                         'body'}
+                         'body.'}
                ),
                ('max-parents',
                 {'default' : 7,
@@ -162,7 +162,7 @@ class MisdesignChecker(BaseChecker):
                  'type': 'int',
                  'metavar': '<num>',
                  'help': 'Maximum number of boolean expressions in an if '
-                         'statement'}
+                         'statement.'}
                ),
               )
 
