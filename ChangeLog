@@ -14,6 +14,9 @@ Release date: |TBA|
     * Add a check `consider-using-dict-comprehension` which is emitted if for dict initialization
       the old style with list comprehensions is used.
 
+    * Add a check `consider-using-set-comprehension` which is emitted if for set initialization
+      the old style with list comprehensions is used.
+
     * `logging-not-lazy` is emitted whenever pylint infers that a string is built with addition
 
       Close #2193
