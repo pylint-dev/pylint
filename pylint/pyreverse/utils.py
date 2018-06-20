@@ -106,7 +106,7 @@ VIS_MOD = {'special': _SPECIAL, 'protected': _PROTECTED,
            'private': _PRIVATE, 'public': 0}
 
 
-class FilterMixIn(object):
+class FilterMixIn:
     """filter nodes according to a mode and nodes' visibility
     """
     def __init__(self, mode):
@@ -127,7 +127,7 @@ class FilterMixIn(object):
         return not self.__mode & VIS_MOD[visibility]
 
 
-class ASTWalker(object):
+class ASTWalker:
     """a walker visiting a tree in preorder, calling on the handler:
 
     * visit_<class name> on entering a node, where class name is the class of

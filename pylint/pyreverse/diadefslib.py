@@ -23,7 +23,7 @@ BUILTINS_NAME = 'builtins'
 
 # diagram generators ##########################################################
 
-class DiaDefGenerator(object):
+class DiaDefGenerator:
     """handle diagram generation options"""
 
     def __init__(self, linker, handler):
@@ -199,7 +199,7 @@ class ClassDiadefGenerator(DiaDefGenerator):
 
 # diagram handler #############################################################
 
-class DiadefsHandler(object):
+class DiadefsHandler:
     """handle diagram definitions :
 
     get it from user (i.e. xml files) or generate them

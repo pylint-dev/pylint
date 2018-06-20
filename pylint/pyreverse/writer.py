@@ -15,7 +15,7 @@ from pylint.pyreverse.utils import is_exception
 from pylint.pyreverse.vcgutils import VCGPrinter
 from pylint.graph import DotBackend
 
-class DiagramWriter(object):
+class DiagramWriter:
     """base class for writing project diagrams
     """
     def __init__(self, config, styles):
