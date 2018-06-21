@@ -155,7 +155,7 @@ Release date: |TBA|
 
       Close #2039
 
-    * Add support for nupmydoc optional return value names.
+    * Add support for numpydoc optional return value names.
 
       Close #2030
 
