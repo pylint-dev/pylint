@@ -208,6 +208,15 @@ New checkers
 
 * New verbose mode option `--verbose` to display of extra non-checker-related output. Disabled by default.
 
+* Two new checks were added for recommending dict and set comprehensions where possible.
+
+  These two checks are going to flag the following examples:
+
+  .. code-block:: python
+
+     dict([(k, v) for (k, v) in ...]) # better as {k: v for k, v in ...}
+     set([k for k in ...]) # better as {k for k in ...}
+
 Other Changes
 =============
 

@@ -882,7 +882,7 @@ a metaclass class method.'}
 
         if meth_node is not None:
             def form_annotations(annotations):
-                return [a.name if a is not None else a for a in annotations]
+                return [annotation.as_string() for annotation in filter(None, annotations)]
             called_annotations = form_annotations(function.args.annotations)
             overridden_annotations = form_annotations(meth_node.args.annotations)
             if called_annotations and overridden_annotations:

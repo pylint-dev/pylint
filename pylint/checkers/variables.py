@@ -434,7 +434,7 @@ class VariablesChecker(BaseChecker):
                 {'default': '_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_',
                  'type' :'regexp', 'metavar' : '<regexp>',
                  'help' : 'A regular expression matching the name of dummy '
-                          'variables (i.e. expectedly not used).'}),
+                          'variables (i.e. expected to not be used).'}),
                ("additional-builtins",
                 {'default': (), 'type' : 'csv',
                  'metavar' : '<comma separated list>',
@@ -460,7 +460,7 @@ class VariablesChecker(BaseChecker):
                 {'default' : IGNORED_ARGUMENT_NAMES,
                  'type' :'regexp', 'metavar' : '<regexp>',
                  'help' : 'Argument names that match this expression will be '
-                          'ignored. Default to name with leading underscore'}
+                          'ignored. Default to name with leading underscore.'}
                ),
                ('allow-global-unused-variables',
                 {'default': True,

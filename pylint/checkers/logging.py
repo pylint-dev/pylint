@@ -55,16 +55,16 @@ MSGS = {
               'interpolation to the logging function by passing the parameters '
               'as arguments.'
               'This message is emitted if f-string was used, and it can be '
-              'disabled if you like'
+              'disabled if you like.'
               ),
     'E1200': ('Unsupported logging format character %r (%#02x) at index %d',
               'logging-unsupported-format',
-              'Used when an unsupported format character is used in a logging\
-              statement format string.'),
+              'Used when an unsupported format character is used in a logging '
+              'statement format string.'),
     'E1201': ('Logging format string ends in middle of conversion specifier',
               'logging-format-truncated',
-              'Used when a logging statement format string terminates before\
-              the end of a conversion specifier.'),
+              'Used when a logging statement format string terminates before '
+              'the end of a conversion specifier.'),
     'E1205': ('Too many arguments for logging format string',
               'logging-too-many-args',
               'Used when a logging format string is given too many arguments.'),
@@ -109,7 +109,7 @@ class LoggingChecker(checkers.BaseChecker):
                  'type': 'csv',
                  'metavar': '<comma separated list>',
                  'help': 'Logging modules to check that the string format '
-                         'arguments are in logging function parameter format'}
+                         'arguments are in logging function parameter format.'}
                ),
               )
 

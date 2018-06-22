@@ -159,6 +159,20 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'chained-comparison',
                   'This message is emitted when pylint encounters boolean operation like'
                   '"a < b and b < c", suggesting instead to refactor it to "a < b < c"',
+                 ),
+        'R1717': ('Consider using a dictionary comprehension',
+                  'consider-using-dict-comprehension',
+                  'Although there is nothing syntactically wrong with this code, '
+                  'it is hard to read and can be simplified to a dict comprehension.'
+                  'Also it is faster since you don\'t need to create another '
+                  'transient list',
+                 ),
+        'R1718': ('Consider using a set comprehension',
+                  'consider-using-set-comprehension',
+                  'Although there is nothing syntactically wrong with this code, '
+                  'it is hard to read and can be simplified to a set comprehension.'
+                  'Also it is faster since you don\'t need to create another '
+                  'transient list',
                   ),
     }
     options = (('max-nested-blocks',
@@ -434,9 +448,20 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         stopiteration_qname = '{}.StopIteration'.format(utils.EXCEPTIONS_MODULE)
         return any(_class.qname() == stopiteration_qname for _class in exc.mro())
 
-    @utils.check_messages('stop-iteration-return')
+    def _check_consider_using_comprehension_constructor(self, node):
+        if (isinstance(node.func, astroid.Name) and
+                node.args
+                and node.func.name in {'dict', 'set'}
+                and isinstance(node.args[0], astroid.ListComp)):
+            message_name = 'consider-using-{}-comprehension'.format(node.func.name)
+            self.add_message(message_name, node=node)
+
+    @utils.check_messages('stop-iteration-return',
+                          'consider-using-dict-comprehension',
+                          'consider-using-set-comprehension')
     def visit_call(self, node):
         self._check_raising_stopiteration_in_generator_next_call(node)
+        self._check_consider_using_comprehension_constructor(node)
 
     def _check_raising_stopiteration_in_generator_next_call(self, node):
         """Check if a StopIteration exception is raised by the call to next function

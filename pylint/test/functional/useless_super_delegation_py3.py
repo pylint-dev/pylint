@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, no-member, unused-argument, invalid-name,unused-variable
-# pylint: disable=too-few-public-methods, useless-object-inheritance
+# pylint: disable=too-few-public-methods,wrong-import-position, useless-object-inheritance
 
 class NotUselessSuper(object):
 
@@ -33,3 +33,11 @@ class Spam(Egg):
 class Ham(Egg):
     def __init__(self, thing: object) -> None: # [useless-super-delegation]
         super().__init__(thing)
+
+
+from typing import List
+
+
+class Test:
+    def __init__(self, _arg: List[int]) -> None:
+        super().__init__()

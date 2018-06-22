@@ -328,7 +328,7 @@ class PyLinter(config.OptionsManagerMixIn,
                   'short': 'r',
                   'group': 'Reports',
                   'help' : 'Tells whether to display a full report or only the '
-                           'messages'}),
+                           'messages.'}),
 
                 ('evaluation',
                  {'type' : 'string', 'metavar' : '<python_expression>',
@@ -354,7 +354,7 @@ class PyLinter(config.OptionsManagerMixIn,
                   'choices': [c.name for c in interfaces.CONFIDENCE_LEVELS],
                   'group': 'Messages control',
                   'help' : 'Only show warnings with the listed confidence levels.'
-                           ' Leave empty to show all. Valid levels: %s' % (
+                           ' Leave empty to show all. Valid levels: %s.' % (
                                ', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS),)}),
 
                 ('enable',
@@ -366,24 +366,24 @@ class PyLinter(config.OptionsManagerMixIn,
                            'separated by comma (,) or put this option multiple time '
                            '(only on the command line, not in the configuration file '
                            'where it should appear only once). '
-                           'See also the "--disable" option for examples. '}),
+                           'See also the "--disable" option for examples.'}),
 
                 ('disable',
                  {'type' : 'csv', 'metavar': '<msg ids>',
                   'short': 'd',
                   'group': 'Messages control',
                   'help' : 'Disable the message, report, category or checker '
-                           'with the given id(s). You can either give multiple identifiers'
-                           ' separated by comma (,) or put this option multiple times '
+                           'with the given id(s). You can either give multiple identifiers '
+                           'separated by comma (,) or put this option multiple times '
                            '(only on the command line, not in the configuration file '
-                           'where it should appear only once).'
+                           'where it should appear only once). '
                            'You can also use "--disable=all" to disable everything first '
                            'and then reenable specific checks. For example, if you want '
                            'to run only the similarities checker, you can use '
                            '"--disable=all --enable=similarities". '
                            'If you want to run only the classes checker, but have no '
-                           'Warning level messages displayed, use'
-                           '"--disable=all --enable=classes --disable=W"'}),
+                           'Warning level messages displayed, use '
+                           '"--disable=all --enable=classes --disable=W".'}),
 
                 ('msg-template',
                  {'type' : 'string', 'metavar': '<template>',
@@ -391,7 +391,7 @@ class PyLinter(config.OptionsManagerMixIn,
                   'help' : ('Template used to display messages. '
                             'This is a python new-style format string '
                             'used to format the message information. '
-                            'See doc for all details')
+                            'See doc for all details.')
                  }),
 
                 ('jobs',
@@ -413,12 +413,12 @@ class PyLinter(config.OptionsManagerMixIn,
                   'help': ('A comma-separated list of package or module names'
                            ' from where C extensions may be loaded. Extensions are'
                            ' loading into the active Python interpreter and may run'
-                           ' arbitrary code')}),
+                           ' arbitrary code.')}),
                 ('suggestion-mode',
                  {'type': 'yn', 'metavar': '<yn>', 'default': True,
                   'help': ('When enabled, pylint would attempt to guess common '
                            'misconfiguration and emit user-friendly hints instead '
-                           'of false-positive error messages')}),
+                           'of false-positive error messages.')}),
 
                 ('exit-zero',
                  {'action': 'store_true',
@@ -1272,19 +1272,19 @@ group are mutually exclusive.'),
               'short': 'E',
               'help' : 'In error mode, checkers without error messages are '
                        'disabled and for others, only the ERROR messages are '
-                       'displayed, and no reports are done by default'''}),
+                       'displayed, and no reports are done by default.'}),
 
             ('py3k',
              {'action' : 'callback', 'callback' : self.cb_python3_porting_mode,
               'help' : 'In Python 3 porting mode, all checkers will be '
                        'disabled and only messages emitted by the porting '
-                       'checker will be displayed'}),
+                       'checker will be displayed.'}),
 
             ('verbose',
              {'action' : 'callback', 'callback' : self.cb_verbose_mode,
               'short': 'v',
               'help' : 'In verbose mode, extra non-checker-related info '
-                       'will be displayed'})
+                       'will be displayed.'})
 
             ), option_groups=self.option_groups, pylintrc=self._rcfile)
         # register standard checkers

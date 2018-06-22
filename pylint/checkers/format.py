@@ -514,7 +514,7 @@ class FormatChecker(BaseTokenChecker):
                           '`'+ _EMPTY_LINE + '` allows space-only lines.')}),
                ('max-module-lines',
                 {'default': 1000, 'type': 'int', 'metavar': '<int>',
-                 'help': 'Maximum number of lines in a module'}
+                 'help': 'Maximum number of lines in a module.'}
                ),
                ('indent-string',
                 {'default': '    ', 'type': "non_empty_string", 'metavar': '<string>',

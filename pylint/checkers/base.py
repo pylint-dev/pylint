@@ -1262,11 +1262,11 @@ def _create_naming_options():
             '%s-naming-style' % (name_type,),
             {'default': default_style,
              'type': 'choice', 'choices': list(NAMING_STYLES.keys()), 'metavar': '<style>',
-             'help': 'Naming style matching correct %s names' % (human_readable_name,)}),)
+             'help': 'Naming style matching correct %s names.' % (human_readable_name,)}),)
         name_options.append((
             '%s-rgx' % (name_type,),
             {'default': None, 'type': 'regexp', 'metavar': '<regexp>',
-             'help': 'Regular expression matching correct %s names. Overrides %s-naming-style'
+             'help': 'Regular expression matching correct %s names. Overrides %s-naming-style.'
                      % (human_readable_name, name_type,)}))
     return tuple(name_options)
 
@@ -1285,20 +1285,20 @@ class NameChecker(_BasicChecker):
         'W0111': ('Name %s will become a keyword in Python %s',
                   'assign-to-new-keyword',
                   'Used when assignment will become invalid in future '
-                  'Python release due to introducing new keyword'),
+                  'Python release due to introducing new keyword.'),
     }
 
     options = (('good-names',
                 {'default' : ('i', 'j', 'k', 'ex', 'Run', '_'),
                  'type' :'csv', 'metavar' : '<names>',
                  'help' : 'Good variable names which should always be accepted,'
-                          ' separated by a comma'}
+                          ' separated by a comma.'}
                ),
                ('bad-names',
                 {'default' : ('foo', 'bar', 'baz', 'toto', 'tutu', 'tata'),
                  'type' :'csv', 'metavar' : '<names>',
                  'help' : 'Bad variable names which should always be refused, '
-                          'separated by a comma'}
+                          'separated by a comma.'}
                ),
                ('name-group',
                 {'default' : (),
@@ -1309,7 +1309,7 @@ class NameChecker(_BasicChecker):
                ),
                ('include-naming-hint',
                 {'default': False, 'type': 'yn', 'metavar': '<y_or_n>',
-                 'help': 'Include a hint for the correct naming format with invalid-name'}
+                 'help': 'Include a hint for the correct naming format with invalid-name.'}
                ),
                ('property-classes',
                 {'default': ('abc.abstractproperty',),
