@@ -859,9 +859,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # if statement is returning if there are exactly two return statements in its
             # children : one for the body part, the other for the orelse part
             # Do not check if inner function definition are return ended.
-            return_stmts = [self._is_node_return_ended(_child) for _child in node.get_children()
-                            if not isinstance(_child, astroid.FunctionDef)]
-            return sum(return_stmts) == 2
+            is_orelse_returning = any(self._is_node_return_ended(_ore) for _ore in node.orelse
+                                      if not isinstance(_ore, astroid.FunctionDef))
+            is_if_returning = any(self._is_node_return_ended(_ifn) for _ifn in node.body
+                                  if not isinstance(_ifn, astroid.FunctionDef))
+            return is_if_returning and is_orelse_returning
         # recurses on the children of the node except for those which are except handler
         # because one cannot be sure that the handler will really be used
         return any(self._is_node_return_ended(_child) for _child in node.get_children()
