@@ -9,10 +9,10 @@ stages:
 jobs:
   include:
     - stage: prechecks
-    - python: 3.5
+      python: 3.5
       env: TOXENV=pylint
     - stage: tests-cpython
-    - python: 3.4
+      python: 3.4
       env: TOXENV=py34
     - python: 3.5-dev
       env: TOXENV=py35
@@ -21,7 +21,7 @@ jobs:
     - python: 3.7-dev
       env: TOXENV=py37
     - stage: tests-pypy
-    - python: pypy3.5-5.8.0
+      python: pypy3.5-5.8.0
       env: TOXENV=pypy
 before_install:
   - python --version
