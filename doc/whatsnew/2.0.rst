@@ -208,6 +208,9 @@ New checkers
 Other Changes
 =============
 
+* Fix a false positive ``inconsistent-return-statements`` message when exception is raised inside
+  an else statement.
+
 * Don't warn for ``missing-type-doc`` and/or ``missing-return-type-doc``, if type annotations
   exist on the function signature for a parameter and/or return type.
 
