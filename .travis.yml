@@ -1,20 +1,24 @@
 language: python
 
+stages:
+  - prechecks
+  - tests-cpython
+  - tests-pypy
+
 # 3.5-dev because of http://bugs.python.org/issue25131
-matrix:
+env:
+  - TOXENV=pylint
+  - TOXENV=py34
+  - TOXENV=py35
+  - TOXENV=py36
+  - TOXENV=py37
+  - TOXENV=pypy
+
+jobs:
   include:
-    - python: 3.4
-      env: TOXENV=py34
-    - python: 3.5-dev
-      env: TOXENV=py35
-    - python: 3.6
-      env: TOXENV=py36
-    - python: pypy3.5-5.8.0
-      env: TOXENV=pypy
-    - python: 3.7-dev
-      env: TOXENV=py37
-    - python: 3.5
-      env: TOXENV=pylint
+    - stage: prechecks
+    - stage: tests-cpython
+    - stage: tests-pypy
 before_install:
   - python --version
   - uname -a
