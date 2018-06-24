@@ -21,24 +21,38 @@
 
 import re
 
-import six
-
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
-from pylint.utils import OPTION_RGX
+from pylint.utils import OPTION_RGX, MessagesHandlerMixIn
 
 
-MSGS = {
-    'W0511': ('%s',
-              'fixme',
-              'Used when a warning note as FIXME or XXX is detected.'),
-    'W0512': ('Cannot decode using encoding "%s",'
-              ' unexpected byte at position %d',
-              'invalid-encoded-data',
-              'Used when a source line cannot be decoded using the specified '
-              'source file encoding.',
-              {'maxversion': (3, 0)}),
-}
+class ByIdManagedMessagesChecker(BaseChecker):
+
+    """checks for messages that are enabled or disabled by id instead of symbol."""
+
+    __implements__ = IRawChecker
+
+    # configuration section name
+    name = 'miscellaneous'
+    msgs = {'I0023': ('%s',
+                      'use-symbolic-message-instead',
+                      'Used when a message is enabled or disabled by id.'),}
+
+    options = ()
+
+    def process_module(self, module):
+        """inspect the source file to find messages activated or deactivated by id."""
+        managed_msgs = MessagesHandlerMixIn.get_by_id_managed_msgs()
+        for (mod_name, msg_id, msg_symbol, lineno, is_disabled) in managed_msgs:
+            if mod_name == module.name:
+                if is_disabled:
+                    txt = ("Id '{ident}' is used to disable '{symbol}' message emission"
+                           .format(ident=msg_id, symbol=msg_symbol))
+                else:
+                    txt = ("Id '{ident}' is used to enable '{symbol}' message emission"
+                           .format(ident=msg_id, symbol=msg_symbol))
+                self.add_message('use-symbolic-message-instead', line=lineno, args=txt)
+        MessagesHandlerMixIn.clear_by_id_managed_msgs()
 
 
 class EncodingChecker(BaseChecker):
@@ -51,7 +65,15 @@ class EncodingChecker(BaseChecker):
 
     # configuration section name
     name = 'miscellaneous'
-    msgs = MSGS
+    msgs = {'W0511': ('%s',
+                      'fixme',
+                      'Used when a warning note as FIXME or XXX is detected.'),
+            'W0512': ('Cannot decode using encoding "%s",'
+                      ' unexpected byte at position %d',
+                      'invalid-encoded-data',
+                      'Used when a source line cannot be decoded using the specified '
+                      'source file encoding.',
+                      {'maxversion': (3, 0)}),}
 
     options = (('notes',
                 {'type': 'csv', 'metavar': '<comma separated values>',
@@ -80,8 +102,8 @@ class EncodingChecker(BaseChecker):
         # but rather only on lines which may actually contain one of the notes.
         # This prevents a pathological problem with lines that are hundreds
         # of thousands of characters long.
-        for note in self.config.notes:
-            if note in line:
+        for note in map(str.lower, self.config.notes):
+            if note in line.lower():
                 break
         else:
             return
@@ -111,7 +133,7 @@ class EncodingChecker(BaseChecker):
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
-            return six.text_type(line, file_encoding)
+            return line.decode(file_encoding)
         except UnicodeDecodeError as ex:
             self.add_message('invalid-encoded-data', line=lineno,
                              args=(file_encoding, ex.args[2]))
@@ -129,7 +151,7 @@ class EncodingChecker(BaseChecker):
         """
         if self.config.notes:
             notes = re.compile(
-                r'.*?#\s*(%s)(:*\s*.*)' % "|".join(self.config.notes))
+                r'.*?#\s*(%s)(:*\s*.*)' % "|".join(self.config.notes), re.I)
         else:
             notes = None
         if module.file_encoding:
@@ -147,3 +169,4 @@ class EncodingChecker(BaseChecker):
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(EncodingChecker(linter))
+    linter.register_checker(ByIdManagedMessagesChecker(linter))

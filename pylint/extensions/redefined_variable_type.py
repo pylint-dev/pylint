@@ -4,15 +4,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-import six
-
 import astroid
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, is_none, node_type
 from pylint.interfaces import IAstroidChecker
 
 
-BUILTINS = six.moves.builtins.__name__
+BUILTINS = 'builtins'
 
 
 class MultipleTypesChecker(BaseChecker):
@@ -62,7 +60,7 @@ class MultipleTypesChecker(BaseChecker):
             for redef_node, redef_type in args[1:]:
                 if redef_type == orig_type:
                     continue
-                # if a variable is defined to several types in a if node,
+                # if a variable is defined to several types in an if node,
                 # this is not actually redefining.
                 orig_parent = orig_node.parent
                 redef_parent = redef_node.parent

@@ -38,7 +38,7 @@ class TestMetaclass(object):
 class Metaclass(type):
     """ metaclass """
     @classmethod
-    def test(mcs):
+    def test(cls):
         """ classmethod """
 
 class UsingMetaclass(object):

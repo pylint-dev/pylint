@@ -17,8 +17,6 @@
 """
 import string
 
-import six
-
 import astroid
 
 from pylint import checkers
@@ -48,14 +46,25 @@ MSGS = {
               '. Such calls should use % formatting instead, but leave '
               'interpolation to the logging function by passing the parameters '
               'as arguments.'),
+    'W1203': ('Use % formatting in logging functions and pass the % '
+              'parameters as arguments',
+              'logging-fstring-interpolation',
+              'Used when a logging statement has a call form of '
+              '"logging.<logging method>(format_string.format(format_args...))"'
+              '. Such calls should use % formatting instead, but leave '
+              'interpolation to the logging function by passing the parameters '
+              'as arguments.'
+              'This message is emitted if f-string was used, and it can be '
+              'disabled if you like.'
+              ),
     'E1200': ('Unsupported logging format character %r (%#02x) at index %d',
               'logging-unsupported-format',
-              'Used when an unsupported format character is used in a logging\
-              statement format string.'),
+              'Used when an unsupported format character is used in a logging '
+              'statement format string.'),
     'E1201': ('Logging format string ends in middle of conversion specifier',
               'logging-format-truncated',
-              'Used when a logging statement format string terminates before\
-              the end of a conversion specifier.'),
+              'Used when a logging statement format string terminates before '
+              'the end of a conversion specifier.'),
     'E1205': ('Too many arguments for logging format string',
               'logging-too-many-args',
               'Used when a logging format string is given too many arguments.'),
@@ -100,7 +109,7 @@ class LoggingChecker(checkers.BaseChecker):
                  'type': 'csv',
                  'metavar': '<comma separated list>',
                  'help': 'Logging modules to check that the string format '
-                         'arguments are in logging function parameter format'}
+                         'arguments are in logging function parameter format.'}
                ),
               )
 
@@ -184,14 +193,21 @@ class LoggingChecker(checkers.BaseChecker):
 
         if isinstance(node.args[format_pos], astroid.BinOp):
             binop = node.args[format_pos]
-            if (binop.op == '%' or binop.op == '+' and
-                    len([_operand for _operand in (binop.left, binop.right)
-                         if self._is_operand_literal_str(_operand)]) == 1):
+            emit = binop.op == '%'
+            if binop.op == '+':
+                total_number_of_strings = sum(
+                    1 for operand in (binop.left, binop.right)
+                    if self._is_operand_literal_str(utils.safe_infer(operand))
+                )
+                emit = total_number_of_strings > 0
+            if emit:
                 self.add_message('logging-not-lazy', node=node)
         elif isinstance(node.args[format_pos], astroid.Call):
             self._check_call_func(node.args[format_pos])
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)
+        elif isinstance(node.args[format_pos], (astroid.FormattedValue, astroid.JoinedStr)):
+            self.add_message('logging-fstring-interpolation', node=node)
 
     @staticmethod
     def _is_operand_literal_str(operand):
@@ -226,7 +242,7 @@ class LoggingChecker(checkers.BaseChecker):
             # don't check any further.
             return
         format_string = node.args[format_arg].value
-        if not isinstance(format_string, six.string_types):
+        if not isinstance(format_string, str):
             # If the log format is constant non-string (e.g. logging.debug(5)),
             # ensure there are no arguments.
             required_num_args = 0
@@ -261,9 +277,14 @@ def is_complex_format_str(node):
         bool: True if inferred string uses complex formatting, False otherwise
     """
     inferred = utils.safe_infer(node)
-    if inferred is None or not isinstance(inferred.value, six.string_types):
+    if inferred is None or not isinstance(inferred.value, str):
         return True
-    for _, _, format_spec, _ in string.Formatter().parse(inferred.value):
+    try:
+        parsed = list(string.Formatter().parse(inferred.value))
+    except ValueError:
+        # This format string is invalid
+        return False
+    for _, _, format_spec, _ in parsed:
         if format_spec:
             return True
     return False

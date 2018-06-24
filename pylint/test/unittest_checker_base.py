@@ -100,6 +100,17 @@ class TestDocstring(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_classdef(klass)
 
+    def test_inner_function_no_docstring(self):
+        func = astroid.extract_node("""
+        def func(tion):
+            \"""Documented\"""
+            def inner(fun):
+                # Not documented
+                pass
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(func)
+
 
 class TestNameChecker(CheckerTestCase):
     CHECKER_CLASS = base.NameChecker
@@ -110,7 +121,7 @@ class TestNameChecker(CheckerTestCase):
     @set_config(attr_rgx=re.compile('[A-Z]+'),
                 property_classes=('abc.abstractproperty', '.custom_prop'))
     def test_property_names(self):
-        # If a method is annotated with @property, it's name should
+        # If a method is annotated with @property, its name should
         # match the attr regex. Since by default the attribute regex is the same
         # as the method regex, we override it here.
         methods = astroid.extract_node("""
@@ -188,36 +199,6 @@ class TestNameChecker(CheckerTestCase):
         CONST = "12 34 ".rstrip().split()""")
         with self.assertNoMessages():
             self.checker.visit_assignname(assign.targets[0])
-
-    @unittest.skipIf(sys.version_info >= (3, 0), reason="Needs Python 2.x")
-    @set_config(const_rgx=re.compile(".+"))
-    @set_config(function_rgx=re.compile(".+"))
-    @set_config(class_rgx=re.compile(".+"))
-    def test_assign_to_new_keyword_py2(self):
-        ast = astroid.extract_node("""
-        True = 0  #@
-        False = 1 #@
-        def True():  #@
-            pass
-        class True:  #@
-            pass
-        """)
-        with self.assertAddsMessages(
-            Message(msg_id='assign-to-new-keyword', node=ast[0].targets[0], args=('True', '3.0'))
-        ):
-            self.checker.visit_assignname(ast[0].targets[0])
-        with self.assertAddsMessages(
-            Message(msg_id='assign-to-new-keyword', node=ast[1].targets[0], args=('False', '3.0'))
-        ):
-            self.checker.visit_assignname(ast[1].targets[0])
-        with self.assertAddsMessages(
-            Message(msg_id='assign-to-new-keyword', node=ast[2], args=('True', '3.0'))
-        ):
-            self.checker.visit_functiondef(ast[2])
-        with self.assertAddsMessages(
-            Message(msg_id='assign-to-new-keyword', node=ast[3], args=('True', '3.0'))
-        ):
-            self.checker.visit_classdef(ast[3])
 
     @unittest.skipIf(sys.version_info >= (3, 7), reason="Needs Python 3.6 or earlier")
     @set_config(const_rgx=re.compile(".+"))

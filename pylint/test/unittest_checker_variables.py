@@ -17,6 +17,7 @@ import astroid
 
 from pylint.checkers import variables
 from pylint.testutils import CheckerTestCase, linter, set_config, Message
+from pylint.interfaces import UNDEFINED
 
 class TestVariablesChecker(CheckerTestCase):
 
@@ -88,6 +89,16 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_module(node.root())
             self.checker.visit_functiondef(node)
+
+    def test_unassigned_global(self):
+        node = astroid.extract_node('''
+            def func():
+                global sys  #@
+                import sys, lala
+        ''')
+        msg = Message('global-statement', node=node, confidence=UNDEFINED)
+        with self.assertAddsMessages(msg):
+            self.checker.visit_global(node)
 
 
 class TestVariablesCheckerWithTearDown(CheckerTestCase):
@@ -165,6 +176,19 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(node)
 
+    def test_lambda_in_classdef(self):
+        # Make sure lambda doesn't raises
+        # Undefined-method in class def
+
+        # Issue 1824
+        # https://github.com/PyCQA/pylint/issues/1824
+        node = astroid.parse('''
+        class MyObject(object):
+            method1 = lambda func: func()
+            method2 = lambda function: function()
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
 
 class TestMissingSubmodule(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker

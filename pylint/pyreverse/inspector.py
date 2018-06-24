@@ -53,7 +53,7 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
     found = set()
     missing = False
     for iface in node_classes.unpack_infer(implements):
-        if iface is astroid.YES:
+        if iface is astroid.Uninferable:
             missing = True
             continue
         if iface not in found and handler_func(iface):
@@ -115,7 +115,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         self.project = project
 
     def visit_project(self, node):
-        """visit an pyreverse.utils.Project node
+        """visit a pyreverse.utils.Project node
 
          * optionally tag the node with a unique id
         """
@@ -282,7 +282,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         package_dir = os.path.dirname(self.project.path)
         if context_name == mod_path:
             return 0
-        elif modutils.is_standard_module(mod_path, (package_dir,)):
+        if modutils.is_standard_module(mod_path, (package_dir,)):
             return 1
         return 0
 

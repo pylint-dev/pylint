@@ -1,4 +1,4 @@
-#pylint: disable=missing-docstring, no-else-return, invalid-name, unused-variable, superfluous-parens
+#pylint: disable=missing-docstring, no-else-return, invalid-name, unused-variable, superfluous-parens, try-except-raise
 """Testing inconsistent returns"""
 import math
 import sys
@@ -72,7 +72,7 @@ def explicit_returns5(arg):
 
 def nested_function():
     def dummy_return():
-        return
+        return True
     return dummy_return
 
 def explicit_returns6(x, y, z):
@@ -120,6 +120,31 @@ def bug_1771_with_user_config(var):
         sys.getdefaultencoding()
     else:
         return var * 2
+
+def bug_1794_inner_func_in_if(var):
+    # pylint: disable = no-else-return,useless-return
+    if var:
+        def _inner():
+            return None
+        return None
+    else:
+        return None
+
+try:
+    import ConfigParser as configparser
+except ImportError:
+    import configparser
+
+# Due to the try/except import above, astroid cannot safely
+# infer the exception type. It doesn't matter here, because
+# as the raise statement is not inside a try/except one, there
+# is no need to infer the exception type. It is just an exception
+# that is raised.
+def bug_1794(a):
+    for x in range(a):
+        if x == 100:
+            return a
+    raise configparser.NoSectionError('toto')
 
 # Next ones are not consistent
 def explicit_implicit_returns(var): # [inconsistent-return-statements]
@@ -198,3 +223,33 @@ def bug_1772_counter_example(): # [inconsistent-return-statements]
             counter += 1
             if counter == 100:
                 return 7
+
+def bug_1794_inner_func_in_if_counter_example_1(var): # [inconsistent-return-statements]
+    # pylint: disable = no-else-return,useless-return
+    if var:
+        def _inner():
+            return None
+        return None
+    else:
+        return
+
+def bug_1794_inner_func_in_if_counter_example_2(var): # [inconsistent-return-statements]
+    # pylint: disable = no-else-return,useless-return
+    if var:
+        def _inner():
+            return
+        return None
+    else:
+        return
+
+def bug_1794_inner_func_in_if_counter_example_3(var): # [inconsistent-return-statements]
+    # pylint: disable = no-else-return,useless-return
+    if var:
+        def _inner():
+            return None
+        return None
+    else:
+        def _inner2(var_bis): # [inconsistent-return-statements]
+            if var_bis:
+                return True
+            return

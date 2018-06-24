@@ -28,13 +28,11 @@
 
 """basic checker for Python code"""
 
+import builtins
 import collections
 import itertools
 import sys
 import re
-
-import six
-from six.moves import zip  # pylint: disable=redefined-builtin
 
 import astroid
 import astroid.bases
@@ -134,11 +132,15 @@ TYPECHECK_COMPARISON_OPERATORS = frozenset(('is', 'is not', '==',
                                             '!=', 'in', 'not in'))
 LITERAL_NODE_TYPES = (astroid.Const, astroid.Dict, astroid.List, astroid.Set)
 UNITTEST_CASE = 'unittest.case'
-BUILTINS = six.moves.builtins.__name__
+BUILTINS = builtins.__name__
 TYPE_QNAME = "%s.type" % BUILTINS
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
 PY35 = sys.version_info >= (3, 5)
+ABC_METACLASSES = {
+    '_py_abc.ABCMeta', # Python 3.7+,
+    'abc.ABCMeta',
+}
 
 # Name categories that are always consistent with all naming conventions.
 EXEMPT_NAME_CATEGORIES = {'exempt', 'ignore'}
@@ -150,6 +152,7 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
         ['set()', '{}', '[]'])
 )
 REVERSED_COMPS = {'<': '>', '<=': '>=', '>': '<', '>=': '<='}
+COMPARISON_OPERATORS = frozenset(('==', '!=', '<', '>', '<=', '>='))
 
 
 def _redefines_import(node):
@@ -247,10 +250,7 @@ def _is_multi_naming_match(match, node_type, confidence):
             and (node_type != 'method' or confidence != interfaces.INFERENCE_FAILURE))
 
 
-if sys.version_info < (3, 0):
-    BUILTIN_PROPERTY = '__builtin__.property'
-else:
-    BUILTIN_PROPERTY = 'builtins.property'
+BUILTIN_PROPERTY = 'builtins.property'
 
 
 def _get_properties(config):
@@ -259,7 +259,7 @@ def _get_properties(config):
     Property classes are fully qualified, such as 'abc.abstractproperty' and
     property names are the actual names, such as 'abstract_property'.
     """
-    property_classes = set((BUILTIN_PROPERTY,))
+    property_classes = {BUILTIN_PROPERTY}
     property_names = set()  # Not returning 'property', it has its own check.
     if config is not None:
         property_classes.update(config.property_classes)
@@ -408,7 +408,7 @@ class BasicErrorChecker(_BasicChecker):
                   {'maxversion': (3, 3)}),
         'E0107': ("Use of the non-existent %s operator",
                   'nonexistent-operator',
-                  "Used when you attempt to use the C-style pre-increment or"
+                  "Used when you attempt to use the C-style pre-increment or "
                   "pre-decrement operator -- and ++, which doesn't exist in Python."),
         'E0108': ('Duplicate argument name %s in function definition',
                   'duplicate-argument-name',
@@ -426,22 +426,18 @@ class BasicErrorChecker(_BasicChecker):
         'E0112': ('More than one starred expression in assignment',
                   'too-many-star-expressions',
                   'Emitted when there are more than one starred '
-                  'expressions (`*x`) in an assignment. This is a SyntaxError.',
-                  {'minversion': (3, 0)}),
+                  'expressions (`*x`) in an assignment. This is a SyntaxError.'),
         'E0113': ('Starred assignment target must be in a list or tuple',
                   'invalid-star-assignment-target',
                   'Emitted when a star expression is used as a starred '
-                  'assignment target.',
-                  {'minversion': (3, 0)}),
+                  'assignment target.'),
         'E0114': ('Can use starred expression only in assignment target',
                   'star-needs-assignment-target',
                   'Emitted when a star expression is not used in an '
-                  'assignment target.',
-                  {'minversion': (3, 0)}),
+                  'assignment target.'),
         'E0115': ('Name %r is nonlocal and global',
                   'nonlocal-and-global',
-                  'Emitted when a name is both nonlocal and global.',
-                  {'minversion': (3, 0)}),
+                  'Emitted when a name is both nonlocal and global.'),
         'E0116': ("'continue' not supported inside 'finally' clause",
                   'continue-in-finally',
                   'Emitted when the `continue` keyword is found '
@@ -449,8 +445,7 @@ class BasicErrorChecker(_BasicChecker):
         'E0117': ("nonlocal name %s found without binding",
                   'nonlocal-without-binding',
                   'Emitted when a nonlocal variable does not have an attached '
-                  'name somewhere in the parent scopes',
-                  {'minversion': (3, 0)}),
+                  'name somewhere in the parent scopes'),
         'E0118': ("Name %r is used prior to global declaration",
                   'used-prior-global-declaration',
                   'Emitted when a name is used prior a global declaration, '
@@ -671,7 +666,7 @@ class BasicErrorChecker(_BasicChecker):
                                      node=node)
                     break
             return
-        if metaclass.qname() == 'abc.ABCMeta' and abstract_methods:
+        if metaclass.qname() in ABC_METACLASSES and abstract_methods:
             self.add_message('abstract-class-instantiated',
                              args=(infered.name, ),
                              node=node)
@@ -724,7 +719,7 @@ class BasicChecker(_BasicChecker):
     """checks for :
     * doc strings
     * number of arguments, local variables, branches, returns and statements in
-functions, methods
+    functions, methods
     * required module attributes
     * dangerous default values as arguments
     * redefinition of function / method / class
@@ -879,8 +874,7 @@ functions, methods
     def visit_expr(self, node):
         """check for various kind of statements without effect"""
         expr = node.value
-        if isinstance(expr, astroid.Const) and isinstance(expr.value,
-                                                          six.string_types):
+        if isinstance(expr, astroid.Const) and isinstance(expr.value, str):
             # treat string statement in a separated message
             # Handle PEP-257 attribute docstrings.
             # An attribute docstring is defined as being a string right after
@@ -892,7 +886,7 @@ functions, methods
                 else:
                     sibling = expr.previous_sibling()
                     if (sibling is not None and sibling.scope() is scope and
-                            isinstance(sibling, astroid.Assign)):
+                            isinstance(sibling, (astroid.Assign, astroid.AnnAssign))):
                         return
             self.add_message('pointless-string-statement', node=node)
             return
@@ -1133,7 +1127,7 @@ functions, methods
         try...finally statement.
         If we found before a try...finally bloc a parent which its type is
         in breaker_classes, we skip the whole check."""
-        # if self._tryfinallys is empty, we're not a in try...finally bloc
+        # if self._tryfinallys is empty, we're not an in try...finally block
         if not self._tryfinallys:
             return
         # the node could be a grand-grand...-children of the try...finally
@@ -1153,7 +1147,7 @@ functions, methods
         except utils.NoSuchArgumentError:
             pass
         else:
-            if argument is astroid.YES:
+            if argument is astroid.Uninferable:
                 return
             if argument is None:
                 # Nothing was infered.
@@ -1173,8 +1167,8 @@ functions, methods
                         utils.is_builtin_object(argument._proxied)):
                     self.add_message('bad-reversed-sequence', node=node)
                     return
-                elif any(ancestor.name == 'dict' and utils.is_builtin_object(ancestor)
-                         for ancestor in argument._proxied.ancestors()):
+                if any(ancestor.name == 'dict' and utils.is_builtin_object(ancestor)
+                       for ancestor in argument._proxied.ancestors()):
                     # Mappings aren't accepted by reversed(), unless
                     # they provide explicitly a __reversed__ method.
                     try:
@@ -1260,7 +1254,7 @@ DEFAULT_NAMING_STYLES = {
 
 def _create_naming_options():
     name_options = []
-    for name_type in KNOWN_NAME_TYPES:
+    for name_type in sorted(KNOWN_NAME_TYPES):
         human_readable_name = HUMAN_READABLE_TYPES[name_type]
         default_style = DEFAULT_NAMING_STYLES[name_type]
         name_type = name_type.replace('_', '-')
@@ -1268,11 +1262,11 @@ def _create_naming_options():
             '%s-naming-style' % (name_type,),
             {'default': default_style,
              'type': 'choice', 'choices': list(NAMING_STYLES.keys()), 'metavar': '<style>',
-             'help': 'Naming style matching correct %s names' % (human_readable_name,)}),)
+             'help': 'Naming style matching correct %s names.' % (human_readable_name,)}),)
         name_options.append((
             '%s-rgx' % (name_type,),
             {'default': None, 'type': 'regexp', 'metavar': '<regexp>',
-             'help': 'Regular expression matching correct %s names. Overrides %s-naming-style'
+             'help': 'Regular expression matching correct %s names. Overrides %s-naming-style.'
                      % (human_readable_name, name_type,)}))
     return tuple(name_options)
 
@@ -1291,20 +1285,20 @@ class NameChecker(_BasicChecker):
         'W0111': ('Name %s will become a keyword in Python %s',
                   'assign-to-new-keyword',
                   'Used when assignment will become invalid in future '
-                  'Python release due to introducing new keyword'),
+                  'Python release due to introducing new keyword.'),
     }
 
     options = (('good-names',
                 {'default' : ('i', 'j', 'k', 'ex', 'Run', '_'),
                  'type' :'csv', 'metavar' : '<names>',
                  'help' : 'Good variable names which should always be accepted,'
-                          ' separated by a comma'}
+                          ' separated by a comma.'}
                ),
                ('bad-names',
                 {'default' : ('foo', 'bar', 'baz', 'toto', 'tutu', 'tata'),
                  'type' :'csv', 'metavar' : '<names>',
                  'help' : 'Bad variable names which should always be refused, '
-                          'separated by a comma'}
+                          'separated by a comma.'}
                ),
                ('name-group',
                 {'default' : (),
@@ -1315,7 +1309,7 @@ class NameChecker(_BasicChecker):
                ),
                ('include-naming-hint',
                 {'default': False, 'type': 'yn', 'metavar': '<y_or_n>',
-                 'help': 'Include a hint for the correct naming format with invalid-name'}
+                 'help': 'Include a hint for the correct naming format with invalid-name.'}
                ),
                ('property-classes',
                 {'default': ('abc.abstractproperty',),
@@ -1328,7 +1322,6 @@ class NameChecker(_BasicChecker):
               ) + _create_naming_options()
 
     KEYWORD_ONSET = {
-        (3, 0): {'True', 'False'},
         (3, 7): {'async', 'await'}
     }
 
@@ -1385,12 +1378,12 @@ class NameChecker(_BasicChecker):
         self._bad_names = {}
 
     def leave_module(self, node): # pylint: disable=unused-argument
-        for all_groups in six.itervalues(self._bad_names):
+        for all_groups in self._bad_names.values():
             if len(all_groups) < 2:
                 continue
             groups = collections.defaultdict(list)
             min_warnings = sys.maxsize
-            for group in six.itervalues(all_groups):
+            for group in all_groups.values():
                 groups[len(group)].append(group)
                 min_warnings = min(len(group), min_warnings)
             if len(groups[min_warnings]) > 1:
@@ -1406,7 +1399,7 @@ class NameChecker(_BasicChecker):
     def visit_classdef(self, node):
         self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name('class', node.name, node)
-        for attr, anodes in six.iteritems(node.instance_attrs):
+        for attr, anodes in node.instance_attrs.items():
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name('attr', attr, anodes[0])
 
@@ -1442,19 +1435,19 @@ class NameChecker(_BasicChecker):
         """check module level assigned names"""
         self._check_assign_to_new_keyword_violation(node.name, node)
         frame = node.frame()
-        ass_type = node.assign_type()
-        if isinstance(ass_type, astroid.Comprehension):
+        assign_type = node.assign_type()
+        if isinstance(assign_type, astroid.Comprehension):
             self._check_name('inlinevar', node.name, node)
         elif isinstance(frame, astroid.Module):
-            if isinstance(ass_type, astroid.Assign) and not in_loop(ass_type):
-                if isinstance(utils.safe_infer(ass_type.value), astroid.ClassDef):
+            if isinstance(assign_type, astroid.Assign) and not in_loop(assign_type):
+                if isinstance(utils.safe_infer(assign_type.value), astroid.ClassDef):
                     self._check_name('class', node.name, node)
                 else:
                     if not _redefines_import(node):
                         # Don't emit if the name redefines an import
                         # in an ImportError except handler.
                         self._check_name('const', node.name, node)
-            elif isinstance(ass_type, astroid.ExceptHandler):
+            elif isinstance(assign_type, astroid.ExceptHandler):
                 self._check_name('variable', node.name, node)
         elif isinstance(frame, astroid.FunctionDef):
             # global introduced variable aren't in the function locals
@@ -1493,6 +1486,13 @@ class NameChecker(_BasicChecker):
 
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
+        def _should_exempt_from_invalid_name(node):
+            if node_type == 'variable':
+                inferred = utils.safe_infer(node)
+                if isinstance(inferred, astroid.ClassDef):
+                    return True
+            return False
+
         if utils.is_inside_except(node):
             clobbering, _ = utils.clobber_in_except(node)
             if clobbering:
@@ -1512,7 +1512,7 @@ class NameChecker(_BasicChecker):
             warnings = bad_name_group.setdefault(match.lastgroup, [])
             warnings.append((node, node_type, name, confidence))
 
-        if match is None:
+        if match is None and not _should_exempt_from_invalid_name(node):
             self._raise_name_warning(node, node_type, name, confidence)
 
     def _check_assign_to_new_keyword_violation(self, name, node):
@@ -1603,8 +1603,10 @@ class DocStringChecker(_BasicChecker):
                 self._check_docstring(ftype, node,
                                       report_missing=not overridden,
                                       confidence=confidence)
-            else:
+            elif isinstance(node.parent.frame(), astroid.Module):
                 self._check_docstring(ftype, node)
+            else:
+                return
 
     visit_asyncfunctiondef = visit_functiondef
 
@@ -1635,7 +1637,7 @@ class DocStringChecker(_BasicChecker):
                     # Strings in Python 3, others in Python 2.
                     if PY3K and func.bound.name == 'str':
                         return
-                    elif func.bound.name in ('str', 'unicode', 'bytes'):
+                    if func.bound.name in ('str', 'unicode', 'bytes'):
                         return
             self.add_message('missing-docstring', node=node, args=(node_type,),
                              confidence=confidence)
@@ -1726,23 +1728,44 @@ class ComparisonChecker(_BasicChecker):
                       'Used when comparing an object to a literal, which is usually '
                       'what you do not want to do, since you can compare to a different '
                       'literal than what was expected altogether.'),
-           }
+            'R0124': ('Redundant comparison - %s',
+                      'comparison-with-itself',
+                      'Used when something is compared against itself.',
+                      ),
+            'W0143': ('Comparing against a callable, did you omit the parenthesis?',
+                      'comparison-with-callable',
+                      'This message is emitted when pylint detects that a comparison with a '
+                      'callable was made, which might suggest that some parenthesis were omitted, '
+                      'resulting in potential unwanted behaviour.'
+                      ),
 
-    def _check_singleton_comparison(self, singleton, root_node):
+            }
+
+    def _check_singleton_comparison(self, singleton, root_node, negative_check=False):
         if singleton.value is True:
-            suggestion = "just 'expr' or 'expr is True'"
+            if not negative_check:
+                suggestion = "just 'expr' or 'expr is True'"
+            else:
+                suggestion = "just 'not expr' or 'expr is False'"
             self.add_message('singleton-comparison',
                              node=root_node,
                              args=(True, suggestion))
         elif singleton.value is False:
-            suggestion = "'not expr' or 'expr is False'"
+            if not negative_check:
+                suggestion = "'not expr' or 'expr is False'"
+            else:
+                suggestion = "'expr' or 'expr is not False'"
             self.add_message('singleton-comparison',
                              node=root_node,
                              args=(False, suggestion))
         elif singleton.value is None:
+            if not negative_check:
+                suggestion = "'expr is None'"
+            else:
+                suggestion = "'expr is not None'"
             self.add_message('singleton-comparison',
                              node=root_node,
-                             args=(None, "'expr is None'"))
+                             args=(None, suggestion))
 
     def _check_literal_comparison(self, literal, node):
         """Check if we compare to a literal, which is usually what we do not want to do."""
@@ -1769,9 +1792,50 @@ class ComparisonChecker(_BasicChecker):
         self.add_message('misplaced-comparison-constant', node=node,
                          args=(suggestion,))
 
+    def _check_logical_tautology(self, node):
+        """Check if identifier is compared against itself.
+        :param node: Compare node
+        :type node: astroid.node_classes.Compare
+        :Example:
+        val = 786
+        if val == val:  # [comparison-with-itself]
+            pass
+        """
+        left_operand = node.left
+        right_operand = node.ops[0][1]
+        operator = node.ops[0][0]
+        if (isinstance(left_operand, astroid.Const)
+                and isinstance(right_operand, astroid.Const)):
+            left_operand = left_operand.value
+            right_operand = right_operand.value
+        elif (isinstance(left_operand, astroid.Name)
+              and isinstance(right_operand, astroid.Name)):
+            left_operand = left_operand.name
+            right_operand = right_operand.name
+
+        if left_operand == right_operand:
+            suggestion = "%s %s %s" % (left_operand, operator, right_operand)
+            self.add_message('comparison-with-itself', node=node, args=(suggestion,))
+
+    def _check_callable_comparison(self, node):
+        operator = node.ops[0][0]
+        if operator not in COMPARISON_OPERATORS:
+            return
+
+        bare_callables = (astroid.FunctionDef, astroid.BoundMethod)
+        left_operand, right_operand = node.left, node.ops[0][1]
+        # this message should be emitted only when there is comparison of bare callable
+        # with non bare callable.
+        if sum([1 for operand in (left_operand, right_operand)
+                if isinstance(utils.safe_infer(operand), bare_callables)]) == 1:
+            self.add_message('comparison-with-callable', node=node)
+
     @utils.check_messages('singleton-comparison', 'misplaced-comparison-constant',
-                          'unidiomatic-typecheck', 'literal-comparison')
+                          'unidiomatic-typecheck', 'literal-comparison', 'comparison-with-itself',
+                          'comparison-with-callable')
     def visit_compare(self, node):
+        self._check_callable_comparison(node)
+        self._check_logical_tautology(node)
         self._check_unidiomatic_typecheck(node)
         # NOTE: this checker only works with binary comparisons like 'x == 42'
         # but not 'x == y == 42'
@@ -1780,7 +1844,7 @@ class ComparisonChecker(_BasicChecker):
 
         left = node.left
         operator, right = node.ops[0]
-        if (operator in ('<', '<=', '>', '>=', '!=', '==')
+        if (operator in COMPARISON_OPERATORS
                 and isinstance(left, astroid.Const)):
             self._check_misplaced_constant(node, left, right, operator)
 
@@ -1789,6 +1853,9 @@ class ComparisonChecker(_BasicChecker):
                 self._check_singleton_comparison(left, node)
             elif isinstance(right, astroid.Const):
                 self._check_singleton_comparison(right, node)
+        if operator == '!=':
+            if isinstance(right, astroid.Const):
+                self._check_singleton_comparison(right, node, negative_check=True)
         if operator in ('is', 'is not'):
             self._check_literal_comparison(right, node)
 

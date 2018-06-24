@@ -46,7 +46,7 @@ def bar1(x, y, z):
 def bar2(w, x, y, z):
     if x:
         return y
-    elif z:
+    if z:
         a = 1
     else:
         return w
@@ -60,3 +60,13 @@ def bar3(x, y, z):
     else:
         return z
     return None
+
+
+def bar4(condition):
+    if condition:  # [no-else-return]
+        return True
+    else:
+        try:
+            return False
+        except ValueError:
+            return None

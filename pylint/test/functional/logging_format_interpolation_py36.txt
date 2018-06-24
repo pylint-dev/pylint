@@ -1,0 +1,1 @@
+logging-fstring-interpolation:5::Use % formatting in logging functions and pass the % parameters as arguments

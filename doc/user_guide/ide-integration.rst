@@ -238,25 +238,19 @@ The Python extension maps Pylint message categories to VS Code
 categories through the following settings. If desired, change the
 setting to change the mapping.
 
-+-----------------------+-----------------------+-----------------------+
-| Pylint category       | Applicable            | VS Code category      |
-|                       | setting(python.lintin | mapping               |
-|                       | g.)                   |                       |
-+=======================+=======================+=======================+
-| convention            | pylintCategorySeverit | Information           |
-|                       | y.convention          |                       |
-+-----------------------+-----------------------+-----------------------+
-| refactor              | pylintCategorySeverit | Hint                  |
-|                       | y.refactor            |                       |
-+-----------------------+-----------------------+-----------------------+
-| warning               | pylintCategorySeverit | Warning               |
-|                       | y.warning             |                       |
-+-----------------------+-----------------------+-----------------------+
-| error                 | pylintCategorySeverit | Error                 |
-|                       | y.error               |                       |
-+-----------------------+-----------------------+-----------------------+
-| fatal                 | pylintCategorySeverit | Error                 |
-|                       | y.fatal               |                       |
-+-----------------------+-----------------------+-----------------------+
++----------------------+-----------------------------------+------------------+
+| Pylint category      | Applicable setting                | VS Code category |
+|                      | (python.linting.)                 | mapping          |
++======================+===================================+==================+
+| convention           | pylintCategorySeverity.convention | Information      |
++----------------------+-----------------------------------+------------------+
+| refactor             | pylintCategorySeverity.refactor   | Hint             |
++----------------------+-----------------------------------+------------------+
+| warning              | pylintCategorySeverity.warning    | Warning          |
++----------------------+-----------------------------------+------------------+
+| error                | pylintCategorySeverity.error      | Error            |
++----------------------+-----------------------------------+------------------+
+| fatal                | pylintCategorySeverity.fatal      | Error            |
++----------------------+-----------------------------------+------------------+
 
 .. _Pylint command line arguments: https://pylint.readthedocs.io/en/latest/user_guide/run.html#command-line-options

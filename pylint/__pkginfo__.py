@@ -20,47 +20,24 @@
 from __future__ import absolute_import
 
 from os.path import join
-from sys import version_info as py_version
-
-from pkg_resources import parse_version
-from setuptools import __version__ as setuptools_version
 
 modname = distname = 'pylint'
 
 numversion = (2, 0, 0)
-version = '.'.join([str(num) for num in numversion])
+version = '.'.join(str(num) for num in numversion) + '.dev1'
 
 install_requires = [
-    'astroid<2.0',
-    'six',
+    'astroid>=2.0.0.dev3',
     'isort >= 4.2.5',
     'mccabe',
 ]
 
-dependency_links = []
+dependency_links = [
+    'https://github.com/PyCQA/astroid/tarball/master#egg=astroid-2.0'
+]
 
 extras_require = {}
 extras_require[':sys_platform=="win32"'] = ['colorama']
-
-
-def has_environment_marker_range_operators_support():
-    """Code extracted from 'pytest/setup.py'
-    https://github.com/pytest-dev/pytest/blob/7538680c/setup.py#L31
-    The first known release to support environment marker with range operators
-    it is 17.1, see: https://setuptools.readthedocs.io/en/latest/history.html#id113
-    """
-    return parse_version(setuptools_version) >= parse_version('17.1')
-
-
-if has_environment_marker_range_operators_support():
-    extras_require[':python_version=="2.7"'] = ['configparser', 'backports.functools_lru_cache']
-    extras_require[':python_version<"3.4"'] = ['singledispatch']
-else:
-    if (py_version.major, py_version.minor) == (2, 7):
-        install_requires.extend(['configparser', 'backports.functools_lru_cache'])
-    if py_version < (3, 4):
-        install_requires.extend(['singledispatch'])
-
 
 license = 'GPL'
 description = "python code static checker"
@@ -69,18 +46,18 @@ mailinglist = "mailto:code-quality@python.org"
 author = 'Python Code Quality Authority'
 author_email = 'code-quality@python.org'
 
-classifiers = ['Development Status :: 4 - Beta',
+classifiers = ['Development Status :: 6 - Mature',
                'Environment :: Console',
                'Intended Audience :: Developers',
                'License :: OSI Approved :: GNU General Public License (GPL)',
                'Operating System :: OS Independent',
                'Programming Language :: Python',
-               'Programming Language :: Python :: 2',
-               'Programming Language :: Python :: 2.7',
                'Programming Language :: Python :: 3',
                'Programming Language :: Python :: 3.4',
                'Programming Language :: Python :: 3.5',
                'Programming Language :: Python :: 3.6',
+               'Programming Language :: Python :: 3.7',
+               'Programming Language :: Python :: 3 :: Only',
                'Programming Language :: Python :: Implementation :: CPython',
                'Programming Language :: Python :: Implementation :: PyPy',
                'Topic :: Software Development :: Debuggers',

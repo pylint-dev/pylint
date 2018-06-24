@@ -13,6 +13,7 @@ import os
 import astroid
 from pylint.checkers import imports
 from pylint.testutils import CheckerTestCase, Message, set_config
+from pylint.interfaces import UNDEFINED
 
 
 class TestImportsChecker(CheckerTestCase):
@@ -24,7 +25,7 @@ class TestImportsChecker(CheckerTestCase):
                                  'foo',
                                  'bar'))
     def test_import_error_skipped(self):
-        """Make sure that imports do not emit a 'import-error' when the
+        """Make sure that imports do not emit an 'import-error' when the
         module is configured to be ignored."""
 
         node = astroid.extract_node("""
@@ -96,3 +97,30 @@ class TestImportsChecker(CheckerTestCase):
             self.checker.visit_importfrom(module.body[1])
         with self.assertNoMessages():
             self.checker.visit_importfrom(module.body[2].body[0])
+
+    def test_wildcard_import_init(self):
+        here = os.path.abspath(os.path.dirname(__file__))
+        path = os.path.join(
+            here, 'regrtest_data', 'init_wildcard', '__init__.py')
+        with open(path) as stream:
+            data = stream.read()
+        module = astroid.parse(data, module_name='__init__', path=path)
+        import_from = module.body[0]
+
+        with self.assertNoMessages():
+            self.checker.visit_importfrom(import_from)
+
+    def test_wildcard_import_non_init(self):
+        here = os.path.abspath(os.path.dirname(__file__))
+        path = os.path.join(
+            here, 'regrtest_data', 'init_wildcard', '__init__.py')
+        with open(path) as stream:
+            data = stream.read()
+        module = astroid.parse(data, module_name='awesome_module', path=path)
+        import_from = module.body[0]
+
+        msg = Message(
+            msg_id='wildcard-import', node=import_from, args='awesome_module',
+            confidence=UNDEFINED)
+        with self.assertAddsMessages(msg):
+            self.checker.visit_importfrom(import_from)

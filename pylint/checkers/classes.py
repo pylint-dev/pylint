@@ -26,9 +26,8 @@
 from __future__ import generators
 
 import collections
+from itertools import chain, zip_longest
 import sys
-
-import six
 
 import astroid
 from astroid.bases import Generator, BUILTINS
@@ -190,7 +189,8 @@ def _has_different_parameters_default_value(original, overridden):
     if original.args is None or overridden.args is None:
         return False
 
-    original_param_names = [param.name for param in original.args]
+    all_args = chain(original.args, original.kwonlyargs)
+    original_param_names = [param.name for param in all_args]
     default_missing = object()
     for param_name in original_param_names:
         try:
@@ -223,7 +223,7 @@ def _has_different_parameters_default_value(original, overridden):
     return False
 
 def _has_different_parameters(original, overridden, dummy_parameter_regex):
-    zipped = six.moves.zip_longest(original, overridden)
+    zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
         params = (original_param, overridden_param)
         if not all(params):
@@ -351,7 +351,7 @@ def _is_attribute_property(name, klass):
         attributes = klass.getattr(name)
     except astroid.NotFoundError:
         return False
-    property_name = "{0}.property".format(BUILTINS)
+    property_name = "{}.property".format(BUILTINS)
     for attr in attributes:
         try:
             infered = next(attr.infer())
@@ -403,7 +403,7 @@ def _has_same_layout_slots(slots, assigned_value):
     if isinstance(inferred, astroid.ClassDef):
         other_slots = inferred.slots()
         if all(first_slot and second_slot and first_slot.value == second_slot.value
-               for (first_slot, second_slot) in six.moves.zip_longest(slots, other_slots)):
+               for (first_slot, second_slot) in zip_longest(slots, other_slots)):
             return True
     return False
 
@@ -595,7 +595,7 @@ instance attributes.'}
 a class method.'}
                ),
                ('valid-metaclass-classmethod-first-arg',
-                {'default' : ('mcs',),
+                {'default' : ('cls',),
                  'type' : 'csv',
                  'metavar' : '<argument names>',
                  'help' : 'List of valid names for the first argument in \
@@ -661,7 +661,7 @@ a metaclass class method.'}
         """
         for base in node.bases:
             ancestor = safe_infer(base)
-            if ancestor in (astroid.YES, None):
+            if ancestor in (astroid.Uninferable, None):
                 continue
             if (isinstance(ancestor, astroid.Instance) and
                     ancestor.is_subtype_of('%s.type' % (BUILTINS,))):
@@ -692,7 +692,7 @@ a metaclass class method.'}
             return
         defining_methods = self.config.defining_attr_methods
         current_module = cnode.root()
-        for attr, nodes in six.iteritems(cnode.instance_attrs):
+        for attr, nodes in cnode.instance_attrs.items():
             # skip nodes which are not in the current module and it may screw up
             # the output, while it's not worth it
             nodes = [n for n in nodes if not
@@ -770,6 +770,14 @@ a metaclass class method.'}
                     # attribute affectation will either call a setter or raise
                     # an attribute error, anyway not hiding the function
                     return
+                try:
+                    for infered in decorator.infer():
+                        if (isinstance(infered, astroid.ClassDef)
+                                and infered.getattr('__get__')
+                                and infered.getattr('__set__')):
+                            return
+                except (astroid.InferenceError, astroid.AttributeInferenceError):
+                    pass
         # check if the method is hidden by an attribute
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX
@@ -843,6 +851,7 @@ a metaclass class method.'}
 
         # Check values of default args
         klass = function.parent.frame()
+        meth_node = None
         for overridden in klass.local_attr_ancestors(function.name):
             # get astroid for the searched method
             try:
@@ -858,12 +867,21 @@ a metaclass class method.'}
                     or _has_different_parameters_default_value(
                         meth_node.args, function.args)):
                 return
-            else:
-                break
+            break
 
         # Detect if the parameters are the same as the call's arguments.
         params = _signature_from_arguments(function.args)
         args = _signature_from_call(call)
+
+        if meth_node is not None:
+            def form_annotations(annotations):
+                return [annotation.as_string() for annotation in filter(None, annotations)]
+            called_annotations = form_annotations(function.args.annotations)
+            overridden_annotations = form_annotations(meth_node.args.annotations)
+            if called_annotations and overridden_annotations:
+                if called_annotations != overridden_annotations:
+                    return
+
         if _definition_equivalent_to_call(params, args):
             self.add_message('useless-super-delegation', node=function,
                              args=(function.name, ))
@@ -873,7 +891,7 @@ a metaclass class method.'}
             return
         for slots in node.igetattr('__slots__'):
             # check if __slots__ is a valid type
-            if slots is astroid.YES:
+            if slots is astroid.Uninferable:
                 continue
             if not is_iterable(slots) and not is_comprehension(slots):
                 self.add_message('invalid-slots', node=node)
@@ -891,7 +909,7 @@ a metaclass class method.'}
                 values = [item[0] for item in slots.items]
             else:
                 values = slots.itered()
-            if values is astroid.YES:
+            if values is astroid.Uninferable:
                 return
 
             for elt in values:
@@ -905,7 +923,7 @@ a metaclass class method.'}
             if infered is astroid.Uninferable:
                 continue
             if (not isinstance(infered, astroid.Const) or
-                    not isinstance(infered.value, six.string_types)):
+                    not isinstance(infered.value, str)):
                 self.add_message('invalid-slots-object',
                                  args=infered.as_string(),
                                  node=elt)
@@ -932,7 +950,7 @@ a metaclass class method.'}
                     and not (node.is_abstract() or
                              overrides_a_method(class_node, node.name) or
                              decorated_with_property(node) or
-                             (six.PY3 and _has_bare_super_call(node)))):
+                             _has_bare_super_call(node))):
                 self.add_message('no-self-use', node=node)
 
     def visit_attribute(self, node):
@@ -1115,7 +1133,7 @@ a metaclass class method.'}
         """check that accessed members are defined"""
         # XXX refactor, probably much simpler now that E0201 is in type checker
         excs = ('AttributeError', 'Exception', 'BaseException')
-        for attr, nodes in six.iteritems(accessed):
+        for attr, nodes in accessed.items():
             try:
                 # is it a class attribute ?
                 node.local_attr(attr)
@@ -1289,7 +1307,7 @@ a metaclass class method.'}
                             is_builtin_object(klass._proxied) and
                             klass._proxied.name == 'super'):
                         return
-                    elif isinstance(klass, objects.Super):
+                    if isinstance(klass, objects.Super):
                         return
                     try:
                         del not_called_yet[klass]
@@ -1299,7 +1317,7 @@ a metaclass class method.'}
                                              node=expr, args=klass.name)
             except astroid.InferenceError:
                 continue
-        for klass, method in six.iteritems(not_called_yet):
+        for klass, method in not_called_yet.items():
             cls = node_frame_class(method)
             if klass.name == 'object' or (cls and cls.name == 'object'):
                 continue
@@ -1381,7 +1399,7 @@ class SpecialMethodsChecker(BaseChecker):
                   {'old_names': [('E0235', 'bad-context-manager')]}),
         'E0303': ('__len__ does not return non-negative integer',
                   'invalid-length-returned',
-                  'Used when an __len__ method returns something which is not a '
+                  'Used when a __len__ method returns something which is not a '
                   'non-negative integer', {}),
     }
     priority = -2
@@ -1447,8 +1465,8 @@ class SpecialMethodsChecker(BaseChecker):
 
     @staticmethod
     def _is_iterator(node):
-        if node is astroid.YES:
-            # Just ignore YES objects.
+        if node is astroid.Uninferable:
+            # Just ignore Uninferable objects.
             return True
         if isinstance(node, Generator):
             # Generators can be itered.
@@ -1493,7 +1511,7 @@ class SpecialMethodsChecker(BaseChecker):
             return
 
         value = inferred.value
-        if not isinstance(value, six.integer_types) or value < 0:
+        if not isinstance(value, int) or value < 0:
             self.add_message('invalid-length-returned', node=node)
 
 
@@ -1509,15 +1527,6 @@ def _ancestors_to_call(klass_node, method='__init__'):
             continue
     return to_call
 
-
-def node_method(node, method_name):
-    """get astroid for <method_name> on the given class node, ensuring it
-    is a Function node
-    """
-    for node_attr in node.local_attr(method_name):
-        if isinstance(node_attr, astroid.Function):
-            return node_attr
-    raise astroid.NotFoundError(method_name)
 
 def register(linter):
     """required method to auto register this checker """

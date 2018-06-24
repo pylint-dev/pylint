@@ -25,7 +25,7 @@ class AbstractB(Abstract):
         """should be overridden in concrete class"""
         raise NotImplementedError()
 
-class Concret(Abstract): # [abstract-method]
+class Concrete(Abstract): # [abstract-method]
     """Concrete class"""
 
     def aaaa(self):

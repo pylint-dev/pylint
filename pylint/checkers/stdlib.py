@@ -20,10 +20,9 @@
 
 import sys
 
-import six
-
 import astroid
 from astroid.bases import Instance
+from astroid.node_classes import Const
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils
@@ -34,6 +33,9 @@ UNITTEST_CASE = 'unittest.case'
 THREADING_THREAD = 'threading.Thread'
 COPY_COPY = 'copy.copy'
 OS_ENVIRON = 'os._Environ'
+ENV_GETTERS = {'os.getenv'}
+SUBPROCESS_POPEN = 'subprocess.Popen'
+
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
 else:
@@ -42,15 +44,12 @@ else:
 
 def _check_mode_str(mode):
     # check type
-    if not isinstance(mode, six.string_types):
+    if not isinstance(mode, str):
         return False
     # check syntax
     modes = set(mode)
-    _mode = "rwatb+U"
-    creating = False
-    if six.PY3:
-        _mode += "x"
-        creating = "x" in modes
+    _mode = "rwatb+Ux"
+    creating = "x" in modes
     if modes - set(_mode) or len(mode) > len(modes):
         return False
     # check logic
@@ -60,25 +59,16 @@ def _check_mode_str(mode):
     text = "t" in modes
     binary = "b" in modes
     if "U" in modes:
-        if writing or appending or creating and six.PY3:
+        if writing or appending or creating:
             return False
         reading = True
-        if not six.PY3:
-            binary = True
     if text and binary:
         return False
-    total = reading + writing + appending + (creating if six.PY3 else 0)
+    total = reading + writing + appending + creating
     if total > 1:
         return False
-    if not (reading or writing or appending or creating and six.PY3):
+    if not (reading or writing or appending or creating):
         return False
-    # other 2.x constraints
-    if not six.PY3:
-        if "U" in mode:
-            mode = mode.replace("U", "")
-            if "r" not in mode:
-                mode = "r" + mode
-        return mode[0] in ("r", "w", "a", "U")
     return True
 
 
@@ -122,6 +112,24 @@ class StdlibChecker(BaseChecker):
                   'os.environ is not a dict object but proxy object, so '
                   'shallow copy has still effects on original object. '
                   'See https://bugs.python.org/issue15373 for reference. '),
+        'E1507': ('%s does not support %s type argument',
+                  'invalid-envvar-value',
+                  'Env manipulation functions support only string type arguments. '
+                  'See https://docs.python.org/3/library/os.html#os.getenv. '),
+        'W1508': ('%s default type is %s. Expected str or None.',
+                  'invalid-envvar-default',
+                  'Env manipulation functions return None or str values. '
+                  'Supplying anything different as a default may cause bugs. '
+                  'See https://docs.python.org/3/library/os.html#os.getenv. '),
+        'W1509': ('Using preexec_fn keyword which may be unsafe in the presence '
+                  'of threads',
+                  'subprocess-popen-preexec-fn',
+                  'The preexec_fn parameter is not safe to use in the presence '
+                  'of threads in your application. The child process could '
+                  'deadlock before exec is called. If you must use it, keep it '
+                  'trivial! Minimize the number of libraries you call into.'
+                  'https://docs.python.org/3/library/subprocess.html#popen-constructor'),
+
     }
 
     deprecated = {
@@ -200,8 +208,14 @@ class StdlibChecker(BaseChecker):
     }
 
     def _check_bad_thread_instantiation(self, node):
-        if not node.kwargs and node.args:
+        if not node.kwargs and not node.keywords and len(node.args) <= 1:
             self.add_message('bad-thread-instantiation', node=node)
+
+    def _check_for_preexec_fn_in_Popen(self, node):
+        if node.keywords:
+            for keyword in node.keywords:
+                if keyword.arg == 'preexec_fn':
+                    self.add_message('subprocess-popen-preexec-fn', node=node)
 
     def _check_shallow_copy_environ(self, node):
         arg = utils.get_argument_from_call(node, position=0)
@@ -210,25 +224,36 @@ class StdlibChecker(BaseChecker):
                 self.add_message('shallow-copy-environ', node=node)
                 break
 
-    @utils.check_messages('bad-open-mode', 'redundant-unittest-assert',
+    @utils.check_messages('bad-open-mode',
+                          'redundant-unittest-assert',
                           'deprecated-method',
                           'bad-thread-instantiation',
-                          'shallow-copy-environ')
+                          'shallow-copy-environ',
+                          'invalid-envvar-value',
+                          'invalid-envvar-default',
+                          'subprocess-popen-preexec-fn')
     def visit_call(self, node):
         """Visit a Call node."""
         try:
             for inferred in node.func.infer():
                 if inferred is astroid.Uninferable:
                     continue
-                if inferred.root().name == OPEN_MODULE:
+                elif inferred.root().name == OPEN_MODULE:
                     if getattr(node.func, 'name', None) in OPEN_FILES:
                         self._check_open_mode(node)
-                if inferred.root().name == UNITTEST_CASE:
+                elif inferred.root().name == UNITTEST_CASE:
                     self._check_redundant_assert(node, inferred)
-                if isinstance(inferred, astroid.ClassDef) and inferred.qname() == THREADING_THREAD:
-                    self._check_bad_thread_instantiation(node)
-                if isinstance(inferred, astroid.FunctionDef) and inferred.qname() == COPY_COPY:
-                    self._check_shallow_copy_environ(node)
+                elif isinstance(inferred, astroid.ClassDef):
+                    if inferred.qname() == THREADING_THREAD:
+                        self._check_bad_thread_instantiation(node)
+                    elif inferred.qname() == SUBPROCESS_POPEN:
+                        self._check_for_preexec_fn_in_Popen(node)
+                elif isinstance(inferred, astroid.FunctionDef):
+                    name = inferred.qname()
+                    if name == COPY_COPY:
+                        self._check_shallow_copy_environ(node)
+                    elif name in ENV_GETTERS:
+                        self._check_env_function(node, inferred)
                 self._check_deprecated_method(node, inferred)
         except astroid.InferenceError:
             return
@@ -313,6 +338,61 @@ class StdlibChecker(BaseChecker):
                     and not _check_mode_str(mode_arg.value)):
                 self.add_message('bad-open-mode', node=node,
                                  args=mode_arg.value)
+
+    def _check_env_function(self, node, infer):
+        env_name_kwarg = 'key'
+        env_value_kwarg = 'default'
+        if node.keywords:
+            kwargs = {keyword.arg: keyword.value for keyword in node.keywords}
+        else:
+            kwargs = None
+        if node.args:
+            env_name_arg = node.args[0]
+        elif kwargs and env_name_kwarg in kwargs:
+            env_name_arg = kwargs[env_name_kwarg]
+        else:
+            env_name_arg = None
+
+        if env_name_arg:
+            self._check_invalid_envvar_value(
+                node=node,
+                message='invalid-envvar-value',
+                call_arg=utils.safe_infer(env_name_arg),
+                infer=infer,
+                allow_none=False
+            )
+
+        if len(node.args) == 2:
+            env_value_arg = node.args[1]
+        elif kwargs and env_value_kwarg in kwargs:
+            env_value_arg = kwargs[env_value_kwarg]
+        else:
+            env_value_arg = None
+
+        if env_value_arg:
+            self._check_invalid_envvar_value(
+                node=node,
+                infer=infer,
+                message='invalid-envvar-default',
+                call_arg=utils.safe_infer(env_value_arg),
+                allow_none=True,
+            )
+
+    def _check_invalid_envvar_value(self, node, infer, message, call_arg, allow_none):
+        if call_arg in (astroid.Uninferable, None):
+            return
+
+        name = infer.qname()
+        if isinstance(call_arg, Const):
+            emit = False
+            if call_arg.value is None:
+                emit = not allow_none
+            elif not isinstance(call_arg.value, str):
+                emit = True
+            if emit:
+                self.add_message(message, node=node, args=(name, call_arg.pytype()))
+        else:
+            self.add_message(message, node=node, args=(name, call_arg.pytype()))
 
 
 def register(linter):

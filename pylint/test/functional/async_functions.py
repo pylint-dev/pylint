@@ -27,15 +27,15 @@ async def complex_function(this, function, has, more, arguments, than,
                            one, _, should, have):
     if 1:
         return this
-    elif 1:
+    if 1:
         return function
-    elif 1:
+    if 1:
         return has
-    elif 1:
+    if 1:
         return more
-    elif 1:
+    if 1:
         return arguments
-    elif 1:
+    if 1:
         return than
     try:
         return one
@@ -47,9 +47,9 @@ async def complex_function(this, function, has, more, arguments, than,
         pass
     if 1:
         return have
-    elif 2:
+    if 2:
         return function
-    elif 3:
+    if 3:
         pass
 
 

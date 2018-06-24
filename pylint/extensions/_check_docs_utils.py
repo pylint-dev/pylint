@@ -106,7 +106,7 @@ def possible_exc_types(node):
     :type node: astroid.node_classes.NodeNG
 
     :returns: A list of exception types possibly raised by :param:`node`.
-    :rtype: list(str)
+    :rtype: set(str)
     """
     excs = []
     if isinstance(node.exc, astroid.Name):
@@ -140,9 +140,9 @@ def possible_exc_types(node):
 
 
     try:
-        return set(exc for exc in excs if not utils.node_ignores_exception(node, exc))
+        return {exc for exc in excs if not utils.node_ignores_exception(node, exc)}
     except astroid.InferenceError:
-        return ()
+        return set()
 
 
 def docstringify(docstring):
@@ -216,7 +216,7 @@ class SphinxDocstring(Docstring):
 
     re_xref = r"""
         (?::\w+:)?                    # optional tag
-        `{0}`                         # what to reference
+        `{}`                         # what to reference
         """.format(re_type)
 
     re_param_raw = r"""
@@ -428,6 +428,7 @@ class GoogleDocstring(Docstring):
         \s*  \*{{0,2}}(\w+)             # identifier potentially with asterisks
         \s*  ( [(]
             {type}
+            (?:,\s+optional)?
             [)] )? \s* :                # optional type declaration
         \s*  (.*)                       # beginning of optional description
     """.format(
@@ -609,6 +610,12 @@ class GoogleDocstring(Docstring):
     def min_section_indent(section_match):
         return len(section_match.group(1)) + 1
 
+    @staticmethod
+    def _is_section_header(_):
+        # Google parsing does not need to detect section headers,
+        # because it works off of indentation level only
+        return False
+
     def _parse_section(self, section_re):
         section_match = section_re.search(self.doc)
         if section_match is None:
@@ -633,6 +640,8 @@ class GoogleDocstring(Docstring):
                 is_first = False
 
             if indentation == min_indentation:
+                if self._is_section_header(line):
+                    break
                 # Lines with minimum indentation must contain the beginning
                 # of a new parameter documentation.
                 if entry:
@@ -685,8 +694,9 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_returns_line = re.compile(r"""
-        \s* ({type})$ # type declaration
-        \s* (.*)                       # optional description
+        \s* (?:\w+\s+:\s+)? # optional name
+        ({type})$                         # type declaration
+        \s* (.*)                          # optional description
     """.format(
         type=GoogleDocstring.re_multiple_type,
     ), re.X | re.S | re.M)
@@ -703,3 +713,7 @@ class NumpyDocstring(GoogleDocstring):
     @staticmethod
     def min_section_indent(section_match):
         return len(section_match.group(1))
+
+    @staticmethod
+    def _is_section_header(line):
+        return bool(re.match(r'\s*-+$', line))

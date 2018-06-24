@@ -107,8 +107,7 @@ class MyInstallLib(install_lib.install_lib):
             for directory in include_dirs:
                 dest = join(self.install_dir, directory)
                 if sys.version_info >= (3, 0):
-                    exclude = set(['invalid_encoded_data*',
-                                   'unknown_encoding*'])
+                    exclude = {'invalid_encoded_data*', 'unknown_encoding*'}
                 else:
                     exclude = set()
                 shutil.rmtree(dest, ignore_errors=True)
@@ -169,7 +168,7 @@ def install(**kwargs):
                  cmdclass=cmdclass,
                  extras_require=extras_require,
                  test_suite='test',
-                 python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
+                 python_requires='>=3.4.*',
                  setup_requires=['pytest-runner'],
                  tests_require=['pytest'],
                  **kwargs)

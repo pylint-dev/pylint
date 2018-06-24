@@ -1,1 +1,1 @@
-no-member:6::Instance of 'bool' has no 'get' member:INFERENCE
+no-member:12::Instance of 'int' has no 'test' member:INFERENCE

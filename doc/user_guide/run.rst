@@ -35,14 +35,15 @@ python path.
 
 For more details on this see the :ref:`faq`.
 
-It is also possible to call Pylint from an other python program,
-thanks to ``py_run()`` function in ``epylint`` module,
-assuming Pylint options are stored in ``pylint_options`` string, as:
+It is also possible to call Pylint from another python program,
+thanks to ``Run()`` function in ``pylint.lint`` module,
+assuming Pylint options are stored in a list of strings ``pylint_options``, as:
 
 .. sourcecode:: python
 
-  from pylint import epylint as lint
-  lint.py_run(pylint_options)
+  import pylint.lint
+  pylint_opts = ['--version']
+  pylint.lint.Run(pylint_opts)
 
 To silently run Pylint on a ``module_name.py`` module,
 and get its standard output and error:

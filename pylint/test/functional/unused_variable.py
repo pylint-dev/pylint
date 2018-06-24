@@ -29,3 +29,22 @@ class HasUnusedDunderClass(object):
 
     def best(self):
         self.test()
+
+
+def locals_example_defined_before():
+    value = 42  # [possibly-unused-variable]
+    return locals()
+
+
+def locals_example_defined_after():
+    local_variables = locals()
+    value = 42  # [unused-variable]
+    return local_variables
+
+
+def locals_does_not_account_for_subscopes():
+    value = 42  # [unused-variable]
+
+    def some_other_scope():
+        return locals()
+    return some_other_scope

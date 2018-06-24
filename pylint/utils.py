@@ -46,9 +46,6 @@ import tokenize
 import warnings
 import textwrap
 
-import six
-from six.moves import zip  # pylint: disable=redefined-builtin
-
 from astroid import nodes, Module
 from astroid import modutils
 
@@ -65,7 +62,7 @@ MSG_TYPES = {
     'E' : 'error',
     'F' : 'fatal'
     }
-MSG_TYPES_LONG = {v: k for k, v in six.iteritems(MSG_TYPES)}
+MSG_TYPES_LONG = {v: k for k, v in MSG_TYPES.items()}
 
 MSG_TYPES_STATUS = {
     'I' : 0,
@@ -154,19 +151,9 @@ def decoding_stream(stream, encoding, errors='strict'):
     return reader_cls(stream, errors)
 
 
-def _decoding_readline(stream, encoding):
-    '''return lambda function for tokenize with safe decode'''
-    return decoding_stream(stream, encoding, errors='replace').readline
-
-
 def tokenize_module(module):
     with module.stream() as stream:
         readline = stream.readline
-        if sys.version_info < (3, 0):
-            if module.file_encoding is not None:
-                readline = _decoding_readline(stream, module.file_encoding)
-
-            return list(tokenize.generate_tokens(readline))
         return list(tokenize.tokenize(readline))
 
 def build_message_def(checker, msgid, msg_tuple):
@@ -207,6 +194,9 @@ class MessageDefinition(object):
         self.minversion = minversion
         self.maxversion = maxversion
         self.old_names = old_names or []
+
+    def __repr__(self):
+        return "MessageDefinition:{}".format(self.__dict__)
 
     def may_be_emitted(self):
         """return True if message may be emitted using the current interpreter"""
@@ -249,6 +239,7 @@ class MessagesHandlerMixIn(object):
     """a mix-in class containing all the messages related methods for the main
     lint class
     """
+    __by_id_managed_msgs = []
 
     def __init__(self):
         self._msgs_state = {}
@@ -259,15 +250,36 @@ class MessagesHandlerMixIn(object):
             for msgid in known_checker.msgs:
                 yield msgid
 
+    @classmethod
+    def clear_by_id_managed_msgs(cls):
+        cls.__by_id_managed_msgs.clear()
+
+    @classmethod
+    def get_by_id_managed_msgs(cls):
+        return cls.__by_id_managed_msgs
+
+    def _register_by_id_managed_msg(self, msgid, line, is_disabled=True):
+        """If the msgid is a numeric one, then register it to inform the user
+        it could furnish instead a symbolic msgid."""
+        try:
+            msg = self.msgs_store.get_message_definition(msgid)
+            if msgid == msg.msgid:
+                MessagesHandlerMixIn.__by_id_managed_msgs.append(
+                    (self.current_name, msg.msgid, msg.symbol, line, is_disabled))
+        except UnknownMessageError:
+            pass
+
     def disable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """don't output message of the given id"""
         self._set_msg_status(msgid, enable=False, scope=scope,
                              line=line, ignore_unknown=ignore_unknown)
+        self._register_by_id_managed_msg(msgid, line)
 
     def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """reenable message of the given id"""
         self._set_msg_status(msgid, enable=True, scope=scope,
                              line=line, ignore_unknown=ignore_unknown)
+        self._register_by_id_managed_msg(msgid, line, is_disabled=False)
 
     def _set_msg_status(self, msgid, enable, scope='package', line=None, ignore_unknown=False):
         assert scope in ('package', 'module')
@@ -306,7 +318,7 @@ class MessagesHandlerMixIn(object):
 
         try:
             # msgid is a symbolic or numeric msgid.
-            msg = self.msgs_store.check_message_id(msgid)
+            msg = self.msgs_store.get_message_definition(msgid)
         except UnknownMessageError:
             if ignore_unknown:
                 return
@@ -325,9 +337,9 @@ class MessagesHandlerMixIn(object):
             msgs[msg.msgid] = enable
             # sync configuration object
             self.config.enable = [self._message_symbol(mid) for mid, val
-                                  in sorted(six.iteritems(msgs)) if val]
+                                  in sorted(msgs.items()) if val]
             self.config.disable = [self._message_symbol(mid) for mid, val
-                                   in sorted(six.iteritems(msgs)) if not val]
+                                   in sorted(msgs.items()) if not val]
 
     def _message_symbol(self, msgid):
         """Get the message symbol of the given message id
@@ -336,7 +348,7 @@ class MessagesHandlerMixIn(object):
         exist.
         """
         try:
-            return self.msgs_store.check_message_id(msgid).symbol
+            return self.msgs_store.get_message_definition(msgid).symbol
         except UnknownMessageError:
             return msgid
 
@@ -361,7 +373,7 @@ class MessagesHandlerMixIn(object):
             if confidence.name not in self.config.confidence:
                 return False
         try:
-            msgid = self.msgs_store.check_message_id(msg_descr).msgid
+            msgid = self.msgs_store.get_message_definition(msg_descr).msgid
         except UnknownMessageError:
             # The linter checks for messages that are not registered
             # due to version mismatch, just treat them as message IDs
@@ -372,6 +384,13 @@ class MessagesHandlerMixIn(object):
         try:
             return self.file_state._module_msgs_state[msgid][line]
         except KeyError:
+            # Check if the message's line is after the maximum line existing in ast tree.
+            # This line won't appear in the ast tree and won't be referred in
+            # self.file_state._module_msgs_state
+            # This happens for example with a commented line at the end of a module.
+            max_line_number = self.file_state.get_effective_max_line_number()
+            if (max_line_number and line > max_line_number):
+                return msgid not in self.file_state._raw_module_msgs_state
             return self._msgs_state.get(msgid, True)
 
     def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
@@ -384,7 +403,7 @@ class MessagesHandlerMixIn(object):
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
-        msg_info = self.msgs_store.check_message_id(msg_descr)
+        msg_info = self.msgs_store.get_message_definition(msg_descr)
         msgid = msg_info.msgid
         # backward compatibility, message may not have a symbol
         symbol = msg_info.symbol or msgid
@@ -436,7 +455,7 @@ class MessagesHandlerMixIn(object):
         else:
             module, obj = get_module_and_frameid(node)
             abspath = node.root().file
-        path = abspath.replace(self.reporter.path_strip_prefix, '')
+        path = abspath.replace(self.reporter.path_strip_prefix, '', 1)
         # add the message
         self.reporter.handle_message(
             Message(msgid, symbol,
@@ -491,7 +510,7 @@ class MessagesHandlerMixIn(object):
         print("Below is a list of all checkers and their features.", file=stream)
         print("", file=stream)
 
-        for checker, info in sorted(six.iteritems(by_checker)):
+        for checker, info in sorted(by_checker.items()):
             self._print_checker_doc(checker, info, stream=stream)
 
     @staticmethod
@@ -537,7 +556,7 @@ class MessagesHandlerMixIn(object):
             title = 'Messages'
             print(title, file=stream)
             print('^' * len(title), file=stream)
-            for msgid, msg in sorted(six.iteritems(msgs),
+            for msgid, msg in sorted(msgs.items(),
                                      key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
                 msg = build_message_def(checker_name, msgid, msg)
                 print(msg.format_help(checkerref=False), file=stream)
@@ -560,14 +579,16 @@ class FileState(object):
         self._raw_module_msgs_state = {}
         self._ignored_msgs = collections.defaultdict(set)
         self._suppression_mapping = {}
+        self._effective_max_line_number = None
 
     def collect_block_lines(self, msgs_store, module_node):
         """Walk the AST to collect block level options line numbers."""
-        for msg, lines in six.iteritems(self._module_msgs_state):
+        for msg, lines in self._module_msgs_state.items():
             self._raw_module_msgs_state[msg] = lines.copy()
         orig_state = self._module_msgs_state.copy()
         self._module_msgs_state = {}
         self._suppression_mapping = {}
+        self._effective_max_line_number = module_node.tolineno
         self._collect_block_lines(msgs_store, module_node, orig_state)
 
     def _collect_block_lines(self, msgs_store, node, msg_state):
@@ -598,14 +619,14 @@ class FileState(object):
             firstchildlineno = node.body[0].fromlineno
         else:
             firstchildlineno = last
-        for msgid, lines in six.iteritems(msg_state):
+        for msgid, lines in msg_state.items():
             for lineno, state in list(lines.items()):
                 original_lineno = lineno
                 if first > lineno or last < lineno:
                     continue
                 # Set state for all lines for this block, if the
                 # warning is applied to nodes.
-                if  msgs_store.check_message_id(msgid).scope == WarningScope.NODE:
+                if msgs_store.get_message_definition(msgid).scope == WarningScope.NODE:
                     if lineno > firstchildlineno:
                         state = True
                     first_, last_ = node.block_range(lineno)
@@ -651,8 +672,8 @@ class FileState(object):
                 pass
 
     def iter_spurious_suppression_messages(self, msgs_store):
-        for warning, lines in six.iteritems(self._raw_module_msgs_state):
-            for line, enable in six.iteritems(lines):
+        for warning, lines in self._raw_module_msgs_state.items():
+            for line, enable in lines.items():
                 if not enable and (warning, line) not in self._ignored_msgs:
                     yield 'useless-suppression', line, \
                         (msgs_store.get_msg_display_string(warning),)
@@ -661,6 +682,9 @@ class FileState(object):
             for line in lines:
                 yield 'suppressed-message', line, \
                     (msgs_store.get_msg_display_string(warning), from_)
+
+    def get_effective_max_line_number(self):
+        return self._effective_max_line_number
 
 
 class MessagesStore(object):
@@ -673,6 +697,8 @@ class MessagesStore(object):
         # that can be emitted by pylint for the underlying Python
         # version). It contains the 1:1 mapping from symbolic names
         # to message definition objects.
+        # Keys are msg ids, values are a 2-uple with the msg type and the
+        # msg itself
         self._messages = {}
         # Maps alternative names (numeric IDs, deprecated names) to
         # message definitions. May contain several names for each definition
@@ -683,86 +709,201 @@ class MessagesStore(object):
     @property
     def messages(self):
         """The list of all active messages."""
-        return six.itervalues(self._messages)
+        return self._messages.values()
 
     def add_renamed_message(self, old_id, old_symbol, new_symbol):
         """Register the old ID and symbol for a warning that was renamed.
 
         This allows users to keep using the old ID/symbol in suppressions.
         """
-        msg = self.check_message_id(new_symbol)
+        msg = self.get_message_definition(new_symbol)
         msg.old_names.append((old_id, old_symbol))
-        self._register_alternative_name(msg, old_id)
-        self._register_alternative_name(msg, old_symbol)
+        self._register_alternative_name(msg, old_id, old_symbol)
+
+    @staticmethod
+    def get_checker_message_definitions(checker):
+        """Return the list of messages definitions for a checker.
+
+        :param BaseChecker checker:
+        :rtype: list
+        :return: A list of MessageDefinition.
+        """
+        message_definitions = []
+        for msgid, msg_tuple in sorted(checker.msgs.items()):
+            message = build_message_def(checker, msgid, msg_tuple)
+            message_definitions.append(message)
+        return message_definitions
 
     def register_messages(self, checker):
-        """register a dictionary of messages
+        """Register messages from a checker.
 
-        Keys are message ids, values are a 2-uple with the message type and the
-        message itself
-
-        message ids should be a string of len 4, where the two first characters
-        are the checker id and the two last the message id in this checker
+        :param BaseChecker checker:
         """
-        chkid = None
-        for msgid, msg_tuple in sorted(six.iteritems(checker.msgs)):
-            msg = build_message_def(checker, msgid, msg_tuple)
-            # avoid duplicate / malformed ids
-            if msg.symbol in self._messages or msg.symbol in self._alternative_names:
-                raise InvalidMessageError(
-                    'Message symbol %r is already defined' % msg.symbol)
-            if chkid is not None and chkid != msg.msgid[1:3]:
-                raise InvalidMessageError(
-                    "Inconsistent checker part in message id %r (expected 'x%sxx')"
-                    % (msgid, chkid))
-            chkid = msg.msgid[1:3]
-            self._messages[msg.symbol] = msg
-            self._register_alternative_name(msg, msg.msgid)
-            for old_id, old_symbol in msg.old_names:
-                self._register_alternative_name(msg, old_id)
-                self._register_alternative_name(msg, old_symbol)
-            self._msgs_by_category[msg.msgid[0]].append(msg.msgid)
+        messages = self.get_checker_message_definitions(checker)
+        self._check_checker_consistency(messages)
+        for message in messages:
+            self.register_message(message)
 
-    def _register_alternative_name(self, msg, name):
+    def register_message(self, message):
+        """Register a MessageDefinition with consistency in mind.
+
+        :param MessageDefinition message: The message definition being added.
+        """
+        self._check_id_and_symbol_consistency(message.msgid, message.symbol)
+        self._check_symbol(message.msgid, message.symbol)
+        self._check_msgid(message.msgid, message.symbol)
+        for old_name in message.old_names:
+            self._check_symbol(message.msgid, old_name[1])
+        self._messages[message.symbol] = message
+        self._register_alternative_name(message, message.msgid, message.symbol)
+        for old_id, old_symbol in message.old_names:
+            self._register_alternative_name(message, old_id, old_symbol)
+        self._msgs_by_category[message.msgid[0]].append(message.msgid)
+
+    @staticmethod
+    def _check_checker_consistency(messages):
+        """Check the msgid consistency in a list of messages definitions.
+
+        msg ids for a checker should be a string of len 4, where the two first
+        characters are the checker id and the two last the msg id in this
+        checker.
+
+        :param list messages: List of MessageDefinition.
+        :raises InvalidMessageError: If the checker id in the messages are not
+        always the same
+        """
+        checker_id = None
+        existing_ids = []
+        for message in messages:
+            if checker_id is not None and checker_id != message.msgid[1:3]:
+                error_msg = "Inconsistent checker part in message id "
+                error_msg += "'{}' (expected 'x{checker_id}xx' ".format(
+                    message.msgid, checker_id=checker_id
+                )
+                error_msg += "because we already had {existing_ids}).".format(
+                    existing_ids=existing_ids
+                )
+                raise InvalidMessageError(error_msg)
+            checker_id = message.msgid[1:3]
+            existing_ids.append(message.msgid)
+
+
+    def _register_alternative_name(self, msg, msgid, symbol):
         """helper for register_message()"""
-        if name in self._messages and self._messages[name] != msg:
-            raise InvalidMessageError(
-                'Message symbol %r is already defined' % name)
-        if name in self._alternative_names and self._alternative_names[name] != msg:
-            raise InvalidMessageError(
-                'Message %s %r is already defined' % (
-                    'id' if len(name) == 5 and name[0] in MSG_TYPES else 'alternate name',
-                    name))
-        self._alternative_names[name] = msg
+        self._check_id_and_symbol_consistency(msgid, symbol)
+        self._alternative_names[msgid] = msg
+        self._alternative_names[symbol] = msg
 
-    def check_message_id(self, msgid):
-        """returns the Message object for this message.
+    def _check_symbol(self, msgid, symbol):
+        """Check that a symbol is not already used. """
+        other_message = self._messages.get(symbol)
+        if other_message:
+            self._raise_duplicate_msg_id(symbol, msgid, other_message.msgid)
+        else:
+            alternative_msgid = None
+        alternative_message = self._alternative_names.get(symbol)
+        if alternative_message:
+            if alternative_message.symbol == symbol:
+                alternative_msgid = alternative_message.msgid
+            else:
+                for old_msgid, old_symbol in alternative_message.old_names:
+                    if old_symbol == symbol:
+                        alternative_msgid = old_msgid
+                        break
+            if msgid != alternative_msgid:
+                self._raise_duplicate_msg_id(symbol, msgid, alternative_msgid)
 
-        msgid may be either a numeric or symbolic id.
+    def _check_msgid(self, msgid, symbol):
+        for message in self._messages.values():
+            if message.msgid == msgid:
+                self._raise_duplicate_symbol(msgid, symbol, message.symbol)
 
-        Raises UnknownMessageError if the message id is not defined.
+    def _check_id_and_symbol_consistency(self, msgid, symbol):
+        try:
+            alternative = self._alternative_names[msgid]
+        except KeyError:
+            alternative = False
+        try:
+            if not alternative:
+                alternative = self._alternative_names[symbol]
+        except KeyError:
+            # There is no alternative names concerning this msgid/symbol.
+            # So nothing to check
+            return None
+        old_symbolic_name = None
+        old_symbolic_id = None
+        for alternate_msgid, alternate_symbol in alternative.old_names:
+            if alternate_msgid == msgid or alternate_symbol == symbol:
+                old_symbolic_id = alternate_msgid
+                old_symbolic_name = alternate_symbol
+        if symbol not in (alternative.symbol, old_symbolic_name):
+            if msgid == old_symbolic_id:
+                self._raise_duplicate_symbol(msgid, symbol, old_symbolic_name)
+            else:
+                self._raise_duplicate_symbol(msgid, symbol, alternative.symbol)
+        return None
+
+    @staticmethod
+    def _raise_duplicate_symbol(msgid, symbol, other_symbol):
+        """Raise an error when a symbol is duplicated.
+
+        :param str msgid: The msgid corresponding to the symbols
+        :param str symbol: Offending symbol
+        :param str other_symbol: Other offending symbol
+        :raises InvalidMessageError: when a symbol is duplicated.
         """
-        if msgid[1:].isdigit():
-            msgid = msgid.upper()
+        error_message = "Message id '{msgid}' cannot have both ".format(msgid=msgid)
+        error_message += "'{other_symbol}' and '{symbol}' as symbolic name.".format(
+            other_symbol=other_symbol, symbol=symbol
+        )
+        raise InvalidMessageError(error_message)
+
+    @staticmethod
+    def _raise_duplicate_msg_id(symbol, msgid, other_msgid):
+        """Raise an error when a msgid is duplicated.
+
+        :param str symbol: The symbol corresponding to the msgids
+        :param str msgid: Offending msgid
+        :param str other_msgid: Other offending msgid
+        :raises InvalidMessageError: when a msgid is duplicated.
+        """
+        error_message = "Message symbol '{symbol}' cannot be used for ".format(symbol=symbol)
+        error_message += "'{other_msgid}' and '{msgid}' at the same time.".format(
+            other_msgid=other_msgid, msgid=msgid
+        )
+        raise InvalidMessageError(error_message)
+
+    def get_message_definition(self, msgid_or_symbol):
+        """Returns the Message object for this message.
+
+        :param str msgid_or_symbol: msgid_or_symbol may be either a numeric or symbolic id.
+        :raises UnknownMessageError: if the message id is not defined.
+        :rtype: MessageDefinition
+        :return: A message definition corresponding to msgid_or_symbol
+        """
+        if msgid_or_symbol[1:].isdigit():
+            msgid_or_symbol = msgid_or_symbol.upper()
         for source in (self._alternative_names, self._messages):
             try:
-                return source[msgid]
+                return source[msgid_or_symbol]
             except KeyError:
                 pass
-        raise UnknownMessageError('No such message id %s' % msgid)
+        raise UnknownMessageError(
+            'No such message id {msgid_or_symbol}'.format(msgid_or_symbol=msgid_or_symbol)
+        )
 
     def get_msg_display_string(self, msgid):
         """Generates a user-consumable representation of a message.
 
         Can be just the message ID or the ID and the symbol.
         """
-        return repr(self.check_message_id(msgid).symbol)
+        return repr(self.get_message_definition(msgid).symbol)
 
     def help_message(self, msgids):
-        """display help messages for the given message identifiers"""
+        """Display help messages for the given message identifiers"""
         for msgid in msgids:
             try:
-                print(self.check_message_id(msgid).format_help(checkerref=True))
+                print(self.get_message_definition(msgid).format_help(checkerref=True))
                 print("")
             except UnknownMessageError as ex:
                 print(ex)
@@ -770,12 +911,12 @@ class MessagesStore(object):
                 continue
 
     def list_messages(self):
-        """output full messages list documentation in ReST format"""
-        msgs = sorted(six.itervalues(self._messages), key=lambda msg: msg.msgid)
-        for msg in msgs:
-            if not msg.may_be_emitted():
+        """Output full messages list documentation in ReST format. """
+        messages = sorted(self._messages.values(), key=lambda m: m.msgid)
+        for message in messages:
+            if not message.may_be_emitted():
                 continue
-            print(msg.format_help(checkerref=False))
+            print(message.format_help(checkerref=False))
         print("")
 
 
@@ -841,7 +982,7 @@ class ReportsHandlerMixIn(object):
         """add some stats entries to the statistic dictionary
         raise an AssertionError if there is a key conflict
         """
-        for key, value in six.iteritems(kwargs):
+        for key, value in kwargs.items():
             if key[-1] == '_':
                 key = key[:-1]
             assert key not in self.stats
@@ -998,9 +1139,6 @@ class PyLintASTWalker(object):
         # In this case, favour the methods for the deprecated
         # alias if any,  in order to maintain backwards
         # compatibility.
-        visit_events = ()
-        leave_events = ()
-
         visit_events = self.visit_events.get(cid, ())
         leave_events = self.leave_events.get(cid, ())
 
@@ -1135,24 +1273,6 @@ def _check_csv(value):
     return _splitstrip(value)
 
 
-if six.PY2:
-    def _encode(string, encoding):
-        # pylint: disable=undefined-variable
-        if isinstance(string, unicode):
-            return string.encode(encoding)
-        return str(string)
-else:
-    def _encode(string, _):
-        return str(string)
-
-def _get_encoding(encoding, stream):
-    encoding = encoding or getattr(stream, 'encoding', None)
-    if not encoding:
-        import locale
-        encoding = locale.getpreferredencoding()
-    return encoding
-
-
 def _comment(string):
     """return string as a comment"""
     lines = [line.strip() for line in string.splitlines()]
@@ -1170,21 +1290,20 @@ def _format_option_value(optdict, value):
         value = value.pattern
     elif optdict.get('type') == 'yn':
         value = 'yes' if value else 'no'
-    elif isinstance(value, six.string_types) and value.isspace():
+    elif isinstance(value, str) and value.isspace():
         value = "'%s'" % value
     return value
 
 
-def _ini_format_section(stream, section, options, encoding=None, doc=None):
+def _ini_format_section(stream, section, options, doc=None):
     """format an options section using the INI format"""
-    encoding = _get_encoding(encoding, stream)
     if doc:
-        print(_encode(_comment(doc), encoding), file=stream)
+        print(_comment(doc), file=stream)
     print('[%s]' % section, file=stream)
-    _ini_format(stream, options, encoding)
+    _ini_format(stream, options)
 
 
-def _ini_format(stream, options, encoding):
+def _ini_format(stream, options):
     """format options using the INI format"""
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)
@@ -1192,13 +1311,13 @@ def _ini_format(stream, options, encoding):
         if help_opt:
             help_opt = _normalize_text(help_opt, line_len=79, indent='# ')
             print(file=stream)
-            print(_encode(help_opt, encoding), file=stream)
+            print(help_opt, file=stream)
         else:
             print(file=stream)
         if value is None:
             print('#%s=' % optname, file=stream)
         else:
-            value = _encode(value, encoding).strip()
+            value = str(value).strip()
             if re.match(r'^([\w-]+,)+[\w-]+$', str(value)):
                 separator = '\n ' + ' ' * len(optname)
                 value = separator.join(
@@ -1210,21 +1329,20 @@ def _ini_format(stream, options, encoding):
 format_section = _ini_format_section
 
 
-def _rest_format_section(stream, section, options, encoding=None, doc=None):
+def _rest_format_section(stream, section, options, doc=None):
     """format an options section using as ReST formatted output"""
-    encoding = _get_encoding(encoding, stream)
     if section:
         print('%s\n%s' % (section, "'"*len(section)), file=stream)
     if doc:
-        print(_encode(_normalize_text(doc, line_len=79, indent=''), encoding), file=stream)
+        print(_normalize_text(doc, line_len=79, indent=''), file=stream)
         print(file=stream)
     for optname, optdict, value in options:
         help_opt = optdict.get('help')
         print(':%s:' % optname, file=stream)
         if help_opt:
             help_opt = _normalize_text(help_opt, line_len=79, indent='  ')
-            print(_encode(help_opt, encoding), file=stream)
+            print(help_opt, file=stream)
         if value:
-            value = _encode(_format_option_value(optdict, value), encoding)
+            value = str(_format_option_value(optdict, value))
             print(file=stream)
             print('  Default: ``%s``' % value.replace("`` ", "```` ``"), file=stream)

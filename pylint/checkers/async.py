@@ -47,7 +47,7 @@ class AsyncChecker(checkers.BaseChecker):
     def visit_asyncwith(self, node):
         for ctx_mgr, _ in node.items:
             infered = checker_utils.safe_infer(ctx_mgr)
-            if infered is None or infered is astroid.YES:
+            if infered is None or infered is astroid.Uninferable:
                 continue
 
             if isinstance(infered, astroid.Instance):

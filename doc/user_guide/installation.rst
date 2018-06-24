@@ -11,7 +11,7 @@ Pylint should be easily installable using pip.
 
 .. code-block:: sh
 
-   python -m pip install pylint
+   pip install pylint
 
 
 Source distribution installation

@@ -1,24 +1,17 @@
 ﻿Contributors
 ------------
 
-Order doesn't matter (not that much, at least ;)
+Current team:
 
-* Sylvain Thenault (Logilab): main author / maintainer
-
-* Torsten Marek (Google): maintainer, contributor
+* Ashley Whetter: maintainer, contributor
 
 * Claudiu Popa: maintainer, contributor
 
-* Cara Vinson, astroid committer.
+* Cara Vinson: astroid committer.
 
-* Dmitry Pribysh: committer
+* Guillaume Peillex: committer
 
-  multiple-imports, not-iterable, not-a-mapping, various patches.
-
-* Ashley Whetter: committer
-  
-  check_docs extension can find constructor parameters in __init__,
-  added check_raise_docs extension, various patches.
+* Łukasz Rogalski: committer.
 
 * Roy Williams (Lyft): committer
 
@@ -29,6 +22,23 @@ Order doesn't matter (not that much, at least ;)
   Added Python 3 check for bad import statements.
   Added Python 3 check for accessing deprecated methods on the 'string' module,
   various patches.
+
+* Dmitry Pribysh: committer
+
+  multiple-imports, not-iterable, not-a-mapping, various patches.
+
+
+Ex-maintainers:
+
+* Sylvain Thenault (Logilab): main author / maintainer
+
+* Torsten Marek (Google): committer / contributor
+
+
+We would not be here without folks that contributed patches, pull requests,
+issues and their time to pylint. We're incredibly grateful to all of these
+contributors:
+
 
 * Daniel Balparda (Google): GPyLint maintainer (Google's pylint variant),
   various patches
@@ -83,11 +93,6 @@ Order doesn't matter (not that much, at least ;)
 
 * James Morgensen: ignored-modules option applies to import errors.
 
-* Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
-  Maarten ter Huurne, Mirko Friedenhagen and all the Logilab's team (among others):
-  bug reports, feedback, feature requests... Many other people have contributed
-  by their feedback or even patches, if I've forgotten you, send me a note !
-
 * Cezar Elnazli: deprecated-method
 
 * Stéphane Wirtel: nonlocal-without-binding
@@ -100,8 +105,6 @@ Order doesn't matter (not that much, at least ;)
 * Aru Sahni: Git ignoring, regex-based ignores
 
 * Mike Frysinger: contributor.
-
-* Łukasz Rogalski: contributor.
 
 * Moisés López (Vauxoo): Support for deprecated-modules in modules not installed,
   Refactory wrong-import-order to integrate it with `isort` library
@@ -124,7 +127,9 @@ Order doesn't matter (not that much, at least ;)
 * Alexander Todorov: added new error conditions to 'bad-super-call',
   Added new check for incorrect len(SEQUENCE) usage,
   Added new extension for comparison against empty string constants,
-  Added new extension which detects comparing integers to zero
+  Added new extension which detects comparing integers to zero,
+  Added new useless-return checker,
+  Added new try-except-raise checker
 
 * Erik Eriksson - Added overlapping-except error check.
 
@@ -140,8 +145,6 @@ Order doesn't matter (not that much, at least ;)
 
 * Ahirnish Pareek, 'keyword-arg-before-var-arg' check
 
-* Guillaume Peillex: contributor.
-
 * Daniel Miller: contributor.
 
 * Bryce Guinta: contributor
@@ -152,3 +155,54 @@ Order doesn't matter (not that much, at least ;)
 * Jacques Kvam: contributor
 
 * Brian Shaginaw: prevent error on exception check for functions
+
+* Ioana Tagirta: fix bad thread instantiation check
+
+* Reverb Chu: contributor
+
+* Tobias Hernstig: contributor
+
+* Konstantin Manna: contributor
+
+* Andreas Freimuth: fix indentation checking with tabs
+
+* Renat Galimov: contributor
+
+* Thomas Snowden: fix missing-docstring for inner functions
+
+* Mitchell Young: minor adjustment to docparams
+
+* Marianna Polatoglou: minor contribution for wildcard import check
+
+* Ben Green: contributor
+
+* Benjamin Freeman: contributor
+
+* Fureigh: contributor
+
+* Jace Browning: updated default report format with clickable paths
+
+* Sushobhit (sushobhit27): contributor
+  Added new check 'comparison-with-itself'.
+  Added new check 'useless-import-alias'.
+  Added support of annotations in missing-type-doc and missing-return-type-doc.
+  Added new check 'comparison-with-callable'.
+  Removed six package dependency.
+  Added new check 'chained-comparison'.
+
+* Mariatta Wijaya: contributor
+  Added new check `logging-fstring-interpolation`
+  Documentation typo fixes
+
+* Jason Owen: contributor
+
+* Mark Roman Miller: fix inline defs in too-many-statements
+
+* Adam Dangoor: contributor
+
+* Gary Tyler McLeod: contributor
+
+* Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
+  Maarten ter Huurne, Mirko Friedenhagen and all the Logilab's team (among others).
+
+* Matej Marusak: contributor

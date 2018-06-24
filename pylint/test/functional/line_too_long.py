@@ -16,6 +16,8 @@ badname = 'This line is already longer than 100 characters even without the prag
 
 # http://example.com/this/is/a/very/long/url?but=splitting&urls=is&a=pain&so=they&can=be&long
 
+# This a very very very ver very very long commented line with a disable directive at the end but it should not deactivate emission of messages of the same kind for lines that follow #pylint: disable=line-too-long
+
 # +1: [line-too-long]
 # This line is toooooooooooooooooooooooooooooooooooooooooooooooo looooooooooooooooooooooooooooooooooooooooong #pylint: disable=fixme
 
@@ -29,3 +31,20 @@ def function():
     That contains a very, very long line that exceeds the 100 characters limit by a good margin. So good?
     """
     pass
+
+STRING_ONE = "Just another verrrrrrrrrrrrrrrryyyyyyyyyyyyy looooooooooooooooooooooooooooooooooooooooooooooonnnnnnnnnnnnnnnnnnnnnnnnnnnnng and not so stupid line" # pylint: disable=line-too-long
+
+# +1: [line-too-long]
+STRING_TWO = "Yet another verrrrrrrrrrrrrrrryyyyyyyyyyyyy looooooooooooooooooooooooooooooooooooooooooooooonnnnnnnnnnnnnnnnnnnnnnnnnnnnng and a bit stupid line"
+
+# pylint: disable=line-too-long
+STRING_THREE = "Yet another verrrrrrrrrrrrrrrryyyyyyyyyyyyy looooooooooooooooooooooooooooooooooooooooooooooonnnnnnnnnnnnnnnnnnnnnnnnnnnnng and stupid line"
+
+
+# Don't crash when the line is in a docstring
+def func_with_long(parameter):
+    """
+    # pylint: disable=line-too-long
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccc
+    """
+    return parameter

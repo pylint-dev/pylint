@@ -14,3 +14,26 @@ class Cdef(Abcd):
         """test
         """
         print(self)
+
+class CustomProperty:
+    """dummy"""
+    def __init__(self, _):
+        pass
+
+    def __get__(self, obj, __):
+        if not obj:
+            return self
+        return 5
+
+    def __set__(self, _, __):
+        pass
+
+class Ddef:
+    """dummy"""
+    def __init__(self):
+        self.five = "five"
+
+    @CustomProperty
+    def five(self):
+        """Always 5."""
+        return self

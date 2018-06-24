@@ -9,7 +9,6 @@ import re
 import sys
 
 import pkg_resources
-import six
 import sphinx
 
 from pylint.lint import PyLinter
@@ -55,7 +54,7 @@ def builder_inited(app):
         stream.write("=================================================\n\n")
         stream.write("Pylint provides the following optional plugins:\n\n")
         for module in modules:
-            stream.write("- :ref:`{0}`\n".format(module))
+            stream.write("- :ref:`{}`\n".format(module))
         stream.write("\n")
         stream.write("You can activate any or all of these extensions "
                      "by adding a ``load-plugins`` line to the ``MASTER`` "
@@ -63,7 +62,7 @@ def builder_inited(app):
         stream.write("\n    load-plugins=pylint.extensions.docparams,"
                      "pylint.extensions.docstyle\n\n")
         by_module = get_plugins_info(linter, doc_files)
-        for module, info in sorted(six.iteritems(by_module)):
+        for module, info in sorted(by_module.items()):
             linter._print_checker_doc(info['name'], info, stream=stream)
 
 

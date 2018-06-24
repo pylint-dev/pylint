@@ -214,7 +214,7 @@ class TestTypeChecker(CheckerTestCase):
         named = Named(1, 2)
         """)
         call = module.body[-1].value
-        callables = call.func.infered()
+        callables = call.func.inferred()
         assert len(callables) == 1
         assert callables[0].callable()
         with self.assertNoMessages():
@@ -229,3 +229,36 @@ class TestTypeChecker(CheckerTestCase):
         subscript = module.body[-1].value
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
+
+    def test_staticmethod_multiprocessing_call(self):
+        """Make sure not-callable isn't raised for descriptors
+
+        astroid can't process descriptors correctly so
+        pylint needs to ignore not-callable for them
+        right now
+
+        Test for https://github.com/PyCQA/pylint/issues/1699
+        """
+        call = astroid.extract_node("""
+        import multiprocessing
+        multiprocessing.current_process() #@
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_call(call)
+
+    def test_descriptor_call(self):
+        call = astroid.extract_node("""
+        def func():
+            pass
+
+        class ADescriptor:
+            def __get__(self, instance, owner):
+                return func
+
+        class AggregateCls:
+            a = ADescriptor()
+
+        AggregateCls().a() #@
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_call(call)

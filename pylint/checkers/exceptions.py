@@ -18,12 +18,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Checks for various exception related errors."""
-
+import builtins
 import inspect
 import sys
 
-import six
-from six.moves import builtins
 
 import astroid
 from pylint import checkers
@@ -35,7 +33,7 @@ def _builtin_exceptions():
     def predicate(obj):
         return isinstance(obj, type) and issubclass(obj, BaseException)
 
-    members = inspect.getmembers(six.moves.builtins, predicate)
+    members = inspect.getmembers(builtins, predicate)
     return {exc.__name__ for (_, exc) in members}
 
 
@@ -49,11 +47,11 @@ def _annotated_unpack_infer(stmt, context=None):
     if isinstance(stmt, (astroid.List, astroid.Tuple)):
         for elt in stmt.elts:
             inferred = utils.safe_infer(elt)
-            if inferred and inferred is not astroid.YES:
+            if inferred and inferred is not astroid.Uninferable:
                 yield elt, inferred
         return
     for infered in stmt.infer(context):
-        if infered is astroid.YES:
+        if infered is astroid.Uninferable:
             continue
         yield stmt, infered
 
@@ -77,8 +75,7 @@ MSGS = {
               'bad-exception-context',
               'Used when using the syntax "raise ... from ...", '
               'where the exception context is not an exception, '
-              'nor None.',
-              {'minversion': (3, 0)}),
+              'nor None.'),
     'E0704': ('The raise statement is not inside an except clause',
               'misplaced-bare-raise',
               'Used when a bare raise is not used inside an except clause. '
@@ -87,6 +84,12 @@ MSGS = {
               'a bare raise inside a finally clause, which might work, as long '
               'as an exception is raised inside the try block, but it is '
               'nevertheless a code smell that must not be relied upon.'),
+    'E0705': ('The except handler raises immediately',
+              'try-except-raise',
+              'Used when an except handler uses raise as its first or only '
+              'operator. This is useless because it raises back the exception '
+              'immediately. Remove the raise operator or the entire '
+              'try-except-raise block!'),
     'E0710': ('Raising a new style class which doesn\'t inherit from BaseException',
               'raising-non-exception',
               'Used when a new style class which doesn\'t inherit from \
@@ -162,7 +165,7 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
             self.visit_name(call.func)
         if (len(call.args) > 1 and
                 isinstance(call.args[0], astroid.Const) and
-                isinstance(call.args[0].value, six.string_types)):
+                isinstance(call.args[0].value, str)):
             msg = call.args[0].value
             if ('%' in msg or
                     ('{' in msg and '}' in msg)):
@@ -240,7 +243,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 {'default' : OVERGENERAL_EXCEPTIONS,
                  'type' : 'csv', 'metavar' : '<comma-separated class names>',
                  'help' : 'Exceptions that will emit a warning '
-                          'when being caught. Defaults to "%s"' % (
+                          'when being caught. Defaults to "%s".' % (
                               ', '.join(OVERGENERAL_EXCEPTIONS),)}
                ),
               )
@@ -283,7 +286,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         current = node
         # Stop when a new scope is generated or when the raise
         # statement is found inside a TryFinally.
-        ignores = (astroid.ExceptHandler, astroid.FunctionDef, astroid.TryFinally)
+        ignores = (astroid.ExceptHandler, astroid.FunctionDef,)
         while current and not isinstance(current.parent, ignores):
             current = current.parent
 
@@ -297,7 +300,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         An exception context can be only `None` or an exception.
         """
         cause = utils.safe_infer(node.cause)
-        if cause in (astroid.YES, None):
+        if cause in (astroid.Uninferable, None):
             return
 
         if isinstance(cause, astroid.Const):
@@ -313,7 +316,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         if isinstance(exc, astroid.Tuple):
             # Check if it is a tuple of exceptions.
             inferred = [utils.safe_infer(elt) for elt in exc.elts]
-            if any(node is astroid.YES for node in inferred):
+            if any(node is astroid.Uninferable for node in inferred):
                 # Don't emit if we don't know every component.
                 return
             if all(node and (utils.inherit_from_std_ex(node) or
@@ -350,7 +353,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                                  node=handler.type,
                                  args=(exc.name, ))
 
-    @utils.check_messages('bare-except', 'broad-except',
+    @utils.check_messages('bare-except', 'broad-except', 'try-except-raise',
                           'binary-op-exception', 'bad-except-order',
                           'catching-non-exception', 'duplicate-except')
     def visit_tryexcept(self, node):
@@ -358,10 +361,17 @@ class ExceptionsChecker(checkers.BaseChecker):
         exceptions_classes = []
         nb_handlers = len(node.handlers)
         for index, handler in enumerate(node.handlers):
+            # `raise` as the first operator inside the except handler
+            if utils.is_raising([handler.body[0]]):
+                # flags when there is a bare raise
+                if handler.body[0].exc is None:
+                    self.add_message('try-except-raise', node=handler)
+
             if handler.type is None:
                 if not utils.is_raising(handler.body):
                     self.add_message('bare-except', node=handler)
-                # check if a "except:" is followed by some other
+
+                # check if an "except:" is followed by some other
                 # except
                 if index < (nb_handlers - 1):
                     msg = 'empty except clause should always appear last'
@@ -377,7 +387,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                     continue
 
                 for part, exc in excs:
-                    if exc is astroid.YES:
+                    if exc is astroid.Uninferable:
                         continue
                     if (isinstance(exc, astroid.Instance)
                             and utils.inherit_from_std_ex(exc)):

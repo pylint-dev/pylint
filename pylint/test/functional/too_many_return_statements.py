@@ -3,23 +3,23 @@
 def stupid_function(arg): # [too-many-return-statements]
     if arg == 1:
         return 1
-    elif arg == 2:
+    if arg == 2:
         return 2
-    elif arg == 3:
+    if arg == 3:
         return 3
-    elif arg == 4:
+    if arg == 4:
         return 4
-    elif arg == 5:
+    if arg == 5:
         return 5
-    elif arg == 6:
+    if arg == 6:
         return 6
-    elif arg == 7:
+    if arg == 7:
         return 7
-    elif arg == 8:
+    if arg == 8:
         return 8
-    elif arg == 9:
+    if arg == 9:
         return 9
-    elif arg == 10:
+    if arg == 10:
         return 10
     return None
 

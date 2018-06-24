@@ -11,7 +11,9 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
+import os
+from datetime import datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -45,8 +47,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Pylint'
-copyright = u'2003-2017, Logilab, PyCQA and contributors'
+project = 'Pylint'
+current_year = datetime.utcnow().year
+copyright = '2003-{year}, Logilab, PyCQA and contributors'.format(year=current_year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -96,12 +99,17 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'nature'
+html_theme = 'python_docs_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    'collapsiblesidebar': True,
+    'issues_url': 'https://github.com/pycqa/pylint/issues/new',
+    'root_name': 'PyCQA',
+    'root_url': 'http://meta.pycqa.org/en/latest/',
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
@@ -131,12 +139,17 @@ html_static_path = ['_static']
 # using the given strftime format.
 #html_last_updated_fmt = '%b %d, %Y'
 
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-#html_use_smartypants = True
+smartquotes = False
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+html_sidebars = {
+    '**': [
+        'localtoc.html',
+        'globaltoc.html',
+        'relations.html',
+        'sourcelink.html'
+        ]
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
@@ -152,7 +165,7 @@ html_static_path = ['_static']
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 #html_show_sphinx = True
@@ -183,8 +196,8 @@ htmlhelp_basename = 'Pylintdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Pylint.tex', u'Pylint Documentation',
-   u'Logilab, PyCQA and contributors', 'manual'),
+  ('index', 'Pylint.tex', 'Pylint Documentation',
+   'Logilab, PyCQA and contributors', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -216,8 +229,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pylint', u'Pylint Documentation',
-     [u'Logilab, PyCQA and contributors'], 1)
+    ('index', 'pylint', 'Pylint Documentation',
+     ['Logilab, PyCQA and contributors'], 1)
 ]
 
 intersphinx_mapping = {

@@ -54,9 +54,9 @@ def temp2():
     """ This is weird, but correct """
     if True:
         return (1, 2)
-    else:
-        if True:
-            return (2, 3)
+
+    if True:
+        return (2, 3)
     return (4, 5)
 
 def do_stuff8():

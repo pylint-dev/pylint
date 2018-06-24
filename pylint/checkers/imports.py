@@ -32,8 +32,6 @@ import os
 import sys
 import copy
 
-import six
-
 import astroid
 from astroid import are_exclusive
 from astroid.modutils import (get_module_part, is_standard_module)
@@ -164,14 +162,14 @@ def _dependencies_graph(filename, dep_info):
     done = {}
     printer = DotBackend(filename[:-4], rankdir='LR')
     printer.emit('URL="." node[shape="box"]')
-    for modname, dependencies in sorted(six.iteritems(dep_info)):
+    for modname, dependencies in sorted(dep_info.items()):
         done[modname] = 1
         printer.emit_node(modname)
         for depmodname in dependencies:
             if depmodname not in done:
                 done[depmodname] = 1
                 printer.emit_node(depmodname)
-    for depmodname, dependencies in sorted(six.iteritems(dep_info)):
+    for depmodname, dependencies in sorted(dep_info.items()):
         for modname in dependencies:
             printer.emit_edge(modname, depmodname)
     printer.generate(filename)
@@ -240,6 +238,10 @@ MSGS = {
               'module',
               'wrong-import-position',
               'Used when code and imports are mixed'),
+    'C0414': ('Import alias does not rename original package',
+              'useless-import-alias',
+              'Used when an import alias is same as original package.'
+              'e.g using import numpy as numpy instead of import numpy as np'),
     }
 
 
@@ -261,9 +263,7 @@ class ImportsChecker(BaseChecker):
     msgs = MSGS
     priority = -2
 
-    if six.PY2:
-        deprecated_modules = ('regsub', 'TERMIOS', 'Bastion', 'rexec')
-    elif sys.version_info < (3, 5):
+    if sys.version_info < (3, 5):
         deprecated_modules = ('optparse', )
     else:
         deprecated_modules = ('optparse', 'tkinter.tix')
@@ -272,7 +272,7 @@ class ImportsChecker(BaseChecker):
                  'type' : 'csv',
                  'metavar' : '<modules>',
                  'help' : 'Deprecated modules which should not be used,'
-                          ' separated by a comma'}
+                          ' separated by a comma.'}
                ),
                ('import-graph',
                 {'default' : '',
@@ -280,21 +280,21 @@ class ImportsChecker(BaseChecker):
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of every (i.e. internal and'
                           ' external) dependencies in the given file'
-                          ' (report RP0402 must not be disabled)'}
+                          ' (report RP0402 must not be disabled).'}
                ),
                ('ext-import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of external dependencies in the'
-                          ' given file (report RP0402 must not be disabled)'}
+                          ' given file (report RP0402 must not be disabled).'}
                ),
                ('int-import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of internal dependencies in the'
-                          ' given file (report RP0402 must not be disabled)'}
+                          ' given file (report RP0402 must not be disabled).'}
                ),
                ('known-standard-library',
                 {'default': DEFAULT_STANDARD_LIBRARY,
@@ -390,6 +390,7 @@ class ImportsChecker(BaseChecker):
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         self._check_reimport(node)
+        self._check_import_as_rename(node)
 
         modnode = node.root()
         names = [name for name, _ in node.names]
@@ -417,6 +418,7 @@ class ImportsChecker(BaseChecker):
         basename = node.modname
         imported_module = self._get_imported_module(node, basename)
 
+        self._check_import_as_rename(node)
         self._check_misplaced_future(node)
         self._check_deprecated_module(node, basename)
         self._check_wildcard_imports(node, imported_module)
@@ -645,6 +647,8 @@ class ImportsChecker(BaseChecker):
             self.add_message('relative-beyond-top-level', node=importnode)
 
         except astroid.AstroidBuildingException:
+            if not self.linter.is_message_enabled('import-error'):
+                return None
             if _ignore_import_failure(importnode, modname, self._ignored_modules):
                 return None
             if not self.config.analyse_fallback_blocks and is_from_fallback_block(importnode):
@@ -716,6 +720,19 @@ class ImportsChecker(BaseChecker):
             if mod_path == mod_name or mod_path.startswith(mod_name + '.'):
                 self.add_message('deprecated-module', node=node, args=mod_path)
 
+    def _check_import_as_rename(self, node):
+        names = node.names
+        for name in names:
+            if not all(name):
+                return
+
+            real_name = name[0]
+            packages = real_name.rsplit('.', 1)
+            real_name = packages[1] if len(packages) == 2 else packages[0]
+            imported_name = name[1]
+            if real_name == imported_name:
+                self.add_message('useless-import-alias', node=node)
+
     def _check_reimport(self, node, basename=None, level=None):
         """check if the import is necessary (i.e. not already done)"""
         if not self.linter.is_message_enabled('reimported'):
@@ -739,7 +756,7 @@ class ImportsChecker(BaseChecker):
 
     def _report_external_dependencies(self, sect, _, _dummy):
         """return a verbatim layout for displaying dependencies"""
-        dep_info = _make_tree_defs(six.iteritems(self._external_dependencies_info()))
+        dep_info = _make_tree_defs(self._external_dependencies_info().items())
         if not dep_info:
             raise EmptyReportError()
         tree_str = _repr_tree_defs(dep_info)
@@ -771,7 +788,7 @@ class ImportsChecker(BaseChecker):
         if self.__ext_dep_info is None:
             package = self.linter.current_name
             self.__ext_dep_info = result = {}
-            for importee, importers in six.iteritems(self.stats['dependencies']):
+            for importee, importers in self.stats['dependencies'].items():
                 if not importee.startswith(package):
                     result[importee] = importers
         return self.__ext_dep_info
@@ -783,12 +800,17 @@ class ImportsChecker(BaseChecker):
         if self.__int_dep_info is None:
             package = self.linter.current_name
             self.__int_dep_info = result = {}
-            for importee, importers in six.iteritems(self.stats['dependencies']):
+            for importee, importers in self.stats['dependencies'].items():
                 if importee.startswith(package):
                     result[importee] = importers
         return self.__int_dep_info
 
     def _check_wildcard_imports(self, node, imported_module):
+        root = node.root()
+        if root.package and root.name == "__init__":
+            # Skip the check if in __init__.py issue #2026
+            return
+
         wildcard_import_is_allowed = (
             self._wildcard_import_is_allowed(imported_module)
         )

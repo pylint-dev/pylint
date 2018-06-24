@@ -50,13 +50,16 @@ it is also working on PyPy.
 2.4 What versions of Python is Pylint supporting?
 --------------------------------------------------
 
-Since Pylint 1.8, we support only Python 2.7 and Python 3.4+. If code
-uses new Python 3.6 syntax, minimal required version is Pylint 1.7.
+Since Pylint 2.0, the supported running environment is Python 3.4+.
 
-Using this strategy really helps in maintaining a code base compatible
-with both versions and from this benefits not only the maintainers,
-but the end users as well, because it's easier to add and test
-new features.
+That is, Pylint 2.0 is still able to analyze Python 2 files, but some
+specific checks might not work, as they would assume that their running
+environment was Python 2.
+
+If you need to run pylint with Python 2, then Pylint 1.8 or 1.9 is for you.
+We will still do backports of bug fixes, and possibly for various Python 3
+compatibility checks, at least until 2020, after which we'll stop support
+Python 2 altogether.
 
 
 3. Running Pylint
@@ -119,6 +122,7 @@ For example::
 ---------------------------------------------------------------------------------------
 
 Much probably. Read :ref:`ide-integration`
+
 
 4. Message Control
 ==================

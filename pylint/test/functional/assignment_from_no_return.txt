@@ -1,0 +1,2 @@
+assignment-from-no-return:14:Class.some_other_method:Assigning to function call which doesn't return
+assignment-from-no-return:18::Assigning to function call which doesn't return

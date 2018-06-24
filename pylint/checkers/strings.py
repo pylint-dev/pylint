@@ -25,8 +25,6 @@ import tokenize
 import string
 import numbers
 
-import six
-
 import astroid
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseChecker, BaseTokenChecker
@@ -40,7 +38,7 @@ _PY27 = sys.version_info[:2] == (2, 7)
 MSGS = {
     'E1300': ("Unsupported format character %r (%#02x) at index %d",
               "bad-format-character",
-              "Used when a unsupported format character is used in a format\
+              "Used when an unsupported format character is used in a format\
               string."),
     'E1301': ("Format string ends in middle of conversion specifier",
               "truncated-format-string",
@@ -118,7 +116,7 @@ MSGS = {
               {'minversion': (2, 7)})
     }
 
-OTHER_NODES = (astroid.Const, astroid.List, astroid.Repr,
+OTHER_NODES = (astroid.Const, astroid.List,
                astroid.Lambda, astroid.FunctionDef,
                astroid.ListComp, astroid.SetComp, astroid.GeneratorExp)
 
@@ -126,7 +124,11 @@ if _PY3K:
     import _string # pylint: disable=wrong-import-position, wrong-import-order
 
     def split_format_field_names(format_string):
-        return _string.formatter_field_name_split(format_string)
+        try:
+            return _string.formatter_field_name_split(format_string)
+        except ValueError:
+            raise utils.IncompleteFormatString()
+
 else:
     def _field_iterator_convertor(iterator):
         for is_attr, key in iterator:
@@ -252,7 +254,7 @@ class StringFormatChecker(BaseChecker):
         args = node.right
 
         if not (isinstance(left, astroid.Const)
-                and isinstance(left.value, six.string_types)):
+                and isinstance(left.value, str)):
             return
         format_string = left.value
         try:
@@ -281,7 +283,7 @@ class StringFormatChecker(BaseChecker):
                 for k, _ in args.items:
                     if isinstance(k, astroid.Const):
                         key = k.value
-                        if isinstance(key, six.string_types):
+                        if isinstance(key, str):
                             keys.add(key)
                         else:
                             self.add_message('bad-format-string-key',
@@ -372,7 +374,7 @@ class StringFormatChecker(BaseChecker):
             return
         if not isinstance(strnode, astroid.Const):
             return
-        if not isinstance(strnode.value, six.string_types):
+        if not isinstance(strnode.value, str):
             return
 
         if node.starargs or node.kwargs:
@@ -387,8 +389,8 @@ class StringFormatChecker(BaseChecker):
             self.add_message('bad-format-string', node=node)
             return
 
-        named_fields = set(field[0] for field in fields
-                           if isinstance(field[0], six.string_types))
+        named_fields = {field[0] for field in fields
+                        if isinstance(field[0], str)}
         if num_args and manual_pos:
             self.add_message('format-combined-specification',
                              node=node)
@@ -455,7 +457,7 @@ class StringFormatChecker(BaseChecker):
                 if key not in named:
                     continue
                 argname = named[key]
-            if argname in (astroid.YES, None):
+            if argname in (astroid.Uninferable, None):
                 continue
             try:
                 argument = next(argname.infer())

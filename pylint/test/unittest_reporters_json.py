@@ -11,7 +11,7 @@
 
 import json
 
-import six
+from io import StringIO
 
 from pylint.lint import PyLinter
 from pylint import checkers
@@ -19,7 +19,7 @@ from pylint.reporters.json import JSONReporter
 
 
 def test_simple_json_output():
-    output = six.StringIO()
+    output = StringIO()
 
     reporter = JSONReporter()
     linter = PyLinter(reporter=reporter)

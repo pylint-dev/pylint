@@ -33,7 +33,7 @@ class Meta(type):
         pass
 
     # C0205, metaclass classmethod
-    def class1(mcs):
+    def class1(cls):
         pass
     class1 = classmethod(class1)
 
