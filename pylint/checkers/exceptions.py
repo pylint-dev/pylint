@@ -132,7 +132,7 @@ MSGS = {
     }
 
 
-class BaseVisitor(object):
+class BaseVisitor:
     """Base class for visitors defined in this module."""
 
     def __init__(self, checker, node):

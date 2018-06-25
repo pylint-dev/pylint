@@ -4,7 +4,7 @@ abstract methods.
 """
 
 # pylint: disable=too-few-public-methods, missing-docstring
-# pylint: disable=abstract-method, import-error
+# pylint: disable=abstract-method, import-error, useless-object-inheritance
 
 import abc
 import weakref

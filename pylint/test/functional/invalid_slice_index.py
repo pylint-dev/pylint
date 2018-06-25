@@ -1,5 +1,5 @@
 """Errors for invalid slice indices"""
-# pylint: disable=too-few-public-methods, no-self-use,missing-docstring,expression-not-assigned
+# pylint: disable=too-few-public-methods, no-self-use,missing-docstring,expression-not-assigned, useless-object-inheritance
 
 
 TESTLIST = [1, 2, 3]

@@ -24,7 +24,7 @@ UNDEFINED = Confidence('UNDEFINED',
 CONFIDENCE_LEVELS = [HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
 
 
-class Interface(object):
+class Interface:
     """Base class for interfaces."""
     @classmethod
     def is_implemented_by(cls, instance):

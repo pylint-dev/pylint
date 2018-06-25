@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods, useless-object-inheritance
 """Test properties on old style classes and property.setter/deleter usage"""
 
 

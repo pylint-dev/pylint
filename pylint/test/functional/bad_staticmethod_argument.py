@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, no-staticmethod-decorator
+# pylint: disable=missing-docstring, no-staticmethod-decorator, useless-object-inheritance
 
 class Abcd(object):
 

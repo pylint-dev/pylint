@@ -15,7 +15,7 @@ from pylint.pyreverse.utils import is_interface, FilterMixIn
 from pylint.checkers.utils import decorated_with_property
 
 
-class Figure(object):
+class Figure:
     """base class for counter handling"""
 
 

@@ -25,6 +25,18 @@ Summary -- Release highlights
 
 New checkers
 ============
+* A new check was added, ``useless-object-inheritance``.
+
+  This refactoring message is emitted when pylint detects that a class inherits from object,
+  which is redundant as in Python 3, every class implicitly inherits from object.
+
+  .. code-block:: python
+    class A(object):
+        pass
+
+    class A:    # better
+        pass
+
 * A new check was added, ``comparison-with-callable``.
 
   This refactoring message is emitted when pylint detects that a comparison with a callable was

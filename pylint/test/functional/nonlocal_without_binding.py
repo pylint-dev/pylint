@@ -1,5 +1,5 @@
 """ Checks that reversed() receive proper argument """
-# pylint: disable=missing-docstring,invalid-name,unused-variable
+# pylint: disable=missing-docstring,invalid-name,unused-variable, useless-object-inheritance
 # pylint: disable=too-few-public-methods,no-self-use,no-absolute-import
 
 def test():

@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,print-statement
+# pylint: disable=too-few-public-methods,print-statement, useless-object-inheritance
 """check method hidding ancestor attribute
 """
 from __future__ import print_function

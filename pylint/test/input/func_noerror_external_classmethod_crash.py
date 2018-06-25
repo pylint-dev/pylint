@@ -1,4 +1,4 @@
-# pylint: disable=W0232,R0903,W0613
+# pylint: disable=W0232,R0903,W0613, useless-object-inheritance
 """tagging a function as a class method cause a crash when checking for
 signature overriding
 """

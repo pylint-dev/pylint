@@ -48,7 +48,7 @@ from pylint.reporters.ureports import nodes as reporter_nodes
 import pylint.utils as lint_utils
 
 
-class NamingStyle(object):
+class NamingStyle:
     # It may seem counterintuitive that single naming style
     # has multiple "accepted" forms of regular expressions,
     # but we need to special-case stuff like dunder names

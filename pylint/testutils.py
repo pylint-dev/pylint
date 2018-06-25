@@ -161,7 +161,7 @@ class Message(collections.namedtuple('Message',
     __hash__ = None
 
 
-class UnittestLinter(object):
+class UnittestLinter:
     """A fake linter class to capture checker messages."""
     # pylint: disable=unused-argument, no-self-use
 
@@ -208,7 +208,7 @@ def set_config(**kwargs):
     return _wrapper
 
 
-class CheckerTestCase(object):
+class CheckerTestCase:
     """A base testcase class for unit testing individual checker classes."""
     CHECKER_CLASS = None
     CONFIG = {}

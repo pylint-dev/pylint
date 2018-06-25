@@ -9,7 +9,7 @@ A micro report is a tree of layout and content objects.
 """
 
 
-class VNode(object):
+class VNode:
 
     def __init__(self, nid=None):
         self.id = nid

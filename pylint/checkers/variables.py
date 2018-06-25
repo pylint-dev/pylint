@@ -358,7 +358,7 @@ MSGS = {
 ScopeConsumer = collections.namedtuple("ScopeConsumer", "to_consume consumed scope_type")
 
 
-class NamesConsumer(object):
+class NamesConsumer:
     """
     A simple class to handle consumed, to consume and scope type info of node locals
     """

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, too-few-public-methods
+# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance
 
 class Aaaa(object):
     pass

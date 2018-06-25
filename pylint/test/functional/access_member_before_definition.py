@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,too-few-public-methods,invalid-name
-# pylint: disable=attribute-defined-outside-init
+# pylint: disable=attribute-defined-outside-init, useless-object-inheritance
 
 class Aaaa(object):
     """class with attributes defined in wrong order"""

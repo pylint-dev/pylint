@@ -155,7 +155,7 @@ def docstringify(docstring):
     return Docstring(docstring)
 
 
-class Docstring(object):
+class Docstring:
     re_for_parameters_see = re.compile(r"""
         For\s+the\s+(other)?\s*parameters\s*,\s+see
         """, re.X | re.S)

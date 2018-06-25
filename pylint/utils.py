@@ -86,7 +86,7 @@ OPTION_RGX = re.compile(r'\s*#.*\bpylint:\s*([^;]+);{0,1}')
 # The line/node distinction does not apply to fatal errors and reports.
 _SCOPE_EXEMPT = 'FR'
 
-class WarningScope(object):
+class WarningScope:
     LINE = 'line-based-msg'
     NODE = 'node-based-msg'
 
@@ -177,7 +177,7 @@ def build_message_def(checker, msgid, msg_tuple):
     return MessageDefinition(checker, msgid, msg, descr, symbol, **options)
 
 
-class MessageDefinition(object):
+class MessageDefinition:
     def __init__(self, checker, msgid, msg, descr, symbol, scope,
                  minversion=None, maxversion=None, old_names=None):
         self.checker = checker
@@ -235,7 +235,7 @@ class MessageDefinition(object):
         return ':%s:\n%s' % (msgid, desc)
 
 
-class MessagesHandlerMixIn(object):
+class MessagesHandlerMixIn:
     """a mix-in class containing all the messages related methods for the main
     lint class
     """
@@ -570,7 +570,7 @@ class MessagesHandlerMixIn(object):
             print("", file=stream)
         print("", file=stream)
 
-class FileState(object):
+class FileState:
     """Hold internal state specific to the currently analyzed file"""
 
     def __init__(self, modname=None):
@@ -687,7 +687,7 @@ class FileState(object):
         return self._effective_max_line_number
 
 
-class MessagesStore(object):
+class MessagesStore:
     """The messages store knows information about every possible message but has
     no particular state during analysis.
     """
@@ -920,7 +920,7 @@ class MessagesStore(object):
         print("")
 
 
-class ReportsHandlerMixIn(object):
+class ReportsHandlerMixIn:
     """a mix-in class containing all the reports and stats manipulation
     related methods for the main lint class
     """
@@ -1081,7 +1081,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
     return result, errors
 
 
-class PyLintASTWalker(object):
+class PyLintASTWalker:
 
     def __init__(self, linter):
         # callbacks per node types

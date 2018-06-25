@@ -538,10 +538,14 @@ MSGS = {
               'single-string-used-for-slots',
               'Used when a class __slots__ is a simple string, rather '
               'than an iterable.'),
+    'R0205': ('Class %r inherits from object, can be safely removed from bases in python3',
+              'useless-object-inheritance',
+              'Used when a class inherit from object, which under python3 is implicit, '
+              'hence can be safely removed from bases.')
     }
 
 
-class ScopeAccessMap(object):
+class ScopeAccessMap:
     """Store the accessed variables per scope."""
 
     def __init__(self):
@@ -671,6 +675,9 @@ a metaclass class method.'}
                     _is_invalid_base_class(ancestor)):
                 self.add_message('inherit-non-class',
                                  args=base.as_string(), node=node)
+
+            if ancestor.name == object.__name__:
+                self.add_message('useless-object-inheritance', args=node.name, node=node)
 
     def leave_classdef(self, cnode):
         """close a class node:

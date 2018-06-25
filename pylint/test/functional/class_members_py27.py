@@ -1,5 +1,5 @@
 """ Various tests for class members access. """
-# pylint: disable=R0903,print-statement,no-absolute-import, metaclass-assignment,import-error,no-init,missing-docstring, wrong-import-order,wrong-import-position
+# pylint: disable=R0903,print-statement,no-absolute-import, metaclass-assignment,import-error,no-init,missing-docstring, wrong-import-order,wrong-import-position, useless-object-inheritance
 from missing import Missing
 class MyClass(object):
     """class docstring"""

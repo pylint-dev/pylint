@@ -111,7 +111,7 @@ EDGE_ATTRS = {
 
 # Misc utilities ###############################################################
 
-class VCGPrinter(object):
+class VCGPrinter:
     """A vcg graph writer.
     """
 

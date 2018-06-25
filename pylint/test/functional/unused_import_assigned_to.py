@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, import-error, invalid-name
-# pylint: disable=too-few-public-methods, blacklisted-name, no-member
+# pylint: disable=too-few-public-methods, blacklisted-name, no-member, useless-object-inheritance
 
 import uuid
 
