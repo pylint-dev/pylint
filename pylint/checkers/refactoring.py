@@ -750,7 +750,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     @staticmethod
     def _is_and_or_ternary(node):
         """
-        Returns true if node is 'condition and true_value else false_value' form.
+        Returns true if node is 'condition and true_value or false_value' form.
 
         All of: condition, true_value and false_value should not be a complex boolean expression
         """
