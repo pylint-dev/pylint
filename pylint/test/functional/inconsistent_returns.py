@@ -146,6 +146,15 @@ def bug_1794(a):
             return a
     raise configparser.NoSectionError('toto')
 
+#pylint: disable = no-else-return
+def bug_1782_bis(val=3):
+    if val == 3:
+        while True:
+            break
+        return True
+    else:
+        raise RuntimeError()
+
 # Next ones are not consistent
 def explicit_implicit_returns(var): # [inconsistent-return-statements]
     if var >= 0:
