@@ -399,6 +399,12 @@ class BasicErrorChecker(_BasicChecker):
                   'yield-outside-function',
                   'Used when a "yield" statement is found outside a function or '
                   'method.'),
+        'E0106': ('Return with argument inside generator',
+                  'return-arg-in-generator',
+                  'Used when a "return" statement with an argument is found '
+                  'outside in a generator function or method (e.g. with some '
+                  '"yield" statements).',
+                  {'maxversion': (3, 3)}),
         'E0107': ("Use of the non-existent %s operator",
                   'nonexistent-operator',
                   "Used when you attempt to use the C-style pre-increment or "

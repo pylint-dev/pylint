@@ -30,6 +30,11 @@ MSGS = {
               'bad-super-call',
               'Used when another argument than the current class is given as \
               first argument of the super builtin.'),
+    'E1004': ('Missing argument to super()',
+              'missing-super-argument',
+              'Used when the super builtin didn\'t receive an \
+               argument.',
+              {'maxversion': (3, 0)}),
     }
 
 
