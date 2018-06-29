@@ -1239,9 +1239,7 @@ class VariablesChecker(BaseChecker):
                         defstmt is stmt
                         and isinstance(node, (astroid.DelName, astroid.AssignName))
                     )
-                    if (recursive_klass
-                            or defined_by_stmt
-                            or annotation_return
+                    if (any((recursive_klass, defined_by_stmt, annotation_return))
                             or isinstance(defstmt, astroid.Delete)):
                         if not utils.node_ignores_exception(node, NameError):
 

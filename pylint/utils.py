@@ -1065,7 +1065,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
         has_init = (not (modname.endswith('.__init__') or modname == '__init__')
                     and basename(filepath) == '__init__.py')
 
-        if has_init or is_namespace or is_directory:
+        if any((has_init, is_namespace, is_directory)):
             for subfilepath in modutils.get_module_files(dirname(filepath), black_list,
                                                          list_all=is_namespace):
                 if filepath == subfilepath:

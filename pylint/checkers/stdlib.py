@@ -59,7 +59,7 @@ def _check_mode_str(mode):
     text = "t" in modes
     binary = "b" in modes
     if "U" in modes:
-        if writing or appending or creating:
+        if any((writing, appending, creating)):
             return False
         reading = True
     if text and binary:
@@ -67,7 +67,7 @@ def _check_mode_str(mode):
     total = reading + writing + appending + creating
     if total > 1:
         return False
-    if not (reading or writing or appending or creating):
+    if not any((reading, writing, appending, creating)):
         return False
     return True
 

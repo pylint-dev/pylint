@@ -727,7 +727,7 @@ def _is_abstract_class_name(name):
     is_mixin = lname.endswith('mixin')
     is_abstract = lname.startswith('abstract')
     is_base = lname.startswith('base') or lname.endswith('base')
-    return is_mixin or is_abstract or is_base
+    return any((is_mixin, is_abstract, is_base))
 
 
 def is_inside_abstract_class(node):
