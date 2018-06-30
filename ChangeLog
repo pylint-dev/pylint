@@ -351,6 +351,9 @@ Release date: |TBA|
 
       Close #2022
 
+    * Expand ignored-argument-names include starred arguments and keyword arguments
+
+      Close #2214
 
 What's New in Pylint 1.9?
 =========================

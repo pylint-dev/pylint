@@ -251,6 +251,8 @@ Other Changes
 
 * Suppress false-positive ``not-callable`` messages from certain staticmethod descriptors
 
+* Expand ``ignored-argument-names`` include starred arguments and keyword arguments
+
 * `singleton-comparison` will suggest better boolean conditions for negative conditions.
 
 * `undefined-loop-variable` takes in consideration non-empty iterred objects before emitting.

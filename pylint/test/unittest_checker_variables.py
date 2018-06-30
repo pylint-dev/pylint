@@ -12,6 +12,7 @@
 """Unit tests for the variables checker."""
 import sys
 import os
+import re
 
 import astroid
 
@@ -189,6 +190,27 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.walk(node)
+
+    @set_config(ignored_argument_names=re.compile("arg"))
+    def test_ignored_argument_names_no_message(self):
+        """Make sure is_ignored_argument_names properly ignores
+        function arguments"""
+        node = astroid.parse('''
+        def fooby(arg):
+            pass
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
+
+    @set_config(ignored_argument_names=re.compile("args|kwargs"))
+    def test_ignored_argument_names_starred_args(self):
+        node = astroid.parse('''
+        def fooby(*args, **kwargs):
+            pass
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
+
 
 class TestMissingSubmodule(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
