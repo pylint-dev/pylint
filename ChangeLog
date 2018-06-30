@@ -352,6 +352,11 @@ Release date: |TBA|
       Close #2022
 
 
+    * Fix false-positive ``bad-whitespace`` message for typing annoatations
+    with ellipses in them
+
+      Close 1992
+
 What's New in Pylint 1.9?
 =========================
 
