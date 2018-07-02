@@ -331,6 +331,13 @@ class TestCheckSpace(CheckerTestCase):
                     args=('Exactly one', 'required', 'around', 'comparison', 'a<  b\n ^'))):
             self.checker.process_tokens(_tokenize_str('a<  b\n'))
 
+    def testValidTypingAnnotationEllipses(self):
+        """Make sure ellipses in function typing annotation
+        doesn't cause a false positive bad-whitespace message"""
+        with self.assertNoMessages():
+            self.checker.process_tokens(
+                _tokenize_str('def foo(t: Tuple[str, ...] = None):\n'))
+
     def testEmptyLines(self):
         self.checker.config.no_space_check = []
         with self.assertAddsMessages(

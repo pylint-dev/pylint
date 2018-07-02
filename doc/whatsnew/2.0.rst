@@ -330,5 +330,8 @@ Other Changes
   this might actually cause bugs, so if you want to check for ``None`` values
   as well, pass ``--ignore-none=n`` to pylint.
 
+* Fix false-positive ``bad-whitespace`` message for typing annoatations
+  with ellipses in them
+
 
 .. _PEP 563: https://www.python.org/dev/peps/pep-0563/
