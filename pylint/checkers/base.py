@@ -77,6 +77,7 @@ class NamingStyle:
 
 
 class SnakeCaseStyle(NamingStyle):
+    """Regex rules for snake_case naming style."""
     CLASS_NAME_RGX = re.compile('[a-z_][a-z0-9_]+$')
     MOD_NAME_RGX = re.compile('([a-z_][a-z0-9_]*)$')
     CONST_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|(__.*__))$')
@@ -86,6 +87,7 @@ class SnakeCaseStyle(NamingStyle):
 
 
 class CamelCaseStyle(NamingStyle):
+    """Regex rules for camelCase naming style."""
     CLASS_NAME_RGX = re.compile('[a-z_][a-zA-Z0-9]+$')
     MOD_NAME_RGX = re.compile('([a-z_][a-zA-Z0-9]*)$')
     CONST_NAME_RGX = re.compile('(([a-z_][A-Za-z0-9]*)|(__.*__))$')
@@ -95,6 +97,7 @@ class CamelCaseStyle(NamingStyle):
 
 
 class PascalCaseStyle(NamingStyle):
+    """Regex rules for PascalCase naming style."""
     CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
     MOD_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
     CONST_NAME_RGX = re.compile('(([A-Z_][A-Za-z0-9]*)|(__.*__))$')
@@ -104,6 +107,7 @@ class PascalCaseStyle(NamingStyle):
 
 
 class UpperCaseStyle(NamingStyle):
+    """Regex rules for UPPER_CASE naming style."""
     CLASS_NAME_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
     MOD_NAME_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
     CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
