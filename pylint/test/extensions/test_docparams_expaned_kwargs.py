@@ -103,9 +103,6 @@ class TestExpandedKwargsChecker(CheckerTestCase):
             :param int mandatory:
                 The mandatory argument
 
-            :param dict kwargs:
-                Optional parameters, described below.
-
             :param int alpha:
                 First optional argument
 
