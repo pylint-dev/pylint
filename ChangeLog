@@ -12,6 +12,10 @@ Release date: |TBA|
 
       Close #1782
 
+    * `ImportFrom` nodes correctly use the full name for the import sorting checks.
+
+      Close #2181
+
     * [].extend and similar builtin operations don't emit `dict-*-not-iterating` with the Python 3 porting checker
 
       Close #2187

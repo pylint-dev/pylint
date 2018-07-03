@@ -550,14 +550,15 @@ class ImportsChecker(BaseChecker):
 
     def _record_import(self, node, importedmodnode):
         """Record the package `node` imports from"""
-        importedname = importedmodnode.name if importedmodnode else None
+        if isinstance(node, astroid.ImportFrom):
+            importedname = node.modname
+        else:
+            importedname = importedmodnode.name if importedmodnode else None
         if not importedname:
-            if isinstance(node, astroid.ImportFrom):
-                importedname = node.modname
-            else:
-                importedname = node.names[0][0].split('.')[0]
+            importedname = node.names[0][0].split('.')[0]
+
         if isinstance(node, astroid.ImportFrom) and (node.level or 0) >= 1:
-            # We need the impotedname with first point to detect local package
+            # We need the importedname with first point to detect local package
             # Example of node:
             #  'from .my_package1 import MyClass1'
             #  the output should be '.my_package1' instead of 'my_package1'
@@ -565,6 +566,7 @@ class ImportsChecker(BaseChecker):
             #  'from . import my_package2'
             #  the output should be '.my_package2' instead of '{pyfile}'
             importedname = '.' + importedname
+
         self._imports_stack.append((node, importedname))
 
     @staticmethod
