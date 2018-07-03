@@ -805,7 +805,6 @@ class BasicChecker(_BasicChecker):
                   'Used when the first argument to reversed() builtin '
                   'isn\'t a sequence (does not implement __reversed__, '
                   'nor __getitem__ and __len__'),
-
     }
 
     reports = (('RP0101', 'Statistics by type', report_by_type_stats),)
@@ -1734,15 +1733,12 @@ class ComparisonChecker(_BasicChecker):
                       'literal than what was expected altogether.'),
             'R0124': ('Redundant comparison - %s',
                       'comparison-with-itself',
-                      'Used when something is compared against itself.',
-                      ),
+                      'Used when something is compared against itself.'),
             'W0143': ('Comparing against a callable, did you omit the parenthesis?',
                       'comparison-with-callable',
                       'This message is emitted when pylint detects that a comparison with a '
                       'callable was made, which might suggest that some parenthesis were omitted, '
-                      'resulting in potential unwanted behaviour.'
-                      ),
-
+                      'resulting in potential unwanted behaviour.'),
             }
 
     def _check_singleton_comparison(self, singleton, root_node, negative_check=False):
