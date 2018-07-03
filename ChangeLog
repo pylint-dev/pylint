@@ -351,6 +351,9 @@ Release date: |TBA|
 
       Close #2022
 
+    * Expand ignored-argument-names include starred arguments and keyword arguments
+
+      Close #2214
 
     * Fix false-positive ``bad-whitespace`` message for typing annoatations
     with ellipses in them

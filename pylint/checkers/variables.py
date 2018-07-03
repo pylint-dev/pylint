@@ -759,8 +759,9 @@ class VariablesChecker(BaseChecker):
 
     def _is_name_ignored(self, stmt, name):
         authorized_rgx = self.config.dummy_variables_rgx
-        if (isinstance(stmt, astroid.AssignName)
-                and isinstance(stmt.parent, astroid.Arguments)):
+        if (isinstance(stmt, astroid.AssignName) and
+                isinstance(stmt.parent, astroid.Arguments) or
+                isinstance(stmt, astroid.Arguments)):
             regex = self.config.ignored_argument_names
         else:
             regex = authorized_rgx
