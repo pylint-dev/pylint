@@ -381,6 +381,10 @@ class DocstringParameterChecker(BaseChecker):
 
             :param not_needed_names: names that may be omitted
             :type not_needed_names: set of str
+
+            :param bool accept_expanded_kwargs:
+                Allow explicit documentation for implicitly declared
+                (by **kwargs) parameters.
             """
             differing_argument_names = (
                 (expected_argument_names ^ found_argument_names)
