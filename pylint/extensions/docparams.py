@@ -7,6 +7,7 @@
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017 John Paraskevopoulos <io.paraskev@gmail.com>
+# Copyright (c) 2018 Alex Itkes
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -122,6 +123,11 @@ class DocstringParameterChecker(BaseChecker):
                 {'default': True, 'type' : 'yn', 'metavar': '<y or n>',
                  'help': 'Whether to accept totally missing yields '
                          'documentation in the docstring of a generator.'
+                }),
+               ('accept-expanded-kwargs',
+                {'default': False, 'type': 'yn', 'metavar': '<y or n>',
+                 'help': 'Ignore documented arguments not appearing in the '
+                         'argument list if function has a **kwargs argument.'
                 }),
               )
 
@@ -363,7 +369,8 @@ class DocstringParameterChecker(BaseChecker):
                         node=warning_node)
 
         def _compare_different_args(found_argument_names, message_id,
-                                    not_needed_names):
+                                    not_needed_names,
+                                    accept_expanded_kwargs=False):
             """Compare the found argument names with the expected ones and
             generate a message if there are extra arguments found.
 
@@ -379,6 +386,10 @@ class DocstringParameterChecker(BaseChecker):
                 (expected_argument_names ^ found_argument_names)
                 - not_needed_names - expected_argument_names)
 
+            # If there is a **kwargs argument, may document
+            # the parameters not accepted explicitly.
+            if accept_expanded_kwargs and 'kwargs' in expected_argument_names:
+                differing_argument_names -= (found_argument_names & differing_argument_names)
             if differing_argument_names:
                 self.add_message(
                     message_id,
@@ -386,15 +397,19 @@ class DocstringParameterChecker(BaseChecker):
                         sorted(differing_argument_names)),),
                     node=warning_node)
 
+        accept_expanded_kwargs = self.config.accept_expanded_kwargs
+
         _compare_missing_args(params_with_doc, 'missing-param-doc',
                               self.not_needed_param_in_docstring)
         _compare_missing_args(params_with_type, 'missing-type-doc',
                               not_needed_type_in_docstring)
 
         _compare_different_args(params_with_doc, 'differing-param-doc',
-                                self.not_needed_param_in_docstring)
+                                self.not_needed_param_in_docstring,
+                                accept_expanded_kwargs=accept_expanded_kwargs)
         _compare_different_args(params_with_type, 'differing-type-doc',
-                                not_needed_type_in_docstring)
+                                not_needed_type_in_docstring,
+                                accept_expanded_kwargs=accept_expanded_kwargs)
 
     def check_single_constructor_params(self, class_doc, init_doc, class_node):
         if class_doc.has_params() and init_doc.has_params():
