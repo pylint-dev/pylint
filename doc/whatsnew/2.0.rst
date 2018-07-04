@@ -25,6 +25,25 @@ Summary -- Release highlights
 
 New checkers
 ============
+* A new check was added, ``consider-using-any-all``.
+
+  This refactoring message is emitted when pylint detects boolean expression like
+  a or b or c which can be refactored to any([a, b, c]). Similarly multiple `and`
+  operations can be refactored using `all` function.
+
+  .. code-block:: python
+    if a or b or c:
+        pass
+
+    if any([a, b, c]):    # better
+        pass
+
+    if a and b and c:
+        pass
+
+    if all([a, b, c]):    # better
+        pass
+
 * A new check was added, ``useless-object-inheritance``.
 
   This refactoring message is emitted when pylint detects that a class inherits from object,

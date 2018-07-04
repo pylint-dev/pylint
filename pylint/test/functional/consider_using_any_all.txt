@@ -1,0 +1,4 @@
+consider-using-any-all:12::Consider using `any((a, b, c))` instead of using `or` operator
+consider-using-any-all:15::Consider using `all((a, b, c))` instead of using `and` operator
+consider-using-any-all:19::Consider using `all((a, b, c))` instead of using `and` operator
+consider-using-any-all:22::Consider using `any((d, e, f))` instead of using `or` operator

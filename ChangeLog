@@ -7,6 +7,11 @@ What's New in Pylint 2.0?
 
 Release date: |TBA|
 
+    * Add a check `consider-using-any-all` which is emitted when boolean expression having
+      multiple `and` or `or` operator which can be refactored using any or all function respectively.
+
+      Close #2227
+
     * Fix a false positive ``inconsistent-return-statements`` message when exception is raised
       inside an else statement.
 

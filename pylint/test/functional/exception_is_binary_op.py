@@ -1,5 +1,6 @@
 """Warn about binary operations used as exceptions."""
 from __future__ import print_function
+# pylint: disable=consider-using-any-all
 try:
     pass
 except Exception or BaseException:  # [binary-op-exception]

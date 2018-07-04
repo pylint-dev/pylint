@@ -173,6 +173,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'Also it is faster since you don\'t need to create another '
                   'transient list',
                   ),
+        'R1719': ('Consider using `%s` instead of using `%s` operator',
+                  'consider-using-any-all',
+                  'This message is emitted when pylint encounters boolean operation like'
+                  '"a or b or c", suggesting instead to refactor it to "any((a, b, c))"',
+                  ),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -658,12 +663,46 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self.add_message('chained-comparison',
                              node=node)
 
+    def _check_possible_any_all_usage(self, boolop_node):
+        operators_replaceable_by_any_all = frozenset(('or', 'and'))
+        if boolop_node.op not in operators_replaceable_by_any_all:
+            return
+
+        # Below check is required to avoid things like,
+        # var = this or that
+        if not isinstance(boolop_node.parent, (astroid.Return, astroid.If, astroid.BoolOp)):
+            return
+
+        def _get_operands(bool_op, operator):
+            values = []
+            if bool_op.op != operator:
+                return values
+
+            for value in bool_op.values:
+                if isinstance(value, astroid.Name):
+                    values.append(value.name)
+            return values
+
+        for operator_replaceable_by_any_all in operators_replaceable_by_any_all:
+            candidate_operands = _get_operands(boolop_node, operator_replaceable_by_any_all)
+            # and/or operation with two variables is pretty common case,
+            # better to emit this message if there are more than 2 operands to club it in any/all.
+            if len(candidate_operands) > 2:
+                if operator_replaceable_by_any_all == 'or':
+                    suggestion = ('any(({}))'.format(', '.join(candidate_operands)), 'or')
+                else:
+                    suggestion = ('all(({}))'.format(', '.join(candidate_operands)), 'and')
+
+                self.add_message('consider-using-any-all', node=boolop_node,
+                                 args=suggestion)
+
     @utils.check_messages('consider-merging-isinstance', 'consider-using-in',
-                          'chained-comparison')
+                          'chained-comparison', 'consider-using-any-all')
     def visit_boolop(self, node):
         self._check_consider_merging_isinstance(node)
         self._check_consider_using_in(node)
         self._check_chained_comparison(node)
+        self._check_possible_any_all_usage(node)
 
     @staticmethod
     def _is_simple_assignment(node):

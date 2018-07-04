@@ -61,7 +61,6 @@ disable=
     protected-access,
     too-few-public-methods,
 
-
 [REPORTS]
 
 # Set the output format. Available formats are text, parseable, colorized, msvs
