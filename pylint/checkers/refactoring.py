@@ -729,7 +729,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         assign = for_loop.previous_sibling()
         if not isinstance(assign, astroid.Assign):
             return
-        result_assign_names = {target.name for target in assign.targets if isinstance(target, astroid.AssignName)}
+        result_assign_names = {
+            target.name for target in assign.targets if isinstance(target, astroid.AssignName)
+        }
 
         is_concat_loop = (aug_assign.op == '+='
                           and isinstance(aug_assign.target, astroid.AssignName)
