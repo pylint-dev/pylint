@@ -389,6 +389,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(node.body[0], astroid.Assign)
             and isinstance(node.body[0].value, astroid.Subscript)
             and type_and_name_are_equal(node.body[0].value.value, node.test.ops[0][1])
+            and isinstance(node.body[0].value.slice, astroid.Index)
             and type_and_name_are_equal(node.body[0].value.slice.value, node.test.left)
             and len(node.body[0].targets) == 1
             and isinstance(node.body[0].targets[0], astroid.AssignName)
