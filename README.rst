@@ -79,3 +79,11 @@ Pylint is shipped with following additional commands:
 * pyreverse: an UML diagram generator
 * symilar: an independent similarities checker
 * epylint: Emacs and Flymake compatible Pylint
+
+
+Note
+----
+
+Python 3.7 support is currently available on the preview release:
+
+``pip install pylint astroid --pre -U``
