@@ -724,20 +724,20 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             result += number  # aug_assign
         """
         for_loop = aug_assign.parent
-        if not isinstance(for_loop, astroid.node_classes.For):
+        if not isinstance(for_loop, astroid.For) or len(for_loop.body) > 1:
             return
         assign = for_loop.previous_sibling()
-        if not isinstance(assign, astroid.node_classes.Assign):
+        if not isinstance(assign, astroid.Assign):
             return
-        result_assign_names = {target.name for target in assign.targets}
+        result_assign_names = {target.name for target in assign.targets if isinstance(target, astroid.AssignName)}
 
         is_concat_loop = (aug_assign.op == '+='
                           and isinstance(aug_assign.target, astroid.AssignName)
                           and len(for_loop.body) == 1
                           and aug_assign.target.name in result_assign_names
-                          and isinstance(assign.value, astroid.node_classes.Const)
+                          and isinstance(assign.value, astroid.Const)
                           and isinstance(assign.value.value, str)
-                          and isinstance(aug_assign.value, astroid.node_classes.Name)
+                          and isinstance(aug_assign.value, astroid.Name)
                           and aug_assign.value.name == for_loop.target.name)
         if is_concat_loop:
             self.add_message('consider-using-join', node=aug_assign)
