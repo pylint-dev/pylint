@@ -78,3 +78,10 @@ if bool(key) and 'key' in dictionary:  # not a simple compare
     variable = dictionary['key1']
 else:
     variable = 'default'
+
+
+d1 = {'foo': None}
+d2 = {}
+# Cannot be represented as using .get()
+if 'foo' in d1:
+    d2['bar'] = d1['foo']

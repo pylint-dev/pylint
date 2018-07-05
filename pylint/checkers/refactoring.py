@@ -391,6 +391,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and type_and_name_are_equal(node.body[0].value.value, node.test.ops[0][1])
             and type_and_name_are_equal(node.body[0].value.slice.value, node.test.left)
             and len(node.body[0].targets) == 1
+            and isinstance(node.body[0].targets[0], astroid.AssignName)
             and isinstance(utils.safe_infer(node.test.ops[0][1]), astroid.Dict))
 
         if if_block_ok and not node.orelse:
