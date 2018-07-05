@@ -84,6 +84,6 @@ Pylint is shipped with following additional commands:
 Note
 ----
 
-Python 3.7 support is currently available on the preview release:
+Python 3.7 support is currently available on the preview release: ::
 
-``pip install pylint astroid --pre -U``
+    pip install pylint astroid --pre -U
