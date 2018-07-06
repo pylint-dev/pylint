@@ -113,19 +113,6 @@ def test_check_package___init__(finalize_linter):
     assert checked == ['__init__']
 
 
-@pytest.mark.skipif(PYPY_VERSION_INFO and PYPY_VERSION_INFO < (4, 0),
-                    reason="On older PyPy versions, sys.executable was set to a value "
-                    "that is not supported by the implementation of this function. "
-                    "( https://bitbucket.org/pypy/pypy/commits/19e305e27e67 )")
-def test_epylint_does_not_block_on_huge_files():
-    path = join(REGR_DATA, 'huge.py')
-    out, err = epylint.py_run(path, return_std=True)
-    assert hasattr(out, 'read')
-    assert hasattr(err, 'read')
-    output = out.read(10)
-    assert isinstance(output, str)
-
-
 def test_pylint_config_attr():
     mod = astroid.MANAGER.ast_from_module_name('pylint.lint')
     pylinter = mod['PyLinter']
