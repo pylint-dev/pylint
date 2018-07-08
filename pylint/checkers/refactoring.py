@@ -703,13 +703,20 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
 
-        if truth_value.bool_value() is False:
+        if all(isinstance(value, astroid.Compare) for value in (truth_value, false_value)):
+            return
+
+        inferred_truth_value = utils.safe_infer(truth_value)
+        if inferred_truth_value in (None, astroid.Uninferable):
+            truth_boolean_value = True
+        else:
+            truth_boolean_value = truth_value.bool_value()
+
+        if truth_boolean_value is False:
             message = 'simplify-boolean-expression'
             suggestion = false_value.as_string()
         else:
             message = 'consider-using-ternary'
-            if all(isinstance(value, astroid.Compare) for value in (truth_value, false_value)):
-                return
             suggestion = '{truth} if {cond} else {false}'.format(
                 truth=truth_value.as_string(),
                 cond=cond.as_string(),
