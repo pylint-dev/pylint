@@ -708,6 +708,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             suggestion = false_value.as_string()
         else:
             message = 'consider-using-ternary'
+            if all(isinstance(value, astroid.Compare) for value in (truth_value, false_value)):
+                return
             suggestion = '{truth} if {cond} else {false}'.format(
                 truth=truth_value.as_string(),
                 cond=cond.as_string(),
