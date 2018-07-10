@@ -77,7 +77,7 @@ def _is_builtin(node):
 
 _ACCEPTS_ITERATOR = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
                      'all', 'enumerate', 'dict', 'filter', 'reversed',
-                     'max', 'min'}
+                     'max', 'min', 'frozenset'}
 _BUILTIN_METHOD_ACCEPTS_ITERATOR = {
     'builtins.list.extend',
     'builtins.dict.update',
