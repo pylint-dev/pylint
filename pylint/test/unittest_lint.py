@@ -741,21 +741,24 @@ def test_custom_should_analyze_file():
 
     package_dir = os.path.join(HERE, 'regrtest_data', 'bad_package')
     wrong_file = os.path.join(package_dir, 'wrong.py')
-    reporter = testutils.TestReporter()
-    linter = CustomPyLinter()
-    linter.config.persistent = 0
-    linter.open()
-    linter.set_reporter(reporter)
 
-    try:
-        sys.path.append(os.path.dirname(package_dir))
-        linter.check([package_dir, wrong_file])
-    finally:
-        sys.path.pop()
+    for jobs in [1, 2]:
+        reporter = testutils.TestReporter()
+        linter = CustomPyLinter()
+        linter.config.jobs = jobs
+        linter.config.persistent = 0
+        linter.open()
+        linter.set_reporter(reporter)
 
-    messages = reporter.messages
-    assert len(messages) == 1
-    assert 'invalid syntax' in messages[0]
+        try:
+            sys.path.append(os.path.dirname(package_dir))
+            linter.check([package_dir, wrong_file])
+        finally:
+            sys.path.pop()
+
+        messages = reporter.messages
+        assert len(messages) == 1
+        assert 'invalid syntax' in messages[0]
 
 
 def test_filename_with__init__(init_linter):

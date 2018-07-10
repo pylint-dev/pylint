@@ -812,7 +812,11 @@ class PyLinter(config.OptionsManagerMixIn,
         results_queue = manager.Queue()
 
         # Send files to child linters.
-        expanded_files = self.expand_files(files_or_modules)
+        expanded_files = []
+        for descr in self.expand_files(files_or_modules):
+            modname, filepath, is_arg = descr['name'], descr['path'], descr['isarg']
+            if self.should_analyze_file(modname, filepath, is_argument=is_arg):
+                expanded_files.append(descr)
 
         # do not start more jobs than needed
         for _ in range(min(self.config.jobs, len(expanded_files))):
