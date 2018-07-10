@@ -24,3 +24,11 @@ test(widget=1,
      label='test')
 test(widget=1, \
      label='test')
+
+
+def some_func(first, second):
+    if first:
+        return first, # [trailing-comma-tuple]
+    if second:
+        return (first, second,)
+    return first, second,  # [trailing-comma-tuple]

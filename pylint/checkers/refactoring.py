@@ -1230,7 +1230,7 @@ def is_trailing_comma(tokens, index):
         return 0
     curline_start = get_curline_index_start()
     for prevtoken in tokens[curline_start:index]:
-        if '=' in prevtoken.string:
+        if '=' in prevtoken.string or prevtoken.string == 'return':
             return True
     return False
 
