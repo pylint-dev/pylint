@@ -151,7 +151,7 @@ class TestSuperfluousParentheses(CheckerTestCase):
 
     def testCheckIfArgsAreNotUnicode(self):
         self.checker._keywords_with_parens = set()
-        cases = [(u'if (foo):', 0), (u'assert (1 == 1)', 0)]
+        cases = [('if (foo):', 0), ('assert (1 == 1)', 0)]
 
         for code, offset in cases:
             self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
@@ -330,6 +330,13 @@ class TestCheckSpace(CheckerTestCase):
             Message('bad-whitespace', line=1,
                     args=('Exactly one', 'required', 'around', 'comparison', 'a<  b\n ^'))):
             self.checker.process_tokens(_tokenize_str('a<  b\n'))
+
+    def testValidTypingAnnotationEllipses(self):
+        """Make sure ellipses in function typing annotation
+        doesn't cause a false positive bad-whitespace message"""
+        with self.assertNoMessages():
+            self.checker.process_tokens(
+                _tokenize_str('def foo(t: Tuple[str, ...] = None):\n'))
 
     def testEmptyLines(self):
         self.checker.config.no_space_check = []

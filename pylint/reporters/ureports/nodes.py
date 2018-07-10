@@ -8,10 +8,8 @@
 A micro report is a tree of layout and content objects.
 """
 
-from six import string_types
 
-
-class VNode(object):
+class VNode:
 
     def __init__(self, nid=None):
         self.id = nid
@@ -97,7 +95,7 @@ class Text(VNode):
         super(Text, self).__init__(**kwargs)
         #if isinstance(data, unicode):
         #    data = data.encode('ascii')
-        assert isinstance(data, string_types), data.__class__
+        assert isinstance(data, str), data.__class__
         self.escaped = escaped
         self.data = data
 

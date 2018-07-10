@@ -17,3 +17,4 @@ Technical Reference
   checkers
   extensions
   features
+  c_extensions

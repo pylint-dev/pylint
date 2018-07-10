@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, too-few-public-methods, import-error,unused-argument
+# pylint: disable=missing-docstring, too-few-public-methods, import-error,unused-argument, useless-object-inheritance
 
 import abc
 

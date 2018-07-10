@@ -26,7 +26,7 @@ from pylint.checkers import BaseChecker, table_lines_from_stats
 from pylint.reporters.ureports.nodes import Table
 
 
-class Similar(object):
+class Similar:
     """finds copy-pasted lines of code in a project"""
 
     def __init__(self, min_lines=4, ignore_comments=False,
@@ -67,7 +67,7 @@ class Similar(object):
                     couples.add((lineset2, idx2))
                     break
             else:
-                duplicate.append(set([(lineset1, idx1), (lineset2, idx2)]))
+                duplicate.append({(lineset1, idx1), (lineset2, idx2)})
         sims = []
         for num, ensembles in no_duplicates.items():
             for couples in ensembles:
@@ -161,7 +161,7 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     return strippedlines
 
 
-class LineSet(object):
+class LineSet:
     """Holds and indexes all the lines of a single source file"""
     def __init__(self, name, lines, ignore_comments=False,
                  ignore_docstrings=False, ignore_imports=False):

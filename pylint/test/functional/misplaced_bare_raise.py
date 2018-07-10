@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, broad-except, unreachable, try-except-raise
-# pylint: disable=unused-variable, too-few-public-methods, invalid-name
+# pylint: disable=unused-variable, too-few-public-methods, invalid-name, useless-object-inheritance
 
 try:
     raise # [misplaced-bare-raise]

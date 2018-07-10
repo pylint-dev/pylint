@@ -19,7 +19,7 @@ class TestVariablesChecker(CheckerTestCase):
     def test_bitbucket_issue_164(self):
         """Issue 164 report a false negative for access-member-before-definition"""
         n1, n2 = astroid.extract_node("""
-        class MyClass1(object):
+        class MyClass1:
           def __init__(self):
             self.first += 5 #@
             self.first = 0  #@
@@ -36,7 +36,7 @@ class TestVariablesChecker(CheckerTestCase):
         """
 
         node = astroid.parse("""
-        class Protected(object):
+        class Protected:
             '''empty'''
             def __init__(self):
                 self._meta = 42
@@ -70,7 +70,7 @@ class TestVariablesChecker(CheckerTestCase):
         # This should not emit a super-init-not-called
         # warning. It previously did this, because
         # ``next(node.infer())`` was used in that checker's
-        # logic and the first inferred node was an YES object,
+        # logic and the first inferred node was an Uninferable object,
         # leading to this false positive.
         node = astroid.extract_node("""
         import ctypes

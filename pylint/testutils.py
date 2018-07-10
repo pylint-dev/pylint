@@ -30,8 +30,7 @@ import sys
 import tempfile
 import tokenize
 
-import six
-from six.moves import StringIO
+from io import StringIO
 
 import astroid
 from pylint import checkers
@@ -162,7 +161,7 @@ class Message(collections.namedtuple('Message',
     __hash__ = None
 
 
-class UnittestLinter(object):
+class UnittestLinter:
     """A fake linter class to capture checker messages."""
     # pylint: disable=unused-argument, no-self-use
 
@@ -185,7 +184,7 @@ class UnittestLinter(object):
         return True
 
     def add_stats(self, **kwargs):
-        for name, value in six.iteritems(kwargs):
+        for name, value in kwargs.items():
             self.stats[name] = value
         return self.stats
 
@@ -198,7 +197,7 @@ def set_config(**kwargs):
     def _wrapper(fun):
         @functools.wraps(fun)
         def _forward(self):
-            for key, value in six.iteritems(kwargs):
+            for key, value in kwargs.items():
                 setattr(self.checker.config, key, value)
             if isinstance(self, CheckerTestCase):
                 # reopen checker in case, it may be interested in configuration change
@@ -209,7 +208,7 @@ def set_config(**kwargs):
     return _wrapper
 
 
-class CheckerTestCase(object):
+class CheckerTestCase:
     """A base testcase class for unit testing individual checker classes."""
     CHECKER_CLASS = None
     CONFIG = {}
@@ -217,7 +216,7 @@ class CheckerTestCase(object):
     def setup_method(self):
         self.linter = UnittestLinter()
         self.checker = self.CHECKER_CLASS(self.linter) # pylint: disable=not-callable
-        for key, value in six.iteritems(self.CONFIG):
+        for key, value in self.CONFIG.items():
             setattr(self.checker.config, key, value)
         self.checker.open()
 

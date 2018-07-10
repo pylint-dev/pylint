@@ -3,7 +3,7 @@ PYVE=pyve
 PIP=$(PYVE)/bin/pip
 TOX=$(PYVE)/bin/tox
 
-VERSION=$(shell PYTHONPATH=. python -c "from pylint.__pkginfo__ import version; print version")
+VERSION=$(shell PYTHONPATH=. python -c "from pylint.__pkginfo__ import version; print(version)")
 
 PKG_SDIST=dist/pylint-$(VERSION).tar.gz
 PKG_DEB=../pylint_$(VERSION)-1_all.deb
@@ -36,6 +36,7 @@ tests: $(TOX)
 docs: $(PIP)
 	$(PIP) install .
 	$(PIP) install Sphinx
+	$(PIP) install python-docs-theme
 	. $(PYVE)/bin/activate; make all -C doc
 
 deb: $(PKG_DEB)

@@ -1,5 +1,5 @@
 """ Various tests for class members access. """
-# pylint: disable=R0903,print-statement,no-absolute-import, metaclass-assignment,import-error,no-init,missing-docstring, wrong-import-order,wrong-import-position
+# pylint: disable=R0903,print-statement,no-absolute-import, metaclass-assignment,import-error,no-init,missing-docstring, wrong-import-order,wrong-import-position, useless-object-inheritance
 from missing import Missing
 class MyClass(object):
     """class docstring"""
@@ -38,7 +38,7 @@ class TestMetaclass(object):
 class Metaclass(type):
     """ metaclass """
     @classmethod
-    def test(mcs):
+    def test(cls):
         """ classmethod """
 
 class UsingMetaclass(object):

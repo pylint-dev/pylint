@@ -29,7 +29,7 @@
 
 By default try to follow Guido's style guide :
 
-http://www.python.org/doc/essays/styleguide.html
+https://www.python.org/doc/essays/styleguide/
 
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
@@ -37,7 +37,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 import keyword
 import sys
 import tokenize
-from functools import reduce # pylint: disable=redefined-builtin
+from functools import reduce  # pylint: disable=redefined-builtin
 
 from astroid import nodes
 
@@ -79,9 +79,9 @@ MSGS = {
     'C0301': ('Line too long (%s/%s)',
               'line-too-long',
               'Used when a line is longer than a given number of characters.'),
-    'C0302': ('Too many lines in module (%s/%s)', # was W0302
+    'C0302': ('Too many lines in module (%s/%s)',  # was W0302
               'too-many-lines',
-              'Used when a module has too much lines, reducing its readability.'
+              'Used when a module has too many lines, reducing its readability.'
              ),
     'C0303': ('Trailing whitespace',
               'trailing-whitespace',
@@ -103,7 +103,7 @@ MSGS = {
     'W0312': ('Found indentation with %ss instead of %ss',
               'mixed-indentation',
               'Used when there are some mixed tabs and spaces in a module.'),
-    'W0301': ('Unnecessary semicolon', # was W0106
+    'W0301': ('Unnecessary semicolon',  # was W0106
               'unnecessary-semicolon',
               'Used when a statement is ended by a semi-colon (";"), which \
               isn\'t necessary (that\'s python, not C ;).'),
@@ -111,10 +111,10 @@ MSGS = {
               'multiple-statements',
               'Used when more than on statement are found on the same line.',
               {'scope': WarningScope.NODE}),
-    'C0325' : ('Unnecessary parens after %r keyword',
-               'superfluous-parens',
-               'Used when a single item in parentheses follows an if, for, or '
-               'other keyword.'),
+    'C0325': ('Unnecessary parens after %r keyword',
+              'superfluous-parens',
+              'Used when a single item in parentheses follows an if, for, or '
+              'other keyword.'),
     'C0326': ('%s space %s %s %s\n%s',
               'bad-whitespace',
               ('Used when a wrong number of spaces is used around an operator, '
@@ -145,6 +145,7 @@ def _underline_token(token):
     if referenced_line[-1] != '\n':
         referenced_line += '\n'
     return referenced_line + (' ' * offset) + ('^' * length)
+
 
 def _column_distance(token1, token2):
     if token1 == token2:
@@ -216,7 +217,7 @@ def _get_indent_hint_line(bar_positions, bad_position):
     return (''.join(line), delta_message)
 
 
-class _ContinuedIndent(object):
+class _ContinuedIndent:
     __slots__ = ('valid_outdent_strings',
                  'valid_continuation_strings',
                  'context_type',
@@ -261,9 +262,10 @@ _CONTINUATION_MSG_PARTS = {
 
 _CONTINUATION_HINT_MESSAGE = ' (%s %d space%s)'  # Ex: (remove 2 spaces)
 
+
 def _Indentations(*args):
     """Valid indentation strings for a continued line."""
-    return dict((a, None) for a in args)
+    return {a: None for a in args}
 
 
 def _BeforeBlockIndentations(single, with_body):
@@ -279,7 +281,7 @@ def _BeforeBlockIndentations(single, with_body):
     return {single: SINGLE_LINE, with_body: WITH_BODY}
 
 
-class TokenWrapper(object):
+class TokenWrapper:
     """A wrapper for readable access to token information."""
 
     def __init__(self, tokens):
@@ -316,7 +318,7 @@ class TokenWrapper(object):
         return line_indent + ' ' * (self.start_col(idx) - len(line_indent))
 
 
-class ContinuedLineState(object):
+class ContinuedLineState:
     """Tracker for continued indentation inside a logical line."""
 
     def __init__(self, tokens, config):
@@ -482,22 +484,22 @@ class FormatChecker(BaseTokenChecker):
     # configuration options
     # for available dict keys/values see the optik parser 'add_option' method
     options = (('max-line-length',
-                {'default' : 100, 'type' : "int", 'metavar' : '<int>',
-                 'help' : 'Maximum number of characters on a single line.'}),
+                {'default': 100, 'type': "int", 'metavar': '<int>',
+                 'help': 'Maximum number of characters on a single line.'}),
                ('ignore-long-lines',
                 {'type': 'regexp', 'metavar': '<regexp>',
                  'default': r'^\s*(# )?<?https?://\S+>?$',
                  'help': ('Regexp for a line that is allowed to be longer than '
                           'the limit.')}),
                ('single-line-if-stmt',
-                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'help' : ('Allow the body of an if to be on the same '
-                           'line as the test if there is no else.')}),
+                {'default': False, 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': ('Allow the body of an if to be on the same '
+                          'line as the test if there is no else.')}),
                ('single-line-class-stmt',
-                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'help' : ('Allow the body of a class to be on the same '
-                           'line as the declaration if body contains '
-                           'single statement.')}),
+                {'default': False, 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': ('Allow the body of a class to be on the same '
+                          'line as the declaration if body contains '
+                          'single statement.')}),
                ('no-space-check',
                 {'default': ','.join(_DEFAULT_NO_SPACE_CHECK_CHOICES),
                  'metavar': ','.join(_NO_SPACE_CHECK_CHOICES),
@@ -511,13 +513,13 @@ class FormatChecker(BaseTokenChecker):
                           'and closing bracket: (a, ). '
                           '`'+ _EMPTY_LINE + '` allows space-only lines.')}),
                ('max-module-lines',
-                {'default' : 1000, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of lines in a module'}
+                {'default': 1000, 'type': 'int', 'metavar': '<int>',
+                 'help': 'Maximum number of lines in a module.'}
                ),
                ('indent-string',
-                {'default' : '    ', 'type' : "non_empty_string", 'metavar' : '<string>',
-                 'help' : 'String used as indentation unit. This is usually '
-                          '"    " (4 spaces) or "\\t" (1 tab).'}),
+                {'default': '    ', 'type': "non_empty_string", 'metavar': '<string>',
+                 'help': 'String used as indentation unit. This is usually '
+                         '"    " (4 spaces) or "\\t" (1 tab).'}),
                ('indent-after-paren',
                 {'type': 'int', 'metavar': '<int>', 'default': 4,
                  'help': 'Number of spaces of indent required inside a hanging '
@@ -680,7 +682,7 @@ class FormatChecker(BaseTokenChecker):
             elif token[1] == ',':
                 if not bracket_level:
                     return False
-            elif token[1] == '.':
+            elif token[1] in ('.', '...'):
                 continue
             elif token[0] not in (tokenize.NAME, tokenize.STRING, tokenize.NL):
                 return False
@@ -890,7 +892,7 @@ class FormatChecker(BaseTokenChecker):
         if line_num > self.config.max_module_lines:
             # Get the line where the too-many-lines (or its message id)
             # was disabled or default to 1.
-            symbol = self.linter.msgs_store.check_message_id('too-many-lines')
+            symbol = self.linter.msgs_store.get_message_definition('too-many-lines')
             names = (symbol.msgid, 'too-many-lines')
             line = next(filter(None,
                                map(self.linter._pragma_lineno.get, names)), 1)
@@ -1050,10 +1052,10 @@ class FormatChecker(BaseTokenChecker):
                 line = stripped_line
             mobj = OPTION_RGX.search(line)
             if mobj and '=' in line:
-                front_of_equal, back_of_equal = mobj.group(1).split('=', 1)
+                front_of_equal, _, back_of_equal = mobj.group(1).partition('=')
                 if front_of_equal.strip() == 'disable':
-                    if 'line-too-long' in set(_msg_id.strip()
-                                              for _msg_id in back_of_equal.split(',')):
+                    if 'line-too-long' in {_msg_id.strip()
+                                           for _msg_id in back_of_equal.split(',')}:
                         return None
                     line = line.rsplit('#', 1)[0].rstrip()
 
@@ -1062,16 +1064,16 @@ class FormatChecker(BaseTokenChecker):
             return i + 1
 
         unsplit_ends = {
-            u'\v',
-            u'\x0b',
-            u'\f',
-            u'\x0c',
-            u'\x1c',
-            u'\x1d',
-            u'\x1e',
-            u'\x85',
-            u'\u2028',
-            u'\u2029'
+            '\v',
+            '\x0b',
+            '\f',
+            '\x0c',
+            '\x1c',
+            '\x1d',
+            '\x1e',
+            '\x85',
+            '\u2028',
+            '\u2029'
         }
         unsplit = []
         for line in lines.splitlines(True):

@@ -46,8 +46,8 @@ if not PY3K:
     EXCEPTIONS_MODULE = "exceptions"
 else:
     EXCEPTIONS_MODULE = "builtins"
-ABC_METHODS = set(('abc.abstractproperty', 'abc.abstractmethod',
-                   'abc.abstractclassmethod', 'abc.abstractstaticmethod'))
+ABC_METHODS = {'abc.abstractproperty', 'abc.abstractmethod',
+               'abc.abstractclassmethod', 'abc.abstractstaticmethod'}
 ITER_METHOD = '__iter__'
 NEXT_METHOD = '__next__'
 GETITEM_METHOD = '__getitem__'
@@ -55,6 +55,8 @@ SETITEM_METHOD = '__setitem__'
 DELITEM_METHOD = '__delitem__'
 CONTAINS_METHOD = '__contains__'
 KEYS_METHOD = 'keys'
+DATACLASS_DECORATOR = 'dataclass'
+DATACLASS_IMPORT = 'dataclasses'
 
 # Dictionary which maps the number of expected parameters a
 # special method can have to a set of special methods.
@@ -843,7 +845,7 @@ def is_none(node):
 def node_type(node):
     """Return the inferred type for `node`
 
-    If there is more than one possible type, or if inferred type is YES or None,
+    If there is more than one possible type, or if inferred type is Uninferable or None,
     return None
     """
     # check there is only one possible type for the assign node. Else we
@@ -888,6 +890,7 @@ def is_registered_in_singledispatch_function(node):
             continue
 
         if isinstance(func_def, astroid.FunctionDef):
+            # pylint: disable=redundant-keyword-arg; some flow inference goes wrong here
             return decorated_with(func_def, singledispatch_qnames)
 
     return False
@@ -914,3 +917,59 @@ def get_node_last_lineno(node):
         return get_node_last_lineno(node.body[-1])
     # Not a compound statement
     return node.lineno
+
+
+def is_enum_class(node):
+    """Check if a class definition defines an Enum class.
+
+    :param node: The class node to check.
+    :type node: astroid.ClassDef
+
+    :returns: True if the given node represents an Enum class. False otherwise.
+    :rtype: bool
+    """
+    for base in node.bases:
+        try:
+            inferred_bases = base.inferred()
+        except astroid.InferenceError:
+            continue
+
+        for ancestor in inferred_bases:
+            if not isinstance(ancestor, astroid.ClassDef):
+                continue
+
+            if ancestor.name == 'Enum' and ancestor.root().name == 'enum':
+                return True
+
+    return False
+
+
+def is_dataclass(node):
+    """Check if a class definition defines a Python 3.7+ dataclass
+
+    :param node: The class node to check.
+    :type node: astroid.ClassDef
+
+    :returns: True if the given node represents a dataclass class. False otherwise.
+    :rtype: bool
+    """
+    if not node.decorators:
+        return False
+    for decorator in node.decorators.nodes:
+        if not isinstance(decorator, (astroid.Name, astroid.Attribute)):
+            continue
+        if isinstance(decorator, astroid.Name):
+            name = decorator.name
+        else:
+            name = decorator.attrname
+        if name == DATACLASS_DECORATOR and DATACLASS_DECORATOR in node.root().locals:
+            return True
+    return False
+
+
+def is_postponed_evaluation_enabled(node):
+    """Check if the postponed evaluation of annotations is enabled"""
+    name = 'annotations'
+    module = node.root()
+    stmt = module.locals.get(name)
+    return stmt and isinstance(stmt[0], astroid.ImportFrom) and stmt[0].modname == '__future__'

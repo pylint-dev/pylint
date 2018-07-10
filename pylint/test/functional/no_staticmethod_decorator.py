@@ -2,7 +2,7 @@
 scope and if static method's argument is a member of the class
 """
 
-# pylint: disable=too-few-public-methods, using-constant-test, no-method-argument
+# pylint: disable=too-few-public-methods, using-constant-test, no-method-argument, useless-object-inheritance
 
 class MyClass(object):
     """Some class"""

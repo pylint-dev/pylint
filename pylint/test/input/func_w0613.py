@@ -1,4 +1,4 @@
-# pylint: disable=R0903, print-statement
+# pylint: disable=R0903, print-statement, useless-object-inheritance
 """test unused argument
 """
 from __future__ import print_function

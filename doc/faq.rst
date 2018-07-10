@@ -50,11 +50,16 @@ it is also working on PyPy.
 2.4 What versions of Python is Pylint supporting?
 --------------------------------------------------
 
-Since Pylint 2.0, we support only Python 3.4+.
-If you need Python 2 support, then Pylint 1.8 is for you. We will still
-do backports of bug fixes, and possibly for various Python 3 compatibility
-checks, at least until 2020, after which we'll stop support Python 2 altogether.
-If needed, we would also release another minor 1.9 release.
+Since Pylint 2.0, the supported running environment is Python 3.4+.
+
+That is, Pylint 2.0 is still able to analyze Python 2 files, but some
+specific checks might not work, as they would assume that their running
+environment was Python 2.
+
+If you need to run pylint with Python 2, then Pylint 1.8 or 1.9 is for you.
+We will still do backports of bug fixes, and possibly for various Python 3
+compatibility checks, at least until 2020, after which we'll stop support
+Python 2 altogether.
 
 
 3. Running Pylint
@@ -117,12 +122,6 @@ For example::
 ---------------------------------------------------------------------------------------
 
 Much probably. Read :ref:`ide-integration`
-
-3.5 Option --py3k not working under Python 3?
----------------------------------------------
-
-If you run pylint with Python 3 intepreter, --py3k option will temporarily
-not work as expected. The porting checker is only enabled on Python 2.
 
 
 4. Message Control

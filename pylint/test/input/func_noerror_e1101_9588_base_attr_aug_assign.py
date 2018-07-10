@@ -1,4 +1,4 @@
-# pylint: disable=R0903
+# pylint: disable=R0903, useless-object-inheritance
 """
 False positive case of E1101:
 

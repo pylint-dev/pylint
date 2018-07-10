@@ -169,7 +169,8 @@ class DocstringParameterChecker(BaseChecker):
             node_doc, node.args, node, node_allow_no_param)
 
     def check_functiondef_returns(self, node, node_doc):
-        if not node_doc.supports_yields and node.is_generator():
+        if ((not node_doc.supports_yields and node.is_generator())
+                or node.is_abstract()):
             return
 
         return_nodes = node.nodes_of_class(astroid.Return)
@@ -180,7 +181,7 @@ class DocstringParameterChecker(BaseChecker):
                 node=node)
 
     def check_functiondef_yields(self, node, node_doc):
-        if not node_doc.supports_yields:
+        if not node_doc.supports_yields or node.is_abstract():
             return
 
         if ((node_doc.has_yields() or node_doc.has_yields_type()) and
@@ -235,6 +236,9 @@ class DocstringParameterChecker(BaseChecker):
                 'missing-return-doc',
                 node=func_node
             )
+
+        if func_node.returns:
+            return
 
         if not (doc.has_rtype() or
                 (doc.has_property_type() and is_property)):
@@ -319,7 +323,7 @@ class DocstringParameterChecker(BaseChecker):
         tolerate_missing_params = doc.params_documented_elsewhere()
 
         # Collect the function arguments.
-        expected_argument_names = set(arg.name for arg in arguments_node.args)
+        expected_argument_names = {arg.name for arg in arguments_node.args}
         expected_argument_names.update(arg.name for arg in arguments_node.kwonlyargs)
         not_needed_type_in_docstring = (
             self.not_needed_param_in_docstring.copy())
@@ -387,6 +391,11 @@ class DocstringParameterChecker(BaseChecker):
 
         _compare_missing_args(params_with_doc, 'missing-param-doc',
                               self.not_needed_param_in_docstring)
+
+        for index, arg_name in enumerate(arguments_node.args):
+            if arguments_node.annotations[index]:
+                params_with_type.add(arg_name.name)
+
         _compare_missing_args(params_with_type, 'missing-type-doc',
                               not_needed_type_in_docstring)
 
@@ -413,11 +422,17 @@ class DocstringParameterChecker(BaseChecker):
         Adds a message on :param:`node` for the missing exception type.
 
         :param missing_excs: A list of missing exception types.
-        :type missing_excs: list
+        :type missing_excs: set(str)
 
         :param node: The node show the message on.
         :type node: astroid.node_classes.NodeNG
         """
+        if node.is_abstract():
+            try:
+                missing_excs.remove('NotImplementedError')
+            except KeyError:
+                pass
+
         if not missing_excs:
             return
 

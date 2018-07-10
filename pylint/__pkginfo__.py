@@ -24,16 +24,17 @@ from os.path import join
 modname = distname = 'pylint'
 
 numversion = (2, 0, 0)
-version = '.'.join([str(num) for num in numversion])
+version = '.'.join(str(num) for num in numversion) + '.dev2'
 
 install_requires = [
-    'astroid>=1.6',
-    'six',
+    'astroid>=2.0.0.dev3',
     'isort >= 4.2.5',
     'mccabe',
 ]
 
-dependency_links = []
+dependency_links = [
+    'https://github.com/PyCQA/astroid/tarball/master#egg=astroid-2.0'
+]
 
 extras_require = {}
 extras_require[':sys_platform=="win32"'] = ['colorama']
@@ -45,7 +46,7 @@ mailinglist = "mailto:code-quality@python.org"
 author = 'Python Code Quality Authority'
 author_email = 'code-quality@python.org'
 
-classifiers = ['Development Status :: 4 - Beta',
+classifiers = ['Development Status :: 6 - Mature',
                'Environment :: Console',
                'Intended Audience :: Developers',
                'License :: OSI Approved :: GNU General Public License (GPL)',
@@ -55,6 +56,7 @@ classifiers = ['Development Status :: 4 - Beta',
                'Programming Language :: Python :: 3.4',
                'Programming Language :: Python :: 3.5',
                'Programming Language :: Python :: 3.6',
+               'Programming Language :: Python :: 3.7',
                'Programming Language :: Python :: 3 :: Only',
                'Programming Language :: Python :: Implementation :: CPython',
                'Programming Language :: Python :: Implementation :: PyPy',

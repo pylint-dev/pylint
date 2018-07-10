@@ -15,7 +15,7 @@ from pylint.pyreverse.utils import is_exception
 from pylint.pyreverse.vcgutils import VCGPrinter
 from pylint.graph import DotBackend
 
-class DiagramWriter(object):
+class DiagramWriter:
     """base class for writing project diagrams
     """
     def __init__(self, config, styles):
@@ -114,7 +114,7 @@ class DotWriter(DiagramWriter):
         """
         label = obj.title
         if obj.shape == 'interface':
-            label = u'«interface»\\n%s' % label
+            label = '«interface»\\n%s' % label
         if not self.config.only_classnames:
             label = r'%s|%s\l|' % (label, r'\l'.join(obj.attrs))
             for func in obj.methods:

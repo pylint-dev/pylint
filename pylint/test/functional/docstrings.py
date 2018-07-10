@@ -1,4 +1,4 @@
-# pylint: disable=R0201
+# pylint: disable=R0201, useless-object-inheritance
 # -1: [missing-docstring]
 from __future__ import print_function
 

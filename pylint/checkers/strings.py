@@ -116,7 +116,7 @@ MSGS = {
               {'minversion': (2, 7)})
     }
 
-OTHER_NODES = (astroid.Const, astroid.List, astroid.Repr,
+OTHER_NODES = (astroid.Const, astroid.List,
                astroid.Lambda, astroid.FunctionDef,
                astroid.ListComp, astroid.SetComp, astroid.GeneratorExp)
 
@@ -389,8 +389,8 @@ class StringFormatChecker(BaseChecker):
             self.add_message('bad-format-string', node=node)
             return
 
-        named_fields = set(field[0] for field in fields
-                           if isinstance(field[0], str))
+        named_fields = {field[0] for field in fields
+                        if isinstance(field[0], str)}
         if num_args and manual_pos:
             self.add_message('format-combined-specification',
                              node=node)
@@ -457,7 +457,7 @@ class StringFormatChecker(BaseChecker):
                 if key not in named:
                     continue
                 argname = named[key]
-            if argname in (astroid.YES, None):
+            if argname in (astroid.Uninferable, None):
                 continue
             try:
                 argument = next(argname.infer())

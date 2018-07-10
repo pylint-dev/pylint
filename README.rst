@@ -1,6 +1,6 @@
 
-README for Pylint - http://www.pylint.org/
-==========================================
+README for Pylint - http://pylint.pycqa.org/
+============================================
 
 .. image:: https://travis-ci.org/PyCQA/pylint.svg?branch=master
     :target: https://travis-ci.org/PyCQA/pylint
@@ -9,8 +9,9 @@ README for Pylint - http://www.pylint.org/
     :alt: AppVeyor Build Status
     :target: https://ci.appveyor.com/project/PCManticore/pylint
 
-.. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=master&service=github
-    :target: https://coveralls.io/github/PyCQA/pylint?branch=master&service=github
+.. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=master
+    :target: https://coveralls.io/github/PyCQA/pylint?branch=master
+
 
 .. image:: https://img.shields.io/pypi/v/pylint.svg
     :alt: Pypi Package version
@@ -71,10 +72,18 @@ may be found in the user manual in the *doc* subdirectory.
 Documentation
 -------------
 
-Look in the doc/ subdirectory or at http://docs.pylint.org
+Look in the doc/ subdirectory or at http://pylint.pycqa.org/
 
 Pylint is shipped with following additional commands:
 
 * pyreverse: an UML diagram generator
 * symilar: an independent similarities checker
 * epylint: Emacs and Flymake compatible Pylint
+
+
+Note
+----
+
+Python 3.7 support is currently available on the preview release: ::
+
+    pip install pylint astroid --pre -U

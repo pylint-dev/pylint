@@ -28,9 +28,8 @@ import tempfile
 from shutil import rmtree
 from os import getcwd, chdir
 from os.path import join, basename, dirname, isdir, abspath, sep
-
-import six
-from six.moves import reload_module
+from importlib import reload
+from io import StringIO
 
 from pylint import config, lint
 from pylint.lint import PyLinter, Run, preprocess_options, ArgumentPreprocessingError
@@ -244,7 +243,7 @@ def test_pylint_visit_method_taken_in_account(linter):
 
     linter.register_checker(CustomChecker(linter))
     linter.open()
-    out = six.moves.StringIO()
+    out = StringIO()
     linter.set_reporter(text.TextReporter(out))
     linter.check('abc')
 
@@ -438,9 +437,9 @@ def test_enable_checkers(linter):
 def test_errors_only(linter):
     linter.error_mode()
     checkers = linter.prepare_checkers()
-    checker_names = set(c.name for c in checkers)
-    should_not = set(('design', 'format', 'metrics',
-                      'miscellaneous', 'similarities'))
+    checker_names = {c.name for c in checkers}
+    should_not = {'design', 'format', 'metrics',
+                  'miscellaneous', 'similarities'}
     assert set() == should_not & checker_names
 
 
@@ -510,7 +509,7 @@ def test_python3_checker_disabled(linter):
 
 
 def test_full_documentation(linter):
-    out = six.StringIO()
+    out = StringIO()
     linter.print_full_documentation(out)
     output = out.getvalue()
     # A few spot checks only
@@ -545,7 +544,7 @@ def test_pylint_home():
         pylintd = join(tempfile.gettempdir(), '.pylint.d')
         os.environ['PYLINTHOME'] = pylintd
         try:
-            reload_module(config)
+            reload(config)
             assert config.PYLINT_HOME == pylintd
         finally:
             try:
@@ -573,7 +572,7 @@ def test_pylintrc():
             assert config.find_pylintrc() is None
         finally:
             chdir(current_dir)
-            reload_module(config)
+            reload(config)
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
@@ -666,12 +665,12 @@ class TestMessagesStore(object):
         assert desc == msg.format_help(checkerref=checkerref)
 
     def test_check_message_id(self, store):
-        assert isinstance(store.check_message_id('W1234'), MessageDefinition)
+        assert isinstance(store.get_message_definition('W1234'), MessageDefinition)
         with pytest.raises(UnknownMessageError):
-            store.check_message_id('YB12')
+            store.get_message_definition('YB12')
 
     def test_message_help(self, store):
-        msg = store.check_message_id('W1234')
+        msg = store.get_message_definition('W1234')
         self._compare_messages(
             ''':msg-symbol (W1234): *message*
   msg description. This message belongs to the achecker checker.''',
@@ -683,7 +682,7 @@ class TestMessagesStore(object):
 
     def test_message_help_minmax(self, store):
         # build the message manually to be python version independent
-        msg = store.check_message_id('E1234')
+        msg = store.get_message_definition('E1234')
         self._compare_messages(
             ''':duplicate-keyword-arg (E1234): *Duplicate keyword argument %r in %s call*
   Used when a function call passes the same keyword argument multiple times.
@@ -697,7 +696,7 @@ class TestMessagesStore(object):
             msg, checkerref=False)
 
     def test_list_messages(self, store):
-        sys.stdout = six.StringIO()
+        sys.stdout = StringIO()
         try:
             store.list_messages()
             output = sys.stdout.getvalue()
@@ -708,24 +707,23 @@ class TestMessagesStore(object):
 
     def test_add_renamed_message(self, store):
         store.add_renamed_message('W1234', 'old-bad-name', 'msg-symbol')
-        assert 'msg-symbol' == store.check_message_id('W1234').symbol
-        assert 'msg-symbol' == store.check_message_id('old-bad-name').symbol
+        assert 'msg-symbol' == store.get_message_definition('W1234').symbol
+        assert 'msg-symbol' == store.get_message_definition('old-bad-name').symbol
 
     def test_add_renamed_message_invalid(self, store):
         # conflicting message ID
         with pytest.raises(InvalidMessageError) as cm:
             store.add_renamed_message(
                 'W1234', 'old-msg-symbol', 'duplicate-keyword-arg')
-        assert str(cm.value) == "Message id 'W1234' is already defined"
-        # conflicting message symbol
-        with pytest.raises(InvalidMessageError) as cm:
-            store.add_renamed_message(
-                'W1337', 'msg-symbol', 'duplicate-keyword-arg')
-        assert str(cm.value) == "Message symbol 'msg-symbol' is already defined"
+        expected = (
+            "Message id 'W1234' cannot have both 'msg-symbol' and 'old-msg-symbol' "
+            "as symbolic name."
+        )
+        assert str(cm.value) == expected
 
     def test_renamed_message_register(self, store):
-        assert 'msg-symbol' == store.check_message_id('W0001').symbol
-        assert 'msg-symbol' == store.check_message_id('old-symbol').symbol
+        assert 'msg-symbol' == store.get_message_definition('W0001').symbol
+        assert 'msg-symbol' == store.get_message_definition('old-symbol').symbol
 
 
 def test_custom_should_analyze_file():
@@ -743,21 +741,24 @@ def test_custom_should_analyze_file():
 
     package_dir = os.path.join(HERE, 'regrtest_data', 'bad_package')
     wrong_file = os.path.join(package_dir, 'wrong.py')
-    reporter = testutils.TestReporter()
-    linter = CustomPyLinter()
-    linter.config.persistent = 0
-    linter.open()
-    linter.set_reporter(reporter)
 
-    try:
-        sys.path.append(os.path.dirname(package_dir))
-        linter.check([package_dir, wrong_file])
-    finally:
-        sys.path.pop()
+    for jobs in [1, 2]:
+        reporter = testutils.TestReporter()
+        linter = CustomPyLinter()
+        linter.config.jobs = jobs
+        linter.config.persistent = 0
+        linter.open()
+        linter.set_reporter(reporter)
 
-    messages = reporter.messages
-    assert len(messages) == 1
-    assert 'invalid syntax' in messages[0]
+        try:
+            sys.path.append(os.path.dirname(package_dir))
+            linter.check([package_dir, wrong_file])
+        finally:
+            sys.path.pop()
+
+        messages = reporter.messages
+        assert len(messages) == 1
+        assert 'invalid syntax' in messages[0]
 
 
 def test_filename_with__init__(init_linter):

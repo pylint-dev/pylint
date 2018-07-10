@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods
+# pylint: disable=missing-docstring,too-few-public-methods, useless-object-inheritance
 
 def test_unused(first, second, _not_used): # [unused-argument, unused-argument]
     pass

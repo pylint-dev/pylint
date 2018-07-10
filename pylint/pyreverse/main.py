@@ -82,9 +82,7 @@ this disables -f values")),
     ("project", {'default': "", 'type' : 'string', 'short': 'p',
                  'metavar': '<project name>', 'help': 'set the project name.'}),
 )
-# FIXME : quiet mode
-#( ('quiet',
-                #dict(help='run quietly', action='store_true', short='q')), )
+
 
 def _check_graphviz_available(output_format):
     """check if we need graphviz for different output format"""

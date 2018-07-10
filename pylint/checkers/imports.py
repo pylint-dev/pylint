@@ -238,6 +238,10 @@ MSGS = {
               'module',
               'wrong-import-position',
               'Used when code and imports are mixed'),
+    'C0414': ('Import alias does not rename original package',
+              'useless-import-alias',
+              'Used when an import alias is same as original package.'
+              'e.g using import numpy as numpy instead of import numpy as np'),
     }
 
 
@@ -268,7 +272,7 @@ class ImportsChecker(BaseChecker):
                  'type' : 'csv',
                  'metavar' : '<modules>',
                  'help' : 'Deprecated modules which should not be used,'
-                          ' separated by a comma'}
+                          ' separated by a comma.'}
                ),
                ('import-graph',
                 {'default' : '',
@@ -276,21 +280,21 @@ class ImportsChecker(BaseChecker):
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of every (i.e. internal and'
                           ' external) dependencies in the given file'
-                          ' (report RP0402 must not be disabled)'}
+                          ' (report RP0402 must not be disabled).'}
                ),
                ('ext-import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of external dependencies in the'
-                          ' given file (report RP0402 must not be disabled)'}
+                          ' given file (report RP0402 must not be disabled).'}
                ),
                ('int-import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of internal dependencies in the'
-                          ' given file (report RP0402 must not be disabled)'}
+                          ' given file (report RP0402 must not be disabled).'}
                ),
                ('known-standard-library',
                 {'default': DEFAULT_STANDARD_LIBRARY,
@@ -386,6 +390,7 @@ class ImportsChecker(BaseChecker):
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         self._check_reimport(node)
+        self._check_import_as_rename(node)
 
         modnode = node.root()
         names = [name for name, _ in node.names]
@@ -413,6 +418,7 @@ class ImportsChecker(BaseChecker):
         basename = node.modname
         imported_module = self._get_imported_module(node, basename)
 
+        self._check_import_as_rename(node)
         self._check_misplaced_future(node)
         self._check_deprecated_module(node, basename)
         self._check_wildcard_imports(node, imported_module)
@@ -544,14 +550,15 @@ class ImportsChecker(BaseChecker):
 
     def _record_import(self, node, importedmodnode):
         """Record the package `node` imports from"""
-        importedname = importedmodnode.name if importedmodnode else None
+        if isinstance(node, astroid.ImportFrom):
+            importedname = node.modname
+        else:
+            importedname = importedmodnode.name if importedmodnode else None
         if not importedname:
-            if isinstance(node, astroid.ImportFrom):
-                importedname = node.modname
-            else:
-                importedname = node.names[0][0].split('.')[0]
+            importedname = node.names[0][0].split('.')[0]
+
         if isinstance(node, astroid.ImportFrom) and (node.level or 0) >= 1:
-            # We need the impotedname with first point to detect local package
+            # We need the importedname with first point to detect local package
             # Example of node:
             #  'from .my_package1 import MyClass1'
             #  the output should be '.my_package1' instead of 'my_package1'
@@ -559,6 +566,7 @@ class ImportsChecker(BaseChecker):
             #  'from . import my_package2'
             #  the output should be '.my_package2' instead of '{pyfile}'
             importedname = '.' + importedname
+
         self._imports_stack.append((node, importedname))
 
     @staticmethod
@@ -641,6 +649,8 @@ class ImportsChecker(BaseChecker):
             self.add_message('relative-beyond-top-level', node=importnode)
 
         except astroid.AstroidBuildingException:
+            if not self.linter.is_message_enabled('import-error'):
+                return None
             if _ignore_import_failure(importnode, modname, self._ignored_modules):
                 return None
             if not self.config.analyse_fallback_blocks and is_from_fallback_block(importnode):
@@ -711,6 +721,19 @@ class ImportsChecker(BaseChecker):
         for mod_name in self.config.deprecated_modules:
             if mod_path == mod_name or mod_path.startswith(mod_name + '.'):
                 self.add_message('deprecated-module', node=node, args=mod_path)
+
+    def _check_import_as_rename(self, node):
+        names = node.names
+        for name in names:
+            if not all(name):
+                return
+
+            real_name = name[0]
+            packages = real_name.rsplit('.', 1)
+            real_name = packages[1] if len(packages) == 2 else packages[0]
+            imported_name = name[1]
+            if real_name == imported_name:
+                self.add_message('useless-import-alias', node=node)
 
     def _check_reimport(self, node, basename=None, level=None):
         """check if the import is necessary (i.e. not already done)"""
@@ -785,6 +808,11 @@ class ImportsChecker(BaseChecker):
         return self.__int_dep_info
 
     def _check_wildcard_imports(self, node, imported_module):
+        root = node.root()
+        if root.package and root.name == "__init__":
+            # Skip the check if in __init__.py issue #2026
+            return
+
         wildcard_import_is_allowed = (
             self._wildcard_import_is_allowed(imported_module)
         )

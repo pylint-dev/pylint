@@ -8,7 +8,7 @@ Bug reports, feedback
 ---------------------
 
 You think you have found a bug in Pylint? Well, this may be the case
-since Pylint is under heavy development.
+since Pylint is under heavy development!
 
 Please take the time to check if it is already in the issue tracker at
 https://github.com/PyCQA/pylint
@@ -58,30 +58,37 @@ your patch gets accepted.
 
 - Test your code
 
-    - Pylint is very well tested, with a high good code coverage.
-      It has two types of tests, usual unittests and functional tests.
+  * Pylint is very well tested, with a high good code coverage.
+    It has two types of tests, usual unittests and functional tests.
 
-      The usual unittests can be found under `/pylint/test` directory and they can
-      be used for testing almost anything Pylint related. But for the ease
-      of testing Pylint's messages, we also have the concept of functional tests.             
+    The usual unittests can be found under `/pylint/test` directory and they can
+    be used for testing almost anything Pylint related. But for the ease
+    of testing Pylint's messages, we also have the concept of functional tests.
 
-    - You should also run all the tests to ensure that your change isn't
-      breaking one. You can run the tests using the tox_ package, as in::
+  * You should also run all the tests to ensure that your change isn't
+    breaking one. You can run the tests using the tox_ package, as in::
 
-          python -m tox
-          python -m tox -epy27 # for Python 2.7 suite only
-          python -m tox -epylint # for running Pylint over Pylint's codebase
+      python -m tox
+      python -m tox -epy36 # for Python 3.6 suite only
+      python -m tox -epylint # for running Pylint over Pylint's codebase
 
-    - To run only a specific test suite, use a pattern for the test filename
-      (**without** the ``.py`` extension), as in::
+  * To run only a specific test suite, use a pattern for the test filename
+    (**without** the ``.py`` extension), as in::
 
-        python -m tox -e py27 -- -k test_functional
-        python -m tox -e py27 -- -k  \*func\*
+      python -m tox -e py36 -- -k test_functional
+      python -m tox -e py36 -- -k  \*func\*
+
+  * Since we just use pytest_ to run the tests, you can also use it as well,
+    although we highly recommend using tox_ instead::
+
+      pytest pylint -k test_functional
+
 
 - Add a short entry to the ChangeLog describing the change, except for internal
   implementation only changes. Not usually required, but for changes other than small
   bugs we also add a couple of sentences in the release document for that release,
-  (`What's New` section)
+  (`What's New` section). For the release document we usually write some more details,
+  and it is also a good place to offer examples on how the new change is supposed to work.
 
 - Add yourself to the `CONTRIBUTORS` file, if you are not already there.
 
@@ -89,7 +96,7 @@ your patch gets accepted.
 
 - Relate your change to an issue in the tracker if such an issue exists (see
   `Closing issues via commit messages`_ of the GitHub documentation for more
-   information on this)
+  information on this)
 
 - Document your change, if it is a non-trivial one.
 
@@ -136,6 +143,7 @@ current environment in order to have faster feedback. Run with::
 .. _`Closing issues via commit messages`: https://help.github.com/articles/closing-issues-via-commit-messages/
 .. _`About pull requests`: https://help.github.com/articles/using-pull-requests/
 .. _tox: http://tox.readthedocs.io/en/latest/
+.. _pytest: http://pytest.readthedocs.io/en/latest/
 
 
 Tips for Getting Started with Pylint Development
@@ -143,33 +151,12 @@ Tips for Getting Started with Pylint Development
 * Read the :ref:`technical-reference`. It gives a short walkthrough of the pylint
   codebase and will help you identify where you will need to make changes
   for what you are trying to implement.
+
 * :func:`astroid.extract_node` is your friend. Most checkers are AST based,
   so you will likely need to interact with :mod:`astroid`.
   A short example of how to use :func:`astroid.extract_node` is given
   :ref:`here <astroid_extract_node>`.
+
 * When fixing a bug for a specific check, search the code for the warning
   message to find where the warning is raised,
   and therefore where the logic for that code exists.
-
-A Typical Development Workflow
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#. Create a virtualenv in which to work::
-
-     $ tox
-
-#. Write the tests. See :ref:`functional_tests`.
-#. Check that the tests fail::
-
-     $ tox
-
-#. Fix pylint!
-#. Make sure your tests pass::
-
-     $ tox
-
-   It is also possible to give tox a `pytest specifier <https://docs.pytest.org/en/latest/usage.html#specifying-tests-selecting-tests>`_
-   to run only your test::
-
-     $ tox pylint/test/test_functional.py::test_functional
-
-#. Package up and submit your changes as outlined in `repository`_.

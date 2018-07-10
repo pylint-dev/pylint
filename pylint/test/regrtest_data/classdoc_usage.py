@@ -1,6 +1,7 @@
 """ds"""
 
 __revision__ = None
+# pylint: disable=useless-object-inheritance
 
 class SomeClass(object):
     """cds"""

@@ -1,6 +1,6 @@
 """ Checks that classes uses valid __slots__ """
 
-# pylint: disable=too-few-public-methods, missing-docstring, no-absolute-import
+# pylint: disable=too-few-public-methods, missing-docstring, no-absolute-import, useless-object-inheritance
 # pylint: disable=using-constant-test, wrong-import-position, no-else-return
 from collections import deque
 

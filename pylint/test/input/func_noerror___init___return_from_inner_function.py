@@ -1,4 +1,4 @@
-# pylint: disable=R0903
+# pylint: disable=R0903, useless-object-inheritance
 """#10075"""
 
 __revision__ = 1

@@ -1,5 +1,5 @@
 """unused import"""
-# pylint: disable=undefined-all-variable, import-error, no-absolute-import, too-few-public-methods, missing-docstring,wrong-import-position
+# pylint: disable=undefined-all-variable, import-error, no-absolute-import, too-few-public-methods, missing-docstring,wrong-import-position, useless-object-inheritance
 import xml.etree  # [unused-import]
 import xml.sax  # [unused-import]
 import os.path as test  # [unused-import]
@@ -16,3 +16,13 @@ class SomeClass(object):
     SomeOtherName = SomeOtherName
 
 from never import __all__
+# pylint: disable=wrong-import-order,ungrouped-imports
+import typing
+
+
+if typing.TYPE_CHECKING:
+    import collections
+
+
+def get_ordered_dict() -> 'collections.OrderedDict':
+    return []

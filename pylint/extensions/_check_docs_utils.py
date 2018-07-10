@@ -106,7 +106,7 @@ def possible_exc_types(node):
     :type node: astroid.node_classes.NodeNG
 
     :returns: A list of exception types possibly raised by :param:`node`.
-    :rtype: list(str)
+    :rtype: set(str)
     """
     excs = []
     if isinstance(node.exc, astroid.Name):
@@ -140,9 +140,9 @@ def possible_exc_types(node):
 
 
     try:
-        return set(exc for exc in excs if not utils.node_ignores_exception(node, exc))
+        return {exc for exc in excs if not utils.node_ignores_exception(node, exc)}
     except astroid.InferenceError:
-        return ()
+        return set()
 
 
 def docstringify(docstring):
@@ -155,7 +155,7 @@ def docstringify(docstring):
     return Docstring(docstring)
 
 
-class Docstring(object):
+class Docstring:
     re_for_parameters_see = re.compile(r"""
         For\s+the\s+(other)?\s*parameters\s*,\s+see
         """, re.X | re.S)
@@ -216,7 +216,7 @@ class SphinxDocstring(Docstring):
 
     re_xref = r"""
         (?::\w+:)?                    # optional tag
-        `{0}`                         # what to reference
+        `{}`                         # what to reference
         """.format(re_type)
 
     re_param_raw = r"""

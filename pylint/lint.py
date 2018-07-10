@@ -61,8 +61,6 @@ import sys
 import tokenize
 import warnings
 
-import six
-
 import astroid
 from astroid.__pkginfo__ import version as astroid_version
 from astroid import modutils
@@ -117,7 +115,7 @@ def _merge_stats(stats):
         message_stats = stat.pop('by_msg', {})
         by_msg.update(message_stats)
 
-        for key, item in six.iteritems(stat):
+        for key, item in stat.items():
             if key not in merged:
                 merged[key] = item
             else:
@@ -336,7 +334,7 @@ class PyLinter(config.OptionsManagerMixIn,
                   'short': 'r',
                   'group': 'Reports',
                   'help' : 'Tells whether to display a full report or only the '
-                           'messages'}),
+                           'messages.'}),
 
                 ('evaluation',
                  {'type' : 'string', 'metavar' : '<python_expression>',
@@ -362,7 +360,7 @@ class PyLinter(config.OptionsManagerMixIn,
                   'choices': [c.name for c in interfaces.CONFIDENCE_LEVELS],
                   'group': 'Messages control',
                   'help' : 'Only show warnings with the listed confidence levels.'
-                           ' Leave empty to show all. Valid levels: %s' % (
+                           ' Leave empty to show all. Valid levels: %s.' % (
                                ', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS),)}),
 
                 ('enable',
@@ -374,24 +372,24 @@ class PyLinter(config.OptionsManagerMixIn,
                            'separated by comma (,) or put this option multiple time '
                            '(only on the command line, not in the configuration file '
                            'where it should appear only once). '
-                           'See also the "--disable" option for examples. '}),
+                           'See also the "--disable" option for examples.'}),
 
                 ('disable',
                  {'type' : 'csv', 'metavar': '<msg ids>',
                   'short': 'd',
                   'group': 'Messages control',
                   'help' : 'Disable the message, report, category or checker '
-                           'with the given id(s). You can either give multiple identifiers'
-                           ' separated by comma (,) or put this option multiple times '
+                           'with the given id(s). You can either give multiple identifiers '
+                           'separated by comma (,) or put this option multiple times '
                            '(only on the command line, not in the configuration file '
-                           'where it should appear only once).'
+                           'where it should appear only once). '
                            'You can also use "--disable=all" to disable everything first '
                            'and then reenable specific checks. For example, if you want '
                            'to run only the similarities checker, you can use '
                            '"--disable=all --enable=similarities". '
                            'If you want to run only the classes checker, but have no '
-                           'Warning level messages displayed, use'
-                           '"--disable=all --enable=classes --disable=W"'}),
+                           'Warning level messages displayed, use '
+                           '"--disable=all --enable=classes --disable=W".'}),
 
                 ('msg-template',
                  {'type' : 'string', 'metavar': '<template>',
@@ -399,14 +397,15 @@ class PyLinter(config.OptionsManagerMixIn,
                   'help' : ('Template used to display messages. '
                             'This is a python new-style format string '
                             'used to format the message information. '
-                            'See doc for all details')
+                            'See doc for all details.')
                  }),
 
                 ('jobs',
                  {'type' : 'int', 'metavar': '<n-processes>',
                   'short': 'j',
                   'default': 1,
-                  'help' : '''Use multiple processes to speed up Pylint.''',
+                  'help' : 'Use multiple processes to speed up Pylint. Specifying 0 will '
+                           'auto-detect the number of processors available to use.',
                  }),
 
                 ('unsafe-load-any-extension',
@@ -420,12 +419,18 @@ class PyLinter(config.OptionsManagerMixIn,
                   'help': ('A comma-separated list of package or module names'
                            ' from where C extensions may be loaded. Extensions are'
                            ' loading into the active Python interpreter and may run'
-                           ' arbitrary code')}),
+                           ' arbitrary code.')}),
                 ('suggestion-mode',
                  {'type': 'yn', 'metavar': '<yn>', 'default': True,
                   'help': ('When enabled, pylint would attempt to guess common '
                            'misconfiguration and emit user-friendly hints instead '
-                           'of false-positive error messages')}),
+                           'of false-positive error messages.')}),
+
+                ('exit-zero',
+                 {'action': 'store_true',
+                  'help': ('Always return a 0 (non-error) status code, even if '
+                           'lint errors are found. This is primarily useful in '
+                           'continuous integration scripts.')}),
                )
 
     option_groups = (
@@ -601,7 +606,7 @@ class PyLinter(config.OptionsManagerMixIn,
             self.disable(checker.name)
 
     def disable_noerror_messages(self):
-        for msgcat, msgids in six.iteritems(self.msgs_store._msgs_by_category):
+        for msgcat, msgids in self.msgs_store._msgs_by_category.items():
             # enable only messages with 'error' severity and above ('fatal')
             if msgcat in ['E', 'F']:
                 for msgid in msgids:
@@ -612,7 +617,7 @@ class PyLinter(config.OptionsManagerMixIn,
 
     def disable_reporters(self):
         """disable all reporters"""
-        for _reporters in six.itervalues(self._reports):
+        for _reporters in self._reports.values():
             for report_id, _, _ in _reporters:
                 self.disable_report(report_id)
 
@@ -724,7 +729,7 @@ class PyLinter(config.OptionsManagerMixIn,
 
     def get_checkers(self):
         """return all available checkers as a list"""
-        return [self] + [c for _checkers in six.itervalues(self._checkers)
+        return [self] + [c for _checkers in self._checkers.values()
                          for c in _checkers if c is not self]
 
     def prepare_checkers(self):
@@ -734,8 +739,8 @@ class PyLinter(config.OptionsManagerMixIn,
         # get needed checkers
         neededcheckers = [self]
         for checker in self.get_checkers()[1:]:
-            messages = set(msg for msg in checker.msgs
-                           if self.is_message_enabled(msg))
+            messages = {msg for msg in checker.msgs
+                        if self.is_message_enabled(msg)}
             if (messages or
                     any(self.report_is_enabled(r[0]) for r in checker.reports)):
                 neededcheckers.append(checker)
@@ -792,7 +797,7 @@ class PyLinter(config.OptionsManagerMixIn,
         child_config = collections.OrderedDict()
         filter_options = {'long-help'}
         filter_options.update((opt_name for opt_name, _ in self._external_opts))
-        for opt_providers in six.itervalues(self._all_options):
+        for opt_providers in self._all_options.values():
             for optname, optdict, val in opt_providers.options_and_values():
                 if optdict.get('deprecated'):
                     continue
@@ -814,7 +819,11 @@ class PyLinter(config.OptionsManagerMixIn,
         results_queue = manager.Queue()
 
         # Send files to child linters.
-        expanded_files = self.expand_files(files_or_modules)
+        expanded_files = []
+        for descr in self.expand_files(files_or_modules):
+            modname, filepath, is_arg = descr['name'], descr['path'], descr['isarg']
+            if self.should_analyze_file(modname, filepath, is_argument=is_arg):
+                expanded_files.append(descr)
 
         # do not start more jobs than needed
         for _ in range(min(self.config.jobs, len(expanded_files))):
@@ -951,7 +960,7 @@ class PyLinter(config.OptionsManagerMixIn,
         self.current_file = filepath or modname
         self.stats['by_module'][modname] = {}
         self.stats['by_module'][modname]['statement'] = 0
-        for msg_cat in six.itervalues(utils.MSG_TYPES):
+        for msg_cat in utils.MSG_TYPES.values():
             self.stats['by_module'][modname][msg_cat] = 0
 
     def get_ast(self, filepath, modname):
@@ -1009,7 +1018,7 @@ class PyLinter(config.OptionsManagerMixIn,
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.extension_package_whitelist.update(
             self.config.extension_pkg_whitelist)
-        for msg_cat in six.itervalues(utils.MSG_TYPES):
+        for msg_cat in utils.MSG_TYPES.values():
             self.stats[msg_cat] = 0
 
     def generate_reports(self):
@@ -1080,7 +1089,7 @@ def report_messages_stats(sect, stats, _):
         # don't print this report when we didn't detected any errors
         raise exceptions.EmptyReportError()
     in_order = sorted([(value, msg_id)
-                       for msg_id, value in six.iteritems(stats['by_msg'])
+                       for msg_id, value in stats['by_msg'].items()
                        if not msg_id.startswith('I')])
     in_order.reverse()
     lines = ('message id', 'occurrences')
@@ -1096,7 +1105,7 @@ def report_messages_by_module_stats(sect, stats, _):
     by_mod = collections.defaultdict(dict)
     for m_type in ('fatal', 'error', 'warning', 'refactor', 'convention'):
         total = stats[m_type]
-        for module in six.iterkeys(stats['by_module']):
+        for module in stats['by_module'].keys():
             mod_total = stats['by_module'][module][m_type]
             if total == 0:
                 percent = 0
@@ -1104,7 +1113,7 @@ def report_messages_by_module_stats(sect, stats, _):
                 percent = float((mod_total)*100) / total
             by_mod[module][m_type] = percent
     sorted_result = []
-    for module, mod_info in six.iteritems(by_mod):
+    for module, mod_info in by_mod.items():
         sorted_result.append((mod_info['error'],
                               mod_info['warning'],
                               mod_info['refactor'],
@@ -1191,7 +1200,7 @@ def fix_import_path(args):
         sys.path[:] = orig
 
 
-class Run(object):
+class Run:
     """helper class to use as main for pylint :
 
     run(*sys.argv[1:])
@@ -1205,12 +1214,14 @@ group are mutually exclusive.'),
     def __init__(self, args, reporter=None, do_exit=True):
         self._rcfile = None
         self._plugins = []
+        self.verbose = None
         try:
             preprocess_options(args, {
                 # option: (callback, takearg)
                 'init-hook':   (cb_init_hook, True),
                 'rcfile':       (self.cb_set_rcfile, True),
                 'load-plugins': (self.cb_add_plugins, True),
+                'verbose': (self.cb_verbose_mode, False),
                 })
         except ArgumentPreprocessingError as ex:
             print(ex, file=sys.stderr)
@@ -1272,13 +1283,19 @@ group are mutually exclusive.'),
               'short': 'E',
               'help' : 'In error mode, checkers without error messages are '
                        'disabled and for others, only the ERROR messages are '
-                       'displayed, and no reports are done by default'''}),
+                       'displayed, and no reports are done by default.'}),
 
             ('py3k',
              {'action' : 'callback', 'callback' : self.cb_python3_porting_mode,
               'help' : 'In Python 3 porting mode, all checkers will be '
                        'disabled and only messages emitted by the porting '
-                       'checker will be displayed'}),
+                       'checker will be displayed.'}),
+
+            ('verbose',
+             {'action' : 'callback', 'callback' : self.cb_verbose_mode,
+              'short': 'v',
+              'help' : 'In verbose mode, extra non-checker-related info '
+                       'will be displayed.'})
 
             ), option_groups=self.option_groups, pylintrc=self._rcfile)
         # register standard checkers
@@ -1317,7 +1334,7 @@ group are mutually exclusive.'),
         # read configuration
         linter.disable('I')
         linter.enable('c-extension-no-member')
-        linter.read_config_file()
+        linter.read_config_file(verbose=self.verbose)
         config_parser = linter.cfgfile_parser
         # run init hook, if present, before loading plugins
         if config_parser.has_option('MASTER', 'init-hook'):
@@ -1348,7 +1365,7 @@ group are mutually exclusive.'),
             sys.exit(32)
 
         if linter.config.jobs < 0:
-            print("Jobs number (%d) should be greater than 0"
+            print("Jobs number (%d) should be greater than or equal to 0"
                   % linter.config.jobs, file=sys.stderr)
             sys.exit(32)
         if linter.config.jobs > 1 or linter.config.jobs == 0:
@@ -1366,7 +1383,10 @@ group are mutually exclusive.'),
             linter.check(args)
             linter.generate_reports()
         if do_exit:
-            sys.exit(self.linter.msg_status)
+            if linter.config.exit_zero:
+                sys.exit(0)
+            else:
+                sys.exit(self.linter.msg_status)
 
     def cb_set_rcfile(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""
@@ -1416,6 +1436,8 @@ group are mutually exclusive.'),
         """Activate only the python3 porting checker."""
         self.linter.python3_porting_mode()
 
+    def cb_verbose_mode(self, *args, **kwargs):
+        self.verbose = True
 
 def cb_list_confidence_levels(option, optname, value, parser):
     for level in interfaces.CONFIDENCE_LEVELS:

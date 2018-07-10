@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods,useless-return
+# pylint: disable=missing-docstring,too-few-public-methods,useless-return, useless-object-inheritance
 
 class MyClass(object):
 

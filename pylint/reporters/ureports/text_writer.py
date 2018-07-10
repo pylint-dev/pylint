@@ -10,8 +10,8 @@ from __future__ import print_function
 from pylint.reporters.ureports import BaseWriter
 
 
-TITLE_UNDERLINES = [u'', u'=', u'-', u'`', u'.', u'~', u'^']
-BULLETS = [u'*', u'-']
+TITLE_UNDERLINES = ['', '=', '-', '`', '.', '~', '^']
+BULLETS = ['*', '-']
 
 class TextWriter(BaseWriter):
     """format layouts as text
@@ -38,7 +38,7 @@ class TextWriter(BaseWriter):
         self.writeln()
 
     def visit_title(self, layout):
-        title = u''.join(list(self.compute_content(layout)))
+        title = ''.join(list(self.compute_content(layout)))
         self.writeln(title)
         try:
             self.writeln(TITLE_UNDERLINES[self.section] * len(title))
@@ -64,18 +64,18 @@ class TextWriter(BaseWriter):
     def default_table(self, layout, table_content, cols_width):
         """format a table"""
         cols_width = [size+1 for size in cols_width]
-        format_strings = u' '.join([u'%%-%ss'] * len(cols_width))
+        format_strings = ' '.join(['%%-%ss'] * len(cols_width))
         format_strings = format_strings % tuple(cols_width)
-        format_strings = format_strings.split(u' ')
-        table_linesep = u'\n+' + u'+'.join([u'-'*w for w in cols_width]) + u'+\n'
-        headsep = u'\n+' + u'+'.join([u'='*w for w in cols_width]) + u'+\n'
+        format_strings = format_strings.split(' ')
+        table_linesep = '\n+' + '+'.join(['-'*w for w in cols_width]) + '+\n'
+        headsep = '\n+' + '+'.join(['='*w for w in cols_width]) + '+\n'
         # FIXME: layout.cheaders
         self.write(table_linesep)
         for index, line in enumerate(table_content):
-            self.write(u'|')
+            self.write('|')
             for line_index, at_index in enumerate(line):
                 self.write(format_strings[line_index] % at_index)
-                self.write(u'|')
+                self.write('|')
             if index == 0 and layout.rheaders:
                 self.write(headsep)
             else:
@@ -84,11 +84,11 @@ class TextWriter(BaseWriter):
     def visit_verbatimtext(self, layout):
         """display a verbatim layout as text (so difficult ;)
         """
-        self.writeln(u'::\n')
+        self.writeln('::\n')
         for line in layout.data.splitlines():
-            self.writeln(u'    ' + line)
+            self.writeln('    ' + line)
         self.writeln()
 
     def visit_text(self, layout):
         """add some text"""
-        self.write(u'%s' % layout.data)
+        self.write('%s' % layout.data)

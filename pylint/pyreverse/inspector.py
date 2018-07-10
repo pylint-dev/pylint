@@ -53,7 +53,7 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
     found = set()
     missing = False
     for iface in node_classes.unpack_infer(implements):
-        if iface is astroid.YES:
+        if iface is astroid.Uninferable:
             missing = True
             continue
         if iface not in found and handler_func(iface):
@@ -63,7 +63,7 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
         raise exceptions.InferenceError()
 
 
-class IdGeneratorMixIn(object):
+class IdGeneratorMixIn:
     """Mixin adding the ability to generate integer uid."""
 
     def __init__(self, start_value=0):
@@ -302,7 +302,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 mod_paths.append(mod_path)
 
 
-class Project(object):
+class Project:
     """a project handle a set of modules / packages"""
     def __init__(self, name=''):
         self.name = name

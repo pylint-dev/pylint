@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,no-self-use,too-few-public-methods,wrong-import-position
+# pylint: disable=missing-docstring,no-self-use,too-few-public-methods,wrong-import-position, useless-object-inheritance
 
 REVISION = None
 

@@ -24,7 +24,7 @@ def target_info_from_filename(filename):
     return storedir, basename, target
 
 
-class DotBackend(object):
+class DotBackend:
     """Dot File backend."""
     def __init__(self, graphname, rankdir=None, size=None, ratio=None,
                  charset='utf-8', renderer='dot', additional_param=None):

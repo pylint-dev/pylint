@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, multiple-statements
+# pylint: disable=missing-docstring, multiple-statements, useless-object-inheritance
 # pylint: disable=too-few-public-methods, no-init, no-self-use, old-style-class,bare-except,broad-except
 from __future__ import print_function
 DEFINED = 1

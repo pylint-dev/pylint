@@ -15,7 +15,7 @@ from pylint.pyreverse.utils import is_interface, FilterMixIn
 from pylint.checkers.utils import decorated_with_property
 
 
-class Figure(object):
+class Figure:
     """base class for counter handling"""
 
 
@@ -178,7 +178,7 @@ class ClassDiagram(Figure, FilterMixIn):
             for name, values in list(node.instance_attrs_type.items()) + \
                                 list(node.locals_type.items()):
                 for value in values:
-                    if value is astroid.YES:
+                    if value is astroid.Uninferable:
                         continue
                     if isinstance(value, astroid.Instance):
                         value = value._proxied

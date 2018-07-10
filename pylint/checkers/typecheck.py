@@ -212,28 +212,28 @@ MSGS = {
               'but it may be performed by introspecting living objects in run-time.'),
     'E1102': ('%s is not callable',
               'not-callable',
-              'Used when an object being called has been inferred to a non \
-              callable object'),
+              'Used when an object being called has been inferred to a non '
+              'callable object.'),
     'E1111': ('Assigning to function call which doesn\'t return',
               'assignment-from-no-return',
-              'Used when an assignment is done on a function call but the \
-              inferred function doesn\'t return anything.'),
+              'Used when an assignment is done on a function call but the '
+              'inferred function doesn\'t return anything.'),
     'E1120': ('No value for argument %s in %s call',
               'no-value-for-parameter',
               'Used when a function call passes too few arguments.'),
     'E1121': ('Too many positional arguments for %s call',
               'too-many-function-args',
-              'Used when a function call passes too many positional \
-              arguments.'),
+              'Used when a function call passes too many positional '
+              'arguments.'),
     'E1123': ('Unexpected keyword argument %r in %s call',
               'unexpected-keyword-arg',
-              'Used when a function call passes a keyword argument that \
-              doesn\'t correspond to one of the function\'s parameter names.'),
+              'Used when a function call passes a keyword argument that '
+              'doesn\'t correspond to one of the function\'s parameter names.'),
     'E1124': ('Argument %r passed by position and keyword in %s call',
               'redundant-keyword-arg',
-              'Used when a function call would result in assigning multiple \
-              values to a function parameter, one value from a positional \
-              argument and one from a keyword argument.'),
+              'Used when a function call would result in assigning multiple '
+              'values to a function parameter, one value from a positional '
+              'argument and one from a keyword argument.'),
     'E1125': ('Missing mandatory keyword argument %r in %s call',
               'missing-kwoa',
               ('Used when a function call does not pass a mandatory'
@@ -245,8 +245,8 @@ MSGS = {
               'method.'),
     'E1127': ('Slice index is not an int, None, or instance with __index__',
               'invalid-slice-index',
-              'Used when a slice index is not an integer, None, or an object \
-               with an __index__ method.'),
+              'Used when a slice index is not an integer, None, or an object '
+              'with an __index__ method.'),
     'E1128': ('Assigning to function call which only returns None',
               'assignment-from-none',
               'Used when an assignment is done on a function call but the '
@@ -259,7 +259,7 @@ MSGS = {
     'E1130': ('%s',
               'invalid-unary-operand-type',
               'Emitted when a unary operand is used on an object which does not '
-              'support this type of operation'),
+              'support this type of operation.'),
     'E1131': ('%s',
               'unsupported-binary-operation',
               'Emitted when a binary arithmetic operation between two '
@@ -270,24 +270,28 @@ MSGS = {
     'E1135': ("Value '%s' doesn't support membership test",
               'unsupported-membership-test',
               'Emitted when an instance in membership test expression doesn\'t '
-              'implement membership protocol (__contains__/__iter__/__getitem__)'),
+              'implement membership protocol (__contains__/__iter__/__getitem__).'),
     'E1136': ("Value '%s' is unsubscriptable",
               'unsubscriptable-object',
-              "Emitted when a subscripted value doesn't support subscription"
-              "(i.e. doesn't define __getitem__ method)"),
+              "Emitted when a subscripted value doesn't support subscription "
+              "(i.e. doesn't define __getitem__ method)."),
     'E1137': ("%r does not support item assignment",
               'unsupported-assignment-operation',
               "Emitted when an object does not support item assignment "
-              "(i.e. doesn't define __setitem__ method)"),
+              "(i.e. doesn't define __setitem__ method)."),
     'E1138': ("%r does not support item deletion",
               'unsupported-delete-operation',
               "Emitted when an object does not support item deletion "
-              "(i.e. doesn't define __delitem__ method)"),
+              "(i.e. doesn't define __delitem__ method)."),
     'E1139': ('Invalid metaclass %r used',
               'invalid-metaclass',
               'Emitted whenever we can detect that a class is using, '
               'as a metaclass, something which might be invalid for using as '
               'a metaclass.'),
+    'E1140': ("Dict key is unhashable",
+              'unhashable-dict-key',
+              'Emitted when a dict key is not hashable '
+              "(i.e. doesn't define __hash__ method)."),
     'W1113': ('Keyword argument before variable positional arguments list '
               'in the definition of %s function',
               'keyword-arg-before-vararg',
@@ -303,7 +307,7 @@ SEQUENCE_TYPES = {
 }
 
 
-def _emit_no_member(node, owner, owner_name, ignored_mixins):
+def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=True):
     """Try to see if no-member should be emitted for the given owner.
 
     The following cases are ignored:
@@ -317,8 +321,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
     """
     if node_ignores_exception(node, AttributeError):
         return False
-    # skip None anyway
-    if isinstance(owner, astroid.Const) and owner.value is None:
+    if ignored_none and isinstance(owner, astroid.Const) and owner.value is None:
         return False
     if is_super(owner) or getattr(owner, 'type', None) == 'metaclass':
         return False
@@ -354,15 +357,19 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
 def _determine_callable(callable_obj):
     # Ordering is important, since BoundMethod is a subclass of UnboundMethod,
     # and Function inherits Lambda.
+    parameters = 0
+    if hasattr(callable_obj, 'implicit_parameters'):
+        # TODO: replace with a Callable check
+        parameters = callable_obj.implicit_parameters()
     if isinstance(callable_obj, astroid.BoundMethod):
         # Bound methods have an extra implicit 'self' argument.
-        return callable_obj, 1, callable_obj.type
+        return callable_obj, parameters, callable_obj.type
     if isinstance(callable_obj, astroid.UnboundMethod):
-        return callable_obj, 0, 'unbound method'
+        return callable_obj, parameters, 'unbound method'
     if isinstance(callable_obj, astroid.FunctionDef):
-        return callable_obj, 0, callable_obj.type
+        return callable_obj, parameters, callable_obj.type
     if isinstance(callable_obj, astroid.Lambda):
-        return callable_obj, 0, 'lambda'
+        return callable_obj, parameters, 'lambda'
     if isinstance(callable_obj, astroid.ClassDef):
         # Class instantiation, lookup __new__ instead.
         # If we only find object.__new__, we can safely check __init__
@@ -391,7 +398,7 @@ def _determine_callable(callable_obj):
         if not isinstance(callable_obj, astroid.FunctionDef):
             raise ValueError
         # both have an extra implicit 'cls'/'self' argument.
-        return callable_obj, 1, 'constructor'
+        return callable_obj, parameters, 'constructor'
     else:
         raise ValueError
 
@@ -418,9 +425,10 @@ def _no_context_variadic_keywords(node):
     if not isinstance(scope, astroid.FunctionDef):
         return False
 
-    if isinstance(statement, astroid.Expr) and isinstance(statement.value, astroid.Call):
+    if (isinstance(statement, (astroid.Return, astroid.Expr))
+            and isinstance(statement.value, astroid.Call)):
         call = statement.value
-        variadics = call.keywords or ()
+        variadics = list(call.keywords or []) + call.kwargs
 
     return _no_context_variadic(node, scope.args.kwarg, astroid.Keyword, variadics)
 
@@ -433,9 +441,10 @@ def _no_context_variadic_positional(node):
     if not isinstance(scope, astroid.FunctionDef):
         return False
 
-    if isinstance(statement, astroid.Expr) and isinstance(statement.value, astroid.Call):
+    if (isinstance(statement, (astroid.Expr, astroid.Return))
+            and isinstance(statement.value, astroid.Call)):
         call = statement.value
-        variadics = call.starargs
+        variadics = call.starargs + call.kwargs
 
     return _no_context_variadic(node, scope.args.vararg, astroid.Starred, variadics)
 
@@ -555,6 +564,12 @@ class TypeChecker(BaseChecker):
 class should be ignored. A mixin class is detected if its name ends with \
 "mixin" (case insensitive).'}
                ),
+               ('ignore-none',
+                {'default': True, 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': 'Tells whether to warn about missing members when the owner '
+                         'of the attribute is inferred to be None.'
+                }
+                ),
                ('ignored-modules',
                 {'default': (),
                  'type': 'csv',
@@ -740,7 +755,8 @@ accessed. Python regular expressions are accepted.'}
                 # attribute, then we'll have a false positive.
                 # So call this only after the call has been made.
                 if not _emit_no_member(node, owner, name,
-                                       self.config.ignore_mixin_members):
+                                       ignored_mixins=self.config.ignore_mixin_members,
+                                       ignored_none=self.config.ignore_none):
 
                     continue
                 missingattr.add((owner, name))
@@ -790,11 +806,16 @@ accessed. Python regular expressions are accepted.'}
             return
         function_node = safe_infer(node.value.func)
         # skip class, generator and incomplete function definition
-        if not (isinstance(function_node, astroid.FunctionDef) and
+        funcs = (
+            astroid.FunctionDef,
+            astroid.UnboundMethod,
+            astroid.BoundMethod,
+        )
+        if not (isinstance(function_node, funcs) and
                 function_node.root().fully_defined()):
             return
-        if function_node.is_generator() \
-               or function_node.is_abstract(pass_is_abstract=False):
+        if (function_node.is_generator()
+                or function_node.is_abstract(pass_is_abstract=False)):
             return
         returns = list(function_node.nodes_of_class(astroid.Return,
                                                     skip_klass=astroid.FunctionDef))
@@ -827,7 +848,7 @@ accessed. Python regular expressions are accepted.'}
 
         expr = node.func.expr
         klass = safe_infer(expr)
-        if (klass is None or klass is astroid.YES or
+        if (klass is None or klass is astroid.Uninferable or
                 not isinstance(klass, astroid.Instance)):
             return
 
@@ -837,7 +858,7 @@ accessed. Python regular expressions are accepted.'}
             return
 
         for attr in attrs:
-            if attr is astroid.YES:
+            if attr is astroid.Uninferable:
                 continue
             if not isinstance(attr, astroid.FunctionDef):
                 continue
@@ -897,7 +918,12 @@ accessed. Python regular expressions are accepted.'}
             # those errors are handled by different warnings.
             return
 
-        num_positional_args += implicit_args
+        # These are coming from the functools.partial implementation in astroid
+        already_filled_positionals = getattr(called, 'filled_positionals', 0)
+        already_filled_keywords = getattr(called, 'filled_keywords', {})
+
+        keyword_args += list(already_filled_keywords)
+        num_positional_args += implicit_args + already_filled_positionals
         if called.args.args is None:
             # Built-in functions have no argument information.
             return
@@ -917,6 +943,7 @@ accessed. Python regular expressions are accepted.'}
             return
 
         # Analyze the list of formal parameters.
+
         num_mandatory_parameters = len(called.args.args) - len(called.args.defaults)
         parameters = []
         parameter_name_to_index = {}
@@ -1058,7 +1085,7 @@ accessed. Python regular expressions are accepted.'}
         # that override __getitem__ and which may allow non-integer indices.
         try:
             methods = dunder_lookup.lookup(parent_type, methodname)
-            if methods is astroid.YES:
+            if methods is astroid.Uninferable:
                 return None
             itemmethod = methods[0]
         except (exceptions.NotFoundError,
@@ -1079,7 +1106,7 @@ accessed. Python regular expressions are accepted.'}
             index_type = node
         else:
             index_type = safe_infer(node)
-        if index_type is None or index_type is astroid.YES:
+        if index_type is None or index_type is astroid.Uninferable:
             return None
         # Constants must be of type int
         if isinstance(index_type, astroid.Const):
@@ -1107,12 +1134,13 @@ accessed. Python regular expressions are accepted.'}
     @check_messages('invalid-slice-index')
     def visit_slice(self, node):
         # Check the type of each part of the slice
+        invalid_slices = 0
         for index in (node.lower, node.upper, node.step):
             if index is None:
                 continue
 
             index_type = safe_infer(index)
-            if index_type is None or index_type is astroid.YES:
+            if index_type is None or index_type is astroid.Uninferable:
                 continue
 
             # Constants must of type int or None
@@ -1131,8 +1159,32 @@ accessed. Python regular expressions are accepted.'}
                     return
                 except exceptions.NotFoundError:
                     pass
+            invalid_slices += 1
 
-            # Anything else is an error
+        if not invalid_slices:
+            return
+
+        # Anything else is an error, unless the object that is indexed
+        # is a custom object, which knows how to handle this kind of slices
+        parent = node.parent
+        if isinstance(parent, astroid.ExtSlice):
+            parent = parent.parent
+        if isinstance(parent, astroid.Subscript):
+            inferred = safe_infer(parent.value)
+            if inferred is None or inferred is astroid.Uninferable:
+                # Don't know what this is
+                return
+            known_objects = (
+                astroid.List,
+                astroid.Dict,
+                astroid.Tuple,
+                astroid.objects.FrozenSet,
+                astroid.Set,
+            )
+            if not isinstance(inferred, known_objects):
+                # Might be an instance that knows how to handle this slice object
+                return
+        for _ in range(invalid_slices):
             self.add_message('invalid-slice-index', node=node)
 
     @check_messages('not-context-manager')
@@ -1140,7 +1192,7 @@ accessed. Python regular expressions are accepted.'}
         for ctx_mgr, _ in node.items:
             context = astroid.context.InferenceContext()
             infered = safe_infer(ctx_mgr, context=context)
-            if infered is None or infered is astroid.YES:
+            if infered is None or infered is astroid.Uninferable:
                 continue
 
             if isinstance(infered, bases.Generator):
@@ -1225,7 +1277,7 @@ accessed. Python regular expressions are accepted.'}
         if is_comprehension(node):
             return
         infered = safe_infer(node)
-        if infered is None or infered is astroid.YES:
+        if infered is None or infered is astroid.Uninferable:
             return
         if not supports_membership_test(infered):
             self.add_message('unsupported-membership-test',
@@ -1241,12 +1293,26 @@ accessed. Python regular expressions are accepted.'}
         if op in ['in', 'not in']:
             self._check_membership_test(right)
 
-    @check_messages('unsubscriptable-object', 'unsupported-assignment-operation',
-                    'unsupported-delete-operation')
+    @check_messages('unsubscriptable-object',
+                    'unsupported-assignment-operation',
+                    'unsupported-delete-operation',
+                    'unhashable-dict-key')
     def visit_subscript(self, node):
         supported_protocol = None
         if isinstance(node.value, (astroid.ListComp, astroid.DictComp)):
             return
+
+        if isinstance(node.value, astroid.Dict):
+            # Assert dict key is hashable
+            inferred = safe_infer(node.slice.value)
+            if inferred not in (None, astroid.Uninferable):
+                try:
+                    hash_fn = next(inferred.igetattr('__hash__'))
+                except astroid.InferenceError:
+                    pass
+                else:
+                    if getattr(hash_fn, 'value', True) is None:
+                        self.add_message('unhashable-dict-key', node=node.value)
 
         if node.ctx == astroid.Load:
             supported_protocol = supports_getitem
@@ -1267,7 +1333,7 @@ accessed. Python regular expressions are accepted.'}
             return
 
         inferred = safe_infer(node.value)
-        if inferred is None or inferred is astroid.YES:
+        if inferred is None or inferred is astroid.Uninferable:
             return
 
         if not supported_protocol(inferred):
@@ -1305,7 +1371,7 @@ class IterableChecker(BaseChecker):
         if is_comprehension(node):
             return
         infered = safe_infer(node)
-        if infered is None or infered is astroid.YES:
+        if infered is None or infered is astroid.Uninferable:
             return
         if not is_iterable(infered):
             self.add_message('not-an-iterable',
@@ -1318,7 +1384,7 @@ class IterableChecker(BaseChecker):
         if isinstance(node, astroid.DictComp):
             return
         infered = safe_infer(node)
-        if infered is None or infered is astroid.YES:
+        if infered is None or infered is astroid.Uninferable:
             return
         if not is_mapping(infered):
             self.add_message('not-a-mapping',

@@ -64,7 +64,7 @@ def test_instance_attrs_resolution(project):
     assert isinstance(type_dict['relation'][0], bases.Instance), \
         type_dict['relation']
     assert type_dict['relation'][0].name == 'DoNothing'
-    assert type_dict['_id'][0] is astroid.YES
+    assert type_dict['_id'][0] is astroid.Uninferable
 
 
 def test_concat_interfaces():

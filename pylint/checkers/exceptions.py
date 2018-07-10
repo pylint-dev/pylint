@@ -47,11 +47,11 @@ def _annotated_unpack_infer(stmt, context=None):
     if isinstance(stmt, (astroid.List, astroid.Tuple)):
         for elt in stmt.elts:
             inferred = utils.safe_infer(elt)
-            if inferred and inferred is not astroid.YES:
+            if inferred and inferred is not astroid.Uninferable:
                 yield elt, inferred
         return
     for infered in stmt.infer(context):
-        if infered is astroid.YES:
+        if infered is astroid.Uninferable:
             continue
         yield stmt, infered
 
@@ -132,7 +132,7 @@ MSGS = {
     }
 
 
-class BaseVisitor(object):
+class BaseVisitor:
     """Base class for visitors defined in this module."""
 
     def __init__(self, checker, node):
@@ -243,7 +243,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 {'default' : OVERGENERAL_EXCEPTIONS,
                  'type' : 'csv', 'metavar' : '<comma-separated class names>',
                  'help' : 'Exceptions that will emit a warning '
-                          'when being caught. Defaults to "%s"' % (
+                          'when being caught. Defaults to "%s".' % (
                               ', '.join(OVERGENERAL_EXCEPTIONS),)}
                ),
               )
@@ -300,7 +300,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         An exception context can be only `None` or an exception.
         """
         cause = utils.safe_infer(node.cause)
-        if cause in (astroid.YES, None):
+        if cause in (astroid.Uninferable, None):
             return
 
         if isinstance(cause, astroid.Const):
@@ -316,7 +316,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         if isinstance(exc, astroid.Tuple):
             # Check if it is a tuple of exceptions.
             inferred = [utils.safe_infer(elt) for elt in exc.elts]
-            if any(node is astroid.YES for node in inferred):
+            if any(node is astroid.Uninferable for node in inferred):
                 # Don't emit if we don't know every component.
                 return
             if all(node and (utils.inherit_from_std_ex(node) or
@@ -366,22 +366,6 @@ class ExceptionsChecker(checkers.BaseChecker):
                 # flags when there is a bare raise
                 if handler.body[0].exc is None:
                     self.add_message('try-except-raise', node=handler)
-                else:
-                    # not a bare raise
-                    raise_type = None
-                    if isinstance(handler.body[0].exc, astroid.Call):
-                        raise_type = handler.body[0].exc.func
-
-                    # flags only when the exception types of the handler
-                    # and the raise statement match b/c we're raising the same
-                    # type of exception that we're trying to handle. Example:
-                    #
-                    # except ValueError:
-                    #   raise ValueError('some user friendly message')
-                    if (isinstance(handler.type, astroid.Name)
-                            and isinstance(raise_type, astroid.Name)
-                            and raise_type.name == handler.type.name):
-                        self.add_message('try-except-raise', node=handler)
 
             if handler.type is None:
                 if not utils.is_raising(handler.body):
@@ -403,7 +387,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                     continue
 
                 for part, exc in excs:
-                    if exc is astroid.YES:
+                    if exc is astroid.Uninferable:
                         continue
                     if (isinstance(exc, astroid.Instance)
                             and utils.inherit_from_std_ex(exc)):

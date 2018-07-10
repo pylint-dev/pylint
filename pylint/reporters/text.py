@@ -21,8 +21,6 @@ import os
 import warnings
 import sys
 
-import six
-
 from pylint.interfaces import IReporter
 from pylint.reporters import BaseReporter
 from pylint import utils
@@ -124,7 +122,7 @@ class TextReporter(BaseReporter):
     __implements__ = IReporter
     name = 'text'
     extension = 'txt'
-    line_format = '{C}:{line:3d},{column:2d}: {msg} ({symbol})'
+    line_format = '{path}:{line}:{column}: {msg_id}: {msg} ({symbol})'
 
     def __init__(self, output=None):
         BaseReporter.__init__(self, output)
@@ -132,7 +130,7 @@ class TextReporter(BaseReporter):
         self._template = None
 
     def on_set_current_module(self, module, filepath):
-        self._template = six.text_type(self.linter.config.msg_template or self.line_format)
+        self._template = str(self.linter.config.msg_template or self.line_format)
 
     def write_message(self, msg):
         """Convenience method to write a formated message with class default template"""
