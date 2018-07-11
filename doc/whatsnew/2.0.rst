@@ -335,5 +335,7 @@ Other Changes
 * Fix false-positive ``bad-whitespace`` message for typing annoatations
   with ellipses in them
 
+* Fix false-postive ``undefined-variable`` for nested lambdas
+
 
 .. _PEP 563: https://www.python.org/dev/peps/pep-0563/

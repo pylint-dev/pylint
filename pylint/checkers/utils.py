@@ -226,7 +226,6 @@ def is_defined_before(var_node):
                 return True
             if getattr(_node, 'name', None) == varname:
                 return True
-            break
         elif isinstance(_node, astroid.ExceptHandler):
             if isinstance(_node.name, astroid.AssignName):
                 ass_node = _node.name
