@@ -541,6 +541,9 @@ class BasicErrorChecker(_BasicChecker):
             if child.scope() is node
         }
 
+        if not scope_globals:
+            return
+
         for node_name in node.nodes_of_class(astroid.Name):
             if node_name.scope() is not node:
                 continue
@@ -564,6 +567,10 @@ class BasicErrorChecker(_BasicChecker):
         nonlocals = set(from_iter(
             child.names for child in node.nodes_of_class(astroid.Nonlocal)
             if same_scope(child)))
+
+        if not nonlocals:
+            return
+
         global_vars = set(from_iter(
             child.names for child in node.nodes_of_class(astroid.Global)
             if same_scope(child)))
