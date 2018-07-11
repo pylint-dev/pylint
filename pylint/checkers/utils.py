@@ -195,12 +195,8 @@ def is_defined_before(var_node):
     varname = var_node.name
     _node = var_node.parent
     while _node:
-        if isinstance(_node, COMP_NODE_TYPES):
+        if isinstance(_node, (COMP_NODE_TYPES, astroid.For)):
             for ass_node in _node.nodes_of_class(astroid.AssignName):
-                if ass_node.name == varname:
-                    return True
-        elif isinstance(_node, astroid.For):
-            for ass_node in _node.target.nodes_of_class(astroid.AssignName):
                 if ass_node.name == varname:
                     return True
         elif isinstance(_node, astroid.With):
