@@ -145,7 +145,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         """
         if self.pkgdiagram:
             return self.pkgdiagram, self.classdiagram
-        return self.classdiagram,
+        return (self.classdiagram,)
 
     def visit_module(self, node):
         """visit an astroid.Module node
