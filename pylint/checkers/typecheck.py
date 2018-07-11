@@ -881,19 +881,6 @@ accessed. Python regular expressions are accepted.'}
         and that the arguments passed to the function match the parameters in
         the inferred function's definition
         """
-        # Build the set of keyword arguments, checking for duplicate keywords,
-        # and count the positional arguments.
-        call_site = astroid.arguments.CallSite.from_call(node)
-        num_positional_args = len(call_site.positional_arguments)
-        keyword_args = list(call_site.keyword_arguments.keys())
-
-        # Determine if we don't have a context for our call and we use variadics.
-        if isinstance(node.scope(), astroid.FunctionDef):
-            has_no_context_positional_variadic = _no_context_variadic_positional(node)
-            has_no_context_keywords_variadic = _no_context_variadic_keywords(node)
-        else:
-            has_no_context_positional_variadic = has_no_context_keywords_variadic = False
-
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
         # Ignore instances of descriptors since astroid cannot properly handle them
@@ -918,12 +905,6 @@ accessed. Python regular expressions are accepted.'}
             # those errors are handled by different warnings.
             return
 
-        # These are coming from the functools.partial implementation in astroid
-        already_filled_positionals = getattr(called, 'filled_positionals', 0)
-        already_filled_keywords = getattr(called, 'filled_keywords', {})
-
-        keyword_args += list(already_filled_keywords)
-        num_positional_args += implicit_args + already_filled_positionals
         if called.args.args is None:
             # Built-in functions have no argument information.
             return
@@ -933,6 +914,10 @@ accessed. Python regular expressions are accepted.'}
             # make sense of the function call in this case, so just return.
             return
 
+        # Build the set of keyword arguments, checking for duplicate keywords,
+        # and count the positional arguments.
+        call_site = astroid.arguments.CallSite.from_call(node)
+
         # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`
         for keyword in call_site.duplicated_keywords:
             self.add_message('repeated-keyword',
@@ -941,6 +926,23 @@ accessed. Python regular expressions are accepted.'}
         if call_site.has_invalid_arguments() or call_site.has_invalid_keywords():
             # Can't make sense of this.
             return
+
+        num_positional_args = len(call_site.positional_arguments)
+        keyword_args = list(call_site.keyword_arguments.keys())
+
+        # Determine if we don't have a context for our call and we use variadics.
+        if isinstance(node.scope(), astroid.FunctionDef):
+            has_no_context_positional_variadic = _no_context_variadic_positional(node)
+            has_no_context_keywords_variadic = _no_context_variadic_keywords(node)
+        else:
+            has_no_context_positional_variadic = has_no_context_keywords_variadic = False
+
+        # These are coming from the functools.partial implementation in astroid
+        already_filled_positionals = getattr(called, 'filled_positionals', 0)
+        already_filled_keywords = getattr(called, 'filled_keywords', {})
+
+        keyword_args += list(already_filled_keywords)
+        num_positional_args += implicit_args + already_filled_positionals
 
         # Analyze the list of formal parameters.
 
