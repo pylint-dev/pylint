@@ -318,6 +318,8 @@ Other Changes
   When modules are imported under ``typing.TYPE_CHECKING`` guard, **pylint**
   will no longer emit *unused-import*.
 
+* Fix false positive ``unused-variable`` in lambda default arguments
+
 * ``assignment-from-no-return`` considers methods as well as functions.
 
   If you have a method that doesn't return a value, but later on you assign
