@@ -23,6 +23,10 @@ Release date: |TBA|
 
       Close #1169
 
+   * Fix false-postive undefined-variable in nested lambda
+
+      Close #760
+
 
 What's New in Pylint 1.9.3?
 ===========================
