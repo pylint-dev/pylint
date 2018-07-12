@@ -343,6 +343,13 @@ Release date: |TBA|
 
       Close #638
 
+    * Fix false positive unused-variable in lambda default arguments
+
+      Close #1921
+      Close #1552
+      Close #1099
+      Close #210
+
     * Updated the default report format to include paths that can be clicked on in some terminals (e.g. iTerm).
 
     * Fix inline def behavior with ``too-many-statements`` checker

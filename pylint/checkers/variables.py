@@ -1173,7 +1173,7 @@ class VariablesChecker(BaseChecker):
         # if the name node is used as a function default argument's value or as
         # a decorator, then start from the parent frame of the function instead
         # of the function frame - and thus open an inner class scope
-        if (utils.is_func_default(node) or utils.is_func_decorator(node)
+        if (utils.is_default_argument(node) or utils.is_func_decorator(node)
                 or utils.is_ancestor_name(frame, node)):
             start_index = len(self._to_consume) - 2
         else:

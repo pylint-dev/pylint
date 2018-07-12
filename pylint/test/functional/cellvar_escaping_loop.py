@@ -17,7 +17,7 @@ def good_case2():
 def good_case3():
     """No problems here."""
     lst = []
-    for i in range(10):  # [unused-variable]
+    for i in range(10):
         lst.append(lambda i=i: i)
 
 
