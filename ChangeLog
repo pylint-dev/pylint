@@ -363,6 +363,10 @@ Release date: |TBA|
 
       Close #2214
 
+    * Fix false-postive undefined-variable in nested lambda
+
+      Close #760
+
     * Fix false-positive ``bad-whitespace`` message for typing annoatations
     with ellipses in them
 
