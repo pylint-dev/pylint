@@ -422,16 +422,16 @@ class ContinuedLineState:
             _Indentations(indentation, indentation + self._continuation_string),
             _Indentations(indentation + self._continuation_string))
 
-    def _continuation_inside_bracket(self, bracket, pos):
+    def _continuation_inside_bracket(self, bracket, position):
         """Extracts indentation information for a continued indent."""
-        indentation = self._tokens.line_indent(pos)
-        token_indent = self._tokens.token_indent(pos)
-        next_token_indent = self._tokens.token_indent(pos + 1)
+        indentation = self._tokens.line_indent(position)
+        token_indent = self._tokens.token_indent(position)
+        next_token_indent = self._tokens.token_indent(position + 1)
         if self._is_block_opener and next_token_indent == indentation + self._block_indent_string:
             return _ContinuedIndent(
                 CONTINUED_BLOCK,
                 bracket,
-                pos,
+                position,
                 _Indentations(token_indent),
                 _BeforeBlockIndentations(
                     next_token_indent,
@@ -439,7 +439,7 @@ class ContinuedLineState:
         return _ContinuedIndent(
             CONTINUED,
             bracket,
-            pos,
+            position,
             _Indentations(token_indent, next_token_indent),
             _Indentations(next_token_indent))
 
