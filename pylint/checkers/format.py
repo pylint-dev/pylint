@@ -390,7 +390,16 @@ class ContinuedLineState:
         return indent, valid_indentations.copy()
 
     def _hanging_indent_after_bracket(self, bracket, position):
-        """Extracts indentation information for a hanging indent."""
+        """Extracts indentation information for a hanging indent
+
+        Case of hanging indent after a bracket (including parenthesis)
+
+        :param str bracket: bracket in question
+        :param int position: Position of bracket in self._tokens
+
+        :returns: the state and valid positions for hanging indentation
+        :rtype: _ContinuedIndent
+        """
         indentation = self._tokens.line_indent(position)
         if self._is_block_opener and self._continuation_string == self._block_indent_string:
             return _ContinuedIndent(
