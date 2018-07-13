@@ -89,7 +89,8 @@ class BaseChecker(OptionsProviderMixIn):
 
         linter is an object implementing ILinter
         """
-        self.name = self.name.lower()
+        if self.name is not None:
+            self.name = self.name.lower()
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
 
