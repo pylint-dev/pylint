@@ -47,9 +47,9 @@ from pylint.checkers.utils import check_messages
 from pylint.utils import WarningScope, OPTION_RGX
 
 _ASYNC_TOKEN = 'async'
-_CONTINUATION_BLOCK_OPENERS = ['elif', 'except', 'for', 'if', 'while', 'def', 'class']
+_CONTINUATION_BLOCK_OPENERS = ['elif', 'except', 'for', 'if', 'while', 'def', 'class', 'with']
 _KEYWORD_TOKENS = ['assert', 'del', 'elif', 'except', 'for', 'if', 'in', 'not',
-                   'raise', 'return', 'while', 'yield']
+                   'raise', 'return', 'while', 'yield', 'with']
 if sys.version_info < (3, 0):
     _KEYWORD_TOKENS.append('print')
 

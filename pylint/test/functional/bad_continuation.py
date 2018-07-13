@@ -1,5 +1,5 @@
 """Regression test case for bad-continuation."""
-# pylint: disable=print-statement,using-constant-test
+# pylint: disable=print-statement,using-constant-test,missing-docstring,wrong-import-position
 # Various alignment for brackets
 from __future__ import print_function
 
@@ -189,3 +189,14 @@ continue2("foo",
           some_other_arg="this "
                          "is "
                          "fine")
+
+from contextlib import contextmanager
+@contextmanager
+def mycontext(*args):
+    yield args
+
+with mycontext(
+        "this is",
+        "great stuff",
+        "mane"):
+    pass
