@@ -334,6 +334,8 @@ Other Changes
   this might actually cause bugs, so if you want to check for ``None`` values
   as well, pass ``--ignore-none=n`` to pylint.
 
+* Fix false-positive ``bad-continuation`` for with statements
+
 * Fix false-positive ``bad-whitespace`` message for typing annoatations
   with ellipses in them
 

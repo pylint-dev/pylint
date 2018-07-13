@@ -90,6 +90,10 @@ Release date: |TBA|
 
       Close #1950
 
+    * Fix false-positive ``bad-continuation`` for with statements
+
+      Close #461
+
     * Don't warn about `stop-iteration-return` when using `next()` over `itertools.count`
 
       Close #2158
