@@ -306,6 +306,8 @@ class Option(optparse.Option):
         elif self.choices is not None:
             raise optparse.OptionError(
                 "must not supply choices for type %r" % self.type, self)
+
+    # pylint: disable=unsupported-assignment-operation
     optparse.Option.CHECK_METHODS[2] = _check_choice
 
     def process(self, opt, value, values, parser):
