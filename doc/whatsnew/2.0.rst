@@ -1,26 +1,26 @@
 **************************
-  What's New In Pylint 2.0
+ What's New in Pylint 2.0
 **************************
 
 :Release: 2.0
-:Date: |TBA|
+:Date: 2018-07-15
 
 Summary -- Release highlights
 =============================
 
 * Dropped support for Python 2. This release will work only on Python 3.4+.
 
-  If you need to use `pylint` on Python 2, you can use Pylint 1.8. We'll continue
+  If you need to use ``pylint`` with Python 2, you can use Pylint 1.9+. We'll continue
   to do bug releases until 2020, when Python 2 goes officially EOL.
-  `pylint` will still be able to analyze Python 2 files, but some checks might not work
-  as they will assume that their running environment was Python 2.
+  ``pylint`` will gain the ability to analyze Python 2 files, but some checks might not work
+  as they will assume that their running environment is Python 2.
 
-* Given the dropping of Python 2, the Python 3 porting mode (enabled via `--py3k`) can now
+* Given the dropping of Python 2, the Python 3 porting mode (enabled via ``--py3k``) can now
   also run with Python 3.
 
   The porting mode used to be a no-op on Python 3, but most of the messages can now be emitted
   when the running interpreter is Python 3. The only messages that won't be emitted are those that
-  rely on a particular syntax specific to Python 2, for instance `print` as a statement.
+  rely on a particular syntax specific to Python 2, for instance ``print`` as a statement.
 
 
 New checkers
@@ -144,9 +144,7 @@ New checkers
 
   Instead of a temporary variable, the one-line syntax with commas should be used.
 
-  See http://docs.python-guide.org/en/latest/writing/style/ or
-  http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html#swap-values
-  for details.
+  See this `style guide`_ document or this `swap values presentation`_ for details.
 
   .. code-block:: python
 
@@ -156,13 +154,13 @@ New checkers
 
      a, b = b, a  # the right way
 
-* Two new checks, `invalid-envvar-value` and `invalid-envvar-default`, were added.
+* Two new checks, ``invalid-envvar-value`` and ``invalid-envvar-default``, were added.
 
   The former is trigger whenever pylint detects that environment variable manipulation
   functions uses a different type than strings, while the latter is emitted whenever
   the said functions are using a default variable of different type than expected.
 
-* A new check was added, `subprocess-popen-preexec-fn`,
+* A new check was added, ``subprocess-popen-preexec-fn``,
 
   This refactoring message is emitted when using the keyword argument preexec_fn
   when creating subprocess.Popen instances which may be unsafe when used in
@@ -172,16 +170,16 @@ New checkers
   for full warning details.
 
 * New ``try-except-raise`` message when an except handler block has a bare
-  `raise` statement as its first operator or the exception type being raised
+  ``raise`` statement as its first operator or the exception type being raised
   is the same as the one being handled.
 
-*  New `possibly-unused-variable` check added.
+*  New ``possibly-unused-variable`` check added.
 
-  This is similar to `unused-variable`, the only difference is that it is
+  This is similar to ``unused-variable``, the only difference is that it is
   emitted when we detect a locals() call in the scope of the unused variable.
-  The `locals()` call could potentially use the said variable, by consuming
+  The ``locals()`` call could potentially use the said variable, by consuming
   all values that are present up to the point of the call. This new check
-  allows to disable this error when the user intentionally uses `locals()`
+  allows to disable this error when the user intentionally uses ``locals()``
   to consume everything.
 
   For instance, the following code will now trigger this new error:
@@ -192,10 +190,10 @@ New checkers
          some_value = some_call()
          return locals()
 
-* New `unhashable-dict-key` check added to detect dict lookups using
+* New ``unhashable-dict-key`` check added to detect dict lookups using
   unhashable keys such as lists or dicts.
 
-* New `self-cls-assignment` warning check added.
+* New ``self-cls-assignment`` warning check added.
 
   This is warning if the first argument of an instance/ class method gets
   assigned
@@ -206,7 +204,7 @@ New checkers
          def foo(self, bar):
              self = bar
 
-* New verbose mode option `--verbose` to display of extra non-checker-related output. Disabled by default.
+* New verbose mode option ``--verbose`` to display of extra non-checker-related output. Disabled by default.
 
 * Two new checks were added for recommending dict and set comprehensions where possible.
 
@@ -220,6 +218,18 @@ New checkers
 Other Changes
 =============
 
+* A couple of performance improvements brought to ``astroid`` should make
+  ``pylint`` should be a bit faster as well.
+
+  We added a new flag, ``max_inferable_values`` on :class:`astroid.MANAGER` for
+  limitting the maximum amount of values that ``astroid`` can infer when inferring
+  values. This change should improve the performance when dealing with large frameworks
+  such as ``django``.
+  You can also control this behaviour with ``pylint --limit-inference-results``
+
+  We also rewrote how `nodes_of_class` and `get_children` methods operate which
+  should result in a performance boost for a couple of checks.
+
 * Fix a false positive ``inconsistent-return-statements`` message when exception is raised inside
   an else statement.
 
@@ -230,7 +240,7 @@ Other Changes
   statement is inside try/except.
 
 * Fix a false positive ``inconsistent-return-statements`` message when
-  `while` loop are used.
+  ``while`` loop are used.
 
 * Fix emission of false positive ``no-member`` message for class with
   "private" attributes whose name is mangled.
@@ -246,31 +256,30 @@ Other Changes
 * Fix false positive ``inconsistent-return-statements`` message by
   avoiding useless exception inference if the exception is not handled.
 
-* Fix false positive ``undefined-variable`` for lambda argument in
-    class definitions
+* Fix false positive ``undefined-variable`` for lambda argument in class definitions
 
 * Suppress false-positive ``not-callable`` messages from certain staticmethod descriptors
 
 * Expand ``ignored-argument-names`` include starred arguments and keyword arguments
 
-* `singleton-comparison` will suggest better boolean conditions for negative conditions.
+* ``singleton-comparison`` will suggest better boolean conditions for negative conditions.
 
-* `undefined-loop-variable` takes in consideration non-empty iterred objects before emitting.
+* ``undefined-loop-variable`` takes in consideration non-empty iterred objects before emitting.
 
   For instance, if the loop iterable is not empty, this check will no longer be emitted.
 
-* Enum classes no longer trigger `too-few-methods`
+* Enum classes no longer trigger ``too-few-methods``
 
-* Special methods now count towards `too-few-methods`,
+* Special methods now count towards ``too-few-methods``,
   and are considered part of the public API.
   They are still not counted towards the number of methods for
-  `too-many-methods`.
+  ``too-many-methods``.
 
-* docparams allows abstract methods to document returns documentation even
-  if the default implementation does not return something.
-  They also no longer need to document raising a NotImplementedError.
+* ``docparams`` extension allows abstract methods to document returns
+  documentation even if the default implementation does not return something.
+  They also no longer need to document raising a ``NotImplementedError.``
 
-* Skip wildcard import check for `__init__.py`.
+* Skip wildcard import check for ``__init__.py``.
 
 * Don't warn 'useless-super-delegation' if the subclass method has different type annotations.
 
@@ -284,24 +293,24 @@ Other Changes
 
 * Added basic support for postponed evaluation of function annotations.
 
-  If **pylint** detects the corresponding ``from __future__ import annotations`` import,
-  it will not emit **used-before-assignment** and **undefined-variable** in the cases
+  If ``pylint`` detects the corresponding ``from __future__ import annotations`` import,
+  it will not emit ``used-before-assignment`` and ``undefined-variable`` in the cases
   triggered by the annotations.
 
   More details on the postponed evaluation of annotations can be read in
   `PEP 563`_.
 
-* A new command line option was added, `--exit-zero`, for the use of continuous integration
+* A new command line option was added, ``--exit-zero``, for the use of continuous integration
   scripts which abort if a command returns a non-zero status code.  If the
   option is specified, and Pylint runs successfully, it will exit with 0
   regardless of the number of lint issues detected.
 
   Configuration errors, parse errors, and calling Pylint with invalid
   command-line options all still return a non-zero error code, even if
-  `--exit-zero` is specified.
+  ``--exit-zero`` is specified.
 
-* Don't emit `unused-import` anymore for typing imports used in type comments. For instance,
-  in the following example pylint used to complain that `Any` and `List` are not used,
+* Don't emit ``unused-import`` anymore for typing imports used in type comments. For instance,
+  in the following example pylint used to complain that ``Any`` and ``List`` are not used,
   while they should be considered used by a type checker.
 
   .. code-block:: python
@@ -315,7 +324,7 @@ Other Changes
 
 * Support ``typing.TYPE_CHECKING`` for *unused-import* errors
 
-  When modules are imported under ``typing.TYPE_CHECKING`` guard, **pylint**
+  When modules are imported under ``typing.TYPE_CHECKING`` guard, ``pylint``
   will no longer emit *unused-import*.
 
 * Fix false positive ``unused-variable`` in lambda default arguments
@@ -323,13 +332,13 @@ Other Changes
 * ``assignment-from-no-return`` considers methods as well as functions.
 
   If you have a method that doesn't return a value, but later on you assign
-  a value to a function call to that method (so basically it will be `None`),
-  then **pylint** is going to emit an ``assignment-from-no-return`` error.
+  a value to a function call to that method (so basically it will be ``None``),
+  then ``pylint`` is going to emit an ``assignment-from-no-return`` error.
 
-* A new flag was added, ``--ignore-none`` which controls the **no-member**
+* A new flag was added, ``--ignore-none`` which controls the ``no-member``
   behaviour with respect to ``None`` values.
 
-  Previously **pylint** was not emitting **no-member** if it inferred that
+  Previously ``pylint`` was not emitting ``no-member`` if it inferred that
   the owner of an attribute access is a ``None`` value. In some cases,
   this might actually cause bugs, so if you want to check for ``None`` values
   as well, pass ``--ignore-none=n`` to pylint.
@@ -343,3 +352,5 @@ Other Changes
 
 
 .. _PEP 563: https://www.python.org/dev/peps/pep-0563/
+.. _style guide: http://docs.python-guide.org/en/latest/writing/style/
+.. _swap values presentation: http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html#swap-values

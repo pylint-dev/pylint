@@ -207,3 +207,5 @@ contributors:
   Maarten ter Huurne, Mirko Friedenhagen and all the Logilab's team (among others).
 
 * Matej Marusak: contributor
+
+* Nick Drozd: contributor, performance improvements to astroid
