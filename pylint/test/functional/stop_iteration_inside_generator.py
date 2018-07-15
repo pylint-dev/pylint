@@ -107,3 +107,14 @@ def generator_using_next():
     counter = count()
     number = next(counter)
     yield number * 2
+
+
+# pylint: disable=no-self-use,too-few-public-methods
+class SomeClassWithNext:
+    def next(self):
+        return iter([1, 2, 3])
+    def some_gen(self):
+        for value in self.next():
+            yield value
+
+SomeClassWithNext().some_gen()

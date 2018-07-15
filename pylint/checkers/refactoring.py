@@ -479,6 +479,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 return inferred.qname() in KNOWN_INFINITE_ITERATORS
             return False
 
+        if isinstance(node.func, astroid.Attribute):
+            # A next() method, which is now what we want.
+            return
+
         inferred = utils.safe_infer(node.func)
         if getattr(inferred, 'name', '') == 'next':
             frame = node.frame()
