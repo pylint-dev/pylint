@@ -866,10 +866,16 @@ accessed. Python regular expressions are accepted.'}
             # Decorated, see if it is decorated with a property.
             # Also, check the returns and see if they are callable.
             if decorated_with_property(attr):
-                if all(return_node.callable()
-                       for return_node in attr.infer_call_result(node)):
+
+                try:
+                    all_returns_are_callable = all(
+                        return_node.callable()
+                        for return_node in attr.infer_call_result(node)
+                    )
+                except astroid.InferenceError:
                     continue
-                else:
+
+                if not all_returns_are_callable:
                     self.add_message('not-callable', node=node,
                                      args=node.func.as_string())
                     break
