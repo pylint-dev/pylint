@@ -81,9 +81,3 @@ Pylint is shipped with following additional commands:
 * epylint: Emacs and Flymake compatible Pylint
 
 
-Note
-----
-
-Python 3.7 support is currently available on the preview release: ::
-
-    pip install pylint astroid --pre -U
