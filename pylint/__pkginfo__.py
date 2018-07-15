@@ -26,7 +26,7 @@ from os.path import join
 modname = distname = 'pylint'
 
 numversion = (2, 0, 0)
-version = '.'.join(str(num) for num in numversion) + '.dev2'
+version = '.'.join(str(num) for num in numversion)
 
 install_requires = [
     'astroid>=2.0.0',
