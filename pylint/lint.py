@@ -408,6 +408,12 @@ class PyLinter(config.OptionsManagerMixIn,
                            ' are imported into the active Python interpreter and'
                            ' may run arbitrary code.')}),
 
+                ('limit-inference-results',
+                 {'type': 'int', 'metavar': '<number-of-results>', 'default': 100,
+                  'help': ('Control the amount of potential inferred values when inferring '
+                           'a single object. This can help the performance when dealing with '
+                           'large functions or complex, nested conditions. ')}),
+
                 ('extension-pkg-whitelist',
                  {'type': 'csv', 'metavar': '<pkg[,pkg]>', 'default': [],
                   'help': ('A comma-separated list of package or module names'
@@ -1009,6 +1015,7 @@ class PyLinter(config.OptionsManagerMixIn,
                       'by_msg' : {},
                      }
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
+        MANAGER.max_inferable_values = self.config.limit_inference_results
         MANAGER.extension_package_whitelist.update(
             self.config.extension_pkg_whitelist)
         for msg_cat in utils.MSG_TYPES.values():
