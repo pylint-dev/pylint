@@ -2,10 +2,13 @@
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 y2kbugger <y2kbugger@users.noreply.github.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
+# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

@@ -8,6 +8,9 @@
 # Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
+# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

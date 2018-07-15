@@ -2,7 +2,7 @@
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009 James Lingard <jchl@aristanetworks.com>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 David Shea <dshea@redhat.com>
 # Copyright (c) 2014 Steven Myint <hg@stevenmyint.com>
 # Copyright (c) 2014 Holger Peters <email@holger-peters.de>
@@ -17,10 +17,16 @@
 # Copyright (c) 2016 Jürgen Hermann <jh@web.de>
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2016 Filipe Brandenburger <filbranden@google.com>
+# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
+# Copyright (c) 2018 Ben Green <benhgreen@icloud.com>
+# Copyright (c) 2018 Konstantin <Github@pheanex.de>
+# Copyright (c) 2018 Justin Li <justinnhli@users.noreply.github.com>
+# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

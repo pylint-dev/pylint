@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016-2017 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016-2018 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Yuri Bochkarev <baltazar.bz@gmail.com>
-# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Mitar <mitar.github@tnode.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Mitchell T.H. Young <mitchelly@gmail.com>
+# Copyright (c) 2018 Adrian Chirieac <chirieacam@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

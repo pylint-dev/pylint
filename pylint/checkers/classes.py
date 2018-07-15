@@ -3,7 +3,7 @@
 # Copyright (c) 2010 Maarten ter Huurne <maarten@treewalker.org>
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
@@ -17,6 +17,12 @@
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Ben Green <benhgreen@icloud.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
+# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

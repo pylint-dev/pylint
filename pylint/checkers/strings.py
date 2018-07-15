@@ -3,15 +3,17 @@
 # Copyright (c) 2010-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016, 2018 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2016 Peter Dawyndt <Peter.Dawyndt@UGent.be>
-# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
 

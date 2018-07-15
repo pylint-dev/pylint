@@ -8,7 +8,7 @@
 # Copyright (c) 2012 Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2012 JT Olds <jtolds@xnet5.com>
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Michal Nowikowski <godfryd@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Alexandru Coman <fcoman@bitdefender.com>
@@ -24,11 +24,22 @@
 # Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Alan Evangelista <alanoe@linux.vnet.ibm.com>
+# Copyright (c) 2017-2018 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Roman Ivanov <me@roivanov.com>
 # Copyright (c) 2017 Ned Batchelder <ned@nedbatchelder.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018 Randall Leeds <randall@bleeds.info>
+# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Jason Owen <jason.a.owen@gmail.com>
+# Copyright (c) 2018 Gary Tyler McLeod <mail@garytyler.com>
+# Copyright (c) 2018 Yuval Langer <yuvallanger@mail.tau.ac.il>
+# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2018 kapsh <kapsh@kap.sh>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

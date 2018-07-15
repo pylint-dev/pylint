@@ -2,7 +2,7 @@
 # Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2013 buck@yelp.com <buck@yelp.com>
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015-2016 Moises Lopez <moylop260@vauxoo.com>
@@ -20,6 +20,9 @@
 # Copyright (c) 2017 Michka Popoff <michkapopoff@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Erik Wright <erik.wright@shopify.com>
+# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

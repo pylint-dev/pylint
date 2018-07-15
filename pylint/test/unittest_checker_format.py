@@ -13,6 +13,9 @@
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 James M. Allen <james.m.allen@gmail.com>
 # Copyright (c) 2017 vinnyrose <vinnyrose@users.noreply.github.com>
+# Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
+# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

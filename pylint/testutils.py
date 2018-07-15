@@ -12,6 +12,9 @@
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Roy Williams <roy.williams.iii@gmail.com>
 # Copyright (c) 2016 xmo-odoo <xmo-odoo@users.noreply.github.com>
+# Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

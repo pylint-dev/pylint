@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
 # Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
 # Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2015 Cosmin Poieana <cmin@ropython.org>
 # Copyright (c) 2015 Viorel Stirbu <viorels@gmail.com>
+# Copyright (c) 2016, 2018 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2016-2017 Roy Williams <roy.williams.iii@gmail.com>
 # Copyright (c) 2016 Roy Williams <rwilliams@lyft.com>
 # Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Erik <erik.eriksson@yahoo.com>
-# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 ahirnish <ahirnish@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
+# Copyright (c) 2018 gaurikholkar <f2013002@goa.bits-pilani.ac.in>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 

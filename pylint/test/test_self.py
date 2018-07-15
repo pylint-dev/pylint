@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
@@ -12,6 +12,10 @@
 # Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2017 Thomas Hisch <t.hisch@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Jason Owen <jason.a.owen@gmail.com>
+# Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
+# Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

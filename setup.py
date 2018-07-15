@@ -6,7 +6,7 @@
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2013 Benedikt Morbach <benedikt.morbach@googlemail.com>
 # Copyright (c) 2013 T.Rzepka <Tobias.Rzepka@gmail.com>
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Pedro Algarvio <pedro@algarvio.me>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Google, Inc.
