@@ -71,7 +71,7 @@ New checkers
 
 * A new check was added, ``useless-import-alias``.
 
-  This refactoring message is emitted when a import alias does not rename the original package.
+  This refactoring message is emitted when an import alias does not rename the original package.
 
   .. code-block:: python
     import numpy as numpy # bad
@@ -118,7 +118,7 @@ New checkers
 
 * A new check was added, ``consider-using-join``.
 
-  This refactoring message is emitted when using a for loop over a iterable to join strings
+  This refactoring message is emitted when using a for loop over an iterable to join strings
   instead of the faster, less memory consuming and more idiomatic str.join(sequence).
 
   .. code-block:: python
@@ -348,7 +348,7 @@ Other Changes
 * Fix false-positive ``bad-whitespace`` message for typing annoatations
   with ellipses in them
 
-* Fix false-postive ``undefined-variable`` for nested lambdas
+* Fix false-positive ``undefined-variable`` for nested lambdas
 
 
 .. _PEP 563: https://www.python.org/dev/peps/pep-0563/
