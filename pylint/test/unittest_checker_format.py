@@ -24,6 +24,8 @@
 
 from __future__ import unicode_literals
 
+import tokenize
+
 import astroid
 
 from pylint.checkers.format import *
@@ -367,3 +369,15 @@ class TestCheckSpace(CheckerTestCase):
 
         with self.assertNoMessages():
             self.checker.process_tokens(_tokenize_str('a = 1\n\v\nb = 2\n'))
+
+
+    def test_encoding_token(self):
+        """Make sure the encoding token doesn't change the checker's behavior
+
+        _tokenize_str doesn't produce an encoding token, but
+        reading a file does
+        """
+        with self.assertNoMessages():
+            encoding_token = tokenize.TokenInfo(tokenize.ENCODING, "utf-8", (0, 0), (0, 0), '')
+            tokens = [encoding_token] + _tokenize_str('if (\n        None):\n    pass\n')
+            self.checker.process_tokens(tokens)
