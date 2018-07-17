@@ -922,8 +922,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """
         if len(self._return_nodes[node.name]) > 1:
             return
-
-        if not node.body:
+        if len(node.body) <= 1:
             return
 
         last = node.body[-1]

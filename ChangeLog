@@ -13,7 +13,15 @@ Release date: |TBA|
 
     * Include the type of the next branch in `no-else-return`
 
-     Close #2295
+       Close #2295
+
+    * Don't emit `useless-return` when we have a single statement that is the return itself
+
+      We still want to be explicit when a function is supposed to return
+      an optional value; even though `pass` could still work, it's not explicit
+      enough and the function might look like it's missing an implementation.
+      Close #2300
+
 
 What's New in Pylint 2.0?
 =========================

@@ -9,3 +9,7 @@ class SomeClass(object):
     def mymethod(self): # [useless-return]
         print('---- testing ---')
         return None
+
+    # These are not emitted
+    def item_at(self):
+        return None
