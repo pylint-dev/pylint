@@ -84,8 +84,8 @@ class SnakeCaseStyle(NamingStyle):
     MOD_NAME_RGX = re.compile('([a-z_][a-z0-9_]*)$')
     CONST_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|(__.*__))$')
     COMP_VAR_RGX = re.compile('[a-z_][a-z0-9_]*$')
-    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-z0-9_]{2,30})|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$')
-    CLASS_ATTRIBUTE_RGX = re.compile(r'(([a-z_][a-z0-9_]{2,30}|(__.*__)))$')
+    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-z0-9_]{2,})|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$')
+    CLASS_ATTRIBUTE_RGX = re.compile(r'(([a-z_][a-z0-9_]{2,}|(__.*__)))$')
 
 
 class CamelCaseStyle(NamingStyle):
@@ -93,8 +93,8 @@ class CamelCaseStyle(NamingStyle):
     MOD_NAME_RGX = re.compile('([a-z_][a-zA-Z0-9]*)$')
     CONST_NAME_RGX = re.compile('(([a-z_][A-Za-z0-9]*)|(__.*__))$')
     COMP_VAR_RGX = re.compile('[a-z_][A-Za-z0-9]*$')
-    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-zA-Z0-9]{2,30})|(__[a-z][a-zA-Z0-9_]+__))$')
-    CLASS_ATTRIBUTE_RGX = re.compile(r'([a-z_][A-Za-z0-9]{2,30}|(__.*__))$')
+    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-zA-Z0-9]{2,})|(__[a-z][a-zA-Z0-9_]+__))$')
+    CLASS_ATTRIBUTE_RGX = re.compile(r'([a-z_][A-Za-z0-9]{2,}|(__.*__))$')
 
 
 class PascalCaseStyle(NamingStyle):
@@ -102,8 +102,8 @@ class PascalCaseStyle(NamingStyle):
     MOD_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
     CONST_NAME_RGX = re.compile('(([A-Z_][A-Za-z0-9]*)|(__.*__))$')
     COMP_VAR_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
-    DEFAULT_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]{2,30}$|(__[a-z][a-zA-Z0-9_]+__)$')
-    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][a-zA-Z0-9]{2,30}$')
+    DEFAULT_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]{2,}$|(__[a-z][a-zA-Z0-9_]+__)$')
+    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][a-zA-Z0-9]{2,}$')
 
 
 class UpperCaseStyle(NamingStyle):
@@ -111,8 +111,8 @@ class UpperCaseStyle(NamingStyle):
     MOD_NAME_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
     CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
     COMP_VAR_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
-    DEFAULT_NAME_RGX = re.compile('([A-Z_][A-Z0-9_]{2,30})|(__[a-z][a-zA-Z0-9_]+__)$')
-    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][A-Z0-9_]{2,30}$')
+    DEFAULT_NAME_RGX = re.compile('([A-Z_][A-Z0-9_]{2,})|(__[a-z][a-zA-Z0-9_]+__)$')
+    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][A-Z0-9_]{2,}$')
 
 
 class AnyStyle(NamingStyle):
