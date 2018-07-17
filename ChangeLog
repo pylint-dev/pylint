@@ -11,6 +11,10 @@ Release date: |TBA|
 
        Close #2047
 
+    * Include the type of the next branch in `no-else-return`
+
+     Close #2295
+
 What's New in Pylint 2.0?
 =========================
 
