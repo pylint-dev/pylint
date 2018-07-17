@@ -24,3 +24,4 @@ debian/pylint
 .cache/
 .eggs/
 .pytest_cache/
+.mypy_cache/
