@@ -100,7 +100,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'a handful of name binding operations, such as for iteration, '
                   'with statement assignment and exception handler assignment.'
                  ),
-        'R1705': ('Unnecessary "else" after "return"',
+        'R1705': ('Unnecessary "%s" after "return"',
                   'no-else-return',
                   'Used in order to highlight an unnecessary block of '
                   'code following an if containing a return statement. '
@@ -230,7 +230,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Unfortunately we need to know the exact type in certain
         cases.
         """
-
         if isinstance(node.parent, astroid.If):
             orelse = node.parent.orelse
             # current if node must directly follow an "else"
@@ -378,7 +377,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         if _if_statement_is_always_returning(node) and not self._is_actual_elif(node):
-            self.add_message('no-else-return', node=node)
+            orelse = node.orelse and node.orelse[0]
+            followed_by_elif = (orelse.lineno, orelse.col_offset) in self._elifs
+            self.add_message(
+                'no-else-return', node=node,
+                args='elif' if followed_by_elif else 'else',
+            )
 
     def _check_consider_get(self, node):
         def type_and_name_are_equal(node_a, node_b):
