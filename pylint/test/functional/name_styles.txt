@@ -14,4 +14,3 @@ invalid-name:94:test_globals:"Constant name ""AlsoCorrect"" doesn't conform to U
 invalid-name:107:FooClass.PROPERTY_NAME:"Attribute name ""PROPERTY_NAME"" doesn't conform to snake_case naming style":INFERENCE
 invalid-name:112:FooClass.ABSTRACT_PROPERTY_NAME:"Attribute name ""ABSTRACT_PROPERTY_NAME"" doesn't conform to snake_case naming style":INFERENCE
 invalid-name:117:FooClass.PROPERTY_NAME_SETTER:"Attribute name ""PROPERTY_NAME_SETTER"" doesn't conform to snake_case naming style":INFERENCE
-invalid-name:132:too_long_function_name_in_public_scope:"Function name ""too_long_function_name_in_public_scope"" doesn't conform to snake_case naming style"

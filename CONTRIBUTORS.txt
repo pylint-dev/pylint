@@ -16,7 +16,7 @@ Order doesn't matter (not that much, at least ;)
   multiple-imports, not-iterable, not-a-mapping, various patches.
 
 * Ashley Whetter: committer
-  
+
   check_docs extension can find constructor parameters in __init__,
   added check_raise_docs extension, various patches.
 
