@@ -1849,8 +1849,8 @@ class ComparisonChecker(_BasicChecker):
         left_operand, right_operand = node.left, node.ops[0][1]
         # this message should be emitted only when there is comparison of bare callable
         # with non bare callable.
-        if sum([1 for operand in (left_operand, right_operand)
-                if isinstance(utils.safe_infer(operand), bare_callables)]) == 1:
+        if sum(1 for operand in (left_operand, right_operand)
+               if isinstance(utils.safe_infer(operand), bare_callables)) == 1:
             self.add_message('comparison-with-callable', node=node)
 
     @utils.check_messages('singleton-comparison', 'misplaced-comparison-constant',
