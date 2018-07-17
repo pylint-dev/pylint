@@ -357,20 +357,34 @@ class ExceptionsChecker(checkers.BaseChecker):
                                  node=handler.type,
                                  args=(exc.name, ))
 
+    def _check_try_except_raise(self, node):
+        bare_raise = False
+        handler_having_bare_raise = None
+        for handler in node.handlers:
+            if bare_raise:
+                # check that subsequent handler is not parent of handler which had bare raise.
+                if utils.is_subclass_of(utils.safe_infer(handler_having_bare_raise.type),
+                                        utils.safe_infer(handler.type)):
+                    bare_raise = False
+            # `raise` as the first operator inside the except handler
+            if utils.is_raising([handler.body[0]]):
+                # flags when there is a bare raise
+                if handler.body[0].exc is None:
+                    bare_raise = True
+                    handler_having_bare_raise = handler
+
+        if bare_raise:
+            self.add_message('try-except-raise', node=handler_having_bare_raise)
+
     @utils.check_messages('bare-except', 'broad-except', 'try-except-raise',
                           'binary-op-exception', 'bad-except-order',
                           'catching-non-exception', 'duplicate-except')
     def visit_tryexcept(self, node):
         """check for empty except"""
+        self._check_try_except_raise(node)
         exceptions_classes = []
         nb_handlers = len(node.handlers)
         for index, handler in enumerate(node.handlers):
-            # `raise` as the first operator inside the except handler
-            if utils.is_raising([handler.body[0]]):
-                # flags when there is a bare raise
-                if handler.body[0].exc is None:
-                    self.add_message('try-except-raise', node=handler)
-
             if handler.type is None:
                 if not utils.is_raising(handler.body):
                     self.add_message('bare-except', node=handler)

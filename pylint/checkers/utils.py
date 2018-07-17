@@ -973,3 +973,22 @@ def is_postponed_evaluation_enabled(node):
     module = node.root()
     stmt = module.locals.get(name)
     return stmt and isinstance(stmt[0], astroid.ImportFrom) and stmt[0].modname == '__future__'
+
+
+def is_subclass_of(node_a, node_b):
+    """
+    Check if first node is a subclass of second node.
+    :param node_a: Node to check for subclass.
+    :type node_a: astroid.ClassDef
+    :param node_b: Node to check for superclass.
+    :type node_b: astroid.ClassDef
+    :returns: True if node_a is derived from node_b. False otherwise.
+    :rtype: bool
+    """
+    if not any(isinstance(node, astroid.ClassDef) for node in (node_a, node_b)):
+        return False
+
+    bases = [base.name for base in node_a.bases]
+    if node_b.name in bases:
+        return True
+    return False
