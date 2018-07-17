@@ -209,3 +209,5 @@ contributors:
 * Matej Marusak: contributor
 
 * Nick Drozd: contributor, performance improvements to astroid
+
+* Kosarchuk Sergey: contributor

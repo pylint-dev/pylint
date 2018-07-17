@@ -129,10 +129,6 @@ def good_public_function_name(good_arg_name):
     return good_variable_name + good_arg_name
 
 
-def too_long_function_name_in_public_scope():  # [invalid-name]
-    """Public scope function with a too long name"""
-    return 12
-
 def _private_scope_function_with_long_descriptive_name():
     """Private scope function are cool with long descriptive names"""
     return 12
