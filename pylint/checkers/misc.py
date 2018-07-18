@@ -151,7 +151,7 @@ class EncodingChecker(BaseChecker):
         """
         if self.config.notes:
             notes = re.compile(
-                r'#\s*(%s)\b' % "|".join(self.config.notes), re.I)
+                r'#\s*(%s)\b' % "|".join(map(re.escape, self.config.notes)), re.I)
         else:
             notes = None
         if module.file_encoding:
