@@ -25,10 +25,15 @@
 from __future__ import unicode_literals
 
 import tokenize
+import os
+import tempfile
 
 import astroid
 
 from pylint.checkers.format import *
+from pylint import reporters
+from pylint import lint
+
 
 from pylint.testutils import (
     CheckerTestCase, Message, set_config, _tokenize_str,
@@ -381,3 +386,29 @@ class TestCheckSpace(CheckerTestCase):
             encoding_token = tokenize.TokenInfo(tokenize.ENCODING, "utf-8", (0, 0), (0, 0), '')
             tokens = [encoding_token] + _tokenize_str('if (\n        None):\n    pass\n')
             self.checker.process_tokens(tokens)
+
+
+def test_disable_global_option_end_of_line():
+    """
+    Test for issue with disabling tokenizer messages
+    that extend beyond the scope of the ast tokens
+    """
+    file_ = tempfile.NamedTemporaryFile('w', delete=False)
+    with file_:
+        file_.write("""
+mylist = [
+    None
+        ]
+    """)
+    try:
+        linter = lint.PyLinter()
+        checker = FormatChecker(linter)
+        linter.register_checker(checker)
+        args = linter.load_command_line_configuration(
+            [file_.name, '-d' ,'bad-continuation'])
+        myreporter = reporters.CollectingReporter()
+        linter.set_reporter(myreporter)
+        linter.check(args)
+        assert not myreporter.messages
+    finally:
+        os.remove(file_.name)
