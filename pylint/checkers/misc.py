@@ -10,6 +10,7 @@
 # Copyright (c) 2016 glegoux <gilles.legoux@gmail.com>
 # Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
