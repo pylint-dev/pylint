@@ -129,7 +129,8 @@ class EncodingChecker(BaseChecker):
                     self.add_message('bad-inline-option',
                                      args=disable_option_match.group(1).strip(), line=line)
                     return
-        self.add_message('fixme', args=line[match.start(1):].rstrip(), line=lineno)
+        self.add_message('fixme', args=line[match.start(1):].rstrip(), line=lineno,
+                         col_offset=match.start(1))
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
