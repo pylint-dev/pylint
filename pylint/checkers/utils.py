@@ -988,7 +988,4 @@ def is_subclass_of(node_a, node_b):
     if not any(isinstance(node, astroid.ClassDef) for node in (node_a, node_b)):
         return False
 
-    bases = [base.name for base in node_a.bases]
-    if node_b.name in bases:
-        return True
-    return False
+    return node_b.name in {base.name for base in node_a.bases}
