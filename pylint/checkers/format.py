@@ -884,7 +884,7 @@ class FormatChecker(BaseTokenChecker):
                     last_blank_line_num = line_num
                 self._check_continued_indentation(TokenWrapper(tokens), idx+1)
                 self._current_line.next_physical_line()
-            elif tok_type != tokenize.COMMENT:
+            elif tok_type not in (tokenize.COMMENT, tokenize.ENCODING):
                 self._current_line.handle_line_start(idx)
                 # This is the first concrete token following a NEWLINE, so it
                 # must be the first token of the next program statement, or an

@@ -15,6 +15,10 @@ Release date: |TBA|
 
        Close #2295
 
+    * Fix inconsistent behavor for bad-continuation on first line of file
+
+      Close #2281
+
     * Don't emit `useless-return` when we have a single statement that is the return itself
 
       We still want to be explicit when a function is supposed to return
