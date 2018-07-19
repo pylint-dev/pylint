@@ -7,6 +7,10 @@ What's New in Pylint 2.1?
 
 Release date: |TBA|
 
+   * Demote the `try-except-raise` message from an error to a warning (E0705 -> W0706)
+
+      Close #2323
+
    * Fix a false positive `invalid name` message when method or attribute name is longer then 30 characters.
 
       Close #2047

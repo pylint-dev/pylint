@@ -88,12 +88,6 @@ MSGS = {
               'a bare raise inside a finally clause, which might work, as long '
               'as an exception is raised inside the try block, but it is '
               'nevertheless a code smell that must not be relied upon.'),
-    'E0705': ('The except handler raises immediately',
-              'try-except-raise',
-              'Used when an except handler uses raise as its first or only '
-              'operator. This is useless because it raises back the exception '
-              'immediately. Remove the raise operator or the entire '
-              'try-except-raise block!'),
     'E0710': ('Raising a new style class which doesn\'t inherit from BaseException',
               'raising-non-exception',
               'Used when a new style class which doesn\'t inherit from \
@@ -118,6 +112,12 @@ MSGS = {
               'duplicate-except',
               'Used when an except catches a type that was already caught by '
               'a previous handler.'),
+    'W0706': ('The except handler raises immediately',
+              'try-except-raise',
+              'Used when an except handler uses raise as its first or only '
+              'operator. This is useless because it raises back the exception '
+              'immediately. Remove the raise operator or the entire '
+              'try-except-raise block!'),
     'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
               'nonstandard-exception',
               'Used when a custom exception class is raised but doesn\'t \

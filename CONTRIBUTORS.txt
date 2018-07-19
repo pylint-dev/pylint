@@ -211,3 +211,5 @@ contributors:
 * Nick Drozd: contributor, performance improvements to astroid
 
 * Kosarchuk Sergey: contributor
+
+* Carey Metcalfe: demoted `try-except-raise` from error to warning
