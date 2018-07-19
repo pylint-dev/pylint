@@ -9,11 +9,11 @@ Release date: |TBA|
 
    * Fix a false positive `invalid name` message when method or attribute name is longer then 30 characters.
 
-       Close #2047
+      Close #2047
 
     * Include the type of the next branch in `no-else-return`
 
-       Close #2295
+      Close #2295
 
     * Fix inconsistent behaviour for bad-continuation on first line of file
 
@@ -29,6 +29,13 @@ Release date: |TBA|
     * Don't crash when `pylint` is unable to infer the value of an argument to `next()`
 
       Close #2316
+
+    * Don't emit `not-an-iterable` when dealing with async iterators.
+
+      But do emit it when using the usual iteration protocol against
+      async iterators.
+
+      Close #2311
 
 
 What's New in Pylint 2.0?

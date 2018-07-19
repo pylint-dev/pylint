@@ -53,6 +53,7 @@ else:
 ABC_METHODS = {'abc.abstractproperty', 'abc.abstractmethod',
                'abc.abstractclassmethod', 'abc.abstractstaticmethod'}
 ITER_METHOD = '__iter__'
+AITER_METHOD = '__aiter__'
 NEXT_METHOD = '__next__'
 GETITEM_METHOD = '__getitem__'
 SETITEM_METHOD = '__setitem__'
@@ -710,6 +711,10 @@ def _supports_iteration_protocol(value):
     )
 
 
+def _supports_async_iteration_protocol(value):
+    return _supports_protocol_method(value, AITER_METHOD)
+
+
 def _supports_getitem_protocol(value):
     return _supports_protocol_method(value, GETITEM_METHOD)
 
@@ -770,8 +775,12 @@ def _supports_protocol(value, protocol_callback):
     return False
 
 
-def is_iterable(value):
-    return _supports_protocol(value, _supports_iteration_protocol)
+def is_iterable(value, check_async=False):
+    if check_async:
+        protocol_check = _supports_async_iteration_protocol
+    else:
+        protocol_check = _supports_iteration_protocol
+    return _supports_protocol(value, protocol_check)
 
 
 def is_mapping(value):

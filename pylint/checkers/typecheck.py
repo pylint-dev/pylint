@@ -1379,7 +1379,7 @@ class IterableChecker(BaseChecker):
                       'mapping is expected'),
            }
 
-    def _check_iterable(self, node):
+    def _check_iterable(self, node, check_async=False):
         if is_inside_abstract_class(node):
             return
         if is_comprehension(node):
@@ -1387,7 +1387,7 @@ class IterableChecker(BaseChecker):
         infered = safe_infer(node)
         if infered is None or infered is astroid.Uninferable:
             return
-        if not is_iterable(infered):
+        if not is_iterable(infered, check_async=check_async):
             self.add_message('not-an-iterable',
                              args=node.as_string(),
                              node=node)
@@ -1410,6 +1410,10 @@ class IterableChecker(BaseChecker):
         self._check_iterable(node.iter)
 
     @check_messages('not-an-iterable')
+    def visit_asyncfor(self, node):
+        self._check_iterable(node.iter, check_async=True)
+
+    @check_messages('not-an-iterable')
     def visit_yieldfrom(self, node):
         self._check_iterable(node.value)
 
@@ -1423,7 +1427,7 @@ class IterableChecker(BaseChecker):
     @check_messages('not-an-iterable')
     def visit_listcomp(self, node):
         for gen in node.generators:
-            self._check_iterable(gen.iter)
+            self._check_iterable(gen.iter, check_async=gen.is_async)
 
     @check_messages('not-an-iterable')
     def visit_dictcomp(self, node):
