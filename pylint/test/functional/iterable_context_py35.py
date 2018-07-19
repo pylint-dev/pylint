@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods
+# pylint: disable=missing-docstring,too-few-public-methods,unused-variable
 
 
 class AIter:
@@ -13,4 +13,3 @@ class AIter:
             yield value
         async for value in self:
             yield value
-        yield values, other_values
