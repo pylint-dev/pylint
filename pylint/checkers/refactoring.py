@@ -481,7 +481,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         def _looks_like_infinite_iterator(param):
             inferred = utils.safe_infer(param)
-            if inferred is not None or inferred is not astroid.Uninferable:
+            if inferred:
                 return inferred.qname() in KNOWN_INFINITE_ITERATORS
             return False
 

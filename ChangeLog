@@ -2,6 +2,16 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 2.0.1?
+=========================
+
+Release date: 2018-07-23
+
+    * Don't crash when `pylint` is unable to infer the value of an argument to `next()`
+
+      Close #2316
+
+
 What's New in Pylint 2.0?
 =========================
 
