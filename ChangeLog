@@ -15,7 +15,7 @@ Release date: |TBA|
 
        Close #2295
 
-    * Fix inconsistent behavor for bad-continuation on first line of file
+    * Fix inconsistent behaviour for bad-continuation on first line of file
 
       Close #2281
 
