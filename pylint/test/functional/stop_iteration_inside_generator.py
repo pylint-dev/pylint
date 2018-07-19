@@ -117,4 +117,13 @@ class SomeClassWithNext:
         for value in self.next():
             yield value
 
+
 SomeClassWithNext().some_gen()
+
+
+def something_invalid():
+    raise Exception('cannot iterate this')
+
+
+def invalid_object_passed_to_next():
+    yield next(something_invalid()) # [stop-iteration-return]

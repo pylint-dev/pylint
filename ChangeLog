@@ -26,6 +26,10 @@ Release date: |TBA|
       enough and the function might look like it's missing an implementation.
       Close #2300
 
+    * Don't crash when `pylint` is unable to infer the value of an argument to `next()`
+
+      Close #2316
+
 
 What's New in Pylint 2.0?
 =========================
