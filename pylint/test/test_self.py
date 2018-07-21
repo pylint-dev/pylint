@@ -160,6 +160,9 @@ class TestRunTC(object):
             join(HERE, 'regrtest_data', 'syntax_error.py')
         ], code=0)
 
+    def test_list_msgs(self):
+        self._runtest(['--list-msgs'], code=0)
+
     def test_generate_config_option(self):
         self._runtest(['--generate-rcfile'], code=0)
 

@@ -1003,8 +1003,8 @@ class CLIRunner(Runner):
           'exit. The value may be a comma separated list of message ids.'}),
 
         ('list-msgs',
-         {'metavar': '<msg-id>',
-          'group': 'Commands', 'level': 1, 'default': None,
+         {'group': 'Commands', 'level': 1,
+          'action': 'store_true', 'default': False,
           'help' : "Generate pylint's messages."}),
 
         ('list-conf-levels',
