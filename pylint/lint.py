@@ -1110,10 +1110,10 @@ class CLIRunner(Runner):
         (
             "list-msgs",
             {
-                "metavar": "<msg-id>",
                 "group": "Commands",
                 "level": 1,
-                "default": None,
+                "action": "store_true",
+                "default": False,
                 "help": "Generate pylint's messages.",
             },
         ),
