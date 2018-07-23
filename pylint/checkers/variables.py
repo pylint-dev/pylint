@@ -67,21 +67,21 @@ METACLASS_NAME_TRANSFORMS = {
 }
 
 
-def _is_from_future_import(stmt, name):
+def _is_from_future_import(stmt, name) -> bool:
     """Check if the name is a future import from another module."""
     try:
         module = stmt.do_import_module(stmt.modname)
     except astroid.AstroidBuildingException:
-        return None
+        return False
 
     for local_node in module.locals.get(name, []):
         if (isinstance(local_node, astroid.ImportFrom)
                 and local_node.modname == FUTURE):
             return True
-    return None
+    return False
 
 
-def in_for_else_branch(parent, stmt):
+def in_for_else_branch(parent, stmt) -> bool:
     """Returns True if stmt in inside the else branch for a parent For stmt."""
     return (isinstance(parent, astroid.For) and
             any(else_stmt.parent_of(stmt) or else_stmt == stmt
