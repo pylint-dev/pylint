@@ -325,6 +325,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         * The access node is protected by an except handler, which handles
           AttributeError, Exception or bare except.
     """
+    # pylint: disable=too-many-return-statements
     if node_ignores_exception(node, AttributeError):
         return False
     if ignored_none and isinstance(owner, astroid.Const) and owner.value is None:
