@@ -59,6 +59,12 @@ FUTURE = '__future__'
 # regexp for ignored argument name
 IGNORED_ARGUMENT_NAMES = re.compile('_.*|^ignored_|^unused_')
 PY3K = sys.version_info >= (3, 0)
+# In Python 3.7 abc has a Python implementation which is preferred
+# by astroid. Unfortunately this also messes up our explicit checks
+# for `abc`
+METACLASS_NAME_TRANSFORMS = {
+    '_py_abc': 'abc',
+}
 
 
 def _is_from_future_import(stmt, name):
@@ -1539,6 +1545,7 @@ class VariablesChecker3k(VariablesChecker):
             name = metaclass.root().name
 
         found = None
+        name = METACLASS_NAME_TRANSFORMS.get(name, name)
         if name:
             # check enclosing scopes starting from most local
             for scope_locals, _, _ in self._to_consume[::-1]:

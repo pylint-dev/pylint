@@ -12,6 +12,10 @@ Release date: |TBA|
 
       Close #2323
 
+   * Correctly handle the new name of the Python implementation of the `abc` module.
+
+     Close PyCQA/astroid#2288
+
     * Modules with `__getattr__` are exempted by default from `no-member`
 
       There's no easy way to figure out if a module has a particular member when
