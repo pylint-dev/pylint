@@ -25,11 +25,11 @@ from os.path import join
 
 modname = distname = 'pylint'
 
-numversion = (2, 0, 0)
+numversion = (2, 0, 1)
 version = '.'.join(str(num) for num in numversion)
 
 install_requires = [
-    'astroid>=2.0.0',
+    'astroid>=2.0.1',
     'isort >= 4.2.5',
     'mccabe',
 ]
