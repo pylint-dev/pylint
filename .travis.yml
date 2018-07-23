@@ -13,6 +13,8 @@ jobs:
       env: TOXENV=pylint
     - python: 3.5
       env: TOXENV=docs
+    - python: 3.5
+      env: TOXENV=mypy
     - stage: tests-cpython
       python: 3.4
       env: TOXENV=py34
