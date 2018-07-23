@@ -9,7 +9,7 @@ toto.yo()
 from xml.etree import ElementTree
 ElementTree.nonexistant_function()  # [no-member]
 ElementTree.another.nonexistant.function()  # [no-member]
-print(collections.yo)  # [no-member]
+
 
 import sys
 print(sys.stdout, 'hello world')
