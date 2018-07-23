@@ -349,6 +349,12 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
             return False
         if not all(map(has_known_bases, owner.type.mro())):
             return False
+    if isinstance(owner, astroid.Module):
+        try:
+            owner.getattr('__getattr__')
+            return False
+        except astroid.NotFoundError:
+            pass
     if node.attrname.startswith('_' + owner_name):
         # Test if an attribute has been mangled ('private' attribute)
         unmangled_name = node.attrname.split('_' + owner_name)[-1]
