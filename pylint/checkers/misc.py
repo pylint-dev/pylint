@@ -98,17 +98,6 @@ class EncodingChecker(BaseChecker):
                                     commented lines exist at the end of the module)
         :type module_last_lineno: int
         """
-        # First, simply check if the notes are in the line at all. This is an
-        # optimisation to prevent using the regular expression on every line,
-        # but rather only on lines which may actually contain one of the notes.
-        # This prevents a pathological problem with lines that are hundreds
-        # of thousands of characters long.
-        for note in map(str.lower, self.config.notes):
-            if note in line.lower():
-                break
-        else:
-            return
-
         match = notes.search(line)
         if not match:
             return
