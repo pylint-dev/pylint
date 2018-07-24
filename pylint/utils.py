@@ -397,7 +397,8 @@ class MessagesHandlerMixIn:
             # This happens for example with a commented line at the end of a module.
             max_line_number = self.file_state.get_effective_max_line_number()
             if (max_line_number and line > max_line_number):
-                return msgid not in self.file_state._raw_module_msgs_state
+                fallback = msgid not in self.file_state._raw_module_msgs_state
+                return self._msgs_state.get(msgid, fallback)
             return self._msgs_state.get(msgid, True)
 
     def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
