@@ -16,6 +16,10 @@ Release date: |TBA|
 
       Close #2030
 
+   * Can specify a default docstring type for when the check cannot guess the type
+
+      Close #1169
+
 
 What's New in Pylint 1.9.3?
 ===========================
