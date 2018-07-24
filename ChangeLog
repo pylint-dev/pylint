@@ -5,7 +5,7 @@ Pylint's ChangeLog
 What's New in Pylint 1.9.3?
 ===========================
 
-Release date: |TBA|
+Release date: 2018-07-24
 
    * `chain.from_iterable` no longer emits `dict-{}-not-iterating` when dealing with dict values and keys
 
