@@ -5,8 +5,9 @@ Pylint's ChangeLog
 What's New in Pylint 1.9.3?
 ===========================
 
-
 Release date: |TBA|
+
+   * `chain.from_iterable` no longer emits `dict-{}-not-iterating` when dealing with dict values and keys
 
     * Fix incorrect file path when file absolute path contains multiple ``path_strip_prefix`` strings.
 
