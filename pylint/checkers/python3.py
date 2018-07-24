@@ -85,6 +85,9 @@ _BUILTIN_METHOD_ACCEPTS_ITERATOR = {
     'builtins.list.extend',
     'builtins.dict.update',
     'builtins.set.update',
+    '__builtin__.list.extend',
+    '__builtin__.dict.update',
+    '__builtin__.set.update',
 }
 DICT_METHODS = {'items', 'keys', 'values'}
 
