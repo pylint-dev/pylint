@@ -149,14 +149,15 @@ def possible_exc_types(node):
         return set()
 
 
-def docstringify(docstring):
+def docstringify(docstring, default_type='default'):
     for docstring_type in [SphinxDocstring, EpytextDocstring,
                            GoogleDocstring, NumpyDocstring]:
         instance = docstring_type(docstring)
         if instance.is_valid():
             return instance
 
-    return Docstring(docstring)
+    docstring_type = DOCSTRING_TYPES.get(default_type, Docstring)
+    return docstring_type(docstring)
 
 
 class Docstring:
@@ -721,3 +722,16 @@ class NumpyDocstring(GoogleDocstring):
     @staticmethod
     def _is_section_header(line):
         return bool(re.match(r'\s*-+$', line))
+
+
+DOCSTRING_TYPES = {
+    'sphinx': SphinxDocstring,
+    'epytext': EpytextDocstring,
+    'google': GoogleDocstring,
+    'numpy': NumpyDocstring,
+    'default': Docstring,
+}
+"""A map of the name of the docstring type to its class.
+
+:type: dict(str, type)
+"""
