@@ -4,7 +4,7 @@
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
 # Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2017-2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2017 Hugo <hugovk@users.noreply.github.com>
 # Copyright (c) 2017 Łukasz Sznuk <ls@rdprojekt.pl>
@@ -14,7 +14,6 @@
 # Copyright (c) 2018 Konstantin <Github@pheanex.de>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Matej Marušák <marusak.matej@gmail.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
 # Copyright (c) 2018 Mr. Senko <atodorov@mrsenko.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

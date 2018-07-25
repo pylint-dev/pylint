@@ -32,7 +32,6 @@
 # Copyright (c) 2018 Randall Leeds <randall@bleeds.info>
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018 Jason Owen <jason.a.owen@gmail.com>

@@ -7,7 +7,7 @@
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

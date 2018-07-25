@@ -9,7 +9,7 @@
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Mark Miller <725mrm@gmail.com>
 # Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Jakub Wilk <jwilk@jwilk.net>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

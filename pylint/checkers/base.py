@@ -30,7 +30,7 @@
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Chris Lamb <chris@chris-lamb.co.uk>
 # Copyright (c) 2018 glmdgrielson <32415403+glmdgrielson@users.noreply.github.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

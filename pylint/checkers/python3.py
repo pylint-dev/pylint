@@ -11,14 +11,13 @@
 # Copyright (c) 2016 Roy Williams <rwilliams@lyft.com>
 # Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Erik <erik.eriksson@yahoo.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2017-2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 ahirnish <ahirnish@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
 # Copyright (c) 2018 gaurikholkar <f2013002@goa.bits-pilani.ac.in>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

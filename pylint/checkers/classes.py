@@ -21,7 +21,7 @@
 # Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018 Ben Green <benhgreen@icloud.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
