@@ -10,6 +10,7 @@
 # Copyright (c) 2016 glegoux <gilles.legoux@gmail.com>
 # Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -97,17 +98,6 @@ class EncodingChecker(BaseChecker):
                                     commented lines exist at the end of the module)
         :type module_last_lineno: int
         """
-        # First, simply check if the notes are in the line at all. This is an
-        # optimisation to prevent using the regular expression on every line,
-        # but rather only on lines which may actually contain one of the notes.
-        # This prevents a pathological problem with lines that are hundreds
-        # of thousands of characters long.
-        for note in map(str.lower, self.config.notes):
-            if note in line.lower():
-                break
-        else:
-            return
-
         match = notes.search(line)
         if not match:
             return
@@ -152,7 +142,7 @@ class EncodingChecker(BaseChecker):
         """
         if self.config.notes:
             notes = re.compile(
-                r'.*?#\s*(%s)(:*\s*.*)' % "|".join(self.config.notes), re.I)
+                r'#\s*(%s)\b' % "|".join(map(re.escape, self.config.notes)), re.I)
         else:
             notes = None
         if module.file_encoding:

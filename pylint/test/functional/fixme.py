@@ -21,3 +21,4 @@ def function():
     #FIXME: in fact nothing to fix #pylint: disable=fixme
     #TODO: in fact nothing to do #pylint: disable=fixme
     #TODO: in fact nothing to do #pylint: disable=line-too-long, fixme
+    # Todoist API mentioned should not result in a message.
