@@ -56,6 +56,13 @@
    ],
    "name": "Ashley Whetter",
    "authoritative_mail": "ashley@awhetter.co.uk"
+  },
+  {
+    "mails": [
+      "ville.skytta@iki.fi",
+      "ville.skytta@upcloud.com"
+    ],
+    "authoritative_mail": "ville.skytta@iki.fi",
+    "name": "Ville Skyttä"
   }
-
 ]
