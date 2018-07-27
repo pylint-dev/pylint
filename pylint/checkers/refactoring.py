@@ -808,10 +808,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return condition, true_value, false_value
 
     def visit_functiondef(self, node):
-        self._return_nodes[node.name] = []
-        return_nodes = node.nodes_of_class(astroid.Return)
-        self._return_nodes[node.name] = [_rnode for _rnode in return_nodes
-                                         if _rnode.frame() == node.frame()]
+        self._return_nodes[node.name] = list(
+            node.nodes_of_class(astroid.Return, skip_klass=astroid.FunctionDef))
 
     def _check_consistent_returns(self, node):
         """Check that all return statements inside a function are consistent.
