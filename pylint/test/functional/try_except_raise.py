@@ -1,4 +1,4 @@
-# pylint:disable=missing-docstring, unreachable
+# pylint:disable=missing-docstring, unreachable, bad-except-order, bare-except
 
 try:
     int("9a")
@@ -41,3 +41,35 @@ def ccc():
         raise
     except AAAException:
         raise BBBException("raised from AAAException")
+
+
+def ddd():
+    """try-except-raise test function"""
+
+    try:
+        raise BBBException("asdf")
+    except AAAException:
+        raise BBBException("raised from AAAException")
+    except:  # [try-except-raise]
+        raise
+
+try:
+    pass
+except RuntimeError:
+    raise
+except:
+    print("a failure")
+
+try:
+    pass
+except:
+    print("a failure")
+except RuntimeError:  # [try-except-raise]
+    raise
+
+try:
+    pass
+except:  # [try-except-raise]
+    raise
+except RuntimeError:
+    print("a failure")
