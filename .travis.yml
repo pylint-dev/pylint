@@ -38,6 +38,7 @@ install:
   - pip --version
   - tox --version
   - coverage --version
+  - tox -e docs
 script:
     # Test install with current version of setuptools
   - pip install .
