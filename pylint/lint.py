@@ -367,19 +367,21 @@ class PyLinter(utils.MessagesHandlerMixIn,
           ', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS),)}),
 
     ('enable',
-     {'type' : 'csv', 'metavar': '<msg ids>',
-      'short': 'e',
+     {'type' : '_msg_on', 'metavar': '<msg ids>',
+      'dest': 'msg_toggles', 'action': 'append',
+      'short': 'e', 'default': [],
       'group': 'Messages control',
       'help' : 'Enable the message, report, category or checker with the '
-      'given id(s). You can either give multiple identifier '
-      'separated by comma (,) or put this option multiple time '
+      'given id(s). You can either give multiple identifiers '
+      'separated by comma (,) or put this option multiple times '
       '(only on the command line, not in the configuration file '
       'where it should appear only once). '
       'See also the "--disable" option for examples. '}),
 
     ('disable',
-     {'type' : 'csv', 'metavar': '<msg ids>',
-      'short': 'd',
+     {'type' : '_msg_off', 'metavar': '<msg ids>',
+      'dest': 'msg_toggles', 'action': 'append',
+      'short': 'd', 'default': [],
       'group': 'Messages control',
       'help' : 'Disable the message, report, category or checker '
       'with the given id(s). You can either give multiple identifiers'
@@ -493,10 +495,6 @@ class PyLinter(utils.MessagesHandlerMixIn,
 
         :raises ValueError: If `scope` is anything other than "module".
         """
-        if scope != 'module':
-            msg = 'Messages can be configured on only a module level'
-            raise ValueError(msg)
-
         self._set_msg_status(
             msgid,
             enable=False,
@@ -525,13 +523,7 @@ class PyLinter(utils.MessagesHandlerMixIn,
             given ID cannot be found.
             If this is True, the exception is not raised.
         :param ignore_unknown: bool
-
-        :raises ValueError: If `scope` is anything other than "module".
         """
-        if scope != 'module':
-            msg = 'Messages can be configured on only a module level'
-            raise ValueError(msg)
-
         self._set_msg_status(
             msgid,
             enable=True,
@@ -913,10 +905,6 @@ class PluginRegistry(utils.MessagesHandlerMixIn, ReportRegistry):
 
         :raises ValueError: If `scope` is anything other than "package".
         """
-        if scope != 'package':
-            msg = 'Messages can be configured on only a package level'
-            raise ValueError(msg)
-
         self._set_msg_status(
             msgid,
             enable=False,
@@ -949,10 +937,6 @@ class PluginRegistry(utils.MessagesHandlerMixIn, ReportRegistry):
 
         :raises ValueError: If `scope` is anything other than "package".
         """
-        if scope != 'package':
-            msg = 'Messages can be configured on only a package level'
-            raise ValueError(msg)
-
         self._set_msg_status(
             msgid,
             enable=True,
@@ -1129,9 +1113,6 @@ group are mutually exclusive.'),
             'init_hook',
             'rcfile',
             'load_plugins',
-            'ignore',
-            'ignore_patterns',
-            'version',
         )
 
         # Call init-hook
@@ -1143,7 +1124,14 @@ group are mutually exclusive.'),
         file_parser.add_option_definitions(PyLinter.options)
         rcfile = parsed.rcfile or config.PYLINTRC
         if rcfile:
-            file_parser.parse(rcfile, self._global_config)
+            file_parsed = file_parser.preprocess(
+                rcfile, 'init_hook', 'load_plugins',
+            )
+            if file_parsed.init_hook:
+                exec(file_parsed.init_hook)
+            if file_parsed.load_plugins:
+                old_value = getattr(parsed, 'load_plugins', [])
+                parsed.load_plugins = old_value + file_parsed.load_plugins
 
         def register_options(options):
             self._global_config.add_options(options)
@@ -1224,7 +1212,7 @@ group are mutually exclusive.'),
         with fix_import_path(self._global_config.module_or_package):
             assert self._global_config.jobs == 1
             base_name, status_code = self.check(
-                self._global_config.module_or_package, self.prepare_checkers(),
+                self._global_config.module_or_package,
             )
 
             self.generate_reports(base_name)
@@ -1385,13 +1373,13 @@ group are mutually exclusive.'),
             c for c in self._plugin_registry.for_all_checkers()
         ]
 
-    def prepare_checkers(self):
+    def prepare_checkers(self, linter):
         """return checkers needed for activated messages and reports"""
         # get needed checkers
         neededcheckers = []
         for checker in self.get_checkers()[1:]:
             messages = set(msg for msg in checker.msgs
-                           if self._plugin_registry.is_message_enabled(msg))
+                           if linter.is_message_enabled(msg))
             if (messages or
                     any(self._plugin_registry.report_is_enabled(r[0]) for r in checker.reports)):
                 neededcheckers.append(checker)
@@ -1433,7 +1421,7 @@ group are mutually exclusive.'),
             self._global_config.extension_pkg_whitelist
         )
 
-    def check(self, files_or_modules, checkers_):
+    def check(self, files_or_modules):
         """main checking entry: check a list of files or modules from their
         name.
         """
@@ -1453,15 +1441,26 @@ group are mutually exclusive.'),
             self._global_config.black_list_re
         )
         for module_desc in expanded_files:
+            modname = module_desc.name
+            filepath = module_desc.path
+            if not module_desc.isarg and not self.should_analyze_file(modname, filepath):
+                continue
+
             linter = PyLinter(self._global_config)
             linter.msgs_store = self._plugin_registry.msgs_store
+            for msg_ids, enable in self._global_config.msg_toggles:
+                for msg_id in msg_ids:
+                    if enable:
+                        linter.enable(msg_id, scope='directory')
+                    else:
+                        linter.disable(msg_id, scope='directory')
             linter.open()
 
             walker = utils.PyLintASTWalker(self._plugin_registry)
             allcheckers = []
             tokencheckers = [linter]
             rawcheckers = []
-            for checker_cls in checkers_:
+            for checker_cls in self.prepare_checkers(linter):
                 checker = checker_cls(linter)
                 checker.linter = linter
                 checker.open()
@@ -1472,11 +1471,6 @@ group are mutually exclusive.'),
                     rawcheckers.append(checker)
                 if interfaces.implements(checker, interfaces.IAstroidChecker):
                     walker.add_checker(checker)
-
-            modname = module_desc.name
-            filepath = module_desc.path
-            if not module_desc.isarg and not self.should_analyze_file(modname, filepath):
-                continue
 
             linter.reporter = self._reporter
             linter.check(module_desc, walker, rawcheckers, tokencheckers)

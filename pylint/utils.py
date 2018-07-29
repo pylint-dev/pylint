@@ -297,7 +297,8 @@ class MessagesHandlerMixIn:
         self._register_by_id_managed_msg(msgid, line, is_disabled=False)
 
     def _set_msg_status(self, msgid, enable, scope='package', line=None, ignore_unknown=False):
-        assert scope in ('package', 'module')
+        # "package" is poorly named. Really it should be "global".
+        assert scope in ('package', 'module', 'directory')
 
         if msgid == 'all':
             for _msgid in MSG_TYPES:
@@ -344,11 +345,12 @@ class MessagesHandlerMixIn:
         else:
             msgs = self._msgs_state
             msgs[msg.msgid] = enable
-            # sync configuration object
-            self.config.enable = [self._message_symbol(mid) for mid, val
-                                  in sorted(msgs.items()) if val]
-            self.config.disable = [self._message_symbol(mid) for mid, val
-                                   in sorted(msgs.items()) if not val]
+            if scope != 'directory':
+                # sync configuration object
+                self.config.enable = [self._message_symbol(mid) for mid, val
+                                    in sorted(msgs.items()) if val]
+                self.config.disable = [self._message_symbol(mid) for mid, val
+                                    in sorted(msgs.items()) if not val]
 
     def _message_symbol(self, msgid):
         """Get the message symbol of the given message id

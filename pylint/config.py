@@ -38,6 +38,7 @@ from __future__ import print_function
 import abc
 import argparse
 import collections
+import copy
 import os
 import pickle
 import re
@@ -224,6 +225,8 @@ VALIDATORS = {
     'csv': utils._check_csv,
     'yn': _yn_validator,
     'non_empty_string': _non_empty_string_validator,
+    '_msg_on': (lambda value: (utils._check_csv(value), True)),
+    '_msg_off': (lambda value: (utils._check_csv(value), False)),
 }
 
 
@@ -235,6 +238,8 @@ UNVALIDATORS = {
     'csv': (lambda value: ','.join(value)),
     'yn': (lambda value: 'y' if value else 'n'),
     'non_empty_string': str,
+    '_msg_on': (lambda value: ','.join(y for y in x[0] for x in value)),
+    '_msg_off': (lambda value: ','.join(y for y in x[0] for x in value)),
 }
 
 
@@ -263,7 +268,13 @@ class Configuration(object):
 
     def set_option(self, option, value):
         option = option.replace('-', '_')
-        setattr(self, option, value)
+        definition = self._option_definitions.get(option, {})
+        dest = definition.get('dest', option)
+        if definition.get('action') == 'append':
+            new_value = getattr(self, dest, [])
+            new_value.append(value)
+            value = new_value
+        setattr(self, dest, value)
 
     def copy(self):
         result = self.__class__()
@@ -592,12 +603,33 @@ class IniFileParser(FileParser):
                 section = section.upper()
 
             for option, value in self._parser.items(section):
+                definition = self._option_definitions.get(option, {})
                 if isinstance(value, str):
-                    definition = self._option_definitions.get(option, {})
                     type_ = definition.get('type')
                     validator = VALIDATORS.get(type_, lambda x: x)
                     value = validator(value)
                 config.set_option(option, value)
+
+    def preprocess(self, to_parse, *options):
+        """Do some guess work to get a value for the specified option.
+
+        :param to_parse: The path to the file to parse.
+        :type to_parse: str
+        :param options: The names of the options to look for.
+        :type options: str
+
+        :returns: A config with the processed options.
+        :rtype: Configuration
+        """
+        config = Configuration()
+        config.add_options(self._option_definitions.items())
+
+        pre_config = Configuration()
+        self.parse(to_parse, pre_config)
+        for option in options:
+            setattr(config, option, getattr(pre_config, option, None))
+
+        return config
 
     def write(self, stream=sys.stdout):
         # TODO: Check if option descriptions are written out
