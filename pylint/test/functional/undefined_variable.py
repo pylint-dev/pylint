@@ -198,3 +198,37 @@ def dec(inp):
         print(inp)
         return func
     return inner
+
+# Make sure lambdas with expressions
+# referencing parent class do not raise undefined variable
+# because at the time of their calling, the class name will
+# be populated
+# See https://github.com/PyCQA/pylint/issues/704
+class LambdaClass:
+    myattr = 1
+    mylambda = lambda: LambdaClass.myattr
+
+# Need different classes to make sure
+# consumed variables don't get in the way
+class LambdaClass2:
+    myattr = 1
+    # Different base_scope scope but still applies
+    mylambda2 = lambda: [LambdaClass2.myattr for _ in [1, 2]]
+
+class LambdaClass3:
+    myattr = 1
+    # Nested default argument in lambda
+    # Should not raise error
+    mylambda3 = lambda: lambda a=LambdaClass3: a
+
+class LambdaClass4:
+    myattr = 1
+    mylambda4 = lambda a=LambdaClass4: lambda: a # [undefined-variable]
+
+# Make sure the first lambda does not consume the LambdaClass5 class
+# name although the expression is is valid
+# Consuming the class would cause the subsequent undefined-variable to be masked
+class LambdaClass5:
+    myattr = 1
+    mylambda = lambda: LambdaClass5.myattr
+    mylambda4 = lambda a=LambdaClass5: lambda: a # [undefined-variable]
