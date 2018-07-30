@@ -21,10 +21,11 @@ Pylint is integrated in:
 
  - `Visual Studio`_, see the `Python > Run PyLint` command on a project's context menu.
  - Eric_ IDE, see the `Project > Check` menu,
- - Spyder_, see http://packages.python.org/spyder/pylint.html,
+ - Spyder_, see the `View -> Panes -> Static code analysis` pane and
+   its `corresponding documentation <https://docs.spyder-ide.org/pylint.html>`_.
  - pyscripter_, see the `Tool -> Tools` menu.
  - `Visual Studio Code`_, see the `Preferences -> Settings` menu.
- 
+
 .. _Emacs: http://www.gnu.org/software/emacs/
 .. _Vim: http://www.vim.org/
 .. _Visual Studio: https://www.visualstudio.com/
@@ -35,7 +36,7 @@ Pylint is integrated in:
 .. _Komodo: http://www.activestate.com/Products/Komodo/
 .. _gedit: https://wiki.gnome.org/Apps/Gedit
 .. _WingIDE: http://www.wingware.com/
-.. _spyder: http://code.google.com/p/spyderlib/
+.. _spyder: https://www.spyder-ide.org/
 .. _PyCharm: http://www.jetbrains.com/pycharm/
 .. _TextMate: http://macromates.com
 .. _Visual Studio Code: https://code.visualstudio.com/
