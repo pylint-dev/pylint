@@ -60,6 +60,7 @@
 """
 from __future__ import print_function
 
+import argparse
 import collections
 import contextlib
 import operator
@@ -986,6 +987,10 @@ class Runner(object):
 
 class CLIRunner(Runner):
     option_definitions = (
+        ('module_or_package',
+         {'positional': True,
+          'nargs': argparse.REMAINDER}),
+
         ('rcfile',
          {'type': 'string', 'metavar': '<file>',
           'help' : 'Specify a configuration file.'}),
@@ -1071,6 +1076,7 @@ group are mutually exclusive.'),
         self._plugin_registry = PluginRegistry(self._global_config)
         self._loaded_plugins = set()
         self._reporter = None
+        self._config_parsers = []
 
     def run(self, args):
         # Phase 1: Preprocessing
@@ -1138,6 +1144,8 @@ group are mutually exclusive.'),
             parser.add_option_definitions(options)
             file_parser.add_option_definitions(options)
         self._plugin_registry.register_options = register_options
+        self._file_parser = file_parser
+        self._cli_parser = parser
 
         checkers.initialize(self._plugin_registry)
 
@@ -1157,7 +1165,9 @@ group are mutually exclusive.'),
         if rcfile:
             file_parser.parse(rcfile, self._global_config)
         # Fully load CLI into global config
-        parser.parse(args, self._global_config)
+        self._cli_config = config.Configuration()
+        parser.parse(args, self._cli_config)
+        self._global_config += self._cli_config
 
         if self._global_config.generate_rcfile:
             file_parser.write()
@@ -1286,8 +1296,7 @@ group are mutually exclusive.'),
             # XXX code below needs refactoring to be more reporter agnostic
             self._reporter.on_close(self._plugin_registry.stats, previous_stats)
             if self._global_config.reports:
-                # TODO: The Runner should make reports, not the registry.
-                sect = self._plugin_registry.make_reports(self._plugin_registry.stats, previous_stats)
+                sect = self.make_reports(self._plugin_registry.stats, previous_stats)
             else:
                 sect = report_nodes.Section()
 
@@ -1440,15 +1449,33 @@ group are mutually exclusive.'),
             self._global_config.black_list,
             self._global_config.black_list_re
         )
+        config_store = config.ConfigurationStore()
+        for module_desc in expanded_files:
+            directory = os.path.dirname(module_desc.path)
+
+            local_config = config_store[directory]
+            if not local_config:
+                local_file = config.find_nearby_pylintrc(directory)
+                if not local_file:
+                    local_config = self._global_config
+                else:
+                    local_config = self._global_config.copy()
+                    self._file_parser.parse(local_file, local_config)
+                    local_config += self._cli_config
+
+            config_store[directory] = local_config
+
         for module_desc in expanded_files:
             modname = module_desc.name
             filepath = module_desc.path
             if not module_desc.isarg and not self.should_analyze_file(modname, filepath):
                 continue
 
-            linter = PyLinter(self._global_config)
+            directory = os.path.dirname(module_desc.path)
+            local_config = config_store.get_config_for(directory)
+            linter = PyLinter(local_config)
             linter.msgs_store = self._plugin_registry.msgs_store
-            for msg_ids, enable in self._global_config.msg_toggles:
+            for msg_ids, enable in local_config.msg_toggles:
                 for msg_id in msg_ids:
                     if enable:
                         linter.enable(msg_id, scope='directory')

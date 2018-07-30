@@ -281,8 +281,9 @@ class Configuration(object):
         result.add_options(self._option_definitions.items())
 
         for option in self._option_definitions:
-            value = getattr(self, option)
-            setattr(result, option, value)
+            if hasattr(self, option):
+                value = getattr(self, option)
+                setattr(result, option, value)
 
         return result
 
@@ -294,25 +295,24 @@ class Configuration(object):
     def __iadd__(self, other):
         self._option_definitions.update(other._option_definitions)
 
-        for option in other._option_definitions:
+        copied = set()
+        for option, definition in self._option_definitions.items():
             option = option.replace('-', '_')
-            value = getattr(other, option)
-            setattr(self, option, value)
+            dest = definition.get('dest', option)
+            if dest not in copied and hasattr(other, dest):
+                value = getattr(other, dest)
+                if definition.get('action') == 'append':
+                    value = getattr(self, dest, []) + value
+                setattr(self, dest, value)
+            copied.add(dest)
 
         return self
 
 
 class ConfigurationStore(object):
-    def __init__(self, global_config):
-        """A class to store configuration objects for many paths.
-
-        :param global_config: The global configuration object.
-        :type global_config: Configuration
-        """
-        self.global_config = global_config
-
+    def __init__(self):
+        """A class to store configuration objects for many paths."""
         self._store = {}
-        self._cache = {}
 
     def add_config_for(self, path, config):
         """Add a configuration object to the store.
@@ -326,54 +326,20 @@ class ConfigurationStore(object):
         path = os.path.abspath(path)
 
         self._store[path] = config
-        self._cache = {}
-
-    def _get_parent_configs(self, path):
-        """Get the config objects for all parent directories.
-
-        :param path: The absolute path to get the parent configs for.
-        :type path: str
-
-        :returns: The config objects for all parent directories.
-        :rtype: generator(Configuration)
-        """
-        for cfg_dir in utils.walk_up(path):
-            if cfg_dir in self._cache:
-                yield self._cache[cfg_dir]
-                break
-            elif cfg_dir in self._store:
-                yield self._store[cfg_dir]
 
     def get_config_for(self, path):
         """Get the configuration object for a file or directory.
-        This will merge the global config with all of the config objects from
-        the root directory to the given path.
 
         :param path: The file or directory to the get configuration object for.
         :type path: str
 
         :returns: The configuration object for the given file or directory.
-        :rtype: Configuration
+        :rtype: Configuration or None
         """
-        # TODO: Until we turn on local pylintrc searching,
-        # this is always going to be the global config
-        return self.global_config
-
         path = os.path.expanduser(path)
         path = os.path.abspath(path)
 
-        config = self._cache.get(path)
-
-        if not config:
-            config = self.global_config.copy()
-
-            parent_configs = self._get_parent_configs(path)
-            for parent_config in reversed(list(parent_configs)):
-                config += parent_config
-
-            self._cache['path'] = config
-
-        return config
+        return self._store.get(path)
 
     def __getitem__(self, path):
         return self.get_config_for(path)
@@ -421,8 +387,6 @@ class CLIParser(ConfigParser):
             # Only set the arguments that are specified.
             argument_default=argparse.SUPPRESS
         )
-        # TODO: Let this be definable elsewhere
-        self._parser.add_argument('module_or_package', nargs=argparse.REMAINDER)
 
     def add_option_definitions(self, option_definitions):
         self._option_definitions.update(option_definitions)
@@ -463,7 +427,10 @@ class CLIParser(ConfigParser):
         if 'short' in definition:
             args.append('-{0}'.format(definition['short']))
 
-        args.append('--{0}'.format(option))
+        if definition.get('positional', False):
+            args.append(option)
+        else:
+            args.append('--{0}'.format(option))
 
         copy_keys = (
             'action', 'default', 'dest', 'help', 'metavar', 'level', 'version')
