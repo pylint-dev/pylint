@@ -40,7 +40,7 @@ New checkers
 * A new check was added, ``keyword-arg-before-vararg``.
 
   This warning message is emitted when a function is defined with a keyword
-  argument appearing before variable-length positional arguments (*args).
+  argument appearing before variable-length positional arguments (\*args).
   This may lead to args list getting modified if keyword argument's value is
   not provided in the function call assuming it will take default value provided
   in the definition.
