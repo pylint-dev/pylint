@@ -59,3 +59,9 @@ def test_not_redefined_in_except_handler(name):
 def test_not_redefined(name):
     if not name:
         name = ''
+
+
+def apply_filter(objects, filt=lambda obj: True):
+    for obj in objects:
+        if filt(obj):
+            yield obj

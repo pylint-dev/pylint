@@ -344,7 +344,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not isinstance(scope, astroid.FunctionDef):
             return
 
-        for defined_argument in scope.args.nodes_of_class(astroid.AssignName):
+        for defined_argument in scope.args.nodes_of_class(astroid.AssignName,
+                                                          skip_klass=(astroid.Lambda, )):
             if defined_argument.name == name_node.name:
                 self.add_message('redefined-argument-from-local',
                                  node=name_node,
