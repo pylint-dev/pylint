@@ -238,7 +238,8 @@ class MessageDefinition:
         desc = _normalize_text(' '.join(desc.split()), indent='  ')
         if title != '%s':
             title = title.splitlines()[0]
-            return ':%s: *%s*\n%s' % (msgid, title, desc)
+
+            return ':%s: *%s*\n%s' % (msgid, title.rstrip(" "), desc)
         return ':%s:\n%s' % (msgid, desc)
 
 
