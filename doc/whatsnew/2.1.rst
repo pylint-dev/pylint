@@ -3,7 +3,7 @@
 **************************
 
 :Release: 2.1
-:Date: |TBA|
+:Date: TBA
 
 Summary -- Release highlights
 =============================

@@ -5,7 +5,7 @@ Pylint's ChangeLog
 What's New in Pylint 2.1?
 =========================
 
-Release date: |TBA|
+Release date: TBA
 
    * `trailing-comma-tuple` gets emitted for ``yield`` statements as well.
 
@@ -167,7 +167,7 @@ Release date: 2018-07-15
 
        Close #1984
 
-    * Make `len-as-condition` test more cases, such as `len() < 1` or `len <= 0'
+    * Make ``len-as-condition`` test more cases, such as ``len() < 1`` or ``len <= 0``
 
     * Fix false-positive ``line-too-long`` message emission for
       commented line at the end of a module
@@ -463,7 +463,7 @@ Release date: 2018-07-15
       Close #760
 
     * Fix false-positive ``bad-whitespace`` message for typing annoatations
-    with ellipses in them
+      with ellipses in them
 
       Close 1992
 
@@ -506,7 +506,7 @@ Release date: 2018-05-15
 
 
 What's New in Pylint 1.8.1?
-=========================
+===========================
 
 Release date: 2017-12-15
 
@@ -557,7 +557,7 @@ Release date: 2017-12-15
 
       This is emitted for function definitions
       in which keyword arguments are placed before variable
-      positional arguments (*args).
+      positional arguments (\*args).
 
       This may lead to args list getting modified if keyword argument's value
       is not provided in the function call assuming it will take default value
@@ -667,7 +667,7 @@ Release date: 2017-12-15
       Close #1409
 
      * Fix ``missing-docstring`` false negatives when modules, classes, or methods
-     consist of compound statements that exceed the ``docstring-min-length``
+       consist of compound statements that exceed the ``docstring-min-length``
 
     * Fix ``useless-else-on-loop`` false positives when break statements are
       deeply nested inside loop.
@@ -698,7 +698,7 @@ Release date: 2017-12-15
       Close #1742
 
 What's New in Pylint 1.7.1?
-=========================
+===========================
 
 Release date: 2017-04-17
 
@@ -848,7 +848,7 @@ Release date: 2017-04-13
     * Fix a false positive for keyword variadics with regard to keyword only arguments.
 
       If a keyword only argument was necessary for a function, but that function was called
-      with keyword variadics (**kwargs), then we were emitting a missing-kwoa false positive,
+      with keyword variadics (\**kwargs), then we were emitting a missing-kwoa false positive,
       which is now fixed.
 
       Close #934.
