@@ -360,18 +360,28 @@ class ExceptionsChecker(checkers.BaseChecker):
     def _check_try_except_raise(self, node):
         bare_raise = False
         handler_having_bare_raise = None
+        handler_type_having_bare_raise = None
         for handler in node.handlers:
             if bare_raise:
                 # check that subsequent handler is not parent of handler which had bare raise.
-                if utils.is_subclass_of(utils.safe_infer(handler_having_bare_raise.type),
-                                        utils.safe_infer(handler.type)):
+                # since utils.safe_infer can fail for bare except, check it before.
+                # also break early if bare except is followed by bare except.
+
+                if (not handler.type or
+                        handler_type_having_bare_raise and
+                        utils.is_subclass_of(handler_type_having_bare_raise,
+                                             utils.safe_infer(handler.type))):
                     bare_raise = False
+                    break
             # `raise` as the first operator inside the except handler
             if utils.is_raising([handler.body[0]]):
                 # flags when there is a bare raise
                 if handler.body[0].exc is None:
                     bare_raise = True
                     handler_having_bare_raise = handler
+                    if handler_having_bare_raise.type:
+                        handler_type_having_bare_raise = utils.safe_infer(
+                            handler_having_bare_raise.type)
 
         if bare_raise:
             self.add_message('try-except-raise', node=handler_having_bare_raise)
