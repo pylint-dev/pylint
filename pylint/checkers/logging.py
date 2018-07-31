@@ -52,12 +52,10 @@ MSGS = {
               'parameters as arguments',
               'logging-fstring-interpolation',
               'Used when a logging statement has a call form of '
-              '"logging.<logging method>(format_string.format(format_args...))"'
+              '"logging.method(f\"...\"))"'
               '. Such calls should use % formatting instead, but leave '
               'interpolation to the logging function by passing the parameters '
               'as arguments.'
-              'This message is emitted if f-string was used, and it can be '
-              'disabled if you like.'
               ),
     'E1200': ('Unsupported logging format character %r (%#02x) at index %d',
               'logging-unsupported-format',
