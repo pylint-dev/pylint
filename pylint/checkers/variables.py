@@ -1235,6 +1235,29 @@ class VariablesChecker(BaseChecker):
                                    isinstance(defframe, astroid.ClassDef) and
                                    node.name == defframe.name)
 
+                if (recursive_klass and
+                        utils.is_inside_lambda(node) and
+                        (not utils.is_default_argument(node)
+                         or node.scope().parent.scope() is not defframe)):
+                    # Self-referential class references are fine in lambda's --
+                    # As long as they are not part of the default argument directly
+                    # under the scope of the parent self-referring class.
+                    # Example of valid default argument:
+                    # class MyName3:
+                    #     myattr = 1
+                    #     mylambda3 = lambda: lambda a=MyName3: a
+                    # Example of invalid default argument:
+                    # class MyName4:
+                    #     myattr = 1
+                    #     mylambda4 = lambda a=MyName4: lambda: a
+
+                    # If the above conditional is True,
+                    # there is no possibility of undefined-variable
+                    # Also do not consume class name
+                    # (since consuming blocks subsequent checks)
+                    # -- quit
+                    break
+
                 maybee0601, annotation_return, use_outer_definition = self._is_variable_violation(
                     node, name, defnode, stmt, defstmt,
                     frame, defframe,

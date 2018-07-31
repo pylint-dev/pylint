@@ -36,6 +36,8 @@ Other Changes
   than 30 characters. The upper limit was removed completely.
 
 
+* Fix false-positive ``undefined-variable`` for self referential class name in lamdbas
+
 * ``no-else-return`` also specifies the type of the branch that is causing the error.
 
 * Fixed inconsistent behaviour for bad-continuation on first line of file.

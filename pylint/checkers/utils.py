@@ -126,6 +126,17 @@ def is_inside_except(node):
     return current and current is current.parent.name
 
 
+def is_inside_lambda(node):
+    # type: (astroid.NodeNG) -> bool
+    """Return true if given node is inside lambda"""
+    parent = node.parent
+    while parent is not None:
+        if isinstance(parent, astroid.Lambda):
+            return True
+        parent = parent.parent
+    return False
+
+
 def get_all_elements(node):
     """Recursively returns all atoms in nested lists and tuples."""
     if isinstance(node, (astroid.Tuple, astroid.List)):
