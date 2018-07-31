@@ -32,3 +32,7 @@ def some_func(first, second):
     if second:
         return (first, second,)
     return first, second,  # [trailing-comma-tuple]
+
+
+def some_other_func():
+    yield 'hello',  # [trailing-comma-tuple]

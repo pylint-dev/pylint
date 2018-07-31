@@ -1240,9 +1240,11 @@ def is_trailing_comma(tokens, index):
             if token.type in (tokenize.NEWLINE, tokenize.NL):
                 return index - subindex
         return 0
+
     curline_start = get_curline_index_start()
+    expected_tokens = {'return', 'yield'}
     for prevtoken in tokens[curline_start:index]:
-        if '=' in prevtoken.string or prevtoken.string == 'return':
+        if '=' in prevtoken.string or prevtoken.string in expected_tokens:
             return True
     return False
 

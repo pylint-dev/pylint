@@ -7,6 +7,10 @@ What's New in Pylint 2.1?
 
 Release date: |TBA|
 
+   * `trailing-comma-tuple` gets emitted for ``yield`` statements as well.
+
+      Close #2363
+
    * Get only the arguments of the scope function for `redefined-argument-from-local`
 
      Close #2364
