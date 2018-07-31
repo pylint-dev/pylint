@@ -237,3 +237,7 @@ intersphinx_mapping = {
     'astroid': ('http://astroid.readthedocs.io/en/latest/', None),
     'python': ('https://docs.python.org/3', None),
 }
+
+# Prevent label issues due to colliding section names
+# through including mulitple documents
+autosectionlabel_prefix_document = True

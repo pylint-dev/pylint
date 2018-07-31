@@ -4,6 +4,8 @@
  Contributing
 ==============
 
+.. _bug reports, feedback:
+
 Bug reports, feedback
 ---------------------
 
@@ -25,6 +27,8 @@ issue tracker, it may be because it is an issue with one of its dependencies, na
 astroid:
 
 * https://github.com/PyCQA/astroid
+
+.. _Mailing lists:
 
 Mailing lists
 -------------
