@@ -1111,7 +1111,7 @@ class BasicChecker(_BasicChecker):
             return
 
         expr = utils.safe_infer(call_node.func.expr)
-        if isinstance(expr, type(astroid.Uninferable)):
+        if expr is astroid.Uninferable:
             return
         if not expr:
             # we are doubtful on inferred type of node, so here just check if format

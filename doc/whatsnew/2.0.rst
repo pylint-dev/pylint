@@ -31,22 +31,12 @@ New checkers
   which is redundant as in Python 3, every class implicitly inherits from object.
 
   .. code-block:: python
+
     class A(object):
         pass
 
     class A:    # better
         pass
-
-* A new check was added, ``misplaced-format-function``.
-
-  This message is emitted when pylint detects that a format function is called on non str object.
-  This can occur due to wrong placement of closing bracket, e.g
-
-  .. code-block:: python
-    print('value: {}').format(123) # bad
-
-    print('value: {}'.format(123)) # good
-
 
 * A new check was added, ``comparison-with-callable``.
 
@@ -55,6 +45,7 @@ New checkers
   behaviour.
 
   .. code-block:: python
+
     def foo():
         return None
 
@@ -85,6 +76,7 @@ New checkers
   This refactoring message is emitted when an import alias does not rename the original package.
 
   .. code-block:: python
+
     import numpy as numpy # bad
     import numpy as np # good
     from collection import OrderedDict as OrderedDict # bad
