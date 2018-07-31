@@ -5,6 +5,8 @@ Current team:
 
 * Ashley Whetter: maintainer, contributor
 
+* Bryce Guinta: maintainer, contributor
+
 * Claudiu Popa: maintainer, contributor
 
 * Cara Vinson: astroid committer.
