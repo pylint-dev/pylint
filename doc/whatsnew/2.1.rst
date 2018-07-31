@@ -13,6 +13,18 @@ Summary -- Release highlights
 New checkers
 ============
 
+* A new check was added, ``misplaced-format-function``.
+
+  This message is emitted when pylint detects that a format function is called on non str object.
+  This can occur due to wrong placement of closing bracket, e.g
+
+  .. code-block:: python
+
+    print('value: {}').format(123) # bad
+
+    print('value: {}'.format(123)) # good
+
+
 Other Changes
 =============
 

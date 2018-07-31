@@ -828,6 +828,12 @@ class BasicChecker(_BasicChecker):
                   'Used when the first argument to reversed() builtin '
                   'isn\'t a sequence (does not implement __reversed__, '
                   'nor __getitem__ and __len__'),
+        'E0119': ('format function is not called on str',
+                  'misplaced-format-function',
+                  'Emitted when format function is not called on str object. '
+                  'e.g doing print("value: {}").format(123) instead of '
+                  'print("value: {}".format(123)). This might not be what the user '
+                  'intended to do.'),
     }
 
     reports = (('RP0101', 'Statistics by type', report_by_type_stats),)
@@ -1098,11 +1104,29 @@ class BasicChecker(_BasicChecker):
         """just print a warning on exec statements"""
         self.add_message('exec-used', node=node)
 
-    @utils.check_messages('eval-used', 'exec-used', 'bad-reversed-sequence')
+    def _check_misplaced_format_function(self, call_node):
+        if not isinstance(call_node.func, astroid.Attribute):
+            return
+        if call_node.func.attrname != 'format':
+            return
+
+        expr = utils.safe_infer(call_node.func.expr)
+        if expr is astroid.Uninferable:
+            return
+        if not expr:
+            # we are doubtful on inferred type of node, so here just check if format
+            # was called on print()
+            call_expr = call_node.func.expr
+            if isinstance(call_expr, astroid.Call) and call_expr.func.name == 'print':
+                self.add_message('misplaced-format-function', node=call_node)
+
+    @utils.check_messages('eval-used', 'exec-used', 'bad-reversed-sequence',
+                          'misplaced-format-function')
     def visit_call(self, node):
         """visit a Call node -> check if this is not a blacklisted builtin
         call and check for * or ** use
         """
+        self._check_misplaced_format_function(node)
         if isinstance(node.func, astroid.Name):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
