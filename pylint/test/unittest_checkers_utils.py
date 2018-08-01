@@ -100,5 +100,5 @@ def test_node_ignores_exception():
     """)
     assert utils.node_ignores_exception(nodes[0], ZeroDivisionError)
     assert not utils.node_ignores_exception(nodes[1], ZeroDivisionError)
-    assert not utils.node_ignores_exception(nodes[2], ZeroDivisionError)
+    assert utils.node_ignores_exception(nodes[2], ZeroDivisionError)
     assert not utils.node_ignores_exception(nodes[3], ZeroDivisionError)

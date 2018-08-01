@@ -473,6 +473,7 @@ def inherit_from_std_ex(node):
     return any(inherit_from_std_ex(parent)
                for parent in node.ancestors(recurs=True))
 
+
 def error_of_type(handler, error_type):
     """
     Check if the given exception handler catches
@@ -493,9 +494,7 @@ def error_of_type(handler, error_type):
         error_type = (error_type, )
     expected_errors = {stringify_error(error) for error in error_type}
     if not handler.type:
-        # bare except. While this indeed catches anything, if the desired errors
-        # aren't specified directly, then we just ignore it.
-        return False
+        return True
     return handler.catch(expected_errors)
 
 
@@ -595,7 +594,7 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
     return visited
 
 
-def _import_node_context(node):
+def find_try_except_wrapper_node(node):
     """Return the ExceptHandler or the TryExcept node in which the node is."""
     current = node
     ignores = (astroid.ExceptHandler, astroid.TryExcept)
@@ -609,7 +608,7 @@ def _import_node_context(node):
 
 def is_from_fallback_block(node):
     """Check if the given node is from a fallback import block."""
-    context = _import_node_context(node)
+    context = find_try_except_wrapper_node(node)
     if not context:
         return False
 
@@ -632,21 +631,22 @@ def _except_handlers_ignores_exception(handlers, exception):
     return any(map(func, handlers))
 
 
-def get_exception_handlers(node, exception):
+def get_exception_handlers(node, exception=Exception):
     """Return the collections of handlers handling the exception in arguments.
 
     Args:
-        node (astroid.Raise): the node raising the exception.
+        node (astroid.NodeNG): A node that is potentially wrapped in a try except.
         exception (builtin.Exception or str): exception or name of the exception.
 
     Returns:
-        generator: the collection of handlers that are handling the exception or None.
+        list: the collection of handlers that are handling the exception or None.
 
     """
-    context = _import_node_context(node)
+    context = find_try_except_wrapper_node(node)
     if isinstance(context, astroid.TryExcept):
-        return (_handler for _handler in context.handlers
-                if error_of_type(_handler, exception))
+        return [
+            handler for handler in context.handlers if error_of_type(handler, exception)
+        ]
     return None
 
 
@@ -660,12 +660,16 @@ def is_node_inside_try_except(node):
     Returns:
         bool: True if the node is inside a try/except statement, False otherwise.
     """
-    context = _import_node_context(node)
+    context = find_try_except_wrapper_node(node)
     return isinstance(context, astroid.TryExcept)
 
 
-def node_ignores_exception(node, exception):
-    """Check if the node is in a TryExcept which handles the given exception."""
+def node_ignores_exception(node, exception=Exception):
+    """Check if the node is in a TryExcept which handles the given exception.
+
+    If the exception is not given, the function is going to look for bare
+    excepts.
+    """
     managing_handlers = get_exception_handlers(node, exception)
     if not managing_handlers:
         return False

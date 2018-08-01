@@ -51,7 +51,7 @@ except Exception:
     pass
 
 try:
-    import collections.emit1 # [no-name-in-module]
+    import collections.emit1
 except:
     pass
 

@@ -163,7 +163,7 @@ except Exception:
     pass
 
 try:
-    unicode_3 # [undefined-variable]
+    unicode_3
 except:
     pass
 
