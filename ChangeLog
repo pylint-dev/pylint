@@ -5,7 +5,7 @@ Pylint's ChangeLog
 What's New in Pylint 2.1?
 =========================
 
-Release date: TBA
+Release date: 2018-08-01
 
    * `trailing-comma-tuple` gets emitted for ``yield`` statements as well.
 
@@ -51,10 +51,10 @@ Release date: TBA
 
       Close #2281
 
-	* Fix not being able to disable certain messages on the last line through
-	  the global disable option
+     * Fix not being able to disable certain messages on the last line through
+       the global disable option
 
-	  Close #2278
+       Close #2278
 
     * Don't emit `useless-return` when we have a single statement that is the return itself
 
