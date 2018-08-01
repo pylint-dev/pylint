@@ -1710,7 +1710,8 @@ class PassChecker(_BasicChecker):
 
     @utils.check_messages('unnecessary-pass')
     def visit_pass(self, node):
-        if len(node.parent.child_sequence(node)) > 1:
+        if (len(node.parent.child_sequence(node)) > 1 or 
+                node.parent.doc is not None):
             self.add_message('unnecessary-pass', node=node)
 
 
