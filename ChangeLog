@@ -7,7 +7,7 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
-   * Do not emit *-builtin for Python 3 builtin checks when the builtin is used inside a try-except
+   * Do not emit \*-builtin for Python 3 builtin checks when the builtin is used inside a try-except
 
      Close PyCQA/pylint#2228
 
