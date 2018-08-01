@@ -12,8 +12,8 @@ coding standard and looks for code smells. It can also look for certain type
 errors, it can recommend suggestions about how particular blocks
 can be refactored and can offer you details about the code's complexity.
 
-Other similar projects would include the now defunct pychecker_, pyflakes_,
-flake8_ and mypy_. The default coding style used by Pylint is close to `PEP 008`_.
+Other similar projects would include pychecker_ (now defunct), pyflakes_,
+flake8_, and mypy_. The default coding style used by Pylint is close to `PEP 008`_.
 
 Pylint will display a number of messages as it analyzes the code and it can
 also be used for displaying some statistics about the number of warnings and
