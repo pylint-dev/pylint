@@ -35,6 +35,7 @@ import astroid
 from astroid import bases
 
 from pylint import checkers, interfaces
+from pylint.checkers.utils import node_ignores_exception, find_try_except_wrapper_node
 from pylint.interfaces import INFERENCE_FAILURE, INFERENCE
 from pylint.utils import WarningScope
 from pylint.checkers import utils
@@ -688,10 +689,16 @@ class Python3Checker(checkers.BaseChecker):
     def visit_name(self, node):
         """Detect when a "bad" built-in is referenced."""
         found_node, _ = node.lookup(node.name)
-        if _is_builtin(found_node):
-            if node.name in self._bad_builtins:
-                message = node.name.lower() + '-builtin'
-                self.add_message(message, node=node)
+        if not _is_builtin(found_node):
+            return
+        if node.name not in self._bad_builtins:
+            return
+        if (node_ignores_exception(node)
+                or isinstance(find_try_except_wrapper_node(node), astroid.ExceptHandler)):
+            return
+
+        message = node.name.lower() + '-builtin'
+        self.add_message(message, node=node)
 
     @utils.check_messages('print-statement')
     def visit_print(self, node):

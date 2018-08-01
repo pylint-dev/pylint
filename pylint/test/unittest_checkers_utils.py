@@ -76,7 +76,7 @@ def test_error_of_type():
     assert utils.error_of_type(nodes[0], (AttributeError, ))
     assert not utils.error_of_type(nodes[0], Exception)
     assert utils.error_of_type(nodes[1], Exception)
-    assert not utils.error_of_type(nodes[2], ImportError)
+    assert utils.error_of_type(nodes[2], ImportError)
 
 
 def test_node_ignores_exception():
