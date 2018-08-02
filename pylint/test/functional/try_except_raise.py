@@ -1,4 +1,4 @@
-# pylint:disable=missing-docstring, unreachable, bad-except-order, bare-except
+# pylint:disable=missing-docstring, unreachable, bad-except-order, bare-except, unnecessary-pass
 
 try:
     int("9a")
