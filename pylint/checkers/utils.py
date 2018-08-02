@@ -325,7 +325,6 @@ def check_messages(*messages):
 
 class IncompleteFormatString(Exception):
     """A format string ended in the middle of a format specifier."""
-    pass
 
 class UnsupportedFormatCharacter(Exception):
     """A format character in a format string is not one of the supported

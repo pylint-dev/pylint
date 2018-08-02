@@ -1,4 +1,5 @@
 """Test for W0623, overwriting names in exception handlers."""
+# pylint: disable=unnecessary-pass
 
 __revision__ = ''
 
