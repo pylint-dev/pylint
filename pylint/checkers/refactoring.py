@@ -276,6 +276,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 target.name for target in else_branch.targets
                 if isinstance(target, astroid.AssignName)
             ]
+            if not first_branch_targets or not else_branch_targets:
+                return
             if sorted(first_branch_targets) != sorted(else_branch_targets):
                 return
 

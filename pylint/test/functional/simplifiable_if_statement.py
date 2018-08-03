@@ -133,3 +133,14 @@ def test_not_simplifiable_9():
     else:
         fifth = True
     return fourth + fifth
+
+
+def test_not_simplifiable_10():
+    # Subscripts are not considered
+    object_type = 'read'
+    filter_kwargs = {}
+    if object_type == 'read':
+        filter_kwargs['a'] = True
+    else:
+        filter_kwargs['b'] = True
+    return filter_kwargs

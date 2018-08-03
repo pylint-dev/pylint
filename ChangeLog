@@ -11,6 +11,8 @@ Release date: TBA
 
      Close PyCQA/pylint#2228
 
+   * ``simplifiable-if-statement`` not emitted when dealing with subscripts
+
 What's New in Pylint 2.1?
 =========================
 
