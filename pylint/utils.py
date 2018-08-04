@@ -406,9 +406,9 @@ class MessagesHandlerMixIn:
                     col_offset=None):
         """Adds a message given by ID or name.
 
-        If provided, the message string is expanded using args
+        If provided, the message string is expanded using args.
 
-        AST checkers should must the node argument (but may optionally
+        AST checkers must provide the node argument (but may optionally
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
