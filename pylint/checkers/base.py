@@ -1117,7 +1117,9 @@ class BasicChecker(_BasicChecker):
             # we are doubtful on inferred type of node, so here just check if format
             # was called on print()
             call_expr = call_node.func.expr
-            if isinstance(call_expr, astroid.Call) and call_expr.func.name == 'print':
+            if not isinstance(call_expr, astroid.Call):
+                return
+            if isinstance(call_expr.func, astroid.Name) and call_expr.func.name == 'print':
                 self.add_message('misplaced-format-function', node=call_node)
 
     @utils.check_messages('eval-used', 'exec-used', 'bad-reversed-sequence',

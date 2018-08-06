@@ -1,6 +1,6 @@
 """Test that format function is used only with string."""
 
-# pylint: disable=invalid-name, pointless-string-statement, line-too-long, no-member, blacklisted-name, undefined-variable
+# pylint: disable=invalid-name, pointless-string-statement, line-too-long, no-member, blacklisted-name, undefined-variable, missing-docstring, too-few-public-methods
 
 print('value: {}').format(123)  # [misplaced-format-function]
 print("value: {}").format(123)  # [misplaced-format-function]
@@ -37,3 +37,22 @@ def _display(self, layout):
     """launch layouts display"""
     print(file=self.out)
     TextWriter().format(layout, self.out)
+
+
+class FakeClass:
+    def __init__(self, string):
+        self.string = string
+
+    def get_string(self):
+        return self.string
+
+    def format_string(self):
+        self.string.format()
+        self.get_string().format()
+        print(self.get_string()).format()  # [misplaced-format-function]
+        print(self.get_string().format())
+
+obj = FakeClass('Voila!!!')
+obj.get_string().format()
+print(obj.get_string().format())
+print(obj.get_string()).format()  # [misplaced-format-function]
