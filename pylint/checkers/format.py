@@ -541,7 +541,7 @@ class FormatChecker(BaseTokenChecker):
                ('indent-after-paren',
                 {'type': 'int', 'metavar': '<int>', 'default': 4,
                  'help': 'Number of spaces of indent required inside a hanging '
-                         ' or continued line.'}),
+                         'or continued line.'}),
                ('expected-line-ending-format',
                 {'type': 'choice', 'metavar': '<empty or LF or CRLF>', 'default': '',
                  'choices': ['', 'LF', 'CRLF'],
