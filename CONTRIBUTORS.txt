@@ -215,3 +215,5 @@ contributors:
 * Kosarchuk Sergey: contributor
 
 * Carey Metcalfe: demoted `try-except-raise` from error to warning
+
+* Marcus Näslund (naslundx): contributor 
