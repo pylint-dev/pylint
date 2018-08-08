@@ -73,3 +73,25 @@ except:  # [try-except-raise]
     raise
 except RuntimeError:
     print("a failure")
+
+try:
+    pass
+except (FileNotFoundError, PermissionError):
+    raise
+except OSError:
+    print("a failure")
+
+# also consider tuples for subsequent exception handler instead of just bare except handler
+try:
+    pass
+except (FileNotFoundError, PermissionError):
+    raise
+except (OverflowError, OSError):
+    print("a failure")
+
+try:
+    pass
+except (FileNotFoundError, PermissionError):  # [try-except-raise]
+    raise
+except (OverflowError, ZeroDivisionError):
+    print("a failure")
