@@ -359,6 +359,8 @@ def _is_attribute_property(name, klass):
         return False
     property_name = "{}.property".format(BUILTINS)
     for attr in attributes:
+        if attr is astroid.Uninferable:
+            continue
         try:
             infered = next(attr.infer())
         except astroid.InferenceError:

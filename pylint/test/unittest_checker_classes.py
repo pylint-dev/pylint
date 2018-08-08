@@ -82,3 +82,23 @@ class TestVariablesChecker(CheckerTestCase):
         """)
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
+
+    def test_uninferable_attribute(self):
+        """Make sure protect-access doesn't raise
+        an exception Uninferable attributes"""
+
+        node = astroid.extract_node("""
+        class MC():
+            @property
+            def nargs(self):
+                return 1 if self._nargs else 2
+
+        class Application(metaclass=MC):
+            def __new__(cls):
+                nargs = obj._nargs #@
+        """)
+        with self.assertAddsMessages(
+                Message('protected-access',
+                        node=node.value,
+                        args='_nargs')):
+            self.checker.visit_attribute(node.value)
