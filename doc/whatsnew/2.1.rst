@@ -28,9 +28,6 @@ New checkers
 Other Changes
 =============
 
-* `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement, 
-  in which case, docstring is enough for empty definition.
-
 * `try-except-raise` check was demoted from an error to a warning, as part of issue #2323.
 
 * Correctly handle the new name of the Python implementation of the `abc` module.
