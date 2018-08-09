@@ -824,8 +824,9 @@ accessed. Python regular expressions are accepted.'}
             astroid.UnboundMethod,
             astroid.BoundMethod,
         )
-        if not (isinstance(function_node, funcs) and
-                function_node.root().fully_defined()):
+        if not (isinstance(function_node, funcs)
+                and function_node.root().fully_defined()
+                and not function_node.decorators):
             return
         if (function_node.is_generator()
                 or function_node.is_abstract(pass_is_abstract=False)):

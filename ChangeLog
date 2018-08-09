@@ -9,6 +9,10 @@ Release date: TBA
 
    * Stop ``protected-access`` exception for missing class attributes
 
+   * Don't emit `assignment-from-no-return` for decorated function nodes
+
+     Close #2385
+
    * `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement.
 
       In Python, stubbed functions often have a body that contains just a single `pass` statement, 
