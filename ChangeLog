@@ -25,6 +25,10 @@ Release date: TBA
 
       Close #1712
 
+   * Allow double indentation levels for more distinguishable indentations
+
+     Close #741
+
 
 What's New in Pylint 2.1.1?
 ===========================

@@ -200,3 +200,33 @@ with mycontext(
         "great stuff",
         "mane"):
     pass
+
+# pylint: disable=using-constant-test
+# More indentation included to distinguish this from the rest.
+def long_function_name(
+        var_one, var_two, var_three,
+        var_four):
+    print(var_one, var_two, var_three, var_four)
+
+
+def short_func_name(first, second, third):
+    # Add some extra indentation on the conditional continuation line.
+    if (first
+            and second == first == 'some_big_long_statement_that_should_not_trigger'):
+        third()
+
+
+# Some normal multi-line statements with double-indented continuation lines.
+LARGE_COLLECTION = [
+        "spam",
+        "eggs",
+        "beans",
+        ]
+
+long_function_name(
+        "1", "2", "3", "4")
+
+CONCATENATED_TEXT = (
+        "spam"
+        "eggs"
+        "beans")

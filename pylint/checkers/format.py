@@ -976,7 +976,10 @@ class FormatChecker(BaseTokenChecker):
                 and tokens.token_indent(next_idx) in valid_indentations):
             self._current_line.add_block_warning(next_idx, state, valid_indentations)
         elif tokens.token_indent(next_idx) not in valid_indentations:
-            self._add_continuation_message(state, valid_indentations, tokens, next_idx)
+            length_indentation = len(tokens.token_indent(next_idx))
+            if not any(length_indentation == 2 * len(indentation)
+                       for indentation in valid_indentations):
+                self._add_continuation_message(state, valid_indentations, tokens, next_idx)
 
     def _add_continuation_message(self, state, indentations, tokens, position):
         readable_type, readable_position = _CONTINUATION_MSG_PARTS[state.context_type]
