@@ -203,6 +203,43 @@ def is_builtin(name):
     """
     return name in builtins or name in SPECIAL_BUILTINS
 
+
+def is_defined_in_scope(var_node, varname, scope):
+    if isinstance(scope, (COMP_NODE_TYPES, astroid.For)):
+        for ass_node in scope.nodes_of_class(astroid.AssignName):
+            if ass_node.name == varname:
+                return True
+    elif isinstance(scope, astroid.With):
+        for expr, ids in scope.items:
+            if expr.parent_of(var_node):
+                break
+            if (ids and
+                    isinstance(ids, astroid.AssignName) and
+                    ids.name == varname):
+                return True
+    elif isinstance(scope, (astroid.Lambda, astroid.FunctionDef)):
+        if scope.args.is_argument(varname):
+            # If the name is found inside a default value
+            # of a function, then let the search continue
+            # in the parent's tree.
+            if scope.args.parent_of(var_node):
+                try:
+                    scope.args.default_value(varname)
+                    scope = scope.parent
+                    is_defined_in_scope(var_node, varname, scope)
+                except astroid.NoDefault:
+                    pass
+            return True
+        if getattr(scope, 'name', None) == varname:
+            return True
+    elif isinstance(scope, astroid.ExceptHandler):
+        if isinstance(scope.name, astroid.AssignName):
+            ass_node = scope.name
+            if ass_node.name == varname:
+                return True
+    return False
+
+
 def is_defined_before(var_node):
     """return True if the variable node is defined by a parent node (list,
     set, dict, or generator comprehension, lambda) or in a previous sibling
@@ -211,38 +248,8 @@ def is_defined_before(var_node):
     varname = var_node.name
     _node = var_node.parent
     while _node:
-        if isinstance(_node, (COMP_NODE_TYPES, astroid.For)):
-            for assign_node in _node.nodes_of_class(astroid.AssignName):
-                if assign_node.name == varname:
-                    return True
-        elif isinstance(_node, astroid.With):
-            for expr, ids in _node.items:
-                if expr.parent_of(var_node):
-                    break
-                if (ids and
-                        isinstance(ids, astroid.AssignName) and
-                        ids.name == varname):
-                    return True
-        elif isinstance(_node, (astroid.Lambda, astroid.FunctionDef)):
-            if _node.args.is_argument(varname):
-                # If the name is found inside a default value
-                # of a function, then let the search continue
-                # in the parent's tree.
-                if _node.args.parent_of(var_node):
-                    try:
-                        _node.args.default_value(varname)
-                        _node = _node.parent
-                        continue
-                    except astroid.NoDefault:
-                        pass
-                return True
-            if getattr(_node, 'name', None) == varname:
-                return True
-        elif isinstance(_node, astroid.ExceptHandler):
-            if isinstance(_node.name, astroid.AssignName):
-                assign_node = _node.name
-                if assign_node.name == varname:
-                    return True
+        if is_defined_in_scope(var_node, varname, _node):
+            return True
         _node = _node.parent
     # possibly multiple statements on the same line using semi colon separator
     stmt = var_node.statement()
