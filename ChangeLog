@@ -15,6 +15,10 @@ Release date: TBA
 
      Close #2309
 
+   * Fix false positive ``undefined-variable`` and ``used-before-assignment`` with nonlocal keyword usage.
+
+     Close #2049
+
    * Stop ``protected-access`` exception for missing class attributes
 
    * Don't emit `assignment-from-no-return` for decorated function nodes

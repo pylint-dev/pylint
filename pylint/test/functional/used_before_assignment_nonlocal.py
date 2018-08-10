@@ -45,3 +45,16 @@ def undefined():
 
 def undefined1():
     """ no op """
+
+
+def nonlocal_in_ifexp():
+    """bar"""
+    bug2 = True
+    def on_click(event):
+        """on_click"""
+        if event:
+            nonlocal bug2
+            bug2 = not bug2
+    on_click(True)
+
+nonlocal_in_ifexp()
