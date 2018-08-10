@@ -532,28 +532,22 @@ class BasicErrorChecker(_BasicChecker):
                         self.add_message('return-arg-in-generator', node=node,
                                          line=retnode.fromlineno)
         # Check for duplicate names by clustering args with same name for detailed report
-        args = node.args
         arg_clusters = collections.defaultdict(list)
-        for arg in itertools.chain.from_iterable(pack for pack in
-                                                 [args.args, [args.vararg],
-                                                  args.kwonlyargs, [args.kwarg]]
-                                                 if pack is not None and all(pack)):
-            if isinstance(arg, str):
-                # sadly, asteroid doesn't expose variadic and kw-variadic arg nodes
-                arg_clusters[arg].append(arg)
-            else:
-                arg_clusters[arg.name].append(arg)
+        arguments = filter(None, [node.args.args, node.args.kwonlyargs])
+
+        for arg in itertools.chain.from_iterable(arguments):
+            arg_clusters[arg.name].append(arg)
 
         # provide detailed report about each repeated argument
-        for arg in itertools.chain.from_iterable(args for args in arg_clusters.values()
-                                                 if len(args) > 1):
-            if isinstance(arg, str):
-                # fallback on previous behavior
-                add_message_args = node.lineno, node, (arg,)
-            else:
-                add_message_args = arg.lineno, arg, (arg.name,)
-
-            self.add_message('duplicate-argument-name', *add_message_args)
+        for argument_duplicates in arg_clusters.values():
+            if len(argument_duplicates) != 1:
+                for argument in argument_duplicates:
+                    self.add_message(
+                        'duplicate-argument-name',
+                        line=argument.lineno,
+                        node=argument,
+                        args=(argument.name,),
+                    )
 
     visit_asyncfunctiondef = visit_functiondef
 
