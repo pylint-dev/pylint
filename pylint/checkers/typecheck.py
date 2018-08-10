@@ -1005,11 +1005,10 @@ accessed. Python regular expressions are accepted.'}
                 # The remaining positional arguments get assigned to the *args
                 # parameter.
                 break
-            else:
-                # Too many positional arguments.
-                self.add_message('too-many-function-args',
-                                 node=node, args=(callable_name,))
-                break
+            # Too many positional arguments.
+            self.add_message('too-many-function-args',
+                             node=node, args=(callable_name,))
+            break
 
         # 2. Match the keyword arguments.
         for keyword in keyword_args:

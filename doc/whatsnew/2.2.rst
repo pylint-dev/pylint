@@ -12,6 +12,23 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Add a new check `redundant-else` which is emitted if there is continue or break in previous if body. e.g
+
+.. code-block:: python
+
+    def foo():
+        for i in range(10):
+            if i < 3:
+                continue
+            else:  # [redundant-else]
+                print(i)
+
+    # better
+    def foo():
+        for i in range(10):
+            if i < 3:
+                continue
+            print(i)
 
 Other Changes
 =============

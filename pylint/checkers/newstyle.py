@@ -138,9 +138,8 @@ class NewStyleConflictChecker(BaseChecker):
                     if sys.version_info[0] == 3:
                         # unless Python 3
                         continue
-                    else:
-                        self.add_message('missing-super-argument', node=call)
-                        continue
+                    self.add_message('missing-super-argument', node=call)
+                    continue
 
                 # calling super(type(self), self) can lead to recursion loop
                 # in derived classes

@@ -179,6 +179,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'Also it is faster since you don\'t need to create another '
                   'transient list',
                   ),
+        'R1719': ('Redundant else after break or continue',
+                  'redundant-else',
+                  'else statement is redundant if the previous if expression '
+                  'contains break or continue and hence can be simply removed.',
+                  ),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -416,13 +421,31 @@ class RefactoringChecker(checkers.BaseTokenChecker):
               and len(node.orelse[0].targets) == 1):
             self.add_message('consider-using-get', node=node)
 
+    def _check_redundant_else(self, node):
+        # pylint: disable=no-else-return
+        def _is_continue_break_before_else(ifexp):
+            if not ifexp.orelse:
+                return None
+            elif isinstance(ifexp.orelse[0], astroid.If):
+                return _is_continue_break_before_else(ifexp.orelse[0])
+            elif isinstance(ifexp.body[-1], (astroid.Continue, astroid.Break)):
+                return ifexp.orelse[0]
+            return None
+
+        else_node = _is_continue_break_before_else(node)
+        if else_node:
+            self.add_message('redundant-else', node=else_node,
+                             line=else_node.lineno - 1)
+
     @utils.check_messages('too-many-nested-blocks', 'simplifiable-if-statement',
-                          'no-else-return', 'consider-using-get')
+                          'no-else-return', 'consider-using-get', 'redundant-else')
     def visit_if(self, node):
         self._check_simplifiable_if(node)
         self._check_nested_blocks(node)
         self._check_superfluous_else_return(node)
         self._check_consider_get(node)
+        self._check_redundant_else(node)
+
 
     @utils.check_messages('too-many-nested-blocks', 'inconsistent-return-statements',
                           'useless-return')

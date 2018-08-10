@@ -1,0 +1,4 @@
+redundant-else:7:something:Redundant else after break or continue
+redundant-else:14:something:Redundant else after break or continue
+redundant-else:28::Redundant else after break or continue
+redundant-else:39::Redundant else after break or continue

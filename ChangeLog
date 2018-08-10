@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * Add a new check `redundant-else` which is emitted if there is continue or break in previous if body.
+
+     Close #2327
+
    * Stop ``protected-access`` exception for missing class attributes
 
    * Don't emit `assignment-from-no-return` for decorated function nodes
