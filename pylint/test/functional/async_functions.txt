@@ -6,5 +6,6 @@ too-many-branches:26:complex_function:Too many branches (13/12)
 too-many-return-statements:26:complex_function:Too many return statements (10/6)
 dangerous-default-value:57:func:Dangerous default value [] as argument
 duplicate-argument-name:57:func:Duplicate argument name a in function definition
+duplicate-argument-name:57:func:Duplicate argument name a in function definition
 blacklisted-name:62:foo:Black listed name "foo"
 empty-docstring:62:foo:Empty function docstring
