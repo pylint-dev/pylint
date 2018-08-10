@@ -21,6 +21,10 @@ Release date: TBA
 
       Close #2208
 
+   * ``duplicate-argument-name`` is emitted for more than one duplicate argument per function
+
+      Close #1712
+
 
 What's New in Pylint 2.1.1?
 ===========================
