@@ -205,7 +205,14 @@ def is_builtin(name):
 
 
 def is_defined_in_scope(var_node, varname, scope):
-    if isinstance(scope, (COMP_NODE_TYPES, astroid.For)):
+    if isinstance(scope, astroid.If):
+        for node in scope.body:
+            if ((isinstance(node, astroid.Assign) and
+                 any(isinstance(target, astroid.AssignName) and target.name == varname
+                     for target in node.targets)) or
+                    (isinstance(node, astroid.Nonlocal) and varname in node.names)):
+                return True
+    elif isinstance(scope, (COMP_NODE_TYPES, astroid.For)):
         for ass_node in scope.nodes_of_class(astroid.AssignName):
             if ass_node.name == varname:
                 return True

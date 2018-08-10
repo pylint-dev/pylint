@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, multiple-statements, useless-object-inheritance
-# pylint: disable=too-few-public-methods, no-init, no-self-use,bare-except,broad-except
+# pylint: disable=too-few-public-methods, no-init, no-self-use,bare-except,broad-except, import-error
 from __future__ import print_function
 DEFINED = 1
 
@@ -232,3 +232,16 @@ class LambdaClass5:
     myattr = 1
     mylambda = lambda: LambdaClass5.myattr
     mylambda4 = lambda a=LambdaClass5: lambda: a # [undefined-variable]
+
+
+def nonlocal_in_ifexp():
+    import matplotlib.pyplot as plt
+    def onclick(event):
+        if event:
+            nonlocal i
+            i += 1
+            print(i)
+    i = 0
+    fig = plt.figure()
+    fig.canvas.mpl_connect('button_press_event', onclick)
+    plt.show(block=True)

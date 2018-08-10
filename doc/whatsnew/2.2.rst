@@ -21,4 +21,6 @@ Other Changes
 * `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement, 
   in which case, docstring is enough for empty definition.
 
+* Fix false positive ``undefined-variable`` and ``used-before-assignment`` with nonlocal keyword usage.
+
 
