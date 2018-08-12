@@ -114,8 +114,8 @@ MSGS = {
               'Used when there are some mixed tabs and spaces in a module.'),
     'W0301': ('Unnecessary semicolon',  # was W0106
               'unnecessary-semicolon',
-              'Used when a statement is ended by a semi-colon (";"), which \
-              isn\'t necessary (that\'s python, not C ;).'),
+              'Used when a statement is ended by a semi-colon (";"), which '
+              'isn\'t necessary (that\'s python, not C ;).'),
     'C0321': ('More than one statement on a single line',
               'multiple-statements',
               'Used when more than on statement are found on the same line.',

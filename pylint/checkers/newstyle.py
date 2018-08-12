@@ -36,18 +36,18 @@ MSGS = {
               {'maxversion': (3, 0)}),
     'E1003': ('Bad first argument %r given to super()',
               'bad-super-call',
-              'Used when another argument than the current class is given as \
-              first argument of the super builtin.'),
+              'Used when another argument than the current class is given as '
+              'first argument of the super builtin.'),
     'E1004': ('Missing argument to super()',
               'missing-super-argument',
-              'Used when the super builtin didn\'t receive an \
-               argument.',
+              'Used when the super builtin didn\'t receive an '
+              'argument.',
               {'maxversion': (3, 0)}),
     'W1001': ('Use of "property" on an old style class',
               'property-on-old-class',
-              'Used when Pylint detect the use of the builtin "property" \
-              on an old style class while this is relying on new style \
-              classes features.',
+              'Used when Pylint detect the use of the builtin "property" '
+              'on an old style class while this is relying on new style '
+              'classes features.',
               {'maxversion': (3, 0)}),
     'C1001': ('Old-style class defined.',
               'old-style-class',

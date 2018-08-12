@@ -273,8 +273,8 @@ def _has_locals_call_after_node(stmt, scope):
 MSGS = {
     'E0601': ('Using variable %r before assignment',
               'used-before-assignment',
-              'Used when a local variable is accessed before it\'s \
-              assignment.'),
+              'Used when a local variable is accessed before it\'s '
+              'assignment.'),
     'E0602': ('Undefined variable %r',
               'undefined-variable',
               'Used when an undefined variable is accessed.'),
@@ -290,21 +290,21 @@ MSGS = {
 
     'W0601': ('Global variable %r undefined at the module level',
               'global-variable-undefined',
-              'Used when a variable is defined through the "global" statement \
-              but the variable is not defined in the module scope.'),
+              'Used when a variable is defined through the "global" statement '
+              'but the variable is not defined in the module scope.'),
     'W0602': ('Using global for %r but no assignment is done',
               'global-variable-not-assigned',
-              'Used when a variable is defined through the "global" statement \
-              but no assignment to this variable is done.'),
+              'Used when a variable is defined through the "global" statement '
+              'but no assignment to this variable is done.'),
     'W0603': ('Using the global statement', # W0121
               'global-statement',
-              'Used when you use the "global" statement to update a global \
-              variable. Pylint just try to discourage this \
-              usage. That doesn\'t mean you cannot use it !'),
+              'Used when you use the "global" statement to update a global '
+              'variable. Pylint just try to discourage this '
+              'usage. That doesn\'t mean you cannot use it !'),
     'W0604': ('Using the global statement at the module level', # W0103
               'global-at-module-level',
-              'Used when you use the "global" statement at the module level \
-              since it has no effect'),
+              'Used when you use the "global" statement at the module level '
+              'since it has no effect'),
     'W0611': ('Unused %s',
               'unused-import',
               'Used when an imported module or variable is not used.'),
@@ -316,26 +316,26 @@ MSGS = {
               'Used when a function or method argument is not used.'),
     'W0614': ('Unused import %s from wildcard import',
               'unused-wildcard-import',
-              'Used when an imported module or variable is not used from a \
-              `\'from X import *\'` style import.'),
+              'Used when an imported module or variable is not used from a '
+              '`\'from X import *\'` style import.'),
 
     'W0621': ('Redefining name %r from outer scope (line %s)',
               'redefined-outer-name',
-              'Used when a variable\'s name hides a name defined in the outer \
-              scope.'),
+              'Used when a variable\'s name hides a name defined in the outer '
+              'scope.'),
     'W0622': ('Redefining built-in %r',
               'redefined-builtin',
               'Used when a variable or function override a built-in.'),
     'W0623': ('Redefining name %r from %s in exception handler',
               'redefine-in-handler',
-              'Used when an exception handler assigns the exception \
-               to an existing name'),
+              'Used when an exception handler assigns the exception '
+              'to an existing name'),
 
     'W0631': ('Using possibly undefined loop variable %r',
               'undefined-loop-variable',
-              'Used when a loop variable (i.e. defined by a for loop or \
-              a list comprehension or a generator expression) is used outside \
-              the loop.'),
+              'Used when a loop variable (i.e. defined by a for loop or '
+              'a list comprehension or a generator expression) is used outside '
+              'the loop.'),
 
     'E0632': ('Possible unbalanced tuple unpacking with '
               'sequence%s: '
