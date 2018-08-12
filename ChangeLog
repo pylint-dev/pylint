@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * Ignore import x.y.z as z cases for checker `useless-import-alias`.
+
+     Close #2309
+
    * Stop ``protected-access`` exception for missing class attributes
 
    * Don't emit `assignment-from-no-return` for decorated function nodes

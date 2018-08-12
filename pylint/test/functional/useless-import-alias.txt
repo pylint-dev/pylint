@@ -6,3 +6,4 @@ useless-import-alias:13::Import alias does not rename original package
 useless-import-alias:14::Import alias does not rename original package
 useless-import-alias:16::Import alias does not rename original package
 useless-import-alias:17::Import alias does not rename original package
+useless-import-alias:19::Import alias does not rename original package

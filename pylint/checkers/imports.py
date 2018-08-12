@@ -734,10 +734,14 @@ class ImportsChecker(BaseChecker):
                 return
 
             real_name = name[0]
-            packages = real_name.rsplit('.', 1)
-            real_name = packages[1] if len(packages) == 2 else packages[0]
+            splitted_packages = real_name.rsplit('.')
+            real_name = splitted_packages[-1]
             imported_name = name[1]
-            if real_name == imported_name:
+            # consider only following cases
+            # import x as x
+            # and ignore following
+            # import x.y.z as z
+            if real_name == imported_name and len(splitted_packages) == 1:
                 self.add_message('useless-import-alias', node=node)
 
     def _check_reimport(self, node, basename=None, level=None):
