@@ -200,8 +200,8 @@ MSGS = {
               'in the current package.'),
     'R0401': ('Cyclic import (%s)',
               'cyclic-import',
-              'Used when a cyclic import between two or more modules is \
-              detected.'),
+              'Used when a cyclic import between two or more modules is '
+              'detected.'),
 
     'W0401': ('Wildcard import %s',
               'wildcard-import',
@@ -223,8 +223,8 @@ MSGS = {
 
     'W0410': ('__future__ import is not the first non docstring statement',
               'misplaced-future',
-              'Python 2.5 and greater require __future__ import to be the \
-              first non docstring statement in the module.'),
+              'Python 2.5 and greater require __future__ import to be the '
+              'first non docstring statement in the module.'),
 
     'C0410': ('Multiple imports on one line (%s)',
               'multiple-imports',

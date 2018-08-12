@@ -72,8 +72,8 @@ MSGS = {
               'some exceptions may not be caught by the most specific handler.'),
     'E0702': ('Raising %s while only classes or instances are allowed',
               'raising-bad-type',
-              'Used when something which is neither a class, an instance or a \
-              string is raised (i.e. a `TypeError` will be raised).'),
+              'Used when something which is neither a class, an instance or a '
+              'string is raised (i.e. a `TypeError` will be raised).'),
     'E0703': ('Exception context set to something which is not an '
               'exception, nor None',
               'bad-exception-context',
@@ -90,24 +90,24 @@ MSGS = {
               'nevertheless a code smell that must not be relied upon.'),
     'E0710': ('Raising a new style class which doesn\'t inherit from BaseException',
               'raising-non-exception',
-              'Used when a new style class which doesn\'t inherit from \
-               BaseException is raised.'),
+              'Used when a new style class which doesn\'t inherit from '
+              'BaseException is raised.'),
     'E0711': ('NotImplemented raised - should raise NotImplementedError',
               'notimplemented-raised',
-              'Used when NotImplemented is raised instead of \
-              NotImplementedError'),
+              'Used when NotImplemented is raised instead of '
+              'NotImplementedError'),
     'E0712': ('Catching an exception which doesn\'t inherit from Exception: %s',
               'catching-non-exception',
-              'Used when a class which doesn\'t inherit from \
-               Exception is used as an exception in an except clause.'),
+              'Used when a class which doesn\'t inherit from '
+              'Exception is used as an exception in an except clause.'),
     'W0702': ('No exception type(s) specified',
               'bare-except',
-              'Used when an except clause doesn\'t specify exceptions type to \
-              catch.'),
+              'Used when an except clause doesn\'t specify exceptions type to '
+              'catch.'),
     'W0703': ('Catching too general exception %s',
               'broad-except',
-              'Used when an except catches a too general exception, \
-              possibly burying unrelated errors.'),
+              'Used when an except catches a too general exception, '
+              'possibly burying unrelated errors.'),
     'W0705': ('Catching previously caught exception type %s',
               'duplicate-except',
               'Used when an except catches a type that was already caught by '
@@ -120,19 +120,19 @@ MSGS = {
               'try-except-raise block!'),
     'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
               'nonstandard-exception',
-              'Used when a custom exception class is raised but doesn\'t \
-              inherit from the builtin "Exception" class.',
+              'Used when a custom exception class is raised but doesn\'t '
+              'inherit from the builtin "Exception" class.',
               {'maxversion': (3, 0)}),
     'W0711': ('Exception to catch is the result of a binary "%s" operation',
               'binary-op-exception',
-              'Used when the exception to catch is of the form \
-              "except A or B:".  If intending to catch multiple, \
-              rewrite as "except (A, B):"'),
+              'Used when the exception to catch is of the form '
+              '"except A or B:".  If intending to catch multiple, '
+              'rewrite as "except (A, B):"'),
     'W0715': ('Exception arguments suggest string formatting might be intended',
               'raising-format-tuple',
-              'Used when passing multiple arguments to an exception \
-              constructor, the first of them a string literal containing what \
-              appears to be placeholders intended for formatting'),
+              'Used when passing multiple arguments to an exception '
+              'constructor, the first of them a string literal containing what '
+              'appears to be placeholders intended for formatting'),
     }
 
 

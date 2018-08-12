@@ -40,44 +40,44 @@ _PY27 = sys.version_info[:2] == (2, 7)
 MSGS = {
     'E1300': ("Unsupported format character %r (%#02x) at index %d",
               "bad-format-character",
-              "Used when an unsupported format character is used in a format\
-              string."),
+              "Used when an unsupported format character is used in a format"
+              "string."),
     'E1301': ("Format string ends in middle of conversion specifier",
               "truncated-format-string",
-              "Used when a format string terminates before the end of a \
-              conversion specifier."),
+              "Used when a format string terminates before the end of a "
+              "conversion specifier."),
     'E1302': ("Mixing named and unnamed conversion specifiers in format string",
               "mixed-format-string",
-              "Used when a format string contains both named (e.g. '%(foo)d') \
-              and unnamed (e.g. '%d') conversion specifiers.  This is also \
-              used when a named conversion specifier contains * for the \
-              minimum field width and/or precision."),
+              "Used when a format string contains both named (e.g. '%(foo)d') "
+              "and unnamed (e.g. '%d') conversion specifiers.  This is also "
+              "used when a named conversion specifier contains * for the "
+              "minimum field width and/or precision."),
     'E1303': ("Expected mapping for format string, not %s",
               "format-needs-mapping",
-              "Used when a format string that uses named conversion specifiers \
-              is used with an argument that is not a mapping."),
+              "Used when a format string that uses named conversion specifiers "
+              "is used with an argument that is not a mapping."),
     'W1300': ("Format string dictionary key should be a string, not %s",
               "bad-format-string-key",
-              "Used when a format string that uses named conversion specifiers \
-              is used with a dictionary whose keys are not all strings."),
+              "Used when a format string that uses named conversion specifiers "
+              "is used with a dictionary whose keys are not all strings."),
     'W1301': ("Unused key %r in format string dictionary",
               "unused-format-string-key",
-              "Used when a format string that uses named conversion specifiers \
-              is used with a dictionary that contains keys not required by the \
-              format string."),
+              "Used when a format string that uses named conversion specifiers "
+              "is used with a dictionary that contains keys not required by the "
+              "format string."),
     'E1304': ("Missing key %r in format string dictionary",
               "missing-format-string-key",
-              "Used when a format string that uses named conversion specifiers \
-              is used with a dictionary that doesn't contain all the keys \
-              required by the format string."),
+              "Used when a format string that uses named conversion specifiers "
+              "is used with a dictionary that doesn't contain all the keys "
+              "required by the format string."),
     'E1305': ("Too many arguments for format string",
               "too-many-format-args",
-              "Used when a format string that uses unnamed conversion \
-              specifiers is given too many arguments."),
+              "Used when a format string that uses unnamed conversion "
+              "specifiers is given too many arguments."),
     'E1306': ("Not enough arguments for format string",
               "too-few-format-args",
-              "Used when a format string that uses unnamed conversion \
-              specifiers is given too few arguments"),
+              "Used when a format string that uses unnamed conversion "
+              "specifiers is given too few arguments"),
     'E1310': ("Suspicious argument in %s.%s call",
               "bad-str-strip-call",
               "The argument to a str.{l,r,}strip call contains a"
