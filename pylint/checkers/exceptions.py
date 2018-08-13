@@ -118,11 +118,6 @@ MSGS = {
               'operator. This is useless because it raises back the exception '
               'immediately. Remove the raise operator or the entire '
               'try-except-raise block!'),
-    'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
-              'nonstandard-exception',
-              'Used when a custom exception class is raised but doesn\'t \
-              inherit from the builtin "Exception" class.',
-              {'maxversion': (3, 0)}),
     'W0711': ('Exception to catch is the result of a binary "%s" operation',
               'binary-op-exception',
               'Used when the exception to catch is of the form \

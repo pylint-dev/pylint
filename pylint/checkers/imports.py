@@ -123,6 +123,7 @@ def _ignore_import_failure(node, modname, ignored_modules):
 
 # utilities to represents import dependencies as tree and dot graph ###########
 
+
 def _make_tree_defs(mod_files_list):
     """get a list of 2-uple (module, list_of_files_which_import_this_module),
     it will return a dictionary to represent this as a tree
@@ -340,7 +341,7 @@ class ImportsChecker(BaseChecker):
                          self._report_external_dependencies),
                         ('RP0402', 'Modules dependencies graph',
                          self._report_dependencies_graph),
-                       )
+                        )
 
         self._site_packages = self._compute_site_packages()
 
@@ -586,7 +587,7 @@ class ImportsChecker(BaseChecker):
         std_imports = []
         third_party_imports = []
         first_party_imports = []
-        # need of a list that holds third or first party ordered import
+        # need of a list that holds third or first party ordered import
         external_imports = []
         local_imports = []
         third_party_not_ignored = []
@@ -671,9 +672,9 @@ class ImportsChecker(BaseChecker):
         if not self.linter.is_message_enabled('relative-import'):
             return None
         if importedmodnode.file is None:
-            return False # built-in module
+            return False  # built-in module
         if modnode is importedmodnode:
-            return False # module importing itself
+            return False  # module importing itself
         if modnode.absolute_import_activated() or getattr(importnode, 'level', None):
             return False
         if importedmodnode.name != importedasname:

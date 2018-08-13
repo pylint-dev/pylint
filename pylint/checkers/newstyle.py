@@ -26,14 +26,6 @@ from pylint.checkers.utils import (
 )
 
 MSGS = {
-    'E1001': ('Use of __slots__ on an old style class',
-              'slots-on-old-class',
-              'Used when an old style class uses the __slots__ attribute.',
-              {'maxversion': (3, 0)}),
-    'E1002': ('Use of super on an old style class',
-              'super-on-old-class',
-              'Used when an old style class uses the super builtin.',
-              {'maxversion': (3, 0)}),
     'E1003': ('Bad first argument %r given to super()',
               'bad-super-call',
               'Used when another argument than the current class is given as \
@@ -43,17 +35,6 @@ MSGS = {
               'Used when the super builtin didn\'t receive an \
                argument.',
               {'maxversion': (3, 0)}),
-    'W1001': ('Use of "property" on an old style class',
-              'property-on-old-class',
-              'Used when Pylint detect the use of the builtin "property" \
-              on an old style class while this is relying on new style \
-              classes features.',
-              {'maxversion': (3, 0)}),
-    'C1001': ('Old-style class defined.',
-              'old-style-class',
-              'Used when a class is defined that does not inherit from another '
-              'class and does not inherit explicitly from "object".',
-              {'maxversion': (3, 0)})
     }
 
 
@@ -73,24 +54,6 @@ class NewStyleConflictChecker(BaseChecker):
     priority = -2
     # configuration options
     options = ()
-
-    @check_messages('slots-on-old-class', 'old-style-class')
-    def visit_classdef(self, node):
-        """ Check __slots__ in old style classes and old
-        style class definition.
-        """
-        if '__slots__' in node and not node.newstyle:
-            confidence = (INFERENCE if has_known_bases(node)
-                          else INFERENCE_FAILURE)
-            self.add_message('slots-on-old-class', node=node,
-                             confidence=confidence)
-        # The node type could be class, exception, metaclass, or
-        # interface.  Presumably, the non-class-type nodes would always
-        # have an explicit base class anyway.
-        if not node.bases and node.type == 'class' and not node.metaclass():
-            # We use confidence HIGH here because this message should only ever
-            # be emitted for classes at the root of the inheritance hierarchyself.
-            self.add_message('old-style-class', node=node, confidence=HIGH)
 
     @check_messages('property-on-old-class')
     def visit_call(self, node):

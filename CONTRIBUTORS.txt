@@ -3,6 +3,11 @@
 
 Current team:
 
+
+* Natalie Serebryakova: contributor
+
+* Sylvain Thenault (Logilab): main author / maintainer
+
 * Ashley Whetter: maintainer, contributor
 
 * Bryce Guinta: maintainer, contributor
