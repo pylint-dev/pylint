@@ -257,7 +257,6 @@ Release date: 2018-07-15
       non-zero (error) status code.
 
       Close #2042
->>>>>>> master
 
     * Warn if the first argument of an instance/ class method gets assigned
 
