@@ -55,24 +55,6 @@ class NewStyleConflictChecker(BaseChecker):
     # configuration options
     options = ()
 
-    @check_messages('slots-on-old-class', 'old-style-class')
-    def visit_classdef(self, node):
-        """ Check __slots__ in old style classes and old
-        style class definition.
-        """
-        if '__slots__' in node and not node.newstyle:
-            confidence = (INFERENCE if has_known_bases(node)
-                          else INFERENCE_FAILURE)
-            self.add_message('slots-on-old-class', node=node,
-                             confidence=confidence)
-        # The node type could be class, exception, metaclass, or
-        # interface.  Presumably, the non-class-type nodes would always
-        # have an explicit base class anyway.
-        if not node.bases and node.type == 'class' and not node.metaclass():
-            # We use confidence HIGH here because this message should only ever
-            # be emitted for classes at the root of the inheritance hierarchyself.
-            self.add_message('old-style-class', node=node, confidence=HIGH)
-
     @check_messages('property-on-old-class')
     def visit_call(self, node):
         """check property usage"""
