@@ -113,7 +113,7 @@ expression will lead to an instance of ``invalid-name``.
 .. option:: --inlinevar-rgx=<regex>
 
 Multiple naming styles for custom regular expressions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Large code bases that have been worked on for multiple years often exhibit an
 evolution in style as well. In some cases, modules can be in the same package,
