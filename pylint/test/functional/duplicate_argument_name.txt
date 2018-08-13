@@ -1,3 +1,8 @@
 duplicate-argument-name:4:foo1:Duplicate argument name _ in function definition
-duplicate-argument-name:7:foo2:Duplicate argument name _ in function definition
+duplicate-argument-name:4:foo1:Duplicate argument name _ in function definition
+duplicate-argument-name:7:foo2:Duplicate argument name _abc in function definition
+duplicate-argument-name:7:foo2:Duplicate argument name _abc in function definition
 duplicate-argument-name:10:foo3:Duplicate argument name _ in function definition
+duplicate-argument-name:10:foo3:Duplicate argument name _ in function definition
+duplicate-argument-name:13:foo4:Duplicate argument name _ in function definition
+duplicate-argument-name:13:foo4:Duplicate argument name _ in function definition

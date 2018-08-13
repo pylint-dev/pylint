@@ -13,6 +13,9 @@
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 James M. Allen <james.m.allen@gmail.com>
 # Copyright (c) 2017 vinnyrose <vinnyrose@users.noreply.github.com>
+# Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
+# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -21,9 +24,16 @@
 
 from __future__ import unicode_literals
 
+import tokenize
+import os
+import tempfile
+
 import astroid
 
 from pylint.checkers.format import *
+from pylint import reporters
+from pylint import lint
+
 
 from pylint.testutils import (
     CheckerTestCase, Message, set_config, _tokenize_str,
@@ -151,7 +161,7 @@ class TestSuperfluousParentheses(CheckerTestCase):
 
     def testCheckIfArgsAreNotUnicode(self):
         self.checker._keywords_with_parens = set()
-        cases = [(u'if (foo):', 0), (u'assert (1 == 1)', 0)]
+        cases = [('if (foo):', 0), ('assert (1 == 1)', 0)]
 
         for code, offset in cases:
             self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
@@ -331,6 +341,13 @@ class TestCheckSpace(CheckerTestCase):
                     args=('Exactly one', 'required', 'around', 'comparison', 'a<  b\n ^'))):
             self.checker.process_tokens(_tokenize_str('a<  b\n'))
 
+    def testValidTypingAnnotationEllipses(self):
+        """Make sure ellipses in function typing annotation
+        doesn't cause a false positive bad-whitespace message"""
+        with self.assertNoMessages():
+            self.checker.process_tokens(
+                _tokenize_str('def foo(t: Tuple[str, ...] = None):\n'))
+
     def testEmptyLines(self):
         self.checker.config.no_space_check = []
         with self.assertAddsMessages(
@@ -357,3 +374,41 @@ class TestCheckSpace(CheckerTestCase):
 
         with self.assertNoMessages():
             self.checker.process_tokens(_tokenize_str('a = 1\n\v\nb = 2\n'))
+
+
+    def test_encoding_token(self):
+        """Make sure the encoding token doesn't change the checker's behavior
+
+        _tokenize_str doesn't produce an encoding token, but
+        reading a file does
+        """
+        with self.assertNoMessages():
+            encoding_token = tokenize.TokenInfo(tokenize.ENCODING, "utf-8", (0, 0), (0, 0), '')
+            tokens = [encoding_token] + _tokenize_str('if (\n        None):\n    pass\n')
+            self.checker.process_tokens(tokens)
+
+
+def test_disable_global_option_end_of_line():
+    """
+    Test for issue with disabling tokenizer messages
+    that extend beyond the scope of the ast tokens
+    """
+    file_ = tempfile.NamedTemporaryFile('w', delete=False)
+    with file_:
+        file_.write("""
+mylist = [
+    None
+        ]
+    """)
+    try:
+        linter = lint.PyLinter()
+        checker = FormatChecker(linter)
+        linter.register_checker(checker)
+        args = linter.load_command_line_configuration(
+            [file_.name, '-d' ,'bad-continuation'])
+        myreporter = reporters.CollectingReporter()
+        linter.set_reporter(myreporter)
+        linter.check(args)
+        assert not myreporter.messages
+    finally:
+        os.remove(file_.name)

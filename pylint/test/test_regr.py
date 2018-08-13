@@ -2,9 +2,10 @@
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -111,19 +112,6 @@ def test_check_package___init__(finalize_linter):
     finalize_linter.check('__init__')
     checked = list(finalize_linter.stats['by_module'].keys())
     assert checked == ['__init__']
-
-
-@pytest.mark.skipif(PYPY_VERSION_INFO and PYPY_VERSION_INFO < (4, 0),
-                    reason="On older PyPy versions, sys.executable was set to a value "
-                    "that is not supported by the implementation of this function. "
-                    "( https://bitbucket.org/pypy/pypy/commits/19e305e27e67 )")
-def test_epylint_does_not_block_on_huge_files():
-    path = join(REGR_DATA, 'huge.py')
-    out, err = epylint.py_run(path, return_std=True)
-    assert hasattr(out, 'read')
-    assert hasattr(err, 'read')
-    output = out.read(10)
-    assert isinstance(output, str)
 
 
 def test_pylint_config_attr():

@@ -1,8 +1,9 @@
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -19,7 +20,7 @@ class TestVariablesChecker(CheckerTestCase):
     def test_bitbucket_issue_164(self):
         """Issue 164 report a false negative for access-member-before-definition"""
         n1, n2 = astroid.extract_node("""
-        class MyClass1(object):
+        class MyClass1:
           def __init__(self):
             self.first += 5 #@
             self.first = 0  #@
@@ -36,7 +37,7 @@ class TestVariablesChecker(CheckerTestCase):
         """
 
         node = astroid.parse("""
-        class Protected(object):
+        class Protected:
             '''empty'''
             def __init__(self):
                 self._meta = 42
@@ -70,7 +71,7 @@ class TestVariablesChecker(CheckerTestCase):
         # This should not emit a super-init-not-called
         # warning. It previously did this, because
         # ``next(node.infer())`` was used in that checker's
-        # logic and the first inferred node was an YES object,
+        # logic and the first inferred node was an Uninferable object,
         # leading to this false positive.
         node = astroid.extract_node("""
         import ctypes
@@ -81,3 +82,23 @@ class TestVariablesChecker(CheckerTestCase):
         """)
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
+
+    def test_uninferable_attribute(self):
+        """Make sure protect-access doesn't raise
+        an exception Uninferable attributes"""
+
+        node = astroid.extract_node("""
+        class MC():
+            @property
+            def nargs(self):
+                return 1 if self._nargs else 2
+
+        class Application(metaclass=MC):
+            def __new__(cls):
+                nargs = obj._nargs #@
+        """)
+        with self.assertAddsMessages(
+                Message('protected-access',
+                        node=node.value,
+                        args='_nargs')):
+            self.checker.visit_attribute(node.value)

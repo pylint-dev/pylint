@@ -1,7 +1,7 @@
 """
 Test that no StopIteration is raised inside a generator
 """
-# pylint: disable=missing-docstring,invalid-name,import-error, try-except-raise
+# pylint: disable=missing-docstring,invalid-name,import-error, try-except-raise, wrong-import-position
 import asyncio
 
 class RebornStopIteration(StopIteration):
@@ -98,3 +98,32 @@ def gen_dont_crash_on_uninferable():
 # https://github.com/PyCQA/pylint/issues/1830
 def gen_next_with_sentinel():
     yield next([], 42) # No bad return
+
+
+from itertools import count
+
+# https://github.com/PyCQA/pylint/issues/2158
+def generator_using_next():
+    counter = count()
+    number = next(counter)
+    yield number * 2
+
+
+# pylint: disable=no-self-use,too-few-public-methods
+class SomeClassWithNext:
+    def next(self):
+        return iter([1, 2, 3])
+    def some_gen(self):
+        for value in self.next():
+            yield value
+
+
+SomeClassWithNext().some_gen()
+
+
+def something_invalid():
+    raise Exception('cannot iterate this')
+
+
+def invalid_object_passed_to_next():
+    yield next(something_invalid()) # [stop-iteration-return]

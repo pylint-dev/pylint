@@ -4,12 +4,14 @@
 # Copyright (c) 2012 Mike Bryant <leachim@leachim.info>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Chris Murray <chris@chrismurray.scot>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2017 guillaume2 <guillaume.peillex@gmail.col>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
+# Copyright (c) 2018 Mariatta Wijaya <mariatta@python.org>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -50,21 +52,19 @@ MSGS = {
               'parameters as arguments',
               'logging-fstring-interpolation',
               'Used when a logging statement has a call form of '
-              '"logging.<logging method>(format_string.format(format_args...))"'
+              '"logging.method(f\"...\"))"'
               '. Such calls should use % formatting instead, but leave '
               'interpolation to the logging function by passing the parameters '
               'as arguments.'
-              'This message is emitted if f-string was used, and it can be '
-              'disabled if you like'
               ),
     'E1200': ('Unsupported logging format character %r (%#02x) at index %d',
               'logging-unsupported-format',
-              'Used when an unsupported format character is used in a logging\
-              statement format string.'),
+              'Used when an unsupported format character is used in a logging '
+              'statement format string.'),
     'E1201': ('Logging format string ends in middle of conversion specifier',
               'logging-format-truncated',
-              'Used when a logging statement format string terminates before\
-              the end of a conversion specifier.'),
+              'Used when a logging statement format string terminates before '
+              'the end of a conversion specifier.'),
     'E1205': ('Too many arguments for logging format string',
               'logging-too-many-args',
               'Used when a logging format string is given too many arguments.'),
@@ -109,7 +109,7 @@ class LoggingChecker(checkers.BaseChecker):
                  'type': 'csv',
                  'metavar': '<comma separated list>',
                  'help': 'Logging modules to check that the string format '
-                         'arguments are in logging function parameter format'}
+                         'arguments are in logging function parameter format.'}
                ),
               )
 
@@ -193,15 +193,20 @@ class LoggingChecker(checkers.BaseChecker):
 
         if isinstance(node.args[format_pos], astroid.BinOp):
             binop = node.args[format_pos]
-            if (binop.op == '%' or binop.op == '+' and
-                    len([_operand for _operand in (binop.left, binop.right)
-                         if self._is_operand_literal_str(_operand)]) == 1):
+            emit = binop.op == '%'
+            if binop.op == '+':
+                total_number_of_strings = sum(
+                    1 for operand in (binop.left, binop.right)
+                    if self._is_operand_literal_str(utils.safe_infer(operand))
+                )
+                emit = total_number_of_strings > 0
+            if emit:
                 self.add_message('logging-not-lazy', node=node)
         elif isinstance(node.args[format_pos], astroid.Call):
             self._check_call_func(node.args[format_pos])
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)
-        elif isinstance(node.args[format_pos], astroid.JoinedStr):
+        elif isinstance(node.args[format_pos], (astroid.FormattedValue, astroid.JoinedStr)):
             self.add_message('logging-fstring-interpolation', node=node)
 
     @staticmethod

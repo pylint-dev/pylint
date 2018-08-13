@@ -1,5 +1,5 @@
 """Errors for invalid slice indices"""
-# pylint: disable=too-few-public-methods, no-self-use
+# pylint: disable=too-few-public-methods, no-self-use,missing-docstring,expression-not-assigned, useless-object-inheritance, unnecessary-pass
 
 
 TESTLIST = [1, 2, 3]
@@ -58,3 +58,14 @@ def function7():
 def function8():
     """slice object used as index"""
     return TESTLIST[slice(1, 2, 3)] # no error
+
+
+def function9():
+    """Use a custom class that knows how to handle string slices"""
+    class StringSlice:
+        def __getitem__(self, item):
+            return item
+
+    StringSlice()["a":"b":"c"]
+    StringSlice()["a":"b":"c", "a":"b"]
+    StringSlice()[slice("a", "b", "c")]

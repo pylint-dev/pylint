@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2006, 2009-2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Alexandru Coman <fcoman@bitdefender.com>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 glegoux <gilles.legoux@gmail.com>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -97,17 +98,6 @@ class EncodingChecker(BaseChecker):
                                     commented lines exist at the end of the module)
         :type module_last_lineno: int
         """
-        # First, simply check if the notes are in the line at all. This is an
-        # optimisation to prevent using the regular expression on every line,
-        # but rather only on lines which may actually contain one of the notes.
-        # This prevents a pathological problem with lines that are hundreds
-        # of thousands of characters long.
-        for note in map(str.lower, self.config.notes):
-            if note in line.lower():
-                break
-        else:
-            return
-
         match = notes.search(line)
         if not match:
             return
@@ -129,7 +119,8 @@ class EncodingChecker(BaseChecker):
                     self.add_message('bad-inline-option',
                                      args=disable_option_match.group(1).strip(), line=line)
                     return
-        self.add_message('fixme', args=line[match.start(1):].rstrip(), line=lineno)
+        self.add_message('fixme', args=line[match.start(1):].rstrip(), line=lineno,
+                         col_offset=match.start(1))
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
@@ -151,7 +142,7 @@ class EncodingChecker(BaseChecker):
         """
         if self.config.notes:
             notes = re.compile(
-                r'.*?#\s*(%s)(:*\s*.*)' % "|".join(self.config.notes), re.I)
+                r'#\s*(%s)\b' % "|".join(map(re.escape, self.config.notes)), re.I)
         else:
             notes = None
         if module.file_encoding:

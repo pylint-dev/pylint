@@ -42,8 +42,8 @@ Pylint from the repository, simply invoke ::
 -----------------------------------
 
 Pylint depends on astroid_ and a couple of other packages.
-It should be compatible with any Python version greater than 2.7.0 and
-it is also working on PyPy.
+See the following section for details on what versions of Python are
+supported.
 
 .. _`astroid`: https://github.com/PyCQA/astroid
 

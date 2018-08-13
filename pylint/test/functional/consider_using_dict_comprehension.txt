@@ -1,0 +1,1 @@
+consider-using-dict-comprehension:9::Consider using a dictionary comprehension

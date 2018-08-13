@@ -7,7 +7,7 @@ unsubscriptable-object:49::Value 'True' is unsubscriptable
 unsubscriptable-object:50::Value 'None' is unsubscriptable
 unsubscriptable-object:51::Value '8.5' is unsubscriptable
 unsubscriptable-object:52::Value '10' is unsubscriptable
-unsubscriptable-object:55::Value '{(x) ** (2) for x in range(10)}' is unsubscriptable
+unsubscriptable-object:55::Value '{x**2 for x in range(10)}' is unsubscriptable
 unsubscriptable-object:56::Value 'set(numbers)' is unsubscriptable
 unsubscriptable-object:57::Value 'frozenset(numbers)' is unsubscriptable
 unsubscriptable-object:77::Value 'SubscriptableClass()' is unsubscriptable

@@ -1,4 +1,4 @@
-# pylint: disable=C0111,R0903
+# pylint: disable=C0111,R0903, useless-object-inheritance
 """#3291"""
 from __future__ import print_function
 

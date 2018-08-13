@@ -3,7 +3,7 @@
 # Copyright (c) 2009 Vincent
 # Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Michal Nowikowski <godfryd@gmail.com>
 # Copyright (c) 2014 LCD 47 <lcd047@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
@@ -19,13 +19,20 @@
 # Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 xmo-odoo <xmo-odoo@users.noreply.github.com>
+# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Pierre Sassoulas <pierre.sassoulas@cea.fr>
+# Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2017 Chris Lamb <chris@chris-lamb.co.uk>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2017 Thomas Hisch <t.hisch@gmail.com>
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
 # Copyright (c) 2017 Craig Citro <craigcitro@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Pierre Sassoulas <pierre.sassoulas@wisebim.fr>
+# Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
+# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -46,9 +53,6 @@ import tokenize
 import warnings
 import textwrap
 
-import six
-from six.moves import zip  # pylint: disable=redefined-builtin
-
 from astroid import nodes, Module
 from astroid import modutils
 
@@ -65,7 +69,7 @@ MSG_TYPES = {
     'E' : 'error',
     'F' : 'fatal'
     }
-MSG_TYPES_LONG = {v: k for k, v in six.iteritems(MSG_TYPES)}
+MSG_TYPES_LONG = {v: k for k, v in MSG_TYPES.items()}
 
 MSG_TYPES_STATUS = {
     'I' : 0,
@@ -89,7 +93,7 @@ OPTION_RGX = re.compile(r'\s*#.*\bpylint:\s*([^;]+);{0,1}')
 # The line/node distinction does not apply to fatal errors and reports.
 _SCOPE_EXEMPT = 'FR'
 
-class WarningScope(object):
+class WarningScope:
     LINE = 'line-based-msg'
     NODE = 'node-based-msg'
 
@@ -180,7 +184,7 @@ def build_message_def(checker, msgid, msg_tuple):
     return MessageDefinition(checker, msgid, msg, descr, symbol, **options)
 
 
-class MessageDefinition(object):
+class MessageDefinition:
     def __init__(self, checker, msgid, msg, descr, symbol, scope,
                  minversion=None, maxversion=None, old_names=None):
         self.checker = checker
@@ -234,11 +238,12 @@ class MessageDefinition(object):
         desc = _normalize_text(' '.join(desc.split()), indent='  ')
         if title != '%s':
             title = title.splitlines()[0]
-            return ':%s: *%s*\n%s' % (msgid, title, desc)
+
+            return ':%s: *%s*\n%s' % (msgid, title.rstrip(" "), desc)
         return ':%s:\n%s' % (msgid, desc)
 
 
-class MessagesHandlerMixIn(object):
+class MessagesHandlerMixIn:
     """a mix-in class containing all the messages related methods for the main
     lint class
     """
@@ -340,9 +345,9 @@ class MessagesHandlerMixIn(object):
             msgs[msg.msgid] = enable
             # sync configuration object
             self.config.enable = [self._message_symbol(mid) for mid, val
-                                  in sorted(six.iteritems(msgs)) if val]
+                                  in sorted(msgs.items()) if val]
             self.config.disable = [self._message_symbol(mid) for mid, val
-                                   in sorted(six.iteritems(msgs)) if not val]
+                                   in sorted(msgs.items()) if not val]
 
     def _message_symbol(self, msgid):
         """Get the message symbol of the given message id
@@ -387,15 +392,23 @@ class MessagesHandlerMixIn(object):
         try:
             return self.file_state._module_msgs_state[msgid][line]
         except KeyError:
+            # Check if the message's line is after the maximum line existing in ast tree.
+            # This line won't appear in the ast tree and won't be referred in
+            # self.file_state._module_msgs_state
+            # This happens for example with a commented line at the end of a module.
+            max_line_number = self.file_state.get_effective_max_line_number()
+            if (max_line_number and line > max_line_number):
+                fallback = msgid not in self.file_state._raw_module_msgs_state
+                return self._msgs_state.get(msgid, fallback)
             return self._msgs_state.get(msgid, True)
 
     def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
                     col_offset=None):
         """Adds a message given by ID or name.
 
-        If provided, the message string is expanded using args
+        If provided, the message string is expanded using args.
 
-        AST checkers should must the node argument (but may optionally
+        AST checkers must provide the node argument (but may optionally
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
@@ -506,7 +519,7 @@ class MessagesHandlerMixIn(object):
         print("Below is a list of all checkers and their features.", file=stream)
         print("", file=stream)
 
-        for checker, info in sorted(six.iteritems(by_checker)):
+        for checker, info in sorted(by_checker.items()):
             self._print_checker_doc(checker, info, stream=stream)
 
     @staticmethod
@@ -524,41 +537,42 @@ class MessagesHandlerMixIn(object):
         options = info.get('options')
         reports = info.get('reports')
 
-        title = '%s checker' % (checker_name.replace("_", " ").title())
+        checker_title = '%s checker' % (checker_name.replace("_", " ").title())
 
         if module:
             # Provide anchor to link against
             print(".. _%s:\n" % module, file=stream)
-        print(title, file=stream)
-        print('~' * len(title), file=stream)
+        print(checker_title, file=stream)
+        print('~' * len(checker_title), file=stream)
         print("", file=stream)
         if module:
             print("This checker is provided by ``%s``." % module, file=stream)
         print("Verbatim name of the checker is ``%s``." % checker_name, file=stream)
         print("", file=stream)
         if doc:
-            title = 'Documentation'
+            # Provide anchor to link against
+            title = '{} Documentation'.format(checker_title)
             print(title, file=stream)
             print('^' * len(title), file=stream)
             print(cleandoc(doc), file=stream)
             print("", file=stream)
         if options:
-            title = 'Options'
+            title = '{} Options'.format(checker_title)
             print(title, file=stream)
             print('^' * len(title), file=stream)
             _rest_format_section(stream, None, options)
             print("", file=stream)
         if msgs:
-            title = 'Messages'
+            title = '{} Messages'.format(checker_title)
             print(title, file=stream)
             print('^' * len(title), file=stream)
-            for msgid, msg in sorted(six.iteritems(msgs),
+            for msgid, msg in sorted(msgs.items(),
                                      key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
                 msg = build_message_def(checker_name, msgid, msg)
                 print(msg.format_help(checkerref=False), file=stream)
             print("", file=stream)
         if reports:
-            title = 'Reports'
+            title = '{} Reports'.format(checker_title)
             print(title, file=stream)
             print('^' * len(title), file=stream)
             for report in reports:
@@ -566,7 +580,7 @@ class MessagesHandlerMixIn(object):
             print("", file=stream)
         print("", file=stream)
 
-class FileState(object):
+class FileState:
     """Hold internal state specific to the currently analyzed file"""
 
     def __init__(self, modname=None):
@@ -575,14 +589,16 @@ class FileState(object):
         self._raw_module_msgs_state = {}
         self._ignored_msgs = collections.defaultdict(set)
         self._suppression_mapping = {}
+        self._effective_max_line_number = None
 
     def collect_block_lines(self, msgs_store, module_node):
         """Walk the AST to collect block level options line numbers."""
-        for msg, lines in six.iteritems(self._module_msgs_state):
+        for msg, lines in self._module_msgs_state.items():
             self._raw_module_msgs_state[msg] = lines.copy()
         orig_state = self._module_msgs_state.copy()
         self._module_msgs_state = {}
         self._suppression_mapping = {}
+        self._effective_max_line_number = module_node.tolineno
         self._collect_block_lines(msgs_store, module_node, orig_state)
 
     def _collect_block_lines(self, msgs_store, node, msg_state):
@@ -613,7 +629,7 @@ class FileState(object):
             firstchildlineno = node.body[0].fromlineno
         else:
             firstchildlineno = last
-        for msgid, lines in six.iteritems(msg_state):
+        for msgid, lines in msg_state.items():
             for lineno, state in list(lines.items()):
                 original_lineno = lineno
                 if first > lineno or last < lineno:
@@ -666,8 +682,8 @@ class FileState(object):
                 pass
 
     def iter_spurious_suppression_messages(self, msgs_store):
-        for warning, lines in six.iteritems(self._raw_module_msgs_state):
-            for line, enable in six.iteritems(lines):
+        for warning, lines in self._raw_module_msgs_state.items():
+            for line, enable in lines.items():
                 if not enable and (warning, line) not in self._ignored_msgs:
                     yield 'useless-suppression', line, \
                         (msgs_store.get_msg_display_string(warning),)
@@ -677,8 +693,11 @@ class FileState(object):
                 yield 'suppressed-message', line, \
                     (msgs_store.get_msg_display_string(warning), from_)
 
+    def get_effective_max_line_number(self):
+        return self._effective_max_line_number
 
-class MessagesStore(object):
+
+class MessagesStore:
     """The messages store knows information about every possible message but has
     no particular state during analysis.
     """
@@ -700,7 +719,7 @@ class MessagesStore(object):
     @property
     def messages(self):
         """The list of all active messages."""
-        return six.itervalues(self._messages)
+        return self._messages.values()
 
     def add_renamed_message(self, old_id, old_symbol, new_symbol):
         """Register the old ID and symbol for a warning that was renamed.
@@ -720,7 +739,7 @@ class MessagesStore(object):
         :return: A list of MessageDefinition.
         """
         message_definitions = []
-        for msgid, msg_tuple in sorted(six.iteritems(checker.msgs)):
+        for msgid, msg_tuple in sorted(checker.msgs.items()):
             message = build_message_def(checker, msgid, msg_tuple)
             message_definitions.append(message)
         return message_definitions
@@ -903,7 +922,7 @@ class MessagesStore(object):
 
     def list_messages(self):
         """Output full messages list documentation in ReST format. """
-        messages = sorted(six.itervalues(self._messages), key=lambda m: m.msgid)
+        messages = sorted(self._messages.values(), key=lambda m: m.msgid)
         for message in messages:
             if not message.may_be_emitted():
                 continue
@@ -911,7 +930,7 @@ class MessagesStore(object):
         print("")
 
 
-class ReportsHandlerMixIn(object):
+class ReportsHandlerMixIn:
     """a mix-in class containing all the reports and stats manipulation
     related methods for the main lint class
     """
@@ -973,7 +992,7 @@ class ReportsHandlerMixIn(object):
         """add some stats entries to the statistic dictionary
         raise an AssertionError if there is a key conflict
         """
-        for key, value in six.iteritems(kwargs):
+        for key, value in kwargs.items():
             if key[-1] == '_':
                 key = key[:-1]
             assert key not in self.stats
@@ -1072,7 +1091,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
     return result, errors
 
 
-class PyLintASTWalker(object):
+class PyLintASTWalker:
 
     def __init__(self, linter):
         # callbacks per node types
@@ -1130,9 +1149,6 @@ class PyLintASTWalker(object):
         # In this case, favour the methods for the deprecated
         # alias if any,  in order to maintain backwards
         # compatibility.
-        visit_events = ()
-        leave_events = ()
-
         visit_events = self.visit_events.get(cid, ())
         leave_events = self.leave_events.get(cid, ())
 
@@ -1284,7 +1300,7 @@ def _format_option_value(optdict, value):
         value = value.pattern
     elif optdict.get('type') == 'yn':
         value = 'yes' if value else 'no'
-    elif isinstance(value, six.string_types) and value.isspace():
+    elif isinstance(value, str) and value.isspace():
         value = "'%s'" % value
     return value
 

@@ -3,7 +3,7 @@
 # Copyright (c) 2010 Maarten ter Huurne <maarten@treewalker.org>
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
@@ -17,6 +17,12 @@
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Ben Green <benhgreen@icloud.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
+# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -26,7 +32,7 @@
 from __future__ import generators
 
 import collections
-from itertools import zip_longest
+from itertools import chain, zip_longest
 import sys
 
 import astroid
@@ -189,7 +195,8 @@ def _has_different_parameters_default_value(original, overridden):
     if original.args is None or overridden.args is None:
         return False
 
-    original_param_names = [param.name for param in original.args]
+    all_args = chain(original.args, original.kwonlyargs)
+    original_param_names = [param.name for param in all_args]
     default_missing = object()
     for param_name in original_param_names:
         try:
@@ -350,8 +357,10 @@ def _is_attribute_property(name, klass):
         attributes = klass.getattr(name)
     except astroid.NotFoundError:
         return False
-    property_name = "{0}.property".format(BUILTINS)
+    property_name = "{}.property".format(BUILTINS)
     for attr in attributes:
+        if attr is astroid.Uninferable:
+            continue
         try:
             infered = next(attr.infer())
         except astroid.InferenceError:
@@ -537,10 +546,14 @@ MSGS = {
               'single-string-used-for-slots',
               'Used when a class __slots__ is a simple string, rather '
               'than an iterable.'),
+    'R0205': ('Class %r inherits from object, can be safely removed from bases in python3',
+              'useless-object-inheritance',
+              'Used when a class inherit from object, which under python3 is implicit, '
+              'hence can be safely removed from bases.')
     }
 
 
-class ScopeAccessMap(object):
+class ScopeAccessMap:
     """Store the accessed variables per scope."""
 
     def __init__(self):
@@ -594,7 +607,7 @@ instance attributes.'}
 a class method.'}
                ),
                ('valid-metaclass-classmethod-first-arg',
-                {'default' : ('mcs',),
+                {'default' : ('cls',),
                  'type' : 'csv',
                  'metavar' : '<argument names>',
                  'help' : 'List of valid names for the first argument in \
@@ -660,7 +673,7 @@ a metaclass class method.'}
         """
         for base in node.bases:
             ancestor = safe_infer(base)
-            if ancestor in (astroid.YES, None):
+            if ancestor in (astroid.Uninferable, None):
                 continue
             if (isinstance(ancestor, astroid.Instance) and
                     ancestor.is_subtype_of('%s.type' % (BUILTINS,))):
@@ -670,6 +683,9 @@ a metaclass class method.'}
                     _is_invalid_base_class(ancestor)):
                 self.add_message('inherit-non-class',
                                  args=base.as_string(), node=node)
+
+            if ancestor.name == object.__name__:
+                self.add_message('useless-object-inheritance', args=node.name, node=node)
 
     def leave_classdef(self, cnode):
         """close a class node:
@@ -769,6 +785,14 @@ a metaclass class method.'}
                     # attribute affectation will either call a setter or raise
                     # an attribute error, anyway not hiding the function
                     return
+                try:
+                    for infered in decorator.infer():
+                        if (isinstance(infered, astroid.ClassDef)
+                                and infered.getattr('__get__')
+                                and infered.getattr('__set__')):
+                            return
+                except (astroid.InferenceError, astroid.AttributeInferenceError):
+                    pass
         # check if the method is hidden by an attribute
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX
@@ -866,7 +890,7 @@ a metaclass class method.'}
 
         if meth_node is not None:
             def form_annotations(annotations):
-                return [a.name if a is not None else a for a in annotations]
+                return [annotation.as_string() for annotation in filter(None, annotations)]
             called_annotations = form_annotations(function.args.annotations)
             overridden_annotations = form_annotations(meth_node.args.annotations)
             if called_annotations and overridden_annotations:
@@ -882,7 +906,7 @@ a metaclass class method.'}
             return
         for slots in node.igetattr('__slots__'):
             # check if __slots__ is a valid type
-            if slots is astroid.YES:
+            if slots is astroid.Uninferable:
                 continue
             if not is_iterable(slots) and not is_comprehension(slots):
                 self.add_message('invalid-slots', node=node)
@@ -900,7 +924,7 @@ a metaclass class method.'}
                 values = [item[0] for item in slots.items]
             else:
                 values = slots.itered()
-            if values is astroid.YES:
+            if values is astroid.Uninferable:
                 return
 
             for elt in values:
@@ -1456,8 +1480,8 @@ class SpecialMethodsChecker(BaseChecker):
 
     @staticmethod
     def _is_iterator(node):
-        if node is astroid.YES:
-            # Just ignore YES objects.
+        if node is astroid.Uninferable:
+            # Just ignore Uninferable objects.
             return True
         if isinstance(node, Generator):
             # Generators can be itered.
@@ -1518,15 +1542,6 @@ def _ancestors_to_call(klass_node, method='__init__'):
             continue
     return to_call
 
-
-def node_method(node, method_name):
-    """get astroid for <method_name> on the given class node, ensuring it
-    is a Function node
-    """
-    for node_attr in node.local_attr(method_name):
-        if isinstance(node_attr, astroid.Function):
-            return node_attr
-    raise astroid.NotFoundError(method_name)
 
 def register(linter):
     """required method to auto register this checker """

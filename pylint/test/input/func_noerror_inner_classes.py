@@ -1,4 +1,4 @@
-# pylint: disable=R0903
+# pylint: disable=R0903, useless-object-inheritance, unnecessary-pass
 """Backend Base Classes for the schwelm user DB"""
 
 __revision__ = "alpha"

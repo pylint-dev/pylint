@@ -2,14 +2,16 @@
 # Copyright (c) 2013-2014 Google, Inc.
 # Copyright (c) 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2017-2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2017 Pierre Sassoulas <pierre.sassoulas@cea.fr>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
-# Copyright (c) 2017 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2018 Pierre Sassoulas <pierre.sassoulas@wisebim.fr>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -195,9 +197,9 @@ def test_decoding_stream_unknown_encoding():
 
 
 def test_decoding_stream_known_encoding():
-    binary_io = io.BytesIO(u'€'.encode('cp1252'))
+    binary_io = io.BytesIO('€'.encode('cp1252'))
     stream = utils.decoding_stream(binary_io, 'cp1252')
-    assert stream.read() == u'€'
+    assert stream.read() == '€'
 
 class TestGetNodeLastLineno:
 

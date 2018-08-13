@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016-2017 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016-2018 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Yuri Bochkarev <baltazar.bz@gmail.com>
-# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Mitar <mitar.github@tnode.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Mitchell T.H. Young <mitchelly@gmail.com>
+# Copyright (c) 2018 Adrian Chirieac <chirieacam@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -106,7 +110,7 @@ def possible_exc_types(node):
     :type node: astroid.node_classes.NodeNG
 
     :returns: A list of exception types possibly raised by :param:`node`.
-    :rtype: list(str)
+    :rtype: set(str)
     """
     excs = []
     if isinstance(node.exc, astroid.Name):
@@ -140,22 +144,23 @@ def possible_exc_types(node):
 
 
     try:
-        return set(exc for exc in excs if not utils.node_ignores_exception(node, exc))
+        return {exc for exc in excs if not utils.node_ignores_exception(node, exc)}
     except astroid.InferenceError:
-        return ()
+        return set()
 
 
-def docstringify(docstring):
+def docstringify(docstring, default_type='default'):
     for docstring_type in [SphinxDocstring, EpytextDocstring,
                            GoogleDocstring, NumpyDocstring]:
         instance = docstring_type(docstring)
         if instance.is_valid():
             return instance
 
-    return Docstring(docstring)
+    docstring_type = DOCSTRING_TYPES.get(default_type, Docstring)
+    return docstring_type(docstring)
 
 
-class Docstring(object):
+class Docstring:
     re_for_parameters_see = re.compile(r"""
         For\s+the\s+(other)?\s*parameters\s*,\s+see
         """, re.X | re.S)
@@ -216,7 +221,7 @@ class SphinxDocstring(Docstring):
 
     re_xref = r"""
         (?::\w+:)?                    # optional tag
-        `{0}`                         # what to reference
+        `{}`                         # what to reference
         """.format(re_type)
 
     re_param_raw = r"""
@@ -717,3 +722,16 @@ class NumpyDocstring(GoogleDocstring):
     @staticmethod
     def _is_section_header(line):
         return bool(re.match(r'\s*-+$', line))
+
+
+DOCSTRING_TYPES = {
+    'sphinx': SphinxDocstring,
+    'epytext': EpytextDocstring,
+    'google': GoogleDocstring,
+    'numpy': NumpyDocstring,
+    'default': Docstring,
+}
+"""A map of the name of the docstring type to its class.
+
+:type: dict(str, type)
+"""

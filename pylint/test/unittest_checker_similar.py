@@ -2,8 +2,9 @@
 # Copyright (c) 2012 Ry4an Brase <ry4an-hg@ry4an.org>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -11,7 +12,7 @@
 import sys
 from os.path import join, dirname, abspath
 
-import six
+from io import StringIO
 import pytest
 
 from pylint.checkers import similar
@@ -21,7 +22,7 @@ SIMILAR2 = join(dirname(abspath(__file__)), 'input', 'similar2')
 
 
 def test_ignore_comments():
-    sys.stdout = six.StringIO()
+    sys.stdout = StringIO()
     with pytest.raises(SystemExit) as ex:
         similar.Run(['--ignore-comments', SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
@@ -46,7 +47,7 @@ TOTAL lines=44 duplicates=10 percent=22.73
 
 
 def test_ignore_docsrings():
-    sys.stdout = six.StringIO()
+    sys.stdout = StringIO()
     with pytest.raises(SystemExit) as ex:
         similar.Run(['--ignore-docstrings', SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
@@ -78,7 +79,7 @@ TOTAL lines=44 duplicates=13 percent=29.55
 
 
 def test_ignore_imports():
-    sys.stdout = six.StringIO()
+    sys.stdout = StringIO()
     with pytest.raises(SystemExit) as ex:
         similar.Run(['--ignore-imports', SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
@@ -90,7 +91,7 @@ TOTAL lines=44 duplicates=0 percent=0.00
 
 
 def test_ignore_nothing():
-    sys.stdout = six.StringIO()
+    sys.stdout = StringIO()
     with pytest.raises(SystemExit) as ex:
         similar.Run([SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
@@ -110,7 +111,7 @@ TOTAL lines=44 duplicates=5 percent=11.36
 
 
 def test_help():
-    sys.stdout = six.StringIO()
+    sys.stdout = StringIO()
     try:
         similar.Run(['--help'])
     except SystemExit as ex:
@@ -122,7 +123,7 @@ def test_help():
 
 
 def test_no_args():
-    sys.stdout = six.StringIO()
+    sys.stdout = StringIO()
     try:
         similar.Run([])
     except SystemExit as ex:

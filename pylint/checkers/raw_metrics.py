@@ -1,7 +1,7 @@
 # Copyright (c) 2007, 2010, 2013, 2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013 Google, Inc.
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Mike Frysinger <vapier@gentoo.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>

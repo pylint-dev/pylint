@@ -1,0 +1,4 @@
+misplaced-format-function:5::format function is not called on str
+misplaced-format-function:6::format function is not called on str
+misplaced-format-function:52:FakeClass.format_string:format function is not called on str
+misplaced-format-function:58::format function is not called on str

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
+# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2018 mar-chi-pan <mar.polatoglou@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -12,6 +15,7 @@
 """Unit tests for the variables checker."""
 import sys
 import os
+import re
 
 import astroid
 
@@ -189,6 +193,40 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.walk(node)
+
+    def test_nested_lambda(self):
+        """Make sure variables from parent lambdas
+        aren't noted as undefined
+
+        https://github.com/PyCQA/pylint/issues/760
+        """
+        node = astroid.parse('''
+        lambda x: lambda: x + 1
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
+
+
+    @set_config(ignored_argument_names=re.compile("arg"))
+    def test_ignored_argument_names_no_message(self):
+        """Make sure is_ignored_argument_names properly ignores
+        function arguments"""
+        node = astroid.parse('''
+        def fooby(arg):
+            pass
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
+
+    @set_config(ignored_argument_names=re.compile("args|kwargs"))
+    def test_ignored_argument_names_starred_args(self):
+        node = astroid.parse('''
+        def fooby(*args, **kwargs):
+            pass
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
+
 
 class TestMissingSubmodule(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker

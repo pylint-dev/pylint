@@ -1,5 +1,5 @@
+# Copyright (c) 2016-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 

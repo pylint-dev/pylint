@@ -4,7 +4,7 @@
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Ricardo Gemignani <ricardo.gemignani@gmail.com>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
@@ -12,12 +12,16 @@
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016, 2018 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016-2017 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 Brian C. Lane <bcl@redhat.com>
+# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
+# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
+# Copyright (c) 2018 Brian Shaginaw <brian.shaginaw@warbyparker.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -49,6 +53,7 @@ else:
 ABC_METHODS = {'abc.abstractproperty', 'abc.abstractmethod',
                'abc.abstractclassmethod', 'abc.abstractstaticmethod'}
 ITER_METHOD = '__iter__'
+AITER_METHOD = '__aiter__'
 NEXT_METHOD = '__next__'
 GETITEM_METHOD = '__getitem__'
 SETITEM_METHOD = '__setitem__'
@@ -119,6 +124,17 @@ def is_inside_except(node):
         current = current.parent
 
     return current and current is current.parent.name
+
+
+def is_inside_lambda(node):
+    # type: (astroid.NodeNG) -> bool
+    """Return true if given node is inside lambda"""
+    parent = node.parent
+    while parent is not None:
+        if isinstance(parent, astroid.Lambda):
+            return True
+        parent = parent.parent
+    return False
 
 
 def get_all_elements(node):
@@ -195,12 +211,8 @@ def is_defined_before(var_node):
     varname = var_node.name
     _node = var_node.parent
     while _node:
-        if isinstance(_node, COMP_NODE_TYPES):
+        if isinstance(_node, (COMP_NODE_TYPES, astroid.For)):
             for ass_node in _node.nodes_of_class(astroid.AssignName):
-                if ass_node.name == varname:
-                    return True
-        elif isinstance(_node, astroid.For):
-            for ass_node in _node.target.nodes_of_class(astroid.AssignName):
                 if ass_node.name == varname:
                     return True
         elif isinstance(_node, astroid.With):
@@ -226,7 +238,6 @@ def is_defined_before(var_node):
                 return True
             if getattr(_node, 'name', None) == varname:
                 return True
-            break
         elif isinstance(_node, astroid.ExceptHandler):
             if isinstance(_node.name, astroid.AssignName):
                 ass_node = _node.name
@@ -247,17 +258,18 @@ def is_defined_before(var_node):
         _node = _node.previous_sibling()
     return False
 
-def is_func_default(node):
-    """return true if the given Name node is used in function default argument's
-    value
+def is_default_argument(node):
+    """return true if the given Name node is used in function or lambda
+    default argument's value
     """
     parent = node.scope()
-    if isinstance(parent, astroid.FunctionDef):
+    if isinstance(parent, (astroid.FunctionDef, astroid.Lambda)):
         for default_node in parent.args.defaults:
             for default_name_node in default_node.nodes_of_class(astroid.Name):
                 if default_name_node is node:
                     return True
     return False
+
 
 def is_func_decorator(node):
     """return true if the name is used in function decorator"""
@@ -313,7 +325,6 @@ def check_messages(*messages):
 
 class IncompleteFormatString(Exception):
     """A format string ended in the middle of a format specifier."""
-    pass
 
 class UnsupportedFormatCharacter(Exception):
     """A format character in a format string is not one of the supported
@@ -461,6 +472,7 @@ def inherit_from_std_ex(node):
     return any(inherit_from_std_ex(parent)
                for parent in node.ancestors(recurs=True))
 
+
 def error_of_type(handler, error_type):
     """
     Check if the given exception handler catches
@@ -481,9 +493,7 @@ def error_of_type(handler, error_type):
         error_type = (error_type, )
     expected_errors = {stringify_error(error) for error in error_type}
     if not handler.type:
-        # bare except. While this indeed catches anything, if the desired errors
-        # aren't specified directly, then we just ignore it.
-        return False
+        return True
     return handler.catch(expected_errors)
 
 
@@ -583,7 +593,7 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
     return visited
 
 
-def _import_node_context(node):
+def find_try_except_wrapper_node(node):
     """Return the ExceptHandler or the TryExcept node in which the node is."""
     current = node
     ignores = (astroid.ExceptHandler, astroid.TryExcept)
@@ -597,7 +607,7 @@ def _import_node_context(node):
 
 def is_from_fallback_block(node):
     """Check if the given node is from a fallback import block."""
-    context = _import_node_context(node)
+    context = find_try_except_wrapper_node(node)
     if not context:
         return False
 
@@ -620,21 +630,22 @@ def _except_handlers_ignores_exception(handlers, exception):
     return any(map(func, handlers))
 
 
-def get_exception_handlers(node, exception):
+def get_exception_handlers(node, exception=Exception):
     """Return the collections of handlers handling the exception in arguments.
 
     Args:
-        node (astroid.Raise): the node raising the exception.
+        node (astroid.NodeNG): A node that is potentially wrapped in a try except.
         exception (builtin.Exception or str): exception or name of the exception.
 
     Returns:
-        generator: the collection of handlers that are handling the exception or None.
+        list: the collection of handlers that are handling the exception or None.
 
     """
-    context = _import_node_context(node)
+    context = find_try_except_wrapper_node(node)
     if isinstance(context, astroid.TryExcept):
-        return (_handler for _handler in context.handlers
-                if error_of_type(_handler, exception))
+        return [
+            handler for handler in context.handlers if error_of_type(handler, exception)
+        ]
     return None
 
 
@@ -648,12 +659,16 @@ def is_node_inside_try_except(node):
     Returns:
         bool: True if the node is inside a try/except statement, False otherwise.
     """
-    context = _import_node_context(node)
+    context = find_try_except_wrapper_node(node)
     return isinstance(context, astroid.TryExcept)
 
 
-def node_ignores_exception(node, exception):
-    """Check if the node is in a TryExcept which handles the given exception."""
+def node_ignores_exception(node, exception=Exception):
+    """Check if the node is in a TryExcept which handles the given exception.
+
+    If the exception is not given, the function is going to look for bare
+    excepts.
+    """
     managing_handlers = get_exception_handlers(node, exception)
     if not managing_handlers:
         return False
@@ -708,6 +723,10 @@ def _supports_iteration_protocol(value):
         _supports_protocol_method(value, ITER_METHOD)
         or _supports_protocol_method(value, GETITEM_METHOD)
     )
+
+
+def _supports_async_iteration_protocol(value):
+    return _supports_protocol_method(value, AITER_METHOD)
 
 
 def _supports_getitem_protocol(value):
@@ -770,8 +789,12 @@ def _supports_protocol(value, protocol_callback):
     return False
 
 
-def is_iterable(value):
-    return _supports_protocol(value, _supports_iteration_protocol)
+def is_iterable(value, check_async=False):
+    if check_async:
+        protocol_check = _supports_async_iteration_protocol
+    else:
+        protocol_check = _supports_iteration_protocol
+    return _supports_protocol(value, protocol_check)
 
 
 def is_mapping(value):
@@ -845,7 +868,7 @@ def is_none(node):
 def node_type(node):
     """Return the inferred type for `node`
 
-    If there is more than one possible type, or if inferred type is YES or None,
+    If there is more than one possible type, or if inferred type is Uninferable or None,
     return None
     """
     # check there is only one possible type for the assign node. Else we
@@ -890,6 +913,7 @@ def is_registered_in_singledispatch_function(node):
             continue
 
         if isinstance(func_def, astroid.FunctionDef):
+            # pylint: disable=redundant-keyword-arg; some flow inference goes wrong here
             return decorated_with(func_def, singledispatch_qnames)
 
     return False
@@ -964,3 +988,27 @@ def is_dataclass(node):
         if name == DATACLASS_DECORATOR and DATACLASS_DECORATOR in node.root().locals:
             return True
     return False
+
+
+def is_postponed_evaluation_enabled(node):
+    """Check if the postponed evaluation of annotations is enabled"""
+    name = 'annotations'
+    module = node.root()
+    stmt = module.locals.get(name)
+    return stmt and isinstance(stmt[0], astroid.ImportFrom) and stmt[0].modname == '__future__'
+
+
+def is_subclass_of(node_a, node_b):
+    """
+    Check if first node is a subclass of second node.
+    :param node_a: Node to check for subclass.
+    :type node_a: astroid.ClassDef
+    :param node_b: Node to check for superclass.
+    :type node_b: astroid.ClassDef
+    :returns: True if node_a is derived from node_b. False otherwise.
+    :rtype: bool
+    """
+    if not any(isinstance(node, astroid.ClassDef) for node in (node_a, node_b)):
+        return False
+
+    return node_b.name in {base.name for base in node_a.bases}

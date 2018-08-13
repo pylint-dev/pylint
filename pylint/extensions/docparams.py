@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2014-2015 Bruno Daniel <bruno.daniel@blue-yonder.com>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016-2017 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016-2018 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017 John Paraskevopoulos <io.paraskev@gmail.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Adam Dangoor <adamdangoor@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -123,6 +126,12 @@ class DocstringParameterChecker(BaseChecker):
                  'help': 'Whether to accept totally missing yields '
                          'documentation in the docstring of a generator.'
                 }),
+               ('default-docstring-type',
+                {'type': 'choice', 'default': 'default',
+                 'choices': list(utils.DOCSTRING_TYPES),
+                 'help': 'If the docstring type cannot be guessed '
+                         'the specified docstring type will be used.'
+                }),
               )
 
     priority = -2
@@ -136,7 +145,9 @@ class DocstringParameterChecker(BaseChecker):
         :param node: Node for a function or method definition in the AST
         :type node: :class:`astroid.scoped_nodes.Function`
         """
-        node_doc = utils.docstringify(node.doc)
+        node_doc = utils.docstringify(
+            node.doc, self.config.default_docstring_type,
+        )
         self.check_functiondef_params(node, node_doc)
         self.check_functiondef_returns(node, node_doc)
         self.check_functiondef_yields(node, node_doc)
@@ -146,7 +157,9 @@ class DocstringParameterChecker(BaseChecker):
         if node.name in self.constructor_names:
             class_node = checker_utils.node_frame_class(node)
             if class_node is not None:
-                class_doc = utils.docstringify(class_node.doc)
+                class_doc = utils.docstringify(
+                    class_node.doc, self.config.default_docstring_type,
+                )
                 self.check_single_constructor_params(class_doc, node_doc, class_node)
 
                 # __init__ or class docstrings can have no parameters documented
@@ -206,7 +219,9 @@ class DocstringParameterChecker(BaseChecker):
             if property_:
                 func_node = property_
 
-        doc = utils.docstringify(func_node.doc)
+        doc = utils.docstringify(
+            func_node.doc, self.config.default_docstring_type,
+        )
         if not doc.is_valid():
             if doc.doc:
                 self._handle_no_raise_doc(expected_excs, func_node)
@@ -224,7 +239,9 @@ class DocstringParameterChecker(BaseChecker):
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
-        doc = utils.docstringify(func_node.doc)
+        doc = utils.docstringify(
+            func_node.doc, self.config.default_docstring_type,
+        )
         if not doc.is_valid() and self.config.accept_no_return_doc:
             return
 
@@ -236,6 +253,9 @@ class DocstringParameterChecker(BaseChecker):
                 'missing-return-doc',
                 node=func_node
             )
+
+        if func_node.returns:
+            return
 
         if not (doc.has_rtype() or
                 (doc.has_property_type() and is_property)):
@@ -249,7 +269,9 @@ class DocstringParameterChecker(BaseChecker):
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
-        doc = utils.docstringify(func_node.doc)
+        doc = utils.docstringify(
+            func_node.doc, self.config.default_docstring_type,
+        )
         if not doc.is_valid() and self.config.accept_no_yields_doc:
             return
 
@@ -320,7 +342,7 @@ class DocstringParameterChecker(BaseChecker):
         tolerate_missing_params = doc.params_documented_elsewhere()
 
         # Collect the function arguments.
-        expected_argument_names = set(arg.name for arg in arguments_node.args)
+        expected_argument_names = {arg.name for arg in arguments_node.args}
         expected_argument_names.update(arg.name for arg in arguments_node.kwonlyargs)
         not_needed_type_in_docstring = (
             self.not_needed_param_in_docstring.copy())
@@ -388,6 +410,11 @@ class DocstringParameterChecker(BaseChecker):
 
         _compare_missing_args(params_with_doc, 'missing-param-doc',
                               self.not_needed_param_in_docstring)
+
+        for index, arg_name in enumerate(arguments_node.args):
+            if arguments_node.annotations[index]:
+                params_with_type.add(arg_name.name)
+
         _compare_missing_args(params_with_type, 'missing-type-doc',
                               not_needed_type_in_docstring)
 
@@ -414,7 +441,7 @@ class DocstringParameterChecker(BaseChecker):
         Adds a message on :param:`node` for the missing exception type.
 
         :param missing_excs: A list of missing exception types.
-        :type missing_excs: list
+        :type missing_excs: set(str)
 
         :param node: The node show the message on.
         :type node: astroid.node_classes.NodeNG
@@ -422,7 +449,7 @@ class DocstringParameterChecker(BaseChecker):
         if node.is_abstract():
             try:
                 missing_excs.remove('NotImplementedError')
-            except ValueError:
+            except KeyError:
                 pass
 
         if not missing_excs:

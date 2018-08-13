@@ -2,12 +2,13 @@
 # Copyright (c) 2012 Ry4an Brase <ry4an-hg@ry4an.org>
 # Copyright (c) 2012 Google, Inc.
 # Copyright (c) 2012 Anthony VEREZ <anthony.verez.external@cassidian.com>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2017 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -26,7 +27,7 @@ from pylint.checkers import BaseChecker, table_lines_from_stats
 from pylint.reporters.ureports.nodes import Table
 
 
-class Similar(object):
+class Similar:
     """finds copy-pasted lines of code in a project"""
 
     def __init__(self, min_lines=4, ignore_comments=False,
@@ -161,7 +162,7 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     return strippedlines
 
 
-class LineSet(object):
+class LineSet:
     """Holds and indexes all the lines of a single source file"""
     def __init__(self, name, lines, ignore_comments=False,
                  ignore_docstrings=False, ignore_imports=False):

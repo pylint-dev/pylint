@@ -1,6 +1,6 @@
 """Test for unsupported-binary-operation."""
 # pylint: disable=missing-docstring,too-few-public-methods,pointless-statement
-# pylint: disable=expression-not-assigned, invalid-name
+# pylint: disable=expression-not-assigned, invalid-name, useless-object-inheritance
 
 
 import collections

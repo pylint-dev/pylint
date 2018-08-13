@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
 # Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
 # Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2015 Cosmin Poieana <cmin@ropython.org>
 # Copyright (c) 2015 Viorel Stirbu <viorels@gmail.com>
+# Copyright (c) 2016, 2018 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2016-2017 Roy Williams <roy.williams.iii@gmail.com>
 # Copyright (c) 2016 Roy Williams <rwilliams@lyft.com>
 # Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Erik <erik.eriksson@yahoo.com>
-# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 ahirnish <ahirnish@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
+# Copyright (c) 2018 gaurikholkar <f2013002@goa.bits-pilani.ac.in>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -30,6 +35,7 @@ import astroid
 from astroid import bases
 
 from pylint import checkers, interfaces
+from pylint.checkers.utils import node_ignores_exception, find_try_except_wrapper_node
 from pylint.interfaces import INFERENCE_FAILURE, INFERENCE
 from pylint.utils import WarningScope
 from pylint.checkers import utils
@@ -76,7 +82,14 @@ def _is_builtin(node):
 
 
 _ACCEPTS_ITERATOR = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
-                     'all', 'enumerate', 'dict', 'filter', 'reversed'}
+                     'all', 'enumerate', 'dict', 'filter', 'reversed',
+                     'max', 'min', 'frozenset'}
+ATTRIBUTES_ACCEPTS_ITERATOR = {'join', 'from_iterable'}
+_BUILTIN_METHOD_ACCEPTS_ITERATOR = {
+    'builtins.list.extend',
+    'builtins.dict.update',
+    'builtins.set.update',
+}
 DICT_METHODS = {'items', 'keys', 'values'}
 
 
@@ -104,14 +117,27 @@ def _in_iterating_context(node):
             if _is_builtin(parent_scope) and parent.func.name in _ACCEPTS_ITERATOR:
                 return True
         elif isinstance(parent.func, astroid.Attribute):
-            if parent.func.attrname == 'join':
+            if parent.func.attrname in ATTRIBUTES_ACCEPTS_ITERATOR:
                 return True
+            try:
+                inferred = next(parent.func.infer())
+            except astroid.InferenceError:
+                pass
+            else:
+                if inferred is not astroid.Uninferable:
+                    if inferred.qname() in _BUILTIN_METHOD_ACCEPTS_ITERATOR:
+                        return True
     # If the call is in an unpacking, there's no need to warn,
     # since it can be considered iterating.
     elif (isinstance(parent, astroid.Assign) and
           isinstance(parent.targets[0], (astroid.List, astroid.Tuple))):
         if len(parent.targets[0].elts) > 1:
             return True
+    # If the call is in a containment check, we consider that to
+    # be an iterating context
+    elif (isinstance(parent, astroid.Compare)
+          and len(parent.ops) == 1 and parent.ops[0][0] == 'in'):
+        return True
     return False
 
 
@@ -625,44 +651,54 @@ class Python3Checker(checkers.BaseChecker):
             if isinstance(arg, astroid.Tuple):
                 self.add_message('parameter-unpacking', node=arg)
 
+    @utils.check_messages('comprehension-escape')
+    def visit_listcomp(self, node):
+        names = {
+            generator.target.name for generator in node.generators
+            if isinstance(generator.target, astroid.AssignName)
+        }
+        scope = node.parent.scope()
+        scope_names = scope.nodes_of_class(
+            astroid.Name,
+            skip_klass=astroid.FunctionDef,
+        )
+        has_redefined_assign_name = any(
+            assign_name
+            for assign_name in
+            scope.nodes_of_class(
+                astroid.AssignName,
+                skip_klass=astroid.FunctionDef,
+            )
+            if assign_name.name in names and assign_name.lineno > node.lineno
+        )
+        if has_redefined_assign_name:
+            return
+
+        emitted_for_names = set()
+        scope_names = list(scope_names)
+        for scope_name in scope_names:
+            if (scope_name.name not in names
+                    or scope_name.lineno <= node.lineno
+                    or scope_name.name in emitted_for_names
+                    or scope_name.scope() == node):
+                continue
+
+            emitted_for_names.add(scope_name.name)
+            self.add_message('comprehension-escape', node=scope_name)
+
     def visit_name(self, node):
         """Detect when a "bad" built-in is referenced."""
         found_node, _ = node.lookup(node.name)
-        if _is_builtin(found_node):
-            if node.name in self._bad_builtins:
-                message = node.name.lower() + '-builtin'
-                self.add_message(message, node=node)
-
-        # On Python 3 we don't find the leaked objects as
-        # they are already deleted, so instead look for them manually.
-        scope = node.scope()
-        assign_names = (node_ for node_ in scope.nodes_of_class(astroid.AssignName)
-                        if node_.name == node.name and node_.lineno < node.lineno)
-        assigned = next(assign_names, None)
-        if not assigned:
+        if not _is_builtin(found_node):
+            return
+        if node.name not in self._bad_builtins:
+            return
+        if (node_ignores_exception(node)
+                or isinstance(find_try_except_wrapper_node(node), astroid.ExceptHandler)):
             return
 
-        assign_statement = assigned.statement()
-        assigns = (node_ for node_ in scope.nodes_of_class(astroid.Assign)
-                   if node_.lineno < node.lineno)
-
-        for assign in assigns:
-            for target in assign.targets:
-                if getattr(target, 'name', None) == node.name:
-                    return
-
-        if isinstance(assign_statement, astroid.ExceptHandler):
-            current = node
-            while current and not isinstance(current.parent, astroid.ExceptHandler):
-                current = current.parent
-            if current and isinstance(current.parent, astroid.ExceptHandler):
-                return
-            self.add_message('exception-escape', node=node)
-
-        if isinstance(assign_statement, (astroid.Expr, astroid.Assign)):
-            if (isinstance(assign_statement.value, astroid.ListComp)
-                    and not assign_statement.parent_of(node)):
-                self.add_message('comprehension-escape', node=node)
+        message = node.name.lower() + '-builtin'
+        self.add_message(message, node=node)
 
     @utils.check_messages('print-statement')
     def visit_print(self, node):
@@ -900,11 +936,49 @@ class Python3Checker(checkers.BaseChecker):
         except astroid.InferenceError:
             return
 
-    @utils.check_messages('unpacking-in-except')
+    @utils.check_messages('unpacking-in-except', 'comprehension-escape')
     def visit_excepthandler(self, node):
         """Visit an except handler block and check for exception unpacking."""
+        def _is_used_in_except_block(node):
+            scope = node.scope()
+            current = node
+            while current and current != scope and not isinstance(current, astroid.ExceptHandler):
+                current = current.parent
+            return isinstance(current, astroid.ExceptHandler) and current.type != node
+
         if isinstance(node.name, (astroid.Tuple, astroid.List)):
             self.add_message('unpacking-in-except', node=node)
+            return
+
+        if not node.name:
+            return
+
+        # Find any names
+        scope = node.parent.scope()
+        scope_names = scope.nodes_of_class(
+            astroid.Name,
+            skip_klass=astroid.FunctionDef,
+        )
+        scope_names = list(scope_names)
+        potential_leaked_names = [
+            scope_name
+            for scope_name in scope_names
+            if scope_name.name == node.name.name and scope_name.lineno > node.lineno
+            and not _is_used_in_except_block(scope_name)
+        ]
+        reassignments_for_same_name = {
+            assign_name.lineno
+            for assign_name in
+            scope.nodes_of_class(
+                astroid.AssignName,
+                skip_klass=astroid.FunctionDef,
+            )
+            if assign_name.name == node.name.name
+        }
+        for leaked_name in potential_leaked_names:
+            if any(node.lineno < elem < leaked_name.lineno for elem in reassignments_for_same_name):
+                continue
+            self.add_message('exception-escape', node=leaked_name)
 
     @utils.check_messages('backtick')
     def visit_repr(self, node):
@@ -915,10 +989,6 @@ class Python3Checker(checkers.BaseChecker):
         """Visit a raise statement and check for raising
         strings or old-raise-syntax.
         """
-        if (node.exc is not None and
-                node.inst is not None and
-                node.tback is None):
-            self.add_message('old-raise-syntax', node=node)
 
         # Ignore empty raise.
         if node.exc is None:

@@ -1,6 +1,7 @@
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -24,7 +25,7 @@ def target_info_from_filename(filename):
     return storedir, basename, target
 
 
-class DotBackend(object):
+class DotBackend:
     """Dot File backend."""
     def __init__(self, graphname, rankdir=None, size=None, ratio=None,
                  charset='utf-8', renderer='dot', additional_param=None):

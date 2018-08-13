@@ -43,7 +43,7 @@ def test_libmodule(test_module_location, test_module_name):
     os.chdir(test_module_location)
     with _patch_stdout(io.StringIO()):
         try:
-            pylint.lint.Run([test_module_name, '--enable=all'])
+            pylint.lint.Run([test_module_name, '--enable=all', '--ignore=test'])
         except SystemExit as ex:
             assert ex.code != 32
             return

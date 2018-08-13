@@ -1,7 +1,8 @@
+# Copyright (c) 2016-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2018 Adam Dangoor <adamdangoor@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -512,6 +513,18 @@ class TestDocstringCheckerRaise(CheckerTestCase):
               pass
            except U as exc:
               raise #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+    def test_no_error_notimplemented_documented(self):
+        raise_node = astroid.extract_node('''
+        def my_func():
+            """
+            Raises:
+                NotImplementedError: When called.
+            """
+            raise NotImplementedError #@
         ''')
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)

@@ -5,6 +5,7 @@
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2017 Pedro Algarvio <pedro@algarvio.me>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -41,7 +42,7 @@ class TestSpellingChecker(CheckerTestCase):
         reason="missing python-enchant package or missing spelling dictionaries")
 
     def _get_msg_suggestions(self, word, count=4):
-        return "'{0}'".format("' or '".join(self.checker.spelling_dict.suggest(word)[:count]))
+        return "'{}'".format("' or '".join(self.checker.spelling_dict.suggest(word)[:count]))
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
@@ -174,7 +175,7 @@ class TestSpellingChecker(CheckerTestCase):
         for ccn in ('xmlHttpRequest', 'newCustomer', 'newCustomerId',
                     'innerStopwatch', 'supportsIpv6OnIos', 'affine3D'):
             stmt = astroid.extract_node(
-                'class TestClass(object):\n   """{0} comment"""\n   pass'.format(ccn))
+                'class TestClass(object):\n   """{} comment"""\n   pass'.format(ccn))
             self.checker.visit_classdef(stmt)
             assert self.linter.release_messages() == []
 

@@ -2,7 +2,7 @@
 # Copyright (c) 2006-2016 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Nick Bastin <nick.bastin@gmail.com>
@@ -13,15 +13,24 @@
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016, 2018 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Elias Dorneles <eliasdorneles@gmail.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
-# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2016 Alex Jurkiewicz <alex@jurkiewi.cz>
+# Copyright (c) 2017 Jacques Kvam <jwkvam@gmail.com>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2018 Steven M. Vascellaro <svascellaro@gmail.com>
+# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Chris Lamb <chris@chris-lamb.co.uk>
+# Copyright (c) 2018 glmdgrielson <32415403+glmdgrielson@users.noreply.github.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -48,7 +57,7 @@ from pylint.reporters.ureports import nodes as reporter_nodes
 import pylint.utils as lint_utils
 
 
-class NamingStyle(object):
+class NamingStyle:
     # It may seem counterintuitive that single naming style
     # has multiple "accepted" forms of regular expressions,
     # but we need to special-case stuff like dunder names
@@ -77,39 +86,43 @@ class NamingStyle(object):
 
 
 class SnakeCaseStyle(NamingStyle):
+    """Regex rules for snake_case naming style."""
     CLASS_NAME_RGX = re.compile('[a-z_][a-z0-9_]+$')
     MOD_NAME_RGX = re.compile('([a-z_][a-z0-9_]*)$')
     CONST_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|(__.*__))$')
     COMP_VAR_RGX = re.compile('[a-z_][a-z0-9_]*$')
-    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-z0-9_]{2,30})|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$')
-    CLASS_ATTRIBUTE_RGX = re.compile(r'(([a-z_][a-z0-9_]{2,30}|(__.*__)))$')
+    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-z0-9_]{2,})|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$')
+    CLASS_ATTRIBUTE_RGX = re.compile(r'(([a-z_][a-z0-9_]{2,}|(__.*__)))$')
 
 
 class CamelCaseStyle(NamingStyle):
+    """Regex rules for camelCase naming style."""
     CLASS_NAME_RGX = re.compile('[a-z_][a-zA-Z0-9]+$')
     MOD_NAME_RGX = re.compile('([a-z_][a-zA-Z0-9]*)$')
     CONST_NAME_RGX = re.compile('(([a-z_][A-Za-z0-9]*)|(__.*__))$')
     COMP_VAR_RGX = re.compile('[a-z_][A-Za-z0-9]*$')
-    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-zA-Z0-9]{2,30})|(__[a-z][a-zA-Z0-9_]+__))$')
-    CLASS_ATTRIBUTE_RGX = re.compile(r'([a-z_][A-Za-z0-9]{2,30}|(__.*__))$')
+    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-zA-Z0-9]{2,})|(__[a-z][a-zA-Z0-9_]+__))$')
+    CLASS_ATTRIBUTE_RGX = re.compile(r'([a-z_][A-Za-z0-9]{2,}|(__.*__))$')
 
 
 class PascalCaseStyle(NamingStyle):
+    """Regex rules for PascalCase naming style."""
     CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
     MOD_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
     CONST_NAME_RGX = re.compile('(([A-Z_][A-Za-z0-9]*)|(__.*__))$')
     COMP_VAR_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
-    DEFAULT_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]{2,30}$|(__[a-z][a-zA-Z0-9_]+__)$')
-    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][a-zA-Z0-9]{2,30}$')
+    DEFAULT_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]{2,}$|(__[a-z][a-zA-Z0-9_]+__)$')
+    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][a-zA-Z0-9]{2,}$')
 
 
 class UpperCaseStyle(NamingStyle):
+    """Regex rules for UPPER_CASE naming style."""
     CLASS_NAME_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
     MOD_NAME_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
     CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
     COMP_VAR_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
-    DEFAULT_NAME_RGX = re.compile('([A-Z_][A-Z0-9_]{2,30})|(__[a-z][a-zA-Z0-9_]+__)$')
-    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][A-Z0-9_]{2,30}$')
+    DEFAULT_NAME_RGX = re.compile('([A-Z_][A-Z0-9_]{2,})|(__[a-z][a-zA-Z0-9_]+__)$')
+    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][A-Z0-9_]{2,}$')
 
 
 class AnyStyle(NamingStyle):
@@ -152,6 +165,7 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
         ['set()', '{}', '[]'])
 )
 REVERSED_COMPS = {'<': '>', '<=': '>=', '>': '<', '>=': '<='}
+COMPARISON_OPERATORS = frozenset(('==', '!=', '<', '>', '<=', '>='))
 
 
 def _redefines_import(node):
@@ -517,13 +531,23 @@ class BasicErrorChecker(_BasicChecker):
                            retnode.value.value is not None:
                         self.add_message('return-arg-in-generator', node=node,
                                          line=retnode.fromlineno)
-        # Check for duplicate names
-        args = set()
-        for name in node.argnames():
-            if name in args:
-                self.add_message('duplicate-argument-name', node=node, args=(name,))
-            else:
-                args.add(name)
+        # Check for duplicate names by clustering args with same name for detailed report
+        arg_clusters = collections.defaultdict(list)
+        arguments = filter(None, [node.args.args, node.args.kwonlyargs])
+
+        for arg in itertools.chain.from_iterable(arguments):
+            arg_clusters[arg.name].append(arg)
+
+        # provide detailed report about each repeated argument
+        for argument_duplicates in arg_clusters.values():
+            if len(argument_duplicates) != 1:
+                for argument in argument_duplicates:
+                    self.add_message(
+                        'duplicate-argument-name',
+                        line=argument.lineno,
+                        node=argument,
+                        args=(argument.name,),
+                    )
 
     visit_asyncfunctiondef = visit_functiondef
 
@@ -535,6 +559,9 @@ class BasicErrorChecker(_BasicChecker):
             for name in child.names
             if child.scope() is node
         }
+
+        if not scope_globals:
+            return
 
         for node_name in node.nodes_of_class(astroid.Name):
             if node_name.scope() is not node:
@@ -559,6 +586,10 @@ class BasicErrorChecker(_BasicChecker):
         nonlocals = set(from_iter(
             child.names for child in node.nodes_of_class(astroid.Nonlocal)
             if same_scope(child)))
+
+        if not nonlocals:
+            return
+
         global_vars = set(from_iter(
             child.names for child in node.nodes_of_class(astroid.Global)
             if same_scope(child)))
@@ -653,19 +684,26 @@ class BasicErrorChecker(_BasicChecker):
             return
 
         # __init__ was called
-        metaclass = infered.metaclass()
         abstract_methods = _has_abstract_methods(infered)
+
+        if not abstract_methods:
+            return
+
+        metaclass = infered.metaclass()
+
         if metaclass is None:
             # Python 3.4 has `abc.ABC`, which won't be detected
             # by ClassNode.metaclass()
             for ancestor in infered.ancestors():
-                if ancestor.qname() == 'abc.ABC' and abstract_methods:
+                if ancestor.qname() == 'abc.ABC':
                     self.add_message('abstract-class-instantiated',
                                      args=(infered.name, ),
                                      node=node)
                     break
+
             return
-        if metaclass.qname() in ABC_METACLASSES and abstract_methods:
+
+        if metaclass.qname() in ABC_METACLASSES:
             self.add_message('abstract-class-instantiated',
                              args=(infered.name, ),
                              node=node)
@@ -800,7 +838,12 @@ class BasicChecker(_BasicChecker):
                   'Used when the first argument to reversed() builtin '
                   'isn\'t a sequence (does not implement __reversed__, '
                   'nor __getitem__ and __len__'),
-
+        'E0119': ('format function is not called on str',
+                  'misplaced-format-function',
+                  'Emitted when format function is not called on str object. '
+                  'e.g doing print("value: {}").format(123) instead of '
+                  'print("value: {}".format(123)). This might not be what the user '
+                  'intended to do.'),
     }
 
     reports = (('RP0101', 'Statistics by type', report_by_type_stats),)
@@ -885,7 +928,7 @@ class BasicChecker(_BasicChecker):
                 else:
                     sibling = expr.previous_sibling()
                     if (sibling is not None and sibling.scope() is scope and
-                            isinstance(sibling, astroid.Assign)):
+                            isinstance(sibling, (astroid.Assign, astroid.AnnAssign))):
                         return
             self.add_message('pointless-string-statement', node=node)
             return
@@ -1071,11 +1114,31 @@ class BasicChecker(_BasicChecker):
         """just print a warning on exec statements"""
         self.add_message('exec-used', node=node)
 
-    @utils.check_messages('eval-used', 'exec-used', 'bad-reversed-sequence')
+    def _check_misplaced_format_function(self, call_node):
+        if not isinstance(call_node.func, astroid.Attribute):
+            return
+        if call_node.func.attrname != 'format':
+            return
+
+        expr = utils.safe_infer(call_node.func.expr)
+        if expr is astroid.Uninferable:
+            return
+        if not expr:
+            # we are doubtful on inferred type of node, so here just check if format
+            # was called on print()
+            call_expr = call_node.func.expr
+            if not isinstance(call_expr, astroid.Call):
+                return
+            if isinstance(call_expr.func, astroid.Name) and call_expr.func.name == 'print':
+                self.add_message('misplaced-format-function', node=call_node)
+
+    @utils.check_messages('eval-used', 'exec-used', 'bad-reversed-sequence',
+                          'misplaced-format-function')
     def visit_call(self, node):
         """visit a Call node -> check if this is not a blacklisted builtin
         call and check for * or ** use
         """
+        self._check_misplaced_format_function(node)
         if isinstance(node.func, astroid.Name):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
@@ -1146,7 +1209,7 @@ class BasicChecker(_BasicChecker):
         except utils.NoSuchArgumentError:
             pass
         else:
-            if argument is astroid.YES:
+            if argument is astroid.Uninferable:
                 return
             if argument is None:
                 # Nothing was infered.
@@ -1261,11 +1324,11 @@ def _create_naming_options():
             '%s-naming-style' % (name_type,),
             {'default': default_style,
              'type': 'choice', 'choices': list(NAMING_STYLES.keys()), 'metavar': '<style>',
-             'help': 'Naming style matching correct %s names' % (human_readable_name,)}),)
+             'help': 'Naming style matching correct %s names.' % (human_readable_name,)}),)
         name_options.append((
             '%s-rgx' % (name_type,),
             {'default': None, 'type': 'regexp', 'metavar': '<regexp>',
-             'help': 'Regular expression matching correct %s names. Overrides %s-naming-style'
+             'help': 'Regular expression matching correct %s names. Overrides %s-naming-style.'
                      % (human_readable_name, name_type,)}))
     return tuple(name_options)
 
@@ -1284,20 +1347,20 @@ class NameChecker(_BasicChecker):
         'W0111': ('Name %s will become a keyword in Python %s',
                   'assign-to-new-keyword',
                   'Used when assignment will become invalid in future '
-                  'Python release due to introducing new keyword'),
+                  'Python release due to introducing new keyword.'),
     }
 
     options = (('good-names',
                 {'default' : ('i', 'j', 'k', 'ex', 'Run', '_'),
                  'type' :'csv', 'metavar' : '<names>',
                  'help' : 'Good variable names which should always be accepted,'
-                          ' separated by a comma'}
+                          ' separated by a comma.'}
                ),
                ('bad-names',
                 {'default' : ('foo', 'bar', 'baz', 'toto', 'tutu', 'tata'),
                  'type' :'csv', 'metavar' : '<names>',
                  'help' : 'Bad variable names which should always be refused, '
-                          'separated by a comma'}
+                          'separated by a comma.'}
                ),
                ('name-group',
                 {'default' : (),
@@ -1308,7 +1371,7 @@ class NameChecker(_BasicChecker):
                ),
                ('include-naming-hint',
                 {'default': False, 'type': 'yn', 'metavar': '<y_or_n>',
-                 'help': 'Include a hint for the correct naming format with invalid-name'}
+                 'help': 'Include a hint for the correct naming format with invalid-name.'}
                ),
                ('property-classes',
                 {'default': ('abc.abstractproperty',),
@@ -1316,7 +1379,8 @@ class NameChecker(_BasicChecker):
                  'metavar': '<decorator names>',
                  'help': 'List of decorators that produce properties, such as '
                          'abc.abstractproperty. Add to this list to register '
-                         'other decorators that produce valid properties.'}
+                         'other decorators that produce valid properties. '
+                         'These decorators are taken in consideration only for invalid-name.'}
                ),
               ) + _create_naming_options()
 
@@ -1434,19 +1498,19 @@ class NameChecker(_BasicChecker):
         """check module level assigned names"""
         self._check_assign_to_new_keyword_violation(node.name, node)
         frame = node.frame()
-        ass_type = node.assign_type()
-        if isinstance(ass_type, astroid.Comprehension):
+        assign_type = node.assign_type()
+        if isinstance(assign_type, astroid.Comprehension):
             self._check_name('inlinevar', node.name, node)
         elif isinstance(frame, astroid.Module):
-            if isinstance(ass_type, astroid.Assign) and not in_loop(ass_type):
-                if isinstance(utils.safe_infer(ass_type.value), astroid.ClassDef):
+            if isinstance(assign_type, astroid.Assign) and not in_loop(assign_type):
+                if isinstance(utils.safe_infer(assign_type.value), astroid.ClassDef):
                     self._check_name('class', node.name, node)
                 else:
                     if not _redefines_import(node):
                         # Don't emit if the name redefines an import
                         # in an ImportError except handler.
                         self._check_name('const', node.name, node)
-            elif isinstance(ass_type, astroid.ExceptHandler):
+            elif isinstance(assign_type, astroid.ExceptHandler):
                 self._check_name('variable', node.name, node)
         elif isinstance(frame, astroid.FunctionDef):
             # global introduced variable aren't in the function locals
@@ -1485,6 +1549,13 @@ class NameChecker(_BasicChecker):
 
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
+        def _should_exempt_from_invalid_name(node):
+            if node_type == 'variable':
+                inferred = utils.safe_infer(node)
+                if isinstance(inferred, astroid.ClassDef):
+                    return True
+            return False
+
         if utils.is_inside_except(node):
             clobbering, _ = utils.clobber_in_except(node)
             if clobbering:
@@ -1504,7 +1575,7 @@ class NameChecker(_BasicChecker):
             warnings = bad_name_group.setdefault(match.lastgroup, [])
             warnings.append((node, node_type, name, confidence))
 
-        if match is None:
+        if match is None and not _should_exempt_from_invalid_name(node):
             self._raise_name_warning(node, node_type, name, confidence)
 
     def _check_assign_to_new_keyword_violation(self, name, node):
@@ -1649,7 +1720,9 @@ class PassChecker(_BasicChecker):
 
     @utils.check_messages('unnecessary-pass')
     def visit_pass(self, node):
-        if len(node.parent.child_sequence(node)) > 1:
+        if (len(node.parent.child_sequence(node)) > 1 or
+                (isinstance(node.parent, (astroid.ClassDef, astroid.FunctionDef)) and
+                 (node.parent.doc is not None))):
             self.add_message('unnecessary-pass', node=node)
 
 def _is_one_arg_pos_call(call):
@@ -1691,9 +1764,12 @@ class ComparisonChecker(_BasicChecker):
                       'literal than what was expected altogether.'),
             'R0124': ('Redundant comparison - %s',
                       'comparison-with-itself',
-                      'Used when something is compared against itself.',
-                      ),
-
+                      'Used when something is compared against itself.'),
+            'W0143': ('Comparing against a callable, did you omit the parenthesis?',
+                      'comparison-with-callable',
+                      'This message is emitted when pylint detects that a comparison with a '
+                      'callable was made, which might suggest that some parenthesis were omitted, '
+                      'resulting in potential unwanted behaviour.'),
             }
 
     def _check_singleton_comparison(self, singleton, root_node, negative_check=False):
@@ -1772,9 +1848,24 @@ class ComparisonChecker(_BasicChecker):
             suggestion = "%s %s %s" % (left_operand, operator, right_operand)
             self.add_message('comparison-with-itself', node=node, args=(suggestion,))
 
+    def _check_callable_comparison(self, node):
+        operator = node.ops[0][0]
+        if operator not in COMPARISON_OPERATORS:
+            return
+
+        bare_callables = (astroid.FunctionDef, astroid.BoundMethod)
+        left_operand, right_operand = node.left, node.ops[0][1]
+        # this message should be emitted only when there is comparison of bare callable
+        # with non bare callable.
+        if sum(1 for operand in (left_operand, right_operand)
+               if isinstance(utils.safe_infer(operand), bare_callables)) == 1:
+            self.add_message('comparison-with-callable', node=node)
+
     @utils.check_messages('singleton-comparison', 'misplaced-comparison-constant',
-                          'unidiomatic-typecheck', 'literal-comparison', 'comparison-with-itself')
+                          'unidiomatic-typecheck', 'literal-comparison', 'comparison-with-itself',
+                          'comparison-with-callable')
     def visit_compare(self, node):
+        self._check_callable_comparison(node)
         self._check_logical_tautology(node)
         self._check_unidiomatic_typecheck(node)
         # NOTE: this checker only works with binary comparisons like 'x == 42'
@@ -1784,7 +1875,7 @@ class ComparisonChecker(_BasicChecker):
 
         left = node.left
         operator, right = node.ops[0]
-        if (operator in ('<', '<=', '>', '>=', '!=', '==')
+        if (operator in COMPARISON_OPERATORS
                 and isinstance(left, astroid.Const)):
             self._check_misplaced_constant(node, left, right, operator)
 

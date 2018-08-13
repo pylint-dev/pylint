@@ -1,6 +1,7 @@
+# Copyright (c) 2016-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -33,12 +34,12 @@ def test_space_indentation(string, count):
     (astroid.extract_node('''
     def my_func():
         raise NotImplementedError #@
-    '''), set(["NotImplementedError"])),
+    '''), {"NotImplementedError"}),
 
     (astroid.extract_node('''
     def my_func():
         raise NotImplementedError("Not implemented!") #@
-    '''), set(["NotImplementedError"])),
+    '''), {"NotImplementedError"}),
 
     (astroid.extract_node('''
     def my_func():
@@ -46,7 +47,7 @@ def test_space_indentation(string, count):
             fake_func()
         except RuntimeError:
             raise #@
-    '''), set(["RuntimeError"])),
+    '''), {"RuntimeError"}),
 
     (astroid.extract_node('''
     def my_func():
@@ -55,7 +56,7 @@ def test_space_indentation(string, count):
         except RuntimeError:
             if another_func():
                 raise #@
-    '''), set(["RuntimeError"])),
+    '''), {"RuntimeError"}),
 
     (astroid.extract_node('''
     def my_func():
@@ -67,7 +68,7 @@ def test_space_indentation(string, count):
                 raise #@
             except NameError:
                 pass
-    '''), set(["RuntimeError"])),
+    '''), {"RuntimeError"}),
 
     (astroid.extract_node('''
     def my_func():
@@ -78,7 +79,7 @@ def test_space_indentation(string, count):
                 another_func()
             except NameError:
                 raise #@
-    '''), set(["NameError"])),
+    '''), {"NameError"}),
 
     (astroid.extract_node('''
     def my_func():
@@ -94,7 +95,7 @@ def test_space_indentation(string, count):
             fake_func()
         except (RuntimeError, ValueError):
             raise #@
-    '''), set(["RuntimeError", "ValueError"])),
+    '''), {"RuntimeError", "ValueError"}),
 
     (astroid.extract_node('''
     import not_a_module

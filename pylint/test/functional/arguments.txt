@@ -34,3 +34,6 @@ no-value-for-parameter:166:no_context_one_elem:No value for argument 'three' in 
 no-value-for-parameter:166:no_context_one_elem:No value for argument 'two' in function call
 unexpected-keyword-arg:202:namedtuple_replace_issue_1036:Unexpected keyword argument 'd' in method call
 unexpected-keyword-arg:202:namedtuple_replace_issue_1036:Unexpected keyword argument 'e' in method call
+no-value-for-parameter:215::No value for argument 'third' in function call
+no-value-for-parameter:216::No value for argument 'second' in function call
+unexpected-keyword-arg:217::Unexpected keyword argument 'fourth' in function call

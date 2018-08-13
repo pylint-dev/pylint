@@ -3,7 +3,7 @@ Checks that value used in a subscript support deletion
 (i.e. defines __delitem__ method).
 """
 # pylint: disable=missing-docstring,pointless-statement,expression-not-assigned,wrong-import-position
-# pylint: disable=too-few-public-methods,import-error,invalid-name,wrong-import-order
+# pylint: disable=too-few-public-methods,import-error,invalid-name,wrong-import-order, useless-object-inheritance
 import six
 
 # primitives

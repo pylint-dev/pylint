@@ -4,7 +4,7 @@
 # Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
 # Copyright (c) 2013 Google, Inc.
 # Copyright (c) 2013 John McGehee <jmcgehee@altera.com>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
@@ -13,10 +13,17 @@
 # Copyright (c) 2016 Erik <erik.eriksson@yahoo.com>
 # Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2017-2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 ahirnish <ahirnish@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Gary Tyler McLeod <mail@garytyler.com>
+# Copyright (c) 2018 Konstantin <Github@pheanex.de>
+# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -47,7 +54,6 @@ import sys
 import time
 
 import configparser
-from six.moves import range
 
 from pylint import utils
 
@@ -133,7 +139,7 @@ PYLINTRC = find_pylintrc()
 ENV_HELP = '''
 The following environment variables are used:
     * PYLINTHOME
-    Path to the directory where the persistent for the run will be stored. If
+    Path to the directory where persistent data for the run will be stored. If
 not found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working
 directory).
     * PYLINTRC
@@ -307,6 +313,8 @@ class Option(optparse.Option):
         elif self.choices is not None:
             raise optparse.OptionError(
                 "must not supply choices for type %r" % self.type, self)
+
+    # pylint: disable=unsupported-assignment-operation
     optparse.Option.CHECK_METHODS[2] = _check_choice
 
     def process(self, opt, value, values, parser):
@@ -379,6 +387,8 @@ class _ManHelpFormatter(optparse.HelpFormatter):
         if option.help:
             help_text = self.expand_default(option)
             help_string = ' '.join([l.strip() for l in help_text.splitlines()])
+            help_string = help_string.replace('\\', '\\\\')
+            help_string = help_string.replace('[current:', '[default:')
         else:
             help_string = ''
         return '''.IP "%s"
@@ -401,7 +411,7 @@ class _ManHelpFormatter(optparse.HelpFormatter):
 
     @staticmethod
     def format_title(pgm, section):
-        date = '-'.join(str(num) for num in time.localtime()[:3])
+        date = '%d-%02d-%02d' % time.localtime()[:3]
         return '.TH %s %s "%s" %s' % (pgm, section, date, pgm)
 
     @staticmethod
@@ -457,10 +467,10 @@ Please report bugs on the project\'s mailing list:
         return tail
 
 
-class OptionsManagerMixIn(object):
+class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options"""
 
-    def __init__(self, usage, config_file=None, version=None, quiet=0):
+    def __init__(self, usage, config_file=None, version=None):
         self.config_file = config_file
         self.reset_parsers(usage, version=version)
         # list of registered options providers
@@ -471,7 +481,6 @@ class OptionsManagerMixIn(object):
         self._nocallback_options = {}
         self._mygroups = {}
         # verbosity
-        self.quiet = quiet
         self._maxlevel = 0
 
     def reset_parsers(self, usage='', version=None):
@@ -617,7 +626,7 @@ class OptionsManagerMixIn(object):
         for provider in self.options_providers:
             provider.load_defaults()
 
-    def read_config_file(self, config_file=None):
+    def read_config_file(self, config_file=None, verbose=None):
         """read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
         """
@@ -657,11 +666,11 @@ class OptionsManagerMixIn(object):
                 if not sect.isupper() and values:
                     parser._sections[sect.upper()] = values
 
-        if self.quiet:
+        if not verbose:
             return
 
         if use_config_file:
-            msg = 'Using config file {0}'.format(os.path.abspath(config_file))
+            msg = 'Using config file {}'.format(os.path.abspath(config_file))
         else:
             msg = 'No config file found, using default configuration'
         print(msg, file=sys.stderr)
@@ -725,7 +734,7 @@ class OptionsManagerMixIn(object):
             return self.cmdline_parser.format_help()
 
 
-class OptionsProviderMixIn(object):
+class OptionsProviderMixIn:
     """Mixin to provide options to an OptionsManager"""
 
     # those attributes should be overridden
@@ -829,7 +838,6 @@ class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
     def __init__(self, *args, **kwargs):
         if not args:
             kwargs.setdefault('usage', '')
-        kwargs.setdefault('quiet', 1)
         OptionsManagerMixIn.__init__(self, *args, **kwargs)
         OptionsProviderMixIn.__init__(self)
         if not getattr(self, 'option_groups', None):

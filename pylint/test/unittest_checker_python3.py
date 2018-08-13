@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2015 Cosmin Poieana <cmin@ropython.org>
@@ -8,6 +8,8 @@
 # Copyright (c) 2016 Roy Williams <rwilliams@lyft.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -33,6 +35,7 @@ python2_only = pytest.mark.skipif(sys.version_info[0] > 2, reason='Python 2 only
 # TODO(cpopa): Port these to the functional test framework instead.
 
 class TestPython3Checker(testutils.CheckerTestCase):
+
     CHECKER_CLASS = checker.Python3Checker
 
     def check_bad_builtin(self, builtin_name):
@@ -198,11 +201,22 @@ class TestPython3Checker(testutils.CheckerTestCase):
 
     def test_dict_methods_in_iterating_context(self):
         iterating_code = [
-            'for x in {}: pass',
-            '(x for x in {})',
-            '[x for x in {}]',
-            'func({})',
-            'a, b = {}',
+            'for x in {}(): pass',
+            '(x for x in {}())',
+            '[x for x in {}()]',
+            'iter({}())',
+            'a, b = {}()',
+            'max({}())',
+            'min({}())',
+            '3 in {}()',
+            'set().update({}())',
+            '[].extend({}())',
+            '{{}}.update({}())',
+            '''
+            from __future__ import absolute_import
+            from itertools import chain
+            chain.from_iterable({}())
+            ''',
         ]
         non_iterating_code = [
             'x = __({}())',
@@ -243,7 +257,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
         """Helper for verifying that a certain method is not defined."""
         node = astroid.extract_node("""
             class Foo(object):
-                def __{0}__(self, other):  #@
+                def __{}__(self, other):  #@
                     pass""".format(method))
         message = testutils.Message(warning, node=node)
         with self.assertAddsMessages(message):
@@ -712,24 +726,34 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.checker.visit_attribute(node)
 
     def test_comprehension_escape(self):
-        list_comp, set_comp, dict_comp = astroid.extract_node('''
-        [i for i in range(10)]
+        assign, escaped_node = astroid.extract_node('''
+        a = [i for i in range(10)] #@
         i #@
-        {c for c in range(10)}
-        c #@
-        {j:j for j in range(10)}
-        j #@
         ''')
-        message = testutils.Message('comprehension-escape', node=list_comp)
+        good_module = astroid.parse('''
+        {c for c in range(10)} #@
+        {j:j for j in range(10)} #@
+        [image_child] = [x for x in range(10)]
+        thumbnail = func(__(image_child))
+        ''')
+        message = testutils.Message('comprehension-escape', node=escaped_node)
         with self.assertAddsMessages(message):
-            self.checker.visit_name(list_comp)
+            self.checker.visit_listcomp(assign.value)
 
-        for node in (set_comp, dict_comp):
-            with self.assertNoMessages():
-                self.checker.visit_name(node)
+        with self.assertNoMessages():
+            self.walk(good_module)
+
+    def test_comprehension_escape_newly_introduced(self):
+        node = astroid.extract_node('''
+        [i for i in range(3)]
+        for i in range(3):
+            i
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
 
     def test_exception_escape(self):
-        bad, good = astroid.extract_node('''
+        module = astroid.parse('''
         try: 1/0
         except ValueError as exc:
             pass
@@ -739,12 +763,17 @@ class TestPython3Checker(testutils.CheckerTestCase):
         except (ValueError, TypeError) as exc:
            exc = 2
         exc #@
+        try:
+           2/0
+        except (ValueError, TypeError): #@
+           exc = 2
         ''')
-        message = testutils.Message('exception-escape', node=bad)
+        message = testutils.Message('exception-escape', node=module.body[1].value)
         with self.assertAddsMessages(message):
-            self.checker.visit_name(bad)
+            self.checker.visit_excepthandler(module.body[0].handlers[0])
         with self.assertNoMessages():
-            self.checker.visit_name(good)
+            self.checker.visit_excepthandler(module.body[2].handlers[0])
+            self.checker.visit_excepthandler(module.body[4].handlers[0])
 
     def test_bad_sys_attribute(self):
         node = astroid.extract_node('''
@@ -1009,7 +1038,7 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
     def test_non_ascii_bytes_literal(self):
         code = 'b"测试"'
         self._test_token_message(code, 'non-ascii-bytes-literal')
-        for code in ("测试", u"测试", u'abcdef', b'\x80'):
+        for code in ("测试", "测试", 'abcdef', b'\x80'):
             tokens = testutils._tokenize_str(code)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)

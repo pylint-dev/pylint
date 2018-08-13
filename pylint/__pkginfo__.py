@@ -1,7 +1,7 @@
 # Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
 # Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Ricardo Gemignani <ricardo.gemignani@gmail.com>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
@@ -9,7 +9,9 @@
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Florian Bruhin <git@the-compiler.org>
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2017 Hugo <hugovk@users.noreply.github.com>
+# Copyright (c) 2017-2018 Hugo <hugovk@users.noreply.github.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -23,18 +25,16 @@ from os.path import join
 
 modname = distname = 'pylint'
 
-numversion = (2, 0, 0)
-version = '.'.join([str(num) for num in numversion])
+numversion = (2, 2, 0)
+version = '.'.join(str(num) for num in numversion)
 
 install_requires = [
-    'astroid>=1.6',
-    'six',
+    'astroid>=2.0.0',
     'isort >= 4.2.5',
     'mccabe',
 ]
 
 dependency_links = [
-    'https://github.com/PyCQA/astroid/tarball/master#egg=astroid-master-2.0'
 ]
 
 extras_require = {}
@@ -47,7 +47,7 @@ mailinglist = "mailto:code-quality@python.org"
 author = 'Python Code Quality Authority'
 author_email = 'code-quality@python.org'
 
-classifiers = ['Development Status :: 4 - Beta',
+classifiers = ['Development Status :: 6 - Mature',
                'Environment :: Console',
                'Intended Audience :: Developers',
                'License :: OSI Approved :: GNU General Public License (GPL)',

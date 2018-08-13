@@ -1,8 +1,9 @@
 # Copyright (c) 2006, 2008-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -15,7 +16,7 @@ from pylint.pyreverse.utils import is_interface, FilterMixIn
 from pylint.checkers.utils import decorated_with_property
 
 
-class Figure(object):
+class Figure:
     """base class for counter handling"""
 
 
@@ -178,7 +179,7 @@ class ClassDiagram(Figure, FilterMixIn):
             for name, values in list(node.instance_attrs_type.items()) + \
                                 list(node.locals_type.items()):
                 for value in values:
-                    if value is astroid.YES:
+                    if value is astroid.Uninferable:
                         continue
                     if isinstance(value, astroid.Instance):
                         value = value._proxied

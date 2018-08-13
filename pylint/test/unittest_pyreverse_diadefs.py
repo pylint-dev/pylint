@@ -1,9 +1,10 @@
 # Copyright (c) 2008-2010, 2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -11,8 +12,6 @@
 """
 unit test for the extensions.diadefslib modules
 """
-
-import six
 
 import pytest
 
@@ -31,7 +30,7 @@ def _process_classes(classes):
 def _process_relations(relations):
     """extract relation indices from a relation list"""
     result = []
-    for rel_type, rels in six.iteritems(relations):
+    for rel_type, rels in relations.items():
         for rel in rels:
             result.append( (rel_type, rel.from_object.title,
                             rel.to_object.title) )

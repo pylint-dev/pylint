@@ -1,4 +1,5 @@
 """ Functional tests for method deprecation. """
+# pylint: disable=no-value-for-parameter
 import unittest
 from importlib.machinery import SourceFileLoader, SourcelessFileLoader
 

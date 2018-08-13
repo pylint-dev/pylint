@@ -1,17 +1,18 @@
 # Copyright (c) 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Calin Don <calin.don@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import warnings
 
-import six
+from io import StringIO
 
 from pylint.lint import PyLinter
 from pylint import checkers
@@ -30,7 +31,7 @@ def disable(disable):
 
 
 def test_template_option(linter):
-    output = six.StringIO()
+    output = StringIO()
     linter.reporter.set_output(output)
     linter.set_option('msg-template', '{msg_id}:{line:03d}')
     linter.open()
@@ -53,7 +54,7 @@ def test_parseable_output_deprecated():
 
 
 def test_parseable_output_regression():
-    output = six.StringIO()
+    output = StringIO()
     with warnings.catch_warnings(record=True):
         linter = PyLinter(reporter=ParseableTextReporter())
 

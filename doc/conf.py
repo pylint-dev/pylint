@@ -47,7 +47,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Pylint'
+project = 'Pylint'
 current_year = datetime.utcnow().year
 copyright = '2003-{year}, Logilab, PyCQA and contributors'.format(year=current_year)
 
@@ -99,12 +99,17 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'nature'
+html_theme = 'python_docs_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    'collapsiblesidebar': True,
+    'issues_url': 'https://github.com/pycqa/pylint/issues/new',
+    'root_name': 'PyCQA',
+    'root_url': 'http://meta.pycqa.org/en/latest/',
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
@@ -128,7 +133,7 @@ html_theme = 'nature'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -137,7 +142,14 @@ html_static_path = ['_static']
 smartquotes = False
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+html_sidebars = {
+    '**': [
+        'localtoc.html',
+        'globaltoc.html',
+        'relations.html',
+        'sourcelink.html'
+        ]
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
@@ -153,7 +165,7 @@ smartquotes = False
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 #html_show_sphinx = True
@@ -184,8 +196,8 @@ htmlhelp_basename = 'Pylintdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Pylint.tex', u'Pylint Documentation',
-   u'Logilab, PyCQA and contributors', 'manual'),
+  ('index', 'Pylint.tex', 'Pylint Documentation',
+   'Logilab, PyCQA and contributors', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -217,11 +229,15 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pylint', u'Pylint Documentation',
-     [u'Logilab, PyCQA and contributors'], 1)
+    ('index', 'pylint', 'Pylint Documentation',
+     ['Logilab, PyCQA and contributors'], 1)
 ]
 
 intersphinx_mapping = {
     'astroid': ('http://astroid.readthedocs.io/en/latest/', None),
     'python': ('https://docs.python.org/3', None),
 }
+
+# Prevent label issues due to colliding section names
+# through including mulitple documents
+autosectionlabel_prefix_document = True

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2008-2010, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Mike Frysinger <vapier@gentoo.org>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -15,7 +17,7 @@ from pylint.pyreverse.utils import is_exception
 from pylint.pyreverse.vcgutils import VCGPrinter
 from pylint.graph import DotBackend
 
-class DiagramWriter(object):
+class DiagramWriter:
     """base class for writing project diagrams
     """
     def __init__(self, config, styles):
@@ -114,7 +116,7 @@ class DotWriter(DiagramWriter):
         """
         label = obj.title
         if obj.shape == 'interface':
-            label = u'«interface»\\n%s' % label
+            label = '«interface»\\n%s' % label
         if not self.config.only_classnames:
             label = r'%s|%s\l|' % (label, r'\l'.join(obj.attrs))
             for func in obj.methods:

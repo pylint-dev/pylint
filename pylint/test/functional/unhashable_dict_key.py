@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,expression-not-assigned,too-few-public-methods,pointless-statement
+# pylint: disable=missing-docstring,expression-not-assigned,too-few-public-methods,pointless-statement, useless-object-inheritance
 
 
 class Unhashable(object):

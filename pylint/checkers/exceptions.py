@@ -2,7 +2,7 @@
 # Copyright (c) 2006-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2011-2014 Google, Inc.
 # Copyright (c) 2012 Tim Hatch <tim@timhatch.com>
-# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
@@ -13,6 +13,10 @@
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Martin von Gagern <gagern@google.com>
+# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -47,11 +51,11 @@ def _annotated_unpack_infer(stmt, context=None):
     if isinstance(stmt, (astroid.List, astroid.Tuple)):
         for elt in stmt.elts:
             inferred = utils.safe_infer(elt)
-            if inferred and inferred is not astroid.YES:
+            if inferred and inferred is not astroid.Uninferable:
                 yield elt, inferred
         return
     for infered in stmt.infer(context):
-        if infered is astroid.YES:
+        if infered is astroid.Uninferable:
             continue
         yield stmt, infered
 
@@ -84,12 +88,6 @@ MSGS = {
               'a bare raise inside a finally clause, which might work, as long '
               'as an exception is raised inside the try block, but it is '
               'nevertheless a code smell that must not be relied upon.'),
-    'E0705': ('The except handler raises immediately',
-              'try-except-raise',
-              'Used when an except handler uses raise as its first or only '
-              'operator. This is useless because it raises back the exception '
-              'immediately. Remove the raise operator or the entire '
-              'try-except-raise block!'),
     'E0710': ('Raising a new style class which doesn\'t inherit from BaseException',
               'raising-non-exception',
               'Used when a new style class which doesn\'t inherit from \
@@ -114,6 +112,12 @@ MSGS = {
               'duplicate-except',
               'Used when an except catches a type that was already caught by '
               'a previous handler.'),
+    'W0706': ('The except handler raises immediately',
+              'try-except-raise',
+              'Used when an except handler uses raise as its first or only '
+              'operator. This is useless because it raises back the exception '
+              'immediately. Remove the raise operator or the entire '
+              'try-except-raise block!'),
     'W0711': ('Exception to catch is the result of a binary "%s" operation',
               'binary-op-exception',
               'Used when the exception to catch is of the form \
@@ -127,7 +131,7 @@ MSGS = {
     }
 
 
-class BaseVisitor(object):
+class BaseVisitor:
     """Base class for visitors defined in this module."""
 
     def __init__(self, checker, node):
@@ -238,7 +242,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 {'default' : OVERGENERAL_EXCEPTIONS,
                  'type' : 'csv', 'metavar' : '<comma-separated class names>',
                  'help' : 'Exceptions that will emit a warning '
-                          'when being caught. Defaults to "%s"' % (
+                          'when being caught. Defaults to "%s".' % (
                               ', '.join(OVERGENERAL_EXCEPTIONS),)}
                ),
               )
@@ -295,7 +299,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         An exception context can be only `None` or an exception.
         """
         cause = utils.safe_infer(node.cause)
-        if cause in (astroid.YES, None):
+        if cause in (astroid.Uninferable, None):
             return
 
         if isinstance(cause, astroid.Const):
@@ -311,7 +315,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         if isinstance(exc, astroid.Tuple):
             # Check if it is a tuple of exceptions.
             inferred = [utils.safe_infer(elt) for elt in exc.elts]
-            if any(node is astroid.YES for node in inferred):
+            if any(node is astroid.Uninferable for node in inferred):
                 # Don't emit if we don't know every component.
                 return
             if all(node and (utils.inherit_from_std_ex(node) or
@@ -348,36 +352,44 @@ class ExceptionsChecker(checkers.BaseChecker):
                                  node=handler.type,
                                  args=(exc.name, ))
 
+    def _check_try_except_raise(self, node):
+        bare_raise = False
+        handler_having_bare_raise = None
+        handler_type_having_bare_raise = None
+        for handler in node.handlers:
+            if bare_raise:
+                # check that subsequent handler is not parent of handler which had bare raise.
+                # since utils.safe_infer can fail for bare except, check it before.
+                # also break early if bare except is followed by bare except.
+
+                if (not handler.type or
+                        handler_type_having_bare_raise and
+                        utils.is_subclass_of(handler_type_having_bare_raise,
+                                             utils.safe_infer(handler.type))):
+                    bare_raise = False
+                    break
+            # `raise` as the first operator inside the except handler
+            if utils.is_raising([handler.body[0]]):
+                # flags when there is a bare raise
+                if handler.body[0].exc is None:
+                    bare_raise = True
+                    handler_having_bare_raise = handler
+                    if handler_having_bare_raise.type:
+                        handler_type_having_bare_raise = utils.safe_infer(
+                            handler_having_bare_raise.type)
+
+        if bare_raise:
+            self.add_message('try-except-raise', node=handler_having_bare_raise)
+
     @utils.check_messages('bare-except', 'broad-except', 'try-except-raise',
                           'binary-op-exception', 'bad-except-order',
                           'catching-non-exception', 'duplicate-except')
     def visit_tryexcept(self, node):
         """check for empty except"""
+        self._check_try_except_raise(node)
         exceptions_classes = []
         nb_handlers = len(node.handlers)
         for index, handler in enumerate(node.handlers):
-            # `raise` as the first operator inside the except handler
-            if utils.is_raising([handler.body[0]]):
-                # flags when there is a bare raise
-                if handler.body[0].exc is None:
-                    self.add_message('try-except-raise', node=handler)
-                else:
-                    # not a bare raise
-                    raise_type = None
-                    if isinstance(handler.body[0].exc, astroid.Call):
-                        raise_type = handler.body[0].exc.func
-
-                    # flags only when the exception types of the handler
-                    # and the raise statement match b/c we're raising the same
-                    # type of exception that we're trying to handle. Example:
-                    #
-                    # except ValueError:
-                    #   raise ValueError('some user friendly message')
-                    if (isinstance(handler.type, astroid.Name)
-                            and isinstance(raise_type, astroid.Name)
-                            and raise_type.name == handler.type.name):
-                        self.add_message('try-except-raise', node=handler)
-
             if handler.type is None:
                 if not utils.is_raising(handler.body):
                     self.add_message('bare-except', node=handler)
@@ -398,7 +410,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                     continue
 
                 for part, exc in excs:
-                    if exc is astroid.YES:
+                    if exc is astroid.Uninferable:
                         continue
                     if (isinstance(exc, astroid.Instance)
                             and utils.inherit_from_std_ex(exc)):

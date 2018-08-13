@@ -9,6 +9,9 @@
 # Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2017 Kári Tristan Helgason <kthelgason@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -21,7 +24,6 @@ import locale
 import os
 import warnings
 
-import six
 
 CMPS = ['=', '-', '+']
 
@@ -39,7 +41,7 @@ def diff_string(old, new):
     return diff_str
 
 
-class BaseReporter(object):
+class BaseReporter:
     """base class for reporters
 
     symbols: show short symbolic names for messages.
@@ -63,24 +65,9 @@ class BaseReporter(object):
         """set output stream"""
         self.out = output or sys.stdout
 
-    if six.PY3:
-        encode = lambda self, string: string
-    else:
-        def encode(self, string):
-            if not isinstance(string, six.text_type):
-                return string
-
-            encoding = (getattr(self.out, 'encoding', None) or
-                        locale.getpreferredencoding(do_setlocale=False) or
-                        sys.getdefaultencoding())
-            # errors=replace, we don't want to crash when attempting to show
-            # source code line that can't be encoded with the current locale
-            # settings
-            return string.encode(encoding, 'replace')
-
     def writeln(self, string=''):
         """write a line in the output buffer"""
-        print(self.encode(string), file=self.out)
+        print(string, file=self.out)
 
     def display_reports(self, layout):
         """display results encapsulated in the layout tree"""

@@ -1,12 +1,263 @@
 ------------------
 Pylint's ChangeLog
 ------------------
+
+What's New in Pylint 2.2?
+=========================
+
+Release date: TBA
+
+   * Stop ``protected-access`` exception for missing class attributes
+
+   * Don't emit `assignment-from-no-return` for decorated function nodes
+
+     Close #2385
+
+   * `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement.
+
+      In Python, stubbed functions often have a body that contains just a single `pass` statement, 
+      indicating that the function doesn't do anything. However, a stubbed function can also have just a
+      docstring, and function with a docstring and no body also does nothing.
+
+      Close #2208
+
+   * ``duplicate-argument-name`` is emitted for more than one duplicate argument per function
+
+      Close #1712
+
+   * Allow double indentation levels for more distinguishable indentations
+
+     Close #741
+
+
+What's New in Pylint 2.1.1?
+===========================
+
+Release date: 2018-08-07
+
+   * fix pylint crash due to ``misplaced-format-function`` not correctly handling class attribute.
+     Close #2384
+
+   * Do not emit \*-builtin for Python 3 builtin checks when the builtin is used inside a try-except
+
+     Close PyCQA/pylint#2228
+
+   * ``simplifiable-if-statement`` not emitted when dealing with subscripts
+
+What's New in Pylint 2.1?
+=========================
+
+Release date: 2018-08-01
+   * `trailing-comma-tuple` gets emitted for ``yield`` statements as well.
+
+      Close #2363
+
+   * Get only the arguments of the scope function for `redefined-argument-from-local`
+
+     Close #2364
+
+   * Add a check `misplaced-format-function` which is emitted if format function is used on
+     non str object.
+
+     Close #2200
+
+   * `chain.from_iterable` no longer emits `dict-{}-not-iterating` when dealing with dict values and keys
+
+   * Demote the `try-except-raise` message from an error to a warning (E0705 -> W0706)
+
+      Close #2323
+
+   * Correctly handle the new name of the Python implementation of the `abc` module.
+
+     Close PyCQA/astroid#2288
+
+    * Modules with `__getattr__` are exempted by default from `no-member`
+
+      There's no easy way to figure out if a module has a particular member when
+      the said module uses `__getattr__`, which is a new addition to Python 3.7.
+      Instead we assume the safe thing to do, in the same way we do for classes,
+      and skip those modules from checking.
+
+      Close #2331
+
+    * Fix a false positive `invalid name` message when method or attribute name is longer then 30 characters.
+
+      Close #2047
+
+    * Include the type of the next branch in `no-else-return`
+
+      Close #2295
+
+    * Fix inconsistent behaviour for bad-continuation on first line of file
+
+      Close #2281
+
+     * Fix not being able to disable certain messages on the last line through
+       the global disable option
+
+       Close #2278
+
+    * Don't emit `useless-return` when we have a single statement that is the return itself
+
+      We still want to be explicit when a function is supposed to return
+      an optional value; even though `pass` could still work, it's not explicit
+      enough and the function might look like it's missing an implementation.
+      Close #2300
+
+   * Fix false-positive undefined-variable for self referential class name in lamdbas
+
+      Close #704
+
+    * Don't crash when `pylint` is unable to infer the value of an argument to `next()`
+
+      Close #2316
+
+    * Don't emit `not-an-iterable` when dealing with async iterators.
+
+      But do emit it when using the usual iteration protocol against
+      async iterators.
+
+      Close #2311
+
+   * Can specify a default docstring type for when the check cannot guess the type
+
+      Close #1169
+
+
 What's New in Pylint 2.0?
 =========================
+
 
     * Remove Python 2 specific checks
 
       Close   #1896
+
+Release date: 2018-07-15
+    * `try-except-raise` should not be emitted if there are any parent exception class handlers.
+
+       Close #2284
+
+    * `trailing-comma-tuple` can be emitted for `return` statements as well.
+
+       Close #2269
+
+    * Fix a false positive ``inconsistent-return-statements`` message when exception is raised
+      inside an else statement.
+
+      Close #1782
+
+    * `ImportFrom` nodes correctly use the full name for the import sorting checks.
+
+      Close #2181
+
+    * [].extend and similar builtin operations don't emit `dict-*-not-iterating` with the Python 3 porting checker
+
+      Close #2187
+
+    * Add a check `consider-using-dict-comprehension` which is emitted if for dict initialization
+      the old style with list comprehensions is used.
+
+    * Add a check `consider-using-set-comprehension` which is emitted if for set initialization
+      the old style with list comprehensions is used.
+
+    * `logging-not-lazy` is emitted whenever pylint infers that a string is built with addition
+
+      Close #2193
+
+    * Add a check `chained-comparison` which is emitted if a boolean operation can be simplified
+      by chaining some of its operations.
+      e.g "a < b and b < c", can be simplified as "a < b < c".
+
+      Close #2032
+
+    * Add a check `consider-using-in` for comparisons of a variable against
+      multiple values with "==" and "or"s instead of checking if the variable
+      is contained "in" a tuple of those values.
+
+    * `in` is considered iterating context for some of the Python 3 porting checkers
+
+      Close #2186
+
+    * Add `--ignore-none` flag to control if pylint should warn about `no-member` where the owner is None
+
+    * Fix a false positive related to `too-many-arguments` and bounded `__get__` methods
+
+      Close #2172
+
+    * `mcs` as the first parameter of metaclass's `__new__` method was replaced by `cls`
+
+      Close #2028
+
+    * `assignment-from-no-return` considers methods as well.
+
+       Close #2081
+
+    * Support typing.TYPE_CHECKING for *unused-import* errors
+
+      Close #1948
+
+    * Inferred classes at a function level no longer emit `invalid-name`
+      when they don't respect the variable regular expression
+
+      Close #1049
+
+    * Added basic support for postponed evaluation of function annotations.
+
+      Close #2069
+
+    * Fix a bug with `missing-kwoa` and variadics parameters
+
+      Close #1111
+
+    * `simplifiable-if-statement` takes in account only when assigning to same targets
+
+       Close #1984
+
+    * Make ``len-as-condition`` test more cases, such as ``len() < 1`` or ``len <= 0``
+
+    * Fix false-positive ``line-too-long`` message emission for
+      commented line at the end of a module
+
+      Close #1950
+
+    * Fix false-positive ``bad-continuation`` for with statements
+
+      Close #461
+
+    * Don't warn about `stop-iteration-return` when using `next()` over `itertools.count`
+
+      Close #2158
+
+    * Add a check `consider-using-get` for unidiomatic usage of value/default-retrieval
+      for a key from a dictionary
+
+      Close #2076
+
+    * invalid-slice-index is not emitted when the slice is used as index for a complex object.
+
+      We only use a handful of known objects (list, set and friends) to figure out if
+      we should emit invalid-slice-index when the slice is used to subscript an object.
+
+    * Don't emit `unused-import` anymore for typing imports used in type comments.
+
+    * Add a new check 'useless-import-alias'.
+
+      Close #2052
+
+    * Add `comparison-with-callable` to warn for comparison with bare callable, without calling it.
+
+      Close #2082
+
+    * Don't warn for ``missing-type-doc`` and/or ``missing-return-type-doc``, if type
+      annotations exist on the function signature for a parameter and/or return type.
+      Close #2083
+
+    * Add `--exit-zero` option for continuous integration scripts to more
+      easily call Pylint in environments that abort when a program returns a
+      non-zero (error) status code.
+
+      Close #2042
+>>>>>>> master
 
     * Warn if the first argument of an instance/ class method gets assigned
 
@@ -43,41 +294,16 @@ What's New in Pylint 2.0?
 
        Close #1793
 
+    * New verbose mode option, enabled with `--verbose` command line flag, to
+      display of extra non-checker-related output. It is disabled by default.
 
-What's New in Pylint 1.9?
-=========================
-
-Release date: 2018-05-15
-
-    * Added two new Python 3 porting checks, `exception-escape` and `comprehension-escape`
-
-      These two are emitted whenever pylint detects that a variable defined in the
-      said blocks is used outside of the given block. On Python 3 these values are deleted.
-
-    * Added a new `deprecated-sys-function`, emitted when accessing removed sys members.
-
-    * Added `xreadlines-attribute`, emitted when the `xreadlines()` attribute is accessed.
-
-    * The Python 3 porting mode can now run with Python 3 as well.
-
-    * docparams extension allows abstract methods to document what overriding
-      implementations should return, and to raise NotImplementedError without
-      documenting it.
-
-      Closes #2044
-
-    * Special methods do not count towards `too-few-methods`,
-      and are considered part of the public API.
-
-    * Enum classes do not trigger `too-few-methods`
-
-      Close #605
+      Close #1863
 
     * `undefined-loop-variable` takes in consideration non-empty iterred objects before emitting
 
       Close #2039
 
-    * Add support for nupmydoc optional return value names.
+    * Add support for numpydoc optional return value names.
 
       Close #2030
 
@@ -94,14 +320,6 @@ Release date: 2018-05-15
     * defaultdict and subclasses of dict are now handled for dict-iter-* checks
 
       Close #2005
-
-    * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
-
-      Close #1936
-
-    * Added a new Python 2/3 check for accessing removed urllib functions
-
-      Close #1997
 
     * `logging-format-interpolation` also emits when f-strings are used instead of % syntax.
 
@@ -238,8 +456,7 @@ Release date: 2018-05-15
 
       Close #1120
 
-    * Fix false positive undefined-variable for lambda argument in
-        class definitions
+    * Fix false positive undefined-variable for lambda argument in class definitions
 
       Close #1824
 
@@ -261,11 +478,82 @@ Release date: 2018-05-15
 
       Close #638
 
+    * Fix false positive unused-variable in lambda default arguments
+
+      Close #1921
+      Close #1552
+      Close #1099
+      Close #210
+
     * Updated the default report format to include paths that can be clicked on in some terminals (e.g. iTerm).
+
+    * Fix inline def behavior with ``too-many-statements`` checker
+
+      Close #1978
+
+    * Fix `KeyError` raised when using docparams and NotImplementedError is documented.
+
+      Close #2102
+
+    * Fix 'method-hidden' raised when assigning to a property or data descriptor.
+
+    * Fix emitting ``useless-super-delegation`` when changing the default value of keyword arguments.
+
+      Close #2022
+
+    * Expand ignored-argument-names include starred arguments and keyword arguments
+
+      Close #2214
+
+    * Fix false-postive undefined-variable in nested lambda
+
+      Close #760
+
+    * Fix false-positive ``bad-whitespace`` message for typing annoatations
+      with ellipses in them
+
+      Close 1992
+
+What's New in Pylint 1.9?
+=========================
+
+Release date: 2018-05-15
+
+    * Added two new Python 3 porting checks, `exception-escape` and `comprehension-escape`
+
+      These two are emitted whenever pylint detects that a variable defined in the
+      said blocks is used outside of the given block. On Python 3 these values are deleted.
+
+    * Added a new `deprecated-sys-function`, emitted when accessing removed sys members.
+
+    * Added `xreadlines-attribute`, emitted when the `xreadlines()` attribute is accessed.
+
+    * The Python 3 porting mode can now run with Python 3 as well.
+
+    * docparams extension allows abstract methods to document what overriding
+      implementations should return, and to raise NotImplementedError without
+      documenting it.
+
+      Closes #2044
+
+    * Special methods do not count towards `too-few-methods`,
+      and are considered part of the public API.
+
+    * Enum classes do not trigger `too-few-methods`
+
+      Close #605
+
+    * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
+
+      Close #1936
+
+    * Added a new Python 2/3 check for accessing removed urllib functions
+
+      Close #1997
 
 
 What's New in Pylint 1.8.1?
-=========================
+===========================
 
 Release date: 2017-12-15
 
@@ -316,7 +604,7 @@ Release date: 2017-12-15
 
       This is emitted for function definitions
       in which keyword arguments are placed before variable
-      positional arguments (*args).
+      positional arguments (\*args).
 
       This may lead to args list getting modified if keyword argument's value
       is not provided in the function call assuming it will take default value
@@ -426,7 +714,7 @@ Release date: 2017-12-15
       Close #1409
 
      * Fix ``missing-docstring`` false negatives when modules, classes, or methods
-     consist of compound statements that exceed the ``docstring-min-length``
+       consist of compound statements that exceed the ``docstring-min-length``
 
     * Fix ``useless-else-on-loop`` false positives when break statements are
       deeply nested inside loop.
@@ -457,7 +745,7 @@ Release date: 2017-12-15
       Close #1742
 
 What's New in Pylint 1.7.1?
-=========================
+===========================
 
 Release date: 2017-04-17
 
@@ -607,7 +895,7 @@ Release date: 2017-04-13
     * Fix a false positive for keyword variadics with regard to keyword only arguments.
 
       If a keyword only argument was necessary for a function, but that function was called
-      with keyword variadics (**kwargs), then we were emitting a missing-kwoa false positive,
+      with keyword variadics (\**kwargs), then we were emitting a missing-kwoa false positive,
       which is now fixed.
 
       Close #934.

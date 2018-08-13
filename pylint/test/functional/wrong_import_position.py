@@ -1,6 +1,6 @@
 """Checks import order rule"""
 # pylint: disable=unused-import,relative-import,ungrouped-imports,wrong-import-order
-# pylint: disable=import-error, too-few-public-methods, missing-docstring,using-constant-test
+# pylint: disable=import-error, too-few-public-methods, missing-docstring,using-constant-test, useless-object-inheritance
 import os.path
 
 if True:

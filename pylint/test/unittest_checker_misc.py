@@ -5,6 +5,7 @@
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 glegoux <gilles.legoux@gmail.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -27,7 +28,7 @@ class TestFixme(CheckerTestCase):
                 # FIXME message
                 """) as module:
             with self.assertAddsMessages(
-                    Message(msg_id='fixme', line=2, args=u'FIXME message')):
+                    Message(msg_id='fixme', line=2, args='FIXME message')):
                 self.checker.process_module(module)
 
     def test_todo_without_message(self):
@@ -36,7 +37,7 @@ class TestFixme(CheckerTestCase):
                 # TODO
                 """) as module:
             with self.assertAddsMessages(
-                    Message(msg_id='fixme', line=2, args=u'TODO')):
+                    Message(msg_id='fixme', line=2, args='TODO')):
                 self.checker.process_module(module)
 
     def test_xxx_without_space(self):
@@ -45,7 +46,7 @@ class TestFixme(CheckerTestCase):
                 #XXX
                 """) as module:
             with self.assertAddsMessages(
-                    Message(msg_id='fixme', line=2, args=u'XXX')):
+                    Message(msg_id='fixme', line=2, args='XXX')):
                 self.checker.process_module(module)
 
     def test_xxx_middle(self):
@@ -62,7 +63,7 @@ class TestFixme(CheckerTestCase):
                 #FIXME
                 """) as module:
             with self.assertAddsMessages(
-                    Message(msg_id='fixme', line=2, args=u'FIXME')):
+                    Message(msg_id='fixme', line=2, args='FIXME')):
                 self.checker.process_module(module)
 
     @set_config(notes=[])
@@ -84,5 +85,5 @@ class TestFixme(CheckerTestCase):
                 # FIXME
                 """) as module:
             with self.assertAddsMessages(
-                    Message(msg_id='fixme', line=2, args=u'CODETAG')):
+                    Message(msg_id='fixme', line=2, args='CODETAG')):
                 self.checker.process_module(module)

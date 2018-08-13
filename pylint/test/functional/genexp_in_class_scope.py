@@ -1,4 +1,4 @@
-# pylint: disable=W0232,R0903, missing-docstring
+# pylint: disable=W0232,R0903, missing-docstring, useless-object-inheritance
 """Class scope must be handled correctly in genexps"""
 
 class MyClass(object):

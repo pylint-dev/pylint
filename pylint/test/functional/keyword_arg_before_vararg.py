@@ -1,7 +1,7 @@
 """Unittests for W1125 (kw args before *args)"""
 from __future__ import absolute_import, print_function
 
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument, useless-object-inheritance, unnecessary-pass
 def check_kwargs_before_args(param1, param2=2, *args): # [keyword-arg-before-vararg]
     """docstring"""
     pass

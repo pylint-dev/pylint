@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -111,7 +112,7 @@ EDGE_ATTRS = {
 
 # Misc utilities ###############################################################
 
-class VCGPrinter(object):
+class VCGPrinter:
     """A vcg graph writer.
     """
 

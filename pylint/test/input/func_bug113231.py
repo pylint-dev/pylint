@@ -1,6 +1,6 @@
 # pylint: disable=E1101
 # pylint: disable=C0103
-# pylint: disable=R0903
+# pylint: disable=R0903, useless-object-inheritance, unnecessary-pass
 """test bugfix for #113231 in logging checker
 """
 from __future__ import absolute_import

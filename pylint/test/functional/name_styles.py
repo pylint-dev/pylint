@@ -1,5 +1,5 @@
 """Test for the invalid-name warning."""
-# pylint: disable=no-absolute-import
+# pylint: disable=no-absolute-import, useless-object-inheritance, unnecessary-pass
 from __future__ import print_function
 import abc
 import collections
@@ -128,10 +128,6 @@ def good_public_function_name(good_arg_name):
     good_variable_name = 1
     return good_variable_name + good_arg_name
 
-
-def too_long_function_name_in_public_scope():  # [invalid-name]
-    """Public scope function with a too long name"""
-    return 12
 
 def _private_scope_function_with_long_descriptive_name():
     """Private scope function are cool with long descriptive names"""

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+# Copyright (c) 2016-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -65,6 +66,33 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         with self.assertAddsMessages(
                 Message(msg_id='missing-return-type-doc', node=node)):
             self.checker.visit_return(return_node)
+
+    def test_sphinx_returns_annotations(self):
+        node = astroid.extract_node('''
+        def my_func(self) -> bool:
+            """This is a docstring.
+
+            :returns: Always False
+            """
+            return False
+        ''')
+        return_node = node.body[0]
+        with self.assertNoMessages():
+            self.checker.visit_return(return_node)
+
+    def test_sphinx_missing_return_type_with_annotations(self):
+        node = astroid.extract_node('''
+           def my_func(self) -> bool:
+               """This is a docstring.
+
+               :returns: Always False
+               """
+               return False
+           ''')
+        return_node = node.body[0]
+        with self.assertNoMessages():
+            self.checker.visit_return(return_node)
+
 
     def test_warn_partial_sphinx_returns_type(self):
         node = astroid.extract_node('''

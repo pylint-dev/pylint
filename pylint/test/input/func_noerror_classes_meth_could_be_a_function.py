@@ -1,4 +1,4 @@
-# pylint: disable=C0111,R0903,W0232
+# pylint: disable=C0111,R0903,W0232, useless-object-inheritance
 """
 #2479
 

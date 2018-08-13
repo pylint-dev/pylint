@@ -21,6 +21,7 @@ import astroid  # [wrong-import-order]
 from . import package2
 from .package2 import Class2
 from ..package3 import Class3
+from six.moves.urllib.parse import quote # [wrong-import-order]
 
 
 LOGGER = logging.getLogger(__name__)

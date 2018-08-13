@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
@@ -12,6 +12,10 @@
 # Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2017 Thomas Hisch <t.hisch@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Jason Owen <jason.a.owen@gmail.com>
+# Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
+# Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -24,8 +28,8 @@ import os
 from os.path import join, dirname, abspath
 import tempfile
 import textwrap
-
-import six
+import configparser
+from io import StringIO
 
 from pylint.lint import Run
 from pylint.reporters import BaseReporter
@@ -94,9 +98,9 @@ class MultiReporter(BaseReporter):
 
 class TestRunTC(object):
 
-    def _runtest(self, args, reporter=None, out=None, code=28):
+    def _runtest(self, args, reporter=None, out=None, code=None):
         if out is None:
-            out = six.StringIO()
+            out = StringIO()
         pylint_code = self._run_pylint(args, reporter=reporter, out=out)
         if reporter:
             output = reporter.out.getvalue()
@@ -123,25 +127,25 @@ class TestRunTC(object):
         return re.sub('^py.+/site-packages/', '', output.replace('\\', '/'), flags=re.MULTILINE)
 
     def _test_output(self, args, expected_output):
-        out = six.StringIO()
+        out = StringIO()
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue())
         assert expected_output.strip() in actual_output.strip()
 
     def test_pkginfo(self):
         """Make pylint check itself."""
-        self._runtest(['pylint.__pkginfo__'], reporter=TextReporter(six.StringIO()),
+        self._runtest(['pylint.__pkginfo__'], reporter=TextReporter(StringIO()),
                       code=0)
 
     def test_all(self):
         """Make pylint check itself."""
         reporters = [
-            TextReporter(six.StringIO()),
-            ColorizedTextReporter(six.StringIO()),
-            JSONReporter(six.StringIO())
+            TextReporter(StringIO()),
+            ColorizedTextReporter(StringIO()),
+            JSONReporter(StringIO())
         ]
-        self._runtest(['pylint/test/functional/arguments.py'],
-                      reporter=MultiReporter(reporters), code=1)
+        self._runtest([join(HERE, 'functional/arguments.py')],
+                      reporter=MultiReporter(reporters), code=2)
 
     def test_no_ext_file(self):
         self._runtest([join(HERE, 'input', 'noext')], code=0)
@@ -149,12 +153,18 @@ class TestRunTC(object):
     def test_w0704_ignored(self):
         self._runtest([join(HERE, 'input', 'ignore_except_pass_by_default.py')], code=0)
 
+    def test_exit_zero(self):
+        self._runtest([
+            '--exit-zero',
+            join(HERE, 'regrtest_data', 'syntax_error.py')
+        ], code=0)
+
     def test_generate_config_option(self):
         self._runtest(['--generate-rcfile'], code=0)
 
     def test_generate_config_option_order(self):
-        out1 = six.StringIO()
-        out2 = six.StringIO()
+        out1 = StringIO()
+        out2 = StringIO()
         self._runtest(['--generate-rcfile'], code=0, out=out1)
         self._runtest(['--generate-rcfile'], code=0, out=out2)
         output1 = out1.getvalue()
@@ -165,27 +175,27 @@ class TestRunTC(object):
         # Test that --generate-rcfile puts symbolic names in the --disable
         # option.
 
-        out = six.StringIO()
+        out = StringIO()
         self._run_pylint(["--generate-rcfile", "--rcfile="], out=out)
 
         output = out.getvalue()
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
         master = re.search(r"\[MASTER", output)
-        out = six.StringIO(output[master.start():])
-        parser = six.moves.configparser.RawConfigParser()
+        out = StringIO(output[master.start():])
+        parser = configparser.RawConfigParser()
         parser.readfp(out)
         messages = utils._splitstrip(parser.get('MESSAGES CONTROL', 'disable'))
         assert 'suppressed-message' in messages
 
     def test_generate_rcfile_no_obsolete_methods(self):
-        out = six.StringIO()
+        out = StringIO()
         self._run_pylint(["--generate-rcfile"], out=out)
         output = out.getvalue()
         assert "profile" not in output
 
     def test_inexisting_rcfile(self):
-        out = six.StringIO()
+        out = StringIO()
         with pytest.raises(IOError) as excinfo:
             self._run_pylint(["--rcfile=/tmp/norcfile.txt"], out=out)
         assert "The config file /tmp/norcfile.txt doesn't exist!" == str(excinfo.value)
@@ -208,28 +218,29 @@ class TestRunTC(object):
         if sys.version_info < (3, 0):
             strio = tempfile.TemporaryFile()
         else:
-            strio = six.StringIO()
+            strio = StringIO()
         assert strio.encoding is None
         self._runtest([join(HERE, 'regrtest_data/no_stdout_encoding.py'),
                        '--enable=all'],
                       out=strio, code=28)
 
     def test_parallel_execution(self):
-        self._runtest(['-j 2', 'pylint/test/functional/arguments.py',
-                       'pylint/test/functional/bad_continuation.py'], code=1)
+        self._runtest(['-j 2',
+                       join(HERE, 'functional/arguments.py'),
+                       join(HERE, 'functional/bad_continuation.py')], code=18)
 
     def test_parallel_execution_missing_arguments(self):
         self._runtest(['-j 2', 'not_here', 'not_here_too'], code=1)
 
     def test_py3k_option(self):
         # Test that --py3k flag works.
-        rc_code = 2 if six.PY2 else 0
+        rc_code = 0
         self._runtest([join(HERE, 'functional', 'unpacked_exceptions.py'),
                        '--py3k'],
                       code=rc_code)
 
     def test_py3k_jobs_option(self):
-        rc_code = 2 if six.PY2 else 0
+        rc_code = 0
         self._runtest([join(HERE, 'functional', 'unpacked_exceptions.py'),
                        '--py3k', '-j 2'],
                       code=rc_code)
@@ -318,7 +329,7 @@ class TestRunTC(object):
         args = [module2, module1,
                 "--disable=all", "--enable=wrong-import-position",
                 "-rn", "-sn"]
-        out = six.StringIO()
+        out = StringIO()
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue().strip())
 
@@ -344,7 +355,7 @@ class TestRunTC(object):
                           expected_output=expected)
 
     def test_json_report_when_file_has_syntax_error(self):
-        out = six.StringIO()
+        out = StringIO()
         module = join(HERE, 'regrtest_data', 'syntax_error.py')
         self._runtest([module], code=2, reporter=JSONReporter(out))
         output = json.loads(out.getvalue())
@@ -366,7 +377,7 @@ class TestRunTC(object):
         assert 'invalid syntax' in message['message'].lower()
 
     def test_json_report_when_file_is_missing(self):
-        out = six.StringIO()
+        out = StringIO()
         module = join(HERE, 'regrtest_data', 'totally_missing.py')
         self._runtest([module], code=1, reporter=JSONReporter(out))
         output = json.loads(out.getvalue())
@@ -451,7 +462,7 @@ class TestRunTC(object):
                           expected_output=expected)
 
     def test_no_crash_with_formatting_regex_defaults(self):
-        self._runtest(["--ignore-patterns=a"], reporter=TextReporter(six.StringIO()),
+        self._runtest(["--ignore-patterns=a"], reporter=TextReporter(StringIO()),
                       code=32)
 
     def test_getdefaultencoding_crashes_with_lc_ctype_utf8(self):

@@ -1,5 +1,5 @@
 """Don't warn if the class is instantiated in its own body."""
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, useless-object-inheritance
 
 
 import abc

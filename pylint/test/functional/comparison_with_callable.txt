@@ -1,0 +1,5 @@
+comparison-with-callable:8::Comparing against a callable, did you omit the parenthesis?
+comparison-with-callable:11::Comparing against a callable, did you omit the parenthesis?
+comparison-with-callable:45::Comparing against a callable, did you omit the parenthesis?
+comparison-with-callable:48::Comparing against a callable, did you omit the parenthesis?
+comparison-with-callable:51::Comparing against a callable, did you omit the parenthesis?

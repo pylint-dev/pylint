@@ -112,3 +112,15 @@ for number in ['1', '2', '3']: result += number  # [consider-using-join]
 result = ''
 for number in ['1']:
     result.result += number
+
+# Does not emit if the body is more complex
+result = {'context': 1}
+result['context'] = 0
+for number in ['1']:
+    result1 = 42 + int(number)
+    result['context'] += result1 * 24
+
+# Does not crash if the previous sibling does not have AssignNames
+result['context'] = 0
+for number in ['1']:
+    result['context'] += 24

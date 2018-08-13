@@ -8,11 +8,15 @@
 # Copyright (c) 2014 Manuel Vázquez Acosta <mva.led@gmail.com>
 # Copyright (c) 2014 Derek Harland <derek.harland@finq.co.nz>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Daniela Plascencia <daplascen@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Ryan McGuire <ryan@enigmacurry.com>
+# Copyright (c) 2018 thernstig <30827238+thernstig@users.noreply.github.com>
+# Copyright (c) 2018 Radostin Stoyanov <rst0git@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -55,8 +59,7 @@ import os.path as osp
 import sys
 import shlex
 from subprocess import Popen, PIPE
-
-import six
+from io import StringIO
 
 
 def _get_env():
@@ -158,7 +161,7 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None):
     proc_stdout, proc_stderr = process.communicate()
     # Return standard output and error
     if return_std:
-        return six.moves.StringIO(proc_stdout), six.moves.StringIO(proc_stderr)
+        return StringIO(proc_stdout), StringIO(proc_stderr)
     return None
 
 

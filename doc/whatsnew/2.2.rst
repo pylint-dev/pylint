@@ -1,0 +1,22 @@
+**************************
+ What's New in Pylint 2.2
+**************************
+
+:Release: 2.2
+:Date: TBA 
+
+Summary -- Release highlights
+=============================
+
+
+New checkers
+============
+
+
+Other Changes
+=============
+
+* `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement, 
+  in which case, docstring is enough for empty definition.
+
+

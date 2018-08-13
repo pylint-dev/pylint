@@ -2,7 +2,7 @@
 # Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2013 buck@yelp.com <buck@yelp.com>
-# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015-2016 Moises Lopez <moylop260@vauxoo.com>
@@ -20,6 +20,9 @@
 # Copyright (c) 2017 Michka Popoff <michkapopoff@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Erik Wright <erik.wright@shopify.com>
+# Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -239,6 +242,10 @@ MSGS = {
               'module',
               'wrong-import-position',
               'Used when code and imports are mixed'),
+    'C0414': ('Import alias does not rename original package',
+              'useless-import-alias',
+              'Used when an import alias is same as original package.'
+              'e.g using import numpy as numpy instead of import numpy as np'),
     }
 
 
@@ -265,64 +272,63 @@ class ImportsChecker(BaseChecker):
     else:
         deprecated_modules = ('optparse', 'tkinter.tix')
     options = (('deprecated-modules',
-                {'default': deprecated_modules,
-                 'type': 'csv',
-                 'metavar': '<modules>',
-                 'help': 'Deprecated modules which should not be used,'
-                         'separated by a comma'}
-                ),
+                {'default' : deprecated_modules,
+                 'type' : 'csv',
+                 'metavar' : '<modules>',
+                 'help' : 'Deprecated modules which should not be used,'
+                          ' separated by a comma.'}
+               ),
                ('import-graph',
-                {'default': '',
-                 'type': 'string',
-                 'metavar': '<file.dot>',
-                 'help': 'Create a graph of every (i.e. internal and '
-                         'external) dependencies in the given file '
-                         '(report RP0402 must not be disabled)'}
-                ),
+                {'default' : '',
+                 'type' : 'string',
+                 'metavar' : '<file.dot>',
+                 'help' : 'Create a graph of every (i.e. internal and'
+                          ' external) dependencies in the given file'
+                          ' (report RP0402 must not be disabled).'}
+               ),
                ('ext-import-graph',
-                {'default': '',
-                 'type': 'string',
-                 'metavar': '<file.dot>',
-                 'help': 'Create a graph of external dependencies in the '
-                         'given file (report RP0402 must not be disabled)'}
-                ),
+                {'default' : '',
+                 'type' : 'string',
+                 'metavar' : '<file.dot>',
+                 'help' : 'Create a graph of external dependencies in the'
+                          ' given file (report RP0402 must not be disabled).'}
+               ),
                ('int-import-graph',
-                {'default': '',
-                 'type': 'string',
-                 'metavar': '<file.dot>',
-                 'help': 'Create a graph of internal dependencies in the '
-                         'given file (report RP0402 must not be disabled)'}
-                ),
+                {'default' : '',
+                 'type' : 'string',
+                 'metavar' : '<file.dot>',
+                 'help' : 'Create a graph of internal dependencies in the'
+                          ' given file (report RP0402 must not be disabled).'}
+               ),
                ('known-standard-library',
                 {'default': DEFAULT_STANDARD_LIBRARY,
                  'type': 'csv',
                  'metavar': '<modules>',
-                 'help': 'Force import order to recognize a module as part of '
-                         'the standard compatibility libraries.'}
-                ),
+                 'help': 'Force import order to recognize a module as part of'
+                         ' the standard compatibility libraries.'}
+               ),
                ('known-third-party',
                 {'default': DEFAULT_KNOWN_THIRD_PARTY,
                  'type': 'csv',
                  'metavar': '<modules>',
-                 'help': 'Force import order to recognize a module as part of '
-                         'a third party library.'}
-                ),
+                 'help': 'Force import order to recognize a module as part of'
+                         ' a third party library.'}
+               ),
                ('analyse-fallback-blocks',
                 {'default': False,
                  'type': 'yn',
                  'metavar': '<y_or_n>',
                  'help': 'Analyse import fallback blocks. This can be used to '
-                         'support both Python 2 and 3 compatible code, which '
-                         'means that the block might have code that exists '
-                         'only in one or another interpreter, leading to false '
-                         'positives when analysed.'},
-                ),
+                         'support both Python 2 and 3 compatible code, which means that '
+                         'the block might have code that exists only in one or another '
+                         'interpreter, leading to false positives when analysed.'},
+               ),
                ('allow-wildcard-with-all',
                 {'default': False,
                  'type': 'yn',
                  'metavar': '<y_or_n>',
                  'help': 'Allow wildcard imports from modules that define __all__.'}),
-               )
+              )
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -388,6 +394,7 @@ class ImportsChecker(BaseChecker):
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         self._check_reimport(node)
+        self._check_import_as_rename(node)
 
         modnode = node.root()
         names = [name for name, _ in node.names]
@@ -415,6 +422,7 @@ class ImportsChecker(BaseChecker):
         basename = node.modname
         imported_module = self._get_imported_module(node, basename)
 
+        self._check_import_as_rename(node)
         self._check_misplaced_future(node)
         self._check_deprecated_module(node, basename)
         self._check_wildcard_imports(node, imported_module)
@@ -546,14 +554,15 @@ class ImportsChecker(BaseChecker):
 
     def _record_import(self, node, importedmodnode):
         """Record the package `node` imports from"""
-        importedname = importedmodnode.name if importedmodnode else None
+        if isinstance(node, astroid.ImportFrom):
+            importedname = node.modname
+        else:
+            importedname = importedmodnode.name if importedmodnode else None
         if not importedname:
-            if isinstance(node, astroid.ImportFrom):
-                importedname = node.modname
-            else:
-                importedname = node.names[0][0].split('.')[0]
+            importedname = node.names[0][0].split('.')[0]
+
         if isinstance(node, astroid.ImportFrom) and (node.level or 0) >= 1:
-            # We need the impotedname with first point to detect local package
+            # We need the importedname with first point to detect local package
             # Example of node:
             #  'from .my_package1 import MyClass1'
             #  the output should be '.my_package1' instead of 'my_package1'
@@ -561,6 +570,7 @@ class ImportsChecker(BaseChecker):
             #  'from . import my_package2'
             #  the output should be '.my_package2' instead of '{pyfile}'
             importedname = '.' + importedname
+
         self._imports_stack.append((node, importedname))
 
     @staticmethod
@@ -715,6 +725,19 @@ class ImportsChecker(BaseChecker):
         for mod_name in self.config.deprecated_modules:
             if mod_path == mod_name or mod_path.startswith(mod_name + '.'):
                 self.add_message('deprecated-module', node=node, args=mod_path)
+
+    def _check_import_as_rename(self, node):
+        names = node.names
+        for name in names:
+            if not all(name):
+                return
+
+            real_name = name[0]
+            packages = real_name.rsplit('.', 1)
+            real_name = packages[1] if len(packages) == 2 else packages[0]
+            imported_name = name[1]
+            if real_name == imported_name:
+                self.add_message('useless-import-alias', node=node)
 
     def _check_reimport(self, node, basename=None, level=None):
         """check if the import is necessary (i.e. not already done)"""

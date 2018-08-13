@@ -1,5 +1,5 @@
 # pylint: disable=too-few-public-methods, no-absolute-import,missing-docstring,import-error,wrong-import-position
-# pylint: disable=wrong-import-order
+# pylint: disable=wrong-import-order, useless-object-inheritance
 
 def decorator(fun):
     """Decorator"""
@@ -201,3 +201,17 @@ def namedtuple_replace_issue_1036():
     # +1:[unexpected-keyword-arg,unexpected-keyword-arg]
     new_bad_instance = cls(1, 2, 3)._replace(d=24, e=32)
     return new_instance, new_bad_instance
+
+
+from functools import partial
+
+def some_func(first, second, third):
+    return first + second + third
+
+
+partial(some_func, 1, 2)(3)
+partial(some_func, third=1, second=2)(3)
+partial(some_func, 1, third=2)(second=3)
+partial(some_func, 1)(1)  # [no-value-for-parameter]
+partial(some_func, 1)(third=1)  # [no-value-for-parameter]
+partial(some_func, 1, 2)(third=1, fourth=4)  # [unexpected-keyword-arg]

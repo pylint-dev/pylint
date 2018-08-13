@@ -9,7 +9,7 @@ toto.yo()
 from xml.etree import ElementTree
 ElementTree.nonexistant_function()  # [no-member]
 ElementTree.another.nonexistant.function()  # [no-member]
-print(collections.yo)  # [no-member]
+
 
 import sys
 print(sys.stdout, 'hello world')
@@ -51,7 +51,7 @@ except Exception:
     pass
 
 try:
-    import collections.emit1 # [no-name-in-module]
+    import collections.emit1
 except:
     pass
 

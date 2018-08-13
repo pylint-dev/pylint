@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -47,7 +47,7 @@ class AsyncChecker(checkers.BaseChecker):
     def visit_asyncwith(self, node):
         for ctx_mgr, _ in node.items:
             infered = checker_utils.safe_infer(ctx_mgr)
-            if infered is None or infered is astroid.YES:
+            if infered is None or infered is astroid.Uninferable:
                 continue
 
             if isinstance(infered, astroid.Instance):

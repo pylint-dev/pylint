@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -53,7 +55,7 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
     found = set()
     missing = False
     for iface in node_classes.unpack_infer(implements):
-        if iface is astroid.YES:
+        if iface is astroid.Uninferable:
             missing = True
             continue
         if iface not in found and handler_func(iface):
@@ -63,7 +65,7 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
         raise exceptions.InferenceError()
 
 
-class IdGeneratorMixIn(object):
+class IdGeneratorMixIn:
     """Mixin adding the ability to generate integer uid."""
 
     def __init__(self, start_value=0):
@@ -302,7 +304,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 mod_paths.append(mod_path)
 
 
-class Project(object):
+class Project:
     """a project handle a set of modules / packages"""
     def __init__(self, name=''):
         self.name = name

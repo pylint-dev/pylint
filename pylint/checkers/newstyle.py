@@ -1,6 +1,6 @@
 # Copyright (c) 2006, 2008-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
@@ -131,7 +131,7 @@ class NewStyleConflictChecker(BaseChecker):
 
                 if klass is not supcls:
                     name = None
-                    # if supcls is not YES, then supcls was infered
+                    # if supcls is not Uninferable, then supcls was infered
                     # and use its name. Otherwise, try to look
                     # for call.args[0].name
                     if supcls:

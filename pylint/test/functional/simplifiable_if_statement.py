@@ -118,3 +118,29 @@ def test_not_simplifiable_8(arg):
         return True
     else:
         return 0
+
+
+def test_not_simplifiable_9():
+    # Not the same targets
+    first = True
+    second = 1
+    third = [1]
+    fourth = False
+    fifth = False
+
+    if first and second in third:
+        fourth = True
+    else:
+        fifth = True
+    return fourth + fifth
+
+
+def test_not_simplifiable_10():
+    # Subscripts are not considered
+    object_type = 'read'
+    filter_kwargs = {}
+    if object_type == 'read':
+        filter_kwargs['a'] = True
+    else:
+        filter_kwargs['b'] = True
+    return filter_kwargs

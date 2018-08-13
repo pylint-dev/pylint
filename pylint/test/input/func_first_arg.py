@@ -1,4 +1,4 @@
-# pylint: disable=C0111, W0232
+# pylint: disable=C0111, W0232, useless-object-inheritance
 """check for methods first arguments
 """
 
@@ -33,7 +33,7 @@ class Meta(type):
         pass
 
     # C0205, metaclass classmethod
-    def class1(mcs):
+    def class1(cls):
         pass
     class1 = classmethod(class1)
 

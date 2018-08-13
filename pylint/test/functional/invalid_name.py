@@ -29,3 +29,11 @@ def test():
 
 def a(): # [invalid-name]
     """yo"""
+
+
+def _generate_cmdline_tests():
+    TestCase = collections.namedtuple('TestCase', 'cmd, valid')
+    valid = ['leave-mode', 'hint all']
+    # Valid command only -> valid
+    for item in valid:
+        yield TestCase(''.join(item), True)

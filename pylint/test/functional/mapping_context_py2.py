@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-self-use,bad-mcs-method-argument
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-self-use,bad-mcs-method-argument, useless-object-inheritance
 from __future__ import print_function
 
 

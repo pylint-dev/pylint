@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,no-self-use,too-few-public-methods,wrong-import-position
+# pylint: disable=missing-docstring,no-self-use,too-few-public-methods,wrong-import-position, useless-object-inheritance
 
 REVISION = None
 
@@ -102,6 +102,10 @@ class SafeProperty(object):
                 return 42
         return Empty()
 
+    @property
+    def does_not_make_sense(self):
+        raise NotImplementedError
+
 PROP1 = SafeProperty()
 PROP1.static(2)
 PROP1.klass(2)
@@ -110,6 +114,7 @@ PROP1.other_function(4)
 PROP1.dict_builtin()
 PROP1.range_builtin(4)
 PROP1.instance()
+PROP1.does_not_make_sense()
 
 
 import missing # pylint: disable=import-error

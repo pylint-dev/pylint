@@ -1,4 +1,7 @@
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -11,10 +14,10 @@ formatted as text and html.
 import os
 import sys
 
-import six
+from io import StringIO
 
 
-class BaseWriter(object):
+class BaseWriter:
     """base class for ureport writers"""
 
     def format(self, layout, stream=None, encoding=None):
@@ -41,7 +44,7 @@ class BaseWriter(object):
         for child in getattr(layout, 'children', ()):
             child.accept(self)
 
-    def writeln(self, string=u''):
+    def writeln(self, string=''):
         """write a line in the output buffer"""
         self.write(string + os.linesep)
 
@@ -71,7 +74,7 @@ class BaseWriter(object):
             result[-1].append(cell)
         # fill missing cells
         while len(result[-1]) < cols:
-            result[-1].append(u'')
+            result[-1].append('')
         return result
 
     def compute_content(self, layout):
@@ -86,7 +89,7 @@ class BaseWriter(object):
         out = self.out
         try:
             for child in layout.children:
-                stream = six.StringIO()
+                stream = StringIO()
                 self.out = stream
                 child.accept(self)
                 yield stream.getvalue()

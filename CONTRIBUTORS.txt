@@ -1,26 +1,24 @@
 ﻿Contributors
 ------------
 
-Order doesn't matter (not that much, at least ;)
+Current team:
+
 
 * Natalie Serebryakova: contributor
 
 * Sylvain Thenault (Logilab): main author / maintainer
 
-* Torsten Marek (Google): comitter / contributor
+* Ashley Whetter: maintainer, contributor
+
+* Bryce Guinta: maintainer, contributor
 
 * Claudiu Popa: maintainer, contributor
 
-* Ashley Whetter: committer
-
-  check_docs extension can find constructor parameters in __init__,
-  added check_raise_docs extension, various patches.
-
-* Cara Vinson, astroid committer.
+* Cara Vinson: astroid committer.
 
 * Guillaume Peillex: committer
 
-* Łukasz Rogalski: comitter.
+* Łukasz Rogalski: committer.
 
 * Roy Williams (Lyft): committer
 
@@ -35,6 +33,19 @@ Order doesn't matter (not that much, at least ;)
 * Dmitry Pribysh: committer
 
   multiple-imports, not-iterable, not-a-mapping, various patches.
+
+
+Ex-maintainers:
+
+* Sylvain Thenault (Logilab): main author / maintainer
+
+* Torsten Marek (Google): committer / contributor
+
+
+We would not be here without folks that contributed patches, pull requests,
+issues and their time to pylint. We're incredibly grateful to all of these
+contributors:
+
 
 * Daniel Balparda (Google): GPyLint maintainer (Google's pylint variant),
   various patches
@@ -88,11 +99,6 @@ Order doesn't matter (not that much, at least ;)
 * Bruno Daniel: check_docs extension.
 
 * James Morgensen: ignored-modules option applies to import errors.
-
-* Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
-  Maarten ter Huurne, Mirko Friedenhagen and all the Logilab's team (among others):
-  bug reports, feedback, feature requests... Many other people have contributed
-  by their feedback or even patches, if I've forgotten you, send me a note !
 
 * Cezar Elnazli: deprecated-method
 
@@ -185,7 +191,34 @@ Order doesn't matter (not that much, at least ;)
 
 * Sushobhit (sushobhit27): contributor
   Added new check 'comparison-with-itself'.
+  Added new check 'useless-import-alias'.
+  Added support of annotations in missing-type-doc and missing-return-type-doc.
+  Added new check 'comparison-with-callable'.
+  Removed six package dependency.
+  Added new check 'chained-comparison'.
+  Added new check 'useless-object-inheritance'.
 
 * Mariatta Wijaya: contributor
   Added new check `logging-fstring-interpolation`
   Documentation typo fixes
+
+* Jason Owen: contributor
+
+* Mark Roman Miller: fix inline defs in too-many-statements
+
+* Adam Dangoor: contributor
+
+* Gary Tyler McLeod: contributor
+
+* Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
+  Maarten ter Huurne, Mirko Friedenhagen and all the Logilab's team (among others).
+
+* Matej Marusak: contributor
+
+* Nick Drozd: contributor, performance improvements to astroid
+
+* Kosarchuk Sergey: contributor
+
+* Carey Metcalfe: demoted `try-except-raise` from error to warning
+
+* Marcus Näslund (naslundx): contributor 

@@ -49,14 +49,14 @@ New checkers
 
   .. code-block:: python
 
-      $ cat a.py
+      # $ cat a.py
       if isinstance(x, int) or isinstance(x, float):
           pass
       if isinstance(x, (int, float)) or isinstance(x, str):
           pass
-      $ pylint a.py
-      R:  1, 0: Consider merging these isinstance calls to isinstance(x, (float, int)) (consider-merging-isinstance)
-      R:  3, 0: Consider merging these isinstance calls to isinstance(x, (int, float, str)) (consider-merging-isinstance)
+      # $ pylint a.py
+      # R:  1, 0: Consider merging these isinstance calls to isinstance(x, (float, int)) (consider-merging-isinstance)
+      # R:  3, 0: Consider merging these isinstance calls to isinstance(x, (int, float, str)) (consider-merging-isinstance)
 
 * A new error check was added, ``invalid-metaclass``, which is used whenever *pylint*
   can detect that a given class is using a metaclass which is invalid for the purpose

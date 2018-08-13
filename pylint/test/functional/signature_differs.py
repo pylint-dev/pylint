@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods, missing-docstring, no-self-use
+# pylint: disable=too-few-public-methods, missing-docstring, no-self-use, useless-object-inheritance
 
 class Abcd(object):
 

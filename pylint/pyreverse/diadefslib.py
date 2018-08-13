@@ -2,11 +2,14 @@
 # Copyright (c) 2006, 2008-2010, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -14,18 +17,16 @@
 """handle diagram generation options for class diagram or default diagrams
 """
 
-from six.moves import builtins
-
 import astroid
 
 from pylint.pyreverse.diagrams import PackageDiagram, ClassDiagram
 from pylint.pyreverse.utils import LocalsVisitor
 
-BUILTINS_NAME = builtins.__name__
+BUILTINS_NAME = 'builtins'
 
 # diagram generators ##########################################################
 
-class DiaDefGenerator(object):
+class DiaDefGenerator:
     """handle diagram generation options"""
 
     def __init__(self, linker, handler):
@@ -147,7 +148,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         """
         if self.pkgdiagram:
             return self.pkgdiagram, self.classdiagram
-        return self.classdiagram,
+        return (self.classdiagram,)
 
     def visit_module(self, node):
         """visit an astroid.Module node
@@ -201,7 +202,7 @@ class ClassDiadefGenerator(DiaDefGenerator):
 
 # diagram handler #############################################################
 
-class DiadefsHandler(object):
+class DiadefsHandler:
     """handle diagram definitions :
 
     get it from user (i.e. xml files) or generate them

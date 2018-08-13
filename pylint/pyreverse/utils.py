@@ -1,9 +1,10 @@
 # Copyright (c) 2006, 2008, 2010, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -106,7 +107,7 @@ VIS_MOD = {'special': _SPECIAL, 'protected': _PROTECTED,
            'private': _PRIVATE, 'public': 0}
 
 
-class FilterMixIn(object):
+class FilterMixIn:
     """filter nodes according to a mode and nodes' visibility
     """
     def __init__(self, mode):
@@ -127,7 +128,7 @@ class FilterMixIn(object):
         return not self.__mode & VIS_MOD[visibility]
 
 
-class ASTWalker(object):
+class ASTWalker:
     """a walker visiting a tree in preorder, calling on the handler:
 
     * visit_<class name> on entering a node, where class name is the class of

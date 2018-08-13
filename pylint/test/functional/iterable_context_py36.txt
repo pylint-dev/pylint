@@ -1,0 +1,2 @@
+not-an-iterable:11:AIter.to_list:Non-iterable value self is used in an iterating context
+not-an-iterable:12:AIter.to_list:Non-iterable value self is used in an iterating context

@@ -1,4 +1,4 @@
-# pylint: disable=R0201,missing-docstring,using-constant-test,unused-import,wrong-import-position,reimported
+# pylint: disable=R0201,missing-docstring,using-constant-test,unused-import,wrong-import-position,reimported, useless-object-inheritance, unnecessary-pass
 from __future__ import division
 __revision__ = ''
 
