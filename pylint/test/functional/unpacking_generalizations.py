@@ -1,6 +1,6 @@
 """Various tests for unpacking generalizations added in Python 3.5"""
 
-# pylint: disable=missing-docstring, invalid-name
+# pylint: disable=missing-docstring, invalid-name, consider-using-keyword-arguments
 
 def func_variadic_args(*args):
     return args
