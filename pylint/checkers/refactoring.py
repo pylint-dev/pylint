@@ -179,6 +179,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'Also it is faster since you don\'t need to create another '
                   'transient list',
                   ),
+        'R1719': ('Consider using keyword arguments',
+                  'consider-using-keyword-arguments',
+                  'Using too many positional arguments decreases code readability, '
+                  'especially when a function/method accepts multiple types of arguments. '
+                  'You should use keyword arguments instead.',
+                  ),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -192,6 +198,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                          'for inconsistent-return-statements if a never returning function is '
                          'called then it will be considered as an explicit return statement '
                          'and no message will be printed.'}
+               ),
+               ('max-positional-arguments',
+                {'default': 4, 'type': 'int',
+                 'help': 'Maximum number of positional arguments in a function/method call.'}
                ),)
 
     priority = 0
@@ -470,12 +480,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             message_name = 'consider-using-{}-comprehension'.format(node.func.name)
             self.add_message(message_name, node=node)
 
+    def _check_consider_using_keyword_arguments(self, node):
+        if (isinstance(node.func, astroid.Name) and
+                node.func.name not in dir(builtins)):
+            args = getattr(node, 'args', [])
+            if len(args) > self.config.max_positional_arguments:
+                self.add_message('consider-using-keyword-arguments', node=node)
+
     @utils.check_messages('stop-iteration-return',
                           'consider-using-dict-comprehension',
-                          'consider-using-set-comprehension')
+                          'consider-using-set-comprehension',
+                          'consider-using-keyword-arguments')
     def visit_call(self, node):
         self._check_raising_stopiteration_in_generator_next_call(node)
         self._check_consider_using_comprehension_constructor(node)
+        self._check_consider_using_keyword_arguments(node)
 
     def _check_raising_stopiteration_in_generator_next_call(self, node):
         """Check if a StopIteration exception is raised by the call to next function
