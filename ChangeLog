@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * Extend the TYPE_CHECKING guard to TYPE_CHECKING name as well, not just the attribute
+
+     Close #2411
+
    * Ignore import x.y.z as z cases for checker `useless-import-alias`.
 
      Close #2309

@@ -18,11 +18,18 @@ class SomeClass(object):
 from never import __all__
 # pylint: disable=wrong-import-order,ungrouped-imports
 import typing
+from typing import TYPE_CHECKING
 
 
 if typing.TYPE_CHECKING:
     import collections
+if TYPE_CHECKING:
+    import itertools
 
 
 def get_ordered_dict() -> 'collections.OrderedDict':
+    return []
+
+
+def get_itertools_obj() -> 'itertools.count':
     return []

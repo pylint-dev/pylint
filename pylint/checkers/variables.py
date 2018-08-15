@@ -65,6 +65,7 @@ PY3K = sys.version_info >= (3, 0)
 METACLASS_NAME_TRANSFORMS = {
     '_py_abc': 'abc',
 }
+TYPING_TYPE_CHECKS_GUARDS = frozenset({'typing.TYPE_CHECKING', 'TYPE_CHECKING'})
 
 
 def _is_from_future_import(stmt, name):
@@ -614,11 +615,10 @@ class VariablesChecker(BaseChecker):
     @staticmethod
     def _is_type_checking_import(node):
         parent = node.parent
-        if (not isinstance(parent, astroid.If)
-                or not isinstance(parent.test, astroid.Attribute)):
+        if not isinstance(parent, astroid.If):
             return False
         test = parent.test
-        return test.as_string() == 'typing.TYPE_CHECKING'
+        return test.as_string() in TYPING_TYPE_CHECKS_GUARDS
 
     def _check_globals(self, not_consumed):
         if self._allow_global_unused_variables:
