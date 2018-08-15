@@ -81,11 +81,11 @@ class ClassDiagram(Figure, FilterMixIn):
             if isinstance(m, astroid.FunctionDef)
             and decorated_with_property(m)
         ]
-        for node_name, ass_nodes in list(node.instance_attrs_type.items()) + \
+        for node_name, associated_nodes in list(node.instance_attrs_type.items()) + \
                                     list(node.locals_type.items()) + properties:
             if not self.show_attr(node_name):
                 continue
-            names = self.class_names(ass_nodes)
+            names = self.class_names(associated_nodes)
             if names:
                 node_name = "%s : %s" % (node_name, ", ".join(names))
             attrs.append(node_name)
@@ -112,14 +112,14 @@ class ClassDiagram(Figure, FilterMixIn):
     def class_names(self, nodes):
         """return class names if needed in diagram"""
         names = []
-        for ass_node in nodes:
-            if isinstance(ass_node, astroid.Instance):
-                ass_node = ass_node._proxied
-            if isinstance(ass_node, astroid.ClassDef) \
-                and hasattr(ass_node, "name") and not self.has_node(ass_node):
-                if ass_node.name not in names:
-                    ass_name = ass_node.name
-                    names.append(ass_name)
+        for node in nodes:
+            if isinstance(node, astroid.Instance):
+                node = node._proxied
+            if isinstance(node, astroid.ClassDef) \
+                and hasattr(node, "name") and not self.has_node(node):
+                if node.name not in names:
+                    node_name = node.name
+                    names.append(node_name)
         return names
 
     def nodes(self):
@@ -184,8 +184,8 @@ class ClassDiagram(Figure, FilterMixIn):
                     if isinstance(value, astroid.Instance):
                         value = value._proxied
                     try:
-                        ass_obj = self.object_from_node(value)
-                        self.add_relationship(ass_obj, obj, 'association', name)
+                        associated_obj = self.object_from_node(value)
+                        self.add_relationship(associated_obj, obj, 'association', name)
                     except KeyError:
                         continue
 

@@ -22,7 +22,7 @@ class DiagramWriter:
     """
     def __init__(self, config, styles):
         self.config = config
-        self.pkg_edges, self.inh_edges, self.imp_edges, self.ass_edges = styles
+        self.pkg_edges, self.inh_edges, self.imp_edges, self.association_edges = styles
         self.printer = None # defined in set_printer
 
     def write(self, diadefs):
@@ -66,7 +66,7 @@ class DiagramWriter:
         # generate associations
         for rel in diagram.get_relationships('association'):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
-                                   label=rel.name, **self.ass_edges)
+                                   label=rel.name, **self.association_edges)
 
     def set_printer(self, file_name, basename):
         """set printer"""

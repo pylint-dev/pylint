@@ -56,20 +56,20 @@ class DiaDefGenerator:
         self.module_names = self._set_option(self.config.module_names)
         all_ancestors = self._set_option(self.config.all_ancestors)
         all_associated = self._set_option(self.config.all_associated)
-        anc_level, ass_level = (0, 0)
+        anc_level, association_level = (0, 0)
         if  all_ancestors:
             anc_level = -1
         if all_associated:
-            ass_level = -1
+            association_level = -1
         if self.config.show_ancestors is not None:
             anc_level = self.config.show_ancestors
         if self.config.show_associated is not None:
-            ass_level = self.config.show_associated
-        self.anc_level, self.ass_level = anc_level, ass_level
+            association_level = self.config.show_associated
+        self.anc_level, self.association_level = anc_level, association_level
 
     def _get_levels(self):
         """help function for search levels"""
-        return self.anc_level, self.ass_level
+        return self.anc_level, self.association_level
 
     def show_node(self, node):
         """true if builtins and not show_builtins"""
@@ -95,27 +95,27 @@ class DiaDefGenerator:
         """return associated nodes of a class node"""
         if level == 0:
             return
-        for ass_nodes in list(klass_node.instance_attrs_type.values()) + \
+        for association_nodes in list(klass_node.instance_attrs_type.values()) + \
                          list(klass_node.locals_type.values()):
-            for ass_node in ass_nodes:
-                if isinstance(ass_node, astroid.Instance):
-                    ass_node = ass_node._proxied
-                if not (isinstance(ass_node, astroid.ClassDef)
-                        and self.show_node(ass_node)):
+            for node in association_nodes:
+                if isinstance(node, astroid.Instance):
+                    node = node._proxied
+                if not (isinstance(node, astroid.ClassDef)
+                        and self.show_node(node)):
                     continue
-                yield ass_node
+                yield node
 
-    def extract_classes(self, klass_node, anc_level, ass_level):
+    def extract_classes(self, klass_node, anc_level, association_level):
         """extract recursively classes related to klass_node"""
         if self.classdiagram.has_node(klass_node) or not self.show_node(klass_node):
             return
         self.add_class(klass_node)
 
         for ancestor in self.get_ancestors(klass_node, anc_level):
-            self.extract_classes(ancestor, anc_level-1, ass_level)
+            self.extract_classes(ancestor, anc_level - 1, association_level)
 
-        for ass_node in self.get_associated(klass_node, ass_level):
-            self.extract_classes(ass_node, anc_level, ass_level-1)
+        for node in self.get_associated(klass_node, association_level):
+            self.extract_classes(node, anc_level, association_level - 1)
 
 
 class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
@@ -164,8 +164,8 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
 
         add this class to the class diagram definition
         """
-        anc_level, ass_level = self._get_levels()
-        self.extract_classes(node, anc_level, ass_level)
+        anc_level, association_level = self._get_levels()
+        self.extract_classes(node, anc_level, association_level)
 
     def visit_importfrom(self, node):
         """visit astroid.ImportFrom  and catch modules for package diagram
@@ -196,8 +196,8 @@ class ClassDiadefGenerator(DiaDefGenerator):
             klass = klass.split('.')[-1]
         klass = next(module.ilookup(klass))
 
-        anc_level, ass_level = self._get_levels()
-        self.extract_classes(klass, anc_level, ass_level)
+        anc_level, association_level = self._get_levels()
+        self.extract_classes(klass, anc_level, association_level)
         return self.classdiagram
 
 # diagram handler #############################################################

@@ -212,8 +212,8 @@ def is_defined_before(var_node):
     _node = var_node.parent
     while _node:
         if isinstance(_node, (COMP_NODE_TYPES, astroid.For)):
-            for ass_node in _node.nodes_of_class(astroid.AssignName):
-                if ass_node.name == varname:
+            for assign_node in _node.nodes_of_class(astroid.AssignName):
+                if assign_node.name == varname:
                     return True
         elif isinstance(_node, astroid.With):
             for expr, ids in _node.items:
@@ -240,8 +240,8 @@ def is_defined_before(var_node):
                 return True
         elif isinstance(_node, astroid.ExceptHandler):
             if isinstance(_node.name, astroid.AssignName):
-                ass_node = _node.name
-                if ass_node.name == varname:
+                assign_node = _node.name
+                if assign_node.name == varname:
                     return True
         _node = _node.parent
     # possibly multiple statements on the same line using semi colon separator
@@ -249,8 +249,8 @@ def is_defined_before(var_node):
     _node = stmt.previous_sibling()
     lineno = stmt.fromlineno
     while _node and _node.fromlineno == lineno:
-        for ass_node in _node.nodes_of_class(astroid.AssignName):
-            if ass_node.name == varname:
+        for assign_node in _node.nodes_of_class(astroid.AssignName):
+            if assign_node.name == varname:
                 return True
         for imp_node in _node.nodes_of_class((astroid.ImportFrom, astroid.Import)):
             if varname in [name[1] or name[0] for name in imp_node.names]:
