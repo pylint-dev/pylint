@@ -1,7 +1,4 @@
-old-style-class:6:Aaaa:Old-style class defined.
-super-on-old-class:8:Aaaa.hop:Use of super on an old style class
 no-member:10:Aaaa.hop:Super of 'Aaaa' has no 'hop' member:INFERENCE
-super-on-old-class:12:Aaaa.__init__:Use of super on an old style class
 no-member:19:NewAaaa.hop:Super of 'NewAaaa' has no 'hop' member:INFERENCE
 bad-super-call:22:NewAaaa.__init__:Bad first argument 'Aaaa' given to super()
 missing-super-argument:27:Py3kAaaa.__init__:Missing argument to super()

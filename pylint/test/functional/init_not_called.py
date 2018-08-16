@@ -3,19 +3,19 @@
 """
 from __future__ import print_function
 
-class AAAA:  # <3.0:[old-style-class]
+class AAAA:
     """ancestor 1"""
 
     def __init__(self):
         print('init', self)
 
-class BBBB:  # <3.0:[old-style-class]
+class BBBB:
     """ancestor 2"""
 
     def __init__(self):
         print('init', self)
 
-class CCCC:  # <3.0:[old-style-class,no-init]
+class CCCC:
     """ancestor 3"""
 
 

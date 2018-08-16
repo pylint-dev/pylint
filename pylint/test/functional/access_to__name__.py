@@ -4,7 +4,7 @@ but not on new/old class object
 """
 from __future__ import print_function
 
-class Aaaa:  # <3.0:[old-style-class]
+class Aaaa:
     """old class"""
     def __init__(self):
         print(self.__name__)  # [no-member]

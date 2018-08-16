@@ -3,13 +3,13 @@
 
 from unknown import Missing
 
-class Aaaa:  # <3.0:[old-style-class]
+class Aaaa:
     """old style"""
-    def hop(self):  # <3.0:[super-on-old-class]
+    def hop(self):
         """hop"""
         super(Aaaa, self).hop() # >=3.0:[no-member]
 
-    def __init__(self):  # <3.0:[super-on-old-class]
+    def __init__(self):
         super(Aaaa, self).__init__()
 
 class NewAaaa(object):
