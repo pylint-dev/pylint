@@ -109,7 +109,7 @@ _SPECIAL_METHODS_PARAMS = {
 SPECIAL_METHODS_PARAMS = {
     name: params
     for params, methods in _SPECIAL_METHODS_PARAMS.items()
-    for name in methods
+    for name in methods # type: ignore
 }
 PYMETHODS = set(SPECIAL_METHODS_PARAMS)
 
@@ -191,7 +191,7 @@ def is_raising(body):
             return True
     return False
 
-builtins = builtins.__dict__.copy()
+builtins = builtins.__dict__.copy() # type: ignore
 SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')
 
 def is_builtin_object(node):

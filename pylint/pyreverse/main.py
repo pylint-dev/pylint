@@ -100,7 +100,7 @@ def _check_graphviz_available(output_format):
 class Run(ConfigurationMixIn):
     """base class providing common behaviour for pyreverse commands"""
 
-    options = OPTIONS
+    options = OPTIONS    # type: ignore
 
     def __init__(self, args):
         ConfigurationMixIn.__init__(self, usage=__doc__)

@@ -73,13 +73,13 @@ def table_lines_from_stats(stats, old_stats, columns):
 class BaseChecker(OptionsProviderMixIn):
     """base class for checkers"""
     # checker name (you may reuse an existing one)
-    name = None
+    name = None # type: str
     # options level (0 will be displaying in --help, 1 in --long-help)
     level = 1
     # ordered list of options to control the ckecker behaviour
-    options = ()
+    options = () # type: ignore
     # messages issued by this checker
-    msgs = {}
+    msgs = {} # type: ignore
     # reports issued by this checker
     reports = ()
     # mark this checker as enabled or not.
