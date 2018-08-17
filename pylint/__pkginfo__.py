@@ -34,8 +34,7 @@ install_requires = [
     'mccabe',
 ]
 
-dependency_links = [
-]
+dependency_links = []   # type: ignore
 
 extras_require = {}
 extras_require[':sys_platform=="win32"'] = ['colorama']

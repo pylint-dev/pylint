@@ -247,7 +247,7 @@ class MessagesHandlerMixIn:
     """a mix-in class containing all the messages related methods for the main
     lint class
     """
-    __by_id_managed_msgs = []
+    __by_id_managed_msgs = []    # type: ignore
 
     def __init__(self):
         self._msgs_state = {}

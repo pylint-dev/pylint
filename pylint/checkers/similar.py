@@ -244,7 +244,7 @@ class SimilarChecker(BaseChecker, Similar):
     msgs = MSGS
     # configuration options
     # for available dict keys/values see the optik parser 'add_option' method
-    options = (('min-similarity-lines',
+    options = (('min-similarity-lines',  # type: ignore
                 {'default' : 4, 'type' : "int", 'metavar' : '<int>',
                  'help' : 'Minimum lines number of a similarity.'}),
                ('ignore-comments',
@@ -261,7 +261,7 @@ class SimilarChecker(BaseChecker, Similar):
                ),
               )
     # reports
-    reports = (('RP0801', 'Duplication', report_similarities),)
+    reports = (('RP0801', 'Duplication', report_similarities),)  # type: ignore
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
