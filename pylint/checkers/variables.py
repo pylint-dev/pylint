@@ -1597,7 +1597,7 @@ class VariablesChecker3k(VariablesChecker):
 
 
 if sys.version_info >= (3, 0):
-    VariablesChecker = VariablesChecker3k
+    VariablesChecker = VariablesChecker3k  # type: ignore
 
 
 def register(linter):

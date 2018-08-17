@@ -42,6 +42,7 @@ messages nor reports. XXX not true, emit a 07 report !
 import sys
 import tokenize
 import warnings
+from typing import Any
 
 from pylint.config import OptionsProviderMixIn
 from pylint.reporters import diff_string
@@ -77,11 +78,11 @@ class BaseChecker(OptionsProviderMixIn):
     # options level (0 will be displaying in --help, 1 in --long-help)
     level = 1
     # ordered list of options to control the ckecker behaviour
-    options = () # type: ignore
+    options = () # type: Any
     # messages issued by this checker
-    msgs = {} # type: ignore
+    msgs = {} # type: Any
     # reports issued by this checker
-    reports = ()
+    reports = ()    # type: Any
     # mark this checker as enabled or not.
     enabled = True
 

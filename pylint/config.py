@@ -315,7 +315,7 @@ class Option(optparse.Option):
                 "must not supply choices for type %r" % self.type, self)
 
     # pylint: disable=unsupported-assignment-operation
-    optparse.Option.CHECK_METHODS[2] = _check_choice
+    optparse.Option.CHECK_METHODS[2] = _check_choice    # type: ignore
 
     def process(self, opt, value, values, parser):
         # First, convert the value(s) to the right type.  Howl if any
