@@ -16,6 +16,7 @@ Raw metrics checker
 """
 
 import tokenize
+from typing import Any
 
 from pylint.interfaces import ITokenChecker
 from pylint.exceptions import EmptyReportError
@@ -62,7 +63,7 @@ class RawMetricsChecker(BaseTokenChecker):
     # configuration options
     options = ()
     # messages
-    msgs = {}
+    msgs = {}   # type: Any
     # reports
     reports = (('RP0701', 'Raw metrics', report_raw_stats),)
 

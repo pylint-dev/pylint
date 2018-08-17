@@ -67,7 +67,7 @@ import os
 try:
     import multiprocessing
 except ImportError:
-    multiprocessing = None
+    multiprocessing = None  # type: ignore
 import sys
 import tokenize
 import warnings
