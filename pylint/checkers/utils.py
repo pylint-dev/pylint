@@ -35,6 +35,7 @@ import itertools
 import re
 import sys
 import string
+from typing import Optional, Iterable, Tuple, Callable, Set, Union, Match, Dict, List, Type
 
 import astroid
 from astroid import bases as _bases
@@ -126,8 +127,7 @@ def is_inside_except(node):
     return current and current is current.parent.name
 
 
-def is_inside_lambda(node):
-    # type: (astroid.NodeNG) -> bool
+def is_inside_lambda(node: astroid.node_classes.NodeNG) -> bool:
     """Return true if given node is inside lambda"""
     parent = node.parent
     while parent is not None:
@@ -137,7 +137,7 @@ def is_inside_lambda(node):
     return False
 
 
-def get_all_elements(node):
+def get_all_elements(node: astroid.node_classes.NodeNG) -> Iterable[astroid.node_classes.NodeNG]:
     """Recursively returns all atoms in nested lists and tuples."""
     if isinstance(node, (astroid.Tuple, astroid.List)):
         for child in node.elts:
@@ -147,7 +147,7 @@ def get_all_elements(node):
         yield node
 
 
-def clobber_in_except(node):
+def clobber_in_except(node: astroid.node_classes.NodeNG) -> Tuple[bool, Tuple[str, str]]:
     """Checks if an assignment node in an except handler clobbers an existing
     variable.
 
@@ -169,7 +169,7 @@ def clobber_in_except(node):
     return False, None
 
 
-def is_super(node):
+def is_super(node: astroid.node_classes.NodeNG) -> bool:
     """return True if the node is referencing the "super" builtin function
     """
     if getattr(node, 'name', None) == 'super' and \
@@ -177,14 +177,14 @@ def is_super(node):
         return True
     return False
 
-def is_error(node):
+def is_error(node: astroid.node_classes.NodeNG) -> bool:
     """return true if the function does nothing but raising an exception"""
     for child_node in node.get_children():
         if isinstance(child_node, astroid.Raise):
             return True
-        return False
+    return False
 
-def is_raising(body):
+def is_raising(body: astroid.node_classes.NodeNG) -> bool:
     """return true if the given statement node raise an exception"""
     for node in body:
         if isinstance(node, astroid.Raise):
@@ -194,17 +194,19 @@ def is_raising(body):
 builtins = builtins.__dict__.copy() # type: ignore
 SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')
 
-def is_builtin_object(node):
+def is_builtin_object(node: astroid.node_classes.NodeNG) -> bool:
     """Returns True if the given node is an object from the __builtin__ module."""
     return node and node.root().name == BUILTINS_NAME
 
-def is_builtin(name):
+def is_builtin(name: str) -> bool:
     """return true if <name> could be considered as a builtin defined by python
     """
-    return name in builtins or name in SPECIAL_BUILTINS
+    return name in builtins or name in SPECIAL_BUILTINS # type: ignore
 
 
-def is_defined_in_scope(var_node, varname, scope):
+def is_defined_in_scope(var_node: astroid.node_classes.NodeNG,
+                        varname: str,
+                        scope: astroid.node_classes.NodeNG) -> bool:
     if isinstance(scope, astroid.If):
         for node in scope.body:
             if ((isinstance(node, astroid.Assign) and
@@ -247,7 +249,7 @@ def is_defined_in_scope(var_node, varname, scope):
     return False
 
 
-def is_defined_before(var_node):
+def is_defined_before(var_node: astroid.node_classes.NodeNG) -> bool:
     """return True if the variable node is defined by a parent node (list,
     set, dict, or generator comprehension, lambda) or in a previous sibling
     node on the same line (statement_defining ; statement_using)
@@ -272,7 +274,7 @@ def is_defined_before(var_node):
         _node = _node.previous_sibling()
     return False
 
-def is_default_argument(node):
+def is_default_argument(node: astroid.node_classes.NodeNG) -> bool:
     """return true if the given Name node is used in function or lambda
     default argument's value
     """
@@ -285,7 +287,7 @@ def is_default_argument(node):
     return False
 
 
-def is_func_decorator(node):
+def is_func_decorator(node: astroid.node_classes.NodeNG) -> bool:
     """return true if the name is used in function decorator"""
     parent = node.parent
     while parent is not None:
@@ -299,7 +301,8 @@ def is_func_decorator(node):
         parent = parent.parent
     return False
 
-def is_ancestor_name(frame, node):
+def is_ancestor_name(frame: astroid.node_classes.NodeNG,
+                     node: astroid.node_classes.NodeNG) -> bool:
     """return True if `frame` is an astroid.Class node with `node` in the
     subtree of its bases attribute
     """
@@ -312,7 +315,7 @@ def is_ancestor_name(frame, node):
             return True
     return False
 
-def assign_parent(node):
+def assign_parent(node: astroid.node_classes.NodeNG) -> astroid.node_classes.NodeNG:
     """return the higher parent which is not an AssignName, Tuple or List node
     """
     while node and isinstance(node, (astroid.AssignName,
@@ -322,14 +325,15 @@ def assign_parent(node):
     return node
 
 
-def overrides_a_method(class_node, name):
+def overrides_a_method(class_node: astroid.node_classes.NodeNG,
+                       name: str) -> bool:
     """return True if <name> is a method overridden from an ancestor"""
     for ancestor in class_node.ancestors():
         if name in ancestor and isinstance(ancestor[name], astroid.FunctionDef):
             return True
     return False
 
-def check_messages(*messages):
+def check_messages(*messages: str) -> Callable:
     """decorator to store messages that are handled by a checker method"""
 
     def store_messages(func):
@@ -347,7 +351,7 @@ class UnsupportedFormatCharacter(Exception):
         Exception.__init__(self, index)
         self.index = index
 
-def parse_format_string(format_string):
+def parse_format_string(format_string: str) -> Tuple[Set[str], int]:
     """Parses a format string, returning a tuple of (keys, num_args), where keys
     is the set of mapping keys in the format string, and num_args is the number
     of arguments required by the format string.  Raises
@@ -417,14 +421,14 @@ def parse_format_string(format_string):
     return keys, num_args
 
 
-def is_attr_protected(attrname):
+def is_attr_protected(attrname: str) -> bool:
     """return True if attribute name is protected (start with _ and some other
     details), False otherwise.
     """
     return attrname[0] == '_' and attrname != '_' and not (
         attrname.startswith('__') and attrname.endswith('__'))
 
-def node_frame_class(node):
+def node_frame_class(node: astroid.node_classes.NodeNG) -> Optional[astroid.node_classes.NodeNG]:
     """return klass node for a method node (or a staticmethod or a
     classmethod), return null otherwise
     """
@@ -439,14 +443,16 @@ def node_frame_class(node):
     return klass
 
 
-def is_attr_private(attrname):
+def is_attr_private(attrname: str) -> Optional[Match[str]]:
     """Check that attribute name is private (at least two leading underscores,
     at most one trailing underscore)
     """
     regex = re.compile('^_{2,}.*[^_]+_?$')
     return regex.match(attrname)
 
-def get_argument_from_call(call_node, position=None, keyword=None):
+def get_argument_from_call(call_node: astroid.Call,
+                           position: int = None,
+                           keyword: str = None) -> astroid.Name:
     """Returns the specified argument from a function call.
 
     :param astroid.Call call_node: Node representing a function call to check.
@@ -473,7 +479,7 @@ def get_argument_from_call(call_node, position=None, keyword=None):
 
     raise NoSuchArgumentError
 
-def inherit_from_std_ex(node):
+def inherit_from_std_ex(node: astroid.node_classes.NodeNG) -> bool:
     """
     Return true if the given class node is subclass of
     exceptions.Exception.
@@ -487,7 +493,8 @@ def inherit_from_std_ex(node):
                for parent in node.ancestors(recurs=True))
 
 
-def error_of_type(handler, error_type):
+def error_of_type(handler: astroid.ExceptHandler,
+                  error_type: Union[str, Type[Exception], Tuple[Type[Exception]]]) -> bool:
     """
     Check if the given exception handler catches
     the given error_type.
@@ -504,14 +511,14 @@ def error_of_type(handler, error_type):
         return error
 
     if not isinstance(error_type, tuple):
-        error_type = (error_type, )
-    expected_errors = {stringify_error(error) for error in error_type}
+        error_type = (error_type, ) # type: ignore
+    expected_errors = {stringify_error(error) for error in error_type}  # type: ignore
     if not handler.type:
         return True
     return handler.catch(expected_errors)
 
 
-def decorated_with_property(node):
+def decorated_with_property(node: astroid.FunctionDef) -> bool:
     """ Detect if the given function node is decorated with a property. """
     if not node.decorators:
         return False
@@ -526,7 +533,7 @@ def decorated_with_property(node):
     return False
 
 
-def _is_property_decorator(decorator):
+def _is_property_decorator(decorator: astroid.Name) -> bool:
     for infered in decorator.infer():
         if isinstance(infered, astroid.ClassDef):
             if infered.root().name == BUILTINS_NAME and infered.name == 'property':
@@ -534,10 +541,11 @@ def _is_property_decorator(decorator):
             for ancestor in infered.ancestors():
                 if ancestor.name == 'property' and ancestor.root().name == BUILTINS_NAME:
                     return True
-    return None
+    return False
 
 
-def decorated_with(func, qnames):
+def decorated_with(func: astroid.FunctionDef,
+                   qnames: Iterable[str]) -> bool:
     """Determine if the `func` node has a decorator with the qualified name `qname`."""
     decorators = func.decorators.nodes if func.decorators else []
     for decorator_node in decorators:
@@ -550,7 +558,9 @@ def decorated_with(func, qnames):
 
 
 @lru_cache(maxsize=1024)
-def unimplemented_abstract_methods(node, is_abstract_cb=None):
+def unimplemented_abstract_methods(node: astroid.node_classes.NodeNG,
+                                   is_abstract_cb: astroid.FunctionDef = None
+                                   ) -> Dict[str, astroid.node_classes.NodeNG]:
     """
     Get the unimplemented abstract methods for the given *node*.
 
@@ -564,7 +574,7 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
     """
     if is_abstract_cb is None:
         is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
-    visited = {}
+    visited = {}    # type: Dict[str, astroid.node_classes.NodeNG]
     try:
         mro = reversed(node.mro())
     except NotImplementedError:
@@ -607,7 +617,8 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
     return visited
 
 
-def find_try_except_wrapper_node(node):
+def find_try_except_wrapper_node(node: astroid.node_classes.NodeNG
+                                 ) -> Union[astroid.ExceptHandler, astroid.TryExcept]:
     """Return the ExceptHandler or the TryExcept node in which the node is."""
     current = node
     ignores = (astroid.ExceptHandler, astroid.TryExcept)
@@ -619,7 +630,7 @@ def find_try_except_wrapper_node(node):
     return None
 
 
-def is_from_fallback_block(node):
+def is_from_fallback_block(node: astroid.node_classes.NodeNG) -> bool:
     """Check if the given node is from a fallback import block."""
     context = find_try_except_wrapper_node(node)
     if not context:
@@ -639,12 +650,17 @@ def is_from_fallback_block(node):
     return ignores_import_error or has_fallback_imports
 
 
-def _except_handlers_ignores_exception(handlers, exception):
+def _except_handlers_ignores_exception(handlers: astroid.ExceptHandler,
+                                       exception: Union[str, Type[Exception],
+                                                        Tuple[Type[Exception]]]
+                                       ) -> bool:
     func = partial(error_of_type, error_type=(exception, ))
     return any(map(func, handlers))
 
 
-def get_exception_handlers(node, exception=Exception):
+def get_exception_handlers(node: astroid.node_classes.NodeNG,
+                           exception: Union[str, Type[Exception]] = Exception
+                           ) -> List[astroid.ExceptHandler]:
     """Return the collections of handlers handling the exception in arguments.
 
     Args:
@@ -663,7 +679,7 @@ def get_exception_handlers(node, exception=Exception):
     return None
 
 
-def is_node_inside_try_except(node):
+def is_node_inside_try_except(node: astroid.Raise) -> bool:
     """Check if the node is directly under a Try/Except statement.
     (but not under an ExceptHandler!)
 
@@ -677,7 +693,8 @@ def is_node_inside_try_except(node):
     return isinstance(context, astroid.TryExcept)
 
 
-def node_ignores_exception(node, exception=Exception):
+def node_ignores_exception(node: astroid.node_classes.NodeNG,
+                           exception: Union[str, Type[Exception]] = Exception) -> bool:
     """Check if the node is in a TryExcept which handles the given exception.
 
     If the exception is not given, the function is going to look for bare
@@ -689,7 +706,7 @@ def node_ignores_exception(node, exception=Exception):
     return any(managing_handlers)
 
 
-def class_is_abstract(node):
+def class_is_abstract(node: astroid.ClassDef) -> bool:
     """return true if the given class node should be considered as an abstract
     class
     """
@@ -700,7 +717,8 @@ def class_is_abstract(node):
     return False
 
 
-def _supports_protocol_method(value, attr):
+def _supports_protocol_method(value: astroid.node_classes.NodeNG,
+                              attr: str) -> bool:
     try:
         attributes = value.getattr(attr)
     except astroid.NotFoundError:
@@ -713,7 +731,7 @@ def _supports_protocol_method(value, attr):
     return True
 
 
-def is_comprehension(node):
+def is_comprehension(node: astroid.node_classes.NodeNG) -> bool:
     comprehensions = (astroid.ListComp,
                       astroid.SetComp,
                       astroid.DictComp,
@@ -721,41 +739,41 @@ def is_comprehension(node):
     return isinstance(node, comprehensions)
 
 
-def _supports_mapping_protocol(value):
+def _supports_mapping_protocol(value: astroid.node_classes.NodeNG) -> bool:
     return (
         _supports_protocol_method(value, GETITEM_METHOD)
         and _supports_protocol_method(value, KEYS_METHOD)
     )
 
 
-def _supports_membership_test_protocol(value):
+def _supports_membership_test_protocol(value: astroid.node_classes.NodeNG) -> bool:
     return _supports_protocol_method(value, CONTAINS_METHOD)
 
 
-def _supports_iteration_protocol(value):
+def _supports_iteration_protocol(value: astroid.node_classes.NodeNG) -> bool:
     return (
         _supports_protocol_method(value, ITER_METHOD)
         or _supports_protocol_method(value, GETITEM_METHOD)
     )
 
 
-def _supports_async_iteration_protocol(value):
+def _supports_async_iteration_protocol(value: astroid.node_classes.NodeNG) -> bool:
     return _supports_protocol_method(value, AITER_METHOD)
 
 
-def _supports_getitem_protocol(value):
+def _supports_getitem_protocol(value: astroid.node_classes.NodeNG) -> bool:
     return _supports_protocol_method(value, GETITEM_METHOD)
 
 
-def _supports_setitem_protocol(value):
+def _supports_setitem_protocol(value: astroid.node_classes.NodeNG) -> bool:
     return _supports_protocol_method(value, SETITEM_METHOD)
 
 
-def _supports_delitem_protocol(value):
+def _supports_delitem_protocol(value: astroid.node_classes.NodeNG) -> bool:
     return _supports_protocol_method(value, DELITEM_METHOD)
 
 
-def _is_abstract_class_name(name):
+def _is_abstract_class_name(name: str) -> bool:
     lname = name.lower()
     is_mixin = lname.endswith('mixin')
     is_abstract = lname.startswith('abstract')
@@ -763,7 +781,7 @@ def _is_abstract_class_name(name):
     return is_mixin or is_abstract or is_base
 
 
-def is_inside_abstract_class(node):
+def is_inside_abstract_class(node: astroid.node_classes.NodeNG) -> bool:
     while node is not None:
         if isinstance(node, astroid.ClassDef):
             if class_is_abstract(node):
@@ -775,7 +793,8 @@ def is_inside_abstract_class(node):
     return False
 
 
-def _supports_protocol(value, protocol_callback):
+def _supports_protocol(value: astroid.node_classes.NodeNG,
+                       protocol_callback: astroid.FunctionDef) -> bool:
     if isinstance(value, astroid.ClassDef):
         if not has_known_bases(value):
             return True
@@ -803,7 +822,8 @@ def _supports_protocol(value, protocol_callback):
     return False
 
 
-def is_iterable(value, check_async=False):
+def is_iterable(value: astroid.node_classes.NodeNG,
+                check_async: bool = False) -> bool:
     if check_async:
         protocol_check = _supports_async_iteration_protocol
     else:
@@ -811,30 +831,31 @@ def is_iterable(value, check_async=False):
     return _supports_protocol(value, protocol_check)
 
 
-def is_mapping(value):
+def is_mapping(value: astroid.node_classes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_mapping_protocol)
 
 
-def supports_membership_test(value):
+def supports_membership_test(value: astroid.node_classes.NodeNG) -> bool:
     supported = _supports_protocol(value, _supports_membership_test_protocol)
     return supported or is_iterable(value)
 
 
-def supports_getitem(value):
+def supports_getitem(value: astroid.node_classes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_getitem_protocol)
 
 
-def supports_setitem(value):
+def supports_setitem(value: astroid.node_classes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_setitem_protocol)
 
 
-def supports_delitem(value):
+def supports_delitem(value: astroid.node_classes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_delitem_protocol)
 
 
 # TODO(cpopa): deprecate these or leave them as aliases?
 @lru_cache(maxsize=1024)
-def safe_infer(node, context=None):
+def safe_infer(node: astroid.node_classes.NodeNG,
+               context=None) -> Optional[astroid.node_classes.NodeNG]:
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
@@ -854,7 +875,8 @@ def safe_infer(node, context=None):
         return value
 
 
-def has_known_bases(klass, context=None):
+def has_known_bases(klass: astroid.ClassDef,
+                    context=None) -> bool:
     """Return true if all base classes of a class could be inferred."""
     try:
         return klass._all_bases_known
@@ -872,14 +894,14 @@ def has_known_bases(klass, context=None):
     return True
 
 
-def is_none(node):
+def is_none(node: astroid.node_classes.NodeNG) -> bool:
     return (node is None or
             (isinstance(node, astroid.Const) and node.value is None) or
             (isinstance(node, astroid.Name)  and node.name == 'None')
            )
 
 
-def node_type(node):
+def node_type(node: astroid.node_classes.NodeNG) -> Optional[type]:
     """Return the inferred type for `node`
 
     If there is more than one possible type, or if inferred type is Uninferable or None,
@@ -900,7 +922,7 @@ def node_type(node):
     return types.pop() if types else None
 
 
-def is_registered_in_singledispatch_function(node):
+def is_registered_in_singledispatch_function(node: astroid.FunctionDef) -> bool:
     """Check if the given function node is a singledispatch function."""
 
     singledispatch_qnames = (
@@ -933,7 +955,7 @@ def is_registered_in_singledispatch_function(node):
     return False
 
 
-def get_node_last_lineno(node):
+def get_node_last_lineno(node: astroid.node_classes.NodeNG) -> int:
     """
     Get the last lineno of the given node. For a simple statement this will just be node.lineno,
     but for a node that has child statements (e.g. a method) this will be the lineno of the last
@@ -956,7 +978,7 @@ def get_node_last_lineno(node):
     return node.lineno
 
 
-def is_enum_class(node):
+def is_enum_class(node: astroid.ClassDef) -> bool:
     """Check if a class definition defines an Enum class.
 
     :param node: The class node to check.
@@ -981,7 +1003,7 @@ def is_enum_class(node):
     return False
 
 
-def is_dataclass(node):
+def is_dataclass(node: astroid.ClassDef) -> bool:
     """Check if a class definition defines a Python 3.7+ dataclass
 
     :param node: The class node to check.
@@ -1004,7 +1026,7 @@ def is_dataclass(node):
     return False
 
 
-def is_postponed_evaluation_enabled(node):
+def is_postponed_evaluation_enabled(node: astroid.node_classes.NodeNG) -> bool:
     """Check if the postponed evaluation of annotations is enabled"""
     name = 'annotations'
     module = node.root()
@@ -1012,7 +1034,8 @@ def is_postponed_evaluation_enabled(node):
     return stmt and isinstance(stmt[0], astroid.ImportFrom) and stmt[0].modname == '__future__'
 
 
-def is_subclass_of(node_a, node_b):
+def is_subclass_of(node_a: astroid.ClassDef,
+                   node_b: astroid.ClassDef) -> bool:
     """
     Check if first node is a subclass of second node.
     :param node_a: Node to check for subclass.
