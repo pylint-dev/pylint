@@ -20,6 +20,7 @@ from pylint.checkers import similar
 
 SIMILAR1 = join(dirname(abspath(__file__)), 'input', 'similar1')
 SIMILAR2 = join(dirname(abspath(__file__)), 'input', 'similar2')
+MULTILINE = join(dirname(abspath(__file__)), 'input', 'multiline-import')
 
 
 def test_ignore_comments():
@@ -82,6 +83,41 @@ def test_ignore_imports():
     assert ex.value.code == 0
     assert output.getvalue().strip() == """
 TOTAL lines=44 duplicates=0 percent=0.00
+""".strip()
+
+
+def test_multiline_imports():
+    sys.stdout = StringIO()
+    with pytest.raises(SystemExit) as ex:
+        similar.Run([MULTILINE, MULTILINE])
+    assert ex.value.code == 0
+    output = sys.stdout.getvalue()
+    sys.stdout = sys.__stdout__
+    assert output.strip() == ("""
+8 similar lines in 2 files
+==%s:0
+==%s:0
+   from foo import (
+     bar,
+     baz,
+     quux,
+     quuux,
+     quuuux,
+     quuuuux,
+   )
+TOTAL lines=16 duplicates=8 percent=50.00
+""" % (MULTILINE, MULTILINE)).strip()
+
+
+def test_ignore_multiline_imports():
+    sys.stdout = StringIO()
+    with pytest.raises(SystemExit) as ex:
+        similar.Run(['--ignore-imports', MULTILINE, MULTILINE])
+    assert ex.value.code == 0
+    output = sys.stdout.getvalue()
+    sys.stdout = sys.__stdout__
+    assert output.strip() == """
+TOTAL lines=16 duplicates=0 percent=0.00
 """.strip()
 
 
