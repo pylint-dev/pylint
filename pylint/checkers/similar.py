@@ -18,6 +18,7 @@
 """
 
 from __future__ import print_function
+import ast
 import sys
 from collections import defaultdict
 
@@ -137,10 +138,16 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     """return lines with leading/trailing whitespace and any ignored code
     features removed
     """
+    if ignore_imports:
+        tree = ast.fix_missing_locations(ast.parse(''.join(lines)))
+        line_is_import = {
+            node.lineno: isinstance(node, (ast.Import, ast.ImportFrom))
+            for node in tree.body}
+        current_line_is_import = False
 
     strippedlines = []
     docstring = None
-    for line in lines:
+    for lineno, line in enumerate(lines, start=1):
         line = line.strip()
         if ignore_docstrings:
             if not docstring and \
@@ -152,7 +159,9 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
                     docstring = None
                 line = ''
         if ignore_imports:
-            if line.startswith("import ") or line.startswith("from "):
+            if lineno in line_is_import:
+                current_line_is_import = line_is_import[lineno]
+            if current_line_is_import:
                 line = ''
         if ignore_comments:
             # XXX should use regex in checkers/format to avoid cutting
