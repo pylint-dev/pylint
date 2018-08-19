@@ -140,6 +140,10 @@ Release date: TBA
 
      Close #2430
 
+   * Fix --ignore-imports to understand multi-line imports
+
+     Close #1422
+     Close #2019
 
 What's New in Pylint 2.1.1?
 ===========================
