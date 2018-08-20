@@ -10,5 +10,6 @@ Python code:
 * Landscape.io (https://github.com/landscapeio/)
 * Codacy (https://github.com/Codacy/)
 * SaltStack (https://github.com/saltstack)
+* CodeFactor (https://github.com/codefactor-io)
 * many more...
 
