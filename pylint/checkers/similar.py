@@ -21,6 +21,7 @@ from __future__ import print_function
 import ast
 import sys
 from collections import defaultdict
+from itertools import groupby
 
 from pylint.utils import decoding_stream
 from pylint.interfaces import IRawChecker
@@ -140,9 +141,13 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     """
     if ignore_imports:
         tree = ast.fix_missing_locations(ast.parse(''.join(lines)))
+        node_is_import_by_lineno = (
+            (node.lineno, isinstance(node, (ast.Import, ast.ImportFrom)))
+            for node in tree.body)
         line_is_import = {
-            node.lineno: isinstance(node, (ast.Import, ast.ImportFrom))
-            for node in tree.body}
+            lineno: all(is_import for _, is_import in node_is_import_group)
+            for lineno, node_is_import_group
+            in groupby(node_is_import_by_lineno, key=lambda x: x[0])}
         current_line_is_import = False
 
     strippedlines = []
