@@ -18,7 +18,7 @@
 """
 
 from __future__ import print_function
-import ast
+import astroid
 import sys
 from collections import defaultdict
 from itertools import groupby
@@ -140,9 +140,9 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     features removed
     """
     if ignore_imports:
-        tree = ast.fix_missing_locations(ast.parse(''.join(lines)))
+        tree = astroid.parse(''.join(lines))
         node_is_import_by_lineno = (
-            (node.lineno, isinstance(node, (ast.Import, ast.ImportFrom)))
+            (node.lineno, isinstance(node, (astroid.Import, astroid.ImportFrom)))
             for node in tree.body)
         line_is_import = {
             lineno: all(is_import for _, is_import in node_is_import_group)
