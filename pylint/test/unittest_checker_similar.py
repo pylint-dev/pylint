@@ -90,13 +90,11 @@ TOTAL lines=44 duplicates=0 percent=0.00
 
 
 def test_multiline_imports():
-    sys.stdout = StringIO()
-    with pytest.raises(SystemExit) as ex:
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([MULTILINE, MULTILINE])
     assert ex.value.code == 0
-    output = sys.stdout.getvalue()
-    sys.stdout = sys.__stdout__
-    assert output.strip() == ("""
+    assert output.getvalue().strip() == ("""
 8 similar lines in 2 files
 ==%s:0
 ==%s:0
@@ -113,25 +111,21 @@ TOTAL lines=16 duplicates=8 percent=50.00
 
 
 def test_ignore_multiline_imports():
-    sys.stdout = StringIO()
-    with pytest.raises(SystemExit) as ex:
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(['--ignore-imports', MULTILINE, MULTILINE])
     assert ex.value.code == 0
-    output = sys.stdout.getvalue()
-    sys.stdout = sys.__stdout__
-    assert output.strip() == """
+    assert output.getvalue().strip() == """
 TOTAL lines=16 duplicates=0 percent=0.00
 """.strip()
 
 
 def test_no_hide_code_with_imports():
-    sys.stdout = StringIO()
-    with pytest.raises(SystemExit) as ex:
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(['--ignore-imports'] + 2 * [HIDE_CODE_WITH_IMPORTS])
     assert ex.value.code == 0
-    output = sys.stdout.getvalue()
-    sys.stdout = sys.__stdout__
-    assert "TOTAL lines=32 duplicates=16 percent=50.00" in output
+    assert "TOTAL lines=32 duplicates=16 percent=50.00" in output.getvalue()
 
 
 def test_ignore_nothing():
