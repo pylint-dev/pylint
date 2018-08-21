@@ -26,7 +26,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-from contextlib import contextmanager
+from contextlib import contextmanager, redirect_stdout
 import sys
 import os
 import re
@@ -702,14 +702,11 @@ class TestMessagesStore(object):
             msg, checkerref=False)
 
     def test_list_messages(self, store):
-        sys.stdout = StringIO()
-        try:
+        output = StringIO()
+        with redirect_stdout(output):
             store.list_messages()
-            output = sys.stdout.getvalue()
-        finally:
-            sys.stdout = sys.__stdout__
         # cursory examination of the output: we're mostly testing it completes
-        assert ':msg-symbol (W1234): *message*' in output
+        assert ':msg-symbol (W1234): *message*' in output.getvalue()
 
     def test_add_renamed_message(self, store):
         store.add_renamed_message('W1234', 'old-bad-name', 'msg-symbol')
