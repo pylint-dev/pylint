@@ -18,10 +18,11 @@
 """
 
 from __future__ import print_function
-import astroid
 import sys
 from collections import defaultdict
 from itertools import groupby
+
+import astroid
 
 from pylint.utils import decoding_stream
 from pylint.interfaces import IRawChecker
