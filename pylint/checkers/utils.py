@@ -22,6 +22,7 @@
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
 # Copyright (c) 2018 Brian Shaginaw <brian.shaginaw@warbyparker.com>
+# Copyright (c) 2018 Caio Carrara <ccarrara@redhat.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -1045,7 +1046,7 @@ def is_subclass_of(node_a: astroid.ClassDef,
     :returns: True if node_a is derived from node_b. False otherwise.
     :rtype: bool
     """
-    if not any(isinstance(node, astroid.ClassDef) for node in (node_a, node_b)):
+    if not all(isinstance(node, astroid.ClassDef) for node in (node_a, node_b)):
         return False
 
     return node_b.name in {base.name for base in node_a.bases}

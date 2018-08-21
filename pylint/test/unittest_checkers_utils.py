@@ -4,6 +4,7 @@
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2018 Caio Carrara <ccarrara@redhat.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -102,3 +103,38 @@ def test_node_ignores_exception():
     assert not utils.node_ignores_exception(nodes[1], ZeroDivisionError)
     assert utils.node_ignores_exception(nodes[2], ZeroDivisionError)
     assert not utils.node_ignores_exception(nodes[3], ZeroDivisionError)
+
+
+def test_is_sublcass_of_node_b_derived_from_node_a():
+    nodes = astroid.extract_node("""
+    class Superclass: #@
+        pass
+
+    class Subclass(Superclass): #@
+        pass
+    """)
+    assert utils.is_subclass_of(nodes[1], nodes[0])
+
+
+def test_is_sublcass_of_node_b_not_derived_from_node_a():
+    nodes = astroid.extract_node("""
+    class OneClass: #@
+        pass
+
+    class AnotherClass: #@
+        pass
+    """)
+    assert not utils.is_subclass_of(nodes[1], nodes[0])
+
+
+def test_is_sublcass_of_one_param_is_not_classdef():
+    node = astroid.extract_node("""
+    class OneClass: #@
+        pass
+    """)
+    assert not utils.is_subclass_of(None, node)
+    assert not utils.is_subclass_of(node, None)
+
+
+def test_is_sublcass_of_both_params_are_not_classdef():
+    assert not utils.is_subclass_of(None, None)

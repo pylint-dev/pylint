@@ -44,6 +44,9 @@ Release date: TBA
    * Consider tuples in exception handler for ``try-except-raise``.
      Close #2389
 
+   * Fix astroid.ClassDef check in checkers.utils.is_subclass_of 
+
+
 What's New in Pylint 2.1.1?
 ===========================
 
