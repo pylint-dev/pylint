@@ -219,3 +219,5 @@ contributors:
 * Marcus Näslund (naslundx): contributor 
 
 * Natalie Serebryakova: contributor
+
+* Caio Carrara: contributor
