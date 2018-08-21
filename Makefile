@@ -61,10 +61,6 @@ clean:
 	rm -rf $(PKG_DEB) ../pylint_*.changes ../pylint_*.build
 	debuild clean || true
 
-clobber:
-	hg purge -p
-	hg purge -a
-
 
 /usr/bin/debuild:
 	sudo apt-get -y --force-yes install devscripts
@@ -74,4 +70,4 @@ clobber:
 
 all: clean lint tests docs sdist deb
 
-.PHONY: help tests docs deb sdist lint clean clobber all
+.PHONY: help tests docs deb sdist lint clean all
