@@ -144,7 +144,7 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
         node_is_import_by_lineno = (
             (node.lineno, isinstance(node, (astroid.Import, astroid.ImportFrom)))
             for node in tree.body)
-        line_is_import = {
+        line_begins_import = {
             lineno: all(is_import for _, is_import in node_is_import_group)
             for lineno, node_is_import_group
             in groupby(node_is_import_by_lineno, key=lambda x: x[0])}
@@ -164,8 +164,8 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
                     docstring = None
                 line = ''
         if ignore_imports:
-            if lineno in line_is_import:
-                current_line_is_import = line_is_import[lineno]
+            if lineno in line_begins_import:
+                current_line_is_import = line_begins_import[lineno]
             if current_line_is_import:
                 line = ''
         if ignore_comments:
