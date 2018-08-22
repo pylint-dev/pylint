@@ -165,8 +165,8 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
                     docstring = None
                 line = ''
         if ignore_imports:
-            if lineno in line_begins_import:
-                current_line_is_import = line_begins_import[lineno]
+            current_line_is_import = line_begins_import.get(
+                lineno, current_line_is_import)
             if current_line_is_import:
                 line = ''
         if ignore_comments:
