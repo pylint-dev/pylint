@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * Pick the latest value from the inferred values when looking for ``raising-non-exception``
+
+     Close #2431
+
    * Extend the TYPE_CHECKING guard to TYPE_CHECKING name as well, not just the attribute
 
      Close #2411

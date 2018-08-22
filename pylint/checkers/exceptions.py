@@ -264,15 +264,15 @@ class ExceptionsChecker(checkers.BaseChecker):
             self._check_bad_exception_context(node)
 
         expr = node.exc
-        try:
-            inferred_value = next(expr.infer())
-        except astroid.InferenceError:
-            inferred_value = None
-
         ExceptionRaiseRefVisitor(self, node).visit(expr)
 
-        if inferred_value:
-            ExceptionRaiseLeafVisitor(self, node).visit(inferred_value)
+        try:
+            inferred_value = expr.inferred()[-1]
+        except astroid.InferenceError:
+            pass
+        else:
+            if inferred_value:
+                ExceptionRaiseLeafVisitor(self, node).visit(inferred_value)
 
     def _check_misplaced_bare_raise(self, node):
         # Filter out if it's present in __exit__.

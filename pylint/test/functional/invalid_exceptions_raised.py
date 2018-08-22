@@ -89,3 +89,17 @@ def exception_instance_regression():
         int("9a")
     except ValueError as exc:
         raise exc
+
+
+def reusing_same_name_picks_the_latest_raised_value():
+    class Error(Exception):
+        """some error"""
+
+    exceptions = tuple([ValueError, TypeError])
+    try:
+        raise ValueError
+    except exceptions as exc:  # pylint: disable=catching-non-exception
+        # https://github.com/PyCQA/pylint/issues/1756
+        exc = Error(exc)
+        if exc:
+            raise exc
