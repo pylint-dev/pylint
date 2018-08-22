@@ -221,3 +221,5 @@ contributors:
 * Natalie Serebryakova: contributor
 
 * Caio Carrara: contributor
+
+* Roberto Leinardi: PyCharm plugin maintainer
