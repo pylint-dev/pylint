@@ -125,6 +125,22 @@ Remember the path at which it's installed::
 
     which pylint
 
+Using pylint-PyCharm-plugin
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#.  Download the latest version of the `pylint-plugin.jar <https://github.com/leinardi/pylint-PyCharm-plugin/releases>`_
+#.  In PyCharm go to *Preferences* -> *Plugins* > *Install plugins from disc...*, select downloaded file and restart PyCharm when prompted
+#.  After restart you should find the plugin in *View* > *Tool windows* > *Pylint terminal*
+
+By default the plugin runs Pylint on the root directory of your PyCharm project. If you want to specify a different directory:
+
+#.  Right click on the Pylint terminal window
+#.  Select "Configure plugin..."
+#.  Replace the '.' at the end of the "Pylint command" with the modules or packages you want to check (e.g. "``pylint --msg-template='{path}:{line:d}: {C}: {category}: {msg} ({symbol})'  my_module``")
+
+Using External Tools
+~~~~~~~~~~~~~~~~~~~~
+
 Within PyCharm:
 
 #.  Navigate to the preferences window
