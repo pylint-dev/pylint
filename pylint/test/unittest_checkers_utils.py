@@ -105,7 +105,7 @@ def test_node_ignores_exception():
     assert not utils.node_ignores_exception(nodes[3], ZeroDivisionError)
 
 
-def test_is_sublcass_of_node_b_derived_from_node_a():
+def test_is_subclass_of_node_b_derived_from_node_a():
     nodes = astroid.extract_node("""
     class Superclass: #@
         pass
@@ -116,7 +116,7 @@ def test_is_sublcass_of_node_b_derived_from_node_a():
     assert utils.is_subclass_of(nodes[1], nodes[0])
 
 
-def test_is_sublcass_of_node_b_not_derived_from_node_a():
+def test_is_subclass_of_node_b_not_derived_from_node_a():
     nodes = astroid.extract_node("""
     class OneClass: #@
         pass
@@ -127,14 +127,11 @@ def test_is_sublcass_of_node_b_not_derived_from_node_a():
     assert not utils.is_subclass_of(nodes[1], nodes[0])
 
 
-def test_is_sublcass_of_one_param_is_not_classdef():
+def test_is_subclass_of_not_classdefs():
     node = astroid.extract_node("""
     class OneClass: #@
         pass
     """)
     assert not utils.is_subclass_of(None, node)
     assert not utils.is_subclass_of(node, None)
-
-
-def test_is_sublcass_of_both_params_are_not_classdef():
     assert not utils.is_subclass_of(None, None)
