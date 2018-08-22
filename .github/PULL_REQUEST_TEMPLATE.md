@@ -2,7 +2,7 @@
 
 Thank you for submitting a PR to pylint!
 
-To ease the process of reviewing your PR, do make sure complete the following boxes.
+To ease the process of reviewing your PR, do make sure to complete the following boxes.
 
 You can also read more about contributing to pylint in this document:
 https://github.com/PyCQA/pylint/blob/master/doc/development_guide/contribute.rst#repository
