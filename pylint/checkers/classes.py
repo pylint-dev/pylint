@@ -781,18 +781,30 @@ a metaclass class method.'}
                         decorator.attrname in ('getter', 'setter', 'deleter'):
                     # attribute affectation will call this method, not hiding it
                     return
-                if isinstance(decorator, astroid.Name) and decorator.name == 'property':
-                    # attribute affectation will either call a setter or raise
-                    # an attribute error, anyway not hiding the function
+                if isinstance(decorator, astroid.Name):
+                    if decorator.name == 'property':
+                        # attribute affectation will either call a setter or raise
+                        # an attribute error, anyway not hiding the function
+                        return
+
+                # Infer the decorator and see if it returns something useful
+                inferred = safe_infer(decorator)
+                if not inferred:
                     return
+                if isinstance(inferred, astroid.FunctionDef):
+                    # Okay, it's a decorator, let's see what it can infer.
+                    try:
+                        inferred = next(inferred.infer_call_result(inferred))
+                    except astroid.InferenceError:
+                        return
                 try:
-                    for infered in decorator.infer():
-                        if (isinstance(infered, astroid.ClassDef)
-                                and infered.getattr('__get__')
-                                and infered.getattr('__set__')):
-                            return
-                except (astroid.InferenceError, astroid.AttributeInferenceError):
+                    if (isinstance(inferred, (astroid.Instance, astroid.ClassDef))
+                            and inferred.getattr('__get__')
+                            and inferred.getattr('__set__')):
+                        return
+                except astroid.AttributeInferenceError:
                     pass
+
         # check if the method is hidden by an attribute
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX

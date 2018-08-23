@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * Infer decorated methods when looking for method-hidden
+
+     Close #2369
+
    * Pick the latest value from the inferred values when looking for ``raising-non-exception``
 
      Close #2431

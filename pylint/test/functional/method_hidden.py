@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,print-statement, useless-object-inheritance
+# pylint: disable=too-few-public-methods,print-statement, useless-object-inheritance,missing-docstring
 """check method hidding ancestor attribute
 """
 from __future__ import print_function
@@ -37,3 +37,24 @@ class Ddef:
     def five(self):
         """Always 5."""
         return self
+
+
+def my_decorator(*args, **kwargs):
+    return CustomProperty(*args, **kwargs)
+
+
+class Foo:
+    def __init__(self):
+        self._bar = 42
+        self._baz = 84
+
+    @my_decorator
+    def method(self):  # E0202
+        return self._baz
+
+    @method.setter
+    def method(self, value):
+        self._baz = value
+
+    def do_something_with_baz(self, value):
+        self.method = value
