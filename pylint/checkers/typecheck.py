@@ -220,7 +220,7 @@ MSGS = {
               'not-callable',
               'Used when an object being called has been inferred to a non '
               'callable object.'),
-    'E1111': ('Assigning to function call which doesn\'t return',
+    'E1111': ('Assigning result of a function call, where the function has no return',
               'assignment-from-no-return',
               'Used when an assignment is done on a function call but the '
               'inferred function doesn\'t return anything.'),
@@ -253,7 +253,7 @@ MSGS = {
               'invalid-slice-index',
               'Used when a slice index is not an integer, None, or an object '
               'with an __index__ method.'),
-    'E1128': ('Assigning to function call which only returns None',
+    'E1128': ('Assigning result of a function call, where the function returns None',
               'assignment-from-none',
               'Used when an assignment is done on a function call but the '
               'inferred function returns nothing but None.',
