@@ -71,6 +71,8 @@ Release date: TBA
 
    * Fix wildcard imports being ignored by the import checker
 
+   * Fix external/internal distinction being broken in the import graph
+
 
 What's New in Pylint 2.1.1?
 ===========================

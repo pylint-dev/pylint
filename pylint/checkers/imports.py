@@ -36,7 +36,7 @@ import sys
 import copy
 
 import astroid
-from astroid import are_exclusive
+from astroid import are_exclusive, decorators
 from astroid.modutils import (get_module_part, is_standard_module)
 import isort
 
@@ -337,7 +337,6 @@ class ImportsChecker(BaseChecker):
         self.import_graph = None
         self._imports_stack = []
         self._first_non_import_node = None
-        self.__int_dep_info = self.__ext_dep_info = None
         self.reports = (('RP0401', 'External dependencies',
                          self._report_external_dependencies),
                         ('RP0402', 'Modules dependencies graph',
@@ -373,6 +372,7 @@ class ImportsChecker(BaseChecker):
         self.linter.add_stats(cycles=[])
         self.stats = self.linter.stats
         self.import_graph = collections.defaultdict(set)
+        self._module_pkg = {} # mapping of modules to the pkg they belong in
         self._excluded_edges = collections.defaultdict(set)
         self._ignored_modules = get_global_option(
             self, 'ignored-modules', default=[])
@@ -711,7 +711,14 @@ class ImportsChecker(BaseChecker):
 
         if context_name == importedmodname:
             self.add_message('import-self', node=node)
+
         elif not is_standard_module(importedmodname):
+            # if this is not a package __init__ module
+            if base != '__init__' and context_name not in self._module_pkg:
+                # record the module's parent, or the module itself if this is
+                # a top level module, as the package it belongs to
+                self._module_pkg[context_name] = context_name.rsplit('.', 1)[0]
+
             # handle dependencies
             importedmodnames = self.stats['dependencies'].setdefault(
                 importedmodname, set())
@@ -794,29 +801,30 @@ class ImportsChecker(BaseChecker):
             _make_graph(filename, self._internal_dependencies_info(),
                         sect, 'internal ')
 
+    def _filter_dependencies_graph(self, internal):
+        """build the internal or the external depedency graph"""
+        graph = collections.defaultdict(set)
+        for importee, importers in self.stats['dependencies'].items():
+            for importer in importers:
+                package = self._module_pkg.get(importer, importer)
+                is_inside = importee.startswith(package)
+                if is_inside and internal or not is_inside and not internal:
+                    graph[importee].add(importer)
+        return graph
+
+    @decorators.cached
     def _external_dependencies_info(self):
         """return cached external dependencies information or build and
         cache them
         """
-        if self.__ext_dep_info is None:
-            package = self.linter.current_name
-            self.__ext_dep_info = result = {}
-            for importee, importers in self.stats['dependencies'].items():
-                if not importee.startswith(package):
-                    result[importee] = importers
-        return self.__ext_dep_info
+        return self._filter_dependencies_graph(internal=False)
 
+    @decorators.cached
     def _internal_dependencies_info(self):
         """return cached internal dependencies information or build and
         cache them
         """
-        if self.__int_dep_info is None:
-            package = self.linter.current_name
-            self.__int_dep_info = result = {}
-            for importee, importers in self.stats['dependencies'].items():
-                if importee.startswith(package):
-                    result[importee] = importers
-        return self.__int_dep_info
+        return self._filter_dependencies_graph(internal=True)
 
     def _check_wildcard_imports(self, node, imported_module):
         root = node.root()
