@@ -362,7 +362,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                     exceptions = {exception
                                   for exception in exceptions_in_handler.elts
                                   if isinstance(exception, astroid.Name)}
-                else:
+                elif exceptions_in_handler:
                     exceptions = [exceptions_in_handler]
             return exceptions
 

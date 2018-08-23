@@ -1,5 +1,5 @@
 # pylint:disable=missing-docstring, unreachable, bad-except-order, bare-except, unnecessary-pass
-
+# pylint: disable=undefined-variable
 try:
     int("9a")
 except:  # [try-except-raise]
@@ -95,3 +95,11 @@ except (FileNotFoundError, PermissionError):  # [try-except-raise]
     raise
 except (OverflowError, ZeroDivisionError):
     print("a failure")
+
+
+try:
+    pass
+except invalid_name:  # [try-except-raise]
+    raise
+except TypeError:
+    pass
