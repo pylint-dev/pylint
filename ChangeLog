@@ -69,6 +69,8 @@ Release date: TBA
 
    * Fix astroid.ClassDef check in checkers.utils.is_subclass_of 
 
+   * Fix wildcard imports being ignored by the import checker
+
 
 What's New in Pylint 2.1.1?
 ===========================

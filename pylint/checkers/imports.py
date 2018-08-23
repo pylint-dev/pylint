@@ -443,6 +443,8 @@ class ImportsChecker(BaseChecker):
         for name, _ in node.names:
             if name != '*':
                 self._add_imported_module(node, '%s.%s' % (imported_module.name, name))
+            else:
+                self._add_imported_module(node, imported_module.name)
 
     @check_messages(*(MSGS.keys()))
     def leave_module(self, node):

@@ -223,3 +223,5 @@ contributors:
 * Caio Carrara: contributor
 
 * Roberto Leinardi: PyCharm plugin maintainer
+
+* Hornwitser: fix import graph
