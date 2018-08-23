@@ -18,6 +18,7 @@ from pylint.checkers import imports
 from pylint.testutils import CheckerTestCase, Message, set_config
 from pylint.interfaces import UNDEFINED
 
+REGR_DATA = os.path.join(os.path.dirname(__file__), 'regrtest_data', '')
 
 class TestImportsChecker(CheckerTestCase):
 
@@ -85,11 +86,7 @@ class TestImportsChecker(CheckerTestCase):
             self.checker.visit_importfrom(node)
 
     def test_relative_beyond_top_level(self):
-        here = os.path.abspath(os.path.dirname(__file__))
-        path = os.path.join(here, 'regrtest_data', 'beyond_top', '__init__.py')
-        with open(path) as stream:
-            data = stream.read()
-        module = astroid.parse(data, module_name='beyond_top', path=path)
+        module = astroid.MANAGER.ast_from_module_name('beyond_top', REGR_DATA)
         import_from = module.body[0]
 
         msg = Message(msg_id='relative-beyond-top-level',
@@ -102,28 +99,19 @@ class TestImportsChecker(CheckerTestCase):
             self.checker.visit_importfrom(module.body[2].body[0])
 
     def test_wildcard_import_init(self):
-        here = os.path.abspath(os.path.dirname(__file__))
-        path = os.path.join(
-            here, 'regrtest_data', 'init_wildcard', '__init__.py')
-        with open(path) as stream:
-            data = stream.read()
-        module = astroid.parse(data, module_name='__init__', path=path)
+        module = astroid.MANAGER.ast_from_module_name(
+            'init_wildcard', REGR_DATA)
         import_from = module.body[0]
 
         with self.assertNoMessages():
             self.checker.visit_importfrom(import_from)
 
     def test_wildcard_import_non_init(self):
-        here = os.path.abspath(os.path.dirname(__file__))
-        path = os.path.join(
-            here, 'regrtest_data', 'init_wildcard', '__init__.py')
-        with open(path) as stream:
-            data = stream.read()
-        module = astroid.parse(data, module_name='awesome_module', path=path)
+        module = astroid.MANAGER.ast_from_module_name('wildcard', REGR_DATA)
         import_from = module.body[0]
 
         msg = Message(
-            msg_id='wildcard-import', node=import_from, args='awesome_module',
-            confidence=UNDEFINED)
+            msg_id='wildcard-import', node=import_from,
+            args='empty', confidence=UNDEFINED)
         with self.assertAddsMessages(msg):
             self.checker.visit_importfrom(import_from)
