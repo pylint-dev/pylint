@@ -818,8 +818,7 @@ class ImportsChecker(BaseChecker):
         return self._filter_dependencies_graph(internal=True)
 
     def _check_wildcard_imports(self, node, imported_module):
-        root = node.root()
-        if root.package and root.name == "__init__":
+        if node.root().package:
             # Skip the check if in __init__.py issue #2026
             return
 

@@ -73,6 +73,10 @@ Release date: TBA
 
    * Fix external/internal distinction being broken in the import graph
 
+   * Fix wildcard import check not skipping `__init__.py`
+
+     Close #2430
+
 
 What's New in Pylint 2.1.1?
 ===========================
