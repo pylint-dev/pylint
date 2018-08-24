@@ -1,0 +1,1 @@
+no-member:19:test:AsyncGenerator 'async_generator' has no 'send' member; maybe 'asend'?:INFERENCE
