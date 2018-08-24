@@ -1388,14 +1388,12 @@ class IterableChecker(BaseChecker):
            }
 
     def _check_iterable(self, node, check_async=False):
-        if is_inside_abstract_class(node):
+        if is_inside_abstract_class(node) or is_comprehension(node):
             return
-        if is_comprehension(node):
+        inferred = safe_infer(node)
+        if not inferred:
             return
-        infered = safe_infer(node)
-        if infered is None or infered is astroid.Uninferable:
-            return
-        if not is_iterable(infered, check_async=check_async):
+        if not is_iterable(inferred, check_async=check_async):
             self.add_message('not-an-iterable',
                              args=node.as_string(),
                              node=node)
