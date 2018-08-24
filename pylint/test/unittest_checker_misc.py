@@ -15,75 +15,79 @@
 from pylint.checkers import misc
 from pylint.testutils import (
     CheckerTestCase, Message,
-    set_config, _create_file_backed_module,
-)
+    set_config, _tokenize_str)
 
 
 class TestFixme(CheckerTestCase):
     CHECKER_CLASS = misc.EncodingChecker
 
     def test_fixme_with_message(self):
-        with _create_file_backed_module(
-                """a = 1
+        code = """a = 1
                 # FIXME message
-                """) as module:
-            with self.assertAddsMessages(
-                    Message(msg_id='fixme', line=2, args='FIXME message')):
-                self.checker.process_module(module)
+                """
+        with self.assertAddsMessages(
+                Message(msg_id='fixme', line=2, args='FIXME message')):
+            self.checker.process_tokens(_tokenize_str(code))
 
     def test_todo_without_message(self):
-        with _create_file_backed_module(
-                """a = 1
+        code = """a = 1
                 # TODO
-                """) as module:
-            with self.assertAddsMessages(
-                    Message(msg_id='fixme', line=2, args='TODO')):
-                self.checker.process_module(module)
+                """
+        with self.assertAddsMessages(
+                Message(msg_id='fixme', line=2, args='TODO')):
+            self.checker.process_tokens(_tokenize_str(code))
 
     def test_xxx_without_space(self):
-        with _create_file_backed_module(
-                """a = 1
+        code = """a = 1
                 #XXX
-                """) as module:
-            with self.assertAddsMessages(
-                    Message(msg_id='fixme', line=2, args='XXX')):
-                self.checker.process_module(module)
+                """
+        with self.assertAddsMessages(
+                Message(msg_id='fixme', line=2, args='XXX')):
+            self.checker.process_tokens(_tokenize_str(code))
 
     def test_xxx_middle(self):
-        with _create_file_backed_module(
-                """a = 1
+        # THIS TEST STARTED TO FAIL, WHY?
+        code = """a = 1
                 # midle XXX
-                """) as module:
-            with self.assertNoMessages():
-                self.checker.process_module(module)
+                """
+        with self.assertNoMessages():
+            self.checker.process_tokens(_tokenize_str(code))
 
     def test_without_space_fixme(self):
-        with _create_file_backed_module(
-                """a = 1
+        code = """a = 1
                 #FIXME
-                """) as module:
-            with self.assertAddsMessages(
-                    Message(msg_id='fixme', line=2, args='FIXME')):
-                self.checker.process_module(module)
+                """
+        with self.assertAddsMessages(
+                Message(msg_id='fixme', line=2, args='FIXME')):
+            self.checker.process_tokens(_tokenize_str(code))
 
     @set_config(notes=[])
     def test_absent_codetag(self):
-        with _create_file_backed_module(
-                """a = 1
+        code = """a = 1
                 # FIXME
                 # TODO
                 # XXX
-                """) as module:
-            with self.assertNoMessages():
-                self.checker.process_module(module)
+                """
+        with self.assertNoMessages():
+            self.checker.process_tokens(_tokenize_str(code))
 
     @set_config(notes=['CODETAG'])
     def test_other_present_codetag(self):
-        with _create_file_backed_module(
-                """a = 1
+        code = """a = 1
                 # CODETAG
                 # FIXME
-                """) as module:
-            with self.assertAddsMessages(
-                    Message(msg_id='fixme', line=2, args='CODETAG')):
-                self.checker.process_module(module)
+                """
+        with self.assertAddsMessages(
+                Message(msg_id='fixme', line=2, args='CODETAG')):
+            self.checker.process_tokens(_tokenize_str(code))
+
+    def test_issue_2321_should_not_trigger(self):
+        code = 'print("# TODO this should not trigger a fixme")'
+        with self.assertNoMessages():
+            self.checker.process_tokens(_tokenize_str(code))
+
+    def test_issue_2321_should_trigger(self):
+        code = '# TODO this should not trigger a fixme'
+        with self.assertAddsMessages(
+                Message(msg_id='fixme', line=1, args='TODO this should not trigger a fixme')):
+            self.checker.process_tokens(_tokenize_str(code))
