@@ -20,7 +20,7 @@
 
 # pylint: disable=W0511
 
-import token
+import tokenize
 
 from pylint.interfaces import IRawChecker, ITokenChecker
 from pylint.checkers import BaseChecker
@@ -112,11 +112,11 @@ class EncodingChecker(BaseChecker):
         if not self.config.notes:
             return
         comments = [token_info for token_info in tokens
-                    if token_info.type == token.COMMENT]
+                    if token_info.type == tokenize.COMMENT]
         for comment in comments:
             comment_text = comment.string[1:].lstrip()  # trim '#' and whitespaces
 
-            # handle 'pylint: disable=x' clauses
+            # handle pylint disable clauses
             disable_option_match = OPTION_RGX.search(comment_text)
             if disable_option_match:
                 try:
@@ -126,7 +126,8 @@ class EncodingChecker(BaseChecker):
                         return
                 except ValueError:
                     self.add_message('bad-inline-option',
-                                     args=disable_option_match.group(1).strip(), line=comment.string)
+                                     args=disable_option_match.group(1).strip(),
+                                     line=comment.string)
                     return
 
             # emit warnings if necessary
@@ -135,7 +136,7 @@ class EncodingChecker(BaseChecker):
                     self.add_message('fixme',
                                      args=comment_text,
                                      line=comment.start[0],
-                                     col_offset=comment.string.lower().index(note.lower()),
+                                     col_offset=comment.string.lower().index(note.lower()#2321),
                                      )
 
 
