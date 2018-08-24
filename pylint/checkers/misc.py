@@ -136,7 +136,7 @@ class EncodingChecker(BaseChecker):
                     self.add_message('fixme',
                                      args=comment_text,
                                      line=comment.start[0],
-                                     col_offset=comment.string.lower().index(note.lower()#2321),
+                                     col_offset=comment.string.lower().index(note.lower()),
                                      )
 
 
