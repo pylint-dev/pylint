@@ -73,6 +73,7 @@ from pylint.utils import get_global_option
 
 BUILTINS = builtins.__name__
 STR_FORMAT = {"%s.str.format" % BUILTINS}
+ASYNCIO_COROUTINE = 'asyncio.coroutines.coroutine'
 
 
 def _unflatten(iterable):
@@ -1387,6 +1388,25 @@ class IterableChecker(BaseChecker):
                       'mapping is expected'),
            }
 
+    @staticmethod
+    def _is_asyncio_coroutine(node):
+        if not isinstance(node, astroid.Call):
+            return False
+
+        inferred_func = safe_infer(node.func)
+        if not isinstance(inferred_func, astroid.FunctionDef):
+            return False
+        if not inferred_func.decorators:
+            return False
+        for decorator in inferred_func.decorators.nodes:
+            inferred_decorator = safe_infer(decorator)
+            if not isinstance(inferred_decorator, astroid.FunctionDef):
+                continue
+            if inferred_decorator.qname() != ASYNCIO_COROUTINE:
+                continue
+            return True
+        return False
+
     def _check_iterable(self, node, check_async=False):
         if is_inside_abstract_class(node) or is_comprehension(node):
             return
@@ -1421,6 +1441,9 @@ class IterableChecker(BaseChecker):
 
     @check_messages('not-an-iterable')
     def visit_yieldfrom(self, node):
+        # TODO: hack which can be removed once we support decorators inference
+        if self._is_asyncio_coroutine(node.value):
+            return
         self._check_iterable(node.value)
 
     @check_messages('not-an-iterable', 'not-a-mapping')

@@ -31,3 +31,8 @@ Other Changes
   to spurious false positives.
 
   Close #2431
+
+* ``pylint`` used to emit a ``not-an-iterable`` error when looking at coroutines built
+  with ``asyncio.coroutine``. This is no longer the case as we handle coroutines explicitly.
+
+  Close #996

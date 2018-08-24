@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * Handle asyncio.coroutine when looking for ``not-an-iterable`` check.
+
+     Close #996
+
    * The ``locally-enabled`` check is gone.
 
      Close #2442
