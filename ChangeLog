@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * The ``locally-enabled`` check is gone.
+
+     Close #2442
+
    * Infer decorated methods when looking for method-hidden
 
      Close #2369

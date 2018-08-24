@@ -334,10 +334,7 @@ class MessagesHandlerMixIn:
 
         if scope == 'module':
             self.file_state.set_msg_status(msg, line, enable)
-            if enable:
-                self.add_message('locally-enabled', line=line,
-                                 args=(msg.symbol, msg.msgid))
-            elif msg.symbol != 'locally-disabled':
+            if not enable and msg.symbol != 'locally-disabled':
                 self.add_message('locally-disabled', line=line,
                                  args=(msg.symbol, msg.msgid))
         else:

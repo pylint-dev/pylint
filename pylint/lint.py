@@ -188,10 +188,6 @@ MSGS = {
               'locally-disabled',
               'Used when an inline option disables a message or a messages '
               'category.'),
-    'I0012': ('Locally enabling %s (%s)',
-              'locally-enabled',
-              'Used when an inline option enables a message or a messages '
-              'category.'),
     'I0013': ('Ignoring entire file',
               'file-ignored',
               'Used to inform that the file will not be checked'),
