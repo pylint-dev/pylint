@@ -1,11 +1,11 @@
 # pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, useless-object-inheritance
 
 def test_regression_737():
-    import xml # [unused-variable]
+    import xml # [unused-import]
 
 def test_regression_923():
-    import unittest.case  # [unused-variable]
-    import xml as sql # [unused-variable]
+    import unittest.case  # [unused-import]
+    import xml as sql # [unused-import]
 
 def test_unused_with_prepended_underscore():
     _foo = 42
@@ -48,3 +48,8 @@ def locals_does_not_account_for_subscopes():
     def some_other_scope():
         return locals()
     return some_other_scope
+
+
+def unused_import_from():
+    from functools import wraps as abc # [unused-import]
+    from collections import namedtuple # [unused-import]
