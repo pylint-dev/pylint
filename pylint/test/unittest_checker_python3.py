@@ -639,6 +639,22 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(absolute_import_message, message):
             self.checker.visit_import(node)
 
+    def test_bad_import_turtle(self):
+        node = astroid.extract_node('''
+        import turtle #@
+        turtle.Turtle()
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_import(node)
+
+    def test_bad_import_dbm(self):
+        node = astroid.extract_node('''
+        from dbm import open as open_ #@
+        open_("dummy.db")
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_importfrom(node)
+
     @python2_only
     def test_bad_import_not_on_relative(self):
         samples = [
