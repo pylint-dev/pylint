@@ -6,6 +6,9 @@ What's New in Pylint 2.2?
 =========================
 
 Release date: TBA
+
+   * Allow ``__module__`` to be redefined at a class level. Close #2451
+
    * ``pylint`` used to emit a ``unused-variable`` error if unused import was found in the function. Now instead of
      ``unused-variable``, ``unused-import`` is emitted.
 

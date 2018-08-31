@@ -167,6 +167,10 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
 )
 REVERSED_COMPS = {'<': '>', '<=': '>=', '>': '<', '>=': '<='}
 COMPARISON_OPERATORS = frozenset(('==', '!=', '<', '>', '<=', '>='))
+# List of methods which can be redefined
+REDEFINABLE_METHODS = frozenset((
+    '__module__',
+))
 
 
 def _redefines_import(node):
@@ -743,8 +747,17 @@ class BasicErrorChecker(_BasicChecker):
 
     def _check_redefinition(self, redeftype, node):
         """check for redefinition of a function / method / class name"""
-        defined_self = node.parent.frame()[node.name]
-        if defined_self is not node and not astroid.are_exclusive(node, defined_self):
+        parent_frame = node.parent.frame()
+        defined_self = parent_frame[node.name]
+        if (defined_self is not node
+                and not astroid.are_exclusive(node, defined_self)):
+
+            # Additional checks for methods which are not considered
+            # redefined, since they are already part of the base API.
+            if (isinstance(parent_frame, astroid.ClassDef)
+                    and node.name in REDEFINABLE_METHODS):
+                return
+
             dummy_variables_rgx = lint_utils.get_global_option(
                 self, 'dummy-variables-rgx', default=None)
             if dummy_variables_rgx and dummy_variables_rgx.match(node.name):
