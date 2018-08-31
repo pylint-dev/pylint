@@ -11,6 +11,13 @@ Release date: TBA
 
      Close #2453
 
+   * Allow ``__module__`` to be redefined at a class level. Close #2451
+
+   * ``pylint`` used to emit a ``unused-variable`` error if unused import was found in the function. Now instead of
+     ``unused-variable``, ``unused-import`` is emitted.
+
+     Close #2421
+
    * Handle asyncio.coroutine when looking for ``not-an-iterable`` check.
 
      Close #996
