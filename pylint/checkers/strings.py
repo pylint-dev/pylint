@@ -22,6 +22,7 @@
 """Checker for string formatting operations.
 """
 
+import builtins
 import sys
 import tokenize
 import string
@@ -78,6 +79,10 @@ MSGS = {
               "too-few-format-args",
               "Used when a format string that uses unnamed conversion "
               "specifiers is given too few arguments"),
+    'E1307': ("Argument %r does not match format type %r",
+              "bad-string-format-type",
+              "Used when a type required by format string "
+              "is not suitable for actual argument type"),
     'E1310': ("Suspicious argument in %s.%s call",
               "bad-str-strip-call",
               "The argument to a str.{l,r,}strip call contains a"
@@ -121,6 +126,10 @@ MSGS = {
 OTHER_NODES = (astroid.Const, astroid.List,
                astroid.Lambda, astroid.FunctionDef,
                astroid.ListComp, astroid.SetComp, astroid.GeneratorExp)
+
+BUILTINS_STR = builtins.__name__ + ".str"
+BUILTINS_FLOAT = builtins.__name__ + ".float"
+BUILTINS_INT = builtins.__name__ + ".int"
 
 if _PY3K:
     import _string # pylint: disable=wrong-import-position, wrong-import-order
@@ -238,6 +247,21 @@ def get_access_path(key, parts):
             path.append("[{!r}]".format(specifier))
     return str(key) + "".join(path)
 
+def arg_matches_format_type(arg_type, format_type):
+    if format_type in "sr":
+        # All types can be printed with %s and %r
+        return True
+    if isinstance(arg_type, astroid.Instance):
+        arg_type = arg_type.pytype()
+        if arg_type == BUILTINS_STR:
+            return format_type == "c"
+        if arg_type == BUILTINS_FLOAT:
+            return format_type in "deEfFgGn%"
+        if arg_type == BUILTINS_INT:
+            # Integers allow all types
+            return True
+        return False
+    return True
 
 class StringFormatChecker(BaseChecker):
     """Checks string formatting operations to ensure that the format string
@@ -248,6 +272,7 @@ class StringFormatChecker(BaseChecker):
     name = 'string'
     msgs = MSGS
 
+    # pylint: disable=too-many-branches
     @check_messages(*(MSGS.keys()))
     def visit_binop(self, node):
         if node.op != '%':
@@ -260,8 +285,8 @@ class StringFormatChecker(BaseChecker):
             return
         format_string = left.value
         try:
-            required_keys, required_num_args = \
-                utils.parse_format_string(format_string)
+            required_keys, required_num_args, required_key_types, \
+                required_arg_types = utils.parse_format_string(format_string)
         except utils.UnsupportedFormatCharacter as e:
             c = format_string[e.index]
             self.add_message('bad-format-character',
@@ -305,6 +330,20 @@ class StringFormatChecker(BaseChecker):
                     if key not in required_keys:
                         self.add_message('unused-format-string-key',
                                          node=node, args=key)
+                for key, arg in args.items:
+                    if not isinstance(key, astroid.Const):
+                        continue
+                    format_type = required_key_types.get(key.value, None)
+                    arg_type = utils.safe_infer(arg)
+                    if (format_type is not None and
+                            arg_type not in (None, astroid.Uninferable) and
+                            not arg_matches_format_type(arg_type,
+                                                        format_type)):
+                        self.add_message('bad-string-format-type',
+                                         node=node,
+                                         args=(arg_type.pytype(),
+                                               format_type))
+                # TODO: compare type
             elif isinstance(args, OTHER_NODES + (astroid.Tuple,)):
                 type_name = type(args).__name__
                 self.add_message('format-needs-mapping',
@@ -322,8 +361,10 @@ class StringFormatChecker(BaseChecker):
                 rhs_tuple = utils.safe_infer(args)
                 num_args = None
                 if rhs_tuple not in (None, astroid.Uninferable):
-                    num_args = len(rhs_tuple.elts)
+                    args_elts = rhs_tuple.elts
+                    num_args = len(args_elts)
             elif isinstance(args, OTHER_NODES + (astroid.Dict, astroid.DictComp)):
+                args_elts = [args]
                 num_args = 1
             else:
                 # The RHS of the format specifier is a name or
@@ -335,6 +376,14 @@ class StringFormatChecker(BaseChecker):
                     self.add_message('too-many-format-args', node=node)
                 elif num_args < required_num_args:
                     self.add_message('too-few-format-args', node=node)
+                for arg, format_type in zip(args_elts, required_arg_types):
+                    arg_type = utils.safe_infer(arg)
+                    if (arg_type not in (None, astroid.Uninferable) and
+                            not arg_matches_format_type(arg_type, format_type)):
+                        self.add_message('bad-string-format-type',
+                                         node=node,
+                                         args=(arg_type.pytype(),
+                                               format_type))
 
 
     @check_messages(*(MSGS.keys()))
