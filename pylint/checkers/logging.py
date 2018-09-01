@@ -248,7 +248,7 @@ class LoggingChecker(checkers.BaseChecker):
             required_num_args = 0
         else:
             try:
-                keyword_args, required_num_args = \
+                keyword_args, required_num_args, _, _ = \
                     utils.parse_format_string(format_string)
                 if keyword_args:
                     # Keyword checking on logging strings is complicated by

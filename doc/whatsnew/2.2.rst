@@ -12,6 +12,7 @@ Summary -- Release highlights
 New checkers
 ============
 
+* String checker now reports format string type mismatches.
 
 Other Changes
 =============

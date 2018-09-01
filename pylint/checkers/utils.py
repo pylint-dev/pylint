@@ -352,13 +352,16 @@ class UnsupportedFormatCharacter(Exception):
         Exception.__init__(self, index)
         self.index = index
 
-def parse_format_string(format_string: str) -> Tuple[Set[str], int]:
+def parse_format_string(format_string: str) -> \
+        Tuple[Set[str], int, Dict[str, str], List[str]]:
     """Parses a format string, returning a tuple of (keys, num_args), where keys
     is the set of mapping keys in the format string, and num_args is the number
     of arguments required by the format string.  Raises
     IncompleteFormatString or UnsupportedFormatCharacter if a
     parse error occurs."""
     keys = set()
+    key_types = dict()
+    pos_types = []
     num_args = 0
     def next_char(i):
         i += 1
@@ -416,10 +419,12 @@ def parse_format_string(format_string: str) -> Tuple[Set[str], int]:
                 raise UnsupportedFormatCharacter(i)
             if key:
                 keys.add(key)
+                key_types[key] = char
             elif char != '%':
                 num_args += 1
+                pos_types.append(char)
         i += 1
-    return keys, num_args
+    return keys, num_args, key_types, pos_types
 
 
 def is_attr_protected(attrname: str) -> bool:
