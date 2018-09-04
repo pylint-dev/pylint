@@ -7,4 +7,3 @@ Development
    :titlesonly:
 
    contribute
-   documentation
