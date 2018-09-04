@@ -654,6 +654,11 @@ class ImportsChecker(BaseChecker):
                 return None
 
             self.add_message('relative-beyond-top-level', node=importnode)
+        except astroid.AstroidSyntaxError as exc:
+            message = "Cannot import {!r} due to syntax error {!r}".format(
+                modname, str(exc.error)
+            )
+            self.add_message('syntax-error', line=importnode.lineno, args=message)
 
         except astroid.AstroidBuildingException:
             if not self.linter.is_message_enabled('import-error'):

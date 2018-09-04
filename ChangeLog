@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * Handle ``AstroidSyntaxError`` when trying to import a module.
+
+     Close #2313
+
    * Allow ``__module__`` to be redefined at a class level. Close #2451
 
    * ``pylint`` used to emit a ``unused-variable`` error if unused import was found in the function. Now instead of
