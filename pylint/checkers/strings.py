@@ -91,38 +91,32 @@ MSGS = {
               " duplicate character, "),
     'W1302': ("Invalid format string",
               "bad-format-string",
-              "Used when a PEP 3101 format string is invalid.",
-              {'minversion': (2, 7)}),
+              "Used when a PEP 3101 format string is invalid."),
     'W1303': ("Missing keyword argument %r for format string",
               "missing-format-argument-key",
               "Used when a PEP 3101 format string that uses named fields "
-              "doesn't receive one or more required keywords.",
-              {'minversion': (2, 7)}),
+              "doesn't receive one or more required keywords."),
     'W1304': ("Unused format argument %r",
               "unused-format-string-argument",
               "Used when a PEP 3101 format string that uses named "
               "fields is used with an argument that "
-              "is not required by the format string.",
-              {'minversion': (2, 7)}),
+              "is not required by the format string."),
     'W1305': ("Format string contains both automatic field numbering "
               "and manual field specification",
               "format-combined-specification",
               "Used when a PEP 3101 format string contains both automatic "
               "field numbering (e.g. '{}') and manual field "
-              "specification (e.g. '{0}').",
-              {'minversion': (2, 7)}),
+              "specification (e.g. '{0}')."),
     'W1306': ("Missing format attribute %r in format specifier %r",
               "missing-format-attribute",
               "Used when a PEP 3101 format string uses an "
               "attribute specifier ({0.length}), but the argument "
-              "passed for formatting doesn't have that attribute.",
-              {'minversion': (2, 7)}),
+              "passed for formatting doesn't have that attribute."),
     'W1307': ("Using invalid lookup key %r in format specifier %r",
               "invalid-format-index",
               "Used when a PEP 3101 format string uses a lookup specifier "
               "({a[1]}), but the argument passed for formatting "
-              "doesn't contain or doesn't have that key as an attribute.",
-              {'minversion': (2, 7)}),
+              "doesn't contain or doesn't have that key as an attribute."),
     'W1308': ("Duplicate string formatting argument %r, consider passing as named argument",
               "duplicate-string-formatting-argument",
               "Used when we detect that a string formatting is "
