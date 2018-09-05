@@ -260,7 +260,7 @@ class StringFormatChecker(BaseChecker):
     msgs = MSGS
 
     # pylint: disable=too-many-branches
-    @check_messages(*(MSGS.keys()))
+    @check_messages(*MSGS)
     def visit_binop(self, node):
         if node.op != '%':
             return
@@ -369,8 +369,7 @@ class StringFormatChecker(BaseChecker):
                         self.add_message('bad-string-format-type',
                                          node=node, args=(arg_type.pytype(), format_type))
 
-
-    @check_messages(*(MSGS.keys()))
+    @check_messages(*MSGS)
     def visit_call(self, node):
         func = utils.safe_infer(node.func)
         if (isinstance(func, astroid.BoundMethod)

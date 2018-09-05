@@ -391,7 +391,7 @@ class ImportsChecker(BaseChecker):
             for cycle in get_cycles(graph, vertices=vertices):
                 self.add_message('cyclic-import', args=' -> '.join(cycle))
 
-    @check_messages(*MSGS.keys())
+    @check_messages(*MSGS)
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         self._check_reimport(node)
@@ -417,7 +417,7 @@ class ImportsChecker(BaseChecker):
             self._check_relative_import(modnode, node, imported_module, name)
             self._add_imported_module(node, imported_module.name)
 
-    @check_messages(*(MSGS.keys()))
+    @check_messages(*MSGS)
     def visit_importfrom(self, node):
         """triggered when a from statement is seen"""
         basename = node.modname
@@ -446,7 +446,7 @@ class ImportsChecker(BaseChecker):
             else:
                 self._add_imported_module(node, imported_module.name)
 
-    @check_messages(*(MSGS.keys()))
+    @check_messages(*MSGS)
     def leave_module(self, node):
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
