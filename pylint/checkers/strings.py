@@ -359,7 +359,7 @@ class StringFormatChecker(BaseChecker):
             if isinstance(args, astroid.Tuple):
                 rhs_tuple = utils.safe_infer(args)
                 num_args = None
-                if rhs_tuple not in (None, astroid.Uninferable):
+                if hasattr(rhs_tuple, 'elts'):
                     args_elts = rhs_tuple.elts
                     num_args = len(args_elts)
             elif isinstance(args, (OTHER_NODES, (astroid.Dict, astroid.DictComp))):
