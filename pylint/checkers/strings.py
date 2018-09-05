@@ -341,9 +341,7 @@ class StringFormatChecker(BaseChecker):
                                                         format_type)):
                         self.add_message('bad-string-format-type',
                                          node=node,
-                                         args=(arg_type.pytype(),
-                                               format_type))
-                # TODO: compare type
+                                         args=(arg_type.pytype(), format_type))
             elif isinstance(args, OTHER_NODES + (astroid.Tuple,)):
                 type_name = type(args).__name__
                 self.add_message('format-needs-mapping',
@@ -381,9 +379,7 @@ class StringFormatChecker(BaseChecker):
                     if (arg_type not in (None, astroid.Uninferable) and
                             not arg_matches_format_type(arg_type, format_type)):
                         self.add_message('bad-string-format-type',
-                                         node=node,
-                                         args=(arg_type.pytype(),
-                                               format_type))
+                                         node=node, args=(arg_type.pytype(), format_type))
 
 
     @check_messages(*(MSGS.keys()))
