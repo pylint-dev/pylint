@@ -29,6 +29,7 @@ import string
 import numbers
 
 import astroid
+from astroid.arguments import CallSite
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers import utils
@@ -220,20 +221,6 @@ def parse_format_method_string(format_string):
             num_args += 1
     return keys, num_args, len(manual_pos_arg)
 
-def get_args(call):
-    """Get the arguments from the given `Call` node.
-
-    Return a tuple, where the first element is the
-    number of positional arguments and the second element
-    is the keyword arguments in a dict.
-    """
-    if call.keywords:
-        named = {arg.arg: utils.safe_infer(arg.value)
-                 for arg in call.keywords}
-    else:
-        named = {}
-    positional = len(call.args)
-    return positional, named
 
 def get_access_path(key, parts):
     """ Given a list of format specifiers, returns
@@ -427,17 +414,19 @@ class StringFormatChecker(BaseChecker):
         if node.starargs or node.kwargs:
             return
         try:
-            positional, named = get_args(node)
+            call_site = CallSite.from_call(node)
         except astroid.InferenceError:
             return
+
         try:
             fields, num_args, manual_pos = parse_format_method_string(strnode.value)
         except utils.IncompleteFormatString:
             self.add_message('bad-format-string', node=node)
             return
 
-        named_fields = {field[0] for field in fields
-                        if isinstance(field[0], str)}
+        positional_arguments = call_site.positional_arguments
+        named_arguments = call_site.keyword_arguments
+        named_fields = {field[0] for field in fields if isinstance(field[0], str)}
         if num_args and manual_pos:
             self.add_message('format-combined-specification',
                              node=node)
@@ -445,25 +434,23 @@ class StringFormatChecker(BaseChecker):
 
         check_args = False
         # Consider "{[0]} {[1]}" as num_args.
-        num_args += sum(1 for field in named_fields
-                        if field == '')
+        num_args += sum(1 for field in named_fields if field == '')
         if named_fields:
             for field in named_fields:
-                if field not in named and field:
+                if field and field not in named_arguments:
                     self.add_message('missing-format-argument-key',
                                      node=node,
                                      args=(field, ))
-            for field in named:
+            for field in named_arguments:
                 if field not in named_fields:
                     self.add_message('unused-format-string-argument',
                                      node=node,
                                      args=(field, ))
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
-            if positional or num_args:
-                empty = any(True for field in named_fields
-                            if field == '')
-                if named or empty:
+            if positional_arguments or num_args:
+                empty = any(True for field in named_fields if field == '')
+                if named_arguments or empty:
                     # Verify the required number of positional arguments
                     # only if the .format got at least one keyword argument.
                     # This means that the format strings accepts both
@@ -475,12 +462,12 @@ class StringFormatChecker(BaseChecker):
         if check_args:
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
-            if positional > num_args:
+            if len(positional_arguments) > num_args:
                 self.add_message('too-many-format-args', node=node)
-            elif positional < num_args:
+            elif len(positional_arguments) < num_args:
                 self.add_message('too-few-format-args', node=node)
 
-        self._check_new_format_specifiers(node, fields, named)
+        self._check_new_format_specifiers(node, fields, named_arguments)
 
     def _check_new_format_specifiers(self, node, fields, named):
         """
