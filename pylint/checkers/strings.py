@@ -27,6 +27,7 @@ import sys
 import tokenize
 import string
 import numbers
+from collections import Counter
 
 import astroid
 from astroid.arguments import CallSite
@@ -121,7 +122,11 @@ MSGS = {
               "Used when a PEP 3101 format string uses a lookup specifier "
               "({a[1]}), but the argument passed for formatting "
               "doesn't contain or doesn't have that key as an attribute.",
-              {'minversion': (2, 7)})
+              {'minversion': (2, 7)}),
+    'W1308': ("Duplicate string formatting argument %r, consider passing as named argument",
+              "duplicate-string-formatting-argument",
+              "Used when we detect that a string formatting is "
+              "repeating an argument instead of using named string arguments"),
     }
 
 OTHER_NODES = (astroid.Const, astroid.List,
@@ -385,6 +390,13 @@ class StringFormatChecker(BaseChecker):
             elif func.name == 'format':
                 self._check_new_format(node, func)
 
+    def _detect_vacuous_formatting(self, node, positional_arguments):
+        counter = Counter(arg.name for arg in positional_arguments if isinstance(arg, astroid.Name))
+        for name, count in counter.items():
+            if count == 1:
+                continue
+            self.add_message('duplicate-string-formatting-argument', node=node, args=(name, ))
+
     def _check_new_format(self, node, func):
         """ Check the new string formatting. """
         # TODO: skip (for now) format nodes which don't have
@@ -463,6 +475,7 @@ class StringFormatChecker(BaseChecker):
             elif len(positional_arguments) < num_args:
                 self.add_message('too-few-format-args', node=node)
 
+        self._detect_vacuous_formatting(node, positional_arguments)
         self._check_new_format_specifiers(node, fields, named_arguments)
 
     def _check_new_format_specifiers(self, node, fields, named):
