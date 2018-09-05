@@ -715,8 +715,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_swap_variables(node)
         if self._is_and_or_ternary(node.value):
             cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
-        elif self._is_seq_based_ternary(node.value):
-            cond, truth_value, false_value = self._seq_based_ternary_params(node.value)
         else:
             return
 
@@ -795,19 +793,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _and_or_ternary_arguments(node):
         false_value = node.values[1]
         condition, true_value = node.values[0].values
-        return condition, true_value, false_value
-
-    @staticmethod
-    def _is_seq_based_ternary(node):
-        """Returns true if node is '[false_value,true_value][condition]' form"""
-        return (isinstance(node, astroid.Subscript)
-                and isinstance(node.value, (astroid.Tuple, astroid.List))
-                and len(node.value.elts) == 2 and isinstance(node.slice, astroid.Index))
-
-    @staticmethod
-    def _seq_based_ternary_params(node):
-        false_value, true_value = node.value.elts
-        condition = node.slice.value
         return condition, true_value, false_value
 
     def visit_functiondef(self, node):
