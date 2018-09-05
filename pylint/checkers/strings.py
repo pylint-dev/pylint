@@ -355,6 +355,7 @@ class StringFormatChecker(BaseChecker):
             # Check that the number of arguments passed to the RHS of
             # the % operator matches the number required by the format
             # string.
+            args_elts = ()
             if isinstance(args, astroid.Tuple):
                 rhs_tuple = utils.safe_infer(args)
                 num_args = None
