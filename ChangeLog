@@ -7,6 +7,9 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * ``assignment-from-no-return`` is not emitted for coroutines.
+
+     Close #1715
 
    * Report format string type mismatches.
 
