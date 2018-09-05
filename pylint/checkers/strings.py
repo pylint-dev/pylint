@@ -342,7 +342,7 @@ class StringFormatChecker(BaseChecker):
                         self.add_message('bad-string-format-type',
                                          node=node,
                                          args=(arg_type.pytype(), format_type))
-            elif isinstance(args, OTHER_NODES + (astroid.Tuple,)):
+            elif isinstance(args, (OTHER_NODES, astroid.Tuple)):
                 type_name = type(args).__name__
                 self.add_message('format-needs-mapping',
                                  node=node, args=type_name)
@@ -361,7 +361,7 @@ class StringFormatChecker(BaseChecker):
                 if rhs_tuple not in (None, astroid.Uninferable):
                     args_elts = rhs_tuple.elts
                     num_args = len(args_elts)
-            elif isinstance(args, OTHER_NODES + (astroid.Dict, astroid.DictComp)):
+            elif isinstance(args, (OTHER_NODES, (astroid.Dict, astroid.DictComp))):
                 args_elts = [args]
                 num_args = 1
             else:
