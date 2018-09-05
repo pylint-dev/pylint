@@ -397,8 +397,7 @@ class StringFormatChecker(BaseChecker):
                     self.add_message('bad-str-strip-call', node=node,
                                      args=(func.bound.name, func.name))
             elif func.name == 'format':
-                if _PY27 or _PY3K:
-                    self._check_new_format(node, func)
+                self._check_new_format(node, func)
 
     def _check_new_format(self, node, func):
         """ Check the new string formatting. """
