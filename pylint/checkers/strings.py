@@ -401,16 +401,13 @@ class StringFormatChecker(BaseChecker):
         if (isinstance(node.func, astroid.Attribute)
                 and not isinstance(node.func.expr, astroid.Const)):
             return
+        if node.starargs or node.kwargs:
+            return
         try:
             strnode = next(func.bound.infer())
         except astroid.InferenceError:
             return
-        if not isinstance(strnode, astroid.Const):
-            return
-        if not isinstance(strnode.value, str):
-            return
-
-        if node.starargs or node.kwargs:
+        if not (isinstance(strnode, astroid.Const) and isinstance(strnode.value, str)):
             return
         try:
             call_site = CallSite.from_call(node)
