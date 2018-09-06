@@ -45,8 +45,7 @@ class JSONReporter(BaseReporter):
 
     def display_messages(self, layout):
         """Launch layouts display"""
-        if self.messages:
-            print(json.dumps(self.messages, indent=4), file=self.out)
+        print(json.dumps(self.messages, indent=4), file=self.out)
 
     def display_reports(self, layout): # pylint: disable=arguments-differ
         """Don't do nothing in this reporter."""

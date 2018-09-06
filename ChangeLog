@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * The ``json`` reporter prints an empty list when no messages are emitted
+
+     Close #2446
+
    * Add a new check, ``duplicate-string-formatting-argument``
 
      This new check is emitted whenever a duplicate string formatting argument
