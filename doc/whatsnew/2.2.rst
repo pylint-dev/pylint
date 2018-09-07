@@ -12,6 +12,10 @@ Summary -- Release highlights
 New checkers
 ============
 
+* String checker now reports format string type mismatches.
+
+* ``duplicate-string-formatting-argument`` was added for detecting duplicate string
+  formatting arguments that should be passed instead as named arguments.
 
 Other Changes
 =============

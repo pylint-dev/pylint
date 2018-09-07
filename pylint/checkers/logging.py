@@ -144,7 +144,7 @@ class LoggingChecker(checkers.BaseChecker):
             if module in self._logging_modules:
                 self._logging_names.add(as_name or module)
 
-    @check_messages(*(MSGS.keys()))
+    @check_messages(*MSGS)
     def visit_call(self, node):
         """Checks calls to logging methods."""
         def is_logging_name():
@@ -248,7 +248,7 @@ class LoggingChecker(checkers.BaseChecker):
             required_num_args = 0
         else:
             try:
-                keyword_args, required_num_args = \
+                keyword_args, required_num_args, _, _ = \
                     utils.parse_format_string(format_string)
                 if keyword_args:
                     # Keyword checking on logging strings is complicated by

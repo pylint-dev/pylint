@@ -164,3 +164,11 @@ Tips for Getting Started with Pylint Development
 * When fixing a bug for a specific check, search the code for the warning
   message to find where the warning is raised,
   and therefore where the logic for that code exists.
+
+
+Building the documentation
+----------------------------
+
+We use **tox** for building the documentation::
+
+  $ tox -e docs

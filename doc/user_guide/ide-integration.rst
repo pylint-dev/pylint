@@ -125,18 +125,20 @@ Remember the path at which it's installed::
 
     which pylint
 
-Using pylint-PyCharm-plugin
+Using pylint-pycharm plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#.  Download the latest version of the `pylint-plugin.jar <https://github.com/leinardi/pylint-PyCharm-plugin/releases>`_
-#.  In PyCharm go to *Preferences* -> *Plugins* > *Install plugins from disc...*, select downloaded file and restart PyCharm when prompted
-#.  After restart you should find the plugin in *View* > *Tool windows* > *Pylint terminal*
+#.  In PyCharm go to *Preferences* > *Plugins* > *Browse repositories...*
+#.  Right-click on the plugin named **Pylint**, select **Download and Install** and restart PyCharm when prompted
 
-By default the plugin runs Pylint on the root directory of your PyCharm project. If you want to specify a different directory:
+If the plugin is not finding the Pylint executable (e.g. is not inside the PATH environmental variable), you can
+specify it manually using the plugin settings:
 
-#.  Right click on the Pylint terminal window
-#.  Select "Configure plugin..."
-#.  Replace the '.' at the end of the "Pylint command" with the modules or packages you want to check (e.g. "``pylint --msg-template='{path}:{line:d}: {C}: {category}: {msg} ({symbol})'  my_module``")
+#.  *Preferences* > *Other Settings* > *Pylint* or simply click the gear icon from the side bar of the Pylint tool window
+#.  Type the path directly or use the Browse button to open a file selection dialog
+#.  Press the Test button to check if the plugin is able to run the executable
+
+For more info on how to use the plugin please check the `official plugin documentation <https://github.com/leinardi/pylint-pycharm/blob/master/README.md>`_.
 
 Using External Tools
 ~~~~~~~~~~~~~~~~~~~~

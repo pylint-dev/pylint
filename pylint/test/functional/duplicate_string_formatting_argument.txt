@@ -1,0 +1,2 @@
+duplicate-string-formatting-argument:8::Duplicate string formatting argument 'NAME', consider passing as named argument
+duplicate-string-formatting-argument:8::Duplicate string formatting argument 'OTHER_NAME', consider passing as named argument

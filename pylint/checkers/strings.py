@@ -22,12 +22,15 @@
 """Checker for string formatting operations.
 """
 
+import builtins
 import sys
 import tokenize
 import string
 import numbers
+from collections import Counter
 
 import astroid
+from astroid.arguments import CallSite
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers import utils
@@ -78,49 +81,55 @@ MSGS = {
               "too-few-format-args",
               "Used when a format string that uses unnamed conversion "
               "specifiers is given too few arguments"),
+    'E1307': ("Argument %r does not match format type %r",
+              "bad-string-format-type",
+              "Used when a type required by format string "
+              "is not suitable for actual argument type"),
     'E1310': ("Suspicious argument in %s.%s call",
               "bad-str-strip-call",
               "The argument to a str.{l,r,}strip call contains a"
               " duplicate character, "),
     'W1302': ("Invalid format string",
               "bad-format-string",
-              "Used when a PEP 3101 format string is invalid.",
-              {'minversion': (2, 7)}),
+              "Used when a PEP 3101 format string is invalid."),
     'W1303': ("Missing keyword argument %r for format string",
               "missing-format-argument-key",
               "Used when a PEP 3101 format string that uses named fields "
-              "doesn't receive one or more required keywords.",
-              {'minversion': (2, 7)}),
+              "doesn't receive one or more required keywords."),
     'W1304': ("Unused format argument %r",
               "unused-format-string-argument",
               "Used when a PEP 3101 format string that uses named "
               "fields is used with an argument that "
-              "is not required by the format string.",
-              {'minversion': (2, 7)}),
+              "is not required by the format string."),
     'W1305': ("Format string contains both automatic field numbering "
               "and manual field specification",
               "format-combined-specification",
               "Used when a PEP 3101 format string contains both automatic "
               "field numbering (e.g. '{}') and manual field "
-              "specification (e.g. '{0}').",
-              {'minversion': (2, 7)}),
+              "specification (e.g. '{0}')."),
     'W1306': ("Missing format attribute %r in format specifier %r",
               "missing-format-attribute",
               "Used when a PEP 3101 format string uses an "
               "attribute specifier ({0.length}), but the argument "
-              "passed for formatting doesn't have that attribute.",
-              {'minversion': (2, 7)}),
+              "passed for formatting doesn't have that attribute."),
     'W1307': ("Using invalid lookup key %r in format specifier %r",
               "invalid-format-index",
               "Used when a PEP 3101 format string uses a lookup specifier "
               "({a[1]}), but the argument passed for formatting "
-              "doesn't contain or doesn't have that key as an attribute.",
-              {'minversion': (2, 7)})
+              "doesn't contain or doesn't have that key as an attribute."),
+    'W1308': ("Duplicate string formatting argument %r, consider passing as named argument",
+              "duplicate-string-formatting-argument",
+              "Used when we detect that a string formatting is "
+              "repeating an argument instead of using named string arguments"),
     }
 
 OTHER_NODES = (astroid.Const, astroid.List,
                astroid.Lambda, astroid.FunctionDef,
                astroid.ListComp, astroid.SetComp, astroid.GeneratorExp)
+
+BUILTINS_STR = builtins.__name__ + ".str"
+BUILTINS_FLOAT = builtins.__name__ + ".float"
+BUILTINS_INT = builtins.__name__ + ".int"
 
 if _PY3K:
     import _string # pylint: disable=wrong-import-position, wrong-import-order
@@ -211,20 +220,6 @@ def parse_format_method_string(format_string):
             num_args += 1
     return keys, num_args, len(manual_pos_arg)
 
-def get_args(call):
-    """Get the arguments from the given `Call` node.
-
-    Return a tuple, where the first element is the
-    number of positional arguments and the second element
-    is the keyword arguments in a dict.
-    """
-    if call.keywords:
-        named = {arg.arg: utils.safe_infer(arg.value)
-                 for arg in call.keywords}
-    else:
-        named = {}
-    positional = len(call.args)
-    return positional, named
 
 def get_access_path(key, parts):
     """ Given a list of format specifiers, returns
@@ -238,6 +233,21 @@ def get_access_path(key, parts):
             path.append("[{!r}]".format(specifier))
     return str(key) + "".join(path)
 
+def arg_matches_format_type(arg_type, format_type):
+    if format_type in "sr":
+        # All types can be printed with %s and %r
+        return True
+    if isinstance(arg_type, astroid.Instance):
+        arg_type = arg_type.pytype()
+        if arg_type == BUILTINS_STR:
+            return format_type == "c"
+        if arg_type == BUILTINS_FLOAT:
+            return format_type in "deEfFgGn%"
+        if arg_type == BUILTINS_INT:
+            # Integers allow all types
+            return True
+        return False
+    return True
 
 class StringFormatChecker(BaseChecker):
     """Checks string formatting operations to ensure that the format string
@@ -248,7 +258,8 @@ class StringFormatChecker(BaseChecker):
     name = 'string'
     msgs = MSGS
 
-    @check_messages(*(MSGS.keys()))
+    # pylint: disable=too-many-branches
+    @check_messages(*MSGS)
     def visit_binop(self, node):
         if node.op != '%':
             return
@@ -260,8 +271,8 @@ class StringFormatChecker(BaseChecker):
             return
         format_string = left.value
         try:
-            required_keys, required_num_args = \
-                utils.parse_format_string(format_string)
+            required_keys, required_num_args, required_key_types, \
+                required_arg_types = utils.parse_format_string(format_string)
         except utils.UnsupportedFormatCharacter as e:
             c = format_string[e.index]
             self.add_message('bad-format-character',
@@ -305,7 +316,19 @@ class StringFormatChecker(BaseChecker):
                     if key not in required_keys:
                         self.add_message('unused-format-string-key',
                                          node=node, args=key)
-            elif isinstance(args, OTHER_NODES + (astroid.Tuple,)):
+                for key, arg in args.items:
+                    if not isinstance(key, astroid.Const):
+                        continue
+                    format_type = required_key_types.get(key.value, None)
+                    arg_type = utils.safe_infer(arg)
+                    if (format_type is not None and
+                            arg_type not in (None, astroid.Uninferable) and
+                            not arg_matches_format_type(arg_type,
+                                                        format_type)):
+                        self.add_message('bad-string-format-type',
+                                         node=node,
+                                         args=(arg_type.pytype(), format_type))
+            elif isinstance(args, (OTHER_NODES, astroid.Tuple)):
                 type_name = type(args).__name__
                 self.add_message('format-needs-mapping',
                                  node=node, args=type_name)
@@ -318,12 +341,15 @@ class StringFormatChecker(BaseChecker):
             # Check that the number of arguments passed to the RHS of
             # the % operator matches the number required by the format
             # string.
+            args_elts = ()
             if isinstance(args, astroid.Tuple):
                 rhs_tuple = utils.safe_infer(args)
                 num_args = None
-                if rhs_tuple not in (None, astroid.Uninferable):
-                    num_args = len(rhs_tuple.elts)
-            elif isinstance(args, OTHER_NODES + (astroid.Dict, astroid.DictComp)):
+                if hasattr(rhs_tuple, 'elts'):
+                    args_elts = rhs_tuple.elts
+                    num_args = len(args_elts)
+            elif isinstance(args, (OTHER_NODES, (astroid.Dict, astroid.DictComp))):
+                args_elts = [args]
                 num_args = 1
             else:
                 # The RHS of the format specifier is a name or
@@ -335,9 +361,14 @@ class StringFormatChecker(BaseChecker):
                     self.add_message('too-many-format-args', node=node)
                 elif num_args < required_num_args:
                     self.add_message('too-few-format-args', node=node)
+                for arg, format_type in zip(args_elts, required_arg_types):
+                    arg_type = utils.safe_infer(arg)
+                    if (arg_type not in (None, astroid.Uninferable) and
+                            not arg_matches_format_type(arg_type, format_type)):
+                        self.add_message('bad-string-format-type',
+                                         node=node, args=(arg_type.pytype(), format_type))
 
-
-    @check_messages(*(MSGS.keys()))
+    @check_messages(*MSGS)
     def visit_call(self, node):
         func = utils.safe_infer(node.func)
         if (isinstance(func, astroid.BoundMethod)
@@ -351,8 +382,14 @@ class StringFormatChecker(BaseChecker):
                     self.add_message('bad-str-strip-call', node=node,
                                      args=(func.bound.name, func.name))
             elif func.name == 'format':
-                if _PY27 or _PY3K:
-                    self._check_new_format(node, func)
+                self._check_new_format(node, func)
+
+    def _detect_vacuous_formatting(self, node, positional_arguments):
+        counter = Counter(arg.name for arg in positional_arguments if isinstance(arg, astroid.Name))
+        for name, count in counter.items():
+            if count == 1:
+                continue
+            self.add_message('duplicate-string-formatting-argument', node=node, args=(name, ))
 
     def _check_new_format(self, node, func):
         """ Check the new string formatting. """
@@ -370,29 +407,28 @@ class StringFormatChecker(BaseChecker):
         if (isinstance(node.func, astroid.Attribute)
                 and not isinstance(node.func.expr, astroid.Const)):
             return
+        if node.starargs or node.kwargs:
+            return
         try:
             strnode = next(func.bound.infer())
         except astroid.InferenceError:
             return
-        if not isinstance(strnode, astroid.Const):
-            return
-        if not isinstance(strnode.value, str):
-            return
-
-        if node.starargs or node.kwargs:
+        if not (isinstance(strnode, astroid.Const) and isinstance(strnode.value, str)):
             return
         try:
-            positional, named = get_args(node)
+            call_site = CallSite.from_call(node)
         except astroid.InferenceError:
             return
+
         try:
             fields, num_args, manual_pos = parse_format_method_string(strnode.value)
         except utils.IncompleteFormatString:
             self.add_message('bad-format-string', node=node)
             return
 
-        named_fields = {field[0] for field in fields
-                        if isinstance(field[0], str)}
+        positional_arguments = call_site.positional_arguments
+        named_arguments = call_site.keyword_arguments
+        named_fields = {field[0] for field in fields if isinstance(field[0], str)}
         if num_args and manual_pos:
             self.add_message('format-combined-specification',
                              node=node)
@@ -400,25 +436,23 @@ class StringFormatChecker(BaseChecker):
 
         check_args = False
         # Consider "{[0]} {[1]}" as num_args.
-        num_args += sum(1 for field in named_fields
-                        if field == '')
+        num_args += sum(1 for field in named_fields if field == '')
         if named_fields:
             for field in named_fields:
-                if field not in named and field:
+                if field and field not in named_arguments:
                     self.add_message('missing-format-argument-key',
                                      node=node,
                                      args=(field, ))
-            for field in named:
+            for field in named_arguments:
                 if field not in named_fields:
                     self.add_message('unused-format-string-argument',
                                      node=node,
                                      args=(field, ))
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
-            if positional or num_args:
-                empty = any(True for field in named_fields
-                            if field == '')
-                if named or empty:
+            if positional_arguments or num_args:
+                empty = any(True for field in named_fields if field == '')
+                if named_arguments or empty:
                     # Verify the required number of positional arguments
                     # only if the .format got at least one keyword argument.
                     # This means that the format strings accepts both
@@ -430,12 +464,13 @@ class StringFormatChecker(BaseChecker):
         if check_args:
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
-            if positional > num_args:
+            if len(positional_arguments) > num_args:
                 self.add_message('too-many-format-args', node=node)
-            elif positional < num_args:
+            elif len(positional_arguments) < num_args:
                 self.add_message('too-few-format-args', node=node)
 
-        self._check_new_format_specifiers(node, fields, named)
+        self._detect_vacuous_formatting(node, positional_arguments)
+        self._check_new_format_specifiers(node, fields, named_arguments)
 
     def _check_new_format_specifiers(self, node, fields, named):
         """

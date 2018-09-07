@@ -830,7 +830,8 @@ accessed. Python regular expressions are accepted.'}
                 and not function_node.decorators):
             return
         if (function_node.is_generator()
-                or function_node.is_abstract(pass_is_abstract=False)):
+                or function_node.is_abstract(pass_is_abstract=False)
+                or isinstance(function_node, astroid.AsyncFunctionDef)):
             return
         returns = list(function_node.nodes_of_class(astroid.Return,
                                                     skip_klass=astroid.FunctionDef))

@@ -225,3 +225,7 @@ contributors:
 * Roberto Leinardi: PyCharm plugin maintainer
 
 * Aivar Annamaa: contributor
+
+* Hornwitser: fix import graph
+
+* Yuri Gribov: contributor

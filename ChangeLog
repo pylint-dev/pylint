@@ -11,6 +11,31 @@ Release date: TBA
 
      Close #2453
 
+   * The ``json`` reporter prints an empty list when no messages are emitted
+
+     Close #2446
+
+   * Add a new check, ``duplicate-string-formatting-argument``
+
+     This new check is emitted whenever a duplicate string formatting argument
+     is found.
+
+     Close #497
+
+   * ``assignment-from-no-return`` is not emitted for coroutines.
+
+     Close #1715
+
+   * Report format string type mismatches.
+
+   * ``consider-using-ternary`` and ``simplified-boolean-expression`` no longer emit for sequence based checks
+
+     Close #2473
+
+   * Handle ``AstroidSyntaxError`` when trying to import a module.
+
+     Close #2313
+
    * Allow ``__module__`` to be redefined at a class level. Close #2451
 
    * ``pylint`` used to emit a ``unused-variable`` error if unused import was found in the function. Now instead of
@@ -72,6 +97,14 @@ Release date: TBA
      Close #2389
 
    * Fix astroid.ClassDef check in checkers.utils.is_subclass_of 
+
+   * Fix wildcard imports being ignored by the import checker
+
+   * Fix external/internal distinction being broken in the import graph
+
+   * Fix wildcard import check not skipping `__init__.py`
+
+     Close #2430
 
 
 What's New in Pylint 2.1.1?

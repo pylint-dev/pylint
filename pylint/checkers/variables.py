@@ -1184,7 +1184,7 @@ class VariablesChecker(BaseChecker):
         return not ((isinstance(frame, astroid.ClassDef) or in_annotation_or_default) and
                     name in frame_locals)
 
-    @utils.check_messages(*(MSGS.keys()))
+    @utils.check_messages(*MSGS)
     def visit_name(self, node):
         """check that a name is defined if the current scope and doesn't
         redefine a built-in
