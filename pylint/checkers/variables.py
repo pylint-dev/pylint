@@ -262,7 +262,7 @@ def _assigned_locally(name_node):
 
 
 def _has_locals_call_after_node(stmt, scope):
-    skip_nodes = (astroid.FunctionDef, astroid.ClassDef)
+    skip_nodes = (astroid.FunctionDef, astroid.ClassDef, astroid.Import, astroid.ImportFrom)
     for call in scope.nodes_of_class(astroid.Call, skip_klass=skip_nodes):
         inferred = utils.safe_infer(call.func)
         if utils.is_builtin_object(inferred) and getattr(inferred, 'name', None) == 'locals':
@@ -793,9 +793,7 @@ class VariablesChecker(BaseChecker):
 
         # Ignore names imported by the global statement.
         # FIXME: should only ignore them if it's assigned latter
-        if isinstance(stmt, astroid.Global):
-            return
-        if isinstance(stmt, (astroid.Import, astroid.ImportFrom)):
+        if isinstance(stmt, (astroid.Global, astroid.Import, astroid.ImportFrom)):
             # Detect imports, assigned to global statements.
             if global_names and _import_name_is_global(stmt, global_names):
                 return
@@ -837,7 +835,8 @@ class VariablesChecker(BaseChecker):
                 if name in nonlocal_names:
                     return
 
-            if isinstance(stmt, astroid.Import):
+
+            if isinstance(stmt, (astroid.Import, astroid.ImportFrom)):
                 # Need the complete name, which we don't have in .locals.
                 qname, asname = stmt.names[0]
                 name = asname or qname
@@ -845,7 +844,22 @@ class VariablesChecker(BaseChecker):
             if _has_locals_call_after_node(stmt, node.scope()):
                 message_name = 'possibly-unused-variable'
             else:
-                message_name = 'unused-variable'
+                if isinstance(stmt, astroid.Import):
+                    if asname is not None:
+                        msg = "%s imported as %s" % (qname, asname)
+                    else:
+                        msg = "import %s" % name
+                    self.add_message('unused-import', args=msg, node=stmt)
+                    return
+                elif isinstance(stmt, astroid.ImportFrom):
+                    if asname is not None:
+                        msg = "%s imported from %s as %s" % (qname, stmt.modname, asname)
+                    else:
+                        msg = "%s imported from %s" % (name, stmt.modname)
+                    self.add_message('unused-import', args=msg, node=stmt)
+                    return
+                else:
+                    message_name = 'unused-variable'
             self.add_message(message_name, args=name, node=stmt)
 
     def leave_functiondef(self, node):
