@@ -644,7 +644,8 @@ class TestPython3Checker(testutils.CheckerTestCase):
         import turtle #@
         turtle.Turtle()
         ''')
-        with self.assertNoMessages():
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        with self.assertAddsMessages(absolute_import_message):
             self.checker.visit_import(node)
 
     def test_bad_import_dbm(self):
@@ -652,7 +653,8 @@ class TestPython3Checker(testutils.CheckerTestCase):
         from dbm import open as open_ #@
         open_("dummy.db")
         ''')
-        with self.assertNoMessages():
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        with self.assertAddsMessages(absolute_import_message):
             self.checker.visit_importfrom(node)
 
     @python2_only
