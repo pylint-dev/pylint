@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * Remove wrong modules from 'bad-python3-import'.
+
+     Close #2453
+
    * The ``json`` reporter prints an empty list when no messages are emitted
 
      Close #2446
