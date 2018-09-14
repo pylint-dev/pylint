@@ -453,7 +453,7 @@ class VariablesChecker(BaseChecker):
                 {'default': (), 'type' : 'csv',
                  'metavar' : '<comma separated list>',
                  'help' : 'List of additional names supposed to be defined in '
-                          'builtins. Remember that you should avoid to define new builtins '
+                          'builtins. Remember that you should avoid defining new builtins '
                           'when possible.'
                 }),
                ("callbacks",
