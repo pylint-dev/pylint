@@ -185,12 +185,6 @@ def is_error(node: astroid.node_classes.NodeNG) -> bool:
             return True
     return False
 
-def is_raising(body: astroid.node_classes.NodeNG) -> bool:
-    """return true if the given statement node raise an exception"""
-    for node in body:
-        if isinstance(node, astroid.Raise):
-            return True
-    return False
 
 builtins = builtins.__dict__.copy() # type: ignore
 SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')

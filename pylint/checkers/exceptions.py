@@ -25,9 +25,10 @@
 import builtins
 import inspect
 import sys
-
+import typing
 
 import astroid
+
 from pylint import checkers
 from pylint.checkers import utils
 from pylint import interfaces
@@ -58,6 +59,14 @@ def _annotated_unpack_infer(stmt, context=None):
         if infered is astroid.Uninferable:
             continue
         yield stmt, infered
+
+
+def _is_raising(body: typing.List) -> bool:
+    """Return true if the given statement node raise an exception"""
+    for node in body:
+        if isinstance(node, astroid.Raise):
+            return True
+    return False
 
 
 PY3K = sys.version_info >= (3, 0)
@@ -389,7 +398,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                         break
 
             # `raise` as the first operator inside the except handler
-            if utils.is_raising([handler.body[0]]):
+            if _is_raising([handler.body[0]]):
                 # flags when there is a bare raise
                 if handler.body[0].exc is None:
                     bare_raise = True
@@ -408,7 +417,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         nb_handlers = len(node.handlers)
         for index, handler in enumerate(node.handlers):
             if handler.type is None:
-                if not utils.is_raising(handler.body):
+                if not _is_raising(handler.body):
                     self.add_message('bare-except', node=handler)
 
                 # check if an "except:" is followed by some other
@@ -450,7 +459,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                                              node=handler.type, args=msg)
                     if (exc.name in self.config.overgeneral_exceptions
                             and exc.root().name == utils.EXCEPTIONS_MODULE
-                            and not utils.is_raising(handler.body)):
+                            and not _is_raising(handler.body)):
                         self.add_message('broad-except',
                                          args=exc.name, node=handler.type)
 
