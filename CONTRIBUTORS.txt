@@ -109,9 +109,9 @@ contributors:
 * Mike Frysinger: contributor.
 
 * Moisés López (Vauxoo): Support for deprecated-modules in modules not installed,
-  Refactory wrong-import-order to integrate it with `isort` library
+  Refactor wrong-import-order to integrate it with `isort` library
   Add check too-complex with mccabe for cyclomatic complexity
-  Refactory wrong-import-position to skip try-import and nested cases
+  Refactor wrong-import-position to skip try-import and nested cases
   Add consider-merging-isinstance, superfluous-else-return
   Fix consider-using-ternary for 'True and True and True or True' case
 
@@ -229,3 +229,5 @@ contributors:
 * Hornwitser: fix import graph
 
 * Yuri Gribov: contributor
+
+* Drew Risinger: committer (docs)

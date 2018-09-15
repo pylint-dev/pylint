@@ -3602,7 +3602,7 @@ What's New in Pylint 0.5.0?
 
 Release date: 2004-10-19
 
-    * avoid to import analyzed modules !
+    * avoid importing analyzed modules !
 
     * new Refactor and Convention message categories. Some Warnings have been
       remaped into those new categories
