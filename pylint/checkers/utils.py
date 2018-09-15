@@ -1014,14 +1014,18 @@ def is_dataclass(node: astroid.ClassDef) -> bool:
     """
     if not node.decorators:
         return False
+
+    root_locals = node.root().locals
     for decorator in node.decorators.nodes:
+        if isinstance(decorator, astroid.Call):
+            decorator = decorator.func
         if not isinstance(decorator, (astroid.Name, astroid.Attribute)):
             continue
         if isinstance(decorator, astroid.Name):
             name = decorator.name
         else:
             name = decorator.attrname
-        if name == DATACLASS_DECORATOR and DATACLASS_DECORATOR in node.root().locals:
+        if name == DATACLASS_DECORATOR and DATACLASS_DECORATOR in root_locals:
             return True
     return False
 

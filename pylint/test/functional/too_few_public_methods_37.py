@@ -12,3 +12,8 @@ class ScheduledTxSearchModel:
 @dataclass
 class ScheduledTxSearchModelOne:
     date = None
+
+
+@dataclass(frozen=True)
+class Test:
+    some_integer: int

@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * ```too-few-public-methods`` is not reported for dataclasses created with options.
+
+     Close #2488
+
    * Remove wrong modules from 'bad-python3-import'.
 
      Close #2453
