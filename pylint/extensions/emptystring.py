@@ -17,7 +17,7 @@ from pylint.checkers import utils
 
 
 def _is_constant_empty_str(node):
-    return isinstance(node, astroid.Const) and node.value == ''
+    return isinstance(node, astroid.Const) and node.value == ""
 
 
 class CompareToEmptyStringChecker(checkers.BaseChecker):
@@ -30,23 +30,26 @@ class CompareToEmptyStringChecker(checkers.BaseChecker):
     __implements__ = (interfaces.IAstroidChecker,)
 
     # configuration section name
-    name = 'compare-to-empty-string'
-    msgs = {'C1901': ('Avoid comparisons to empty string',
-                      'compare-to-empty-string',
-                      'Used when Pylint detects comparison to an empty string constant.'),
-           }
+    name = "compare-to-empty-string"
+    msgs = {
+        "C1901": (
+            "Avoid comparisons to empty string",
+            "compare-to-empty-string",
+            "Used when Pylint detects comparison to an empty string constant.",
+        )
+    }
 
     priority = -2
     options = ()
 
-    @utils.check_messages('compare-to-empty-string')
+    @utils.check_messages("compare-to-empty-string")
     def visit_compare(self, node):
-        _operators = ['!=', '==', 'is not', 'is']
+        _operators = ["!=", "==", "is not", "is"]
         # note: astroid.Compare has the left most operand in node.left
         # while the rest are a list of tuples in node.ops
         # the format of the tuple is ('compare operator sign', node)
         # here we squash everything into `ops` to make it easier for processing later
-        ops = [('', node.left)]
+        ops = [("", node.left)]
         ops.extend(node.ops)
         ops = list(itertools.chain(*ops))
 
@@ -64,7 +67,7 @@ class CompareToEmptyStringChecker(checkers.BaseChecker):
                 error_detected = True
 
             if error_detected:
-                self.add_message('compare-to-empty-string', node=node)
+                self.add_message("compare-to-empty-string", node=node)
 
 
 def register(linter):

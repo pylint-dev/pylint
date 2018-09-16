@@ -30,31 +30,32 @@ from pylint import utils
 from pylint.reporters.ureports.text_writer import TextWriter
 
 
-TITLE_UNDERLINES = ['', '=', '-', '.']
+TITLE_UNDERLINES = ["", "=", "-", "."]
 
-ANSI_PREFIX = '\033['
-ANSI_END = 'm'
-ANSI_RESET = '\033[0m'
+ANSI_PREFIX = "\033["
+ANSI_END = "m"
+ANSI_RESET = "\033[0m"
 ANSI_STYLES = {
-    'reset': "0",
-    'bold': "1",
-    'italic': "3",
-    'underline': "4",
-    'blink': "5",
-    'inverse': "7",
-    'strike': "9",
+    "reset": "0",
+    "bold": "1",
+    "italic": "3",
+    "underline": "4",
+    "blink": "5",
+    "inverse": "7",
+    "strike": "9",
 }
 ANSI_COLORS = {
-    'reset': "0",
-    'black': "30",
-    'red': "31",
-    'green': "32",
-    'yellow': "33",
-    'blue': "34",
-    'magenta': "35",
-    'cyan': "36",
-    'white': "37",
+    "reset": "0",
+    "black": "30",
+    "red": "31",
+    "green": "32",
+    "yellow": "33",
+    "blue": "34",
+    "magenta": "35",
+    "cyan": "36",
+    "white": "37",
 }
+
 
 def _get_ansi_code(color=None, style=None):
     """return ansi escape code corresponding to color and style
@@ -81,13 +82,14 @@ def _get_ansi_code(color=None, style=None):
             ansi_code.append(ANSI_STYLES[effect])
     if color:
         if color.isdigit():
-            ansi_code.extend(['38', '5'])
+            ansi_code.extend(["38", "5"])
             ansi_code.append(color)
         else:
             ansi_code.append(ANSI_COLORS[color])
     if ansi_code:
-        return ANSI_PREFIX + ';'.join(ansi_code) + ANSI_END
-    return ''
+        return ANSI_PREFIX + ";".join(ansi_code) + ANSI_END
+    return ""
+
 
 def colorize_ansi(msg, color=None, style=None):
     """colorize message by wrapping it with ansi escape codes
@@ -115,7 +117,7 @@ def colorize_ansi(msg, color=None, style=None):
     escape_code = _get_ansi_code(color, style)
     # If invalid (or unknown) color, don't wrap msg with ansi codes
     if escape_code:
-        return '%s%s%s' % (escape_code, msg, ANSI_RESET)
+        return "%s%s%s" % (escape_code, msg, ANSI_RESET)
     return msg
 
 
@@ -123,9 +125,9 @@ class TextReporter(BaseReporter):
     """reports messages and layouts in plain text"""
 
     __implements__ = IReporter
-    name = 'text'
-    extension = 'txt'
-    line_format = '{path}:{line}:{column}: {msg_id}: {msg} ({symbol})'
+    name = "text"
+    extension = "txt"
+    line_format = "{path}:{line}:{column}: {msg_id}: {msg} ({symbol})"
 
     def __init__(self, output=None):
         BaseReporter.__init__(self, output)
@@ -143,10 +145,10 @@ class TextReporter(BaseReporter):
         """manage message of different type and in the context of path"""
         if msg.module not in self._modules:
             if msg.module:
-                self.writeln('************* Module %s' % msg.module)
+                self.writeln("************* Module %s" % msg.module)
                 self._modules.add(msg.module)
             else:
-                self.writeln('************* ')
+                self.writeln("************* ")
         self.write_message(msg)
 
     def _display(self, layout):
@@ -161,45 +163,49 @@ class ParseableTextReporter(TextReporter):
 
     <filename>:<linenum>:<msg>
     """
-    name = 'parseable'
-    line_format = '{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'
+
+    name = "parseable"
+    line_format = "{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}"
 
     def __init__(self, output=None):
-        warnings.warn('%s output format is deprecated. This is equivalent '
-                      'to --msg-template=%s' % (self.name, self.line_format),
-                      DeprecationWarning)
+        warnings.warn(
+            "%s output format is deprecated. This is equivalent "
+            "to --msg-template=%s" % (self.name, self.line_format),
+            DeprecationWarning,
+        )
         TextReporter.__init__(self, output)
 
 
 class VSTextReporter(ParseableTextReporter):
     """Visual studio text reporter"""
-    name = 'msvs'
-    line_format = '{path}({line}): [{msg_id}({symbol}){obj}] {msg}'
+
+    name = "msvs"
+    line_format = "{path}({line}): [{msg_id}({symbol}){obj}] {msg}"
 
 
 class ColorizedTextReporter(TextReporter):
     """Simple TextReporter that colorizes text output"""
 
-    name = 'colorized'
+    name = "colorized"
     COLOR_MAPPING = {
-        "I" : ("green", None),
-        'C' : (None, "bold"),
-        'R' : ("magenta", "bold, italic"),
-        'W' : ("magenta", None),
-        'E' : ("red", "bold"),
-        'F' : ("red", "bold, underline"),
-        'S' : ("yellow", "inverse"), # S stands for module Separator
+        "I": ("green", None),
+        "C": (None, "bold"),
+        "R": ("magenta", "bold, italic"),
+        "W": ("magenta", None),
+        "E": ("red", "bold"),
+        "F": ("red", "bold, underline"),
+        "S": ("yellow", "inverse"),  # S stands for module Separator
     }
 
     def __init__(self, output=None, color_mapping=None):
         TextReporter.__init__(self, output)
-        self.color_mapping = color_mapping or \
-                             dict(ColorizedTextReporter.COLOR_MAPPING)
-        ansi_terms = ['xterm-16color', 'xterm-256color']
-        if os.environ.get('TERM') not in ansi_terms:
-            if sys.platform == 'win32':
+        self.color_mapping = color_mapping or dict(ColorizedTextReporter.COLOR_MAPPING)
+        ansi_terms = ["xterm-16color", "xterm-256color"]
+        if os.environ.get("TERM") not in ansi_terms:
+            if sys.platform == "win32":
                 # pylint: disable=import-error
                 import colorama
+
                 self.out = colorama.AnsiToWin32(self.out)
 
     def _get_decoration(self, msg_id):
@@ -216,20 +222,23 @@ class ColorizedTextReporter(TextReporter):
         using ansi escape codes
         """
         if msg.module not in self._modules:
-            color, style = self._get_decoration('S')
+            color, style = self._get_decoration("S")
             if msg.module:
-                modsep = colorize_ansi('************* Module %s' % msg.module,
-                                       color, style)
+                modsep = colorize_ansi(
+                    "************* Module %s" % msg.module, color, style
+                )
             else:
-                modsep = colorize_ansi('************* %s' % msg.module,
-                                       color, style)
+                modsep = colorize_ansi("************* %s" % msg.module, color, style)
             self.writeln(modsep)
             self._modules.add(msg.module)
         color, style = self._get_decoration(msg.C)
 
         msg = msg._replace(
-            **{attr: colorize_ansi(getattr(msg, attr), color, style)
-               for attr in ('msg', 'symbol', 'category', 'C')})
+            **{
+                attr: colorize_ansi(getattr(msg, attr), color, style)
+                for attr in ("msg", "symbol", "category", "C")
+            }
+        )
         self.write_message(msg)
 
 

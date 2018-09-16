@@ -63,11 +63,12 @@ from io import StringIO
 
 
 def _get_env():
-    '''Extracts the environment PYTHONPATH and appends the current sys.path to
-    those.'''
+    """Extracts the environment PYTHONPATH and appends the current sys.path to
+    those."""
     env = dict(os.environ)
-    env['PYTHONPATH'] = os.pathsep.join(sys.path)
+    env["PYTHONPATH"] = os.pathsep.join(sys.path)
     return env
+
 
 def lint(filename, options=()):
     """Pylint the given file.
@@ -90,18 +91,27 @@ def lint(filename, options=()):
     parent_path = osp.dirname(full_path)
     child_path = osp.basename(full_path)
 
-    while parent_path != "/" and osp.exists(osp.join(parent_path, '__init__.py')):
+    while parent_path != "/" and osp.exists(osp.join(parent_path, "__init__.py")):
         child_path = osp.join(osp.basename(parent_path), child_path)
         parent_path = osp.dirname(parent_path)
 
     # Start pylint
     # Ensure we use the python and pylint associated with the running epylint
     run_cmd = "import sys; from pylint.lint import Run; Run(sys.argv[1:])"
-    cmd = [sys.executable, "-c", run_cmd] + [
-        '--msg-template', '{path}:{line}: {category} ({msg_id}, {symbol}, {obj}) {msg}',
-        '-r', 'n', child_path] + list(options)
-    process = Popen(cmd, stdout=PIPE, cwd=parent_path, env=_get_env(),
-                    universal_newlines=True)
+    cmd = (
+        [sys.executable, "-c", run_cmd]
+        + [
+            "--msg-template",
+            "{path}:{line}: {category} ({msg_id}, {symbol}, {obj}) {msg}",
+            "-r",
+            "n",
+            child_path,
+        ]
+        + list(options)
+    )
+    process = Popen(
+        cmd, stdout=PIPE, cwd=parent_path, env=_get_env(), universal_newlines=True
+    )
 
     for line in process.stdout:
         # remove pylintrc warning
@@ -112,13 +122,13 @@ def lint(filename, options=()):
         parts = line.split(":")
         if parts and parts[0] == child_path:
             line = ":".join([filename] + parts[1:])
-        print(line, end=' ')
+        print(line, end=" ")
 
     process.wait()
     return process.returncode
 
 
-def py_run(command_options='', return_std=False, stdout=None, stderr=None):
+def py_run(command_options="", return_std=False, stdout=None, stderr=None):
     """Run pylint from python
 
     ``command_options`` is a string containing ``pylint`` command line options;
@@ -141,7 +151,7 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None):
     """
     # Create command line to call pylint
     epylint_part = [sys.executable, "-c", "from pylint import epylint;epylint.Run()"]
-    options = shlex.split(command_options, posix=not sys.platform.startswith('win'))
+    options = shlex.split(command_options, posix=not sys.platform.startswith("win"))
     cli = epylint_part + options
 
     # Providing standard output and/or error if not set
@@ -156,8 +166,14 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None):
         else:
             stderr = sys.stderr
     # Call pylint in a subprocess
-    process = Popen(cli, shell=False, stdout=stdout, stderr=stderr,
-                    env=_get_env(), universal_newlines=True)
+    process = Popen(
+        cli,
+        shell=False,
+        stdout=stdout,
+        stderr=stderr,
+        env=_get_env(),
+        universal_newlines=True,
+    )
     proc_stdout, proc_stderr = process.communicate()
     # Return standard output and error
     if return_std:
@@ -176,5 +192,5 @@ def Run():
         sys.exit(lint(sys.argv[1], sys.argv[2:]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     Run()

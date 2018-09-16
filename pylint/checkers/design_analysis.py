@@ -31,47 +31,65 @@ from pylint import utils
 
 
 MSGS = {
-    'R0901': ('Too many ancestors (%s/%s)',
-              'too-many-ancestors',
-              'Used when class has too many parent classes, try to reduce '
-              'this to get a simpler (and so easier to use) class.'),
-    'R0902': ('Too many instance attributes (%s/%s)',
-              'too-many-instance-attributes',
-              'Used when class has too many instance attributes, try to reduce '
-              'this to get a simpler (and so easier to use) class.'),
-    'R0903': ('Too few public methods (%s/%s)',
-              'too-few-public-methods',
-              'Used when class has too few public methods, so be sure it\'s '
-              'really worth it.'),
-    'R0904': ('Too many public methods (%s/%s)',
-              'too-many-public-methods',
-              'Used when class has too many public methods, try to reduce '
-              'this to get a simpler (and so easier to use) class.'),
-
-    'R0911': ('Too many return statements (%s/%s)',
-              'too-many-return-statements',
-              'Used when a function or method has too many return statement, '
-              'making it hard to follow.'),
-    'R0912': ('Too many branches (%s/%s)',
-              'too-many-branches',
-              'Used when a function or method has too many branches, '
-              'making it hard to follow.'),
-    'R0913': ('Too many arguments (%s/%s)',
-              'too-many-arguments',
-              'Used when a function or method takes too many arguments.'),
-    'R0914': ('Too many local variables (%s/%s)',
-              'too-many-locals',
-              'Used when a function or method has too many local variables.'),
-    'R0915': ('Too many statements (%s/%s)',
-              'too-many-statements',
-              'Used when a function or method has too many statements. You '
-              'should then split it in smaller functions / methods.'),
-    'R0916': ('Too many boolean expressions in if statement (%s/%s)',
-              'too-many-boolean-expressions',
-              'Used when an if statement contains too many boolean '
-              'expressions.'),
-    }
-SPECIAL_OBJ = re.compile('^_{2}[a-z]+_{2}$')
+    "R0901": (
+        "Too many ancestors (%s/%s)",
+        "too-many-ancestors",
+        "Used when class has too many parent classes, try to reduce "
+        "this to get a simpler (and so easier to use) class.",
+    ),
+    "R0902": (
+        "Too many instance attributes (%s/%s)",
+        "too-many-instance-attributes",
+        "Used when class has too many instance attributes, try to reduce "
+        "this to get a simpler (and so easier to use) class.",
+    ),
+    "R0903": (
+        "Too few public methods (%s/%s)",
+        "too-few-public-methods",
+        "Used when class has too few public methods, so be sure it's "
+        "really worth it.",
+    ),
+    "R0904": (
+        "Too many public methods (%s/%s)",
+        "too-many-public-methods",
+        "Used when class has too many public methods, try to reduce "
+        "this to get a simpler (and so easier to use) class.",
+    ),
+    "R0911": (
+        "Too many return statements (%s/%s)",
+        "too-many-return-statements",
+        "Used when a function or method has too many return statement, "
+        "making it hard to follow.",
+    ),
+    "R0912": (
+        "Too many branches (%s/%s)",
+        "too-many-branches",
+        "Used when a function or method has too many branches, "
+        "making it hard to follow.",
+    ),
+    "R0913": (
+        "Too many arguments (%s/%s)",
+        "too-many-arguments",
+        "Used when a function or method takes too many arguments.",
+    ),
+    "R0914": (
+        "Too many local variables (%s/%s)",
+        "too-many-locals",
+        "Used when a function or method has too many local variables.",
+    ),
+    "R0915": (
+        "Too many statements (%s/%s)",
+        "too-many-statements",
+        "Used when a function or method has too many statements. You "
+        "should then split it in smaller functions / methods.",
+    ),
+    "R0916": (
+        "Too many boolean expressions in if statement (%s/%s)",
+        "too-many-boolean-expressions",
+        "Used when an if statement contains too many boolean " "expressions.",
+    ),
+}
+SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 
 
 def _count_boolean_expressions(bool_op):
@@ -89,12 +107,11 @@ def _count_boolean_expressions(bool_op):
 
 
 def _count_methods_in_class(node):
-    all_methods = sum(1 for method in node.methods()
-                      if not method.name.startswith('_'))
+    all_methods = sum(1 for method in node.methods() if not method.name.startswith("_"))
     # Special methods count towards the number of public methods,
     # but don't count towards there being too many methods.
     for method in node.mymethods():
-        if SPECIAL_OBJ.search(method.name) and method.name != '__init__':
+        if SPECIAL_OBJ.search(method.name) and method.name != "__init__":
             all_methods += 1
     return all_methods
 
@@ -108,68 +125,107 @@ class MisdesignChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
 
     # configuration section name
-    name = 'design'
+    name = "design"
     # messages
     msgs = MSGS
     priority = -2
     # configuration options
-    options = (('max-args',
-                {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of arguments for function / method.'}
-               ),
-               ('max-locals',
-                {'default' : 15, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of locals for function / method body.'}
-               ),
-               ('max-returns',
-                {'default' : 6, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of return / yield for function / '
-                         'method body.'}
-               ),
-               ('max-branches',
-                {'default' : 12, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of branch for function / method body.'}
-               ),
-               ('max-statements',
-                {'default' : 50, 'type' : 'int', 'metavar' : '<int>',
-                 'help': 'Maximum number of statements in function / method '
-                         'body.'}
-               ),
-               ('max-parents',
-                {'default' : 7,
-                 'type' : 'int',
-                 'metavar' : '<num>',
-                 'help' : 'Maximum number of parents for a class (see R0901).'}
-               ),
-               ('max-attributes',
-                {'default' : 7,
-                 'type' : 'int',
-                 'metavar' : '<num>',
-                 'help' : 'Maximum number of attributes for a class \
-(see R0902).'}
-               ),
-               ('min-public-methods',
-                {'default' : 2,
-                 'type' : 'int',
-                 'metavar' : '<num>',
-                 'help' : 'Minimum number of public methods for a class \
-(see R0903).'}
-               ),
-               ('max-public-methods',
-                {'default' : 20,
-                 'type' : 'int',
-                 'metavar' : '<num>',
-                 'help' : 'Maximum number of public methods for a class \
-(see R0904).'}
-               ),
-               ('max-bool-expr',
-                {'default': 5,
-                 'type': 'int',
-                 'metavar': '<num>',
-                 'help': 'Maximum number of boolean expressions in an if '
-                         'statement.'}
-               ),
-              )
+    options = (
+        (
+            "max-args",
+            {
+                "default": 5,
+                "type": "int",
+                "metavar": "<int>",
+                "help": "Maximum number of arguments for function / method.",
+            },
+        ),
+        (
+            "max-locals",
+            {
+                "default": 15,
+                "type": "int",
+                "metavar": "<int>",
+                "help": "Maximum number of locals for function / method body.",
+            },
+        ),
+        (
+            "max-returns",
+            {
+                "default": 6,
+                "type": "int",
+                "metavar": "<int>",
+                "help": "Maximum number of return / yield for function / "
+                "method body.",
+            },
+        ),
+        (
+            "max-branches",
+            {
+                "default": 12,
+                "type": "int",
+                "metavar": "<int>",
+                "help": "Maximum number of branch for function / method body.",
+            },
+        ),
+        (
+            "max-statements",
+            {
+                "default": 50,
+                "type": "int",
+                "metavar": "<int>",
+                "help": "Maximum number of statements in function / method " "body.",
+            },
+        ),
+        (
+            "max-parents",
+            {
+                "default": 7,
+                "type": "int",
+                "metavar": "<num>",
+                "help": "Maximum number of parents for a class (see R0901).",
+            },
+        ),
+        (
+            "max-attributes",
+            {
+                "default": 7,
+                "type": "int",
+                "metavar": "<num>",
+                "help": "Maximum number of attributes for a class \
+(see R0902).",
+            },
+        ),
+        (
+            "min-public-methods",
+            {
+                "default": 2,
+                "type": "int",
+                "metavar": "<num>",
+                "help": "Minimum number of public methods for a class \
+(see R0903).",
+            },
+        ),
+        (
+            "max-public-methods",
+            {
+                "default": 20,
+                "type": "int",
+                "metavar": "<num>",
+                "help": "Maximum number of public methods for a class \
+(see R0904).",
+            },
+        ),
+        (
+            "max-bool-expr",
+            {
+                "default": 5,
+                "type": "int",
+                "metavar": "<num>",
+                "help": "Maximum number of boolean expressions in an if " "statement.",
+            },
+        ),
+    )
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -191,28 +247,38 @@ class MisdesignChecker(BaseChecker):
 
     @decorators.cachedproperty
     def _ignored_argument_names(self):
-        return utils.get_global_option(self, 'ignored-argument-names', default=None)
+        return utils.get_global_option(self, "ignored-argument-names", default=None)
 
-    @check_messages('too-many-ancestors', 'too-many-instance-attributes',
-                    'too-few-public-methods', 'too-many-public-methods')
+    @check_messages(
+        "too-many-ancestors",
+        "too-many-instance-attributes",
+        "too-few-public-methods",
+        "too-many-public-methods",
+    )
     def visit_classdef(self, node):
         """check size of inheritance hierarchy and number of instance attributes
         """
         nb_parents = len(list(node.ancestors()))
         if nb_parents > self.config.max_parents:
-            self.add_message('too-many-ancestors', node=node,
-                             args=(nb_parents, self.config.max_parents))
+            self.add_message(
+                "too-many-ancestors",
+                node=node,
+                args=(nb_parents, self.config.max_parents),
+            )
 
         if len(node.instance_attrs) > self.config.max_attributes:
-            self.add_message('too-many-instance-attributes', node=node,
-                             args=(len(node.instance_attrs),
-                                   self.config.max_attributes))
+            self.add_message(
+                "too-many-instance-attributes",
+                node=node,
+                args=(len(node.instance_attrs), self.config.max_attributes),
+            )
 
-    @check_messages('too-few-public-methods', 'too-many-public-methods')
+    @check_messages("too-few-public-methods", "too-many-public-methods")
     def leave_classdef(self, node):
         """check number of public methods"""
-        my_methods = sum(1 for method in node.mymethods()
-                         if not method.name.startswith('_'))
+        my_methods = sum(
+            1 for method in node.mymethods() if not method.name.startswith("_")
+        )
 
         # Does the class contain less than n public methods ?
         # This checks only the methods defined in the current class,
@@ -222,15 +288,19 @@ class MisdesignChecker(BaseChecker):
         # a lot of assert methods. It doesn't make sense to warn
         # when the user subclasses TestCase to add his own tests.
         if my_methods > self.config.max_public_methods:
-            self.add_message('too-many-public-methods', node=node,
-                             args=(my_methods,
-                                   self.config.max_public_methods))
+            self.add_message(
+                "too-many-public-methods",
+                node=node,
+                args=(my_methods, self.config.max_public_methods),
+            )
 
         # Stop here for exception, metaclass, interface classes and other
         # classes for which we don't need to count the methods.
-        if (node.type != 'class'
-                or checker_utils.is_enum_class(node)
-                or checker_utils.is_dataclass(node)):
+        if (
+            node.type != "class"
+            or checker_utils.is_enum_class(node)
+            or checker_utils.is_dataclass(node)
+        ):
             return
 
         # Does the class contain more than n public methods ?
@@ -238,13 +308,20 @@ class MisdesignChecker(BaseChecker):
         # by the current class.
         all_methods = _count_methods_in_class(node)
         if all_methods < self.config.min_public_methods:
-            self.add_message('too-few-public-methods', node=node,
-                             args=(all_methods,
-                                   self.config.min_public_methods))
+            self.add_message(
+                "too-few-public-methods",
+                node=node,
+                args=(all_methods, self.config.min_public_methods),
+            )
 
-    @check_messages('too-many-return-statements', 'too-many-branches',
-                    'too-many-arguments', 'too-many-locals',
-                    'too-many-statements', 'keyword-arg-before-vararg')
+    @check_messages(
+        "too-many-return-statements",
+        "too-many-branches",
+        "too-many-arguments",
+        "too-many-locals",
+        "too-many-statements",
+        "keyword-arg-before-vararg",
+    )
     def visit_functiondef(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
@@ -257,51 +334,70 @@ class MisdesignChecker(BaseChecker):
         if args is not None:
             ignored_args_num = 0
             if ignored_argument_names:
-                ignored_args_num = sum(1 for arg in args if ignored_argument_names.match(arg.name))
+                ignored_args_num = sum(
+                    1 for arg in args if ignored_argument_names.match(arg.name)
+                )
 
             argnum = len(args) - ignored_args_num
             if argnum > self.config.max_args:
-                self.add_message('too-many-arguments', node=node,
-                                 args=(len(args), self.config.max_args))
+                self.add_message(
+                    "too-many-arguments",
+                    node=node,
+                    args=(len(args), self.config.max_args),
+                )
         else:
             ignored_args_num = 0
         # check number of local variables
         locnum = len(node.locals) - ignored_args_num
         if locnum > self.config.max_locals:
-            self.add_message('too-many-locals', node=node,
-                             args=(locnum, self.config.max_locals))
+            self.add_message(
+                "too-many-locals", node=node, args=(locnum, self.config.max_locals)
+            )
         # init new statements counter
         self._stmts.append(1)
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @check_messages('too-many-return-statements', 'too-many-branches',
-                    'too-many-arguments', 'too-many-locals',
-                    'too-many-statements')
+    @check_messages(
+        "too-many-return-statements",
+        "too-many-branches",
+        "too-many-arguments",
+        "too-many-locals",
+        "too-many-statements",
+    )
     def leave_functiondef(self, node):
         """most of the work is done here on close:
         checks for max returns, branch, return in __init__
         """
         returns = self._returns.pop()
         if returns > self.config.max_returns:
-            self.add_message('too-many-return-statements', node=node,
-                             args=(returns, self.config.max_returns))
+            self.add_message(
+                "too-many-return-statements",
+                node=node,
+                args=(returns, self.config.max_returns),
+            )
         branches = self._branches[node]
         if branches > self.config.max_branches:
-            self.add_message('too-many-branches', node=node,
-                             args=(branches, self.config.max_branches))
+            self.add_message(
+                "too-many-branches",
+                node=node,
+                args=(branches, self.config.max_branches),
+            )
         # check number of statements
         stmts = self._stmts.pop()
         if stmts > self.config.max_statements:
-            self.add_message('too-many-statements', node=node,
-                             args=(stmts, self.config.max_statements))
+            self.add_message(
+                "too-many-statements",
+                node=node,
+                args=(stmts, self.config.max_statements),
+            )
 
     leave_asyncfunctiondef = leave_functiondef
 
     def visit_return(self, _):
         """count number of returns"""
         if not self._returns:
-            return # return outside function, reported by the base checker
+            return  # return outside function, reported by the base checker
         self._returns[-1] += 1
 
     def visit_default(self, node):
@@ -324,14 +420,13 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch(node, 2)
         self._inc_all_stmts(2)
 
-    @check_messages('too-many-boolean-expressions')
+    @check_messages("too-many-boolean-expressions")
     def visit_if(self, node):
         """increments the branches counter and checks boolean expressions"""
         self._check_boolean_expressions(node)
         branches = 1
         # don't double count If nodes coming from some 'elif'
-        if node.orelse and (len(node.orelse) > 1 or
-                            not isinstance(node.orelse[0], If)):
+        if node.orelse and (len(node.orelse) > 1 or not isinstance(node.orelse[0], If)):
             branches += 1
         self._inc_branch(node, branches)
         self._inc_all_stmts(branches)
@@ -346,8 +441,11 @@ class MisdesignChecker(BaseChecker):
             return
         nb_bool_expr = _count_boolean_expressions(condition)
         if nb_bool_expr > self.config.max_bool_expr:
-            self.add_message('too-many-boolean-expressions', node=condition,
-                             args=(nb_bool_expr, self.config.max_bool_expr))
+            self.add_message(
+                "too-many-boolean-expressions",
+                node=condition,
+                args=(nb_bool_expr, self.config.max_bool_expr),
+            )
 
     def visit_while(self, node):
         """increments the branches counter"""

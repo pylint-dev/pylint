@@ -9,8 +9,10 @@
 
 from __future__ import absolute_import
 
-from mccabe import PathGraph as Mccabe_PathGraph, \
-        PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
+from mccabe import (
+    PathGraph as Mccabe_PathGraph,
+    PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor,
+)
 from pylint import checkers
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import HIGH, IAstroidChecker
@@ -18,7 +20,7 @@ from pylint.interfaces import HIGH, IAstroidChecker
 
 class PathGraph(Mccabe_PathGraph):
     def __init__(self, node):
-        super(PathGraph, self).__init__(name='', entity='', lineno=1)
+        super(PathGraph, self).__init__(name="", entity="", lineno=1)
         self.root = node
 
 
@@ -37,7 +39,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         meth = self._cache.get(klass)
         if meth is None:
             className = klass.__name__
-            meth = getattr(self.visitor, 'visit' + className, self.default)
+            meth = getattr(self.visitor, "visit" + className, self.default)
             self._cache[klass] = meth
         return meth(node, *args)
 
@@ -64,10 +66,31 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
     def visitSimpleStatement(self, node):
         self._append_node(node)
 
-    visitAssert = visitAssign = visitAugAssign = visitDelete = visitPrint = \
-        visitRaise = visitYield = visitImport = visitCall = visitSubscript = \
-        visitPass = visitContinue = visitBreak = visitGlobal = visitReturn = \
-        visitExpr = visitAwait = visitSimpleStatement
+    visitAssert = (
+        visitAssign
+    ) = (
+        visitAugAssign
+    ) = (
+        visitDelete
+    ) = (
+        visitPrint
+    ) = (
+        visitRaise
+    ) = (
+        visitYield
+    ) = (
+        visitImport
+    ) = (
+        visitCall
+    ) = (
+        visitSubscript
+    ) = (
+        visitPass
+    ) = (
+        visitContinue
+    ) = (
+        visitBreak
+    ) = visitGlobal = visitReturn = visitExpr = visitAwait = visitSimpleStatement
 
     def visitWith(self, node):
         self._append_node(node)
@@ -94,7 +117,9 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
             self._append_node(node)
             self._subgraph_parse(node, node, extra_blocks)
 
-    def _subgraph_parse(self, node, pathnode, extra_blocks):  # pylint: disable=unused-argument
+    def _subgraph_parse(
+        self, node, pathnode, extra_blocks
+    ):  # pylint: disable=unused-argument
         """parse the body and any `else` block of `if` and `for` statements"""
         loose_ends = []
         self.tail = node
@@ -124,25 +149,29 @@ class McCabeMethodChecker(checkers.BaseChecker):
     """
 
     __implements__ = IAstroidChecker
-    name = 'design'
+    name = "design"
 
     msgs = {
-        'R1260': (
+        "R1260": (
             "%s is too complex. The McCabe rating is %d",
-            'too-complex',
-            'Used when a method or function is too complex based on '
-            'McCabe Complexity Cyclomatic'),
+            "too-complex",
+            "Used when a method or function is too complex based on "
+            "McCabe Complexity Cyclomatic",
+        )
     }
     options = (
-        ('max-complexity', {
-            'default': 10,
-            'type': 'int',
-            'metavar': '<int>',
-            'help': 'McCabe complexity cyclomatic threshold',
-        }),
+        (
+            "max-complexity",
+            {
+                "default": 10,
+                "type": "int",
+                "metavar": "<int>",
+                "help": "McCabe complexity cyclomatic threshold",
+            },
+        ),
     )
 
-    @check_messages('too-complex')
+    @check_messages("too-complex")
     def visit_module(self, node):
         """visit an astroid.Module node to check too complex rating and
         add message if is greather than max_complexity stored from options"""
@@ -152,15 +181,15 @@ class McCabeMethodChecker(checkers.BaseChecker):
         for graph in visitor.graphs.values():
             complexity = graph.complexity()
             node = graph.root
-            if hasattr(node, 'name'):
+            if hasattr(node, "name"):
                 node_name = "'%s'" % node.name
             else:
                 node_name = "This '%s'" % node.__class__.__name__.lower()
             if complexity <= self.config.max_complexity:
                 continue
             self.add_message(
-                'too-complex', node=node, confidence=HIGH,
-                args=(node_name, complexity))
+                "too-complex", node=node, confidence=HIGH, args=(node_name, complexity)
+            )
 
 
 def register(linter):

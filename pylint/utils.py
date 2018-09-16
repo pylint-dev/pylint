@@ -62,25 +62,18 @@ from pylint.exceptions import InvalidMessageError, UnknownMessageError, EmptyRep
 
 
 MSG_TYPES = {
-    'I' : 'info',
-    'C' : 'convention',
-    'R' : 'refactor',
-    'W' : 'warning',
-    'E' : 'error',
-    'F' : 'fatal'
-    }
+    "I": "info",
+    "C": "convention",
+    "R": "refactor",
+    "W": "warning",
+    "E": "error",
+    "F": "fatal",
+}
 MSG_TYPES_LONG = {v: k for k, v in MSG_TYPES.items()}
 
-MSG_TYPES_STATUS = {
-    'I' : 0,
-    'C' : 16,
-    'R' : 8,
-    'W' : 4,
-    'E' : 2,
-    'F' : 1
-    }
+MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 
-_MSG_ORDER = 'EWRCIF'
+_MSG_ORDER = "EWRCIF"
 MSG_STATE_SCOPE_CONFIG = 0
 MSG_STATE_SCOPE_MODULE = 1
 MSG_STATE_CONFIDENCE = 2
@@ -88,27 +81,50 @@ MSG_STATE_CONFIDENCE = 2
 # Allow stopping after the first semicolon encountered,
 # so that an option can be continued with the reasons
 # why it is active or disabled.
-OPTION_RGX = re.compile(r'\s*#.*\bpylint:\s*([^;]+);{0,1}')
+OPTION_RGX = re.compile(r"\s*#.*\bpylint:\s*([^;]+);{0,1}")
 
 # The line/node distinction does not apply to fatal errors and reports.
-_SCOPE_EXEMPT = 'FR'
+_SCOPE_EXEMPT = "FR"
+
 
 class WarningScope:
-    LINE = 'line-based-msg'
-    NODE = 'node-based-msg'
+    LINE = "line-based-msg"
+    NODE = "node-based-msg"
+
 
 _MsgBase = collections.namedtuple(
-    '_MsgBase',
-    ['msg_id', 'symbol', 'msg', 'C', 'category', 'confidence',
-     'abspath', 'path', 'module', 'obj', 'line', 'column'])
+    "_MsgBase",
+    [
+        "msg_id",
+        "symbol",
+        "msg",
+        "C",
+        "category",
+        "confidence",
+        "abspath",
+        "path",
+        "module",
+        "obj",
+        "line",
+        "column",
+    ],
+)
 
 
 class Message(_MsgBase):
     """This class represent a message to be issued by the reporters"""
+
     def __new__(cls, msg_id, symbol, location, msg, confidence):
         return _MsgBase.__new__(
-            cls, msg_id, symbol, msg, msg_id[0], MSG_TYPES[msg_id[0]],
-            confidence, *location)
+            cls,
+            msg_id,
+            symbol,
+            msg,
+            msg_id[0],
+            MSG_TYPES[msg_id[0]],
+            confidence,
+            *location
+        )
 
     def format(self, template):
         """Format the message according to the given template.
@@ -124,18 +140,19 @@ class Message(_MsgBase):
 def get_module_and_frameid(node):
     """return the module name and the frame id in the module"""
     frame = node.frame()
-    module, obj = '', []
+    module, obj = "", []
     while frame:
         if isinstance(frame, Module):
             module = frame.name
         else:
-            obj.append(getattr(frame, 'name', '<lambda>'))
+            obj.append(getattr(frame, "name", "<lambda>"))
         try:
             frame = frame.parent.frame()
         except AttributeError:
             frame = None
     obj.reverse()
-    return module, '.'.join(obj)
+    return module, ".".join(obj)
+
 
 def category_id(cid):
     cid = cid.upper()
@@ -143,14 +160,16 @@ def category_id(cid):
         return cid
     return MSG_TYPES_LONG.get(cid)
 
+
 def safe_decode(line, encoding, *args, **kwargs):
-    '''return decoded line from encoding or decode with default encoding'''
+    """return decoded line from encoding or decode with default encoding"""
     try:
         return line.decode(encoding or sys.getdefaultencoding(), *args, **kwargs)
     except LookupError:
         return line.decode(sys.getdefaultencoding(), *args, **kwargs)
 
-def decoding_stream(stream, encoding, errors='strict'):
+
+def decoding_stream(stream, encoding, errors="strict"):
     try:
         reader_cls = codecs.getreader(encoding or sys.getdefaultencoding())
     except LookupError:
@@ -162,6 +181,7 @@ def tokenize_module(module):
     with module.stream() as stream:
         readline = stream.readline
         return list(tokenize.tokenize(readline))
+
 
 def build_message_def(checker, msgid, msg_tuple):
     if implements(checker, (IRawChecker, ITokenChecker)):
@@ -177,22 +197,34 @@ def build_message_def(checker, msgid, msg_tuple):
         # messages should have a symbol, but for backward compatibility
         # they may not.
         (msg, descr) = msg_tuple
-        warnings.warn("[pylint 0.26] description of message %s doesn't include "
-                      "a symbolic name" % msgid, DeprecationWarning)
+        warnings.warn(
+            "[pylint 0.26] description of message %s doesn't include "
+            "a symbolic name" % msgid,
+            DeprecationWarning,
+        )
         symbol = None
-    options.setdefault('scope', default_scope)
+    options.setdefault("scope", default_scope)
     return MessageDefinition(checker, msgid, msg, descr, symbol, **options)
 
 
 class MessageDefinition:
-    def __init__(self, checker, msgid, msg, descr, symbol, scope,
-                 minversion=None, maxversion=None, old_names=None):
+    def __init__(
+        self,
+        checker,
+        msgid,
+        msg,
+        descr,
+        symbol,
+        scope,
+        minversion=None,
+        maxversion=None,
+        old_names=None,
+    ):
         self.checker = checker
         if len(msgid) != 5:
-            raise InvalidMessageError('Invalid message id %r' % msgid)
+            raise InvalidMessageError("Invalid message id %r" % msgid)
         if not msgid[0] in MSG_TYPES:
-            raise InvalidMessageError(
-                'Bad message type %s in %r' % (msgid[0], msgid))
+            raise InvalidMessageError("Bad message type %s in %r" % (msgid[0], msgid))
         self.msgid = msgid
         self.msg = msg
         self.descr = descr
@@ -217,37 +249,37 @@ class MessageDefinition:
         """return the help string for the given message id"""
         desc = self.descr
         if checkerref:
-            desc += ' This message belongs to the %s checker.' % \
-                   self.checker.name
+            desc += " This message belongs to the %s checker." % self.checker.name
         title = self.msg
         if self.symbol:
-            msgid = '%s (%s)' % (self.symbol, self.msgid)
+            msgid = "%s (%s)" % (self.symbol, self.msgid)
         else:
             msgid = self.msgid
         if self.minversion or self.maxversion:
             restr = []
             if self.minversion:
-                restr.append('< %s' % '.'.join([str(n) for n in self.minversion]))
+                restr.append("< %s" % ".".join([str(n) for n in self.minversion]))
             if self.maxversion:
-                restr.append('>= %s' % '.'.join([str(n) for n in self.maxversion]))
-            restr = ' or '.join(restr)
+                restr.append(">= %s" % ".".join([str(n) for n in self.maxversion]))
+            restr = " or ".join(restr)
             if checkerref:
                 desc += " It can't be emitted when using Python %s." % restr
             else:
                 desc += " This message can't be emitted when using Python %s." % restr
-        desc = _normalize_text(' '.join(desc.split()), indent='  ')
-        if title != '%s':
+        desc = _normalize_text(" ".join(desc.split()), indent="  ")
+        if title != "%s":
             title = title.splitlines()[0]
 
-            return ':%s: *%s*\n%s' % (msgid, title.rstrip(" "), desc)
-        return ':%s:\n%s' % (msgid, desc)
+            return ":%s: *%s*\n%s" % (msgid, title.rstrip(" "), desc)
+        return ":%s:\n%s" % (msgid, desc)
 
 
 class MessagesHandlerMixIn:
     """a mix-in class containing all the messages related methods for the main
     lint class
     """
-    __by_id_managed_msgs = []    # type: ignore
+
+    __by_id_managed_msgs = []  # type: ignore
 
     def __init__(self):
         self._msgs_state = {}
@@ -273,31 +305,36 @@ class MessagesHandlerMixIn:
             msg = self.msgs_store.get_message_definition(msgid)
             if msgid == msg.msgid:
                 MessagesHandlerMixIn.__by_id_managed_msgs.append(
-                    (self.current_name, msg.msgid, msg.symbol, line, is_disabled))
+                    (self.current_name, msg.msgid, msg.symbol, line, is_disabled)
+                )
         except UnknownMessageError:
             pass
 
-    def disable(self, msgid, scope='package', line=None, ignore_unknown=False):
+    def disable(self, msgid, scope="package", line=None, ignore_unknown=False):
         """don't output message of the given id"""
-        self._set_msg_status(msgid, enable=False, scope=scope,
-                             line=line, ignore_unknown=ignore_unknown)
+        self._set_msg_status(
+            msgid, enable=False, scope=scope, line=line, ignore_unknown=ignore_unknown
+        )
         self._register_by_id_managed_msg(msgid, line)
 
-    def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
+    def enable(self, msgid, scope="package", line=None, ignore_unknown=False):
         """reenable message of the given id"""
-        self._set_msg_status(msgid, enable=True, scope=scope,
-                             line=line, ignore_unknown=ignore_unknown)
+        self._set_msg_status(
+            msgid, enable=True, scope=scope, line=line, ignore_unknown=ignore_unknown
+        )
         self._register_by_id_managed_msg(msgid, line, is_disabled=False)
 
-    def _set_msg_status(self, msgid, enable, scope='package', line=None, ignore_unknown=False):
-        assert scope in ('package', 'module')
+    def _set_msg_status(
+        self, msgid, enable, scope="package", line=None, ignore_unknown=False
+    ):
+        assert scope in ("package", "module")
 
-        if msgid == 'all':
+        if msgid == "all":
             for _msgid in MSG_TYPES:
                 self._set_msg_status(_msgid, enable, scope, line, ignore_unknown)
             if enable and not self._python3_porting_mode:
                 # Don't activate the python 3 porting checker if it wasn't activated explicitly.
-                self.disable('python3')
+                self.disable("python3")
             return
 
         # msgid is a category?
@@ -317,7 +354,7 @@ class MessagesHandlerMixIn:
             return
 
         # msgid is report id?
-        if msgid.lower().startswith('rp'):
+        if msgid.lower().startswith("rp"):
             if enable:
                 self.enable_report(msgid)
             else:
@@ -332,19 +369,24 @@ class MessagesHandlerMixIn:
                 return
             raise
 
-        if scope == 'module':
+        if scope == "module":
             self.file_state.set_msg_status(msg, line, enable)
-            if not enable and msg.symbol != 'locally-disabled':
-                self.add_message('locally-disabled', line=line,
-                                 args=(msg.symbol, msg.msgid))
+            if not enable and msg.symbol != "locally-disabled":
+                self.add_message(
+                    "locally-disabled", line=line, args=(msg.symbol, msg.msgid)
+                )
         else:
             msgs = self._msgs_state
             msgs[msg.msgid] = enable
             # sync configuration object
-            self.config.enable = [self._message_symbol(mid) for mid, val
-                                  in sorted(msgs.items()) if val]
-            self.config.disable = [self._message_symbol(mid) for mid, val
-                                   in sorted(msgs.items()) if not val]
+            self.config.enable = [
+                self._message_symbol(mid) for mid, val in sorted(msgs.items()) if val
+            ]
+            self.config.disable = [
+                self._message_symbol(mid)
+                for mid, val in sorted(msgs.items())
+                if not val
+            ]
 
     def _message_symbol(self, msgid):
         """Get the message symbol of the given message id
@@ -391,16 +433,23 @@ class MessagesHandlerMixIn:
         except KeyError:
             # Check if the message's line is after the maximum line existing in ast tree.
             # This line won't appear in the ast tree and won't be referred in
-            # self.file_state._module_msgs_state
+            #  self.file_state._module_msgs_state
             # This happens for example with a commented line at the end of a module.
             max_line_number = self.file_state.get_effective_max_line_number()
-            if (max_line_number and line > max_line_number):
+            if max_line_number and line > max_line_number:
                 fallback = msgid not in self.file_state._raw_module_msgs_state
                 return self._msgs_state.get(msgid, fallback)
             return self._msgs_state.get(msgid, True)
 
-    def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
-                    col_offset=None):
+    def add_message(
+        self,
+        msg_descr,
+        line=None,
+        node=None,
+        args=None,
+        confidence=UNDEFINED,
+        col_offset=None,
+    ):
         """Adds a message given by ID or name.
 
         If provided, the message string is expanded using args.
@@ -419,53 +468,69 @@ class MessagesHandlerMixIn:
             if msg_info.scope == WarningScope.LINE:
                 if line is None:
                     raise InvalidMessageError(
-                        'Message %s must provide line, got None' % msgid)
+                        "Message %s must provide line, got None" % msgid
+                    )
                 if node is not None:
                     raise InvalidMessageError(
-                        'Message %s must only provide line, '
-                        'got line=%s, node=%s' % (msgid, line, node))
+                        "Message %s must only provide line, "
+                        "got line=%s, node=%s" % (msgid, line, node)
+                    )
             elif msg_info.scope == WarningScope.NODE:
                 # Node-based warnings may provide an override line.
                 if node is None:
                     raise InvalidMessageError(
-                        'Message %s must provide Node, got None' % msgid)
+                        "Message %s must provide Node, got None" % msgid
+                    )
 
         if line is None and node is not None:
             line = node.fromlineno
-        if col_offset is None and hasattr(node, 'col_offset'):
-            col_offset = node.col_offset # XXX measured in bytes for utf-8, divide by two for chars?
+        if col_offset is None and hasattr(node, "col_offset"):
+            col_offset = (
+                node.col_offset
+            )  # XXX measured in bytes for utf-8, divide by two for chars?
 
         # should this message be displayed
         if not self.is_message_enabled(msgid, line, confidence):
             self.file_state.handle_ignored_message(
                 self.get_message_state_scope(msgid, line, confidence),
-                msgid, line, node, args, confidence)
+                msgid,
+                line,
+                node,
+                args,
+                confidence,
+            )
             return
         # update stats
         msg_cat = MSG_TYPES[msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[msgid[0]]
         self.stats[msg_cat] += 1
-        self.stats['by_module'][self.current_name][msg_cat] += 1
+        self.stats["by_module"][self.current_name][msg_cat] += 1
         try:
-            self.stats['by_msg'][symbol] += 1
+            self.stats["by_msg"][symbol] += 1
         except KeyError:
-            self.stats['by_msg'][symbol] = 1
+            self.stats["by_msg"][symbol] = 1
         # expand message ?
         msg = msg_info.msg
         if args:
             msg %= args
         # get module and object
         if node is None:
-            module, obj = self.current_name, ''
+            module, obj = self.current_name, ""
             abspath = self.current_file
         else:
             module, obj = get_module_and_frameid(node)
             abspath = node.root().file
-        path = abspath.replace(self.reporter.path_strip_prefix, '', 1)
+        path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
         # add the message
         self.reporter.handle_message(
-            Message(msgid, symbol,
-                    (abspath, path, module, obj, line or 1, col_offset or 0), msg, confidence))
+            Message(
+                msgid,
+                symbol,
+                (abspath, path, module, obj, line or 1, col_offset or 0),
+                msg,
+                confidence,
+            )
+        )
 
     def print_full_documentation(self, stream=None):
         """output a full documentation in ReST format"""
@@ -480,28 +545,28 @@ class MessagesHandlerMixIn:
 
         by_checker = {}
         for checker in self.get_checkers():
-            if checker.name == 'master':
+            if checker.name == "master":
                 if checker.options:
                     for section, options in checker.options_by_section():
                         if section is None:
-                            title = 'General options'
+                            title = "General options"
                         else:
-                            title = '%s options' % section.capitalize()
+                            title = "%s options" % section.capitalize()
                         print(title, file=stream)
-                        print('~' * len(title), file=stream)
+                        print("~" * len(title), file=stream)
                         _rest_format_section(stream, None, options)
                         print("", file=stream)
             else:
                 name = checker.name
                 try:
-                    by_checker[name]['options'] += checker.options_and_values()
-                    by_checker[name]['msgs'].update(checker.msgs)
-                    by_checker[name]['reports'] += checker.reports
+                    by_checker[name]["options"] += checker.options_and_values()
+                    by_checker[name]["msgs"].update(checker.msgs)
+                    by_checker[name]["reports"] += checker.reports
                 except KeyError:
                     by_checker[name] = {
-                        'options': list(checker.options_and_values()),
-                        'msgs':    dict(checker.msgs),
-                        'reports': list(checker.reports),
+                        "options": list(checker.options_and_values()),
+                        "msgs": dict(checker.msgs),
+                        "reports": list(checker.reports),
                     }
 
         print("Pylint checkers' options and switches", file=stream)
@@ -528,19 +593,19 @@ class MessagesHandlerMixIn:
         if not stream:
             stream = sys.stdout
 
-        doc = info.get('doc')
-        module = info.get('module')
-        msgs = info.get('msgs')
-        options = info.get('options')
-        reports = info.get('reports')
+        doc = info.get("doc")
+        module = info.get("module")
+        msgs = info.get("msgs")
+        options = info.get("options")
+        reports = info.get("reports")
 
-        checker_title = '%s checker' % (checker_name.replace("_", " ").title())
+        checker_title = "%s checker" % (checker_name.replace("_", " ").title())
 
         if module:
             # Provide anchor to link against
             print(".. _%s:\n" % module, file=stream)
         print(checker_title, file=stream)
-        print('~' * len(checker_title), file=stream)
+        print("~" * len(checker_title), file=stream)
         print("", file=stream)
         if module:
             print("This checker is provided by ``%s``." % module, file=stream)
@@ -548,34 +613,36 @@ class MessagesHandlerMixIn:
         print("", file=stream)
         if doc:
             # Provide anchor to link against
-            title = '{} Documentation'.format(checker_title)
+            title = "{} Documentation".format(checker_title)
             print(title, file=stream)
-            print('^' * len(title), file=stream)
+            print("^" * len(title), file=stream)
             print(cleandoc(doc), file=stream)
             print("", file=stream)
         if options:
-            title = '{} Options'.format(checker_title)
+            title = "{} Options".format(checker_title)
             print(title, file=stream)
-            print('^' * len(title), file=stream)
+            print("^" * len(title), file=stream)
             _rest_format_section(stream, None, options)
             print("", file=stream)
         if msgs:
-            title = '{} Messages'.format(checker_title)
+            title = "{} Messages".format(checker_title)
             print(title, file=stream)
-            print('^' * len(title), file=stream)
-            for msgid, msg in sorted(msgs.items(),
-                                     key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
+            print("^" * len(title), file=stream)
+            for msgid, msg in sorted(
+                msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
+            ):
                 msg = build_message_def(checker_name, msgid, msg)
                 print(msg.format_help(checkerref=False), file=stream)
             print("", file=stream)
         if reports:
-            title = '{} Reports'.format(checker_title)
+            title = "{} Reports".format(checker_title)
             print(title, file=stream)
-            print('^' * len(title), file=stream)
+            print("^" * len(title), file=stream)
             for report in reports:
-                print(':%s: %s' % report[:2], file=stream)
+                print(":%s: %s" % report[:2], file=stream)
             print("", file=stream)
         print("", file=stream)
+
 
 class FileState:
     """Hold internal state specific to the currently analyzed file"""
@@ -621,8 +688,10 @@ class FileState:
         #
         # this is necessary to disable locally messages applying to class /
         # function using their fromlineno
-        if (isinstance(node, (nodes.Module, nodes.ClassDef, nodes.FunctionDef))
-                and node.body):
+        if (
+            isinstance(node, (nodes.Module, nodes.ClassDef, nodes.FunctionDef))
+            and node.body
+        ):
             firstchildlineno = node.body[0].fromlineno
         else:
             firstchildlineno = last
@@ -640,11 +709,11 @@ class FileState:
                 else:
                     first_ = lineno
                     last_ = last
-                for line in range(first_, last_+1):
+                for line in range(first_, last_ + 1):
                     # do not override existing entries
                     if line in self._module_msgs_state.get(msgid, ()):
                         continue
-                    if line in lines: # state change in the same block
+                    if line in lines:  # state change in the same block
                         state = lines[line]
                         original_lineno = line
                     if not state:
@@ -663,8 +732,9 @@ class FileState:
         except KeyError:
             self._module_msgs_state[msg.msgid] = {line: status}
 
-    def handle_ignored_message(self, state_scope, msgid, line,
-                               node, args, confidence): # pylint: disable=unused-argument
+    def handle_ignored_message(
+        self, state_scope, msgid, line, node, args, confidence
+    ):  # pylint: disable=unused-argument
         """Report an ignored message.
 
         state_scope is either MSG_STATE_SCOPE_MODULE or MSG_STATE_SCOPE_CONFIG,
@@ -682,13 +752,16 @@ class FileState:
         for warning, lines in self._raw_module_msgs_state.items():
             for line, enable in lines.items():
                 if not enable and (warning, line) not in self._ignored_msgs:
-                    yield 'useless-suppression', line, \
-                        (msgs_store.get_msg_display_string(warning),)
+                    yield "useless-suppression", line, (
+                        msgs_store.get_msg_display_string(warning),
+                    )
         # don't use iteritems here, _ignored_msgs may be modified by add_message
         for (warning, from_), lines in list(self._ignored_msgs.items()):
             for line in lines:
-                yield 'suppressed-message', line, \
-                    (msgs_store.get_msg_display_string(warning), from_)
+                yield "suppressed-message", line, (
+                    msgs_store.get_msg_display_string(warning),
+                    from_,
+                )
 
     def get_effective_max_line_number(self):
         return self._effective_max_line_number
@@ -794,7 +867,6 @@ class MessagesStore:
             checker_id = message.msgid[1:3]
             existing_ids.append(message.msgid)
 
-
     def _register_alternative_name(self, msg, msgid, symbol):
         """helper for register_message()"""
         self._check_id_and_symbol_consistency(msgid, symbol)
@@ -874,7 +946,9 @@ class MessagesStore:
         :param str other_msgid: Other offending msgid
         :raises InvalidMessageError: when a msgid is duplicated.
         """
-        error_message = "Message symbol '{symbol}' cannot be used for ".format(symbol=symbol)
+        error_message = "Message symbol '{symbol}' cannot be used for ".format(
+            symbol=symbol
+        )
         error_message += "'{other_msgid}' and '{msgid}' at the same time.".format(
             other_msgid=other_msgid, msgid=msgid
         )
@@ -896,7 +970,9 @@ class MessagesStore:
             except KeyError:
                 pass
         raise UnknownMessageError(
-            'No such message id {msgid_or_symbol}'.format(msgid_or_symbol=msgid_or_symbol)
+            "No such message id {msgid_or_symbol}".format(
+                msgid_or_symbol=msgid_or_symbol
+            )
         )
 
     def get_msg_display_string(self, msgid):
@@ -931,6 +1007,7 @@ class ReportsHandlerMixIn:
     """a mix-in class containing all the reports and stats manipulation
     related methods for the main lint class
     """
+
     def __init__(self):
         self._reports = collections.defaultdict(list)
         self._reports_state = {}
@@ -970,8 +1047,7 @@ class ReportsHandlerMixIn:
 
     def make_reports(self, stats, old_stats):
         """render registered reports"""
-        sect = Section('Report',
-                       '%s statements analysed.'% (self.stats['statement']))
+        sect = Section("Report", "%s statements analysed." % (self.stats["statement"]))
         for checker in self.report_order():
             for reportid, r_title, r_cb in self._reports[checker]:
                 if not self.report_is_enabled(reportid):
@@ -990,11 +1066,12 @@ class ReportsHandlerMixIn:
         raise an AssertionError if there is a key conflict
         """
         for key, value in kwargs.items():
-            if key[-1] == '_':
+            if key[-1] == "_":
                 key = key[:-1]
             assert key not in self.stats
             self.stats[key] = value
         return self.stats
+
 
 def _basename_in_blacklist_re(base_name, black_list_re):
     """Determines if the basename is matched in a regex blacklist
@@ -1011,11 +1088,14 @@ def _basename_in_blacklist_re(base_name, black_list_re):
             return True
     return False
 
+
 def _modpath_from_file(filename, is_namespace):
     def _is_package_cb(path, parts):
         return modutils.check_modpath_has_init(path, parts) or is_namespace
 
-    return modutils.modpath_from_file_with_callback(filename, is_package_cb=_is_package_cb)
+    return modutils.modpath_from_file_with_callback(
+        filename, is_package_cb=_is_package_cb
+    )
 
 
 def expand_modules(files_or_modules, black_list, black_list_re):
@@ -1032,28 +1112,28 @@ def expand_modules(files_or_modules, black_list, black_list_re):
         if exists(something):
             # this is a file or a directory
             try:
-                modname = '.'.join(modutils.modpath_from_file(something))
+                modname = ".".join(modutils.modpath_from_file(something))
             except ImportError:
                 modname = splitext(basename(something))[0]
             if isdir(something):
-                filepath = join(something, '__init__.py')
+                filepath = join(something, "__init__.py")
             else:
                 filepath = something
         else:
             # suppose it's a module or package
             modname = something
             try:
-                filepath = modutils.file_from_modpath(modname.split('.'))
+                filepath = modutils.file_from_modpath(modname.split("."))
                 if filepath is None:
                     continue
             except (ImportError, SyntaxError) as ex:
                 # FIXME p3k : the SyntaxError is a Python bug and should be
                 # removed as soon as possible http://bugs.python.org/issue10588
-                errors.append({'key': 'fatal', 'mod': modname, 'ex': ex})
+                errors.append({"key": "fatal", "mod": modname, "ex": ex})
                 continue
 
         filepath = normpath(filepath)
-        modparts = (modname or something).split('.')
+        modparts = (modname or something).split(".")
 
         try:
             spec = modutils.file_info_from_modpath(modparts, path=sys.path)
@@ -1066,30 +1146,45 @@ def expand_modules(files_or_modules, black_list, black_list_re):
             is_directory = modutils.is_directory(spec)
 
         if not is_namespace:
-            result.append({'path': filepath, 'name': modname, 'isarg': True,
-                           'basepath': filepath, 'basename': modname})
+            result.append(
+                {
+                    "path": filepath,
+                    "name": modname,
+                    "isarg": True,
+                    "basepath": filepath,
+                    "basename": modname,
+                }
+            )
 
-        has_init = (not (modname.endswith('.__init__') or modname == '__init__')
-                    and basename(filepath) == '__init__.py')
+        has_init = (
+            not (modname.endswith(".__init__") or modname == "__init__")
+            and basename(filepath) == "__init__.py"
+        )
 
         if has_init or is_namespace or is_directory:
-            for subfilepath in modutils.get_module_files(dirname(filepath), black_list,
-                                                         list_all=is_namespace):
+            for subfilepath in modutils.get_module_files(
+                dirname(filepath), black_list, list_all=is_namespace
+            ):
                 if filepath == subfilepath:
                     continue
                 if _basename_in_blacklist_re(basename(subfilepath), black_list_re):
                     continue
 
                 modpath = _modpath_from_file(subfilepath, is_namespace)
-                submodname = '.'.join(modpath)
-                result.append({'path': subfilepath, 'name': submodname,
-                               'isarg': False,
-                               'basepath': filepath, 'basename': modname})
+                submodname = ".".join(modpath)
+                result.append(
+                    {
+                        "path": subfilepath,
+                        "name": submodname,
+                        "isarg": False,
+                        "basepath": filepath,
+                        "basename": modname,
+                    }
+                )
     return result, errors
 
 
 class PyLintASTWalker:
-
     def __init__(self, linter):
         # callbacks per node types
         self.nbstatements = 0
@@ -1098,7 +1193,7 @@ class PyLintASTWalker:
         self.linter = linter
 
     def _is_method_enabled(self, method):
-        if not hasattr(method, 'checks_msgs'):
+        if not hasattr(method, "checks_msgs"):
             return True
         for msg_desc in method.checks_msgs:
             if self.linter.is_message_enabled(msg_desc):
@@ -1114,21 +1209,21 @@ class PyLintASTWalker:
         leaves = self.leave_events
         for member in dir(checker):
             cid = member[6:]
-            if cid == 'default':
+            if cid == "default":
                 continue
-            if member.startswith('visit_'):
+            if member.startswith("visit_"):
                 v_meth = getattr(checker, member)
                 # don't use visit_methods with no activated message:
                 if self._is_method_enabled(v_meth):
                     visits[cid].append(v_meth)
                     vcids.add(cid)
-            elif member.startswith('leave_'):
+            elif member.startswith("leave_"):
                 l_meth = getattr(checker, member)
                 # don't use leave_methods with no activated message:
                 if self._is_method_enabled(l_meth):
                     leaves[cid].append(l_meth)
                     lcids.add(cid)
-        visit_default = getattr(checker, 'visit_default', None)
+        visit_default = getattr(checker, "visit_default", None)
         if visit_default:
             for cls in nodes.ALL_NODE_CLASSES:
                 cid = cls.__name__.lower()
@@ -1161,7 +1256,8 @@ class PyLintASTWalker:
             cb(astroid)
 
 
-PY_EXTS = ('.py', '.pyc', '.pyo', '.pyw', '.so', '.dll')
+PY_EXTS = (".py", ".pyc", ".pyo", ".pyw", ".so", ".dll")
+
 
 def register_plugins(linter, directory):
     """load all module and package in the given directory, looking for a
@@ -1170,22 +1266,27 @@ def register_plugins(linter, directory):
     imported = {}
     for filename in os.listdir(directory):
         base, extension = splitext(filename)
-        if base in imported or base == '__pycache__':
+        if base in imported or base == "__pycache__":
             continue
-        if extension in PY_EXTS and base != '__init__' or (
-                not extension and isdir(join(directory, base))):
+        if (
+            extension in PY_EXTS
+            and base != "__init__"
+            or (not extension and isdir(join(directory, base)))
+        ):
             try:
                 module = modutils.load_module_from_file(join(directory, filename))
             except ValueError:
                 # empty module name (usually emacs auto-save files)
                 continue
             except ImportError as exc:
-                print("Problem importing module %s: %s" % (filename, exc),
-                      file=sys.stderr)
+                print(
+                    "Problem importing module %s: %s" % (filename, exc), file=sys.stderr
+                )
             else:
-                if hasattr(module, 'register'):
+                if hasattr(module, "register"):
                     module.register(linter)
                     imported[base] = 1
+
 
 def get_global_option(checker, option, default=None):
     """ Retrieve an option defined by the given *checker* or
@@ -1209,25 +1310,27 @@ def get_global_option(checker, option, default=None):
     return default
 
 
-def deprecated_option(shortname=None, opt_type=None, help_msg=None, deprecation_msg=None):
-    def _warn_deprecated(option, optname, *args): # pylint: disable=unused-argument
+def deprecated_option(
+    shortname=None, opt_type=None, help_msg=None, deprecation_msg=None
+):
+    def _warn_deprecated(option, optname, *args):  # pylint: disable=unused-argument
         if deprecation_msg:
             sys.stderr.write(deprecation_msg % (optname,))
 
     option = {
-        'help': help_msg,
-        'hide': True,
-        'type': opt_type,
-        'action': 'callback',
-        'callback': _warn_deprecated,
-        'deprecated': True
+        "help": help_msg,
+        "hide": True,
+        "type": opt_type,
+        "action": "callback",
+        "callback": _warn_deprecated,
+        "deprecated": True,
     }
     if shortname:
-        option['shortname'] = shortname
+        option["shortname"] = shortname
     return option
 
 
-def _splitstrip(string, sep=','):
+def _splitstrip(string, sep=","):
     """return a list of stripped string by splitting the string given as
     argument on `sep` (',' by default). Empty string are discarded.
 
@@ -1261,17 +1364,20 @@ def _unquote(string):
     """
     if not string:
         return string
-    if string[0] in '"\'':
+    if string[0] in "\"'":
         string = string[1:]
-    if string[-1] in '"\'':
+    if string[-1] in "\"'":
         string = string[:-1]
     return string
 
 
-def _normalize_text(text, line_len=80, indent=''):
+def _normalize_text(text, line_len=80, indent=""):
     """Wrap the text on the given line length."""
-    return '\n'.join(textwrap.wrap(text, width=line_len, initial_indent=indent,
-                                   subsequent_indent=indent))
+    return "\n".join(
+        textwrap.wrap(
+            text, width=line_len, initial_indent=indent, subsequent_indent=indent
+        )
+    )
 
 
 def _check_csv(value):
@@ -1283,20 +1389,20 @@ def _check_csv(value):
 def _comment(string):
     """return string as a comment"""
     lines = [line.strip() for line in string.splitlines()]
-    return '# ' + ('%s# ' % os.linesep).join(lines)
+    return "# " + ("%s# " % os.linesep).join(lines)
 
 
 def _format_option_value(optdict, value):
     """return the user input's value from a 'compiled' value"""
     if isinstance(value, (list, tuple)):
-        value = ','.join(_format_option_value(optdict, item) for item in value)
+        value = ",".join(_format_option_value(optdict, item) for item in value)
     elif isinstance(value, dict):
-        value = ','.join('%s:%s' % (k, v) for k, v in value.items())
-    elif hasattr(value, 'match'): # optdict.get('type') == 'regexp'
+        value = ",".join("%s:%s" % (k, v) for k, v in value.items())
+    elif hasattr(value, "match"):  # optdict.get('type') == 'regexp'
         # compiled regexp
         value = value.pattern
-    elif optdict.get('type') == 'yn':
-        value = 'yes' if value else 'no'
+    elif optdict.get("type") == "yn":
+        value = "yes" if value else "no"
     elif isinstance(value, str) and value.isspace():
         value = "'%s'" % value
     return value
@@ -1306,7 +1412,7 @@ def _ini_format_section(stream, section, options, doc=None):
     """format an options section using the INI format"""
     if doc:
         print(_comment(doc), file=stream)
-    print('[%s]' % section, file=stream)
+    print("[%s]" % section, file=stream)
     _ini_format(stream, options)
 
 
@@ -1314,24 +1420,24 @@ def _ini_format(stream, options):
     """format options using the INI format"""
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)
-        help_opt = optdict.get('help')
+        help_opt = optdict.get("help")
         if help_opt:
-            help_opt = _normalize_text(help_opt, line_len=79, indent='# ')
+            help_opt = _normalize_text(help_opt, line_len=79, indent="# ")
             print(file=stream)
             print(help_opt, file=stream)
         else:
             print(file=stream)
         if value is None:
-            print('#%s=' % optname, file=stream)
+            print("#%s=" % optname, file=stream)
         else:
             value = str(value).strip()
-            if re.match(r'^([\w-]+,)+[\w-]+$', str(value)):
-                separator = '\n ' + ' ' * len(optname)
-                value = separator.join(
-                    x + ',' for x in str(value).split(','))
+            if re.match(r"^([\w-]+,)+[\w-]+$", str(value)):
+                separator = "\n " + " " * len(optname)
+                value = separator.join(x + "," for x in str(value).split(","))
                 # remove trailing ',' from last element of the list
                 value = value[:-1]
-            print('%s=%s' % (optname, value), file=stream)
+            print("%s=%s" % (optname, value), file=stream)
+
 
 format_section = _ini_format_section
 
@@ -1339,17 +1445,17 @@ format_section = _ini_format_section
 def _rest_format_section(stream, section, options, doc=None):
     """format an options section using as ReST formatted output"""
     if section:
-        print('%s\n%s' % (section, "'"*len(section)), file=stream)
+        print("%s\n%s" % (section, "'" * len(section)), file=stream)
     if doc:
-        print(_normalize_text(doc, line_len=79, indent=''), file=stream)
+        print(_normalize_text(doc, line_len=79, indent=""), file=stream)
         print(file=stream)
     for optname, optdict, value in options:
-        help_opt = optdict.get('help')
-        print(':%s:' % optname, file=stream)
+        help_opt = optdict.get("help")
+        print(":%s:" % optname, file=stream)
         if help_opt:
-            help_opt = _normalize_text(help_opt, line_len=79, indent='  ')
+            help_opt = _normalize_text(help_opt, line_len=79, indent="  ")
             print(help_opt, file=stream)
         if value:
             value = str(_format_option_value(optdict, value))
             print(file=stream)
-            print('  Default: ``%s``' % value.replace("`` ", "```` ``"), file=stream)
+            print("  Default: ``%s``" % value.replace("`` ", "```` ``"), file=stream)

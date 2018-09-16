@@ -21,8 +21,8 @@ class JSONReporter(BaseReporter):
     """Report messages and layouts in JSON."""
 
     __implements__ = IReporter
-    name = 'json'
-    extension = 'json'
+    name = "json"
+    extension = "json"
 
     def __init__(self, output=sys.stdout):
         BaseReporter.__init__(self, output)
@@ -30,24 +30,26 @@ class JSONReporter(BaseReporter):
 
     def handle_message(self, msg):
         """Manage message of different type and in the context of path."""
-        self.messages.append({
-            'type': msg.category,
-            'module': msg.module,
-            'obj': msg.obj,
-            'line': msg.line,
-            'column': msg.column,
-            'path': msg.path,
-            'symbol': msg.symbol,
-            # pylint: disable=deprecated-method; deprecated since 3.2.
-            'message': cgi.escape(msg.msg or ''),
-            'message-id': msg.msg_id,
-        })
+        self.messages.append(
+            {
+                "type": msg.category,
+                "module": msg.module,
+                "obj": msg.obj,
+                "line": msg.line,
+                "column": msg.column,
+                "path": msg.path,
+                "symbol": msg.symbol,
+                # pylint: disable=deprecated-method; deprecated since 3.2.
+                "message": cgi.escape(msg.msg or ""),
+                "message-id": msg.msg_id,
+            }
+        )
 
     def display_messages(self, layout):
         """Launch layouts display"""
         print(json.dumps(self.messages, indent=4), file=self.out)
 
-    def display_reports(self, layout): # pylint: disable=arguments-differ
+    def display_reports(self, layout):  # pylint: disable=arguments-differ
         """Don't do nothing in this reporter."""
 
     def _display(self, layout):

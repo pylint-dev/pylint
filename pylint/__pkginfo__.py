@@ -23,50 +23,47 @@ from __future__ import absolute_import
 
 from os.path import join
 
-modname = distname = 'pylint'
+modname = distname = "pylint"
 
 numversion = (2, 2, 0)
-dev_version = 'dev'
-string_version = '.'.join(str(num) for num in numversion)
+dev_version = "dev"
+string_version = ".".join(str(num) for num in numversion)
 
-version = string_version + '-' + dev_version
+version = string_version + "-" + dev_version
 
-install_requires = [
-    'astroid>=2.0.0',
-    'isort >= 4.2.5',
-    'mccabe',
-]
+install_requires = ["astroid>=2.0.0", "isort >= 4.2.5", "mccabe"]
 
-dependency_links = []   # type: ignore
+dependency_links = []  # type: ignore
 
 extras_require = {}
-extras_require[':sys_platform=="win32"'] = ['colorama']
+extras_require[':sys_platform=="win32"'] = ["colorama"]
 
-license = 'GPL'
+license = "GPL"
 description = "python code static checker"
-web = 'https://github.com/PyCQA/pylint'
+web = "https://github.com/PyCQA/pylint"
 mailinglist = "mailto:code-quality@python.org"
-author = 'Python Code Quality Authority'
-author_email = 'code-quality@python.org'
+author = "Python Code Quality Authority"
+author_email = "code-quality@python.org"
 
-classifiers = ['Development Status :: 6 - Mature',
-               'Environment :: Console',
-               'Intended Audience :: Developers',
-               'License :: OSI Approved :: GNU General Public License (GPL)',
-               'Operating System :: OS Independent',
-               'Programming Language :: Python',
-               'Programming Language :: Python :: 3',
-               'Programming Language :: Python :: 3.4',
-               'Programming Language :: Python :: 3.5',
-               'Programming Language :: Python :: 3.6',
-               'Programming Language :: Python :: 3.7',
-               'Programming Language :: Python :: 3 :: Only',
-               'Programming Language :: Python :: Implementation :: CPython',
-               'Programming Language :: Python :: Implementation :: PyPy',
-               'Topic :: Software Development :: Debuggers',
-               'Topic :: Software Development :: Quality Assurance',
-               'Topic :: Software Development :: Testing'
-              ]
+classifiers = [
+    "Development Status :: 6 - Mature",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Debuggers",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+]
 
 
 long_desc = """\
@@ -86,8 +83,8 @@ long_desc = """\
  Pylint is shipped with "pyreverse" (UML diagram generator)
  and "symilar" (an independent similarities checker)."""
 
-scripts = [join('bin', filename)
-           for filename in ('pylint', "symilar", "epylint",
-                            "pyreverse")]
+scripts = [
+    join("bin", filename) for filename in ("pylint", "symilar", "epylint", "pyreverse")
+]
 
-include_dirs = [join('pylint', 'test')]
+include_dirs = [join("pylint", "test")]

@@ -55,18 +55,58 @@ from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.utils import WarningScope, OPTION_RGX
 
-_ASYNC_TOKEN = 'async'
-_CONTINUATION_BLOCK_OPENERS = ['elif', 'except', 'for', 'if', 'while', 'def', 'class', 'with']
-_KEYWORD_TOKENS = ['assert', 'del', 'elif', 'except', 'for', 'if', 'in', 'not',
-                   'raise', 'return', 'while', 'yield', 'with']
+_ASYNC_TOKEN = "async"
+_CONTINUATION_BLOCK_OPENERS = [
+    "elif",
+    "except",
+    "for",
+    "if",
+    "while",
+    "def",
+    "class",
+    "with",
+]
+_KEYWORD_TOKENS = [
+    "assert",
+    "del",
+    "elif",
+    "except",
+    "for",
+    "if",
+    "in",
+    "not",
+    "raise",
+    "return",
+    "while",
+    "yield",
+    "with",
+]
 if sys.version_info < (3, 0):
-    _KEYWORD_TOKENS.append('print')
+    _KEYWORD_TOKENS.append("print")
 
-_SPACED_OPERATORS = ['==', '<', '>', '!=', '<>', '<=', '>=',
-                     '+=', '-=', '*=', '**=', '/=', '//=', '&=', '|=', '^=',
-                     '%=', '>>=', '<<=']
-_OPENING_BRACKETS = ['(', '[', '{']
-_CLOSING_BRACKETS = [')', ']', '}']
+_SPACED_OPERATORS = [
+    "==",
+    "<",
+    ">",
+    "!=",
+    "<>",
+    "<=",
+    ">=",
+    "+=",
+    "-=",
+    "*=",
+    "**=",
+    "/=",
+    "//=",
+    "&=",
+    "|=",
+    "^=",
+    "%=",
+    ">>=",
+    "<<=",
+]
+_OPENING_BRACKETS = ["(", "[", "{"]
+_CLOSING_BRACKETS = [")", "]", "}"]
 _TAB_LENGTH = 8
 
 _EOL = frozenset([tokenize.NEWLINE, tokenize.NL, tokenize.COMMENT])
@@ -78,66 +118,94 @@ _MUST_NOT = 1
 _IGNORE = 2
 
 # Whitespace checking config constants
-_DICT_SEPARATOR = 'dict-separator'
-_TRAILING_COMMA = 'trailing-comma'
-_EMPTY_LINE = 'empty-line'
+_DICT_SEPARATOR = "dict-separator"
+_TRAILING_COMMA = "trailing-comma"
+_EMPTY_LINE = "empty-line"
 _NO_SPACE_CHECK_CHOICES = [_TRAILING_COMMA, _DICT_SEPARATOR, _EMPTY_LINE]
 _DEFAULT_NO_SPACE_CHECK_CHOICES = [_TRAILING_COMMA, _DICT_SEPARATOR]
 
 MSGS = {
-    'C0301': ('Line too long (%s/%s)',
-              'line-too-long',
-              'Used when a line is longer than a given number of characters.'),
-    'C0302': ('Too many lines in module (%s/%s)',  # was W0302
-              'too-many-lines',
-              'Used when a module has too many lines, reducing its readability.'
-              ),
-    'C0303': ('Trailing whitespace',
-              'trailing-whitespace',
-              'Used when there is whitespace between the end of a line and the '
-              'newline.'),
-    'C0304': ('Final newline missing',
-              'missing-final-newline',
-              'Used when the last line in a file is missing a newline.'),
-    'C0305': ('Trailing newlines',
-              'trailing-newlines',
-              'Used when there are trailing blank lines in a file.'),
-    'W0311': ('Bad indentation. Found %s %s, expected %s',
-              'bad-indentation',
-              'Used when an unexpected number of indentation\'s tabulations or '
-              'spaces has been found.'),
-    'C0330': ('Wrong %s indentation%s%s.\n%s%s',
-              'bad-continuation',
-              'TODO'),
-    'W0312': ('Found indentation with %ss instead of %ss',
-              'mixed-indentation',
-              'Used when there are some mixed tabs and spaces in a module.'),
-    'W0301': ('Unnecessary semicolon',  # was W0106
-              'unnecessary-semicolon',
-              'Used when a statement is ended by a semi-colon (";"), which '
-              'isn\'t necessary (that\'s python, not C ;).'),
-    'C0321': ('More than one statement on a single line',
-              'multiple-statements',
-              'Used when more than on statement are found on the same line.',
-              {'scope': WarningScope.NODE}),
-    'C0325': ('Unnecessary parens after %r keyword',
-              'superfluous-parens',
-              'Used when a single item in parentheses follows an if, for, or '
-              'other keyword.'),
-    'C0326': ('%s space %s %s %s\n%s',
-              'bad-whitespace',
-              ('Used when a wrong number of spaces is used around an operator, '
-               'bracket or block opener.'),
-              {'old_names': [('C0323', 'no-space-after-operator'),
-                             ('C0324', 'no-space-after-comma'),
-                             ('C0322', 'no-space-before-operator')]}),
-    'C0327': ('Mixed line endings LF and CRLF',
-              'mixed-line-endings',
-              'Used when there are mixed (LF and CRLF) newline signs in a file.'),
-    'C0328': ('Unexpected line ending format. There is \'%s\' while it should be \'%s\'.',
-              'unexpected-line-ending-format',
-              'Used when there is different newline than expected.'),
-    }
+    "C0301": (
+        "Line too long (%s/%s)",
+        "line-too-long",
+        "Used when a line is longer than a given number of characters.",
+    ),
+    "C0302": (
+        "Too many lines in module (%s/%s)",  # was W0302
+        "too-many-lines",
+        "Used when a module has too many lines, reducing its readability.",
+    ),
+    "C0303": (
+        "Trailing whitespace",
+        "trailing-whitespace",
+        "Used when there is whitespace between the end of a line and the " "newline.",
+    ),
+    "C0304": (
+        "Final newline missing",
+        "missing-final-newline",
+        "Used when the last line in a file is missing a newline.",
+    ),
+    "C0305": (
+        "Trailing newlines",
+        "trailing-newlines",
+        "Used when there are trailing blank lines in a file.",
+    ),
+    "W0311": (
+        "Bad indentation. Found %s %s, expected %s",
+        "bad-indentation",
+        "Used when an unexpected number of indentation's tabulations or "
+        "spaces has been found.",
+    ),
+    "C0330": ("Wrong %s indentation%s%s.\n%s%s", "bad-continuation", "TODO"),
+    "W0312": (
+        "Found indentation with %ss instead of %ss",
+        "mixed-indentation",
+        "Used when there are some mixed tabs and spaces in a module.",
+    ),
+    "W0301": (
+        "Unnecessary semicolon",  # was W0106
+        "unnecessary-semicolon",
+        'Used when a statement is ended by a semi-colon (";"), which '
+        "isn't necessary (that's python, not C ;).",
+    ),
+    "C0321": (
+        "More than one statement on a single line",
+        "multiple-statements",
+        "Used when more than on statement are found on the same line.",
+        {"scope": WarningScope.NODE},
+    ),
+    "C0325": (
+        "Unnecessary parens after %r keyword",
+        "superfluous-parens",
+        "Used when a single item in parentheses follows an if, for, or "
+        "other keyword.",
+    ),
+    "C0326": (
+        "%s space %s %s %s\n%s",
+        "bad-whitespace",
+        (
+            "Used when a wrong number of spaces is used around an operator, "
+            "bracket or block opener."
+        ),
+        {
+            "old_names": [
+                ("C0323", "no-space-after-operator"),
+                ("C0324", "no-space-after-comma"),
+                ("C0322", "no-space-before-operator"),
+            ]
+        },
+    ),
+    "C0327": (
+        "Mixed line endings LF and CRLF",
+        "mixed-line-endings",
+        "Used when there are mixed (LF and CRLF) newline signs in a file.",
+    ),
+    "C0328": (
+        "Unexpected line ending format. There is '%s' while it should be '%s'.",
+        "unexpected-line-ending-format",
+        "Used when there is different newline than expected.",
+    ),
+}
 
 
 def _underline_token(token):
@@ -145,9 +213,9 @@ def _underline_token(token):
     offset = token[2][1]
     referenced_line = token[4]
     # If the referenced line does not end with a newline char, fix it
-    if referenced_line[-1] != '\n':
-        referenced_line += '\n'
-    return referenced_line + (' ' * offset) + ('^' * length)
+    if referenced_line[-1] != "\n":
+        referenced_line += "\n"
+    return referenced_line + (" " * offset) + ("^" * length)
 
 
 def _column_distance(token1, token2):
@@ -161,22 +229,28 @@ def _column_distance(token1, token2):
 
 
 def _last_token_on_line_is(tokens, line_end, token):
-    return (line_end > 0 and tokens.token(line_end-1) == token or
-            line_end > 1 and tokens.token(line_end-2) == token
-            and tokens.type(line_end-1) == tokenize.COMMENT)
+    return (
+        line_end > 0
+        and tokens.token(line_end - 1) == token
+        or line_end > 1
+        and tokens.token(line_end - 2) == token
+        and tokens.type(line_end - 1) == tokenize.COMMENT
+    )
 
 
 def _token_followed_by_eol(tokens, position):
-    return (tokens.type(position+1) == tokenize.NL or
-            tokens.type(position+1) == tokenize.COMMENT and
-            tokens.type(position+2) == tokenize.NL)
+    return (
+        tokens.type(position + 1) == tokenize.NL
+        or tokens.type(position + 1) == tokenize.COMMENT
+        and tokens.type(position + 2) == tokenize.NL
+    )
 
 
 def _get_indent_string(line):
     """Return the indention string of the given line."""
-    result = ''
+    result = ""
     for char in line:
-        if char in ' \t':
+        if char in " \t":
             result += char
         else:
             break
@@ -187,9 +261,9 @@ def _get_indent_length(line):
     """Return the length of the indentation on the given token's line."""
     result = 0
     for char in line:
-        if char == ' ':
+        if char == " ":
             result += 1
-        elif char == '\t':
+        elif char == "\t":
             result += _TAB_LENGTH
         else:
             break
@@ -199,40 +273,47 @@ def _get_indent_length(line):
 def _get_indent_hint_line(bar_positions, bad_position):
     """Return a line with |s for each of the positions in the given lists."""
     if not bar_positions:
-        return ('', '')
+        return ("", "")
     # TODO tabs should not be replaced by some random (8) number of spaces
     bar_positions = [_get_indent_length(indent) for indent in bar_positions]
     bad_position = _get_indent_length(bad_position)
-    delta_message = ''
-    markers = [(pos, '|') for pos in bar_positions]
+    delta_message = ""
+    markers = [(pos, "|") for pos in bar_positions]
     if len(markers) == 1:
         # if we have only one marker we'll provide an extra hint on how to fix
         expected_position = markers[0][0]
         delta = abs(expected_position - bad_position)
-        direction = 'add' if expected_position > bad_position else 'remove'
+        direction = "add" if expected_position > bad_position else "remove"
         delta_message = _CONTINUATION_HINT_MESSAGE % (
-            direction, delta, 's' if delta > 1 else '')
-    markers.append((bad_position, '^'))
+            direction,
+            delta,
+            "s" if delta > 1 else "",
+        )
+    markers.append((bad_position, "^"))
     markers.sort()
-    line = [' '] * (markers[-1][0] + 1)
+    line = [" "] * (markers[-1][0] + 1)
     for position, marker in markers:
         line[position] = marker
-    return (''.join(line), delta_message)
+    return ("".join(line), delta_message)
 
 
 class _ContinuedIndent:
-    __slots__ = ('valid_outdent_strings',
-                 'valid_continuation_strings',
-                 'context_type',
-                 'token',
-                 'position')
+    __slots__ = (
+        "valid_outdent_strings",
+        "valid_continuation_strings",
+        "context_type",
+        "token",
+        "position",
+    )
 
-    def __init__(self,
-                 context_type,
-                 token,
-                 position,
-                 valid_outdent_strings,
-                 valid_continuation_strings):
+    def __init__(
+        self,
+        context_type,
+        token,
+        position,
+        valid_outdent_strings,
+        valid_continuation_strings,
+    ):
         self.valid_outdent_strings = valid_outdent_strings
         self.valid_continuation_strings = valid_continuation_strings
         self.context_type = context_type
@@ -242,28 +323,28 @@ class _ContinuedIndent:
 
 # The contexts for hanging indents.
 # A hanging indented dictionary value after :
-HANGING_DICT_VALUE = 'dict-value'
+HANGING_DICT_VALUE = "dict-value"
 # Hanging indentation in an expression.
-HANGING = 'hanging'
+HANGING = "hanging"
 # Hanging indentation in a block header.
-HANGING_BLOCK = 'hanging-block'
+HANGING_BLOCK = "hanging-block"
 # Continued indentation inside an expression.
-CONTINUED = 'continued'
+CONTINUED = "continued"
 # Continued indentation in a block header.
-CONTINUED_BLOCK = 'continued-block'
+CONTINUED_BLOCK = "continued-block"
 
-SINGLE_LINE = 'single'
-WITH_BODY = 'multi'
+SINGLE_LINE = "single"
+WITH_BODY = "multi"
 
 _CONTINUATION_MSG_PARTS = {
-    HANGING_DICT_VALUE: ('hanging', ' in dict value'),
-    HANGING: ('hanging', ''),
-    HANGING_BLOCK: ('hanging', ' before block'),
-    CONTINUED: ('continued', ''),
-    CONTINUED_BLOCK: ('continued', ' before block'),
+    HANGING_DICT_VALUE: ("hanging", " in dict value"),
+    HANGING: ("hanging", ""),
+    HANGING_BLOCK: ("hanging", " before block"),
+    CONTINUED: ("continued", ""),
+    CONTINUED_BLOCK: ("continued", " before block"),
 }
 
-_CONTINUATION_HINT_MESSAGE = ' (%s %d space%s)'  # Ex: (remove 2 spaces)
+_CONTINUATION_HINT_MESSAGE = " (%s %d space%s)"  # Ex: (remove 2 spaces)
 
 
 def _Indentations(*args):
@@ -318,7 +399,7 @@ class TokenWrapper:
         is "<TAB><TAB>      "
         """
         line_indent = self.line_indent(idx)
-        return line_indent + ' ' * (self.start_col(idx) - len(line_indent))
+        return line_indent + " " * (self.start_col(idx) - len(line_indent))
 
 
 class ContinuedLineState:
@@ -338,7 +419,7 @@ class ContinuedLineState:
 
     @property
     def _block_indent_string(self):
-        return self._config.indent_string.replace('\\t', '\t')
+        return self._config.indent_string.replace("\\t", "\t")
 
     @property
     def _continuation_string(self):
@@ -356,9 +437,9 @@ class ContinuedLineState:
         check_token_position = pos
         if self._tokens.token(pos) == _ASYNC_TOKEN:
             check_token_position += 1
-        self._is_block_opener = self._tokens.token(
-            check_token_position
-        ) in _CONTINUATION_BLOCK_OPENERS
+        self._is_block_opener = (
+            self._tokens.token(check_token_position) in _CONTINUATION_BLOCK_OPENERS
+        )
         self._line_start = pos
 
     def next_physical_line(self):
@@ -383,7 +464,10 @@ class ContinuedLineState:
         # The closing brace on a dict or the 'for' in a dict comprehension may
         # reset two indent levels because the dict value is ended implicitly
         stack_top = -1
-        if self._tokens.token(idx) in ('}', 'for') and self._cont_stack[-1].token == ':':
+        if (
+            self._tokens.token(idx) in ("}", "for")
+            and self._cont_stack[-1].token == ":"
+        ):
             stack_top = -2
         indent = self._cont_stack[stack_top]
         if self._tokens.token(idx) in _CLOSING_BRACKETS:
@@ -404,15 +488,21 @@ class ContinuedLineState:
         :rtype: _ContinuedIndent
         """
         indentation = self._tokens.line_indent(position)
-        if self._is_block_opener and self._continuation_string == self._block_indent_string:
+        if (
+            self._is_block_opener
+            and self._continuation_string == self._block_indent_string
+        ):
             return _ContinuedIndent(
                 HANGING_BLOCK,
                 bracket,
                 position,
                 _Indentations(indentation + self._continuation_string, indentation),
-                _BeforeBlockIndentations(indentation + self._continuation_string,
-                                         indentation + self._continuation_string * 2))
-        if bracket == ':':
+                _BeforeBlockIndentations(
+                    indentation + self._continuation_string,
+                    indentation + self._continuation_string * 2,
+                ),
+            )
+        if bracket == ":":
             # If the dict key was on the same line as the open brace, the new
             # correct indent should be relative to the key instead of the
             # current indent level
@@ -426,34 +516,42 @@ class ContinuedLineState:
             #            'c'
             # }
             # is handled by the special-casing for hanging continued string indents.
-            return _ContinuedIndent(HANGING_DICT_VALUE, bracket, position, paren_align, next_align)
+            return _ContinuedIndent(
+                HANGING_DICT_VALUE, bracket, position, paren_align, next_align
+            )
         return _ContinuedIndent(
             HANGING,
             bracket,
             position,
             _Indentations(indentation, indentation + self._continuation_string),
-            _Indentations(indentation + self._continuation_string))
+            _Indentations(indentation + self._continuation_string),
+        )
 
     def _continuation_inside_bracket(self, bracket, position):
         """Extracts indentation information for a continued indent."""
         indentation = self._tokens.line_indent(position)
         token_indent = self._tokens.token_indent(position)
         next_token_indent = self._tokens.token_indent(position + 1)
-        if self._is_block_opener and next_token_indent == indentation + self._block_indent_string:
+        if (
+            self._is_block_opener
+            and next_token_indent == indentation + self._block_indent_string
+        ):
             return _ContinuedIndent(
                 CONTINUED_BLOCK,
                 bracket,
                 position,
                 _Indentations(token_indent),
                 _BeforeBlockIndentations(
-                    next_token_indent,
-                    next_token_indent + self._continuation_string))
+                    next_token_indent, next_token_indent + self._continuation_string
+                ),
+            )
         return _ContinuedIndent(
             CONTINUED,
             bracket,
             position,
             _Indentations(token_indent, next_token_indent),
-            _Indentations(next_token_indent))
+            _Indentations(next_token_indent),
+        )
 
     def pop_token(self):
         self._cont_stack.pop()
@@ -473,11 +571,9 @@ class ContinuedLineState:
         :param int position: The position of the token in the stream.
         """
         if _token_followed_by_eol(self._tokens, position):
-            self._cont_stack.append(
-                self._hanging_indent_after_bracket(token, position))
+            self._cont_stack.append(self._hanging_indent_after_bracket(token, position))
         else:
-            self._cont_stack.append(
-                self._continuation_inside_bracket(token, position))
+            self._cont_stack.append(self._continuation_inside_bracket(token, position))
 
 
 class FormatChecker(BaseTokenChecker):
@@ -490,58 +586,118 @@ class FormatChecker(BaseTokenChecker):
     __implements__ = (ITokenChecker, IAstroidChecker, IRawChecker)
 
     # configuration section name
-    name = 'format'
+    name = "format"
     # messages
     msgs = MSGS
     # configuration options
     # for available dict keys/values see the optik parser 'add_option' method
-    options = (('max-line-length',
-                {'default': 100, 'type': "int", 'metavar': '<int>',
-                 'help': 'Maximum number of characters on a single line.'}),
-               ('ignore-long-lines',
-                {'type': 'regexp', 'metavar': '<regexp>',
-                 'default': r'^\s*(# )?<?https?://\S+>?$',
-                 'help': ('Regexp for a line that is allowed to be longer than '
-                          'the limit.')}),
-               ('single-line-if-stmt',
-                {'default': False, 'type': 'yn', 'metavar': '<y_or_n>',
-                 'help': ('Allow the body of an if to be on the same '
-                          'line as the test if there is no else.')}),
-               ('single-line-class-stmt',
-                {'default': False, 'type': 'yn', 'metavar': '<y_or_n>',
-                 'help': ('Allow the body of a class to be on the same '
-                          'line as the declaration if body contains '
-                          'single statement.')}),
-               ('no-space-check',
-                {'default': ','.join(_DEFAULT_NO_SPACE_CHECK_CHOICES),
-                 'metavar': ','.join(_NO_SPACE_CHECK_CHOICES),
-                 'type': 'multiple_choice',
-                 'choices': _NO_SPACE_CHECK_CHOICES,
-                 'help': ('List of optional constructs for which whitespace '
-                          'checking is disabled. '
-                          '`'+ _DICT_SEPARATOR + '` is used to allow tabulation '
-                          'in dicts, etc.: {1  : 1,\\n222: 2}. '
-                          '`'+ _TRAILING_COMMA + '` allows a space between comma '
-                          'and closing bracket: (a, ). '
-                          '`'+ _EMPTY_LINE + '` allows space-only lines.')}),
-               ('max-module-lines',
-                {'default': 1000, 'type': 'int', 'metavar': '<int>',
-                 'help': 'Maximum number of lines in a module.'}
-               ),
-               ('indent-string',
-                {'default': '    ', 'type': "non_empty_string", 'metavar': '<string>',
-                 'help': 'String used as indentation unit. This is usually '
-                         '"    " (4 spaces) or "\\t" (1 tab).'}),
-               ('indent-after-paren',
-                {'type': 'int', 'metavar': '<int>', 'default': 4,
-                 'help': 'Number of spaces of indent required inside a hanging '
-                         'or continued line.'}),
-               ('expected-line-ending-format',
-                {'type': 'choice', 'metavar': '<empty or LF or CRLF>', 'default': '',
-                 'choices': ['', 'LF', 'CRLF'],
-                 'help': ('Expected format of line ending, '
-                          'e.g. empty (any line ending), LF or CRLF.')}),
-               )
+    options = (
+        (
+            "max-line-length",
+            {
+                "default": 100,
+                "type": "int",
+                "metavar": "<int>",
+                "help": "Maximum number of characters on a single line.",
+            },
+        ),
+        (
+            "ignore-long-lines",
+            {
+                "type": "regexp",
+                "metavar": "<regexp>",
+                "default": r"^\s*(# )?<?https?://\S+>?$",
+                "help": (
+                    "Regexp for a line that is allowed to be longer than " "the limit."
+                ),
+            },
+        ),
+        (
+            "single-line-if-stmt",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y_or_n>",
+                "help": (
+                    "Allow the body of an if to be on the same "
+                    "line as the test if there is no else."
+                ),
+            },
+        ),
+        (
+            "single-line-class-stmt",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y_or_n>",
+                "help": (
+                    "Allow the body of a class to be on the same "
+                    "line as the declaration if body contains "
+                    "single statement."
+                ),
+            },
+        ),
+        (
+            "no-space-check",
+            {
+                "default": ",".join(_DEFAULT_NO_SPACE_CHECK_CHOICES),
+                "metavar": ",".join(_NO_SPACE_CHECK_CHOICES),
+                "type": "multiple_choice",
+                "choices": _NO_SPACE_CHECK_CHOICES,
+                "help": (
+                    "List of optional constructs for which whitespace "
+                    "checking is disabled. "
+                    "`" + _DICT_SEPARATOR + "` is used to allow tabulation "
+                    "in dicts, etc.: {1  : 1,\\n222: 2}. "
+                    "`" + _TRAILING_COMMA + "` allows a space between comma "
+                    "and closing bracket: (a, ). "
+                    "`" + _EMPTY_LINE + "` allows space-only lines."
+                ),
+            },
+        ),
+        (
+            "max-module-lines",
+            {
+                "default": 1000,
+                "type": "int",
+                "metavar": "<int>",
+                "help": "Maximum number of lines in a module.",
+            },
+        ),
+        (
+            "indent-string",
+            {
+                "default": "    ",
+                "type": "non_empty_string",
+                "metavar": "<string>",
+                "help": "String used as indentation unit. This is usually "
+                '"    " (4 spaces) or "\\t" (1 tab).',
+            },
+        ),
+        (
+            "indent-after-paren",
+            {
+                "type": "int",
+                "metavar": "<int>",
+                "default": 4,
+                "help": "Number of spaces of indent required inside a hanging "
+                "or continued line.",
+            },
+        ),
+        (
+            "expected-line-ending-format",
+            {
+                "type": "choice",
+                "metavar": "<empty or LF or CRLF>",
+                "default": "",
+                "choices": ["", "LF", "CRLF"],
+                "help": (
+                    "Expected format of line ending, "
+                    "e.g. empty (any line ending), LF or CRLF."
+                ),
+            },
+        ),
+    )
 
     def __init__(self, linter=None):
         BaseTokenChecker.__init__(self, linter)
@@ -559,19 +715,19 @@ class FormatChecker(BaseTokenChecker):
 
     def new_line(self, tokens, line_end, line_start):
         """a new line has been encountered, process it if necessary"""
-        if _last_token_on_line_is(tokens, line_end, ';'):
-            self.add_message('unnecessary-semicolon', line=tokens.start_line(line_end))
+        if _last_token_on_line_is(tokens, line_end, ";"):
+            self.add_message("unnecessary-semicolon", line=tokens.start_line(line_end))
 
         line_num = tokens.start_line(line_start)
         line = tokens.line(line_start)
         if tokens.type(line_start) not in _JUNK_TOKENS:
-            self._lines[line_num] = line.split('\n')[0]
+            self._lines[line_num] = line.split("\n")[0]
         self.check_lines(line, line_num)
 
     def process_module(self, module):
         self._keywords_with_parens = set()
-        if 'print_function' in module.future_imports:
-            self._keywords_with_parens.add('print')
+        if "print_function" in module.future_imports:
+            self._keywords_with_parens.add("print")
 
     def _check_keyword_parentheses(self, tokens, start):
         """Check that there are not unnecessary parens after a keyword.
@@ -585,9 +741,9 @@ class FormatChecker(BaseTokenChecker):
         start: int; the position of the keyword in the token list.
         """
         # If the next token is not a paren, we're fine.
-        if self._inside_brackets(':') and tokens[start][1] == 'for':
+        if self._inside_brackets(":") and tokens[start][1] == "for":
             self._pop_token()
-        if tokens[start+1][1] != '(':
+        if tokens[start + 1][1] != "(":
             return
 
         found_and_or = False
@@ -602,73 +758,77 @@ class FormatChecker(BaseTokenChecker):
             if token[0] == tokenize.NL:
                 return
 
-            if token[1] == '(':
+            if token[1] == "(":
                 depth += 1
-            elif token[1] == ')':
+            elif token[1] == ")":
                 depth -= 1
                 if depth:
                     continue
                 # ')' can't happen after if (foo), since it would be a syntax error.
-                if (tokens[i+1][1] in (':', ')', ']', '}', 'in') or
-                        tokens[i+1][0] in (tokenize.NEWLINE,
-                                           tokenize.ENDMARKER,
-                                           tokenize.COMMENT)):
+                if tokens[i + 1][1] in (":", ")", "]", "}", "in") or tokens[i + 1][
+                    0
+                ] in (tokenize.NEWLINE, tokenize.ENDMARKER, tokenize.COMMENT):
                     # The empty tuple () is always accepted.
                     if i == start + 2:
                         return
-                    if keyword_token == 'not':
+                    if keyword_token == "not":
                         if not found_and_or:
-                            self.add_message('superfluous-parens', line=line_num,
-                                             args=keyword_token)
-                    elif keyword_token in ('return', 'yield'):
-                        self.add_message('superfluous-parens', line=line_num,
-                                         args=keyword_token)
+                            self.add_message(
+                                "superfluous-parens", line=line_num, args=keyword_token
+                            )
+                    elif keyword_token in ("return", "yield"):
+                        self.add_message(
+                            "superfluous-parens", line=line_num, args=keyword_token
+                        )
                     elif keyword_token not in self._keywords_with_parens:
                         if not found_and_or:
-                            self.add_message('superfluous-parens', line=line_num,
-                                             args=keyword_token)
+                            self.add_message(
+                                "superfluous-parens", line=line_num, args=keyword_token
+                            )
                 return
             elif depth == 1:
                 # This is a tuple, which is always acceptable.
-                if token[1] == ',':
+                if token[1] == ",":
                     return
                 # 'and' and 'or' are the only boolean operators with lower precedence
                 # than 'not', so parens are only required when they are found.
-                if token[1] in ('and', 'or'):
+                if token[1] in ("and", "or"):
                     found_and_or = True
                 # A yield inside an expression must always be in parentheses,
                 # quit early without error.
-                elif token[1] == 'yield':
+                elif token[1] == "yield":
                     return
                 # A generator expression always has a 'for' token in it, and
                 # the 'for' token is only legal inside parens when it is in a
                 # generator expression.  The parens are necessary here, so bail
                 # without an error.
-                elif token[1] == 'for':
+                elif token[1] == "for":
                     return
 
     def _opening_bracket(self, tokens, i):
         self._push_token(tokens[i][1], i)
         # Special case: ignore slices
-        if tokens[i][1] == '[' and tokens[i+1][1] == ':':
+        if tokens[i][1] == "[" and tokens[i + 1][1] == ":":
             return
 
-        if (i > 0 and (tokens[i-1][0] == tokenize.NAME and
-                       not (keyword.iskeyword(tokens[i-1][1]))
-                       or tokens[i-1][1] in _CLOSING_BRACKETS)):
+        if i > 0 and (
+            tokens[i - 1][0] == tokenize.NAME
+            and not (keyword.iskeyword(tokens[i - 1][1]))
+            or tokens[i - 1][1] in _CLOSING_BRACKETS
+        ):
             self._check_space(tokens, i, (_MUST_NOT, _MUST_NOT))
         else:
             self._check_space(tokens, i, (_IGNORE, _MUST_NOT))
 
     def _closing_bracket(self, tokens, i):
-        if self._inside_brackets(':'):
+        if self._inside_brackets(":"):
             self._pop_token()
         self._pop_token()
         # Special case: ignore slices
-        if tokens[i-1][1] == ':' and tokens[i][1] == ']':
+        if tokens[i - 1][1] == ":" and tokens[i][1] == "]":
             return
         policy_before = _MUST_NOT
-        if tokens[i][1] in _CLOSING_BRACKETS and tokens[i-1][1] == ',':
+        if tokens[i][1] in _CLOSING_BRACKETS and tokens[i - 1][1] == ",":
             if _TRAILING_COMMA in self.config.no_space_check:
                 policy_before = _IGNORE
 
@@ -676,25 +836,25 @@ class FormatChecker(BaseTokenChecker):
 
     def _has_valid_type_annotation(self, tokens, i):
         """Extended check of PEP-484 type hint presence"""
-        if not self._inside_brackets('('):
+        if not self._inside_brackets("("):
             return False
         # token_info
         # type string start end line
         #  0      1     2    3    4
         bracket_level = 0
-        for token in tokens[i-1::-1]:
-            if token[1] == ':':
+        for token in tokens[i - 1 :: -1]:
+            if token[1] == ":":
                 return True
-            if token[1] == '(':
+            if token[1] == "(":
                 return False
-            if token[1] == ']':
+            if token[1] == "]":
                 bracket_level += 1
-            elif token[1] == '[':
+            elif token[1] == "[":
                 bracket_level -= 1
-            elif token[1] == ',':
+            elif token[1] == ",":
                 if not bracket_level:
                     return False
-            elif token[1] in ('.', '...'):
+            elif token[1] in (".", "..."):
                 continue
             elif token[0] not in (tokenize.NAME, tokenize.STRING, tokenize.NL):
                 return False
@@ -704,38 +864,37 @@ class FormatChecker(BaseTokenChecker):
         """Check the spacing of a single equals sign."""
         if self._has_valid_type_annotation(tokens, i):
             self._check_space(tokens, i, (_MUST, _MUST))
-        elif self._inside_brackets('(') or self._inside_brackets('lambda'):
+        elif self._inside_brackets("(") or self._inside_brackets("lambda"):
             self._check_space(tokens, i, (_MUST_NOT, _MUST_NOT))
         else:
             self._check_space(tokens, i, (_MUST, _MUST))
 
-    def _open_lambda(self, tokens, i): # pylint:disable=unused-argument
-        self._push_token('lambda', i)
+    def _open_lambda(self, tokens, i):  # pylint:disable=unused-argument
+        self._push_token("lambda", i)
 
     def _handle_colon(self, tokens, i):
         # Special case: ignore slices
-        if self._inside_brackets('['):
+        if self._inside_brackets("["):
             return
-        if (self._inside_brackets('{') and
-                _DICT_SEPARATOR in self.config.no_space_check):
+        if self._inside_brackets("{") and _DICT_SEPARATOR in self.config.no_space_check:
             policy = (_IGNORE, _IGNORE)
         else:
             policy = (_MUST_NOT, _MUST)
         self._check_space(tokens, i, policy)
 
-        if self._inside_brackets('lambda'):
+        if self._inside_brackets("lambda"):
             self._pop_token()
-        elif self._inside_brackets('{'):
-            self._push_token(':', i)
+        elif self._inside_brackets("{"):
+            self._push_token(":", i)
 
     def _handle_comma(self, tokens, i):
         # Only require a following whitespace if this is
         # not a hanging comma before a closing bracket.
-        if tokens[i+1][1] in _CLOSING_BRACKETS:
+        if tokens[i + 1][1] in _CLOSING_BRACKETS:
             self._check_space(tokens, i, (_MUST_NOT, _IGNORE))
         else:
             self._check_space(tokens, i, (_MUST_NOT, _MUST))
-        if self._inside_brackets(':'):
+        if self._inside_brackets(":"):
             self._pop_token()
 
     def _check_surrounded_by_space(self, tokens, i):
@@ -745,25 +904,25 @@ class FormatChecker(BaseTokenChecker):
     def _check_space(self, tokens, i, policies):
         def _policy_string(policy):
             if policy == _MUST:
-                return 'Exactly one', 'required'
-            return 'No', 'allowed'
+                return "Exactly one", "required"
+            return "No", "allowed"
 
         def _name_construct(token):
-            if token[1] == ',':
-                return 'comma'
-            if token[1] == ':':
-                return ':'
-            if token[1] in '()[]{}':
-                return 'bracket'
-            if token[1] in ('<', '>', '<=', '>=', '!=', '=='):
-                return 'comparison'
-            if self._inside_brackets('('):
-                return 'keyword argument assignment'
-            return 'assignment'
+            if token[1] == ",":
+                return "comma"
+            if token[1] == ":":
+                return ":"
+            if token[1] in "()[]{}":
+                return "bracket"
+            if token[1] in ("<", ">", "<=", ">=", "!=", "=="):
+                return "comparison"
+            if self._inside_brackets("("):
+                return "keyword argument assignment"
+            return "assignment"
 
         good_space = [True, True]
         token = tokens[i]
-        pairs = [(tokens[i-1], token), (token, tokens[i+1])]
+        pairs = [(tokens[i - 1], token), (token, tokens[i + 1])]
 
         for other_idx, (policy, token_pair) in enumerate(zip(policies, pairs)):
             if token_pair[other_idx][0] in _EOL or policy == _IGNORE:
@@ -772,47 +931,41 @@ class FormatChecker(BaseTokenChecker):
             distance = _column_distance(*token_pair)
             if distance is None:
                 continue
-            good_space[other_idx] = (
-                (policy == _MUST and distance == 1) or
-                (policy == _MUST_NOT and distance == 0))
+            good_space[other_idx] = (policy == _MUST and distance == 1) or (
+                policy == _MUST_NOT and distance == 0
+            )
 
         warnings = []
         if not any(good_space) and policies[0] == policies[1]:
-            warnings.append((policies[0], 'around'))
+            warnings.append((policies[0], "around"))
         else:
-            for ok, policy, position in zip(good_space, policies, ('before', 'after')):
+            for ok, policy, position in zip(good_space, policies, ("before", "after")):
                 if not ok:
                     warnings.append((policy, position))
         for policy, position in warnings:
             construct = _name_construct(token)
             count, state = _policy_string(policy)
-            self.add_message('bad-whitespace', line=token[2][0],
-                             args=(count, state, position, construct,
-                                   _underline_token(token)), col_offset=token[2][1])
+            self.add_message(
+                "bad-whitespace",
+                line=token[2][0],
+                args=(count, state, position, construct, _underline_token(token)),
+                col_offset=token[2][1],
+            )
 
     def _inside_brackets(self, left):
         return self._bracket_stack[-1] == left
 
     def _prepare_token_dispatcher(self):
         raw = [
-            (_KEYWORD_TOKENS,
-             self._check_keyword_parentheses),
-
+            (_KEYWORD_TOKENS, self._check_keyword_parentheses),
             (_OPENING_BRACKETS, self._opening_bracket),
-
             (_CLOSING_BRACKETS, self._closing_bracket),
-
-            (['='], self._check_equals_spacing),
-
+            (["="], self._check_equals_spacing),
             (_SPACED_OPERATORS, self._check_surrounded_by_space),
-
-            ([','], self._handle_comma),
-
-            ([':'], self._handle_colon),
-
-            (['lambda'], self._open_lambda),
-
-            ]
+            ([","], self._handle_comma),
+            ([":"], self._handle_colon),
+            (["lambda"], self._open_lambda),
+        ]
 
         dispatch = {}
         for tokens, handler in raw:
@@ -847,9 +1000,9 @@ class FormatChecker(BaseTokenChecker):
                 # docstring, the line member of the INDENT token does not contain
                 # the full line; therefore we check the next token on the line.
                 if tok_type == tokenize.INDENT:
-                    self.new_line(TokenWrapper(tokens), idx-1, idx+1)
+                    self.new_line(TokenWrapper(tokens), idx - 1, idx + 1)
                 else:
-                    self.new_line(TokenWrapper(tokens), idx-1, idx)
+                    self.new_line(TokenWrapper(tokens), idx - 1, idx)
 
             if tok_type == tokenize.NEWLINE:
                 # a program statement, or ENDMARKER, will eventually follow,
@@ -863,8 +1016,8 @@ class FormatChecker(BaseTokenChecker):
                 self._check_line_ending(token, line_num)
             elif tok_type == tokenize.INDENT:
                 check_equal = False
-                self.check_indent_level(token, indents[-1]+1, line_num)
-                indents.append(indents[-1]+1)
+                self.check_indent_level(token, indents[-1] + 1, line_num)
+                indents.append(indents[-1] + 1)
             elif tok_type == tokenize.DEDENT:
                 # there's nothing we need to check here!  what's important is
                 # that when the run of DEDENTs ends, the indentation of the
@@ -874,9 +1027,9 @@ class FormatChecker(BaseTokenChecker):
                 if len(indents) > 1:
                     del indents[-1]
             elif tok_type == tokenize.NL:
-                if not line.strip('\r\n'):
+                if not line.strip("\r\n"):
                     last_blank_line_num = line_num
-                self._check_continued_indentation(TokenWrapper(tokens), idx+1)
+                self._check_continued_indentation(TokenWrapper(tokens), idx + 1)
                 self._current_line.next_physical_line()
             elif tok_type not in (tokenize.COMMENT, tokenize.ENCODING):
                 self._current_line.handle_line_start(idx)
@@ -890,8 +1043,8 @@ class FormatChecker(BaseTokenChecker):
                     check_equal = False
                     self.check_indent_level(line, indents[-1], line_num)
 
-            if tok_type == tokenize.NUMBER and token.endswith('l'):
-                self.add_message('lowercase-l-suffix', line=line_num)
+            if tok_type == tokenize.NUMBER and token.endswith("l"):
+                self.add_message("lowercase-l-suffix", line=line_num)
 
             try:
                 handler = token_handlers[token]
@@ -904,24 +1057,25 @@ class FormatChecker(BaseTokenChecker):
         if line_num > self.config.max_module_lines:
             # Get the line where the too-many-lines (or its message id)
             # was disabled or default to 1.
-            symbol = self.linter.msgs_store.get_message_definition('too-many-lines')
-            names = (symbol.msgid, 'too-many-lines')
-            line = next(filter(None,
-                               map(self.linter._pragma_lineno.get, names)), 1)
-            self.add_message('too-many-lines',
-                             args=(line_num, self.config.max_module_lines),
-                             line=line)
+            symbol = self.linter.msgs_store.get_message_definition("too-many-lines")
+            names = (symbol.msgid, "too-many-lines")
+            line = next(filter(None, map(self.linter._pragma_lineno.get, names)), 1)
+            self.add_message(
+                "too-many-lines",
+                args=(line_num, self.config.max_module_lines),
+                line=line,
+            )
 
         # See if there are any trailing lines.  Do not complain about empty
         # files like __init__.py markers.
         if line_num == last_blank_line_num and line_num > 0:
-            self.add_message('trailing-newlines', line=line_num)
+            self.add_message("trailing-newlines", line=line_num)
 
     def _check_line_ending(self, line_ending, line_num):
         # check if line endings are mixed
         if self._last_line_ending is not None:
             if line_ending != self._last_line_ending:
-                self.add_message('mixed-line-endings', line=line_num)
+                self.add_message("mixed-line-endings", line=line_num)
 
         self._last_line_ending = line_ending
 
@@ -930,13 +1084,16 @@ class FormatChecker(BaseTokenChecker):
         if expected:
             # reduce multiple \n\n\n\n to one \n
             line_ending = reduce(lambda x, y: x + y if x != y else x, line_ending, "")
-            line_ending = 'LF' if line_ending == '\n' else 'CRLF'
+            line_ending = "LF" if line_ending == "\n" else "CRLF"
             if line_ending != expected:
-                self.add_message('unexpected-line-ending-format', args=(line_ending, expected),
-                                 line=line_num)
+                self.add_message(
+                    "unexpected-line-ending-format",
+                    args=(line_ending, expected),
+                    line=line_num,
+                )
 
     def _process_retained_warnings(self, tokens, current_pos):
-        single_line_block_stmt = not _last_token_on_line_is(tokens, current_pos, ':')
+        single_line_block_stmt = not _last_token_on_line_is(tokens, current_pos, ":")
 
         for indent_pos, state, indentations in self._current_line.retained_warnings:
             block_type = indentations[tokens.token_indent(indent_pos)]
@@ -948,8 +1105,10 @@ class FormatChecker(BaseTokenChecker):
 
     def _check_continued_indentation(self, tokens, next_idx):
         def same_token_around_nl(token_type):
-            return (tokens.type(next_idx) == token_type and
-                    tokens.type(next_idx-2) == token_type)
+            return (
+                tokens.type(next_idx) == token_type
+                and tokens.type(next_idx - 2) == token_type
+            )
 
         # Do not issue any warnings if the next line is empty.
         if not self._current_line.has_content or tokens.type(next_idx) == tokenize.NL:
@@ -959,33 +1118,48 @@ class FormatChecker(BaseTokenChecker):
         # Special handling for hanging comments and strings. If the last line ended
         # with a comment (string) and the new line contains only a comment, the line
         # may also be indented to the start of the previous token.
-        if same_token_around_nl(tokenize.COMMENT) or same_token_around_nl(tokenize.STRING):
-            valid_indentations[tokens.token_indent(next_idx-2)] = True
+        if same_token_around_nl(tokenize.COMMENT) or same_token_around_nl(
+            tokenize.STRING
+        ):
+            valid_indentations[tokens.token_indent(next_idx - 2)] = True
 
         # We can only decide if the indentation of a continued line before opening
         # a new block is valid once we know of the body of the block is on the
         # same line as the block opener. Since the token processing is single-pass,
         # emitting those warnings is delayed until the block opener is processed.
-        if (state.context_type in (HANGING_BLOCK, CONTINUED_BLOCK)
-                and tokens.token_indent(next_idx) in valid_indentations):
+        if (
+            state.context_type in (HANGING_BLOCK, CONTINUED_BLOCK)
+            and tokens.token_indent(next_idx) in valid_indentations
+        ):
             self._current_line.add_block_warning(next_idx, state, valid_indentations)
         elif tokens.token_indent(next_idx) not in valid_indentations:
             length_indentation = len(tokens.token_indent(next_idx))
-            if not any(length_indentation == 2 * len(indentation)
-                       for indentation in valid_indentations):
-                self._add_continuation_message(state, valid_indentations, tokens, next_idx)
+            if not any(
+                length_indentation == 2 * len(indentation)
+                for indentation in valid_indentations
+            ):
+                self._add_continuation_message(
+                    state, valid_indentations, tokens, next_idx
+                )
 
     def _add_continuation_message(self, state, indentations, tokens, position):
         readable_type, readable_position = _CONTINUATION_MSG_PARTS[state.context_type]
-        hint_line, delta_message = _get_indent_hint_line(indentations,
-                                                         tokens.token_indent(position))
+        hint_line, delta_message = _get_indent_hint_line(
+            indentations, tokens.token_indent(position)
+        )
         self.add_message(
-            'bad-continuation',
+            "bad-continuation",
             line=tokens.start_line(position),
-            args=(readable_type, readable_position, delta_message,
-                  tokens.line(position), hint_line))
+            args=(
+                readable_type,
+                readable_position,
+                delta_message,
+                tokens.line(position),
+                hint_line,
+            ),
+        )
 
-    @check_messages('multiple-statements')
+    @check_messages("multiple-statements")
     def visit_default(self, node):
         """check the node line number and check it if not yet done"""
         if not node.is_statement:
@@ -1000,8 +1174,10 @@ class FormatChecker(BaseTokenChecker):
             # is not directly represented in the AST. We infer it
             # by taking the last line of the body and adding 1, which
             # should be the line of finally:
-            if (isinstance(node.parent, nodes.TryFinally)
-                    and node in node.parent.finalbody):
+            if (
+                isinstance(node.parent, nodes.TryFinally)
+                and node in node.parent.finalbody
+            ):
                 prev_line = node.parent.body[0].tolineno + 1
             else:
                 prev_line = node.parent.statement().fromlineno
@@ -1023,7 +1199,7 @@ class FormatChecker(BaseTokenChecker):
             try:
                 lines.append(self._lines[line].rstrip())
             except KeyError:
-                lines.append('')
+                lines.append("")
 
     def _check_multi_statement_line(self, node, line):
         """Check for lines containing multiple statements."""
@@ -1033,16 +1209,23 @@ class FormatChecker(BaseTokenChecker):
             return
         # For try... except... finally..., the two nodes
         # appear to be on the same line due to how the AST is built.
-        if (isinstance(node, nodes.TryExcept) and
-                isinstance(node.parent, nodes.TryFinally)):
+        if isinstance(node, nodes.TryExcept) and isinstance(
+            node.parent, nodes.TryFinally
+        ):
             return
-        if (isinstance(node.parent, nodes.If) and not node.parent.orelse
-                and self.config.single_line_if_stmt):
+        if (
+            isinstance(node.parent, nodes.If)
+            and not node.parent.orelse
+            and self.config.single_line_if_stmt
+        ):
             return
-        if (isinstance(node.parent, nodes.ClassDef) and len(node.parent.body) == 1
-                and self.config.single_line_class_stmt):
+        if (
+            isinstance(node.parent, nodes.ClassDef)
+            and len(node.parent.body) == 1
+            and self.config.single_line_class_stmt
+        ):
             return
-        self.add_message('multiple-statements', node=node)
+        self.add_message("multiple-statements", node=node)
         self._visited_lines[line] = 2
 
     def check_lines(self, lines, i):
@@ -1052,43 +1235,45 @@ class FormatChecker(BaseTokenChecker):
         ignore_long_line = self.config.ignore_long_lines
 
         def check_line(line, i):
-            if not line.endswith('\n'):
-                self.add_message('missing-final-newline', line=i)
+            if not line.endswith("\n"):
+                self.add_message("missing-final-newline", line=i)
             else:
                 # exclude \f (formfeed) from the rstrip
-                stripped_line = line.rstrip('\t\n\r\v ')
+                stripped_line = line.rstrip("\t\n\r\v ")
                 if not stripped_line and _EMPTY_LINE in self.config.no_space_check:
                     # allow empty lines
                     pass
-                elif line[len(stripped_line):] not in ('\n', '\r\n'):
-                    self.add_message('trailing-whitespace', line=i,
-                                     col_offset=len(stripped_line))
+                elif line[len(stripped_line) :] not in ("\n", "\r\n"):
+                    self.add_message(
+                        "trailing-whitespace", line=i, col_offset=len(stripped_line)
+                    )
                 # Don't count excess whitespace in the line length.
                 line = stripped_line
             mobj = OPTION_RGX.search(line)
-            if mobj and '=' in line:
-                front_of_equal, _, back_of_equal = mobj.group(1).partition('=')
-                if front_of_equal.strip() == 'disable':
-                    if 'line-too-long' in {_msg_id.strip()
-                                           for _msg_id in back_of_equal.split(',')}:
+            if mobj and "=" in line:
+                front_of_equal, _, back_of_equal = mobj.group(1).partition("=")
+                if front_of_equal.strip() == "disable":
+                    if "line-too-long" in {
+                        _msg_id.strip() for _msg_id in back_of_equal.split(",")
+                    }:
                         return None
-                    line = line.rsplit('#', 1)[0].rstrip()
+                    line = line.rsplit("#", 1)[0].rstrip()
 
             if len(line) > max_chars and not ignore_long_line.search(line):
-                self.add_message('line-too-long', line=i, args=(len(line), max_chars))
+                self.add_message("line-too-long", line=i, args=(len(line), max_chars))
             return i + 1
 
         unsplit_ends = {
-            '\v',
-            '\x0b',
-            '\f',
-            '\x0c',
-            '\x1c',
-            '\x1d',
-            '\x1e',
-            '\x85',
-            '\u2028',
-            '\u2029'
+            "\v",
+            "\x0b",
+            "\f",
+            "\x0c",
+            "\x1c",
+            "\x1d",
+            "\x1e",
+            "\x85",
+            "\u2028",
+            "\u2029",
         }
         unsplit = []
         for line in lines.splitlines(True):
@@ -1098,7 +1283,7 @@ class FormatChecker(BaseTokenChecker):
 
             if unsplit:
                 unsplit.append(line)
-                line = ''.join(unsplit)
+                line = "".join(unsplit)
                 unsplit = []
 
             i = check_line(line, i)
@@ -1106,37 +1291,39 @@ class FormatChecker(BaseTokenChecker):
                 break
 
         if unsplit:
-            check_line(''.join(unsplit), i)
+            check_line("".join(unsplit), i)
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string
         """
         indent = self.config.indent_string
-        if indent == '\\t':  # \t is not interpreted in the configuration file
-            indent = '\t'
+        if indent == "\\t":  # \t is not interpreted in the configuration file
+            indent = "\t"
         level = 0
         unit_size = len(indent)
         while string[:unit_size] == indent:
             string = string[unit_size:]
             level += 1
-        suppl = ''
-        while string and string[0] in ' \t':
+        suppl = ""
+        while string and string[0] in " \t":
             if string[0] != indent[0]:
-                if string[0] == '\t':
-                    args = ('tab', 'space')
+                if string[0] == "\t":
+                    args = ("tab", "space")
                 else:
-                    args = ('space', 'tab')
-                self.add_message('mixed-indentation', args=args, line=line_num)
+                    args = ("space", "tab")
+                self.add_message("mixed-indentation", args=args, line=line_num)
                 return level
             suppl += string[0]
             string = string[1:]
         if level != expected or suppl:
-            i_type = 'spaces'
-            if indent[0] == '\t':
-                i_type = 'tabs'
-            self.add_message('bad-indentation', line=line_num,
-                             args=(level * unit_size + len(suppl), i_type,
-                                   expected * unit_size))
+            i_type = "spaces"
+            if indent[0] == "\t":
+                i_type = "tabs"
+            self.add_message(
+                "bad-indentation",
+                line=line_num,
+                args=(level * unit_size + len(suppl), i_type, expected * unit_size),
+            )
         return None
 
 
