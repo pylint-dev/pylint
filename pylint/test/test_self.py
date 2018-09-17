@@ -232,7 +232,7 @@ class TestRunTC(object):
             [
                 "-j 2",
                 join(HERE, "functional/arguments.py"),
-                join(HERE, "functional/bad_continuation.py"),
+                join(HERE, "functional/arguments.py"),
             ],
             code=2,
         )
