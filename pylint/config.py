@@ -150,8 +150,8 @@ directory).
     Path to the configuration file. See the documentation for the method used
 to search for configuration file.
 """
-    % globals()
-)  # type: ignore
+    % globals()  # type: ignore
+)
 
 
 class UnsupportedAction(Exception):

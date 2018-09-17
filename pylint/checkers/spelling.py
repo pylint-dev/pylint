@@ -24,8 +24,8 @@ import re
 
 try:
     import enchant
-    from enchant.tokenize import (
-        get_tokenizer,  # type: ignore
+    from enchant.tokenize import (  # type: ignore
+        get_tokenizer,
         Chunker,
         Filter,
         EmailFilter,
