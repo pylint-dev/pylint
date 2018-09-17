@@ -234,7 +234,7 @@ class TestRunTC(object):
                 join(HERE, "functional/arguments.py"),
                 join(HERE, "functional/bad_continuation.py"),
             ],
-            code=18,
+            code=2,
         )
 
     def test_parallel_execution_missing_arguments(self):
@@ -537,7 +537,7 @@ class TestRunTC(object):
             # e.g. /src/some/path/src/test_target.py when reporter.path_strip_prefix = /src/
             os.makedirs(fake_path)
             with open(module, "w") as test_target:
-                test_target.write("a = object()")
+                test_target.write("a,b = object()")
 
             self._test_output(
                 [module, "--output-format=parseable"],
