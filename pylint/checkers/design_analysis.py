@@ -26,7 +26,6 @@ from astroid import decorators
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers import utils as checker_utils
 from pylint.checkers.utils import check_messages
 from pylint import utils
 
@@ -93,6 +92,15 @@ MSGS = {
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 DATACLASS_DECORATOR = "dataclass"
 DATACLASS_IMPORT = "dataclasses"
+TYPING_NAMEDTUPLE = "typing.NamedTuple"
+
+
+def _is_typing_namedtuple(node: astroid.ClassDef) -> bool:
+    """Check if a class node is a typing.NamedTuple class"""
+    for base in node.ancestors():
+        if base.qname() == TYPING_NAMEDTUPLE:
+            return True
+    return False
 
 
 def _is_enum_class(node: astroid.ClassDef) -> bool:
@@ -351,7 +359,12 @@ class MisdesignChecker(BaseChecker):
 
         # Stop here for exception, metaclass, interface classes and other
         # classes for which we don't need to count the methods.
-        if node.type != "class" or _is_enum_class(node) or _is_dataclass(node):
+        if (
+            node.type != "class"
+            or _is_enum_class(node)
+            or _is_dataclass(node)
+            or _is_typing_namedtuple(node)
+        ):
             return
 
         # Does the class contain more than n public methods ?

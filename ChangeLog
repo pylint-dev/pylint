@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * ``too-few-public-methods`` is not reported for ``typing.NamedTuple``
+
+     Close #2459
+
    * ```too-few-public-methods`` is not reported for dataclasses created with options.
 
      Close #2488
@@ -83,7 +87,7 @@ Release date: TBA
 
    * `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement.
 
-      In Python, stubbed functions often have a body that contains just a single `pass` statement, 
+      In Python, stubbed functions often have a body that contains just a single `pass` statement,
       indicating that the function doesn't do anything. However, a stubbed function can also have just a
       docstring, and function with a docstring and no body also does nothing.
 
@@ -100,7 +104,7 @@ Release date: TBA
    * Consider tuples in exception handler for ``try-except-raise``.
      Close #2389
 
-   * Fix astroid.ClassDef check in checkers.utils.is_subclass_of 
+   * Fix astroid.ClassDef check in checkers.utils.is_subclass_of
 
    * Fix wildcard imports being ignored by the import checker
 
