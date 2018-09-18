@@ -81,8 +81,6 @@ SETITEM_METHOD = "__setitem__"
 DELITEM_METHOD = "__delitem__"
 CONTAINS_METHOD = "__contains__"
 KEYS_METHOD = "keys"
-DATACLASS_DECORATOR = "dataclass"
-DATACLASS_IMPORT = "dataclasses"
 
 # Dictionary which maps the number of expected parameters a
 # special method can have to a set of special methods.
@@ -1119,58 +1117,6 @@ def get_node_last_lineno(node: astroid.node_classes.NodeNG) -> int:
         return get_node_last_lineno(node.body[-1])
     # Not a compound statement
     return node.lineno
-
-
-def is_enum_class(node: astroid.ClassDef) -> bool:
-    """Check if a class definition defines an Enum class.
-
-    :param node: The class node to check.
-    :type node: astroid.ClassDef
-
-    :returns: True if the given node represents an Enum class. False otherwise.
-    :rtype: bool
-    """
-    for base in node.bases:
-        try:
-            inferred_bases = base.inferred()
-        except astroid.InferenceError:
-            continue
-
-        for ancestor in inferred_bases:
-            if not isinstance(ancestor, astroid.ClassDef):
-                continue
-
-            if ancestor.name == "Enum" and ancestor.root().name == "enum":
-                return True
-
-    return False
-
-
-def is_dataclass(node: astroid.ClassDef) -> bool:
-    """Check if a class definition defines a Python 3.7+ dataclass
-
-    :param node: The class node to check.
-    :type node: astroid.ClassDef
-
-    :returns: True if the given node represents a dataclass class. False otherwise.
-    :rtype: bool
-    """
-    if not node.decorators:
-        return False
-
-    root_locals = node.root().locals
-    for decorator in node.decorators.nodes:
-        if isinstance(decorator, astroid.Call):
-            decorator = decorator.func
-        if not isinstance(decorator, (astroid.Name, astroid.Attribute)):
-            continue
-        if isinstance(decorator, astroid.Name):
-            name = decorator.name
-        else:
-            name = decorator.attrname
-        if name == DATACLASS_DECORATOR and DATACLASS_DECORATOR in root_locals:
-            return True
-    return False
 
 
 def is_postponed_evaluation_enabled(node: astroid.node_classes.NodeNG) -> bool:
