@@ -850,17 +850,7 @@ class PyLinter(
                             self.add_message("file-ignored", line=start[0])
                             self._ignore_file = True
                             return
-                        comments_sharp_sep = content.split("#")[1:]
-                        first_comment = "#" + comments_sharp_sep[0]
-                        first_comment_match_disable = utils.OPTION_RGX.search(
-                            first_comment
-                        )
-                        #  Deactivate msg emission for whole module only if
-                        # we are sure the disable directive is the first comment.
-                        # If not then it refers to the comment before
-                        # and not to the module itself.
-                        if first_comment_match_disable:
-                            meth(msgid, "module", start[0])
+                        meth(msgid, "module", start[0])
                     except exceptions.UnknownMessageError:
                         self.add_message("bad-option-value", args=msgid, line=start[0])
             else:
