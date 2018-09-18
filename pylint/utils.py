@@ -437,7 +437,22 @@ class MessagesHandlerMixIn:
             # This happens for example with a commented line at the end of a module.
             max_line_number = self.file_state.get_effective_max_line_number()
             if max_line_number and line > max_line_number:
-                fallback = msgid not in self.file_state._raw_module_msgs_state
+                fallback = True
+                lines = self.file_state._raw_module_msgs_state.get(msgid, {})
+
+                # Doesn't consider scopes, as a disable can be in a different scope
+                # than that of the current line.
+                closest_lines = reversed(
+                    [
+                        (message_line, enable)
+                        for message_line, enable in lines.items()
+                        if message_line <= line
+                    ]
+                )
+                last_line, is_enabled = next(closest_lines, (None, None))
+                if last_line is not None:
+                    fallback = is_enabled
+
                 return self._msgs_state.get(msgid, fallback)
             return self._msgs_state.get(msgid, True)
 
