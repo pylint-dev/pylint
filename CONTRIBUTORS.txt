@@ -231,3 +231,5 @@ contributors:
 * Yuri Gribov: contributor
 
 * Drew Risinger: committer (docs)
+
+* Tomer Chachamu, Richard Goodman: simplifiable-if-expression
