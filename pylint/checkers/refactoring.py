@@ -1078,7 +1078,7 @@ class RecommandationChecker(checkers.BaseChecker):
         iterating_object = len_args[0]
         if not isinstance(iterating_object, astroid.Name):
             return
-        # If we're defining __iter__ on self enumerate won't work
+        # If we're defining __iter__ on self, enumerate won't work
         if iterating_object.name == 'self' and node.parent.name == '__iter__':
             return
 
