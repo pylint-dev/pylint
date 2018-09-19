@@ -231,3 +231,5 @@ contributors:
 * Yuri Gribov: contributor
 
 * Drew Risinger: committer (docs)
+
+* Ben James
