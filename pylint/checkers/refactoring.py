@@ -1078,6 +1078,9 @@ class RecommandationChecker(checkers.BaseChecker):
         iterating_object = len_args[0]
         if not isinstance(iterating_object, astroid.Name):
             return
+        # If we're defining __iter__ on self enumerate won't work
+        if iterating_object.name == 'self' and node.parent.name == '__iter__':
+            return
 
         # Verify that the body of the for loop uses a subscript
         # with the object that was iterated. This uses some heuristics
