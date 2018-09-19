@@ -24,6 +24,12 @@ README for Pylint - http://pylint.pycqa.org/
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
 
+======
+Pylint
+======
+
+**It's not just a linter that annoys you!**
+
 Pylint is a Python static code analysis tool which looks for programming errors,
 helps enforcing a coding standard, sniffs for code smells and offers simple refactoring
 suggestions.
