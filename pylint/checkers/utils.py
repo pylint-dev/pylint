@@ -616,10 +616,7 @@ def inherit_from_std_ex(node: astroid.node_classes.NodeNG) -> bool:
     return any(inherit_from_std_ex(parent) for parent in node.ancestors(recurs=True))
 
 
-def error_of_type(
-    handler: astroid.ExceptHandler,
-    error_type: Union[str, Type[Exception], Tuple[Type[Exception]]],
-) -> bool:
+def error_of_type(handler: astroid.ExceptHandler, error_type) -> bool:
     """
     Check if the given exception handler catches
     the given error_type.
@@ -785,16 +782,14 @@ def is_from_fallback_block(node: astroid.node_classes.NodeNG) -> bool:
 
 
 def _except_handlers_ignores_exception(
-    handlers: astroid.ExceptHandler,
-    exception: Union[str, Type[Exception], Tuple[Type[Exception]]],
+    handlers: astroid.ExceptHandler, exception
 ) -> bool:
     func = partial(error_of_type, error_type=(exception,))
     return any(map(func, handlers))
 
 
 def get_exception_handlers(
-    node: astroid.node_classes.NodeNG,
-    exception: Union[str, Type[Exception]] = Exception,
+    node: astroid.node_classes.NodeNG, exception=Exception
 ) -> List[astroid.ExceptHandler]:
     """Return the collections of handlers handling the exception in arguments.
 
@@ -829,8 +824,7 @@ def is_node_inside_try_except(node: astroid.Raise) -> bool:
 
 
 def node_ignores_exception(
-    node: astroid.node_classes.NodeNG,
-    exception: Union[str, Type[Exception]] = Exception,
+    node: astroid.node_classes.NodeNG, exception=Exception
 ) -> bool:
     """Check if the node is in a TryExcept which handles the given exception.
 

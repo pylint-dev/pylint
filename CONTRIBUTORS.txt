@@ -233,3 +233,5 @@ contributors:
 * Drew Risinger: committer (docs)
 
 * Ben James
+
+* Tomer Chachamu, Richard Goodman: simplifiable-if-expression

@@ -11,6 +11,10 @@ Release date: TBA
 
      Close #2477
 
+   * Add a new check, ``simplifiable-if-expression`` for expressions like ``True if cond else False``.
+
+     Close #2487
+
    * ``too-few-public-methods`` is not reported for ``typing.NamedTuple``
 
      Close #2459
