@@ -200,6 +200,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Also it is faster since you don't need to create another "
             "transient list",
         ),
+        "R1719": (
+            "The if expression can be replaced with %s",
+            "simplifiable-if-expression",
+            "Used when an if expression can be replaced with " "'bool(test)'. ",
+        ),
     }
     options = (
         (
@@ -464,6 +469,35 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_nested_blocks(node)
         self._check_superfluous_else_return(node)
         self._check_consider_get(node)
+
+    @utils.check_messages("simplifiable-if-expression")
+    def visit_ifexp(self, node):
+        self._check_simplifiable_ifexp(node)
+
+    def _check_simplifiable_ifexp(self, node):
+        if not isinstance(node.body, astroid.Const) or not isinstance(
+            node.orelse, astroid.Const
+        ):
+            return
+
+        if not isinstance(node.body.value, bool) or not isinstance(
+            node.orelse.value, bool
+        ):
+            return
+
+        if isinstance(node.test, astroid.Compare):
+            test_reduced_to = "test"
+        else:
+            test_reduced_to = "bool(test)"
+
+        if (node.body.value, node.orelse.value) == (True, False):
+            reduced_to = "'{}'".format(test_reduced_to)
+        elif (node.body.value, node.orelse.value) == (False, True):
+            reduced_to = "'not test'"
+        else:
+            return
+
+        self.add_message("simplifiable-if-expression", node=node, args=(reduced_to,))
 
     @utils.check_messages(
         "too-many-nested-blocks", "inconsistent-return-statements", "useless-return"
