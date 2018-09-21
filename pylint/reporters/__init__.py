@@ -54,6 +54,7 @@ class BaseReporter:
     def __init__(self, output=None):
         self.linter = None
         self.section = 0
+        self.cfg = None
         self.out = None
         self.out_encoding = None
         self.set_output(output)
