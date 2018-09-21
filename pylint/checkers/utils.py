@@ -1125,8 +1125,7 @@ def is_postponed_evaluation_enabled(node: astroid.node_classes.NodeNG) -> bool:
     )
 
 
-def is_subclass_of(child: astroid.ClassDef,
-                   parent: astroid.ClassDef) -> bool:
+def is_subclass_of(child: astroid.ClassDef, parent: astroid.ClassDef) -> bool:
     """
     Check if first node is a subclass of second node.
     :param child: Node to check for subclass.
@@ -1136,7 +1135,6 @@ def is_subclass_of(child: astroid.ClassDef,
     if not all(isinstance(node, astroid.ClassDef) for node in (child, parent)):
         return False
 
-    
     for base in child.ancestors():
         if parent.name == base.name:
             return True
