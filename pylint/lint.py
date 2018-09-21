@@ -1563,6 +1563,7 @@ group are mutually exclusive.",
             linter.set_reporter(reporter)
         try:
             args = linter.load_command_line_configuration(args)
+            linter.reporter.cfg = linter.config
         except SystemExit as exc:
             if exc.code == 2:  # bad options
                 exc.code = 32
