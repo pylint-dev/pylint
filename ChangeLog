@@ -15,6 +15,10 @@ Release date: TBA
 
      Close #2513
 
+   * `try-except-raise` checker now handles multilevel inheritance hirerachy for exceptions correctly.
+
+     Close #2484
+
    * Add a new check, ``simplifiable-if-expression`` for expressions like ``True if cond else False``.
 
      Close #2487

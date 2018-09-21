@@ -1125,17 +1125,22 @@ def is_postponed_evaluation_enabled(node: astroid.node_classes.NodeNG) -> bool:
     )
 
 
-def is_subclass_of(node_a: astroid.ClassDef, node_b: astroid.ClassDef) -> bool:
+def is_subclass_of(child: astroid.ClassDef,
+                   parent: astroid.ClassDef) -> bool:
     """
     Check if first node is a subclass of second node.
-    :param node_a: Node to check for subclass.
-    :type node_a: astroid.ClassDef
-    :param node_b: Node to check for superclass.
-    :type node_b: astroid.ClassDef
-    :returns: True if node_a is derived from node_b. False otherwise.
-    :rtype: bool
+    :param child: Node to check for subclass.
+    :param parent: Node to check for superclass.
+    :returns: True if child is derived from parent. False otherwise.
     """
-    if not all(isinstance(node, astroid.ClassDef) for node in (node_a, node_b)):
+    if not all(isinstance(node, astroid.ClassDef) for node in (child, parent)):
         return False
 
-    return node_b.name in {base.name for base in node_a.bases}
+    
+    for base in child.ancestors():
+        if parent.name == base.name:
+            return True
+        # recursively check child's parent for actual parent
+        child = safe_infer(base)
+        is_subclass_of(child, parent)
+    return False

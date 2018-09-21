@@ -1,5 +1,5 @@
 # pylint:disable=missing-docstring, unreachable, bad-except-order, bare-except, unnecessary-pass
-# pylint: disable=undefined-variable
+# pylint: disable=undefined-variable, broad-except
 try:
     int("9a")
 except:  # [try-except-raise]
@@ -103,3 +103,18 @@ except invalid_name:  # [try-except-raise]
     raise
 except TypeError:
     pass
+
+try:
+    pass
+except (FileNotFoundError, PermissionError):
+    raise
+except Exception:
+    print("a failure")
+
+try:
+    pass
+except (FileNotFoundError, PermissionError):
+    raise
+except (Exception,):
+    print("a failure")
+    
