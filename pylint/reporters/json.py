@@ -47,10 +47,56 @@ class JSONReporter(BaseReporter):
 
     def display_messages(self, layout):
         """Launch layouts display"""
-        print(json.dumps(self.messages, indent=4), file=self.out)
+        if self.cfg:
+            if self.messages and not self.cfg.reports and not self.cfg.score:
+                print(json.dumps(self.messages, indent=4), file=self.out)
+        elif self.messages:
+            print(json.dumps(self.messages, indent=4), file=self.out)
 
     def display_reports(self, layout):  # pylint: disable=arguments-differ
-        """Don't do nothing in this reporter."""
+        """"Add a report type in output JSON"""
+        print_msg = False
+        msg = layout.children[1].children[0].data
+        
+        if " statements analysed." in msg and self.cfg:
+            # Number of analyzed statements case
+            try:
+                parsed_msg = msg.split(" statements analysed.")
+                dict_statements = {}
+                dict_statements["type"] = "report"
+                dict_statements["output"] = "Number of statements analyzed"
+                dict_statements["number"] = int(parsed_msg[0])
+            except Exception as err:
+                raise Exception("Error during JSON statements number supply: {}".format(err))
+            else:
+                self.messages.append(dict_statements)
+                print_msg = not self.cfg.score
+            
+        elif "Your code has been rated at" in msg and self.cfg:
+            # Rate case
+            try:
+                parsed_msg = msg.split("/10")
+                rate = parsed_msg[0].split("at ")[1]
+                previous_rate = parsed_msg[1].split("run: ")[1]
+
+                dict_rate = {}
+                dict_rate["type"] = "score"
+                dict_rate["output"] = "run"
+                dict_rate["rate"] = float(rate)
+
+                dict_previous_rate = {}
+                dict_previous_rate["type"] = "score"
+                dict_previous_rate["output"] = "previous run"
+                dict_previous_rate["rate"] = float(previous_rate)
+            except Exception as err:
+                raise Exception("Error during JSON rate supply")
+            else:
+                self.messages.append(dict_rate)
+                self.messages.append(dict_previous_rate)
+                print_msg = True
+                
+        if print_msg:
+            print(json.dumps(self.messages, indent=4), file=self.out)
 
     def _display(self, layout):
         """Don't do nothing."""
