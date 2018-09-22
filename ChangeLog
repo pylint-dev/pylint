@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * Remove ``enumerate`` usage suggestion when defining ``__iter__`` (C0200)
+
+     Close #2477
+
    * Add a new check, ``simplifiable-if-expression`` for expressions like ``True if cond else False``.
 
      Close #2487
