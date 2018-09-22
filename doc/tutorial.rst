@@ -55,20 +55,25 @@ idea of the arguments available to you.  Do that now, i.e.:
 
 A couple of the options that we'll focus on here are: ::
 
-  Master:
-    --generate-rcfile=<file>
   Commands:
     --help-msg=<msg-id>
-  Commands:
-    --help-msg=<msg-id>
-  Message control:
+    --generate-rcfile
+  Messages control:
     --disable=<msg-ids>
   Reports:
-    --files-output=<y_or_n>
     --reports=<y_or_n>
     --output-format=<format>
 
-Also pay attention to the last bit of help output.  This gives you a hint of what
+If you need more detail, you can also ask for an even longer help message,
+like so: ::
+
+  robertk01 Desktop$ pylint --long-help
+  ...
+  Even more stuff
+  ...
+
+Pay attention to the last bit of this longer help output.  This gives you a
+hint of what
 Pylint is going to ``pick on``: ::
 
   Output:
@@ -78,7 +83,7 @@ Pylint is going to ``pick on``: ::
     * (C) convention, for programming standard violation
     * (R) refactor, for bad code smell
     * (W) warning, for python specific problems
-    * (E) error, for much probably bugs in the code
+    * (E) error, for probable bugs in the code
     * (F) fatal, if an error occurred which prevented pylint from doing
     further processing.
 
@@ -98,13 +103,13 @@ entirety:
 
 .. sourcecode:: python
 
-   1  #!/usr/bin/env python
+   1  #!/usr/bin/env python3
    2
    3  import string
    4
    5  shift = 3
-   6  choice = raw_input("would you like to encode or decode?")
-   7  word = (raw_input("Please enter text"))
+   6  choice = input("would you like to encode or decode?")
+   7  word = input("Please enter text")
    8  letters = string.ascii_letters + string.punctuation + string.digits
    9  encoded = ''
   10  if choice == "encode":
@@ -122,7 +127,7 @@ entirety:
   22              x = letters.index(letter) - shift
   23              encoded = encoded + letters[x]
   24
-  25  print encoded
+  25  print(encoded)
 
 
 Let's get started.
@@ -132,131 +137,29 @@ If we run this:
 .. sourcecode:: bash
 
   robertk01 Desktop$ pylint simplecaeser.py
-  No config file found, using default configuration
-  ************* Module simplecaeser
-  C:  1, 0: Missing module docstring (missing-docstring)
-  W:  3, 0: Uses of a deprecated module 'string' (deprecated-module)
-  C:  5, 0: Invalid constant name "shift" (invalid-name)
-  C:  6, 0: Invalid constant name "choice" (invalid-name)
-  C:  7, 0: Invalid constant name "word" (invalid-name)
-  C:  8, 0: Invalid constant name "letters" (invalid-name)
-  C:  9, 0: Invalid constant name "encoded" (invalid-name)
-  C: 16,12: Operator not preceded by a space
-	      encoded=encoded + letters[x]
-		     ^ (no-space-before-operator)
+  ************* Module simplecaesar
+  simplecaesar.py:16:19: C0326: Exactly one space required around assignment
+              encoded=encoded + letters[x]
+                     ^ (bad-whitespace)
+  simplecaesar.py:1:0: C0111: Missing module docstring (missing-docstring)
+  simplecaesar.py:5:0: C0103: Constant name "shift" doesn't conform to UPPER_CASE naming style (invalid-name)
+  simplecaesar.py:6:0: C0103: Constant name "choice" doesn't conform to UPPER_CASE naming style (invalid-name)
+  simplecaesar.py:7:0: C0103: Constant name "word" doesn't conform to UPPER_CASE naming style (invalid-name)
+  simplecaesar.py:8:0: C0103: Constant name "letters" doesn't conform to UPPER_CASE naming style (invalid-name)
+  simplecaesar.py:9:0: C0103: Constant name "encoded" doesn't conform to UPPER_CASE naming style (invalid-name)
+
+  -----------------------------------
+  Your code has been rated at 6.32/10
 
 
-  Report
-  ======
-  19 statements analysed.
+Previous experience taught me that the default output for the messages
+needed a bit more info.  We can see the second line is: ::
 
-  Duplication
-  -----------
+  "simplecaesar.py:1:0: C0111: Missing module docstring (missing-docstring)"
 
-  +-------------------------+------+---------+-----------+
-  |                         |now   |previous |difference |
-  +=========================+======+=========+===========+
-  |nb duplicated lines      |0     |0        |=          |
-  +-------------------------+------+---------+-----------+
-  |percent duplicated lines |0.000 |0.000    |=          |
-  +-------------------------+------+---------+-----------+
-
-
-
-  Raw metrics
-  -----------
-
-  +----------+-------+------+---------+-----------+
-  |type      |number |%     |previous |difference |
-  +==========+=======+======+=========+===========+
-  |code      |21     |87.50 |21       |=          |
-  +----------+-------+------+---------+-----------+
-  |docstring |0      |0.00  |0        |=          |
-  +----------+-------+------+---------+-----------+
-  |comment   |1      |4.17  |1        |=          |
-  +----------+-------+------+---------+-----------+
-  |empty     |2      |8.33  |2        |=          |
-  +----------+-------+------+---------+-----------+
-
-
-
-  Statistics by type
-  ------------------
-
-  +---------+-------+-----------+-----------+------------+---------+
-  |type     |number |old number |difference |%documented |%badname |
-  +=========+=======+===========+===========+============+=========+
-  |module   |1      |1          |=          |0.00        |0.00     |
-  +---------+-------+-----------+-----------+------------+---------+
-  |class    |0      |0          |=          |0.00        |0.00     |
-  +---------+-------+-----------+-----------+------------+---------+
-  |method   |0      |0          |=          |0.00        |0.00     |
-  +---------+-------+-----------+-----------+------------+---------+
-  |function |0      |0          |=          |0.00        |0.00     |
-  +---------+-------+-----------+-----------+------------+---------+
-
-
-
-  Messages by category
-  --------------------
-
-  +-----------+-------+---------+-----------+
-  |type       |number |previous |difference |
-  +===========+=======+=========+===========+
-  |convention |7      |7        |=          |
-  +-----------+-------+---------+-----------+
-  |refactor   |0      |0        |=          |
-  +-----------+-------+---------+-----------+
-  |warning    |1      |1        |=          |
-  +-----------+-------+---------+-----------+
-  |error      |0      |0        |=          |
-  +-----------+-------+---------+-----------+
-
-
-
-  Messages
-  --------
-
-  +-------------------------+------------+
-  |message id               |occurrences |
-  +=========================+============+
-  |invalid-name             |5           |
-  +-------------------------+------------+
-  |no-space-before-operator |1           |
-  +-------------------------+------------+
-  |missing-docstring        |1           |
-  +-------------------------+------------+
-  |deprecated-module        |1           |
-  +-------------------------+------------+
-
-
-
-  Global evaluation
-  -----------------
-  Your code has been rated at 5.79/10
-
-
-Wow.  That's a lot of stuff.  The first part is the 'messages' section while the
-second part is the 'report' section.  There are two points I want to tackle here.
-
-First point is that all the tables of statistics (i.e. the report) are a bit
-overwhelming so I want to silence them.  To do that, I will use the
-**--reports=n** option.
-
-.. tip:: Many of Pylint's commonly used command line options have shortcuts.
- for example, **--reports=n** can be abbreviated to **-rn**. Pylint's man page lists
- all these shortcuts.
-
-Second, previous experience taught me that the default output for the messages
-needed a bit more info.  We can see the first line is: ::
-
-  "C:  1: Missing docstring (missing-docstring)"
-
-This basically means that line 1 violates a convention ``C``.  It's telling me I
-really should have a docstring.  I agree, but what if I didn't fully understand
-what rule I violated.  Knowing only that I violated a convention isn't much help
-if I'm a newbie. Another information there is the message symbol between parens,
-``missing-docstring`` here.
+This basically means that line 1 violates a convention ``C0111``.  It's telling me I really should have a docstring.  I agree, but what if I didn't fully understand what rule I violated.  Knowing only that I violated a convention
+isn't much help if I'm a newbie. Another piece of information there is the
+message symbol between parens, ``missing-docstring`` here.
 
 If I want to read up a bit more about that, I can go back to the
 command line and try this:
@@ -264,11 +167,11 @@ command line and try this:
 .. sourcecode:: bash
 
   robertk01 Desktop$ pylint --help-msg=missing-docstring
-  No config file found, using default configuration
-  :missing-docstring (C0111): *Missing docstring*
-  Used when a module, function, class or method has no docstring. Some special
-  methods like __init__ doesn\'t necessarily require a docstring. This message
+  :missing-docstring (C0111): *Missing %s docstring*
+  Used when a module, function, class or method has no docstring.Some special
+  methods like __init__ doesn't necessary require a docstring. This message
   belongs to the basic checker.
+
 
 Yeah, ok. That one was a bit of a no-brainer but I have run into error messages
 that left me with no clue about what went wrong, simply because I was unfamiliar
@@ -288,27 +191,24 @@ Now that we got some configuration stuff out of the way, let's see what we can
 do with the remaining warnings.
 
 If we add a docstring to describe what the code is meant to do that will help.
-I'm also going to be a bit cowboy and ignore the ``deprecated-module`` message
-because I like to take risks in life.  A deprecation warning means that future
-versions of Python may not support that code so my code may break in the future.
-There are 5 ``invalid-name`` messages that we will get to later.  Lastly, I violated the
-convention of using spaces around an operator such as "=" so I'll fix that too.
-To sum up, I'll add a docstring to line 2, put spaces around the = sign on line
-16 and use the ``--disable=deprecated-module`` to ignore the deprecation warning.
+There are 5 ``invalid-name`` messages that we will get to later.  Lastly, I
+violated the convention of using spaces around an operator such as "=" so I'll
+fix that too. To sum up, I'll add a docstring to line 2, and put spaces around
+the = sign on line 16.
 
 Here is the updated code:
 
 .. sourcecode:: python
 
-   1  #!/usr/bin/env python
+   1  #!/usr/bin/env python3
    2  """This script prompts a user to enter a message to encode or decode
    3  using a classic Caeser shift substitution (3 letter shift)"""
    4
    5  import string
    6
    7  shift = 3
-   8  choice = raw_input("would you like to encode or decode?")
-   9  word = (raw_input("Please enter text"))
+   8  choice = input("would you like to encode or decode?")
+   9  word = input("Please enter text")
   10  letters = string.ascii_letters + string.punctuation + string.digits
   11  encoded = ''
   12  if choice == "encode":
@@ -326,23 +226,25 @@ Here is the updated code:
   24              x = letters.index(letter) - shift
   25              encoded = encoded + letters[x]
   26
-  27  print encoded
+  27  print(encoded)
 
-And here is what happens when we run it with our ``--disable=deprecated-module``
-option:
+Here is what happens when we run it:
 
 .. sourcecode:: bash
 
-  robertk01 Desktop$ pylint --reports=n --disable=deprecated-module simplecaeser.py
-  No config file found, using default configuration
-  ************* Module simplecaeser
-  C:  7, 0: Invalid constant name "shift" (invalid-name)
-  C:  8, 0: Invalid constant name "choice" (invalid-name)
-  C:  9, 0: Invalid constant name "word" (invalid-name)
-  C: 10, 0: Invalid constant name "letters" (invalid-name)
-  C: 11, 0: Invalid constant name "encoded" (invalid-name)
+  robertk01 Desktop$ pylint simplecaeser.py
+  ************* Module simplecaesar
+  simplecaesar.py:7:0: C0103: Constant name "shift" doesn't conform to UPPER_CASE naming style (invalid-name)
+  simplecaesar.py:8:0: C0103: Constant name "choice" doesn't conform to UPPER_CASE naming style (invalid-name)
+  simplecaesar.py:9:0: C0103: Constant name "word" doesn't conform to UPPER_CASE naming style (invalid-name)
+  simplecaesar.py:10:0: C0103: Constant name "letters" doesn't conform to UPPER_CASE naming style (invalid-name)
+  simplecaesar.py:11:0: C0103: Constant name "encoded" doesn't conform to UPPER_CASE naming style (invalid-name)
 
-Nice!  We're down to just the ``invalid-name`` messages.
+  ------------------------------------------------------------------
+  Your code has been rated at 7.37/10 (previous run: 6.32/10, +1.05)
+
+
+Nice! Pylint told us how much our code rating has improved since our last run, and we're down to just the ``invalid-name`` messages.
 
 There are fairly well defined conventions around naming things like instance
 variables, functions, classes, etc.  The conventions focus on the use of
@@ -364,20 +266,20 @@ will now be quite quiet:
 
 .. sourcecode:: bash
 
-  robertk01 Desktop$ pylint --reports=n --disable=deprecated-module --const-rgx='[a-z_][a-z0-9_]{2,30}$'  simplecaeser.py
-  No config file found, using default configuration
+  robertk01 Desktop$ pylint --const-rgx='[a-z_][a-z0-9_]{2,30}$' simplecaesar.py
+
+  -------------------------------------------------------------------
+  Your code has been rated at 10.00/10 (previous run: 7.37/10, +2.63)
+
 
 Regular expressions can be quite a beast so take my word on this particular
 example but go ahead and `read up`_ on them if you want.
 
 .. tip::
- It would really be a pain to have to use all these options
- on the command line all the time.  That's what the configuration file is for.  We can
- configure our Pylint to store our options for us so we don't have to declare
- them on the command line.  Using the configuration file is a nice way of formalizing your
- rules and quickly sharing them with others. Invoking ``pylint
- --generate-rcfile`` will create a sample rcfile with all the options set and
- explained in comments.
+ It would really be a pain to specify that regex on the command line all the time, particularly if we're using many other options.
+ That's what the configuration file is for. We can configure our Pylint to
+ store our options for us so we don't have to declare them on the command line.  Using the configuration file is a nice way of formalizing your rules and
+ quickly sharing them with others. Invoking ``pylint --generate-rcfile`` will create a sample rcfile with all the options set and explained in comments.
 
 That's it for the basic intro. More tutorials will follow.
 
