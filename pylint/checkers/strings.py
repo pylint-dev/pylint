@@ -677,11 +677,14 @@ class StringConstantChecker(BaseTokenChecker):
                 self.process_string_token(token, start_row)
 
     def process_string_token(self, token, start_row):
+        quote_char = None
         for i, c in enumerate(token):
             if c in "'\"":
                 quote_char = c
                 break
-        # pylint: disable=undefined-loop-variable
+        if quote_char is None:
+            return None
+
         prefix = token[:i].lower()  #  markers like u, b, r.
         after_prefix = token[i:]
         if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char:
