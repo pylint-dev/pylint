@@ -33,7 +33,7 @@ equivalent of skipping the manual and jumping right in.
 
 My command line prompt for these examples is:
 
-.. sourcecode:: bash
+.. sourcecode:: console
 
   robertk01 Desktop$
 
@@ -45,7 +45,7 @@ Getting Started
 Running Pylint with no arguments will invoke the help dialogue and give you an
 idea of the arguments available to you.  Do that now, i.e.:
 
-.. sourcecode:: bash
+.. sourcecode:: console
 
   robertk01 Desktop$ pylint
   ...
@@ -134,7 +134,7 @@ Let's get started.
 
 If we run this:
 
-.. sourcecode:: bash
+.. sourcecode:: console
 
   robertk01 Desktop$ pylint simplecaeser.py
   ************* Module simplecaesar
@@ -164,7 +164,7 @@ message symbol between parens, ``missing-docstring`` here.
 If I want to read up a bit more about that, I can go back to the
 command line and try this:
 
-.. sourcecode:: bash
+.. sourcecode:: console
 
   robertk01 Desktop$ pylint --help-msg=missing-docstring
   :missing-docstring (C0111): *Missing %s docstring*
@@ -230,7 +230,7 @@ Here is the updated code:
 
 Here is what happens when we run it:
 
-.. sourcecode:: bash
+.. sourcecode:: console
 
   robertk01 Desktop$ pylint simplecaeser.py
   ************* Module simplecaesar
@@ -264,7 +264,7 @@ regular expression (a-z versus A-Z).
 If we run that rule using a ``--const-rgx='[a-z\_][a-z0-9\_]{2,30}$'`` option, it
 will now be quite quiet:
 
-.. sourcecode:: bash
+.. sourcecode:: console
 
   robertk01 Desktop$ pylint --const-rgx='[a-z_][a-z0-9_]{2,30}$' simplecaesar.py
 
