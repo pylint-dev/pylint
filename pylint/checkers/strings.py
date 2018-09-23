@@ -678,15 +678,16 @@ class StringConstantChecker(BaseTokenChecker):
 
     def process_string_token(self, token, start_row):
         quote_char = None
-        for i, c in enumerate(token):
+        index = None
+        for index, c in enumerate(token):
             if c in "'\"":
                 quote_char = c
                 break
         if quote_char is None:
-            return None
+            return
 
-        prefix = token[:i].lower()  #  markers like u, b, r.
-        after_prefix = token[i:]
+        prefix = token[:index].lower()  #  markers like u, b, r.
+        after_prefix = token[index:]
         if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char:
             string_body = after_prefix[3:-3]
         else:
