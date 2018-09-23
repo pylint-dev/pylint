@@ -535,12 +535,21 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.check_messages("too-many-star-expressions", "invalid-star-assignment-target")
     def visit_assign(self, node):
-        starred = list(node.targets[0].nodes_of_class(astroid.Starred))
-        if len(starred) > 1:
-            self.add_message("too-many-star-expressions", node=node)
+        target = node.targets[0]
+
+        if isinstance(target, astroid.Tuple):
+            itered_elements = target.itered()
+            starred_count = 0
+            for elem in itered_elements:
+                if isinstance(elem, astroid.Starred):
+                    starred_count += 1
+                elif sum(1 for _ in elem.nodes_of_class(astroid.Starred)) > 1:
+                    self.add_message("too-many-star-expressions", node=node)
+            if starred_count > 1:
+                self.add_message("too-many-star-expressions", node=node)
 
         # Check *a = b
-        if isinstance(node.targets[0], astroid.Starred):
+        if isinstance(target, astroid.Starred):
             self.add_message("invalid-star-assignment-target", node=node)
 
     @utils.check_messages("star-needs-assignment-target")

@@ -11,6 +11,10 @@ Release date: TBA
 
      Close #2477
 
+   * Emit ``too-many-starred-assignment`` only when the number of Starred nodes is per assignment elements
+
+     Close #2513
+
    * Add a new check, ``simplifiable-if-expression`` for expressions like ``True if cond else False``.
 
      Close #2487
