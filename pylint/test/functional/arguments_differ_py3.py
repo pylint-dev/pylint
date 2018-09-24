@@ -33,4 +33,3 @@ class Foo(AbstractFoo):
 
     def kwonly_5(self, *, first): # [arguments-differ]
         "Keyword only, but no variadics."
-    
