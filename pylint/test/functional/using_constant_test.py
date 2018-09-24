@@ -132,10 +132,7 @@ def test(*args):
 def test_good_comprehension_checks():
     [data for data in range(100)]
     [data for data in range(100) if data]
-    [data for data in range(100) if len(data)]
     (data for data in range(100) if data)
-    (data for data in range(100) if len(data))
     {data for data in range(100) if data}
-    {data for data in range(100) if len(data)}
     {data: 1 for data in range(100) if data}
     {data: 1 for data in range(100)}
