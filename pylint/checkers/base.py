@@ -546,15 +546,14 @@ class BasicErrorChecker(_BasicChecker):
     def visit_assign(self, node):
         # Check *a, *b = ...
         assign_target = node.targets[0]
-        if not isinstance(assign_target, astroid.Tuple):
-            return
-
-        if self._too_many_starred_for_tuple(assign_target):
-            self.add_message("too-many-star-expressions", node=node)
-
         # Check *a = b
         if isinstance(node.targets[0], astroid.Starred):
             self.add_message("invalid-star-assignment-target", node=node)
+
+        if not isinstance(assign_target, astroid.Tuple):
+            return
+        if self._too_many_starred_for_tuple(assign_target):
+            self.add_message("too-many-star-expressions", node=node)
 
     @utils.check_messages("star-needs-assignment-target")
     def visit_starred(self, node):
