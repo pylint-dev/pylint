@@ -7,6 +7,7 @@ SPHINXBUILD   = sphinx-build
 PIP           = pip
 PAPER         =
 BUILDDIR      = _build
+PYTHON        = /usr/bin/env python
 PYTHONPATH    =
 
 # Internal variables.
@@ -143,13 +144,13 @@ extensions.rst: ../pylint/utils.py
 extensions.rst: $(shell find ../pylint/extensions -type f -regex '.*\.py')
 extensions.rst: $(shell find ../pylint/extensions -type f -regex '.*\.rst')
 	rm -f extensions.rst
-	PYTHONPATH=$(PYTHONPATH) ./exts/pylint_extensions.py
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) ./exts/pylint_extensions.py
 
 features.rst: exts/pylint_features.py
 features.rst: ../pylint/utils.py
 features.rst: $(shell find ../pylint/checkers -type f -regex '.*\.py')
 	rm -f features.rst
-	PYTHONPATH=$(PYTHONPATH) ./exts/pylint_features.py
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) ./exts/pylint_features.py
 
 gen-examples:
 	chmod u+w ../examples/pylintrc
