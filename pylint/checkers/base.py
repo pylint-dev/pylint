@@ -533,12 +533,12 @@ class BasicErrorChecker(_BasicChecker):
     def visit_classdef(self, node):
         self._check_redefinition("class", node)
 
-    def _too_many_starred_for_tuple(self, tuple):
+    def _too_many_starred_for_tuple(self, assign_tuple):
         starred_count = 0
-        for elem in tuple.itered():
+        for elem in assign_tuple.itered():
             if isinstance(elem, astroid.Tuple):
                 return self._too_many_starred_for_tuple(elem)
-            elif isinstance(elem, astroid.Starred):
+            if isinstance(elem, astroid.Starred):
                 starred_count += 1
         return starred_count > 1
 
