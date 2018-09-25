@@ -11,6 +11,8 @@ Release date: |TBA|
 
      Close #2047
 
+   * Fix compatibility with changes to stdlib tokenizer.
+
 
 What's New in Pylint 1.9.4?
 ===========================

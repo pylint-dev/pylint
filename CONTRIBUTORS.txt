@@ -164,3 +164,5 @@ Order doesn't matter (not that much, at least ;)
 * Jason Owen: contributor
 
 * Mitchell Young: minor adjustment to docparams
+
+* Michael Hudson-Doyle

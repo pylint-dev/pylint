@@ -871,8 +871,11 @@ class FormatChecker(BaseTokenChecker):
     def _check_line_ending(self, line_ending, line_num):
         # check if line endings are mixed
         if self._last_line_ending is not None:
-            if line_ending != self._last_line_ending:
-                self.add_message('mixed-line-endings', line=line_num)
+            # line_ending == "" indicates a synthetic newline added at
+            # the end of a file that does not, in fact, end with a
+            # newline.
+            if line_ending and line_ending != self._last_line_ending:
+                self.add_message("mixed-line-endings", line=line_num)
 
         self._last_line_ending = line_ending
 
