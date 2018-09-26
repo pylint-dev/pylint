@@ -1135,10 +1135,7 @@ def is_subclass_of(child: astroid.ClassDef, parent: astroid.ClassDef) -> bool:
     if not all(isinstance(node, astroid.ClassDef) for node in (child, parent)):
         return False
 
-    for base in child.ancestors():
-        if parent.name == base.name:
+    for ancestor in child.ancestors():
+        if astroid.helpers.is_subtype(ancestor, parent):
             return True
-        # recursively check child's parent for actual parent
-        child = safe_infer(base)
-        is_subclass_of(child, parent)
     return False
