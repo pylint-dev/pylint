@@ -62,3 +62,16 @@ class TestLoggingModuleDetection(CheckerTestCase):
         self.checker.visit_import(stmts[0])
         with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1])):
             self.checker.visit_call(stmts[1])
+
+    @set_config(logging_format_style='{')
+    def test_brace_format_string(self):
+        stmts = astroid.extract_node(
+            """
+        import logging #@
+        logging.error('{}', 1) #@
+        """
+        )
+        self.checker.visit_module(None)
+        self.checker.visit_import(stmts[0])
+        with self.assertNoMessages():
+            self.checker.visit_call(stmts[1])

@@ -535,6 +535,67 @@ def parse_format_string(
     return keys, num_args, key_types, pos_types
 
 
+def parse_brace_format_string(format_string: str) -> Tuple[Set[str], int]:
+    """Parses a str.format() style format string, otherwise the same as
+    parse_format_string().
+    """
+    keys = set()
+    num_args = 0
+
+    def next_char(i):
+        if i+1 > len(format_string):
+            print('Final: ', format_string[:i])
+            raise IncompleteFormatString
+        return i+1, format_string[i]
+
+    i = 0
+    while i < len(format_string):
+        i, char = next_char(i)
+        if char == '{':
+            i, char = next_char(i)
+            key = ''
+            # Parse escaped brace character
+            if char == '{':
+                continue
+            # Parse field_name (optional)
+            while char not in '!:}':
+                if char in '[.':
+                    while char not in '!:}':
+                        i, char = next_char(i)
+                    break
+                key += char
+                i, char = next_char(i)
+            # Parse conversion (optional)
+            if char == '!':
+                i, char = next_char(i)
+                if char in 'rsa':
+                    i, char = next_char(i)
+                else:
+                    raise UnsupportedFormatCharacter
+            # Parse format_spec (optional)
+            if char == ':':
+                i, char = next_char(i)
+                # ignore the format_spec details
+                while char != '}':
+                    i, char = next_char(i)
+            # Parse end of replacement field
+            if char == '}':
+                if key:
+                    if key not in keys:
+                        num_args += 1
+                        keys.add(key)
+                else:
+                    num_args += 1
+                continue
+            raise UnsupportedFormatCharacter
+        if char == '}':
+            i, char = next_char(i)
+            if char == '}':
+                continue
+            raise UnsupportedFormatCharacter
+    return keys, num_args
+
+
 def is_attr_protected(attrname: str) -> bool:
     """return True if attribute name is protected (start with _ and some other
     details), False otherwise.
