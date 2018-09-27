@@ -235,3 +235,5 @@ contributors:
 * Ben James
 
 * Tomer Chachamu, Richard Goodman: simplifiable-if-expression
+
+* Alan Chan: contributor

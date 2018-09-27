@@ -126,6 +126,8 @@ Release date: TBA
 
      Close #2430
 
+   * Add new option to logging checker, ``logging_format_style``
+
 
 What's New in Pylint 2.1.1?
 ===========================
