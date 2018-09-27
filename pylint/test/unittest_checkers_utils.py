@@ -151,20 +151,20 @@ def test_is_subclass_of_not_classdefs():
 
 def test_parse_brace_format_string():
     samples = [
-        ('{}', 1),
-        ('{}:{}', 2),
-        ('{field}', 1),
-        ('{:5}', 1),
-        ('{:10}', 1),
-        ('{field:10}', 1),
-        ('{field:10}{{}}', 1),
-        ('{:5}{!r:10}', 2),
-        ('{:5}{}{{}}{}', 3),
-        ('{0}{1}{0}', 2),
-        ('Coordinates: {latitude}, {longitude}', 2),
-        ('X: {0[0]};  Y: {0[1]}', 1),
-        ('{:*^30}', 1),
-        ('{!r:}', 1),
+        ("{}", 1),
+        ("{}:{}", 2),
+        ("{field}", 1),
+        ("{:5}", 1),
+        ("{:10}", 1),
+        ("{field:10}", 1),
+        ("{field:10}{{}}", 1),
+        ("{:5}{!r:10}", 2),
+        ("{:5}{}{{}}{}", 3),
+        ("{0}{1}{0}", 2),
+        ("Coordinates: {latitude}, {longitude}", 2),
+        ("X: {0[0]};  Y: {0[1]}", 1),
+        ("{:*^30}", 1),
+        ("{!r:}", 1),
     ]
     for fmt, count in samples:
         keys, num = utils.parse_brace_format_string(fmt)

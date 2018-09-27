@@ -142,7 +142,7 @@ class LoggingChecker(checkers.BaseChecker):
                 "default": "%",
                 "type": "choice",
                 "metavar": "<% or {>",
-                "choices": ['%', '{'],
+                "choices": ["%", "{"],
                 "help": "Format style used to check logging format string",
             },
         ),
@@ -295,7 +295,7 @@ class LoggingChecker(checkers.BaseChecker):
             required_num_args = 0
         else:
             try:
-                if self._format_style == '%':
+                if self._format_style == "%":
                     keyword_args, required_num_args, _, _ = utils.parse_format_string(
                         format_string
                     )
@@ -303,7 +303,7 @@ class LoggingChecker(checkers.BaseChecker):
                         # Keyword checking on logging strings is complicated by
                         # special keywords - out of scope.
                         return
-                elif self._format_style == '{':
+                elif self._format_style == "{":
                     _, required_num_args = utils.parse_brace_format_string(
                         format_string
                     )

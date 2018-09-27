@@ -539,47 +539,47 @@ def parse_brace_format_string(format_string: str) -> Tuple[Set[str], int]:
     """Parses a str.format() style format string, otherwise the same as
     parse_format_string().
     """
-    keys = set()
+    keys = set()  # type: Set[str]
     num_args = 0
 
     def next_char(i):
-        if i+1 > len(format_string):
-            print('Final: ', format_string[:i])
+        if i + 1 > len(format_string):
+            print("Final: ", format_string[:i])
             raise IncompleteFormatString
-        return i+1, format_string[i]
+        return i + 1, format_string[i]
 
     i = 0
     while i < len(format_string):
         i, char = next_char(i)
-        if char == '{':
+        if char == "{":
             i, char = next_char(i)
-            key = ''
+            key = ""
             # Parse escaped brace character
-            if char == '{':
+            if char == "{":
                 continue
             # Parse field_name (optional)
-            while char not in '!:}':
-                if char in '[.':
-                    while char not in '!:}':
+            while char not in "!:}":
+                if char in "[.":
+                    while char not in "!:}":
                         i, char = next_char(i)
                     break
                 key += char
                 i, char = next_char(i)
             # Parse conversion (optional)
-            if char == '!':
+            if char == "!":
                 i, char = next_char(i)
-                if char in 'rsa':
+                if char in "rsa":
                     i, char = next_char(i)
                 else:
                     raise UnsupportedFormatCharacter
             # Parse format_spec (optional)
-            if char == ':':
+            if char == ":":
                 i, char = next_char(i)
                 # ignore the format_spec details
-                while char != '}':
+                while char != "}":
                     i, char = next_char(i)
             # Parse end of replacement field
-            if char == '}':
+            if char == "}":
                 if key:
                     if key not in keys:
                         num_args += 1
@@ -588,9 +588,9 @@ def parse_brace_format_string(format_string: str) -> Tuple[Set[str], int]:
                     num_args += 1
                 continue
             raise UnsupportedFormatCharacter
-        if char == '}':
+        if char == "}":
             i, char = next_char(i)
-            if char == '}':
+            if char == "}":
                 continue
             raise UnsupportedFormatCharacter
     return keys, num_args
