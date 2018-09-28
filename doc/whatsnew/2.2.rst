@@ -49,3 +49,5 @@ Other Changes
   ``unused-variable``, ``unused-import`` is emitted.
 
   Close #2421
+  
+* Improve JSON reporter by adding score & reports output

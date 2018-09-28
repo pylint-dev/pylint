@@ -1,4 +1,4 @@
-﻿Contributors
+Contributors
 ------------
 
 Current team:
@@ -235,3 +235,6 @@ contributors:
 * Ben James
 
 * Tomer Chachamu, Richard Goodman: simplifiable-if-expression
+
+* Alexandre GALODE (deusyss): contributor
+  Improve JSON reporter by adding score & reports output

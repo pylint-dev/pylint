@@ -129,6 +129,8 @@ Release date: TBA
    * Fix wildcard import check not skipping `__init__.py`
 
      Close #2430
+     
+   * Improve JSON reporter by adding score & reports output
 
 
 What's New in Pylint 2.1.1?
