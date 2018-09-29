@@ -14,4 +14,3 @@ deprecated-method:44:Tests.test_foo:Using deprecated method assertNotEquals()
 deprecated-method:45:Tests.test_foo:Using deprecated method assertAlmostEquals()
 deprecated-method:46:Tests.test_foo:Using deprecated method assertNotAlmostEquals()
 deprecated-method:47:Tests.test_foo:Using deprecated method assert_()
-c
