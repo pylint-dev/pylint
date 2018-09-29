@@ -27,6 +27,8 @@ jobs:
     - python: 3.7
       env: TOXENV=py37
       dist: xenial
+    - python: 3.6
+      env: TOXENV=spelling
     - stage: tests-pypy
       python: pypy3.5-5.8.0
       env: TOXENV=pypy
@@ -57,4 +59,3 @@ notifications:
   email:
     on_success: always
     on_failure: always
-
