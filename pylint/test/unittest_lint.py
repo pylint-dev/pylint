@@ -99,6 +99,7 @@ def remove(file):
 
 HERE = abspath(dirname(__file__))
 INPUTDIR = join(HERE, "input")
+REGRTEST_DATA = join(HERE, "regrtest_data")
 
 
 @contextmanager
@@ -325,7 +326,7 @@ def test_message_state_scope(init_linter):
 def test_enable_message_block(init_linter):
     linter = init_linter
     linter.open()
-    filepath = join(INPUTDIR, "func_block_disable_msg.py")
+    filepath = join(REGRTEST_DATA, "func_block_disable_msg.py")
     linter.set_current_module("func_block_disable_msg")
     astroid = linter.get_ast(filepath, "func_block_disable_msg")
     linter.process_tokens(tokenize_module(astroid))
