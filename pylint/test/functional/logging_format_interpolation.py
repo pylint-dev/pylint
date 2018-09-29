@@ -1,5 +1,5 @@
 # pylint: disable=E1101, no-absolute-import, import-error,line-too-long, missing-docstring,wrong-import-order,wrong-import-position
-
+# pylint: disable=invalid-name
 try:
     import __builtin__ as builtins
 except ImportError:
@@ -27,3 +27,12 @@ logging.debug('{0}, {1}'.format(4, 5))
 logging.log(logging.DEBUG, 'msg: {}'.format('Run!'))
 renamed_logging.info("Read {l:,d} rows".format(l=123456789))
 renamed_logging.info(UNINFERABLE.format(l=123456789))
+
+
+class Logger(renamed_logging.Logger):
+    pass
+
+custom_logger = Logger('three')
+
+custom_logger.info('testing {0}'.format('info'))  # [logging-format-interpolation]
+custom_logger.info('testing %s' % 'info') # [logging-not-lazy]
