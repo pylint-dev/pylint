@@ -18,12 +18,12 @@ import pytest
 
 from pylint.checkers import similar
 
-SIMILAR1 = join(dirname(abspath(__file__)), 'input', 'similar1')
-SIMILAR2 = join(dirname(abspath(__file__)), 'input', 'similar2')
-MULTILINE = join(dirname(abspath(__file__)), 'input', 'multiline-import')
+SIMILAR1 = join(dirname(abspath(__file__)), "input", "similar1")
+SIMILAR2 = join(dirname(abspath(__file__)), "input", "similar2")
+MULTILINE = join(dirname(abspath(__file__)), "input", "multiline-import")
 HIDE_CODE_WITH_IMPORTS = join(
-    dirname(abspath(__file__)), 'input', 'hide_code_with_imports.py')
-
+    dirname(abspath(__file__)), "input", "hide_code_with_imports.py"
+)
 
 
 def test_ignore_comments():
@@ -109,7 +109,10 @@ def test_multiline_imports():
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([MULTILINE, MULTILINE])
     assert ex.value.code == 0
-    assert output.getvalue().strip() == ("""
+    assert (
+        output.getvalue().strip()
+        == (
+            """
 8 similar lines in 2 files
 ==%s:0
 ==%s:0
@@ -122,23 +125,29 @@ def test_multiline_imports():
      quuuuux,
    )
 TOTAL lines=16 duplicates=8 percent=50.00
-""" % (MULTILINE, MULTILINE)).strip()
+"""
+            % (MULTILINE, MULTILINE)
+        ).strip()
+    )
 
 
 def test_ignore_multiline_imports():
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run(['--ignore-imports', MULTILINE, MULTILINE])
+        similar.Run(["--ignore-imports", MULTILINE, MULTILINE])
     assert ex.value.code == 0
-    assert output.getvalue().strip() == """
+    assert (
+        output.getvalue().strip()
+        == """
 TOTAL lines=16 duplicates=0 percent=0.00
 """.strip()
+    )
 
 
 def test_no_hide_code_with_imports():
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run(['--ignore-imports'] + 2 * [HIDE_CODE_WITH_IMPORTS])
+        similar.Run(["--ignore-imports"] + 2 * [HIDE_CODE_WITH_IMPORTS])
     assert ex.value.code == 0
     assert "TOTAL lines=32 duplicates=16 percent=50.00" in output.getvalue()
 

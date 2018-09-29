@@ -157,14 +157,17 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     features removed
     """
     if ignore_imports:
-        tree = astroid.parse(''.join(lines))
+        tree = astroid.parse("".join(lines))
         node_is_import_by_lineno = (
             (node.lineno, isinstance(node, (astroid.Import, astroid.ImportFrom)))
-            for node in tree.body)
+            for node in tree.body
+        )
         line_begins_import = {
             lineno: all(is_import for _, is_import in node_is_import_group)
-            for lineno, node_is_import_group
-            in groupby(node_is_import_by_lineno, key=lambda x: x[0])}
+            for lineno, node_is_import_group in groupby(
+                node_is_import_by_lineno, key=lambda x: x[0]
+            )
+        }
         current_line_is_import = False
 
     strippedlines = []
@@ -181,9 +184,10 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
                 line = ""
         if ignore_imports:
             current_line_is_import = line_begins_import.get(
-                lineno, current_line_is_import)
+                lineno, current_line_is_import
+            )
             if current_line_is_import:
-                line = ''
+                line = ""
         if ignore_comments:
             # XXX should use regex in checkers/format to avoid cutting
             # at a "#" in a string
