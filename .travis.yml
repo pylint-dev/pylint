@@ -13,7 +13,10 @@ matrix:
       env: TOXENV=py35
     - python: 3.6
       env: TOXENV=py36
-    - python: pypy
+    - python: 3.6
+      env: TOXENV=spelling
+    - stage: tests-pypy
+      python: pypy3.5-5.8.0
       env: TOXENV=pypy
     - python: 3.5
       env: TOXENV=pylint
@@ -44,4 +47,3 @@ notifications:
   email:
     on_success: always
     on_failure: always
-
