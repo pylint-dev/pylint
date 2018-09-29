@@ -803,11 +803,13 @@ class PyLinter(
             match = utils.OPTION_RGX.search(content)
             if match is None:
                 continue
+
+            first_group = match.group(1)
             if (
-                match.group(1).strip() == "disable-all"
-                or match.group(1).strip() == "skip-file"
+                first_group.strip() == "disable-all"
+                or first_group.strip() == "skip-file"
             ):
-                if match.group(1).strip() == "disable-all":
+                if first_group.strip() == "disable-all":
                     self.add_message(
                         "deprecated-pragma",
                         line=start[0],
@@ -817,10 +819,10 @@ class PyLinter(
                 self._ignore_file = True
                 return
             try:
-                opt, value = match.group(1).split("=", 1)
+                opt, value = first_group.split("=", 1)
             except ValueError:
                 self.add_message(
-                    "bad-inline-option", args=match.group(1).strip(), line=start[0]
+                    "bad-inline-option", args=first_group.strip(), line=start[0]
                 )
                 continue
             opt = opt.strip()
