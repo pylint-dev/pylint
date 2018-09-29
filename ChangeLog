@@ -7,6 +7,10 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * ``pylint`` is less eager to consume the whole line for pragmas
+
+     Close #2485
+
    * Change ``unbalanced-tuple-unpacking`` back to a warning.
 
      It used to be a warning until a couple of years ago, after it was promoted to
