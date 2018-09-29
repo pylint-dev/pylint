@@ -2051,17 +2051,17 @@ class ComparisonChecker(_BasicChecker):
     def _check_singleton_comparison(self, singleton, root_node, negative_check=False):
         if singleton.value is True:
             if not negative_check:
-                suggestion = "just 'expr' or 'expr is True'"
+                suggestion = "just 'expr'"
             else:
-                suggestion = "just 'not expr' or 'expr is False'"
+                suggestion = "just 'not expr'"
             self.add_message(
                 "singleton-comparison", node=root_node, args=(True, suggestion)
             )
         elif singleton.value is False:
             if not negative_check:
-                suggestion = "'not expr' or 'expr is False'"
+                suggestion = "'not expr'"
             else:
-                suggestion = "'expr' or 'expr is not False'"
+                suggestion = "'expr'"
             self.add_message(
                 "singleton-comparison", node=root_node, args=(False, suggestion)
             )

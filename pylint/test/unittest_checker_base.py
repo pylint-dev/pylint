@@ -400,20 +400,12 @@ class TestComparison(CheckerTestCase):
 
     def test_comparison(self):
         node = astroid.extract_node("foo == True")
-        message = Message(
-            "singleton-comparison",
-            node=node,
-            args=(True, "just 'expr' or 'expr is True'"),
-        )
+        message = Message("singleton-comparison", node=node, args=(True, "just 'expr'"))
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
 
         node = astroid.extract_node("foo == False")
-        message = Message(
-            "singleton-comparison",
-            node=node,
-            args=(False, "'not expr' or 'expr is False'"),
-        )
+        message = Message("singleton-comparison", node=node, args=(False, "'not expr'"))
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
 
@@ -427,11 +419,7 @@ class TestComparison(CheckerTestCase):
         node = astroid.extract_node("True == foo")
         messages = (
             Message("misplaced-comparison-constant", node=node, args=("foo == True",)),
-            Message(
-                "singleton-comparison",
-                node=node,
-                args=(True, "just 'expr' or 'expr is True'"),
-            ),
+            Message("singleton-comparison", node=node, args=(True, "just 'expr'")),
         )
         with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
@@ -439,11 +427,7 @@ class TestComparison(CheckerTestCase):
         node = astroid.extract_node("False == foo")
         messages = (
             Message("misplaced-comparison-constant", node=node, args=("foo == False",)),
-            Message(
-                "singleton-comparison",
-                node=node,
-                args=(False, "'not expr' or 'expr is False'"),
-            ),
+            Message("singleton-comparison", node=node, args=(False, "'not expr'")),
         )
         with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
