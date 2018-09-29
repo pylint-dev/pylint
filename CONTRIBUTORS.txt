@@ -237,3 +237,5 @@ contributors:
 * Tomer Chachamu, Richard Goodman: simplifiable-if-expression
 
 * Alan Chan: contributor
+
+* Benjamin Drung: contributing Debian Developer
