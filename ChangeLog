@@ -7,8 +7,11 @@ What's New in Pylint 1.9.4?
 
 Release date: |TBA|
 
-    * Fixed false positive when a numpy Attributes section follows a Parameters
-      section
+  * ``deprecated-method`` is correctly emitted for ``assertEquals`` and friends.
+
+    Close #2226
+
+   * Fixed false positive when a numpy Attributes section follows a Parameters section
 
       Close #1867
 

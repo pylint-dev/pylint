@@ -132,6 +132,13 @@ class StdlibChecker(BaseChecker):
             'distutils.command.sdist.sdist.check_metadata',
             'tkinter.Misc.tk_menuBar',
             'tkinter.Menu.tk_bindForTraversal',
+
+            # These are aliases for `assertEqual` et al.
+            'assertEquals',
+            'assertNotEquals',
+            'assertAlmostEquals',
+            'assertNotAlmostEquals',
+            'assert_',
         ],
         2: {
             (2, 6, 0): [
@@ -270,7 +277,7 @@ class StdlibChecker(BaseChecker):
             return
 
         qname = inferred.qname()
-        if qname in self.deprecated[0]:
+        if any(name in self.deprecated[0] for name in (qname, func_name)):
             self.add_message('deprecated-method', node=node,
                              args=(func_name, ))
         else:
