@@ -233,6 +233,17 @@ MSGS = {
 }
 
 
+def _cpu_count() -> int:
+    """Use sched_affinity if available for virtualized or containerized environments."""
+    sched_getaffinity = getattr(os, "sched_getaffinity", None)
+    if sched_getaffinity:
+        # pylint: disable=not-callable
+        return len(sched_getaffinity(0))
+    if multiprocessing:
+        return multiprocessing.cpu_count()
+    return 1
+
+
 if multiprocessing is not None:
 
     class ChildLinter(multiprocessing.Process):
@@ -1589,7 +1600,7 @@ group are mutually exclusive.",
                 linter.set_option("jobs", 1)
             else:
                 if linter.config.jobs == 0:
-                    linter.config.jobs = multiprocessing.cpu_count()
+                    linter.config.jobs = _cpu_count()
 
         # insert current working directory to the python path to have a correct
         # behaviour
