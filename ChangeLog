@@ -7,6 +7,16 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * ``deprecated-method`` can use the attribute name for identifying a deprecated method
+
+     Previously we were using the fully qualified name, which we still do, but the fully
+     qualified name for some ``unittest`` deprecated aliases leads to a generic
+     deprecation function. Instead on relying on that, we now also rely on the attribute
+     name, which should solve some false positives.
+
+     Close #1653
+     Close #1946
+
    * Fix compatibility with changes to stdlib tokenizer.
 
    * ``pylint`` is less eager to consume the whole line for pragmas

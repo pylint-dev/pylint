@@ -45,3 +45,6 @@ class Tests(unittest.TestCase):
         self.assertAlmostEquals(2 + 2, 4)  # [deprecated-method]
         self.assertNotAlmostEquals(2 + 2, 4)  # [deprecated-method]
         self.assert_("abc" == "2")  # [deprecated-method]
+
+        self.assertRaisesRegex(ValueError, "exception")
+        self.assertRegex("something", r".+")
