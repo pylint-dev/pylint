@@ -464,6 +464,12 @@ class TestPython3Checker(testutils.CheckerTestCase):
         class Someclass(dict):
             pass
         Someclass().iterkeys() #@
+
+        # Emits even though we are not sure they are dicts
+        x.iterkeys() #@
+
+        def func(x):
+            x.iterkeys() #@
         """
         )
         for node in nodes:
@@ -475,9 +481,8 @@ class TestPython3Checker(testutils.CheckerTestCase):
         arg_node = astroid.extract_node("x.iterkeys(x)  #@")
         stararg_node = astroid.extract_node("x.iterkeys(*x)  #@")
         kwarg_node = astroid.extract_node("x.iterkeys(y=x)  #@")
-        non_dict_node = astroid.extract_node("x=[]\nx.iterkeys() #@")
         with self.assertNoMessages():
-            for node in (arg_node, stararg_node, kwarg_node, non_dict_node):
+            for node in (arg_node, stararg_node, kwarg_node):
                 self.checker.visit_call(node)
 
     def test_dict_view_method(self):
@@ -487,7 +492,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_call(node)
 
-    def test_dict_view_method_on_dict(self):
+    def test_dict_viewkeys(self):
         nodes = astroid.extract_node(
             """
         from collections import defaultdict
@@ -496,20 +501,17 @@ class TestPython3Checker(testutils.CheckerTestCase):
         class Someclass(dict):
             pass
         Someclass().viewkeys() #@
+
+        # Emits even though they might not be dicts
+        x.viewkeys() #@
+
+        def func(x):
+            x.viewkeys() #@
         """
         )
         for node in nodes:
             message = testutils.Message("dict-view-method", node=node)
             with self.assertAddsMessages(message):
-                self.checker.visit_call(node)
-
-    def test_dict_not_view_method(self):
-        arg_node = astroid.extract_node("x.viewkeys(x)  #@")
-        stararg_node = astroid.extract_node("x.viewkeys(*x)  #@")
-        kwarg_node = astroid.extract_node("x.viewkeys(y=x)  #@")
-        non_dict_node = astroid.extract_node("x=[]\nx.viewkeys() #@")
-        with self.assertNoMessages():
-            for node in (arg_node, stararg_node, kwarg_node, non_dict_node):
                 self.checker.visit_call(node)
 
     def test_next_method(self):

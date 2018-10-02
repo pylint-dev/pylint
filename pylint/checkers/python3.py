@@ -63,21 +63,6 @@ def _inferred_value_is_dict(value):
     return isinstance(value, astroid.Instance) and "dict" in value.basenames
 
 
-def _check_dict_node(node):
-    inferred_types = set()
-    try:
-        inferred = node.infer()
-        if inferred is not astroid.Uninferable:
-            for inferred_node in inferred:
-                inferred_types.add(inferred_node)
-    except astroid.InferenceError:
-        pass
-
-    if not inferred_types:
-        return True
-    return any(_inferred_value_is_dict(value) for value in inferred_types)
-
-
 def _is_builtin(node):
     return getattr(node, "name", None) in ("__builtin__", "builtins")
 
@@ -1201,11 +1186,10 @@ class Python3Checker(checkers.BaseChecker):
             if node.func.attrname == "next":
                 self.add_message("next-method-called", node=node)
             else:
-                if _check_dict_node(node.func.expr):
-                    if node.func.attrname in ("iterkeys", "itervalues", "iteritems"):
-                        self.add_message("dict-iter-method", node=node)
-                    elif node.func.attrname in ("viewkeys", "viewvalues", "viewitems"):
-                        self.add_message("dict-view-method", node=node)
+                if node.func.attrname in ("iterkeys", "itervalues", "iteritems"):
+                    self.add_message("dict-iter-method", node=node)
+                elif node.func.attrname in ("viewkeys", "viewvalues", "viewitems"):
+                    self.add_message("dict-view-method", node=node)
         elif isinstance(node.func, astroid.Name):
             found_node = node.func.lookup(node.func.name)[0]
             if _is_builtin(found_node):
