@@ -537,15 +537,13 @@ def parse_format_string(
     return keys, num_args, key_types, pos_types
 
 
-def split_format_field_names(
-    format_string
-) -> Tuple[str, Iterable[Tuple[bool, str]]]:
+def split_format_field_names(format_string) -> Tuple[str, Iterable[Tuple[bool, str]]]:
     try:
         return _string.formatter_field_name_split(format_string)
     except ValueError:
         raise IncompleteFormatString()
 
-        
+
 def collect_string_fields(format_string) -> Iterable[Optional[str]]:
     """ Given a format string, return an iterator
     of all the valid format fields. It handles nested fields
