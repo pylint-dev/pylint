@@ -49,6 +49,7 @@ from typing import (
     List,
     Type,
 )
+import _string  # pylint: disable=wrong-import-position, wrong-import-order
 
 import astroid
 from astroid import bases as _bases
@@ -536,39 +537,15 @@ def parse_format_string(
     return keys, num_args, key_types, pos_types
 
 
-if PY3K:
-    import _string  # pylint: disable=wrong-import-position, wrong-import-order
+def split_format_field_names(
+    format_string
+) -> Tuple[str, Iterable[Tuple[bool, str]]]:
+    try:
+        return _string.formatter_field_name_split(format_string)
+    except ValueError:
+        raise IncompleteFormatString()
 
-    def split_format_field_names(
-        format_string
-    ) -> Tuple[str, Iterable[Tuple[bool, str]]]:
-        try:
-            return _string.formatter_field_name_split(format_string)
-        except ValueError:
-            raise IncompleteFormatString()
-
-
-else:
-
-    def _field_iterator_convertor(iterator):
-        for is_attr, key in iterator:
-            if isinstance(key, numbers.Number):
-                yield is_attr, int(key)
-            else:
-                yield is_attr, key
-
-    def split_format_field_names(
-        format_string
-    ) -> Tuple[str, Iterable[Tuple[bool, str]]]:
-        try:
-            keyname, fielditerator = format_string._formatter_field_name_split()
-        except ValueError:
-            raise IncompleteFormatString()
-        # it will return longs, instead of ints, which will complicate
-        # the output
-        return keyname, _field_iterator_convertor(fielditerator)
-
-
+        
 def collect_string_fields(format_string) -> Iterable[Optional[str]]:
     """ Given a format string, return an iterator
     of all the valid format fields. It handles nested fields
