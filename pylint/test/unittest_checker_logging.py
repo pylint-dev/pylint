@@ -64,7 +64,7 @@ class TestLoggingModuleDetection(CheckerTestCase):
             self.checker.visit_call(stmts[1])
 
     @set_config(logging_format_style="{")
-    def test_brace_format_string(self):
+    def test_brace_format_style(self):
         stmts = astroid.extract_node(
             """
         import logging #@
