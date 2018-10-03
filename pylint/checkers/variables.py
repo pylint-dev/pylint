@@ -376,13 +376,13 @@ MSGS = {
         "a list comprehension or a generator expression) is used outside "
         "the loop.",
     ),
-    "E0632": (
+    "W0632": (
         "Possible unbalanced tuple unpacking with "
         "sequence%s: "
         "left side has %d label(s), right side has %d value(s)",
         "unbalanced-tuple-unpacking",
         "Used when there is an unbalanced tuple unpacking in assignment",
-        {"old_names": [("W0632", "unbalanced-tuple-unpacking")]},
+        {"old_names": [("E0632", "unbalanced-tuple-unpacking")]},
     ),
     "E0633": (
         "Attempting to unpack a non-sequence%s",

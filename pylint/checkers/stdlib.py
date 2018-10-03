@@ -151,7 +151,7 @@ class StdlibChecker(BaseChecker):
     }
 
     deprecated = {
-        0: [
+        0: {
             "cgi.parse_qs",
             "cgi.parse_qsl",
             "ctypes.c_buffer",
@@ -159,16 +159,16 @@ class StdlibChecker(BaseChecker):
             "distutils.command.sdist.sdist.check_metadata",
             "tkinter.Misc.tk_menuBar",
             "tkinter.Menu.tk_bindForTraversal",
-        ],
+        },
         2: {
-            (2, 6, 0): [
+            (2, 6, 0): {
                 "commands.getstatus",
                 "os.popen2",
                 "os.popen3",
                 "os.popen4",
                 "macostools.touched",
-            ],
-            (2, 7, 0): [
+            },
+            (2, 7, 0): {
                 "unittest.case.TestCase.assertEquals",
                 "unittest.case.TestCase.assertNotEquals",
                 "unittest.case.TestCase.assertAlmostEquals",
@@ -178,43 +178,57 @@ class StdlibChecker(BaseChecker):
                 "xml.etree.ElementTree.Element.getiterator",
                 "xml.etree.ElementTree.XMLParser.getiterator",
                 "xml.etree.ElementTree.XMLParser.doctype",
-            ],
+            },
         },
         3: {
-            (3, 0, 0): [
+            (3, 0, 0): {
                 "inspect.getargspec",
-                "unittest.case.TestCase._deprecate.deprecated_func",
-            ],
-            (3, 1, 0): [
+                "failUnlessEqual",
+                "assertEquals",
+                "failIfEqual",
+                "assertNotEquals",
+                "failUnlessAlmostEqual",
+                "assertAlmostEquals",
+                "failIfAlmostEqual",
+                "assertNotAlmostEquals",
+                "failUnless",
+                "assert_",
+                "failUnlessRaises",
+                "failIf",
+                "assertRaisesRegexp",
+                "assertRegexpMatches",
+                "assertNotRegexpMatches",
+            },
+            (3, 1, 0): {
                 "base64.encodestring",
                 "base64.decodestring",
                 "ntpath.splitunc",
-            ],
-            (3, 2, 0): [
+            },
+            (3, 2, 0): {
                 "cgi.escape",
                 "configparser.RawConfigParser.readfp",
                 "xml.etree.ElementTree.Element.getchildren",
                 "xml.etree.ElementTree.Element.getiterator",
                 "xml.etree.ElementTree.XMLParser.getiterator",
                 "xml.etree.ElementTree.XMLParser.doctype",
-            ],
-            (3, 3, 0): [
+            },
+            (3, 3, 0): {
                 "inspect.getmoduleinfo",
                 "logging.warn",
                 "logging.Logger.warn",
                 "logging.LoggerAdapter.warn",
                 "nntplib._NNTPBase.xpath",
                 "platform.popen",
-            ],
-            (3, 4, 0): [
+            },
+            (3, 4, 0): {
                 "importlib.find_loader",
                 "plistlib.readPlist",
                 "plistlib.writePlist",
                 "plistlib.readPlistFromBytes",
                 "plistlib.writePlistToBytes",
-            ],
-            (3, 4, 4): ["asyncio.tasks.async"],
-            (3, 5, 0): [
+            },
+            (3, 4, 4): {"asyncio.tasks.async"},
+            (3, 5, 0): {
                 "fractions.gcd",
                 "inspect.getargvalues",
                 "inspect.formatargspec",
@@ -222,8 +236,8 @@ class StdlibChecker(BaseChecker):
                 "inspect.getcallargs",
                 "platform.linux_distribution",
                 "platform.dist",
-            ],
-            (3, 6, 0): ["importlib._bootstrap_external.FileLoader.load_module"],
+            },
+            (3, 6, 0): {"importlib._bootstrap_external.FileLoader.load_module"},
         },
     }
 
@@ -319,11 +333,13 @@ class StdlibChecker(BaseChecker):
             return
 
         qname = inferred.qname()
-        if qname in self.deprecated[0]:
+        if any(name in self.deprecated[0] for name in (qname, func_name)):
             self.add_message("deprecated-method", node=node, args=(func_name,))
         else:
             for since_vers, func_list in self.deprecated[py_vers].items():
-                if since_vers <= sys.version_info and qname in func_list:
+                if since_vers <= sys.version_info and any(
+                    name in func_list for name in (qname, func_name)
+                ):
                     self.add_message("deprecated-method", node=node, args=(func_name,))
                     break
 

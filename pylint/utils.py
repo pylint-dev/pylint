@@ -78,10 +78,10 @@ MSG_STATE_SCOPE_CONFIG = 0
 MSG_STATE_SCOPE_MODULE = 1
 MSG_STATE_CONFIDENCE = 2
 
-# Allow stopping after the first semicolon encountered,
+# Allow stopping after the first semicolon/hash encountered,
 # so that an option can be continued with the reasons
 # why it is active or disabled.
-OPTION_RGX = re.compile(r"\s*#.*\bpylint:\s*([^;]+);{0,1}")
+OPTION_RGX = re.compile(r"\s*#.*\bpylint:\s*([^;#]+)[;#]{0,1}")
 
 # The line/node distinction does not apply to fatal errors and reports.
 _SCOPE_EXEMPT = "FR"

@@ -53,7 +53,7 @@ class JSONReporter(BaseReporter):
         """Don't do nothing in this reporter."""
 
     def _display(self, layout):
-        """Don't do nothing."""
+        """Do nothing."""
 
 
 def register(linter):

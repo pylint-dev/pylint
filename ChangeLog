@@ -7,6 +7,36 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * ``deprecated-method`` can use the attribute name for identifying a deprecated method
+
+     Previously we were using the fully qualified name, which we still do, but the fully
+     qualified name for some ``unittest`` deprecated aliases leads to a generic
+     deprecation function. Instead on relying on that, we now also rely on the attribute
+     name, which should solve some false positives.
+
+     Close #1653
+     Close #1946
+
+   * Fix compatibility with changes to stdlib tokenizer.
+
+   * ``pylint`` is less eager to consume the whole line for pragmas
+
+     Close #2485
+
+   * Obtain the correct number of CPUs for virtualized or containerized environments.
+
+     Close #2519
+
+   * Change ``unbalanced-tuple-unpacking`` back to a warning.
+
+     It used to be a warning until a couple of years ago, after it was promoted to
+     an error. But the check might be suggesting the wrong thing in some cases,
+     for instance when checking against ``sys.argv`` which cannot be known at static
+     analysis time. Given it might rely on potential unknown data, it's best to
+     have it as a warning.
+
+     Close #2522
+
    * Remove ``enumerate`` usage suggestion when defining ``__iter__`` (C0200)
 
      Close #2477
@@ -132,6 +162,10 @@ Release date: TBA
 
    * Add new option to logging checker, ``logging_format_style``
 
+   * Fix --ignore-imports to understand multi-line imports
+
+     Close #1422
+     Close #2019
 
 What's New in Pylint 2.1.1?
 ===========================

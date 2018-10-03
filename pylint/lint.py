@@ -233,6 +233,17 @@ MSGS = {
 }
 
 
+def _cpu_count() -> int:
+    """Use sched_affinity if available for virtualized or containerized environments."""
+    sched_getaffinity = getattr(os, "sched_getaffinity", None)
+    # pylint: disable=not-callable,using-constant-test
+    if sched_getaffinity:
+        return len(sched_getaffinity(0))
+    if multiprocessing:
+        return multiprocessing.cpu_count()
+    return 1
+
+
 if multiprocessing is not None:
 
     class ChildLinter(multiprocessing.Process):
@@ -803,11 +814,13 @@ class PyLinter(
             match = utils.OPTION_RGX.search(content)
             if match is None:
                 continue
+
+            first_group = match.group(1)
             if (
-                match.group(1).strip() == "disable-all"
-                or match.group(1).strip() == "skip-file"
+                first_group.strip() == "disable-all"
+                or first_group.strip() == "skip-file"
             ):
-                if match.group(1).strip() == "disable-all":
+                if first_group.strip() == "disable-all":
                     self.add_message(
                         "deprecated-pragma",
                         line=start[0],
@@ -817,10 +830,10 @@ class PyLinter(
                 self._ignore_file = True
                 return
             try:
-                opt, value = match.group(1).split("=", 1)
+                opt, value = first_group.split("=", 1)
             except ValueError:
                 self.add_message(
-                    "bad-inline-option", args=match.group(1).strip(), line=start[0]
+                    "bad-inline-option", args=first_group.strip(), line=start[0]
                 )
                 continue
             opt = opt.strip()
@@ -1587,7 +1600,7 @@ group are mutually exclusive.",
                 linter.set_option("jobs", 1)
             else:
                 if linter.config.jobs == 0:
-                    linter.config.jobs = multiprocessing.cpu_count()
+                    linter.config.jobs = _cpu_count()
 
         # insert current working directory to the python path to have a correct
         # behaviour

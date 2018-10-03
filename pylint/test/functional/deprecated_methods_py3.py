@@ -35,3 +35,16 @@ class SuperCrash(unittest.TestCase):
         super(SuperCrash, self)()
 
 xml.etree.ElementTree.iterparse(None)
+
+
+class Tests(unittest.TestCase):
+
+    def test_foo(self):
+        self.assertEquals(2 + 2, 4)  # [deprecated-method]
+        self.assertNotEquals(2 + 2, 4)  # [deprecated-method]
+        self.assertAlmostEquals(2 + 2, 4)  # [deprecated-method]
+        self.assertNotAlmostEquals(2 + 2, 4)  # [deprecated-method]
+        self.assert_("abc" == "2")  # [deprecated-method]
+
+        self.assertRaisesRegex(ValueError, "exception")
+        self.assertRegex("something", r".+")

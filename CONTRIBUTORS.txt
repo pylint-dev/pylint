@@ -239,3 +239,7 @@ contributors:
 * Alan Chan: contributor
 
 * Benjamin Drung: contributing Debian Developer
+
+* Scott Worley: contributor
+
+* Michael Hudson-Doyle

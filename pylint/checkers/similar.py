@@ -20,6 +20,9 @@
 from __future__ import print_function
 import sys
 from collections import defaultdict
+from itertools import groupby
+
+import astroid
 
 from pylint.utils import decoding_stream
 from pylint.interfaces import IRawChecker
@@ -153,10 +156,23 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     """return lines with leading/trailing whitespace and any ignored code
     features removed
     """
+    if ignore_imports:
+        tree = astroid.parse("".join(lines))
+        node_is_import_by_lineno = (
+            (node.lineno, isinstance(node, (astroid.Import, astroid.ImportFrom)))
+            for node in tree.body
+        )
+        line_begins_import = {
+            lineno: all(is_import for _, is_import in node_is_import_group)
+            for lineno, node_is_import_group in groupby(
+                node_is_import_by_lineno, key=lambda x: x[0]
+            )
+        }
+        current_line_is_import = False
 
     strippedlines = []
     docstring = None
-    for line in lines:
+    for lineno, line in enumerate(lines, start=1):
         line = line.strip()
         if ignore_docstrings:
             if not docstring and (line.startswith('"""') or line.startswith("'''")):
@@ -167,7 +183,10 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
                     docstring = None
                 line = ""
         if ignore_imports:
-            if line.startswith("import ") or line.startswith("from "):
+            current_line_is_import = line_begins_import.get(
+                lineno, current_line_is_import
+            )
+            if current_line_is_import:
                 line = ""
         if ignore_comments:
             # XXX should use regex in checkers/format to avoid cutting
