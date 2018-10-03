@@ -149,7 +149,7 @@ def test_is_subclass_of_not_classdefs():
     assert not utils.is_subclass_of(None, None)
 
 
-def test_parse_brace_format_string():
+def test_parse_format_method_string():
     samples = [
         ("{}", 1),
         ("{}:{}", 2),
@@ -167,5 +167,6 @@ def test_parse_brace_format_string():
         ("{!r:}", 1),
     ]
     for fmt, count in samples:
-        keys, num = utils.parse_brace_format_string(fmt)
-        assert num == count
+        keys, num_args, pos_args = utils.parse_format_method_string(fmt)
+        keyword_args = len(set(k for k, l in keys if not isinstance(k, int)))
+        assert keyword_args + num_args + pos_args == count

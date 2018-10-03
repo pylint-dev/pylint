@@ -304,9 +304,12 @@ class LoggingChecker(checkers.BaseChecker):
                         # special keywords - out of scope.
                         return
                 elif self._format_style == "{":
-                    _, required_num_args = utils.parse_brace_format_string(
+                    keys, num_args, manual_pos_arg = utils.parse_format_method_string(
                         format_string
                     )
+
+                    kargs = len(set(k for k, l in keys if not isinstance(k, int)))
+                    required_num_args = kargs + num_args + manual_pos_arg
             except utils.UnsupportedFormatCharacter as ex:
                 char = format_string[ex.index]
                 self.add_message(
