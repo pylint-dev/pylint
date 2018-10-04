@@ -25,7 +25,6 @@
 import builtins
 import sys
 import tokenize
-import string
 import numbers
 from collections import Counter
 
@@ -170,98 +169,6 @@ OTHER_NODES = (
 BUILTINS_STR = builtins.__name__ + ".str"
 BUILTINS_FLOAT = builtins.__name__ + ".float"
 BUILTINS_INT = builtins.__name__ + ".int"
-
-if _PY3K:
-    import _string  # pylint: disable=wrong-import-position, wrong-import-order
-
-    def split_format_field_names(format_string):
-        try:
-            return _string.formatter_field_name_split(format_string)
-        except ValueError:
-            raise utils.IncompleteFormatString()
-
-
-else:
-
-    def _field_iterator_convertor(iterator):
-        for is_attr, key in iterator:
-            if isinstance(key, numbers.Number):
-                yield is_attr, int(key)
-            else:
-                yield is_attr, key
-
-    def split_format_field_names(format_string):
-        try:
-            keyname, fielditerator = format_string._formatter_field_name_split()
-        except ValueError:
-            raise utils.IncompleteFormatString
-        # it will return longs, instead of ints, which will complicate
-        # the output
-        return keyname, _field_iterator_convertor(fielditerator)
-
-
-def collect_string_fields(format_string):
-    """ Given a format string, return an iterator
-    of all the valid format fields. It handles nested fields
-    as well.
-    """
-
-    formatter = string.Formatter()
-    try:
-        parseiterator = formatter.parse(format_string)
-        for result in parseiterator:
-            if all(item is None for item in result[1:]):
-                # not a replacement format
-                continue
-            name = result[1]
-            nested = result[2]
-            yield name
-            if nested:
-                for field in collect_string_fields(nested):
-                    yield field
-    except ValueError as exc:
-        # Probably the format string is invalid.
-        if exc.args[0].startswith("cannot switch from manual"):
-            # On Jython, parsing a string with both manual
-            # and automatic positions will fail with a ValueError,
-            # while on CPython it will simply return the fields,
-            # the validation being done in the interpreter (?).
-            # We're just returning two mixed fields in order
-            # to trigger the format-combined-specification check.
-            yield ""
-            yield "1"
-            return
-        raise utils.IncompleteFormatString(format_string)
-
-
-def parse_format_method_string(format_string):
-    """
-    Parses a PEP 3101 format string, returning a tuple of
-    (keys, num_args, manual_pos_arg),
-    where keys is the set of mapping keys in the format string, num_args
-    is the number of arguments required by the format string and
-    manual_pos_arg is the number of arguments passed with the position.
-    """
-    keys = []
-    num_args = 0
-    manual_pos_arg = set()
-    for name in collect_string_fields(format_string):
-        if name and str(name).isdigit():
-            manual_pos_arg.add(str(name))
-        elif name:
-            keyname, fielditerator = split_format_field_names(name)
-            if isinstance(keyname, numbers.Number):
-                # In Python 2 it will return long which will lead
-                # to different output between 2 and 3
-                manual_pos_arg.add(str(keyname))
-                keyname = int(keyname)
-            try:
-                keys.append((keyname, list(fielditerator)))
-            except ValueError:
-                raise utils.IncompleteFormatString()
-        else:
-            num_args += 1
-    return keys, num_args, len(manual_pos_arg)
 
 
 def get_access_path(key, parts):
@@ -487,7 +394,9 @@ class StringFormatChecker(BaseChecker):
             return
 
         try:
-            fields, num_args, manual_pos = parse_format_method_string(strnode.value)
+            fields, num_args, manual_pos = utils.parse_format_method_string(
+                strnode.value
+            )
         except utils.IncompleteFormatString:
             self.add_message("bad-format-string", node=node)
             return

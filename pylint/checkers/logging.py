@@ -136,6 +136,16 @@ class LoggingChecker(checkers.BaseChecker):
                 "arguments are in logging function parameter format.",
             },
         ),
+        (
+            "logging-format-style",
+            {
+                "default": "%",
+                "type": "choice",
+                "metavar": "<% or {>",
+                "choices": ["%", "{"],
+                "help": "Format style used to check logging format string",
+            },
+        ),
     )
 
     def visit_module(self, node):  # pylint: disable=unused-argument
@@ -146,6 +156,7 @@ class LoggingChecker(checkers.BaseChecker):
         self._logging_names = set()
         logging_mods = self.config.logging_modules
 
+        self._format_style = self.config.logging_format_style
         self._logging_modules = set(logging_mods)
         self._from_imports = {}
         for logging_mod in logging_mods:
@@ -284,13 +295,21 @@ class LoggingChecker(checkers.BaseChecker):
             required_num_args = 0
         else:
             try:
-                keyword_args, required_num_args, _, _ = utils.parse_format_string(
-                    format_string
-                )
-                if keyword_args:
-                    # Keyword checking on logging strings is complicated by
-                    # special keywords - out of scope.
-                    return
+                if self._format_style == "%":
+                    keyword_args, required_num_args, _, _ = utils.parse_format_string(
+                        format_string
+                    )
+                    if keyword_args:
+                        # Keyword checking on logging strings is complicated by
+                        # special keywords - out of scope.
+                        return
+                elif self._format_style == "{":
+                    keys, num_args, manual_pos_arg = utils.parse_format_method_string(
+                        format_string
+                    )
+
+                    kargs = len(set(k for k, l in keys if not isinstance(k, int)))
+                    required_num_args = kargs + num_args + manual_pos_arg
             except utils.UnsupportedFormatCharacter as ex:
                 char = format_string[ex.index]
                 self.add_message(

@@ -147,3 +147,26 @@ def test_is_subclass_of_not_classdefs():
     assert not utils.is_subclass_of(None, node)
     assert not utils.is_subclass_of(node, None)
     assert not utils.is_subclass_of(None, None)
+
+
+def test_parse_format_method_string():
+    samples = [
+        ("{}", 1),
+        ("{}:{}", 2),
+        ("{field}", 1),
+        ("{:5}", 1),
+        ("{:10}", 1),
+        ("{field:10}", 1),
+        ("{field:10}{{}}", 1),
+        ("{:5}{!r:10}", 2),
+        ("{:5}{}{{}}{}", 3),
+        ("{0}{1}{0}", 2),
+        ("Coordinates: {latitude}, {longitude}", 2),
+        ("X: {0[0]};  Y: {0[1]}", 1),
+        ("{:*^30}", 1),
+        ("{!r:}", 1),
+    ]
+    for fmt, count in samples:
+        keys, num_args, pos_args = utils.parse_format_method_string(fmt)
+        keyword_args = len(set(k for k, l in keys if not isinstance(k, int)))
+        assert keyword_args + num_args + pos_args == count

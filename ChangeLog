@@ -160,6 +160,8 @@ Release date: TBA
 
      Close #2430
 
+   * Add new option to logging checker, ``logging_format_style``
+
    * Fix --ignore-imports to understand multi-line imports
 
      Close #1422
