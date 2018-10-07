@@ -7,6 +7,16 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * PyLint comments now officially work with other linter comments
+   
+   This is the solution that officially closes [#2297](https://github.com/PyCQA/pylint/issues/2297),
+   [#2470](https://github.com/PyCQA/pylint/issues/2470),
+   and [#2485](https://github.com/PyCQA/pylint/issues/2485).
+   
+   Close #2297
+   Close #2470
+   Close #2485
+
    * ``deprecated-method`` can use the attribute name for identifying a deprecated method
 
      Previously we were using the fully qualified name, which we still do, but the fully
