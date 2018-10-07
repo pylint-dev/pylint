@@ -814,7 +814,13 @@ class PyLinter(
             match = utils.OPTION_RGX.search(content)
             if match is None:
                 continue
-
+            # Find the Pylint comment among all other special comments on the line
+            _comments = content.rsplit(r'#')
+            for _msg in _comments:
+                _msg = _msg.strip()
+                if _msg.startswith(r'pylint:') and r'disable' in _msg:
+                    content = r'#' +  _msg
+                    break
             first_group = match.group(1)
             if (
                 first_group.strip() == "disable-all"
