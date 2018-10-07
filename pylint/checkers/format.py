@@ -1260,8 +1260,13 @@ class FormatChecker(BaseTokenChecker):
                         _msg_id.strip() for _msg_id in back_of_equal.split(",")
                     }:
                         return None
-                    line = line.rsplit("#", 1)[0].rstrip()
-
+                    # Find the Pylint comment among all other special comments on the line
+                    _comments = line.rsplit(r'#')
+                    for _msg in _comments:
+                        _msg = _msg.strip()
+                        if _msg.startswith(r'pylint:') and r'disable' in _msg:
+                            line = _msg
+                            break
             if len(line) > max_chars and not ignore_long_line.search(line):
                 self.add_message("line-too-long", line=i, args=(len(line), max_chars))
             return i + 1
