@@ -448,12 +448,12 @@ class BasicErrorChecker(_BasicChecker):
         "E0104": (
             "Return outside function",
             "return-outside-function",
-            'Used when a "return" statement is found outside a function or ' "method.",
+            'Used when a "return" statement is found outside a function or method.',
         ),
         "E0105": (
             "Yield outside function",
             "yield-outside-function",
-            'Used when a "yield" statement is found outside a function or ' "method.",
+            'Used when a "yield" statement is found outside a function or method.',
         ),
         "E0106": (
             "Return with argument inside generator",
@@ -472,7 +472,7 @@ class BasicErrorChecker(_BasicChecker):
         "E0108": (
             "Duplicate argument name %s in function definition",
             "duplicate-argument-name",
-            "Duplicate argument names in function definitions are syntax" " errors.",
+            "Duplicate argument names in function definitions are syntax errors.",
         ),
         "E0110": (
             "Abstract class %r with abstract methods instantiated",
@@ -496,12 +496,12 @@ class BasicErrorChecker(_BasicChecker):
         "E0113": (
             "Starred assignment target must be in a list or tuple",
             "invalid-star-assignment-target",
-            "Emitted when a star expression is used as a starred " "assignment target.",
+            "Emitted when a star expression is used as a starred assignment target.",
         ),
         "E0114": (
             "Can use starred expression only in assignment target",
             "star-needs-assignment-target",
-            "Emitted when a star expression is not used in an " "assignment target.",
+            "Emitted when a star expression is not used in an assignment target.",
         ),
         "E0115": (
             "Name %r is nonlocal and global",
@@ -896,7 +896,7 @@ class BasicChecker(_BasicChecker):
         "W0104": (
             "Statement seems to have no effect",
             "pointless-statement",
-            "Used when a statement doesn't have (or at least seems to) " "any effect.",
+            "Used when a statement doesn't have (or at least seems to) any effect.",
         ),
         "W0105": (
             "String statement has no effect",
@@ -923,7 +923,7 @@ class BasicChecker(_BasicChecker):
         "W0109": (
             "Duplicate key %r in dictionary",
             "duplicate-key",
-            "Used when a dictionary expression binds the same key multiple " "times.",
+            "Used when a dictionary expression binds the same key multiple times.",
         ),
         "W0122": (
             "Use of exec",
@@ -1533,7 +1533,7 @@ class NameChecker(_BasicChecker):
         "C0102": (
             'Black listed name "%s"',
             "blacklisted-name",
-            "Used when the name is listed in the black list (unauthorized " "names).",
+            "Used when the name is listed in the black list (unauthorized names).",
         ),
         "C0103": (
             '%s name "%s" doesn\'t conform to %s',
@@ -1975,7 +1975,7 @@ class PassChecker(_BasicChecker):
         "W0107": (
             "Unnecessary pass statement",
             "unnecessary-pass",
-            'Used when a "pass" statement that can be avoided is ' "encountered.",
+            'Used when a "pass" statement that can be avoided is encountered.',
         )
     }
 

@@ -88,7 +88,7 @@ MSGS = {
         "string is raised (i.e. a `TypeError` will be raised).",
     ),
     "E0703": (
-        "Exception context set to something which is not an " "exception, nor None",
+        "Exception context set to something which is not an exception, nor None",
         "bad-exception-context",
         'Used when using the syntax "raise ... from ...", '
         "where the exception context is not an exception, "
@@ -113,7 +113,7 @@ MSGS = {
     "E0711": (
         "NotImplemented raised - should raise NotImplementedError",
         "notimplemented-raised",
-        "Used when NotImplemented is raised instead of " "NotImplementedError",
+        "Used when NotImplemented is raised instead of NotImplementedError",
     ),
     "E0712": (
         "Catching an exception which doesn't inherit from Exception: %s",
@@ -124,7 +124,7 @@ MSGS = {
     "W0702": (
         "No exception type(s) specified",
         "bare-except",
-        "Used when an except clause doesn't specify exceptions type to " "catch.",
+        "Used when an except clause doesn't specify exceptions type to catch.",
     ),
     "W0703": (
         "Catching too general exception %s",

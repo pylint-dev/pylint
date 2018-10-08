@@ -45,7 +45,7 @@ MSGS = {
     "E1300": (
         "Unsupported format character %r (%#02x) at index %d",
         "bad-format-character",
-        "Used when an unsupported format character is used in a format" "string.",
+        "Used when an unsupported format character is used in a format string.",
     ),
     "E1301": (
         "Format string ends in middle of conversion specifier",
@@ -108,7 +108,7 @@ MSGS = {
     "E1310": (
         "Suspicious argument in %s.%s call",
         "bad-str-strip-call",
-        "The argument to a str.{l,r,}strip call contains a" " duplicate character, ",
+        "The argument to a str.{l,r,}strip call contains a duplicate character, ",
     ),
     "W1302": (
         "Invalid format string",
@@ -555,7 +555,7 @@ class StringConstantChecker(BaseTokenChecker):
             "Anomalous backslash in string: '%s'. "
             "String constant might be missing an r prefix.",
             "anomalous-backslash-in-string",
-            "Used when a backslash is in a literal string but not as an " "escape.",
+            "Used when a backslash is in a literal string but not as an escape.",
         ),
         "W1402": (
             "Anomalous Unicode escape in byte string: '%s'. "

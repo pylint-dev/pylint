@@ -253,7 +253,7 @@ MSGS = {
     "E1121": (
         "Too many positional arguments for %s call",
         "too-many-function-args",
-        "Used when a function call passes too many positional " "arguments.",
+        "Used when a function call passes too many positional arguments.",
     ),
     "E1123": (
         "Unexpected keyword argument %r in %s call",

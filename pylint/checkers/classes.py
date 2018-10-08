@@ -459,12 +459,12 @@ MSGS = {
     "E0203": (
         "Access to member %r before its definition line %s",
         "access-member-before-definition",
-        "Used when an instance member is accessed before it's actually " "assigned.",
+        "Used when an instance member is accessed before it's actually assigned.",
     ),
     "W0201": (
         "Attribute %r defined outside __init__",
         "attribute-defined-outside-init",
-        "Used when an instance attribute is defined outside the __init__ " "method.",
+        "Used when an instance attribute is defined outside the __init__ method.",
     ),
     "W0212": (
         "Access to a protected member %s of a client class",  # E0214
@@ -550,7 +550,7 @@ MSGS = {
     "W0232": (
         "Class has no __init__ method",
         "no-init",
-        "Used when a class has no __init__ method, neither its parent " "classes.",
+        "Used when a class has no __init__ method, neither its parent classes.",
     ),
     "W0233": (
         "__init__ method from a non direct base class %r is called",
@@ -566,14 +566,14 @@ MSGS = {
         "from the MRO.",
     ),
     "E0236": (
-        "Invalid object %r in __slots__, must contain " "only non empty strings",
+        "Invalid object %r in __slots__, must contain only non empty strings",
         "invalid-slots-object",
         "Used when an invalid (non-string) object occurs in __slots__.",
     ),
     "E0237": (
         "Assigning to attribute %r not defined in class slots",
         "assigning-non-slot",
-        "Used when assigning to an attribute not defined " "in the class slots.",
+        "Used when assigning to an attribute not defined in the class slots.",
     ),
     "E0238": (
         "Invalid __slots__ object",
@@ -584,7 +584,7 @@ MSGS = {
     "E0239": (
         "Inheriting %r, which is not a class.",
         "inherit-non-class",
-        "Used when a class inherits from something which is not a " "class.",
+        "Used when a class inherits from something which is not a class.",
     ),
     "E0240": (
         "Inconsistent method resolution order for class %r",
@@ -599,17 +599,17 @@ MSGS = {
     "R0202": (
         "Consider using a decorator instead of calling classmethod",
         "no-classmethod-decorator",
-        "Used when a class method is defined without using the decorator " "syntax.",
+        "Used when a class method is defined without using the decorator syntax.",
     ),
     "R0203": (
         "Consider using a decorator instead of calling staticmethod",
         "no-staticmethod-decorator",
-        "Used when a static method is defined without using the decorator " "syntax.",
+        "Used when a static method is defined without using the decorator syntax.",
     ),
     "C0205": (
         "Class __slots__ should be a non-string iterable",
         "single-string-used-for-slots",
-        "Used when a class __slots__ is a simple string, rather " "than an iterable.",
+        "Used when a class __slots__ is a simple string, rather than an iterable.",
     ),
     "R0205": (
         "Class %r inherits from object, can be safely removed from bases in python3",

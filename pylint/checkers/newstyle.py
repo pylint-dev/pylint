@@ -31,7 +31,7 @@ MSGS = {
     "E1004": (
         "Missing argument to super()",
         "missing-super-argument",
-        "Used when the super builtin didn't receive an " "argument.",
+        "Used when the super builtin didn't receive an argument.",
         {"maxversion": (3, 0)},
     ),
 }

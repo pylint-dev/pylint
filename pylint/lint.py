@@ -190,7 +190,7 @@ MSGS = {
     "I0011": (
         "Locally disabling %s (%s)",
         "locally-disabled",
-        "Used when an inline option disables a message or a messages " "category.",
+        "Used when an inline option disables a message or a messages category.",
     ),
     "I0013": (
         "Ignoring entire file",
