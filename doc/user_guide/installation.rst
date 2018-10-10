@@ -25,4 +25,3 @@ directory and simply run ::
 Or you can install it in editable mode, using ::
 
     python setup.py develop
-

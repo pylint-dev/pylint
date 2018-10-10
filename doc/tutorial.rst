@@ -18,8 +18,9 @@ in open source.  Whatever the motivation, your good intentions may not have the
 desired outcome if people find your code hard to use or understand.  The Python
 community has formalized some recommended programming styles to help everyone
 write code in a common, agreed-upon style that makes the most sense for shared
-code.  This style is captured in PEP-8_.  Pylint can be a quick and easy way of
-seeing if your code has captured the essence of PEP-8 and is therefore
+code.  This style is captured in `PEP 8`_, the "Style Guide for Python Code".  
+Pylint can be a quick and easy way of
+seeing if your code has captured the essence of `PEP 8`_ and is therefore
 ``friendly`` to other potential users.
 
 Perhaps you're not ready to share your code but you'd like to learn a bit more
@@ -37,7 +38,7 @@ My command line prompt for these examples is:
 
   robertk01 Desktop$
 
-.. _PEP-8: http://www.python.org/dev/peps/pep-0008/
+.. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 
 Getting Started
 ---------------
@@ -96,8 +97,7 @@ preferences a bit better (and thus make it emit messages only when needed).
 Your First Pylint'ing
 ---------------------
 
-We'll use a basic python script as fodder for our tutorial.  I borrowed
-extensively from the code here: http://www.daniweb.com/code/snippet748.html
+We'll use a basic Python script as fodder for our tutorial.
 The starting code we will use is called simplecaeser.py and is here in its
 entirety:
 
@@ -173,7 +173,7 @@ command line and try this:
   belongs to the basic checker.
 
 
-Yeah, ok. That one was a bit of a no-brainer but I have run into error messages
+Yeah, ok. That one was a bit of a no-brainer, but I have run into error messages
 that left me with no clue about what went wrong, simply because I was unfamiliar
 with the underlying mechanism of code theory.  One error that puzzled my newbie
 mind was: ::
@@ -192,9 +192,9 @@ do with the remaining warnings.
 
 If we add a docstring to describe what the code is meant to do that will help.
 There are 5 ``invalid-name`` messages that we will get to later.  Lastly, I
-violated the convention of using spaces around an operator such as "=" so I'll
+violated the convention of using spaces around an operator such as ``=`` so I'll
 fix that too. To sum up, I'll add a docstring to line 2, and put spaces around
-the = sign on line 16.
+the ``=`` sign on line 16.
 
 Here is the updated code:
 
@@ -253,9 +253,9 @@ in the name.  This lends itself well to checking via a regular expression, thus
 the **should match (([A-Z\_][A-Z1-9\_]*)|(__.*__))$**.
 
 In this case Pylint is telling me that those variables appear to be constants
-and should be all UPPERCASE. This is an in-house convention that lives with Pylint
+and should be all UPPERCASE. This is an in-house convention that has lived with Pylint
 since its inception. You too can create your own in-house naming
-conventions but for the purpose of this tutorial, we want to stick to the PEP-8
+conventions but for the purpose of this tutorial, we want to stick to the `PEP 8`_
 standard. In this case, the variables I declared should follow the convention
 of all lowercase.  The appropriate rule would be something like:
 "should match [a-z\_][a-z0-9\_]{2,30}$".  Notice the lowercase letters in the
@@ -277,8 +277,8 @@ example but go ahead and `read up`_ on them if you want.
 
 .. tip::
  It would really be a pain to specify that regex on the command line all the time, particularly if we're using many other options.
- That's what the configuration file is for. We can configure our Pylint to
- store our options for us so we don't have to declare them on the command line.  Using the configuration file is a nice way of formalizing your rules and
+ That's what a configuration file is for. We can configure our Pylint to
+ store our options for us so we don't have to declare them on the command line.  Using a configuration file is a nice way of formalizing your rules and
  quickly sharing them with others. Invoking ``pylint --generate-rcfile`` will create a sample rcfile with all the options set and explained in comments.
 
 That's it for the basic intro. More tutorials will follow.
