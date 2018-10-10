@@ -20,6 +20,15 @@ New checkers
 * ``logging-format-style`` is a new option for the logging checker for usage of
   str.format() style format strings in calls to loggers.
 
+* ``implicit-str-concat-in-sequence`` detects string concatenation inside lists, sets & tuples.
+
+  Example of code that would generate such warning:
+
+  .. code-block:: python
+
+    woops = ('a', 'b' 'c')
+
+
 Other Changes
 =============
 

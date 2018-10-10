@@ -86,7 +86,7 @@ MSGS = {
     "R0916": (
         "Too many boolean expressions in if statement (%s/%s)",
         "too-many-boolean-expressions",
-        "Used when an if statement contains too many boolean " "expressions.",
+        "Used when an if statement contains too many boolean expressions.",
     ),
 }
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")

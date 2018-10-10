@@ -1,5 +1,5 @@
 """Regression test case for bad-continuation."""
-# pylint: disable=print-statement,using-constant-test,missing-docstring,wrong-import-position
+# pylint: disable=print-statement,implicit-str-concat-in-sequence,using-constant-test,missing-docstring,wrong-import-position
 # Various alignment for brackets
 from __future__ import print_function
 

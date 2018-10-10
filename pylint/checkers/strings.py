@@ -30,11 +30,13 @@ from collections import Counter
 
 import astroid
 from astroid.arguments import CallSite
+from astroid.node_classes import Const
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers import utils
 from pylint.checkers.utils import check_messages
 
+_AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
 
 _PY3K = sys.version_info[:2] >= (3, 0)
 _PY27 = sys.version_info[:2] == (2, 7)
@@ -43,7 +45,7 @@ MSGS = {
     "E1300": (
         "Unsupported format character %r (%#02x) at index %d",
         "bad-format-character",
-        "Used when an unsupported format character is used in a format" "string.",
+        "Used when an unsupported format character is used in a format string.",
     ),
     "E1301": (
         "Format string ends in middle of conversion specifier",
@@ -106,7 +108,7 @@ MSGS = {
     "E1310": (
         "Suspicious argument in %s.%s call",
         "bad-str-strip-call",
-        "The argument to a str.{l,r,}strip call contains a" " duplicate character, ",
+        "The argument to a str.{l,r,}strip call contains a duplicate character, ",
     ),
     "W1302": (
         "Invalid format string",
@@ -546,14 +548,14 @@ class StringFormatChecker(BaseChecker):
 class StringConstantChecker(BaseTokenChecker):
     """Check string literals"""
 
-    __implements__ = (ITokenChecker, IRawChecker)
+    __implements__ = (IAstroidChecker, ITokenChecker, IRawChecker)
     name = "string_constant"
     msgs = {
         "W1401": (
             "Anomalous backslash in string: '%s'. "
             "String constant might be missing an r prefix.",
             "anomalous-backslash-in-string",
-            "Used when a backslash is in a literal string but not as an " "escape.",
+            "Used when a backslash is in a literal string but not as an escape.",
         ),
         "W1402": (
             "Anomalous Unicode escape in byte string: '%s'. "
@@ -561,6 +563,13 @@ class StringConstantChecker(BaseTokenChecker):
             "anomalous-unicode-escape-in-string",
             "Used when an escape like \\u is encountered in a byte "
             "string where it has no effect.",
+        ),
+        "W1403": (
+            "Implicit string concatenation found in %s",
+            "implicit-str-concat-in-sequence",
+            "String literals are implicitly concatenated in a "
+            "literal iterable definition : "
+            "maybe a comma is missing ?",
         ),
     }
 
@@ -575,15 +584,55 @@ class StringConstantChecker(BaseTokenChecker):
     # Unicode strings.
     UNICODE_ESCAPE_CHARACTERS = "uUN"
 
+    def __init__(self, *args, **kwargs):
+        super(StringConstantChecker, self).__init__(*args, **kwargs)
+        self.string_tokens = {}  # token position -> (token value, next token)
+
     def process_module(self, module):
         self._unicode_literals = "unicode_literals" in module.future_imports
 
     def process_tokens(self, tokens):
-        for (tok_type, token, (start_row, _), _, _) in tokens:
+        for i, (tok_type, token, start, _, _) in enumerate(tokens):
             if tok_type == tokenize.STRING:
                 # 'token' is the whole un-parsed token; we can look at the start
                 # of it to see whether it's a raw or unicode string etc.
-                self.process_string_token(token, start_row)
+                self.process_string_token(token, start[0])
+                next_token = tokens[i + 1] if i + 1 < len(tokens) else None
+                self.string_tokens[start] = (str_eval(token), next_token)
+
+    @check_messages(*(MSGS.keys()))
+    def visit_list(self, node):
+        self.check_for_concatenated_strings(node, "list")
+
+    @check_messages(*(MSGS.keys()))
+    def visit_set(self, node):
+        self.check_for_concatenated_strings(node, "set")
+
+    @check_messages(*(MSGS.keys()))
+    def visit_tuple(self, node):
+        self.check_for_concatenated_strings(node, "tuple")
+
+    def check_for_concatenated_strings(self, iterable_node, iterable_type):
+        for elt in iterable_node.elts:
+            if isinstance(elt, Const) and elt.pytype() in _AST_NODE_STR_TYPES:
+                if elt.col_offset < 0:
+                    # This can happen in case of escaped newlines
+                    continue
+                matching_token, next_token = self.string_tokens[
+                    (elt.lineno, elt.col_offset)
+                ]
+                if matching_token != elt.value and next_token is not None:
+                    next_token_type, next_token_pos = next_token[0], next_token[2]
+                    # We do not warn if string concatenation happens over a newline
+                    if (
+                        next_token_type == tokenize.STRING
+                        and next_token_pos[0] == elt.lineno
+                    ):
+                        self.add_message(
+                            "implicit-str-concat-in-sequence",
+                            line=elt.lineno,
+                            args=(iterable_type,),
+                        )
 
     def process_string_token(self, token, start_row):
         quote_char = None
@@ -660,3 +709,19 @@ def register(linter):
     """required method to auto register this checker """
     linter.register_checker(StringFormatChecker(linter))
     linter.register_checker(StringConstantChecker(linter))
+
+
+def str_eval(token):
+    """
+    Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
+    This supports f-strings, contrary to `ast.literal_eval`.
+    We have to support all string literal notations:
+    https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
+    """
+    if token[0:2].lower() in ("fr", "rf"):
+        token = token[2:]
+    elif token[0].lower() in ("r", "u", "f"):
+        token = token[1:]
+    if token[0:3] in ('"""', "'''"):
+        return token[3:-3]
+    return token[1:-1]

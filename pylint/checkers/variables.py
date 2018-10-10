@@ -286,7 +286,7 @@ MSGS = {
     "E0601": (
         "Using variable %r before assignment",
         "used-before-assignment",
-        "Used when a local variable is accessed before it's " "assignment.",
+        "Used when a local variable is accessed before it's assignment.",
     ),
     "E0602": (
         "Undefined variable %r",
@@ -357,7 +357,7 @@ MSGS = {
     "W0621": (
         "Redefining name %r from outer scope (line %s)",
         "redefined-outer-name",
-        "Used when a variable's name hides a name defined in the outer " "scope.",
+        "Used when a variable's name hides a name defined in the outer scope.",
     ),
     "W0622": (
         "Redefining built-in %r",
@@ -367,7 +367,7 @@ MSGS = {
     "W0623": (
         "Redefining name %r from %s in exception handler",
         "redefine-in-handler",
-        "Used when an exception handler assigns the exception " "to an existing name",
+        "Used when an exception handler assigns the exception to an existing name",
     ),
     "W0631": (
         "Using possibly undefined loop variable %r",

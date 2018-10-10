@@ -211,7 +211,7 @@ MSGS = {
     "R0401": (
         "Cyclic import (%s)",
         "cyclic-import",
-        "Used when a cyclic import between two or more modules is " "detected.",
+        "Used when a cyclic import between two or more modules is detected.",
     ),
     "W0401": (
         "Wildcard import %s",
@@ -226,7 +226,7 @@ MSGS = {
     "W0403": (
         "Relative import %r, should be %r",
         "relative-import",
-        "Used when an import relative to the package directory is " "detected.",
+        "Used when an import relative to the package directory is detected.",
         {"maxversion": (3, 0)},
     ),
     "W0404": (
@@ -248,7 +248,7 @@ MSGS = {
     "C0410": (
         "Multiple imports on one line (%s)",
         "multiple-imports",
-        "Used when import statement importing multiple modules is " "detected.",
+        "Used when import statement importing multiple modules is detected.",
     ),
     "C0411": (
         "%s should be placed before %s",
@@ -262,7 +262,7 @@ MSGS = {
         "Used when imports are not grouped by packages",
     ),
     "C0413": (
-        'Import "%s" should be placed at the top of the ' "module",
+        'Import "%s" should be placed at the top of the module',
         "wrong-import-position",
         "Used when code and imports are mixed",
     ),

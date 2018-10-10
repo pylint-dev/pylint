@@ -80,7 +80,7 @@ class EncodingChecker(BaseChecker):
             "Used when a warning note as FIXME or XXX is detected.",
         ),
         "W0512": (
-            'Cannot decode using encoding "%s",' " unexpected byte at position %d",
+            'Cannot decode using encoding "%s", unexpected byte at position %d',
             "invalid-encoded-data",
             "Used when a source line cannot be decoded using the specified "
             "source file encoding.",

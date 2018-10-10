@@ -96,7 +96,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1703": (
             "The if statement can be replaced with %s",
             "simplifiable-if-statement",
-            "Used when an if statement can be replaced with " "'bool(test)'. ",
+            "Used when an if statement can be replaced with 'bool(test)'. ",
             {"old_names": [("R0102", "simplifiable-if-statement")]},
         ),
         "R1704": (
@@ -203,7 +203,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1719": (
             "The if expression can be replaced with %s",
             "simplifiable-if-expression",
-            "Used when an if expression can be replaced with " "'bool(test)'. ",
+            "Used when an if expression can be replaced with 'bool(test)'. ",
         ),
     }
     options = (
@@ -213,7 +213,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 "default": 5,
                 "type": "int",
                 "metavar": "<int>",
-                "help": "Maximum number of nested blocks for function / " "method body",
+                "help": "Maximum number of nested blocks for function / method body",
             },
         ),
         (
@@ -1155,7 +1155,7 @@ class NotChecker(checkers.BaseChecker):
         "C0113": (
             'Consider changing "%s" to "%s"',
             "unneeded-not",
-            "Used when a boolean expression contains an unneeded " "negation.",
+            "Used when a boolean expression contains an unneeded negation.",
         )
     }
     name = "basic"

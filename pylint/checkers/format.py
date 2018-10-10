@@ -138,7 +138,7 @@ MSGS = {
     "C0303": (
         "Trailing whitespace",
         "trailing-whitespace",
-        "Used when there is whitespace between the end of a line and the " "newline.",
+        "Used when there is whitespace between the end of a line and the newline.",
     ),
     "C0304": (
         "Final newline missing",

@@ -10,6 +10,28 @@ from pylint.checkers import strings
 from pylint.testutils import CheckerTestCase, Message
 
 
+TEST_TOKENS = (
+    '"X"',
+    "'X'",
+    "'''X'''",
+    '"""X"""',
+    'r"X"',
+    "R'X'",
+    'u"X"',
+    "F'X'",
+    'f"X"',
+    "F'X'",
+    'fr"X"',
+    'Fr"X"',
+    'fR"X"',
+    'FR"X"',
+    'rf"X"',
+    'rF"X"',
+    'Rf"X"',
+    'RF"X"',
+)
+
+
 class TestStringChecker(CheckerTestCase):
     CHECKER_CLASS = strings.StringFormatChecker
 
@@ -58,3 +80,7 @@ class TestStringChecker(CheckerTestCase):
                 )
             ):
                 self.checker.visit_binop(node)
+
+    def test_str_eval(self):
+        for token in TEST_TOKENS:
+            assert strings.str_eval(token) == "X"

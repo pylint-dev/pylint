@@ -179,7 +179,7 @@ class Python3Checker(checkers.BaseChecker):
             "(Python 3 doesn't allow it)",
         ),
         "E1603": (
-            "Implicit unpacking of exceptions is not supported " "in Python 3",
+            "Implicit unpacking of exceptions is not supported in Python 3",
             "unpacking-in-except",
             "Python3 will not allow implicit unpacking of "
             "exceptions in except clauses. "
@@ -187,7 +187,7 @@ class Python3Checker(checkers.BaseChecker):
             {"old_names": [("W0712", "unpacking-in-except")]},
         ),
         "E1604": (
-            "Use raise ErrorClass(args) instead of " "raise ErrorClass, args.",
+            "Use raise ErrorClass(args) instead of raise ErrorClass, args.",
             "old-raise-syntax",
             "Used when the alternate raise syntax "
             "'raise foo, bar' is used "
@@ -378,7 +378,7 @@ class Python3Checker(checkers.BaseChecker):
         "W1628": (
             "__hex__ method defined",
             "hex-method",
-            "Used when a __hex__ method is defined " "(method is not used by Python 3)",
+            "Used when a __hex__ method is defined (method is not used by Python 3)",
         ),
         "W1629": (
             "__nonzero__ method defined",
@@ -389,7 +389,7 @@ class Python3Checker(checkers.BaseChecker):
         "W1630": (
             "__cmp__ method defined",
             "cmp-method",
-            "Used when a __cmp__ method is defined " "(method is not used by Python 3)",
+            "Used when a __cmp__ method is defined (method is not used by Python 3)",
         ),
         # 'W1631': replaced by W1636
         "W1632": (
@@ -413,7 +413,7 @@ class Python3Checker(checkers.BaseChecker):
         "W1635": (
             "unichr built-in referenced",
             "unichr-builtin",
-            "Used when the unichr built-in is referenced " "(Use chr in Python 3)",
+            "Used when the unichr built-in is referenced (Use chr in Python 3)",
         ),
         "W1636": (
             "map built-in referenced when not iterating",

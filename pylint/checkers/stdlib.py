@@ -97,7 +97,7 @@ class StdlibChecker(BaseChecker):
             {"maxversion": (3, 5)},
         ),
         "W1503": (
-            "Redundant use of %s with constant " "value %r",
+            "Redundant use of %s with constant value %r",
             "redundant-unittest-assert",
             "The first argument of assertTrue and assertFalse is "
             "a condition. If a constant is passed as parameter, that "
@@ -119,7 +119,7 @@ class StdlibChecker(BaseChecker):
             "By default, the first parameter is the group param, not the target param. ",
         ),
         "W1507": (
-            "Using copy.copy(os.environ). Use os.environ.copy() " "instead. ",
+            "Using copy.copy(os.environ). Use os.environ.copy() instead. ",
             "shallow-copy-environ",
             "os.environ is not a dict object but proxy object, so "
             "shallow copy has still effects on original object. "
