@@ -8,12 +8,12 @@ What is Pylint?
 ---------------
 
 Pylint is a tool that checks for errors in Python code, tries to enforce a
-coding standard and looks for code smells. It can also look for certain type
+coding standard and looks for `code smells`_. It can also look for certain type
 errors, it can recommend suggestions about how particular blocks
 can be refactored and can offer you details about the code's complexity.
 
 Other similar projects would include pychecker_ (now defunct), pyflakes_,
-flake8_, and mypy_. The default coding style used by Pylint is close to `PEP 008`_.
+flake8_, and mypy_. The default coding style used by Pylint is close to `PEP 8`_.
 
 Pylint will display a number of messages as it analyzes the code and it can
 also be used for displaying some statistics about the number of warnings and
@@ -27,9 +27,10 @@ severity of the warnings and errors.
 .. _pyflakes: https://github.com/pyflakes/pyflakes
 .. _flake8: https://gitlab.com/pycqa/flake8/
 .. _mypy: https://github.com/JukkaL/mypy
-.. _`PEP 008`: https://www.python.org/dev/peps/pep-0008/
+.. _`PEP 8`: https://www.python.org/dev/peps/pep-0008/
 .. _`Guido's style guide`: https://www.python.org/doc/essays/styleguide/
 .. _`refactoring book`: https://www.refactoring.com/
+.. _`code smells`: https://martinfowler.com/bliki/CodeSmell.html
 
 What Pylint is not?
 -------------------
