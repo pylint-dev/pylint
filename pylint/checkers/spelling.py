@@ -143,7 +143,6 @@ class SpellingChecker(BaseTokenChecker):
             "/Users/siva.mahadevan/Library/Spelling/en_US.aff",
         )
 
-
         if self.config.spelling_store_unknown_words:
             self.unknown_words = set()
 
@@ -189,12 +188,13 @@ class SpellingChecker(BaseTokenChecker):
                 lower_cased_word = lower_cased_word[2:]
 
             # If it is a known word, then continue.
-            with tracer.trace('hunspell.spellcheck'):
+            with tracer.trace('spellcheck.lowercase'):
                 # if self.spelling_dict.check(lower_cased_word):
                 if self.hobj.spell(lower_cased_word):
                     # The lower cased version of word passed spell checking
                     continue
 
+            with tracer.trace('spellcheck.original'):
                 # If we reached this far, it means there was a spelling mistake.
                 # Let's retry with the original work because 'unicode' is a
                 # spelling mistake but 'Unicode' is not
