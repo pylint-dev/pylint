@@ -287,7 +287,7 @@ MSGS = {
     "E0601": (
         "Using variable %r before assignment",
         "used-before-assignment",
-        "Used when a local variable is accessed before it's assignment.",
+        "Used when a local variable is accessed before its assignment.",
     ),
     "E0602": (
         "Undefined variable %r",
