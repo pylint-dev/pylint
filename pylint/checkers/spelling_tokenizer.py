@@ -34,15 +34,18 @@ class WordTokenizer(Tokenizer):
             while self._offset < len(self._text) and self._text[self._offset].isspace():
                 self._offset += 1
             sPos = self._offset
+
             # Find end of word
             while self._offset < len(self._text) and not self._text[self._offset].isspace():
                 self._offset += 1
             ePos = self._offset
+
             # Strip chars from font/end of word
             while sPos < len(self._text) and self._text[sPos] in self.strip_from_start:
                 sPos += 1
             while 0 < ePos and self._text[ePos-1] in self.strip_from_end:
                 ePos -= 1
+
             # Return if word isn't empty
             if sPos < ePos:
                 return self._text[sPos:ePos]
@@ -127,12 +130,9 @@ class WordsWithDigitsFilter(Filter):
     """Skips words with digits.
     """
 
+    _pattern = re.compile(r"\d")
     def _skip(self, word):
-        for char in word:
-            if char.isdigit():
-                return True
-        return False
-
+        return bool(self._pattern.search(word))
 
 class WordsWithUnderscoresFilter(Filter):
     """Skips words with underscores.

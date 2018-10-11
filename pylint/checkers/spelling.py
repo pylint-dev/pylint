@@ -19,9 +19,9 @@
 """
 
 import os
+import sys
 import tokenize
 import re
-from ddtrace import tracer
 import hunspell
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker
@@ -138,13 +138,13 @@ class SpellingChecker(BaseTokenChecker):
                 self.config.spelling_private_dict_file
             )
 
+        if self.config.spelling_store_unknown_words:
+            self.unknown_words = set()
+
         self.hobj = hunspell.HunSpell(
             "/Users/siva.mahadevan/Library/Spelling/en_US.dic",
             "/Users/siva.mahadevan/Library/Spelling/en_US.aff",
         )
-
-        if self.config.spelling_store_unknown_words:
-            self.unknown_words = set()
 
         self.tokenizer = get_tokenizer(
             filters=[
@@ -164,7 +164,6 @@ class SpellingChecker(BaseTokenChecker):
         if self.private_dict_file:
             self.private_dict_file.close()
 
-    @tracer.wrap(service="pylint")
     def _check_spelling(self, msgid, line, line_num):
         original_line = line
         line = line.strip()
@@ -174,77 +173,57 @@ class SpellingChecker(BaseTokenChecker):
         else:
             starts_with_comment = False
 
-        span = tracer.trace('one_token')
         for word in self.tokenizer.tokenize(line):
-            lower_cased_word = word.casefold()
-
             # Skip words from ignore list.
-            if word in self.ignore_list or lower_cased_word in self.ignore_list:
+            if word in self.ignore_list:
                 continue
 
             # Strip starting u' from unicode literals and r' from raw strings.
             if word.startswith(("u'", 'u"', "r'", 'r"')) and len(word) > 2:
                 word = word[2:]
-                lower_cased_word = lower_cased_word[2:]
 
             # If it is a known word, then continue.
-            with tracer.trace('spellcheck.lowercase'):
-                # if self.spelling_dict.check(lower_cased_word):
-                if self.hobj.spell(lower_cased_word):
-                    # The lower cased version of word passed spell checking
-                    continue
-
-            with tracer.trace('spellcheck.original'):
-                # If we reached this far, it means there was a spelling mistake.
-                # Let's retry with the original work because 'unicode' is a
-                # spelling mistake but 'Unicode' is not
-                # if self.spelling_dict.check(word):
-                if self.hobj.spell(word):
-                    continue
+            # Spell check is case sensitive by default, since 'unicode' is
+            # a spelling mistake, but 'Unicode' is not.
+            if self.hobj.spell(word):
+                continue
 
             # Store word to private dict or raise a message.
             if self.config.spelling_store_unknown_words:
-                if lower_cased_word not in self.unknown_words:
-                    self.private_dict_file.write("%s\n" % lower_cased_word)
-                    self.unknown_words.add(lower_cased_word)
+                if word not in self.unknown_words:
+                    self.private_dict_file.write("%s\n" % word)
+                    self.unknown_words.add(word)
+                continue
+
+            # Present up to N suggestions.
+            if self.config.max_spelling_suggestions > 0:
+                suggestions = self.hobj.suggest(word)
+                del suggestions[self.config.max_spelling_suggestions :]
             else:
-                # Present up to N suggestions.
-                with tracer.trace('hunspell.suggest'):
-                    if (self.config.max_spelling_suggestions > 0):
-                        # suggestions = self.spelling_dict.suggest(word)
-                        suggestions = self.hobj.suggest(word)
-                        del suggestions[self.config.max_spelling_suggestions :]
-                    else:
-                        suggestions = []
+                suggestions = []
 
-                    m = re.search(r"(\W|^)(%s)(\W|$)" % word, line)
-                    if m:
-                        # Start position of second group in regex.
-                        col = m.regs[2][0]
-                    else:
-                        col = line.index(word)
+            m = re.search(r"(\W|^)(%s)(\W|$)" % word, line)
+            if m:
+                # Start position of second group in regex.
+                col = m.regs[2][0]
+            else:
+                col = line.index(word)
 
-                    if starts_with_comment:
-                        col += 1
-                    indicator = (" " * col) + ("^" * len(word))
+            if starts_with_comment:
+                col += 1
+            indicator = (" " * col) + ("^" * len(word))
 
-                self.add_message(
-                    msgid,
-                    line=line_num,
-                    args=(
-                        word,
-                        original_line,
-                        indicator,
-                        "'{}'".format("' or '".join(suggestions)),
-                    ),
-                )
+            self.add_message(
+                msgid,
+                line=line_num,
+                args=(
+                    word,
+                    original_line,
+                    indicator,
+                    "'{}'".format("' or '".join(suggestions)),
+                ),
+            )
 
-            span.finish()
-            span = tracer.trace('one_token')
-
-        span.finish()
-
-    @tracer.wrap(service="pylint")
     def process_tokens(self, tokens):
         if not self.initialized:
             return
