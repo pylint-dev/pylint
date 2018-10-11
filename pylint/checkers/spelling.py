@@ -21,135 +21,23 @@
 import os
 import tokenize
 import re
-
-try:
-    import enchant
-    from enchant.tokenize import (  # type: ignore
-        get_tokenizer,
-        Chunker,
-        Filter,
-        EmailFilter,
-        URLFilter,
-        WikiWordFilter,
-    )
-except ImportError:
-    enchant = None
-    # pylint: disable=no-init
-    class Filter:  # type: ignore
-        def _skip(self, word):
-            raise NotImplementedError
-
-    class Chunker:  # type: ignore
-        pass
-
+from ddtrace import tracer
+import hunspell
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-
-if enchant is not None:
-    br = enchant.Broker()
-    dicts = br.list_dicts()
-    dict_choices = [""] + [d[0] for d in dicts]
-    dicts = ["%s (%s)" % (d[0], d[1].name) for d in dicts]
-    dicts = ", ".join(dicts)
-    instr = ""
-else:
-    dicts = "none"
-    dict_choices = [""]
-    instr = " To make it working install python-enchant package."
-
-
-class WordsWithDigigtsFilter(Filter):
-    """Skips words with digits.
-    """
-
-    def _skip(self, word):
-        for char in word:
-            if char.isdigit():
-                return True
-        return False
-
-
-class WordsWithUnderscores(Filter):
-    """Skips words with underscores.
-
-    They are probably function parameter names.
-    """
-
-    def _skip(self, word):
-        return "_" in word
-
-
-class CamelCasedWord(Filter):
-    r"""Filter skipping over camelCasedWords.
-    This filter skips any words matching the following regular expression:
-
-           ^([a-z]\w+[A-Z]+\w+)
-
-    That is, any words that are camelCasedWords.
-    """
-    _pattern = re.compile(r"^([a-z]+([\d]|[A-Z])(?:\w+)?)")
-
-    def _skip(self, word):
-        return bool(self._pattern.match(word))
-
-
-class SphinxDirectives(Filter):
-    r"""Filter skipping over Sphinx Directives.
-    This filter skips any words matching the following regular expression:
-
-           ^:([a-z]+):`([^`]+)(`)?
-
-    That is, for example, :class:`BaseQuery`
-    """
-    # The final ` in the pattern is optional because enchant strips it out
-    _pattern = re.compile(r"^:([a-z]+):`([^`]+)(`)?")
-
-    def _skip(self, word):
-        return bool(self._pattern.match(word))
-
-
-class ForwardSlashChunkder(Chunker):
-    """
-    This chunker allows splitting words like 'before/after' into 'before' and 'after'
-    """
-
-    def next(self):
-        while True:
-            if not self._text:
-                raise StopIteration()
-            if "/" not in self._text:
-                text = self._text
-                self._offset = 0
-                self._text = ""
-                return (text, 0)
-            pre_text, post_text = self._text.split("/", 1)
-            self._text = post_text
-            self._offset = 0
-            if (
-                not pre_text
-                or not post_text
-                or not pre_text[-1].isalpha()
-                or not post_text[0].isalpha()
-            ):
-                self._text = ""
-                self._offset = 0
-                return (pre_text + "/" + post_text, 0)
-            return (pre_text, 0)
-
-    def _next(self):
-        while True:
-            if "/" not in self._text:
-                return (self._text, 0)
-            pre_text, post_text = self._text.split("/", 1)
-            if not pre_text or not post_text:
-                break
-            if not pre_text[-1].isalpha() or not post_text[0].isalpha():
-                raise StopIteration()
-            self._text = pre_text + " " + post_text
-        raise StopIteration()
-
+from pylint.checkers.spelling_tokenizer import (
+    EmailFilter,
+    URLFilter,
+    WikiWordFilter,
+    WordsWithDigitsFilter,
+    WordsWithUnderscoresFilter,
+    CamelCasedWordsFilter,
+    SphinxDirectivesFilter,
+    ForwardSlashChunker,
+    get_tokenizer,
+)
 
 class SpellingChecker(BaseTokenChecker):
     """Check spelling in comments and docstrings"""
@@ -172,7 +60,7 @@ class SpellingChecker(BaseTokenChecker):
         "C0403": (
             "Invalid characters %r in a docstring",
             "invalid-characters-in-docstring",
-            "Used when a word in docstring cannot be checked by enchant.",
+            "Used when a word in docstring cannot be checked by hunspell.",
         ),
     }
     options = (
@@ -182,9 +70,9 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "",
                 "type": "choice",
                 "metavar": "<dict name>",
-                "choices": dict_choices,
-                "help": "Spelling dictionary name. "
-                "Available dictionaries: %s.%s." % (dicts, instr),
+                "choices": ["", "en_US"],
+                "help": "Spelling dictionary name. ",
+                "Available dictionaries": "en-US",
             },
         ),
         (
@@ -233,8 +121,6 @@ class SpellingChecker(BaseTokenChecker):
         self.initialized = False
         self.private_dict_file = None
 
-        if enchant is None:
-            return
         dict_name = self.config.spelling_dict
         if not dict_name:
             return
@@ -252,29 +138,26 @@ class SpellingChecker(BaseTokenChecker):
                 self.config.spelling_private_dict_file
             )
 
-        if self.config.spelling_private_dict_file:
-            self.spelling_dict = enchant.DictWithPWL(
-                dict_name, self.config.spelling_private_dict_file
-            )
-            self.private_dict_file = open(self.config.spelling_private_dict_file, "a")
-        else:
-            self.spelling_dict = enchant.Dict(dict_name)
+        self.hobj = hunspell.HunSpell(
+            "/Users/siva.mahadevan/Library/Spelling/en_US.dic",
+            "/Users/siva.mahadevan/Library/Spelling/en_US.aff",
+        )
+
 
         if self.config.spelling_store_unknown_words:
             self.unknown_words = set()
 
         self.tokenizer = get_tokenizer(
-            dict_name,
-            chunkers=[ForwardSlashChunkder],
             filters=[
                 EmailFilter,
                 URLFilter,
                 WikiWordFilter,
-                WordsWithDigigtsFilter,
-                WordsWithUnderscores,
-                CamelCasedWord,
-                SphinxDirectives,
+                WordsWithDigitsFilter,
+                WordsWithUnderscoresFilter,
+                CamelCasedWordsFilter,
+                SphinxDirectivesFilter,
             ],
+            chunkers=[ForwardSlashChunker],
         )
         self.initialized = True
 
@@ -282,14 +165,18 @@ class SpellingChecker(BaseTokenChecker):
         if self.private_dict_file:
             self.private_dict_file.close()
 
+    @tracer.wrap(service="pylint")
     def _check_spelling(self, msgid, line, line_num):
         original_line = line
-        if line.strip().startswith("#"):
-            line = line.strip()[1:]
+        line = line.strip()
+        if line.startswith("#"):
+            line = line[1:]
             starts_with_comment = True
         else:
             starts_with_comment = False
-        for word, _ in self.tokenizer(line.strip()):
+
+        span = tracer.trace('one_token')
+        for word in self.tokenizer.tokenize(line):
             lower_cased_word = word.casefold()
 
             # Skip words from ignore list.
@@ -302,21 +189,18 @@ class SpellingChecker(BaseTokenChecker):
                 lower_cased_word = lower_cased_word[2:]
 
             # If it is a known word, then continue.
-            try:
-                if self.spelling_dict.check(lower_cased_word):
+            with tracer.trace('hunspell.spellcheck'):
+                # if self.spelling_dict.check(lower_cased_word):
+                if self.hobj.spell(lower_cased_word):
                     # The lower cased version of word passed spell checking
                     continue
 
                 # If we reached this far, it means there was a spelling mistake.
                 # Let's retry with the original work because 'unicode' is a
                 # spelling mistake but 'Unicode' is not
-                if self.spelling_dict.check(word):
+                # if self.spelling_dict.check(word):
+                if self.hobj.spell(word):
                     continue
-            except enchant.errors.Error:
-                self.add_message(
-                    "invalid-characters-in-docstring", line=line_num, args=(word,)
-                )
-                continue
 
             # Store word to private dict or raise a message.
             if self.config.spelling_store_unknown_words:
@@ -325,19 +209,24 @@ class SpellingChecker(BaseTokenChecker):
                     self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to N suggestions.
-                suggestions = self.spelling_dict.suggest(word)
-                del suggestions[self.config.max_spelling_suggestions :]
+                with tracer.trace('hunspell.suggest'):
+                    if (self.config.max_spelling_suggestions > 0):
+                        # suggestions = self.spelling_dict.suggest(word)
+                        suggestions = self.hobj.suggest(word)
+                        del suggestions[self.config.max_spelling_suggestions :]
+                    else:
+                        suggestions = []
 
-                m = re.search(r"(\W|^)(%s)(\W|$)" % word, line)
-                if m:
-                    # Start position of second group in regex.
-                    col = m.regs[2][0]
-                else:
-                    col = line.index(word)
+                    m = re.search(r"(\W|^)(%s)(\W|$)" % word, line)
+                    if m:
+                        # Start position of second group in regex.
+                        col = m.regs[2][0]
+                    else:
+                        col = line.index(word)
 
-                if starts_with_comment:
-                    col += 1
-                indicator = (" " * col) + ("^" * len(word))
+                    if starts_with_comment:
+                        col += 1
+                    indicator = (" " * col) + ("^" * len(word))
 
                 self.add_message(
                     msgid,
@@ -350,6 +239,12 @@ class SpellingChecker(BaseTokenChecker):
                     ),
                 )
 
+            span.finish()
+            span = tracer.trace('one_token')
+
+        span.finish()
+
+    @tracer.wrap(service="pylint")
     def process_tokens(self, tokens):
         if not self.initialized:
             return
@@ -396,7 +291,6 @@ class SpellingChecker(BaseTokenChecker):
         # Go through lines of docstring
         for idx, line in enumerate(docstring.splitlines()):
             self._check_spelling("wrong-spelling-in-docstring", line, start_line + idx)
-
 
 def register(linter):
     """required method to auto register this checker """
