@@ -245,3 +245,5 @@ contributors:
 * Michael Hudson-Doyle
 
 * Lucas Cimon: contributor
+
+* Mike Miller: contributor
