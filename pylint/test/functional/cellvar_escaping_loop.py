@@ -35,16 +35,6 @@ def good_case5():
 
 
 def good_case6():
-    """Accept use of the variable after the loop.
-
-    There's already a warning about possibly undefined loop variables, and
-    the value will not change any more."""
-    for i in range(10):
-        print(i)
-    return lambda: i  # [undefined-loop-variable]
-
-
-def good_case7():
     """Accept use of the variable inside return."""
     for i in range(10):
         if i == 8:
@@ -52,13 +42,13 @@ def good_case7():
     return lambda: -1
 
 
-def good_case8():
+def good_case7():
     """Lambda defined and called in loop."""
     for i in range(10):
         print((lambda x: i + x)(1))
 
 
-def good_case9():
+def good_case8():
     """Another eager binding of the cell variable."""
     funs = []
     for i in range(10):

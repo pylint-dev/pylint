@@ -64,6 +64,7 @@ PY3K = sys.version_info >= (3, 0)
 # for `abc`
 METACLASS_NAME_TRANSFORMS = {"_py_abc": "abc"}
 TYPING_TYPE_CHECKS_GUARDS = frozenset({"typing.TYPE_CHECKING", "TYPE_CHECKING"})
+BUILTIN_RANGE = "builtins.range"
 
 
 def _is_from_future_import(stmt, name):
@@ -1145,7 +1146,7 @@ class VariablesChecker(BaseChecker):
         ):
             return
 
-        # For functions we can do more by inferring the length of the iterred object
+        # For functions we can do more by inferring the length of the itered object
         if not isinstance(assign, astroid.For):
             self.add_message("undefined-loop-variable", args=name, node=node)
             return
@@ -1155,6 +1156,14 @@ class VariablesChecker(BaseChecker):
         except astroid.InferenceError:
             self.add_message("undefined-loop-variable", args=name, node=node)
         else:
+            if (
+                isinstance(inferred, astroid.Instance)
+                and inferred.qname() == BUILTIN_RANGE
+            ):
+                # Consider range() objects safe, even if they might not yield any results.
+                return
+
+            # Consider sequences.
             sequences = (
                 astroid.List,
                 astroid.Tuple,

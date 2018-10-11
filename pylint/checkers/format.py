@@ -1333,3 +1333,9 @@ class FormatChecker(BaseTokenChecker):
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(FormatChecker(linter))
+
+
+def funkier():
+    for val in range(3):
+        pass
+    print(val)
