@@ -1,11 +1,36 @@
 import re
 
 class Tokenizer:
+    def __init__(self, filters, chunkers):
+        self.filters = filters
+        self.chunkers = chunkers
+        self.sub_tokens = []
+
     def __iter__(self):
         return self
 
     def __next__(self):
-        return self.next()
+        valid = False
+        while not valid:
+            valid = True
+            
+            if len(self.sub_tokens) > 0:
+                base_token = self.sub_tokens.pop()
+            else:
+                base_token = self.next()
+
+            for f in self.filters:
+                if f.skip(base_token):
+                    valid = False
+                    break
+
+        for c in self.chunkers:
+            chunks = c.split(base_token)
+            if len(chunks) > 1:
+                self.sub_tokens.extend(chunks)
+                return self.sub_tokens.pop()
+
+        return base_token
 
     def tokenize(self, text):
         self._text = text
@@ -25,8 +50,8 @@ class WordTokenizer(Tokenizer):
     """
 
     # Chars to remove from start/end of words
-    strip_from_start = '"' + "'`([<{"
-    strip_from_end = '"' + "'`]).!,?;:>}"
+    strip_from_start = set("\"'`([<{")
+    strip_from_end = set("\"'`]).!,?;:>}")
 
     def next(self):
         while self._offset < len(self._text):
@@ -40,7 +65,7 @@ class WordTokenizer(Tokenizer):
                 self._offset += 1
             ePos = self._offset
 
-            # Strip chars from font/end of word
+            # Strip chars from front/end of word
             while sPos < len(self._text) and self._text[sPos] in self.strip_from_start:
                 sPos += 1
             while 0 < ePos and self._text[ePos-1] in self.strip_from_end:
@@ -52,99 +77,21 @@ class WordTokenizer(Tokenizer):
 
         raise StopIteration()
 
-class Filter(Tokenizer):
-    def __init__(self, tokenizer):
-        self._tokenizer = tokenizer
-
-    def tokenize(self, text):
-        self._tokenizer.tokenize(text)
-        return self
-
-    def next(self):
-        token = next(self._tokenizer)
-        while self._skip(token):
-            token = next(self._tokenizer)
-        return token
-
-    def _skip(self, token):
-        return False
-
-class Chunker(Tokenizer):
-    def __init__(self, tokenizer):
-        self._tokenizer = tokenizer
-        self._stack = []
-
-    def tokenize(self, text):
-        self._tokenizer.tokenize(text)
-        return self
-
-    def next(self):
-        if len(self._stack) > 0:
-            token = self._stack.pop()
-        else:
-            token = next(self._tokenizer)
-
-        subtokens = self._split(token)
-        if 1 == len(subtokens):
-            return subtokens[0]
-
-        self._stack.extend(subtokens)
-        return self._stack.pop()
-
-    def _split(self, token):
-        return [token]
-
-class ForwardSlashChunker(Chunker):
+class ForwardSlashChunker():
     """
     This chunker allows splitting words like 'before/after' into 'before' and 'after'
     """
 
-    def _split(self, token):
+    def split(self, token):
         return token.split("/")
 
-class EmailFilter(Filter):
-    r"""Filter skipping over email addresses.
-    This filter skips any words matching the following regular expression:
+class EnglishWordFilter():
+    _pattern = re.compile(r"^[a-zA-Z'/\-]+$")
 
-        ^.+@[^\.].*\.[a-z]{2,}$
+    def skip(self, token):
+        return not bool(self._pattern.match(token))
 
-    That is, any words that resemble email addresses.
-    """
-    _pattern = re.compile(r"^.+@[^\.].*\.[a-z]{2,}$")
-    def _skip(self,word):
-        return bool(self._pattern.match(word))
-
-class URLFilter(Filter):
-    r"""Filter skipping over URLs.
-    This filter skips any words matching the following regular expression:
-
-        ^[a-zA-Z]+:\/\/[^\s].*
-
-    That is, any words that are URLs.
-    """
-    _pattern = re.compile(r"^[a-zA-Z]+:\/\/[^\s].*")
-    def _skip(self,word):
-        return bool(self._pattern.match(word))
-
-class WordsWithDigitsFilter(Filter):
-    """Skips words with digits.
-    """
-
-    _pattern = re.compile(r"\d")
-    def _skip(self, word):
-        return bool(self._pattern.search(word))
-
-class WordsWithUnderscoresFilter(Filter):
-    """Skips words with underscores.
-
-    They are probably function parameter names.
-    """
-
-    def _skip(self, word):
-        return "_" in word
-
-
-class CamelCasedWordsFilter(Filter):
+class CamelCasedWordsFilter():
     r"""Filter skipping over camelCasedWords.
     This filter skips any words matching the following regular expression:
 
@@ -154,25 +101,10 @@ class CamelCasedWordsFilter(Filter):
     """
     _pattern = re.compile(r"^([a-z]+([\d]|[A-Z])(?:\w+)?)")
 
-    def _skip(self, word):
+    def skip(self, word):
         return bool(self._pattern.match(word))
 
-
-class SphinxDirectivesFilter(Filter):
-    r"""Filter skipping over Sphinx Directives.
-    This filter skips any words matching the following regular expression:
-
-        ^:([a-z]+):`([^`]+)(`)?
-
-    That is, for example, :class:`BaseQuery`
-    """
-    # The final ` in the patternnn is optional because enchant strips it out
-    _pattern = re.compile(r"^:([a-z]+):`([^`]+)(`)?")
-
-    def _skip(self, word):
-        return bool(self._pattern.match(word))
-
-class WikiWordFilter(Filter):
+class WikiWordFilter():
     r"""Filter skipping over WikiWords.
     This filter skips any words matching the following regular expression:
 
@@ -181,15 +113,8 @@ class WikiWordFilter(Filter):
     That is, any words that are WikiWords.
     """
     _pattern = re.compile(r"^([A-Z]\w+[A-Z]+\w+)")
-    def _skip(self,word):
+    def skip(self,word):
         return bool(self._pattern.match(word))
 
 def get_tokenizer(filters=[], chunkers=[]):
-    tokenizer = WordTokenizer()
-    for f in filters:
-        tokenizer = f(tokenizer)
-
-    for c in chunkers:
-        tokenizer = c(tokenizer)
-
-    return tokenizer
+    return WordTokenizer(filters, chunkers)

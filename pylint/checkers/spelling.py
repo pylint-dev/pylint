@@ -23,21 +23,20 @@ import sys
 import tokenize
 import re
 import hunspell
+from ddtrace import tracer
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
+
 from pylint.checkers.spelling_tokenizer import (
-    EmailFilter,
-    URLFilter,
+    EnglishWordFilter,
     WikiWordFilter,
-    WordsWithDigitsFilter,
-    WordsWithUnderscoresFilter,
     CamelCasedWordsFilter,
-    SphinxDirectivesFilter,
     ForwardSlashChunker,
     get_tokenizer,
 )
+
 
 class SpellingChecker(BaseTokenChecker):
     """Check spelling in comments and docstrings"""
@@ -148,15 +147,13 @@ class SpellingChecker(BaseTokenChecker):
 
         self.tokenizer = get_tokenizer(
             filters=[
-                EmailFilter,
-                URLFilter,
-                WikiWordFilter,
-                WordsWithDigitsFilter,
-                WordsWithUnderscoresFilter,
-                CamelCasedWordsFilter,
-                SphinxDirectivesFilter,
+                EnglishWordFilter(),
+                WikiWordFilter(),
+                CamelCasedWordsFilter(),
             ],
-            chunkers=[ForwardSlashChunker],
+            chunkers=[
+                ForwardSlashChunker(),
+            ],
         )
         self.initialized = True
 
@@ -164,16 +161,11 @@ class SpellingChecker(BaseTokenChecker):
         if self.private_dict_file:
             self.private_dict_file.close()
 
+    @tracer.wrap(service="pylint-new")
     def _check_spelling(self, msgid, line, line_num):
-        original_line = line
-        line = line.strip()
-        if line.startswith("#"):
-            line = line[1:]
-            starts_with_comment = True
-        else:
-            starts_with_comment = False
-
+        span = tracer.trace("next_token")
         for word in self.tokenizer.tokenize(line):
+            span.finish()
             # Skip words from ignore list.
             if word in self.ignore_list:
                 continue
@@ -185,8 +177,9 @@ class SpellingChecker(BaseTokenChecker):
             # If it is a known word, then continue.
             # Spell check is case sensitive by default, since 'unicode' is
             # a spelling mistake, but 'Unicode' is not.
-            if self.hobj.spell(word):
-                continue
+            with tracer.trace("spellcheck"):
+                if self.hobj.spell(word):
+                    continue
 
             # Store word to private dict or raise a message.
             if self.config.spelling_store_unknown_words:
@@ -197,20 +190,14 @@ class SpellingChecker(BaseTokenChecker):
 
             # Present up to N suggestions.
             if self.config.max_spelling_suggestions > 0:
-                suggestions = self.hobj.suggest(word)
-                del suggestions[self.config.max_spelling_suggestions :]
+                with tracer.trace("suggest"):
+                    suggestions = self.hobj.suggest(word)
+                del suggestions[self.config.max_spelling_suggestions:]
             else:
                 suggestions = []
 
-            m = re.search(r"(\W|^)(%s)(\W|$)" % word, line)
-            if m:
-                # Start position of second group in regex.
-                col = m.regs[2][0]
-            else:
-                col = line.index(word)
-
-            if starts_with_comment:
-                col += 1
+            m = re.search(r"\b({})\b".format(re.escape(word)), line)
+            col = m.regs[1][0]
             indicator = (" " * col) + ("^" * len(word))
 
             self.add_message(
@@ -218,12 +205,16 @@ class SpellingChecker(BaseTokenChecker):
                 line=line_num,
                 args=(
                     word,
-                    original_line,
+                    line,
                     indicator,
                     "'{}'".format("' or '".join(suggestions)),
                 ),
             )
+            span = tracer.trace("next_token")
 
+        span.finish()
+
+    @tracer.wrap(service="pylint-new")
     def process_tokens(self, tokens):
         if not self.initialized:
             return
@@ -257,8 +248,6 @@ class SpellingChecker(BaseTokenChecker):
             return
         self._check_docstring(node)
 
-    visit_asyncfunctiondef = visit_functiondef
-
     def _check_docstring(self, node):
         """check the node has any spelling errors"""
         docstring = node.doc
@@ -270,6 +259,7 @@ class SpellingChecker(BaseTokenChecker):
         # Go through lines of docstring
         for idx, line in enumerate(docstring.splitlines()):
             self._check_spelling("wrong-spelling-in-docstring", line, start_line + idx)
+
 
 def register(linter):
     """required method to auto register this checker """
