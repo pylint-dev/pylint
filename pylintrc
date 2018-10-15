@@ -283,8 +283,9 @@ contextmanager-decorators=contextlib.contextmanager
 
 [SPELLING]
 
-# Spelling dictionary name. Available dictionaries: none. To make it working
-# install python-enchant package.
+# Spelling dictionary name.
+# To enable spellchecking, install hunspell
+# Hunspell's python bindings are available on PyPI in the "hunspell" package
 spelling-dict=en_US
 
 # List of comma separated words that should not be checked.

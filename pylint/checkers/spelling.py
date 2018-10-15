@@ -19,11 +19,32 @@
 """
 
 import os
-import sys
+import subprocess
 import tokenize
 import re
-import hunspell
-from ddtrace import tracer
+
+try:
+    import hunspell
+
+    available_dicts = []
+    # TODO remove the devnull argument once
+    #      https://github.com/hunspell/hunspell/issues/202 is resolved
+    res = subprocess.check_output(
+        ["hunspell", "-D", os.devnull],
+        stderr=subprocess.STDOUT
+    ).decode('utf-8')
+    copy = False
+    for line in res.splitlines():
+        if line.startswith("AVAILABLE"):
+            copy = True
+        elif line.startswith("LOADED"):
+            break
+        elif copy:
+            available_dicts.append((os.path.basename(line), line))
+
+except ImportError:
+    hunspell = None
+    available_dicts = [("none (if you would like to enable spellchecking, please install the hunspell pypi package)", "")]
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
@@ -69,9 +90,9 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "",
                 "type": "choice",
                 "metavar": "<dict name>",
-                "choices": ["", "en_US"],
+                "choices": [""] + [d[0] for d in available_dicts],
                 "help": "Spelling dictionary name. ",
-                "Available dictionaries": "en-US",
+                "Available dictionaries": [d[1] for d in available_dicts],
             },
         ),
         (
@@ -120,8 +141,23 @@ class SpellingChecker(BaseTokenChecker):
         self.initialized = False
         self.private_dict_file = None
 
+        if hunspell is None:
+            return
+
         dict_name = self.config.spelling_dict
         if not dict_name:
+            return
+
+        self.hobj = None
+        for d in available_dicts:
+            if d[0] == dict_name:
+                self.hobj = hunspell.HunSpell(
+                    d[1] + ".dic",
+                    d[1] + ".aff"
+                )
+                break
+
+        if self.hobj is None:
             return
 
         self.ignore_list = [
@@ -140,11 +176,6 @@ class SpellingChecker(BaseTokenChecker):
         if self.config.spelling_store_unknown_words:
             self.unknown_words = set()
 
-        self.hobj = hunspell.HunSpell(
-            "/Users/siva.mahadevan/Library/Spelling/en_US.dic",
-            "/Users/siva.mahadevan/Library/Spelling/en_US.aff",
-        )
-
         self.tokenizer = get_tokenizer(
             filters=[
                 EnglishWordFilter(),
@@ -161,11 +192,8 @@ class SpellingChecker(BaseTokenChecker):
         if self.private_dict_file:
             self.private_dict_file.close()
 
-    @tracer.wrap(service="pylint-new")
     def _check_spelling(self, msgid, line, line_num):
-        span = tracer.trace("next_token")
         for word in self.tokenizer.tokenize(line):
-            span.finish()
             # Skip words from ignore list.
             if word in self.ignore_list:
                 continue
@@ -177,9 +205,8 @@ class SpellingChecker(BaseTokenChecker):
             # If it is a known word, then continue.
             # Spell check is case sensitive by default, since 'unicode' is
             # a spelling mistake, but 'Unicode' is not.
-            with tracer.trace("spellcheck"):
-                if self.hobj.spell(word):
-                    continue
+            if self.hobj.spell(word):
+                continue
 
             # Store word to private dict or raise a message.
             if self.config.spelling_store_unknown_words:
@@ -190,14 +217,13 @@ class SpellingChecker(BaseTokenChecker):
 
             # Present up to N suggestions.
             if self.config.max_spelling_suggestions > 0:
-                with tracer.trace("suggest"):
-                    suggestions = self.hobj.suggest(word)
+                suggestions = self.hobj.suggest(word)
                 del suggestions[self.config.max_spelling_suggestions:]
             else:
                 suggestions = []
 
-            m = re.search(r"\b({})\b".format(re.escape(word)), line)
-            col = m.regs[1][0]
+            m = re.search(r"(\W|^)({})(\W|$)".format(re.escape(word)), line)
+            col = m.regs[2][0]
             indicator = (" " * col) + ("^" * len(word))
 
             self.add_message(
@@ -210,11 +236,7 @@ class SpellingChecker(BaseTokenChecker):
                     "'{}'".format("' or '".join(suggestions)),
                 ),
             )
-            span = tracer.trace("next_token")
 
-        span.finish()
-
-    @tracer.wrap(service="pylint-new")
     def process_tokens(self, tokens):
         if not self.initialized:
             return

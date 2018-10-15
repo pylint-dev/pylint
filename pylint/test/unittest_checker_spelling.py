@@ -12,6 +12,9 @@
 
 """Unittest for the spelling checker."""
 
+import subprocess
+import os
+
 import pytest
 
 import astroid
@@ -19,16 +22,47 @@ import astroid
 from pylint.checkers import spelling
 from pylint.testutils import CheckerTestCase, Message, set_config, _tokenize_str
 
-spell_dict = "en_US"
+# try to find hunspell dictionary
+try:
+    import hunspell
+except ImportError:
+    hunspell = None
+
+spell_dict = None
+if hunspell is not None:
+    available_dicts = []
+    # TODO remove the devnull argument once
+    #      https://github.com/hunspell/hunspell/issues/202 is resolved
+    res = subprocess.check_output(
+        ["hunspell", "-D", os.devnull],
+        stderr=subprocess.STDOUT
+    ).decode('utf-8')
+
+    copy = False
+    for line in res.splitlines():
+        if line.startswith("AVAILABLE"):
+            copy = True
+        elif line.startswith("LOADED"):
+            break
+        elif copy and os.path.basename(line) == "en_US":
+            spell_dict = "en_US"
+            break
+
 
 class TestSpellingChecker(CheckerTestCase):
     CHECKER_CLASS = spelling.SpellingChecker
+
+    skip_on_missing_package_or_dict = pytest.mark.skipif(
+        spell_dict is None,
+        reason="missing hunspell package or missing spelling dictionaries",
+    )
 
     def _get_msg_suggestions(self, word, count=4):
         return "'{}'".format(
             "' or '".join(self.checker.hobj.suggest(word)[:count])
         )
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_coment(self):
         with self.assertAddsMessages(
@@ -45,6 +79,7 @@ class TestSpellingChecker(CheckerTestCase):
         ):
             self.checker.process_tokens(_tokenize_str("# bad coment"))
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     @set_config(max_spelling_suggestions=2)
     def test_check_bad_coment_custom_suggestion_count(self):
@@ -62,6 +97,7 @@ class TestSpellingChecker(CheckerTestCase):
         ):
             self.checker.process_tokens(_tokenize_str("# bad coment"))
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_docstring(self):
         stmt = astroid.extract_node('def fff():\n   """bad coment"""\n   pass')
@@ -94,7 +130,8 @@ class TestSpellingChecker(CheckerTestCase):
         ):
             self.checker.visit_classdef(stmt)
 
-    @pytest.mark.skipif(True, reason="pyenchant's tokenizer strips these")
+    @pytest.mark.skipif(True, reason="spelling tokenizer strips these")
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_invalid_docstring_characters(self):
         stmt = astroid.extract_node('def fff():\n   """test\\x00"""\n   pass')
@@ -103,11 +140,13 @@ class TestSpellingChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(stmt)
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_shebangs(self):
         self.checker.process_tokens(_tokenize_str("#!/usr/bin/env python"))
         assert self.linter.release_messages() == []
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_python_coding_comments(self):
         self.checker.process_tokens(_tokenize_str("# -*- coding: utf-8 -*-"))
@@ -130,6 +169,7 @@ class TestSpellingChecker(CheckerTestCase):
         )
         assert self.linter.release_messages() == []
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_top_level_pylint_enable_disable_comments(self):
         self.checker.process_tokens(
@@ -137,11 +177,13 @@ class TestSpellingChecker(CheckerTestCase):
         )
         assert self.linter.release_messages() == []
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_words_with_numbers(self):
         self.checker.process_tokens(_tokenize_str("\n# 0ne\n# Thr33\n# Sh3ll"))
         assert self.linter.release_messages() == []
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_wiki_words(self):
         stmt = astroid.extract_node(
@@ -161,6 +203,7 @@ class TestSpellingChecker(CheckerTestCase):
         ):
             self.checker.visit_classdef(stmt)
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_camel_cased_words(self):
         stmt = astroid.extract_node(
@@ -212,6 +255,7 @@ class TestSpellingChecker(CheckerTestCase):
             self.checker.visit_classdef(stmt)
             assert self.linter.release_messages() == []
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_words_with_underscores(self):
         stmt = astroid.extract_node(
@@ -220,16 +264,19 @@ class TestSpellingChecker(CheckerTestCase):
         self.checker.visit_functiondef(stmt)
         assert self.linter.release_messages() == []
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_email_address(self):
         self.checker.process_tokens(_tokenize_str("# uname@domain.tld"))
         assert self.linter.release_messages() == []
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_urls(self):
         self.checker.process_tokens(_tokenize_str("# https://github.com/rfk/pyenchant"))
         assert self.linter.release_messages() == []
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_sphinx_directives(self):
         stmt = astroid.extract_node(
@@ -249,6 +296,7 @@ class TestSpellingChecker(CheckerTestCase):
         ):
             self.checker.visit_classdef(stmt)
 
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_handle_words_joined_by_forward_slash(self):
         stmt = astroid.extract_node(

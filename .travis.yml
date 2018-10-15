@@ -37,7 +37,7 @@ before_install:
   - uname -a
   - lsb_release -a
   - sudo apt-get -qq update
-  - sudo apt-get install -y enchant
+  - sudo apt-get install -y hunspell hunspell-en-us
 install:
   - pip install -U setuptools
   - pip install tox coverage coveralls
