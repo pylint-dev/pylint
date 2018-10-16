@@ -28,7 +28,7 @@ jobs:
       env: TOXENV=py37
       dist: xenial
     - python: 3.6
-      env: TOXENV=spelling TOXPOSARGS='--spelling-dict-name en_US --spelling-dict-paths /Library/Spelling'
+      env: TOXENV=spelling TOXPOSARGS='--spelling-dict-name=en_US --spelling-dict-paths=/usr/share/hunspell'
     - stage: tests-pypy
       python: pypy3.5-5.8.0
       env: TOXENV=pypy

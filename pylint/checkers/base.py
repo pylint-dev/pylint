@@ -369,12 +369,12 @@ def report_by_type_stats(sect, stats, old_stats):
         if total != 0:
             try:
                 documented = total - stats["undocumented_" + node_type]
-                percent = (documented * 100.) / total
+                percent = (documented * 100.0) / total
                 nice_stats[node_type]["percent_documented"] = "%.2f" % percent
             except KeyError:
                 nice_stats[node_type]["percent_documented"] = "NC"
             try:
-                percent = (stats["badname_" + node_type] * 100.) / total
+                percent = (stats["badname_" + node_type] * 100.0) / total
                 nice_stats[node_type]["percent_badname"] = "%.2f" % percent
             except KeyError:
                 nice_stats[node_type]["percent_badname"] = "NC"

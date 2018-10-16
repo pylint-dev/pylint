@@ -22,35 +22,32 @@ import astroid
 from pylint.checkers import spelling
 from pylint.testutils import CheckerTestCase, Message, _tokenize_str
 
+
 @pytest.fixture(scope="class")
 def dict_name(request):
     return request.config.getoption("--spelling-dict-name", skip=True)
+
 
 @pytest.fixture(scope="class")
 def dict_paths(request):
     return request.config.getoption("--spelling-dict-paths", skip=True)
 
+
 class TestSpellingChecker(CheckerTestCase):
     CHECKER_CLASS = spelling.SpellingChecker
 
     def _get_msg_suggestions(self, word, count=4):
-        return "'{}'".format(
-            "' or '".join(self.checker.hobj.suggest(word)[:count])
-        )
+        return "'{}'".format("' or '".join(self.checker.hobj.suggest(word)[:count]))
 
     def _config(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self.checker.config, key, value)
         self.checker.open()
         if not self.checker.initialized:
-            pytest.skip("Missing hunspell package or missing spelling "
-                    "dictionaries")
+            pytest.skip("Missing hunspell package or missing spelling dictionaries")
 
     def test_check_bad_coment(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         with self.assertAddsMessages(
             Message(
                 "wrong-spelling-in-comment",
@@ -65,12 +62,11 @@ class TestSpellingChecker(CheckerTestCase):
         ):
             self.checker.process_tokens(_tokenize_str("# bad coment"))
 
-    def test_check_bad_coment_custom_suggestion_count(self, dict_name,
-            dict_paths):
+    def test_check_bad_coment_custom_suggestion_count(self, dict_name, dict_paths):
         self._config(
             spelling_dict_name=dict_name,
             spelling_dict_paths=dict_paths,
-            max_spelling_suggestions=2
+            max_spelling_suggestions=2,
         )
         with self.assertAddsMessages(
             Message(
@@ -87,10 +83,7 @@ class TestSpellingChecker(CheckerTestCase):
             self.checker.process_tokens(_tokenize_str("# bad coment"))
 
     def test_check_bad_docstring(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         stmt = astroid.extract_node('def fff():\n   """bad coment"""\n   pass')
         with self.assertAddsMessages(
             Message(
@@ -123,10 +116,7 @@ class TestSpellingChecker(CheckerTestCase):
 
     @pytest.mark.skipif(True, reason="spelling tokenizer strips these")
     def test_invalid_docstring_characters(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         stmt = astroid.extract_node('def fff():\n   """test\\x00"""\n   pass')
         with self.assertAddsMessages(
             Message("invalid-characters-in-docstring", line=2, args=("test\x00",))
@@ -134,18 +124,12 @@ class TestSpellingChecker(CheckerTestCase):
             self.checker.visit_functiondef(stmt)
 
     def test_skip_shebangs(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         self.checker.process_tokens(_tokenize_str("#!/usr/bin/env python"))
         assert self.linter.release_messages() == []
 
     def test_skip_python_coding_comments(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         self.checker.process_tokens(_tokenize_str("# -*- coding: utf-8 -*-"))
         assert self.linter.release_messages() == []
         self.checker.process_tokens(_tokenize_str("# coding=utf-8"))
@@ -166,30 +150,20 @@ class TestSpellingChecker(CheckerTestCase):
         )
         assert self.linter.release_messages() == []
 
-    def test_skip_top_level_pylint_enable_disable_comments(self, dict_name,
-            dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+    def test_skip_top_level_pylint_enable_disable_comments(self, dict_name, dict_paths):
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         self.checker.process_tokens(
             _tokenize_str("# Line 1\n Line 2\n# pylint: disable=ungrouped-imports")
         )
         assert self.linter.release_messages() == []
 
     def test_skip_words_with_numbers(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         self.checker.process_tokens(_tokenize_str("\n# 0ne\n# Thr33\n# Sh3ll"))
         assert self.linter.release_messages() == []
 
     def test_skip_wiki_words(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         stmt = astroid.extract_node(
             'class ComentAbc(object):\n   """ComentAbc with a bad coment"""\n   pass'
         )
@@ -208,10 +182,7 @@ class TestSpellingChecker(CheckerTestCase):
             self.checker.visit_classdef(stmt)
 
     def test_skip_camel_cased_words(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         stmt = astroid.extract_node(
             'class ComentAbc(object):\n   """comentAbc with a bad coment"""\n   pass'
         )
@@ -262,10 +233,7 @@ class TestSpellingChecker(CheckerTestCase):
             assert self.linter.release_messages() == []
 
     def test_skip_words_with_underscores(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         stmt = astroid.extract_node(
             'def fff(param_name):\n   """test param_name"""\n   pass'
         )
@@ -273,26 +241,17 @@ class TestSpellingChecker(CheckerTestCase):
         assert self.linter.release_messages() == []
 
     def test_skip_email_address(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         self.checker.process_tokens(_tokenize_str("# uname@domain.tld"))
         assert self.linter.release_messages() == []
 
     def test_skip_urls(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         self.checker.process_tokens(_tokenize_str("# https://github.com/rfk/pyenchant"))
         assert self.linter.release_messages() == []
 
     def test_skip_sphinx_directives(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         stmt = astroid.extract_node(
             'class ComentAbc(object):\n   """This is :class:`ComentAbc` with a bad coment"""\n   pass'
         )
@@ -311,10 +270,7 @@ class TestSpellingChecker(CheckerTestCase):
             self.checker.visit_classdef(stmt)
 
     def test_handle_words_joined_by_forward_slash(self, dict_name, dict_paths):
-        self._config(
-            spelling_dict_name=dict_name,
-            spelling_dict_paths=dict_paths
-        )
+        self._config(spelling_dict_name=dict_name, spelling_dict_paths=dict_paths)
         stmt = astroid.extract_node(
             '''
         class ComentAbc(object):

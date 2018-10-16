@@ -286,7 +286,7 @@ contextmanager-decorators=contextlib.contextmanager
 # Hunspell's python bindings are available on PyPI as the "hunspell" package
 
 # Spelling dictionary name (e.g. "en_US")
-spelling-dict-name=en_US
+spelling-dict-name=
 
 # Paths string of directories where Hunspell dictionaries are installed.
 # To get a list of available paths, run `hunspell -D` in a shell and look for
@@ -295,7 +295,7 @@ spelling-dict-name=en_US
 #   <spelling-dict-name>.dic
 #   <spelling-dict-name>.aff
 # E.g. "/Library/Spelling:/usr/share/hunspell:/usr/share/myspell/dicts"
-spelling-dict-paths=/Library/Spelling
+spelling-dict-paths=
 
 # List of comma separated words that should not be checked.
 spelling-ignore-words=
@@ -306,6 +306,9 @@ spelling-private-dict-file=
 # Tells whether to store unknown words to indicated private dictionary in
 # --spelling-private-dict-file option instead of raising a message.
 spelling-store-unknown-words=no
+
+# Limits count of emitted suggestions for spelling mistakes
+max-spelling-suggestions=4
 
 
 [DESIGN]

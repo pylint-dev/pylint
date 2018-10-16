@@ -11,6 +11,7 @@
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Siva Mahadevan <svmhdvn@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -31,13 +32,151 @@ from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 
-from pylint.checkers.spelling_tokenizer import (
-    EnglishWordFilter,
-    WikiWordFilter,
-    CamelCasedWordsFilter,
-    ForwardSlashChunker,
-    get_tokenizer,
-)
+
+class Tokenizer:
+    def __init__(self, filters, chunkers):
+        self.filters = filters
+        self.chunkers = chunkers
+        self.sub_tokens = []
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        valid = False
+        while not valid:
+            valid = True
+
+            if self.sub_tokens:
+                base_token = self.sub_tokens.pop()
+            else:
+                base_token = self.next()  # pylint: disable=E1111
+
+            for f in self.filters:
+                if f.skip(base_token):
+                    valid = False
+                    break
+
+        for c in self.chunkers:
+            chunks = c.split(base_token)
+            if len(chunks) > 1:
+                self.sub_tokens.extend(chunks)
+                return self.sub_tokens.pop()
+
+        return base_token
+
+    def tokenize(self, text):
+        self._text = text
+        self._offset = 0
+        return self
+
+    # pylint: disable=R0201
+    def next(self):
+        raise StopIteration()
+
+
+class WordTokenizer(Tokenizer):
+    """Tokenizer class that performs very basic word-finding.
+
+    This tokenizer does the most basic thing that could work - it splits
+    text into words based on whitespace boundaries, and removes basic
+    punctuation symbols from the start and end of each word.
+    """
+
+    # Chars to remove from start/end of words
+    strip_from_start = set("\"'`([<{")
+    strip_from_end = set("\"'`]).!,?;:>}")
+
+    def next(self):
+        while self._offset < len(self._text):
+            # Find start of next word
+            while self._offset < len(self._text) and self._text[self._offset].isspace():
+                self._offset += 1
+            sPos = self._offset
+
+            # Find end of word
+            while (
+                self._offset < len(self._text)
+                and not self._text[self._offset].isspace()
+            ):
+                self._offset += 1
+            ePos = self._offset
+
+            # Strip chars from front of word
+            while sPos < len(self._text) and self._text[sPos] in self.strip_from_start:
+                sPos += 1
+
+            # Strip chars from end of word
+            while ePos > 0 and self._text[ePos - 1] in self.strip_from_end:
+                ePos -= 1
+
+            # Return if word isn't empty
+            if sPos < ePos:
+                return self._text[sPos:ePos]
+
+        raise StopIteration()
+
+
+class ForwardSlashChunker:
+    """
+    This chunker allows splitting words like 'before/after' into 'before' and 'after'
+    """
+
+    # pylint: disable=R0201
+    def split(self, token):
+        return token.split("/")
+
+
+class EnglishWordFilter:
+    _pattern = re.compile(r"^[a-zA-Z'/\-]+$")
+
+    def skip(self, token):
+        return not bool(self._pattern.match(token))
+
+
+class CamelCasedWordsFilter:
+    r"""Filter skipping over camelCasedWords.
+    This filter skips any words matching the following regular expression:
+
+        ^([a-z]\w+[A-Z]+\w+)
+
+    That is, any words that are camelCasedWords.
+    """
+    _pattern = re.compile(r"^([a-z]+([\d]|[A-Z])(?:\w+)?)")
+
+    def skip(self, word):
+        return bool(self._pattern.match(word))
+
+
+class WikiWordFilter:
+    r"""Filter skipping over WikiWords.
+    This filter skips any words matching the following regular expression:
+
+        ^([A-Z]\w+[A-Z]+\w+)
+
+    That is, any words that are WikiWords.
+    """
+    _pattern = re.compile(r"^([A-Z]\w+[A-Z]+\w+)")
+
+    def skip(self, word):
+        return bool(self._pattern.match(word))
+
+
+def get_tokenizer(filters=None, chunkers=None):
+    return WordTokenizer(filters or [], chunkers or [])
+
+
+def _find_dictionary(dict_name, dict_paths):
+    if not dict_name or not dict_paths:
+        return None
+
+    for path in dict_paths.split(":"):
+        dic = os.path.join(path, dict_name + ".dic")
+        aff = os.path.join(path, dict_name + ".aff")
+        if os.path.isfile(dic) and os.path.isfile(aff):
+            return (dic, aff)
+
+        return None
 
 
 class SpellingChecker(BaseTokenChecker):
@@ -124,35 +263,17 @@ class SpellingChecker(BaseTokenChecker):
         ),
     )
 
-    def _find_dictionary(self, dict_name, dict_paths):
-        print(dict_name)
-        print(dict_paths)
-        if not dict_name or not dict_paths:
-            return
-
-        for path in dict_paths.split(":"):
-            dic = os.path.join(path, dict_name + ".dic")
-            aff = os.path.join(path, dict_name + ".aff")
-            if os.path.isfile(dic) and os.path.isfile(aff):
-                return (dic, aff)
-
     def open(self):
-        print("SIVA: open is being called!!")
         self.initialized = False
         self.private_dict_file = None
 
         if not hunspell:
-            print("SIVA: hunspell is missing")
             return
-        dict_tuple = self._find_dictionary(
-            self.config.spelling_dict_name,
-            self.config.spelling_dict_paths
+        dict_tuple = _find_dictionary(
+            self.config.spelling_dict_name, self.config.spelling_dict_paths
         )
         if not dict_tuple:
-            print("SIVA: couldn't find given dictionary")
             return
-
-        print("SIVA: dict_tuple = {}".format(dict_tuple))
         self.hobj = hunspell.HunSpell(dict_tuple[0], dict_tuple[1])
 
         self.ignore_list = [
@@ -172,14 +293,8 @@ class SpellingChecker(BaseTokenChecker):
             self.unknown_words = set()
 
         self.tokenizer = get_tokenizer(
-            filters=[
-                EnglishWordFilter(),
-                WikiWordFilter(),
-                CamelCasedWordsFilter(),
-            ],
-            chunkers=[
-                ForwardSlashChunker(),
-            ],
+            filters=[EnglishWordFilter(), WikiWordFilter(), CamelCasedWordsFilter()],
+            chunkers=[ForwardSlashChunker()],
         )
         self.initialized = True
 
@@ -212,24 +327,18 @@ class SpellingChecker(BaseTokenChecker):
 
             # Present up to N suggestions.
             if self.config.max_spelling_suggestions > 0:
-                suggestions = self.hobj.suggest(word)
-                del suggestions[self.config.max_spelling_suggestions:]
+                suggested_words = self.hobj.suggest(word)
+                del suggested_words[self.config.max_spelling_suggestions :]
             else:
-                suggestions = []
+                suggested_words = []
 
             m = re.search(r"(\W|^)({})(\W|$)".format(re.escape(word)), line)
             col = m.regs[2][0]
             indicator = (" " * col) + ("^" * len(word))
 
+            suggestions = "'{}'".format("' or '".join(suggested_words))
             self.add_message(
-                msgid,
-                line=line_num,
-                args=(
-                    word,
-                    line,
-                    indicator,
-                    "'{}'".format("' or '".join(suggestions)),
-                ),
+                msgid, line=line_num, args=(word, line, indicator, suggestions)
             )
 
     def process_tokens(self, tokens):
