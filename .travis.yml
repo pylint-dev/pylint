@@ -28,7 +28,7 @@ jobs:
       env: TOXENV=py37
       dist: xenial
     - python: 3.6
-      env: TOXENV=spelling
+      env: TOXENV=spelling TOXPOSARGS='--spelling-dict-name en_US --spelling-dict-paths /Library/Spelling'
     - stage: tests-pypy
       python: pypy3.5-5.8.0
       env: TOXENV=pypy
@@ -49,7 +49,7 @@ install:
 script:
     # Test install with current version of setuptools
   - pip install .
-  - tox -e coverage-erase,$TOXENV
+  - tox -e coverage-erase,$TOXENV -- $TOXPOSARGS
 after_success:
   - tox -e coveralls
 after_failure:

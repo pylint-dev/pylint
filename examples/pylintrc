@@ -354,14 +354,20 @@ min-similarity-lines=4
 
 
 [SPELLING]
+# To enable spellchecking, install hunspell and its python bindings
+# Hunspell's python bindings are available on PyPI as the "hunspell" package
 
-# Limits count of emitted suggestions for spelling mistakes
-max-spelling-suggestions=4
+# Spelling dictionary name (e.g. "en_US")
+spelling-dict-name=
 
-# Spelling dictionary name.
-# To enable spellchecking, install hunspell
-# Hunspell's python bindings are available on PyPI in the "hunspell" package
-spelling-dict=
+# Paths string of directories where Hunspell dictionaries are installed.
+# To get a list of available paths, run `hunspell -D` in a shell and look for
+# the AVAILABLE DICTIONARIES section.
+# Pylint will search under these directories for the following files:
+#   <spelling-dict-name>.dic
+#   <spelling-dict-name>.aff
+# E.g. "/Library/Spelling:/usr/share/hunspell:/usr/share/myspell/dicts"
+spelling-dict-paths=
 
 # List of comma separated words that should not be checked.
 spelling-ignore-words=

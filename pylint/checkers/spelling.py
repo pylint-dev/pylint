@@ -19,32 +19,13 @@
 """
 
 import os
-import subprocess
 import tokenize
 import re
 
 try:
     import hunspell
-
-    available_dicts = []
-    # TODO remove the devnull argument once
-    #      https://github.com/hunspell/hunspell/issues/202 is resolved
-    res = subprocess.check_output(
-        ["hunspell", "-D", os.devnull],
-        stderr=subprocess.STDOUT
-    ).decode('utf-8')
-    copy = False
-    for line in res.splitlines():
-        if line.startswith("AVAILABLE"):
-            copy = True
-        elif line.startswith("LOADED"):
-            break
-        elif copy:
-            available_dicts.append((os.path.basename(line), line))
-
 except ImportError:
     hunspell = None
-    available_dicts = [("none (if you would like to enable spellchecking, please install the hunspell pypi package)", "")]
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
@@ -85,14 +66,21 @@ class SpellingChecker(BaseTokenChecker):
     }
     options = (
         (
-            "spelling-dict",
+            "spelling-dict-name",
             {
                 "default": "",
-                "type": "choice",
+                "type": "string",
                 "metavar": "<dict name>",
-                "choices": [""] + [d[0] for d in available_dicts],
-                "help": "Spelling dictionary name. ",
-                "Available dictionaries": [d[1] for d in available_dicts],
+                "help": "Spelling dictionary name.",
+            },
+        ),
+        (
+            "spelling-dict-paths",
+            {
+                "default": "",
+                "type": "string",
+                "metavar": "<colon separated path string>",
+                "help": "Paths string of directories where Hunspell dictionaries are installed.",
             },
         ),
         (
@@ -101,7 +89,7 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "",
                 "type": "string",
                 "metavar": "<comma separated words>",
-                "help": "List of comma separated words that " "should not be checked.",
+                "help": "List of comma separated words that should not be checked.",
             },
         ),
         (
@@ -110,8 +98,7 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "",
                 "type": "string",
                 "metavar": "<path to file>",
-                "help": "A path to a file that contains private "
-                "dictionary; one word per line.",
+                "help": "A path to a file that contains private dictionary; one word per line.",
             },
         ),
         (
@@ -137,28 +124,36 @@ class SpellingChecker(BaseTokenChecker):
         ),
     )
 
+    def _find_dictionary(self, dict_name, dict_paths):
+        print(dict_name)
+        print(dict_paths)
+        if not dict_name or not dict_paths:
+            return
+
+        for path in dict_paths.split(":"):
+            dic = os.path.join(path, dict_name + ".dic")
+            aff = os.path.join(path, dict_name + ".aff")
+            if os.path.isfile(dic) and os.path.isfile(aff):
+                return (dic, aff)
+
     def open(self):
+        print("SIVA: open is being called!!")
         self.initialized = False
         self.private_dict_file = None
 
-        if hunspell is None:
+        if not hunspell:
+            print("SIVA: hunspell is missing")
+            return
+        dict_tuple = self._find_dictionary(
+            self.config.spelling_dict_name,
+            self.config.spelling_dict_paths
+        )
+        if not dict_tuple:
+            print("SIVA: couldn't find given dictionary")
             return
 
-        dict_name = self.config.spelling_dict
-        if not dict_name:
-            return
-
-        self.hobj = None
-        for d in available_dicts:
-            if d[0] == dict_name:
-                self.hobj = hunspell.HunSpell(
-                    d[1] + ".dic",
-                    d[1] + ".aff"
-                )
-                break
-
-        if self.hobj is None:
-            return
+        print("SIVA: dict_tuple = {}".format(dict_tuple))
+        self.hobj = hunspell.HunSpell(dict_tuple[0], dict_tuple[1])
 
         self.ignore_list = [
             w.strip() for w in self.config.spelling_ignore_words.split(",")

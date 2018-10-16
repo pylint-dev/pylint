@@ -13,7 +13,7 @@ class Tokenizer:
         valid = False
         while not valid:
             valid = True
-            
+
             if len(self.sub_tokens) > 0:
                 base_token = self.sub_tokens.pop()
             else:
