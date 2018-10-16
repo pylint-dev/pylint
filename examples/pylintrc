@@ -358,8 +358,9 @@ min-similarity-lines=4
 # Limits count of emitted suggestions for spelling mistakes
 max-spelling-suggestions=4
 
-# Spelling dictionary name. Available dictionaries: none. To make it working
-# install python-enchant package.
+# Spelling dictionary name.
+# To enable spellchecking, install hunspell
+# Hunspell's python bindings are available on PyPI in the "hunspell" package
 spelling-dict=
 
 # List of comma separated words that should not be checked.
@@ -540,7 +541,7 @@ int-import-graph=
 known-standard-library=
 
 # Force import order to recognize a module as part of a third party library.
-known-third-party=enchant
+known-third-party=hunspell
 
 
 [EXCEPTIONS]

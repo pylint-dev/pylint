@@ -276,7 +276,7 @@ MSGS = {
 
 
 DEFAULT_STANDARD_LIBRARY = ()
-DEFAULT_KNOWN_THIRD_PARTY = ("enchant",)
+DEFAULT_KNOWN_THIRD_PARTY = ("hunspell",)
 
 
 class ImportsChecker(BaseChecker):
