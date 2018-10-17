@@ -7,6 +7,17 @@ What's New in Pylint 2.2?
 
 Release date: TBA
 
+   * Improve the performance of the spelling checker.
+
+	 This change replaces the unmaintained pyenchant spellchecker with the
+	 active Hunspell library. This means that end users will have to install
+	 the hunspell library and its python bindings to enable the spellchecker.
+	 It also adds a simple English word tokenizer similar to pyenchant's
+	 tokenizer. Breaking changes to the pylintrc file include the
+	 --spelling-dict-name and --spelling-dict-paths options.
+
+	 Close #2249
+
    * Consider ``range()`` objects for ``undefined-loop-variable`` leaking from iteration.
 
      Close #2533
