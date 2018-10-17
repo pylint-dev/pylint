@@ -300,16 +300,15 @@ spelling-dict-paths=
 # List of comma separated words that should not be checked.
 spelling-ignore-words=
 
-# A path to a file that contains private dictionary; one word per line.
+# A path to a file that contains private word list
 spelling-private-dict-file=
 
 # Tells whether to store unknown words to indicated private dictionary in
-# --spelling-private-dict-file option instead of raising a message.
+# <spelling-private-dict-file> instead of raising a message.
 spelling-store-unknown-words=no
 
 # Limits count of emitted suggestions for spelling mistakes
 max-spelling-suggestions=4
-
 
 [DESIGN]
 

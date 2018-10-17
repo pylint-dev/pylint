@@ -23,12 +23,12 @@ from pylint.checkers import spelling
 from pylint.testutils import CheckerTestCase, Message, _tokenize_str
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 def dict_name(request):
     return request.config.getoption("--spelling-dict-name", skip=True)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 def dict_paths(request):
     return request.config.getoption("--spelling-dict-paths", skip=True)
 
@@ -37,7 +37,9 @@ class TestSpellingChecker(CheckerTestCase):
     CHECKER_CLASS = spelling.SpellingChecker
 
     def _get_msg_suggestions(self, word, count=4):
-        return "'{}'".format("' or '".join(self.checker.hobj.suggest(word)[:count]))
+        return "Did you mean: '{}'?".format(
+            "' or '".join(self.checker.hobj.suggest(word)[:count])
+        )
 
     def _config(self, **kwargs):
         for key, value in kwargs.items():

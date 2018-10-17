@@ -9,11 +9,6 @@ from pylint.lint import PyLinter
 from pylint.testutils import MinimalTestReporter
 
 
-def pytest_addoption(parser):
-    parser.addoption("--spelling-dict-name", action="store")
-    parser.addoption("--spelling-dict-paths", action="store")
-
-
 @pytest.fixture
 def linter(checker, register, enable, disable, reporter):
     _linter = PyLinter()

@@ -171,8 +171,8 @@ def _find_dictionary(dict_name, dict_paths):
         return None
 
     for path in dict_paths.split(":"):
-        dic = os.path.join(path, dict_name + ".dic")
-        aff = os.path.join(path, dict_name + ".aff")
+        dic = os.path.join(os.path.expanduser(path), dict_name + ".dic")
+        aff = os.path.join(os.path.expanduser(path), dict_name + ".aff")
         if os.path.isfile(dic) and os.path.isfile(aff):
             return (dic, aff)
 
@@ -186,21 +186,14 @@ class SpellingChecker(BaseTokenChecker):
     name = "spelling"
     msgs = {
         "C0401": (
-            "Wrong spelling of a word '%s' in a comment:\n%s\n"
-            "%s\nDid you mean: '%s'?",
+            "Wrong spelling of a word '%s' in a comment:\n%s\n%s\n%s",
             "wrong-spelling-in-comment",
             "Used when a word in comment is not spelled correctly.",
         ),
         "C0402": (
-            "Wrong spelling of a word '%s' in a docstring:\n%s\n"
-            "%s\nDid you mean: '%s'?",
+            "Wrong spelling of a word '%s' in a docstring:\n%s\n%s\n%s",
             "wrong-spelling-in-docstring",
             "Used when a word in docstring is not spelled correctly.",
-        ),
-        "C0403": (
-            "Invalid characters %r in a docstring",
-            "invalid-characters-in-docstring",
-            "Used when a word in docstring cannot be checked by hunspell.",
         ),
     }
     options = (
@@ -276,18 +269,23 @@ class SpellingChecker(BaseTokenChecker):
             return
         self.hobj = hunspell.HunSpell(dict_tuple[0], dict_tuple[1])
 
-        self.ignore_list = [
+        self.ignore_list = {
             w.strip() for w in self.config.spelling_ignore_words.split(",")
-        ]
+        }
         # "param" appears in docstring in param description and
         # "pylint" appears in comments in pylint pragmas.
-        self.ignore_list.extend(["param", "pylint"])
+        self.ignore_list.update(["param", "pylint"])
 
         # Expand tilde to allow e.g. spelling-private-dict-file = ~/.pylintdict
         if self.config.spelling_private_dict_file:
-            self.config.spelling_private_dict_file = os.path.expanduser(
-                self.config.spelling_private_dict_file
+            # TODO if/once hunspell starts supporting adding hunspell "personal" dicts
+            #      using hobj.add_dic, refactor this to support that API
+            self.private_dict_file = open(
+                os.path.expanduser(self.config.spelling_private_dict_file), "a+"
             )
+            self.private_dict_file.seek(0)
+            for line in self.private_dict_file.read().splitlines():
+                self.ignore_list.add(line)
 
         if self.config.spelling_store_unknown_words:
             self.unknown_words = set()
@@ -308,35 +306,34 @@ class SpellingChecker(BaseTokenChecker):
             if word in self.ignore_list:
                 continue
 
-            # Strip starting u' from unicode literals and r' from raw strings.
-            if word.startswith(("u'", 'u"', "r'", 'r"')) and len(word) > 2:
-                word = word[2:]
-
             # If it is a known word, then continue.
             # Spell check is case sensitive by default, since 'unicode' is
             # a spelling mistake, but 'Unicode' is not.
             if self.hobj.spell(word):
                 continue
 
-            # Store word to private dict or raise a message.
+            # Don't raise a message if unknown words should be stored in
+            # the private dict file instead.
             if self.config.spelling_store_unknown_words:
                 if word not in self.unknown_words:
-                    self.private_dict_file.write("%s\n" % word)
+                    self.private_dict_file.write(word + "\n")
                     self.unknown_words.add(word)
                 continue
 
-            # Present up to N suggestions.
-            if self.config.max_spelling_suggestions > 0:
-                suggested_words = self.hobj.suggest(word)
-                del suggested_words[self.config.max_spelling_suggestions :]
-            else:
-                suggested_words = []
-
+            # Show an indicator under the occurrence of the word in the original line
             m = re.search(r"(\W|^)({})(\W|$)".format(re.escape(word)), line)
             col = m.regs[2][0]
             indicator = (" " * col) + ("^" * len(word))
 
-            suggestions = "'{}'".format("' or '".join(suggested_words))
+            # Present up to N suggestions.
+            suggestions = ""
+            if self.config.max_spelling_suggestions > 0:
+                suggested_words = self.hobj.suggest(word)
+                del suggested_words[self.config.max_spelling_suggestions :]
+                suggestions = "Did you mean: '{}'?".format(
+                    "' or '".join(suggested_words)
+                )
+
             self.add_message(
                 msgid, line=line_num, args=(word, line, indicator, suggestions)
             )
