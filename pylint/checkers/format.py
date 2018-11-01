@@ -1057,7 +1057,7 @@ class FormatChecker(BaseTokenChecker):
         if line_num > self.config.max_module_lines:
             # Get the line where the too-many-lines (or its message id)
             # was disabled or default to 1.
-            symbol = self.linter.msgs_store.get_message_definition("too-many-lines")
+            symbol = self.linter.msgs_store.get_message_definition("too-many-lines")[0]
             names = (symbol.msgid, "too-many-lines")
             line = next(filter(None, map(self.linter._pragma_lineno.get, names)), 1)
             self.add_message(

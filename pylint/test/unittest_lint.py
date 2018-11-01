@@ -706,12 +706,12 @@ class TestMessagesStore(object):
         assert desc == msg.format_help(checkerref=checkerref)
 
     def test_check_message_id(self, store):
-        assert isinstance(store.get_message_definition("W1234"), MessageDefinition)
+        assert isinstance(store.get_message_definition("W1234")[0], MessageDefinition)
         with pytest.raises(UnknownMessageError):
             store.get_message_definition("YB12")
 
     def test_message_help(self, store):
-        msg = store.get_message_definition("W1234")
+        msg = store.get_message_definition("W1234")[0]
         self._compare_messages(
             """:msg-symbol (W1234): *message*
   msg description. This message belongs to the achecker checker.""",
@@ -727,7 +727,7 @@ class TestMessagesStore(object):
 
     def test_message_help_minmax(self, store):
         # build the message manually to be python version independent
-        msg = store.get_message_definition("E1234")
+        msg = store.get_message_definition("E1234")[0]
         self._compare_messages(
             """:duplicate-keyword-arg (E1234): *Duplicate keyword argument %r in %s call*
   Used when a function call passes the same keyword argument multiple times.
@@ -753,8 +753,8 @@ class TestMessagesStore(object):
 
     def test_add_renamed_message(self, store):
         store.add_renamed_message("W1234", "old-bad-name", "msg-symbol")
-        assert "msg-symbol" == store.get_message_definition("W1234").symbol
-        assert "msg-symbol" == store.get_message_definition("old-bad-name").symbol
+        assert "msg-symbol" == store.get_message_definition("W1234")[0].symbol
+        assert "msg-symbol" == store.get_message_definition("old-bad-name")[0].symbol
 
     def test_add_renamed_message_invalid(self, store):
         # conflicting message ID
@@ -769,8 +769,8 @@ class TestMessagesStore(object):
         assert str(cm.value) == expected
 
     def test_renamed_message_register(self, store):
-        assert "msg-symbol" == store.get_message_definition("W0001").symbol
-        assert "msg-symbol" == store.get_message_definition("old-symbol").symbol
+        assert "msg-symbol" == store.get_message_definition("W0001")[0].symbol
+        assert "msg-symbol" == store.get_message_definition("old-symbol")[0].symbol
 
 
 def test_custom_should_analyze_file():
