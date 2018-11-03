@@ -56,12 +56,15 @@ Pylint can be simply installed by running::
 
     pip install pylint
 
+If you are using Python 3.6+, upgrade to get full support for your version::
+
+    pip install pylint --upgrade
 
 If you want to install from a source distribution, extract the tarball and run
 the following command ::
 
     python setup.py install
-
+    
 
 Do make sure to do the same for astroid, which is used internally by pylint.
 
