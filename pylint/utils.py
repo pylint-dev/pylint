@@ -856,15 +856,15 @@ class MessagesStore:
             message_definitions.append(message)
         return message_definitions
 
-    def register_messages(self, checker):
-        """Register messages from a checker.
+    def register_messages_from_checker(self, checker):
+        """Register all messages from a checker.
 
         :param BaseChecker checker:
         """
-        messages = self.get_checker_message_definitions(checker)
-        self._check_checker_consistency(messages)
-        for message in messages:
-            self.register_message(message)
+        checker_message_definitions = self.get_checker_message_definitions(checker)
+        self._check_checker_consistency(checker_message_definitions)
+        for message_definition in checker_message_definitions:
+            self.register_message(message_definition)
 
     def register_message(self, message):
         """Register a MessageDefinition with consistency in mind.

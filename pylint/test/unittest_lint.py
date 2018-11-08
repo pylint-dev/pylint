@@ -697,7 +697,7 @@ def store():
             ),
         }
 
-    store.register_messages(Checker())
+    store.register_messages_from_checker(Checker())
     return store
 
 
