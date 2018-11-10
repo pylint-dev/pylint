@@ -123,7 +123,7 @@ def store():
                 ),
                 "W1234": ("message one", "msg-symbol-one", "msg description"),
             },
-            "Message id 'W1234' cannot have both 'old-symbol' and 'msg-symbol-one' as symbolic name.",
+            "Message id 'W1234' cannot have both 'msg-symbol-one' and 'old-symbol' as symbolic name.",
         ),
         (
             {

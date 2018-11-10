@@ -973,9 +973,11 @@ class MessagesStore:
         :param str other_symbol: Other offending symbol
         :raises InvalidMessageError: when a symbol is duplicated.
         """
+        symbols = [symbol, other_symbol]
+        symbols.sort()
         error_message = "Message id '{msgid}' cannot have both ".format(msgid=msgid)
         error_message += "'{other_symbol}' and '{symbol}' as symbolic name.".format(
-            other_symbol=other_symbol, symbol=symbol
+            other_symbol=symbols[0], symbol=symbols[1]
         )
         raise InvalidMessageError(error_message)
 
@@ -988,11 +990,13 @@ class MessagesStore:
         :param str other_msgid: Other offending msgid
         :raises InvalidMessageError: when a msgid is duplicated.
         """
+        msgids = [msgid, other_msgid]
+        msgids.sort()
         error_message = "Message symbol '{symbol}' cannot be used for ".format(
             symbol=symbol
         )
         error_message += "'{other_msgid}' and '{msgid}' at the same time.".format(
-            other_msgid=other_msgid, msgid=msgid
+            other_msgid=msgids[0], msgid=msgids[1]
         )
         raise InvalidMessageError(error_message)
 
