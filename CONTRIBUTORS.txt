@@ -247,3 +247,5 @@ contributors:
 * Lucas Cimon: contributor
 
 * Mike Miller: contributor
+
+* Daniel King: contributor
