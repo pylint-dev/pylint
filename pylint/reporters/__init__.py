@@ -69,7 +69,7 @@ class BaseReporter:
 
     def writeln(self, string=""):
         """write a line in the output buffer"""
-        print(string, file=self.out)
+        print(string, file=self.out, flush=True)
 
     def display_reports(self, layout):
         """display results encapsulated in the layout tree"""
