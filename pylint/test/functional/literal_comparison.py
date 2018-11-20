@@ -32,8 +32,19 @@ if () is not {1, 2, 3}: # [literal-comparison]
     pass
 
 
+CONST = 24
+
+
+if CONST is 0: # [literal-comparison]
+    pass
+
+if CONST is 1: # [literal-comparison]
+    pass
+
+if CONST is 42: # [literal-comparison]
+    pass
+
 # We do not do inference for this check, since the comparing
 # object might be used as a sentinel.
-CONST = 24
 if () is CONST:
     pass
