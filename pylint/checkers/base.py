@@ -2080,7 +2080,7 @@ class ComparisonChecker(_BasicChecker):
         is_other_literal = isinstance(literal, nodes)
         is_const = False
         if isinstance(literal, astroid.Const):
-            if literal.value in (True, False, None):
+            if isinstance(literal.value, bool) or literal.value is None:
                 # Not interested in this values.
                 return
             is_const = isinstance(literal.value, (bytes, str, int, float))
