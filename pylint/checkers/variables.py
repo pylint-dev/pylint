@@ -638,6 +638,7 @@ class VariablesChecker(BaseChecker):
         """visit module : update consumption analysis variable
         checks globals doesn't overrides builtins
         """
+        #import ipdb; ipdb.set_trace()
         self._to_consume = [NamesConsumer(node, "module")]
         self._postponed_evaluation_enabled = is_postponed_evaluation_enabled(node)
 
@@ -660,6 +661,7 @@ class VariablesChecker(BaseChecker):
         """
         assert len(self._to_consume) == 1
         not_consumed = self._to_consume.pop().to_consume
+        #import ipdb; ipdb.set_trace()
         # attempt to check for __all__ if defined
         if "__all__" in node.locals:
             self._check_all(node, not_consumed)
@@ -1535,7 +1537,14 @@ class VariablesChecker(BaseChecker):
                         elif current_consumer.scope_type == "lambda":
                             self.add_message("undefined-variable", node=node, args=name)
 
+            import ipdb; ipdb.set_trace()
+            not_yet_consumed_imports = self._get_not_yet_consumed_imports(current_consumer, found_node)
+            base_import_names = self._get_base_import_name(node, found_node)
             current_consumer.mark_as_consumed(name, found_node)
+            for ny_consumed_import_node, ny_consumed_import_name in not_yet_consumed_imports.items():
+                if ny_consumed_import_node.names[0][0] in base_import_names:
+                    current_consumer.mark_as_consumed(ny_consumed_import_name, ny_consumed_import_node)
+
             # check it's not a loop variable used outside the loop
             self._loopvar_name(node, name)
             break
@@ -1549,6 +1558,41 @@ class VariablesChecker(BaseChecker):
             ):
                 if not utils.node_ignores_exception(node, NameError):
                     self.add_message("undefined-variable", args=name, node=node)
+
+    @staticmethod
+    def _get_base_import_name(node, found_node):
+        """
+        If found node is an Import node and if name is followed by an attribute (for example sp.linalg)
+        then return the complete import node (in the example scipy.linalg)
+        """
+        res = []
+        for f_node in found_node:
+            if not isinstance(f_node, astroid.node_classes.Import):
+                continue
+            complete_import_parts = [f_node.real_name(node.name)]
+            while True:
+                try:
+                    complete_import_parts.append(node.parent.attrname)
+                    node = node.parent
+                except AttributeError:
+                    # No more attrname attribute => end of attributes chain
+                    break
+            res.append(".".join(complete_import_parts[:-1]))
+        return res
+
+    @staticmethod
+    def _get_not_yet_consumed_imports(current_consumer, exclude_node):
+        """
+        Return a mapping between full import node names (i.e 'scipy.linalg.blas')
+        and the corresponding import node, for all import nodes that haven't yet been 
+        consumed from the current consumer and that are not among exclude_node.
+        """
+        res = {}
+        for k,v in current_consumer.to_consume.items():
+            for e in v:
+                if isinstance(e, astroid.node_classes.Import) and e not in exclude_node:
+                    res[e] = k
+        return res
 
     def _has_homonym_in_upper_function_scope(self, node, index):
         """
