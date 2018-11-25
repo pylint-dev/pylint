@@ -1537,7 +1537,7 @@ class VariablesChecker(BaseChecker):
                         elif current_consumer.scope_type == "lambda":
                             self.add_message("undefined-variable", node=node, args=name)
 
-            import ipdb; ipdb.set_trace()
+            #import ipdb; ipdb.set_trace()
             not_yet_consumed_imports = self._get_not_yet_consumed_imports(current_consumer, found_node)
             base_import_names = self._get_base_import_name(node, found_node)
             current_consumer.mark_as_consumed(name, found_node)
