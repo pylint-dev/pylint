@@ -3,7 +3,7 @@
 **************************
 
 :Release: 2.2
-:Date: TBA 
+:Date: 2018-11-25
 
 Summary -- Release highlights
 =============================
@@ -38,7 +38,7 @@ Other Changes
 
 * Ignore import x.y.z as z cases for checker `useless-import-alias`.
 
-* `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement, 
+* `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement,
   in which case, docstring is enough for empty definition.
 
 * Fix false positive ``undefined-variable`` and ``used-before-assignment`` with nonlocal keyword usage.
