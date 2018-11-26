@@ -592,12 +592,20 @@ class StringConstantChecker(BaseTokenChecker):
         self._unicode_literals = "unicode_literals" in module.future_imports
 
     def process_tokens(self, tokens):
-        for i, (tok_type, token, start, _, _) in enumerate(tokens):
-            if tok_type == tokenize.STRING:
+        encoding = "ascii"
+        for i, (tok_type, token, start, _, line) in enumerate(tokens):
+            if tok_type == tokenize.ENCODING:
+                # this is always the first token processed
+                encoding = token
+            elif tok_type == tokenize.STRING:
                 # 'token' is the whole un-parsed token; we can look at the start
                 # of it to see whether it's a raw or unicode string etc.
                 self.process_string_token(token, start[0])
                 next_token = tokens[i + 1] if i + 1 < len(tokens) else None
+                if encoding != "ascii":
+                    # We convert `tokenize` character count into a byte count,
+                    # to match with astroid `.col_offset`
+                    start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
     @check_messages(*(MSGS.keys()))
@@ -617,6 +625,10 @@ class StringConstantChecker(BaseTokenChecker):
             if isinstance(elt, Const) and elt.pytype() in _AST_NODE_STR_TYPES:
                 if elt.col_offset < 0:
                     # This can happen in case of escaped newlines
+                    continue
+                if (elt.lineno, elt.col_offset) not in self.string_tokens:
+                    # This may happen with Latin1 encoding
+                    # cf. https://github.com/PyCQA/pylint/issues/2610
                     continue
                 matching_token, next_token = self.string_tokens[
                     (elt.lineno, elt.col_offset)
