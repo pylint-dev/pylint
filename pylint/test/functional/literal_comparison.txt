@@ -8,3 +8,6 @@ literal-comparison:22::Comparison to literal
 literal-comparison:25::Comparison to literal
 literal-comparison:28::Comparison to literal
 literal-comparison:31::Comparison to literal
+literal-comparison:38::Comparison to literal
+literal-comparison:41::Comparison to literal
+literal-comparison:44::Comparison to literal

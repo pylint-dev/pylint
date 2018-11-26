@@ -5,7 +5,7 @@ Pylint's ChangeLog
 What's New in Pylint 2.2?
 =========================
 
-Release date: TBA
+Release date: 2018-11-25
 
    * Improve the performance of the spelling checker.
 
@@ -183,6 +183,8 @@ Release date: TBA
      Close #2019
 
    * Add a new check 'implicit-str-concat-in-sequence' to spot string concatenation inside lists, sets & tuples.
+
+   * ``literal-comparison`` is now emitted for 0 and 1 literals.
 
 What's New in Pylint 2.1.1?
 ===========================
