@@ -389,6 +389,7 @@ class ImportsChecker(BaseChecker):
         self.import_graph = None
         self._imports_stack = []
         self._first_non_import_node = None
+        self._module_pkg = {}  # mapping of modules to the pkg they belong in
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
