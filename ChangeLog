@@ -2,6 +2,19 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 2.3.0?
+===========================
+
+Release date: TB
+
+* Refactor ``bad-reversed-sequence`` to account for more objects that can define ``__reversed__``
+
+  One such object would be an enum class, for which ``__reversed__`` yields each individual enum.
+  As such, the check for ``bad-reversed-sequence`` needs to not differentiate between classes
+  and instances when it comes for checking of ``__reversed__`` presence.
+
+  Close #2598
+
 What's New in Pylint 2.2.2?
 ===========================
 

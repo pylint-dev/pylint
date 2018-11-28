@@ -1391,6 +1391,9 @@ class BasicChecker(_BasicChecker):
                         self.add_message("bad-reversed-sequence", node=node)
                 return
 
+            if isinstance(argument, (astroid.List, astroid.Tuple)):
+                return
+
             if isinstance(argument, astroid.Instance):
                 if argument._proxied.name == "dict" and utils.is_builtin_object(
                     argument._proxied
@@ -1409,6 +1412,8 @@ class BasicChecker(_BasicChecker):
                         self.add_message("bad-reversed-sequence", node=node)
                     return
 
+            if hasattr(argument, "getattr"):
+                # everything else is not a proper sequence for reversed()
                 for methods in REVERSED_METHODS:
                     for meth in methods:
                         try:
@@ -1419,8 +1424,7 @@ class BasicChecker(_BasicChecker):
                         break
                 else:
                     self.add_message("bad-reversed-sequence", node=node)
-            elif not isinstance(argument, (astroid.List, astroid.Tuple)):
-                # everything else is not a proper sequence for reversed()
+            else:
                 self.add_message("bad-reversed-sequence", node=node)
 
     @utils.check_messages("confusing-with-statement")
