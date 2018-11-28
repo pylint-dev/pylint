@@ -110,7 +110,7 @@ class SphinxDirectives(Filter):
         return bool(self._pattern.match(word))
 
 
-class ForwardSlashChunker(Chunker):
+class ForwardSlashChunkder(Chunker):
     """
     This chunker allows splitting words like 'before/after' into 'before' and 'after'
     """
@@ -118,7 +118,7 @@ class ForwardSlashChunker(Chunker):
     def next(self):
         while True:
             if not self._text:
-                return
+                raise StopIteration()
             if "/" not in self._text:
                 text = self._text
                 self._offset = 0
@@ -146,9 +146,9 @@ class ForwardSlashChunker(Chunker):
             if not pre_text or not post_text:
                 break
             if not pre_text[-1].isalpha() or not post_text[0].isalpha():
-                return
+                raise StopIteration()
             self._text = pre_text + " " + post_text
-        return
+        raise StopIteration()
 
 
 class SpellingChecker(BaseTokenChecker):
@@ -265,7 +265,7 @@ class SpellingChecker(BaseTokenChecker):
 
         self.tokenizer = get_tokenizer(
             dict_name,
-            chunkers=[ForwardSlashChunker],
+            chunkers=[ForwardSlashChunkder],
             filters=[
                 EmailFilter,
                 URLFilter,
