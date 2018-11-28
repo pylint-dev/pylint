@@ -2,6 +2,31 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 2.2.2?
+=========================
+
+Release date: 2018-11-28
+
+* Change the ``logging-format-style`` to use name identifier instead of their
+  corresponding Python identifiers
+
+  This is to prevent users having to think about escaping the default value for
+  ``logging-format-style`` in the generated config file. Also our config parsing
+  utilities don't quite support escaped values when it comes to ``choices`` detection,
+  so this would have needed various hacks around that.
+
+  Closes #2614
+
+
+What's New in Pylint 2.2.1?
+=========================
+
+Release date: 2018-11-27
+
+* Fix a crash caused by `implicit-str-concat-in-sequence` and multi-bytes characters.
+
+  Closes #2610
+
 What's New in Pylint 2.2?
 =========================
 

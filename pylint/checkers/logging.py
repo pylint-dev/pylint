@@ -139,11 +139,12 @@ class LoggingChecker(checkers.BaseChecker):
         (
             "logging-format-style",
             {
-                "default": "%",
+                "default": "old",
                 "type": "choice",
-                "metavar": "<% or {>",
-                "choices": ["%", "{"],
-                "help": "Format style used to check logging format string",
+                "metavar": "<old (%) or new ({)>",
+                "choices": ["old", "new"],
+                "help": "Format style used to check logging format string. "
+                "`old` means using % formatting, while `new` is for `{}` formatting.",
             },
         ),
     )
@@ -295,7 +296,7 @@ class LoggingChecker(checkers.BaseChecker):
             required_num_args = 0
         else:
             try:
-                if self._format_style == "%":
+                if self._format_style == "old":
                     keyword_args, required_num_args, _, _ = utils.parse_format_string(
                         format_string
                     )
@@ -303,7 +304,7 @@ class LoggingChecker(checkers.BaseChecker):
                         # Keyword checking on logging strings is complicated by
                         # special keywords - out of scope.
                         return
-                elif self._format_style == "{":
+                elif self._format_style == "new":
                     keys, num_args, manual_pos_arg = utils.parse_format_method_string(
                         format_string
                     )

@@ -20,6 +20,9 @@ New checkers
 * ``logging-format-style`` is a new option for the logging checker for usage of
   str.format() style format strings in calls to loggers.
 
+  It accepts two options: ``--logging-format-style=old`` for using `%` style formatting,
+  which is the assumed default, and ``--logging-format-style=new`` for using `{}` style formatting.
+
 * ``implicit-str-concat-in-sequence`` detects string concatenation inside lists, sets & tuples.
 
   Example of code that would generate such warning:
