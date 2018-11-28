@@ -25,7 +25,7 @@ from os.path import join
 
 modname = distname = "pylint"
 
-numversion = (2, 2, 1)
+numversion = (2, 2, 2)
 dev_version = None
 string_version = ".".join(str(num) for num in numversion)
 
