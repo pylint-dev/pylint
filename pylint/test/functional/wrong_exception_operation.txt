@@ -1,0 +1,3 @@
+wrong-exception-operation:6::Invalid exception operation. Did you mean '(ValueError, TypeError)' instead?
+wrong-exception-operation:11::Invalid exception operation. Did you mean '(ValueError, TypeError)' instead?
+wrong-exception-operation:17::Invalid exception operation. Did you mean '(ValueError, TypeError)' instead?

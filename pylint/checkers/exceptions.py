@@ -160,6 +160,13 @@ MSGS = {
         "constructor, the first of them a string literal containing what "
         "appears to be placeholders intended for formatting",
     ),
+    "W0716": (
+        "Invalid exception operation. %s",
+        "wrong-exception-operation",
+        "Used when an operation is done against an exception, but the operation "
+        "is not valid for the exception in question. Usually emitted when having "
+        "binary operations between exceptions in except handlers.",
+    ),
 }
 
 
@@ -447,6 +454,26 @@ class ExceptionsChecker(checkers.BaseChecker):
                     excs_in_bare_handler = gather_exceptions_from_handler(handler)
         if bare_raise:
             self.add_message("try-except-raise", node=handler_having_bare_raise)
+
+    @utils.check_messages("wrong-exception-operation")
+    def visit_binop(self, node):
+        if isinstance(node.parent, astroid.ExceptHandler):
+            # except (V | A)
+            suggestion = "Did you mean '(%s, %s)' instead?" % (
+                node.left.as_string(),
+                node.right.as_string(),
+            )
+            self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
+
+    @utils.check_messages("wrong-exception-operation")
+    def visit_compare(self, node):
+        if isinstance(node.parent, astroid.ExceptHandler):
+            # except (V < A)
+            suggestion = "Did you mean '(%s, %s)' instead?" % (
+                node.left.as_string(),
+                ", ".join(operand.as_string() for _, operand in node.ops),
+            )
+            self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
     @utils.check_messages(
         "bare-except",
