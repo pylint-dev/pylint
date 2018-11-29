@@ -975,6 +975,7 @@ class VariablesChecker(BaseChecker):
                     else:
                         msg = "import %s" % name
                     self.add_message("unused-import", args=msg, node=stmt)
+                    return
                 if isinstance(stmt, astroid.ImportFrom):
                     if asname is not None:
                         msg = "%s imported from %s as %s" % (
