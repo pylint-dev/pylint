@@ -40,21 +40,11 @@ from pylint.checkers import utils
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 
 
-def _all_elements_are_true(gen):
-    values = list(gen)
-    return values and all(values)
-
-
 def _if_statement_is_always_returning(if_node):
-    def _has_return_node(elems, scope):
-        for node in elems:
-            if isinstance(node, astroid.If) and node.orelse:
-                yield _if_statement_is_always_returning(node)
-            if isinstance(node, astroid.Return):
-                yield node.scope() is scope
-
-    scope = if_node.scope()
-    return _all_elements_are_true(_has_return_node(if_node.body, scope=scope))
+    for node in if_node.body:
+        if isinstance(node, astroid.Return):
+            return True
+    return False
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):

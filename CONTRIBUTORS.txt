@@ -29,6 +29,7 @@ Current team:
 
   multiple-imports, not-iterable, not-a-mapping, various patches.
 
+* Jim Robertson: committer
 
 Ex-maintainers:
 
@@ -216,7 +217,7 @@ contributors:
 
 * Carey Metcalfe: demoted `try-except-raise` from error to warning
 
-* Marcus Näslund (naslundx): contributor 
+* Marcus Näslund (naslundx): contributor
 
 * Natalie Serebryakova: contributor
 

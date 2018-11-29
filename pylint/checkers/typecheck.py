@@ -479,8 +479,8 @@ def _determine_callable(callable_obj):
             raise ValueError
         # both have an extra implicit 'cls'/'self' argument.
         return callable_obj, parameters, "constructor"
-    else:
-        raise ValueError
+
+    raise ValueError
 
 
 def _has_parent_of_type(node, node_type, statement):

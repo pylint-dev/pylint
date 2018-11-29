@@ -24,7 +24,7 @@ def foo2(x, y, w, z):
 
 
 def foo3(x, y, z):
-    if x:  # [no-else-return]
+    if x:
         a = 1
         if y:  # [no-else-return]
             b = 2
@@ -35,6 +35,44 @@ def foo3(x, y, z):
     else:
         d = 4
         return z
+
+
+def foo4(x, y):
+    if x:   # [no-else-return]
+        if y:
+            a = 4
+        else:
+            b = 2
+        return
+    else:
+        c = 3
+    return
+
+
+def foo5(x, y, z):
+    if x:   # [no-else-return]
+        if y:
+            a = 4
+        else:
+            b = 2
+        return
+    elif z:
+        c = 2
+    else:
+        c = 3
+    return
+
+
+def foo6(x, y):
+    if x:
+        if y:   # [no-else-return]
+            a = 4
+            return
+        else:
+            b = 2
+    else:
+        c = 3
+    return
 
 
 def bar1(x, y, z):
@@ -62,8 +100,8 @@ def bar3(x, y, z):
     return None
 
 
-def bar4(condition):
-    if condition:  # [no-else-return]
+def bar4(x):
+    if x:  # [no-else-return]
         return True
     else:
         try:

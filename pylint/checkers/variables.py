@@ -975,8 +975,7 @@ class VariablesChecker(BaseChecker):
                     else:
                         msg = "import %s" % name
                     self.add_message("unused-import", args=msg, node=stmt)
-                    return
-                elif isinstance(stmt, astroid.ImportFrom):
+                if isinstance(stmt, astroid.ImportFrom):
                     if asname is not None:
                         msg = "%s imported from %s as %s" % (
                             qname,
@@ -987,8 +986,7 @@ class VariablesChecker(BaseChecker):
                         msg = "%s imported from %s" % (name, stmt.modname)
                     self.add_message("unused-import", args=msg, node=stmt)
                     return
-                else:
-                    message_name = "unused-variable"
+                message_name = "unused-variable"
             self.add_message(message_name, args=name, node=stmt)
 
     def leave_functiondef(self, node):
