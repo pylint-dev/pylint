@@ -77,6 +77,13 @@ your patch gets accepted.
       python -m tox -epylint # for running Pylint over Pylint's codebase
       python -m tox -eformatting # for running formatting checks over Pylint's codebase
 
+  * It's usually a good idea to run tox_ with ``--recreate``. This is needed because
+    the tox environment might use an older version of astroid_, which can cause various failures
+    when you are running against the latest pylint::
+
+     python -m tox --recreate # The entire tox environment is going to be recreated
+
+
   * To run only a specific test suite, use a pattern for the test filename
     (**without** the ``.py`` extension), as in::
 
@@ -158,6 +165,7 @@ current environment in order to have faster feedback. Run with::
 .. _tox: http://tox.readthedocs.io/en/latest/
 .. _pytest: http://pytest.readthedocs.io/en/latest/
 .. _black: https://github.com/ambv/black
+.. _astroid: https://github.com/pycqa/astroid
 
 
 Tips for Getting Started with Pylint Development
