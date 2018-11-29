@@ -5,7 +5,7 @@ Pylint's ChangeLog
 What's New in Pylint 2.3.0?
 ===========================
 
-Release date: TB
+Release date: TBA
 
 * Refactor ``bad-reversed-sequence`` to account for more objects that can define ``__reversed__``
 
@@ -14,6 +14,14 @@ Release date: TB
   and instances when it comes for checking of ``__reversed__`` presence.
 
   Close #2598
+
+* Added ``wrong-exception-operation``
+
+  Used when an operation is done against an exception, but the operation
+  is not valid for the exception in question. Usually emitted when having
+  binary operations between exceptions in except handlers.
+
+  Close #2494
 
 What's New in Pylint 2.2.2?
 ===========================
