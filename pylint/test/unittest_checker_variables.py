@@ -180,6 +180,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(node)
 
+
     def test_scope_in_defaults(self):
         # Should not emit undefined variable
         node = astroid.extract_node('''
@@ -197,6 +198,18 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         node = astroid.extract_node('''
         def foof(x=lambda zoo: zoo):
             return x
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
+
+    def test_nested_lambda(self):
+        """Make sure variables from parent lambdas
+        aren't noted as undefined
+
+        https://github.com/PyCQA/pylint/issues/760
+        """
+        node = astroid.parse('''
+        lambda x: lambda: x + 1
         ''')
         with self.assertNoMessages():
             self.walk(node)
