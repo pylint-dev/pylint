@@ -249,3 +249,5 @@ contributors:
 * Mike Miller: contributor
 
 * Sergei Lebedev: contributor
+
+* Sasha Bagan
