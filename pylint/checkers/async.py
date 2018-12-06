@@ -9,12 +9,14 @@
 import sys
 
 import astroid
+from astroid import bases
 from astroid import exceptions
 
 from pylint import checkers
 from pylint.checkers import utils as checker_utils
 from pylint import interfaces
 from pylint import utils
+from pylint.checkers.utils import decorated_with
 
 
 class AsyncChecker(checkers.BaseChecker):
@@ -41,6 +43,7 @@ class AsyncChecker(checkers.BaseChecker):
         self._ignore_mixin_members = utils.get_global_option(
             self, "ignore-mixin-members"
         )
+        self._async_generators = ["contextlib.asynccontextmanager"]
 
     @checker_utils.check_messages("yield-inside-async-function")
     def visit_asyncfunctiondef(self, node):
@@ -53,29 +56,34 @@ class AsyncChecker(checkers.BaseChecker):
     @checker_utils.check_messages("not-async-context-manager")
     def visit_asyncwith(self, node):
         for ctx_mgr, _ in node.items:
-            infered = checker_utils.safe_infer(ctx_mgr)
-            if infered is None or infered is astroid.Uninferable:
+            inferred = checker_utils.safe_infer(ctx_mgr)
+            if inferred is None or inferred is astroid.Uninferable:
                 continue
 
-            if isinstance(infered, astroid.Instance):
+            if isinstance(inferred, bases.AsyncGenerator):
+                # Check if we are dealing with a function decorated
+                # with contextlib.asynccontextmanager.
+                if decorated_with(inferred.parent, self._async_generators):
+                    continue
+            else:
                 try:
-                    infered.getattr("__aenter__")
-                    infered.getattr("__aexit__")
+                    inferred.getattr("__aenter__")
+                    inferred.getattr("__aexit__")
                 except exceptions.NotFoundError:
-                    if isinstance(infered, astroid.Instance):
+                    if isinstance(inferred, astroid.Instance):
                         # If we do not know the bases of this class,
                         # just skip it.
-                        if not checker_utils.has_known_bases(infered):
+                        if not checker_utils.has_known_bases(inferred):
                             continue
                         # Just ignore mixin classes.
                         if self._ignore_mixin_members:
-                            if infered.name[-5:].lower() == "mixin":
+                            if inferred.name[-5:].lower() == "mixin":
                                 continue
                 else:
                     continue
 
             self.add_message(
-                "not-async-context-manager", node=node, args=(infered.name,)
+                "not-async-context-manager", node=node, args=(inferred.name,)
             )
 
 

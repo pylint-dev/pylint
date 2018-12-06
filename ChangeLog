@@ -7,6 +7,10 @@ What's New in Pylint 2.3.0?
 
 Release date: TBA
 
+* Fix false positive with `not-async-context-manager` caused by not understanding `contextlib.asynccontextmanager`
+
+  Close #2440
+
 * Refactor ``bad-reversed-sequence`` to account for more objects that can define ``__reversed__``
 
   One such object would be an enum class, for which ``__reversed__`` yields each individual enum.
