@@ -7,6 +7,13 @@ What's New in Pylint 2.3.0?
 
 Release date: TBA
 
+* Fix incorrect generation of ``no-else-raise`` warnings (R1705)
+
+  Fixed issue where ``if`` statements with nested ``if`` statements
+  were incorrectly being flagged as ``no-else-raise`` in some cases and
+  not being flagged as ``no-else-raise`` in other cases.  Added tests
+  for verification and updated pylint source files to eliminate newly
+  exposed warnings.
 * Fix false positive with `not-async-context-manager` caused by not understanding `contextlib.asynccontextmanager`
 
   Close #2440
