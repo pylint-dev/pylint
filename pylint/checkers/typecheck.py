@@ -44,6 +44,7 @@ import re
 import shlex
 import sys
 import types
+from functools import singledispatch
 
 import astroid
 import astroid.context
@@ -74,7 +75,6 @@ from pylint.checkers.utils import (
     safe_infer,
     has_known_bases,
     is_builtin_object,
-    singledispatch,
 )
 from pylint.utils import get_global_option
 

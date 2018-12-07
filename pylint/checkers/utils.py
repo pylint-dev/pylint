@@ -27,28 +27,16 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-# pylint: disable=W0611
 """some functions that may be useful for various checkers
 """
 import builtins
-from functools import lru_cache, partial, singledispatch
+from functools import lru_cache, partial
 import itertools
 import numbers
 import re
 import sys
 import string
-from typing import (
-    Optional,
-    Iterable,
-    Tuple,
-    Callable,
-    Set,
-    Union,
-    Match,
-    Dict,
-    List,
-    Type,
-)
+from typing import Optional, Iterable, Tuple, Callable, Set, Union, Match, Dict, List
 import _string  # pylint: disable=wrong-import-position, wrong-import-order
 
 import astroid
