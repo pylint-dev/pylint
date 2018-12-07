@@ -214,6 +214,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
             "all",
             "enumerate",
             "dict",
+            "OrderedDict",
         ):
             self.as_argument_to_callable_constructor_test(fxn, func)
 
