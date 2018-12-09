@@ -821,7 +821,7 @@ class MessagesStore:
         # to message definition objects.
         # Keys are msg ids, values are a 2-uple with the msg type and the
         # msg itself
-        self._messages = {}
+        self._messages_definitions = {}
         # Maps alternative names (numeric IDs, deprecated names) to
         # message definitions. May contain several names for each definition
         # object.
@@ -831,7 +831,7 @@ class MessagesStore:
     @property
     def messages(self):
         """The list of all active messages."""
-        return self._messages.values()
+        return self._messages_definitions.values()
 
     def add_renamed_message(self, old_id, old_symbol, new_symbol):
         """Register the old ID and symbol for a warning that was renamed.
@@ -876,7 +876,7 @@ class MessagesStore:
         self._check_msgid(message.msgid, message.symbol)
         for old_name in message.old_names:
             self._check_symbol(message.msgid, old_name[1])
-        self._messages[message.symbol] = message
+        self._messages_definitions[message.symbol] = message
         self._register_alternative_name(message, message.msgid, message.symbol)
         for old_id, old_symbol in message.old_names:
             self._register_alternative_name(message, old_id, old_symbol)
@@ -917,7 +917,7 @@ class MessagesStore:
 
     def _check_symbol(self, msgid, symbol):
         """Check that a symbol is not already used. """
-        other_message = self._messages.get(symbol)
+        other_message = self._messages_definitions.get(symbol)
         if other_message:
             self._raise_duplicate_msg_id(symbol, msgid, other_message.msgid)
         else:
@@ -935,7 +935,7 @@ class MessagesStore:
                 self._raise_duplicate_msg_id(symbol, msgid, alternative_msgid)
 
     def _check_msgid(self, msgid, symbol):
-        for message in self._messages.values():
+        for message in self._messages_definitions.values():
             if message.msgid == msgid:
                 self._raise_duplicate_symbol(msgid, symbol, message.symbol)
 
@@ -1010,7 +1010,7 @@ class MessagesStore:
         """
         if msgid_or_symbol[1:].isdigit():
             msgid_or_symbol = msgid_or_symbol.upper()
-        for source in (self._alternative_names, self._messages):
+        for source in (self._alternative_names, self._messages_definitions):
             try:
                 return [source[msgid_or_symbol]]
             except KeyError:
@@ -1044,7 +1044,7 @@ class MessagesStore:
 
     def list_messages(self):
         """Output full messages list documentation in ReST format. """
-        messages = sorted(self._messages.values(), key=lambda m: m.msgid)
+        messages = sorted(self._messages_definitions.values(), key=lambda m: m.msgid)
         for message in messages:
             if not message.may_be_emitted():
                 continue
