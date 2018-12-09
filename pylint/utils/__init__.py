@@ -41,8 +41,7 @@
 main pylint class
 """
 
-from pylint.utils.message_store import MessagesStore
-from pylint.utils.utils import (
+from pylint.utils.constants import (
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
@@ -51,14 +50,16 @@ from pylint.utils.utils import (
     MSG_TYPES_STATUS,
     OPTION_RGX,
     PY_EXTS,
-    FileState,
-    Message,
-    MessageDefinition,
-    MessagesHandlerMixIn,
-    MessagesStore,
-    PyLintASTWalker,
-    ReportsHandlerMixIn,
-    WarningScope,
+)
+from pylint.utils.file_state import FileState
+from pylint.utils.message import Message
+from pylint.utils.message_definition import MessageDefinition
+from pylint.utils.message_handler_mix_in import MessagesHandlerMixIn
+from pylint.utils.message_store import MessagesStore
+from pylint.utils.normalize_text import normalize_text
+from pylint.utils.pylint_ast_walker import PyLintASTWalker
+from pylint.utils.reports_handler_mix_in import ReportsHandlerMixIn
+from pylint.utils.utils import (
     _basename_in_blacklist_re,
     _check_csv,
     _format_option_value,
@@ -76,3 +77,4 @@ from pylint.utils.utils import (
     safe_decode,
     tokenize_module,
 )
+from pylint.utils.warning_scope import WarningScope
