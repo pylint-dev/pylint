@@ -11,6 +11,7 @@ from pylint.exceptions import InvalidMessageError, UnknownMessageError
 
 
 class MessagesStore:
+
     """The messages store knows information about every possible message but has
     no particular state during analysis.
     """
@@ -30,7 +31,7 @@ class MessagesStore:
         self._msgs_by_category = collections.defaultdict(list)
 
     @property
-    def messages(self):
+    def messages(self) -> list:
         """The list of all active messages."""
         return self._messages_definitions.values()
 
@@ -78,7 +79,7 @@ class MessagesStore:
         """Check that a symbol is not already used. """
         other_message = self._messages_definitions.get(symbol)
         if other_message:
-            self._raise_duplicate_msg_id(symbol, msgid, other_message.msgid)
+            self._raise_duplicate_msgid(symbol, msgid, other_message.msgid)
         else:
             alternative_msgid = None
         alternative_message = self._alternative_names.get(symbol)
@@ -91,7 +92,7 @@ class MessagesStore:
                         alternative_msgid = old_msgid
                         break
             if msgid != alternative_msgid:
-                self._raise_duplicate_msg_id(symbol, msgid, alternative_msgid)
+                self._raise_duplicate_msgid(symbol, msgid, alternative_msgid)
 
     def _check_msgid(self, msgid, symbol):
         for message in self._messages_definitions.values():
@@ -130,8 +131,7 @@ class MessagesStore:
         :param str msgid: The msgid corresponding to the symbols
         :param str symbol: Offending symbol
         :param str other_symbol: Other offending symbol
-        :raises InvalidMessageError: when a symbol is duplicated.
-        """
+        :raises InvalidMessageError:"""
         symbols = [symbol, other_symbol]
         symbols.sort()
         error_message = "Message id '{msgid}' cannot have both ".format(msgid=msgid)
@@ -141,14 +141,13 @@ class MessagesStore:
         raise InvalidMessageError(error_message)
 
     @staticmethod
-    def _raise_duplicate_msg_id(symbol, msgid, other_msgid):
+    def _raise_duplicate_msgid(symbol, msgid, other_msgid):
         """Raise an error when a msgid is duplicated.
 
         :param str symbol: The symbol corresponding to the msgids
         :param str msgid: Offending msgid
         :param str other_msgid: Other offending msgid
-        :raises InvalidMessageError: when a msgid is duplicated.
-        """
+        :raises InvalidMessageError:"""
         msgids = [msgid, other_msgid]
         msgids.sort()
         error_message = "Message symbol '{symbol}' cannot be used for ".format(
