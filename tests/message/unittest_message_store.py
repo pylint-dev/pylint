@@ -115,23 +115,6 @@ class TestMessagesStore(object):
         # cursory examination of the output: we're mostly testing it completes
         assert ":msg-symbol (W1234): *message*" in output.getvalue()
 
-    def test_add_renamed_message(self, store):
-        store.add_renamed_message("W1234", "old-bad-name", "msg-symbol")
-        assert "msg-symbol" == store.get_message_definitions("W1234")[0].symbol
-        assert "msg-symbol" == store.get_message_definitions("old-bad-name")[0].symbol
-
-    def test_add_renamed_message_invalid(self, store):
-        # conflicting message ID
-        with pytest.raises(InvalidMessageError) as cm:
-            store.add_renamed_message(
-                "W1234", "old-msg-symbol", "duplicate-keyword-arg"
-            )
-        expected = (
-            "Message id 'W1234' cannot have both 'msg-symbol' and 'old-msg-symbol' "
-            "as symbolic name."
-        )
-        assert str(cm.value) == expected
-
     def test_renamed_message_register(self, store):
         assert "msg-symbol" == store.get_message_definitions("W0001")[0].symbol
         assert "msg-symbol" == store.get_message_definitions("old-symbol")[0].symbol

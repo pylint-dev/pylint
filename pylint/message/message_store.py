@@ -35,15 +35,6 @@ class MessagesStore:
         """The list of all active messages."""
         return self._messages_definitions.values()
 
-    def add_renamed_message(self, old_id, old_symbol, new_symbol):
-        """Register the old ID and symbol for a warning that was renamed.
-
-        This allows users to keep using the old ID/symbol in suppressions.
-        """
-        message_definition = self.get_message_definitions(new_symbol)[0]
-        message_definition.old_names.append((old_id, old_symbol))
-        self._register_alternative_name(message_definition, old_id, old_symbol)
-
     def register_messages_from_checker(self, checker):
         """Register all messages from a checker.
 
