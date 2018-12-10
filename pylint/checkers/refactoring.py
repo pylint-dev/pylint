@@ -40,9 +40,9 @@ from pylint.checkers import utils
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 
 
-def _if_statement_is_always_returning(if_node):
+def _if_statement_is_always_returning(if_node, returning_node_class):
     for node in if_node.body:
-        if isinstance(node, astroid.Return):
+        if isinstance(node, returning_node_class):
             return True
     return False
 
@@ -194,6 +194,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "The if expression can be replaced with %s",
             "simplifiable-if-expression",
             "Used when an if expression can be replaced with 'bool(test)'. ",
+        ),
+        "R1720": (
+            'Unnecessary "%s" after "raise"',
+            "no-else-raise",
+            "Used in order to highlight an unnecessary block of "
+            "code following an if containing a raise statement. "
+            "As such, it will warn when it encounters an else "
+            "following a chain of ifs, all of them containing a "
+            "raise statement.",
         ),
     }
     options = (
@@ -401,17 +410,31 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             for name in names.nodes_of_class(astroid.AssignName):
                 self._check_redefined_argument_from_local(name)
 
-    def _check_superfluous_else_return(self, node):
+    def _check_superfluous_else(self, node, msg_id, returning_node_class):
         if not node.orelse:
             # Not interested in if statements without else.
             return
 
-        if _if_statement_is_always_returning(node) and not self._is_actual_elif(node):
-            orelse = node.orelse and node.orelse[0]
+        if self._is_actual_elif(node):
+            # Not interested in elif nodes; only if
+            return
+
+        if _if_statement_is_always_returning(node, returning_node_class):
+            orelse = node.orelse[0]
             followed_by_elif = (orelse.lineno, orelse.col_offset) in self._elifs
             self.add_message(
-                "no-else-return", node=node, args="elif" if followed_by_elif else "else"
+                msg_id, node=node, args="elif" if followed_by_elif else "else"
             )
+
+    def _check_superfluous_else_return(self, node):
+        return self._check_superfluous_else(
+            node, msg_id="no-else-return", returning_node_class=astroid.Return
+        )
+
+    def _check_superfluous_else_raise(self, node):
+        return self._check_superfluous_else(
+            node, msg_id="no-else-raise", returning_node_class=astroid.Raise
+        )
 
     def _check_consider_get(self, node):
         def type_and_name_are_equal(node_a, node_b):
@@ -452,12 +475,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "too-many-nested-blocks",
         "simplifiable-if-statement",
         "no-else-return",
+        "no-else-raise",
         "consider-using-get",
     )
     def visit_if(self, node):
         self._check_simplifiable_if(node)
         self._check_nested_blocks(node)
         self._check_superfluous_else_return(node)
+        self._check_superfluous_else_raise(node)
         self._check_consider_get(node)
 
     @utils.check_messages("simplifiable-if-expression")
