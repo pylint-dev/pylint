@@ -77,7 +77,7 @@ def nested_function():
 
 
 def two_level_nested_function(symbol: str) -> list:
-    # pylint: disable=inconsistent-return-statements
+
     def inner_function(message, symbol) -> str:
         if message.symbol == symbol:
             return message.msgid
