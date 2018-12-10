@@ -75,6 +75,25 @@ def nested_function():
         return True
     return dummy_return
 
+
+def two_level_nested_function(symbol: str) -> list:
+    # pylint: disable=inconsistent-return-statements
+    def inner_function(message, symbol) -> str:
+        if message.symbol == symbol:
+            return message.msgid
+        for old_msgid, old_symbol in message.old_names:
+            if old_symbol == symbol:
+                return old_msgid
+
+    msgids = []
+    message = "self._messages.get(symbol, False)"
+    if message:
+        msgids.append(inner_function(message, symbol))
+    old_messages = "self._alternative_names.get(symbol, [])"
+    for old_message in old_messages:
+        msgids.append(inner_function(old_message, symbol))
+    return msgids
+
 def explicit_returns6(x, y, z):
     if x:  # pylint: disable=no-else-return
         a = 1
