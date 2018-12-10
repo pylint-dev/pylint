@@ -1614,17 +1614,17 @@ class IterableChecker(BaseChecker):
     @check_messages("not-an-iterable")
     def visit_dictcomp(self, node):
         for gen in node.generators:
-            self._check_iterable(gen.iter)
+            self._check_iterable(gen.iter, check_async=gen.is_async)
 
     @check_messages("not-an-iterable")
     def visit_setcomp(self, node):
         for gen in node.generators:
-            self._check_iterable(gen.iter)
+            self._check_iterable(gen.iter, check_async=gen.is_async)
 
     @check_messages("not-an-iterable")
     def visit_generatorexp(self, node):
         for gen in node.generators:
-            self._check_iterable(gen.iter)
+            self._check_iterable(gen.iter, check_async=gen.is_async)
 
 
 def register(linter):

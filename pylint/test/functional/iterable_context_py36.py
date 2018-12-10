@@ -26,3 +26,16 @@ async def count_to(number):
     """ counts to n in async manner"""
     async for i in some_iter_func(number):
         print(i)
+
+
+async def gen_values(num_values):
+    for value in range(num_values):
+        yield value
+
+
+async def do_some_comprehensions():
+    sets = {elem async for elem in gen_values(10)}
+    lists = [elem async for elem in gen_values(10)]
+    dicts = {elem: elem async for elem in gen_values(10)}
+    gen = (elem async for elem in gen_values(10))
+    return sets, lists, dicts, gen

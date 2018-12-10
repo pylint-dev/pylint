@@ -252,3 +252,6 @@ contributors:
 * Sergei Lebedev: contributor
 
 * Sasha Bagan
+
+* Pablo Galindo Salgado: contributor
+  Fix false positive 'Non-iterable value' with async comprehensions.
