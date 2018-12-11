@@ -39,6 +39,16 @@ Release date: TBA
 
   Close #2494
 
+* ``no-member`` is emitted for enums when they lack a member
+
+  Previously we weren't doing this because we detected a
+  ``__getattr__`` implementation on the ``Enum`` class
+  (and this check is skipped for classes with ``__getattr__``),
+  but that is fine for Enums, given that they are inferred in a customised
+  way in astroid.
+
+  Close #2565
+
 What's New in Pylint 2.2.2?
 ===========================
 

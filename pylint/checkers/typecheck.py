@@ -404,7 +404,17 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
     if isinstance(owner, astroid.FunctionDef) and owner.decorators:
         return False
     if isinstance(owner, (astroid.Instance, astroid.ClassDef)):
-        if owner.has_dynamic_getattr() or not has_known_bases(owner):
+        if owner.has_dynamic_getattr():
+            # Issue #2565: Don't ignore enums, as they have a `__getattr__` but it's not
+            # invoked at this point.
+            try:
+                metaclass = owner.metaclass()
+            except exceptions.MroError:
+                return False
+            if metaclass:
+                return metaclass.qname() == "enum.EnumMeta"
+            return False
+        if not has_known_bases(owner):
             return False
     if isinstance(owner, objects.Super):
         # Verify if we are dealing with an invalid Super object.
@@ -886,7 +896,6 @@ accessed. Python regular expressions are accepted.",
                     ignored_mixins=self.config.ignore_mixin_members,
                     ignored_none=self.config.ignore_none,
                 ):
-
                     continue
                 missingattr.add((owner, name))
                 continue
