@@ -77,13 +77,13 @@ def nested_function():
 
 
 def two_level_nested_function(symbol: str) -> list:
-
     def inner_function(message, symbol) -> str:
         if message.symbol == symbol:
             return message.msgid
         for old_msgid, old_symbol in message.old_names:
             if old_symbol == symbol:
                 return old_msgid
+        return None
 
     msgids = []
     message = "self._messages.get(symbol, False)"
