@@ -327,7 +327,7 @@ class Option(optparse.Option):
                 raise optparse.OptionError(
                     "must supply a list of choices for type 'choice'", self
                 )
-            elif not isinstance(self.choices, (tuple, list)):
+            if not isinstance(self.choices, (tuple, list)):
                 raise optparse.OptionError(
                     "choices must be a list of strings ('%s' supplied)"
                     % str(type(self.choices)).split("'")[1],
