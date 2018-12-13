@@ -279,6 +279,10 @@ if multiprocessing is not None:
                 linter.load_plugin_modules(self._plugins)
 
             linter.load_configuration_from_config(self._config)
+
+            # Load plugin specific configuration
+            linter.load_plugin_configuration()
+
             linter.set_reporter(reporters.CollectingReporter())
 
             # Enable the Python 3 checker mode. This option is
@@ -649,6 +653,16 @@ class PyLinter(
             self._dynamic_plugins.add(modname)
             module = modutils.load_module_from_name(modname)
             module.register(self)
+
+    def load_plugin_configuration(self):
+        """Take a list of module names which ar pylint plugins and
+        calls configuration hook function to load their specific
+        configuration
+        """
+        for modname in self._dynamic_plugins:
+            module = modutils.load_module_from_name(modname)
+            if hasattr(module, 'load_configuration'):
+                module.load_configuration(self)
 
     def _load_reporter(self):
         name = self._reporter_name.lower()
@@ -1569,6 +1583,7 @@ group are mutually exclusive.",
         # now we can load file config and command line, plugins (which can
         # provide options) have been registered
         linter.load_config_file()
+
         if reporter:
             # if a custom reporter is provided as argument, it may be overridden
             # by file parameters, so re-set it here, but before command line
@@ -1601,6 +1616,10 @@ group are mutually exclusive.",
             else:
                 if linter.config.jobs == 0:
                     linter.config.jobs = _cpu_count()
+
+        # We have loaded configuration from config file and command line. Now, we can
+        # load plugin specific configuration.
+        linter.load_plugin_configuration()
 
         # insert current working directory to the python path to have a correct
         # behaviour
