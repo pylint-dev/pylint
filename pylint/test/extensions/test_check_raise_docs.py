@@ -92,6 +92,70 @@ class TestDocstringCheckerRaise(CheckerTestCase):
                 args=('RuntimeError', ))):
             self.checker.visit_raise(raise_node)
 
+    def test_find_google_attr_raises_exact_exc(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a google docstring.
+
+            Raises:
+                re.error: Sometimes
+            """
+            import re
+            raise re.error('hi')  #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+        pass
+
+    def test_find_google_attr_raises_substr_exc(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a google docstring.
+
+            Raises:
+                re.error: Sometimes
+            """
+            from re import error
+            raise error('hi')  #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+    def test_find_valid_missing_google_attr_raises(self):
+        node = astroid.extract_node('''
+        def my_func(self):
+            """This is a google docstring.
+
+            Raises:
+                re.anothererror: Sometimes
+            """
+            from re import error
+            raise error('hi')
+        ''')
+        raise_node = node.body[1]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=node,
+                args=('error', ))):
+            self.checker.visit_raise(raise_node)
+
+    def test_find_invalid_missing_google_attr_raises(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a google docstring.
+
+            Raises:
+                bogusmodule.error: Sometimes
+            """
+            from re import error
+            raise error('hi') #@
+        ''')
+        # pylint allows this to pass since the comparison between Raises and
+        # raise are based on the class name, not the qualified name.
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
     def test_find_missing_numpy_raises(self):
         node = astroid.extract_node('''
         def my_func(self):
@@ -357,7 +421,7 @@ class TestDocstringCheckerRaise(CheckerTestCase):
     def test_ignores_caught_numpy_raises(self):
         raise_node = astroid.extract_node('''
         def my_func(self):
-            """This is a docstring.
+            """This is a numpy docstring.
 
             Raises
             ------
@@ -373,6 +437,79 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
+
+    def test_find_numpy_attr_raises_exact_exc(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a numpy docstring.
+
+            Raises
+            ------
+            re.error
+                Sometimes
+            """
+            import re
+            raise re.error('hi')  #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+        pass
+
+    def test_find_numpy_attr_raises_substr_exc(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a numpy docstring.
+
+            Raises
+            ------
+            re.error
+                Sometimes
+            """
+            from re import error
+            raise error('hi')  #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+    def test_find_valid_missing_numpy_attr_raises(self):
+        node = astroid.extract_node('''
+        def my_func(self):
+            """This is a numpy docstring.
+
+            Raises
+            ------
+            re.anothererror
+                Sometimes
+            """
+            from re import error
+            raise error('hi')
+        ''')
+        raise_node = node.body[1]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=node,
+                args=('error', ))):
+            self.checker.visit_raise(raise_node)
+
+    def test_find_invalid_missing_numpy_attr_raises(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a numpy docstring.
+
+            Raises
+            ------
+            bogusmodule.error
+                Sometimes
+            """
+            from re import error
+            raise error('hi') #@
+        ''')
+        # pylint allows this to pass since the comparison between Raises and
+        # raise are based on the class name, not the qualified name.
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
 
     def test_find_missing_sphinx_raises_infer_from_instance(self):
         raise_node = astroid.extract_node('''
@@ -412,6 +549,67 @@ class TestDocstringCheckerRaise(CheckerTestCase):
                 node=node,
                 args=('RuntimeError', ))):
             self.checker.visit_raise(raise_node)
+
+    def test_find_sphinx_attr_raises_exact_exc(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a sphinx docstring.
+
+            :raises re.error: Sometimes
+            """
+            import re
+            raise re.error('hi')  #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+        pass
+
+    def test_find_sphinx_attr_raises_substr_exc(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a sphinx docstring.
+
+            :raises re.error: Sometimes
+            """
+            from re import error
+            raise error('hi')  #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+    def test_find_valid_missing_sphinx_attr_raises(self):
+        node = astroid.extract_node('''
+        def my_func(self):
+            """This is a sphinx docstring.
+
+            :raises re.anothererror: Sometimes
+            """
+            from re import error
+            raise error('hi')
+        ''')
+        raise_node = node.body[1]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=node,
+                args=('error', ))):
+            self.checker.visit_raise(raise_node)
+
+    def test_find_invalid_missing_sphinx_attr_raises(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a sphinx docstring.
+
+            :raises bogusmodule.error: Sometimes
+            """
+            from re import error
+            raise error('hi') #@
+        ''')
+        # pylint allows this to pass since the comparison between Raises and
+        # raise are based on the class name, not the qualified name.
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
 
     def test_ignores_raise_uninferable(self):
         raise_node = astroid.extract_node('''

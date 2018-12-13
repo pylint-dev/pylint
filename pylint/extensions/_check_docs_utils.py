@@ -99,6 +99,14 @@ def returns_something(return_node):
     return not (isinstance(returns, astroid.Const) and returns.value is None)
 
 
+def _get_raise_target(node):
+    if isinstance(node.exc, astroid.Call):
+        func = node.exc.func
+        if isinstance(func, (astroid.Name, astroid.Attribute)):
+            return utils.safe_infer(func)
+    return None
+
+
 def possible_exc_types(node):
     """
     Gets all of the possible raised exception types for the given raise node.
@@ -119,8 +127,16 @@ def possible_exc_types(node):
         inferred = utils.safe_infer(node.exc)
         if inferred:
             excs = [inferred.name]
-    elif isinstance(node.exc, astroid.Call) and isinstance(node.exc.func, astroid.Name):
-        target = utils.safe_infer(node.exc.func)
+    elif node.exc is None:
+        handler = node.parent
+        while handler and not isinstance(handler, astroid.ExceptHandler):
+            handler = handler.parent
+
+        if handler and handler.type:
+            inferred_excs = astroid.unpack_infer(handler.type)
+            excs = (exc.name for exc in inferred_excs if exc is not astroid.Uninferable)
+    else:
+        target = _get_raise_target(node)
         if isinstance(target, astroid.ClassDef):
             excs = [target.name]
         elif isinstance(target, astroid.FunctionDef):
@@ -136,14 +152,6 @@ def possible_exc_types(node):
                     and utils.inherit_from_std_ex(val)
                 ):
                     excs.append(val.name)
-    elif node.exc is None:
-        handler = node.parent
-        while handler and not isinstance(handler, astroid.ExceptHandler):
-            handler = handler.parent
-
-        if handler and handler.type:
-            inferred_excs = astroid.unpack_infer(handler.type)
-            excs = (exc.name for exc in inferred_excs if exc is not astroid.Uninferable)
 
     try:
         return {exc for exc in excs if not utils.node_ignores_exception(node, exc)}
@@ -292,7 +300,7 @@ class SphinxDocstring(Docstring):
         \s+
         )?
 
-        (\w+)                   # Parameter name
+        (\w(?:\w|\.[^\.])+)     # Parameter name can include '.', e.g. re.error
         \s*                     # whitespace
         :                       # final colon
         """.format(
