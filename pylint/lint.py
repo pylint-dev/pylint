@@ -661,7 +661,7 @@ class PyLinter(
         """
         for modname in self._dynamic_plugins:
             module = modutils.load_module_from_name(modname)
-            if hasattr(module, 'load_configuration'):
+            if hasattr(module, "load_configuration"):
                 module.load_configuration(self)
 
     def _load_reporter(self):
