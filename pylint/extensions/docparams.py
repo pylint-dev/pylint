@@ -268,8 +268,10 @@ class DocstringParameterChecker(BaseChecker):
                 self._handle_no_raise_doc(expected_excs, func_node)
             return
 
-        found_excs = doc.exceptions()
-        missing_excs = expected_excs - found_excs
+        found_excs_full_names = doc.exceptions()
+        # Extract just the class name, e.g. "error" from "re.error"
+        found_excs_class_names = {exc.split(".")[-1] for exc in found_excs_full_names}
+        missing_excs = expected_excs - found_excs_class_names
         self._add_raise_message(missing_excs, func_node)
 
     def visit_return(self, node):

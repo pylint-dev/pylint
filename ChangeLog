@@ -16,6 +16,10 @@ Release date: TBA
 
   Close #2635
 
+* Fix missing-raises-doc false positive (W9006)
+
+  Close #1502
+
 * Exempt starred unpacking from ``*-not-iterating`` Python 3 checks
 
   Close #2651
