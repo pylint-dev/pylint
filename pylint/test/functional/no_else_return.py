@@ -20,7 +20,7 @@ def foo2(x, y, w, z):
         return w
     else:
         c = 3
-        return z
+        raise Exception(z)
 
 
 def foo3(x, y, z):
@@ -31,7 +31,7 @@ def foo3(x, y, z):
             return y
         else:
             c = 3
-            return x
+            raise Exception(x)
     else:
         d = 4
         return z
@@ -60,7 +60,7 @@ def foo5(x, y, z):
         c = 2
     else:
         c = 3
-    return
+    raise Exception(x)
 
 
 def foo6(x, y):
