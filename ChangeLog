@@ -7,6 +7,16 @@ What's New in Pylint 2.3.0?
 
 Release date: TBA
 
+* Added ``load_configuration()`` hook for plugins
+
+  New optional hook for plugins is added: ``load_configuration()``.
+  This hook is executed after configuration is loaded to prevent
+  overwriting plugin specific configuration via user-based
+  configuration.
+
+  Close #2635
+
+
 * Add ``no-else-raise`` warning (R1720)
 
   Close #2558
