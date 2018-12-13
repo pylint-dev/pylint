@@ -102,7 +102,7 @@ def returns_something(return_node):
 def _get_raise_target(node):
     if isinstance(node.exc, astroid.Call):
         func = node.exc.func
-        if isinstance(func, (astroid.Name, astroid.Attribute)):
+        if isinstance(func, astroid.Name) or isinstance(func, astroid.Attribute):
             return utils.safe_infer(func)
     return None
 
