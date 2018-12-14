@@ -103,6 +103,12 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    def as_iterable_in_yield_from(self, fxn):
+        code = "yield from {}()".format(fxn)
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
     def as_used_in_variant_in_genexp_test(self, fxn):
         checker = "{}-builtin-not-iterating".format(fxn)
         node = astroid.extract_node(
@@ -202,6 +208,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
         self.as_iterable_in_unpacking(fxn)
         self.as_assignment(fxn)
         self.as_argument_to_materialized_filter(fxn)
+        self.as_iterable_in_yield_from(fxn)
 
         for func in (
             "iter",

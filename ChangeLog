@@ -13,6 +13,10 @@ Release date: TBA
 
   Close #2558
 
+* Exempt ``yield from`` from ``*-not-iterating`` Python 3 checks.
+
+  Close #2643
+
 * Fix incorrect generation of ``no-else-return`` warnings (R1705)
 
   Fixed issue where ``if`` statements with nested ``if`` statements
