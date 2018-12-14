@@ -60,10 +60,10 @@ class CompareToZeroChecker(checkers.BaseChecker):
             error_detected = False
 
             # 0 ?? X
-            if _is_constant_zero(op_1) and op_2 in _operators + ["<"]:
+            if _is_constant_zero(op_1) and op_2 in _operators:
                 error_detected = True
             # X ?? 0
-            elif op_2 in _operators + [">"] and _is_constant_zero(op_3):
+            elif op_2 in _operators and _is_constant_zero(op_3):
                 error_detected = True
 
             if error_detected:

@@ -7,6 +7,10 @@ What's New in Pylint 2.3.0?
 
 Release date: TBA
 
+* Make ``compare-to-zero`` less zealous by checking against equality and identity
+
+  Close #2645
+
 * Add ``no-else-raise`` warning (R1720)
 
   Close #2558
