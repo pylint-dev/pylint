@@ -7,6 +7,8 @@ What's New in Pylint 2.3.0?
 
 Release date: TBA
 
+* Fix how to docs using astroid ``astroid<2.x``
+
 * Add ``no-else-raise`` warning (R1720)
 
   Close #2558
