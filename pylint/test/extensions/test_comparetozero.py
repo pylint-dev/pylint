@@ -43,7 +43,7 @@ class CompareToZeroUsedTC(unittest.TestCase):
                              'compare_to_zero.py')
         self._linter.check([elif_test])
         msgs = self._linter.reporter.messages
-        self.assertEqual(len(msgs), 6)
+        self.assertEqual(len(msgs), 4)
         for msg in msgs:
             self.assertEqual(msg.symbol, 'compare-to-zero')
             self.assertEqual(msg.msg, 'Avoid comparisons to zero')
@@ -51,8 +51,6 @@ class CompareToZeroUsedTC(unittest.TestCase):
         self.assertEqual(msgs[1].line, 9)
         self.assertEqual(msgs[2].line, 12)
         self.assertEqual(msgs[3].line, 15)
-        self.assertEqual(msgs[4].line, 18)
-        self.assertEqual(msgs[5].line, 24)
 
 
 if __name__ == '__main__':

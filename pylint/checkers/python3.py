@@ -143,6 +143,9 @@ def _in_iterating_context(node):
         and parent.ops[0][0] == "in"
     ):
         return True
+    # Also if it's an `yield from`, that's fair
+    elif isinstance(parent, astroid.YieldFrom):
+        return True
     return False
 
 

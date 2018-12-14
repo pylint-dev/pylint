@@ -15,14 +15,14 @@ if X == 0:  # [compare-to-zero]
 if Y != 0:  # [compare-to-zero]
     pass
 
-if X > 0:  # [compare-to-zero]
+if X > 0:
     pass
 
-if X < 0: #  this is allowed
+if X < 0:
     pass
 
-if 0 < X:  # [compare-to-zero]
+if 0 < X:
     pass
 
-if 0 > X: #  this is allowed
+if 0 > X:
     pass
