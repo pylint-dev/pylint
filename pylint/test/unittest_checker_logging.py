@@ -18,39 +18,60 @@ class TestLoggingModuleDetection(CheckerTestCase):
     CHECKER_CLASS = logging.LoggingChecker
 
     def test_detects_standard_logging_module(self):
-        stmts = astroid.extract_node("""
+        stmts = astroid.extract_node(
+            """
         import logging #@
         logging.warn('%s' % '%s')  #@
-        """)
+        """
+        )
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        with self.assertAddsMessages(Message('logging-not-lazy', node=stmts[1])):
+        with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1])):
             self.checker.visit_call(stmts[1])
 
     def test_dont_crash_on_invalid_format_string(self):
-        node = astroid.parse('''
+        node = astroid.parse(
+            """
         import logging
         logging.error('0} - {1}'.format(1, 2))
-        ''')
+        """
+        )
         self.walk(node)
 
     def test_detects_renamed_standard_logging_module(self):
-        stmts = astroid.extract_node("""
+        stmts = astroid.extract_node(
+            """
         import logging as blogging #@
         blogging.warn('%s' % '%s')  #@
-        """)
+        """
+        )
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        with self.assertAddsMessages(Message('logging-not-lazy', node=stmts[1])):
+        with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1])):
             self.checker.visit_call(stmts[1])
 
-    @set_config(logging_modules=['logging', 'my.logging'])
+    @set_config(logging_modules=["logging", "my.logging"])
     def test_nonstandard_logging_module(self):
-        stmts = astroid.extract_node("""
+        stmts = astroid.extract_node(
+            """
         from my import logging as blogging #@
         blogging.warn('%s' % '%s')  #@
-        """)
+        """
+        )
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        with self.assertAddsMessages(Message('logging-not-lazy', node=stmts[1])):
+        with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1])):
+            self.checker.visit_call(stmts[1])
+
+    @set_config(logging_format_style="new")
+    def test_brace_format_style(self):
+        stmts = astroid.extract_node(
+            """
+        import logging #@
+        logging.error('{}', 1) #@
+        """
+        )
+        self.checker.visit_module(None)
+        self.checker.visit_import(stmts[0])
+        with self.assertNoMessages():
             self.checker.visit_call(stmts[1])

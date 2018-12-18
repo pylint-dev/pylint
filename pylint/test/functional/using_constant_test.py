@@ -70,12 +70,12 @@ if 1 if 2 else 3: # [using-constant-test]
     pass
 
 def test_comprehensions():
-    [data for data in range(100) if len] # [using-constant-test]
+    [data for data in range(100) if abs] # [using-constant-test]
     [data for data in range(100) if 1] # [using-constant-test]
-    (data for data in range(100) if len) # [using-constant-test]
+    (data for data in range(100) if abs) # [using-constant-test]
     (data for data in range(100) if 1) # [using-constant-test]
-    {data for data in range(100) if len} # [using-constant-test]
-    {data: 1 for data in range(100) if len} # [using-constant-test]
+    {data for data in range(100) if abs} # [using-constant-test]
+    {data: 1 for data in range(100) if abs} # [using-constant-test]
 
 
 
@@ -132,10 +132,10 @@ def test(*args):
 def test_good_comprehension_checks():
     [data for data in range(100)]
     [data for data in range(100) if data]
-    [data for data in range(100) if len(data)]
+    [data for data in range(100) if abs(data)]
     (data for data in range(100) if data)
-    (data for data in range(100) if len(data))
+    (data for data in range(100) if abs(data))
     {data for data in range(100) if data}
-    {data for data in range(100) if len(data)}
+    {data for data in range(100) if abs(data)}
     {data: 1 for data in range(100) if data}
     {data: 1 for data in range(100)}

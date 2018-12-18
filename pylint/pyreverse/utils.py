@@ -21,21 +21,23 @@ import sys
 ########### pyreverse option utils ##############################
 
 
-RCFILE = '.pyreverserc'
+RCFILE = ".pyreverserc"
+
 
 def get_default_options():
     """
     Read config file and return list of options
     """
     options = []
-    home = os.environ.get('HOME', '')
+    home = os.environ.get("HOME", "")
     if home:
         rcfile = os.path.join(home, RCFILE)
         try:
             options = open(rcfile).read().split()
         except IOError:
-            pass # ignore if no config file found
+            pass  # ignore if no config file found
     return options
+
 
 def insert_default_options():
     """insert default options to sys.argv
@@ -46,29 +48,31 @@ def insert_default_options():
         sys.argv.insert(1, arg)
 
 
-
 # astroid utilities ###########################################################
 
-SPECIAL = re.compile('^__[A-Za-z0-9]+[A-Za-z0-9_]*__$')
-PRIVATE = re.compile('^__[_A-Za-z0-9]*[A-Za-z0-9]+_?$')
-PROTECTED = re.compile('^_[_A-Za-z0-9]*$')
+SPECIAL = re.compile("^__[A-Za-z0-9]+[A-Za-z0-9_]*__$")
+PRIVATE = re.compile("^__[_A-Za-z0-9]*[A-Za-z0-9]+_?$")
+PROTECTED = re.compile("^_[_A-Za-z0-9]*$")
+
 
 def get_visibility(name):
     """return the visibility from a name: public, protected, private or special
     """
     if SPECIAL.match(name):
-        visibility = 'special'
+        visibility = "special"
     elif PRIVATE.match(name):
-        visibility = 'private'
+        visibility = "private"
     elif PROTECTED.match(name):
-        visibility = 'protected'
+        visibility = "protected"
 
     else:
-        visibility = 'public'
+        visibility = "public"
     return visibility
 
-ABSTRACT = re.compile('^.*Abstract.*')
-FINAL = re.compile('^[A-Z_]*$')
+
+ABSTRACT = re.compile("^.*Abstract.*")
+FINAL = re.compile("^[A-Z_]*$")
+
 
 def is_abstract(node):
     """return true if the given class node correspond to an abstract class
@@ -76,19 +80,22 @@ def is_abstract(node):
     """
     return ABSTRACT.match(node.name)
 
+
 def is_final(node):
     """return true if the given class/function node correspond to final
     definition
     """
     return FINAL.match(node.name)
 
+
 def is_interface(node):
     # bw compat
-    return node.type == 'interface'
+    return node.type == "interface"
+
 
 def is_exception(node):
     # bw compat
-    return node.type == 'exception'
+    return node.type == "exception"
 
 
 # Helpers #####################################################################
@@ -98,33 +105,37 @@ _SPECIAL = 2
 _PROTECTED = 4
 _PRIVATE = 8
 MODES = {
-    'ALL'       : 0,
-    'PUB_ONLY'  : _SPECIAL + _PROTECTED + _PRIVATE,
-    'SPECIAL'   : _SPECIAL,
-    'OTHER'     : _PROTECTED + _PRIVATE,
+    "ALL": 0,
+    "PUB_ONLY": _SPECIAL + _PROTECTED + _PRIVATE,
+    "SPECIAL": _SPECIAL,
+    "OTHER": _PROTECTED + _PRIVATE,
 }
-VIS_MOD = {'special': _SPECIAL, 'protected': _PROTECTED,
-           'private': _PRIVATE, 'public': 0}
+VIS_MOD = {
+    "special": _SPECIAL,
+    "protected": _PROTECTED,
+    "private": _PRIVATE,
+    "public": 0,
+}
 
 
 class FilterMixIn:
     """filter nodes according to a mode and nodes' visibility
     """
+
     def __init__(self, mode):
         "init filter modes"
         __mode = 0
-        for nummod in mode.split('+'):
+        for nummod in mode.split("+"):
             try:
                 __mode += MODES[nummod]
             except KeyError as ex:
-                print('Unknown filter mode %s' % ex, file=sys.stderr)
+                print("Unknown filter mode %s" % ex, file=sys.stderr)
         self.__mode = __mode
-
 
     def show_attr(self, node):
         """return true if the node should be treated
         """
-        visibility = get_visibility(getattr(node, 'name', node))
+        visibility = get_visibility(getattr(node, "name", node))
         return not self.__mode & VIS_MOD[visibility]
 
 
@@ -163,10 +174,12 @@ class ASTWalker:
         if methods is None:
             handler = self.handler
             kid = klass.__name__.lower()
-            e_method = getattr(handler, 'visit_%s' % kid,
-                               getattr(handler, 'visit_default', None))
-            l_method = getattr(handler, 'leave_%s' % kid,
-                               getattr(handler, 'leave_default', None))
+            e_method = getattr(
+                handler, "visit_%s" % kid, getattr(handler, "visit_default", None)
+            )
+            l_method = getattr(
+                handler, "leave_%s" % kid, getattr(handler, "leave_default", None)
+            )
             self._cache[klass] = (e_method, l_method)
         else:
             e_method, l_method = methods
@@ -187,6 +200,7 @@ class ASTWalker:
 
 class LocalsVisitor(ASTWalker):
     """visit a project by traversing the locals dictionary"""
+
     def __init__(self):
         ASTWalker.__init__(self, self)
         self._visited = {}
@@ -195,11 +209,11 @@ class LocalsVisitor(ASTWalker):
         """launch the visit starting from the given node"""
         if node in self._visited:
             return None
-        self._visited[node] = 1 # FIXME: use set ?
+        self._visited[node] = 1  # FIXME: use set ?
         methods = self.get_callbacks(node)
         if methods[0] is not None:
             methods[0](node)
-        if hasattr(node, 'locals'): # skip Instance and other proxy
+        if hasattr(node, "locals"):  # skip Instance and other proxy
             for local_node in node.values():
                 self.visit(local_node)
         if methods[1] is not None:

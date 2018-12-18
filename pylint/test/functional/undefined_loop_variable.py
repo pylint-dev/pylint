@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring,redefined-builtin
 
 def do_stuff(some_random_list):
     for var in some_random_list:
@@ -59,3 +59,17 @@ def do_stuff_with_a_tuple():
     for var in (1, 2, 3):
         pass
     return var
+
+
+def do_stuff_with_a_range():
+    for var in range(1, 2):
+        pass
+    return var
+
+
+def do_stuff_with_redefined_range():
+    def range(key):
+        yield from [1, key]
+    for var in range(3):
+        pass
+    return var # [undefined-loop-variable]

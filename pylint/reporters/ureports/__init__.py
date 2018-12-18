@@ -30,8 +30,8 @@ class BaseWriter:
         if stream is None:
             stream = sys.stdout
         if not encoding:
-            encoding = getattr(stream, 'encoding', 'UTF-8')
-        self.encoding = encoding or 'UTF-8'
+            encoding = getattr(stream, "encoding", "UTF-8")
+        self.encoding = encoding or "UTF-8"
         self.out = stream
         self.begin_format()
         layout.accept(self)
@@ -41,10 +41,10 @@ class BaseWriter:
         """recurse on the layout children and call their accept method
         (see the Visitor pattern)
         """
-        for child in getattr(layout, 'children', ()):
+        for child in getattr(layout, "children", ()):
             child.accept(self)
 
-    def writeln(self, string=''):
+    def writeln(self, string=""):
         """write a line in the output buffer"""
         self.write(string + os.linesep)
 
@@ -74,7 +74,7 @@ class BaseWriter:
             result[-1].append(cell)
         # fill missing cells
         while len(result[-1]) < cols:
-            result[-1].append('')
+            result[-1].append("")
         return result
 
     def compute_content(self, layout):

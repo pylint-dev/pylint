@@ -34,12 +34,12 @@ def _iface_hdlr(_):
 
 
 def _astroid_wrapper(func, modname):
-    print('parsing %s...' % modname)
+    print("parsing %s..." % modname)
     try:
         return func(modname)
     except exceptions.AstroidBuildingException as exc:
         print(exc)
-    except Exception as exc: # pylint: disable=broad-except
+    except Exception as exc:  # pylint: disable=broad-except
         traceback.print_exc()
 
 
@@ -47,7 +47,7 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
     """Return an iterator on interfaces implemented by the given class node."""
     # FIXME: what if __implements__ = (MyIFace, MyParent.__implements__)...
     try:
-        implements = bases.Instance(node).getattr('__implements__')[0]
+        implements = bases.Instance(node).getattr("__implements__")[0]
     except exceptions.NotFoundError:
         return
     if not herited and implements.frame() is not node:
@@ -143,7 +143,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
          * set the depends mapping
          * optionally tag the node with a unique id
         """
-        if hasattr(node, 'locals_type'):
+        if hasattr(node, "locals_type"):
             return
         node.locals_type = collections.defaultdict(list)
         node.depends = []
@@ -157,14 +157,14 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
          * set the implements list and build it
          * optionally tag the node with a unique id
         """
-        if hasattr(node, 'locals_type'):
+        if hasattr(node, "locals_type"):
             return
         node.locals_type = collections.defaultdict(list)
         if self.tag:
             node.uid = self.generate_id()
         # resolve ancestors
         for baseobj in node.ancestors(recurs=False):
-            specializations = getattr(baseobj, 'specializations', [])
+            specializations = getattr(baseobj, "specializations", [])
             specializations.append(node)
             baseobj.specializations = specializations
         # resolve instance attributes
@@ -184,7 +184,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
          * set the locals_type mapping
          * optionally tag the node with a unique id
         """
-        if hasattr(node, 'locals_type'):
+        if hasattr(node, "locals_type"):
             return
         node.locals_type = collections.defaultdict(list)
         if self.tag:
@@ -202,7 +202,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         """
         # avoid double parsing done by different Linkers.visit
         # running over the same project:
-        if hasattr(node, '_handled'):
+        if hasattr(node, "_handled"):
             return
         node._handled = True
         if node.name in node.frame():
@@ -212,7 +212,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             # there.
             frame = node.root()
         try:
-            if not hasattr(frame, 'locals_type'):
+            if not hasattr(frame, "locals_type"):
                 # If the frame doesn't have a locals_type yet,
                 # it means it wasn't yet visited. Visit it now
                 # to add what's missing from it.
@@ -264,16 +264,15 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         else:
             relative = False
         for name in node.names:
-            if name[0] == '*':
+            if name[0] == "*":
                 continue
             # analyze dependencies
-            fullname = '%s.%s' % (basename, name[0])
-            if fullname.find('.') > -1:
+            fullname = "%s.%s" % (basename, name[0])
+            if fullname.find(".") > -1:
                 try:
                     # TODO: don't use get_module_part,
                     # missing package precedence
-                    fullname = modutils.get_module_part(fullname,
-                                                        context_file)
+                    fullname = modutils.get_module_part(fullname, context_file)
                 except ImportError:
                     continue
             if fullname != basename:
@@ -293,11 +292,10 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         module = node.root()
         context_name = module.name
         if relative:
-            mod_path = '%s.%s' % ('.'.join(context_name.split('.')[:-1]),
-                                  mod_path)
+            mod_path = "%s.%s" % (".".join(context_name.split(".")[:-1]), mod_path)
         if self.compute_module(context_name, mod_path):
             # handle dependencies
-            if not hasattr(module, 'depends'):
+            if not hasattr(module, "depends"):
                 module.depends = []
             mod_paths = module.depends
             if mod_path not in mod_paths:
@@ -306,7 +304,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
 class Project:
     """a project handle a set of modules / packages"""
-    def __init__(self, name=''):
+
+    def __init__(self, name=""):
         self.name = name
         self.path = None
         self.modules = []
@@ -328,22 +327,25 @@ class Project:
         return self.modules
 
     def __repr__(self):
-        return '<Project %r at %s (%s modules)>' % (self.name, id(self),
-                                                    len(self.modules))
+        return "<Project %r at %s (%s modules)>" % (
+            self.name,
+            id(self),
+            len(self.modules),
+        )
 
 
-def project_from_files(files, func_wrapper=_astroid_wrapper,
-                       project_name="no name",
-                       black_list=('CVS',)):
+def project_from_files(
+    files, func_wrapper=_astroid_wrapper, project_name="no name", black_list=("CVS",)
+):
     """return a Project from a list of files or modules"""
     # build the project representation
     astroid_manager = manager.AstroidManager()
     project = Project(project_name)
     for something in files:
         if not os.path.exists(something):
-            fpath = modutils.file_from_modpath(something.split('.'))
+            fpath = modutils.file_from_modpath(something.split("."))
         elif os.path.isdir(something):
-            fpath = os.path.join(something, '__init__.py')
+            fpath = os.path.join(something, "__init__.py")
         else:
             fpath = something
         ast = func_wrapper(astroid_manager.ast_from_file, fpath)
@@ -354,10 +356,11 @@ def project_from_files(files, func_wrapper=_astroid_wrapper,
         project.add_module(ast)
         base_name = ast.name
         # recurse in package except if __init__ was explicitly given
-        if ast.package and something.find('__init__') == -1:
+        if ast.package and something.find("__init__") == -1:
             # recurse on others packages / modules if this is a package
-            for fpath in modutils.get_module_files(os.path.dirname(ast.file),
-                                                   black_list):
+            for fpath in modutils.get_module_files(
+                os.path.dirname(ast.file), black_list
+            ):
                 ast = func_wrapper(astroid_manager.ast_from_file, fpath)
                 if ast is None or ast.name == base_name:
                     continue

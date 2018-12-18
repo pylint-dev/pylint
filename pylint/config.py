@@ -58,20 +58,20 @@ import configparser
 from pylint import utils
 
 
-USER_HOME = os.path.expanduser('~')
-if 'PYLINTHOME' in os.environ:
-    PYLINT_HOME = os.environ['PYLINTHOME']
-    if USER_HOME == '~':
+USER_HOME = os.path.expanduser("~")
+if "PYLINTHOME" in os.environ:
+    PYLINT_HOME = os.environ["PYLINTHOME"]
+    if USER_HOME == "~":
         USER_HOME = os.path.dirname(PYLINT_HOME)
-elif USER_HOME == '~':
+elif USER_HOME == "~":
     PYLINT_HOME = ".pylint.d"
 else:
-    PYLINT_HOME = os.path.join(USER_HOME, '.pylint.d')
+    PYLINT_HOME = os.path.join(USER_HOME, ".pylint.d")
 
 
 def _get_pdata_path(base_name, recurs):
-    base_name = base_name.replace(os.sep, '_')
-    return os.path.join(PYLINT_HOME, "%s%s%s"%(base_name, recurs, '.stats'))
+    base_name = base_name.replace(os.sep, "_")
+    return os.path.join(PYLINT_HOME, "%s%s%s" % (base_name, recurs, ".stats"))
 
 
 def load_results(base):
@@ -79,64 +79,68 @@ def load_results(base):
     try:
         with open(data_file, _PICK_LOAD) as stream:
             return pickle.load(stream)
-    except Exception: # pylint: disable=broad-except
+    except Exception:  # pylint: disable=broad-except
         return {}
 
+
 if sys.version_info < (3, 0):
-    _PICK_DUMP, _PICK_LOAD = 'w', 'r'
+    _PICK_DUMP, _PICK_LOAD = "w", "r"
 else:
-    _PICK_DUMP, _PICK_LOAD = 'wb', 'rb'
+    _PICK_DUMP, _PICK_LOAD = "wb", "rb"
+
 
 def save_results(results, base):
     if not os.path.exists(PYLINT_HOME):
         try:
             os.mkdir(PYLINT_HOME)
         except OSError:
-            print('Unable to create directory %s' % PYLINT_HOME, file=sys.stderr)
+            print("Unable to create directory %s" % PYLINT_HOME, file=sys.stderr)
     data_file = _get_pdata_path(base, 1)
     try:
         with open(data_file, _PICK_DUMP) as stream:
             pickle.dump(results, stream)
     except (IOError, OSError) as ex:
-        print('Unable to create file %s: %s' % (data_file, ex), file=sys.stderr)
+        print("Unable to create file %s: %s" % (data_file, ex), file=sys.stderr)
 
 
 def find_pylintrc():
     """search the pylint rc file and return its path if it find it, else None
     """
     # is there a pylint rc file in the current directory ?
-    if os.path.exists('pylintrc'):
-        return os.path.abspath('pylintrc')
-    if os.path.exists('.pylintrc'):
-        return os.path.abspath('.pylintrc')
-    if os.path.isfile('__init__.py'):
+    if os.path.exists("pylintrc"):
+        return os.path.abspath("pylintrc")
+    if os.path.exists(".pylintrc"):
+        return os.path.abspath(".pylintrc")
+    if os.path.isfile("__init__.py"):
         curdir = os.path.abspath(os.getcwd())
-        while os.path.isfile(os.path.join(curdir, '__init__.py')):
-            curdir = os.path.abspath(os.path.join(curdir, '..'))
-            if os.path.isfile(os.path.join(curdir, 'pylintrc')):
-                return os.path.join(curdir, 'pylintrc')
-            if os.path.isfile(os.path.join(curdir, '.pylintrc')):
-                return os.path.join(curdir, '.pylintrc')
-    if 'PYLINTRC' in os.environ and os.path.exists(os.environ['PYLINTRC']):
-        pylintrc = os.environ['PYLINTRC']
+        while os.path.isfile(os.path.join(curdir, "__init__.py")):
+            curdir = os.path.abspath(os.path.join(curdir, ".."))
+            if os.path.isfile(os.path.join(curdir, "pylintrc")):
+                return os.path.join(curdir, "pylintrc")
+            if os.path.isfile(os.path.join(curdir, ".pylintrc")):
+                return os.path.join(curdir, ".pylintrc")
+    if "PYLINTRC" in os.environ and os.path.exists(os.environ["PYLINTRC"]):
+        pylintrc = os.environ["PYLINTRC"]
     else:
-        user_home = os.path.expanduser('~')
-        if user_home in ('~', '/root'):
+        user_home = os.path.expanduser("~")
+        if user_home in ("~", "/root"):
             pylintrc = ".pylintrc"
         else:
-            pylintrc = os.path.join(user_home, '.pylintrc')
+            pylintrc = os.path.join(user_home, ".pylintrc")
             if not os.path.isfile(pylintrc):
-                pylintrc = os.path.join(user_home, '.config', 'pylintrc')
+                pylintrc = os.path.join(user_home, ".config", "pylintrc")
     if not os.path.isfile(pylintrc):
-        if os.path.isfile('/etc/pylintrc'):
-            pylintrc = '/etc/pylintrc'
+        if os.path.isfile("/etc/pylintrc"):
+            pylintrc = "/etc/pylintrc"
         else:
             pylintrc = None
     return pylintrc
 
+
 PYLINTRC = find_pylintrc()
 
-ENV_HELP = '''
+ENV_HELP = (
+    """
 The following environment variables are used:
     * PYLINTHOME
     Path to the directory where persistent data for the run will be stored. If
@@ -145,7 +149,9 @@ directory).
     * PYLINTRC
     Path to the configuration file. See the documentation for the method used
 to search for configuration file.
-''' % globals()  # type: ignore
+"""
+    % globals()  # type: ignore
+)
 
 
 class UnsupportedAction(Exception):
@@ -167,6 +173,7 @@ def _choice_validator(choices, name, value):
         raise optparse.OptionValueError(msg % (name, value, choices))
     return value
 
+
 # pylint: disable=unused-argument
 def _csv_validator(_, name, value):
     return utils._check_csv(value)
@@ -174,20 +181,22 @@ def _csv_validator(_, name, value):
 
 # pylint: disable=unused-argument
 def _regexp_validator(_, name, value):
-    if hasattr(value, 'pattern'):
+    if hasattr(value, "pattern"):
         return value
     return re.compile(value)
+
 
 # pylint: disable=unused-argument
 def _regexp_csv_validator(_, name, value):
     return [_regexp_validator(_, name, val) for val in _csv_validator(_, name, value)]
 
+
 def _yn_validator(opt, _, value):
     if isinstance(value, int):
         return bool(value)
-    if value in ('y', 'yes'):
+    if value in ("y", "yes"):
         return True
-    if value in ('n', 'no'):
+    if value in ("n", "no"):
         return False
     msg = "option %s: invalid yn value %r, should be in (y, yes, n, no)"
     raise optparse.OptionValueError(msg % (opt, value))
@@ -201,17 +210,19 @@ def _non_empty_string_validator(opt, _, value):
 
 
 VALIDATORS = {
-    'string': utils._unquote,
-    'int': int,
-    'regexp': re.compile,
-    'regexp_csv': _regexp_csv_validator,
-    'csv': _csv_validator,
-    'yn': _yn_validator,
-    'choice': lambda opt, name, value: _choice_validator(opt['choices'], name, value),
-    'multiple_choice': lambda opt, name, value: _multiple_choice_validator(opt['choices'],
-                                                                           name, value),
-    'non_empty_string': _non_empty_string_validator,
+    "string": utils._unquote,
+    "int": int,
+    "regexp": re.compile,
+    "regexp_csv": _regexp_csv_validator,
+    "csv": _csv_validator,
+    "yn": _yn_validator,
+    "choice": lambda opt, name, value: _choice_validator(opt["choices"], name, value),
+    "multiple_choice": lambda opt, name, value: _multiple_choice_validator(
+        opt["choices"], name, value
+    ),
+    "non_empty_string": _non_empty_string_validator,
 }
+
 
 def _call_validator(opttype, optdict, option, value):
     if opttype not in VALIDATORS:
@@ -222,17 +233,18 @@ def _call_validator(opttype, optdict, option, value):
         try:
             return VALIDATORS[opttype](value)
         except Exception:
-            raise optparse.OptionValueError('%s value (%r) should be of type %s' %
-                                            (option, value, opttype))
+            raise optparse.OptionValueError(
+                "%s value (%r) should be of type %s" % (option, value, opttype)
+            )
 
 
-def _validate(value, optdict, name=''):
+def _validate(value, optdict, name=""):
     """return a validated value for an option according to its type
 
     optional argument name is only used for error message formatting
     """
     try:
-        _type = optdict['type']
+        _type = optdict["type"]
     except KeyError:
         # FIXME
         return value
@@ -240,9 +252,12 @@ def _validate(value, optdict, name=''):
 
 
 def _level_options(group, outputlevel):
-    return [option for option in group.option_list
-            if (getattr(option, 'level', 0) or 0) <= outputlevel
-            and option.help is not optparse.SUPPRESS_HELP]
+    return [
+        option
+        for option in group.option_list
+        if (getattr(option, "level", 0) or 0) <= outputlevel
+        and option.help is not optparse.SUPPRESS_HELP
+    ]
 
 
 def _expand_default(self, option):
@@ -284,17 +299,22 @@ def _multiple_choices_validating_option(opt, name, value):
 
 # pylint: disable=no-member
 class Option(optparse.Option):
-    TYPES = optparse.Option.TYPES + ('regexp', 'regexp_csv', 'csv', 'yn',
-                                     'multiple_choice',
-                                     'non_empty_string')
-    ATTRS = optparse.Option.ATTRS + ['hide', 'level']
+    TYPES = optparse.Option.TYPES + (
+        "regexp",
+        "regexp_csv",
+        "csv",
+        "yn",
+        "multiple_choice",
+        "non_empty_string",
+    )
+    ATTRS = optparse.Option.ATTRS + ["hide", "level"]
     TYPE_CHECKER = copy.copy(optparse.Option.TYPE_CHECKER)
-    TYPE_CHECKER['regexp'] = _regexp_validator
-    TYPE_CHECKER['regexp_csv'] = _regexp_csv_validator
-    TYPE_CHECKER['csv'] = _csv_validator
-    TYPE_CHECKER['yn'] = _yn_validator
-    TYPE_CHECKER['multiple_choice'] = _multiple_choices_validating_option
-    TYPE_CHECKER['non_empty_string'] = _non_empty_string_validator
+    TYPE_CHECKER["regexp"] = _regexp_validator
+    TYPE_CHECKER["regexp_csv"] = _regexp_csv_validator
+    TYPE_CHECKER["csv"] = _csv_validator
+    TYPE_CHECKER["yn"] = _yn_validator
+    TYPE_CHECKER["multiple_choice"] = _multiple_choices_validating_option
+    TYPE_CHECKER["non_empty_string"] = _non_empty_string_validator
 
     def __init__(self, *opts, **attrs):
         optparse.Option.__init__(self, *opts, **attrs)
@@ -305,23 +325,27 @@ class Option(optparse.Option):
         if self.type in ("choice", "multiple_choice"):
             if self.choices is None:
                 raise optparse.OptionError(
-                    "must supply a list of choices for type 'choice'", self)
-            elif not isinstance(self.choices, (tuple, list)):
+                    "must supply a list of choices for type 'choice'", self
+                )
+            if not isinstance(self.choices, (tuple, list)):
                 raise optparse.OptionError(
                     "choices must be a list of strings ('%s' supplied)"
-                    % str(type(self.choices)).split("'")[1], self)
+                    % str(type(self.choices)).split("'")[1],
+                    self,
+                )
         elif self.choices is not None:
             raise optparse.OptionError(
-                "must not supply choices for type %r" % self.type, self)
+                "must not supply choices for type %r" % self.type, self
+            )
 
     # pylint: disable=unsupported-assignment-operation
-    optparse.Option.CHECK_METHODS[2] = _check_choice    # type: ignore
+    optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore
 
     def process(self, opt, value, values, parser):
         # First, convert the value(s) to the right type.  Howl if any
         # value(s) are bogus.
         value = self.convert_value(opt, value)
-        if self.type == 'named':
+        if self.type == "named":
             existent = getattr(values, self.dest)
             if existent:
                 existent.update(value)
@@ -329,19 +353,17 @@ class Option(optparse.Option):
         # And then take whatever action is expected of us.
         # This is a separate method to make life easier for
         # subclasses to add new actions.
-        return self.take_action(
-            self.action, self.dest, opt, value, values, parser)
+        return self.take_action(self.action, self.dest, opt, value, values, parser)
 
 
 class OptionParser(optparse.OptionParser):
-
     def __init__(self, option_class, *args, **kwargs):
         optparse.OptionParser.__init__(self, option_class=Option, *args, **kwargs)
 
     def format_option_help(self, formatter=None):
         if formatter is None:
             formatter = self.formatter
-        outputlevel = getattr(formatter, 'output_level', 0)
+        outputlevel = getattr(formatter, "output_level", 0)
         formatter.store_option_strings(self)
         result = []
         result.append(formatter.format_heading("Options"))
@@ -351,7 +373,8 @@ class OptionParser(optparse.OptionParser):
             result.append("\n")
         for group in self.option_groups:
             if group.level <= outputlevel and (
-                    group.description or _level_options(group, outputlevel)):
+                group.description or _level_options(group, outputlevel)
+            ):
                 result.append(group.format_help(formatter))
                 result.append("\n")
         formatter.dedent()
@@ -367,14 +390,15 @@ class OptionParser(optparse.OptionParser):
 
 # pylint: disable=abstract-method; by design?
 class _ManHelpFormatter(optparse.HelpFormatter):
-
-    def __init__(self, indent_increment=0, max_help_position=24,
-                 width=79, short_first=0):
+    def __init__(
+        self, indent_increment=0, max_help_position=24, width=79, short_first=0
+    ):
         optparse.HelpFormatter.__init__(
-            self, indent_increment, max_help_position, width, short_first)
+            self, indent_increment, max_help_position, width, short_first
+        )
 
     def format_heading(self, heading):
-        return '.SH %s\n' % heading.upper()
+        return ".SH %s\n" % heading.upper()
 
     def format_description(self, description):
         return description
@@ -386,14 +410,17 @@ class _ManHelpFormatter(optparse.HelpFormatter):
             optstring = self.format_option_strings(option)
         if option.help:
             help_text = self.expand_default(option)
-            help_string = ' '.join([l.strip() for l in help_text.splitlines()])
-            help_string = help_string.replace('\\', '\\\\')
-            help_string = help_string.replace('[current:', '[default:')
+            help_string = " ".join([l.strip() for l in help_text.splitlines()])
+            help_string = help_string.replace("\\", "\\\\")
+            help_string = help_string.replace("[current:", "[default:")
         else:
-            help_string = ''
-        return '''.IP "%s"
+            help_string = ""
+        return """.IP "%s"
 %s
-''' % (optstring, help_string)
+""" % (
+            optstring,
+            help_string,
+        )
 
     def format_head(self, optparser, pkginfo, section=1):
         long_desc = ""
@@ -405,48 +432,59 @@ class _ManHelpFormatter(optparse.HelpFormatter):
         short_desc = self.format_short_description(pgm, pkginfo.description)
         if hasattr(pkginfo, "long_desc"):
             long_desc = self.format_long_description(pgm, pkginfo.long_desc)
-        return '%s\n%s\n%s\n%s' % (self.format_title(pgm, section),
-                                   short_desc, self.format_synopsis(pgm),
-                                   long_desc)
+        return "%s\n%s\n%s\n%s" % (
+            self.format_title(pgm, section),
+            short_desc,
+            self.format_synopsis(pgm),
+            long_desc,
+        )
 
     @staticmethod
     def format_title(pgm, section):
-        date = '%d-%02d-%02d' % time.localtime()[:3]
+        date = "%d-%02d-%02d" % time.localtime()[:3]
         return '.TH %s %s "%s" %s' % (pgm, section, date, pgm)
 
     @staticmethod
     def format_short_description(pgm, short_desc):
-        return '''.SH NAME
+        return """.SH NAME
 .B %s
 \\- %s
-''' % (pgm, short_desc.strip())
+""" % (
+            pgm,
+            short_desc.strip(),
+        )
 
     @staticmethod
     def format_synopsis(pgm):
-        return '''.SH SYNOPSIS
+        return (
+            """.SH SYNOPSIS
 .B  %s
 [
 .I OPTIONS
 ] [
 .I <arguments>
 ]
-''' % pgm
+"""
+            % pgm
+        )
 
     @staticmethod
     def format_long_description(pgm, long_desc):
-        long_desc = '\n'.join(line.lstrip()
-                              for line in long_desc.splitlines())
-        long_desc = long_desc.replace('\n.\n', '\n\n')
+        long_desc = "\n".join(line.lstrip() for line in long_desc.splitlines())
+        long_desc = long_desc.replace("\n.\n", "\n\n")
         if long_desc.lower().startswith(pgm):
-            long_desc = long_desc[len(pgm):]
-        return '''.SH DESCRIPTION
+            long_desc = long_desc[len(pgm) :]
+        return """.SH DESCRIPTION
 .B %s
 %s
-''' % (pgm, long_desc.strip())
+""" % (
+            pgm,
+            long_desc.strip(),
+        )
 
     @staticmethod
     def format_tail(pkginfo):
-        tail = '''.SH SEE ALSO
+        tail = """.SH SEE ALSO
 /usr/share/doc/pythonX.Y-%s/
 
 .SH BUGS
@@ -455,14 +493,21 @@ Please report bugs on the project\'s mailing list:
 
 .SH AUTHOR
 %s <%s>
-''' % (getattr(pkginfo, 'debian_name', pkginfo.modname),
-       pkginfo.mailinglist, pkginfo.author, pkginfo.author_email)
+""" % (
+            getattr(pkginfo, "debian_name", pkginfo.modname),
+            pkginfo.mailinglist,
+            pkginfo.author,
+            pkginfo.author_email,
+        )
 
         if hasattr(pkginfo, "copyright"):
-            tail += '''
+            tail += (
+                """
 .SH COPYRIGHT
 %s
-''' % pkginfo.copyright
+"""
+                % pkginfo.copyright
+            )
 
         return tail
 
@@ -483,9 +528,11 @@ class OptionsManagerMixIn:
         # verbosity
         self._maxlevel = 0
 
-    def reset_parsers(self, usage='', version=None):
+    def reset_parsers(self, usage="", version=None):
         # configuration file parser
-        self.cfgfile_parser = configparser.ConfigParser(inline_comment_prefixes=('#', ';'))
+        self.cfgfile_parser = configparser.ConfigParser(
+            inline_comment_prefixes=("#", ";")
+        )
         # command line parser
         self.cmdline_parser = OptionParser(Option, usage=usage, version=version)
         self.cmdline_parser.options_manager = self
@@ -500,19 +547,27 @@ class OptionsManagerMixIn:
                 break
         else:
             self.options_providers.append(provider)
-        non_group_spec_options = [option for option in provider.options
-                                  if 'group' not in option[1]]
-        groups = getattr(provider, 'option_groups', ())
+        non_group_spec_options = [
+            option for option in provider.options if "group" not in option[1]
+        ]
+        groups = getattr(provider, "option_groups", ())
         if own_group and non_group_spec_options:
-            self.add_option_group(provider.name.upper(), provider.__doc__,
-                                  non_group_spec_options, provider)
+            self.add_option_group(
+                provider.name.upper(),
+                provider.__doc__,
+                non_group_spec_options,
+                provider,
+            )
         else:
             for opt, optdict in non_group_spec_options:
                 self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
         for gname, gdoc in groups:
             gname = gname.upper()
-            goptions = [option for option in provider.options
-                        if option[1].get('group', '').upper() == gname]
+            goptions = [
+                option
+                for option in provider.options
+                if option[1].get("group", "").upper() == gname
+            ]
             self.add_option_group(gname, gdoc, goptions, provider)
 
     def add_option_group(self, group_name, _, options, provider):
@@ -520,14 +575,17 @@ class OptionsManagerMixIn:
         if group_name in self._mygroups:
             group = self._mygroups[group_name]
         else:
-            group = optparse.OptionGroup(self.cmdline_parser,
-                                         title=group_name.capitalize())
+            group = optparse.OptionGroup(
+                self.cmdline_parser, title=group_name.capitalize()
+            )
             self.cmdline_parser.add_option_group(group)
             group.level = provider.level
             self._mygroups[group_name] = group
             # add section to the config file
-            if group_name != "DEFAULT" and \
-                    group_name not in self.cfgfile_parser._sections:
+            if (
+                group_name != "DEFAULT"
+                and group_name not in self.cfgfile_parser._sections
+            ):
                 self.cfgfile_parser.add_section(group_name)
         # add provider's specific options
         for opt, optdict in options:
@@ -544,24 +602,26 @@ class OptionsManagerMixIn:
         use with optik/optparse
         """
         optdict = copy.copy(optdict)
-        if 'action' in optdict:
+        if "action" in optdict:
             self._nocallback_options[provider] = opt
         else:
-            optdict['action'] = 'callback'
-            optdict['callback'] = self.cb_set_provider_option
+            optdict["action"] = "callback"
+            optdict["callback"] = self.cb_set_provider_option
         # default is handled here and *must not* be given to optik if you
         # want the whole machinery to work
-        if 'default' in optdict:
-            if ('help' in optdict
-                    and optdict.get('default') is not None
-                    and optdict['action'] not in ('store_true', 'store_false')):
-                optdict['help'] += ' [current: %default]'
-            del optdict['default']
-        args = ['--' + str(opt)]
-        if 'short' in optdict:
-            self._short_options[optdict['short']] = opt
-            args.append('-' + optdict['short'])
-            del optdict['short']
+        if "default" in optdict:
+            if (
+                "help" in optdict
+                and optdict.get("default") is not None
+                and optdict["action"] not in ("store_true", "store_false")
+            ):
+                optdict["help"] += " [current: %default]"
+            del optdict["default"]
+        args = ["--" + str(opt)]
+        if "short" in optdict:
+            self._short_options[optdict["short"]] = opt
+            args.append("-" + optdict["short"])
+            del optdict["short"]
         # cleanup option definition dict before giving it to optik
         for key in list(optdict.keys()):
             if key not in self._optik_option_attrs:
@@ -570,7 +630,7 @@ class OptionsManagerMixIn:
 
     def cb_set_provider_option(self, option, opt, value, parser):
         """optik callback for option setting"""
-        if opt.startswith('--'):
+        if opt.startswith("--"):
             # remove -- on long option
             opt = opt[2:]
         else:
@@ -597,9 +657,11 @@ class OptionsManagerMixIn:
                     section = provider.name
                 if section in skipsections:
                     continue
-                options = [(n, d, v) for (n, d, v) in options
-                           if d.get('type') is not None
-                           and not d.get('deprecated')]
+                options = [
+                    (n, d, v)
+                    for (n, d, v) in options
+                    if d.get("type") is not None and not d.get("deprecated")
+                ]
                 if not options:
                     continue
                 if section not in sections:
@@ -610,16 +672,21 @@ class OptionsManagerMixIn:
         printed = False
         for section in sections:
             if printed:
-                print('\n', file=stream)
-            utils.format_section(stream, section.upper(),
-                                 sorted(options_by_section[section]))
+                print("\n", file=stream)
+            utils.format_section(
+                stream, section.upper(), sorted(options_by_section[section])
+            )
             printed = True
 
     def generate_manpage(self, pkginfo, section=1, stream=None):
         with _patch_optparse():
-            _generate_manpage(self.cmdline_parser, pkginfo,
-                              section, stream=stream or sys.stdout,
-                              level=self._maxlevel)
+            _generate_manpage(
+                self.cmdline_parser,
+                pkginfo,
+                section,
+                stream=stream or sys.stdout,
+                level=self._maxlevel,
+            )
 
     def load_provider_defaults(self):
         """initialize configuration using default values"""
@@ -632,16 +699,16 @@ class OptionsManagerMixIn:
         """
         helplevel = 1
         while helplevel <= self._maxlevel:
-            opt = '-'.join(['long'] * helplevel) + '-help'
+            opt = "-".join(["long"] * helplevel) + "-help"
             if opt in self._all_options:
-                break # already processed
+                break  # already processed
             # pylint: disable=unused-argument
             def helpfunc(option, opt, val, p, level=helplevel):
                 print(self.help(level))
                 sys.exit(0)
-            helpmsg = '%s verbose help.' % ' '.join(['more'] * helplevel)
-            optdict = {'action': 'callback', 'callback': helpfunc,
-                       'help': helpmsg}
+
+            helpmsg = "%s verbose help." % " ".join(["more"] * helplevel)
+            optdict = {"action": "callback", "callback": helpfunc, "help": helpmsg}
             provider = self.options_providers[0]
             self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
             provider.options += ((opt, optdict),)
@@ -658,7 +725,7 @@ class OptionsManagerMixIn:
             parser = self.cfgfile_parser
 
             # Use this encoding in order to strip the BOM marker, if any.
-            with io.open(config_file, 'r', encoding='utf_8_sig') as fp:
+            with io.open(config_file, "r", encoding="utf_8_sig") as fp:
                 parser.read_file(fp)
 
             # normalize sections'title
@@ -670,9 +737,9 @@ class OptionsManagerMixIn:
             return
 
         if use_config_file:
-            msg = 'Using config file {}'.format(os.path.abspath(config_file))
+            msg = "Using config file {}".format(os.path.abspath(config_file))
         else:
-            msg = 'No config file found, using default configuration'
+            msg = "No config file found, using default configuration"
         print(msg, file=sys.stderr)
 
     def load_config_file(self):
@@ -694,7 +761,7 @@ class OptionsManagerMixIn:
 
     def load_configuration_from_config(self, config):
         for opt, opt_value in config.items():
-            opt = opt.replace('_', '-')
+            opt = opt.replace("_", "-")
             provider = self._all_options[opt]
             provider.set_option(opt, opt_value)
 
@@ -720,9 +787,9 @@ class OptionsManagerMixIn:
 
     def add_help_section(self, title, description, level=0):
         """add a dummy option section for help purpose """
-        group = optparse.OptionGroup(self.cmdline_parser,
-                                     title=title.capitalize(),
-                                     description=description)
+        group = optparse.OptionGroup(
+            self.cmdline_parser, title=title.capitalize(), description=description
+        )
         group.level = level
         self._maxlevel = max(self._maxlevel, level)
         self.cmdline_parser.add_option_group(group)
@@ -739,7 +806,7 @@ class OptionsProviderMixIn:
 
     # those attributes should be overridden
     priority = -1
-    name = 'default'
+    name = "default"
     options = ()
     level = 0
 
@@ -750,19 +817,19 @@ class OptionsProviderMixIn:
     def load_defaults(self):
         """initialize the provider using default values"""
         for opt, optdict in self.options:
-            action = optdict.get('action')
-            if action != 'callback':
+            action = optdict.get("action")
+            if action != "callback":
                 # callback action have no default
                 if optdict is None:
                     optdict = self.get_option_def(opt)
-                default = optdict.get('default')
+                default = optdict.get("default")
                 self.set_option(opt, default, action, optdict)
 
     def option_attrname(self, opt, optdict=None):
         """get the config attribute corresponding to opt"""
         if optdict is None:
             optdict = self.get_option_def(opt)
-        return optdict.get('dest', opt.replace('-', '_'))
+        return optdict.get("dest", opt.replace("-", "_"))
 
     def option_value(self, opt):
         """get the current value for the given option"""
@@ -775,14 +842,14 @@ class OptionsProviderMixIn:
         if value is not None:
             value = _validate(value, optdict, optname)
         if action is None:
-            action = optdict.get('action', 'store')
-        if action == 'store':
+            action = optdict.get("action", "store")
+        if action == "store":
             setattr(self.config, self.option_attrname(optname, optdict), value)
-        elif action in ('store_true', 'count'):
+        elif action in ("store_true", "count"):
             setattr(self.config, self.option_attrname(optname, optdict), 0)
-        elif action == 'store_false':
+        elif action == "store_false":
             setattr(self.config, self.option_attrname(optname, optdict), 1)
-        elif action == 'append':
+        elif action == "append":
             optname = self.option_attrname(optname, optdict)
             _list = getattr(self.config, optname, None)
             if _list is None:
@@ -796,8 +863,8 @@ class OptionsProviderMixIn:
                 setattr(self.config, optname, _list + (value,))
             else:
                 _list.append(value)
-        elif action == 'callback':
-            optdict['callback'](None, optname, value, None)
+        elif action == "callback":
+            optdict["callback"](None, optname, value, None)
         else:
             raise UnsupportedAction(action)
 
@@ -807,8 +874,9 @@ class OptionsProviderMixIn:
         for option in self.options:
             if option[0] == opt:
                 return option[1]
-        raise optparse.OptionError('no such option %s in section %r'
-                                   % (opt, self.name), opt)
+        raise optparse.OptionError(
+            "no such option %s in section %r" % (opt, self.name), opt
+        )
 
     def options_by_section(self):
         """return an iterator on options grouped by section
@@ -817,8 +885,9 @@ class OptionsProviderMixIn:
         """
         sections = {}
         for optname, optdict in self.options:
-            sections.setdefault(optdict.get('group'), []).append(
-                (optname, optdict, self.option_value(optname)))
+            sections.setdefault(optdict.get("group"), []).append(
+                (optname, optdict, self.option_value(optname))
+            )
         if None in sections:
             yield None, sections.pop(None)
         for section, options in sorted(sections.items()):
@@ -835,16 +904,17 @@ class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
     """basic mixin for simple configurations which don't need the
     manager / providers model
     """
+
     def __init__(self, *args, **kwargs):
         if not args:
-            kwargs.setdefault('usage', '')
+            kwargs.setdefault("usage", "")
         OptionsManagerMixIn.__init__(self, *args, **kwargs)
         OptionsProviderMixIn.__init__(self)
-        if not getattr(self, 'option_groups', None):
+        if not getattr(self, "option_groups", None):
             self.option_groups = []
             for _, optdict in self.options:
                 try:
-                    gdef = (optdict['group'].upper(), '')
+                    gdef = (optdict["group"].upper(), "")
                 except KeyError:
                     continue
                 if gdef not in self.option_groups:
@@ -852,8 +922,7 @@ class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
         self.register_options_provider(self, own_group=False)
 
 
-def _generate_manpage(optparser, pkginfo, section=1,
-                      stream=sys.stdout, level=0):
+def _generate_manpage(optparser, pkginfo, section=1, stream=sys.stdout, level=0):
     formatter = _ManHelpFormatter()
     formatter.output_level = level
     formatter.parser = optparser

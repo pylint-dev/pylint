@@ -69,3 +69,16 @@ def test_dict_ancestor_and_reversed():
 
     seq = reversed(OrderedDict())
     return reversed(Child()), seq
+
+
+def test_dont_emit_for_reversing_enums():
+    """Don't emit when reversing enum classes"""
+    from enum import IntEnum
+
+    class Color(IntEnum):
+        RED = 1
+        GREEN = 2
+        BLUE = 3
+
+    for color in reversed(Color):
+        yield color

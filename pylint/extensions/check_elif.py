@@ -18,13 +18,16 @@ class ElseifUsedChecker(BaseTokenChecker):
     """
 
     __implements__ = (ITokenChecker, IAstroidChecker)
-    name = 'else_if_used'
-    msgs = {'R5501': ('Consider using "elif" instead of "else if"',
-                      'else-if-used',
-                      'Used when an else statement is immediately followed by '
-                      'an if statement and does not contain statements that '
-                      'would be unrelated to it.'),
-           }
+    name = "else_if_used"
+    msgs = {
+        "R5501": (
+            'Consider using "elif" instead of "else if"',
+            "else-if-used",
+            "Used when an else statement is immediately followed by "
+            "an if statement and does not contain statements that "
+            "would be unrelated to it.",
+        )
+    }
 
     def __init__(self, linter=None):
         BaseTokenChecker.__init__(self, linter)
@@ -37,9 +40,9 @@ class ElseifUsedChecker(BaseTokenChecker):
     def process_tokens(self, tokens):
         # Process tokens and look for 'if' or 'elif'
         for _, token, _, _, _ in tokens:
-            if token == 'elif':
+            if token == "elif":
                 self._elifs.append(True)
-            elif token == 'if':
+            elif token == "if":
                 self._elifs.append(False)
 
     def leave_module(self, _):
@@ -51,14 +54,14 @@ class ElseifUsedChecker(BaseTokenChecker):
     def visit_comprehension(self, node):
         self._if_counter += len(node.ifs)
 
-    @check_messages('else-if-used')
+    @check_messages("else-if-used")
     def visit_if(self, node):
         if isinstance(node.parent, astroid.If):
             orelse = node.parent.orelse
             # current if node must directly follow an "else"
             if orelse and orelse == [node]:
                 if not self._elifs[self._if_counter]:
-                    self.add_message('else-if-used', node=node)
+                    self.add_message("else-if-used", node=node)
         self._if_counter += 1
 
 

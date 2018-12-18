@@ -34,10 +34,14 @@ class ByIdManagedMessagesChecker(BaseChecker):
     __implements__ = IRawChecker
 
     # configuration section name
-    name = 'miscellaneous'
-    msgs = {'I0023': ('%s',
-                      'use-symbolic-message-instead',
-                      'Used when a message is enabled or disabled by id.'),}
+    name = "miscellaneous"
+    msgs = {
+        "I0023": (
+            "%s",
+            "use-symbolic-message-instead",
+            "Used when a message is enabled or disabled by id.",
+        )
+    }
 
     options = ()
 
@@ -47,12 +51,14 @@ class ByIdManagedMessagesChecker(BaseChecker):
         for (mod_name, msg_id, msg_symbol, lineno, is_disabled) in managed_msgs:
             if mod_name == module.name:
                 if is_disabled:
-                    txt = ("Id '{ident}' is used to disable '{symbol}' message emission"
-                           .format(ident=msg_id, symbol=msg_symbol))
+                    txt = "Id '{ident}' is used to disable '{symbol}' message emission".format(
+                        ident=msg_id, symbol=msg_symbol
+                    )
                 else:
-                    txt = ("Id '{ident}' is used to enable '{symbol}' message emission"
-                           .format(ident=msg_id, symbol=msg_symbol))
-                self.add_message('use-symbolic-message-instead', line=lineno, args=txt)
+                    txt = "Id '{ident}' is used to enable '{symbol}' message emission".format(
+                        ident=msg_id, symbol=msg_symbol
+                    )
+                self.add_message("use-symbolic-message-instead", line=lineno, args=txt)
         MessagesHandlerMixIn.clear_by_id_managed_msgs()
 
 
@@ -65,43 +71,59 @@ class EncodingChecker(BaseChecker):
     __implements__ = (IRawChecker, ITokenChecker)
 
     # configuration section name
-    name = 'miscellaneous'
-    msgs = {'W0511': ('%s',
-                      'fixme',
-                      'Used when a warning note as FIXME or XXX is detected.'),
-            'W0512': ('Cannot decode using encoding "%s",'
-                      ' unexpected byte at position %d',
-                      'invalid-encoded-data',
-                      'Used when a source line cannot be decoded using the specified '
-                      'source file encoding.',
-                      {'maxversion': (3, 0)}),}
+    name = "miscellaneous"
+    msgs = {
+        "W0511": (
+            "%s",
+            "fixme",
+            "Used when a warning note as FIXME or XXX is detected.",
+        ),
+        "W0512": (
+            'Cannot decode using encoding "%s", unexpected byte at position %d',
+            "invalid-encoded-data",
+            "Used when a source line cannot be decoded using the specified "
+            "source file encoding.",
+            {"maxversion": (3, 0)},
+        ),
+    }
 
-    options = (('notes',
-                {'type': 'csv', 'metavar': '<comma separated values>',
-                 'default': ('FIXME', 'XXX', 'TODO'),
-                 'help': ('List of note tags to take in consideration, '
-                          'separated by a comma.')}),)
+    options = (
+        (
+            "notes",
+            {
+                "type": "csv",
+                "metavar": "<comma separated values>",
+                "default": ("FIXME", "XXX", "TODO"),
+                "help": (
+                    "List of note tags to take in consideration, "
+                    "separated by a comma."
+                ),
+            },
+        ),
+    )
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
             return line.decode(file_encoding)
         except UnicodeDecodeError as ex:
-            self.add_message('invalid-encoded-data', line=lineno,
-                             args=(file_encoding, ex.args[2]))
+            self.add_message(
+                "invalid-encoded-data", line=lineno, args=(file_encoding, ex.args[2])
+            )
         except LookupError as ex:
-            if (line.startswith('#') and
-                    "coding" in line and file_encoding in line):
-                self.add_message('syntax-error',
-                                 line=lineno,
-                                 args='Cannot decode using encoding "{}",'
-                                      ' bad encoding'.format(file_encoding))
+            if line.startswith("#") and "coding" in line and file_encoding in line:
+                self.add_message(
+                    "syntax-error",
+                    line=lineno,
+                    args='Cannot decode using encoding "{}",'
+                    " bad encoding".format(file_encoding),
+                )
 
     def process_module(self, module):
         """inspect the source file to find encoding problem"""
         if module.file_encoding:
             encoding = module.file_encoding
         else:
-            encoding = 'ascii'
+            encoding = "ascii"
 
         with module.stream() as stream:
             for lineno, line in enumerate(stream):

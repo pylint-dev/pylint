@@ -13,7 +13,7 @@ from pylint.checkers.utils import check_messages, is_none, node_type
 from pylint.interfaces import IAstroidChecker
 
 
-BUILTINS = 'builtins'
+BUILTINS = "builtins"
 
 
 class MultipleTypesChecker(BaseChecker):
@@ -29,20 +29,23 @@ class MultipleTypesChecker(BaseChecker):
       ifexpr, etc. Also it would be great to have support for inference on
       str.split()
     """
+
     __implements__ = IAstroidChecker
 
-    name = 'multiple_types'
-    msgs = {'R0204': ('Redefinition of %s type from %s to %s',
-                      'redefined-variable-type',
-                      'Used when the type of a variable changes inside a '
-                      'method or a function.'
-                     ),
-           }
+    name = "multiple_types"
+    msgs = {
+        "R0204": (
+            "Redefinition of %s type from %s to %s",
+            "redefined-variable-type",
+            "Used when the type of a variable changes inside a "
+            "method or a function.",
+        )
+    }
 
     def visit_classdef(self, _):
         self._assigns.append({})
 
-    @check_messages('redefined-variable-type')
+    @check_messages("redefined-variable-type")
     def leave_classdef(self, _):
         self._check_and_add_messages()
 
@@ -69,18 +72,24 @@ class MultipleTypesChecker(BaseChecker):
                 redef_parent = redef_node.parent
                 if isinstance(orig_parent, astroid.If):
                     if orig_parent == redef_parent:
-                        if (redef_node in orig_parent.orelse and
-                                orig_node not in orig_parent.orelse):
+                        if (
+                            redef_node in orig_parent.orelse
+                            and orig_node not in orig_parent.orelse
+                        ):
                             orig_node, orig_type = redef_node, redef_type
                             continue
-                    elif (isinstance(redef_parent, astroid.If) and
-                          redef_parent in orig_parent.nodes_of_class(astroid.If)):
+                    elif isinstance(
+                        redef_parent, astroid.If
+                    ) and redef_parent in orig_parent.nodes_of_class(astroid.If):
                         orig_node, orig_type = redef_node, redef_type
                         continue
-                orig_type = orig_type.replace(BUILTINS + ".", '')
-                redef_type = redef_type.replace(BUILTINS + ".", '')
-                self.add_message('redefined-variable-type', node=redef_node,
-                                 args=(name, orig_type, redef_type))
+                orig_type = orig_type.replace(BUILTINS + ".", "")
+                redef_type = redef_type.replace(BUILTINS + ".", "")
+                self.add_message(
+                    "redefined-variable-type",
+                    node=redef_node,
+                    args=(name, orig_type, redef_type),
+                )
                 break
 
     def visit_assign(self, node):
@@ -94,7 +103,8 @@ class MultipleTypesChecker(BaseChecker):
         _type = node_type(node.value)
         if _type:
             self._assigns[-1].setdefault(target.as_string(), []).append(
-                (node, _type.pytype()))
+                (node, _type.pytype())
+            )
 
 
 def register(linter):

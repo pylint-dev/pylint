@@ -25,19 +25,21 @@ import os
 import warnings
 
 
-CMPS = ['=', '-', '+']
+CMPS = ["=", "-", "+"]
 
 # py3k has no more cmp builtin
 if sys.version_info >= (3, 0):
-    def cmp(a, b): # pylint: disable=redefined-builtin
+
+    def cmp(a, b):  # pylint: disable=redefined-builtin
         return (a > b) - (a < b)
+
 
 def diff_string(old, new):
     """given an old and new int value, return a string representing the
     difference
     """
     diff = abs(old - new)
-    diff_str = "%s%s" % (CMPS[cmp(old, new)], diff and ('%.2f' % diff) or '')
+    diff_str = "%s%s" % (CMPS[cmp(old, new)], diff and ("%.2f" % diff) or "")
     return diff_str
 
 
@@ -47,7 +49,7 @@ class BaseReporter:
     symbols: show short symbolic names for messages.
     """
 
-    extension = ''
+    extension = ""
 
     def __init__(self, output=None):
         self.linter = None
@@ -65,15 +67,15 @@ class BaseReporter:
         """set output stream"""
         self.out = output or sys.stdout
 
-    def writeln(self, string=''):
+    def writeln(self, string=""):
         """write a line in the output buffer"""
         print(string, file=self.out)
 
     def display_reports(self, layout):
         """display results encapsulated in the layout tree"""
         self.section = 0
-        if hasattr(layout, 'report_id'):
-            layout.children[0].children[0].data += ' (%s)' % layout.report_id
+        if hasattr(layout, "report_id"):
+            layout.children[0].children[0].data += " (%s)" % layout.report_id
         self._display(layout)
 
     def _display(self, layout):
@@ -103,7 +105,7 @@ class BaseReporter:
 class CollectingReporter(BaseReporter):
     """collects messages"""
 
-    name = 'collector'
+    name = "collector"
 
     def __init__(self):
         BaseReporter.__init__(self)
@@ -118,4 +120,5 @@ class CollectingReporter(BaseReporter):
 def initialize(linter):
     """initialize linter with reporters in this package """
     from pylint import utils
+
     utils.register_plugins(linter, __path__[0])

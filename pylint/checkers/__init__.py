@@ -58,31 +58,32 @@ def table_lines_from_stats(stats, old_stats, columns):
     lines = []
     for m_type in columns:
         new = stats[m_type]
-        format = str # pylint: disable=redefined-builtin
+        format = str  # pylint: disable=redefined-builtin
         if isinstance(new, float):
-            format = lambda num: '%.3f' % num
+            format = lambda num: "%.3f" % num
         old = old_stats.get(m_type)
         if old is not None:
             diff_str = diff_string(old, new)
             old = format(old)
         else:
-            old, diff_str = 'NC', 'NC'
-        lines += (m_type.replace('_', ' '), format(new), old, diff_str)
+            old, diff_str = "NC", "NC"
+        lines += (m_type.replace("_", " "), format(new), old, diff_str)
     return lines
 
 
 class BaseChecker(OptionsProviderMixIn):
     """base class for checkers"""
+
     # checker name (you may reuse an existing one)
-    name = None # type: str
+    name = None  # type: str
     # options level (0 will be displaying in --help, 1 in --long-help)
     level = 1
     # ordered list of options to control the ckecker behaviour
-    options = () # type: Any
+    options = ()  # type: Any
     # messages issued by this checker
-    msgs = {} # type: Any
+    msgs = {}  # type: Any
     # reports issued by this checker
-    reports = ()    # type: Any
+    reports = ()  # type: Any
     # mark this checker as enabled or not.
     enabled = True
 
@@ -96,8 +97,15 @@ class BaseChecker(OptionsProviderMixIn):
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
 
-    def add_message(self, msg_id, line=None, node=None, args=None, confidence=UNDEFINED,
-                    col_offset=None):
+    def add_message(
+        self,
+        msg_id,
+        line=None,
+        node=None,
+        args=None,
+        confidence=UNDEFINED,
+        col_offset=None,
+    ):
         """add a message of a given type"""
         self.linter.add_message(msg_id, line, node, args, confidence, col_offset)
 
@@ -122,4 +130,5 @@ def initialize(linter):
     """initialize linter with checkers in this package """
     register_plugins(linter, __path__[0])
 
-__all__ = ('BaseChecker', 'initialize')
+
+__all__ = ("BaseChecker", "initialize")

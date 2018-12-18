@@ -1,0 +1,4 @@
+implicit-str-concat-in-sequence:4::Implicit string concatenation found in list
+implicit-str-concat-in-sequence:6::Implicit string concatenation found in tuple
+implicit-str-concat-in-sequence:8::Implicit string concatenation found in set
+implicit-str-concat-in-sequence:11::Implicit string concatenation found in list

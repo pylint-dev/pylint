@@ -16,6 +16,8 @@ def register(linter):
     :param linter: Main interface object for Pylint plugins
     :type linter: Pylint object
     """
-    warnings.warn("This plugin is deprecated, use pylint.extensions.docparams instead.",
-                  DeprecationWarning)
+    warnings.warn(
+        "This plugin is deprecated, use pylint.extensions.docparams instead.",
+        DeprecationWarning,
+    )
     linter.register_checker(docparams.DocstringParameterChecker(linter))

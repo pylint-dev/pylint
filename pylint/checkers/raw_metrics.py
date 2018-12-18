@@ -28,22 +28,21 @@ from pylint.reporters.ureports.nodes import Table
 def report_raw_stats(sect, stats, old_stats):
     """calculate percentage of code / doc / comment / empty
     """
-    total_lines = stats['total_lines']
+    total_lines = stats["total_lines"]
     if not total_lines:
         raise EmptyReportError()
-    sect.description = '%s lines have been analyzed' % total_lines
-    lines = ('type', 'number', '%', 'previous', 'difference')
-    for node_type in ('code', 'docstring', 'comment', 'empty'):
-        key = node_type + '_lines'
+    sect.description = "%s lines have been analyzed" % total_lines
+    lines = ("type", "number", "%", "previous", "difference")
+    for node_type in ("code", "docstring", "comment", "empty"):
+        key = node_type + "_lines"
         total = stats[key]
         percent = float(total * 100) / total_lines
         old = old_stats.get(key, None)
         if old is not None:
             diff_str = diff_string(old, total)
         else:
-            old, diff_str = 'NC', 'NC'
-        lines += (node_type, str(total), '%.2f' % percent,
-                  str(old), diff_str)
+            old, diff_str = "NC", "NC"
+        lines += (node_type, str(total), "%.2f" % percent, str(old), diff_str)
     sect.append(Table(children=lines, cols=5, rheaders=1))
 
 
@@ -59,13 +58,13 @@ class RawMetricsChecker(BaseTokenChecker):
     __implements__ = (ITokenChecker,)
 
     # configuration section name
-    name = 'metrics'
+    name = "metrics"
     # configuration options
     options = ()
     # messages
-    msgs = {}   # type: Any
+    msgs = {}  # type: Any
     # reports
-    reports = (('RP0701', 'Raw metrics', report_raw_stats),)
+    reports = (("RP0701", "Raw metrics", report_raw_stats),)
 
     def __init__(self, linter):
         BaseTokenChecker.__init__(self, linter)
@@ -73,9 +72,13 @@ class RawMetricsChecker(BaseTokenChecker):
 
     def open(self):
         """init statistics"""
-        self.stats = self.linter.add_stats(total_lines=0, code_lines=0,
-                                           empty_lines=0, docstring_lines=0,
-                                           comment_lines=0)
+        self.stats = self.linter.add_stats(
+            total_lines=0,
+            code_lines=0,
+            empty_lines=0,
+            docstring_lines=0,
+            comment_lines=0,
+        )
 
     def process_tokens(self, tokens):
         """update stats"""
@@ -83,11 +86,12 @@ class RawMetricsChecker(BaseTokenChecker):
         tokens = list(tokens)
         while i < len(tokens):
             i, lines_number, line_type = get_type(tokens, i)
-            self.stats['total_lines'] += lines_number
+            self.stats["total_lines"] += lines_number
             self.stats[line_type] += lines_number
 
 
 JUNK = (tokenize.NL, tokenize.INDENT, tokenize.NEWLINE, tokenize.ENDMARKER)
+
 
 def get_type(tokens, start_index):
     """return the line type : docstring, comment, code, empty"""
@@ -101,16 +105,16 @@ def get_type(tokens, start_index):
         pos = tokens[i][3]
         if line_type is None:
             if tok_type == tokenize.STRING:
-                line_type = 'docstring_lines'
+                line_type = "docstring_lines"
             elif tok_type == tokenize.COMMENT:
-                line_type = 'comment_lines'
+                line_type = "comment_lines"
             elif tok_type in JUNK:
                 pass
             else:
-                line_type = 'code_lines'
+                line_type = "code_lines"
         i += 1
     if line_type is None:
-        line_type = 'empty_lines'
+        line_type = "empty_lines"
     elif i < len(tokens) and tokens[i][0] == tokenize.NEWLINE:
         i += 1
     return i, pos[0] - start[0] + 1, line_type

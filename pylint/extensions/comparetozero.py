@@ -30,23 +30,26 @@ class CompareToZeroChecker(checkers.BaseChecker):
     __implements__ = (interfaces.IAstroidChecker,)
 
     # configuration section name
-    name = 'compare-to-zero'
-    msgs = {'C2001': ('Avoid comparisons to zero',
-                      'compare-to-zero',
-                      'Used when Pylint detects comparison to a 0 constant.'),
-           }
+    name = "compare-to-zero"
+    msgs = {
+        "C2001": (
+            "Avoid comparisons to zero",
+            "compare-to-zero",
+            "Used when Pylint detects comparison to a 0 constant.",
+        )
+    }
 
     priority = -2
     options = ()
 
-    @utils.check_messages('compare-to-zero')
+    @utils.check_messages("compare-to-zero")
     def visit_compare(self, node):
-        _operators = ['!=', '==', 'is not', 'is']
+        _operators = ["!=", "==", "is not", "is"]
         # note: astroid.Compare has the left most operand in node.left
         # while the rest are a list of tuples in node.ops
         # the format of the tuple is ('compare operator sign', node)
         # here we squash everything into `ops` to make it easier for processing later
-        ops = [('', node.left)]
+        ops = [("", node.left)]
         ops.extend(node.ops)
         ops = list(itertools.chain(*ops))
 
@@ -57,14 +60,14 @@ class CompareToZeroChecker(checkers.BaseChecker):
             error_detected = False
 
             # 0 ?? X
-            if _is_constant_zero(op_1) and op_2 in _operators + ['<']:
+            if _is_constant_zero(op_1) and op_2 in _operators:
                 error_detected = True
             # X ?? 0
-            elif op_2 in _operators + ['>'] and _is_constant_zero(op_3):
+            elif op_2 in _operators and _is_constant_zero(op_3):
                 error_detected = True
 
             if error_detected:
-                self.add_message('compare-to-zero', node=node)
+                self.add_message("compare-to-zero", node=node)
 
 
 def register(linter):

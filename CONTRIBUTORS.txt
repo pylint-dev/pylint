@@ -29,6 +29,7 @@ Current team:
 
   multiple-imports, not-iterable, not-a-mapping, various patches.
 
+* Jim Robertson: committer
 
 Ex-maintainers:
 
@@ -109,9 +110,9 @@ contributors:
 * Mike Frysinger: contributor.
 
 * Moisés López (Vauxoo): Support for deprecated-modules in modules not installed,
-  Refactory wrong-import-order to integrate it with `isort` library
+  Refactor wrong-import-order to integrate it with `isort` library
   Add check too-complex with mccabe for cyclomatic complexity
-  Refactory wrong-import-position to skip try-import and nested cases
+  Refactor wrong-import-position to skip try-import and nested cases
   Add consider-merging-isinstance, superfluous-else-return
   Fix consider-using-ternary for 'True and True and True or True' case
 
@@ -216,10 +217,43 @@ contributors:
 
 * Carey Metcalfe: demoted `try-except-raise` from error to warning
 
-* Marcus Näslund (naslundx): contributor 
+* Marcus Näslund (naslundx): contributor
 
 * Natalie Serebryakova: contributor
 
 * Caio Carrara: contributor
 
 * Roberto Leinardi: PyCharm plugin maintainer
+
+* Aivar Annamaa: contributor
+
+* Hornwitser: fix import graph
+
+* Yuri Gribov: contributor
+
+* Drew Risinger: committer (docs)
+
+* Ben James
+
+* Tomer Chachamu, Richard Goodman: simplifiable-if-expression
+
+* Alan Chan: contributor
+
+* Benjamin Drung: contributing Debian Developer
+
+* Scott Worley: contributor
+
+* Michael Hudson-Doyle
+
+* Lucas Cimon: contributor
+
+* Mike Miller: contributor
+
+* Sergei Lebedev: contributor
+
+* Sasha Bagan
+
+* Pablo Galindo Salgado: contributor
+  Fix false positive 'Non-iterable value' with async comprehensions.
+
+* Sardorbek Imomaliev: contributor

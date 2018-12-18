@@ -3,7 +3,7 @@
 **************************
 
 :Release: 2.2
-:Date: TBA 
+:Date: 2018-11-25
 
 Summary -- Release highlights
 =============================
@@ -12,13 +12,36 @@ Summary -- Release highlights
 New checkers
 ============
 
+* String checker now reports format string type mismatches.
+
+* ``duplicate-string-formatting-argument`` was added for detecting duplicate string
+  formatting arguments that should be passed instead as named arguments.
+
+* ``logging-format-style`` is a new option for the logging checker for usage of
+  str.format() style format strings in calls to loggers.
+
+  It accepts two options: ``--logging-format-style=old`` for using `%` style formatting,
+  which is the assumed default, and ``--logging-format-style=new`` for using `{}` style formatting.
+
+* ``implicit-str-concat-in-sequence`` detects string concatenation inside lists, sets & tuples.
+
+  Example of code that would generate such warning:
+
+  .. code-block:: python
+
+    woops = ('a', 'b' 'c')
+
 
 Other Changes
 =============
 
+* `try-except-raise` checker now handles multilevel inheritance hirerachy for exceptions correctly.
+
+  Close #2484
+
 * Ignore import x.y.z as z cases for checker `useless-import-alias`.
 
-* `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement, 
+* `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement,
   in which case, docstring is enough for empty definition.
 
 * Fix false positive ``undefined-variable`` and ``used-before-assignment`` with nonlocal keyword usage.
@@ -36,3 +59,8 @@ Other Changes
   with ``asyncio.coroutine``. This is no longer the case as we handle coroutines explicitly.
 
   Close #996
+
+* ``pylint`` used to emit a ``unused-variable`` error if unused import was found in the function. Now instead of
+  ``unused-variable``, ``unused-import`` is emitted.
+
+  Close #2421

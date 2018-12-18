@@ -25,3 +25,5 @@ except ImportError:
     pass
 
 from .collections import missing # [import-error]
+
+from .syntax_error import toto # [syntax-error]

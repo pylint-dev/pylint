@@ -41,7 +41,6 @@ from pylint import utils
 HERE = abspath(dirname(__file__))
 
 
-
 @contextlib.contextmanager
 def _patch_streams(out):
     sys.stderr = sys.stdout = out
@@ -54,7 +53,7 @@ def _patch_streams(out):
 
 @contextlib.contextmanager
 def _configure_lc_ctype(lc_ctype):
-    lc_ctype_env = 'LC_CTYPE'
+    lc_ctype_env = "LC_CTYPE"
     original_lctype = os.environ.get(lc_ctype_env)
     os.environ[lc_ctype_env] = lc_ctype
     try:
@@ -97,24 +96,23 @@ class MultiReporter(BaseReporter):
 
 
 class TestRunTC(object):
-
     def _runtest(self, args, reporter=None, out=None, code=None):
         if out is None:
             out = StringIO()
         pylint_code = self._run_pylint(args, reporter=reporter, out=out)
         if reporter:
             output = reporter.out.getvalue()
-        elif hasattr(out, 'getvalue'):
+        elif hasattr(out, "getvalue"):
             output = out.getvalue()
         else:
             output = None
-        msg = 'expected output status %s, got %s' % (code, pylint_code)
+        msg = "expected output status %s, got %s" % (code, pylint_code)
         if output is not None:
-            msg = '%s. Below pylint output: \n%s' % (msg, output)
+            msg = "%s. Below pylint output: \n%s" % (msg, output)
         assert pylint_code == code, msg
 
     def _run_pylint(self, args, out, reporter=None):
-        args = args + ['--persistent=no']
+        args = args + ["--persistent=no"]
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
                 with warnings.catch_warnings():
@@ -124,7 +122,9 @@ class TestRunTC(object):
 
     def _clean_paths(self, output):
         """Remove version-specific tox parent directories from paths."""
-        return re.sub('^py.+/site-packages/', '', output.replace('\\', '/'), flags=re.MULTILINE)
+        return re.sub(
+            "^py.+/site-packages/", "", output.replace("\\", "/"), flags=re.MULTILINE
+        )
 
     def _test_output(self, args, expected_output):
         out = StringIO()
@@ -134,39 +134,40 @@ class TestRunTC(object):
 
     def test_pkginfo(self):
         """Make pylint check itself."""
-        self._runtest(['pylint.__pkginfo__'], reporter=TextReporter(StringIO()),
-                      code=0)
+        self._runtest(["pylint.__pkginfo__"], reporter=TextReporter(StringIO()), code=0)
 
     def test_all(self):
         """Make pylint check itself."""
         reporters = [
             TextReporter(StringIO()),
             ColorizedTextReporter(StringIO()),
-            JSONReporter(StringIO())
+            JSONReporter(StringIO()),
         ]
-        self._runtest([join(HERE, 'functional/arguments.py')],
-                      reporter=MultiReporter(reporters), code=2)
+        self._runtest(
+            [join(HERE, "functional/arguments.py")],
+            reporter=MultiReporter(reporters),
+            code=2,
+        )
 
     def test_no_ext_file(self):
-        self._runtest([join(HERE, 'input', 'noext')], code=0)
+        self._runtest([join(HERE, "input", "noext")], code=0)
 
     def test_w0704_ignored(self):
-        self._runtest([join(HERE, 'input', 'ignore_except_pass_by_default.py')], code=0)
+        self._runtest([join(HERE, "input", "ignore_except_pass_by_default.py")], code=0)
 
     def test_exit_zero(self):
-        self._runtest([
-            '--exit-zero',
-            join(HERE, 'regrtest_data', 'syntax_error.py')
-        ], code=0)
+        self._runtest(
+            ["--exit-zero", join(HERE, "regrtest_data", "syntax_error.py")], code=0
+        )
 
     def test_generate_config_option(self):
-        self._runtest(['--generate-rcfile'], code=0)
+        self._runtest(["--generate-rcfile"], code=0)
 
     def test_generate_config_option_order(self):
         out1 = StringIO()
         out2 = StringIO()
-        self._runtest(['--generate-rcfile'], code=0, out=out1)
-        self._runtest(['--generate-rcfile'], code=0, out=out2)
+        self._runtest(["--generate-rcfile"], code=0, out=out1)
+        self._runtest(["--generate-rcfile"], code=0, out=out2)
         output1 = out1.getvalue()
         output2 = out2.getvalue()
         assert output1 == output2
@@ -182,11 +183,11 @@ class TestRunTC(object):
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
         master = re.search(r"\[MASTER", output)
-        out = StringIO(output[master.start():])
+        out = StringIO(output[master.start() :])
         parser = configparser.RawConfigParser()
         parser.readfp(out)
-        messages = utils._splitstrip(parser.get('MESSAGES CONTROL', 'disable'))
-        assert 'suppressed-message' in messages
+        messages = utils._splitstrip(parser.get("MESSAGES CONTROL", "disable"))
+        assert "suppressed-message" in messages
 
     def test_generate_rcfile_no_obsolete_methods(self):
         out = StringIO()
@@ -201,10 +202,10 @@ class TestRunTC(object):
         assert "The config file /tmp/norcfile.txt doesn't exist!" == str(excinfo.value)
 
     def test_help_message_option(self):
-        self._runtest(['--help-msg', 'W0101'], code=0)
+        self._runtest(["--help-msg", "W0101"], code=0)
 
     def test_error_help_message_option(self):
-        self._runtest(['--help-msg', 'WX101'], code=0)
+        self._runtest(["--help-msg", "WX101"], code=0)
 
     def test_error_missing_arguments(self):
         self._runtest([], code=32)
@@ -212,7 +213,7 @@ class TestRunTC(object):
     def test_no_out_encoding(self):
         """test redirection of stdout with non ascii caracters
         """
-        #This test reproduces bug #48066 ; it happens when stdout is redirected
+        # This test reproduces bug #48066 ; it happens when stdout is redirected
         # through '>' : the sys.stdout.encoding becomes then None, and if the
         # output contains non ascii, pylint will crash
         if sys.version_info < (3, 0):
@@ -220,143 +221,177 @@ class TestRunTC(object):
         else:
             strio = StringIO()
         assert strio.encoding is None
-        self._runtest([join(HERE, 'regrtest_data/no_stdout_encoding.py'),
-                       '--enable=all'],
-                      out=strio, code=28)
+        self._runtest(
+            [join(HERE, "regrtest_data/no_stdout_encoding.py"), "--enable=all"],
+            out=strio,
+            code=28,
+        )
 
     def test_parallel_execution(self):
-        self._runtest(['-j 2',
-                       join(HERE, 'functional/arguments.py'),
-                       join(HERE, 'functional/bad_continuation.py')], code=18)
+        self._runtest(
+            [
+                "-j 2",
+                join(HERE, "functional/arguments.py"),
+                join(HERE, "functional/arguments.py"),
+            ],
+            code=2,
+        )
 
     def test_parallel_execution_missing_arguments(self):
-        self._runtest(['-j 2', 'not_here', 'not_here_too'], code=1)
+        self._runtest(["-j 2", "not_here", "not_here_too"], code=1)
 
     def test_py3k_option(self):
         # Test that --py3k flag works.
         rc_code = 0
-        self._runtest([join(HERE, 'functional', 'unpacked_exceptions.py'),
-                       '--py3k'],
-                      code=rc_code)
+        self._runtest(
+            [join(HERE, "functional", "unpacked_exceptions.py"), "--py3k"], code=rc_code
+        )
 
     def test_py3k_jobs_option(self):
         rc_code = 0
-        self._runtest([join(HERE, 'functional', 'unpacked_exceptions.py'),
-                       '--py3k', '-j 2'],
-                      code=rc_code)
+        self._runtest(
+            [join(HERE, "functional", "unpacked_exceptions.py"), "--py3k", "-j 2"],
+            code=rc_code,
+        )
 
     @pytest.mark.skipif(sys.version_info[0] > 2, reason="Requires the --py3k flag.")
     def test_py3k_commutative_with_errors_only(self):
 
         # Test what gets emitted with -E only
-        module = join(HERE, 'regrtest_data', 'py3k_error_flag.py')
-        expected = textwrap.dedent("""
+        module = join(HERE, "regrtest_data", "py3k_error_flag.py")
+        expected = textwrap.dedent(
+            """
         ************* Module py3k_error_flag
         Explicit return in __init__
-        """)
-        self._test_output([module, "-E", "--msg-template='{msg}'"],
-                          expected_output=expected)
+        """
+        )
+        self._test_output(
+            [module, "-E", "--msg-template='{msg}'"], expected_output=expected
+        )
 
         # Test what gets emitted with -E --py3k
-        expected = textwrap.dedent("""
+        expected = textwrap.dedent(
+            """
         ************* Module py3k_error_flag
         Use raise ErrorClass(args) instead of raise ErrorClass, args.
-        """)
-        self._test_output([module, "-E", "--py3k", "--msg-template='{msg}'"],
-                          expected_output=expected)
+        """
+        )
+        self._test_output(
+            [module, "-E", "--py3k", "--msg-template='{msg}'"], expected_output=expected
+        )
 
         # Test what gets emitted with --py3k -E
-        self._test_output([module, "--py3k", "-E", "--msg-template='{msg}'"],
-                          expected_output=expected)
+        self._test_output(
+            [module, "--py3k", "-E", "--msg-template='{msg}'"], expected_output=expected
+        )
 
     @pytest.mark.skipif(sys.version_info[0] > 2, reason="Requires the --py3k flag.")
     def test_py3k_commutative_with_config_disable(self):
-        module = join(HERE, 'regrtest_data', 'py3k_errors_and_warnings.py')
-        rcfile = join(HERE, 'regrtest_data', 'py3k-disabled.rc')
+        module = join(HERE, "regrtest_data", "py3k_errors_and_warnings.py")
+        rcfile = join(HERE, "regrtest_data", "py3k-disabled.rc")
         cmd = [module, "--msg-template='{msg}'", "--reports=n"]
 
-        expected = textwrap.dedent("""
+        expected = textwrap.dedent(
+            """
         ************* Module py3k_errors_and_warnings
         import missing `from __future__ import absolute_import`
         Use raise ErrorClass(args) instead of raise ErrorClass, args.
         Calling a dict.iter*() method
         print statement used
-        """)
+        """
+        )
         self._test_output(cmd + ["--py3k"], expected_output=expected)
 
-        expected = textwrap.dedent("""
+        expected = textwrap.dedent(
+            """
         ************* Module py3k_errors_and_warnings
         Use raise ErrorClass(args) instead of raise ErrorClass, args.
         Calling a dict.iter*() method
         print statement used
-        """)
-        self._test_output(cmd + ["--py3k", "--rcfile", rcfile],
-                          expected_output=expected)
+        """
+        )
+        self._test_output(
+            cmd + ["--py3k", "--rcfile", rcfile], expected_output=expected
+        )
 
-        expected = textwrap.dedent("""
+        expected = textwrap.dedent(
+            """
         ************* Module py3k_errors_and_warnings
         Use raise ErrorClass(args) instead of raise ErrorClass, args.
         print statement used
-        """)
-        self._test_output(cmd + ["--py3k", "-E", "--rcfile", rcfile],
-                          expected_output=expected)
+        """
+        )
+        self._test_output(
+            cmd + ["--py3k", "-E", "--rcfile", rcfile], expected_output=expected
+        )
 
-        self._test_output(cmd + ["-E", "--py3k", "--rcfile", rcfile],
-                          expected_output=expected)
+        self._test_output(
+            cmd + ["-E", "--py3k", "--rcfile", rcfile], expected_output=expected
+        )
 
     def test_abbreviations_are_not_supported(self):
         expected = "no such option: --load-plugin"
         self._test_output([".", "--load-plugin"], expected_output=expected)
 
     def test_enable_all_works(self):
-        module = join(HERE, 'data', 'clientmodule_test.py')
-        expected = textwrap.dedent("""
+        module = join(HERE, "data", "clientmodule_test.py")
+        expected = textwrap.dedent(
+            """
         ************* Module data.clientmodule_test
         pylint/test/data/clientmodule_test.py:10:8: W0612: Unused variable 'local_variable' (unused-variable)
         pylint/test/data/clientmodule_test.py:18:4: C0111: Missing method docstring (missing-docstring)
         pylint/test/data/clientmodule_test.py:22:0: C0111: Missing class docstring (missing-docstring)
-        """)
-        self._test_output([module, "--disable=all", "--enable=all", "-rn"],
-                          expected_output=expected)
+        """
+        )
+        self._test_output(
+            [module, "--disable=all", "--enable=all", "-rn"], expected_output=expected
+        )
 
     def test_wrong_import_position_when_others_disabled(self):
-        expected_output = textwrap.dedent('''
+        expected_output = textwrap.dedent(
+            """
         ************* Module wrong_import_position
         pylint/test/regrtest_data/wrong_import_position.py:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
-        ''')
-        module1 = join(HERE, 'regrtest_data', 'import_something.py')
-        module2 = join(HERE, 'regrtest_data', 'wrong_import_position.py')
-        args = [module2, module1,
-                "--disable=all", "--enable=wrong-import-position",
-                "-rn", "-sn"]
+        """
+        )
+        module1 = join(HERE, "regrtest_data", "import_something.py")
+        module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
+        args = [
+            module2,
+            module1,
+            "--disable=all",
+            "--enable=wrong-import-position",
+            "-rn",
+            "-sn",
+        ]
         out = StringIO()
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue().strip())
 
         to_remove = "No config file found, using default configuration"
         if to_remove in actual_output:
-            actual_output = actual_output[len(to_remove):]
+            actual_output = actual_output[len(to_remove) :]
         if actual_output.startswith("Using config file "):
             # If ~/.pylintrc is present remove the
             # Using config file...  line
-            actual_output = actual_output[actual_output.find("\n"):]
+            actual_output = actual_output[actual_output.find("\n") :]
         assert expected_output.strip() == actual_output.strip()
 
     def test_import_itself_not_accounted_for_relative_imports(self):
-        expected = 'Your code has been rated at 10.00/10'
-        package = join(HERE, 'regrtest_data', 'dummy')
-        self._test_output([package, '--disable=locally-disabled', '-rn'],
-                          expected_output=expected)
+        expected = "Your code has been rated at 10.00/10"
+        package = join(HERE, "regrtest_data", "dummy")
+        self._test_output(
+            [package, "--disable=locally-disabled", "-rn"], expected_output=expected
+        )
 
     def test_reject_empty_indent_strings(self):
         expected = "indent string can't be empty"
-        module = join(HERE, 'data', 'clientmodule_test.py')
-        self._test_output([module, '--indent-string='],
-                          expected_output=expected)
+        module = join(HERE, "data", "clientmodule_test.py")
+        self._test_output([module, "--indent-string="], expected_output=expected)
 
     def test_json_report_when_file_has_syntax_error(self):
         out = StringIO()
-        module = join(HERE, 'regrtest_data', 'syntax_error.py')
+        module = join(HERE, "regrtest_data", "syntax_error.py")
         self._runtest([module], code=2, reporter=JSONReporter(out))
         output = json.loads(out.getvalue())
         assert isinstance(output, list)
@@ -368,17 +403,17 @@ class TestRunTC(object):
             "line": 1,
             "type": "error",
             "symbol": "syntax-error",
-            "module": "syntax_error"
+            "module": "syntax_error",
         }
         message = output[0]
         for key, value in expected.items():
             assert key in message
             assert message[key] == value
-        assert 'invalid syntax' in message['message'].lower()
+        assert "invalid syntax" in message["message"].lower()
 
     def test_json_report_when_file_is_missing(self):
         out = StringIO()
-        module = join(HERE, 'regrtest_data', 'totally_missing.py')
+        module = join(HERE, "regrtest_data", "totally_missing.py")
         self._runtest([module], code=1, reporter=JSONReporter(out))
         output = json.loads(out.getvalue())
         assert isinstance(output, list)
@@ -390,93 +425,110 @@ class TestRunTC(object):
             "line": 1,
             "type": "fatal",
             "symbol": "fatal",
-            "module": module
+            "module": module,
         }
         message = output[0]
         for key, value in expected.items():
             assert key in message
             assert message[key] == value
-        assert message['message'].startswith("No module named")
+        assert message["message"].startswith("No module named")
 
     def test_information_category_disabled_by_default(self):
-        expected = 'Your code has been rated at 10.00/10'
-        path = join(HERE, 'regrtest_data', 'meta.py')
+        expected = "Your code has been rated at 10.00/10"
+        path = join(HERE, "regrtest_data", "meta.py")
         self._test_output([path], expected_output=expected)
 
     def test_error_mode_shows_no_score(self):
-        expected_output = textwrap.dedent('''
+        expected_output = textwrap.dedent(
+            """
         ************* Module application_crash
         pylint/test/regrtest_data/application_crash.py:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
-        ''')
-        module = join(HERE, 'regrtest_data', 'application_crash.py')
+        """
+        )
+        module = join(HERE, "regrtest_data", "application_crash.py")
         self._test_output([module, "-E"], expected_output=expected_output)
 
     def test_evaluation_score_shown_by_default(self):
-        expected_output = 'Your code has been rated at '
-        module = join(HERE, 'regrtest_data', 'application_crash.py')
+        expected_output = "Your code has been rated at "
+        module = join(HERE, "regrtest_data", "application_crash.py")
         self._test_output([module], expected_output=expected_output)
 
     def test_confidence_levels(self):
-        expected = 'Your code has been rated at'
-        path = join(HERE, 'regrtest_data', 'meta.py')
-        self._test_output([path, "--confidence=HIGH,INFERENCE"],
-                          expected_output=expected)
+        expected = "Your code has been rated at"
+        path = join(HERE, "regrtest_data", "meta.py")
+        self._test_output(
+            [path, "--confidence=HIGH,INFERENCE"], expected_output=expected
+        )
 
     def test_bom_marker(self):
-        path = join(HERE, 'regrtest_data', 'meta.py')
-        config_path = join(HERE, 'regrtest_data', '.pylintrc')
-        expected = 'Your code has been rated at 10.00/10'
-        self._test_output([path, "--rcfile=%s" % config_path, "-rn"],
-                          expected_output=expected)
+        path = join(HERE, "regrtest_data", "meta.py")
+        config_path = join(HERE, "regrtest_data", ".pylintrc")
+        expected = "Your code has been rated at 10.00/10"
+        self._test_output(
+            [path, "--rcfile=%s" % config_path, "-rn"], expected_output=expected
+        )
 
     def test_pylintrc_plugin_duplicate_options(self):
-        dummy_plugin_path = join(HERE, 'regrtest_data', 'dummy_plugin')
+        dummy_plugin_path = join(HERE, "regrtest_data", "dummy_plugin")
         # Enable --load-plugins=dummy_plugin
         sys.path.append(dummy_plugin_path)
-        config_path = join(HERE, 'regrtest_data', 'dummy_plugin.rc')
+        config_path = join(HERE, "regrtest_data", "dummy_plugin.rc")
         expected = (
             ":dummy-message-01 (I9061): *Dummy short desc 01*\n"
             "  Dummy long desc This message belongs to the dummy_plugin checker.\n\n"
             ":dummy-message-02 (I9060): *Dummy short desc 02*\n"
-            "  Dummy long desc This message belongs to the dummy_plugin checker.")
-        self._test_output(["--rcfile=%s" % config_path,
-                           "--help-msg=dummy-message-01,dummy-message-02"],
-                          expected_output=expected)
+            "  Dummy long desc This message belongs to the dummy_plugin checker."
+        )
+        self._test_output(
+            [
+                "--rcfile=%s" % config_path,
+                "--help-msg=dummy-message-01,dummy-message-02",
+            ],
+            expected_output=expected,
+        )
         expected = (
             "[DUMMY_PLUGIN]\n\n# Dummy option 1\ndummy_option_1=dummy value 1\n\n"
-            "# Dummy option 2\ndummy_option_2=dummy value 2")
-        self._test_output(["--rcfile=%s" % config_path, "--generate-rcfile"],
-                          expected_output=expected)
+            "# Dummy option 2\ndummy_option_2=dummy value 2"
+        )
+        self._test_output(
+            ["--rcfile=%s" % config_path, "--generate-rcfile"], expected_output=expected
+        )
         sys.path.remove(dummy_plugin_path)
 
     def test_pylintrc_comments_in_values(self):
-        path = join(HERE, 'regrtest_data', 'test_pylintrc_comments.py')
-        config_path = join(HERE, 'regrtest_data', 'comments_pylintrc')
-        expected = textwrap.dedent('''
+        path = join(HERE, "regrtest_data", "test_pylintrc_comments.py")
+        config_path = join(HERE, "regrtest_data", "comments_pylintrc")
+        expected = textwrap.dedent(
+            """
         ************* Module test_pylintrc_comments
         pylint/test/regrtest_data/test_pylintrc_comments.py:2:0: W0311: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
         pylint/test/regrtest_data/test_pylintrc_comments.py:1:0: C0111: Missing module docstring (missing-docstring)
         pylint/test/regrtest_data/test_pylintrc_comments.py:1:0: C0111: Missing function docstring (missing-docstring)
-        ''')
-        self._test_output([path, "--rcfile=%s" % config_path, "-rn"],
-                          expected_output=expected)
+        """
+        )
+        self._test_output(
+            [path, "--rcfile=%s" % config_path, "-rn"], expected_output=expected
+        )
 
     def test_no_crash_with_formatting_regex_defaults(self):
-        self._runtest(["--ignore-patterns=a"], reporter=TextReporter(StringIO()),
-                      code=32)
+        self._runtest(
+            ["--ignore-patterns=a"], reporter=TextReporter(StringIO()), code=32
+        )
 
     def test_getdefaultencoding_crashes_with_lc_ctype_utf8(self):
-        expected_output = textwrap.dedent('''
+        expected_output = textwrap.dedent(
+            """
         ************* Module application_crash
         pylint/test/regrtest_data/application_crash.py:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
-        ''')
-        module = join(HERE, 'regrtest_data', 'application_crash.py')
-        with _configure_lc_ctype('UTF-8'):
-            self._test_output([module, '-E'], expected_output=expected_output)
+        """
+        )
+        module = join(HERE, "regrtest_data", "application_crash.py")
+        with _configure_lc_ctype("UTF-8"):
+            self._test_output([module, "-E"], expected_output=expected_output)
 
-    @pytest.mark.skipif(sys.platform == 'win32', reason='only occurs on *nix')
+    @pytest.mark.skipif(sys.platform == "win32", reason="only occurs on *nix")
     def test_parseable_file_path(self):
-        file_name = 'test_target.py'
+        file_name = "test_target.py"
         fake_path = HERE + os.getcwd()
         module = join(fake_path, file_name)
 
@@ -484,12 +536,13 @@ class TestRunTC(object):
             # create module under directories which have the same name as reporter.path_strip_prefix
             # e.g. /src/some/path/src/test_target.py when reporter.path_strip_prefix = /src/
             os.makedirs(fake_path)
-            with open(module, 'w') as test_target:
-                test_target.write('a = object()')
+            with open(module, "w") as test_target:
+                test_target.write("a,b = object()")
 
             self._test_output(
-                [module, '--output-format=parseable'],
-                expected_output=join(os.getcwd(), file_name))
+                [module, "--output-format=parseable"],
+                expected_output=join(os.getcwd(), file_name),
+            )
         finally:
             os.remove(module)
             os.removedirs(fake_path)

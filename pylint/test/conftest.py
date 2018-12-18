@@ -4,6 +4,7 @@ import pytest
 
 from pylint import checkers
 from pylint.lint import PyLinter
+
 # pylint: disable=no-name-in-module
 from pylint.testutils import MinimalTestReporter
 
@@ -23,30 +24,30 @@ def linter(checker, register, enable, disable, reporter):
     if enable:
         for msg in enable:
             _linter.enable(msg)
-    os.environ.pop('PYLINTRC', None)
+    os.environ.pop("PYLINTRC", None)
     return _linter
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def checker():
     return None
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def register():
     return None
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def enable():
     return None
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def disable():
     return None
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def reporter():
     return MinimalTestReporter

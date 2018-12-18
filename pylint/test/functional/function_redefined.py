@@ -93,3 +93,17 @@ def math(): # [function-redefined]
 import math as _
 def _():
     pass
+
+# pylint: disable=too-few-public-methods
+class ObjectProxy:
+    """ABC"""
+
+    # We actually *redefine* these attributes, but these shouldn't
+    # be considered actual redefinitions. Issue #2451
+    @property
+    def __module__(self):
+        return "actual.module"
+
+    @property
+    def __doc__(self):
+        return "Docstring"

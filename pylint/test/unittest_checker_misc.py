@@ -14,8 +14,12 @@
 
 from pylint.checkers import misc
 from pylint.testutils import (
-    CheckerTestCase, Message,
-    set_config, _tokenize_str)
+    CheckerTestCase,
+    Message,
+    set_config,
+    _create_file_backed_module,
+    _tokenize_str
+)
 
 
 class TestFixme(CheckerTestCase):
@@ -71,7 +75,7 @@ class TestFixme(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.process_tokens(_tokenize_str(code))
 
-    @set_config(notes=['CODETAG'])
+    @set_config(notes=["CODETAG"])
     def test_other_present_codetag(self):
         code = """a = 1
                 # CODETAG

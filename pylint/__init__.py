@@ -15,22 +15,29 @@ from .__pkginfo__ import version as __version__
 def run_pylint():
     """run pylint"""
     from pylint.lint import Run
+
     try:
         Run(sys.argv[1:])
     except KeyboardInterrupt:
         sys.exit(1)
 
+
 def run_epylint():
     """run pylint"""
     from pylint.epylint import Run
+
     Run()
+
 
 def run_pyreverse():
     """run pyreverse"""
     from pylint.pyreverse.main import Run
+
     Run(sys.argv[1:])
+
 
 def run_symilar():
     """run symilar"""
     from pylint.checkers.similar import Run
+
     Run(sys.argv[1:])

@@ -279,8 +279,9 @@ class LintModuleTest(object):
     def _open_source_file(self):
         if self._test_file.base == "invalid_encoded_data":
             return open(self._test_file.source)
-        else:
-            return io.open(self._test_file.source, encoding="utf8")
+        if "latin1" in self._test_file.base:
+            return io.open(self._test_file.source, encoding="latin1")
+        return io.open(self._test_file.source, encoding="utf8")
 
     def _get_expected(self):
         with self._open_source_file() as fobj:

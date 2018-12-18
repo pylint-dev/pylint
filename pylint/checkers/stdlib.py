@@ -31,18 +31,18 @@ from pylint.checkers import BaseChecker
 from pylint.checkers import utils
 
 
-OPEN_FILES = {'open', 'file'}
-UNITTEST_CASE = 'unittest.case'
-THREADING_THREAD = 'threading.Thread'
-COPY_COPY = 'copy.copy'
-OS_ENVIRON = 'os._Environ'
-ENV_GETTERS = {'os.getenv'}
-SUBPROCESS_POPEN = 'subprocess.Popen'
+OPEN_FILES = {"open", "file"}
+UNITTEST_CASE = "unittest.case"
+THREADING_THREAD = "threading.Thread"
+COPY_COPY = "copy.copy"
+OS_ENVIRON = "os._Environ"
+ENV_GETTERS = {"os.getenv"}
+SUBPROCESS_POPEN = "subprocess.Popen"
 
 if sys.version_info >= (3, 0):
-    OPEN_MODULE = '_io'
+    OPEN_MODULE = "_io"
 else:
-    OPEN_MODULE = '__builtin__'
+    OPEN_MODULE = "__builtin__"
 
 
 def _check_mode_str(mode):
@@ -77,164 +77,197 @@ def _check_mode_str(mode):
 
 class StdlibChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
-    name = 'stdlib'
+    name = "stdlib"
 
     msgs = {
-        'W1501': ('"%s" is not a valid mode for open.',
-                  'bad-open-mode',
-                  'Python supports: r, w, a[, x] modes with b, +, '
-                  'and U (only with r) options. '
-                  'See http://docs.python.org/2/library/functions.html#open'),
-        'W1502': ('Using datetime.time in a boolean context.',
-                  'boolean-datetime',
-                  'Using datetime.time in a boolean context can hide '
-                  'subtle bugs when the time they represent matches '
-                  'midnight UTC. This behaviour was fixed in Python 3.5. '
-                  'See http://bugs.python.org/issue13936 for reference.',
-                  {'maxversion': (3, 5)}),
-        'W1503': ('Redundant use of %s with constant '
-                  'value %r',
-                  'redundant-unittest-assert',
-                  'The first argument of assertTrue and assertFalse is '
-                  'a condition. If a constant is passed as parameter, that '
-                  'condition will be always true. In this case a warning '
-                  'should be emitted.'),
-        'W1505': ('Using deprecated method %s()',
-                  'deprecated-method',
-                  'The method is marked as deprecated and will be removed in '
-                  'a future version of Python. Consider looking for an '
-                  'alternative in the documentation.'),
-        'W1506': ('threading.Thread needs the target function',
-                  'bad-thread-instantiation',
-                  'The warning is emitted when a threading.Thread class '
-                  'is instantiated without the target function being passed. '
-                  'By default, the first parameter is the group param, not the target param. '),
-        'W1507': ('Using copy.copy(os.environ). Use os.environ.copy() '
-                  'instead. ',
-                  'shallow-copy-environ',
-                  'os.environ is not a dict object but proxy object, so '
-                  'shallow copy has still effects on original object. '
-                  'See https://bugs.python.org/issue15373 for reference. '),
-        'E1507': ('%s does not support %s type argument',
-                  'invalid-envvar-value',
-                  'Env manipulation functions support only string type arguments. '
-                  'See https://docs.python.org/3/library/os.html#os.getenv. '),
-        'W1508': ('%s default type is %s. Expected str or None.',
-                  'invalid-envvar-default',
-                  'Env manipulation functions return None or str values. '
-                  'Supplying anything different as a default may cause bugs. '
-                  'See https://docs.python.org/3/library/os.html#os.getenv. '),
-        'W1509': ('Using preexec_fn keyword which may be unsafe in the presence '
-                  'of threads',
-                  'subprocess-popen-preexec-fn',
-                  'The preexec_fn parameter is not safe to use in the presence '
-                  'of threads in your application. The child process could '
-                  'deadlock before exec is called. If you must use it, keep it '
-                  'trivial! Minimize the number of libraries you call into.'
-                  'https://docs.python.org/3/library/subprocess.html#popen-constructor'),
-
+        "W1501": (
+            '"%s" is not a valid mode for open.',
+            "bad-open-mode",
+            "Python supports: r, w, a[, x] modes with b, +, "
+            "and U (only with r) options. "
+            "See http://docs.python.org/2/library/functions.html#open",
+        ),
+        "W1502": (
+            "Using datetime.time in a boolean context.",
+            "boolean-datetime",
+            "Using datetime.time in a boolean context can hide "
+            "subtle bugs when the time they represent matches "
+            "midnight UTC. This behaviour was fixed in Python 3.5. "
+            "See http://bugs.python.org/issue13936 for reference.",
+            {"maxversion": (3, 5)},
+        ),
+        "W1503": (
+            "Redundant use of %s with constant value %r",
+            "redundant-unittest-assert",
+            "The first argument of assertTrue and assertFalse is "
+            "a condition. If a constant is passed as parameter, that "
+            "condition will be always true. In this case a warning "
+            "should be emitted.",
+        ),
+        "W1505": (
+            "Using deprecated method %s()",
+            "deprecated-method",
+            "The method is marked as deprecated and will be removed in "
+            "a future version of Python. Consider looking for an "
+            "alternative in the documentation.",
+        ),
+        "W1506": (
+            "threading.Thread needs the target function",
+            "bad-thread-instantiation",
+            "The warning is emitted when a threading.Thread class "
+            "is instantiated without the target function being passed. "
+            "By default, the first parameter is the group param, not the target param. ",
+        ),
+        "W1507": (
+            "Using copy.copy(os.environ). Use os.environ.copy() instead. ",
+            "shallow-copy-environ",
+            "os.environ is not a dict object but proxy object, so "
+            "shallow copy has still effects on original object. "
+            "See https://bugs.python.org/issue15373 for reference. ",
+        ),
+        "E1507": (
+            "%s does not support %s type argument",
+            "invalid-envvar-value",
+            "Env manipulation functions support only string type arguments. "
+            "See https://docs.python.org/3/library/os.html#os.getenv. ",
+        ),
+        "W1508": (
+            "%s default type is %s. Expected str or None.",
+            "invalid-envvar-default",
+            "Env manipulation functions return None or str values. "
+            "Supplying anything different as a default may cause bugs. "
+            "See https://docs.python.org/3/library/os.html#os.getenv. ",
+        ),
+        "W1509": (
+            "Using preexec_fn keyword which may be unsafe in the presence "
+            "of threads",
+            "subprocess-popen-preexec-fn",
+            "The preexec_fn parameter is not safe to use in the presence "
+            "of threads in your application. The child process could "
+            "deadlock before exec is called. If you must use it, keep it "
+            "trivial! Minimize the number of libraries you call into."
+            "https://docs.python.org/3/library/subprocess.html#popen-constructor",
+        ),
     }
 
     deprecated = {
-        0: [
-            'cgi.parse_qs', 'cgi.parse_qsl',
-            'ctypes.c_buffer',
-            'distutils.command.register.register.check_metadata',
-            'distutils.command.sdist.sdist.check_metadata',
-            'tkinter.Misc.tk_menuBar',
-            'tkinter.Menu.tk_bindForTraversal',
-        ],
+        0: {
+            "cgi.parse_qs",
+            "cgi.parse_qsl",
+            "ctypes.c_buffer",
+            "distutils.command.register.register.check_metadata",
+            "distutils.command.sdist.sdist.check_metadata",
+            "tkinter.Misc.tk_menuBar",
+            "tkinter.Menu.tk_bindForTraversal",
+        },
         2: {
-            (2, 6, 0): [
-                'commands.getstatus',
-                'os.popen2',
-                'os.popen3',
-                'os.popen4',
-                'macostools.touched',
-            ],
-            (2, 7, 0): [
-                'unittest.case.TestCase.assertEquals',
-                'unittest.case.TestCase.assertNotEquals',
-                'unittest.case.TestCase.assertAlmostEquals',
-                'unittest.case.TestCase.assertNotAlmostEquals',
-                'unittest.case.TestCase.assert_',
-                'xml.etree.ElementTree.Element.getchildren',
-                'xml.etree.ElementTree.Element.getiterator',
-                'xml.etree.ElementTree.XMLParser.getiterator',
-                'xml.etree.ElementTree.XMLParser.doctype',
-            ],
+            (2, 6, 0): {
+                "commands.getstatus",
+                "os.popen2",
+                "os.popen3",
+                "os.popen4",
+                "macostools.touched",
+            },
+            (2, 7, 0): {
+                "unittest.case.TestCase.assertEquals",
+                "unittest.case.TestCase.assertNotEquals",
+                "unittest.case.TestCase.assertAlmostEquals",
+                "unittest.case.TestCase.assertNotAlmostEquals",
+                "unittest.case.TestCase.assert_",
+                "xml.etree.ElementTree.Element.getchildren",
+                "xml.etree.ElementTree.Element.getiterator",
+                "xml.etree.ElementTree.XMLParser.getiterator",
+                "xml.etree.ElementTree.XMLParser.doctype",
+            },
         },
         3: {
-            (3, 0, 0): [
-                'inspect.getargspec',
-                'unittest.case.TestCase._deprecate.deprecated_func',
-            ],
-            (3, 1, 0): [
-                'base64.encodestring', 'base64.decodestring',
-                'ntpath.splitunc',
-            ],
-            (3, 2, 0): [
-                'cgi.escape',
-                'configparser.RawConfigParser.readfp',
-                'xml.etree.ElementTree.Element.getchildren',
-                'xml.etree.ElementTree.Element.getiterator',
-                'xml.etree.ElementTree.XMLParser.getiterator',
-                'xml.etree.ElementTree.XMLParser.doctype',
-            ],
-            (3, 3, 0): [
-                'inspect.getmoduleinfo',
-                'logging.warn', 'logging.Logger.warn',
-                'logging.LoggerAdapter.warn',
-                'nntplib._NNTPBase.xpath',
-                'platform.popen',
-            ],
-            (3, 4, 0): [
-                'importlib.find_loader',
-                'plistlib.readPlist', 'plistlib.writePlist',
-                'plistlib.readPlistFromBytes',
-                'plistlib.writePlistToBytes',
-            ],
-            (3, 4, 4): [
-                'asyncio.tasks.async',
-            ],
-            (3, 5, 0): [
-                'fractions.gcd',
-                'inspect.getargvalues',
-                'inspect.formatargspec', 'inspect.formatargvalues',
-                'inspect.getcallargs',
-                'platform.linux_distribution', 'platform.dist',
-            ],
-            (3, 6, 0): [
-                'importlib._bootstrap_external.FileLoader.load_module',
-            ],
+            (3, 0, 0): {
+                "inspect.getargspec",
+                "failUnlessEqual",
+                "assertEquals",
+                "failIfEqual",
+                "assertNotEquals",
+                "failUnlessAlmostEqual",
+                "assertAlmostEquals",
+                "failIfAlmostEqual",
+                "assertNotAlmostEquals",
+                "failUnless",
+                "assert_",
+                "failUnlessRaises",
+                "failIf",
+                "assertRaisesRegexp",
+                "assertRegexpMatches",
+                "assertNotRegexpMatches",
+            },
+            (3, 1, 0): {
+                "base64.encodestring",
+                "base64.decodestring",
+                "ntpath.splitunc",
+            },
+            (3, 2, 0): {
+                "cgi.escape",
+                "configparser.RawConfigParser.readfp",
+                "xml.etree.ElementTree.Element.getchildren",
+                "xml.etree.ElementTree.Element.getiterator",
+                "xml.etree.ElementTree.XMLParser.getiterator",
+                "xml.etree.ElementTree.XMLParser.doctype",
+            },
+            (3, 3, 0): {
+                "inspect.getmoduleinfo",
+                "logging.warn",
+                "logging.Logger.warn",
+                "logging.LoggerAdapter.warn",
+                "nntplib._NNTPBase.xpath",
+                "platform.popen",
+            },
+            (3, 4, 0): {
+                "importlib.find_loader",
+                "plistlib.readPlist",
+                "plistlib.writePlist",
+                "plistlib.readPlistFromBytes",
+                "plistlib.writePlistToBytes",
+            },
+            (3, 4, 4): {"asyncio.tasks.async"},
+            (3, 5, 0): {
+                "fractions.gcd",
+                "inspect.getargvalues",
+                "inspect.formatargspec",
+                "inspect.formatargvalues",
+                "inspect.getcallargs",
+                "platform.linux_distribution",
+                "platform.dist",
+            },
+            (3, 6, 0): {"importlib._bootstrap_external.FileLoader.load_module"},
         },
     }
 
     def _check_bad_thread_instantiation(self, node):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
-            self.add_message('bad-thread-instantiation', node=node)
+            self.add_message("bad-thread-instantiation", node=node)
 
     def _check_for_preexec_fn_in_Popen(self, node):
         if node.keywords:
             for keyword in node.keywords:
-                if keyword.arg == 'preexec_fn':
-                    self.add_message('subprocess-popen-preexec-fn', node=node)
+                if keyword.arg == "preexec_fn":
+                    self.add_message("subprocess-popen-preexec-fn", node=node)
 
     def _check_shallow_copy_environ(self, node):
         arg = utils.get_argument_from_call(node, position=0)
         for inferred in arg.inferred():
             if inferred.qname() == OS_ENVIRON:
-                self.add_message('shallow-copy-environ', node=node)
+                self.add_message("shallow-copy-environ", node=node)
                 break
 
-    @utils.check_messages('bad-open-mode',
-                          'redundant-unittest-assert',
-                          'deprecated-method',
-                          'bad-thread-instantiation',
-                          'shallow-copy-environ',
-                          'invalid-envvar-value',
-                          'invalid-envvar-default',
-                          'subprocess-popen-preexec-fn')
+    @utils.check_messages(
+        "bad-open-mode",
+        "redundant-unittest-assert",
+        "deprecated-method",
+        "bad-thread-instantiation",
+        "shallow-copy-environ",
+        "invalid-envvar-value",
+        "invalid-envvar-default",
+        "subprocess-popen-preexec-fn",
+    )
     def visit_call(self, node):
         """Visit a Call node."""
         try:
@@ -242,7 +275,7 @@ class StdlibChecker(BaseChecker):
                 if inferred is astroid.Uninferable:
                     continue
                 elif inferred.root().name == OPEN_MODULE:
-                    if getattr(node.func, 'name', None) in OPEN_FILES:
+                    if getattr(node.func, "name", None) in OPEN_FILES:
                         self._check_open_mode(node)
                 elif inferred.root().name == UNITTEST_CASE:
                     self._check_redundant_assert(node, inferred)
@@ -261,20 +294,20 @@ class StdlibChecker(BaseChecker):
         except astroid.InferenceError:
             return
 
-    @utils.check_messages('boolean-datetime')
+    @utils.check_messages("boolean-datetime")
     def visit_unaryop(self, node):
-        if node.op == 'not':
+        if node.op == "not":
             self._check_datetime(node.operand)
 
-    @utils.check_messages('boolean-datetime')
+    @utils.check_messages("boolean-datetime")
     def visit_if(self, node):
         self._check_datetime(node.test)
 
-    @utils.check_messages('boolean-datetime')
+    @utils.check_messages("boolean-datetime")
     def visit_ifexp(self, node):
         self._check_datetime(node.test)
 
-    @utils.check_messages('boolean-datetime')
+    @utils.check_messages("boolean-datetime")
     def visit_boolop(self, node):
         for value in node.values:
             self._check_datetime(value)
@@ -291,30 +324,37 @@ class StdlibChecker(BaseChecker):
             return
 
         # Reject nodes which aren't of interest to us.
-        acceptable_nodes = (astroid.BoundMethod,
-                            astroid.UnboundMethod,
-                            astroid.FunctionDef)
+        acceptable_nodes = (
+            astroid.BoundMethod,
+            astroid.UnboundMethod,
+            astroid.FunctionDef,
+        )
         if not isinstance(inferred, acceptable_nodes):
             return
 
         qname = inferred.qname()
-        if qname in self.deprecated[0]:
-            self.add_message('deprecated-method', node=node,
-                             args=(func_name, ))
+        if any(name in self.deprecated[0] for name in (qname, func_name)):
+            self.add_message("deprecated-method", node=node, args=(func_name,))
         else:
             for since_vers, func_list in self.deprecated[py_vers].items():
-                if since_vers <= sys.version_info and qname in func_list:
-                    self.add_message('deprecated-method', node=node,
-                                     args=(func_name, ))
+                if since_vers <= sys.version_info and any(
+                    name in func_list for name in (qname, func_name)
+                ):
+                    self.add_message("deprecated-method", node=node, args=(func_name,))
                     break
 
     def _check_redundant_assert(self, node, infer):
-        if (isinstance(infer, astroid.BoundMethod) and
-                node.args and isinstance(node.args[0], astroid.Const) and
-                infer.name in ['assertTrue', 'assertFalse']):
-            self.add_message('redundant-unittest-assert',
-                             args=(infer.name, node.args[0].value, ),
-                             node=node)
+        if (
+            isinstance(infer, astroid.BoundMethod)
+            and node.args
+            and isinstance(node.args[0], astroid.Const)
+            and infer.name in ["assertTrue", "assertFalse"]
+        ):
+            self.add_message(
+                "redundant-unittest-assert",
+                args=(infer.name, node.args[0].value),
+                node=node,
+            )
 
     def _check_datetime(self, node):
         """ Check that a datetime was infered.
@@ -324,27 +364,25 @@ class StdlibChecker(BaseChecker):
             infered = next(node.infer())
         except astroid.InferenceError:
             return
-        if (isinstance(infered, Instance) and
-                infered.qname() == 'datetime.time'):
-            self.add_message('boolean-datetime', node=node)
+        if isinstance(infered, Instance) and infered.qname() == "datetime.time":
+            self.add_message("boolean-datetime", node=node)
 
     def _check_open_mode(self, node):
         """Check that the mode argument of an open or file call is valid."""
         try:
-            mode_arg = utils.get_argument_from_call(node, position=1,
-                                                    keyword='mode')
+            mode_arg = utils.get_argument_from_call(node, position=1, keyword="mode")
         except utils.NoSuchArgumentError:
             return
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
-            if (isinstance(mode_arg, astroid.Const)
-                    and not _check_mode_str(mode_arg.value)):
-                self.add_message('bad-open-mode', node=node,
-                                 args=mode_arg.value)
+            if isinstance(mode_arg, astroid.Const) and not _check_mode_str(
+                mode_arg.value
+            ):
+                self.add_message("bad-open-mode", node=node, args=mode_arg.value)
 
     def _check_env_function(self, node, infer):
-        env_name_kwarg = 'key'
-        env_value_kwarg = 'default'
+        env_name_kwarg = "key"
+        env_value_kwarg = "default"
         if node.keywords:
             kwargs = {keyword.arg: keyword.value for keyword in node.keywords}
         else:
@@ -359,10 +397,10 @@ class StdlibChecker(BaseChecker):
         if env_name_arg:
             self._check_invalid_envvar_value(
                 node=node,
-                message='invalid-envvar-value',
+                message="invalid-envvar-value",
                 call_arg=utils.safe_infer(env_name_arg),
                 infer=infer,
-                allow_none=False
+                allow_none=False,
             )
 
         if len(node.args) == 2:
@@ -376,7 +414,7 @@ class StdlibChecker(BaseChecker):
             self._check_invalid_envvar_value(
                 node=node,
                 infer=infer,
-                message='invalid-envvar-default',
+                message="invalid-envvar-default",
                 call_arg=utils.safe_infer(env_value_arg),
                 allow_none=True,
             )

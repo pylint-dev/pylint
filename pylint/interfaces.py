@@ -15,20 +15,21 @@
 """Interfaces for Pylint objects"""
 from collections import namedtuple
 
-Confidence = namedtuple('Confidence', ['name', 'description'])
+Confidence = namedtuple("Confidence", ["name", "description"])
 # Warning Certainties
-HIGH = Confidence('HIGH', 'No false positive possible.')
-INFERENCE = Confidence('INFERENCE', 'Warning based on inference result.')
-INFERENCE_FAILURE = Confidence('INFERENCE_FAILURE',
-                               'Warning based on inference with failures.')
-UNDEFINED = Confidence('UNDEFINED',
-                       'Warning without any associated confidence level.')
+HIGH = Confidence("HIGH", "No false positive possible.")
+INFERENCE = Confidence("INFERENCE", "Warning based on inference result.")
+INFERENCE_FAILURE = Confidence(
+    "INFERENCE_FAILURE", "Warning based on inference with failures."
+)
+UNDEFINED = Confidence("UNDEFINED", "Warning without any associated confidence level.")
 
 CONFIDENCE_LEVELS = [HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
 
 
 class Interface:
     """Base class for interfaces."""
+
     @classmethod
     def is_implemented_by(cls, instance):
         return implements(instance, cls)
@@ -38,7 +39,7 @@ def implements(obj, interface):
     """Return true if the give object (maybe an instance or class) implements
     the interface.
     """
-    kimplements = getattr(obj, '__implements__', ())
+    kimplements = getattr(obj, "__implements__", ())
     if not isinstance(kimplements, (list, tuple)):
         kimplements = (kimplements,)
     for implementedinterface in kimplements:
@@ -72,6 +73,7 @@ class IRawChecker(IChecker):
 
 class ITokenChecker(IChecker):
     """Interface for checkers that need access to the token list."""
+
     def process_tokens(self, tokens):
         """Process a module.
 
@@ -97,4 +99,4 @@ class IReporter(Interface):
         """
 
 
-__all__ = ('IRawChecker', 'IAstroidChecker', 'ITokenChecker', 'IReporter')
+__all__ = ("IRawChecker", "IAstroidChecker", "ITokenChecker", "IReporter")
