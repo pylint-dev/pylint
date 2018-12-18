@@ -257,3 +257,5 @@ contributors:
   Fix false positive 'Non-iterable value' with async comprehensions.
 
 * Sardorbek Imomaliev: contributor
+
+* Justin Li (justinnhli)
