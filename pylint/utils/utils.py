@@ -6,12 +6,11 @@
 from __future__ import print_function
 
 import codecs
-import collections
-import os
 import re
 import sys
 import tokenize
 import warnings
+from os import linesep, listdir
 from os.path import basename, dirname, exists, isdir, join, normpath, splitext
 
 from astroid import Module, modutils
@@ -124,9 +123,9 @@ def expand_modules(files_or_modules, black_list, black_list_re):
     result = []
     errors = []
     for something in files_or_modules:
-        if os.path.basename(something) in black_list:
+        if basename(something) in black_list:
             continue
-        if _basename_in_blacklist_re(os.path.basename(something), black_list_re):
+        if _basename_in_blacklist_re(basename(something), black_list_re):
             continue
         if exists(something):
             # this is a file or a directory
@@ -208,7 +207,7 @@ def register_plugins(linter, directory):
     'register' function in each one, used to register pylint checkers
     """
     imported = {}
-    for filename in os.listdir(directory):
+    for filename in listdir(directory):
         base, extension = splitext(filename)
         if base in imported or base == "__pycache__":
             continue
@@ -324,7 +323,7 @@ def _check_csv(value):
 def _comment(string):
     """return string as a comment"""
     lines = [line.strip() for line in string.splitlines()]
-    return "# " + ("%s# " % os.linesep).join(lines)
+    return "# " + ("%s# " % linesep).join(lines)
 
 
 def _format_option_value(optdict, value):
