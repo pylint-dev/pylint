@@ -41,6 +41,7 @@
 main pylint class
 """
 
+from pylint.utils.message_store import MessagesStore
 from pylint.utils.utils import (
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
