@@ -44,22 +44,19 @@ from __future__ import print_function
 
 import codecs
 import collections
-from inspect import cleandoc
 import os
-from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 import re
 import sys
+import textwrap
 import tokenize
 import warnings
-import textwrap
+from inspect import cleandoc
+from os.path import basename, dirname, exists, isdir, join, normpath, splitext
 
-from astroid import nodes, Module
-from astroid import modutils
-
-from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED, implements
+from astroid import Module, modutils, nodes
+from pylint.exceptions import EmptyReportError, InvalidMessageError, UnknownMessageError
+from pylint.interfaces import UNDEFINED, IRawChecker, ITokenChecker, implements
 from pylint.reporters.ureports.nodes import Section
-from pylint.exceptions import InvalidMessageError, UnknownMessageError, EmptyReportError
-
 
 MSG_TYPES = {
     "I": "info",
