@@ -511,6 +511,56 @@ def test_addmessage_invalid(linter):
     assert str(cm.value) == "Message C0321 must provide Node, got None"
 
 
+def test_load_plugin_command_line():
+    dummy_plugin_path = join(HERE, "regrtest_data", "dummy_plugin")
+    sys.path.append(dummy_plugin_path)
+
+    run = Run(
+        ["--load-plugins", "dummy_plugin", join(HERE, "regrtest_data", "empty.py")],
+        do_exit=False,
+    )
+    assert (
+        len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
+        == 2
+    )
+
+    sys.path.remove(dummy_plugin_path)
+
+
+def test_load_plugin_config_file():
+    dummy_plugin_path = join(HERE, "regrtest_data", "dummy_plugin")
+    sys.path.append(dummy_plugin_path)
+    config_path = join(HERE, "regrtest_data", "dummy_plugin.rc")
+
+    run = Run(
+        ["--rcfile", config_path, join(HERE, "regrtest_data", "empty.py")],
+        do_exit=False,
+    )
+    assert (
+        len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
+        == 2
+    )
+
+    sys.path.remove(dummy_plugin_path)
+
+
+def test_load_plugin_configuration():
+    dummy_plugin_path = join(HERE, "regrtest_data", "dummy_plugin")
+    sys.path.append(dummy_plugin_path)
+
+    run = Run(
+        [
+            "--load-plugins",
+            "dummy_conf_plugin",
+            "--ignore",
+            "foo,bar",
+            join(HERE, "regrtest_data", "empty.py"),
+        ],
+        do_exit=False,
+    )
+    assert run.linter.config.black_list == ["foo", "bar", "bin"]
+
+
 def test_init_hooks_called_before_load_plugins():
     with pytest.raises(RuntimeError):
         Run(["--load-plugins", "unexistant", "--init-hook", "raise RuntimeError"])
