@@ -766,27 +766,28 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
                     if operator in ("<", "<="):
                         if operand is left_operand:
-                            uses[value]['lower_bound'].add(comparison_node)
+                            uses[value]["lower_bound"].add(comparison_node)
                         elif operand is right_operand:
-                            uses[value]['upper_bound'].add(comparison_node)
+                            uses[value]["upper_bound"].add(comparison_node)
                     elif operator in (">", ">="):
                         if operand is left_operand:
-                            uses[value]['upper_bound'].add(comparison_node)
+                            uses[value]["upper_bound"].add(comparison_node)
                         elif operand is right_operand:
-                            uses[value]['lower_bound'].add(comparison_node)
+                            uses[value]["lower_bound"].add(comparison_node)
                 left_operand = right_operand
 
-        uses = collections.defaultdict(lambda: {'lower_bound': set(), 'upper_bound': set()})
+        uses = collections.defaultdict(
+            lambda: {"lower_bound": set(), "upper_bound": set()}
+        )
         for comparison_node in node.values:
             if isinstance(comparison_node, astroid.Compare):
                 _find_lower_upper_bounds(comparison_node, uses)
 
         for _, bounds in uses.items():
-            intersection = bounds['lower_bound'].intersection(bounds['upper_bound'])
-            if (
-                len(intersection) < len(bounds['lower_bound'])
-                and len(intersection) < len(bounds['upper_bound'])
-            ):
+            num_shared = len(bounds["lower_bound"].intersection(bounds["upper_bound"]))
+            num_lower_bounds = len(bounds["lower_bound"])
+            num_upper_bounds = len(bounds["upper_bound"])
+            if num_shared < num_lower_bounds and num_shared < num_upper_bounds:
                 self.add_message("chained-comparison", node=node)
                 break
 
