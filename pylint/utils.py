@@ -302,11 +302,18 @@ class MessagesHandlerMixIn:
         """If the msgid is a numeric one, then register it to inform the user
         it could furnish instead a symbolic msgid."""
         try:
-            msg = self.msgs_store.get_message_definition(msgid)
-            if msgid == msg.msgid:
-                MessagesHandlerMixIn.__by_id_managed_msgs.append(
-                    (self.current_name, msg.msgid, msg.symbol, line, is_disabled)
-                )
+            message_definitions = self.msgs_store.get_message_definitions(msgid)
+            for message_definition in message_definitions:
+                if msgid == message_definition.msgid:
+                    MessagesHandlerMixIn.__by_id_managed_msgs.append(
+                        (
+                            self.current_name,
+                            message_definition.msgid,
+                            message_definition.symbol,
+                            line,
+                            is_disabled,
+                        )
+                    )
         except UnknownMessageError:
             pass
 
@@ -363,12 +370,15 @@ class MessagesHandlerMixIn:
 
         try:
             # msgid is a symbolic or numeric msgid.
-            msg = self.msgs_store.get_message_definition(msgid)
+            message_definitions = self.msgs_store.get_message_definitions(msgid)
         except UnknownMessageError:
             if ignore_unknown:
                 return
             raise
+        for message_definition in message_definitions:
+            self._set_one_msg_status(scope, message_definition, line, enable)
 
+    def _set_one_msg_status(self, scope, msg, line, enable):
         if scope == "module":
             self.file_state.set_msg_status(msg, line, enable)
             if not enable and msg.symbol != "locally-disabled":
@@ -395,7 +405,7 @@ class MessagesHandlerMixIn:
         exist.
         """
         try:
-            return self.msgs_store.get_message_definition(msgid).symbol
+            return [md.symbol for md in self.msgs_store.get_message_definitions(msgid)]
         except UnknownMessageError:
             return msgid
 
@@ -420,12 +430,19 @@ class MessagesHandlerMixIn:
             if confidence.name not in self.config.confidence:
                 return False
         try:
-            msgid = self.msgs_store.get_message_definition(msg_descr).msgid
+            message_definitions = self.msgs_store.get_message_definitions(msg_descr)
+            msgids = [md.msgid for md in message_definitions]
         except UnknownMessageError:
             # The linter checks for messages that are not registered
             # due to version mismatch, just treat them as message IDs
             # for now.
-            msgid = msg_descr
+            msgids = [msg_descr]
+        for msgid in msgids:
+            if self.is_one_message_enabled(msgid, line):
+                return True
+        return False
+
+    def is_one_message_enabled(self, msgid, line):
         if line is None:
             return self._msgs_state.get(msgid, True)
         try:
@@ -473,14 +490,22 @@ class MessagesHandlerMixIn:
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
-        msg_info = self.msgs_store.get_message_definition(msg_descr)
-        msgid = msg_info.msgid
+        message_definitions = self.msgs_store.get_message_definitions(msg_descr)
+        for message_definition in message_definitions:
+            self.add_one_message(
+                message_definition, line, node, args, confidence, col_offset
+            )
+
+    def add_one_message(
+        self, message_definition, line, node, args, confidence, col_offset
+    ):
+        msgid = message_definition.msgid
         # backward compatibility, message may not have a symbol
-        symbol = msg_info.symbol or msgid
+        symbol = message_definition.symbol or msgid
         # Fatal messages and reports are special, the node/scope distinction
         # does not apply to them.
         if msgid[0] not in _SCOPE_EXEMPT:
-            if msg_info.scope == WarningScope.LINE:
+            if message_definition.scope == WarningScope.LINE:
                 if line is None:
                     raise InvalidMessageError(
                         "Message %s must provide line, got None" % msgid
@@ -490,7 +515,7 @@ class MessagesHandlerMixIn:
                         "Message %s must only provide line, "
                         "got line=%s, node=%s" % (msgid, line, node)
                     )
-            elif msg_info.scope == WarningScope.NODE:
+            elif message_definition.scope == WarningScope.NODE:
                 # Node-based warnings may provide an override line.
                 if node is None:
                     raise InvalidMessageError(
@@ -525,7 +550,7 @@ class MessagesHandlerMixIn:
         except KeyError:
             self.stats["by_msg"][symbol] = 1
         # expand message ?
-        msg = msg_info.msg
+        msg = message_definition.msg
         if args:
             msg %= args
         # get module and object
@@ -717,13 +742,15 @@ class FileState:
                     continue
                 # Set state for all lines for this block, if the
                 # warning is applied to nodes.
-                if msgs_store.get_message_definition(msgid).scope == WarningScope.NODE:
-                    if lineno > firstchildlineno:
-                        state = True
-                    first_, last_ = node.block_range(lineno)
-                else:
-                    first_ = lineno
-                    last_ = last
+                message_definitions = msgs_store.get_message_definitions(msgid)
+                for message_definition in message_definitions:
+                    if message_definition.scope == WarningScope.NODE:
+                        if lineno > firstchildlineno:
+                            state = True
+                        first_, last_ = node.block_range(lineno)
+                    else:
+                        first_ = lineno
+                        last_ = last
                 for line in range(first_, last_ + 1):
                     # do not override existing entries
                     if line in self._module_msgs_state.get(msgid, ()):
@@ -794,7 +821,7 @@ class MessagesStore:
         # to message definition objects.
         # Keys are msg ids, values are a 2-uple with the msg type and the
         # msg itself
-        self._messages = {}
+        self._messages_definitions = {}
         # Maps alternative names (numeric IDs, deprecated names) to
         # message definitions. May contain several names for each definition
         # object.
@@ -804,16 +831,16 @@ class MessagesStore:
     @property
     def messages(self):
         """The list of all active messages."""
-        return self._messages.values()
+        return self._messages_definitions.values()
 
     def add_renamed_message(self, old_id, old_symbol, new_symbol):
         """Register the old ID and symbol for a warning that was renamed.
 
         This allows users to keep using the old ID/symbol in suppressions.
         """
-        msg = self.get_message_definition(new_symbol)
-        msg.old_names.append((old_id, old_symbol))
-        self._register_alternative_name(msg, old_id, old_symbol)
+        message_definition = self.get_message_definitions(new_symbol)[0]
+        message_definition.old_names.append((old_id, old_symbol))
+        self._register_alternative_name(message_definition, old_id, old_symbol)
 
     @staticmethod
     def get_checker_message_definitions(checker):
@@ -829,15 +856,15 @@ class MessagesStore:
             message_definitions.append(message)
         return message_definitions
 
-    def register_messages(self, checker):
-        """Register messages from a checker.
+    def register_messages_from_checker(self, checker):
+        """Register all messages from a checker.
 
         :param BaseChecker checker:
         """
-        messages = self.get_checker_message_definitions(checker)
-        self._check_checker_consistency(messages)
-        for message in messages:
-            self.register_message(message)
+        checker_message_definitions = self.get_checker_message_definitions(checker)
+        self._check_checker_consistency(checker_message_definitions)
+        for message_definition in checker_message_definitions:
+            self.register_message(message_definition)
 
     def register_message(self, message):
         """Register a MessageDefinition with consistency in mind.
@@ -849,7 +876,7 @@ class MessagesStore:
         self._check_msgid(message.msgid, message.symbol)
         for old_name in message.old_names:
             self._check_symbol(message.msgid, old_name[1])
-        self._messages[message.symbol] = message
+        self._messages_definitions[message.symbol] = message
         self._register_alternative_name(message, message.msgid, message.symbol)
         for old_id, old_symbol in message.old_names:
             self._register_alternative_name(message, old_id, old_symbol)
@@ -890,7 +917,7 @@ class MessagesStore:
 
     def _check_symbol(self, msgid, symbol):
         """Check that a symbol is not already used. """
-        other_message = self._messages.get(symbol)
+        other_message = self._messages_definitions.get(symbol)
         if other_message:
             self._raise_duplicate_msg_id(symbol, msgid, other_message.msgid)
         else:
@@ -908,7 +935,7 @@ class MessagesStore:
                 self._raise_duplicate_msg_id(symbol, msgid, alternative_msgid)
 
     def _check_msgid(self, msgid, symbol):
-        for message in self._messages.values():
+        for message in self._messages_definitions.values():
             if message.msgid == msgid:
                 self._raise_duplicate_symbol(msgid, symbol, message.symbol)
 
@@ -946,9 +973,11 @@ class MessagesStore:
         :param str other_symbol: Other offending symbol
         :raises InvalidMessageError: when a symbol is duplicated.
         """
+        symbols = [symbol, other_symbol]
+        symbols.sort()
         error_message = "Message id '{msgid}' cannot have both ".format(msgid=msgid)
         error_message += "'{other_symbol}' and '{symbol}' as symbolic name.".format(
-            other_symbol=other_symbol, symbol=symbol
+            other_symbol=symbols[0], symbol=symbols[1]
         )
         raise InvalidMessageError(error_message)
 
@@ -961,48 +990,53 @@ class MessagesStore:
         :param str other_msgid: Other offending msgid
         :raises InvalidMessageError: when a msgid is duplicated.
         """
+        msgids = [msgid, other_msgid]
+        msgids.sort()
         error_message = "Message symbol '{symbol}' cannot be used for ".format(
             symbol=symbol
         )
         error_message += "'{other_msgid}' and '{msgid}' at the same time.".format(
-            other_msgid=other_msgid, msgid=msgid
+            other_msgid=msgids[0], msgid=msgids[1]
         )
         raise InvalidMessageError(error_message)
 
-    def get_message_definition(self, msgid_or_symbol):
+    def get_message_definitions(self, msgid_or_symbol: str) -> list:
         """Returns the Message object for this message.
 
         :param str msgid_or_symbol: msgid_or_symbol may be either a numeric or symbolic id.
         :raises UnknownMessageError: if the message id is not defined.
-        :rtype: MessageDefinition
+        :rtype: List of MessageDefinition
         :return: A message definition corresponding to msgid_or_symbol
         """
         if msgid_or_symbol[1:].isdigit():
             msgid_or_symbol = msgid_or_symbol.upper()
-        for source in (self._alternative_names, self._messages):
+        for source in (self._alternative_names, self._messages_definitions):
             try:
-                return source[msgid_or_symbol]
+                return [source[msgid_or_symbol]]
             except KeyError:
                 pass
-        raise UnknownMessageError(
-            "No such message id {msgid_or_symbol}".format(
-                msgid_or_symbol=msgid_or_symbol
-            )
+        error_msg = "No such message id or symbol '{msgid_or_symbol}'.".format(
+            msgid_or_symbol=msgid_or_symbol
         )
+        raise UnknownMessageError(error_msg)
 
     def get_msg_display_string(self, msgid):
         """Generates a user-consumable representation of a message.
 
         Can be just the message ID or the ID and the symbol.
         """
-        return repr(self.get_message_definition(msgid).symbol)
+        message_definitions = self.get_message_definitions(msgid)
+        if len(message_definitions) == 1:
+            return repr(message_definitions[0].symbol)
+        return repr([md.symbol for md in message_definitions])
 
     def help_message(self, msgids):
         """Display help messages for the given message identifiers"""
         for msgid in msgids:
             try:
-                print(self.get_message_definition(msgid).format_help(checkerref=True))
-                print("")
+                for message_definition in self.get_message_definitions(msgid):
+                    print(message_definition.format_help(checkerref=True))
+                    print("")
             except UnknownMessageError as ex:
                 print(ex)
                 print("")
@@ -1010,7 +1044,7 @@ class MessagesStore:
 
     def list_messages(self):
         """Output full messages list documentation in ReST format. """
-        messages = sorted(self._messages.values(), key=lambda m: m.msgid)
+        messages = sorted(self._messages_definitions.values(), key=lambda m: m.msgid)
         for message in messages:
             if not message.may_be_emitted():
                 continue

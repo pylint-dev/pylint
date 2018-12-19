@@ -16,6 +16,10 @@ Release date: TBA
 
   Close #2635
 
+* Exempt starred unpacking from ``*-not-iterating`` Python 3 checks
+
+  Close #2651
+
 * Make ``compare-to-zero`` less zealous by checking against equality and identity
 
   Close #2645

@@ -97,6 +97,12 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    def as_iterable_in_starred_context(self, fxn):
+        code = "x = test(*{}())".format(fxn)
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
     def as_iterable_in_listcomp_test(self, fxn):
         code = "x = [x for x in {}(None, [1])]".format(fxn)
         module = astroid.parse(code)
@@ -209,6 +215,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
         self.as_assignment(fxn)
         self.as_argument_to_materialized_filter(fxn)
         self.as_iterable_in_yield_from(fxn)
+        self.as_iterable_in_starred_context(fxn)
 
         for func in (
             "iter",

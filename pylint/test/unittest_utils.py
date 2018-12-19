@@ -123,7 +123,7 @@ def store():
                 ),
                 "W1234": ("message one", "msg-symbol-one", "msg description"),
             },
-            "Message id 'W1234' cannot have both 'old-symbol' and 'msg-symbol-one' as symbolic name.",
+            "Message id 'W1234' cannot have both 'msg-symbol-one' and 'old-symbol' as symbolic name.",
         ),
         (
             {
@@ -210,7 +210,7 @@ def test_register_error(store, messages, expected):
         msgs = messages
 
     with pytest.raises(InvalidMessageError) as cm:
-        store.register_messages(Checker())
+        store.register_messages_from_checker(Checker())
     assert str(cm.value) == expected
 
 
@@ -223,7 +223,7 @@ def test_register_error_new_id_duplicate_of_new(store):
         name = "checker_two"
         msgs = {"W1234": ("message two", "msg-symbol-two", "another msg description.")}
 
-    store.register_messages(CheckerOne())
+    store.register_messages_from_checker(CheckerOne())
     test_register_error(
         store,
         {"W1234": ("message two", "msg-symbol-two", "another msg description.")},

@@ -146,6 +146,8 @@ def _in_iterating_context(node):
     # Also if it's an `yield from`, that's fair
     elif isinstance(parent, astroid.YieldFrom):
         return True
+    if isinstance(parent, astroid.Starred):
+        return True
     return False
 
 

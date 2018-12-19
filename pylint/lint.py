@@ -750,7 +750,7 @@ class PyLinter(
             self.register_report(r_id, r_title, r_cb, checker)
         self.register_options_provider(checker)
         if hasattr(checker, "msgs"):
-            self.msgs_store.register_messages(checker)
+            self.msgs_store.register_messages_from_checker(checker)
         checker.load_defaults()
 
         # Register the checker, but disable all of its messages.
