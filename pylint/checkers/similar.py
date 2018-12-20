@@ -443,7 +443,7 @@ def Run(argv=None):
     sim = Similar(min_lines, ignore_comments, ignore_docstrings, ignore_imports)
     for name in args:
         if os.path.isdir(name):
-            filenames = glob.iglob('**/*', recursive=True)
+            filenames = glob.iglob("**/*", recursive=True)
         else:
             filenames = [name]
         for filename in filenames:
