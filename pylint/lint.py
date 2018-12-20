@@ -655,9 +655,11 @@ class PyLinter(
             module.register(self)
 
     def load_plugin_configuration(self):
-        """Take a list of module names which ar pylint plugins and
-        calls configuration hook function to load their specific
-        configuration
+        """Call the configuration hook for plugins
+
+        This walks through the list of plugins, grabs the "load_configuration"
+        hook, if exposed, and calls it to allow plugins to configure specific
+        settings.
         """
         for modname in self._dynamic_plugins:
             module = modutils.load_module_from_name(modname)
