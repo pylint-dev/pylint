@@ -18,6 +18,9 @@
 """
 
 from __future__ import print_function
+
+import glob
+import os
 import sys
 from collections import defaultdict
 from itertools import groupby
@@ -438,9 +441,15 @@ def Run(argv=None):
     if not args:
         usage(1)
     sim = Similar(min_lines, ignore_comments, ignore_docstrings, ignore_imports)
-    for filename in args:
-        with open(filename) as stream:
-            sim.append_stream(filename, stream)
+    for name in args:
+        if os.path.isdir(name):
+            filenames = glob.iglob('**/*', recursive=True)
+        else:
+            filenames = [name]
+        for filename in filenames:
+            if os.path.isfile(filename):
+                with open(filename) as stream:
+                    sim.append_stream(filename, stream)
     sim.run()
     sys.exit(0)
 
