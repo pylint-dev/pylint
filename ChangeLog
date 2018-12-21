@@ -70,6 +70,11 @@ Release date: TBA
 
   Close #2565
 
+* Generalize ``chained-comparison``
+
+  Previous version incorrectly detects `a < b < c and b < d` and fails to
+  detect `a < b < c and c < d`.
+
 What's New in Pylint 2.2.2?
 ===========================
 

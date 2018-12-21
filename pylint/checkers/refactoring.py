@@ -744,49 +744,52 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """Check if there is any chained comparison in the expression.
 
         Add a refactoring message if a boolOp contains comparison like a < b and b < c,
-        which can be chained as  a < b < c.
+        which can be chained as a < b < c.
+        
+        Care is taken to avoid simplifying a < b < c and b < d.
         """
-        if (
-            node.op != "and"
-            or len(node.values) < 2
-            or not all(isinstance(value, astroid.Compare) for value in node.values)
-        ):
+        if node.op != "and" or len(node.values) < 2:
             return
 
-        def _find_lower_upper_bounds(comparison_node, lower_bounds, upper_bounds):
-            operator = comparison_node.ops[0][0]
-            left_operand, right_operand = (
-                comparison_node.left,
-                comparison_node.ops[0][1],
-            )
-            for operand in (left_operand, right_operand):
-                value = None
-                if isinstance(operand, astroid.Name):
-                    value = operand.name
-                elif isinstance(operand, astroid.Const):
-                    value = operand.value
+        def _find_lower_upper_bounds(comparison_node, uses):
+            left_operand = comparison_node.left
+            for operator, right_operand in comparison_node.ops:
+                for operand in (left_operand, right_operand):
+                    value = None
+                    if isinstance(operand, astroid.Name):
+                        value = operand.name
+                    elif isinstance(operand, astroid.Const):
+                        value = operand.value
 
-                if value is None:
-                    continue
+                    if value is None:
+                        continue
 
-                if operator in ("<", "<="):
-                    if operand is left_operand:
-                        lower_bounds.append(value)
-                    else:
-                        upper_bounds.append(value)
-                elif operator in (">", ">="):
-                    if operand is left_operand:
-                        upper_bounds.append(value)
-                    else:
-                        lower_bounds.append(value)
+                    if operator in ("<", "<="):
+                        if operand is left_operand:
+                            uses[value]["lower_bound"].add(comparison_node)
+                        elif operand is right_operand:
+                            uses[value]["upper_bound"].add(comparison_node)
+                    elif operator in (">", ">="):
+                        if operand is left_operand:
+                            uses[value]["upper_bound"].add(comparison_node)
+                        elif operand is right_operand:
+                            uses[value]["lower_bound"].add(comparison_node)
+                left_operand = right_operand
 
-        lower_bounds = []
-        upper_bounds = []
+        uses = collections.defaultdict(
+            lambda: {"lower_bound": set(), "upper_bound": set()}
+        )
         for comparison_node in node.values:
-            _find_lower_upper_bounds(comparison_node, lower_bounds, upper_bounds)
+            if isinstance(comparison_node, astroid.Compare):
+                _find_lower_upper_bounds(comparison_node, uses)
 
-        if set(lower_bounds).intersection(upper_bounds):
-            self.add_message("chained-comparison", node=node)
+        for _, bounds in uses.items():
+            num_shared = len(bounds["lower_bound"].intersection(bounds["upper_bound"]))
+            num_lower_bounds = len(bounds["lower_bound"])
+            num_upper_bounds = len(bounds["upper_bound"])
+            if num_shared < num_lower_bounds and num_shared < num_upper_bounds:
+                self.add_message("chained-comparison", node=node)
+                break
 
     @utils.check_messages(
         "consider-merging-isinstance", "consider-using-in", "chained-comparison"
