@@ -156,6 +156,23 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
 
+    @set_config(accept_no_raise_doc=False)
+    def test_google_raises_with_prefix(self):
+        code_snippet = '''
+        def my_func(self):
+            """This is a google docstring.
+
+            Raises:
+                {prefix}re.error: Sometimes
+            """
+            import re
+            raise re.error('hi') #@
+        '''
+        for prefix in ["~", "!"]:
+            raise_node = astroid.extract_node(code_snippet.format(prefix=prefix))
+            with self.assertNoMessages():
+                self.checker.visit_raise(raise_node)
+
     def test_find_missing_numpy_raises(self):
         node = astroid.extract_node('''
         def my_func(self):
@@ -510,6 +527,24 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
 
+    @set_config(accept_no_raise_doc=False)
+    def test_numpy_raises_with_prefix(self):
+        code_snippet = '''
+        def my_func(self):
+            """This is a numpy docstring.
+
+            Raises
+            ------
+            {prefix}re.error
+                Sometimes
+            """
+            import re
+            raise re.error('hi') #@
+        '''
+        for prefix in ["~", "!"]:
+            raise_node = astroid.extract_node(code_snippet.format(prefix=prefix))
+            with self.assertNoMessages():
+                self.checker.visit_raise(raise_node)
 
     def test_find_missing_sphinx_raises_infer_from_instance(self):
         raise_node = astroid.extract_node('''
@@ -562,7 +597,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
-        pass
 
     def test_find_sphinx_attr_raises_substr_exc(self):
         raise_node = astroid.extract_node('''
@@ -610,6 +644,25 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
 
+    @set_config(accept_no_raise_doc=False)
+    def test_sphinx_raises_with_prefix(self):
+        code_snippet = '''
+        def my_func(self):
+            """This is a sphinx docstring.
+
+            :raises {prefix}re.error: Sometimes
+            """
+            import re
+            raise re.error('hi') #@
+        '''
+        for prefix in ["~", "!"]:
+            raise_node = astroid.extract_node(code_snippet.format(prefix=prefix))
+            with self.assertNoMessages():
+                self.checker.visit_raise(raise_node)
+
+
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
 
     def test_ignores_raise_uninferable(self):
         raise_node = astroid.extract_node('''

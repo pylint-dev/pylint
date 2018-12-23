@@ -252,6 +252,7 @@ class DocstringParameterChecker(BaseChecker):
             return
 
         expected_excs = utils.possible_exc_types(node)
+
         if not expected_excs:
             return
 
@@ -269,6 +270,7 @@ class DocstringParameterChecker(BaseChecker):
             return
 
         found_excs_full_names = doc.exceptions()
+
         # Extract just the class name, e.g. "error" from "re.error"
         found_excs_class_names = {exc.split(".")[-1] for exc in found_excs_full_names}
         missing_excs = expected_excs - found_excs_class_names
