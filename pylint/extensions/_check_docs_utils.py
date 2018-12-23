@@ -102,7 +102,7 @@ def returns_something(return_node):
 def _get_raise_target(node):
     if isinstance(node.exc, astroid.Call):
         func = node.exc.func
-        if isinstance(func, astroid.Name) or isinstance(func, astroid.Attribute):
+        if isinstance(func, (astroid.Name, astroid.Attribute)):
             return utils.safe_infer(func)
     return None
 
@@ -229,7 +229,10 @@ class Docstring:
 
 
 class SphinxDocstring(Docstring):
-    re_type = r"[\w\.]+"
+    re_type = r"""
+        [~!]?                # Optional link style prefix
+        \w(?:\w|\.[^\.])*    # Valid python name
+        """
 
     re_simple_container_type = r"""
         {type}                        # a container type
@@ -294,13 +297,7 @@ class SphinxDocstring(Docstring):
         except|exception
         )
         \s+                     # whitespace
-
-        (?:                     # type declaration
-        ({type})
-        \s+
-        )?
-
-        (\w(?:\w|\.[^\.])+)     # Parameter name can include '.', e.g. re.error
+        ({type})                # exception type
         \s*                     # whitespace
         :                       # final colon
         """.format(
@@ -327,7 +324,7 @@ class SphinxDocstring(Docstring):
         types = set()
 
         for match in re.finditer(self.re_raise_in_docstring, self.doc):
-            raise_type = match.group(2)
+            raise_type = match.group(1)
             types.add(raise_type)
 
         return types
