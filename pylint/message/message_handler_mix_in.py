@@ -20,7 +20,7 @@ from pylint.constants import (
 )
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.interfaces import UNDEFINED
-from pylint.message.build_message_definition import build_message_def
+from pylint.message.build_message_definition import build_message_definition
 from pylint.message.message import Message
 from pylint.utils.utils import (
     _format_option_value,
@@ -446,7 +446,7 @@ class MessagesHandlerMixIn:
             for msgid, msg in sorted(
                 msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
             ):
-                msg = build_message_def(checker_name, msgid, msg)
+                msg = build_message_definition(checker_name, msgid, msg)
                 print(msg.format_help(checkerref=False), file=stream)
             print("", file=stream)
         if reports:

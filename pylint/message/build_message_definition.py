@@ -10,7 +10,7 @@ from pylint.interfaces import IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
 
 
-def build_message_def(checker, msgid, msg_tuple):
+def build_message_definition(checker, msgid, msg_tuple):
     if implements(checker, (IRawChecker, ITokenChecker)):
         default_scope = WarningScope.LINE
     else:

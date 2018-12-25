@@ -42,7 +42,9 @@ messages nor reports. XXX not true, emit a 07 report !
 from typing import Any
 
 from pylint.config import OptionsProviderMixIn
+from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import UNDEFINED
+from pylint.message.build_message_definition import build_message_definition
 from pylint.utils import diff_string, register_plugins
 
 
@@ -104,6 +106,38 @@ class BaseChecker(OptionsProviderMixIn):
     ):
         """add a message of a given type"""
         self.linter.add_message(msg_id, line, node, args, confidence, col_offset)
+
+    def check_consistency(self):
+        """Check the consistency of msgid.
+
+        msg ids for a checker should be a string of len 4, where the two first
+        characters are the checker id and the two last the msg id in this
+        checker.
+
+        :raises InvalidMessageError: If the checker id in the messages are not
+        always the same. """
+        checker_id = None
+        existing_ids = []
+        for message in self.messages:
+            if checker_id is not None and checker_id != message.msgid[1:3]:
+                error_msg = "Inconsistent checker part in message id "
+                error_msg += "'{}' (expected 'x{checker_id}xx' ".format(
+                    message.msgid, checker_id=checker_id
+                )
+                error_msg += "because we already had {existing_ids}).".format(
+                    existing_ids=existing_ids
+                )
+                raise InvalidMessageError(error_msg)
+            checker_id = message.msgid[1:3]
+            existing_ids.append(message.msgid)
+
+    @property
+    def messages(self) -> list:
+        messages = []
+        for msgid, msg_tuple in sorted(self.msgs.items()):
+            message = build_message_definition(self, msgid, msg_tuple)
+            messages.append(message)
+        return messages
 
     # dummy methods implementing the IChecker interface
 

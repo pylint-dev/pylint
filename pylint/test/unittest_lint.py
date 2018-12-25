@@ -30,7 +30,7 @@ import os
 import re
 import sys
 import tempfile
-from contextlib import contextmanager, redirect_stdout
+from contextlib import contextmanager
 from importlib import reload
 from io import StringIO
 from os import chdir, getcwd
@@ -47,9 +47,8 @@ from pylint.constants import (
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
 )
-from pylint.exceptions import InvalidMessageError, UnknownMessageError
+from pylint.exceptions import InvalidMessageError
 from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_options
-from pylint.message import MessageDefinition, MessagesStore
 from pylint.reporters import text
 from pylint.utils import FileState, tokenize_module
 

@@ -8,7 +8,6 @@ from __future__ import print_function
 import collections
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
-from pylint.message.build_message_definition import build_message_def
 
 
 class MessagesStore:
@@ -44,29 +43,14 @@ class MessagesStore:
         message_definition.old_names.append((old_id, old_symbol))
         self._register_alternative_name(message_definition, old_id, old_symbol)
 
-    @staticmethod
-    def get_checker_message_definitions(checker):
-        """Return the list of messages definitions for a checker.
-
-        :param BaseChecker checker:
-        :rtype: list
-        :return: A list of MessageDefinition.
-        """
-        message_definitions = []
-        for msgid, msg_tuple in sorted(checker.msgs.items()):
-            message = build_message_def(checker, msgid, msg_tuple)
-            message_definitions.append(message)
-        return message_definitions
-
     def register_messages_from_checker(self, checker):
         """Register all messages from a checker.
 
         :param BaseChecker checker:
         """
-        checker_message_definitions = self.get_checker_message_definitions(checker)
-        self._check_checker_consistency(checker_message_definitions)
-        for message_definition in checker_message_definitions:
-            self.register_message(message_definition)
+        checker.check_consistency()
+        for message in checker.messages:
+            self.register_message(message)
 
     def register_message(self, message):
         """Register a MessageDefinition with consistency in mind.
@@ -83,33 +67,6 @@ class MessagesStore:
         for old_id, old_symbol in message.old_names:
             self._register_alternative_name(message, old_id, old_symbol)
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
-
-    @staticmethod
-    def _check_checker_consistency(messages):
-        """Check the msgid consistency in a list of messages definitions.
-
-        msg ids for a checker should be a string of len 4, where the two first
-        characters are the checker id and the two last the msg id in this
-        checker.
-
-        :param list messages: List of MessageDefinition.
-        :raises InvalidMessageError: If the checker id in the messages are not
-        always the same
-        """
-        checker_id = None
-        existing_ids = []
-        for message in messages:
-            if checker_id is not None and checker_id != message.msgid[1:3]:
-                error_msg = "Inconsistent checker part in message id "
-                error_msg += "'{}' (expected 'x{checker_id}xx' ".format(
-                    message.msgid, checker_id=checker_id
-                )
-                error_msg += "because we already had {existing_ids}).".format(
-                    existing_ids=existing_ids
-                )
-                raise InvalidMessageError(error_msg)
-            checker_id = message.msgid[1:3]
-            existing_ids.append(message.msgid)
 
     def _register_alternative_name(self, msg, msgid, symbol):
         """helper for register_message()"""

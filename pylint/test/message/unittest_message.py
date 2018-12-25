@@ -5,6 +5,7 @@
 
 import pytest
 
+from pylint.checkers import BaseChecker
 from pylint.exceptions import InvalidMessageError
 from pylint.message import MessageDefinition, MessagesStore
 
@@ -116,7 +117,7 @@ def store():
     ],
 )
 def test_register_error(store, messages, expected):
-    class Checker(object):
+    class Checker(BaseChecker):
         name = "checker"
         msgs = messages
 
@@ -126,11 +127,11 @@ def test_register_error(store, messages, expected):
 
 
 def test_register_error_new_id_duplicate_of_new(store):
-    class CheckerOne(object):
+    class CheckerOne(BaseChecker):
         name = "checker_one"
         msgs = {"W1234": ("message one", "msg-symbol-one", "msg description.")}
 
-    class CheckerTwo(object):
+    class CheckerTwo(BaseChecker):
         name = "checker_two"
         msgs = {"W1234": ("message two", "msg-symbol-two", "another msg description.")}
 
