@@ -8,7 +8,8 @@ from io import StringIO
 
 import pytest
 
-from pylint.exceptions import InvalidMessageError, UnknownMessageError
+from pylint.checkers import BaseChecker
+from pylint.exceptions import UnknownMessageError
 from pylint.message import MessageDefinition, MessagesStore
 
 
@@ -16,7 +17,7 @@ from pylint.message import MessageDefinition, MessagesStore
 def store():
     store = MessagesStore()
 
-    class Checker(object):
+    class Checker(BaseChecker):
         name = "achecker"
         msgs = {
             "W1234": (
