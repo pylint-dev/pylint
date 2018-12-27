@@ -19,16 +19,11 @@
 import contextlib
 import json
 import re
-import sys
-import os
 from os.path import join, dirname, abspath
 import tempfile
 import textwrap
 
-import six
-
 from pylint.lint import Run
-from pylint.reporters import BaseReporter
 from pylint.reporters.text import *
 from pylint.reporters.json import JSONReporter
 import pytest
@@ -129,15 +124,14 @@ class TestRunTC(object):
         self._runtest(['pylint.__pkginfo__'], reporter=TextReporter(six.StringIO()),
                       code=0)
 
-    def test_all(self):
-        """Make pylint check itself."""
+    def test_all_reporters(self):
         reporters = [
             TextReporter(six.StringIO()),
             ColorizedTextReporter(six.StringIO()),
             JSONReporter(six.StringIO())
         ]
-        self._runtest(['pylint/test/functional/arguments.py'],
-                      reporter=MultiReporter(reporters), code=1)
+        self._runtest([join(HERE, 'regrtest_data', 'syntax_error.py')],
+                      reporter=MultiReporter(reporters), code=2)
 
     def test_no_ext_file(self):
         self._runtest([join(HERE, 'input', 'noext')], code=0)
@@ -218,7 +212,7 @@ class TestRunTC(object):
 
     def test_parallel_execution(self):
         self._runtest(['-j 2', 'pylint/test/functional/arguments.py',
-                       'pylint/test/functional/bad_continuation.py'], code=1)
+                       'pylint/test/functional/bad_continuation.py'], code=18)
 
     def test_parallel_execution_missing_arguments(self):
         self._runtest(['-j 2', 'not_here', 'not_here_too'], code=1)
