@@ -5,7 +5,7 @@ Pylint's ChangeLog
 What's New in Pylint 1.9.4?
 ===========================
 
-Release date: |TBA|
+Release date: 2018-12-27
 
   * ``deprecated-method`` is correctly emitted for ``assertEquals`` and friends.
 
