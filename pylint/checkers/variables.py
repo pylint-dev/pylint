@@ -206,16 +206,24 @@ def _fix_dot_imports(not_consumed):
                 continue
             for imports in stmt.names:
                 second_name = None
-                if imports[0] == "*":
+                import_module_name = imports[0]
+                if import_module_name == "*":
                     # In case of wildcard imports,
                     # pick the name from inside the imported module.
                     second_name = name
                 else:
-                    if imports[0].find(".") > -1 or name in imports:
+                    name_matches_dotted_import = False
+                    if (
+                        import_module_name.startswith(name)
+                        and import_module_name.find(".") > -1
+                    ):
+                        name_matches_dotted_import = True
+
+                    if name_matches_dotted_import or name in imports:
                         # Most likely something like 'xml.etree',
                         # which will appear in the .locals as 'xml'.
                         # Only pick the name if it wasn't consumed.
-                        second_name = imports[0]
+                        second_name = import_module_name
                 if second_name and second_name not in names:
                     names[second_name] = stmt
     return sorted(names.items(), key=lambda a: a[1].fromlineno)
