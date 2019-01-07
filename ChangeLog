@@ -79,6 +79,10 @@ Release date: TBA
   Previous version incorrectly detects `a < b < c and b < d` and fails to
   detect `a < b < c and c < d`.
 
+* Fix crash when calling ``inherit_from_std_ex`` on a class which is its own ancestor
+
+  Close #2680
+
 What's New in Pylint 2.2.2?
 ===========================
 
