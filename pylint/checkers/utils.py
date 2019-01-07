@@ -671,14 +671,17 @@ def inherit_from_std_ex(node: astroid.node_classes.NodeNG) -> bool:
     Return true if the given class node is subclass of
     exceptions.Exception.
     """
-    if (
-        node.name in ("Exception", "BaseException")
-        and node.root().name == EXCEPTIONS_MODULE
-    ):
-        return True
     if not hasattr(node, "ancestors"):
-        return False
-    return any(inherit_from_std_ex(parent) for parent in node.ancestors(recurs=True))
+        ancestors = []
+    else:
+        ancestors = node.ancestors()
+    for ancestor in itertools.chain([node], ancestors):
+        if (
+            ancestor.name in ("Exception", "BaseException")
+            and ancestor.root().name == EXCEPTIONS_MODULE
+        ):
+            return True
+    return False
 
 
 def error_of_type(handler: astroid.ExceptHandler, error_type) -> bool:

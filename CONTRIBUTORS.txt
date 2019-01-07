@@ -288,3 +288,5 @@ contributors:
 
 * Pierre Sassoulas : contributor
     - Made C0412 (ungrouped import) compatible with isort
+
+* Nathan Marrow
