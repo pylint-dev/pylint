@@ -83,6 +83,10 @@ Release date: TBA
   Previous version incorrectly detects `a < b < c and b < d` and fails to
   detect `a < b < c and c < d`.
 
+ * Avoid popping __main__ when using multiple jobs for python >= 3.3
+
+ Close #2689
+
 What's New in Pylint 2.2.2?
 ===========================
 

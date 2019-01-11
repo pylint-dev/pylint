@@ -149,7 +149,7 @@ def _patch_sysmodules():
     try:
         yield
     finally:
-        if mock_main:
+        if mock_main and sys.version_info < (3, 3):
             sys.modules.pop("__main__")
 
 

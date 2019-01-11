@@ -261,3 +261,5 @@ contributors:
 * Sardorbek Imomaliev: contributor
 
 * Justin Li (justinnhli)
+
+* Nicolas Dickreuter
