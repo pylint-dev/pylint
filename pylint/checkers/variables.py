@@ -957,7 +957,9 @@ class VariablesChecker(BaseChecker):
                 "unused-argument", args=name, node=stmt, confidence=confidence
             )
         else:
-            if stmt.parent and isinstance(stmt.parent, astroid.Assign):
+            if stmt.parent and isinstance(
+                stmt.parent, (astroid.Assign, astroid.AnnAssign)
+            ):
                 if name in nonlocal_names:
                     return
 

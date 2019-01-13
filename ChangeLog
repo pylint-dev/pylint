@@ -7,6 +7,10 @@ What's New in Pylint 2.3.0?
 
 Release date: TBA
 
+* Fixed a false positive for ``unused-variable`` and ``nonlocal`` assignments
+
+  Close #2671
+
 * Added ``load_configuration()`` hook for plugins
 
   New optional hook for plugins is added: ``load_configuration()``.
