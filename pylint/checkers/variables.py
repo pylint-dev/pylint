@@ -46,6 +46,7 @@ import astroid
 from astroid import decorators
 from astroid import modutils
 from astroid import objects
+from astroid.context import InferenceContext
 
 from pylint.checkers.utils import is_postponed_evaluation_enabled
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
@@ -184,6 +185,12 @@ def _detect_global_scope(node, frame, defframe):
     # At this point, we are certain that frame and defframe shares a scope
     # and the definition of the first depends on the second.
     return frame.lineno < defframe.lineno
+
+
+def _infer_name_module(node, name):
+    context = InferenceContext()
+    context.lookupname = name
+    return node.infer(context, asname=False)
 
 
 def _fix_dot_imports(not_consumed):
@@ -1580,7 +1587,7 @@ class VariablesChecker(BaseChecker):
         for name, _ in node.names:
             parts = name.split(".")
             try:
-                module = next(node.infer_name_module(parts[0]))
+                module = next(_infer_name_module(node, parts[0]))
             except astroid.ResolveError:
                 continue
             self._check_module_attrs(node, module, parts[1:])
