@@ -83,7 +83,7 @@ Release date: TBA
   Previous version incorrectly detects `a < b < c and b < d` and fails to
   detect `a < b < c and c < d`.
 
- * Avoid popping __main__ when using multiple jobs for python >= 3.3
+ * Avoid popping __main__ when using multiple jobs
 
  Close #2689
 

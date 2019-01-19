@@ -146,11 +146,7 @@ def _patch_sysmodules():
     if mock_main:
         sys.modules["__main__"] = sys.modules[__name__]
 
-    try:
-        yield
-    finally:
-        if mock_main and sys.version_info < (3, 3):
-            sys.modules.pop("__main__")
+    yield
 
 
 # Python Linter class #########################################################
