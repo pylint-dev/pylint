@@ -7,6 +7,10 @@ What's New in Pylint 2.3.0?
 
 Release date: TBA
 
+* ``fixme`` gets triggered only on comments.
+
+  Close #2321
+
 * Fixed a false positive for ``unused-variable`` and ``nonlocal`` assignments
 
   Close #2671
