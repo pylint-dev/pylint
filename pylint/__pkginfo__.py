@@ -30,7 +30,7 @@ dev_version = "0"
 string_version = ".".join(str(num) for num in numversion)
 
 if dev_version:
-    version = string_version + "-" + dev_version
+    version = string_version + "-dev" + dev_version
 else:
     version = string_version
 
