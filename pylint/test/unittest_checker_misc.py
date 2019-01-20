@@ -43,7 +43,6 @@ class TestFixme(CheckerTestCase):
             self.checker.process_tokens(_tokenize_str(code))
 
     def test_xxx_middle(self):
-        # THIS TEST STARTED TO FAIL, WHY?
         code = """a = 1
                 # midle XXX
                 """
