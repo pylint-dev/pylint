@@ -134,9 +134,9 @@ class EncodingChecker(BaseChecker):
         """inspect the source to find fixme problems"""
         if not self.config.notes:
             return
-        comments = [
+        comments = (
             token_info for token_info in tokens if token_info.type == tokenize.COMMENT
-        ]
+        )
         for comment in comments:
             comment_text = comment.string[1:].lstrip()  # trim '#' and whitespaces
 
@@ -147,14 +147,14 @@ class EncodingChecker(BaseChecker):
                     _, value = disable_option_match.group(1).split("=", 1)
                     values = [_val.strip().upper() for _val in value.split(",")]
                     if set(values) & set(self.config.notes):
-                        return
+                        continue
                 except ValueError:
                     self.add_message(
                         "bad-inline-option",
                         args=disable_option_match.group(1).strip(),
                         line=comment.string,
                     )
-                    return
+                    continue
 
             # emit warnings if necessary
             for note in self.config.notes:
