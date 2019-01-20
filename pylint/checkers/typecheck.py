@@ -329,7 +329,7 @@ MSGS = {
         "Value '%s' is unsubscriptable",
         "unsubscriptable-object",
         "Emitted when a subscripted value doesn't support subscription "
-        "(i.e. doesn't define __getitem__ method).",
+        "(i.e. doesn't define __getitem__ method or __class_getitem__ for a class).",
     ),
     "E1137": (
         "%r does not support item assignment",

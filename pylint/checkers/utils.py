@@ -67,6 +67,7 @@ ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
 GETITEM_METHOD = "__getitem__"
+CLASS_GETITEM_METHOD = "__class_getitem__"
 SETITEM_METHOD = "__setitem__"
 DELITEM_METHOD = "__delitem__"
 CONTAINS_METHOD = "__contains__"
@@ -1035,6 +1036,9 @@ def supports_membership_test(value: astroid.node_classes.NodeNG) -> bool:
 
 
 def supports_getitem(value: astroid.node_classes.NodeNG) -> bool:
+    if isinstance(value, astroid.ClassDef):
+        if _supports_protocol_method(value, CLASS_GETITEM_METHOD):
+            return True
     return _supports_protocol(value, _supports_getitem_protocol)
 
 

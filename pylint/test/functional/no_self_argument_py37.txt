@@ -1,0 +1,1 @@
+no-self-argument:13:Toto.__class_other__:Method should have "self" as first argument
