@@ -34,5 +34,6 @@ class Logger(renamed_logging.Logger):
 
 custom_logger = Logger('three')
 
-custom_logger.info('testing {0}'.format('info'))  # [logging-format-interpolation]
-custom_logger.info('testing %s' % 'info') # [logging-not-lazy]
+# Currently disabled until we get this in https://github.com/PyCQA/astroid/pull/637
+# custom_logger.info('testing {0}'.format('info'))
+# custom_logger.info('testing %s' % 'info')
