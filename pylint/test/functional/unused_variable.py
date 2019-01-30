@@ -53,16 +53,3 @@ def locals_does_not_account_for_subscopes():
 def unused_import_from():
     from functools import wraps as abc # [unused-import]
     from collections import namedtuple # [unused-import]
-
-
-def function():
-    ann: int = 0
-    assign = 0
-
-    def inner():
-        nonlocal ann, assign
-        ann += 1
-        assign += 1
-        return ann + assign
-
-    return inner()
