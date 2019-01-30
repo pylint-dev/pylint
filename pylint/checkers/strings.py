@@ -572,6 +572,20 @@ class StringConstantChecker(BaseTokenChecker):
             "maybe a comma is missing ?",
         ),
     }
+    options = (
+        (
+            "check-str-concat-over-line-jumps",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y_or_n>",
+                "help": "This flag controls whether the "
+                "implicit-str-concat-in-sequence should generate a warning "
+                "on implicit string concatenation in sequences defined over "
+                "several lines.",
+            },
+        ),
+    )
 
     # Characters that have a special meaning after a backslash in either
     # Unicode or byte strings.
@@ -601,22 +615,30 @@ class StringConstantChecker(BaseTokenChecker):
                 # 'token' is the whole un-parsed token; we can look at the start
                 # of it to see whether it's a raw or unicode string etc.
                 self.process_string_token(token, start[0])
-                next_token = tokens[i + 1] if i + 1 < len(tokens) else None
+                # We figure the next token, ignoring comments & newlines:
+                j = i + 1
+                while j < len(tokens) and tokens[j].type in (
+                    tokenize.NEWLINE,
+                    tokenize.NL,
+                    tokenize.COMMENT,
+                ):
+                    j += 1
+                next_token = tokens[j] if j < len(tokens) else None
                 if encoding != "ascii":
                     # We convert `tokenize` character count into a byte count,
                     # to match with astroid `.col_offset`
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
-    @check_messages(*(MSGS.keys()))
+    @check_messages(*(msgs.keys()))
     def visit_list(self, node):
         self.check_for_concatenated_strings(node, "list")
 
-    @check_messages(*(MSGS.keys()))
+    @check_messages(*(msgs.keys()))
     def visit_set(self, node):
         self.check_for_concatenated_strings(node, "set")
 
-    @check_messages(*(MSGS.keys()))
+    @check_messages(*(msgs.keys()))
     def visit_tuple(self, node):
         self.check_for_concatenated_strings(node, "tuple")
 
@@ -633,12 +655,12 @@ class StringConstantChecker(BaseTokenChecker):
                 matching_token, next_token = self.string_tokens[
                     (elt.lineno, elt.col_offset)
                 ]
+                # We detect string concatenation: the AST Const is the
+                # combination of 2 string tokens
                 if matching_token != elt.value and next_token is not None:
-                    next_token_type, next_token_pos = next_token[0], next_token[2]
-                    # We do not warn if string concatenation happens over a newline
-                    if (
-                        next_token_type == tokenize.STRING
-                        and next_token_pos[0] == elt.lineno
+                    if next_token.type == tokenize.STRING and (
+                        next_token.start[0] == elt.lineno
+                        or self.config.check_str_concat_over_line_jumps
                     ):
                         self.add_message(
                             "implicit-str-concat-in-sequence",
