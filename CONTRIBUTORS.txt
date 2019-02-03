@@ -263,3 +263,5 @@ contributors:
 * Justin Li (justinnhli)
 
 * Nicolas Dickreuter
+
+* Michael Scott Cuthbert: contributor
