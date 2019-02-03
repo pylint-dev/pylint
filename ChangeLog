@@ -92,6 +92,8 @@ Release date: TBA
  Close #2689
  
  * Add a new option 'check-str-concat-over-line-jumps' to check 'implicit-str-concat-in-sequence'
+ 
+ * Cross-reference between docs for max-bool-expr and R0916
 
 What's New in Pylint 2.2.2?
 ===========================
