@@ -281,3 +281,6 @@ contributors:
 * Paul Renvoise : contributor
 
 * Bluesheeptoken: contributor
+
+* Michael Scott Cuthbert: contributor
+
