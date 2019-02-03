@@ -485,7 +485,7 @@ max-args=5
 # Maximum number of attributes for a class (see R0902).
 max-attributes=7
 
-# Maximum number of boolean expressions in an if statement
+# Maximum number of boolean expressions in an if statement (see R0916).
 max-bool-expr=5
 
 # Maximum number of branch for function / method body
