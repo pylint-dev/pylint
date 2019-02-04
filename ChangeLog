@@ -7,6 +7,10 @@ What's New in Pylint 2.3.0?
 
 Release date: TBA
 
+* Fixed false positives for ``no-self-argument`` and ``unsubscriptable-object`` when using ``__class_getitem__`` (new in Python 3.7)
+
+  Close #2416
+
 * Support ``Ellipsis`` as a synonym for ``pass`` statements.
 
   Close #2718

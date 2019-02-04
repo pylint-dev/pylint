@@ -1407,7 +1407,7 @@ a metaclass class method.",
         # regular class
         else:
             # class method
-            if node.type == "classmethod":
+            if node.type == "classmethod" or node.name == "__class_getitem__":
                 self._check_first_arg_config(
                     first,
                     self.config.valid_classmethod_first_arg,
