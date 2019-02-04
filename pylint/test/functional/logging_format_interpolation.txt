@@ -3,5 +3,3 @@ logging-format-interpolation:17::Use % formatting in logging functions and pass 
 logging-format-interpolation:18::Use % formatting in logging functions and pass the % parameters as arguments
 logging-format-interpolation:19::Use % formatting in logging functions and pass the % parameters as arguments
 logging-format-interpolation:20::Use % formatting in logging functions and pass the % parameters as arguments
-logging-format-interpolation:37::Use % formatting in logging functions and pass the % parameters as arguments
-logging-not-lazy:38::Specify string format arguments as logging function parameters

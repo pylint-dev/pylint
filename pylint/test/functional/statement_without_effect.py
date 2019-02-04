@@ -63,3 +63,13 @@ class ClassLevelAttributeTest(object):
         self.val = 42
         # +1:[pointless-string-statement]
         """ this is an invalid attribute docstring. """
+
+
+def ellipsis():
+    """Test that an Ellipsis as a body does not trigger the error"""
+    ...
+
+
+class EllipsisBody:
+    """Test that an Ellipsis as a body does not trigger the error"""
+    ...

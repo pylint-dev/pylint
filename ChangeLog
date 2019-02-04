@@ -11,6 +11,10 @@ Release date: TBA
 
   Close #2416
 
+* Support ``Ellipsis`` as a synonym for ``pass`` statements.
+
+  Close #2718
+
 * ``fixme`` gets triggered only on comments.
 
   Close #2321
@@ -94,6 +98,8 @@ Release date: TBA
  * Avoid popping __main__ when using multiple jobs
 
  Close #2689
+ 
+ * Add a new option 'check-str-concat-over-line-jumps' to check 'implicit-str-concat-in-sequence'
 
 What's New in Pylint 2.2.2?
 ===========================

@@ -369,12 +369,12 @@ def report_by_type_stats(sect, stats, old_stats):
         if total != 0:
             try:
                 documented = total - stats["undocumented_" + node_type]
-                percent = (documented * 100.) / total
+                percent = (documented * 100.0) / total
                 nice_stats[node_type]["percent_documented"] = "%.2f" % percent
             except KeyError:
                 nice_stats[node_type]["percent_documented"] = "NC"
             try:
-                percent = (stats["badname_" + node_type] * 100.) / total
+                percent = (stats["badname_" + node_type] * 100.0) / total
                 nice_stats[node_type]["percent_badname"] = "%.2f" % percent
             except KeyError:
                 nice_stats[node_type]["percent_badname"] = "NC"
@@ -1089,13 +1089,17 @@ class BasicChecker(_BasicChecker):
                         return
             self.add_message("pointless-string-statement", node=node)
             return
-        # ignore if this is :
+
+        # Ignore if this is :
         # * a direct function call
         # * the unique child of a try/except body
-        # * a yield (which are wrapped by a discard node in _ast XXX)
+        # * a yieldd statement
+        # * an ellipsis (which can be used on Python 3 instead of pass)
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
-        if isinstance(expr, (astroid.Yield, astroid.Await, astroid.Call)) or (
+        if isinstance(
+            expr, (astroid.Yield, astroid.Await, astroid.Ellipsis, astroid.Call)
+        ) or (
             isinstance(node.parent, astroid.TryExcept) and node.parent.body == [node]
         ):
             return
