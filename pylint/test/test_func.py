@@ -90,7 +90,7 @@ class LintTestUsingModule(object):
 
     def _get_expected(self):
         if self._has_output() and self.output:
-            with open(self.output, "U") as fobj:
+            with open(self.output, "r") as fobj:
                 return fobj.read().strip() + "\n"
         else:
             return ""

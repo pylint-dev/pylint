@@ -185,7 +185,7 @@ class TestRunTC(object):
         master = re.search(r"\[MASTER", output)
         out = StringIO(output[master.start() :])
         parser = configparser.RawConfigParser()
-        parser.readfp(out)
+        parser.read_file(out)
         messages = utils._splitstrip(parser.get("MESSAGES CONTROL", "disable"))
         assert "suppressed-message" in messages
 

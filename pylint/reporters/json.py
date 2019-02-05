@@ -9,7 +9,7 @@
 """JSON reporter"""
 from __future__ import absolute_import, print_function
 
-import cgi
+import html
 import json
 import sys
 
@@ -40,7 +40,7 @@ class JSONReporter(BaseReporter):
                 "path": msg.path,
                 "symbol": msg.symbol,
                 # pylint: disable=deprecated-method; deprecated since 3.2.
-                "message": cgi.escape(msg.msg or ""),
+                "message": html.escape(msg.msg or ""),
                 "message-id": msg.msg_id,
             }
         )
