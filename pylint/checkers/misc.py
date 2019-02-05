@@ -22,6 +22,8 @@
 
 import tokenize
 
+import re
+
 from pylint.interfaces import IRawChecker, ITokenChecker
 from pylint.checkers import BaseChecker
 from pylint.utils import OPTION_RGX, MessagesHandlerMixIn
@@ -103,6 +105,12 @@ class EncodingChecker(BaseChecker):
         ),
     )
 
+    def open(self):
+        super().open()
+        self._fixme_pattern = re.compile(
+            r"#\s*(%s)\b" % "|".join(map(re.escape, self.config.notes)), re.I
+        )
+
     def _check_encoding(self, lineno, line, file_encoding):
         try:
             return line.decode(file_encoding)
@@ -157,14 +165,15 @@ class EncodingChecker(BaseChecker):
                     continue
 
             # emit warnings if necessary
-            for note in self.config.notes:
-                if comment_text.lower().startswith(note.lower()):
-                    self.add_message(
-                        "fixme",
-                        args=comment_text,
-                        line=comment.start[0],
-                        col_offset=comment.string.lower().index(note.lower()),
-                    )
+            match = self._fixme_pattern.search("#" + comment_text.lower())
+            if match:
+                note = match.group(1)
+                self.add_message(
+                    "fixme",
+                    col_offset=comment.string.lower().index(note.lower()),
+                    args=comment_text,
+                    line=comment.start[0],
+                )
 
 
 def register(linter):

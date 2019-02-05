@@ -86,3 +86,18 @@ class TestFixme(CheckerTestCase):
             Message(msg_id="fixme", line=1, args="TODO this should not trigger a fixme")
         ):
             self.checker.process_tokens(_tokenize_str(code))
+
+    def test_dont_trigger_on_todoist(self):
+        code = """
+        # Todoist API: What is this task about?
+        # Todoist API: Look up a task's due date
+        # Todoist API: Look up a Project/Label/Task ID
+        # Todoist API: Fetch all labels
+        # Todoist API: "Name" value
+        # Todoist API: Get a task's priority
+        # Todoist API: Look up the Project ID a Task belongs to
+        # Todoist API: Fetch all Projects
+        # Todoist API: Fetch all Tasks
+        """
+        with self.assertNoMessages():
+            self.checker.process_tokens(_tokenize_str(code))
