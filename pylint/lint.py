@@ -1598,6 +1598,7 @@ group are mutually exclusive.",
             files_or_modules = (files_or_modules,)
 
         # notify global begin
+        all_states = collections.defaultdict(list)
         all_stats = [self._plugin_registry.stats]
         # build ast and check modules or packages
         expanded_files = utils.expand_files(
@@ -1649,7 +1650,7 @@ group are mutually exclusive.",
             for checker_cls in self.prepare_checkers(linter):
                 checker = checker_cls(linter)
                 checker.linter = linter
-                checker.open()
+                all_states[checker_cls].append(checker.open())
                 allcheckers.append(checker)
                 if interfaces.implements(checker, interfaces.ITokenChecker):
                     tokencheckers.append(checker)
@@ -1666,6 +1667,23 @@ group are mutually exclusive.",
             for checker in reversed(allcheckers):
                 checker.close()
 
+        linter = PyLinter(self._global_config)
+        linter.msgs_store = self._plugin_registry.msgs_store
+        linter.reporter = self._reporter
+        for msg_ids, enable in self._global_config.msg_toggles:
+            for msg_id in msg_ids:
+                if enable:
+                    linter.enable(msg_id, scope="directory")
+                else:
+                    linter.disable(msg_id, scope="directory")
+        linter.open()
+        # TODO: What about checkers that have been enabled in a local config?
+        for checker_cls in reversed(self.get_checkers()):
+            checker = checker_cls(linter)
+            checker.linter = linter
+            checker.global_close(all_states[checker_cls])
+
+        all_stats.append(linter.stats)
         self._plugin_registry.stats = _merge_stats(all_stats)
 
         return module_desc.basename, linter.msg_status

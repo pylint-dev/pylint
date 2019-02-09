@@ -106,10 +106,21 @@ class BaseChecker(object):
     # dummy methods implementing the IChecker interface
 
     def open(self):
-        """called before visiting project (i.e set of modules)"""
+        """Called before visiting a module.
+
+        :returns: The state to store for this checker instance.
+        :rtype: object or None
+        """
 
     def close(self):
-        """called after visiting project (i.e set of modules)"""
+        """Called after visiting project (i.e set of modules)"""
+
+    def global_close(self, states):
+        """Called after visiting everything.
+
+        :param states: The state objects for every instance of this checker.
+        :type states: list(object or None)
+        """
 
 
 class BaseTokenChecker(BaseChecker):

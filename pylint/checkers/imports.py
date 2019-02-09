@@ -386,10 +386,8 @@ class ImportsChecker(BaseChecker):
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
         self.stats = None
-        self.import_graph = None
         self._imports_stack = []
         self._first_non_import_node = None
-        self._module_pkg = {}  # mapping of modules to the pkg they belong in
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
@@ -427,21 +425,33 @@ class ImportsChecker(BaseChecker):
         self.linter.add_stats(dependencies={})
         self.linter.add_stats(cycles=[])
         self.stats = self.linter.stats
-        self.import_graph = collections.defaultdict(set)
-        self._module_pkg = {}  # mapping of modules to the pkg they belong in
-        self._excluded_edges = collections.defaultdict(set)
         self._ignored_modules = get_global_option(self, "ignored-modules", default=[])
+        state_type = collections.namedtuple(
+            "State", ["import_graph", "module_pkg", "excluded_edges"]
+        )
+        self.state = state_type(
+            collections.defaultdict(set), {}, collections.defaultdict(set)
+        )
+        return self.state
 
-    def _import_graph_without_ignored_edges(self):
-        filtered_graph = copy.deepcopy(self.import_graph)
+    def _import_graph_without_ignored_edges(self, state):
+        filtered_graph = copy.deepcopy(state.import_graph)
         for node in filtered_graph:
-            filtered_graph[node].difference_update(self._excluded_edges[node])
+            filtered_graph[node].difference_update(state.excluded_edges[node])
         return filtered_graph
 
-    def close(self):
+    def global_close(self, states):
         """called before visiting project (i.e set of modules)"""
-        if self.linter.is_message_enabled("cyclic-import"):
-            graph = self._import_graph_without_ignored_edges()
+        if self.linter.is_message_enabled("cyclic-import") and states:
+            state = states[0]
+            for other_state in states[1:]:
+                for key, value in other_state.import_graph.items():
+                    state.import_graph[key].update(value)
+                state.module_pkg.update(other_state.module_pkg)
+                for key, value in other_state.excluded_edges.items():
+                    state.excluded_edges[key].update(value)
+
+            graph = self._import_graph_without_ignored_edges(state)
             vertices = list(graph)
             for cycle in get_cycles(graph, vertices=vertices):
                 self.add_message("cyclic-import", args=" -> ".join(cycle))
@@ -798,10 +808,10 @@ class ImportsChecker(BaseChecker):
 
         elif not is_standard_module(importedmodname):
             # if this is not a package __init__ module
-            if base != "__init__" and context_name not in self._module_pkg:
+            if base != "__init__" and context_name not in self.state.module_pkg:
                 # record the module's parent, or the module itself if this is
                 # a top level module, as the package it belongs to
-                self._module_pkg[context_name] = context_name.rsplit(".", 1)[0]
+                self.state.module_pkg[context_name] = context_name.rsplit(".", 1)[0]
 
             # handle dependencies
             importedmodnames = self.stats["dependencies"].setdefault(
@@ -811,9 +821,9 @@ class ImportsChecker(BaseChecker):
                 importedmodnames.add(context_name)
 
             # update import graph
-            self.import_graph[context_name].add(importedmodname)
+            self.state.import_graph[context_name].add(importedmodname)
             if not self.linter.is_message_enabled("cyclic-import", line=node.lineno):
-                self._excluded_edges[context_name].add(importedmodname)
+                self.state.excluded_edges[context_name].add(importedmodname)
 
     def _check_deprecated_module(self, node, mod_path):
         """check if the module is deprecated"""
@@ -891,6 +901,7 @@ class ImportsChecker(BaseChecker):
         graph = collections.defaultdict(set)
         for importee, importers in self.stats["dependencies"].items():
             for importer in importers:
+                # TODO: Needs a state!
                 package = self._module_pkg.get(importer, importer)
                 is_inside = importee.startswith(package)
                 if is_inside and internal or not is_inside and not internal:

@@ -20,6 +20,7 @@
 from __future__ import print_function
 import sys
 from collections import defaultdict
+import itertools
 from itertools import groupby
 
 import astroid
@@ -336,7 +337,6 @@ class SimilarChecker(BaseChecker, Similar):
         Similar.__init__(
             self, min_lines=4, ignore_comments=True, ignore_docstrings=True
         )
-        self.stats = None
 
     def set_option(self, optname, value, action=None, optdict=None):
         """method called to set an option (registered in the options list)
@@ -359,6 +359,7 @@ class SimilarChecker(BaseChecker, Similar):
         self.stats = self.linter.add_stats(
             nb_duplicated_lines=0, percent_duplicated_lines=0
         )
+        return self.linesets
 
     def process_module(self, node):
         """process a module
@@ -370,11 +371,12 @@ class SimilarChecker(BaseChecker, Similar):
         with node.stream() as stream:
             self.append_stream(self.linter.current_name, stream, node.file_encoding)
 
-    def close(self):
+    def global_close(self, states):
         """compute and display similarities on closing (i.e. end of parsing)"""
+        self.linesets = list(itertools.chain.from_iterable(states))
         total = sum(len(lineset) for lineset in self.linesets)
         duplicated = 0
-        stats = self.stats
+        stats = self.linter.stats
         for num, couples in self._compute_sims():
             msg = []
             for lineset, idx in couples:
