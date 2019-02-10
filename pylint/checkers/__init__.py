@@ -81,8 +81,6 @@ class BaseChecker(object):
     options = ()  # type: Any
     # messages issued by this checker
     msgs = {}  # type: Any
-    # reports issued by this checker
-    reports = ()  # type: Any
     # mark this checker as enabled or not.
     enabled = True
 

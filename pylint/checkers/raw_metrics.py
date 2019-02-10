@@ -25,7 +25,7 @@ from pylint.reporters import diff_string
 from pylint.reporters.ureports.nodes import Table
 
 
-def report_raw_stats(sect, stats, old_stats):
+def report_raw_stats(sect, stats, old_stats, global_config, states):
     """calculate percentage of code / doc / comment / empty
     """
     total_lines = stats["total_lines"]
@@ -63,8 +63,6 @@ class RawMetricsChecker(BaseTokenChecker):
     options = ()
     # messages
     msgs = {}  # type: Any
-    # reports
-    reports = (("RP0701", "Raw metrics", report_raw_stats),)
 
     def __init__(self, linter):
         BaseTokenChecker.__init__(self, linter)
@@ -72,13 +70,12 @@ class RawMetricsChecker(BaseTokenChecker):
 
     def open(self):
         """init statistics"""
-        self.stats = self.linter.add_stats(
-            total_lines=0,
-            code_lines=0,
-            empty_lines=0,
-            docstring_lines=0,
-            comment_lines=0,
-        )
+        self.stats = self.linter.stats
+        self.stats.setdefault("total_lines", 0)
+        self.stats.setdefault("code_lines", 0)
+        self.stats.setdefault("empty_lines", 0)
+        self.stats.setdefault("docstring_lines", 0)
+        self.stats.setdefault("comment_lines", 0)
 
     def process_tokens(self, tokens):
         """update stats"""
@@ -123,3 +120,6 @@ def get_type(tokens, start_index):
 def register(linter):
     """ required method to auto register this checker """
     linter.register_checker(RawMetricsChecker(linter))
+    linter.register_report(
+        "RP0701", "Raw metrics", report_raw_stats, [RawMetricsChecker]
+    )

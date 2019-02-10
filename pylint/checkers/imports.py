@@ -36,7 +36,7 @@ import sys
 import copy
 
 import astroid
-from astroid import are_exclusive, decorators
+from astroid import are_exclusive
 from astroid.modutils import get_module_part, is_standard_module
 import isort
 
@@ -191,6 +191,88 @@ def _make_graph(filename, dep_info, sect, gtype):
     """
     _dependencies_graph(filename, dep_info)
     sect.append(Paragraph("%simports graph has been written to %s" % (gtype, filename)))
+
+
+def _report_external_dependencies(sect, stats, _, __, states):
+    """return a verbatim layout for displaying dependencies"""
+    state = merge_states(states[0])
+    if not state:
+        raise EmptyReportError()
+    dep_info = _make_tree_defs(_external_dependencies_info(stats, state).items())
+    if not dep_info:
+        raise EmptyReportError()
+    tree_str = _repr_tree_defs(dep_info)
+    sect.append(VerbatimText(tree_str))
+
+
+def _report_dependencies_graph(sect, stats, _, global_config, states):
+    """write dependencies as a dot (graphviz) file"""
+    state = merge_states(states[0])
+    dep_info = stats["dependencies"]
+    if (
+        not dep_info
+        or not state
+        or not (
+            global_config.import_graph
+            or global_config.ext_import_graph
+            or global_config.int_import_graph
+        )
+    ):
+        raise EmptyReportError()
+    filename = global_config.import_graph
+    if filename:
+        _make_graph(filename, dep_info, sect, "")
+    filename = global_config.ext_import_graph
+    if filename:
+        _make_graph(
+            filename, _external_dependencies_info(stats, state), sect, "external "
+        )
+    filename = global_config.int_import_graph
+    if filename:
+        _make_graph(
+            filename, _internal_dependencies_info(stats, state), sect, "internal "
+        )
+
+
+def _external_dependencies_info(stats, state):
+    """return cached external dependencies information or build and
+    cache them
+    """
+    return _filter_dependencies_graph(stats, state, internal=False)
+
+
+def _internal_dependencies_info(stats, state):
+    """return cached internal dependencies information or build and
+    cache them
+    """
+    return _filter_dependencies_graph(stats, state, internal=True)
+
+
+def _filter_dependencies_graph(stats, state, internal):
+    """build the internal or the external depedency graph"""
+    graph = collections.defaultdict(set)
+    for importee, importers in stats["dependencies"].items():
+        for importer in importers:
+            package = state.module_pkg.get(importer, importer)
+            is_inside = importee.startswith(package)
+            if is_inside and internal or not is_inside and not internal:
+                graph[importee].add(importer)
+    return graph
+
+
+def merge_states(states):
+    if not states:
+        return None
+
+    state = states[0]
+    for other_state in states[1:]:
+        for key, value in other_state.import_graph.items():
+            state.import_graph[key].update(value)
+        state.module_pkg.update(other_state.module_pkg)
+        for key, value in other_state.excluded_edges.items():
+            state.excluded_edges[key].update(value)
+
+    return state
 
 
 # the import checker itself ###################################################
@@ -388,10 +470,6 @@ class ImportsChecker(BaseChecker):
         self.stats = None
         self._imports_stack = []
         self._first_non_import_node = None
-        self.reports = (
-            ("RP0401", "External dependencies", self._report_external_dependencies),
-            ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
-        )
 
         self._site_packages = self._compute_site_packages()
 
@@ -443,13 +521,7 @@ class ImportsChecker(BaseChecker):
     def global_close(self, states):
         """called before visiting project (i.e set of modules)"""
         if self.linter.is_message_enabled("cyclic-import") and states:
-            state = states[0]
-            for other_state in states[1:]:
-                for key, value in other_state.import_graph.items():
-                    state.import_graph[key].update(value)
-                state.module_pkg.update(other_state.module_pkg)
-                for key, value in other_state.excluded_edges.items():
-                    state.excluded_edges[key].update(value)
+            state = merge_states(states)
 
             graph = self._import_graph_without_ignored_edges(state)
             vertices = list(graph)
@@ -869,59 +941,6 @@ class ImportsChecker(BaseChecker):
                         "reimported", node=node, args=(name, first.fromlineno)
                     )
 
-    def _report_external_dependencies(self, sect, _, _dummy):
-        """return a verbatim layout for displaying dependencies"""
-        dep_info = _make_tree_defs(self._external_dependencies_info().items())
-        if not dep_info:
-            raise EmptyReportError()
-        tree_str = _repr_tree_defs(dep_info)
-        sect.append(VerbatimText(tree_str))
-
-    def _report_dependencies_graph(self, sect, _, _dummy):
-        """write dependencies as a dot (graphviz) file"""
-        dep_info = self.stats["dependencies"]
-        if not dep_info or not (
-            self.config.import_graph
-            or self.config.ext_import_graph
-            or self.config.int_import_graph
-        ):
-            raise EmptyReportError()
-        filename = self.config.import_graph
-        if filename:
-            _make_graph(filename, dep_info, sect, "")
-        filename = self.config.ext_import_graph
-        if filename:
-            _make_graph(filename, self._external_dependencies_info(), sect, "external ")
-        filename = self.config.int_import_graph
-        if filename:
-            _make_graph(filename, self._internal_dependencies_info(), sect, "internal ")
-
-    def _filter_dependencies_graph(self, internal):
-        """build the internal or the external depedency graph"""
-        graph = collections.defaultdict(set)
-        for importee, importers in self.stats["dependencies"].items():
-            for importer in importers:
-                # TODO: Needs a state!
-                package = self._module_pkg.get(importer, importer)
-                is_inside = importee.startswith(package)
-                if is_inside and internal or not is_inside and not internal:
-                    graph[importee].add(importer)
-        return graph
-
-    @decorators.cached
-    def _external_dependencies_info(self):
-        """return cached external dependencies information or build and
-        cache them
-        """
-        return self._filter_dependencies_graph(internal=False)
-
-    @decorators.cached
-    def _internal_dependencies_info(self):
-        """return cached internal dependencies information or build and
-        cache them
-        """
-        return self._filter_dependencies_graph(internal=True)
-
     def _check_wildcard_imports(self, node, imported_module):
         if node.root().package:
             # Skip the check if in __init__.py issue #2026
@@ -943,3 +962,15 @@ class ImportsChecker(BaseChecker):
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(ImportsChecker(linter))
+    linter.register_report(
+        "RP0401",
+        "External dependencies",
+        _report_external_dependencies,
+        (ImportsChecker,),
+    )
+    linter.register_report(
+        "RP0402",
+        "Modules dependencies graph",
+        _report_dependencies_graph,
+        (ImportsChecker,),
+    )

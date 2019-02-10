@@ -352,7 +352,7 @@ def _has_abstract_methods(node):
     return len(utils.unimplemented_abstract_methods(node)) > 0
 
 
-def report_by_type_stats(sect, stats, old_stats):
+def report_by_type_stats(sect, stats, old_stats, _, __):
     """make a report of
 
     * percentage of different types documented
@@ -987,8 +987,6 @@ class BasicChecker(_BasicChecker):
             "intended to do.",
         ),
     }
-
-    reports = (("RP0101", "Statistics by type", report_by_type_stats),)
 
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)
@@ -2215,6 +2213,7 @@ def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(BasicErrorChecker(linter))
     linter.register_checker(BasicChecker(linter))
+    linter.register_report("RP0101", "Statistics by type", report_by_type_stats)
     linter.register_checker(NameChecker(linter))
     linter.register_checker(DocStringChecker(linter))
     linter.register_checker(PassChecker(linter))

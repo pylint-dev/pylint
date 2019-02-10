@@ -268,7 +268,7 @@ MSGS = {
 }
 
 
-def report_similarities(sect, stats, old_stats):
+def report_similarities(sect, stats, old_stats, _, __):
     """make a layout with some stats about duplication"""
     lines = ["", "now", "previous", "difference"]
     lines += table_lines_from_stats(
@@ -329,8 +329,6 @@ class SimilarChecker(BaseChecker, Similar):
             },
         ),
     )
-    # reports
-    reports = (("RP0801", "Duplication", report_similarities),)  # type: ignore
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -394,6 +392,7 @@ class SimilarChecker(BaseChecker, Similar):
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(SimilarChecker(linter))
+    linter.register_report("RP0801", "Duplication", report_similarities)
 
 
 def usage(status=0):

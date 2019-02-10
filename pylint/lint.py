@@ -135,7 +135,7 @@ def _merge_stats(stats):
 # some reporting functions ####################################################
 
 
-def report_total_messages_stats(sect, stats, previous_stats):
+def report_total_messages_stats(sect, stats, previous_stats, _, __):
     """make total errors / warnings report"""
     lines = ["type", "number", "previous", "difference"]
     lines += checkers.table_lines_from_stats(
@@ -144,7 +144,7 @@ def report_total_messages_stats(sect, stats, previous_stats):
     sect.append(report_nodes.Table(children=lines, cols=4, rheaders=1))
 
 
-def report_messages_stats(sect, stats, _):
+def report_messages_stats(sect, stats, _, __, ___):
     """make messages type report"""
     if not stats["by_msg"]:
         # don't print this report when we didn't detected any errors
@@ -152,7 +152,7 @@ def report_messages_stats(sect, stats, _):
     in_order = sorted(
         [
             (value, msg_id)
-            for msg_id, value in six.iteritems(stats["by_msg"])
+            for msg_id, value in stats["by_msg"].items()
             if not msg_id.startswith("I")
         ]
     )
@@ -163,7 +163,7 @@ def report_messages_stats(sect, stats, _):
     sect.append(report_nodes.Table(children=lines, cols=2, rheaders=1))
 
 
-def report_messages_by_module_stats(sect, stats, _):
+def report_messages_by_module_stats(sect, stats, _, __, ____):
     """make errors / warnings by modules report"""
     if len(stats["by_module"]) == 1:
         # don't print this report when we are analysing a single module
@@ -171,7 +171,7 @@ def report_messages_by_module_stats(sect, stats, _):
     by_mod = collections.defaultdict(dict)
     for m_type in ("fatal", "error", "warning", "refactor", "convention"):
         total = stats[m_type]
-        for module in six.iterkeys(stats["by_module"]):
+        for module in stats["by_module"]:
             mod_total = stats["by_module"][module][m_type]
             if total == 0:
                 percent = 0
@@ -179,7 +179,7 @@ def report_messages_by_module_stats(sect, stats, _):
                 percent = float((mod_total) * 100) / total
             by_mod[module][m_type] = percent
     sorted_result = []
-    for module, mod_info in six.iteritems(by_mod):
+    for module, mod_info in by_mod.items():
         sorted_result.append(
             (
                 mod_info["error"],
@@ -559,11 +559,7 @@ class PyLinter(utils.MessagesHandlerMixIn, checkers.BaseTokenChecker):
         ("Reports", "Options related to output formatting and reporting"),
     )
 
-    reports = (
-        ("RP0001", "Messages by category", report_total_messages_stats),
-        ("RP0002", "% errors / warnings by module", report_messages_by_module_stats),
-        ("RP0003", "Messages", report_messages_stats),
-    )
+    reports = ()
 
     def __init__(self, config=None):
         # some stuff has to be done before ancestors initialization...
@@ -856,11 +852,19 @@ def guess_lint_path(args):
 
 class ReportRegistry:
     def __init__(self):
-        self.reports = collections.defaultdict(list)
+        self.reports = {}
         self._reports_state = {}
         super().__init__()
 
-    def register_report(self, reportid, r_title, r_cb, checker):
+        self.register_report(
+            "RP0001", "Messages by category", report_total_messages_stats
+        )
+        self.register_report(
+            "RP0002", "% errors / warnings by module", report_messages_by_module_stats
+        )
+        self.register_report("RP0003", "Messages", report_messages_stats)
+
+    def register_report(self, reportid, r_title, r_cb, checker_classes=()):
         """Register a report
 
         :param reportid: The unique identifier for the report.
@@ -869,11 +873,12 @@ class ReportRegistry:
         :type r_title: str
         :param r_cb: The method to call to make the report.
         :type r_cb: callable
-        :param checker: The checker defining the report.
-        :type checker: BaseChecker
+        :param checker_classes: The checkers that create states
+            needed by this report.
+        :type checker_classes: class
         """
         reportid = reportid.upper()
-        self.reports[checker].append((reportid, r_title, r_cb))
+        self.reports[reportid] = (r_title, r_cb, checker_classes)
 
     def enable_report(self, reportid):
         """Enable the report of the given id.
@@ -895,9 +900,8 @@ class ReportRegistry:
 
     def disable_reporters(self):
         """Disable all reporters."""
-        for _reporters in self.reports.values():
-            for report_id, _, _ in _reporters:
-                self.disable_report(report_id)
+        for report_id in self.reports:
+            self.disable_report(report_id)
 
     def report_is_enabled(self, reportid):
         """Check if the report with the given id is enabled.
@@ -922,9 +926,6 @@ class PluginRegistry(utils.MessagesHandlerMixIn, ReportRegistry):
 
         self._python3_porting_mode = False
         self._error_mode = False
-
-        for r_id, r_title, r_cb in PyLinter.reports:
-            self.register_report(r_id, r_title, r_cb, PyLinter)
 
         self.register_options(PyLinter.options)
 
@@ -971,9 +972,6 @@ class PluginRegistry(utils.MessagesHandlerMixIn, ReportRegistry):
             raise exceptions.InvalidCheckerError(msg)
 
         self._checkers[checker.name].append(checker)
-
-        for r_id, r_title, r_cb in checker.reports:
-            self.register_report(r_id, r_title, r_cb, checker)
 
         self.register_options(checker.options)
 
@@ -1378,9 +1376,11 @@ group are mutually exclusive.",
 
         with fix_import_path(self._global_config.module_or_package):
             assert self._global_config.jobs == 1
-            base_name, status_code = self.check(self._global_config.module_or_package)
+            base_name, all_states, status_code = self.check(
+                self._global_config.module_or_package
+            )
 
-            self.generate_reports(base_name)
+            self.generate_reports(base_name, all_states)
 
         if self._global_config.exit_zero:
             sys.exit(0)
@@ -1435,7 +1435,7 @@ group are mutually exclusive.",
         reporter_class = getattr(module, class_name)
         return reporter_class
 
-    def generate_reports(self, base_name):
+    def generate_reports(self, base_name, all_states):
         """close the whole package /module, it's time to make reports !
 
         if persistent run, pickle results for later comparison
@@ -1449,7 +1449,9 @@ group are mutually exclusive.",
             # XXX code below needs refactoring to be more reporter agnostic
             self._reporter.on_close(self._plugin_registry.stats, previous_stats)
             if self._global_config.reports:
-                sect = self.make_reports(self._plugin_registry.stats, previous_stats)
+                sect = self.make_reports(
+                    self._plugin_registry.stats, previous_stats, all_states
+                )
             else:
                 sect = report_nodes.Section()
 
@@ -1466,19 +1468,19 @@ group are mutually exclusive.",
         """A list of reports, sorted in the order in which they must be called.
 
         :returns: The list of reports.
-        :rtype: list(BaseChecker or object)
+        :rtype: list(str)
         """
-        reports = self._plugin_registry.reports
-        reports = sorted(reports, key=lambda x: getattr(x, "name", ""))
-        try:
-            reports.remove(PyLinter)
-        except ValueError:
-            pass
-        else:
-            reports.append(PyLinter)
+        reports = sorted(self._plugin_registry.reports)
+        for final_report in ("RP0001", "RP0002", "RP0003"):
+            try:
+                reports.remove(final_report)
+            except ValueError:
+                pass
+            else:
+                reports.append(final_report)
         return reports
 
-    def make_reports(self, stats, old_stats):
+    def make_reports(self, stats, old_stats, all_states):
         """Render the registered reports.
 
         :param stats: The statistics dictionary for this run.
@@ -1492,17 +1494,20 @@ group are mutually exclusive.",
         sect = report_nodes.Section(
             "Report", "%s statements analysed." % (stats["statement"])
         )
-        for checker in self.report_order():
-            for reportid, r_title, r_cb in self._plugin_registry.reports[checker]:
-                if not self.report_is_enabled(reportid):
-                    continue
-                report_sect = report_nodes.Section(r_title)
-                try:
-                    r_cb(report_sect, stats, old_stats)
-                except EmptyReportError:
-                    continue
-                report_sect.report_id = reportid
-                sect.append(report_sect)
+        for report_id in self.report_order():
+            r_title, r_cb, checker_classes = self._plugin_registry.reports[report_id]
+            states = [
+                all_states.get(checker_class) for checker_class in checker_classes
+            ]
+            if not self._plugin_registry.report_is_enabled(report_id):
+                continue
+            report_sect = report_nodes.Section(r_title)
+            try:
+                r_cb(report_sect, stats, old_stats, self._global_config, states)
+            except exceptions.EmptyReportError:
+                continue
+            report_sect.report_id = report_id
+            sect.append(report_sect)
         return sect
 
     def _report_evaluation(self, base_name):
@@ -1539,15 +1544,15 @@ group are mutually exclusive.",
     def prepare_checkers(self, linter):
         """return checkers needed for activated messages and reports"""
         # get needed checkers
-        neededcheckers = []
-        for checker in self.get_checkers()[1:]:
-            messages = set(
-                msg for msg in checker.msgs if linter.is_message_enabled(msg)
-            )
-            if messages or any(
-                self._plugin_registry.report_is_enabled(r[0]) for r in checker.reports
-            ):
-                neededcheckers.append(checker)
+        neededcheckers = set()
+        for checker_cls in self.get_checkers()[1:]:
+            if any(linter.is_message_enabled(msg) for msg in checker_cls.msgs):
+                neededcheckers.add(checker_cls)
+
+        for report_id, (_, _, checker_classes) in self._plugin_registry.reports.items():
+            if self._plugin_registry.report_is_enabled(report_id):
+                neededcheckers.update(checker_classes)
+
         # Sort checkers by priority
         neededcheckers = sorted(
             neededcheckers, key=operator.attrgetter("priority"), reverse=True
@@ -1686,7 +1691,7 @@ group are mutually exclusive.",
         all_stats.append(linter.stats)
         self._plugin_registry.stats = _merge_stats(all_stats)
 
-        return module_desc.basename, linter.msg_status
+        return module_desc.basename, all_states, linter.msg_status
 
 
 if __name__ == "__main__":
