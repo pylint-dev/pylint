@@ -435,7 +435,16 @@ class CLIParser(ConfigParser):
         else:
             args.append("--{0}".format(option))
 
-        copy_keys = ("action", "default", "dest", "help", "metavar", "level", "version")
+        copy_keys = (
+            "action",
+            "default",
+            "dest",
+            "help",
+            "metavar",
+            "level",
+            "version",
+            "nargs",
+        )
         kwargs = {k: definition[k] for k in copy_keys if k in definition}
 
         if "type" in definition:

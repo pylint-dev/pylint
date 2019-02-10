@@ -1363,6 +1363,9 @@ group are mutually exclusive.",
             self._plugin_registry.msgs_store.help_message(msg)
             sys.exit(0)
 
+        if not self._global_config.module_or_package:
+            sys.exit(0)
+
         self.load_default_plugins()
 
         self._plugin_registry.disable("I")
