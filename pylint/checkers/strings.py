@@ -322,6 +322,8 @@ class StringFormatChecker(BaseChecker):
                 elif num_args < required_num_args:
                     self.add_message("too-few-format-args", node=node)
                 for arg, format_type in zip(args_elts, required_arg_types):
+                    if not arg:
+                        continue
                     arg_type = utils.safe_infer(arg)
                     if arg_type not in (
                         None,
