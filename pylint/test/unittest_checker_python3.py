@@ -177,6 +177,22 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    def as_argument_to_itertools_functions(self, fxn):
+        code = """
+        from __future__ import absolute_import
+        import itertools
+        from itertools import product
+        for i,j in product({fxn}(), repeat=2):
+            pass
+        for i,j in itertools.product({fxn}(), repeat=2):
+            pass
+        """.format(
+            fxn=fxn
+        )
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
     def as_iterable_in_unpacking(self, fxn):
         node = astroid.extract_node(
             """
@@ -216,6 +232,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
         self.as_argument_to_materialized_filter(fxn)
         self.as_iterable_in_yield_from(fxn)
         self.as_iterable_in_starred_context(fxn)
+        self.as_argument_to_itertools_functions(fxn)
 
         for func in (
             "iter",

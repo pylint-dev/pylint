@@ -120,14 +120,14 @@ def _in_iterating_context(node):
         elif isinstance(parent.func, astroid.Attribute):
             if parent.func.attrname in ATTRIBUTES_ACCEPTS_ITERATOR:
                 return True
-            try:
-                inferred = next(parent.func.infer())
-            except astroid.InferenceError:
-                pass
-            else:
-                if inferred is not astroid.Uninferable:
-                    if inferred.qname() in _BUILTIN_METHOD_ACCEPTS_ITERATOR:
-                        return True
+
+        inferred = utils.safe_infer(parent.func)
+        if inferred:
+            if inferred.qname() in _BUILTIN_METHOD_ACCEPTS_ITERATOR:
+                return True
+            root = inferred.root()
+            if root and root.name == "itertools":
+                return True
     # If the call is in an unpacking, there's no need to warn,
     # since it can be considered iterating.
     elif isinstance(parent, astroid.Assign) and isinstance(

@@ -7,6 +7,11 @@ What's New in Pylint 2.3.0?
 
 Release date: TBA
 
+
+* Don't emit ``*-not-iterating`` checks for builtins consumed by ``itertools``
+
+  Close #2731
+
 * Fix a crash caused by iterating over ``Uninferable`` in a string formatting check.
 
   Close #2727
