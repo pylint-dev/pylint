@@ -6,3 +6,9 @@ try:
     __revision__ += 1
 except Exception: # [broad-except]
     print('error')
+
+
+try:
+    __revision__ += 1
+except BaseException: # [broad-except]
+    print('error')

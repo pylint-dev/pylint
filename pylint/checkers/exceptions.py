@@ -70,7 +70,7 @@ def _is_raising(body: typing.List) -> bool:
 
 
 PY3K = sys.version_info >= (3, 0)
-OVERGENERAL_EXCEPTIONS = ("Exception",)
+OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
 BUILTINS_NAME = builtins.__name__
 
 MSGS = {
