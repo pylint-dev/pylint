@@ -64,3 +64,8 @@ Quite a lot of bug fixes and improvements went into this release:
 * There's a new command line option ``list-groups`` for listing all the check groups
   ``pylint`` knows about. This is useful to know what groups you can disable or enable
   individually.
+
+* A file is now read from stdin if the ``--from-stdin`` flag is used on the
+  command line. In addition to the ``--from-stdin`` flag a (single) file
+  name needs to be specified on the command line, which is needed for the
+  report.

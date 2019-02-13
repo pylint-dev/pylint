@@ -62,6 +62,7 @@ from __future__ import print_function
 
 import collections
 import contextlib
+from io import TextIOWrapper
 import operator
 import os
 
@@ -87,6 +88,23 @@ from pylint.reporters.ureports import nodes as report_nodes
 
 
 MANAGER = astroid.MANAGER
+
+
+def _ast_from_string(data, filepath, modname):
+    cached = MANAGER.astroid_cache.get(modname)
+    if cached and cached.file == filepath:
+        return cached
+
+    from astroid.builder import AstroidBuilder
+
+    return AstroidBuilder(MANAGER).string_build(data, modname, filepath)
+
+
+def _read_stdin():
+    # https://mail.python.org/pipermail/python-list/2012-November/634424.html
+    # FIXME should this try to check the file's declared encoding?
+    sys.stdin = TextIOWrapper(sys.stdin.detach(), encoding="utf-8")
+    return sys.stdin.read()
 
 
 def _get_new_args(message):
@@ -553,6 +571,16 @@ class PyLinter(
                         "Always return a 0 (non-error) status code, even if "
                         "lint errors are found. This is primarily useful in "
                         "continuous integration scripts."
+                    ),
+                },
+            ),
+            (
+                "from-stdin",
+                {
+                    "action": "store_true",
+                    "help": (
+                        "Interpret the stdin as a python script, whose filename "
+                        "needs to be passed as the module_or_package argument."
                     ),
                 },
             ),
@@ -1054,31 +1082,51 @@ class PyLinter(
             if interfaces.implements(checker, interfaces.IAstroidChecker):
                 walker.add_checker(checker)
         # build ast and check modules or packages
-        for descr in self.expand_files(files_or_modules):
-            modname, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
-            if not self.should_analyze_file(modname, filepath, is_argument=is_arg):
-                continue
+        if self.config.from_stdin:
+            assert len(files_or_modules) == 1
+            filepath = files_or_modules[0]
+            modname = os.path.splitext(os.path.basename(filepath))[0]
 
             self.set_current_module(modname, filepath)
+
             # get the module representation
-            ast_node = self.get_ast(filepath, modname)
-            if ast_node is None:
-                continue
-            # XXX to be correct we need to keep module_msgs_state for every
-            # analyzed module (the problem stands with localized messages which
-            # are only detected in the .close step)
-            self.file_state = utils.FileState(descr["basename"])
-            self._ignore_file = False
-            # fix the current file (if the source file was not available or
-            # if it's actually a c extension)
-            self.current_file = ast_node.file  # pylint: disable=maybe-no-member
-            self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
-            # warn about spurious inline messages handling
-            spurious_messages = self.file_state.iter_spurious_suppression_messages(
-                self.msgs_store
-            )
-            for msgid, line, args in spurious_messages:
-                self.add_message(msgid, line, None, args)
+            ast_node = _ast_from_string(_read_stdin(), filepath, modname)
+
+            if ast_node is not None:
+                self.file_state = utils.FileState(filepath)
+                self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
+                # warn about spurious inline messages handling
+                spurious_messages = self.file_state.iter_spurious_suppression_messages(
+                    self.msgs_store
+                )
+                for msgid, line, args in spurious_messages:
+                    self.add_message(msgid, line, None, args)
+        else:
+            for descr in self.expand_files(files_or_modules):
+                modname, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
+                if not self.should_analyze_file(modname, filepath, is_argument=is_arg):
+                    continue
+
+                self.set_current_module(modname, filepath)
+                # get the module representation
+                ast_node = self.get_ast(filepath, modname)
+                if ast_node is None:
+                    continue
+                # XXX to be correct we need to keep module_msgs_state for every
+                # analyzed module (the problem stands with localized messages which
+                # are only detected in the .close step)
+                self.file_state = utils.FileState(descr["basename"])
+                self._ignore_file = False
+                # fix the current file (if the source file was not available or
+                # if it's actually a c extension)
+                self.current_file = ast_node.file  # pylint: disable=maybe-no-member
+                self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
+                # warn about spurious inline messages handling
+                spurious_messages = self.file_state.iter_spurious_suppression_messages(
+                    self.msgs_store
+                )
+                for msgid, line, args in spurious_messages:
+                    self.add_message(msgid, line, None, args)
         # notify global end
         self.stats["statement"] = walker.nbstatements
         for checker in reversed(_checkers):
