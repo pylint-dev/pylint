@@ -9,8 +9,7 @@
 Summary -- Release highlights
 =============================
 
-* This release improves the performance of the 2.X series after it was affected by a
-performance regression a couple of releases ago.
+* This release improves the performance of the 2.X series after it was affected by a performance regression a couple of releases ago.
 
 New checkers
 ============
