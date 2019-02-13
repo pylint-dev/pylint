@@ -1537,7 +1537,7 @@ class IterableChecker(BaseChecker):
     """
 
     __implements__ = (IAstroidChecker,)
-    name = "iterable_check"
+    name = "typecheck"
 
     msgs = {
         "E1133": (

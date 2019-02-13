@@ -745,7 +745,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Add a refactoring message if a boolOp contains comparison like a < b and b < c,
         which can be chained as a < b < c.
-        
+
         Care is taken to avoid simplifying a < b < c and b < d.
         """
         if node.op != "and" or len(node.values) < 2:
@@ -1176,7 +1176,7 @@ class NotChecker(checkers.BaseChecker):
             "Used when a boolean expression contains an unneeded negation.",
         )
     }
-    name = "basic"
+    name = "refactoring"
     reverse_op = {
         "<": ">=",
         "<=": ">",
@@ -1285,7 +1285,7 @@ class LenChecker(checkers.BaseChecker):
     __implements__ = (interfaces.IAstroidChecker,)
 
     # configuration section name
-    name = "len"
+    name = "refactoring"
     msgs = {
         "C1801": (
             "Do not use `len(SEQUENCE)` to determine if a sequence is empty",

@@ -551,7 +551,7 @@ class StringConstantChecker(BaseTokenChecker):
     """Check string literals"""
 
     __implements__ = (IAstroidChecker, ITokenChecker, IRawChecker)
-    name = "string_constant"
+    name = "string"
     msgs = {
         "W1401": (
             "Anomalous backslash in string: '%s'. "
