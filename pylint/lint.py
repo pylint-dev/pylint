@@ -878,6 +878,11 @@ class PyLinter(
             if c is not self
         ]
 
+    def get_checker_names(self):
+        """Get all the checker names that this linter knows about."""
+        checkers = self.get_checkers()
+        return sorted({check.name for check in checkers if check.name != "master"})
+
     def prepare_checkers(self):
         """return checkers needed for activated messages and reports"""
         if not self.config.reports:
@@ -1435,6 +1440,17 @@ group are mutually exclusive.",
                     },
                 ),
                 (
+                    "list-groups",
+                    {
+                        "action": "callback",
+                        "metavar": "<msg-id>",
+                        "callback": self.cb_list_groups,
+                        "group": "Commands",
+                        "level": 1,
+                        "help": "List pylint's message groups.",
+                    },
+                ),
+                (
                     "list-conf-levels",
                     {
                         "action": "callback",
@@ -1658,6 +1674,17 @@ group are mutually exclusive.",
     def cb_list_messages(self, option, optname, value, parser):  # FIXME
         """optik callback for printing available messages"""
         self.linter.msgs_store.list_messages()
+        sys.exit(0)
+
+    def cb_list_groups(self, *args, **kwargs):
+        """List all the check groups that pylint knows about
+
+        These should be useful to know what check groups someone can disable
+        or enable.
+        """
+        checkers = self.linter.get_checker_names()
+        for check in checkers:
+            print(check)
         sys.exit(0)
 
     def cb_python3_porting_mode(self, *args, **kwargs):

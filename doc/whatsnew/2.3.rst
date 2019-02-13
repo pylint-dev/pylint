@@ -27,7 +27,6 @@ New checkers
 
   Closes #2558
 
-
 * We added a new option ``check-str-concat-over-line-jumps`` to check
   ``implicit-str-concat-in-sequence`` over multiple lines.
 
@@ -62,3 +61,7 @@ Quite a lot of bug fixes and improvements went into this release:
 * Plugins can now use the ``load_configuration()`` hook.
   This hook is executed after configuration is loaded to prevent overwriting plugin
   specific configuration via user-based configuration.
+
+* There's a new command line option ``list-groups`` for listing all the check groups
+  ``pylint`` knows about. This is useful to know what groups you can disable or enable
+  individually.
