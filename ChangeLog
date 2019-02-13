@@ -111,11 +111,11 @@ Release date: TBA
   Previous version incorrectly detects `a < b < c and b < d` and fails to
   detect `a < b < c and c < d`.
 
- * Avoid popping __main__ when using multiple jobs
+* Avoid popping __main__ when using multiple jobs
 
- Close #2689
+  Close #2689
 
- * Add a new option 'check-str-concat-over-line-jumps' to check 'implicit-str-concat-in-sequence'
+* Add a new option 'check-str-concat-over-line-jumps' to check 'implicit-str-concat-in-sequence'
 
 * Fixes for the new style logging format linter.
 
