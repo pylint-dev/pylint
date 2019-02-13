@@ -7,3 +7,4 @@ __revision__ = 1
 u''.strip('http://')  # [bad-str-strip-call]
 u''.lstrip('http://')  # [bad-str-strip-call]
 b''.rstrip('http://')  # [bad-str-strip-call]
+"some_sensible_string".strip(None) # Don't crash

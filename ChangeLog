@@ -7,6 +7,9 @@ What's New in Pylint 2.3.0?
 
 Release date: TBA
 
+* Fixed a crash that occurred for ``bad-str-strip-call`` when ``strip()`` received ``None``
+
+  Close #2743
 
 * Don't emit ``*-not-iterating`` checks for builtins consumed by ``itertools``
 

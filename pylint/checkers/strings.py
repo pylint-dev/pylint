@@ -345,7 +345,7 @@ class StringFormatChecker(BaseChecker):
         ):
             if func.name in ("strip", "lstrip", "rstrip") and node.args:
                 arg = utils.safe_infer(node.args[0])
-                if not isinstance(arg, astroid.Const):
+                if not isinstance(arg, astroid.Const) or not isinstance(arg.value, str):
                     return
                 if len(arg.value) != len(set(arg.value)):
                     self.add_message(
