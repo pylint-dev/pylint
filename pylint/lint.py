@@ -880,8 +880,10 @@ class PyLinter(
 
     def get_checker_names(self):
         """Get all the checker names that this linter knows about."""
-        checkers = self.get_checkers()
-        return sorted({check.name for check in checkers if check.name != "master"})
+        current_checkers = self.get_checkers()
+        return sorted(
+            {check.name for check in current_checkers if check.name != "master"}
+        )
 
     def prepare_checkers(self):
         """return checkers needed for activated messages and reports"""
@@ -1682,8 +1684,7 @@ group are mutually exclusive.",
         These should be useful to know what check groups someone can disable
         or enable.
         """
-        checkers = self.linter.get_checker_names()
-        for check in checkers:
+        for check in self.linter.get_checker_names():
             print(check)
         sys.exit(0)
 
