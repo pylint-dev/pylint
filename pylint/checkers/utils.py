@@ -571,31 +571,31 @@ def parse_format_method_string(
 ) -> Tuple[List[Tuple[str, List[Tuple[bool, str]]]], int, int]:
     """
     Parses a PEP 3101 format string, returning a tuple of
-    (keys, num_args, manual_pos_arg),
-    where keys is the set of mapping keys in the format string, num_args
+    (keyword_arguments, implicit_pos_args_cnt, explicit_pos_args),
+    where keyword_arguments is the set of mapping keys in the format string, implicit_pos_args_cnt
     is the number of arguments required by the format string and
-    manual_pos_arg is the number of arguments passed with the position.
+    explicit_pos_args is the number of arguments passed with the position.
     """
-    keys = []
-    num_args = 0
-    manual_pos_arg = set()
+    keyword_arguments = []
+    implicit_pos_args_cnt = 0
+    explicit_pos_args = set()
     for name in collect_string_fields(format_string):
         if name and str(name).isdigit():
-            manual_pos_arg.add(str(name))
+            explicit_pos_args.add(str(name))
         elif name:
             keyname, fielditerator = split_format_field_names(name)
             if isinstance(keyname, numbers.Number):
                 # In Python 2 it will return long which will lead
                 # to different output between 2 and 3
-                manual_pos_arg.add(str(keyname))
+                explicit_pos_args.add(str(keyname))
                 keyname = int(keyname)
             try:
-                keys.append((keyname, list(fielditerator)))
+                keyword_arguments.append((keyname, list(fielditerator)))
             except ValueError:
                 raise IncompleteFormatString()
         else:
-            num_args += 1
-    return keys, num_args, len(manual_pos_arg)
+            implicit_pos_args_cnt += 1
+    return keyword_arguments, implicit_pos_args_cnt, len(explicit_pos_args)
 
 
 def is_attr_protected(attrname: str) -> bool:

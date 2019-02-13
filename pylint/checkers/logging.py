@@ -286,8 +286,8 @@ class LoggingChecker(checkers.BaseChecker):
         """
         num_args = _count_supplied_tokens(node.args[format_arg + 1 :])
         if not num_args:
-            # If no args were supplied, then all format strings are valid -
-            # don't check any further.
+            # If no args were supplied the string is not interpolated and can contain
+            # formatting characters - it's used verbatim. Don't check any further.
             return
         format_string = node.args[format_arg].value
         if not isinstance(format_string, str):
@@ -305,12 +305,16 @@ class LoggingChecker(checkers.BaseChecker):
                         # special keywords - out of scope.
                         return
                 elif self._format_style == "new":
-                    keys, num_args, manual_pos_arg = utils.parse_format_method_string(
+                    keyword_arguments, implicit_pos_args, explicit_pos_args = utils.parse_format_method_string(
                         format_string
                     )
 
-                    kargs = len(set(k for k, l in keys if not isinstance(k, int)))
-                    required_num_args = kargs + num_args + manual_pos_arg
+                    keyword_args_cnt = len(
+                        set(k for k, l in keyword_arguments if not isinstance(k, int))
+                    )
+                    required_num_args = (
+                        keyword_args_cnt + implicit_pos_args + explicit_pos_args
+                    )
             except utils.UnsupportedFormatCharacter as ex:
                 char = format_string[ex.index]
                 self.add_message(

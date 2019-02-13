@@ -110,6 +110,12 @@ Release date: TBA
 
  * Add a new option 'check-str-concat-over-line-jumps' to check 'implicit-str-concat-in-sequence'
 
+* Fixes for the new style logging format linter.
+
+  The number of arguments was not handled properly, leading to an always
+  successful check.
+
+
 What's New in Pylint 2.2.2?
 ===========================
 

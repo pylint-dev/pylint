@@ -265,3 +265,5 @@ contributors:
 * Nicolas Dickreuter
 
 * Pascal Corpet
+
+* Svetoslav Neykov: contributor
