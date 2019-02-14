@@ -297,6 +297,24 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(call)
 
+    def test_not_callable_uninferable_property(self):
+        """Make sure not-callable isn't raised for uninferable
+        properties
+        """
+        call = astroid.extract_node(
+            """
+        class A:
+            @property
+            def call(self):
+                return undefined
+
+        a = A()
+        a.call() #@
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_call(call)
+
     def test_descriptor_call(self):
         call = astroid.extract_node(
             """

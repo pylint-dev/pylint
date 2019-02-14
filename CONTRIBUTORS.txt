@@ -267,3 +267,5 @@ contributors:
 * Pascal Corpet
 
 * Svetoslav Neykov: contributor
+
+* Federico Bond: contributor
