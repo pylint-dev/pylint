@@ -1022,7 +1022,7 @@ accessed. Python regular expressions are accepted.",
 
                 try:
                     all_returns_are_callable = all(
-                        return_node.callable()
+                        return_node.callable() or return_node is astroid.Uninferable
                         for return_node in attr.infer_call_result(node)
                     )
                 except astroid.InferenceError:
