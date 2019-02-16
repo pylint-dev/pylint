@@ -971,6 +971,12 @@ class BasicChecker(_BasicChecker):
             "uses a constant value for its test. This might not be what "
             "the user intended to do.",
         ),
+        "W0126": (
+            "Using a conditional statement with potentially wrong function or method call due to missing parentheses",
+            "missing-parentheses-for-call-in-test",
+            "Emitted when a conditional statement (If or ternary if) "
+            "seems to wrongly call a function due to missing parentheses",
+        ),
         "E0111": (
             "The first reversed() argument is not a sequence",
             "bad-reversed-sequence",
@@ -1002,8 +1008,10 @@ class BasicChecker(_BasicChecker):
         self.stats = self.linter.add_stats(module=0, function=0, method=0, class_=0)
 
     @utils.check_messages("using-constant-test")
+    @utils.check_messages("missing-parentheses-for-call-in-test")
     def visit_if(self, node):
         self._check_using_constant_test(node, node.test)
+        self._check_missing_parentheses_to_call(node, node.test)
 
     @utils.check_messages("using-constant-test")
     def visit_ifexp(self, node):
@@ -1050,6 +1058,16 @@ class BasicChecker(_BasicChecker):
 
         if emit or isinstance(inferred, const_nodes):
             self.add_message("using-constant-test", node=node)
+
+    def _check_missing_parentheses_to_call(self, node, test):
+        """
+        Check that the test is not missing parentheses
+        """
+        maybe_callable = utils.safe_infer(test)
+        if hasattr(maybe_callable, "callable") and maybe_callable.callable():
+            for inf_call in maybe_callable.infer_call_result():
+                if isinstance(inf_call, astroid.Const) and hasattr(inf_call, 'bool_value'):
+                    self.add_message("missing-parentheses-for-call-in-test", node=node)
 
     def visit_module(self, _):
         """check module name, docstring and required arguments
