@@ -1011,13 +1011,13 @@ class BasicChecker(_BasicChecker):
     @utils.check_messages("missing-parentheses-for-call-in-test")
     def visit_if(self, node):
         self._check_using_constant_test(node, node.test)
-        self._check_missing_parentheses_to_call(node, node.test)
+        self._check_missing_parentheses_for_call_in_test(node, node.test)
 
     @utils.check_messages("using-constant-test")
     @utils.check_messages("missing-parentheses-for-call-in-test")
     def visit_ifexp(self, node):
         self._check_using_constant_test(node, node.test)
-        self._check_missing_parentheses_to_call(node, node.test)
+        self._check_missing_parentheses_for_call_in_test(node, node.test)
 
     @utils.check_messages("using-constant-test")
     def visit_comprehension(self, node):
@@ -1061,7 +1061,7 @@ class BasicChecker(_BasicChecker):
         if emit or isinstance(inferred, const_nodes):
             self.add_message("using-constant-test", node=node)
 
-    def _check_missing_parentheses_to_call(self, node, test):
+    def _check_missing_parentheses_for_call_in_test(self, node, test):
         """
         Check that the test is not missing parentheses
         """
