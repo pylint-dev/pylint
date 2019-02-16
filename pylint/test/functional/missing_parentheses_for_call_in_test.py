@@ -71,3 +71,10 @@ MY_VALUE = 42 if bool_function else -1  # [missing-parentheses-for-call-in-test]
 MY_2ND_VALUE = 42 if not bool_function() else -1
 MY_THIRD_VALUE = 42 if bool_lambda else -1  # [missing-parentheses-for-call-in-test]
 MY_FOURTH_VALUE = 42 if nonbool_lambda else -1
+
+[x for x in range(100) if bool_function]   # [missing-parentheses-for-call-in-test]
+[x for x in range(100) if bool_lambda]   # [missing-parentheses-for-call-in-test]
+[x for x in range(100) if not bool_function()]
+[x for x in range(100) if not bool_lambda()]
+[x for x in range(100) if nonbool_lambda]
+[x for x in range(100) if nonbool_function]
