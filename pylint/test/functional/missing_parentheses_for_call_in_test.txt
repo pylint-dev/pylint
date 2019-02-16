@@ -1,1 +1,6 @@
-using-constant-test:31::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:29::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:43::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:51::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:56::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:70::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:72::Using a conditional statement with potentially wrong function or method call due to missing parentheses
