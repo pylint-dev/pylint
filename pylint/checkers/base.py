@@ -1076,8 +1076,12 @@ class BasicChecker(_BasicChecker):
         if call_inferred is not None:
             try:
                 for inf_call in call_inferred:
-                    if isinstance(inf_call, astroid.Const) and isinstance(inf_call.value, bool):
-                        self.add_message("missing-parentheses-for-call-in-test", node=node)
+                    if isinstance(inf_call, astroid.Const) and isinstance(
+                        inf_call.value, bool
+                    ):
+                        self.add_message(
+                            "missing-parentheses-for-call-in-test", node=node
+                        )
             except astroid.InferenceError:
                 pass
 
