@@ -1014,8 +1014,10 @@ class BasicChecker(_BasicChecker):
         self._check_missing_parentheses_to_call(node, node.test)
 
     @utils.check_messages("using-constant-test")
+    @utils.check_messages("missing-parentheses-for-call-in-test")
     def visit_ifexp(self, node):
         self._check_using_constant_test(node, node.test)
+        self._check_missing_parentheses_to_call(node, node.test)
 
     @utils.check_messages("using-constant-test")
     def visit_comprehension(self, node):
@@ -1064,9 +1066,13 @@ class BasicChecker(_BasicChecker):
         Check that the test is not missing parentheses
         """
         maybe_callable = utils.safe_infer(test)
-        if hasattr(maybe_callable, "callable") and maybe_callable.callable():
+        if isinstance(maybe_callable, astroid.FunctionDef):
             for inf_call in maybe_callable.infer_call_result():
-                if isinstance(inf_call, astroid.Const) and hasattr(inf_call, 'bool_value'):
+                if isinstance(inf_call, astroid.Const) and isinstance(inf_call.value, bool):
+                    self.add_message("missing-parentheses-for-call-in-test", node=node)
+        elif isinstance(maybe_callable, astroid.Lambda):
+            for inf_call in maybe_callable.infer_call_result(node):
+                if isinstance(inf_call, astroid.Const) and isinstance(inf_call.value, bool):
                     self.add_message("missing-parentheses-for-call-in-test", node=node)
 
     def visit_module(self, _):
