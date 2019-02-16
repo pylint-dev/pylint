@@ -1063,7 +1063,7 @@ class BasicChecker(_BasicChecker):
 
     def _check_missing_parentheses_for_call_in_test(self, node, test):
         """
-        Check that the test is not missing parentheses
+        Check that the function call inside test is not missing parentheses
         """
         maybe_callable = utils.safe_infer(test)
         if isinstance(maybe_callable, astroid.FunctionDef):
