@@ -1,0 +1,1 @@
+using-constant-test:31::Using a conditional statement with potentially wrong function or method call due to missing parentheses
