@@ -1020,10 +1020,12 @@ class BasicChecker(_BasicChecker):
         self._check_missing_parentheses_for_call_in_test(node, node.test)
 
     @utils.check_messages("using-constant-test")
+    @utils.check_messages("missing-parentheses-for-call-in-test")
     def visit_comprehension(self, node):
         if node.ifs:
             for if_test in node.ifs:
                 self._check_using_constant_test(node, if_test)
+                self._check_missing_parentheses_for_call_in_test(node, if_test)
 
     def _check_using_constant_test(self, node, test):
         const_nodes = (
@@ -1066,14 +1068,18 @@ class BasicChecker(_BasicChecker):
         Check that the function call inside test is not missing parentheses
         """
         maybe_callable = utils.safe_infer(test)
+        call_inferred = None
         if isinstance(maybe_callable, astroid.FunctionDef):
-            for inf_call in maybe_callable.infer_call_result():
-                if isinstance(inf_call, astroid.Const) and isinstance(inf_call.value, bool):
-                    self.add_message("missing-parentheses-for-call-in-test", node=node)
+            call_inferred = maybe_callable.infer_call_result()
         elif isinstance(maybe_callable, astroid.Lambda):
-            for inf_call in maybe_callable.infer_call_result(node):
-                if isinstance(inf_call, astroid.Const) and isinstance(inf_call.value, bool):
-                    self.add_message("missing-parentheses-for-call-in-test", node=node)
+            call_inferred = maybe_callable.infer_call_result(node)
+        if call_inferred is not None:
+            try:
+                for inf_call in call_inferred:
+                    if isinstance(inf_call, astroid.Const) and isinstance(inf_call.value, bool):
+                        self.add_message("missing-parentheses-for-call-in-test", node=node)
+            except astroid.InferenceError:
+                pass
 
     def visit_module(self, _):
         """check module name, docstring and required arguments
