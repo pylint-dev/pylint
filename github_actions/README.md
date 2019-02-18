@@ -12,7 +12,7 @@ workflow "on push" {
 
 action "GitHub Action for pylint" {
   uses = "PyCQA/pylint/github_actions@master"
-  args = "pylint"
+  args = "pylint -h"  # Replace with "pylint <modulename(s)>"
 }
 ```
 Or to add other pylint options to __args =__ above.

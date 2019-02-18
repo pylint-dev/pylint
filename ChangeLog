@@ -7,6 +7,10 @@ What's New in Pylint 2.3.0?
 
 Release date: TBA
 
+* Add a GitHub Action that allows repo maintainers to quickly add automated pylint testing of all pull requests.
+
+  Close #2750
+
 * Added a new command line option ``list-groups`` for listing all the check groups ``pylint`` knows about.
 
 * Allow ``BaseException`` for emitting ``broad-except``, just like ``Exception``.

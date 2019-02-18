@@ -269,3 +269,5 @@ contributors:
 * Svetoslav Neykov: contributor
 
 * Federico Bond: contributor
+
+* Christian Clauss (clauss)

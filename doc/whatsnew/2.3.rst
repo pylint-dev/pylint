@@ -35,6 +35,8 @@ Other Changes
 
 Quite a lot of bug fixes and improvements went into this release:
 
+* Add a GitHub Action that allows repo maintainers to quickly add automated pylint testing.
+
 * We no longer emit ``*-not-iterating`` checks for builtins consumed by ``itertools``
 
 * We fixed some false positives for ``no-self-argument`` and ``unsubscriptable-object``
