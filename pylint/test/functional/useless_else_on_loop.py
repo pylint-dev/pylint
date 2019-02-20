@@ -67,7 +67,8 @@ def test_break_in_orelse_deep():
                 if 3 < 2:
                     break
             else:
-                break
+                if 1 < 2:
+                    break
     else:
         return True
     return False
