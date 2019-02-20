@@ -269,3 +269,5 @@ contributors:
 * Svetoslav Neykov: contributor
 
 * Federico Bond: contributor
+
+* Fantix King (UChicago): contributor

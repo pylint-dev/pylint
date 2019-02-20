@@ -246,6 +246,7 @@ def _get_break_loop_node(break_node):
     while not isinstance(parent, loop_nodes) or break_node in getattr(
         parent, "orelse", []
     ):
+        break_node = parent
         parent = parent.parent
         if parent is None:
             break
