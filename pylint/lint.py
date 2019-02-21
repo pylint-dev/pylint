@@ -1085,7 +1085,13 @@ class PyLinter(
         if self.config.from_stdin:
             assert len(files_or_modules) == 1
             filepath = files_or_modules[0]
-            modname = os.path.splitext(os.path.basename(filepath))[0]
+            try:
+                # Note that modpath_from_file does not really perform an
+                # __import__ as one may expect, because ImportError
+                # exceptions are explictly catched here.
+                modname = ".".join(modutils.modpath_from_file(filepath))
+            except ImportError:
+                modname = os.path.splitext(os.path.basename(filepath))[0]
 
             self.set_current_module(modname, filepath)
 
