@@ -87,3 +87,17 @@ def test_break_in_orelse_deep2():
     else:  # [useless-else-on-loop]
         return True
     return False
+
+
+def test_break_in_orelse_deep3():
+    """no false positive for break deeply nested in else
+    """
+    for _ in range(10):
+        for _ in range(3):
+            pass
+        else:
+            if 1 < 2:
+                break
+    else:
+        return True
+    return False

@@ -271,3 +271,5 @@ contributors:
 * Federico Bond: contributor
 
 * Christian Clauss (clauss)
+
+* Fantix King (UChicago): contributor
