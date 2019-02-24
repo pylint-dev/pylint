@@ -11,6 +11,16 @@ Release date: TBA
 
   Close #2658
 
+* Protect against `NonDeducibleTypeHierarchy` when calling semi-private `is_subtype`
+
+  `astroid.helpers.is_subtype` raises `NonDeducibleTypeHierarchy` when it cannot infer
+  the base classes of the given types, but that makes sense in its context given that
+  the method is mostly used to inform the inference process about the hierarchy of classes.
+  Doesn't make that much sense for ``pylint`` itself, which is why we're handling the
+  exception here, rather than in ``astroid``
+
+  Close PyCQA/astroid#644
+
 * Added a new command line option ``list-groups`` for listing all the check groups ``pylint`` knows about.
 
 * Allow ``BaseException`` for emitting ``broad-except``, just like ``Exception``.
@@ -129,6 +139,9 @@ Release date: TBA
   successful check.
 
 * Fix false positive ``not-callable`` for uninferable properties.
+
+* Fix false positive ``useless-else-on-loop`` if the break is deep in the else
+  of an inner loop.
 
 
 What's New in Pylint 2.2.2?
