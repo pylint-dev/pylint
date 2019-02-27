@@ -468,6 +468,16 @@ class TestNamePresets(unittest.TestCase):
         for name, name_type in always_pass_data:
             self._test_is_correct(naming_style, name, name_type)
 
+    def _test_should_never_pass(self, naming_style):
+        never_pass_data = [
+            (x, z)
+            for x in ("_" * y for y in range(2, 20))
+            for z in "module const class function method attr argument variable class_attribute "
+            "inlinevar".split()
+        ]
+        for name, name_type in never_pass_data:
+            self._test_is_incorrect(naming_style, name, name_type)
+
     def _test_is_correct(self, naming_style, name, name_type):
         rgx = naming_style.get_regex(name_type)
         self.assertTrue(
@@ -495,6 +505,7 @@ class TestNamePresets(unittest.TestCase):
             self._test_name_is_incorrect_for_all_name_types(naming_style, name)
 
         self._test_should_always_pass(naming_style)
+        self._test_should_never_pass(naming_style)
 
     def test_camel_case(self):
         naming_style = base.CamelCaseStyle
@@ -505,6 +516,7 @@ class TestNamePresets(unittest.TestCase):
             self._test_name_is_incorrect_for_all_name_types(naming_style, name)
 
         self._test_should_always_pass(naming_style)
+        self._test_should_never_pass(naming_style)
 
     def test_upper_case(self):
         naming_style = base.UpperCaseStyle
@@ -515,6 +527,7 @@ class TestNamePresets(unittest.TestCase):
             self._test_name_is_incorrect_for_all_name_types(naming_style, name)
 
         self._test_should_always_pass(naming_style)
+        self._test_should_never_pass(naming_style)
 
     def test_pascal_case(self):
         naming_style = base.PascalCaseStyle
@@ -525,3 +538,4 @@ class TestNamePresets(unittest.TestCase):
             self._test_name_is_incorrect_for_all_name_types(naming_style, name)
 
         self._test_should_always_pass(naming_style)
+        self._test_should_never_pass(naming_style)
