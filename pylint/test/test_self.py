@@ -584,14 +584,14 @@ class TestRunTC(object):
 
             foobar('hello')
             bla()
-        """
+            """
         )
 
         c_code = textwrap.dedent(
             """
             def foobar(arg):
                 pass
-        """
+            """
         )
 
         a.mkdir()

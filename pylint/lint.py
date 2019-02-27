@@ -76,6 +76,7 @@ import warnings
 
 import astroid
 from astroid.__pkginfo__ import version as astroid_version
+from astroid.builder import AstroidBuilder
 from astroid import modutils
 from pylint import checkers
 from pylint import interfaces
@@ -94,8 +95,6 @@ def _ast_from_string(data, filepath, modname):
     cached = MANAGER.astroid_cache.get(modname)
     if cached and cached.file == filepath:
         return cached
-
-    from astroid.builder import AstroidBuilder
 
     return AstroidBuilder(MANAGER).string_build(data, modname, filepath)
 
@@ -1083,12 +1082,16 @@ class PyLinter(
                 walker.add_checker(checker)
         # build ast and check modules or packages
         if self.config.from_stdin:
-            assert len(files_or_modules) == 1
+            if len(files_or_modules) != 1:
+                raise exceptions.InvalidArgsError(
+                    "Missing filename required for --from-stdin"
+                )
+
             filepath = files_or_modules[0]
             try:
-                # Note that modpath_from_file does not really perform an
-                # __import__ as one may expect, because ImportError
-                # exceptions are explictly catched here.
+                # Note that this function does not really perform an
+                # __import__ but may raise an ImportError exception, which
+                # we want to catch here.
                 modname = ".".join(modutils.modpath_from_file(filepath))
             except ImportError:
                 modname = os.path.splitext(os.path.basename(filepath))[0]
