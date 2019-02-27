@@ -133,9 +133,9 @@ class DotWriter(DiagramWriter):
             for func in obj.methods:
                 args = []
                 for arg in func.args.args:
-                    if arg.name != 'self':
+                    if arg.name != "self":
                         args.append(arg.name)
-                label = r"%s%s(%s)\l" % (label, func.name, ', '.join(args))
+                label = r"%s%s(%s)\l" % (label, func.name, ", ".join(args))
             label = "{%s}" % label
         if is_exception(obj.node):
             return dict(fontcolor="red", label=label, shape="record")
