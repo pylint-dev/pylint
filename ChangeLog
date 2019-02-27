@@ -7,7 +7,9 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Added method arguments to the dot writer for pyreverse.
 
+Close #2139
 
 What's New in Pylint 2.3.0?
 ===========================
