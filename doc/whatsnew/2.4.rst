@@ -13,6 +13,10 @@ Summary -- Release highlights
 New checkers
 ============
 
+* We added a new check message ``dict-iter-missing-items``.
+  This is emitted when trying to iterate through a dict in a for loop without calling its .items() method.
+
+  Closes #2761
 
 Other Changes
 =============

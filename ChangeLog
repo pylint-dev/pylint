@@ -14,6 +14,10 @@ What's New in Pylint 2.3.0?
 
 Release date: 2019-02-27
 
+* Add new linter: dict-iter-missing-items (E1141)
+
+  Close #2761
+
 * Protect against `NonDeducibleTypeHierarchy` when calling semi-private `is_subtype`
 
   `astroid.helpers.is_subtype` raises `NonDeducibleTypeHierarchy` when it cannot infer

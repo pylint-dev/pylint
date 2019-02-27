@@ -356,6 +356,12 @@ MSGS = {
         "Emitted when a dict key is not hashable "
         "(i.e. doesn't define __hash__ method).",
     ),
+    "E1141": (
+        "Dict is not iterable",
+        "dict-iter-missing-items",
+        "Emitted when trying to iterate through"
+        "a dict without calling .items()",
+    ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
         "in the definition of %s function",
@@ -1525,6 +1531,32 @@ accessed. Python regular expressions are accepted.",
         if not supported_protocol(inferred):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
 
+    @check_messages("dict-items-missing-iter")
+    def visit_for(self, node):
+        # not k, v
+        if not isinstance(node.target, astroid.node_classes.Tuple):
+            return
+
+        itr = node.iter
+
+        # not method
+        if not isinstance(itr, astroid.node_classes.Call):
+            return
+
+        called_upon = itr.func.last_child()
+        if not called_upon:
+            return
+
+        # not dict type
+        if not isinstance(called_upon.infer(), astroid.node_classes.Call):
+            return
+
+        # not items() method
+        if (
+            isinstance(itr.func, astroid.node_classes.Attribute)
+            and itr.func.attrname != "items"
+        ):
+            self.add_message("dict-iter-missing-items", node=node)
 
 class IterableChecker(BaseChecker):
     """
@@ -1636,7 +1668,6 @@ class IterableChecker(BaseChecker):
     def visit_generatorexp(self, node):
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
-
 
 def register(linter):
     """required method to auto register this checker """

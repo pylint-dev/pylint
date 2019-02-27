@@ -333,3 +333,69 @@ class TestTypeChecker(CheckerTestCase):
         )
         with self.assertNoMessages():
             self.checker.visit_call(call)
+
+    def test_dict_iter_missing_items(self):
+        _, for_node = astroid.extract_node(
+            """
+        def test(): #@
+            d = {1: 1, 2: 2}
+            for k, v in d: #@
+                pass
+        """
+        )
+
+        self.checker.visit_for(for_node)
+        Message(msg_id="dict-iter-missing-items")
+
+    def test_dict_iter_missing_items_good(self):
+        _, for_node = astroid.extract_node(
+            """
+        def test(): #@
+            d = {1: 1, 2: 2}
+            for k, v in d.items(): #@
+                pass
+        """
+        )
+
+        with self.assertNoMessages():
+            self.checker.visit_for(for_node)
+
+    def test_dict_iter_missing_items_keys_only(self):
+        _, for_node = astroid.extract_node(
+            """
+        def test(): #@
+            d = {1: 1, 2: 2}
+            for k in d.keys(): #@
+                pass
+        """
+        )
+
+        with self.assertNoMessages():
+            self.checker.visit_for(for_node)
+
+    def test_dict_iter_missing_items_not_dict_not_method(self):
+        _, for_node = astroid.extract_node(
+            """
+        def test(): #@
+            d = [1, 2]
+            for i, v in enumerate(d): #@
+                pass
+        """
+        )
+
+        with self.assertNoMessages():
+            self.checker.visit_for(for_node)
+
+    def test_dict_iter_missing_items_not_dict_method(self):
+        _, for_node = astroid.extract_node(
+            """
+        def test(): #@
+            s1 = {1, 2}
+            s2 = {1, 2, 3}
+            for i, v in s1.intersection(s2): #@
+                pass
+        """
+        )
+
+        with self.assertNoMessages():
+            self.checker.visit_for(for_node)
