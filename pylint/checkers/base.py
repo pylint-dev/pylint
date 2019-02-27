@@ -94,7 +94,7 @@ class SnakeCaseStyle(NamingStyle):
     CONST_NAME_RGX = re.compile("((_{,2}[a-z][a-z0-9_]*)|(__[^_].*__))$")
     COMP_VAR_RGX = re.compile("_{,2}[a-z][a-z0-9_]*$")
     DEFAULT_NAME_RGX = re.compile(
-        "((_{,2}[a-z][a-z0-9_]{2,})|(_{,2}[a-z0-9][a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$"
+        "((_{,2}[a-z][a-z0-9_]{2,})|(_{,2}[a-z0-9][a-z0-9_]*)|(__[a-z][a-z0-9_]+__)|_)$"
     )
     CLASS_ATTRIBUTE_RGX = re.compile(r"((_{,2}[a-z][a-z0-9_]{2,}|(__[^_].*__)))$")
 
@@ -107,7 +107,7 @@ class CamelCaseStyle(NamingStyle):
     CONST_NAME_RGX = re.compile("((_{,2}[a-z][A-Za-z0-9]*)|(__[^_].*__))$")
     COMP_VAR_RGX = re.compile("_{,2}[a-z][A-Za-z0-9]*$")
     DEFAULT_NAME_RGX = re.compile(
-        "((_{,2}[a-z][a-zA-Z0-9]{2,})|(__[a-z][a-zA-Z0-9_]+__))$"
+        "((_{,2}[a-z][a-zA-Z0-9]{2,})|(__[a-z][a-zA-Z0-9_]+__)|_)$"
     )
     CLASS_ATTRIBUTE_RGX = re.compile(r"(_{,2}[a-z][A-Za-z0-9]{2,}|(__[^_].*__))$")
 
@@ -120,7 +120,7 @@ class PascalCaseStyle(NamingStyle):
     CONST_NAME_RGX = re.compile("((_{,2}[A-Z][A-Za-z0-9]*)|(__[^_].*__))$")
     COMP_VAR_RGX = re.compile("_{,2}[A-Z][a-zA-Z0-9]+$")
     DEFAULT_NAME_RGX = re.compile(
-        "_{,2}[A-Z][a-zA-Z0-9]{2,}$|(__[a-z][a-zA-Z0-9_]+__)$"
+        "_{,2}[A-Z][a-zA-Z0-9]{2,}$|(__[a-z][a-zA-Z0-9_]+__)|_$"
     )
     CLASS_ATTRIBUTE_RGX = re.compile("_{,2}[A-Z][a-zA-Z0-9]{2,}$")
 
@@ -132,7 +132,9 @@ class UpperCaseStyle(NamingStyle):
     MOD_NAME_RGX = re.compile("_{,2}[A-Z][A-Z0-9_]+$")
     CONST_NAME_RGX = re.compile("((_{,2}[A-Z][A-Z0-9_]*)|(__[^_].*__))$")
     COMP_VAR_RGX = re.compile("_{,2}[A-Z][A-Z0-9_]+$")
-    DEFAULT_NAME_RGX = re.compile("(_{,2}[A-Z][A-Z0-9_]{2,})|(__[a-z][a-zA-Z0-9_]+__)$")
+    DEFAULT_NAME_RGX = re.compile(
+        "(_{,2}[A-Z][A-Z0-9_]{2,})|(__[a-z][a-zA-Z0-9_]+__)|_$"
+    )
     CLASS_ATTRIBUTE_RGX = re.compile("_{,2}[A-Z][A-Z0-9_]{2,}$")
 
 

@@ -464,6 +464,7 @@ class TestNamePresets(unittest.TestCase):
             ("__set_name__", "method"),
             ("__version__", "const"),
             ("__author__", "const"),
+            ("_", "variable"),
         ]
         for name, name_type in always_pass_data:
             self._test_is_correct(naming_style, name, name_type)
