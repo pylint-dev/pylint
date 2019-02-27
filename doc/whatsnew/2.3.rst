@@ -1,9 +1,9 @@
 **************************
- What's New in Pylint 2.2
+ What's New in Pylint 2.3
 **************************
 
 :Release: 2.3
-:Date: TBA
+:Date: 2019-02-27
 
 
 Summary -- Release highlights
