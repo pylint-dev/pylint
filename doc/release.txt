@@ -35,9 +35,9 @@ Pre-release
 
 3. Add a new tag 'pylint-$VERSION'
 
-5. Publish all remaining changes to the GitHub repository:
-   https://github.com/PyCQA/pylint
-
+4. Publish all remaining changes to the GitHub repository:
+   https://github.com/PyCQA/pylint.
+   Also push the tag with `git push origin --tags`
 
 Release by running the following:
 

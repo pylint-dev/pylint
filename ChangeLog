@@ -2,14 +2,20 @@
 Pylint's ChangeLog
 ------------------
 
-What's New in Pylint 2.3.0?
+What's New in Pylint 2.4.0?
 ===========================
 
 Release date: TBA
 
-* Added a new check that warns the user if a function call is used inside a test but parenthese are missing.
+* Added a new check that warns the user if a function call is used inside a test but parentheses are missing.
 
   Close #2658
+
+
+What's New in Pylint 2.3.0?
+===========================
+
+Release date: 2019-02-27
 
 * Protect against `NonDeducibleTypeHierarchy` when calling semi-private `is_subtype`
 
