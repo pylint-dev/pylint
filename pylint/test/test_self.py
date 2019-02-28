@@ -433,6 +433,28 @@ class TestRunTC(object):
             assert message[key] == value
         assert message["message"].startswith("No module named")
 
+    def test_json_report_does_not_escape_quotes(self):
+        out = StringIO()
+        module = join(HERE, "regrtest_data", "unused_variable.py")
+        self._runtest([module], code=4, reporter=JSONReporter(out))
+        output = json.loads(out.getvalue())
+        assert isinstance(output, list)
+        assert len(output) == 1
+        assert isinstance(output[0], dict)
+        expected = {
+            "symbol": "unused-variable",
+            "module": "unused_variable",
+            "column": 4,
+            "message": "Unused variable 'variable'",
+            "message-id": "W0612",
+            "line": 4,
+            "type": "warning",
+        }
+        message = output[0]
+        for key, value in expected.items():
+            assert key in message
+            assert message[key] == value
+
     def test_information_category_disabled_by_default(self):
         expected = "Your code has been rated at 10.00/10"
         path = join(HERE, "regrtest_data", "meta.py")
