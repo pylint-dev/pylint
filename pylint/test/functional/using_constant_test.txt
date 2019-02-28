@@ -20,3 +20,5 @@ using-constant-test:75:test_comprehensions:Using a conditional statement with a 
 using-constant-test:76:test_comprehensions:Using a conditional statement with a constant value
 using-constant-test:77:test_comprehensions:Using a conditional statement with a constant value
 using-constant-test:78:test_comprehensions:Using a conditional statement with a constant value
+using-constant-test:82::Using a conditional statement with a constant value
+using-constant-test:86::Using a conditional statement with a constant value
