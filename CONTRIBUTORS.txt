@@ -272,4 +272,9 @@ contributors:
 
 * Fantix King (UChicago): contributor
 
+* Thomas Hisch: contributor
+
+* Clément Pit-Claudel : contributor
+
 * Goudcode: contributor
+

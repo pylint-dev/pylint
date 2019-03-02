@@ -23,3 +23,7 @@ class EmptyReportError(Exception):
 
 class InvalidReporterError(Exception):
     """raised when selected reporter is invalid (e.g. not found)"""
+
+
+class InvalidArgsError(ValueError):
+    """raised when passed arguments are invalid, e.g., have the wrong length"""
