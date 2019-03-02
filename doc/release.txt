@@ -12,8 +12,9 @@ Pre-developing
 2. create a new ``What's new in Pylint X.Y`` document. Take a look
    at the examples from doc/whatsnew.
 
-Pre-release
------------
+
+Release process
+---------------
 
 1. Preparation
    0. Run the acceptance tests to see if everything is alright with this release.
@@ -33,14 +34,15 @@ Pre-release
 2. Make sure the tests are passing on Travis:
    https://travis-ci.org/PyCQA/pylint/
 
-3. Add a new tag 'pylint-$VERSION'
+3. Do the actual release by tagging the master with 'pylint-$VERSION'. Travis should deal
+   with the release process once the tag is pushed with `git push origin --tags`
 
-4. Publish all remaining changes to the GitHub repository:
-   https://github.com/PyCQA/pylint.
-   Also push the tag with `git push origin --tags`
+Manual Release
+--------------
 
-Release by running the following:
+Following the previous steps, for a manual release run the following commands:
 
    $ git clean -fdx && find . -name '*.pyc' -delete
    $ python setup.py sdist --formats=gztar bdist_wheel
    $ twine upload dist/*
+   $ # don't forget to tag it as well
