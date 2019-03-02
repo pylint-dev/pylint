@@ -1395,10 +1395,12 @@ accessed. Python regular expressions are accepted.",
                 # Retrieve node from all previusly visited nodes in the the inference history
                 context_path_names = filter(None, _unflatten(context.path))
                 inferred_paths = _flatten_container(
-                    path.infer() for path in context_path_names
+                    safe_infer(path) for path in context_path_names
                 )
-                for inf_path in inferred_paths:
-                    scope = inf_path.scope()
+                for inferred_path in inferred_paths:
+                    if not inferred_path:
+                        continue
+                    scope = inferred_path.scope()
                     if not isinstance(scope, astroid.FunctionDef):
                         continue
                     if decorated_with(scope, self.config.contextmanager_decorators):

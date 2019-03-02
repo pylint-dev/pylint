@@ -1,9 +1,9 @@
 **************************
- What's New in Pylint 2.2
+ What's New in Pylint 2.3
 **************************
 
 :Release: 2.3
-:Date: TBA
+:Date: 2019-02-27
 
 
 Summary -- Release highlights
@@ -33,14 +33,15 @@ New checkers
 Other Changes
 =============
 
-Quite a lot of bug fixes and improvements went into this release:
+Quite a lot of bug fixes and improvements went into this release, here's a handful of them.
+For the full changes, check the Changelog.
 
 * We no longer emit ``*-not-iterating`` checks for builtins consumed by ``itertools``
 
 * We fixed some false positives for ``no-self-argument`` and ``unsubscriptable-object``
   when using ``__class_getitem__`` (new in Python 3.7)
 
-* ``pylint`` now upports ``Ellipsis`` as a synonym for ``pass`` statements.
+* ``pylint`` now supports ``Ellipsis`` as a synonym for ``pass`` statements.
 
 * ``fixme`` gets triggered only on comments.
 
