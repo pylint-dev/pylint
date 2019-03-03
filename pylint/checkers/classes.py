@@ -728,6 +728,18 @@ a metaclass class method.",
     def _ignore_mixin(self):
         return get_global_option(self, "ignore-mixin-members", default=True)
 
+    @check_messages(
+        "abstract-method",
+        "no-init",
+        "invalid-slots",
+        "single-string-used-for-slots",
+        "invalid-slots-object",
+        "class-variable-slots-conflict",
+        "inherit-non-class",
+        "useless-object-inheritance",
+        "inconsistent-mro",
+        "duplicate-bases",
+    )
     def visit_classdef(self, node):
         """init visit variable _accessed
         """
