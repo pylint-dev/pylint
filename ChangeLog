@@ -9,13 +9,19 @@ Release date: TBA
 
 * Added method arguments to the dot writer for pyreverse.
 
-Close #2139
+  Close #2139
 
 * Support for linting file from stdin.
 
   IDEs may benefit from the support for linting from an in-memory file.
 
   Close #1187
+
+* Added a new check `class-variable-slots-conflict`
+
+  This check is emitted when ``pylint`` finds a class variable that conflicts with a slot
+  name, which would raise a ``ValueError`` at runtime.
+
 
 What's New in Pylint 2.3.0?
 ===========================
