@@ -149,6 +149,7 @@ _SPECIAL_METHODS_PARAMS = {
         "__mul__",
         "__truediv__",
         "__floordiv__",
+        "__rfloordiv__",
         "__mod__",
         "__divmod__",
         "__lshift__",
