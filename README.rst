@@ -95,7 +95,7 @@ We use tox_ for running the test suite. You should be able to install it with::
 
 To run the test suite for a particular Python version, you can do::
 
-    tox -e py27
+    tox -e py37
 
 
 For more detailed information, check the documentation.
