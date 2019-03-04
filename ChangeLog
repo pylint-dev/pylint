@@ -22,6 +22,9 @@ Release date: TBA
   This check is emitted when ``pylint`` finds a class variable that conflicts with a slot
   name, which would raise a ``ValueError`` at runtime.
 
+* Fix issue with pylint name in output of python -m pylint --version
+
+  Close #2764
 
 What's New in Pylint 2.3.0?
 ===========================
