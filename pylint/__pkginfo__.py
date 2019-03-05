@@ -25,14 +25,13 @@ from os.path import join
 
 modname = distname = "pylint"
 
+# For an official release, use dev_version = None
 numversion = (2, 4, 0)
-dev_version = None
-string_version = ".".join(str(num) for num in numversion)
+dev_version = 0
 
-if dev_version:
-    version = string_version + "-dev" + str(dev_version)
-else:
-    version = string_version
+version = ".".join(str(num) for num in numversion)
+if dev_version is not None:
+    version += "-dev" + str(dev_version)
 
 install_requires = ["astroid>=2.2.0,<3", "isort>=4.2.5,<5", "mccabe>=0.6,<0.7"]
 
