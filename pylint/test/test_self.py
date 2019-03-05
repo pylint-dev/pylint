@@ -30,6 +30,7 @@ import tempfile
 import textwrap
 import configparser
 from io import StringIO
+import subprocess
 from unittest import mock
 
 from pylint.lint import Run
@@ -645,3 +646,17 @@ class TestRunTC(object):
 
         finally:
             os.chdir(curdir)
+
+    def test_version(self):
+        def check(lines):
+            assert lines[0].startswith("pylint ")
+            assert lines[1].startswith("astroid ")
+            assert lines[2].startswith("Python ")
+
+        out = StringIO()
+        self._run_pylint(["--version"], out=out)
+        check(out.getvalue().splitlines())
+
+        result = subprocess.check_output([sys.executable, "-m", "pylint", "--version"])
+        result = result.decode("utf-8")
+        check(result.splitlines())

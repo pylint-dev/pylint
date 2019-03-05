@@ -46,15 +46,15 @@
 
 # pylint: disable=broad-except
 
-""" %prog [options] modules_or_packages
+""" pylint [options] modules_or_packages
 
   Check that module(s) satisfy a coding standard (and more !).
 
-    %prog --help
+    pylint --help
 
   Display this help message and exit.
 
-    %prog --help-msg <msg-id>[,<msg-id>]
+    pylint --help-msg <msg-id>[,<msg-id>]
 
   Display help messages about given message identifiers and exit.
 """
@@ -615,7 +615,7 @@ class PyLinter(
             "disable-msg": self.disable,
             "enable-msg": self.enable,
         }
-        full_version = "%%prog %s\nastroid %s\nPython %s" % (
+        full_version = "pylint %s\nastroid %s\nPython %s" % (
             version,
             astroid_version,
             sys.version,
