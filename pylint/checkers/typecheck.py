@@ -641,7 +641,6 @@ def _is_c_extension(module_node):
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
     """
-
     __implements__ = (IAstroidChecker,)
 
     # configuration section name
@@ -1540,23 +1539,16 @@ accessed. Python regular expressions are accepted.",
             # target is not a tuple of two elements
             return
 
-        iterator = node.iter
-
-        called_upon = iterator.func.last_child()
-        if not called_upon or not isinstance(called_upon, astroid.node_classes.Name):
-            # the iterable is not a variable
+        iterable = node.iter
+        if not isinstance(iterable, astroid.node_classes.Name):
+            # it's not a bare variable
             return
 
-        # the iterable is not a dict
-        if not isinstance(safe_infer(called_upon), astroid.node_classes.Dict):
+        if not isinstance(safe_infer(iterable), astroid.node_classes.Dict):
+            # the iterable is not a dict
             return
 
-        # not items() method
-        if (
-            isinstance(iterator.func, astroid.node_classes.Attribute)
-            and iterator.func.attrname != "items"
-        ):
-            self.add_message("dict-iter-missing-items", node=node)
+        self.add_message("dict-iter-missing-items", node=node)
 
 class IterableChecker(BaseChecker):
     """
