@@ -357,7 +357,7 @@ MSGS = {
         "(i.e. doesn't define __hash__ method).",
     ),
     "E1141": (
-        "Dict is not iterable",
+        "Unpacking a dictionary in iteration without calling .items()",
         "dict-iter-missing-items",
         "Emitted when trying to iterate through"
         "a dict without calling .items()",
@@ -1533,28 +1533,28 @@ accessed. Python regular expressions are accepted.",
 
     @check_messages("dict-items-missing-iter")
     def visit_for(self, node):
-        # not k, v
         if not isinstance(node.target, astroid.node_classes.Tuple):
+            # target is not a tuple
+            return
+        if not len(list(node.target.get_children())) == 2:
+            # target is not a tuple of two elements
             return
 
-        itr = node.iter
+        iterator = node.iter
 
-        # not method
-        if not isinstance(itr, astroid.node_classes.Call):
+        called_upon = iterator.func.last_child()
+        if not called_upon or not isinstance(called_upon, astroid.node_classes.Name):
+            # the iterable is not a variable
             return
 
-        called_upon = itr.func.last_child()
-        if not called_upon:
-            return
-
-        # not dict type
-        if not isinstance(called_upon.infer(), astroid.node_classes.Call):
+        # the iterable is not a dict
+        if not isinstance(safe_infer(called_upon), astroid.node_classes.Dict):
             return
 
         # not items() method
         if (
-            isinstance(itr.func, astroid.node_classes.Attribute)
-            and itr.func.attrname != "items"
+            isinstance(iterator.func, astroid.node_classes.Attribute)
+            and iterator.func.attrname != "items"
         ):
             self.add_message("dict-iter-missing-items", node=node)
 
