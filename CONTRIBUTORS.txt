@@ -273,3 +273,9 @@ contributors:
 * Fantix King (UChicago): contributor
 
 * Yory (yory8): contributor
+
+* Thomas Hisch: contributor
+
+* Clément Pit-Claudel : contributor
+
+* Goudcode: contributor

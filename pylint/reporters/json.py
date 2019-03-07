@@ -39,8 +39,7 @@ class JSONReporter(BaseReporter):
                 "column": msg.column,
                 "path": msg.path,
                 "symbol": msg.symbol,
-                # pylint: disable=deprecated-method; deprecated since 3.2.
-                "message": html.escape(msg.msg or ""),
+                "message": html.escape(msg.msg or "", quote=False),
                 "message-id": msg.msg_id,
             }
         )

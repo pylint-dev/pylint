@@ -6,3 +6,6 @@ invalid-slots-object:49:FifthBad:"Invalid object ""''"" in __slots__, must conta
 single-string-used-for-slots:51:SixthBad:Class __slots__ should be a non-string iterable
 single-string-used-for-slots:54:SeventhBad:Class __slots__ should be a non-string iterable
 single-string-used-for-slots:57:EighthBad:Class __slots__ should be a non-string iterable
+class-variable-slots-conflict:89:ValueInSlotConflict:Value 'first' in slots conflicts with class variable
+class-variable-slots-conflict:89:ValueInSlotConflict:Value 'fourth' in slots conflicts with class variable
+class-variable-slots-conflict:89:ValueInSlotConflict:Value 'third' in slots conflicts with class variable

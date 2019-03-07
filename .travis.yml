@@ -27,6 +27,10 @@ jobs:
     - python: 3.7
       env: TOXENV=py37
       dist: xenial
+    - python: 3.8-dev
+      env: TOXENV=py38
+      dist: xenial
+      sudo: true
     - python: 3.6
       env: TOXENV=spelling
     - stage: tests-pypy
@@ -59,3 +63,12 @@ notifications:
   email:
     on_success: always
     on_failure: always
+deploy:
+  provider: pypi
+  user: Claudiu.Popa
+  password:
+    secure: "EEuu9Rn6yhZjHaRPPHorFOWHu13xmMan+lqXh1jmusbEv9weRSz1LH38ziO7+HIST9l8Sup5tfKr9e0nzYw128FaTRf9/5lMJRa3ZLzh+152EfUqOUfcKKDj7rMN9qeWnS6NjKlUubQypUPkgGfFH4c0jHNVU9qUCLFXLkrFsUUcDrU86nPu69hLOfmyMmv1SF/BaOI1SagKbs5Ak1v0ZGHqImzwqs1Aj6Bz7WzXm70jGuVqokCq6HQNHD3aGjgyQTkB9J5cevNY0br7RL7UZMQMPXYFIsXCKmZ1CyEibfiM/TQBry5vVdBTnrSGyFa3/tke96P64ASRu8/V5icx8jPrrZ1zzmNuW9uMRhD1gNhtLNma/g5qbwAnAAaxMON4EpARzQ1ZYJnLVhohKhlKtZyp99Rv0KlLgoOvlFQH0rwTE9kJaiaBApWB5ITREP68XTjQH8OezjiwkmyMNLhG7SUFG8vGWN90oTfBX7thb+reiAUsH5nuNGCx/gzQ8lxdHt/9GrgJCilopjJbdPTF/twcS6tSXrcqAhjktlHMPe3FohnkWbgoKeDznfm/yw3Ux3mYZrrde/Tl+B/InQsTFk9sTMafpEitt9qyA8x5PBNxofXBqLtGlsWfh9O0bHoMVlVd1Nm44WSMnpgFE0QY/dtOsBq1cpuxut2xWwJSr6I="
+  on:
+    tags: true
+    condition: "$TOXENV = py36"
+  distributions: sdist bdist_wheel

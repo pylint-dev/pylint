@@ -41,7 +41,7 @@ For the full changes, check the Changelog.
 * We fixed some false positives for ``no-self-argument`` and ``unsubscriptable-object``
   when using ``__class_getitem__`` (new in Python 3.7)
 
-* ``pylint`` now upports ``Ellipsis`` as a synonym for ``pass`` statements.
+* ``pylint`` now supports ``Ellipsis`` as a synonym for ``pass`` statements.
 
 * ``fixme`` gets triggered only on comments.
 

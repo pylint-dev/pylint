@@ -1,7 +1,7 @@
 """ Checks that classes uses valid __slots__ """
 
 # pylint: disable=too-few-public-methods, missing-docstring, no-absolute-import, useless-object-inheritance
-# pylint: disable=using-constant-test, wrong-import-position, no-else-return
+# pylint: disable=using-constant-test, wrong-import-position, no-else-return, line-too-long
 from collections import deque
 
 def func():
@@ -83,3 +83,23 @@ class PotentiallyThirdGood(object):
 
 class PotentiallyFourthGood(object):
     __slots__ = Good.__slots__
+
+
+class ValueInSlotConflict(object):
+    __slots__ = ('first', 'second', 'third', 'fourth') # [class-variable-slots-conflict, class-variable-slots-conflict, class-variable-slots-conflict]
+    first = None
+
+    @property
+    def third(self):
+        return 42
+
+    def fourth(self):
+        return self.third
+
+
+class Parent(object):
+    first = 42
+
+
+class ChildNotAffectedByValueInSlot(Parent):
+    __slots__ = ('first', )

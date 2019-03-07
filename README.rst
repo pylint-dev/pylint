@@ -39,7 +39,8 @@ from within your code, as well as from an extensive configuration file.
 It is also possible to write your own plugins for adding your own checks or for
 extending pylint in one way or another.
 
-It's a free software distributed under the GNU General Public Licence.
+It's a free software distributed under the GNU General Public Licence unless
+otherwise specified.
 
 Development is hosted on GitHub: https://github.com/PyCQA/pylint/
 
@@ -95,10 +96,22 @@ We use tox_ for running the test suite. You should be able to install it with::
 
 To run the test suite for a particular Python version, you can do::
 
-    tox -e py27
+    tox -e py37
 
 
 For more detailed information, check the documentation.
 
 .. _here: http://pylint.pycqa.org/en/latest/user_guide/installation.html
 .. _tox: https://tox.readthedocs.io/en/latest/
+
+License
+-------
+
+pylint is, with a few exceptions listed below, `GPLv2 <COPYING>`_.
+
+The icon files are licensed under the `CC BY-SA 4.0 <https://creativecommons.org/licenses/by-sa/4.0/>`_ license:
+
+- `doc/logo.png <doc/logo.png>`_
+- `doc/logo.svg <doc/logo.svg>`_
+
+
