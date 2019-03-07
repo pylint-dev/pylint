@@ -641,6 +641,7 @@ def _is_c_extension(module_node):
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
     """
+
     __implements__ = (IAstroidChecker,)
 
     # configuration section name
@@ -1660,6 +1661,7 @@ class IterableChecker(BaseChecker):
     def visit_generatorexp(self, node):
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
+
 
 def register(linter):
     """required method to auto register this checker """
