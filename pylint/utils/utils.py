@@ -315,7 +315,7 @@ def _format_option_value(optdict, value):
     return value
 
 
-def _ini_format_section(stream, section, options, doc=None):
+def format_section(stream, section, options, doc=None):
     """format an options section using the INI format"""
     if doc:
         print(_comment(doc), file=stream)
@@ -344,6 +344,3 @@ def _ini_format(stream, options):
                 # remove trailing ',' from last element of the list
                 value = value[:-1]
             print("%s=%s" % (optname, value), file=stream)
-
-
-format_section = _ini_format_section
