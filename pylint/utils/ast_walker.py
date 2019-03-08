@@ -8,7 +8,7 @@ import collections
 from astroid import nodes
 
 
-class PyLintASTWalker:
+class ASTWalker:
     def __init__(self, linter):
         # callbacks per node types
         self.nbstatements = 0

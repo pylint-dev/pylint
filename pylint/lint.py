@@ -82,13 +82,7 @@ from pylint import checkers
 from pylint import interfaces
 from pylint import reporters
 from pylint.message import MessagesStore, Message, MSG_TYPES, MessagesHandlerMixIn
-from pylint.utils import (
-    FileState,
-    PyLintASTWalker,
-    ReportsHandlerMixIn,
-    OPTION_RGX,
-    utils,
-)
+from pylint.utils import FileState, ASTWalker, ReportsHandlerMixIn, OPTION_RGX, utils
 from pylint import exceptions
 from pylint import config
 from pylint.__pkginfo__ import version
@@ -1072,7 +1066,7 @@ class PyLinter(
                 checker.stats = self.stats
 
     def _do_check(self, files_or_modules):
-        walker = PyLintASTWalker(self)
+        walker = ASTWalker(self)
         _checkers = self.prepare_checkers()
         tokencheckers = [
             c
