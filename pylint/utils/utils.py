@@ -374,22 +374,3 @@ def _ini_format(stream, options):
 
 
 format_section = _ini_format_section
-
-
-def _rest_format_section(stream, section, options, doc=None):
-    """format an options section using as ReST formatted output"""
-    if section:
-        print("%s\n%s" % (section, "'" * len(section)), file=stream)
-    if doc:
-        print(normalize_text(doc, line_len=79, indent=""), file=stream)
-        print(file=stream)
-    for optname, optdict, value in options:
-        help_opt = optdict.get("help")
-        print(":%s:" % optname, file=stream)
-        if help_opt:
-            help_opt = normalize_text(help_opt, line_len=79, indent="  ")
-            print(help_opt, file=stream)
-        if value:
-            value = str(_format_option_value(optdict, value))
-            print(file=stream)
-            print("  Default: ``%s``" % value.replace("`` ", "```` ``"), file=stream)
