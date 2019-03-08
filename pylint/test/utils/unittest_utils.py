@@ -22,11 +22,11 @@ import warnings
 
 import astroid
 
-from pylint.utils import utils, PyLintASTWalker
+from pylint.utils import utils, ASTWalker
 from pylint.checkers.utils import check_messages, get_node_last_lineno
 
 
-class TestPyLintASTWalker(object):
+class TestASTWalker(object):
     class MockLinter(object):
         def __init__(self, msgs):
             self._msgs = msgs
@@ -58,7 +58,7 @@ class TestPyLintASTWalker(object):
         linter = self.MockLinter(
             {"first-message": True, "second-message": False, "third-message": True}
         )
-        walker = PyLintASTWalker(linter)
+        walker = ASTWalker(linter)
         checker = self.Checker()
         walker.add_checker(checker)
         walker.walk(astroid.parse("x = func()"))
@@ -74,7 +74,7 @@ class TestPyLintASTWalker(object):
                 self.called = True
 
         linter = self.MockLinter({"first-message": True})
-        walker = PyLintASTWalker(linter)
+        walker = ASTWalker(linter)
         checker = Checker()
         walker.add_checker(checker)
         with warnings.catch_warnings(record=True):
