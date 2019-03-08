@@ -6,7 +6,7 @@
 
 import collections
 
-from pylint.utils.constants import MSG_TYPES
+from pylint.message.constants import MSG_TYPES
 
 _MsgBase = collections.namedtuple(
     "_MsgBase",

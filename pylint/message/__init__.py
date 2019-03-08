@@ -37,30 +37,19 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""some various utilities and helper classes, most of them used in the
-main pylint class
-"""
+"""All the classes related to Message handling."""
 
-from pylint.utils.constants import OPTION_RGX, PY_EXTS
-from pylint.utils.file_state import FileState
-from pylint.utils.normalize_text import normalize_text
-from pylint.utils.pylint_ast_walker import PyLintASTWalker
-from pylint.utils.reports_handler_mix_in import ReportsHandlerMixIn
-from pylint.utils.utils import (
-    _basename_in_blacklist_re,
-    _check_csv,
-    _format_option_value,
-    _splitstrip,
-    _unquote,
-    category_id,
-    decoding_stream,
-    deprecated_option,
-    expand_modules,
-    format_section,
-    get_global_option,
-    get_module_and_frameid,
-    register_plugins,
-    safe_decode,
-    tokenize_module,
+from pylint.message.constants import (
+    MSG_STATE_CONFIDENCE,
+    _SCOPE_EXEMPT,
+    MSG_STATE_SCOPE_CONFIG,
+    MSG_STATE_SCOPE_MODULE,
+    MSG_TYPES,
+    MSG_TYPES_LONG,
+    MSG_TYPES_STATUS,
 )
-from pylint.utils.warning_scope import WarningScope
+from pylint.message.build_message_definition import build_message_def
+from pylint.message.message import Message
+from pylint.message.message_definition import MessageDefinition
+from pylint.message.message_handler_mix_in import MessagesHandlerMixIn
+from pylint.message.message_store import MessagesStore

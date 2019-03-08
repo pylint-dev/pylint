@@ -22,7 +22,8 @@ import warnings
 
 import astroid
 
-from pylint import utils
+from pylint.utils import utils, PyLintASTWalker
+from pylint.message import MessagesStore, MessageDefinition
 from pylint.checkers.utils import check_messages, get_node_last_lineno
 from pylint.exceptions import InvalidMessageError
 import pytest
@@ -60,7 +61,7 @@ class TestPyLintASTWalker(object):
         linter = self.MockLinter(
             {"first-message": True, "second-message": False, "third-message": True}
         )
-        walker = utils.PyLintASTWalker(linter)
+        walker = PyLintASTWalker(linter)
         checker = self.Checker()
         walker.add_checker(checker)
         walker.walk(astroid.parse("x = func()"))
@@ -76,7 +77,7 @@ class TestPyLintASTWalker(object):
                 self.called = True
 
         linter = self.MockLinter({"first-message": True})
-        walker = utils.PyLintASTWalker(linter)
+        walker = PyLintASTWalker(linter)
         checker = Checker()
         walker.add_checker(checker)
         with warnings.catch_warnings(record=True):
@@ -100,7 +101,7 @@ def test__basename_in_blacklist_re_nomatch():
 
 @pytest.fixture
 def store():
-    return utils.MessagesStore()
+    return MessagesStore()
 
 
 @pytest.mark.parametrize(
@@ -240,7 +241,7 @@ def test_register_error_new_id_duplicate_of_new(store):
 )
 def test_create_invalid_message_type(msgid, expected):
     with pytest.raises(InvalidMessageError) as cm:
-        utils.MessageDefinition("checker", msgid, "msg", "descr", "symbol", "scope")
+        MessageDefinition("checker", msgid, "msg", "descr", "symbol", "scope")
     assert str(cm.value) == expected
 
 
