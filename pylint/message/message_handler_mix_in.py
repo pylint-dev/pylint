@@ -10,7 +10,7 @@ from inspect import cleandoc
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.interfaces import UNDEFINED
-from pylint.utils.constants import (
+from pylint.message.constants import (
     _MSG_ORDER,
     _SCOPE_EXEMPT,
     MSG_STATE_CONFIDENCE,
@@ -19,11 +19,11 @@ from pylint.utils.constants import (
     MSG_TYPES,
     MSG_TYPES_STATUS,
 )
-from pylint.utils.message import Message
+from pylint.message.message import Message
+from pylint.utils.warning_scope import WarningScope
+from pylint.message.build_message_definition import build_message_def
 from pylint.utils.utils import (
-    WarningScope,
     _format_option_value,
-    build_message_def,
     category_id,
     get_module_and_frameid,
     normalize_text,

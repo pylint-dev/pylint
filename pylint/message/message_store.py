@@ -8,7 +8,7 @@ from __future__ import print_function
 import collections
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
-from pylint.utils.utils import build_message_def
+from pylint.message.build_message_definition import build_message_def
 
 
 class MessagesStore:

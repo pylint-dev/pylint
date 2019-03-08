@@ -9,16 +9,13 @@ import codecs
 import re
 import sys
 import tokenize
-import warnings
 from os import linesep, listdir
 from os.path import basename, dirname, exists, isdir, join, normpath, splitext
 
 from astroid import Module, modutils
-from pylint.interfaces import IRawChecker, ITokenChecker, implements
-from pylint.utils.constants import MSG_TYPES, MSG_TYPES_LONG, PY_EXTS
-from pylint.utils.message_definition import MessageDefinition
+from pylint.utils.constants import PY_EXTS
+from pylint.message.constants import MSG_TYPES, MSG_TYPES_LONG
 from pylint.utils.normalize_text import normalize_text
-from pylint.utils.warning_scope import WarningScope
 
 
 def get_module_and_frameid(node):
@@ -65,30 +62,6 @@ def tokenize_module(module):
     with module.stream() as stream:
         readline = stream.readline
         return list(tokenize.tokenize(readline))
-
-
-def build_message_def(checker, msgid, msg_tuple):
-    if implements(checker, (IRawChecker, ITokenChecker)):
-        default_scope = WarningScope.LINE
-    else:
-        default_scope = WarningScope.NODE
-    options = {}
-    if len(msg_tuple) > 3:
-        (msg, symbol, descr, options) = msg_tuple
-    elif len(msg_tuple) > 2:
-        (msg, symbol, descr) = msg_tuple
-    else:
-        # messages should have a symbol, but for backward compatibility
-        # they may not.
-        (msg, descr) = msg_tuple
-        warnings.warn(
-            "[pylint 0.26] description of message %s doesn't include "
-            "a symbolic name" % msgid,
-            DeprecationWarning,
-        )
-        symbol = None
-    options.setdefault("scope", default_scope)
-    return MessageDefinition(checker, msgid, msg, descr, symbol, **options)
 
 
 def _basename_in_blacklist_re(base_name, black_list_re):

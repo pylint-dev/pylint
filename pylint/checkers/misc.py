@@ -26,7 +26,8 @@ import re
 
 from pylint.interfaces import IRawChecker, ITokenChecker
 from pylint.checkers import BaseChecker
-from pylint.utils import OPTION_RGX, MessagesHandlerMixIn
+from pylint.utils import OPTION_RGX
+from pylint.message import MessagesHandlerMixIn
 
 
 class ByIdManagedMessagesChecker(BaseChecker):

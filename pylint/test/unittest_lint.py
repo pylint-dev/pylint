@@ -39,15 +39,14 @@ from io import StringIO
 
 from pylint import config, lint
 from pylint.lint import PyLinter, Run, preprocess_options, ArgumentPreprocessingError
-from pylint.utils import (
+from pylint.message import (
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
     MSG_STATE_CONFIDENCE,
     MessagesStore,
     MessageDefinition,
-    FileState,
-    tokenize_module,
 )
+from pylint.utils import FileState, tokenize_module
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 import pylint.testutils as testutils
 from pylint.reporters import text
