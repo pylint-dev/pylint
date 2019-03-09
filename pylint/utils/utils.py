@@ -8,6 +8,7 @@ from __future__ import print_function
 import codecs
 import re
 import sys
+import textwrap
 import tokenize
 from os import linesep, listdir
 from os.path import basename, dirname, exists, isdir, join, normpath, splitext
@@ -15,7 +16,15 @@ from os.path import basename, dirname, exists, isdir, join, normpath, splitext
 from astroid import Module, modutils
 
 from pylint.constants import MSG_TYPES, MSG_TYPES_LONG, PY_EXTS
-from pylint.utils.normalize_text import normalize_text
+
+
+def normalize_text(text, line_len=80, indent=""):
+    """Wrap the text on the given line length."""
+    return "\n".join(
+        textwrap.wrap(
+            text, width=line_len, initial_indent=indent, subsequent_indent=indent
+        )
+    )
 
 
 def get_module_and_frameid(node):

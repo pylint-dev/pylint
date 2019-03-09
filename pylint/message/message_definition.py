@@ -7,7 +7,7 @@ import sys
 
 from pylint.constants import MSG_TYPES
 from pylint.exceptions import InvalidMessageError
-from pylint.utils.normalize_text import normalize_text
+from pylint.utils import normalize_text
 
 
 class MessageDefinition:
