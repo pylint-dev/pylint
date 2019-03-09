@@ -34,26 +34,22 @@
 
 """variables checkers for Python code
 """
-import copy
-from functools import lru_cache
-import itertools
 import collections
+import copy
+import itertools
 import os
-import sys
 import re
+import sys
+from functools import lru_cache
 
 import astroid
-from astroid import decorators
-from astroid import modutils
-from astroid import objects
+from astroid import decorators, modutils, objects
 from astroid.context import InferenceContext
 
+from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import is_postponed_evaluation_enabled
-from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
+from pylint.interfaces import HIGH, INFERENCE, INFERENCE_FAILURE, IAstroidChecker
 from pylint.utils import get_global_option
-from pylint.checkers import BaseChecker
-from pylint.checkers import utils
-
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"

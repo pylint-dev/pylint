@@ -11,11 +11,10 @@
 """Test for the JSON reporter."""
 
 import json
-
 from io import StringIO
 
-from pylint.lint import PyLinter
 from pylint import checkers
+from pylint.lint import PyLinter
 from pylint.reporters.json import JSONReporter
 
 

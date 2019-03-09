@@ -19,7 +19,7 @@
 
 import astroid
 
-from pylint.pyreverse.diagrams import PackageDiagram, ClassDiagram
+from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
 from pylint.pyreverse.utils import LocalsVisitor
 
 BUILTINS_NAME = "builtins"

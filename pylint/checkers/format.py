@@ -50,10 +50,10 @@ from functools import reduce  # pylint: disable=redefined-builtin
 
 from astroid import nodes
 
-from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-from pylint.utils import WarningScope, OPTION_RGX
+from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+from pylint.utils import OPTION_RGX, WarningScope
 
 _ASYNC_TOKEN = "async"
 _CONTINUATION_BLOCK_OPENERS = [

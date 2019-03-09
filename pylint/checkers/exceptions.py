@@ -29,9 +29,8 @@ import typing
 
 import astroid
 
-from pylint import checkers
+from pylint import checkers, interfaces
 from pylint.checkers import utils
-from pylint import interfaces
 
 
 def _builtin_exceptions():

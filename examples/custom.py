@@ -1,7 +1,7 @@
 import astroid
 
-from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
+from pylint.interfaces import IAstroidChecker
 
 
 # This is our checker class.

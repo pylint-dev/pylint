@@ -56,10 +56,10 @@ from __future__ import print_function
 
 import os
 import os.path as osp
-import sys
 import shlex
-from subprocess import Popen, PIPE
+import sys
 from io import StringIO
+from subprocess import PIPE, Popen
 
 
 def _get_env():

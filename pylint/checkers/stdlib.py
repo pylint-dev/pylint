@@ -26,10 +26,9 @@ import sys
 import astroid
 from astroid.bases import Instance
 from astroid.node_classes import Const
-from pylint.interfaces import IAstroidChecker
-from pylint.checkers import BaseChecker
-from pylint.checkers import utils
 
+from pylint.checkers import BaseChecker, utils
+from pylint.interfaces import IAstroidChecker
 
 OPEN_FILES = {"open", "file"}
 UNITTEST_CASE = "unittest.case"

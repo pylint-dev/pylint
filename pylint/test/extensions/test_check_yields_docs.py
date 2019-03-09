@@ -9,12 +9,12 @@
 """Unit tests for the yield documentation checking in the
 `DocstringChecker` in :mod:`pylint.extensions.check_docs`
 """
-from __future__ import division, print_function, absolute_import
+from __future__ import absolute_import, division, print_function
 
 import astroid
-from pylint.testutils import CheckerTestCase, Message, set_config
 
 from pylint.extensions.docparams import DocstringParameterChecker
+from pylint.testutils import CheckerTestCase, Message, set_config
 
 
 class TestDocstringCheckerYield(CheckerTestCase):

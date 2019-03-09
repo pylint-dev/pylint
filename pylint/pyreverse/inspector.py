@@ -18,12 +18,7 @@ import os
 import traceback
 
 import astroid
-from astroid import bases
-from astroid import exceptions
-from astroid import manager
-from astroid import modutils
-from astroid import node_classes
-
+from astroid import bases, exceptions, manager, modutils, node_classes
 
 from pylint.pyreverse import utils
 

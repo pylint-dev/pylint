@@ -14,10 +14,9 @@ from os.path import exists
 
 import pytest
 
-from pylint.checkers import initialize, imports
-from pylint.lint import PyLinter
-
 import pylint.testutils as testutils
+from pylint.checkers import imports, initialize
+from pylint.lint import PyLinter
 
 
 @pytest.fixture

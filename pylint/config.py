@@ -35,15 +35,9 @@
 """
 from __future__ import print_function
 
-# TODO(cpopa): this module contains the logic for the
-# configuration parser and for the command line parser,
-# but it's really coupled to optparse's internals.
-# The code was copied almost verbatim from logilab.common,
-# in order to not depend on it anymore and it will definitely
-# need a cleanup. It could be completely reengineered as well.
-
-import contextlib
 import collections
+import configparser
+import contextlib
 import copy
 import io
 import optparse
@@ -53,9 +47,17 @@ import re
 import sys
 import time
 
-import configparser
-
 from pylint import utils
+
+# TODO(cpopa): this module contains the logic for the
+# configuration parser and for the command line parser,
+# but it's really coupled to optparse's internals.
+# The code was copied almost verbatim from logilab.common,
+# in order to not depend on it anymore and it will definitely
+# need a cleanup. It could be completely reengineered as well.
+
+
+
 
 
 USER_HOME = os.path.expanduser("~")

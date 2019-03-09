@@ -10,6 +10,7 @@ from inspect import cleandoc
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.interfaces import UNDEFINED
+from pylint.message.build_message_definition import build_message_def
 from pylint.message.constants import (
     _MSG_ORDER,
     _SCOPE_EXEMPT,
@@ -20,14 +21,13 @@ from pylint.message.constants import (
     MSG_TYPES_STATUS,
 )
 from pylint.message.message import Message
-from pylint.utils.warning_scope import WarningScope
-from pylint.message.build_message_definition import build_message_def
 from pylint.utils.utils import (
     _format_option_value,
     category_id,
     get_module_and_frameid,
     normalize_text,
 )
+from pylint.utils.warning_scope import WarningScope
 
 
 def _rest_format_section(stream, section, options, doc=None):

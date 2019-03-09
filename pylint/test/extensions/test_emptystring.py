@@ -11,6 +11,7 @@
 """
 
 import os.path as osp
+
 import pytest
 
 from pylint.extensions.emptystring import CompareToEmptyStringChecker

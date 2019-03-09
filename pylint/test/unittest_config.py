@@ -12,9 +12,9 @@
 import re
 import sre_constants
 
-from pylint import config
 import pytest
 
+from pylint import config
 
 RE_PATTERN_TYPE = getattr(re, "Pattern", getattr(re, "_pattern_type", None))
 

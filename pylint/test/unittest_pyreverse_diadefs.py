@@ -13,13 +13,11 @@
 unit test for the extensions.diadefslib modules
 """
 
+import astroid
 import pytest
 
-import astroid
-
-from pylint.pyreverse.inspector import Linker
 from pylint.pyreverse.diadefslib import *
-
+from pylint.pyreverse.inspector import Linker
 from unittest_pyreverse_writer import Config, get_project
 
 

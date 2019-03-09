@@ -19,8 +19,12 @@
 """
 
 import os
-import tokenize
 import re
+import tokenize
+
+from pylint.checkers import BaseTokenChecker
+from pylint.checkers.utils import check_messages
+from pylint.interfaces import IAstroidChecker, ITokenChecker
 
 try:
     import enchant
@@ -43,9 +47,6 @@ except ImportError:
         pass
 
 
-from pylint.interfaces import ITokenChecker, IAstroidChecker
-from pylint.checkers import BaseTokenChecker
-from pylint.checkers.utils import check_messages
 
 if enchant is not None:
     br = enchant.Broker()

@@ -20,9 +20,9 @@ import subprocess
 import sys
 
 from pylint.config import ConfigurationMixIn
-from pylint.pyreverse.inspector import Linker, project_from_files
-from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse import writer
+from pylint.pyreverse.diadefslib import DiadefsHandler
+from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.utils import insert_default_options
 
 OPTIONS = (

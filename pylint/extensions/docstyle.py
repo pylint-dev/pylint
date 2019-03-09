@@ -9,8 +9,8 @@
 import linecache
 
 from pylint import checkers
-from pylint.interfaces import IAstroidChecker, HIGH
 from pylint.checkers.utils import check_messages
+from pylint.interfaces import HIGH, IAstroidChecker
 
 
 class DocStringStyleChecker(checkers.BaseChecker):

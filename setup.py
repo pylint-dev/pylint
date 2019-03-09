@@ -21,12 +21,15 @@
 """Generic Setup script, takes package info from __pkginfo__.py file.
 """
 from __future__ import absolute_import, print_function
-__docformat__ = "restructuredtext en"
 
 import os
-import sys
 import shutil
-from os.path import isdir, exists, join
+import sys
+from distutils.command.build_py import build_py
+from os.path import exists, isdir, join
+
+__docformat__ = "restructuredtext en"
+
 
 try:
     from setuptools import setup
@@ -39,7 +42,6 @@ except ImportError:
     USE_SETUPTOOLS = 0
     easy_install_lib = None
 
-from distutils.command.build_py import build_py
 
 
 base_dir = os.path.dirname(__file__)

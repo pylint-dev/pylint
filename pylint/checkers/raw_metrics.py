@@ -18,9 +18,9 @@ Raw metrics checker
 import tokenize
 from typing import Any
 
-from pylint.interfaces import ITokenChecker
-from pylint.exceptions import EmptyReportError
 from pylint.checkers import BaseTokenChecker
+from pylint.exceptions import EmptyReportError
+from pylint.interfaces import ITokenChecker
 from pylint.reporters import diff_string
 from pylint.reporters.ureports.nodes import Table
 

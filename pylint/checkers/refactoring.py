@@ -22,20 +22,17 @@
 
 """Looks for code which can be refactored."""
 import builtins
-from functools import reduce
-
 import collections
 import itertools
 import tokenize
+from functools import reduce
 
 import astroid
 from astroid import decorators
 
-from pylint import interfaces
-from pylint import checkers
+from pylint import checkers, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
-
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 

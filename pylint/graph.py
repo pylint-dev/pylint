@@ -11,11 +11,11 @@
 (dot generation adapted from pypy/translator/tool/make_dot.py)
 """
 
-import os.path as osp
+import codecs
 import os
+import os.path as osp
 import sys
 import tempfile
-import codecs
 
 
 def target_info_from_filename(filename):

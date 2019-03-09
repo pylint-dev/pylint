@@ -16,9 +16,8 @@
 """Unittest for the type checker."""
 import sys
 
-import pytest
-
 import astroid
+import pytest
 
 from pylint.checkers import typecheck
 from pylint.testutils import CheckerTestCase, Message, set_config

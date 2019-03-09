@@ -1,5 +1,6 @@
-from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
+from pylint.interfaces import IRawChecker
+
 
 class MyRawChecker(BaseChecker):
     """check for line continuations with '\' instead of using triple
@@ -31,4 +32,3 @@ class MyRawChecker(BaseChecker):
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(MyRawChecker(linter))
-

@@ -25,22 +25,22 @@ from __future__ import print_function
 import collections
 import contextlib
 import functools
-from glob import glob
 import os
-from os import linesep, getcwd, sep
-from os.path import abspath, basename, dirname, join, splitext
 import sys
 import tempfile
 import tokenize
-
+from glob import glob
 from io import StringIO
+from os import getcwd, linesep, sep
+from os.path import abspath, basename, dirname, join, splitext
 
 import astroid
+
 from pylint import checkers
-from pylint.utils import ASTWalker
-from pylint.reporters import BaseReporter
 from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
+from pylint.reporters import BaseReporter
+from pylint.utils import ASTWalker
 
 # Utils
 

@@ -13,8 +13,9 @@ from os import linesep, listdir
 from os.path import basename, dirname, exists, isdir, join, normpath, splitext
 
 from astroid import Module, modutils
-from pylint.utils.constants import PY_EXTS
+
 from pylint.message.constants import MSG_TYPES, MSG_TYPES_LONG
+from pylint.utils.constants import PY_EXTS
 from pylint.utils.normalize_text import normalize_text
 
 

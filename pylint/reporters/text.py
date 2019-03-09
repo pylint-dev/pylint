@@ -21,14 +21,13 @@
 from __future__ import print_function
 
 import os
-import warnings
 import sys
+import warnings
 
+from pylint import utils
 from pylint.interfaces import IReporter
 from pylint.reporters import BaseReporter
-from pylint import utils
 from pylint.reporters.ureports.text_writer import TextWriter
-
 
 TITLE_UNDERLINES = ["", "=", "-", "."]
 

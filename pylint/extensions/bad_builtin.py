@@ -7,10 +7,10 @@
 import sys
 
 import astroid
+
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
-
 
 BAD_FUNCTIONS = ["map", "filter"]
 if sys.version_info < (3, 0):

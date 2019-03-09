@@ -23,18 +23,18 @@
 """
 
 import builtins
+import numbers
 import sys
 import tokenize
-import numbers
 from collections import Counter
 
 import astroid
 from astroid.arguments import CallSite
 from astroid.node_classes import Const
-from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
-from pylint.checkers import BaseChecker, BaseTokenChecker
-from pylint.checkers import utils
+
+from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
+from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
 

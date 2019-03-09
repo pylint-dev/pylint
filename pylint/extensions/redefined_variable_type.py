@@ -8,10 +8,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import astroid
+
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, is_none, node_type
 from pylint.interfaces import IAstroidChecker
-
 
 BUILTINS = "builtins"
 

@@ -14,7 +14,6 @@ import pytest
 
 from pylint.extensions.docstyle import DocStringStyleChecker
 
-
 EXPECTED_MSGS = [
     'First line empty in function docstring',
     'First line empty in class docstring',

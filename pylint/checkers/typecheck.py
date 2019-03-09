@@ -47,35 +47,32 @@ import types
 from functools import singledispatch
 
 import astroid
-import astroid.context
 import astroid.arguments
+import astroid.context
 import astroid.nodes
-from astroid import exceptions, decorators
+from astroid import bases, decorators, exceptions, modutils, objects
 from astroid.interpreter import dunder_lookup
-from astroid import objects
-from astroid import bases
-from astroid import modutils
 
-from pylint.interfaces import IAstroidChecker, INFERENCE
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
-    is_super,
     check_messages,
-    decorated_with_property,
     decorated_with,
-    node_ignores_exception,
-    is_iterable,
-    is_mapping,
-    supports_membership_test,
-    is_comprehension,
-    is_inside_abstract_class,
-    supports_getitem,
-    supports_setitem,
-    supports_delitem,
-    safe_infer,
+    decorated_with_property,
     has_known_bases,
     is_builtin_object,
+    is_comprehension,
+    is_inside_abstract_class,
+    is_iterable,
+    is_mapping,
+    is_super,
+    node_ignores_exception,
+    safe_infer,
+    supports_delitem,
+    supports_getitem,
+    supports_membership_test,
+    supports_setitem,
 )
+from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
 BUILTINS = builtins.__name__

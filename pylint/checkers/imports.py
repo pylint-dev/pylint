@@ -30,27 +30,27 @@
 """imports checkers for Python code"""
 
 import collections
-from distutils import sysconfig
+import copy
 import os
 import sys
-import copy
+from distutils import sysconfig
 
 import astroid
+import isort
 from astroid import are_exclusive, decorators
 from astroid.modutils import get_module_part, is_standard_module
-import isort
 
-from pylint.interfaces import IAstroidChecker
-from pylint.utils import get_global_option
-from pylint.exceptions import EmptyReportError
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     check_messages,
-    node_ignores_exception,
     is_from_fallback_block,
+    node_ignores_exception,
 )
-from pylint.graph import get_cycles, DotBackend
-from pylint.reporters.ureports.nodes import VerbatimText, Paragraph
+from pylint.exceptions import EmptyReportError
+from pylint.graph import DotBackend, get_cycles
+from pylint.interfaces import IAstroidChecker
+from pylint.reporters.ureports.nodes import Paragraph, VerbatimText
+from pylint.utils import get_global_option
 
 
 def _qualified_names(modname):

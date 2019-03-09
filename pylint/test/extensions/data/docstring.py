@@ -38,3 +38,4 @@ class FFFF:
 
     def method7(self):
         u"""Test OK 3 with unicode string"""
+

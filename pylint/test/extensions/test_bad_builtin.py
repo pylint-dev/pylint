@@ -14,7 +14,6 @@ import pytest
 from pylint.extensions.bad_builtin import BadBuiltinChecker
 from pylint.lint import fix_import_path
 
-
 EXPECTED = [
     "Used builtin function 'map'. Using a list comprehension can be clearer.",
     "Used builtin function 'filter'. Using a list comprehension can be clearer.",

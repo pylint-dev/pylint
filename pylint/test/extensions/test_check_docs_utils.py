@@ -9,11 +9,10 @@
 """Unit tests for the pylint checkers in :mod:`pylint.extensions.check_docs`,
 in particular the parameter documentation checker `DocstringChecker`
 """
-from __future__ import division, print_function, absolute_import
-
-import pytest
+from __future__ import absolute_import, division, print_function
 
 import astroid
+import pytest
 
 import pylint.extensions._check_docs_utils as utils
 

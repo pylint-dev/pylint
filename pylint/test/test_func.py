@@ -13,11 +13,11 @@
 
 """functional/non regression tests for pylint"""
 
-import sys
 import re
+import sys
+from os.path import abspath, dirname, join
 
 import pytest
-from os.path import abspath, dirname, join
 
 from pylint.testutils import _get_tests_info, linter
 

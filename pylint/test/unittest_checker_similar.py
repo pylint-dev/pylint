@@ -10,10 +10,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import sys
-from os.path import join, dirname, abspath
 from contextlib import redirect_stdout
-
 from io import StringIO
+from os.path import abspath, dirname, join
+
 import pytest
 
 from pylint.checkers import similar

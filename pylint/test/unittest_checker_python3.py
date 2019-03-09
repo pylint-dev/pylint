@@ -20,14 +20,12 @@ from __future__ import absolute_import
 import sys
 import textwrap
 
-import pytest
-
 import astroid
+import pytest
 
 from pylint import testutils
 from pylint.checkers import python3 as checker
-from pylint.interfaces import INFERENCE_FAILURE, INFERENCE
-
+from pylint.interfaces import INFERENCE, INFERENCE_FAILURE
 
 # Decorator for any tests that will fail under Python 3
 python2_only = pytest.mark.skipif(sys.version_info[0] > 2, reason="Python 2 only")

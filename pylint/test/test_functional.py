@@ -12,24 +12,21 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Functional full-module tests for PyLint."""
-import csv
 import collections
+import csv
 import io
 import operator
 import os
+import platform
 import re
 import sys
-import platform
 
+import pytest
 import six
 from six.moves import configparser
 
-import pytest
+from pylint import checkers, interfaces, lint, reporters
 
-from pylint import checkers
-from pylint import interfaces
-from pylint import lint
-from pylint import reporters
 
 class test_dialect(csv.excel):
     if sys.version_info[0] < 3:

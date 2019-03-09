@@ -7,10 +7,8 @@
 
 import astroid
 
-from pylint import interfaces
-from pylint import checkers
+from pylint import checkers, interfaces
 from pylint.checkers import utils
-
 from pylint.checkers.exceptions import _annotated_unpack_infer
 
 
