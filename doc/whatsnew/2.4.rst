@@ -13,6 +13,22 @@ Summary -- Release highlights
 New checkers
 ============
 
+* A new check ``class-variable-slots-conflict`` was added.
+
+  This check is emitted when ``pylint`` finds a class variable that conflicts with a slot
+  name, which would raise a ``ValueError`` at runtime.
+
+  For example, the following would raise an error::
+
+    class A:
+        __slots__ = ('first', 'second')
+        first = 1
+
 
 Other Changes
 =============
+
+* A file is now read from stdin if the ``--from-stdin`` flag is used on the
+  command line. In addition to the ``--from-stdin`` flag a (single) file
+  name needs to be specified on the command line, which is needed for the
+  report.

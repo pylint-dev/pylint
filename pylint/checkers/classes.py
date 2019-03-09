@@ -596,6 +596,11 @@ MSGS = {
         "duplicate-bases",
         "Used when a class has duplicate bases.",
     ),
+    "E0242": (
+        "Value %r in slots conflicts with class variable",
+        "class-variable-slots-conflict",
+        "Used when a value in __slots__ conflicts with a class variable, property or method.",
+    ),
     "R0202": (
         "Consider using a decorator instead of calling classmethod",
         "no-classmethod-decorator",
@@ -723,6 +728,18 @@ a metaclass class method.",
     def _ignore_mixin(self):
         return get_global_option(self, "ignore-mixin-members", default=True)
 
+    @check_messages(
+        "abstract-method",
+        "no-init",
+        "invalid-slots",
+        "single-string-used-for-slots",
+        "invalid-slots-object",
+        "class-variable-slots-conflict",
+        "inherit-non-class",
+        "useless-object-inheritance",
+        "inconsistent-mro",
+        "duplicate-bases",
+    )
     def visit_classdef(self, node):
         """init visit variable _accessed
         """
@@ -1050,27 +1067,33 @@ a metaclass class method.",
                 values = slots.itered()
             if values is astroid.Uninferable:
                 return
-
             for elt in values:
                 try:
-                    self._check_slots_elt(elt)
+                    self._check_slots_elt(elt, node)
                 except astroid.InferenceError:
                     continue
 
-    def _check_slots_elt(self, elt):
-        for infered in elt.infer():
-            if infered is astroid.Uninferable:
+    def _check_slots_elt(self, elt, node):
+        for inferred in elt.infer():
+            if inferred is astroid.Uninferable:
                 continue
-            if not isinstance(infered, astroid.Const) or not isinstance(
-                infered.value, str
+            if not isinstance(inferred, astroid.Const) or not isinstance(
+                inferred.value, str
             ):
                 self.add_message(
-                    "invalid-slots-object", args=infered.as_string(), node=elt
+                    "invalid-slots-object", args=inferred.as_string(), node=elt
                 )
                 continue
-            if not infered.value:
+            if not inferred.value:
                 self.add_message(
-                    "invalid-slots-object", args=infered.as_string(), node=elt
+                    "invalid-slots-object", args=inferred.as_string(), node=elt
+                )
+
+            # Check if we have a conflict with a class variable
+            class_variable = node.locals.get(inferred.value)
+            if class_variable:
+                self.add_message(
+                    "class-variable-slots-conflict", args=(inferred.value,), node=elt
                 )
 
     def leave_functiondef(self, node):

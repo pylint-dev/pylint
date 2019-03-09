@@ -724,10 +724,8 @@ class FormatChecker(BaseTokenChecker):
             self._lines[line_num] = line.split("\n")[0]
         self.check_lines(line, line_num)
 
-    def process_module(self, module):
+    def process_module(self, _module):
         self._keywords_with_parens = set()
-        if "print_function" in module.future_imports:
-            self._keywords_with_parens.add("print")
 
     def _check_keyword_parentheses(self, tokens, start):
         """Check that there are not unnecessary parens after a keyword.

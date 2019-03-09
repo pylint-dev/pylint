@@ -131,7 +131,8 @@ class DotWriter(DiagramWriter):
         if not self.config.only_classnames:
             label = r"%s|%s\l|" % (label, r"\l".join(obj.attrs))
             for func in obj.methods:
-                label = r"%s%s()\l" % (label, func.name)
+                args = [arg.name for arg in func.args.args if arg.name != "self"]
+                label = r"%s%s(%s)\l" % (label, func.name, ", ".join(args))
             label = "{%s}" % label
         if is_exception(obj.node):
             return dict(fontcolor="red", label=label, shape="record")

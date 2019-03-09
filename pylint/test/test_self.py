@@ -30,6 +30,8 @@ import tempfile
 import textwrap
 import configparser
 from io import StringIO
+import subprocess
+from unittest import mock
 
 from pylint.lint import Run
 from pylint.reporters import BaseReporter
@@ -433,6 +435,28 @@ class TestRunTC(object):
             assert message[key] == value
         assert message["message"].startswith("No module named")
 
+    def test_json_report_does_not_escape_quotes(self):
+        out = StringIO()
+        module = join(HERE, "regrtest_data", "unused_variable.py")
+        self._runtest([module], code=4, reporter=JSONReporter(out))
+        output = json.loads(out.getvalue())
+        assert isinstance(output, list)
+        assert len(output) == 1
+        assert isinstance(output[0], dict)
+        expected = {
+            "symbol": "unused-variable",
+            "module": "unused_variable",
+            "column": 4,
+            "message": "Unused variable 'variable'",
+            "message-id": "W0612",
+            "line": 4,
+            "type": "warning",
+        }
+        message = output[0]
+        for key, value in expected.items():
+            assert key in message
+            assert message[key] == value
+
     def test_information_category_disabled_by_default(self):
         expected = "Your code has been rated at 10.00/10"
         path = join(HERE, "regrtest_data", "meta.py")
@@ -546,3 +570,93 @@ class TestRunTC(object):
         finally:
             os.remove(module)
             os.removedirs(fake_path)
+
+    @pytest.mark.parametrize(
+        "input_path,module,expected_path",
+        [
+            (join(HERE, "mymodule.py"), "mymodule", "pylint/test/mymodule.py"),
+            ("mymodule.py", "mymodule", "mymodule.py"),
+        ],
+    )
+    def test_stdin(self, input_path, module, expected_path):
+        expected_output = (
+            "************* Module {module}\n"
+            "{path}:1:0: C0111: Missing module docstring (missing-docstring)\n"
+            "{path}:1:0: W0611: Unused import os (unused-import)\n\n"
+        ).format(path=expected_path, module=module)
+
+        with mock.patch(
+            "pylint.lint._read_stdin", return_value="import os\n"
+        ) as mock_stdin:
+            self._test_output(
+                ["--from-stdin", input_path], expected_output=expected_output
+            )
+            assert mock_stdin.call_count == 1
+
+    def test_stdin_missing_modulename(self):
+        self._runtest(["--from-stdin"], code=32)
+
+    @pytest.mark.parametrize("write_bpy_to_disk", [False, True])
+    def test_relative_imports(self, write_bpy_to_disk, tmpdir):
+        a = tmpdir.join("a")
+
+        b_code = textwrap.dedent(
+            """
+            from .c import foobar
+            from .d import bla  # module does not exist
+
+            foobar('hello')
+            bla()
+            """
+        )
+
+        c_code = textwrap.dedent(
+            """
+            def foobar(arg):
+                pass
+            """
+        )
+
+        a.mkdir()
+        a.join("__init__.py").write("")
+        if write_bpy_to_disk:
+            a.join("b.py").write(b_code)
+        a.join("c.py").write(c_code)
+
+        curdir = os.getcwd()
+        try:
+            # why don't we start pylint in a subprocess?
+            os.chdir(str(tmpdir))
+            expected = (
+                "************* Module a.b\n"
+                "a/b.py:1:0: C0111: Missing module docstring (missing-docstring)\n"
+                "a/b.py:3:0: E0401: Unable to import 'a.d' (import-error)\n\n"
+            )
+
+            if write_bpy_to_disk:
+                # --from-stdin is not used here
+                self._test_output(["a/b.py"], expected_output=expected)
+
+            # this code needs to work w/ and w/o a file named a/b.py on the
+            # harddisk.
+            with mock.patch("pylint.lint._read_stdin", return_value=b_code):
+                self._test_output(
+                    ["--from-stdin", join("a", "b.py")], expected_output=expected
+                )
+
+        finally:
+            os.chdir(curdir)
+
+    def test_version(self):
+        def check(lines):
+            assert lines[0].startswith("pylint ")
+            assert lines[1].startswith("astroid ")
+            assert lines[2].startswith("Python ")
+
+        out = StringIO()
+        self._run_pylint(["--version"], out=out)
+        check(out.getvalue().splitlines())
+
+        result = subprocess.check_output([sys.executable, "-m", "pylint", "--version"])
+        result = result.decode("utf-8")
+        check(result.splitlines())
