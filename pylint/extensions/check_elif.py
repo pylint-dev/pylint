@@ -8,9 +8,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import astroid
+
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import ITokenChecker, IAstroidChecker
+from pylint.interfaces import IAstroidChecker, ITokenChecker
 
 
 class ElseifUsedChecker(BaseTokenChecker):

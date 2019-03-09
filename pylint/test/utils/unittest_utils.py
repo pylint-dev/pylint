@@ -22,8 +22,8 @@ import warnings
 
 import astroid
 
-from pylint.utils import utils, ASTWalker
 from pylint.checkers.utils import check_messages, get_node_last_lineno
+from pylint.utils import ASTWalker, utils
 
 
 class TestASTWalker(object):

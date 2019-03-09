@@ -13,7 +13,6 @@ formatted as text and html.
 """
 import os
 import sys
-
 from io import StringIO
 
 

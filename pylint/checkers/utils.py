@@ -30,20 +30,20 @@
 """some functions that may be useful for various checkers
 """
 import builtins
-from functools import lru_cache, partial
 import itertools
 import numbers
 import re
-import sys
 import string
-from typing import Optional, Iterable, Tuple, Callable, Set, Union, Match, Dict, List
-import _string  # pylint: disable=wrong-import-position, wrong-import-order
+import sys
+from functools import lru_cache, partial
+from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, Union
 
 import astroid
-from astroid.exceptions import _NonDeducibleTypeHierarchy
 from astroid import bases as _bases
 from astroid import scoped_nodes
+from astroid.exceptions import _NonDeducibleTypeHierarchy
 
+import _string  # pylint: disable=wrong-import-position, wrong-import-order
 
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = (

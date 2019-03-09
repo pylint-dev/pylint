@@ -15,17 +15,16 @@ unit test for visitors.diadefs and extensions.diadefslib modules
 """
 
 
-import os
 import codecs
+import os
 from difflib import unified_diff
 
 import pytest
 
-from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
-from pylint.pyreverse.writer import DotWriter
+from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.utils import get_visibility
-
+from pylint.pyreverse.writer import DotWriter
 
 _DEFAULTS = {
     "all_ancestors": None,

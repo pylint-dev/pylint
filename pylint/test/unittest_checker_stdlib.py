@@ -11,8 +11,8 @@ import contextlib
 import astroid
 
 from pylint.checkers import stdlib
-from pylint.testutils import CheckerTestCase, Message
 from pylint.interfaces import UNDEFINED
+from pylint.testutils import CheckerTestCase, Message
 
 
 @contextlib.contextmanager

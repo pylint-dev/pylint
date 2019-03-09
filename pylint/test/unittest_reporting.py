@@ -11,13 +11,13 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import warnings
-
 from io import StringIO
 
-from pylint.lint import PyLinter
-from pylint import checkers
-from pylint.reporters.text import TextReporter, ParseableTextReporter
 import pytest
+
+from pylint import checkers
+from pylint.lint import PyLinter
+from pylint.reporters.text import ParseableTextReporter, TextReporter
 
 
 @pytest.fixture(scope="module")

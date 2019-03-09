@@ -13,7 +13,6 @@ import sphinx
 
 from pylint.lint import PyLinter
 
-
 # Some modules have been renamed and deprecated under their old names.
 # Skip documenting these modules since:
 # 1) They are deprecated, why document them moving forward?

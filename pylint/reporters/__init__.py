@@ -19,11 +19,10 @@
 """utilities methods and classes for reporters"""
 from __future__ import print_function
 
-import sys
 import locale
 import os
+import sys
 import warnings
-
 
 CMPS = ["=", "-", "+"]
 

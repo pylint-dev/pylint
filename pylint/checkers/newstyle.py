@@ -17,9 +17,9 @@ import sys
 
 import astroid
 
-from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, node_frame_class, has_known_bases
+from pylint.checkers.utils import check_messages, has_known_bases, node_frame_class
+from pylint.interfaces import IAstroidChecker
 
 MSGS = {
     "E1003": (

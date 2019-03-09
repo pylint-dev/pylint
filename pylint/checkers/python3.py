@@ -26,21 +26,20 @@
 """Check Python 2 code for Python 2/3 source-compatible issues."""
 from __future__ import absolute_import, print_function
 
-from collections import namedtuple
 import re
 import sys
 import tokenize
+from collections import namedtuple
 from typing import FrozenSet
 
 import astroid
 from astroid import bases
 
 from pylint import checkers, interfaces
-from pylint.checkers.utils import node_ignores_exception, find_try_except_wrapper_node
-from pylint.interfaces import INFERENCE_FAILURE, INFERENCE
-from pylint.utils import WarningScope
 from pylint.checkers import utils
-
+from pylint.checkers.utils import find_try_except_wrapper_node, node_ignores_exception
+from pylint.interfaces import INFERENCE, INFERENCE_FAILURE
+from pylint.utils import WarningScope
 
 _ZERO = re.compile("^0+$")
 

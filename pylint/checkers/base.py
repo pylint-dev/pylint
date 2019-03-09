@@ -40,22 +40,19 @@
 import builtins
 import collections
 import itertools
-import sys
 import re
+import sys
 from typing import Pattern
 
 import astroid
 import astroid.bases
 import astroid.scoped_nodes
 
-from pylint import checkers
-from pylint import exceptions
-from pylint import interfaces
+import pylint.utils as lint_utils
+from pylint import checkers, exceptions, interfaces, reporters
 from pylint.checkers import utils
-from pylint import reporters
 from pylint.checkers.utils import get_node_last_lineno
 from pylint.reporters.ureports import nodes as reporter_nodes
-import pylint.utils as lint_utils
 
 
 class NamingStyle:

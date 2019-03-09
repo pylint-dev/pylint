@@ -24,18 +24,15 @@
 
 from __future__ import unicode_literals
 
-import tokenize
 import os
 import tempfile
+import tokenize
 
 import astroid
 
+from pylint import lint, reporters
 from pylint.checkers.format import *
-from pylint import reporters
-from pylint import lint
-
-
-from pylint.testutils import CheckerTestCase, Message, set_config, _tokenize_str
+from pylint.testutils import CheckerTestCase, Message, _tokenize_str, set_config
 
 
 class TestMultiStatementLine(CheckerTestCase):

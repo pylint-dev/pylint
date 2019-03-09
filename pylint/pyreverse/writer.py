@@ -13,9 +13,9 @@
 
 """Utilities for creating VCG and Dot diagrams"""
 
+from pylint.graph import DotBackend
 from pylint.pyreverse.utils import is_exception
 from pylint.pyreverse.vcgutils import VCGPrinter
-from pylint.graph import DotBackend
 
 
 class DiagramWriter:

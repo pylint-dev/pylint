@@ -10,6 +10,7 @@
 
 """Unit tests for the variables checker."""
 import astroid
+
 from pylint.checkers import classes
 from pylint.testutils import CheckerTestCase, Message, set_config
 

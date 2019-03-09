@@ -12,9 +12,9 @@
 """Tests for the pylint.checkers.utils module."""
 
 import astroid
+import pytest
 
 from pylint.checkers import utils
-import pytest
 
 
 @pytest.mark.parametrize(

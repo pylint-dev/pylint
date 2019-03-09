@@ -22,6 +22,7 @@ import sys
 import unittest
 
 import astroid
+
 from pylint.checkers import base
 from pylint.testutils import CheckerTestCase, Message, set_config
 

@@ -9,13 +9,10 @@
 import sys
 
 import astroid
-from astroid import bases
-from astroid import exceptions
+from astroid import bases, exceptions
 
-from pylint import checkers
+from pylint import checkers, interfaces, utils
 from pylint.checkers import utils as checker_utils
-from pylint import interfaces
-from pylint import utils
 from pylint.checkers.utils import decorated_with
 
 

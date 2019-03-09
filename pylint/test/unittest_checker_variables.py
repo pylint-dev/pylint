@@ -13,15 +13,15 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Unit tests for the variables checker."""
-import sys
 import os
 import re
+import sys
 
 import astroid
 
 from pylint.checkers import variables
-from pylint.testutils import CheckerTestCase, linter, set_config, Message
 from pylint.interfaces import UNDEFINED
+from pylint.testutils import CheckerTestCase, Message, linter, set_config
 
 
 class TestVariablesChecker(CheckerTestCase):

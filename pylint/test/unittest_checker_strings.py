@@ -9,7 +9,6 @@ import astroid
 from pylint.checkers import strings
 from pylint.testutils import CheckerTestCase, Message
 
-
 TEST_TOKENS = (
     '"X"',
     "'X'",

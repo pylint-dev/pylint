@@ -9,11 +9,9 @@
 """
 import os
 
-import pytest
-
 import astroid
-from astroid import nodes
-from astroid import bases
+import pytest
+from astroid import bases, nodes
 
 from pylint.pyreverse import inspector
 from unittest_pyreverse_writer import get_project

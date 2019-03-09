@@ -1,10 +1,10 @@
 # pylint: disable=redefined-outer-name
 import os
+
 import pytest
 
 from pylint import checkers
 from pylint.lint import PyLinter
-
 # pylint: disable=no-name-in-module
 from pylint.testutils import MinimalTestReporter
 

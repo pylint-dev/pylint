@@ -12,8 +12,9 @@
 """
 
 import astroid
-from pylint.pyreverse.utils import is_interface, FilterMixIn
+
 from pylint.checkers.utils import decorated_with_property
+from pylint.pyreverse.utils import FilterMixIn, is_interface
 
 
 class Figure:

@@ -20,25 +20,26 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
+import configparser
 import contextlib
 import json
-import re
-import sys
 import os
-from os.path import join, dirname, abspath
+import re
+import subprocess
+import sys
 import tempfile
 import textwrap
-import configparser
 from io import StringIO
-import subprocess
+from os.path import abspath, dirname, join
 from unittest import mock
 
+import pytest
+
+from pylint import utils
 from pylint.lint import Run
 from pylint.reporters import BaseReporter
-from pylint.reporters.text import *
 from pylint.reporters.json import JSONReporter
-import pytest
-from pylint import utils
+from pylint.reporters.text import *
 
 HERE = abspath(dirname(__file__))
 

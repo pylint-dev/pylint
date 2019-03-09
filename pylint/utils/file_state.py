@@ -6,6 +6,7 @@
 import collections
 
 from astroid import nodes
+
 from pylint.message.constants import MSG_STATE_SCOPE_MODULE
 from pylint.utils.warning_scope import WarningScope
 

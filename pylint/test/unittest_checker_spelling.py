@@ -12,12 +12,11 @@
 
 """Unittest for the spelling checker."""
 
+import astroid
 import pytest
 
-import astroid
-
 from pylint.checkers import spelling
-from pylint.testutils import CheckerTestCase, Message, set_config, _tokenize_str
+from pylint.testutils import CheckerTestCase, Message, _tokenize_str, set_config
 
 # try to create enchant dictionary
 try:

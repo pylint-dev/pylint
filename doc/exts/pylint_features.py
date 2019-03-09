@@ -11,6 +11,7 @@ import sphinx
 
 from pylint.lint import PyLinter
 
+
 def builder_inited(app):
     # PACKAGE/docs/exts/pylint_extensions.py --> PACKAGE/
     base_path = os.path.dirname(

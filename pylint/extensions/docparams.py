@@ -16,14 +16,14 @@
 
 """Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings
 """
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
 import astroid
 
-from pylint.interfaces import IAstroidChecker
+import pylint.extensions._check_docs_utils as utils
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
-import pylint.extensions._check_docs_utils as utils
+from pylint.interfaces import IAstroidChecker
 
 
 class DocstringParameterChecker(BaseChecker):

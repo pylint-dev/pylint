@@ -4,12 +4,12 @@
 """Tests for the pylint checker in :mod:`pylint.extensions.overlapping_exceptions
 """
 
+from os.path import dirname, join
 from sys import version_info
-from os.path import join, dirname
-
-from pylint.extensions.overlapping_exceptions import OverlappingExceptionsChecker
 
 import pytest
+
+from pylint.extensions.overlapping_exceptions import OverlappingExceptionsChecker
 
 
 @pytest.fixture(scope='module')

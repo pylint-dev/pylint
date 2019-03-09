@@ -45,9 +45,9 @@ import warnings
 from typing import Any
 
 from pylint.config import OptionsProviderMixIn
+from pylint.interfaces import UNDEFINED
 from pylint.reporters import diff_string
 from pylint.utils import register_plugins
-from pylint.interfaces import UNDEFINED
 
 
 def table_lines_from_stats(stats, old_stats, columns):

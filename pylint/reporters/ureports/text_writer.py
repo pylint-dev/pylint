@@ -10,7 +10,6 @@ from __future__ import print_function
 
 from pylint.reporters.ureports import BaseWriter
 
-
 TITLE_UNDERLINES = ["", "=", "-", "`", ".", "~", "^"]
 BULLETS = ["*", "-"]
 

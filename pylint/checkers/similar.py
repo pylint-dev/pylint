@@ -18,16 +18,17 @@
 """
 
 from __future__ import print_function
+
 import sys
 from collections import defaultdict
 from itertools import groupby
 
 import astroid
 
-from pylint.utils import decoding_stream
-from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker, table_lines_from_stats
+from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
+from pylint.utils import decoding_stream
 
 
 class Similar:

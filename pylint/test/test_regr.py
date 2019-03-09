@@ -14,16 +14,15 @@
 to be incorporated in the automatic functional test framework
 """
 
-import sys
 import os
+import sys
 from os.path import abspath, dirname, join
 
+import astroid
 import pytest
 
-import astroid
 import pylint.testutils as testutils
 from pylint import epylint
-
 
 REGR_DATA = join(dirname(abspath(__file__)), "regrtest_data")
 sys.path.insert(1, REGR_DATA)

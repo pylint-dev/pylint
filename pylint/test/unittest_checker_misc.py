@@ -13,7 +13,7 @@
 """Tests for the misc checker."""
 
 from pylint.checkers import misc
-from pylint.testutils import CheckerTestCase, Message, set_config, _tokenize_str
+from pylint.testutils import CheckerTestCase, Message, _tokenize_str, set_config
 
 
 class TestFixme(CheckerTestCase):

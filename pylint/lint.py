@@ -62,31 +62,29 @@ from __future__ import print_function
 
 import collections
 import contextlib
-from io import TextIOWrapper
 import operator
 import os
+import sys
+import tokenize
+import warnings
+from io import TextIOWrapper
+
+import astroid
+from astroid import modutils
+from astroid.__pkginfo__ import version as astroid_version
+from astroid.builder import AstroidBuilder
+
+from pylint import checkers, config, exceptions, interfaces, reporters
+from pylint.__pkginfo__ import version
+from pylint.message import MSG_TYPES, Message, MessagesHandlerMixIn, MessagesStore
+from pylint.reporters.ureports import nodes as report_nodes
+from pylint.utils import OPTION_RGX, ASTWalker, FileState, ReportsHandlerMixIn, utils
 
 try:
     import multiprocessing
 except ImportError:
     multiprocessing = None  # type: ignore
-import sys
-import tokenize
-import warnings
 
-import astroid
-from astroid.__pkginfo__ import version as astroid_version
-from astroid.builder import AstroidBuilder
-from astroid import modutils
-from pylint import checkers
-from pylint import interfaces
-from pylint import reporters
-from pylint.message import MessagesStore, Message, MSG_TYPES, MessagesHandlerMixIn
-from pylint.utils import FileState, ASTWalker, ReportsHandlerMixIn, OPTION_RGX, utils
-from pylint import exceptions
-from pylint import config
-from pylint.__pkginfo__ import version
-from pylint.reporters.ureports import nodes as report_nodes
 
 
 MANAGER = astroid.MANAGER
