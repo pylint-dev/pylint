@@ -1063,7 +1063,7 @@ class BasicChecker(_BasicChecker):
             if call_inferred:
                 try:
                     for inf_call in call_inferred:
-                        if isinstance(inf_call, astroid.Const):
+                        if inf_call != astroid.Uninferable:
                             self.add_message(
                                 "missing-parentheses-for-call-in-test", node=node
                             )
