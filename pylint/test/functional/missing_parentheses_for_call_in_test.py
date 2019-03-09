@@ -78,3 +78,18 @@ MY_FOURTH_VALUE = 42 if nonbool_lambda else -1  # [missing-parentheses-for-call-
 [x for x in range(100) if not bool_lambda()]
 [x for x in range(100) if nonbool_lambda]  # [missing-parentheses-for-call-in-test]
 [x for x in range(100) if nonbool_function]  # [missing-parentheses-for-call-in-test]
+
+def non_const_node_function():
+    return (1, 2, 42)
+
+if non_const_node_function:  # [missing-parentheses-for-call-in-test]
+    pass
+
+def yielding_function():
+    yield 42
+
+if yielding_function: # [missing-parentheses-for-call-in-test]
+    pass
+
+if not yielding_function():
+    pass

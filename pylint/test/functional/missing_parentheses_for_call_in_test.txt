@@ -11,3 +11,5 @@ missing-parentheses-for-call-in-test:75::Using a conditional statement with pote
 missing-parentheses-for-call-in-test:76::Using a conditional statement with potentially wrong function or method call due to missing parentheses
 missing-parentheses-for-call-in-test:79::Using a conditional statement with potentially wrong function or method call due to missing parentheses
 missing-parentheses-for-call-in-test:80::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:85::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:91::Using a conditional statement with potentially wrong function or method call due to missing parentheses
