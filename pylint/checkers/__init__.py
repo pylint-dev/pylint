@@ -39,15 +39,11 @@ messages nor reports. XXX not true, emit a 07 report !
 
 """
 
-import sys
-import tokenize
-import warnings
 from typing import Any
 
 from pylint.config import OptionsProviderMixIn
 from pylint.interfaces import UNDEFINED
-from pylint.reporters import diff_string
-from pylint.utils import register_plugins
+from pylint.utils import diff_string, register_plugins
 
 
 def table_lines_from_stats(stats, old_stats, columns):

@@ -49,9 +49,8 @@ import astroid.bases
 import astroid.scoped_nodes
 
 import pylint.utils as lint_utils
-from pylint import checkers, exceptions, interfaces, reporters
+from pylint import checkers, exceptions, interfaces
 from pylint.checkers import utils
-from pylint.checkers.utils import get_node_last_lineno
 from pylint.reporters.ureports import nodes as reporter_nodes
 
 
@@ -381,7 +380,7 @@ def report_by_type_stats(sect, stats, old_stats):
         new = stats[node_type]
         old = old_stats.get(node_type, None)
         if old is not None:
-            diff_str = reporters.diff_string(old, new)
+            diff_str = lint_utils.diff_string(old, new)
         else:
             old, diff_str = "NC", "NC"
         lines += (
@@ -1958,7 +1957,7 @@ class DocStringChecker(_BasicChecker):
         if docstring is None:
             if not report_missing:
                 return
-            lines = get_node_last_lineno(node) - node.lineno
+            lines = utils.get_node_last_lineno(node) - node.lineno
 
             if node_type == "module" and not lines:
                 # If the module has no body, there's no reason

@@ -14,7 +14,7 @@ import json
 import sys
 
 from pylint.interfaces import IReporter
-from pylint.reporters import BaseReporter
+from pylint.reporters.base_reporter import BaseReporter
 
 
 class JSONReporter(BaseReporter):
