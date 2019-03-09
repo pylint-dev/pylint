@@ -43,7 +43,6 @@ main pylint class
 
 from pylint.utils.ast_walker import ASTWalker
 from pylint.utils.file_state import FileState
-from pylint.utils.normalize_text import normalize_text
 from pylint.utils.utils import (
     _basename_in_blacklist_re,
     _check_csv,
@@ -57,6 +56,7 @@ from pylint.utils.utils import (
     format_section,
     get_global_option,
     get_module_and_frameid,
+    normalize_text,
     register_plugins,
     safe_decode,
     tokenize_module,
