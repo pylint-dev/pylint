@@ -94,7 +94,7 @@ def test_interfaces():
     class AnotherIFace(Interface): pass
     class Concrete0(object):
         __implements__ = MyIFace
-    class Concrete1:                     
+    class Concrete1:
         __implements__ = (MyIFace, AnotherIFace)
     class Concrete2:
         __implements__ = (MyIFace, AnotherIFace)

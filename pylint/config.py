@@ -57,9 +57,6 @@ from pylint import utils
 # need a cleanup. It could be completely reengineered as well.
 
 
-
-
-
 USER_HOME = os.path.expanduser("~")
 if "PYLINTHOME" in os.environ:
     PYLINT_HOME = os.environ["PYLINTHOME"]

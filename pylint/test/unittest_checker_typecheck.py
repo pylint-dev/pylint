@@ -50,7 +50,7 @@ class TestTypeChecker(CheckerTestCase):
         node = astroid.extract_node(
             """
         import optparse
-        optparse.THIS_does_not_EXIST 
+        optparse.THIS_does_not_EXIST
         """
         )
         with self.assertAddsMessages(

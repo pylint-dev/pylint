@@ -22,10 +22,10 @@ import re
 import sys
 
 import pytest
-import six
-from six.moves import configparser
 
+import six
 from pylint import checkers, interfaces, lint, reporters
+from six.moves import configparser
 
 
 class test_dialect(csv.excel):
