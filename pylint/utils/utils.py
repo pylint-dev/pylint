@@ -27,6 +27,24 @@ def normalize_text(text, line_len=80, indent=""):
     )
 
 
+CMPS = ["=", "-", "+"]
+
+# py3k has no more cmp builtin
+if sys.version_info >= (3, 0):
+
+    def cmp(a, b):  # pylint: disable=redefined-builtin
+        return (a > b) - (a < b)
+
+
+def diff_string(old, new):
+    """given an old and new int value, return a string representing the
+    difference
+    """
+    diff = abs(old - new)
+    diff_str = "%s%s" % (CMPS[cmp(old, new)], diff and ("%.2f" % diff) or "")
+    return diff_str
+
+
 def get_module_and_frameid(node):
     """return the module name and the frame id in the module"""
     frame = node.frame()

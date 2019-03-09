@@ -21,8 +21,8 @@ from typing import Any
 from pylint.checkers import BaseTokenChecker
 from pylint.exceptions import EmptyReportError
 from pylint.interfaces import ITokenChecker
-from pylint.reporters import diff_string
 from pylint.reporters.ureports.nodes import Table
+from pylint.utils import diff_string
 
 
 def report_raw_stats(sect, stats, old_stats):

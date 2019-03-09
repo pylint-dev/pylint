@@ -78,7 +78,6 @@ from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.__pkginfo__ import version
 from pylint.constants import MSG_TYPES, OPTION_RGX
 from pylint.message import Message, MessagesHandlerMixIn, MessagesStore
-from pylint.reporters.reports_handler_mix_in import ReportsHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
 
@@ -309,7 +308,7 @@ if multiprocessing is not None:
 class PyLinter(
     config.OptionsManagerMixIn,
     MessagesHandlerMixIn,
-    ReportsHandlerMixIn,
+    reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
 ):
     """lint Python modules using external checkers.
@@ -621,7 +620,7 @@ class PyLinter(
             sys.version,
         )
         MessagesHandlerMixIn.__init__(self)
-        ReportsHandlerMixIn.__init__(self)
+        reporters.ReportsHandlerMixIn.__init__(self)
         super(PyLinter, self).__init__(
             usage=__doc__, version=full_version, config_file=pylintrc or config.PYLINTRC
         )

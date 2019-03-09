@@ -37,8 +37,7 @@ import pytest
 
 from pylint import utils
 from pylint.lint import Run
-from pylint.reporters import BaseReporter
-from pylint.reporters.json import JSONReporter
+from pylint.reporters import BaseReporter, JSONReporter
 from pylint.reporters.text import *
 
 HERE = abspath(dirname(__file__))

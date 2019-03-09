@@ -15,7 +15,7 @@ from io import StringIO
 
 from pylint import checkers
 from pylint.lint import PyLinter
-from pylint.reporters.json import JSONReporter
+from pylint.reporters import JSONReporter
 
 
 def test_simple_json_output():
