@@ -12,6 +12,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Functional full-module tests for PyLint."""
+
 import collections
 import csv
 import io
@@ -22,10 +23,10 @@ import re
 import sys
 
 import pytest
-
 import six
-from pylint import checkers, interfaces, lint, reporters
 from six.moves import configparser
+
+from pylint import checkers, interfaces, lint, reporters
 
 
 class test_dialect(csv.excel):

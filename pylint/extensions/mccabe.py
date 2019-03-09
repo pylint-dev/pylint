@@ -11,6 +11,7 @@ from __future__ import absolute_import
 
 from mccabe import PathGraph as Mccabe_PathGraph
 from mccabe import PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
+
 from pylint import checkers
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import HIGH, IAstroidChecker

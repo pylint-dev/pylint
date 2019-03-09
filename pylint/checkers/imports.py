@@ -37,8 +37,6 @@ from distutils import sysconfig
 
 import astroid
 import isort
-from astroid import are_exclusive, decorators
-from astroid.modutils import get_module_part, is_standard_module
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
@@ -114,7 +112,7 @@ def _get_first_import(node, context, name, base, level, alias):
                         break
                 if found:
                     break
-    if found and not are_exclusive(first, node):
+    if found and not astroid.are_exclusive(first, node):
         return first
     return None
 
@@ -789,14 +787,16 @@ class ImportsChecker(BaseChecker):
         base = os.path.splitext(os.path.basename(module_file))[0]
 
         try:
-            importedmodname = get_module_part(importedmodname, module_file)
+            importedmodname = astroid.modutils.get_module_part(
+                importedmodname, module_file
+            )
         except ImportError:
             pass
 
         if context_name == importedmodname:
             self.add_message("import-self", node=node)
 
-        elif not is_standard_module(importedmodname):
+        elif not astroid.modutils.is_standard_module(importedmodname):
             # if this is not a package __init__ module
             if base != "__init__" and context_name not in self._module_pkg:
                 # record the module's parent, or the module itself if this is
@@ -897,14 +897,14 @@ class ImportsChecker(BaseChecker):
                     graph[importee].add(importer)
         return graph
 
-    @decorators.cached
+    @astroid.decorators.cached
     def _external_dependencies_info(self):
         """return cached external dependencies information or build and
         cache them
         """
         return self._filter_dependencies_graph(internal=False)
 
-    @decorators.cached
+    @astroid.decorators.cached
     def _internal_dependencies_info(self):
         """return cached internal dependencies information or build and
         cache them

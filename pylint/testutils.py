@@ -25,13 +25,12 @@ from __future__ import print_function
 import collections
 import contextlib
 import functools
-import os
 import sys
 import tempfile
 import tokenize
 from glob import glob
 from io import StringIO
-from os import getcwd, linesep, sep
+from os import close, getcwd, linesep, remove, sep, write
 from os.path import abspath, basename, dirname, join, splitext
 
 import astroid
@@ -286,14 +285,14 @@ def _create_tempfile(content=None):
     if content:
         if sys.version_info >= (3, 0):
             # erff
-            os.write(file_handle, bytes(content, "ascii"))
+            write(file_handle, bytes(content, "ascii"))
         else:
-            os.write(file_handle, content)
+            write(file_handle, content)
     try:
         yield tmp
     finally:
-        os.close(file_handle)
-        os.remove(tmp)
+        close(file_handle)
+        remove(tmp)
 
 
 @contextlib.contextmanager
