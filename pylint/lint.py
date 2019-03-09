@@ -78,8 +78,9 @@ from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.__pkginfo__ import version
 from pylint.constants import MSG_TYPES, OPTION_RGX
 from pylint.message import Message, MessagesHandlerMixIn, MessagesStore
+from pylint.reporters.reports_handler_mix_in import ReportsHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
-from pylint.utils import ASTWalker, FileState, ReportsHandlerMixIn, utils
+from pylint.utils import ASTWalker, FileState, utils
 
 try:
     import multiprocessing

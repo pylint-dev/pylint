@@ -44,7 +44,6 @@ main pylint class
 from pylint.utils.ast_walker import ASTWalker
 from pylint.utils.file_state import FileState
 from pylint.utils.normalize_text import normalize_text
-from pylint.utils.reports_handler_mix_in import ReportsHandlerMixIn
 from pylint.utils.utils import (
     _basename_in_blacklist_re,
     _check_csv,
