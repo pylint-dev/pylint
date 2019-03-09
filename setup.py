@@ -35,13 +35,14 @@ try:
     from setuptools import setup
     from setuptools.command import easy_install as easy_install_lib
     from setuptools.command import install_lib
+
     USE_SETUPTOOLS = 1
 except ImportError:
     from distutils.core import setup
     from distutils.command import install_lib
+
     USE_SETUPTOOLS = 0
     easy_install_lib = None
-
 
 
 base_dir = os.path.dirname(__file__)
@@ -49,22 +50,22 @@ base_dir = os.path.dirname(__file__)
 __pkginfo__ = {}
 with open(os.path.join(base_dir, "pylint", "__pkginfo__.py")) as f:
     exec(f.read(), __pkginfo__)
-modname = __pkginfo__['modname']
-distname = __pkginfo__.get('distname', modname)
-scripts = __pkginfo__.get('scripts', [])
-data_files = __pkginfo__.get('data_files', None)
-include_dirs = __pkginfo__.get('include_dirs', [])
-ext_modules = __pkginfo__.get('ext_modules', None)
-install_requires = __pkginfo__.get('install_requires', None)
-dependency_links = __pkginfo__.get('dependency_links', [])
-extras_require = __pkginfo__.get('extras_require', {})
+modname = __pkginfo__["modname"]
+distname = __pkginfo__.get("distname", modname)
+scripts = __pkginfo__.get("scripts", [])
+data_files = __pkginfo__.get("data_files", None)
+include_dirs = __pkginfo__.get("include_dirs", [])
+ext_modules = __pkginfo__.get("ext_modules", None)
+install_requires = __pkginfo__.get("install_requires", None)
+dependency_links = __pkginfo__.get("dependency_links", [])
+extras_require = __pkginfo__.get("extras_require", {})
 
-readme_path = join(base_dir, 'README.rst')
+readme_path = join(base_dir, "README.rst")
 if exists(readme_path):
     with open(readme_path) as stream:
         long_description = stream.read()
 else:
-    long_description = ''
+    long_description = ""
 
 
 def ensure_scripts(linux_scripts):
@@ -72,8 +73,9 @@ def ensure_scripts(linux_scripts):
     (taken from 4Suite)
     """
     from distutils import util
-    if util.get_platform()[:3] == 'win':
-        return linux_scripts + [script + '.bat' for script in linux_scripts]
+
+    if util.get_platform()[:3] == "win":
+        return linux_scripts + [script + ".bat" for script in linux_scripts]
     return linux_scripts
 
 
@@ -83,9 +85,9 @@ def get_packages(directory, prefix):
     for package in os.listdir(directory):
         absfile = join(directory, package)
         if isdir(absfile):
-            if exists(join(absfile, '__init__.py')):
+            if exists(join(absfile, "__init__.py")):
                 if prefix:
-                    result.append('%s.%s' % (prefix, package))
+                    result.append("%s.%s" % (prefix, package))
                 else:
                     result.append(package)
                 result += get_packages(absfile, result[-1])
@@ -93,7 +95,7 @@ def get_packages(directory, prefix):
 
 
 def _filter_tests(files):
-    testdir = join('pylint', 'test')
+    testdir = join("pylint", "test")
     return [f for f in files if testdir not in f]
 
 
@@ -101,6 +103,7 @@ class MyInstallLib(install_lib.install_lib):
     """extend install_lib command to handle package __init__.py and
     include_dirs variable if necessary
     """
+
     def run(self):
         """overridden from install_lib class"""
         install_lib.install_lib.run(self)
@@ -109,12 +112,13 @@ class MyInstallLib(install_lib.install_lib):
             for directory in include_dirs:
                 dest = join(self.install_dir, directory)
                 if sys.version_info >= (3, 0):
-                    exclude = {'invalid_encoded_data*', 'unknown_encoding*'}
+                    exclude = {"invalid_encoded_data*", "unknown_encoding*"}
                 else:
                     exclude = set()
                 shutil.rmtree(dest, ignore_errors=True)
-                shutil.copytree(directory, dest,
-                                ignore=shutil.ignore_patterns(*exclude))
+                shutil.copytree(
+                    directory, dest, ignore=shutil.ignore_patterns(*exclude)
+                )
 
     # override this since pip/easy_install attempt to byte compile test data
     # files, some of them being syntactically wrong by design, and this scares
@@ -125,6 +129,7 @@ class MyInstallLib(install_lib.install_lib):
 
 
 if easy_install_lib:
+
     class easy_install(easy_install_lib.easy_install):
         # override this since pip/easy_install attempt to byte compile
         # test data files, some of them being syntactically wrong by design,
@@ -137,43 +142,47 @@ if easy_install_lib:
 def install(**kwargs):
     """setup entry point"""
     if USE_SETUPTOOLS:
-        if '--force-manifest' in sys.argv:
-            sys.argv.remove('--force-manifest')
-    packages = [modname] + get_packages(join(base_dir, 'pylint'), modname)
+        if "--force-manifest" in sys.argv:
+            sys.argv.remove("--force-manifest")
+    packages = [modname] + get_packages(join(base_dir, "pylint"), modname)
     if USE_SETUPTOOLS:
         if install_requires:
-            kwargs['install_requires'] = install_requires
-            kwargs['dependency_links'] = dependency_links
-        kwargs['entry_points'] = {'console_scripts': [
-            'pylint = pylint:run_pylint',
-            'epylint = pylint:run_epylint',
-            'pyreverse = pylint:run_pyreverse',
-            'symilar = pylint:run_symilar',
-        ]}
-    kwargs['packages'] = packages
-    cmdclass = {'install_lib': MyInstallLib,
-                'build_py': build_py}
+            kwargs["install_requires"] = install_requires
+            kwargs["dependency_links"] = dependency_links
+        kwargs["entry_points"] = {
+            "console_scripts": [
+                "pylint = pylint:run_pylint",
+                "epylint = pylint:run_epylint",
+                "pyreverse = pylint:run_pyreverse",
+                "symilar = pylint:run_symilar",
+            ]
+        }
+    kwargs["packages"] = packages
+    cmdclass = {"install_lib": MyInstallLib, "build_py": build_py}
     if easy_install_lib:
-        cmdclass['easy_install'] = easy_install
-    return setup(name=distname,
-                 version=__pkginfo__['version'],
-                 license=__pkginfo__['license'],
-                 description=__pkginfo__['description'],
-                 long_description=long_description,
-                 author=__pkginfo__['author'],
-                 author_email=__pkginfo__['author_email'],
-                 url=__pkginfo__['web'],
-                 scripts=ensure_scripts(scripts),
-                 classifiers=__pkginfo__['classifiers'],
-                 data_files=data_files,
-                 ext_modules=ext_modules,
-                 cmdclass=cmdclass,
-                 extras_require=extras_require,
-                 test_suite='test',
-                 python_requires='>=3.4.*',
-                 setup_requires=['pytest-runner'],
-                 tests_require=['pytest'],
-                 **kwargs)
+        cmdclass["easy_install"] = easy_install
+    return setup(
+        name=distname,
+        version=__pkginfo__["version"],
+        license=__pkginfo__["license"],
+        description=__pkginfo__["description"],
+        long_description=long_description,
+        author=__pkginfo__["author"],
+        author_email=__pkginfo__["author_email"],
+        url=__pkginfo__["web"],
+        scripts=ensure_scripts(scripts),
+        classifiers=__pkginfo__["classifiers"],
+        data_files=data_files,
+        ext_modules=ext_modules,
+        cmdclass=cmdclass,
+        extras_require=extras_require,
+        test_suite="test",
+        python_requires=">=3.4.*",
+        setup_requires=["pytest-runner"],
+        tests_require=["pytest"],
+        **kwargs
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     install()

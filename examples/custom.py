@@ -14,7 +14,7 @@ class MyAstroidChecker(BaseChecker):
     __implements__ = IAstroidChecker
 
     # The name defines a custom section of the config for this checker.
-    name = 'custom'
+    name = "custom"
     # The priority indicates the order that pylint will run the checkers.
     priority = -1
     # This class variable declares the messages (ie the warnings and errors)
@@ -24,9 +24,7 @@ class MyAstroidChecker(BaseChecker):
         # a unique symbol that identifies the message,
         # and a detailed help message
         # that will be included in the documentation.
-        'W0001': ('Message that will be emitted',
-                  'message-symbol',
-                  'Message help')
+        "W0001": ("Message that will be emitted", "message-symbol", "Message help")
     }
     # This class variable declares the options
     # that are configurable by the user.
@@ -35,12 +33,16 @@ class MyAstroidChecker(BaseChecker):
         # and in config files, and a dictionary of arguments
         # (similar to those to those to
         # argparse.ArgumentParser.add_argument).
-        ('store-locals-indicator',
-         {'default': 'properties',
-          'help': ('The expression name that indicates that the locals should '
-                   'be stored'),
-          },
-         ),
+        (
+            "store-locals-indicator",
+            {
+                "default": "properties",
+                "help": (
+                    "The expression name that indicates that the locals should "
+                    "be stored"
+                ),
+            },
+        ),
     )
 
     def visit_call(self, node):
@@ -51,10 +53,12 @@ class MyAstroidChecker(BaseChecker):
         :param node: The node to check.
         :type node: astroid.node_classes.Call
         """
-        if not (isinstance(node.func, astroid.Attribute)
-                and isinstance(node.func.expr, astroid.Name)
-                and node.func.expr.name == self.config.store_locals_indicator
-                and node.func.attrname == 'create'):
+        if not (
+            isinstance(node.func, astroid.Attribute)
+            and isinstance(node.func.expr, astroid.Name)
+            and node.func.expr.name == self.config.store_locals_indicator
+            and node.func.attrname == "create"
+        ):
             return
         in_class = node.frame()
         for param in node.args:

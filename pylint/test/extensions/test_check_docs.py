@@ -762,7 +762,7 @@ class TestParamDocChecker(CheckerTestCase):
             '''docstring foo
 
             :param y: bla
-            
+
             missing constructor parameter documentation
             '''
 
@@ -794,7 +794,7 @@ class TestParamDocChecker(CheckerTestCase):
 
             Args:
                 y: bla
-            
+
             missing constructor parameter documentation
             '''
 
@@ -828,7 +828,7 @@ class TestParamDocChecker(CheckerTestCase):
             ----------
             y:
                 bla
-            
+
             missing constructor parameter documentation
             '''
 

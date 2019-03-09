@@ -86,7 +86,6 @@ except ImportError:
     multiprocessing = None  # type: ignore
 
 
-
 MANAGER = astroid.MANAGER
 
 

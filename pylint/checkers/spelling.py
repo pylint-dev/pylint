@@ -47,7 +47,6 @@ except ImportError:
         pass
 
 
-
 if enchant is not None:
     br = enchant.Broker()
     dicts = br.list_dicts()

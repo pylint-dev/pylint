@@ -109,7 +109,7 @@ class Similar:
             % (
                 nb_total_lignes,
                 nb_lignes_dupliquees,
-                nb_lignes_dupliquees * 100. / nb_total_lignes,
+                nb_lignes_dupliquees * 100.0 / nb_total_lignes,
             )
         )
 
@@ -387,7 +387,7 @@ class SimilarChecker(BaseChecker, Similar):
             self.add_message("R0801", args=(len(couples), "\n".join(msg)))
             duplicated += num * (len(couples) - 1)
         stats["nb_duplicated_lines"] = duplicated
-        stats["percent_duplicated_lines"] = total and duplicated * 100. / total
+        stats["percent_duplicated_lines"] = total and duplicated * 100.0 / total
 
 
 def register(linter):
