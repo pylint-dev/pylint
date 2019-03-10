@@ -43,6 +43,17 @@ class BaseChecker(OptionsProviderMixIn):
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
 
+    def __gt__(self, other):
+        """Permit to sort a list of Checker by name."""
+        return "{}{}".format(self.name, self.msgs).__gt__(
+            "{}{}".format(other.name, other.msgs)
+        )
+
+    def __repr__(self):
+        status = "Checker" if self.enabled else "Disabled checker"
+        msgids = [id for id in self.msgs]
+        return "{} '{}' responsible for {}".format(status, self.name, ", ".join(msgids))
+
     def add_message(
         self,
         msgid,
