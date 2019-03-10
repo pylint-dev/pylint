@@ -42,7 +42,6 @@ main pylint class
 """
 
 from pylint.utils.ast_walker import ASTWalker
-from pylint.utils.constants import OPTION_RGX, PY_EXTS
 from pylint.utils.file_state import FileState
 from pylint.utils.normalize_text import normalize_text
 from pylint.utils.reports_handler_mix_in import ReportsHandlerMixIn
@@ -63,4 +62,3 @@ from pylint.utils.utils import (
     safe_decode,
     tokenize_module,
 )
-from pylint.utils.warning_scope import WarningScope

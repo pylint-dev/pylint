@@ -8,10 +8,7 @@ from __future__ import print_function
 import sys
 from inspect import cleandoc
 
-from pylint.exceptions import InvalidMessageError, UnknownMessageError
-from pylint.interfaces import UNDEFINED
-from pylint.message.build_message_definition import build_message_def
-from pylint.message.constants import (
+from pylint.constants import (
     _MSG_ORDER,
     _SCOPE_EXEMPT,
     MSG_STATE_CONFIDENCE,
@@ -19,7 +16,11 @@ from pylint.message.constants import (
     MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
     MSG_TYPES_STATUS,
+    WarningScope,
 )
+from pylint.exceptions import InvalidMessageError, UnknownMessageError
+from pylint.interfaces import UNDEFINED
+from pylint.message.build_message_definition import build_message_def
 from pylint.message.message import Message
 from pylint.utils.utils import (
     _format_option_value,
@@ -27,7 +28,6 @@ from pylint.utils.utils import (
     get_module_and_frameid,
     normalize_text,
 )
-from pylint.utils.warning_scope import WarningScope
 
 
 def _rest_format_section(stream, section, options, doc=None):

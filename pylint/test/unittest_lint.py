@@ -42,15 +42,14 @@ import pytest
 import pylint.testutils as testutils
 from pylint import checkers, config, exceptions, interfaces, lint
 from pylint.checkers.utils import check_messages
-from pylint.exceptions import InvalidMessageError, UnknownMessageError
-from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_options
-from pylint.message import (
+from pylint.constants import (
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
-    MessageDefinition,
-    MessagesStore,
 )
+from pylint.exceptions import InvalidMessageError, UnknownMessageError
+from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_options
+from pylint.message import MessageDefinition, MessagesStore
 from pylint.reporters import text
 from pylint.utils import FileState, tokenize_module
 
