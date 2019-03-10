@@ -5,8 +5,8 @@
 
 import sys
 
+from pylint.constants import MSG_TYPES
 from pylint.exceptions import InvalidMessageError
-from pylint.message.constants import MSG_TYPES
 from pylint.utils.normalize_text import normalize_text
 
 

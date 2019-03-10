@@ -38,8 +38,8 @@ from astroid import bases
 from pylint import checkers, interfaces
 from pylint.checkers import utils
 from pylint.checkers.utils import find_try_except_wrapper_node, node_ignores_exception
+from pylint.constants import WarningScope
 from pylint.interfaces import INFERENCE, INFERENCE_FAILURE
-from pylint.utils import WarningScope
 
 _ZERO = re.compile("^0+$")
 

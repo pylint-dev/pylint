@@ -40,15 +40,6 @@
 """All the classes related to Message handling."""
 
 from pylint.message.build_message_definition import build_message_def
-from pylint.message.constants import (
-    _SCOPE_EXEMPT,
-    MSG_STATE_CONFIDENCE,
-    MSG_STATE_SCOPE_CONFIG,
-    MSG_STATE_SCOPE_MODULE,
-    MSG_TYPES,
-    MSG_TYPES_LONG,
-    MSG_TYPES_STATUS,
-)
 from pylint.message.message import Message
 from pylint.message.message_definition import MessageDefinition
 from pylint.message.message_handler_mix_in import MessagesHandlerMixIn

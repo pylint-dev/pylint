@@ -24,9 +24,9 @@ import re
 import tokenize
 
 from pylint.checkers import BaseChecker
+from pylint.constants import OPTION_RGX
 from pylint.interfaces import IRawChecker, ITokenChecker
 from pylint.message import MessagesHandlerMixIn
-from pylint.utils import OPTION_RGX
 
 
 class ByIdManagedMessagesChecker(BaseChecker):

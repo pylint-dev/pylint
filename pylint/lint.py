@@ -76,9 +76,10 @@ from astroid.builder import AstroidBuilder
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.__pkginfo__ import version
-from pylint.message import MSG_TYPES, Message, MessagesHandlerMixIn, MessagesStore
+from pylint.constants import MSG_TYPES, OPTION_RGX
+from pylint.message import Message, MessagesHandlerMixIn, MessagesStore
 from pylint.reporters.ureports import nodes as report_nodes
-from pylint.utils import OPTION_RGX, ASTWalker, FileState, ReportsHandlerMixIn, utils
+from pylint.utils import ASTWalker, FileState, ReportsHandlerMixIn, utils
 
 try:
     import multiprocessing
