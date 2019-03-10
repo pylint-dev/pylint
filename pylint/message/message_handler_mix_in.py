@@ -349,12 +349,15 @@ class MessagesHandlerMixIn:
         """output a full documentation in ReST format"""
         if not stream:
             stream = sys.stdout
+        print(
+            """\
+Pylint global options and switches
+----------------------------------
 
-        print("Pylint global options and switches", file=stream)
-        print("----------------------------------", file=stream)
-        print("", file=stream)
-        print("Pylint provides global options and switches.", file=stream)
-        print("", file=stream)
+Pylint provides global options and switches.
+""",
+            file=stream,
+        )
 
         by_checker = {}
         for checker in self.get_checkers():
@@ -382,17 +385,21 @@ class MessagesHandlerMixIn:
                         "reports": list(checker.reports),
                     }
 
-        print("Pylint checkers' options and switches", file=stream)
-        print("-------------------------------------", file=stream)
-        print("", file=stream)
-        print("Pylint checkers can provide three set of features:", file=stream)
-        print("", file=stream)
-        print("* options that control their execution,", file=stream)
-        print("* messages that they can raise,", file=stream)
-        print("* reports that they can generate.", file=stream)
-        print("", file=stream)
-        print("Below is a list of all checkers and their features.", file=stream)
-        print("", file=stream)
+        print(
+            """\
+Pylint checkers' options and switches
+-------------------------------------
+
+Pylint checkers can provide three set of features:
+
+* options that control their execution,
+* messages that they can raise,
+* reports that they can generate.
+
+Below is a list of all checkers and their features.
+""",
+            file=stream,
+        )
 
         for checker, info in sorted(by_checker.items()):
             self._print_checker_doc(checker, info, stream=stream)
