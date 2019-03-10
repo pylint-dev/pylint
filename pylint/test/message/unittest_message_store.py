@@ -9,7 +9,7 @@ from io import StringIO
 import pytest
 
 from pylint.checkers import BaseChecker
-from pylint.exceptions import UnknownMessageError
+from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.message import MessageDefinition, MessagesStore
 
 

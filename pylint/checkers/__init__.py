@@ -39,12 +39,7 @@ messages nor reports. XXX not true, emit a 07 report !
 
 """
 
-from typing import Any
-
-from pylint.config import OptionsProviderMixIn
-from pylint.exceptions import InvalidMessageError
-from pylint.interfaces import UNDEFINED
-from pylint.message.build_message_definition import build_message_definition
+from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
 from pylint.utils import diff_string, register_plugins
 
 
@@ -67,93 +62,6 @@ def table_lines_from_stats(stats, old_stats, columns):
             old, diff_str = "NC", "NC"
         lines += (m_type.replace("_", " "), format(new), old, diff_str)
     return lines
-
-
-class BaseChecker(OptionsProviderMixIn):
-    """base class for checkers"""
-
-    # checker name (you may reuse an existing one)
-    name = None  # type: str
-    # options level (0 will be displaying in --help, 1 in --long-help)
-    level = 1
-    # ordered list of options to control the ckecker behaviour
-    options = ()  # type: Any
-    # messages issued by this checker
-    msgs = {}  # type: Any
-    # reports issued by this checker
-    reports = ()  # type: Any
-    # mark this checker as enabled or not.
-    enabled = True
-
-    def __init__(self, linter=None):
-        """checker instances should have the linter as argument
-
-        linter is an object implementing ILinter
-        """
-        if self.name is not None:
-            self.name = self.name.lower()
-        OptionsProviderMixIn.__init__(self)
-        self.linter = linter
-
-    def add_message(
-        self,
-        msg_id,
-        line=None,
-        node=None,
-        args=None,
-        confidence=UNDEFINED,
-        col_offset=None,
-    ):
-        """add a message of a given type"""
-        self.linter.add_message(msg_id, line, node, args, confidence, col_offset)
-
-    def check_consistency(self):
-        """Check the consistency of msgid.
-
-        msg ids for a checker should be a string of len 4, where the two first
-        characters are the checker id and the two last the msg id in this
-        checker.
-
-        :raises InvalidMessageError: If the checker id in the messages are not
-        always the same. """
-        checker_id = None
-        existing_ids = []
-        for message in self.messages:
-            if checker_id is not None and checker_id != message.msgid[1:3]:
-                error_msg = "Inconsistent checker part in message id "
-                error_msg += "'{}' (expected 'x{checker_id}xx' ".format(
-                    message.msgid, checker_id=checker_id
-                )
-                error_msg += "because we already had {existing_ids}).".format(
-                    existing_ids=existing_ids
-                )
-                raise InvalidMessageError(error_msg)
-            checker_id = message.msgid[1:3]
-            existing_ids.append(message.msgid)
-
-    @property
-    def messages(self) -> list:
-        messages = []
-        for msgid, msg_tuple in sorted(self.msgs.items()):
-            message = build_message_definition(self, msgid, msg_tuple)
-            messages.append(message)
-        return messages
-
-    # dummy methods implementing the IChecker interface
-
-    def open(self):
-        """called before visiting project (i.e set of modules)"""
-
-    def close(self):
-        """called after visiting project (i.e set of modules)"""
-
-
-class BaseTokenChecker(BaseChecker):
-    """Base class for checkers that want to have access to the token stream."""
-
-    def process_tokens(self, tokens):
-        """Should be overridden by subclasses."""
-        raise NotImplementedError()
 
 
 def initialize(linter):
