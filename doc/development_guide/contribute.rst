@@ -95,7 +95,7 @@ your patch gets accepted.
 
       pytest pylint -k test_functional
 
-  * ``pylint`` uses black_ Python autoformatter for formatting its code.
+  * ``pylint`` uses black_ and isort_ Python autoformatter for formatting its code.
     We have a pre-commit hook which should take care of the autoformatting for you
     for when you are working on a patch. To enable it, do the following:
 
@@ -165,6 +165,7 @@ current environment in order to have faster feedback. Run with::
 .. _tox: http://tox.readthedocs.io/en/latest/
 .. _pytest: http://pytest.readthedocs.io/en/latest/
 .. _black: https://github.com/ambv/black
+.. _isort: https://github.com/timothycrosley/isort
 .. _astroid: https://github.com/pycqa/astroid
 
 
