@@ -30,23 +30,24 @@ from pylint.utils.utils import (
 )
 
 
-def _rest_format_section(stream, section, options, doc=None):
+def _rest_format_section(section, options, doc=None) -> str:
     """format an options section using as ReST formatted output"""
+    result = ""
     if section:
-        print("%s\n%s" % (section, "'" * len(section)), file=stream)
+        result += "%s\n%s\n" % (section, "'" * len(section))
     if doc:
-        print(normalize_text(doc, line_len=79, indent=""), file=stream)
-        print(file=stream)
+        formatted_doc = normalize_text(doc, line_len=79, indent="")
+        result += "%s\n\n" % formatted_doc
     for optname, optdict, value in options:
         help_opt = optdict.get("help")
-        print(":%s:" % optname, file=stream)
+        result += ":%s:\n" % optname
         if help_opt:
-            help_opt = normalize_text(help_opt, line_len=79, indent="  ")
-            print(help_opt, file=stream)
+            formatted_help = normalize_text(help_opt, line_len=79, indent="  ")
+            result += "%s\n" % formatted_help
         if value:
             value = str(_format_option_value(optdict, value))
-            print(file=stream)
-            print("  Default: ``%s``" % value.replace("`` ", "```` ``"), file=stream)
+            result += "\n  Default: ``%s``\n" % value.replace("`` ", "```` ``")
+    return result
 
 
 class MessagesHandlerMixIn:
@@ -371,7 +372,7 @@ Pylint provides global options and switches.
                             title = "%s options" % section.capitalize()
                         print(title, file=stream)
                         print("~" * len(title), file=stream)
-                        _rest_format_section(stream, None, options)
+                        print(_rest_format_section(None, options)[:-1], file=stream)
                         print("", file=stream)
             else:
                 try:
@@ -444,7 +445,7 @@ Below is a list of all checkers and their features.
             title = "{} Options".format(checker_title)
             print(title, file=stream)
             print("^" * len(title), file=stream)
-            _rest_format_section(stream, None, options)
+            print(_rest_format_section(None, options)[:-1], file=stream)
             print("", file=stream)
         if msgs:
             title = "{} Messages".format(checker_title)
