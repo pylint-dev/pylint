@@ -370,19 +370,14 @@ class MessagesHandlerMixIn:
                     }
         return by_checker
 
-    def print_full_documentation(self, stream=None):
-        """output a full documentation in ReST format"""
-        if not stream:
-            stream = sys.stdout
-        print(
-            """\
+    def get_full_documentation(self) -> str:
+        result = """\
 Pylint global options and switches
 ----------------------------------
 
 Pylint provides global options and switches.
-""",
-            file=stream,
-        )
+
+"""
         for checker in self.get_checkers():
             name = checker.name
             if checker.name == "master":
@@ -392,12 +387,9 @@ Pylint provides global options and switches.
                             title = "General options"
                         else:
                             title = "%s options" % section.capitalize()
-                        print(title, file=stream)
-                        print("~" * len(title), file=stream)
-                        print(_rest_format_section(None, options)[:-1], file=stream)
-                        print("", file=stream)
-        print(
-            """\
+                        result += get_rest_title(title, "~")
+                        result += "%s\n" % _rest_format_section(None, options)
+        result += """\
 Pylint checkers' options and switches
 -------------------------------------
 
@@ -408,12 +400,18 @@ Pylint checkers can provide three set of features:
 * reports that they can generate.
 
 Below is a list of all checkers and their features.
-""",
-            file=stream,
-        )
+
+"""
         by_checker = self._get_checkers_infos()
         for checker, information in sorted(by_checker.items()):
-            self._print_checker_doc(checker, information, stream=stream)
+            result += self._get_checker_doc(checker, information)
+        return result
+
+    def print_full_documentation(self, stream=None) -> None:
+        """output a full documentation in ReST format"""
+        if not stream:
+            stream = sys.stdout
+        print(self.get_full_documentation()[:-1], file=stream)
 
     @staticmethod
     def _get_checker_doc(checker, info) -> str:
