@@ -151,13 +151,14 @@ class MessagesStore:
 
     def get_message_definitions(self, msgid_or_symbol: str) -> list:
         """Returns the Message object for this message.
-
         :param str msgid_or_symbol: msgid_or_symbol may be either a numeric or symbolic id.
         :raises UnknownMessageError: if the message id is not defined.
         :rtype: List of MessageDefinition
         :return: A message definition corresponding to msgid_or_symbol
         """
-        if msgid_or_symbol[1:].isdigit():
+        # Only msgid can have a digit as second letter
+        is_msgid = msgid_or_symbol[1:].isdigit()
+        if is_msgid:
             msgid_or_symbol = msgid_or_symbol.upper()
         for source in (self._alternative_names, self._messages_definitions):
             try:
