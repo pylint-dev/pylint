@@ -7,6 +7,10 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* ``old-division`` is not emitted for non-Const nodes.
+
+  Close #2808
+
 * Added method arguments to the dot writer for pyreverse.
 
   Close #2139

@@ -480,6 +480,24 @@ class TestPython3Checker(testutils.CheckerTestCase):
             for node in (left_node, right_node):
                 self.checker.visit_binop(node)
 
+    def test_division_different_types(self):
+        nodes = astroid.extract_node(
+            """
+        class A:
+            pass
+        A / 2 #@
+        A() / 2 #@
+        "a" / "a" #@
+        class Path:
+            def __div__(self, other):
+                return 42
+        Path() / 24 #@
+        """
+        )
+        for node in nodes:
+            with self.assertNoMessages():
+                self.checker.visit_binop(node)
+
     def test_dict_iter_method(self):
         for meth in ("keys", "values", "items"):
             node = astroid.extract_node("x.iter%s()  #@" % meth)
