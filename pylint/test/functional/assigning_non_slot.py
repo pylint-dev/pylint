@@ -148,3 +148,11 @@ class ClassReassingingInvalidLayoutClass(object):
 
     def release(self):
         self.__class__ = ClassWithSlots # [assigning-non-slot]
+
+
+# pylint: disable=attribute-defined-outside-init
+class ClassHavingUnknownAncestors(Unknown):
+    __slots__ = ['yo']
+
+    def test(self):
+        self.not_yo = 42

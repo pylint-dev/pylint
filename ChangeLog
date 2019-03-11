@@ -7,6 +7,10 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* ``assigning-non-slot`` not emitted for classes with unknown base classes.
+
+  Close #2807
+
 * ``old-division`` is not emitted for non-Const nodes.
 
   Close #2808
