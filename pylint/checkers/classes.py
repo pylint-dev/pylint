@@ -1147,43 +1147,45 @@ a metaclass class method.",
         """ Check that the given AssignAttr node
         is defined in the class slots.
         """
-        infered = safe_infer(node.expr)
-        if infered and isinstance(infered, astroid.Instance):
-            klass = infered._proxied
-            if "__slots__" not in klass.locals or not klass.newstyle:
-                return
+        inferred = safe_infer(node.expr)
+        if not isinstance(inferred, astroid.Instance):
+            return
 
-            slots = klass.slots()
-            if slots is None:
-                return
-            # If any ancestor doesn't use slots, the slots
-            # defined for this class are superfluous.
-            if any(
-                "__slots__" not in ancestor.locals and ancestor.name != "object"
-                for ancestor in klass.ancestors()
-            ):
-                return
+        klass = inferred._proxied
+        if not has_known_bases(klass):
+            return
+        if "__slots__" not in klass.locals or not klass.newstyle:
+            return
 
-            if not any(slot.value == node.attrname for slot in slots):
-                # If we have a '__dict__' in slots, then
-                # assigning any name is valid.
-                if not any(slot.value == "__dict__" for slot in slots):
-                    if _is_attribute_property(node.attrname, klass):
-                        # Properties circumvent the slots mechanism,
-                        # so we should not emit a warning for them.
-                        return
-                    if node.attrname in klass.locals and _has_data_descriptor(
-                        klass, node.attrname
-                    ):
-                        # Descriptors circumvent the slots mechanism as well.
-                        return
-                    if node.attrname == "__class__" and _has_same_layout_slots(
-                        slots, node.parent.value
-                    ):
-                        return
-                    self.add_message(
-                        "assigning-non-slot", args=(node.attrname,), node=node
-                    )
+        slots = klass.slots()
+        if slots is None:
+            return
+        # If any ancestor doesn't use slots, the slots
+        # defined for this class are superfluous.
+        if any(
+            "__slots__" not in ancestor.locals and ancestor.name != "object"
+            for ancestor in klass.ancestors()
+        ):
+            return
+
+        if not any(slot.value == node.attrname for slot in slots):
+            # If we have a '__dict__' in slots, then
+            # assigning any name is valid.
+            if not any(slot.value == "__dict__" for slot in slots):
+                if _is_attribute_property(node.attrname, klass):
+                    # Properties circumvent the slots mechanism,
+                    # so we should not emit a warning for them.
+                    return
+                if node.attrname in klass.locals and _has_data_descriptor(
+                    klass, node.attrname
+                ):
+                    # Descriptors circumvent the slots mechanism as well.
+                    return
+                if node.attrname == "__class__" and _has_same_layout_slots(
+                    slots, node.parent.value
+                ):
+                    return
+                self.add_message("assigning-non-slot", args=(node.attrname,), node=node)
 
     @check_messages(
         "protected-access", "no-classmethod-decorator", "no-staticmethod-decorator"
