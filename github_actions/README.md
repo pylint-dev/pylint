@@ -12,7 +12,8 @@ workflow "on push" {
 
 action "GitHub Action for pylint" {
   uses = "PyCQA/pylint/github_actions@master"
-  args = "pylint -h"  # Replace with "pylint <modulename(s)>"
+  # args = "pip install -r requirements.txt ; pylint **/*.py"
+  args = "pip install . ; pylint **/*.py"
 }
 ```
 Or to add other pylint options to __args =__ above.
