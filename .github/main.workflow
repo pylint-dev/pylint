@@ -5,5 +5,6 @@ workflow "on push" {
 
 action "GitHub Action for pylint" {
   uses = "PyCQA/pylint/github_actions@master"
-  args = "pylint -h"
+  # args = "pip install -r requirements.txt ; pylint **/*.py"
+  args = "pylint **/*.py"
 }
