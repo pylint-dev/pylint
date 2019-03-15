@@ -7,6 +7,11 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Add ``preferred-module`` checker that notify if an import has a replacement module that should be used.
+
+  This check is emitted when ``pylint`` finds an imported module that has a
+  preferred replacement listed in ``preferred-modules``.
+
 * Added a new check that warns the user if a function call is used inside a test but parentheses are missing.
 
   Close #2658
