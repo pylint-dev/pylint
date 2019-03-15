@@ -1,6 +1,6 @@
-unused-import:4:test_regression_737:Unused import xml
+unused-import:4:test_regression_737:Unused import unittest
 unused-import:7:test_regression_923:Unused import unittest.case
-unused-import:8:test_regression_923:Unused xml imported as sql
+unused-import:8:test_regression_923:Unused unittest imported as sql
 unused-variable:15:test_unused_with_prepended_underscore:Unused variable '_a_'
 unused-variable:16:test_unused_with_prepended_underscore:Unused variable '__a__'
 unused-variable:20:test_local_field_prefixed_with_unused_or_ignored:Unused variable 'flagged_local_field'
