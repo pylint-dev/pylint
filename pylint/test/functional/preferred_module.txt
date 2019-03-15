@@ -1,0 +1,2 @@
+preferred-module:4::Prefer importing 'defusedxml' instead of 'xml'
+preferred-module:5::Prefer importing 'defusedxml' instead of 'xml'

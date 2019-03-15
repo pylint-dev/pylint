@@ -1,11 +1,11 @@
 # pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, useless-object-inheritance
 
 def test_regression_737():
-    import xml # [unused-import]
+    import unittest # [unused-import]
 
 def test_regression_923():
     import unittest.case  # [unused-import]
-    import xml as sql # [unused-import]
+    import unittest as sql # [unused-import]
 
 def test_unused_with_prepended_underscore():
     _foo = 42
