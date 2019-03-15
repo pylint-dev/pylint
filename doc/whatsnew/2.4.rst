@@ -24,6 +24,14 @@ New checkers
         __slots__ = ('first', 'second')
         first = 1
 
+* A new check ``preferred-module`` was added.
+
+  This check is emitted when ``pylint`` finds an imported module that has a
+  preferred replacement listed in ``preferred-modules``.
+
+  For example, you can set the preferred modules as ``xml:defusedxml,json:ujson``
+  to make ``pylint`` suggest using ``defusedxml`` instead of ``xml``
+  and ``ujson`` rather than ``json``.
 
 Other Changes
 =============
