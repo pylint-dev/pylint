@@ -7,8 +7,7 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
-* Add ``preferred-module`` checker that notify if an import has a replacement
-module that should be used.
+* Add ``preferred-module`` checker that notify if an import has a replacement module that should be used.
 
   This check is emitted when ``pylint`` finds an imported module that has a
   preferred replacement listed in ``preferred-modules``.
@@ -35,7 +34,6 @@ module that should be used.
 
   This check is emitted when ``pylint`` finds a class variable that conflicts with a slot
   name, which would raise a ``ValueError`` at runtime.
-
 
 * Fix issue with pylint name in output of python -m pylint --version
 
