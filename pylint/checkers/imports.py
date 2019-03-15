@@ -323,9 +323,8 @@ class ImportsChecker(BaseChecker):
                 "default": DEFAULT_PREFERRED_MODULES,
                 "type": "csv",
                 "metavar": "<module:preferred-module>",
-                "help": "Couples of modules and preferred modules "
-                " that should be used, separated by a colon and "
-                " the couples separated by a comma.",
+                "help": "Couples of modules and preferred modules,"
+                " separated by a comma.",
             },
         ),
         (
