@@ -25,6 +25,11 @@ Release date: TBA
 
   Close #2684
 
+* Add ``preferred-module`` checker that notify if an import has a replacement module that should be used.
+
+  This check is emitted when ``pylint`` finds an imported module that has a
+  preferred replacement listed in ``preferred-modules``.
+
 * ``assigning-non-slot`` not emitted for classes with unknown base classes.
 
   Close #2807

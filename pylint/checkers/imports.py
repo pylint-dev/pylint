@@ -23,6 +23,7 @@
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
+# Copyright (c) 2019 Paul Renvoise <renvoisepaul@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -237,6 +238,11 @@ MSGS = {
         "import-self",
         "Used when a module is importing itself.",
     ),
+    "W0407": (
+        "Prefer importing %r instead of %r",
+        "preferred-module",
+        "Used when a module imported has a preferred replacement module.",
+    ),
     "W0410": (
         "__future__ import is not the first non docstring statement",
         "misplaced-future",
@@ -275,6 +281,7 @@ MSGS = {
 
 DEFAULT_STANDARD_LIBRARY = ()
 DEFAULT_KNOWN_THIRD_PARTY = ("enchant",)
+DEFAULT_PREFERRED_MODULES = ()
 
 
 class ImportsChecker(BaseChecker):
@@ -283,6 +290,7 @@ class ImportsChecker(BaseChecker):
     * relative / wildcard imports
     * cyclic imports
     * uses of deprecated modules
+    * uses of modules instead of preferred modules
     """
 
     __implements__ = IAstroidChecker
@@ -295,6 +303,7 @@ class ImportsChecker(BaseChecker):
         deprecated_modules = ("optparse",)
     else:
         deprecated_modules = ("optparse", "tkinter.tix")
+
     options = (
         (
             "deprecated-modules",
@@ -303,6 +312,16 @@ class ImportsChecker(BaseChecker):
                 "type": "csv",
                 "metavar": "<modules>",
                 "help": "Deprecated modules which should not be used,"
+                " separated by a comma.",
+            },
+        ),
+        (
+            "preferred-modules",
+            {
+                "default": DEFAULT_PREFERRED_MODULES,
+                "type": "csv",
+                "metavar": "<module:preferred-module>",
+                "help": "Couples of modules and preferred modules,"
                 " separated by a comma.",
             },
         ),
@@ -393,6 +412,13 @@ class ImportsChecker(BaseChecker):
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
         )
 
+        # Build a mapping {'module': 'preferred-module'}
+        self.preferred_modules = dict(
+            module.split(":")
+            for module in self.config.preferred_modules
+            if ":" in module
+        )
+
         self._site_packages = self._compute_site_packages()
 
     @staticmethod
@@ -457,6 +483,7 @@ class ImportsChecker(BaseChecker):
 
         for name in names:
             self._check_deprecated_module(node, name)
+            self._check_preferred_module(node, name)
             imported_module = self._get_imported_module(node, name)
             if isinstance(node.parent, astroid.Module):
                 # Allow imports nested
@@ -479,6 +506,7 @@ class ImportsChecker(BaseChecker):
         self._check_import_as_rename(node)
         self._check_misplaced_future(node)
         self._check_deprecated_module(node, basename)
+        self._check_preferred_module(node, basename)
         self._check_wildcard_imports(node, imported_module)
         self._check_same_line_imports(node)
         self._check_reimport(node, basename=basename, level=node.level)
@@ -825,6 +853,15 @@ class ImportsChecker(BaseChecker):
         for mod_name in self.config.deprecated_modules:
             if mod_path == mod_name or mod_path.startswith(mod_name + "."):
                 self.add_message("deprecated-module", node=node, args=mod_path)
+
+    def _check_preferred_module(self, node, mod_path):
+        """check if the module has a preferred replacement"""
+        if mod_path in self.preferred_modules:
+            self.add_message(
+                "preferred-module",
+                node=node,
+                args=(self.preferred_modules[mod_path], mod_path),
+            )
 
     def _check_import_as_rename(self, node):
         names = node.names
