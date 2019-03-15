@@ -415,7 +415,9 @@ class ImportsChecker(BaseChecker):
         )
 
         # Build a mapping {'module': 'preferred-module'}
-        self.preferred_modules = dict(module.split(':') for module in self.config.preferred_modules)
+        self.preferred_modules = dict(
+            module.split(":") for module in self.config.preferred_modules
+        )
 
         self._site_packages = self._compute_site_packages()
 
@@ -494,7 +496,6 @@ class ImportsChecker(BaseChecker):
 
             self._check_relative_import(modnode, node, imported_module, name)
             self._add_imported_module(node, imported_module.name)
-
 
     @check_messages(*MSGS)
     def visit_importfrom(self, node):
@@ -849,7 +850,11 @@ class ImportsChecker(BaseChecker):
     def _check_preferred_module(self, node, mod_path):
         """check if the module has a preferred replacement"""
         if mod_path in self.preferred_modules:
-            self.add_message("preferred-module", node=node, args=(self.preferred_modules[mod_path], mod_path))
+            self.add_message(
+                "preferred-module",
+                node=node,
+                args=(self.preferred_modules[mod_path], mod_path),
+            )
 
     def _check_import_as_rename(self, node):
         names = node.names
