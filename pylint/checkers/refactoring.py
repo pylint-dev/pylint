@@ -110,7 +110,6 @@ def _is_trailing_comma(tokens, index):
     return False
 
 
-
 class RefactoringChecker(checkers.BaseTokenChecker):
     """Looks for code which can be refactored
 
