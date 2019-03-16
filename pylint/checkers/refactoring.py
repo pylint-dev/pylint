@@ -1333,8 +1333,8 @@ class LenChecker(checkers.BaseChecker):
         "C1801": (
             "Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty",
             "len-as-condition",
-            "Used when Pylint detects that len(sequence) without comparison "
-            "is being used inside a condition to determine if a sequence is empty. "
+            "Used when Pylint detects that len(sequence) is being used "
+            "without explicit comparison inside a condition to determine if a sequence is empty. "
             "Instead of coercing the length to a boolean, either "
             "rely on the fact that empty sequences are false or "
             "compare the length against a scalar.",
