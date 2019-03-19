@@ -47,6 +47,69 @@ def _if_statement_is_always_returning(if_node, returning_node_class):
     return False
 
 
+def _is_len_call(node):
+    """Checks if node is len(SOMETHING)."""
+    return (
+        isinstance(node, astroid.Call)
+        and isinstance(node.func, astroid.Name)
+        and node.func.name == "len"
+    )
+
+
+def _is_constant_zero(node):
+    return isinstance(node, astroid.Const) and node.value == 0
+
+
+def _node_is_test_condition(node):
+    """ Checks if node is an if, while, assert or if expression statement."""
+    return isinstance(node, (astroid.If, astroid.While, astroid.Assert, astroid.IfExp))
+
+
+def _is_trailing_comma(tokens, index):
+    """Check if the given token is a trailing comma
+
+    :param tokens: Sequence of modules tokens
+    :type tokens: list[tokenize.TokenInfo]
+    :param int index: Index of token under check in tokens
+    :returns: True if the token is a comma which trails an expression
+    :rtype: bool
+    """
+    token = tokens[index]
+    if token.exact_type != tokenize.COMMA:
+        return False
+    # Must have remaining tokens on the same line such as NEWLINE
+    left_tokens = itertools.islice(tokens, index + 1, None)
+    same_line_remaining_tokens = list(
+        itertools.takewhile(
+            lambda other_token, _token=token: other_token.start[0] == _token.start[0],
+            left_tokens,
+        )
+    )
+    # Note: If the newline is tokenize.NEWLINE and not tokenize.NL
+    # then the newline denotes the end of expression
+    is_last_element = all(
+        other_token.type in (tokenize.NEWLINE, tokenize.COMMENT)
+        for other_token in same_line_remaining_tokens
+    )
+    if not same_line_remaining_tokens or not is_last_element:
+        return False
+
+    def get_curline_index_start():
+        """Get the index denoting the start of the current line"""
+        for subindex, token in enumerate(reversed(tokens[:index])):
+            # See Lib/tokenize.py and Lib/token.py in cpython for more info
+            if token.type in (tokenize.NEWLINE, tokenize.NL):
+                return index - subindex
+        return 0
+
+    curline_start = get_curline_index_start()
+    expected_tokens = {"return", "yield"}
+    for prevtoken in tokens[curline_start:index]:
+        if "=" in prevtoken.string or prevtoken.string in expected_tokens:
+            return True
+    return False
+
+
 class RefactoringChecker(checkers.BaseTokenChecker):
     """Looks for code which can be refactored
 
@@ -355,7 +418,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # tokens[index][2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([tokens[index][2], tokens[index + 1][2]])
-            elif is_trailing_comma(tokens, index):
+            elif _is_trailing_comma(tokens, index):
                 if self.linter.is_message_enabled("trailing-comma-tuple"):
                     self.add_message("trailing-comma-tuple", line=token.start[0])
 
@@ -1239,28 +1302,6 @@ class NotChecker(checkers.BaseChecker):
             )
 
 
-def _is_len_call(node):
-    """Checks if node is len(SOMETHING)."""
-    return (
-        isinstance(node, astroid.Call)
-        and isinstance(node.func, astroid.Name)
-        and node.func.name == "len"
-    )
-
-
-def _is_constant_zero(node):
-    return isinstance(node, astroid.Const) and node.value == 0
-
-
-def _has_constant_value(node, value):
-    return isinstance(node, astroid.Const) and node.value == value
-
-
-def _node_is_test_condition(node):
-    """ Checks if node is an if, while, assert or if expression statement."""
-    return isinstance(node, (astroid.If, astroid.While, astroid.Assert, astroid.IfExp))
-
-
 class LenChecker(checkers.BaseChecker):
     """Checks for incorrect usage of len() inside conditions.
     Pep8 states:
@@ -1275,11 +1316,12 @@ class LenChecker(checkers.BaseChecker):
     Problems detected:
     * if len(sequence):
     * if not len(sequence):
-    * if len(sequence) == 0:
-    * if len(sequence) != 0:
-    * if len(sequence) > 0:
-    * if len(sequence) < 1:
-    * if len(sequence) <= 0:
+    * elif len(sequence):
+    * elif not len(sequence):
+    * while len(sequence):
+    * while not len(sequence):
+    * assert len(sequence):
+    * assert not len(sequence):
     """
 
     __implements__ = (interfaces.IAstroidChecker,)
@@ -1288,12 +1330,13 @@ class LenChecker(checkers.BaseChecker):
     name = "refactoring"
     msgs = {
         "C1801": (
-            "Do not use `len(SEQUENCE)` to determine if a sequence is empty",
+            "Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty",
             "len-as-condition",
-            "Used when Pylint detects that len(sequence) is being used inside "
-            "a condition to determine if a sequence is empty. Instead of "
-            "comparing the length to 0, rely on the fact that empty sequences "
-            "are false.",
+            "Used when Pylint detects that len(sequence) is being used "
+            "without explicit comparison inside a condition to determine if a sequence is empty. "
+            "Instead of coercing the length to a boolean, either "
+            "rely on the fact that empty sequences are false or "
+            "compare the length against a scalar.",
         )
     }
 
@@ -1331,109 +1374,6 @@ class LenChecker(checkers.BaseChecker):
             and _is_len_call(node.operand)
         ):
             self.add_message("len-as-condition", node=node)
-
-    @utils.check_messages("len-as-condition")
-    def visit_compare(self, node):
-        # compare nodes are trickier because the len(S) expression
-        # may be somewhere in the middle of the node
-
-        # note: astroid.Compare has the left most operand in node.left
-        # while the rest are a list of tuples in node.ops
-        # the format of the tuple is ('compare operator sign', node)
-        # here we squash everything into `ops` to make it easier for processing later
-        ops = [("", node.left)]
-        ops.extend(node.ops)
-        ops = list(itertools.chain(*ops))
-
-        for ops_idx in range(len(ops) - 2):
-            op_1 = ops[ops_idx]
-            op_2 = ops[ops_idx + 1]
-            op_3 = ops[ops_idx + 2]
-            error_detected = False
-
-            # 0 ?? len()
-            if (
-                _is_constant_zero(op_1)
-                and op_2 in ["==", "!=", "<", ">="]
-                and _is_len_call(op_3)
-            ):
-                error_detected = True
-            # len() ?? 0
-            elif (
-                _is_len_call(op_1)
-                and op_2 in ["==", "!=", ">", "<="]
-                and _is_constant_zero(op_3)
-            ):
-                error_detected = True
-            elif (
-                _has_constant_value(op_1, value=1)
-                and op_2 == ">"
-                and _is_len_call(op_3)
-            ):
-                error_detected = True
-            elif (
-                _is_len_call(op_1)
-                and op_2 == "<"
-                and _has_constant_value(op_3, value=1)
-            ):
-                error_detected = True
-
-            if error_detected:
-                parent = node.parent
-                # traverse the AST to figure out if this comparison was part of
-                # a test condition
-                while parent and not _node_is_test_condition(parent):
-                    parent = parent.parent
-
-                # report only if this len() comparison is part of a test condition
-                # for example: return len() > 0 should not report anything
-                if _node_is_test_condition(parent):
-                    self.add_message("len-as-condition", node=node)
-
-
-def is_trailing_comma(tokens, index):
-    """Check if the given token is a trailing comma
-
-    :param tokens: Sequence of modules tokens
-    :type tokens: list[tokenize.TokenInfo]
-    :param int index: Index of token under check in tokens
-    :returns: True if the token is a comma which trails an expression
-    :rtype: bool
-    """
-    token = tokens[index]
-    if token.exact_type != tokenize.COMMA:
-        return False
-    # Must have remaining tokens on the same line such as NEWLINE
-    left_tokens = itertools.islice(tokens, index + 1, None)
-    same_line_remaining_tokens = list(
-        itertools.takewhile(
-            lambda other_token, _token=token: other_token.start[0] == _token.start[0],
-            left_tokens,
-        )
-    )
-    # Note: If the newline is tokenize.NEWLINE and not tokenize.NL
-    # then the newline denotes the end of expression
-    is_last_element = all(
-        other_token.type in (tokenize.NEWLINE, tokenize.COMMENT)
-        for other_token in same_line_remaining_tokens
-    )
-    if not same_line_remaining_tokens or not is_last_element:
-        return False
-
-    def get_curline_index_start():
-        """Get the index denoting the start of the current line"""
-        for subindex, token in enumerate(reversed(tokens[:index])):
-            # See Lib/tokenize.py and Lib/token.py in cpython for more info
-            if token.type in (tokenize.NEWLINE, tokenize.NL):
-                return index - subindex
-        return 0
-
-    curline_start = get_curline_index_start()
-    expected_tokens = {"return", "yield"}
-    for prevtoken in tokens[curline_start:index]:
-        if "=" in prevtoken.string or prevtoken.string in expected_tokens:
-            return True
-    return False
 
 
 def register(linter):

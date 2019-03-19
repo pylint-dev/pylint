@@ -972,6 +972,12 @@ class BasicChecker(_BasicChecker):
             "uses a constant value for its test. This might not be what "
             "the user intended to do.",
         ),
+        "W0126": (
+            "Using a conditional statement with potentially wrong function or method call due to missing parentheses",
+            "missing-parentheses-for-call-in-test",
+            "Emitted when a conditional statement (If or ternary if) "
+            "seems to wrongly call a function due to missing parentheses",
+        ),
         "E0111": (
             "The first reversed() argument is not a sequence",
             "bad-reversed-sequence",
@@ -1002,15 +1008,15 @@ class BasicChecker(_BasicChecker):
         self._tryfinallys = []
         self.stats = self.linter.add_stats(module=0, function=0, method=0, class_=0)
 
-    @utils.check_messages("using-constant-test")
+    @utils.check_messages("using-constant-test", "missing-parentheses-for-call-in-test")
     def visit_if(self, node):
         self._check_using_constant_test(node, node.test)
 
-    @utils.check_messages("using-constant-test")
+    @utils.check_messages("using-constant-test", "missing-parentheses-for-call-in-test")
     def visit_ifexp(self, node):
         self._check_using_constant_test(node, node.test)
 
-    @utils.check_messages("using-constant-test")
+    @utils.check_messages("using-constant-test", "missing-parentheses-for-call-in-test")
     def visit_comprehension(self, node):
         if node.ifs:
             for if_test in node.ifs:
@@ -1031,13 +1037,8 @@ class BasicChecker(_BasicChecker):
         structs = (astroid.Dict, astroid.Tuple, astroid.Set)
 
         # These nodes are excepted, since they are not constant
-        # values, requiring a computation to happen. The only type
-        # of node in this list which doesn't have this property is
-        # Attribute, which is excepted because the conditional statement
-        # can be used to verify that the attribute was set inside a class,
-        # which is definitely a valid use case.
+        # values, requiring a computation to happen.
         except_nodes = (
-            astroid.Attribute,
             astroid.Call,
             astroid.BinOp,
             astroid.BoolOp,
@@ -1049,7 +1050,26 @@ class BasicChecker(_BasicChecker):
         if not isinstance(test, except_nodes):
             inferred = utils.safe_infer(test)
 
-        if emit or isinstance(inferred, const_nodes):
+        if emit:
+            self.add_message("using-constant-test", node=node)
+        elif isinstance(inferred, const_nodes):
+            # If the constant node is a FunctionDef or Lambda then
+            #  it may be a illicit function call due to missing parentheses
+            call_inferred = None
+            if isinstance(inferred, astroid.FunctionDef):
+                call_inferred = inferred.infer_call_result()
+            elif isinstance(inferred, astroid.Lambda):
+                call_inferred = inferred.infer_call_result(node)
+            if call_inferred:
+                try:
+                    for inf_call in call_inferred:
+                        if inf_call != astroid.Uninferable:
+                            self.add_message(
+                                "missing-parentheses-for-call-in-test", node=node
+                            )
+                            break
+                except astroid.InferenceError:
+                    pass
             self.add_message("using-constant-test", node=node)
 
     def visit_module(self, _):

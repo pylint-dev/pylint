@@ -48,7 +48,9 @@ class ElseifUsedChecker(BaseTokenChecker):
     def leave_module(self, _):
         self._init()
 
-    def visit_ifexp(self, _):
+    def visit_ifexp(self, node):
+        if isinstance(node.parent, astroid.FormattedValue):
+            return
         self._if_counter += 1
 
     def visit_comprehension(self, node):

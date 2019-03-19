@@ -279,3 +279,9 @@ contributors:
 * Clément Pit-Claudel : contributor
 
 * Goudcode: contributor
+
+* Paul Renvoise : contributor
+
+* Bluesheeptoken: contributor
+
+* Michael Scott Cuthbert: contributor

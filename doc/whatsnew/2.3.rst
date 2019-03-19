@@ -14,7 +14,6 @@ Summary -- Release highlights
 New checkers
 ============
 
-
 * We added a new check message ``wrong-exception-operation``.
   This is emitted when an operation is done against an exception, but the operation
   is not valid for the exception in question. Usually emitted when having

@@ -1,16 +1,13 @@
-len-as-condition:4::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:7::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:10::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:12::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:14::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:17::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:20::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:26::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:30::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:43::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:61:github_issue_1331_v2:Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:65:github_issue_1331_v3:Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:67::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:70::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:73::Do not use `len(SEQUENCE)` to determine if a sequence is empty
-len-as-condition:76::Do not use `len(SEQUENCE)` to determine if a sequence is empty
+len-as-condition:4::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:7::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:11::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:14::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:55::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:60::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:63::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:66::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:69::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:72::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:95:github_issue_1331_v2:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:98:github_issue_1331_v3:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:101:github_issue_1331_v4:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty

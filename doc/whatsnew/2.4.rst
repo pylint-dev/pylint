@@ -18,6 +18,10 @@ New checkers
 
   Closes #2761
 
+* We added a new check message ``missing-parentheses-for-call-in-test``.
+  This is emitted in case a call to a function is made inside a test but
+  it misses parentheses.
+
 * A new check ``class-variable-slots-conflict`` was added.
 
   This check is emitted when ``pylint`` finds a class variable that conflicts with a slot
@@ -31,6 +35,32 @@ New checkers
 
 Other Changes
 =============
+
+* ``len-as-condition`` now only fires when a ``len(x)`` call is made without an explicit comparison.
+
+  The message and description accompanying this checker has been changed
+  reflect this new behavior, by explicitly asking to either rely on the
+  fact that empty sequence are false or to compare the length with a scalar.
+
+  OK::
+
+    if len(x) == 0:
+      pass
+
+    while not len(x) == 0:
+      pass
+
+    assert len(x) > 5, message
+
+  KO::
+
+    if not len(x):
+      pass
+
+    while len(x) and other_cond:
+      pass
+
+    assert len(x), message
 
 * A file is now read from stdin if the ``--from-stdin`` flag is used on the
   command line. In addition to the ``--from-stdin`` flag a (single) file
