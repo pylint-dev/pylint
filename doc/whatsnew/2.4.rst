@@ -13,6 +13,10 @@ Summary -- Release highlights
 New checkers
 ============
 
+* We added a new check message ``missing-parentheses-for-call-in-test``.
+  This is emitted in case a call to a function is made inside a test but
+  it misses parentheses.
+
 * A new check ``class-variable-slots-conflict`` was added.
 
   This check is emitted when ``pylint`` finds a class variable that conflicts with a slot

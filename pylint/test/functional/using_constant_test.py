@@ -1,6 +1,7 @@
 """Verify if constant tests are used inside if statements."""
 # pylint: disable=invalid-name, missing-docstring,too-few-public-methods
 # pylint: disable=no-init,expression-not-assigned, useless-object-inheritance
+# pylint: disable=missing-parentheses-for-call-in-test
 
 
 import collections
@@ -78,6 +79,14 @@ def test_comprehensions():
     {data: 1 for data in range(100) if abs} # [using-constant-test]
 
 
+# UnboundMethod / Function
+if Class.method:  # [using-constant-test]
+    pass
+
+# BoundMethod
+if instance.method:  # [using-constant-test]
+    pass
+
 
 # For these, we require to do inference, even though the result can be a
 # constant value. For some of them, we could determine that the test
@@ -86,14 +95,6 @@ def test_comprehensions():
 
 name = 42
 if name:
-    pass
-
-# UnboundMethod / Function
-if Class.method:
-    pass
-
-# BoundMethod
-if instance.method:
     pass
 
 if 3 + 4:
