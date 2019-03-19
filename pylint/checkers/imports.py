@@ -283,7 +283,7 @@ MSGS = {
 
 DEFAULT_STANDARD_LIBRARY = ()
 DEFAULT_KNOWN_THIRD_PARTY = ("enchant",)
-DEFAULT_PREFERRED_MODULES = ("xml:defusedxml", "lxml:defusedxml")
+DEFAULT_PREFERRED_MODULES = ()
 
 
 class ImportsChecker(BaseChecker):
