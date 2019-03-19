@@ -416,7 +416,9 @@ class ImportsChecker(BaseChecker):
 
         # Build a mapping {'module': 'preferred-module'}
         self.preferred_modules = dict(
-            module.split(":") for module in self.config.preferred_modules
+            module.split(":")
+            for module in self.config.preferred_modules
+            if ":" in module
         )
 
         self._site_packages = self._compute_site_packages()
