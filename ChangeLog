@@ -37,6 +37,10 @@ Release date: TBA
 
 * Relicense logo material under the CC BY-SA 4.0 license.
 
+* Skip `if` expressions from f-strings for the `check_elif` checker
+
+  Close #2816
+
 
 What's New in Pylint 2.3.0?
 ===========================
