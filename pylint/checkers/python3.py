@@ -438,7 +438,7 @@ class Python3Checker(checkers.BaseChecker):
             "range built-in referenced when not iterating",
             "range-builtin-not-iterating",
             "Used when the range built-in is referenced in a non-iterating "
-            "context (returns an iterator in Python 3)",
+            "context (returns a range in Python 3)",
         ),
         "W1639": (
             "filter built-in referenced when not iterating",
