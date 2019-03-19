@@ -1,2 +1,2 @@
-preferred-module:4::Prefer importing 'defusedxml' instead of 'xml'
-preferred-module:5::Prefer importing 'defusedxml' instead of 'xml'
+preferred-module:4::Prefer importing 'ujson' instead of 'json'
+preferred-module:5::Prefer importing 'regex' instead of 're'

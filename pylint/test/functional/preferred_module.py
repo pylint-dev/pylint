@@ -1,5 +1,5 @@
 """Test preferred modules."""
 # pylint: disable=unused-import
 
-import xml  # [preferred-module]
-from xml import etree  # [preferred-module]
+import json  # [preferred-module]
+from re import search  # [preferred-module]
