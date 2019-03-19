@@ -1536,7 +1536,7 @@ accessed. Python regular expressions are accepted.",
         if not isinstance(node.target, astroid.node_classes.Tuple):
             # target is not a tuple
             return
-        if not len(list(node.target.get_children())) == 2:
+        if not len(node.target.elts) == 2:
             # target is not a tuple of two elements
             return
 
@@ -1545,7 +1545,10 @@ accessed. Python regular expressions are accepted.",
             # it's not a bare variable
             return
 
-        if not isinstance(safe_infer(iterable), astroid.node_classes.Dict):
+        inferred = safe_infer(iterable)
+        if not inferred:
+            return
+        if not isinstance(inferred, astroid.node_classes.Dict):
             # the iterable is not a dict
             return
 
