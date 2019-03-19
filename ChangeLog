@@ -7,6 +7,14 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* ``len-as-condition`` now only fires when a ``len(x)`` call is made without an explicit comparison
+
+  The message and description accompanying this checker has been changed
+  reflect this new behavior, by explicitly asking to either rely on the
+  fact that empty sequence are false or to compare the length with a scalar.
+
+  Close #2684
+
 * ``assigning-non-slot`` not emitted for classes with unknown base classes.
 
   Close #2807
@@ -29,7 +37,6 @@ Release date: TBA
 
   This check is emitted when ``pylint`` finds a class variable that conflicts with a slot
   name, which would raise a ``ValueError`` at runtime.
-
 
 * Fix issue with pylint name in output of python -m pylint --version
 
