@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/ambv/black
-    rev: 18.9b0
+    rev: 19.3b0
     hooks:
     - id: black
       args: [--safe, --quiet]
@@ -12,6 +12,6 @@ repos:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
 -   repo: https://github.com/pre-commit/mirrors-isort
-    rev: v4.3.13
+    rev: v4.3.15
     hooks:
     -   id: isort
