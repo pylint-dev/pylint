@@ -13,6 +13,11 @@ Summary -- Release highlights
 New checkers
 ============
 
+* We added a new check message ``dict-iter-missing-items``.
+  This is emitted when trying to iterate through a dict in a for loop without calling its .items() method.
+
+  Closes #2761
+
 * We added a new check message ``missing-parentheses-for-call-in-test``.
   This is emitted in case a call to a function is made inside a test but
   it misses parentheses.
@@ -27,7 +32,6 @@ New checkers
     class A:
         __slots__ = ('first', 'second')
         first = 1
-
 
 Other Changes
 =============

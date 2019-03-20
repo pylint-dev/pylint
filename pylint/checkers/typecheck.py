@@ -353,6 +353,12 @@ MSGS = {
         "Emitted when a dict key is not hashable "
         "(i.e. doesn't define __hash__ method).",
     ),
+    "E1141": (
+        "Unpacking a dictionary in iteration without calling .items()",
+        "dict-iter-missing-items",
+        "Emitted when trying to iterate through"
+        "a dict without calling .items()",
+    ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
         "in the definition of %s function",
@@ -1522,6 +1528,28 @@ accessed. Python regular expressions are accepted.",
         if not supported_protocol(inferred):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
 
+    @check_messages("dict-items-missing-iter")
+    def visit_for(self, node):
+        if not isinstance(node.target, astroid.node_classes.Tuple):
+            # target is not a tuple
+            return
+        if not len(node.target.elts) == 2:
+            # target is not a tuple of two elements
+            return
+
+        iterable = node.iter
+        if not isinstance(iterable, astroid.node_classes.Name):
+            # it's not a bare variable
+            return
+
+        inferred = safe_infer(iterable)
+        if not inferred:
+            return
+        if not isinstance(inferred, astroid.node_classes.Dict):
+            # the iterable is not a dict
+            return
+
+        self.add_message("dict-iter-missing-items", node=node)
 
 class IterableChecker(BaseChecker):
     """
