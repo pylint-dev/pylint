@@ -356,8 +356,7 @@ MSGS = {
     "E1141": (
         "Unpacking a dictionary in iteration without calling .items()",
         "dict-iter-missing-items",
-        "Emitted when trying to iterate through"
-        "a dict without calling .items()",
+        "Emitted when trying to iterate through a dict without calling .items()",
     ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
@@ -1550,6 +1549,7 @@ accessed. Python regular expressions are accepted.",
             return
 
         self.add_message("dict-iter-missing-items", node=node)
+
 
 class IterableChecker(BaseChecker):
     """
