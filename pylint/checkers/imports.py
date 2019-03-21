@@ -504,14 +504,19 @@ class ImportsChecker(BaseChecker):
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
 
-        # Check imports are grouped by package within a given category
-        met = set()
+        # Check that imports are grouped by package within a given category
+        met_import = set()  #  set for 'import x' style
+        met_from = set()  #  set for 'from x import y' style
         current_package = None
         for import_node, import_name in std_imports + ext_imports + loc_imports:
             if not self.linter.is_message_enabled(
                 "ungrouped-imports", import_node.fromlineno
             ):
                 continue
+            if isinstance(import_node, astroid.node_classes.ImportFrom):
+                met = met_from
+            else:
+                met = met_import
             package, _, _ = import_name.partition(".")
             if current_package and current_package != package and package in met:
                 self.add_message("ungrouped-imports", node=import_node, args=package)

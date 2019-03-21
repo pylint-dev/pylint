@@ -56,6 +56,11 @@ Release date: TBA
 
   Close #2816
 
+* C0412 (ungrouped-import) is now compatible with isort.
+
+  Close #2806
+
+
 What's New in Pylint 2.3.0?
 ===========================
 

@@ -285,3 +285,6 @@ contributors:
 * Bluesheeptoken: contributor
 
 * Michael Scott Cuthbert: contributor
+
+* Pierre Sassoulas : contributor
+    - Made C0412 (ungrouped import) compatible with isort

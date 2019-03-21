@@ -66,3 +66,15 @@ Other Changes
   command line. In addition to the ``--from-stdin`` flag a (single) file
   name needs to be specified on the command line, which is needed for the
   report.
+
+* The checker for ungrouped imports is now more permissive.
+
+The import can now be sorted alphabetically by import style.
+This makes pylint compatible with isort.
+
+The following imports do not trigger an ``ungrouped-imports`` anymore ::
+
+    import unittest
+    import zipfile
+    from unittest import TestCase
+    from unittest.mock import MagicMock
