@@ -16,7 +16,7 @@ class MessageDefinition:
         checker,
         msgid,
         msg,
-        descr,
+        description,
         symbol,
         scope,
         minversion=None,
@@ -30,7 +30,7 @@ class MessageDefinition:
             raise InvalidMessageError("Bad message type %s in %r" % (msgid[0], msgid))
         self.msgid = msgid
         self.msg = msg
-        self.descr = descr
+        self.description = description
         self.symbol = symbol
         self.scope = scope
         self.minversion = minversion
@@ -50,7 +50,7 @@ class MessageDefinition:
 
     def format_help(self, checkerref=False):
         """return the help string for the given message id"""
-        desc = self.descr
+        desc = self.description
         if checkerref:
             desc += " This message belongs to the %s checker." % self.checker.name
         title = self.msg
