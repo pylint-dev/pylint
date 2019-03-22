@@ -14,7 +14,13 @@ except ImportError:
 from os import pardir
 import scipy
 from os import sep
-import astroid  # [ungrouped-imports]
+from astroid import exceptions # [ungrouped-imports]
 if True:
     import logging.handlers  # [ungrouped-imports]
 from os.path import join  # [ungrouped-imports]
+# Test related to compatibility with isort:
+# We check that we do not create error with the old way pylint was handling it
+import subprocess
+import unittest
+from unittest import TestCase
+from unittest.mock import MagicMock

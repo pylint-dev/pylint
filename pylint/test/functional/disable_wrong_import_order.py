@@ -8,4 +8,4 @@ import logging
 import os.path
 import sys
 from astroid import are_exclusive
-import first_party  # [ungrouped-imports]
+from first_party.bar import foo # [ungrouped-imports]
