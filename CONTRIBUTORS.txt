@@ -136,9 +136,6 @@ contributors:
 
 * Erik Eriksson - Added overlapping-except error check.
 
-* Pierre Sassoulas : Broke down "missing-docstrings" between "module", "class"
-  and "function", made multiple message with the same old name possible.
-
 * Anthony Foglia (Google): Added simple string slots check.
 
 * Derek Gustafson: contributor
@@ -293,6 +290,7 @@ contributors:
     - Made C0412 (ungrouped import) compatible with isort
     - Made multiple message with the same old name possible
     - Made Pylint a little faster by refactoring the message store
+    - Broke down "missing-docstrings" between "module", "class" and "function"
 
 * Nathan Marrow
 
