@@ -5,8 +5,7 @@
 
 import sys
 
-from pylint.constants import MSG_TYPES
-from pylint.exceptions import InvalidMessageError
+from pylint.message.message_id import MessageId
 from pylint.utils import normalize_text
 
 
@@ -24,18 +23,22 @@ class MessageDefinition:
         old_names=None,
     ):
         self.checker = checker
-        if len(msgid) != 5:
-            raise InvalidMessageError("Invalid message id %r" % msgid)
-        if not msgid[0] in MSG_TYPES:
-            raise InvalidMessageError("Bad message type %s in %r" % (msgid[0], msgid))
-        self.msgid = msgid
+        MessageId.check_msgid(msgid)
+        self.message_id = MessageId(msgid, symbol)
         self.msg = msg
         self.description = description
-        self.symbol = symbol
         self.scope = scope
         self.minversion = minversion
         self.maxversion = maxversion
         self.old_names = old_names or []
+
+    @property
+    def symbol(self):
+        return self.message_id.symbol
+
+    @property
+    def msgid(self):
+        return self.message_id.msgid
 
     def __repr__(self):
         return "MessageDefinition:%s (%s)" % (self.symbol, self.msgid)
@@ -57,10 +60,6 @@ class MessageDefinition:
         if checkerref:
             desc += " This message belongs to the %s checker." % self.checker.name
         title = self.msg
-        if self.symbol:
-            msgid = "%s (%s)" % (self.symbol, self.msgid)
-        else:
-            msgid = self.msgid
         if self.minversion or self.maxversion:
             restr = []
             if self.minversion:
@@ -75,6 +74,5 @@ class MessageDefinition:
         desc = normalize_text(" ".join(desc.split()), indent="  ")
         if title != "%s":
             title = title.splitlines()[0]
-
-            return ":%s: *%s*\n%s" % (msgid, title.rstrip(" "), desc)
-        return ":%s:\n%s" % (msgid, desc)
+            return ":%s: *%s*\n%s" % (self.message_id, title.rstrip(" "), desc)
+        return ":%s:\n%s" % (self.message_id, desc)
