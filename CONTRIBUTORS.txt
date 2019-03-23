@@ -290,3 +290,5 @@ contributors:
     - Made C0412 (ungrouped import) compatible with isort
 
 * Nathan Marrow
+
+* Taewon Kim : contributor
