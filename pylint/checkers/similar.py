@@ -176,7 +176,9 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     for lineno, line in enumerate(lines, start=1):
         line = line.strip()
         if ignore_docstrings:
-            if not docstring and (line.startswith('"""') or line.startswith("'''")):
+            if not docstring and any(
+                line.startswith(i) for i in ['"""', "'''", 'r"""', "r'''"]
+            ):
                 docstring = line[:3]
                 line = line[3:]
             if docstring:
