@@ -20,7 +20,6 @@ from pylint.constants import (
 )
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.interfaces import UNDEFINED
-from pylint.message.build_message_definition import build_message_definition
 from pylint.message.message import Message
 from pylint.utils.utils import (
     _format_option_value,
@@ -442,7 +441,7 @@ Below is a list of all checkers and their features.
             for msgid, msg in sorted(
                 msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
             ):
-                msg = build_message_definition(checker.name, msgid, msg)
+                msg = checker.create_message_definition_from_tuple(msgid, msg)
                 result += "%s\n" % msg.format_help(checkerref=False)
             result += "\n"
         if reports:

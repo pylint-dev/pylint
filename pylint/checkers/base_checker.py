@@ -14,9 +14,10 @@
 from typing import Any
 
 from pylint.config import OptionsProviderMixIn
+from pylint.constants import WarningScope
 from pylint.exceptions import InvalidMessageError
-from pylint.interfaces import UNDEFINED
-from pylint.message import build_message_definition
+from pylint.interfaces import UNDEFINED, IRawChecker, ITokenChecker, implements
+from pylint.message.message_definition import MessageDefinition
 
 
 class BaseChecker(OptionsProviderMixIn):
@@ -55,14 +56,10 @@ class BaseChecker(OptionsProviderMixIn):
         return "{} '{}' responsible for {}".format(status, self.name, ", ".join(msgids))
 
     def add_message(
-        self,
-        msgid,
-        line=None,
-        node=None,
-        args=None,
-        confidence=UNDEFINED,
-        col_offset=None,
+        self, msgid, line=None, node=None, args=None, confidence=None, col_offset=None
     ):
+        if not confidence:
+            confidence = UNDEFINED
         self.linter.add_message(msgid, line, node, args, confidence, col_offset)
 
     def check_consistency(self) -> None:
@@ -89,10 +86,34 @@ class BaseChecker(OptionsProviderMixIn):
             checker_id = message.msgid[1:3]
             existing_ids.append(message.msgid)
 
+    def create_message_definition_from_tuple(self, msgid, msg_tuple):
+        if implements(self, (IRawChecker, ITokenChecker)):
+            default_scope = WarningScope.LINE
+        else:
+            default_scope = WarningScope.NODE
+        options = {}
+        if len(msg_tuple) > 3:
+            (msg, symbol, descr, options) = msg_tuple
+        elif len(msg_tuple) > 2:
+            (msg, symbol, descr) = msg_tuple
+        else:
+            error_msg = """Messages should have a msgid and a symbol. Something like this :
+
+"W1234": (
+    "message",
+    "message-symbol",
+    "Message description with detail.",
+    ...
+),
+"""
+            raise InvalidMessageError(error_msg)
+        options.setdefault("scope", default_scope)
+        return MessageDefinition(self, msgid, msg, descr, symbol, **options)
+
     @property
     def messages(self) -> list:
         return [
-            build_message_definition(self, msgid, msg_tuple)
+            self.create_message_definition_from_tuple(msgid, msg_tuple)
             for msgid, msg_tuple in sorted(self.msgs.items())
         ]
 
