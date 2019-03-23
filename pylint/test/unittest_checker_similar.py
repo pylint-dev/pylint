@@ -48,7 +48,7 @@ def test_ignore_comments():
    eight
    nine
    ''' ten
-TOTAL lines=44 duplicates=10 percent=22.73
+TOTAL lines=60 duplicates=10 percent=16.67
 """
             % (SIMILAR1, SIMILAR2)
         ).strip()
@@ -84,7 +84,7 @@ def test_ignore_docsrings():
    three
    four
    five
-TOTAL lines=44 duplicates=13 percent=29.55
+TOTAL lines=60 duplicates=13 percent=21.67
 """
             % ((SIMILAR1, SIMILAR2) * 2)
         ).strip()
@@ -99,7 +99,7 @@ def test_ignore_imports():
     assert (
         output.getvalue().strip()
         == """
-TOTAL lines=44 duplicates=0 percent=0.00
+TOTAL lines=60 duplicates=0 percent=0.00
 """.strip()
     )
 
@@ -169,7 +169,7 @@ def test_ignore_nothing():
    three
    four
    five
-TOTAL lines=44 duplicates=5 percent=11.36
+TOTAL lines=60 duplicates=5 percent=8.33
 """
             % (SIMILAR1, SIMILAR2)
         ).strip()
