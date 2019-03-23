@@ -7,6 +7,8 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Ignore raw docstrings when running Similarities checker with `ignore-docstrings=yes` option
+
 * Fix crash when calling ``inherit_from_std_ex`` on a class which is its own ancestor
 
   Close #2680
