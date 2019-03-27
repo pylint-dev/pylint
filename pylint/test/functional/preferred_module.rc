@@ -1,2 +1,2 @@
 [IMPORTS]
-preferred-modules="json:ujson,re:regex"
+preferred-modules=json:ujson,re:regex
