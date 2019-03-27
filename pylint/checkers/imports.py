@@ -412,13 +412,6 @@ class ImportsChecker(BaseChecker):
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
         )
 
-        # Build a mapping {'module': 'preferred-module'}
-        self.preferred_modules = dict(
-            module.split(":")
-            for module in self.config.preferred_modules
-            if ":" in module
-        )
-
         self._site_packages = self._compute_site_packages()
 
     @staticmethod
@@ -455,6 +448,12 @@ class ImportsChecker(BaseChecker):
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
         self._excluded_edges = collections.defaultdict(set)
         self._ignored_modules = get_global_option(self, "ignored-modules", default=[])
+        # Build a mapping {'module': 'preferred-module'}
+        self.preferred_modules = dict(
+            module.split(":")
+            for module in self.config.preferred_modules
+            if ":" in module
+        )
 
     def _import_graph_without_ignored_edges(self):
         filtered_graph = copy.deepcopy(self.import_graph)
