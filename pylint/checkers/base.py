@@ -349,7 +349,7 @@ def _has_abstract_methods(node):
     return len(utils.unimplemented_abstract_methods(node)) > 0
 
 
-def report_by_type_stats(sect, stats, old_stats):
+def report_by_type_stats(sect, stats, _):
     """make a report of
 
     * percentage of different types documented
@@ -378,16 +378,11 @@ def report_by_type_stats(sect, stats, old_stats):
     lines = ("type", "number", "old number", "difference", "%documented", "%badname")
     for node_type in ("module", "class", "method", "function"):
         new = stats[node_type]
-        old = old_stats.get(node_type, None)
-        if old is not None:
-            diff_str = lint_utils.diff_string(old, new)
-        else:
-            old, diff_str = "NC", "NC"
         lines += (
             node_type,
             str(new),
-            str(old),
-            diff_str,
+            "NC",
+            "NC",
             nice_stats[node_type].get("percent_documented", "0"),
             nice_stats[node_type].get("percent_badname", "0"),
         )
