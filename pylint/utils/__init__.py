@@ -52,7 +52,6 @@ from pylint.utils.utils import (
     category_id,
     decoding_stream,
     deprecated_option,
-    diff_string,
     expand_modules,
     format_section,
     get_global_option,
