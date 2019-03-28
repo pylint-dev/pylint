@@ -22,7 +22,6 @@ import astroid
 import pytest
 
 import pylint.testutils as testutils
-from pylint import epylint
 
 REGR_DATA = join(dirname(abspath(__file__)), "regrtest_data")
 sys.path.insert(1, REGR_DATA)

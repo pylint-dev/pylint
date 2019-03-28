@@ -149,8 +149,11 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
     To silently run Pylint on a module, and get its standard output and error:
         >>> (pylint_stdout, pylint_stderr) = py_run( 'module_name.py', True)
     """
+    # Detect if we use Python as executable or not, else default to `python`
+    executable = sys.executable if "python" in sys.executable else "python"
+
     # Create command line to call pylint
-    epylint_part = [sys.executable, "-c", "from pylint import epylint;epylint.Run()"]
+    epylint_part = [executable, "-c", "from pylint import epylint;epylint.Run()"]
     options = shlex.split(command_options, posix=not sys.platform.startswith("win"))
     cli = epylint_part + options
 
