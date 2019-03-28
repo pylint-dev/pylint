@@ -80,11 +80,10 @@ class BaseChecker(OptionsProviderMixIn):
 
     @property
     def messages(self) -> list:
-        messages = []
-        for msgid, msg_tuple in sorted(self.msgs.items()):
-            message = build_message_definition(self, msgid, msg_tuple)
-            messages.append(message)
-        return messages
+        return [
+            build_message_definition(self, msgid, msg_tuple)
+            for msgid, msg_tuple in sorted(self.msgs.items())
+        ]
 
     # dummy methods implementing the IChecker interface
 
