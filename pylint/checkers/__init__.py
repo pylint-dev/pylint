@@ -51,10 +51,8 @@ def table_lines_from_stats(stats, _, columns):
     lines = []
     for m_type in columns:
         new = stats[m_type]
-        format = str  # pylint: disable=redefined-builtin
-        if isinstance(new, float):
-            format = lambda num: "%.3f" % num
-        lines += (m_type.replace("_", " "), format(new), "NC", "NC")
+        new = "%.3f" % new if isinstance(new, float) else str(new)
+        lines += (m_type.replace("_", " "), new, "NC", "NC")
     return lines
 
 
