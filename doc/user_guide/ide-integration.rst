@@ -225,7 +225,7 @@ Command-line arguments and configuration files
 See `Pylint command line arguments`_ for general switches. Command line
 arguments can be used to load Pylint plugins, such as that for Django:
 
-.. code:: json
+::
 
     "python.linting.pylintArgs": ["--load-plugins", "pylint_django"]
 
