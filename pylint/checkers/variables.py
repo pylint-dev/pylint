@@ -1519,7 +1519,9 @@ class VariablesChecker(BaseChecker):
                         # Handle postponed evaluation of annotations
                         if not (
                             self._postponed_evaluation_enabled
-                            and isinstance(stmt, astroid.FunctionDef)
+                            and isinstance(
+                                stmt, (astroid.AnnAssign, astroid.FunctionDef)
+                            )
                         ):
                             self.add_message(
                                 "used-before-assignment", args=name, node=node

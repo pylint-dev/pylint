@@ -7,6 +7,10 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Support postponed evaluation of annotations for variable annotations.
+
+  Close #2838
+
 * ``epylint.py_run`` defaults to ``python`` in case the current executable is not a Python one.
 
   Close #2837

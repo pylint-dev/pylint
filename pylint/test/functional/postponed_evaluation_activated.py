@@ -2,6 +2,7 @@
 # pylint: disable=too-few-public-methods,no-name-in-module
 from __future__ import annotations
 
+
 class Class:
     @classmethod
     def from_string(cls, source) -> Class:
@@ -12,4 +13,12 @@ class Class:
 
 
 class OtherClass:
+    ...
+
+
+class Example:
+    obj: Other
+
+
+class Other:
     ...
