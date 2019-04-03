@@ -49,3 +49,5 @@ _ = lambda: _ANYARGS(func=42)
 
 # Don't warn about this.
 _ = lambda: code().analysis()
+
+_ = lambda **kwargs: dict(bar=42, **kwargs)

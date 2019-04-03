@@ -7,6 +7,10 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Handle more `unnecessary-lambda` cases when dealing with additional kwargs in wrapped calls
+
+  Close #2845
+
 * Better postponed evaluation of annotations handling
 
   Close #2847
