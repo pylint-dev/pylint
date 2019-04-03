@@ -22,3 +22,7 @@ class Example:
 
 class Other:
     ...
+
+
+class ExampleSelf:
+    next: ExampleSelf

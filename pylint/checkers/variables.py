@@ -1507,7 +1507,14 @@ class VariablesChecker(BaseChecker):
                             # Handle postponed evaluation of annotations
                             if not (
                                 self._postponed_evaluation_enabled
-                                and annotation_return
+                                and isinstance(
+                                    stmt,
+                                    (
+                                        astroid.AnnAssign,
+                                        astroid.FunctionDef,
+                                        astroid.Arguments,
+                                    ),
+                                )
                                 and name in node.root().locals
                             ):
                                 self.add_message(
