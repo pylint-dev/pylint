@@ -693,7 +693,7 @@ class should be ignored. A mixin class is detected if its name ends with \
                 "should not be checked (useful for modules/projects "
                 "where namespaces are manipulated during runtime and "
                 "thus existing member attributes cannot be "
-                "deduced by static analysis. It supports qualified "
+                "deduced by static analysis). It supports qualified "
                 "module names, as well as Unix pattern matching.",
             },
         ),
