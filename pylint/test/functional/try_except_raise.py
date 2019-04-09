@@ -96,14 +96,6 @@ except (FileNotFoundError, PermissionError):  # [try-except-raise]
 except (OverflowError, ZeroDivisionError):
     print("a failure")
 
-
-try:
-    pass
-except invalid_name:  # [try-except-raise]
-    raise
-except TypeError:
-    pass
-
 try:
     pass
 except (FileNotFoundError, PermissionError):
@@ -117,4 +109,3 @@ except (FileNotFoundError, PermissionError):
     raise
 except (Exception,):
     print("a failure")
-    

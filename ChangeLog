@@ -7,6 +7,10 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* When we can't infer bare except handlers, skip ``try-except-raise``
+
+  Close #2853
+
 * Handle more `unnecessary-lambda` cases when dealing with additional kwargs in wrapped calls
 
   Close #2845

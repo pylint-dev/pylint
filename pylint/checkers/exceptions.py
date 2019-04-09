@@ -28,6 +28,7 @@ import sys
 import typing
 
 import astroid
+from astroid.node_classes import NodeNG
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -405,7 +406,9 @@ class ExceptionsChecker(checkers.BaseChecker):
                 )
 
     def _check_try_except_raise(self, node):
-        def gather_exceptions_from_handler(handler):
+        def gather_exceptions_from_handler(
+            handler
+        ) -> typing.Optional[typing.List[NodeNG]]:
             exceptions = []
             if handler.type:
                 exceptions_in_handler = utils.safe_infer(handler.type)
@@ -417,6 +420,9 @@ class ExceptionsChecker(checkers.BaseChecker):
                     }
                 elif exceptions_in_handler:
                     exceptions = [exceptions_in_handler]
+                else:
+                    # Break when we cannot infer anything reliably.
+                    return None
             return exceptions
 
         bare_raise = False
@@ -429,8 +435,12 @@ class ExceptionsChecker(checkers.BaseChecker):
                 # also break early if bare except is followed by bare except.
 
                 excs_in_current_handler = gather_exceptions_from_handler(handler)
+
                 if not excs_in_current_handler:
                     bare_raise = False
+                    break
+                if excs_in_bare_handler is None:
+                    # It can be `None` when the inference failed
                     break
 
                 for exc_in_current_handler in excs_in_current_handler:
@@ -451,8 +461,9 @@ class ExceptionsChecker(checkers.BaseChecker):
                     bare_raise = True
                     handler_having_bare_raise = handler
                     excs_in_bare_handler = gather_exceptions_from_handler(handler)
-        if bare_raise:
-            self.add_message("try-except-raise", node=handler_having_bare_raise)
+        else:
+            if bare_raise:
+                self.add_message("try-except-raise", node=handler_having_bare_raise)
 
     @utils.check_messages("wrong-exception-operation")
     def visit_binop(self, node):
