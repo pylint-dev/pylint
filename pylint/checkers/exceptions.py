@@ -409,15 +409,17 @@ class ExceptionsChecker(checkers.BaseChecker):
         def gather_exceptions_from_handler(
             handler
         ) -> typing.Optional[typing.List[NodeNG]]:
-            exceptions = []
+            exceptions = []  # type: typing.List[NodeNG]
             if handler.type:
                 exceptions_in_handler = utils.safe_infer(handler.type)
                 if isinstance(exceptions_in_handler, astroid.Tuple):
-                    exceptions = {
-                        exception
-                        for exception in exceptions_in_handler.elts
-                        if isinstance(exception, astroid.Name)
-                    }
+                    exceptions = list(
+                        {
+                            exception
+                            for exception in exceptions_in_handler.elts
+                            if isinstance(exception, astroid.Name)
+                        }
+                    )
                 elif exceptions_in_handler:
                     exceptions = [exceptions_in_handler]
                 else:
