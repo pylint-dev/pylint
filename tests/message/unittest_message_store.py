@@ -42,7 +42,7 @@ def test_format_help(capsys, store):
     store.help_message([])
     captured = capsys.readouterr()
     assert captured.out == ""
-    store.help_message(["W1234", "E1234"])
+    store.help_message(["W1234", "E1234", "C1234"])
     captured = capsys.readouterr()
     assert (
         captured.out
@@ -53,6 +53,8 @@ def test_format_help(capsys, store):
   Used when a function call passes the same keyword argument multiple times.
   This message belongs to the achecker checker. It can't be emitted when using
   Python >= 2.6.
+
+No such message id or symbol 'C1234'.
 
 """
     )
