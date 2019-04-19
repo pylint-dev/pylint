@@ -7,6 +7,10 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Added `subprocess-run-check` to handle subrocess.run without explicitly set `check` keyword.
+
+  Close #2848
+
 * When we can't infer bare except handlers, skip ``try-except-raise``
 
   Close #2853

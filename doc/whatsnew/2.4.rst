@@ -13,6 +13,10 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added `subprocess-run-check` to handle subprocess.run without explicitly set `check` keyword.
+
+  Close #2848
+
 * We added a new check message ``dict-iter-missing-items``.
   This is emitted when trying to iterate through a dict in a for loop without calling its .items() method.
 
