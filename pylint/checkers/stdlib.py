@@ -30,6 +30,8 @@ from astroid.node_classes import Const
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import IAstroidChecker
 
+PY35 = sys.version_info >= (3, 5)
+
 OPEN_FILES = {"open", "file"}
 UNITTEST_CASE = "unittest.case"
 THREADING_THREAD = "threading.Thread"
@@ -37,6 +39,7 @@ COPY_COPY = "copy.copy"
 OS_ENVIRON = "os._Environ"
 ENV_GETTERS = {"os.getenv"}
 SUBPROCESS_POPEN = "subprocess.Popen"
+SUBPROCESS_RUN = "subprocess.run"
 
 if sys.version_info >= (3, 0):
     OPEN_MODULE = "_io"
@@ -147,6 +150,13 @@ class StdlibChecker(BaseChecker):
             "trivial! Minimize the number of libraries you call into."
             "https://docs.python.org/3/library/subprocess.html#popen-constructor",
         ),
+        "W1510": (
+            "Using subprocess.run without explicitly set `check` is not recommended.",
+            "subprocess-run-check",
+            "The check parameter should always be used with explicitly set "
+            "`check` keyword to make clear what the error-handling behavior is."
+            "https://docs.python.org/3/library/subprocess.html#subprocess.runs",
+        ),
     }
 
     deprecated = {
@@ -250,6 +260,15 @@ class StdlibChecker(BaseChecker):
                 if keyword.arg == "preexec_fn":
                     self.add_message("subprocess-popen-preexec-fn", node=node)
 
+    def _check_for_check_kw_in_run(self, node):
+        if node.keywords:
+            kwargs = {keyword.arg: keyword.value for keyword in node.keywords}
+        else:
+            kwargs = {}
+
+        if "check" not in kwargs:
+            self.add_message("subprocess-run-check", node=node)
+
     def _check_shallow_copy_environ(self, node):
         arg = utils.get_argument_from_call(node, position=0)
         for inferred in arg.inferred():
@@ -266,6 +285,7 @@ class StdlibChecker(BaseChecker):
         "invalid-envvar-value",
         "invalid-envvar-default",
         "subprocess-popen-preexec-fn",
+        "subprocess-run-check",
     )
     def visit_call(self, node):
         """Visit a Call node."""
@@ -289,6 +309,8 @@ class StdlibChecker(BaseChecker):
                         self._check_shallow_copy_environ(node)
                     elif name in ENV_GETTERS:
                         self._check_env_function(node, inferred)
+                    elif name == SUBPROCESS_RUN and PY35:
+                        self._check_for_check_kw_in_run(node)
                 self._check_deprecated_method(node, inferred)
         except astroid.InferenceError:
             return
