@@ -254,7 +254,7 @@ class StdlibChecker(BaseChecker):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
             self.add_message("bad-thread-instantiation", node=node)
 
-    def _check_for_preexec_fn_in_Popen(self, node):
+    def _check_for_preexec_fn_in_popen(self, node):
         if node.keywords:
             for keyword in node.keywords:
                 if keyword.arg == "preexec_fn":
@@ -298,7 +298,7 @@ class StdlibChecker(BaseChecker):
                     if inferred.qname() == THREADING_THREAD:
                         self._check_bad_thread_instantiation(node)
                     elif inferred.qname() == SUBPROCESS_POPEN:
-                        self._check_for_preexec_fn_in_Popen(node)
+                        self._check_for_preexec_fn_in_popen(node)
                 elif isinstance(inferred, astroid.FunctionDef):
                     name = inferred.qname()
                     if name == COPY_COPY:
