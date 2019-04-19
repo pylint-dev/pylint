@@ -261,11 +261,7 @@ class StdlibChecker(BaseChecker):
                     self.add_message("subprocess-popen-preexec-fn", node=node)
 
     def _check_for_check_kw_in_run(self, node):
-        if node.keywords:
-            kwargs = {keyword.arg: keyword.value for keyword in node.keywords}
-        else:
-            kwargs = {}
-
+        kwargs = {keyword.arg for keyword in (node.keywords or ())}
         if "check" not in kwargs:
             self.add_message("subprocess-run-check", node=node)
 
