@@ -294,3 +294,6 @@ contributors:
 * Taewon Kim : contributor
 
 * Daniil Kharkov: contributor
+
+* Alan Yee : contributor
+
