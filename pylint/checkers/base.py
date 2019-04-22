@@ -2110,10 +2110,10 @@ class ComparisonChecker(_BasicChecker):
         is_other_literal = isinstance(literal, nodes)
         is_const = False
         if isinstance(literal, astroid.Const):
-            if isinstance(literal.value, bool) or literal.value is None:
-                # Not interested in this values.
+            if literal.value is None:
+                # Not interested in this singleton.
                 return
-            is_const = isinstance(literal.value, (bytes, str, int, float))
+            is_const = isinstance(literal.value, (bytes, str, int, float, bool))
 
         if is_const or is_other_literal:
             self.add_message("literal-comparison", node=node)
