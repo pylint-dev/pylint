@@ -95,6 +95,10 @@ Release date: TBA
 
   Close #2806
 
+* Updates check on comparing boolean values to ``True`` or ``False`` using ``is`` 
+
+  Close #2868
+
 
 What's New in Pylint 2.3.0?
 ===========================
