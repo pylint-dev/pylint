@@ -91,3 +91,17 @@ The following imports do not trigger an ``ungrouped-imports`` anymore ::
     import zipfile
     from unittest import TestCase
     from unittest.mock import MagicMock
+    
+* The checker for missing return documentation is now more flexible.
+
+The following does not trigger a ``missing-return-doc`` anymore ::
+
+    def my_func(self):
+        """This is a docstring.
+
+        Returns
+        -------
+        :obj:`list` of :obj:`str`
+            List of strings
+        """
+        return ["hi", "bye"] #@
