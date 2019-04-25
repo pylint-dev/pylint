@@ -443,7 +443,7 @@ class GoogleDocstring(Docstring):
 
     re_multiple_type = r"""
         (?:{container_type}|{type}|{xref})
-        (?:\s+or\s+(?:{container_type}|{type}|{xref}))*
+        (?:\s+(?:of|or)\s+(?:{container_type}|{type}|{xref}))*
     """.format(
         type=re_type, xref=re_xref, container_type=re_container_type
     )
