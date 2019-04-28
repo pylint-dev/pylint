@@ -294,3 +294,5 @@ contributors:
 * Taewon Kim : contributor
 
 * Daniil Kharkov: contributor
+
+* Felix Lawrence: 'arg-var-name-clash' check

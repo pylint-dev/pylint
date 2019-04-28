@@ -1,0 +1,9 @@
+arg-var-name-clash:22:put_things_in_scope:In this call to minimal_example, a variable named x supplied the argument y, and not the argument x.
+arg-var-name-clash:22:put_things_in_scope:In this call to minimal_example, a variable named y supplied the argument x, and not the argument y.
+arg-var-name-clash:23:put_things_in_scope:In this call to minimal_example, a variable named y supplied the argument x, and not the argument y.
+arg-var-name-clash:24:put_things_in_scope:In this call to minimal_example, a variable named y supplied the argument x, and not the argument y.
+arg-var-name-clash:25:put_things_in_scope:In this call to minimal_example, a variable named x supplied the argument y, and not the argument x.
+arg-var-name-clash:38:scope_2:In this call to realistic_example, a variable named b supplied the argument a, and not the argument b.
+arg-var-name-clash:39:scope_2:In this call to realistic_example, a variable named c supplied the argument b, and not the argument c.
+arg-var-name-clash:53:scope_3:In this call to a_method, a variable named x supplied the argument y, and not the argument x.
+arg-var-name-clash:53:scope_3:In this call to a_method, a variable named y supplied the argument x, and not the argument y.

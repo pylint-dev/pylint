@@ -247,6 +247,14 @@ MSGS = {
         "no-value-for-parameter",
         "Used when a function call passes too few arguments.",
     ),
+    "W1114": (
+        "In this call to %s, a variable named %s supplied the argument %s, "
+        "and not the argument %s.",
+        "arg-var-name-clash",
+        "Typically occurs when arguments are accidentally become "
+        "misaligned. Otherwise could be considered a code smell: supply "
+        "this argument as a keyword argument to avoid confusion."
+    ),
     "E1121": (
         "Too many positional arguments for %s call",
         "too-many-function-args",
@@ -1227,6 +1235,52 @@ accessed. Python regular expressions are accepted.",
             defval, assigned = kwparams[name]
             if defval is None and not assigned and not has_no_context_keywords_variadic:
                 self.add_message("missing-kwoa", node=node, args=(name, callable_name))
+
+        # Check for suspicious mismatches between variable and argument names
+        # that suggest the arguments may be misordered
+        call_site_args = [
+            n.name if isinstance(n, astroid.node_classes.Name) else None
+            for n in
+                call_site.positional_arguments
+                + list(call_site.keyword_arguments.values())
+        ]
+
+        called_argnames = [
+            a.name if not isinstance(a, astroid.node_classes.Tuple) else None
+            for a in called.args.args
+        ]
+        if isinstance(called, astroid.bases.BoundMethod):
+            # Ignore `self` etc
+            called_argnames = called_argnames[1:]
+
+        for i, call_site_arg in enumerate(call_site.positional_arguments):
+            if not isinstance(call_site_arg, astroid.node_classes.Name):
+                continue
+            try:
+                # Is there a function argument with the same name as this variable?
+                i_match = called_argnames.index(call_site_arg.name)
+            except ValueError:
+                continue
+            try:
+                # Did this variable also set that function argument?
+                if call_site_args[i_match] != call_site_arg.name:
+                    # No, that argument had a differently named variable.
+                    # This would be OK if that argument is supplied as a keyword arg?
+                    if not call_site_arg.name in call_site.keyword_arguments.keys():
+                        self.add_message("arg-var-name-clash", node=node, args=(
+                            called.name,
+                            call_site_arg.name,
+                            called_argnames[i],
+                            call_site_arg.name,
+                        ))
+            except IndexError:
+                # No, that argument was omitted
+                self.add_message("arg-var-name-clash", node=node, args=(
+                    called.name,
+                    call_site_arg.name,
+                    called.argnames()[i],
+                    call_site_arg.name,
+                ))
 
     @check_messages("invalid-sequence-index")
     def visit_extslice(self, node):

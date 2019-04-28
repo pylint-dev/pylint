@@ -95,6 +95,8 @@ Release date: TBA
 
   Close #2806
 
+* Add check for clashes between function argument and variable names (W1114)
+
 
 What's New in Pylint 2.3.0?
 ===========================
