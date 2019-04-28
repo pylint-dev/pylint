@@ -294,3 +294,5 @@ contributors:
 * Taewon Kim : contributor
 
 * Daniil Kharkov: contributor
+
+* Tyler N. Thieding: contributor

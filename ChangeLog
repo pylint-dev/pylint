@@ -95,6 +95,10 @@ Release date: TBA
 
   Close #2806
 
+* Added new extension to detect too much code in a try clause
+
+  Close #2877
+
 
 What's New in Pylint 2.3.0?
 ===========================
