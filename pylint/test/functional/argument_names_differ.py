@@ -15,7 +15,7 @@ def put_things_in_scope():
     minimal_example(x, z)
     minimal_example(x, 0)
     minimal_example(z, y)
-    minimal_example(z, z)
+    minimal_example(y, y=x)
     minimal_example(x=y, y=x)
     minimal_example(z, y=x)
 

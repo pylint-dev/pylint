@@ -46,6 +46,28 @@ New checkers
   to make ``pylint`` suggest using ``defusedxml`` instead of ``xml``
   and ``ujson`` rather than ``json``.
 
+* A new check ``arg-var-name-clash`` was added.
+
+  This is emitted when the names of variables being supplied to a function or method appear to clash with the function/method's argument names.
+
+  For example, the following function calls would raise this warning::
+
+    def example_fn(x, y=None):
+        pass
+
+    example_fn(y, x)
+    example_fn(y)
+
+  because a casual reader might not be familiar with the order of arguments to ``example_fn`` and would expect a variable ``y`` to be passed to the function argument ``y``. Furthermore, this is likely to catch issues when the function arguments become misaligned when a positional argument is inadvertently deleted, added or mis-ordered.
+
+  If you really do want to pass ``x`` in as ``y`` and/or ``y`` in as ``x``, then you can avoid the warning by using keyword arguments to clarify your intent::
+
+    example_fn(x=y, y=x)
+    example_fn(y, y=x)
+
+    example_fn(x=y)
+
+
 Other Changes
 =============
 
