@@ -46,6 +46,17 @@ New checkers
   to make ``pylint`` suggest using ``defusedxml`` instead of ``xml``
   and ``ujson`` rather than ``json``.
 
+* A new extension ``broad_try_clause`` was added.
+
+  This extension enforces a configurable maximum number of statements inside
+  of a try clause. This facilitates enforcing PEP 8's guidelines about try / except
+  statements and the amount of code in the try clause.
+
+  You can enable this extension using ``--load-plugins=pylint.extensions.broad_try_clause``
+  and you can configure the amount of statements in a try statement using
+  ``--max-try-statements``.
+
+
 Other Changes
 =============
 
@@ -91,7 +102,7 @@ The following imports do not trigger an ``ungrouped-imports`` anymore ::
     import zipfile
     from unittest import TestCase
     from unittest.mock import MagicMock
-    
+
 * The checker for missing return documentation is now more flexible.
 
 The following does not trigger a ``missing-return-doc`` anymore ::
