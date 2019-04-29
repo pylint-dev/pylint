@@ -250,6 +250,21 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_return(return_node)
 
+    def test_find_numpy_returns_with_of(self):
+        return_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns
+            -------
+            :obj:`list` of :obj:`str`
+                List of strings
+            """
+            return ["hi", "bye"] #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_return(return_node)
+
     def test_ignores_sphinx_return_none(self):
         return_node = astroid.extract_node('''
         def my_func(self, doc_type):

@@ -294,3 +294,6 @@ contributors:
 * Taewon Kim : contributor
 
 * Daniil Kharkov: contributor
+
+* Zeb Nicholls: contributor
+    - Made W9011 compatible with 'of' syntax in return types
