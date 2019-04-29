@@ -456,10 +456,19 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.checker.visit_importfrom(node)
 
     def test_division(self):
-        node = astroid.extract_node("3 / 2  #@")
-        message = testutils.Message("old-division", node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_binop(node)
+        nodes = astroid.extract_node(
+            """\
+            from _unknown import a, b
+            3 / 2  #@
+            3 / int(a) #@
+            int(a) / 3 #@
+            a / b #@
+            """
+        )
+        for node in nodes:
+            message = testutils.Message("old-division", node=node)
+            with self.assertAddsMessages(message):
+                self.checker.visit_binop(node)
 
     def test_division_with_future_statement(self):
         module = astroid.parse("from __future__ import division; 3 / 2")
@@ -472,10 +481,16 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.checker.visit_binop(node)
 
     def test_division_by_float(self):
-        left_node = astroid.extract_node("3.0 / 2 #@")
-        right_node = astroid.extract_node(" 3 / 2.0  #@")
+        nodes = astroid.extract_node(
+            """\
+            3.0 / 2  #@
+            3 / 2.0  #@
+            3 / float(a)  #@
+            float(a) / 3  #@
+            """
+        )
         with self.assertNoMessages():
-            for node in (left_node, right_node):
+            for node in nodes:
                 self.checker.visit_binop(node)
 
     def test_division_different_types(self):
