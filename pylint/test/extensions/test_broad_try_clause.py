@@ -43,7 +43,7 @@ class BroadTryClauseTC(unittest.TestCase):
 
         self.assertEqual(msgs[0].symbol, "too-many-try-statements")
         self.assertEqual(
-            msgs[0].msg, "try clause contains 2 statements, at most 1 expected"
+            msgs[0].msg, "try clause contains 2 statements, expected at most 1"
         )
         self.assertEqual(msgs[0].line, 5)
 

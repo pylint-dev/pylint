@@ -46,7 +46,7 @@ class BroadTryClauseChecker(checkers.BaseChecker):
     def visit_tryexcept(self, node):
         try_clause_statements = len(node.body)
         if try_clause_statements > self.config.max_try_statements:
-            msg = "try clause contains {0} statements, at most {1} expected".format(
+            msg = "try clause contains {0} statements, expected at most {1}".format(
                 try_clause_statements, self.config.max_try_statements
             )
             self.add_message(
