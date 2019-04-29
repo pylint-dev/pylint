@@ -295,5 +295,7 @@ contributors:
 
 * Daniil Kharkov: contributor
 
+* Tyler N. Thieding: contributor
+
 * Zeb Nicholls: contributor
     - Made W9011 compatible with 'of' syntax in return types
