@@ -284,12 +284,17 @@ class SpellingChecker(BaseTokenChecker):
 
     def _check_spelling(self, msgid, line, line_num):
         original_line = line
+        try:
+            initial_space = re.search(r"[^\S]\s*", line).regs[0][1]
+        except (IndexError, AttributeError):
+            initial_space = 0
         if line.strip().startswith("#"):
             line = line.strip()[1:]
             starts_with_comment = True
         else:
             starts_with_comment = False
-        for word, _ in self.tokenizer(line.strip()):
+        for word, word_start_at in self.tokenizer(line.strip()):
+            word_start_at += initial_space
             lower_cased_word = word.casefold()
 
             # Skip words from ignore list.
@@ -328,12 +333,15 @@ class SpellingChecker(BaseTokenChecker):
                 suggestions = self.spelling_dict.suggest(word)
                 del suggestions[self.config.max_spelling_suggestions :]
 
-                m = re.search(r"(\W|^)(%s)(\W|$)" % word, line)
+                line_segment = line[word_start_at:]
+                m = re.search(r"(\W|^)(%s)(\W|$)" % word, line_segment)
                 if m:
                     # Start position of second group in regex.
                     col = m.regs[2][0]
                 else:
-                    col = line.index(word)
+                    col = line_segment.index(word)
+
+                col += word_start_at
 
                 if starts_with_comment:
                     col += 1
