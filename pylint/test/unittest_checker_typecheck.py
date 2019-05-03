@@ -339,12 +339,12 @@ class TestTypeChecker(CheckerTestCase):
         """
         call = astroid.extract_node(
             """
-        @lazy
         def get_num(n):
             return 2 * n
-        res = get_num(10)
-        res()
+        get_num(10)()
         """
         )
-        with self.assertAddsMessages(Message("not-callable", node=call, args="res")):
+        with self.assertAddsMessages(
+            Message("not-callable", node=call, args="get_num(10)")
+        ):
             self.checker.visit_call(call)
