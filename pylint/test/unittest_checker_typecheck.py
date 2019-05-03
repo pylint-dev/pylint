@@ -332,3 +332,19 @@ class TestTypeChecker(CheckerTestCase):
         )
         with self.assertNoMessages():
             self.checker.visit_call(call)
+
+    def test_unknown_parent(self):
+        """Make sure the callable check does not crash when a node's parent
+        cannot be determined.
+        """
+        call = astroid.extract_node(
+            """
+        @lazy
+        def get_num(n):
+            return 2 * n
+        res = get_num(10)
+        res()
+        """
+        )
+        with self.assertAddsMessages(Message("not-callable", node=call, args="res")):
+            self.checker.visit_call(call)
