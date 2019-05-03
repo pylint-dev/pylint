@@ -7,6 +7,8 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Fix crash happening when parent of called object cannot be determined
+
 * Allow of in `GoogleDocstring.re_multiple_type`
 
 * Added `subprocess-run-check` to handle subrocess.run without explicitly set `check` keyword.
