@@ -303,3 +303,61 @@ class TestSpellingChecker(CheckerTestCase):
             )
         ):
             self.checker.visit_classdef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_more_than_one_error_in_same_line_for_same_word_on_docstring(self):
+        stmt = astroid.extract_node(
+            'class ComentAbc(object):\n   """Check teh dummy comment teh"""\n   pass'
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=2,
+                args=(
+                    "teh",
+                    "Check teh dummy comment teh",
+                    "      ^^^",
+                    self._get_msg_suggestions("teh"),
+                ),
+            ),
+            Message(
+                "wrong-spelling-in-docstring",
+                line=2,
+                args=(
+                    "teh",
+                    "Check teh dummy comment teh",
+                    "                        ^^^",
+                    self._get_msg_suggestions("teh"),
+                ),
+            )
+        ):
+            self.checker.visit_classdef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_more_than_one_error_in_same_line_for_same_word_on_comment(self):
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-comment",
+                line=1,
+                args=(
+                    "coment",
+                    "# bad coment coment",
+                    "      ^^^^^^",
+                    self._get_msg_suggestions("coment"),
+                ),
+            ),
+            Message(
+                "wrong-spelling-in-comment",
+                line=1,
+                args=(
+                    "coment",
+                    "# bad coment coment",
+                    "             ^^^^^^",
+                    self._get_msg_suggestions("coment"),
+                ),
+            )
+        ):
+            self.checker.process_tokens(_tokenize_str("# bad coment coment"))
+
