@@ -285,7 +285,7 @@ class SpellingChecker(BaseTokenChecker):
     def _check_spelling(self, msgid, line, line_num):
         original_line = line
         try:
-            initial_space = re.search(r"[^\S]\s*", line).regs[0][1]
+            initial_space = re.search(r"^[^\S]\s*", line).regs[0][1]
         except (IndexError, AttributeError):
             initial_space = 0
         if line.strip().startswith("#"):
