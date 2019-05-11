@@ -330,7 +330,7 @@ class TestSpellingChecker(CheckerTestCase):
                     "                        ^^^",
                     self._get_msg_suggestions("teh"),
                 ),
-            )
+            ),
         ):
             self.checker.visit_classdef(stmt)
 
@@ -357,7 +357,6 @@ class TestSpellingChecker(CheckerTestCase):
                     "             ^^^^^^",
                     self._get_msg_suggestions("coment"),
                 ),
-            )
+            ),
         ):
             self.checker.process_tokens(_tokenize_str("# bad coment coment"))
-
