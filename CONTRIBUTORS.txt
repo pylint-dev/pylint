@@ -300,4 +300,6 @@ contributors:
 * Zeb Nicholls: contributor
     - Made W9011 compatible with 'of' syntax in return types
 
+* Martin Vielsmaier: contributor
+
 * Agustin Toledo: contributor

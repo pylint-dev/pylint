@@ -1051,7 +1051,8 @@ accessed. Python regular expressions are accepted.",
             if isinstance(called, astroid.Instance) and (
                 not has_known_bases(called)
                 or (
-                    isinstance(called.scope(), astroid.ClassDef)
+                    called.parent is not None
+                    and isinstance(called.scope(), astroid.ClassDef)
                     and "__get__" in called.locals
                 )
             ):
