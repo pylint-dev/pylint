@@ -9,7 +9,7 @@ Release date: TBA
 
 * Added a new check, ``consider-using-sys-exit``
 
-  This check is emitted when we detect that a quit() or exit() is invoked 
+  This check is emitted when we detect that a quit() or exit() is invoked
   instead of sys.exit(), which is the preferred way of exiting in program.
 
   Close #2925
@@ -263,6 +263,7 @@ must rename the associated identification.
 
 Closes #2395
 
+* Added ``--list-msgs-enabled`` command to list all enabled and disabled messages given the current RC file and command line arguments.
 
 What's New in Pylint 2.3.0?
 ===========================
