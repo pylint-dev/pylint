@@ -326,3 +326,6 @@ contributors:
 * Robert Schweizer: contributor
 
 * Hugo van Kemenade: contributor
+
+* Trevor Bekolay: contributor
+    - Added --list-msgs-enabled command

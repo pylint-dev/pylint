@@ -119,6 +119,8 @@ Other useful global options include:
 --output-format=<format>   Select output format (text, json, custom).
 --msg-template=<template>  Modify text output message template.
 --list-msgs                Generate pylint's messages.
+--list-msgs-enabled        Display a list of what messages are enabled and
+                           disabled with the given configuration.
 --full-documentation       Generate pylint's full documentation, in reST
                              format.
 

@@ -15,11 +15,11 @@ New checkers
 
 * Added a new check, ``consider-using-sys-exit``
 
-  This check is emitted when we detect that a quit() or exit() is invoked 
+  This check is emitted when we detect that a quit() or exit() is invoked
   instead of sys.exit(), which is the preferred way of exiting in program.
 
   Close #2925
-  
+
 * Added a new check, ``arguments-out-of-order``
 
   This check warns if you have arguments with names that match those in
@@ -125,7 +125,7 @@ New checkers
 Other Changes
 =============
 
-* Don't emit ``protected-access`` when a single underscore prefixed attribute is used 
+* Don't emit ``protected-access`` when a single underscore prefixed attribute is used
   inside a special method
 
   Close #1802
@@ -208,3 +208,10 @@ would mean that `no-value-for-parameter` would not be raised for::
 to control which logging string format style is valid.
 To allow this, a new `fstr` value is valid for the `logging-format-style`
 option.
+
+* ``--list-msgs-enabled`` command was added.
+
+When enabling/disabling several messages and groups in a config file,
+it can be unclear which messages are actually enabled and which are disabled.
+This new command produces the final resolved lists of enabled/disabled messages,
+sorted by symbol but with the ID provided for use with ``--help-msg``.
