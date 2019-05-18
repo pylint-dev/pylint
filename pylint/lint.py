@@ -833,7 +833,18 @@ class PyLinter(
         level options
         """
         control_pragmas = {"disable", "enable"}
+        prev_line = None
+        saw_newline = True
+        seen_newline = True
         for (tok_type, content, start, _, _) in tokens:
+            if prev_line and prev_line != start[0]:
+                saw_newline = seen_newline
+                seen_newline = False
+
+            prev_line = start[0]
+            if tok_type in (tokenize.NL, tokenize.NEWLINE):
+                seen_newline = True
+
             if tok_type != tokenize.COMMENT:
                 continue
             match = OPTION_RGX.search(content)
@@ -888,6 +899,10 @@ class PyLinter(
                             self.add_message("file-ignored", line=start[0])
                             self._ignore_file = True
                             return
+                        # If we did not see a newline between the previous line and now,
+                        # we saw a backslash so treat the two lines as one.
+                        if not saw_newline:
+                            meth(msgid, "module", start[0] - 1)
                         meth(msgid, "module", start[0])
                     except exceptions.UnknownMessageError:
                         self.add_message("bad-option-value", args=msgid, line=start[0])
