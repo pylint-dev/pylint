@@ -928,7 +928,7 @@ class ImportsChecker(BaseChecker):
             _make_graph(filename, self._internal_dependencies_info(), sect, "internal ")
 
     def _filter_dependencies_graph(self, internal):
-        """build the internal or the external depedency graph"""
+        """build the internal or the external dependency graph"""
         graph = collections.defaultdict(set)
         for importee, importers in self.stats["dependencies"].items():
             for importer in importers:

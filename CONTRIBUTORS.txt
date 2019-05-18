@@ -303,3 +303,5 @@ contributors:
 * Martin Vielsmaier: contributor
 
 * Agustin Toledo: contributor
+
+* Nicholas Smith: contributor

@@ -7,7 +7,9 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
-* Fix pointer on spelling check when the error are more than one time in the same line. 
+* Fix typos in documentation and comments
+
+* Fix pointer on spelling check when the error are more than one time in the same line.
 
   Close #2895
 
@@ -913,7 +915,7 @@ Release date: 2018-07-15
 
       Close #2214
 
-    * Fix false-postive undefined-variable in nested lambda
+    * Fix false-positive undefined-variable in nested lambda
 
       Close #760
 
