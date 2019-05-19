@@ -11,6 +11,7 @@ from inspect import cleandoc
 from pylint.constants import (
     _MSG_ORDER,
     _SCOPE_EXEMPT,
+    MAIN_CHECKER_NAME,
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
@@ -379,7 +380,7 @@ Pylint provides global options and switches.
 """
         for checker in self.get_checkers():
             name = checker.name
-            if checker.name == "master":
+            if name == MAIN_CHECKER_NAME:
                 if checker.options:
                     for section, options in checker.options_by_section():
                         if section is None:

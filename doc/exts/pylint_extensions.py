@@ -11,6 +11,7 @@ import sys
 import pkg_resources
 import sphinx
 
+from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import PyLinter
 
 # Some modules have been renamed and deprecated under their old names.
@@ -73,7 +74,7 @@ def builder_inited(app):
 def get_plugins_info(linter, doc_files):
     by_checker = {}
     for checker in linter.get_checkers():
-        if checker.name == "master":
+        if checker.name == MAIN_CHECKER_NAME:
             continue
         module = checker.__module__
         # Plugins only - skip over core checkers
