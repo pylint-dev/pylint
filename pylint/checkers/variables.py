@@ -1186,6 +1186,16 @@ class VariablesChecker(BaseChecker):
         if not self.linter.is_message_enabled("undefined-loop-variable"):
             return
         astmts = [stmt for stmt in node.lookup(name)[1] if hasattr(stmt, "assign_type")]
+        # If this variable usage exists inside a function definition
+        # that exists in the same loop,
+        # the usage is safe because the function will not be defined either if
+        # the variable is not defined.
+        scope = node.scope()
+        if isinstance(scope, astroid.FunctionDef) and any(
+            asmt.statement().parent_of(scope) for asmt in astmts
+        ):
+            return
+
         # filter variables according their respective scope test is_statement
         # and parent to avoid #74747. This is not a total fix, which would
         # introduce a mechanism similar to special attribute lookup in
