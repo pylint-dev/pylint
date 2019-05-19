@@ -160,7 +160,7 @@ class EncodingChecker(BaseChecker):
                     self.add_message(
                         "bad-inline-option",
                         args=disable_option_match.group(1).strip(),
-                        line=comment.string,
+                        line=comment.start[0],
                     )
                     continue
 
