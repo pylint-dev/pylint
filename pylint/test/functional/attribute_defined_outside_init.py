@@ -60,3 +60,8 @@ class Mixin(object):
         """Don't emit attribute-defined-outside-init for mixin classes."""
         if self.defined_already: # pylint: disable=access-member-before-definition
             self.defined_already = None
+
+
+class F:
+    def func(self):
+        self.__dict__ = {'foo': 'bar'}
