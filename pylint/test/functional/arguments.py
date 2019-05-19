@@ -215,3 +215,23 @@ partial(some_func, 1, third=2)(second=3)
 partial(some_func, 1)(1)  # [no-value-for-parameter]
 partial(some_func, 1)(third=1)  # [no-value-for-parameter]
 partial(some_func, 1, 2)(third=1, fourth=4)  # [unexpected-keyword-arg]
+
+
+def mutation_decorator(fun):
+    """Decorator that changes a function's signature."""
+    def wrapper(*args, do_something=True, **kwargs):
+        if do_something:
+            return fun(*args, **kwargs)
+
+        return None
+
+    return wrapper
+
+
+@mutation_decorator
+def mutated_function(arg):
+    return arg
+
+
+mutated_function(do_something=False)
+mutated_function()

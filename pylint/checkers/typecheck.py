@@ -765,6 +765,16 @@ accessed. Python regular expressions are accepted.",
                 "found. The aspect of finding the hint is based on edit distance.",
             },
         ),
+        (
+            "signature-mutators",
+            {
+                "default": [],
+                "type": "csv",
+                "metavar": "<decorator names>",
+                "help": "List of decorators that change the signature of "
+                "a decorated function.",
+            },
+        ),
     )
 
     @decorators.cachedproperty
@@ -1089,6 +1099,12 @@ accessed. Python regular expressions are accepted.",
 
         if call_site.has_invalid_arguments() or call_site.has_invalid_keywords():
             # Can't make sense of this.
+            return
+
+        # Has the function signature changed in ways we cannot reliably detect?
+        if hasattr(called, "decorators") and decorated_with(
+            called, self.config.signature_mutators
+        ):
             return
 
         num_positional_args = len(call_site.positional_arguments)
