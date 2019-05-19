@@ -32,6 +32,8 @@ MSG_TYPES_LONG = {v: k for k, v in MSG_TYPES.items()}
 
 MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 
+MAIN_CHECKER_NAME = "main-pylint-checker"
+
 
 class WarningScope:
     LINE = "line-based-msg"

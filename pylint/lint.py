@@ -77,7 +77,7 @@ from astroid.builder import AstroidBuilder
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.__pkginfo__ import version
-from pylint.constants import MSG_TYPES, OPTION_RGX
+from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES, OPTION_RGX
 from pylint.message import Message, MessagesHandlerMixIn, MessagesStore
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
@@ -326,7 +326,7 @@ class PyLinter(
 
     __implements__ = (interfaces.ITokenChecker,)
 
-    name = "master"
+    name = MAIN_CHECKER_NAME
     priority = 0
     level = 0
     msgs = MSGS
@@ -922,7 +922,11 @@ class PyLinter(
         """Get all the checker names that this linter knows about."""
         current_checkers = self.get_checkers()
         return sorted(
-            {check.name for check in current_checkers if check.name != "master"}
+            {
+                checker.name
+                for checker in current_checkers
+                if checker.name != MAIN_CHECKER_NAME
+            }
         )
 
     def prepare_checkers(self):

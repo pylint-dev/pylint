@@ -34,6 +34,7 @@ from unittest import mock
 
 import pytest
 
+from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import Run
 from pylint.reporters import JSONReporter
 from pylint.reporters.text import *
@@ -183,7 +184,9 @@ class TestRunTC(object):
         output = out.getvalue()
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
-        master = re.search(r"\[MASTER", output)
+        pattern = r"\[{}".format(MAIN_CHECKER_NAME.upper())
+        master = re.search(pattern, output)
+        assert master is not None, "{} not found in {}".format(pattern, output)
         out = StringIO(output[master.start() :])
         parser = configparser.RawConfigParser()
         parser.read_file(out)
