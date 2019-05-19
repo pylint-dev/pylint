@@ -239,5 +239,5 @@ intersphinx_mapping = {
 }
 
 # Prevent label issues due to colliding section names
-# through including mulitple documents
+# through including multiple documents
 autosectionlabel_prefix_document = True

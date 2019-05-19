@@ -7,10 +7,7 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
-
 * Exclude ``__dict__`` from ``attribute-defined-outside-init``
-
-  Close #2909
 
 * Fix pointer on spelling check when the error are more than one time in the same line.
 
@@ -918,7 +915,7 @@ Release date: 2018-07-15
 
       Close #2214
 
-    * Fix false-postive undefined-variable in nested lambda
+    * Fix false-positive undefined-variable in nested lambda
 
       Close #760
 
