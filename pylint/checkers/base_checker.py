@@ -52,8 +52,9 @@ class BaseChecker(OptionsProviderMixIn):
 
     def __repr__(self):
         status = "Checker" if self.enabled else "Disabled checker"
-        msgids = [id for id in self.msgs]
-        return "{} '{}' responsible for {}".format(status, self.name, ", ".join(msgids))
+        return "{} '{}' responsible for {}".format(
+            status, self.name, ", ".join(self.msgs.keys())
+        )
 
     def add_message(
         self, msgid, line=None, node=None, args=None, confidence=None, col_offset=None
