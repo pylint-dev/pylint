@@ -823,6 +823,9 @@ a metaclass class method.",
             # check if any method attr is defined in is a defining method
             if any(node.frame().name in defining_methods for node in nodes):
                 continue
+            # Exclude `__dict__` as it is already defined.
+            if attr == "__dict__":
+                continue
 
             # check attribute is defined in a parent's __init__
             for parent in cnode.instance_attr_ancestors(attr):
