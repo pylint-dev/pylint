@@ -62,6 +62,63 @@ PY3K = sys.version_info >= (3, 0)
 METACLASS_NAME_TRANSFORMS = {"_py_abc": "abc"}
 TYPING_TYPE_CHECKS_GUARDS = frozenset({"typing.TYPE_CHECKING", "TYPE_CHECKING"})
 BUILTIN_RANGE = "builtins.range"
+TYPING_MODULE = "typing"
+TYPING_NAMES = frozenset(
+    {
+        "Any",
+        "Callable",
+        "ClassVar",
+        "Generic",
+        "Optional",
+        "Tuple",
+        "Type",
+        "TypeVar",
+        "Union",
+        "AbstractSet",
+        "ByteString",
+        "Container",
+        "ContextManager",
+        "Hashable",
+        "ItemsView",
+        "Iterable",
+        "Iterator",
+        "KeysView",
+        "Mapping",
+        "MappingView",
+        "MutableMapping",
+        "MutableSequence",
+        "MutableSet",
+        "Sequence",
+        "Sized",
+        "ValuesView",
+        "Awaitable",
+        "AsyncIterator",
+        "AsyncIterable",
+        "Coroutine",
+        "Collection",
+        "AsyncGenerator",
+        "AsyncContextManager",
+        "Reversible",
+        "SupportsAbs",
+        "SupportsBytes",
+        "SupportsComplex",
+        "SupportsFloat",
+        "SupportsInt",
+        "SupportsRound",
+        "Counter",
+        "Deque",
+        "Dict",
+        "DefaultDict",
+        "List",
+        "Set",
+        "FrozenSet",
+        "NamedTuple",
+        "Generator",
+        "AnyStr",
+        "Text",
+        "Pattern",
+    }
+)
 
 
 def _is_from_future_import(stmt, name):
@@ -771,6 +828,11 @@ class VariablesChecker(BaseChecker):
                         # Filter special objects (__doc__, __all__) etc.,
                         # because they can be imported for exporting.
                         continue
+
+                    if imported_name in self._type_annotation_names:
+                        # Most likely a typing import if it wasn't used so far.
+                        continue
+
                     if as_name == "_":
                         continue
                     if as_name is None:
@@ -1647,18 +1709,31 @@ class VariablesChecker(BaseChecker):
             return
 
     def _store_type_annotation_node(self, type_annotation):
-
-        if isinstance(type_annotation, astroid.Name):
+        """Given a type annotation, store all the name nodes it refers to"""
+        if (
+            isinstance(type_annotation, astroid.Name)
+            and type_annotation.name in TYPING_NAMES
+        ):
             self._type_annotation_names.append(type_annotation.name)
-        else:
-            self._type_annotation_names.extend(
-                list(
-                    (
-                        annotation.name
-                        for annotation in type_annotation.nodes_of_class(astroid.Name)
-                    )
-                )
-            )
+            return
+
+        if not isinstance(type_annotation, astroid.Subscript):
+            return
+
+        # Check if it is namespaced by typing or not.
+        if (
+            isinstance(type_annotation.value, astroid.Attribute)
+            and isinstance(type_annotation.value.expr, astroid.Name)
+            and type_annotation.value.expr.name == TYPING_MODULE
+        ):
+            self._type_annotation_names.append(TYPING_MODULE)
+            return
+
+        self._type_annotation_names.extend(
+            annotation.name
+            for annotation in type_annotation.nodes_of_class(astroid.Name)
+            if annotation.name in TYPING_NAMES
+        )
 
     def _store_type_annotation_names(self, node):
         type_annotation = node.type_annotation

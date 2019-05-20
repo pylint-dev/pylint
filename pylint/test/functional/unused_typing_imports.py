@@ -6,7 +6,18 @@ which means we were never processing them.
 """
 
 import re
-from typing import Optional, Callable, Iterable, Any, List, Tuple, Set, NamedTuple, Pattern
+import typing
+from typing import (
+    Any,
+    Callable,
+    Iterable,
+    List,
+    NamedTuple,
+    Optional,
+    Pattern,
+    Set,
+    Tuple,
+)
 
 
 def func1(arg: Optional[Callable]=None):
@@ -37,3 +48,9 @@ with ContextManager() as SOME_DICT: # type: Set[int]
 def func_test_type_comment(param):
     # type: (NamedTuple) -> Tuple[NamedTuple, Pattern]
     return param, re.compile('good')
+
+
+def typing_fully_qualified():
+    variable = None  # type: typing.Optional[str]
+    other_variable: 'typing.Optional[str]' = None
+    return variable, other_variable
