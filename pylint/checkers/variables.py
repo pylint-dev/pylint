@@ -159,19 +159,19 @@ def overridden_method(klass, name):
     return None
 
 
-def _get_unpacking_extra_info(node, infered):
+def _get_unpacking_extra_info(node, inferred):
     """return extra information to add to the message for unpacking-non-sequence
     and unbalanced-tuple-unpacking errors
     """
     more = ""
-    infered_module = infered.root().name
-    if node.root().name == infered_module:
-        if node.lineno == infered.lineno:
-            more = " %s" % infered.as_string()
-        elif infered.lineno:
-            more = " defined at line %s" % infered.lineno
-    elif infered.lineno:
-        more = " defined at line %s of %s" % (infered.lineno, infered_module)
+    inferred_module = inferred.root().name
+    if node.root().name == inferred_module:
+        if node.lineno == inferred.lineno:
+            more = " %s" % inferred.as_string()
+        elif inferred.lineno:
+            more = " defined at line %s" % inferred.lineno
+    elif inferred.lineno:
+        more = " defined at line %s of %s" % (inferred.lineno, inferred_module)
     return more
 
 
@@ -1702,9 +1702,9 @@ class VariablesChecker(BaseChecker):
 
         targets = node.targets[0].itered()
         try:
-            infered = utils.safe_infer(node.value)
-            if infered is not None:
-                self._check_unpacking(infered, node, targets)
+            inferred = utils.safe_infer(node.value)
+            if inferred is not None:
+                self._check_unpacking(inferred, node, targets)
         except astroid.InferenceError:
             return
 
@@ -1778,7 +1778,7 @@ class VariablesChecker(BaseChecker):
         if self_cls_name in target_assign_names:
             self.add_message("self-cls-assignment", node=node, args=(self_cls_name))
 
-    def _check_unpacking(self, infered, node, targets):
+    def _check_unpacking(self, inferred, node, targets):
         """ Check for unbalanced tuple unpacking
         and unpacking non sequences.
         """
@@ -1786,18 +1786,18 @@ class VariablesChecker(BaseChecker):
             return
         if utils.is_comprehension(node):
             return
-        if infered is astroid.Uninferable:
+        if inferred is astroid.Uninferable:
             return
         if (
-            isinstance(infered.parent, astroid.Arguments)
+            isinstance(inferred.parent, astroid.Arguments)
             and isinstance(node.value, astroid.Name)
-            and node.value.name == infered.parent.vararg
+            and node.value.name == inferred.parent.vararg
         ):
             # Variable-length argument, we can't determine the length.
             return
-        if isinstance(infered, (astroid.Tuple, astroid.List)):
+        if isinstance(inferred, (astroid.Tuple, astroid.List)):
             # attempt to check unpacking is properly balanced
-            values = infered.itered()
+            values = inferred.itered()
             if len(targets) != len(values):
                 # Check if we have starred nodes.
                 if any(isinstance(target, astroid.Starred) for target in targets):
@@ -1806,18 +1806,18 @@ class VariablesChecker(BaseChecker):
                     "unbalanced-tuple-unpacking",
                     node=node,
                     args=(
-                        _get_unpacking_extra_info(node, infered),
+                        _get_unpacking_extra_info(node, inferred),
                         len(targets),
                         len(values),
                     ),
                 )
         # attempt to check unpacking may be possible (ie RHS is iterable)
         else:
-            if not utils.is_iterable(infered):
+            if not utils.is_iterable(inferred):
                 self.add_message(
                     "unpacking-non-sequence",
                     node=node,
-                    args=(_get_unpacking_extra_info(node, infered),),
+                    args=(_get_unpacking_extra_info(node, inferred),),
                 )
 
     def _check_module_attrs(self, node, module, module_names):

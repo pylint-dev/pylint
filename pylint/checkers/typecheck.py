@@ -905,7 +905,7 @@ accessed. Python regular expressions are accepted.",
             break
         else:
             # we have not found any node with the attributes, display the
-            # message for infered nodes
+            # message for inferred nodes
             done = set()
             for owner, name in missingattr:
                 if isinstance(owner, astroid.Instance):
@@ -1373,15 +1373,15 @@ accessed. Python regular expressions are accepted.",
     def visit_with(self, node):
         for ctx_mgr, _ in node.items:
             context = astroid.context.InferenceContext()
-            infered = safe_infer(ctx_mgr, context=context)
-            if infered is None or infered is astroid.Uninferable:
+            inferred = safe_infer(ctx_mgr, context=context)
+            if inferred is None or inferred is astroid.Uninferable:
                 continue
 
-            if isinstance(infered, bases.Generator):
+            if isinstance(inferred, bases.Generator):
                 # Check if we are dealing with a function decorated
                 # with contextlib.contextmanager.
                 if decorated_with(
-                    infered.parent, self.config.contextmanager_decorators
+                    inferred.parent, self.config.contextmanager_decorators
                 ):
                     continue
                 # If the parent of the generator is not the context manager itself,
@@ -1410,25 +1410,25 @@ accessed. Python regular expressions are accepted.",
                         break
                 else:
                     self.add_message(
-                        "not-context-manager", node=node, args=(infered.name,)
+                        "not-context-manager", node=node, args=(inferred.name,)
                     )
             else:
                 try:
-                    infered.getattr("__enter__")
-                    infered.getattr("__exit__")
+                    inferred.getattr("__enter__")
+                    inferred.getattr("__exit__")
                 except exceptions.NotFoundError:
-                    if isinstance(infered, astroid.Instance):
+                    if isinstance(inferred, astroid.Instance):
                         # If we do not know the bases of this class,
                         # just skip it.
-                        if not has_known_bases(infered):
+                        if not has_known_bases(inferred):
                             continue
                         # Just ignore mixin classes.
                         if self.config.ignore_mixin_members:
-                            if infered.name[-5:].lower() == "mixin":
+                            if inferred.name[-5:].lower() == "mixin":
                                 continue
 
                     self.add_message(
-                        "not-context-manager", node=node, args=(infered.name,)
+                        "not-context-manager", node=node, args=(inferred.name,)
                     )
 
     @check_messages("invalid-unary-operand-type")
@@ -1464,10 +1464,10 @@ accessed. Python regular expressions are accepted.",
             return
         if is_comprehension(node):
             return
-        infered = safe_infer(node)
-        if infered is None or infered is astroid.Uninferable:
+        inferred = safe_infer(node)
+        if inferred is None or inferred is astroid.Uninferable:
             return
-        if not supports_membership_test(infered):
+        if not supports_membership_test(inferred):
             self.add_message(
                 "unsupported-membership-test", args=node.as_string(), node=node
             )
@@ -1615,10 +1615,10 @@ class IterableChecker(BaseChecker):
             return
         if isinstance(node, astroid.DictComp):
             return
-        infered = safe_infer(node)
-        if infered is None or infered is astroid.Uninferable:
+        inferred = safe_infer(node)
+        if inferred is None or inferred is astroid.Uninferable:
             return
-        if not is_mapping(infered):
+        if not is_mapping(inferred):
             self.add_message("not-a-mapping", args=node.as_string(), node=node)
 
     @check_messages("not-an-iterable")

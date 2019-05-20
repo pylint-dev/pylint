@@ -374,14 +374,14 @@ class StdlibChecker(BaseChecker):
             )
 
     def _check_datetime(self, node):
-        """ Check that a datetime was infered.
+        """ Check that a datetime was inferred.
         If so, emit boolean-datetime warning.
         """
         try:
-            infered = next(node.infer())
+            inferred = next(node.infer())
         except astroid.InferenceError:
             return
-        if isinstance(infered, Instance) and infered.qname() == "datetime.time":
+        if isinstance(inferred, Instance) and inferred.qname() == "datetime.time":
             self.add_message("boolean-datetime", node=node)
 
     def _check_open_mode(self, node):

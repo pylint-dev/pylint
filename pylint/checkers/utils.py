@@ -722,11 +722,11 @@ def decorated_with_property(node: astroid.FunctionDef) -> bool:
 
 
 def _is_property_decorator(decorator: astroid.Name) -> bool:
-    for infered in decorator.infer():
-        if isinstance(infered, astroid.ClassDef):
-            if infered.root().name == BUILTINS_NAME and infered.name == "property":
+    for inferred in decorator.infer():
+        if isinstance(inferred, astroid.ClassDef):
+            if inferred.root().name == BUILTINS_NAME and inferred.name == "property":
                 return True
-            for ancestor in infered.ancestors():
+            for ancestor in inferred.ancestors():
                 if (
                     ancestor.name == "property"
                     and ancestor.root().name == BUILTINS_NAME
@@ -778,10 +778,10 @@ def unimplemented_abstract_methods(
         return {}
     for ancestor in mro:
         for obj in ancestor.values():
-            infered = obj
+            inferred = obj
             if isinstance(obj, astroid.AssignName):
-                infered = safe_infer(obj)
-                if not infered:
+                inferred = safe_infer(obj)
+                if not inferred:
                     # Might be an abstract function,
                     # but since we don't have enough information
                     # in order to take this decision, we're taking
@@ -789,10 +789,10 @@ def unimplemented_abstract_methods(
                     if obj.name in visited:
                         del visited[obj.name]
                     continue
-                if not isinstance(infered, astroid.FunctionDef):
+                if not isinstance(inferred, astroid.FunctionDef):
                     if obj.name in visited:
                         del visited[obj.name]
-            if isinstance(infered, astroid.FunctionDef):
+            if isinstance(inferred, astroid.FunctionDef):
                 # It's critical to use the original name,
                 # since after inferring, an object can be something
                 # else than expected, as in the case of the
@@ -801,9 +801,9 @@ def unimplemented_abstract_methods(
                 # class A:
                 #     def keys(self): pass
                 #     __iter__ = keys
-                abstract = is_abstract_cb(infered)
+                abstract = is_abstract_cb(inferred)
                 if abstract:
-                    visited[obj.name] = infered
+                    visited[obj.name] = inferred
                 elif not abstract and obj.name in visited:
                     del visited[obj.name]
     return visited

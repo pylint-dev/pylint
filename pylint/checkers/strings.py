@@ -457,7 +457,7 @@ class StringFormatChecker(BaseChecker):
         """
         for key, specifiers in fields:
             # Obtain the argument. If it can't be obtained
-            # or infered, skip this check.
+            # or inferred, skip this check.
             if key == "":
                 # {[0]} will have an unnamed argument, defaulting
                 # to 0. It will not be present in `named`, so use the value

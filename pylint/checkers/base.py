@@ -327,8 +327,8 @@ def _determine_function_name_type(node, config=None):
             isinstance(decorator, astroid.Attribute)
             and decorator.attrname in property_names
         ):
-            infered = utils.safe_infer(decorator)
-            if infered and infered.qname() in property_classes:
+            inferred = utils.safe_infer(decorator)
+            if inferred and inferred.qname() in property_classes:
                 return "attr"
         # If the function is decorated using the prop_method.{setter,getter}
         # form, treat it like an attribute as well.
@@ -759,12 +759,12 @@ class BasicErrorChecker(_BasicChecker):
         except astroid.InferenceError:
             return
 
-    def _check_inferred_class_is_abstract(self, infered, node):
-        if not isinstance(infered, astroid.ClassDef):
+    def _check_inferred_class_is_abstract(self, inferred, node):
+        if not isinstance(inferred, astroid.ClassDef):
             return
 
         klass = utils.node_frame_class(node)
-        if klass is infered:
+        if klass is inferred:
             # Don't emit the warning if the class is instantiated
             # in its own body or if the call is not an instance
             # creation. If the class is instantiated into its own
@@ -772,20 +772,20 @@ class BasicErrorChecker(_BasicChecker):
             return
 
         # __init__ was called
-        abstract_methods = _has_abstract_methods(infered)
+        abstract_methods = _has_abstract_methods(inferred)
 
         if not abstract_methods:
             return
 
-        metaclass = infered.metaclass()
+        metaclass = inferred.metaclass()
 
         if metaclass is None:
             # Python 3.4 has `abc.ABC`, which won't be detected
             # by ClassNode.metaclass()
-            for ancestor in infered.ancestors():
+            for ancestor in inferred.ancestors():
                 if ancestor.qname() == "abc.ABC":
                     self.add_message(
-                        "abstract-class-instantiated", args=(infered.name,), node=node
+                        "abstract-class-instantiated", args=(inferred.name,), node=node
                     )
                     break
 
@@ -793,7 +793,7 @@ class BasicErrorChecker(_BasicChecker):
 
         if metaclass.qname() in ABC_METACLASSES:
             self.add_message(
-                "abstract-class-instantiated", args=(infered.name,), node=node
+                "abstract-class-instantiated", args=(inferred.name,), node=node
             )
 
     def _check_yield_outside_func(self, node):
@@ -1404,7 +1404,7 @@ class BasicChecker(_BasicChecker):
             if argument is astroid.Uninferable:
                 return
             if argument is None:
-                # Nothing was infered.
+                # Nothing was inferred.
                 # Try to see if we have iter().
                 if isinstance(node.args[0], astroid.Call):
                     try:

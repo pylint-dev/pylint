@@ -346,10 +346,10 @@ def _called_in_methods(func, klass, methods):
         return False
     for method in methods:
         try:
-            infered = klass.getattr(method)
+            inferred = klass.getattr(method)
         except astroid.NotFoundError:
             continue
-        for infer_method in infered:
+        for infer_method in inferred:
             for call in infer_method.nodes_of_class(astroid.Call):
                 try:
                     bound = next(call.func.infer())
@@ -385,14 +385,14 @@ def _is_attribute_property(name, klass):
         if attr is astroid.Uninferable:
             continue
         try:
-            infered = next(attr.infer())
+            inferred = next(attr.infer())
         except astroid.InferenceError:
             continue
-        if isinstance(infered, astroid.FunctionDef) and decorated_with_property(
-            infered
+        if isinstance(inferred, astroid.FunctionDef) and decorated_with_property(
+            inferred
         ):
             return True
-        if infered.pytype() == property_name:
+        if inferred.pytype() == property_name:
             return True
     return False
 
@@ -410,7 +410,7 @@ def _safe_infer_call_result(node, caller, context=None):
     Safely infer the return value of a function.
 
     Returns None if inference failed or if there is some ambiguity (more than
-    one node has been inferred). Otherwise returns infered value.
+    one node has been inferred). Otherwise returns inferred value.
     """
     try:
         inferit = node.infer_call_result(caller, context=context)
@@ -418,7 +418,7 @@ def _safe_infer_call_result(node, caller, context=None):
     except astroid.InferenceError:
         return None  # inference failed
     except StopIteration:
-        return None  # no values infered
+        return None  # no values inferred
     try:
         next(inferit)
         return None  # there is ambiguity on the inferred node
@@ -1508,7 +1508,7 @@ a metaclass class method.",
                 for klass in expr.expr.infer():
                     if klass is astroid.Uninferable:
                         continue
-                    # The infered klass can be super(), which was
+                    # The inferred klass can be super(), which was
                     # assigned to a variable and the `__init__`
                     # was called later.
                     #
@@ -1730,9 +1730,9 @@ class SpecialMethodsChecker(BaseChecker):
         return False
 
     def _check_iter(self, node):
-        infered = _safe_infer_call_result(node, node)
-        if infered is not None:
-            if not self._is_iterator(infered):
+        inferred = _safe_infer_call_result(node, node)
+        if inferred is not None:
+            if not self._is_iterator(inferred):
                 self.add_message("non-iterator-returned", node=node)
 
     def _check_len(self, node):

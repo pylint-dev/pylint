@@ -124,7 +124,7 @@ class NewStyleConflictChecker(BaseChecker):
 
                 if klass is not supcls:
                     name = None
-                    # if supcls is not Uninferable, then supcls was infered
+                    # if supcls is not Uninferable, then supcls was inferred
                     # and use its name. Otherwise, try to look
                     # for call.args[0].name
                     if supcls:

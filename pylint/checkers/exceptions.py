@@ -47,7 +47,7 @@ def _annotated_unpack_infer(stmt, context=None):
     Recursively generate nodes inferred by the given statement.
     If the inferred value is a list or a tuple, recurse on the elements.
     Returns an iterator which yields tuples in the format
-    ('original node', 'infered node').
+    ('original node', 'inferred node').
     """
     if isinstance(stmt, (astroid.List, astroid.Tuple)):
         for elt in stmt.elts:
@@ -55,10 +55,10 @@ def _annotated_unpack_infer(stmt, context=None):
             if inferred and inferred is not astroid.Uninferable:
                 yield elt, inferred
         return
-    for infered in stmt.infer(context):
-        if infered is astroid.Uninferable:
+    for inferred in stmt.infer(context):
+        if inferred is astroid.Uninferable:
             continue
-        yield stmt, infered
+        yield stmt, inferred
 
 
 def _is_raising(body: typing.List) -> bool:
@@ -371,7 +371,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 return
 
         if not isinstance(exc, astroid.ClassDef):
-            # Don't emit the warning if the infered stmt
+            # Don't emit the warning if the inferred stmt
             # is None, but the exception handler is something else,
             # maybe it was redefined.
             if isinstance(exc, astroid.Const) and exc.value is None:
