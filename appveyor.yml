@@ -19,8 +19,7 @@ init:
   - ps: mkdir C:\tmp
 install:
   - 'powershell ./appveyor/install.ps1'
-  - "python -m pip install tox"
-  - 'python -m pip install wheel'
+  - 'python -m pip install -U setuptools pip tox wheel virtualenv'
   - 'python -m pip --version'
   - 'python -m tox --version'
 
