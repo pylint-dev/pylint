@@ -581,7 +581,6 @@ class TestRunTC(object):
     def test_stdin(self, input_path, module, expected_path):
         expected_output = (
             "************* Module {module}\n"
-            "{path}:1:0: C0111: Missing module docstring (missing-docstring)\n"
             "{path}:1:0: W0611: Unused import os (unused-import)\n\n"
         ).format(path=expected_path, module=module)
 
@@ -589,7 +588,8 @@ class TestRunTC(object):
             "pylint.lint._read_stdin", return_value="import os\n"
         ) as mock_stdin:
             self._test_output(
-                ["--from-stdin", input_path], expected_output=expected_output
+                ["--from-stdin", input_path, "--disable=all", "--enable=unused-import"],
+                expected_output=expected_output,
             )
             assert mock_stdin.call_count == 1
 
@@ -629,19 +629,27 @@ class TestRunTC(object):
             os.chdir(str(tmpdir))
             expected = (
                 "************* Module a.b\n"
-                "a/b.py:1:0: C0111: Missing module docstring (missing-docstring)\n"
                 "a/b.py:3:0: E0401: Unable to import 'a.d' (import-error)\n\n"
             )
 
             if write_bpy_to_disk:
                 # --from-stdin is not used here
-                self._test_output(["a/b.py"], expected_output=expected)
+                self._test_output(
+                    ["a/b.py", "--disable=all", "--enable=import-error"],
+                    expected_output=expected,
+                )
 
             # this code needs to work w/ and w/o a file named a/b.py on the
             # harddisk.
             with mock.patch("pylint.lint._read_stdin", return_value=b_code):
                 self._test_output(
-                    ["--from-stdin", join("a", "b.py")], expected_output=expected
+                    [
+                        "--from-stdin",
+                        join("a", "b.py"),
+                        "--disable=all",
+                        "--enable=import-error",
+                    ],
+                    expected_output=expected,
                 )
 
         finally:
