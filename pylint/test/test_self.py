@@ -23,10 +23,9 @@
 import configparser
 import contextlib
 import json
-import os
+import platform
 import re
 import subprocess
-import sys
 import tempfile
 import textwrap
 from io import StringIO
@@ -401,7 +400,7 @@ class TestRunTC(object):
         assert isinstance(output[0], dict)
         expected = {
             "obj": "",
-            "column": 15,
+            "column": 8 if platform.python_implementation() == "PyPy" else 15,
             "line": 1,
             "type": "error",
             "symbol": "syntax-error",
