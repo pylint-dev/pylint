@@ -401,7 +401,7 @@ class TestRunTC(object):
         assert isinstance(output[0], dict)
         expected = {
             "obj": "",
-            "column": 0,
+            "column": 15,
             "line": 1,
             "type": "error",
             "symbol": "syntax-error",

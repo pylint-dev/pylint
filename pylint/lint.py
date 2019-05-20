@@ -66,6 +66,7 @@ import operator
 import os
 import sys
 import tokenize
+import traceback
 import warnings
 from io import TextIOWrapper
 
@@ -1176,13 +1177,14 @@ class PyLinter(
         except astroid.AstroidSyntaxError as ex:
             # pylint: disable=no-member
             self.add_message(
-                "syntax-error", line=getattr(ex.error, "lineno", 0), args=str(ex.error)
+                "syntax-error",
+                line=getattr(ex.error, "lineno", 0),
+                col_offset=getattr(ex.error, "offset", None),
+                args=str(ex.error),
             )
         except astroid.AstroidBuildingException as ex:
             self.add_message("parse-error", args=ex)
         except Exception as ex:
-            import traceback
-
             traceback.print_exc()
             self.add_message("astroid-error", args=(ex.__class__, ex))
 
