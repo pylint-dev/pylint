@@ -117,10 +117,16 @@ Release date: TBA
 
   Close #2877
 
+* Fixed a pragma comment on its own physical line being ignored when part
+  of a logical line with the previous physical line.
+
+  Close #199
+
 * Fixed false `undefined-loop-variable` for a function defined in the loop,
   that uses the variable defined in that loop.
 
   Close #202
+
 
 What's New in Pylint 2.3.0?
 ===========================
