@@ -147,6 +147,10 @@ Release date: TBA
 
   Close #202
 
+* Fixed `unused-argument` and `function-redefined` getting raised for
+  functions decorated with `typing.overload`.
+
+  Close #1581
 
 What's New in Pylint 2.3.0?
 ===========================

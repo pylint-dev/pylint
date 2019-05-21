@@ -1225,3 +1225,15 @@ def is_subclass_of(child: astroid.ClassDef, parent: astroid.ClassDef) -> bool:
         except _NonDeducibleTypeHierarchy:
             continue
     return False
+
+
+@lru_cache(maxsize=1024)
+def is_overload_stub(node: astroid.node_classes.NodeNG) -> bool:
+    """Check if a node if is a function stub decorated with typing.overload.
+
+    :param node: Node to check.
+    :returns: True if node is an overload function stub. False otherwise.
+    """
+    return isinstance(node, astroid.FunctionDef) and decorated_with(
+        node, ["typing.overload"]
+    )
