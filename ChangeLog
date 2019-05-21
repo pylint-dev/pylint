@@ -7,6 +7,10 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Don't emit ``attribute-defined-outside-init`` for variables defined in setters.
+
+  Close #409
+
 * Syntax errors report the column number.
 
   Close #2914

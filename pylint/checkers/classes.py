@@ -811,7 +811,11 @@ a metaclass class method.",
         defining_methods = self.config.defining_attr_methods
         current_module = cnode.root()
         for attr, nodes in cnode.instance_attrs.items():
-            # skip nodes which are not in the current module and it may screw up
+            # Exclude `__dict__` as it is already defined.
+            if attr == "__dict__":
+                continue
+
+            # Skip nodes which are not in the current module and it may screw up
             # the output, while it's not worth it
             nodes = [
                 n
@@ -821,11 +825,14 @@ a metaclass class method.",
             ]
             if not nodes:
                 continue  # error detected by typechecking
-            # check if any method attr is defined in is a defining method
-            if any(node.frame().name in defining_methods for node in nodes):
-                continue
-            # Exclude `__dict__` as it is already defined.
-            if attr == "__dict__":
+
+            # Check if any method attr is defined in is a defining method
+            # or if we have the attribute defined in a setter.
+            frames = (node.frame() for node in nodes)
+            if any(
+                frame.name in defining_methods or is_property_setter(frame)
+                for frame in frames
+            ):
                 continue
 
             # check attribute is defined in a parent's __init__
