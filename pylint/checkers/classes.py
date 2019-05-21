@@ -55,6 +55,7 @@ from pylint.checkers.utils import (
     is_builtin_object,
     is_comprehension,
     is_iterable,
+    is_property_setter,
     node_frame_class,
     overrides_a_method,
     safe_infer,
@@ -1564,13 +1565,8 @@ a metaclass class method.",
             return
         # Ignore setters, they have an implicit extra argument,
         # which shouldn't be taken in consideration.
-        if method1.decorators:
-            for decorator in method1.decorators.nodes:
-                if (
-                    isinstance(decorator, astroid.Attribute)
-                    and decorator.attrname == "setter"
-                ):
-                    return
+        if is_property_setter(method1):
+            return
 
         if _different_parameters(
             refmethod, method1, dummy_parameter_regex=self._dummy_rgx

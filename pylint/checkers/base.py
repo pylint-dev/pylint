@@ -52,6 +52,7 @@ from astroid.arguments import CallSite
 import pylint.utils as lint_utils
 from pylint import checkers, exceptions, interfaces
 from pylint.checkers import utils
+from pylint.checkers.utils import is_property_deleter, is_property_setter
 from pylint.reporters.ureports import nodes as reporter_nodes
 
 
@@ -316,6 +317,12 @@ def _determine_function_name_type(node, config=None):
     property_classes, property_names = _get_properties(config)
     if not node.is_method():
         return "function"
+
+    if is_property_setter(node) or is_property_deleter(node):
+        # If the function is decorated using the prop_method.{setter,getter}
+        # form, treat it like an attribute as well.
+        return "attr"
+
     if node.decorators:
         decorators = node.decorators.nodes
     else:
@@ -330,13 +337,6 @@ def _determine_function_name_type(node, config=None):
             inferred = utils.safe_infer(decorator)
             if inferred and inferred.qname() in property_classes:
                 return "attr"
-        # If the function is decorated using the prop_method.{setter,getter}
-        # form, treat it like an attribute as well.
-        elif isinstance(decorator, astroid.Attribute) and decorator.attrname in (
-            "setter",
-            "deleter",
-        ):
-            return "attr"
     return "method"
 
 
@@ -1915,19 +1915,11 @@ class DocStringChecker(_BasicChecker):
         if self.config.no_docstring_rgx.match(node.name) is None:
             self._check_docstring("class", node)
 
-    @staticmethod
-    def _is_setter_or_deleter(node):
-        names = {"setter", "deleter"}
-        for decorator in node.decorators.nodes:
-            if isinstance(decorator, astroid.Attribute) and decorator.attrname in names:
-                return True
-        return False
-
     @utils.check_messages("missing-docstring", "empty-docstring")
     def visit_functiondef(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             ftype = "method" if node.is_method() else "function"
-            if node.decorators and self._is_setter_or_deleter(node):
+            if is_property_setter(node) or is_property_deleter(node):
                 return
 
             if isinstance(node.parent.frame(), astroid.ClassDef):

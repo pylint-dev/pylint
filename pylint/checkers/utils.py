@@ -707,7 +707,7 @@ def error_of_type(handler: astroid.ExceptHandler, error_type) -> bool:
 
 
 def decorated_with_property(node: astroid.FunctionDef) -> bool:
-    """ Detect if the given function node is decorated with a property. """
+    """Detect if the given function node is decorated with a property. """
     if not node.decorators:
         return False
     for decorator in node.decorators.nodes:
@@ -719,6 +719,26 @@ def decorated_with_property(node: astroid.FunctionDef) -> bool:
         except astroid.InferenceError:
             pass
     return False
+
+
+def _is_property_kind(node, kind):
+    if not isinstance(node, (astroid.UnboundMethod, astroid.FunctionDef)):
+        return False
+    if node.decorators:
+        for decorator in node.decorators.nodes:
+            if isinstance(decorator, astroid.Attribute) and decorator.attrname == kind:
+                return True
+    return False
+
+
+def is_property_setter(node: astroid.FunctionDef) -> bool:
+    """Check if the given node is a property setter"""
+    return _is_property_kind(node, "setter")
+
+
+def is_property_deleter(node: astroid.FunctionDef) -> bool:
+    """Check if the given node is a property deleter"""
+    return _is_property_kind(node, "deleter")
 
 
 def _is_property_decorator(decorator: astroid.Name) -> bool:
