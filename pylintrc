@@ -40,7 +40,7 @@ confidence=
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
 # multiple time. See also the "--disable" option for examples.
-#enable=
+enable=use-symbolic-message-instead,useless-supression,fixme
 
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifiers separated by comma (,) or put this
@@ -55,7 +55,6 @@ confidence=
 disable=
     attribute-defined-outside-init,
     duplicate-code,
-    fixme,
     invalid-name,
     missing-docstring,
     protected-access,

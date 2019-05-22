@@ -40,7 +40,6 @@ def _astroid_wrapper(func, modname):
 
 def interfaces(node, herited=True, handler_func=_iface_hdlr):
     """Return an iterator on interfaces implemented by the given class node."""
-    # FIXME: what if __implements__ = (MyIFace, MyParent.__implements__)...
     try:
         implements = bases.Instance(node).getattr("__implements__")[0]
     except exceptions.NotFoundError:
@@ -265,8 +264,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             fullname = "%s.%s" % (basename, name[0])
             if fullname.find(".") > -1:
                 try:
-                    # TODO: don't use get_module_part,
-                    # missing package precedence
                     fullname = modutils.get_module_part(fullname, context_file)
                 except ImportError:
                     continue
@@ -346,7 +343,6 @@ def project_from_files(
         ast = func_wrapper(astroid_manager.ast_from_file, fpath)
         if ast is None:
             continue
-        # XXX why is first file defining the project.path ?
         project.path = project.path or ast.file
         project.add_module(ast)
         base_name = ast.name

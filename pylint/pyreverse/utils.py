@@ -203,13 +203,14 @@ class LocalsVisitor(ASTWalker):
 
     def __init__(self):
         ASTWalker.__init__(self, self)
-        self._visited = {}
+        self._visited = set()
 
     def visit(self, node):
         """launch the visit starting from the given node"""
         if node in self._visited:
             return None
-        self._visited[node] = 1  # FIXME: use set ?
+
+        self._visited.add(node)
         methods = self.get_callbacks(node)
         if methods[0] is not None:
             methods[0](node)

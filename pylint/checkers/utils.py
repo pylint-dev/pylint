@@ -231,15 +231,14 @@ def get_all_elements(
     """Recursively returns all atoms in nested lists and tuples."""
     if isinstance(node, (astroid.Tuple, astroid.List)):
         for child in node.elts:
-            for e in get_all_elements(child):
-                yield e
+            yield from get_all_elements(child)
     else:
         yield node
 
 
 def clobber_in_except(
     node: astroid.node_classes.NodeNG
-) -> Tuple[bool, Tuple[str, str]]:
+) -> Tuple[bool, Optional[Tuple[str, str]]]:
     """Checks if an assignment node in an except handler clobbers an existing
     variable.
 
@@ -251,7 +250,7 @@ def clobber_in_except(
     if isinstance(node, astroid.AssignName):
         name = node.name
         if is_builtin(name):
-            return (True, (name, "builtins"))
+            return True, (name, "builtins")
 
         stmts = node.lookup(name)[1]
         if stmts and not isinstance(
@@ -1027,8 +1026,6 @@ def _supports_protocol(
         if protocol_callback(value):
             return True
 
-    # TODO: this is not needed in astroid 2.0, where we can
-    # check the type using a virtual base class instead.
     if (
         isinstance(value, _bases.Proxy)
         and isinstance(value._proxied, astroid.BaseInstance)
@@ -1072,7 +1069,6 @@ def supports_delitem(value: astroid.node_classes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_delitem_protocol)
 
 
-# TODO(cpopa): deprecate these or leave them as aliases?
 @lru_cache(maxsize=1024)
 def safe_infer(
     node: astroid.node_classes.NodeNG, context=None
@@ -1104,7 +1100,6 @@ def has_known_bases(klass: astroid.ClassDef, context=None) -> bool:
         pass
     for base in klass.bases:
         result = safe_infer(base, context=context)
-        # TODO: check for A->B->A->B pattern in class structure too?
         if (
             not isinstance(result, astroid.ClassDef)
             or result is klass

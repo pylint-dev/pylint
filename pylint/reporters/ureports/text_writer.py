@@ -71,7 +71,7 @@ class TextWriter(BaseWriter):
         format_strings = format_strings.split(" ")
         table_linesep = "\n+" + "+".join(["-" * w for w in cols_width]) + "+\n"
         headsep = "\n+" + "+".join(["=" * w for w in cols_width]) + "+\n"
-        # FIXME: layout.cheaders
+
         self.write(table_linesep)
         for index, line in enumerate(table_content):
             self.write("|")

@@ -13,7 +13,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-# pylint: disable=W0622
+# pylint: disable=redefined-builtin
 """a similarities / code duplication command line tool and pylint checker
 """
 
@@ -97,11 +97,12 @@ class Similar:
             print()
             print(num, "similar lines in", len(couples), "files")
             couples = sorted(couples)
+            lineset = idx = None
             for lineset, idx in couples:
                 print("==%s:%s" % (lineset.name, idx))
-            # pylint: disable=W0631
-            for line in lineset._real_lines[idx : idx + num]:
-                print("  ", line.rstrip())
+            if lineset:
+                for line in lineset._real_lines[idx : idx + num]:
+                    print("  ", line.rstrip())
             nb_lignes_dupliquees += num * (len(couples) - 1)
         nb_total_lignes = sum([len(lineset) for lineset in self.linesets])
         print(
@@ -192,8 +193,6 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
             if current_line_is_import:
                 line = ""
         if ignore_comments:
-            # XXX should use regex in checkers/format to avoid cutting
-            # at a "#" in a string
             line = line.split("#", 1)[0].strip()
         strippedlines.append(line)
     return strippedlines
@@ -380,12 +379,15 @@ class SimilarChecker(BaseChecker, Similar):
         stats = self.stats
         for num, couples in self._compute_sims():
             msg = []
+            lineset = idx = None
             for lineset, idx in couples:
                 msg.append("==%s:%s" % (lineset.name, idx))
             msg.sort()
-            # pylint: disable=W0631
-            for line in lineset._real_lines[idx : idx + num]:
-                msg.append(line.rstrip())
+
+            if lineset:
+                for line in lineset._real_lines[idx : idx + num]:
+                    msg.append(line.rstrip())
+
             self.add_message("R0801", args=(len(couples), "\n".join(msg)))
             duplicated += num * (len(couples) - 1)
         stats["nb_duplicated_lines"] = duplicated

@@ -929,7 +929,7 @@ a metaclass class method.",
 
         # check if the method is hidden by an attribute
         try:
-            overridden = klass.instance_attr(node.name)[0]  # XXX
+            overridden = klass.instance_attr(node.name)[0]
             overridden_frame = overridden.frame()
             if (
                 isinstance(overridden_frame, astroid.FunctionDef)
@@ -1268,8 +1268,7 @@ a metaclass class method.",
 
             klass = node_frame_class(node)
 
-            # XXX infer to be more safe and less dirty ??
-            # in classes, check we are not getting a parent method
+            # In classes, check we are not getting a parent method
             # through the class object or through super
             callee = node.expr.as_string()
 
@@ -1331,7 +1330,6 @@ a metaclass class method.",
 
     def _check_accessed_members(self, node, accessed):
         """check that accessed members are defined"""
-        # XXX refactor, probably much simpler now that E0201 is in type checker
         excs = ("AttributeError", "Exception", "BaseException")
         for attr, nodes in accessed.items():
             try:

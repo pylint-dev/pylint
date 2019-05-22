@@ -132,8 +132,6 @@ def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
 
 @singledispatch
 def _node_names(node):
-    # TODO: maybe we need an ABC for checking if an object is a scoped node
-    # or not?
     if not hasattr(node, "locals"):
         return []
     return node.locals.keys()
@@ -451,7 +449,6 @@ def _determine_callable(callable_obj):
     # and Function inherits Lambda.
     parameters = 0
     if hasattr(callable_obj, "implicit_parameters"):
-        # TODO: replace with a Callable check
         parameters = callable_obj.implicit_parameters()
     if isinstance(callable_obj, astroid.BoundMethod):
         # Bound methods have an extra implicit 'self' argument.
@@ -881,7 +878,6 @@ accessed. Python regular expressions are accepted.",
                     missingattr.add((owner, name))
                     continue
             except AttributeError:
-                # XXX method / function
                 continue
             except exceptions.NotFoundError:
                 # This can't be moved before the actual .getattr call,
@@ -994,9 +990,6 @@ accessed. Python regular expressions are accepted.",
         # the lhs of the Attribute node and search the attribute
         # there. If that attribute is a property or a subclass of properties,
         # then most likely it's not callable.
-
-        # TODO: since astroid doesn't understand descriptors very well
-        # we will not handle them here, right now.
 
         expr = node.func.expr
         klass = safe_infer(expr)
@@ -1179,7 +1172,7 @@ accessed. Python regular expressions are accepted.",
                 else:
                     parameters[i][1] = True
             elif keyword in kwparams:
-                if kwparams[keyword][1]:  # XXX is that even possible?
+                if kwparams[keyword][1]:
                     # Duplicate definition of function parameter.
                     self.add_message(
                         "redundant-keyword-arg",
@@ -1216,7 +1209,6 @@ accessed. Python regular expressions are accepted.",
                     display_name = "<tuple>"
                 else:
                     display_name = repr(name)
-                # TODO(cpopa): this should be removed after PyCQA/astroid/issues/177
                 if not has_no_context_positional_variadic:
                     self.add_message(
                         "no-value-for-parameter",
@@ -1631,7 +1623,6 @@ class IterableChecker(BaseChecker):
 
     @check_messages("not-an-iterable")
     def visit_yieldfrom(self, node):
-        # TODO: hack which can be removed once we support decorators inference
         if self._is_asyncio_coroutine(node.value):
             return
         self._check_iterable(node.value)
