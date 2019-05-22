@@ -40,7 +40,7 @@ from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, 
 
 import astroid
 from astroid import bases as _bases
-from astroid import scoped_nodes
+from astroid import helpers, scoped_nodes
 from astroid.exceptions import _NonDeducibleTypeHierarchy
 
 import _string  # pylint: disable=wrong-import-position, wrong-import-order
@@ -1220,7 +1220,7 @@ def is_subclass_of(child: astroid.ClassDef, parent: astroid.ClassDef) -> bool:
 
     for ancestor in child.ancestors():
         try:
-            if astroid.helpers.is_subtype(ancestor, parent):
+            if helpers.is_subtype(ancestor, parent):
                 return True
         except _NonDeducibleTypeHierarchy:
             continue
