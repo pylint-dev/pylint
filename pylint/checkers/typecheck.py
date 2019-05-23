@@ -956,6 +956,11 @@ accessed. Python regular expressions are accepted.",
             and not function_node.decorators
         ):
             return
+
+        if isinstance(function_node, astroid.BoundMethod):
+            # Unwrap to get the actual function object
+            function_node = function_node._proxied._proxied
+
         if (
             function_node.is_generator()
             or function_node.is_abstract(pass_is_abstract=False)
