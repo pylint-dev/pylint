@@ -49,14 +49,6 @@ import time
 
 from pylint import utils
 
-# TODO(cpopa): this module contains the logic for the
-# configuration parser and for the command line parser,
-# but it's really coupled to optparse's internals.
-# The code was copied almost verbatim from logilab.common,
-# in order to not depend on it anymore and it will definitely
-# need a cleanup. It could be completely reengineered as well.
-
-
 USER_HOME = os.path.expanduser("~")
 if "PYLINTHOME" in os.environ:
     PYLINT_HOME = os.environ["PYLINTHOME"]
@@ -245,7 +237,6 @@ def _validate(value, optdict, name=""):
     try:
         _type = optdict["type"]
     except KeyError:
-        # FIXME
         return value
     return _call_validator(_type, optdict, name, value)
 
@@ -751,7 +742,6 @@ class OptionsManagerMixIn:
                 try:
                     self.global_set_option(option, value)
                 except (KeyError, optparse.OptionError):
-                    # TODO handle here undeclared options appearing in the config file
                     continue
 
     def load_configuration(self, **kwargs):

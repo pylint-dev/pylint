@@ -127,8 +127,8 @@ def expand_modules(files_or_modules, black_list, black_list_re):
                 if filepath is None:
                     continue
             except (ImportError, SyntaxError) as ex:
-                # FIXME p3k : the SyntaxError is a Python bug and should be
-                # removed as soon as possible http://bugs.python.org/issue10588
+                # The SyntaxError is a Python bug and should be
+                # removed once we move away from imp.find_module: http://bugs.python.org/issue10588
                 errors.append({"key": "fatal", "mod": modname, "ex": ex})
                 continue
 

@@ -288,11 +288,8 @@ class LoggingChecker(checkers.BaseChecker):
             # formatting characters - it's used verbatim. Don't check any further.
             return
         format_string = node.args[format_arg].value
-        if not isinstance(format_string, str):
-            # If the log format is constant non-string (e.g. logging.debug(5)),
-            # ensure there are no arguments.
-            required_num_args = 0
-        else:
+        required_num_args = 0
+        if isinstance(format_string, str):
             try:
                 if self._format_style == "old":
                     keyword_args, required_num_args, _, _ = utils.parse_format_string(
@@ -339,7 +336,9 @@ def is_complex_format_str(node):
         bool: True if inferred string uses complex formatting, False otherwise
     """
     inferred = utils.safe_infer(node)
-    if inferred is None or not isinstance(inferred.value, str):
+    if inferred is None or not (
+        isinstance(inferred, astroid.Const) and isinstance(inferred.value, str)
+    ):
         return True
     try:
         parsed = list(string.Formatter().parse(inferred.value))

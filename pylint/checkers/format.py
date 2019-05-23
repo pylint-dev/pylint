@@ -273,8 +273,8 @@ def _get_indent_length(line):
 def _get_indent_hint_line(bar_positions, bad_position):
     """Return a line with |s for each of the positions in the given lists."""
     if not bar_positions:
-        return ("", "")
-    # TODO tabs should not be replaced by some random (8) number of spaces
+        return "", ""
+
     bar_positions = [_get_indent_length(indent) for indent in bar_positions]
     bad_position = _get_indent_length(bad_position)
     delta_message = ""
@@ -294,7 +294,7 @@ def _get_indent_hint_line(bar_positions, bad_position):
     line = [" "] * (markers[-1][0] + 1)
     for position, marker in markers:
         line[position] = marker
-    return ("".join(line), delta_message)
+    return "".join(line), delta_message
 
 
 class _ContinuedIndent:
@@ -1168,7 +1168,7 @@ class FormatChecker(BaseTokenChecker):
         if not node.is_statement:
             return
         if not node.root().pure_python:
-            return  # XXX block visit of child nodes
+            return
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno

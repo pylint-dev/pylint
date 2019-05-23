@@ -65,3 +65,16 @@ class Mixin(object):
 class F:
     def func(self):
         self.__dict__ = {'foo': 'bar'}
+
+
+class Mine:
+    def __init__(self, param):
+        self.prop = param
+
+    @property
+    def prop(self):
+        return self.__prop
+
+    @prop.setter
+    def prop(self, value):
+        self.__prop = value

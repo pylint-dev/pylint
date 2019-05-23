@@ -334,10 +334,10 @@ class SpellingChecker(BaseTokenChecker):
                 del suggestions[self.config.max_spelling_suggestions :]
 
                 line_segment = line[word_start_at:]
-                m = re.search(r"(\W|^)(%s)(\W|$)" % word, line_segment)
-                if m:
+                match = re.search(r"(\W|^)(%s)(\W|$)" % word, line_segment)
+                if match:
                     # Start position of second group in regex.
-                    col = m.regs[2][0]
+                    col = match.regs[2][0]
                 else:
                     col = line_segment.index(word)
 

@@ -45,10 +45,10 @@ class FileState:
         #
         # 1.   def meth8(self):
         # 2.        """test late disabling"""
-        # 3.        # pylint: disable=E1102
-        # 4.        print self.blip
-        # 5.        # pylint: disable=E1101
-        # 6.        print self.bla
+        # 3.        pylint: disable=not-callable
+        # 4.        print(self.blip)
+        # 5.        pylint: disable=no-member
+        # 6.        print(self.bla)
         #
         # E1102 should be disabled from line 1 to 6 while E1101 from line 5 to 6
         #

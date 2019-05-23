@@ -227,10 +227,12 @@ class StringFormatChecker(BaseChecker):
             required_keys, required_num_args, required_key_types, required_arg_types = utils.parse_format_string(
                 format_string
             )
-        except utils.UnsupportedFormatCharacter as e:
-            c = format_string[e.index]
+        except utils.UnsupportedFormatCharacter as exc:
+            formatted = format_string[exc.index]
             self.add_message(
-                "bad-format-character", node=node, args=(c, ord(c), e.index)
+                "bad-format-character",
+                node=node,
+                args=(formatted, ord(formatted), exc.index),
             )
             return
         except utils.IncompleteFormatString:
@@ -368,13 +370,11 @@ class StringFormatChecker(BaseChecker):
             )
 
     def _check_new_format(self, node, func):
-        """ Check the new string formatting. """
-        # TODO: skip (for now) format nodes which don't have
-        #       an explicit string on the left side of the format operation.
-        #       We do this because our inference engine can't properly handle
-        #       redefinitions of the original string.
-        #       For more details, see issue 287.
-        #
+        """Check the new string formatting. """
+        # Skip ormat nodes which don't have an explicit string on the
+        # left side of the format operation.
+        # We do this because our inference engine can't properly handle
+        # redefinitions of the original string.
         # Note that there may not be any left side at all, if the format method
         # has been assigned to another variable. See issue 351. For example:
         #
@@ -593,9 +593,6 @@ class StringConstantChecker(BaseTokenChecker):
     # Unicode or byte strings.
     ESCAPE_CHARACTERS = "abfnrtvx\n\r\t\\'\"01234567"
 
-    # TODO(mbp): Octal characters are quite an edge case today; people may
-    # prefer a separate warning where they occur.  \0 should be allowed.
-
     # Characters that have a special meaning after a backslash but only in
     # Unicode strings.
     UNICODE_ESCAPE_CHARACTERS = "uUN"
@@ -673,14 +670,14 @@ class StringConstantChecker(BaseTokenChecker):
     def process_string_token(self, token, start_row):
         quote_char = None
         index = None
-        for index, c in enumerate(token):
-            if c in "'\"":
-                quote_char = c
+        for index, char in enumerate(token):
+            if char in "'\"":
+                quote_char = char
                 break
         if quote_char is None:
             return
 
-        prefix = token[:index].lower()  #  markers like u, b, r.
+        prefix = token[:index].lower()  # markers like u, b, r.
         after_prefix = token[index:]
         if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char:
             string_body = after_prefix[3:-3]
@@ -706,20 +703,15 @@ class StringConstantChecker(BaseTokenChecker):
         # end-of-line, or one of the letters that introduce a special escape
         # sequence <http://docs.python.org/reference/lexical_analysis.html>
         #
-        # TODO(mbp): Maybe give a separate warning about the rarely-used
-        # \a \b \v \f?
-        #
-        # TODO(mbp): We could give the column of the problem character, but
-        # add_message doesn't seem to have a way to pass it through at present.
-        i = 0
+        index = 0
         while True:
-            i = string_body.find("\\", i)
-            if i == -1:
+            index = string_body.find("\\", index)
+            if index == -1:
                 break
             # There must be a next character; having a backslash at the end
             # of the string would be a SyntaxError.
-            next_char = string_body[i + 1]
-            match = string_body[i : i + 2]
+            next_char = string_body[index + 1]
+            match = string_body[index : index + 2]
             if next_char in self.UNICODE_ESCAPE_CHARACTERS:
                 if "u" in prefix:
                     pass
@@ -730,15 +722,19 @@ class StringConstantChecker(BaseTokenChecker):
                         "anomalous-unicode-escape-in-string",
                         line=start_row,
                         args=(match,),
+                        col_offset=index,
                     )
             elif next_char not in self.ESCAPE_CHARACTERS:
                 self.add_message(
-                    "anomalous-backslash-in-string", line=start_row, args=(match,)
+                    "anomalous-backslash-in-string",
+                    line=start_row,
+                    args=(match,),
+                    col_offset=index,
                 )
             # Whether it was a valid escape or not, backslash followed by
             # another character can always be consumed whole: the second
             # character can never be the start of a new backslash escape.
-            i += 2
+            index += 2
 
 
 def register(linter):

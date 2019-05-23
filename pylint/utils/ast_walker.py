@@ -26,7 +26,6 @@ class ASTWalker:
 
     def add_checker(self, checker):
         """walk to the checker's dir and collect visit and leave methods"""
-        # XXX : should be possible to merge needed_checkers and add_checker
         vcids = set()
         lcids = set()
         visits = self.visit_events
@@ -71,10 +70,10 @@ class ASTWalker:
         if astroid.is_statement:
             self.nbstatements += 1
         # generate events for this node on each checker
-        for cb in visit_events or ():
-            cb(astroid)
+        for callback in visit_events or ():
+            callback(astroid)
         # recurse on children
         for child in astroid.get_children():
             self.walk(child)
-        for cb in leave_events or ():
-            cb(astroid)
+        for callback in leave_events or ():
+            callback(astroid)

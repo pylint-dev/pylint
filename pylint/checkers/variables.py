@@ -214,11 +214,11 @@ def _detect_global_scope(node, frame, defframe):
         return False
 
     break_scopes = []
-    for s in (scope, def_scope):
+    for current_scope in (scope, def_scope):
         # Look for parent scopes. If there is anything different
         # than a module or a class scope, then they frames don't
         # share a global scope.
-        parent_scope = s
+        parent_scope = current_scope
         while parent_scope:
             if not isinstance(parent_scope, (astroid.ClassDef, astroid.Module)):
                 break_scopes.append(parent_scope)
@@ -252,7 +252,6 @@ def _fix_dot_imports(not_consumed):
     like 'xml' (when we have both 'xml.etree' and 'xml.sax'), to 'xml.etree'
     and 'xml.sax' respectively.
     """
-    # TODO: this should be improved in issue astroid #46
     names = {}
     for name, stmts in not_consumed.items():
         if any(
@@ -984,7 +983,6 @@ class VariablesChecker(BaseChecker):
             return
 
         # Ignore names imported by the global statement.
-        # FIXME: should only ignore them if it's assigned latter
         if isinstance(stmt, (astroid.Global, astroid.Import, astroid.ImportFrom)):
             # Detect imports, assigned to global statements.
             if global_names and _import_name_is_global(stmt, global_names):
@@ -1186,6 +1184,16 @@ class VariablesChecker(BaseChecker):
         if not self.linter.is_message_enabled("undefined-loop-variable"):
             return
         astmts = [stmt for stmt in node.lookup(name)[1] if hasattr(stmt, "assign_type")]
+        # If this variable usage exists inside a function definition
+        # that exists in the same loop,
+        # the usage is safe because the function will not be defined either if
+        # the variable is not defined.
+        scope = node.scope()
+        if isinstance(scope, astroid.FunctionDef) and any(
+            asmt.statement().parent_of(scope) for asmt in astmts
+        ):
+            return
+
         # filter variables according their respective scope test is_statement
         # and parent to avoid #74747. This is not a total fix, which would
         # introduce a mechanism similar to special attribute lookup in
@@ -1845,8 +1853,6 @@ class VariablesChecker(BaseChecker):
             except astroid.InferenceError:
                 return None
         if module_names:
-            # FIXME: other message if name is not the latest part of
-            # module_names ?
             modname = module.name if module else "__dict__"
             self.add_message(
                 "no-name-in-module", node=node, args=(".".join(module_names), modname)

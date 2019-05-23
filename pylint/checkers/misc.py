@@ -18,8 +18,6 @@
 
 """Check source code is ascii only or has an encoding declaration (PEP 263)"""
 
-# pylint: disable=W0511
-
 import re
 import tokenize
 
@@ -118,7 +116,7 @@ class EncodingChecker(BaseChecker):
             self.add_message(
                 "invalid-encoded-data", line=lineno, args=(file_encoding, ex.args[2])
             )
-        except LookupError as ex:
+        except LookupError:
             if line.startswith("#") and "coding" in line and file_encoding in line:
                 self.add_message(
                     "syntax-error",

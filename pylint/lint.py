@@ -101,7 +101,6 @@ def _ast_from_string(data, filepath, modname):
 
 def _read_stdin():
     # https://mail.python.org/pipermail/python-list/2012-November/634424.html
-    # FIXME should this try to check the file's declared encoding?
     sys.stdin = TextIOWrapper(sys.stdin.detach(), encoding="utf-8")
     return sys.stdin.read()
 
@@ -765,7 +764,6 @@ class PyLinter(
         checker.load_defaults()
 
         # Register the checker, but disable all of its messages.
-        # TODO(cpopa): we should have a better API for this.
         if not getattr(checker, "enabled", True):
             self.disable(checker.name)
 
@@ -833,7 +831,18 @@ class PyLinter(
         level options
         """
         control_pragmas = {"disable", "enable"}
+        prev_line = None
+        saw_newline = True
+        seen_newline = True
         for (tok_type, content, start, _, _) in tokens:
+            if prev_line and prev_line != start[0]:
+                saw_newline = seen_newline
+                seen_newline = False
+
+            prev_line = start[0]
+            if tok_type in (tokenize.NL, tokenize.NEWLINE):
+                seen_newline = True
+
             if tok_type != tokenize.COMMENT:
                 continue
             match = OPTION_RGX.search(content)
@@ -888,6 +897,10 @@ class PyLinter(
                             self.add_message("file-ignored", line=start[0])
                             self._ignore_file = True
                             return
+                        # If we did not see a newline between the previous line and now,
+                        # we saw a backslash so treat the two lines as one.
+                        if not saw_newline:
+                            meth(msgid, "module", start[0] - 1)
                         meth(msgid, "module", start[0])
                     except exceptions.UnknownMessageError:
                         self.add_message("bad-option-value", args=msgid, line=start[0])
@@ -1121,9 +1134,7 @@ class PyLinter(
                 ast_node = self.get_ast(filepath, modname)
                 if ast_node is None:
                     continue
-                # XXX to be correct we need to keep module_msgs_state for every
-                # analyzed module (the problem stands with localized messages which
-                # are only detected in the .close step)
+
                 self.file_state = FileState(descr["basename"])
                 self._ignore_file = False
                 # fix the current file (if the source file was not available or
@@ -1238,7 +1249,6 @@ class PyLinter(
         if self.file_state.base_name is not None:
             # load previous results if any
             previous_stats = config.load_results(self.file_state.base_name)
-            # XXX code below needs refactoring to be more reporter agnostic
             self.reporter.on_close(self.stats, previous_stats)
             if self.config.reports:
                 sect = self.make_reports(self.stats, previous_stats)
@@ -1731,7 +1741,7 @@ group are mutually exclusive.",
         self.linter.print_full_documentation()
         sys.exit(0)
 
-    def cb_list_messages(self, option, optname, value, parser):  # FIXME
+    def cb_list_messages(self, option, optname, value, parser):
         """optik callback for printing available messages"""
         self.linter.msgs_store.list_messages()
         sys.exit(0)

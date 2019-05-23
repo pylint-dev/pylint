@@ -254,7 +254,6 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
             isinstance(inferred, astroid.Instance)
             and inferred.__class__.__name__ != "Instance"
         ):
-            # TODO: explain why
             self.visit_default(tuple_node)
         else:
             self.visit(inferred)

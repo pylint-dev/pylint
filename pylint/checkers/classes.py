@@ -55,6 +55,7 @@ from pylint.checkers.utils import (
     is_builtin_object,
     is_comprehension,
     is_iterable,
+    is_property_setter,
     node_frame_class,
     overrides_a_method,
     safe_infer,
@@ -810,7 +811,11 @@ a metaclass class method.",
         defining_methods = self.config.defining_attr_methods
         current_module = cnode.root()
         for attr, nodes in cnode.instance_attrs.items():
-            # skip nodes which are not in the current module and it may screw up
+            # Exclude `__dict__` as it is already defined.
+            if attr == "__dict__":
+                continue
+
+            # Skip nodes which are not in the current module and it may screw up
             # the output, while it's not worth it
             nodes = [
                 n
@@ -820,11 +825,14 @@ a metaclass class method.",
             ]
             if not nodes:
                 continue  # error detected by typechecking
-            # check if any method attr is defined in is a defining method
-            if any(node.frame().name in defining_methods for node in nodes):
-                continue
-            # Exclude `__dict__` as it is already defined.
-            if attr == "__dict__":
+
+            # Check if any method attr is defined in is a defining method
+            # or if we have the attribute defined in a setter.
+            frames = (node.frame() for node in nodes)
+            if any(
+                frame.name in defining_methods or is_property_setter(frame)
+                for frame in frames
+            ):
                 continue
 
             # check attribute is defined in a parent's __init__
@@ -921,7 +929,7 @@ a metaclass class method.",
 
         # check if the method is hidden by an attribute
         try:
-            overridden = klass.instance_attr(node.name)[0]  # XXX
+            overridden = klass.instance_attr(node.name)[0]
             overridden_frame = overridden.frame()
             if (
                 isinstance(overridden_frame, astroid.FunctionDef)
@@ -1260,8 +1268,7 @@ a metaclass class method.",
 
             klass = node_frame_class(node)
 
-            # XXX infer to be more safe and less dirty ??
-            # in classes, check we are not getting a parent method
+            # In classes, check we are not getting a parent method
             # through the class object or through super
             callee = node.expr.as_string()
 
@@ -1323,7 +1330,6 @@ a metaclass class method.",
 
     def _check_accessed_members(self, node, accessed):
         """check that accessed members are defined"""
-        # XXX refactor, probably much simpler now that E0201 is in type checker
         excs = ("AttributeError", "Exception", "BaseException")
         for attr, nodes in accessed.items():
             try:
@@ -1564,13 +1570,8 @@ a metaclass class method.",
             return
         # Ignore setters, they have an implicit extra argument,
         # which shouldn't be taken in consideration.
-        if method1.decorators:
-            for decorator in method1.decorators.nodes:
-                if (
-                    isinstance(decorator, astroid.Attribute)
-                    and decorator.attrname == "setter"
-                ):
-                    return
+        if is_property_setter(method1):
+            return
 
         if _different_parameters(
             refmethod, method1, dummy_parameter_regex=self._dummy_rgx
