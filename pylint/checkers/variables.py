@@ -841,7 +841,6 @@ class VariablesChecker(BaseChecker):
                     if not self._is_type_checking_import(stmt):
                         self.add_message("unused-import", args=msg, node=stmt)
                 elif isinstance(stmt, astroid.ImportFrom) and stmt.modname != FUTURE:
-
                     if SPECIAL_OBJ.search(imported_name):
                         # Filter special objects (__doc__, __all__) etc.,
                         # because they can be imported for exporting.
@@ -1034,10 +1033,18 @@ class VariablesChecker(BaseChecker):
                 if name in nonlocal_names:
                     return
 
+            qname = asname = None
             if isinstance(stmt, (astroid.Import, astroid.ImportFrom)):
                 # Need the complete name, which we don't have in .locals.
-                qname, asname = stmt.names[0]
-                name = asname or qname
+                if len(stmt.names) > 1:
+                    import_names = next(
+                        (names for names in stmt.names if name in names), None
+                    )
+                else:
+                    import_names = stmt.names[0]
+                if import_names:
+                    qname, asname = import_names
+                    name = asname or qname
 
             if _has_locals_call_after_node(stmt, node.scope()):
                 message_name = "possibly-unused-variable"

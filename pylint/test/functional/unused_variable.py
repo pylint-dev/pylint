@@ -53,3 +53,8 @@ def locals_does_not_account_for_subscopes():
 def unused_import_from():
     from functools import wraps as abc # [unused-import]
     from collections import namedtuple # [unused-import]
+
+
+def unused_import_in_function(value):
+    from six import PY2, text_type # [unused-import]
+    return value.encode("utf-8") if PY2 else value
