@@ -116,3 +116,14 @@ The following does not trigger a ``missing-return-doc`` anymore ::
             List of strings
         """
         return ["hi", "bye"] #@
+
+* Can choose to ignore `too-many-function-args`, `unexpected-keyword-arg`,
+  and `no-value-for-parameter` for functions decorated with certain decorators.
+
+For example a test may want to make use of hypothesis.
+Adding `hypothesis.extra.numpy.arrays` to `function_mutators`
+would mean that `no-value-for-parameter` would not be raised for::
+
+    @given(img=arrays(dtype=np.float32, shape=(3, 3, 3, 3)))
+    def test_image(img):
+        ...
