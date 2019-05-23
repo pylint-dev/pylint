@@ -125,10 +125,13 @@ Release date: TBA
 
   Close #2877
 
-* Can choose to ignore `too-many-function-args`, `unexpected-keyword-arg`,
-  and `no-value-for-parameter` for functions decorated with certain decorators.
+* ``signature-mutators`` option was added
 
-  Close #259
+   With this option, users can choose to ignore `too-many-function-args`, `unexpected-keyword-arg`,
+   and `no-value-for-parameter` for functions decorated with decorators that change
+   the signature of a decorated function.
+
+   Close #259
 
 * Fixed a pragma comment on its own physical line being ignored when part
   of a logical line with the previous physical line.

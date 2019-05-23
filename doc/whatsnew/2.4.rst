@@ -117,11 +117,14 @@ The following does not trigger a ``missing-return-doc`` anymore ::
         """
         return ["hi", "bye"] #@
 
-* Can choose to ignore `too-many-function-args`, `unexpected-keyword-arg`,
-  and `no-value-for-parameter` for functions decorated with certain decorators.
+* ``signature-mutators`` CLI and config option was added.
+
+With this option, users can choose to ignore `too-many-function-args`, `unexpected-keyword-arg`,
+and `no-value-for-parameter` for functions decorated with decorators that change
+the signature of a decorated function.
 
 For example a test may want to make use of hypothesis.
-Adding `hypothesis.extra.numpy.arrays` to `function_mutators`
+Adding `hypothesis.extra.numpy.arrays` to `signature_mutators`
 would mean that `no-value-for-parameter` would not be raised for::
 
     @given(img=arrays(dtype=np.float32, shape=(3, 3, 3, 3)))
