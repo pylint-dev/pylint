@@ -969,6 +969,7 @@ class VariablesChecker(BaseChecker):
         return regex and regex.match(name)
 
     def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):
+        # pylint: disable=too-many-branches
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
             return
