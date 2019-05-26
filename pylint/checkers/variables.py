@@ -968,6 +968,45 @@ class VariablesChecker(BaseChecker):
             regex = authorized_rgx
         return regex and regex.match(name)
 
+    def _check_unused_arguments(self, name, node, stmt, argnames):
+        is_method = node.is_method()
+        klass = node.parent.frame()
+        if is_method and isinstance(klass, astroid.ClassDef):
+            confidence = (
+                INFERENCE if utils.has_known_bases(klass) else INFERENCE_FAILURE
+            )
+        else:
+            confidence = HIGH
+
+        if is_method:
+            # Don't warn for the first argument of a (non static) method
+            if node.type != "staticmethod" and name == argnames[0]:
+                return
+            # Don't warn for argument of an overridden method
+            overridden = overridden_method(klass, node.name)
+            if overridden is not None and name in overridden.argnames():
+                return
+            if node.name in utils.PYMETHODS and node.name not in (
+                "__init__",
+                "__new__",
+            ):
+                return
+        # Don't check callback arguments
+        if any(
+            node.name.startswith(cb) or node.name.endswith(cb)
+            for cb in self.config.callbacks
+        ):
+            return
+        # Don't check arguments of singledispatch.register function.
+        if utils.is_registered_in_singledispatch_function(node):
+            return
+
+        # Don't check function stubs created only for type information
+        if utils.is_overload_stub(node):
+            return
+
+        self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
+
     def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):
         # pylint: disable=too-many-branches
         # Ignore some special names specified by user configuration.
@@ -991,42 +1030,9 @@ class VariablesChecker(BaseChecker):
         argnames = list(
             itertools.chain(node.argnames(), [arg.name for arg in node.args.kwonlyargs])
         )
-        is_method = node.is_method()
-        klass = node.parent.frame()
-        if is_method and isinstance(klass, astroid.ClassDef):
-            confidence = (
-                INFERENCE if utils.has_known_bases(klass) else INFERENCE_FAILURE
-            )
-        else:
-            confidence = HIGH
-
         # Care about functions with unknown argument (builtins)
         if name in argnames:
-            if is_method:
-                # Don't warn for the first argument of a (non static) method
-                if node.type != "staticmethod" and name == argnames[0]:
-                    return
-                # Don't warn for argument of an overridden method
-                overridden = overridden_method(klass, node.name)
-                if overridden is not None and name in overridden.argnames():
-                    return
-                if node.name in utils.PYMETHODS and node.name not in (
-                    "__init__",
-                    "__new__",
-                ):
-                    return
-            # Don't check callback arguments
-            if any(
-                node.name.startswith(cb) or node.name.endswith(cb)
-                for cb in self.config.callbacks
-            ):
-                return
-            # Don't check arguments of singledispatch.register function.
-            if utils.is_registered_in_singledispatch_function(node):
-                return
-            self.add_message(
-                "unused-argument", args=name, node=stmt, confidence=confidence
-            )
+            self._check_unused_arguments(name, node, stmt, argnames)
         else:
             if stmt.parent and isinstance(
                 stmt.parent, (astroid.Assign, astroid.AnnAssign)
@@ -1069,6 +1075,11 @@ class VariablesChecker(BaseChecker):
                     self.add_message("unused-import", args=msg, node=stmt)
                     return
                 message_name = "unused-variable"
+
+            # Don't check function stubs created only for type information
+            if utils.is_overload_stub(node):
+                return
+
             self.add_message(message_name, args=name, node=stmt)
 
     def leave_functiondef(self, node):

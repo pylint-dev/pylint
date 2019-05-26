@@ -836,7 +836,15 @@ class BasicErrorChecker(_BasicChecker):
     def _check_redefinition(self, redeftype, node):
         """check for redefinition of a function / method / class name"""
         parent_frame = node.parent.frame()
-        defined_self = parent_frame[node.name]
+        # Ignore function stubs created for type information
+        defined_self = next(
+            (
+                local
+                for local in parent_frame.locals[node.name]
+                if not utils.is_overload_stub(local)
+            ),
+            node,
+        )
         if defined_self is not node and not astroid.are_exclusive(node, defined_self):
 
             # Additional checks for methods which are not considered
@@ -845,6 +853,9 @@ class BasicErrorChecker(_BasicChecker):
                 isinstance(parent_frame, astroid.ClassDef)
                 and node.name in REDEFINABLE_METHODS
             ):
+                return
+
+            if utils.is_overload_stub(node):
                 return
 
             dummy_variables_rgx = lint_utils.get_global_option(
