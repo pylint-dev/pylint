@@ -287,8 +287,11 @@ class LoggingChecker(checkers.BaseChecker):
             # If no args were supplied the string is not interpolated and can contain
             # formatting characters - it's used verbatim. Don't check any further.
             return
+
         format_string = node.args[format_arg].value
         required_num_args = 0
+        if isinstance(format_string, bytes):
+            format_string = format_string.decode()
         if isinstance(format_string, str):
             try:
                 if self._format_style == "old":
