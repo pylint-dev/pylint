@@ -967,7 +967,9 @@ accessed. Python regular expressions are accepted.",
         ):
             return
 
-        if isinstance(function_node, astroid.BoundMethod):
+        if isinstance(function_node, astroid.BoundMethod) and isinstance(
+            function_node._proxied, astroid.UnboundMethod
+        ):
             # Unwrap to get the actual function object
             function_node = function_node._proxied._proxied
 
