@@ -231,8 +231,6 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
         if not utils.inherit_from_std_ex(cls) and utils.has_known_bases(cls):
             if cls.newstyle:
                 self._checker.add_message("raising-non-exception", node=self._node)
-            else:
-                self._checker.add_message("nonstandard-exception", node=self._node)
 
     def visit_tuple(self, tuple_node):
         if PY3K or not tuple_node.elts:
@@ -290,7 +288,6 @@ class ExceptionsChecker(checkers.BaseChecker):
         super(ExceptionsChecker, self).open()
 
     @utils.check_messages(
-        "nonstandard-exception",
         "misplaced-bare-raise",
         "raising-bad-type",
         "raising-non-exception",
