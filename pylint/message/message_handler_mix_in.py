@@ -375,11 +375,13 @@ Pylint provides global options and switches.
             else:
                 name = checker.name
                 try:
+                    by_checker[name]["checker"] = checker
                     by_checker[name]["options"] += checker.options_and_values()
                     by_checker[name]["msgs"].update(checker.msgs)
                     by_checker[name]["reports"] += checker.reports
                 except KeyError:
                     by_checker[name] = {
+                        "checker": checker,
                         "options": list(checker.options_and_values()),
                         "msgs": dict(checker.msgs),
                         "reports": list(checker.reports),
@@ -412,14 +414,14 @@ Below is a list of all checkers and their features.
         """
         if not stream:
             stream = sys.stdout
-
+        checker = info.get("checker")
         doc = info.get("doc")
         module = info.get("module")
         msgs = info.get("msgs")
         options = info.get("options")
         reports = info.get("reports")
 
-        checker_title = "%s checker" % (checker_name.replace("_", " ").title())
+        checker_title = "%s checker" % (checker.name.replace("_", " ").title())
 
         if module:
             # Provide anchor to link against
@@ -429,7 +431,7 @@ Below is a list of all checkers and their features.
         print("", file=stream)
         if module:
             print("This checker is provided by ``%s``." % module, file=stream)
-        print("Verbatim name of the checker is ``%s``." % checker_name, file=stream)
+        print("Verbatim name of the checker is ``%s``." % checker.name, file=stream)
         print("", file=stream)
         if doc:
             # Provide anchor to link against
@@ -451,7 +453,7 @@ Below is a list of all checkers and their features.
             for msgid, msg in sorted(
                 msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
             ):
-                msg = build_message_definition(checker_name, msgid, msg)
+                msg = build_message_definition(checker.name, msgid, msg)
                 print(msg.format_help(checkerref=False), file=stream)
             print("", file=stream)
         if reports:
