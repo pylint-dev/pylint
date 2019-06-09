@@ -361,6 +361,7 @@ Pylint provides global options and switches.
 
         by_checker = {}
         for checker in self.get_checkers():
+            name = checker.name
             if checker.name == "master":
                 if checker.options:
                     for section, options in checker.options_by_section():
@@ -373,7 +374,6 @@ Pylint provides global options and switches.
                         _rest_format_section(stream, None, options)
                         print("", file=stream)
             else:
-                name = checker.name
                 try:
                     by_checker[name]["checker"] = checker
                     by_checker[name]["options"] += checker.options_and_values()
@@ -403,11 +403,11 @@ Below is a list of all checkers and their features.
             file=stream,
         )
 
-        for checker, info in sorted(by_checker.items()):
-            self._print_checker_doc(checker, info, stream=stream)
+        for checker, information in sorted(by_checker.items()):
+            self._print_checker_doc(checker, information, stream=stream)
 
     @staticmethod
-    def _print_checker_doc(checker_name, info, stream=None):
+    def _print_checker_doc(checker, info, stream=None):
         """Helper method for print_full_documentation.
 
         Also used by doc/exts/pylint_extensions.py.
