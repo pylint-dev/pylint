@@ -26,7 +26,7 @@ class BaseChecker(OptionsProviderMixIn):
     name = None  # type: str
     # options level (0 will be displaying in --help, 1 in --long-help)
     level = 1
-    # ordered list of options to control the ckecker behaviour
+    # ordered list of options to control the checker behaviour
     options = ()  # type: Any
     # messages issued by this checker
     msgs = {}  # type: Any
