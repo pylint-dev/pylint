@@ -30,11 +30,16 @@ from pylint.utils.utils import (
 )
 
 
+def get_rest_title(title, character):
+    """Permit to get a rest title underlined with a choosen character."""
+    return "%s\n%s\n" % (title, character * len(title))
+
+
 def _rest_format_section(section, options, doc=None) -> str:
     """format an options section using as ReST formatted output"""
     result = ""
     if section:
-        result += "%s\n%s\n" % (section, "'" * len(section))
+        result += get_rest_title(section, "'")
     if doc:
         formatted_doc = normalize_text(doc, line_len=79, indent="")
         result += "%s\n\n" % formatted_doc
@@ -346,6 +351,25 @@ class MessagesHandlerMixIn:
             )
         )
 
+    def _get_checkers_infos(self) -> dict:
+        by_checker = {}
+        for checker in self.get_checkers():
+            name = checker.name
+            if name != "master":
+                try:
+                    by_checker[name]["checker"] = checker
+                    by_checker[name]["options"] += checker.options_and_values()
+                    by_checker[name]["msgs"].update(checker.msgs)
+                    by_checker[name]["reports"] += checker.reports
+                except KeyError:
+                    by_checker[name] = {
+                        "checker": checker,
+                        "options": list(checker.options_and_values()),
+                        "msgs": dict(checker.msgs),
+                        "reports": list(checker.reports),
+                    }
+        return by_checker
+
     def print_full_documentation(self, stream=None):
         """output a full documentation in ReST format"""
         if not stream:
@@ -359,8 +383,6 @@ Pylint provides global options and switches.
 """,
             file=stream,
         )
-
-        by_checker = {}
         for checker in self.get_checkers():
             name = checker.name
             if checker.name == "master":
@@ -374,20 +396,6 @@ Pylint provides global options and switches.
                         print("~" * len(title), file=stream)
                         print(_rest_format_section(None, options)[:-1], file=stream)
                         print("", file=stream)
-            else:
-                try:
-                    by_checker[name]["checker"] = checker
-                    by_checker[name]["options"] += checker.options_and_values()
-                    by_checker[name]["msgs"].update(checker.msgs)
-                    by_checker[name]["reports"] += checker.reports
-                except KeyError:
-                    by_checker[name] = {
-                        "checker": checker,
-                        "options": list(checker.options_and_values()),
-                        "msgs": dict(checker.msgs),
-                        "reports": list(checker.reports),
-                    }
-
         print(
             """\
 Pylint checkers' options and switches
@@ -403,9 +411,49 @@ Below is a list of all checkers and their features.
 """,
             file=stream,
         )
-
+        by_checker = self._get_checkers_infos()
         for checker, information in sorted(by_checker.items()):
             self._print_checker_doc(checker, information, stream=stream)
+
+    @staticmethod
+    def _get_checker_doc(checker, info) -> str:
+        result = ""
+        checker = info.get("checker")
+        doc = info.get("doc")
+        module = info.get("module")
+        msgs = info.get("msgs")
+        options = info.get("options")
+        reports = info.get("reports")
+        checker_title = "%s checker" % (checker.name.replace("_", " ").title())
+        if module:
+            # Provide anchor to link against
+            result += ".. _%s:\n\n" % module
+        result += "%s\n" % get_rest_title(checker_title, "~")
+        if module:
+            result += "This checker is provided by ``%s``.\n" % module
+        result += "Verbatim name of the checker is ``%s``.\n\n" % checker.name
+        if doc:
+            # Provide anchor to link against
+            result += get_rest_title("{} Documentation".format(checker_title), "^")
+            result += "%s\n\n" % cleandoc(doc)
+        if options:
+            result += get_rest_title("{} Options".format(checker_title), "^")
+            result += "%s\n" % _rest_format_section(None, options)
+        if msgs:
+            result += get_rest_title("{} Messages".format(checker_title), "^")
+            for msgid, msg in sorted(
+                msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
+            ):
+                msg = build_message_definition(checker.name, msgid, msg)
+                result += "%s\n" % msg.format_help(checkerref=False)
+            result += "\n"
+        if reports:
+            result += get_rest_title("{} Reports".format(checker_title), "^")
+            for report in reports:
+                result += ":%s: %s\n" % report[:2]
+            result += "\n"
+        result += "\n"
+        return result
 
     @staticmethod
     def _print_checker_doc(checker, info, stream=None):
@@ -415,53 +463,4 @@ Below is a list of all checkers and their features.
         """
         if not stream:
             stream = sys.stdout
-        checker = info.get("checker")
-        doc = info.get("doc")
-        module = info.get("module")
-        msgs = info.get("msgs")
-        options = info.get("options")
-        reports = info.get("reports")
-
-        checker_title = "%s checker" % (checker.name.replace("_", " ").title())
-
-        if module:
-            # Provide anchor to link against
-            print(".. _%s:\n" % module, file=stream)
-        print(checker_title, file=stream)
-        print("~" * len(checker_title), file=stream)
-        print("", file=stream)
-        if module:
-            print("This checker is provided by ``%s``." % module, file=stream)
-        print("Verbatim name of the checker is ``%s``." % checker.name, file=stream)
-        print("", file=stream)
-        if doc:
-            # Provide anchor to link against
-            title = "{} Documentation".format(checker_title)
-            print(title, file=stream)
-            print("^" * len(title), file=stream)
-            print(cleandoc(doc), file=stream)
-            print("", file=stream)
-        if options:
-            title = "{} Options".format(checker_title)
-            print(title, file=stream)
-            print("^" * len(title), file=stream)
-            print(_rest_format_section(None, options)[:-1], file=stream)
-            print("", file=stream)
-        if msgs:
-            title = "{} Messages".format(checker_title)
-            print(title, file=stream)
-            print("^" * len(title), file=stream)
-            for msgid, msg in sorted(
-                msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
-            ):
-                msg = build_message_definition(checker.name, msgid, msg)
-                print(msg.format_help(checkerref=False), file=stream)
-            print("", file=stream)
-        if reports:
-            title = "{} Reports".format(checker_title)
-            print(title, file=stream)
-            print("^" * len(title), file=stream)
-            for report in reports:
-                print(":%s: %s" % report[:2], file=stream)
-            print("", file=stream)
-        print("", file=stream)
+        print(MessagesHandlerMixIn._get_checker_doc(checker, info)[:-1], file=stream)
