@@ -102,8 +102,8 @@ class BaseChecker(OptionsProviderMixIn):
         for message_definition in self.messages:
             if message_definition.msgid == msgid:
                 return message_definition
-        error_msg = "MessageDefinition for '{}' does not exists".format(msgid)
-        error_msg += "Choose from {}".format([m.msgid for m in self.messages])
+        error_msg = "MessageDefinition for '{}' does not exists. ".format(msgid)
+        error_msg += "Choose from {}.".format([m.msgid for m in self.messages])
         raise InvalidMessageError(error_msg)
 
     def open(self):
