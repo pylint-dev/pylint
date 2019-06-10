@@ -8,11 +8,11 @@ import os
 import re
 import sys
 
-import pkg_resources
 import sphinx
 
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import PyLinter
+from pylint.utils import get_rest_title
 
 # Some modules have been renamed and deprecated under their old names.
 # Skip documenting these modules since:
@@ -51,8 +51,9 @@ def builder_inited(app):
         base_path, "doc", "technical_reference", "extensions.rst"
     )
     with open(extensions_doc, "w") as stream:
-        stream.write("Optional Pylint checkers in the extensions module\n")
-        stream.write("=================================================\n\n")
+        stream.write(
+            get_rest_title("Optional Pylint checkers in the extensions module", "=")
+        )
         stream.write("Pylint provides the following optional plugins:\n\n")
         for module in modules:
             stream.write("- :ref:`{}`\n".format(module))
