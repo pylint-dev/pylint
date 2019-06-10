@@ -68,8 +68,8 @@ def builder_inited(app):
             "pylint.extensions.docstyle\n\n"
         )
         by_checker = get_plugins_info(linter, doc_files)
-        for checker, info in sorted(by_checker.items()):
-            linter._print_checker_doc(checker, info, stream=stream)
+        for checker, information in sorted(by_checker.items()):
+            linter._print_checker_doc(information, stream=stream)
 
 
 def get_plugins_info(linter, doc_files):
