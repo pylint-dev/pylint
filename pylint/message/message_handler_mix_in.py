@@ -35,7 +35,7 @@ def get_rest_title(title, character):
     return "%s\n%s\n" % (title, character * len(title))
 
 
-def _rest_format_section(section, options, doc=None) -> str:
+def _rest_format_section(section, options, doc=None):
     """format an options section using as ReST formatted output"""
     result = ""
     if section:
@@ -351,7 +351,7 @@ class MessagesHandlerMixIn:
             )
         )
 
-    def _get_checkers_infos(self) -> dict:
+    def _get_checkers_infos(self):
         by_checker: dict = {}
         for checker in self.get_checkers():
             name = checker.name
@@ -370,7 +370,7 @@ class MessagesHandlerMixIn:
                     }
         return by_checker
 
-    def get_full_documentation(self) -> str:
+    def get_full_documentation(self):
         result = """\
 Pylint global options and switches
 ----------------------------------
@@ -407,14 +407,14 @@ Below is a list of all checkers and their features.
             result += self._get_checker_doc(checker, information)
         return result
 
-    def print_full_documentation(self, stream=None) -> None:
+    def print_full_documentation(self, stream=None):
         """output a full documentation in ReST format"""
         if not stream:
             stream = sys.stdout
         print(self.get_full_documentation()[:-1], file=stream)
 
     @staticmethod
-    def _get_checker_doc(checker, info) -> str:
+    def _get_checker_doc(checker, info):
         result = ""
         checker = info.get("checker")
         doc = info.get("doc")
