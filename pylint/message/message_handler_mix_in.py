@@ -325,7 +325,7 @@ class MessagesHandlerMixIn:
         )
 
     def _get_checkers_infos(self):
-        by_checker: dict = {}
+        by_checker = {}
         for checker in self.get_checkers():
             name = checker.name
             if name != "master":

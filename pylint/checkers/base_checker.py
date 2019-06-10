@@ -105,7 +105,7 @@ class BaseChecker(OptionsProviderMixIn):
             confidence = UNDEFINED
         self.linter.add_message(msgid, line, node, args, confidence, col_offset)
 
-    def check_consistency(self) -> None:
+    def check_consistency(self):
         """Check the consistency of msgid.
 
         msg ids for a checker should be a string of len 4, where the two first
