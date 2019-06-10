@@ -11,13 +11,15 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
+from inspect import cleandoc
 from typing import Any
 
 from pylint.config import OptionsProviderMixIn
-from pylint.constants import WarningScope
+from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import UNDEFINED, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
+from pylint.utils import get_rest_title, rest_format_section
 
 
 class BaseChecker(OptionsProviderMixIn):
@@ -55,6 +57,46 @@ class BaseChecker(OptionsProviderMixIn):
         return "{} '{}' responsible for {}".format(
             status, self.name, ", ".join(self.msgs.keys())
         )
+
+    @staticmethod
+    def get_full_documentation(info):
+        result = ""
+        checker = info.get("checker")
+        doc = info.get("doc")
+        module = info.get("module")
+        msgs = info.get("msgs")
+        options = info.get("options")
+        reports = info.get("reports")
+        checker_title = "%s checker" % (checker.name.replace("_", " ").title())
+        if module:
+            # Provide anchor to link against
+            result += ".. _%s:\n\n" % module
+        result += "%s\n" % get_rest_title(checker_title, "~")
+        if module:
+            result += "This checker is provided by ``%s``.\n" % module
+        result += "Verbatim name of the checker is ``%s``.\n\n" % checker.name
+        if doc:
+            # Provide anchor to link against
+            result += get_rest_title("{} Documentation".format(checker_title), "^")
+            result += "%s\n\n" % cleandoc(doc)
+        if options:
+            result += get_rest_title("{} Options".format(checker_title), "^")
+            result += "%s\n" % rest_format_section(None, options)
+        if msgs:
+            result += get_rest_title("{} Messages".format(checker_title), "^")
+            for msgid, msg in sorted(
+                msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
+            ):
+                msg = checker.create_message_definition_from_tuple(msgid, msg)
+                result += "%s\n" % msg.format_help(checkerref=False)
+            result += "\n"
+        if reports:
+            result += get_rest_title("{} Reports".format(checker_title), "^")
+            for report in reports:
+                result += ":%s: %s\n" % report[:2]
+            result += "\n"
+        result += "\n"
+        return result
 
     def add_message(
         self, msgid, line=None, node=None, args=None, confidence=None, col_offset=None

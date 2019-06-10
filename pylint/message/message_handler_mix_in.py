@@ -6,10 +6,8 @@
 from __future__ import print_function
 
 import sys
-from inspect import cleandoc
 
 from pylint.constants import (
-    _MSG_ORDER,
     _SCOPE_EXEMPT,
     MAIN_CHECKER_NAME,
     MSG_STATE_CONFIDENCE,
@@ -375,8 +373,9 @@ Below is a list of all checkers and their features.
 
 """
         by_checker = self._get_checkers_infos()
-        for checker, information in sorted(by_checker.items()):
-            result += self._get_checker_doc(checker, information)
+        for checker_name, information in sorted(by_checker.items()):
+            checker = information["checker"]
+            result += checker.get_full_documentation(information)
         return result
 
     def print_full_documentation(self, stream=None):
@@ -386,51 +385,12 @@ Below is a list of all checkers and their features.
         print(self.get_full_documentation()[:-1], file=stream)
 
     @staticmethod
-    def _get_checker_doc(checker, info):
-        result = ""
-        checker = info.get("checker")
-        doc = info.get("doc")
-        module = info.get("module")
-        msgs = info.get("msgs")
-        options = info.get("options")
-        reports = info.get("reports")
-        checker_title = "%s checker" % (checker.name.replace("_", " ").title())
-        if module:
-            # Provide anchor to link against
-            result += ".. _%s:\n\n" % module
-        result += "%s\n" % get_rest_title(checker_title, "~")
-        if module:
-            result += "This checker is provided by ``%s``.\n" % module
-        result += "Verbatim name of the checker is ``%s``.\n\n" % checker.name
-        if doc:
-            # Provide anchor to link against
-            result += get_rest_title("{} Documentation".format(checker_title), "^")
-            result += "%s\n\n" % cleandoc(doc)
-        if options:
-            result += get_rest_title("{} Options".format(checker_title), "^")
-            result += "%s\n" % rest_format_section(None, options)
-        if msgs:
-            result += get_rest_title("{} Messages".format(checker_title), "^")
-            for msgid, msg in sorted(
-                msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
-            ):
-                msg = checker.create_message_definition_from_tuple(msgid, msg)
-                result += "%s\n" % msg.format_help(checkerref=False)
-            result += "\n"
-        if reports:
-            result += get_rest_title("{} Reports".format(checker_title), "^")
-            for report in reports:
-                result += ":%s: %s\n" % report[:2]
-            result += "\n"
-        result += "\n"
-        return result
-
-    @staticmethod
-    def _print_checker_doc(checker, info, stream=None):
+    def _print_checker_doc(checker, information, stream=None):
         """Helper method for print_full_documentation.
 
         Also used by doc/exts/pylint_extensions.py.
         """
         if not stream:
             stream = sys.stdout
-        print(MessagesHandlerMixIn._get_checker_doc(checker, info)[:-1], file=stream)
+        checker = information["checker"]
+        print(checker.get_full_documentation(information)[:-1], file=stream)
