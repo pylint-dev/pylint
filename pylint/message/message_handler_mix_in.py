@@ -346,10 +346,8 @@ class MessagesHandlerMixIn:
         return by_checker
 
     def get_full_documentation(self):
-        result = """\
-Pylint global options and switches
-----------------------------------
-
+        result = get_rest_title("Pylint global options and switches", "-")
+        result += """
 Pylint provides global options and switches.
 
 """
@@ -364,9 +362,8 @@ Pylint provides global options and switches.
                             title = "%s options" % section.capitalize()
                         result += get_rest_title(title, "~")
                         result += "%s\n" % rest_format_section(None, options)
+        result += get_rest_title("Pylint checkers' options and switches", "-")
         result += """\
-Pylint checkers' options and switches
--------------------------------------
 
 Pylint checkers can provide three set of features:
 
