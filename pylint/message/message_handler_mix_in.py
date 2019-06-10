@@ -35,7 +35,7 @@ def get_rest_title(title, character):
     return "%s\n%s\n" % (title, character * len(title))
 
 
-def _rest_format_section(section, options, doc=None):
+def rest_format_section(section, options, doc=None):
     """format an options section using as ReST formatted output"""
     result = ""
     if section:
@@ -388,7 +388,7 @@ Pylint provides global options and switches.
                         else:
                             title = "%s options" % section.capitalize()
                         result += get_rest_title(title, "~")
-                        result += "%s\n" % _rest_format_section(None, options)
+                        result += "%s\n" % rest_format_section(None, options)
         result += """\
 Pylint checkers' options and switches
 -------------------------------------
@@ -436,7 +436,7 @@ Below is a list of all checkers and their features.
             result += "%s\n\n" % cleandoc(doc)
         if options:
             result += get_rest_title("{} Options".format(checker_title), "^")
-            result += "%s\n" % _rest_format_section(None, options)
+            result += "%s\n" % rest_format_section(None, options)
         if msgs:
             result += get_rest_title("{} Messages".format(checker_title), "^")
             for msgid, msg in sorted(
