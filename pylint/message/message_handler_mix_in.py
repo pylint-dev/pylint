@@ -22,37 +22,12 @@ from pylint.constants import (
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.interfaces import UNDEFINED
 from pylint.message.message import Message
-from pylint.utils.utils import (
-    _format_option_value,
+from pylint.utils import (
     category_id,
     get_module_and_frameid,
-    normalize_text,
+    get_rest_title,
+    rest_format_section,
 )
-
-
-def get_rest_title(title, character):
-    """Permit to get a rest title underlined with a choosen character."""
-    return "%s\n%s\n" % (title, character * len(title))
-
-
-def rest_format_section(section, options, doc=None):
-    """format an options section using as ReST formatted output"""
-    result = ""
-    if section:
-        result += get_rest_title(section, "'")
-    if doc:
-        formatted_doc = normalize_text(doc, line_len=79, indent="")
-        result += "%s\n\n" % formatted_doc
-    for optname, optdict, value in options:
-        help_opt = optdict.get("help")
-        result += ":%s:\n" % optname
-        if help_opt:
-            formatted_help = normalize_text(help_opt, line_len=79, indent="  ")
-            result += "%s\n" % formatted_help
-        if value:
-            value = str(_format_option_value(optdict, value))
-            result += "\n  Default: ``%s``\n" % value.replace("`` ", "```` ``")
-    return result
 
 
 class MessagesHandlerMixIn:
