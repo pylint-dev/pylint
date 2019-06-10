@@ -385,7 +385,7 @@ Below is a list of all checkers and their features.
         print(self.get_full_documentation()[:-1], file=stream)
 
     @staticmethod
-    def _print_checker_doc(checker, information, stream=None):
+    def _print_checker_doc(information, stream=None):
         """Helper method for print_full_documentation.
 
         Also used by doc/exts/pylint_extensions.py.
