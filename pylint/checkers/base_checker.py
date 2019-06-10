@@ -58,23 +58,21 @@ class BaseChecker(OptionsProviderMixIn):
             status, self.name, ", ".join(self.msgs.keys())
         )
 
-    @staticmethod
-    def get_full_documentation(info):
+    def get_full_documentation(self, info):
         result = ""
-        checker = info.get("checker")
         doc = info.get("doc")
         module = info.get("module")
         msgs = info.get("msgs")
         options = info.get("options")
         reports = info.get("reports")
-        checker_title = "%s checker" % (checker.name.replace("_", " ").title())
+        checker_title = "%s checker" % (self.name.replace("_", " ").title())
         if module:
             # Provide anchor to link against
             result += ".. _%s:\n\n" % module
         result += "%s\n" % get_rst_title(checker_title, "~")
         if module:
             result += "This checker is provided by ``%s``.\n" % module
-        result += "Verbatim name of the checker is ``%s``.\n\n" % checker.name
+        result += "Verbatim name of the checker is ``%s``.\n\n" % self.name
         if doc:
             # Provide anchor to link against
             result += get_rst_title("{} Documentation".format(checker_title), "^")
@@ -87,7 +85,7 @@ class BaseChecker(OptionsProviderMixIn):
             for msgid, msg in sorted(
                 msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
             ):
-                msg = checker.create_message_definition_from_tuple(msgid, msg)
+                msg = self.create_message_definition_from_tuple(msgid, msg)
                 result += "%s\n" % msg.format_help(checkerref=False)
             result += "\n"
         if reports:
