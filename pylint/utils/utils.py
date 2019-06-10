@@ -51,16 +51,16 @@ def category_id(cid):
     return MSG_TYPES_LONG.get(cid)
 
 
-def get_rest_title(title, character):
-    """Permit to get a rest title underlined with a choosen character."""
+def get_rst_title(title, character):
+    """Permit to get a title formatted as ReStructuredText test (underlined with a chosen character)."""
     return "%s\n%s\n" % (title, character * len(title))
 
 
-def rest_format_section(section, options, doc=None):
-    """format an options section using as ReST formatted output"""
+def get_rst_section(section, options, doc=None):
+    """format an options section using as a ReStructuredText formatted output"""
     result = ""
     if section:
-        result += get_rest_title(section, "'")
+        result += get_rst_title(section, "'")
     if doc:
         formatted_doc = normalize_text(doc, line_len=79, indent="")
         result += "%s\n\n" % formatted_doc
