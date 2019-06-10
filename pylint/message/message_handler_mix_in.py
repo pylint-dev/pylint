@@ -373,7 +373,8 @@ Below is a list of all checkers and their features.
 
 """
         by_checker = self._get_checkers_infos()
-        for checker_name, information in sorted(by_checker.items()):
+        for checker in sorted(by_checker):
+            information = by_checker[checker]
             checker = information["checker"]
             result += checker.get_full_documentation(information)
         return result
