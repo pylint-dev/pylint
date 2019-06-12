@@ -34,6 +34,7 @@ from __future__ import generators
 import collections
 import sys
 from itertools import chain, zip_longest
+from typing import Optional, List
 
 import astroid
 from astroid import decorators, objects
@@ -1308,7 +1309,7 @@ a metaclass class method.",
                     if _is_attribute_property(name, klass):
                         return
 
-                if self._is_called_inside_dunder(node) and self._is_instance_of_class(node.expr):
+                if self._is_called_inside_dunder(node) and self._is_instance_of_current_class(node.expr):
                     return
 
                 self.add_message("protected-access", node=node, args=attrname)
@@ -1325,21 +1326,41 @@ a metaclass class method.",
         return frame_name and frame_name.startswith('__') and frame_name.endswith('__')
 
     @staticmethod
-    def _is_instance_of_class(node: astroid.node_classes.Name) -> bool:
+    def _get_if_nodes_parent(node: astroid.node_classes.NodeNG) -> Optional[List[astroid.node_classes.If]]:
         """
-        Returs true if the node is a name of an instance of the same class as klass (or subclasses)
+        Returns the list of If nodes that are parents of the node
         """
+        res = []
         if_node = node.parent
-        while if_node is not None and not isinstance(if_node, astroid.node_classes.If):
+        while if_node is not None:
+            if isinstance(if_node, astroid.node_classes.If):
+                res.append(if_node)
             if_node = if_node.parent
-        if if_node is None:
+        return res
+
+    @staticmethod
+    def _is_instance_of_current_class(node: astroid.node_classes.Name) -> bool:
+        """
+        Returs true if the node is the name of an instance of the same class
+
+        :note: test that at least a call to 'isinstance(node, self.__class__)' is made
+               in the parent If nodes
+        """
+        if_nodes_parent = ClassChecker._get_if_nodes_parent(node)
+        if not if_nodes_parent:
             return False
         
-        for child in if_node.get_children():
-            if isinstance(child, astroid.node_classes.Call) and child.func.name == 'isinstance':
-                klass_args = child.args[-1]
-                if node.name == child.args[0].name and klass_args.attrname == '__class__' and klass_args.expr.name == 'self':
-                    return True
+        # Check if one of the test made in the parent If nodes ensures that the node
+        # is an instance of the current class.
+        for if_node in if_nodes_parent:
+            for child in if_node.get_children():
+                if isinstance(child, astroid.node_classes.Call) and child.func.name == 'isinstance':
+                    klass_args = child.args[-1]
+                    if (node.name == child.args[0].name and 
+                        isinstance(klass_args, astroid.node_classes.Attribute) and
+                        klass_args.attrname == '__class__' and 
+                        klass_args.expr.name == 'self'):
+                        return True
         return False
         
 
