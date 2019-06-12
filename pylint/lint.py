@@ -934,16 +934,16 @@ class PyLinter(
         if not self.config.reports:
             self.disable_reporters()
         # get needed checkers
-        neededcheckers = [self]
+        needed_checkers = [self]
         for checker in self.get_checkers()[1:]:
             messages = {msg for msg in checker.msgs if self.is_message_enabled(msg)}
             if messages or any(self.report_is_enabled(r[0]) for r in checker.reports):
-                neededcheckers.append(checker)
+                needed_checkers.append(checker)
         # Sort checkers by priority
-        neededcheckers = sorted(
-            neededcheckers, key=operator.attrgetter("priority"), reverse=True
+        needed_checkers = sorted(
+            needed_checkers, key=operator.attrgetter("priority"), reverse=True
         )
-        return neededcheckers
+        return needed_checkers
 
     # pylint: disable=unused-argument
     @staticmethod
