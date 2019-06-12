@@ -4,3 +4,7 @@ protected-access:42::Access to a protected member _protected of a client class
 protected-access:43::Access to a protected member _cls_protected of a client class
 protected-access:44::Access to a protected member _cls_protected of a client class
 protected-access:58:Issue1031.incorrect_access:Access to a protected member _protected of a client class
+protected-access:76:Issue1802.__ne__:Access to a protected member _foo of a client class
+protected-access:85:Issue1802.not_in_dunder:Access to a protected member _foo of a client class
+protected-access:108:Issue1802.__ge__:Access to a protected member _foo of a client class
+protected-access:118:Issue1802.__add__:Access to a protected member _foo of a client class

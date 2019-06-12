@@ -57,3 +57,63 @@ class Issue1031(object):
         if self._attr == 1:
             return type(INST)._protected  # [protected-access]
         return None
+
+
+class Issue1802(object):
+    """Test for GitHub issue 1802"""
+    def __init__(self, value):
+        self._foo = value
+
+    def __eq__(self, other):
+        """Test a correct access as other is an instance of Issue1802"""
+        if isinstance(other, self.__class__):
+            return self._foo == other._foo
+        return False
+
+    def __ne__(self, other):
+        """Test an incorrect access as other may be not an instance of Issue1802"""
+        if isinstance(other, dict):
+            return self._foo != other._foo  # [protected-access]
+        return False
+
+    def not_in_dunder(self, other):
+        """
+        Test an incorrect access as other is an instance of Issue1802 but the access
+        to protected member is not inside a dunder method
+        """
+        if isinstance(other, self.__class__):
+            return self._foo == other._foo  # [protected-access]
+        return False
+
+    def __le__(self, other):
+        """
+        Test a correct access as other is an instance of Issue1802 even if the
+        corresponding test is deeply nested
+        """
+        if 2 > 1:
+            if isinstance(other, self.__class__):
+                if "answer" == "42":
+                    return self._foo == other._foo
+        return False
+
+    def __ge__(self, other):
+        """
+        Test an incorrect access as other is an instance of Issue1802 but the
+        corresponding test is not hierarchically above the access
+        """
+        if 2 > 1:
+            if isinstance(other, self.__class__):
+                print("Ok")
+            if "answer" == "42":
+                return self._foo == other._foo  # [protected-access]
+        return False
+
+    def __add__(self, other):
+        """
+        Test an incorrect access as other is not an instance of Issue1802
+        """
+        if 2 > 1:
+            if not isinstance(other, self.__class__):
+                if "answer" == "42":
+                    return self._foo == other._foo  # [protected-access]
+        return False
