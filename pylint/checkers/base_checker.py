@@ -58,13 +58,8 @@ class BaseChecker(OptionsProviderMixIn):
             status, self.name, ", ".join(self.msgs.keys())
         )
 
-    def get_full_documentation(self, info):
+    def get_full_documentation(self, msgs, options, reports, doc=None, module=None):
         result = ""
-        doc = info.get("doc")
-        module = info.get("module")
-        msgs = info.get("msgs")
-        options = info.get("options")
-        reports = info.get("reports")
         checker_title = "%s checker" % (self.name.replace("_", " ").title())
         if module:
             # Provide anchor to link against

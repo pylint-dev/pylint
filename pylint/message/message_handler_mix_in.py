@@ -376,7 +376,8 @@ Below is a list of all checkers and their features.
         for checker in sorted(by_checker):
             information = by_checker[checker]
             checker = information["checker"]
-            result += checker.get_full_documentation(information)
+            del information["checker"]
+            result += checker.get_full_documentation(**information)
         return result
 
     def print_full_documentation(self, stream=None):
@@ -394,4 +395,5 @@ Below is a list of all checkers and their features.
         if not stream:
             stream = sys.stdout
         checker = information["checker"]
-        print(checker.get_full_documentation(information)[:-1], file=stream)
+        del information["checker"]
+        print(checker.get_full_documentation(**information)[:-1], file=stream)
