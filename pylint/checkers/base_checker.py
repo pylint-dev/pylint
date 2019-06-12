@@ -58,6 +58,13 @@ class BaseChecker(OptionsProviderMixIn):
             status, self.name, ", ".join(self.msgs.keys())
         )
 
+    def __str__(self):
+        """This might be incomplete because multiple class inheriting BaseChecker
+        can have the same name. Cf MessageHandlerMixIn.get_full_documentation()"""
+        return self.get_full_documentation(
+            msgs=self.msgs, options=self.options_and_values(), reports=self.reports
+        )
+
     def get_full_documentation(self, msgs, options, reports, doc=None, module=None):
         result = ""
         checker_title = "%s checker" % (self.name.replace("_", " ").title())
@@ -72,6 +79,8 @@ class BaseChecker(OptionsProviderMixIn):
             # Provide anchor to link against
             result += get_rst_title("{} Documentation".format(checker_title), "^")
             result += "%s\n\n" % cleandoc(doc)
+        # options might be an empty generator and not be False when casted to boolean
+        options = list(options)
         if options:
             result += get_rst_title("{} Options".format(checker_title), "^")
             result += "%s\n" % get_rst_section(None, options)
