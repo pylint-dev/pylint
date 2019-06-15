@@ -7,6 +7,11 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Don't emit ``protected-access`` when a single underscore prefixed attribute is used 
+  inside a special method and the corresponding instance is the same as the current class 
+
+  Close #1802
+
 * ``unused-import`` emitted for the right import names in function scopes.
 
   Close #2928
