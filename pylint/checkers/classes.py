@@ -1309,7 +1309,10 @@ a metaclass class method.",
                     if _is_attribute_property(name, klass):
                         return
 
-                if self._is_called_inside_special_method(
+                # A licit use of protected member is inside a special method
+                # if the expression that use this member is the same class as
+                # the current one
+                if not attrname.startswith('__') and self._is_called_inside_special_method(
                     node
                 ) and self._is_instance_of_current_class(node.expr):
                     return
