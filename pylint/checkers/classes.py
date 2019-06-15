@@ -1309,21 +1309,21 @@ a metaclass class method.",
                     if _is_attribute_property(name, klass):
                         return
 
-                if self._is_called_inside_dunder(node) and self._is_instance_of_current_class(node.expr):
+                if self._is_called_inside_special_method(node) and self._is_instance_of_current_class(node.expr):
                     return
 
                 self.add_message("protected-access", node=node, args=attrname)
 
     @staticmethod
-    def _is_called_inside_dunder(node: astroid.node_classes.NodeNG) -> bool:
+    def _is_called_inside_special_method(node: astroid.node_classes.NodeNG) -> bool:
         """
-        Returns true if the node is located inside a dunder method
+        Returns true if the node is located inside a special (aka dunder) method
         """
         try:
             frame_name = node.frame().name
         except AttributeError:
             return False
-        return frame_name and frame_name.startswith('__') and frame_name.endswith('__')
+        return frame_name and frame_name in PYMETHODS 
 
     @staticmethod
     def _get_if_nodes_parent(node: astroid.node_classes.NodeNG) -> Optional[List[astroid.node_classes.If]]:
