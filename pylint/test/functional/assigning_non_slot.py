@@ -156,3 +156,20 @@ class ClassHavingUnknownAncestors(Unknown):
 
     def test(self):
         self.not_yo = 42
+
+
+# pylint: disable=wrong-import-order, wrong-import-position
+from typing import (
+    Generic,
+    TypeVar,
+)
+
+TYPE = TypeVar('TYPE')
+
+
+class Cls(Generic[TYPE]):
+    """ Simple class with slots """
+    __slots__ = ['value']
+
+    def __init__(self, value):
+        self.value = value

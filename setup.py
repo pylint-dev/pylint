@@ -50,8 +50,6 @@ base_dir = os.path.dirname(__file__)
 __pkginfo__ = {}
 with open(os.path.join(base_dir, "pylint", "__pkginfo__.py")) as f:
     exec(f.read(), __pkginfo__)
-modname = __pkginfo__["modname"]
-distname = __pkginfo__.get("distname", modname)
 scripts = __pkginfo__.get("scripts", [])
 data_files = __pkginfo__.get("data_files", None)
 include_dirs = __pkginfo__.get("include_dirs", [])
@@ -144,7 +142,7 @@ def install(**kwargs):
     if USE_SETUPTOOLS:
         if "--force-manifest" in sys.argv:
             sys.argv.remove("--force-manifest")
-    packages = [modname] + get_packages(join(base_dir, "pylint"), modname)
+    packages = ["pylint"] + get_packages(join(base_dir, "pylint"), "pylint")
     if USE_SETUPTOOLS:
         if install_requires:
             kwargs["install_requires"] = install_requires
@@ -162,7 +160,7 @@ def install(**kwargs):
     if easy_install_lib:
         cmdclass["easy_install"] = easy_install
     return setup(
-        name=distname,
+        name="pylint",
         version=__pkginfo__["version"],
         license=__pkginfo__["license"],
         description=__pkginfo__["description"],
