@@ -63,11 +63,13 @@ class Issue1802(object):
     """Test for GitHub issue 1802"""
     def __init__(self, value):
         self._foo = value
+        self.__private = 2 * value
 
     def __eq__(self, other):
         """Test a correct access as other is an instance of Issue1802"""
         if isinstance(other, self.__class__):
-            return self._foo == other._foo
+            answer = self._foo == other._foo
+            return answer and self.__private == other.__private  # [protected-access]
         return False
 
     def __ne__(self, other):
