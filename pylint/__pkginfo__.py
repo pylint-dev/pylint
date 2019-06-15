@@ -86,5 +86,3 @@ long_desc = """\
 scripts = [
     join("bin", filename) for filename in ("pylint", "symilar", "epylint", "pyreverse")
 ]
-
-include_dirs = [join("pylint", "test")]

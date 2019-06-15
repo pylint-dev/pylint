@@ -339,24 +339,24 @@ class TestRunTC(object):
         expected = textwrap.dedent(
             """
         ************* Module data.clientmodule_test
-        pylint/test/data/clientmodule_test.py:10:8: W0612: Unused variable 'local_variable' (unused-variable)
-        pylint/test/data/clientmodule_test.py:18:4: C0111: Missing method docstring (missing-docstring)
-        pylint/test/data/clientmodule_test.py:22:0: C0111: Missing class docstring (missing-docstring)
-        """
+        {0}:10:8: W0612: Unused variable 'local_variable' (unused-variable)
+        {0}:18:4: C0111: Missing method docstring (missing-docstring)
+        {0}:22:0: C0111: Missing class docstring (missing-docstring)
+        """.format(module)
         )
         self._test_output(
             [module, "--disable=all", "--enable=all", "-rn"], expected_output=expected
         )
 
     def test_wrong_import_position_when_others_disabled(self):
+        module1 = join(HERE, "regrtest_data", "import_something.py")
+        module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
         expected_output = textwrap.dedent(
             """
         ************* Module wrong_import_position
-        pylint/test/regrtest_data/wrong_import_position.py:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
-        """
+        {}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
+        """.format(module2)
         )
-        module1 = join(HERE, "regrtest_data", "import_something.py")
-        module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
         args = [
             module2,
             module1,
@@ -462,13 +462,13 @@ class TestRunTC(object):
         self._test_output([path], expected_output=expected)
 
     def test_error_mode_shows_no_score(self):
+        module = join(HERE, "regrtest_data", "application_crash.py")
         expected_output = textwrap.dedent(
             """
         ************* Module application_crash
-        pylint/test/regrtest_data/application_crash.py:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
-        """
+        {}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
+        """.format(module)
         )
-        module = join(HERE, "regrtest_data", "application_crash.py")
         self._test_output([module, "-E"], expected_output=expected_output)
 
     def test_evaluation_score_shown_by_default(self):
@@ -524,10 +524,10 @@ class TestRunTC(object):
         expected = textwrap.dedent(
             """
         ************* Module test_pylintrc_comments
-        pylint/test/regrtest_data/test_pylintrc_comments.py:2:0: W0311: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
-        pylint/test/regrtest_data/test_pylintrc_comments.py:1:0: C0111: Missing module docstring (missing-docstring)
-        pylint/test/regrtest_data/test_pylintrc_comments.py:1:0: C0111: Missing function docstring (missing-docstring)
-        """
+        {0}:2:0: W0311: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
+        {0}:1:0: C0111: Missing module docstring (missing-docstring)
+        {0}:1:0: C0111: Missing function docstring (missing-docstring)
+        """.format(path)
         )
         self._test_output(
             [path, "--rcfile=%s" % config_path, "-rn"], expected_output=expected
@@ -539,13 +539,13 @@ class TestRunTC(object):
         )
 
     def test_getdefaultencoding_crashes_with_lc_ctype_utf8(self):
+        module = join(HERE, "regrtest_data", "application_crash.py")
         expected_output = textwrap.dedent(
             """
         ************* Module application_crash
-        pylint/test/regrtest_data/application_crash.py:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
-        """
+        {}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
+        """.format(module)
         )
-        module = join(HERE, "regrtest_data", "application_crash.py")
         with _configure_lc_ctype("UTF-8"):
             self._test_output([module, "-E"], expected_output=expected_output)
 
@@ -564,7 +564,7 @@ class TestRunTC(object):
 
             self._test_output(
                 [module, "--output-format=parseable"],
-                expected_output=join(os.getcwd(), file_name),
+                expected_output=file_name,
             )
         finally:
             os.remove(module)
@@ -573,7 +573,7 @@ class TestRunTC(object):
     @pytest.mark.parametrize(
         "input_path,module,expected_path",
         [
-            (join(HERE, "mymodule.py"), "mymodule", "pylint/test/mymodule.py"),
+            (join(HERE, "mymodule.py"), "mymodule", join(HERE, "mymodule.py")),
             ("mymodule.py", "mymodule", "mymodule.py"),
         ],
     )
