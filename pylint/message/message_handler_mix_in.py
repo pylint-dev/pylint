@@ -343,7 +343,7 @@ class MessagesHandlerMixIn:
                     }
         return by_checker
 
-    def get_full_documentation(self):
+    def get_checkers_documentation(self):
         result = get_rst_title("Pylint global options and switches", "-")
         result += """
 Pylint provides global options and switches.
@@ -384,7 +384,7 @@ Below is a list of all checkers and their features.
         """output a full documentation in ReST format"""
         if not stream:
             stream = sys.stdout
-        print(self.get_full_documentation()[:-1], file=stream)
+        print(self.get_checkers_documentation()[:-1], file=stream)
 
     @staticmethod
     def _print_checker_doc(information, stream=None):
