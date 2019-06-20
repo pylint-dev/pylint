@@ -43,3 +43,5 @@ from pylint.message.message import Message
 from pylint.message.message_definition import MessageDefinition
 from pylint.message.message_handler_mix_in import MessagesHandlerMixIn
 from pylint.message.message_store import MessagesStore
+
+__all__ = ["Message", "MessageDefinition", "MessagesHandlerMixIn", "MessagesStore"]
