@@ -46,6 +46,7 @@ import pickle
 import re
 import sys
 import time
+from typing import Any, Dict, Tuple
 
 from pylint import utils
 
@@ -796,7 +797,7 @@ class OptionsProviderMixIn:
     # those attributes should be overridden
     priority = -1
     name = "default"
-    options = ()
+    options = ()  # type: Tuple[Tuple[str, Dict[str, Any]], ...]
     level = 0
 
     def __init__(self):
