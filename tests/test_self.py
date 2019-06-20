@@ -34,12 +34,12 @@ from unittest import mock
 
 import pytest
 
-from pylint import utils
 from pylint.lint import Run
-from pylint.reporters import BaseReporter, JSONReporter
+from pylint.reporters import JSONReporter
 from pylint.reporters.text import *
 
 HERE = abspath(dirname(__file__))
+CLEAN_PATH = dirname(dirname(__file__)) + "/"
 
 
 @contextlib.contextmanager
@@ -121,16 +121,16 @@ class TestRunTC(object):
                     Run(args, reporter=reporter)
             return cm.value.code
 
-    def _clean_paths(self, output):
-        """Remove version-specific tox parent directories from paths."""
-        return re.sub(
-            "^py.+/site-packages/", "", output.replace("\\", "/"), flags=re.MULTILINE
-        )
+    @staticmethod
+    def _clean_paths(output):
+        """Normalize path to the tests directory."""
+        return re.sub(CLEAN_PATH, "", output.replace("\\", "/"), flags=re.MULTILINE)
 
     def _test_output(self, args, expected_output):
         out = StringIO()
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue())
+        expected_output = self._clean_paths(expected_output)
         assert expected_output.strip() in actual_output.strip()
 
     def test_pkginfo(self):
@@ -342,7 +342,9 @@ class TestRunTC(object):
         {0}:10:8: W0612: Unused variable 'local_variable' (unused-variable)
         {0}:18:4: C0111: Missing method docstring (missing-docstring)
         {0}:22:0: C0111: Missing class docstring (missing-docstring)
-        """.format(module)
+        """.format(
+                module
+            )
         )
         self._test_output(
             [module, "--disable=all", "--enable=all", "-rn"], expected_output=expected
@@ -355,7 +357,9 @@ class TestRunTC(object):
             """
         ************* Module wrong_import_position
         {}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
-        """.format(module2)
+        """.format(
+                module2
+            )
         )
         args = [
             module2,
@@ -376,7 +380,7 @@ class TestRunTC(object):
             # If ~/.pylintrc is present remove the
             # Using config file...  line
             actual_output = actual_output[actual_output.find("\n") :]
-        assert expected_output.strip() == actual_output.strip()
+        assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
     def test_import_itself_not_accounted_for_relative_imports(self):
         expected = "Your code has been rated at 10.00/10"
@@ -467,7 +471,9 @@ class TestRunTC(object):
             """
         ************* Module application_crash
         {}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
-        """.format(module)
+        """.format(
+                module
+            )
         )
         self._test_output([module, "-E"], expected_output=expected_output)
 
@@ -527,7 +533,9 @@ class TestRunTC(object):
         {0}:2:0: W0311: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
         {0}:1:0: C0111: Missing module docstring (missing-docstring)
         {0}:1:0: C0111: Missing function docstring (missing-docstring)
-        """.format(path)
+        """.format(
+                path
+            )
         )
         self._test_output(
             [path, "--rcfile=%s" % config_path, "-rn"], expected_output=expected
@@ -542,9 +550,10 @@ class TestRunTC(object):
         module = join(HERE, "regrtest_data", "application_crash.py")
         expected_output = textwrap.dedent(
             """
-        ************* Module application_crash
         {}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
-        """.format(module)
+        """.format(
+                module
+            )
         )
         with _configure_lc_ctype("UTF-8"):
             self._test_output([module, "-E"], expected_output=expected_output)
@@ -563,8 +572,7 @@ class TestRunTC(object):
                 test_target.write("a,b = object()")
 
             self._test_output(
-                [module, "--output-format=parseable"],
-                expected_output=file_name,
+                [module, "--output-format=parseable"], expected_output=file_name
             )
         finally:
             os.remove(module)
