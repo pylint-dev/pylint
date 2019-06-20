@@ -93,7 +93,6 @@ def get_plugins_info(linter, doc_files):
             by_checker[checker]["msgs"].update(checker.msgs)
             by_checker[checker]["reports"] += checker.reports
             by_checker[checker]["doc"] += doc
-            by_checker[checker]["name"] += checker.name
             by_checker[checker]["module"] += module
         except KeyError:
             by_checker[checker] = {
@@ -102,7 +101,6 @@ def get_plugins_info(linter, doc_files):
                 "msgs": dict(checker.msgs),
                 "reports": list(checker.reports),
                 "doc": doc,
-                "name": checker.name,
                 "module": module,
             }
     return by_checker
