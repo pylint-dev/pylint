@@ -17,9 +17,6 @@ jobs:
       env: TOXENV=formatting
     - python: 3.6
       env: TOXENV=mypy
-    - stage: tests-cpython
-      python: 3.4
-      env: TOXENV=py34
     - python: 3.5-dev
       env: TOXENV=py35
     - python: 3.6

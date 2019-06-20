@@ -11,6 +11,8 @@ Release date: TBA
 
   Close #2928
 
+* Dropped support for Python 3.4.
+
 * ``assignment-from-no-return`` not triggered for async methods.
 
   Close #2902
