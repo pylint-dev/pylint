@@ -228,13 +228,7 @@ class MessagesHandlerMixIn:
             return self._msgs_state.get(msgid, True)
 
     def add_message(
-        self,
-        msg_descr,
-        line=None,
-        node=None,
-        args=None,
-        confidence=UNDEFINED,
-        col_offset=None,
+        self, msgid, line=None, node=None, args=None, confidence=None, col_offset=None
     ):
         """Adds a message given by ID or name.
 
@@ -244,7 +238,9 @@ class MessagesHandlerMixIn:
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
-        message_definitions = self.msgs_store.get_message_definitions(msg_descr)
+        if confidence is None:
+            confidence = UNDEFINED
+        message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             self.add_one_message(
                 message_definition, line, node, args, confidence, col_offset
