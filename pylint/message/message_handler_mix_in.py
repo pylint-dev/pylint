@@ -244,14 +244,11 @@ class MessagesHandlerMixIn:
                 message_definition, line, node, args, confidence, col_offset
             )
 
-    def add_one_message(
-        self, message_definition, line, node, args, confidence, col_offset
-    ):
-        # backward compatibility, message may not have a symbol
-        symbol = message_definition.symbol or message_definition.msgid
-        # Fatal messages and reports are special, the node/scope distinction
-        # does not apply to them.
+    @staticmethod
+    def check_message_definition(message_definition, line, node):
         if message_definition.msgid[0] not in _SCOPE_EXEMPT:
+            # Fatal messages and reports are special, the node/scope distinction
+            # does not apply to them.
             if message_definition.scope == WarningScope.LINE:
                 if line is None:
                     raise InvalidMessageError(
@@ -271,6 +268,12 @@ class MessagesHandlerMixIn:
                         % message_definition.msgid
                     )
 
+    def add_one_message(
+        self, message_definition, line, node, args, confidence, col_offset
+    ):
+        # backward compatibility, message may not have a symbol
+        symbol = message_definition.symbol or message_definition.msgid
+        self.check_message_definition(message_definition, line, node)
         if line is None and node is not None:
             line = node.fromlineno
         if col_offset is None and hasattr(node, "col_offset"):
