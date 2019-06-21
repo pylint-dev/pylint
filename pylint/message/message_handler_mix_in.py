@@ -249,27 +249,28 @@ class MessagesHandlerMixIn:
     def add_one_message(
         self, message_definition, line, node, args, confidence, col_offset
     ):
-        msgid = message_definition.msgid
         # backward compatibility, message may not have a symbol
-        symbol = message_definition.symbol or msgid
+        symbol = message_definition.symbol or message_definition.msgid
         # Fatal messages and reports are special, the node/scope distinction
         # does not apply to them.
-        if msgid[0] not in _SCOPE_EXEMPT:
+        if message_definition.msgid[0] not in _SCOPE_EXEMPT:
             if message_definition.scope == WarningScope.LINE:
                 if line is None:
                     raise InvalidMessageError(
-                        "Message %s must provide line, got None" % msgid
+                        "Message %s must provide line, got None"
+                        % message_definition.msgid
                     )
                 if node is not None:
                     raise InvalidMessageError(
                         "Message %s must only provide line, "
-                        "got line=%s, node=%s" % (msgid, line, node)
+                        "got line=%s, node=%s" % (message_definition.msgid, line, node)
                     )
             elif message_definition.scope == WarningScope.NODE:
                 # Node-based warnings may provide an override line.
                 if node is None:
                     raise InvalidMessageError(
-                        "Message %s must provide Node, got None" % msgid
+                        "Message %s must provide Node, got None"
+                        % message_definition.msgid
                     )
 
         if line is None and node is not None:
@@ -278,10 +279,12 @@ class MessagesHandlerMixIn:
             col_offset = node.col_offset
 
         # should this message be displayed
-        if not self.is_message_enabled(msgid, line, confidence):
+        if not self.is_message_enabled(message_definition.msgid, line, confidence):
             self.file_state.handle_ignored_message(
-                self.get_message_state_scope(msgid, line, confidence),
-                msgid,
+                self.get_message_state_scope(
+                    message_definition.msgid, line, confidence
+                ),
+                message_definition.msgid,
                 line,
                 node,
                 args,
@@ -289,8 +292,8 @@ class MessagesHandlerMixIn:
             )
             return
         # update stats
-        msg_cat = MSG_TYPES[msgid[0]]
-        self.msg_status |= MSG_TYPES_STATUS[msgid[0]]
+        msg_cat = MSG_TYPES[message_definition.msgid[0]]
+        self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
         self.stats[msg_cat] += 1
         self.stats["by_module"][self.current_name][msg_cat] += 1
         try:
@@ -312,7 +315,7 @@ class MessagesHandlerMixIn:
         # add the message
         self.reporter.handle_message(
             Message(
-                msgid,
+                message_definition.msgid,
                 symbol,
                 (abspath, path, module, obj, line or 1, col_offset or 0),
                 msg,
