@@ -31,6 +31,9 @@ class MessageDefinition:
         self.msgid = msgid
         self.msg = msg
         self.description = description
+        if not symbol:
+            # backward compatibility, message may not have a symbol
+            symbol = msgid
         self.symbol = symbol
         self.scope = scope
         self.minversion = minversion
