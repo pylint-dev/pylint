@@ -306,4 +306,4 @@ contributors:
 
 * Nicholas Smith: contributor
 
-* Oisín Moran: contributor
+* Oisin Moran: contributor
