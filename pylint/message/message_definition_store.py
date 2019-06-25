@@ -171,10 +171,7 @@ class MessageDefinitionStore:
         raise UnknownMessageError(error_msg)
 
     def get_msg_display_string(self, msgid):
-        """Generates a user-consumable representation of a message.
-
-        Can be just the message ID or the ID and the symbol.
-        """
+        """Generates a user-consumable representation of a message. """
         message_definitions = self.get_message_definitions(msgid)
         if len(message_definitions) == 1:
             return repr(message_definitions[0].symbol)
