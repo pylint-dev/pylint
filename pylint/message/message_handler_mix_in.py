@@ -95,15 +95,11 @@ class MessagesHandlerMixIn:
             return
 
         # msgid is a category?
-        def category_id(cid):
-            cid = cid.upper()
-            if cid in MSG_TYPES:
-                return cid
-            return MSG_TYPES_LONG.get(cid)
-
-        catid = category_id(msgid)
-        if catid is not None:
-            for _msgid in self.msgs_store._msgs_by_category.get(catid):
+        category_id = msgid.upper()
+        if category_id not in MSG_TYPES:
+            category_id = MSG_TYPES_LONG.get(category_id)
+        if category_id is not None:
+            for _msgid in self.msgs_store._msgs_by_category.get(category_id):
                 self._set_msg_status(_msgid, enable, scope, line)
             return
 
