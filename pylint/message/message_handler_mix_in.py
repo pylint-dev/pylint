@@ -14,18 +14,14 @@ from pylint.constants import (
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
+    MSG_TYPES_LONG,
     MSG_TYPES_STATUS,
     WarningScope,
 )
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.interfaces import UNDEFINED
 from pylint.message.message import Message
-from pylint.utils import (
-    category_id,
-    get_module_and_frameid,
-    get_rst_section,
-    get_rst_title,
-)
+from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
 
 
 class MessagesHandlerMixIn:
@@ -99,6 +95,12 @@ class MessagesHandlerMixIn:
             return
 
         # msgid is a category?
+        def category_id(cid):
+            cid = cid.upper()
+            if cid in MSG_TYPES:
+                return cid
+            return MSG_TYPES_LONG.get(cid)
+
         catid = category_id(msgid)
         if catid is not None:
             for _msgid in self.msgs_store._msgs_by_category.get(catid):

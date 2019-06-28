@@ -15,7 +15,7 @@ from os.path import basename, dirname, exists, isdir, join, normpath, splitext
 
 from astroid import Module, modutils
 
-from pylint.constants import MSG_TYPES, MSG_TYPES_LONG, PY_EXTS
+from pylint.constants import PY_EXTS
 
 
 def normalize_text(text, line_len=80, indent=""):
@@ -42,13 +42,6 @@ def get_module_and_frameid(node):
             frame = None
     obj.reverse()
     return module, ".".join(obj)
-
-
-def category_id(cid):
-    cid = cid.upper()
-    if cid in MSG_TYPES:
-        return cid
-    return MSG_TYPES_LONG.get(cid)
 
 
 def get_rst_title(title, character):
