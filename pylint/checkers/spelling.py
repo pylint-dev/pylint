@@ -57,7 +57,7 @@ if enchant is not None:
 else:
     dicts = "none"
     dict_choices = [""]
-    instr = " To make it working install python-enchant package."
+    instr = " To make it work, install the python-enchant package."
 
 
 class WordsWithDigigtsFilter(Filter):
@@ -184,7 +184,7 @@ class SpellingChecker(BaseTokenChecker):
                 "metavar": "<dict name>",
                 "choices": dict_choices,
                 "help": "Spelling dictionary name. "
-                "Available dictionaries: %s.%s." % (dicts, instr),
+                "Available dictionaries: %s.%s" % (dicts, instr),
             },
         ),
         (
@@ -202,7 +202,7 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "",
                 "type": "string",
                 "metavar": "<path to file>",
-                "help": "A path to a file that contains private "
+                "help": "A path to a file that contains the private "
                 "dictionary; one word per line.",
             },
         ),
@@ -212,9 +212,9 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "n",
                 "type": "yn",
                 "metavar": "<y_or_n>",
-                "help": "Tells whether to store unknown words to "
-                "indicated private dictionary in "
-                "--spelling-private-dict-file option instead of "
+                "help": "Tells whether to store unknown words to the "
+                "private dictionary (see the "
+                "--spelling-private-dict-file option) instead of "
                 "raising a message.",
             },
         ),
