@@ -1237,7 +1237,7 @@ class FormatChecker(BaseTokenChecker):
         max_chars = self.config.max_line_length
         ignore_long_line = self.config.ignore_long_lines
 
-        def check_line(line, i):
+        def check_line(line, i, check_line_length=True):
             if not line.endswith("\n"):
                 self.add_message("missing-final-newline", line=i)
             else:
@@ -1252,17 +1252,8 @@ class FormatChecker(BaseTokenChecker):
                     )
                 # Don't count excess whitespace in the line length.
                 line = stripped_line
-            mobj = OPTION_RGX.search(line)
-            if mobj and "=" in line:
-                front_of_equal, _, back_of_equal = mobj.group(1).partition("=")
-                if front_of_equal.strip() == "disable":
-                    if "line-too-long" in {
-                        _msg_id.strip() for _msg_id in back_of_equal.split(",")
-                    }:
-                        return None
-                    line = line.rsplit("#", 1)[0].rstrip()
 
-            if len(line) > max_chars and not ignore_long_line.search(line):
+            if check_line_length and len(line) > max_chars and not ignore_long_line.search(line):
                 self.add_message("line-too-long", line=i, args=(len(line), max_chars))
             return i + 1
 
@@ -1279,6 +1270,20 @@ class FormatChecker(BaseTokenChecker):
             "\u2029",
         }
         unsplit = []
+        check_line_length = True
+        mobj = OPTION_RGX.search(lines)
+        if mobj and "=" in lines:
+            front_of_equal, _, back_of_equal = mobj.group(1).partition("=")
+            if front_of_equal.strip() == "disable":
+                if "line-too-long" in {
+                    _msg_id.strip() for _msg_id in back_of_equal.split(",")
+                }:
+                    check_line_length = False
+                # delete the pylint disable command from lines
+                lines = lines.rsplit("#", 1)[0].rstrip()
+                # reinsert the final newline if there was one
+                if back_of_equal.endswith("\n"):
+                    lines += "\n"
         for line in lines.splitlines(True):
             if line[-1] in unsplit_ends:
                 unsplit.append(line)
@@ -1289,12 +1294,12 @@ class FormatChecker(BaseTokenChecker):
                 line = "".join(unsplit)
                 unsplit = []
 
-            i = check_line(line, i)
+            i = check_line(line, i, check_line_length)
             if i is None:
                 break
 
         if unsplit:
-            check_line("".join(unsplit), i)
+            check_line("".join(unsplit), i, check_line_length)
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string
