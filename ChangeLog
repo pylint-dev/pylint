@@ -16,6 +16,8 @@ Release date: TBA
 
   Close #2928
 
+* Dropped support for Python 3.4.
+
 * ``assignment-from-no-return`` not triggered for async methods.
 
   Close #2902
@@ -156,6 +158,10 @@ Release date: TBA
   functions decorated with `typing.overload`.
 
   Close #1581
+
+* Fixed a false positive with ``consider-using-dict-comprehension`` for constructions that can't be converted to a comprehension
+
+  Close #2963
 
 What's New in Pylint 2.3.0?
 ===========================

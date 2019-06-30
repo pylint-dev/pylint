@@ -23,7 +23,7 @@ import unittest
 
 import astroid
 
-from pylint.checkers import base
+from pylint.checkers import BaseChecker, base
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 
@@ -526,3 +526,63 @@ class TestNamePresets(unittest.TestCase):
             self._test_name_is_incorrect_for_all_name_types(naming_style, name)
 
         self._test_should_always_pass(naming_style)
+
+
+class TestBaseChecker(unittest.TestCase):
+    def test_doc(self):
+        class OtherBasicChecker(BaseChecker):
+            name = "basic"
+            msgs = {
+                "W0001": (
+                    "Basic checker has an example.",
+                    "basic-checker-example",
+                    "Used nowhere and serves no purpose.",
+                )
+            }
+
+        class LessBasicChecker(OtherBasicChecker):
+            options = (
+                (
+                    "example-args",
+                    {
+                        "default": 42,
+                        "type": "int",
+                        "metavar": "<int>",
+                        "help": "Example of integer argument for the checker.",
+                    },
+                ),
+            )
+
+        basic = OtherBasicChecker()
+        expected_beginning = """\
+Basic checker
+~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``basic``.
+
+"""
+        expected_middle = """\
+Basic checker Options
+^^^^^^^^^^^^^^^^^^^^^
+:example-args:
+  Example of integer argument for the checker.
+
+  Default: ``42``
+
+"""
+        expected_end = """\
+Basic checker Messages
+^^^^^^^^^^^^^^^^^^^^^^
+:basic-checker-example (W0001): *Basic checker has an example.*
+  Used nowhere and serves no purpose.
+
+
+"""
+        self.assertEqual(str(basic), expected_beginning + expected_end)
+        self.assertEqual(repr(basic), "Checker 'basic' responsible for W0001")
+        less_basic = LessBasicChecker()
+
+        self.assertEqual(
+            str(less_basic), expected_beginning + expected_middle + expected_end
+        )
+        self.assertEqual(repr(less_basic), repr(basic))

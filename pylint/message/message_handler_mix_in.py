@@ -6,11 +6,10 @@
 from __future__ import print_function
 
 import sys
-from inspect import cleandoc
 
 from pylint.constants import (
-    _MSG_ORDER,
     _SCOPE_EXEMPT,
+    MAIN_CHECKER_NAME,
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
@@ -20,33 +19,13 @@ from pylint.constants import (
 )
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.interfaces import UNDEFINED
-from pylint.message.build_message_definition import build_message_definition
 from pylint.message.message import Message
-from pylint.utils.utils import (
-    _format_option_value,
+from pylint.utils import (
     category_id,
     get_module_and_frameid,
-    normalize_text,
+    get_rst_section,
+    get_rst_title,
 )
-
-
-def _rest_format_section(stream, section, options, doc=None):
-    """format an options section using as ReST formatted output"""
-    if section:
-        print("%s\n%s" % (section, "'" * len(section)), file=stream)
-    if doc:
-        print(normalize_text(doc, line_len=79, indent=""), file=stream)
-        print(file=stream)
-    for optname, optdict, value in options:
-        help_opt = optdict.get("help")
-        print(":%s:" % optname, file=stream)
-        if help_opt:
-            help_opt = normalize_text(help_opt, line_len=79, indent="  ")
-            print(help_opt, file=stream)
-        if value:
-            value = str(_format_option_value(optdict, value))
-            print(file=stream)
-            print("  Default: ``%s``" % value.replace("`` ", "```` ``"), file=stream)
 
 
 class MessagesHandlerMixIn:
@@ -345,113 +324,76 @@ class MessagesHandlerMixIn:
             )
         )
 
-    def print_full_documentation(self, stream=None):
-        """output a full documentation in ReST format"""
-        if not stream:
-            stream = sys.stdout
-
-        print("Pylint global options and switches", file=stream)
-        print("----------------------------------", file=stream)
-        print("", file=stream)
-        print("Pylint provides global options and switches.", file=stream)
-        print("", file=stream)
-
+    def _get_checkers_infos(self):
         by_checker = {}
         for checker in self.get_checkers():
-            if checker.name == "master":
+            name = checker.name
+            if name != "master":
+                try:
+                    by_checker[name]["checker"] = checker
+                    by_checker[name]["options"] += checker.options_and_values()
+                    by_checker[name]["msgs"].update(checker.msgs)
+                    by_checker[name]["reports"] += checker.reports
+                except KeyError:
+                    by_checker[name] = {
+                        "checker": checker,
+                        "options": list(checker.options_and_values()),
+                        "msgs": dict(checker.msgs),
+                        "reports": list(checker.reports),
+                    }
+        return by_checker
+
+    def get_checkers_documentation(self):
+        result = get_rst_title("Pylint global options and switches", "-")
+        result += """
+Pylint provides global options and switches.
+
+"""
+        for checker in self.get_checkers():
+            name = checker.name
+            if name == MAIN_CHECKER_NAME:
                 if checker.options:
                     for section, options in checker.options_by_section():
                         if section is None:
                             title = "General options"
                         else:
                             title = "%s options" % section.capitalize()
-                        print(title, file=stream)
-                        print("~" * len(title), file=stream)
-                        _rest_format_section(stream, None, options)
-                        print("", file=stream)
-            else:
-                name = checker.name
-                try:
-                    by_checker[name]["options"] += checker.options_and_values()
-                    by_checker[name]["msgs"].update(checker.msgs)
-                    by_checker[name]["reports"] += checker.reports
-                except KeyError:
-                    by_checker[name] = {
-                        "options": list(checker.options_and_values()),
-                        "msgs": dict(checker.msgs),
-                        "reports": list(checker.reports),
-                    }
+                        result += get_rst_title(title, "~")
+                        result += "%s\n" % get_rst_section(None, options)
+        result += get_rst_title("Pylint checkers' options and switches", "-")
+        result += """\
 
-        print("Pylint checkers' options and switches", file=stream)
-        print("-------------------------------------", file=stream)
-        print("", file=stream)
-        print("Pylint checkers can provide three set of features:", file=stream)
-        print("", file=stream)
-        print("* options that control their execution,", file=stream)
-        print("* messages that they can raise,", file=stream)
-        print("* reports that they can generate.", file=stream)
-        print("", file=stream)
-        print("Below is a list of all checkers and their features.", file=stream)
-        print("", file=stream)
+Pylint checkers can provide three set of features:
 
-        for checker, info in sorted(by_checker.items()):
-            self._print_checker_doc(checker, info, stream=stream)
+* options that control their execution,
+* messages that they can raise,
+* reports that they can generate.
+
+Below is a list of all checkers and their features.
+
+"""
+        by_checker = self._get_checkers_infos()
+        for checker in sorted(by_checker):
+            information = by_checker[checker]
+            checker = information["checker"]
+            del information["checker"]
+            result += checker.get_full_documentation(**information)
+        return result
+
+    def print_full_documentation(self, stream=None):
+        """output a full documentation in ReST format"""
+        if not stream:
+            stream = sys.stdout
+        print(self.get_checkers_documentation()[:-1], file=stream)
 
     @staticmethod
-    def _print_checker_doc(checker_name, info, stream=None):
+    def _print_checker_doc(information, stream=None):
         """Helper method for print_full_documentation.
 
         Also used by doc/exts/pylint_extensions.py.
         """
         if not stream:
             stream = sys.stdout
-
-        doc = info.get("doc")
-        module = info.get("module")
-        msgs = info.get("msgs")
-        options = info.get("options")
-        reports = info.get("reports")
-
-        checker_title = "%s checker" % (checker_name.replace("_", " ").title())
-
-        if module:
-            # Provide anchor to link against
-            print(".. _%s:\n" % module, file=stream)
-        print(checker_title, file=stream)
-        print("~" * len(checker_title), file=stream)
-        print("", file=stream)
-        if module:
-            print("This checker is provided by ``%s``." % module, file=stream)
-        print("Verbatim name of the checker is ``%s``." % checker_name, file=stream)
-        print("", file=stream)
-        if doc:
-            # Provide anchor to link against
-            title = "{} Documentation".format(checker_title)
-            print(title, file=stream)
-            print("^" * len(title), file=stream)
-            print(cleandoc(doc), file=stream)
-            print("", file=stream)
-        if options:
-            title = "{} Options".format(checker_title)
-            print(title, file=stream)
-            print("^" * len(title), file=stream)
-            _rest_format_section(stream, None, options)
-            print("", file=stream)
-        if msgs:
-            title = "{} Messages".format(checker_title)
-            print(title, file=stream)
-            print("^" * len(title), file=stream)
-            for msgid, msg in sorted(
-                msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
-            ):
-                msg = build_message_definition(checker_name, msgid, msg)
-                print(msg.format_help(checkerref=False), file=stream)
-            print("", file=stream)
-        if reports:
-            title = "{} Reports".format(checker_title)
-            print(title, file=stream)
-            print("^" * len(title), file=stream)
-            for report in reports:
-                print(":%s: %s" % report[:2], file=stream)
-            print("", file=stream)
-        print("", file=stream)
+        checker = information["checker"]
+        del information["checker"]
+        print(checker.get_full_documentation(**information)[:-1], file=stream)

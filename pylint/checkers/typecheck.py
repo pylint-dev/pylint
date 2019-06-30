@@ -35,7 +35,6 @@
 """
 
 import builtins
-import collections
 import fnmatch
 import heapq
 import itertools
@@ -44,6 +43,7 @@ import re
 import shlex
 import sys
 import types
+from collections.abc import Sequence
 from functools import singledispatch
 
 import astroid
@@ -82,7 +82,7 @@ ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
 
 def _unflatten(iterable):
     for index, elem in enumerate(iterable):
-        if isinstance(elem, collections.Sequence) and not isinstance(elem, str):
+        if isinstance(elem, Sequence) and not isinstance(elem, str):
             for single_elem in _unflatten(elem):
                 yield single_elem
         elif elem and not index:

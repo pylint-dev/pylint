@@ -237,6 +237,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1717": (
             "Consider using a dictionary comprehension",
             "consider-using-dict-comprehension",
+            "Emitted when we detect the creation of a dictionary "
+            "using the dict() callable and a transient list. "
             "Although there is nothing syntactically wrong with this code, "
             "it is hard to read and can be simplified to a dict comprehension."
             "Also it is faster since you don't need to create another "
@@ -617,11 +619,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if (
             isinstance(node.func, astroid.Name)
             and node.args
-            and node.func.name in {"dict", "set"}
             and isinstance(node.args[0], astroid.ListComp)
         ):
-            message_name = "consider-using-{}-comprehension".format(node.func.name)
-            self.add_message(message_name, node=node)
+            if node.func.name == "dict" and not isinstance(
+                node.args[0].elt, astroid.Call
+            ):
+                message_name = "consider-using-dict-comprehension"
+                self.add_message(message_name, node=node)
+            elif node.func.name == "set":
+                message_name = "consider-using-set-comprehension"
+                self.add_message(message_name, node=node)
 
     @utils.check_messages(
         "stop-iteration-return",

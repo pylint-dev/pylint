@@ -113,7 +113,7 @@ def test_interfaces():
 
 
 def test_from_directory(project):
-    expected = os.path.join("pylint", "test", "data", "__init__.py")
+    expected = os.path.join("tests", "data", "__init__.py")
     assert project.name == "data"
     assert project.path.endswith(expected)
 

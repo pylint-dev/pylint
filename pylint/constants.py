@@ -32,6 +32,11 @@ MSG_TYPES_LONG = {v: k for k, v in MSG_TYPES.items()}
 
 MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 
+# You probably don't want to change the MAIN_CHECKER_NAME
+# This would affect rcfile generation and retro-compatibility
+# on all project using [MASTER] in their rcfile.
+MAIN_CHECKER_NAME = "master"
+
 
 class WarningScope:
     LINE = "line-based-msg"
