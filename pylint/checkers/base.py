@@ -2131,7 +2131,7 @@ class ComparisonChecker(_BasicChecker):
             "Python is to use isinstance(x, Y) rather than "
             "type(x) == Y, type(x) is Y. Though there are unusual "
             "situations where these give different results.",
-            {"old_names": [("W0154", "unidiomatic-typecheck")]},
+            {"old_names": [("W0154", "old-unidiomatic-typecheck")]},
         ),
         "R0123": (
             "Comparison to literal",
