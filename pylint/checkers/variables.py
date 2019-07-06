@@ -450,14 +450,14 @@ MSGS = {
         "left side has %d label(s), right side has %d value(s)",
         "unbalanced-tuple-unpacking",
         "Used when there is an unbalanced tuple unpacking in assignment",
-        {"old_names": [("E0632", "unbalanced-tuple-unpacking")]},
+        {"old_names": [("E0632", "old-unbalanced-tuple-unpacking")]},
     ),
     "E0633": (
         "Attempting to unpack a non-sequence%s",
         "unpacking-non-sequence",
         "Used when something which is not "
         "a sequence is used in an unpack assignment",
-        {"old_names": [("W0633", "unpacking-non-sequence")]},
+        {"old_names": [("W0633", "old-unpacking-non-sequence")]},
     ),
     "W0640": (
         "Cell variable %s defined in loop",
