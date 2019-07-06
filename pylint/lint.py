@@ -78,7 +78,7 @@ from astroid.builder import AstroidBuilder
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.__pkginfo__ import version
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES, OPTION_RGX
-from pylint.message import Message, MessagesHandlerMixIn, MessagesStore
+from pylint.message import Message, MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
 
@@ -593,7 +593,7 @@ class PyLinter(
         # some stuff has to be done before ancestors initialization...
         #
         # messages store / checkers / reporter / astroid manager
-        self.msgs_store = MessagesStore()
+        self.msgs_store = MessageDefinitionStore()
         self.reporter = None
         self._reporter_name = None
         self._reporters = {}

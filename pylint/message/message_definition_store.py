@@ -10,7 +10,7 @@ import collections
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 
 
-class MessagesStore:
+class MessageDefinitionStore:
 
     """The messages store knows information about every possible message but has
     no particular state during analysis.
