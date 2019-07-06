@@ -8,10 +8,11 @@ import os
 import re
 import sys
 
-import pkg_resources
 import sphinx
 
+from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import PyLinter
+from pylint.utils import get_rst_title
 
 # Some modules have been renamed and deprecated under their old names.
 # Skip documenting these modules since:
@@ -50,8 +51,9 @@ def builder_inited(app):
         base_path, "doc", "technical_reference", "extensions.rst"
     )
     with open(extensions_doc, "w") as stream:
-        stream.write("Optional Pylint checkers in the extensions module\n")
-        stream.write("=================================================\n\n")
+        stream.write(
+            get_rst_title("Optional Pylint checkers in the extensions module", "=")
+        )
         stream.write("Pylint provides the following optional plugins:\n\n")
         for module in modules:
             stream.write("- :ref:`{}`\n".format(module))
@@ -65,47 +67,43 @@ def builder_inited(app):
             "\n    load-plugins=pylint.extensions.docparams,"
             "pylint.extensions.docstyle\n\n"
         )
-        by_module = get_plugins_info(linter, doc_files)
-        for module, info in sorted(by_module.items()):
-            linter._print_checker_doc(info["name"], info, stream=stream)
+        by_checker = get_plugins_info(linter, doc_files)
+        for checker, information in sorted(by_checker.items()):
+            linter._print_checker_doc(information, stream=stream)
 
 
 def get_plugins_info(linter, doc_files):
-    by_module = {}
-
+    by_checker = {}
     for checker in linter.get_checkers():
-        if checker.name == "master":
+        if checker.name == MAIN_CHECKER_NAME:
             continue
         module = checker.__module__
         # Plugins only - skip over core checkers
         if re.match("pylint.checkers", module):
             continue
-
         # Find any .rst documentation associated with this plugin
         doc = ""
         doc_file = doc_files.get(module)
         if doc_file:
             with open(doc_file, "r") as f:
                 doc = f.read()
-
         try:
-            by_module[module]["options"] += checker.options_and_values()
-            by_module[module]["msgs"].update(checker.msgs)
-            by_module[module]["reports"] += checker.reports
-            by_module[module]["doc"] += doc
-            by_module[module]["name"] += checker.name
-            by_module[module]["module"] += module
+            by_checker[checker]["checker"] = checker
+            by_checker[checker]["options"] += checker.options_and_values()
+            by_checker[checker]["msgs"].update(checker.msgs)
+            by_checker[checker]["reports"] += checker.reports
+            by_checker[checker]["doc"] += doc
+            by_checker[checker]["module"] += module
         except KeyError:
-            by_module[module] = {
+            by_checker[checker] = {
+                "checker": checker,
                 "options": list(checker.options_and_values()),
                 "msgs": dict(checker.msgs),
                 "reports": list(checker.reports),
                 "doc": doc,
-                "name": checker.name,
                 "module": module,
             }
-
-    return by_module
+    return by_checker
 
 
 def setup(app):

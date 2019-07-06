@@ -38,6 +38,33 @@ def store():
     return store
 
 
+def test_format_help(capsys, store):
+    store.help_message([])
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    store.help_message(["W1234", "E1234", "C1234"])
+    captured = capsys.readouterr()
+    assert (
+        captured.out
+        == """:msg-symbol (W1234): *message*
+  msg description. This message belongs to the achecker checker.
+
+:duplicate-keyword-arg (E1234): *Duplicate keyword argument %r in %s call*
+  Used when a function call passes the same keyword argument multiple times.
+  This message belongs to the achecker checker. It can't be emitted when using
+  Python >= 2.6.
+
+No such message id or symbol 'C1234'.
+
+"""
+    )
+
+
+def test_get_msg_display_string(store):
+    assert store.get_msg_display_string("W1234") == "'msg-symbol'"
+    assert store.get_msg_display_string("E1234") == "'duplicate-keyword-arg'"
+
+
 class TestMessagesStore(object):
     def _compare_messages(self, desc, msg, checkerref=False):
         assert desc == msg.format_help(checkerref=checkerref)

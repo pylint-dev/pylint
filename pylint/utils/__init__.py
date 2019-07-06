@@ -56,6 +56,8 @@ from pylint.utils.utils import (
     format_section,
     get_global_option,
     get_module_and_frameid,
+    get_rst_section,
+    get_rst_title,
     normalize_text,
     register_plugins,
     safe_decode,
