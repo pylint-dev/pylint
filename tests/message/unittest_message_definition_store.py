@@ -10,12 +10,12 @@ import pytest
 
 from pylint.checkers import BaseChecker
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
-from pylint.message import MessageDefinition, MessagesStore
+from pylint.message import MessageDefinition, MessageDefinitionStore
 
 
 @pytest.fixture
 def store():
-    store = MessagesStore()
+    store = MessageDefinitionStore()
 
     class Checker(BaseChecker):
         name = "achecker"
