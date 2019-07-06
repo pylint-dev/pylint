@@ -7,6 +7,8 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Excluded `attrs` from `too-few-public-methods` check. Close #2988.
+
 * ``unused-import`` emitted for the right import names in function scopes.
 
   Close #2928
