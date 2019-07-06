@@ -78,3 +78,7 @@ class Mine:
     @prop.setter
     def prop(self, value):
         self.__prop = value
+
+class DataClass:
+    def __post_init__(self):
+        self.a = 42

@@ -334,7 +334,7 @@ max-public-methods=25
 [CLASSES]
 
 # List of method names used to declare (i.e. assign) instance attributes.
-defining-attr-methods=__init__,__new__,setUp
+defining-attr-methods=__init__,__new__,setUp,__post_init__
 
 # List of valid names for the first argument in a class method.
 valid-classmethod-first-arg=cls

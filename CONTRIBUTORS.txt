@@ -305,3 +305,5 @@ contributors:
 * Agustin Toledo: contributor
 
 * Nicholas Smith: contributor
+
+* Andrzej Klajnert: contributor
