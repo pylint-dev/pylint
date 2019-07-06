@@ -10,12 +10,12 @@ import pytest
 
 from pylint.checkers import BaseChecker
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
-from pylint.message import MessageDefinition, MessagesStore
+from pylint.message import MessageDefinition, MessageDefinitionStore
 
 
 @pytest.fixture
 def store():
-    store = MessagesStore()
+    store = MessageDefinitionStore()
 
     class Checker(BaseChecker):
         name = "achecker"
@@ -65,7 +65,7 @@ def test_get_msg_display_string(store):
     assert store.get_msg_display_string("E1234") == "'duplicate-keyword-arg'"
 
 
-class TestMessagesStore(object):
+class TestMessageDefinitionStore(object):
     def _compare_messages(self, desc, msg, checkerref=False):
         assert desc == msg.format_help(checkerref=checkerref)
 
