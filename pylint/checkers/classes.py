@@ -1680,8 +1680,8 @@ class SpecialMethodsChecker(BaseChecker):
             "iterable (i.e. has no `%s` method)" % NEXT_METHOD,
             {
                 "old_names": [
-                    ("W0234", "non-iterator-returned"),
-                    ("E0234", "non-iterator-returned"),
+                    ("W0234", "old-non-iterator-returned-1"),
+                    ("E0234", "old-non-iterator-returned-2"),
                 ]
             },
         ),

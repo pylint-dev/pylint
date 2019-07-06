@@ -141,13 +141,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Used when a function or a method has too many nested "
             "blocks. This makes the code less understandable and "
             "maintainable.",
-            {"old_names": [("R0101", "too-many-nested-blocks")]},
+            {"old_names": [("R0101", "old-too-many-nested-blocks")]},
         ),
         "R1703": (
             "The if statement can be replaced with %s",
             "simplifiable-if-statement",
             "Used when an if statement can be replaced with 'bool(test)'. ",
-            {"old_names": [("R0102", "simplifiable-if-statement")]},
+            {"old_names": [("R0102", "old-simplifiable-if-statement")]},
         ),
         "R1704": (
             "Redefining argument with the local name %r",

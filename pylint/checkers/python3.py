@@ -189,7 +189,7 @@ class Python3Checker(checkers.BaseChecker):
             "Python3 will not allow implicit unpacking of "
             "exceptions in except clauses. "
             "See http://www.python.org/dev/peps/pep-3110/",
-            {"old_names": [("W0712", "unpacking-in-except")]},
+            {"old_names": [("W0712", "old-unpacking-in-except")]},
         ),
         "E1604": (
             "Use raise ErrorClass(args) instead of raise ErrorClass, args.",
@@ -197,14 +197,14 @@ class Python3Checker(checkers.BaseChecker):
             "Used when the alternate raise syntax "
             "'raise foo, bar' is used "
             "instead of 'raise foo(bar)'.",
-            {"old_names": [("W0121", "old-raise-syntax")]},
+            {"old_names": [("W0121", "old-old-raise-syntax")]},
         ),
         "E1605": (
             "Use of the `` operator",
             "backtick",
             'Used when the deprecated "``" (backtick) operator is used '
             "instead  of the str() function.",
-            {"scope": WarningScope.NODE, "old_names": [("W0333", "backtick")]},
+            {"scope": WarningScope.NODE, "old_names": [("W0333", "old-backtick")]},
         ),
         "E1609": (
             "Import * only allowed at module level",
@@ -358,14 +358,14 @@ class Python3Checker(checkers.BaseChecker):
             "indexing-exception",
             "Indexing exceptions will not work on Python 3. Use "
             "`exception.args[index]` instead.",
-            {"old_names": [("W0713", "indexing-exception")]},
+            {"old_names": [("W0713", "old-indexing-exception")]},
         ),
         "W1625": (
             "Raising a string exception",
             "raising-string",
             "Used when a string exception is raised. This will not "
             "work on Python 3.",
-            {"old_names": [("W0701", "raising-string")]},
+            {"old_names": [("W0701", "old-raising-string")]},
         ),
         "W1626": (
             "reload built-in referenced",
@@ -1369,7 +1369,7 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
             "old-ne-operator",
             'Used when the deprecated "<>" operator is used instead '
             'of "!=". This is removed in Python 3.',
-            {"maxversion": (3, 0), "old_names": [("W0331", "old-ne-operator")]},
+            {"maxversion": (3, 0), "old_names": [("W0331", "old-old-ne-operator")]},
         ),
         "E1608": (
             "Use of old octal literal",

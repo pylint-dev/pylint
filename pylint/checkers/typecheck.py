@@ -289,7 +289,7 @@ MSGS = {
         "assignment-from-none",
         "Used when an assignment is done on a function call but the "
         "inferred function returns nothing but None.",
-        {"old_names": [("W1111", "assignment-from-none")]},
+        {"old_names": [("W1111", "old-assignment-from-none")]},
     ),
     "E1129": (
         "Context manager '%s' doesn't implement __enter__ and __exit__.",
