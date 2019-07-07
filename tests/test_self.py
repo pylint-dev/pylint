@@ -40,7 +40,7 @@ from pylint.reporters import JSONReporter
 from pylint.reporters.text import *
 
 HERE = abspath(dirname(__file__))
-CLEAN_PATH = dirname(dirname(__file__)) + "/"
+CLEAN_PATH = re.escape(dirname(dirname(__file__)) + "/")
 
 
 @contextlib.contextmanager
