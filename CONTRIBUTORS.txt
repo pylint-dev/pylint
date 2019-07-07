@@ -307,3 +307,5 @@ contributors:
 * Nicholas Smith: contributor
 
 * Oisin Moran: contributor
+
+* Andrzej Klajnert: contributor

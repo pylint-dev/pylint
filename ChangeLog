@@ -7,6 +7,8 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Excluded `attrs` from `too-few-public-methods` check. Close #2988.
+
 * ``unused-import`` emitted for the right import names in function scopes.
 
   Close #2928
@@ -157,6 +159,10 @@ Release date: TBA
 * Fixed a false positive with ``consider-using-dict-comprehension`` for constructions that can't be converted to a comprehension
 
   Close #2963
+
+* Added ``__post_init__`` to ``defining-attr-methods`` in order to avoid ``attribute-defined-outside-init`` in dataclasses.
+
+  Close #2581
 
 What's New in Pylint 2.3.0?
 ===========================
