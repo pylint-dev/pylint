@@ -1872,8 +1872,8 @@ class DocStringChecker(_BasicChecker):
         "C0111": (
             "Missing %s docstring",  # W0131
             "missing-docstring",
-            "Used when a module, function, class or method has no docstring."
-            "Some special methods like __init__ doesn't necessary require a "
+            "Used when a module, function, class or method has no docstring. "
+            "Some special methods like __init__ don't necessarily require a "
             "docstring.",
         ),
         "C0112": (
