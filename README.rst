@@ -117,10 +117,20 @@ To run the test suite for a particular Python version, you can do::
     tox -e py37
 
 
+If you want to run tests on a specific portion of the code use pytest_, (pytest-cov_) and your local python version::
+
+    # ( pip install pytest-cov )
+    python3 -m pytest tests/message/ # (--cov=pylint.message)
+    # ( coverage html )
+
+It can be more than 100 times faster than tox and you can also get the coverage.
+
 For more detailed information, check the documentation.
 
 .. _here: http://pylint.pycqa.org/en/latest/user_guide/installation.html
 .. _tox: https://tox.readthedocs.io/en/latest/
+.. _pytest: https://docs.pytest.org/en/latest/
+.. _pytest-cov: https://pypi.org/project/pytest-cov/
 
 License
 -------
