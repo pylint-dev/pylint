@@ -44,6 +44,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
 import keyword
+import re
 import sys
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
@@ -1271,19 +1272,19 @@ class FormatChecker(BaseTokenChecker):
         }
         unsplit = []
         check_line_length = True
-        mobj = OPTION_RGX.search(lines)
-        if mobj and "=" in lines:
-            front_of_equal, _, back_of_equal = mobj.group(1).partition("=")
-            if front_of_equal.strip() == "disable":
+        mobj = OPTION_RGX.split(lines)
+        for ind, sub_mobj in enumerate(mobj):
+            #breakpoint()
+            patt = re.compile("disable\s*=(.*)").search(sub_mobj)
+            if patt:
+                back_of_equal = patt.groups()[0]
                 if "line-too-long" in {
                     _msg_id.strip() for _msg_id in back_of_equal.split(",")
                 }:
                     check_line_length = False
-                # delete the pylint disable command from lines
-                lines = lines.rsplit("#", 1)[0].rstrip()
-                # reinsert the final newline if there was one
-                if back_of_equal.endswith("\n"):
-                    lines += "\n"
+                    break;
+        #if not check_line_length: mobj.pop(ind)
+        #lines = "".join(mobj)
         for line in lines.splitlines(True):
             if line[-1] in unsplit_ends:
                 unsplit.append(line)
