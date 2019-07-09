@@ -88,7 +88,7 @@ MSGS = {
     ),
 }
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
-DATACLASS_DECORATOR = "dataclass"
+DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
 TYPING_NAMEDTUPLE = "typing.NamedTuple"
 
@@ -126,19 +126,24 @@ def _is_enum_class(node: astroid.ClassDef) -> bool:
     return False
 
 
-def _is_dataclass(node: astroid.ClassDef) -> bool:
-    """Check if a class definition defines a Python 3.7+ dataclass
+def _is_dataclass_like(node: astroid.ClassDef) -> bool:
+    """Check if a class definition defines a Python data class
+
+    A list of decorator names are introspected, such as the builtin
+    `dataclass` decorator, as well as the popular `attrs` one from
+    the `attrs` library.
 
     :param node: The class node to check.
     :type node: astroid.ClassDef
 
-    :returns: True if the given node represents a dataclass class. False otherwise.
+    :returns:
+        `True` if the given node represents a dataclass class, `False` otherwise.
     :rtype: bool
     """
     if not node.decorators:
         return False
 
-    root_locals = node.root().locals
+    root_locals = set(node.root().locals)
     for decorator in node.decorators.nodes:
         if isinstance(decorator, astroid.Call):
             decorator = decorator.func
@@ -148,7 +153,9 @@ def _is_dataclass(node: astroid.ClassDef) -> bool:
             name = decorator.name
         else:
             name = decorator.attrname
-        if name == DATACLASS_DECORATOR and DATACLASS_DECORATOR in root_locals:
+        if name in DATACLASSES_DECORATORS and root_locals.intersection(
+            DATACLASSES_DECORATORS
+        ):
             return True
     return False
 
@@ -361,7 +368,7 @@ class MisdesignChecker(BaseChecker):
         if (
             node.type != "class"
             or _is_enum_class(node)
-            or _is_dataclass(node)
+            or _is_dataclass_like(node)
             or _is_typing_namedtuple(node)
         ):
             return
