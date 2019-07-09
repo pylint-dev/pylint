@@ -301,6 +301,8 @@ Release date: 2019-02-27
 * Fix false positive ``useless-else-on-loop`` if the break is deep in the else
   of an inner loop.
 
+* Minor improvements to the help text for a few options.
+
 
 What's New in Pylint 2.2.2?
 ===========================
