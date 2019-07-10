@@ -1231,7 +1231,7 @@ class BasicChecker(_BasicChecker):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
-        self.stats[node.is_method() and "method" or "function"] += 1
+        self.stats["method" if node.is_method() else "function"] += 1
         self._check_dangerous_default(node)
 
     visit_asyncfunctiondef = visit_functiondef
