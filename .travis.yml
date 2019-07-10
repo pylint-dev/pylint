@@ -32,7 +32,7 @@ jobs:
     - python: 3.6
       env: TOXENV=spelling
     - stage: tests-pypy
-      python: pypy3.5-5.8.0
+      python: pypy3.5
       env: TOXENV=pypy
 before_install:
   - python --version
