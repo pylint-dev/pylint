@@ -1,5 +1,5 @@
 """Check for definitions and usage happening on the same line."""
-#pylint: disable=missing-docstring,multiple-statements,no-absolute-import,parameter-unpacking,wrong-import-position
+#pylint: disable=missing-docstring,multiple-statements,no-absolute-import,parameter-unpacking,wrong-import-position,unnecessary-comprehension
 from __future__ import print_function
 print([index
        for index in range(10)])
