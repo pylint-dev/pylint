@@ -7,6 +7,8 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Excluded PEP 526 instance and class variables from ``no-member``. Close #2945
+
 * Excluded `attrs` from `too-few-public-methods` check. Close #2988.
 
 * ``unused-import`` emitted for the right import names in function scopes.
