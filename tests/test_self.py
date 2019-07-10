@@ -405,9 +405,16 @@ class TestRunTC(object):
         assert isinstance(output, list)
         assert len(output) == 1
         assert isinstance(output[0], dict)
+        # So each version wants a different column number...
+        if platform.python_implementation() == "PyPy":
+            column = 8
+        elif sys.version_info >= (3, 8):
+            column = 9
+        else:
+            column = 15
         expected = {
             "obj": "",
-            "column": 8 if platform.python_implementation() == "PyPy" else 15,
+            "column": column,
             "line": 1,
             "type": "error",
             "symbol": "syntax-error",
