@@ -44,7 +44,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
 import keyword
-import re
+import os
 import sys
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
@@ -1238,7 +1238,7 @@ class FormatChecker(BaseTokenChecker):
         max_chars = self.config.max_line_length
         ignore_long_line = self.config.ignore_long_lines
 
-        def check_line(line, i, check_line_length=True):
+        def check_line_ending(line, i):
             if not line.endswith("\n"):
                 self.add_message("missing-final-newline", line=i)
             else:
@@ -1253,10 +1253,12 @@ class FormatChecker(BaseTokenChecker):
                     )
                 # Don't count excess whitespace in the line length.
                 line = stripped_line
-
-            if check_line_length and len(line) > max_chars and not ignore_long_line.search(line):
-                self.add_message("line-too-long", line=i, args=(len(line), max_chars))
             return i + 1
+
+        def check_line_length(line, i):
+            line = line.rstrip()
+            if len(line) > max_chars and not ignore_long_line.search(line):
+                self.add_message("line-too-long", line=i, args=(len(line), max_chars))
 
         unsplit_ends = {
             "\v",
@@ -1271,20 +1273,18 @@ class FormatChecker(BaseTokenChecker):
             "\u2029",
         }
         unsplit = []
-        check_line_length = True
-        mobj = OPTION_RGX.split(lines)
-        for ind, sub_mobj in enumerate(mobj):
-            #breakpoint()
-            patt = re.compile("disable\s*=(.*)").search(sub_mobj)
-            if patt:
-                back_of_equal = patt.groups()[0]
-                if "line-too-long" in {
-                    _msg_id.strip() for _msg_id in back_of_equal.split(",")
-                }:
-                    check_line_length = False
-                    break;
-        #if not check_line_length: mobj.pop(ind)
-        #lines = "".join(mobj)
+        check_l_length = True
+        mobj = OPTION_RGX.search(lines)
+        if mobj and "=" in lines:
+            front_of_equal, _, back_of_equal = mobj.group(1).partition("=")
+            if front_of_equal.strip() == "disable":
+                if back_of_equal.find("line-too-long") != -1:
+                    check_l_length = False
+            #lines = lines[:mobj.start()]
+            if lines[-1] == os.linesep:
+                lines = lines.rsplit("#", 1)[0].rstrip() + lines[-1]
+            else:
+                lines = lines.rsplit("#", 1)[0].rstrip()
         for line in lines.splitlines(True):
             if line[-1] in unsplit_ends:
                 unsplit.append(line)
@@ -1295,12 +1295,14 @@ class FormatChecker(BaseTokenChecker):
                 line = "".join(unsplit)
                 unsplit = []
 
-            i = check_line(line, i, check_line_length)
+            if check_l_length: check_line_length(line, i)
+            i = check_line_ending(line, i)
             if i is None:
                 break
 
         if unsplit:
-            check_line("".join(unsplit), i, check_line_length)
+            if check_l_length: check_line_length("".join(unsplit), i)
+            i = check_line_ending("".join(unsplit), i)
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string
