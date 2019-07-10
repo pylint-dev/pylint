@@ -13,6 +13,13 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added `unnecessary-comprehension` that detects unnecessary comprehensions.
+
+  This check is emitted when ``pylint`` finds list-, set- or dict-comprehensions,
+  that are unnecessary and can be rewritten with the list-, set- or dict-constructors.
+
+  Close #2905
+
 * Added `subprocess-run-check` to handle subprocess.run without explicitly set `check` keyword.
 
   Close #2848

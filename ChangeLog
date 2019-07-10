@@ -7,6 +7,13 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Add a check `unnecessary-comprehension` that detects unnecessary comprehensions.
+
+  This check is emitted when ``pylint`` finds list-, set- or dict-comprehensions,
+  that are unnecessary and can be rewritten with the list-, set- or dict-constructors.
+
+  Close #2905
+
 * Excluded PEP 526 instance and class variables from ``no-member``. Close #2945
 
 * Excluded `attrs` from `too-few-public-methods` check. Close #2988.
