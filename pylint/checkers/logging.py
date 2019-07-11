@@ -17,9 +17,8 @@
 
 """checker for use of Python logging
 """
-import string
-
 import logging
+import string
 
 import astroid
 
