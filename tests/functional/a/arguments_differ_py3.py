@@ -16,6 +16,9 @@ class AbstractFoo:
     def kwonly_5(self, *, first, **kwargs):
         "Keyword only and keyword variadics."
 
+    def kwonly_6(self, first, second, *, third):
+        "Two positional and one keyword"
+
 
 class Foo(AbstractFoo):
 
@@ -33,4 +36,12 @@ class Foo(AbstractFoo):
 
     def kwonly_5(self, *, first): # [arguments-differ]
         "Keyword only, but no variadics."
-    
+
+    def kwonly_6(self, *args, **kwargs): # valid override
+        "Positional and keyword variadics to pass through parent params"
+
+
+class Foo2(AbstractFoo):
+
+    def kwonly_6(self, first, *args, **kwargs): # valid override
+        "One positional with the rest variadics to pass through parent params"

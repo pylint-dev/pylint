@@ -371,3 +371,5 @@ contributors:
 * Anthony Tan: contributor
 
 * Benny Müller: contributor
+
+* Matthew Beckers (mattlbeck): contributor
