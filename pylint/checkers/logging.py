@@ -145,6 +145,16 @@ class LoggingChecker(checkers.BaseChecker):
                 "`old` means using % formatting, while `new` is for `{}` formatting.",
             },
         ),
+        (
+            "logging-lazy-levels",
+            {
+                "default": "all",
+                "type": "csv",
+                "metavar": "<all or comma separated list of levels>",
+                "help": "List of debugging levels to include in lazy evaluation checks."
+                "`all` means all levels.  Otherwise, specify a list of level names.",
+            },
+        ),
     )
 
     def visit_module(self, node):  # pylint: disable=unused-argument
@@ -156,6 +166,7 @@ class LoggingChecker(checkers.BaseChecker):
         logging_mods = self.config.logging_modules
 
         self._format_style = self.config.logging_format_style
+        self._check_levels = set([level.lower() for level in self.config.logging_lazy_levels])
         self._logging_modules = set(logging_mods)
         self._from_imports = {}
         for logging_mod in logging_mods:
@@ -215,6 +226,22 @@ class LoggingChecker(checkers.BaseChecker):
                 return
         self._check_log_method(node, name)
 
+    def _is_lazy_needed(self, level):
+        level = level.lower()
+
+        if 'all' not in self._check_levels:
+            if type(level) != str:
+                try:
+                    level = logging.getLevelName(level)
+                except:
+                    level = "unknown"
+
+                if type(level) != str:
+                    level = "unknown"
+            return level in self._check_levels
+        else:
+            return True
+
     def _check_log_method(self, node, name):
         """Checks calls to logging.log(level, format, *format_args)."""
         if name == "log":
@@ -223,14 +250,23 @@ class LoggingChecker(checkers.BaseChecker):
                 # the scope of this checker.
                 return
             format_pos = 1
+            if isinstance(node.args[0], astroid.Const):
+                level = node.args[0].value
+            elif isinstance(node.args[0], astroid.Attribute):
+                level = node.args[0].attrname
+            else:
+                level = "unknown"
         elif name in CHECKED_CONVENIENCE_FUNCTIONS:
             if node.starargs or node.kwargs or not node.args:
                 # Either no args, star args, or double-star args. Beyond the
                 # scope of this checker.
                 return
             format_pos = 0
+            level = name
         else:
             return
+
+        lazy_needed = self._is_lazy_needed(level)
 
         if isinstance(node.args[format_pos], astroid.BinOp):
             binop = node.args[format_pos]
@@ -242,7 +278,7 @@ class LoggingChecker(checkers.BaseChecker):
                     if self._is_operand_literal_str(utils.safe_infer(operand))
                 )
                 emit = total_number_of_strings > 0
-            if emit:
+            if emit and lazy_needed:
                 self.add_message("logging-not-lazy", node=node)
         elif isinstance(node.args[format_pos], astroid.Call):
             self._check_call_func(node.args[format_pos])
@@ -251,7 +287,8 @@ class LoggingChecker(checkers.BaseChecker):
         elif isinstance(
             node.args[format_pos], (astroid.FormattedValue, astroid.JoinedStr)
         ):
-            self.add_message("logging-fstring-interpolation", node=node)
+            if lazy_needed:
+                self.add_message("logging-fstring-interpolation", node=node)
 
     @staticmethod
     def _is_operand_literal_str(operand):
