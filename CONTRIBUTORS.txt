@@ -375,3 +375,5 @@ contributors:
 * Bernie Gray: contributor
 
 * Slavfox: contributor
+
+* Matthew Beckers (mattlbeck): contributor

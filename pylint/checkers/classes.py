@@ -281,11 +281,30 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
     original_parameters = _positional_parameters(original)
     overridden_parameters = _positional_parameters(overridden)
 
+    # Copy kwonlyargs list so that we don't affect later function linting
+    original_kwonlyargs = [v for v in original.args.kwonlyargs]
+
+    # Allow positional/keyword variadic in overridden to match against any
+    # positional/keyword argument in original.
+    # Keep any arguments that are found seperately in overridden to satisfy
+    # later tests
+    if overridden.args.vararg:
+        overidden_names = [v.name for v in overridden_parameters]
+        original_parameters = [
+            v for v in original_parameters if v.name in overidden_names
+        ]
+
+    if overridden.args.kwarg:
+        overidden_names = [v.name for v in overridden.args.kwonlyargs]
+        original_kwonlyargs = [
+            v for v in original.args.kwonlyargs if v.name in overidden_names
+        ]
+
     different_positional = _has_different_parameters(
         original_parameters, overridden_parameters, dummy_parameter_regex
     )
     different_kwonly = _has_different_parameters(
-        original.args.kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex
+        original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex
     )
     if original.name in PYMETHODS:
         # Ignore the difference for special methods. If the parameter
@@ -295,21 +314,12 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
         # be used as keyword arguments anyway.
         different_positional = different_kwonly = False
 
-    # Both or none should have extra variadics, otherwise the method
-    # loses or gains capabilities that are not reflected into the parent method,
-    # leading to potential inconsistencies in the code.
-    different_kwarg = (
-        sum(1 for param in (original.args.kwarg, overridden.args.kwarg) if not param)
-        == 1
-    )
-    different_vararg = (
-        sum(1 for param in (original.args.vararg, overridden.args.vararg) if not param)
-        == 1
-    )
+    # Arguments will only violate LSP if there are variadics in the original
+    # that are then removed from the overridden
+    kwarg_lost = original.args.kwarg and not overridden.args.kwarg
+    vararg_lost = original.args.vararg and not overridden.args.vararg
 
-    return any(
-        (different_positional, different_kwarg, different_vararg, different_kwonly)
-    )
+    return any((different_positional, kwarg_lost, vararg_lost, different_kwonly))
 
 
 def _is_invalid_base_class(cls):

@@ -244,6 +244,15 @@ Release date: TBA
 
   Closes #3098
 
+* Fix overzealous `arguments-differ` when overridden function uses variadics
+
+  No message is emitted if the overriding function provides positional or
+  keyword variadics in its signature that can feasibly accept and pass on
+  all parameters given by the overridden function.
+
+  Close #1482
+  Close #1553
+
 What's New in Pylint 2.4.4?
 ===========================
 Release date: 2019-11-13
