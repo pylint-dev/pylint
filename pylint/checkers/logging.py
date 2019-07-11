@@ -168,7 +168,9 @@ class LoggingChecker(checkers.BaseChecker):
         logging_mods = self.config.logging_modules
 
         self._format_style = self.config.logging_format_style
-        self._check_levels = {level.lower() for level in self.config.logging_lazy_levels}
+        self._check_levels = {
+            level.lower() for level in self.config.logging_lazy_levels
+        }
         self._logging_modules = set(logging_mods)
         self._from_imports = {}
         for logging_mod in logging_mods:
@@ -231,7 +233,7 @@ class LoggingChecker(checkers.BaseChecker):
     def _is_lazy_needed(self, level):
         level = level.lower()
 
-        if 'all' not in self._check_levels:
+        if "all" not in self._check_levels:
             if not isinstance(level, str):
                 try:
                     level = logging.getLevelName(level)
