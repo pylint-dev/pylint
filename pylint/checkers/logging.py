@@ -19,6 +19,8 @@
 """
 import string
 
+import logging
+
 import astroid
 
 from pylint import checkers, interfaces
@@ -166,7 +168,7 @@ class LoggingChecker(checkers.BaseChecker):
         logging_mods = self.config.logging_modules
 
         self._format_style = self.config.logging_format_style
-        self._check_levels = set([level.lower() for level in self.config.logging_lazy_levels])
+        self._check_levels = {level.lower() for level in self.config.logging_lazy_levels}
         self._logging_modules = set(logging_mods)
         self._from_imports = {}
         for logging_mod in logging_mods:
@@ -230,17 +232,18 @@ class LoggingChecker(checkers.BaseChecker):
         level = level.lower()
 
         if 'all' not in self._check_levels:
-            if type(level) != str:
+            if not isinstance(level, str):
                 try:
                     level = logging.getLevelName(level)
-                except:
+                except TypeError:
                     level = "unknown"
 
-                if type(level) != str:
+                if not isinstance(level, str):
                     level = "unknown"
+
             return level in self._check_levels
-        else:
-            return True
+
+        return True
 
     def _check_log_method(self, node, name):
         """Checks calls to logging.log(level, format, *format_args)."""
