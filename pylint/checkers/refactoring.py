@@ -272,7 +272,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Instead of using an identitiy comprehension, "
             "consider using the list, dict or set constructor. "
             "It is faster and simpler.",
-        )
+        ),
     }
     options = (
         (
@@ -976,30 +976,49 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_unnecessary_comprehension(node)
 
     def _check_unnecessary_comprehension(self, node):
-        if (isinstance(node.parent, astroid.GeneratorExp)
-                or len(node.ifs) != 0
-                or len(node.parent.generators) != 1
-                or node.is_async):
+        if (
+            isinstance(node.parent, astroid.GeneratorExp)
+            or len(node.ifs) != 0
+            or len(node.parent.generators) != 1
+            or node.is_async
+        ):
             return
 
-        if (isinstance(node.parent, astroid.DictComp)
-                and isinstance(node.parent.key, astroid.Name)
-                and isinstance(node.parent.value, astroid.Name)
-                and isinstance(node.target, astroid.Tuple)
-                and all(isinstance(elt, astroid.AssignName)
-                        for elt in node.target.elts)):
+        if (
+            isinstance(node.parent, astroid.DictComp)
+            and isinstance(node.parent.key, astroid.Name)
+            and isinstance(node.parent.value, astroid.Name)
+            and isinstance(node.target, astroid.Tuple)
+            and all(isinstance(elt, astroid.AssignName) for elt in node.target.elts)
+        ):
             expr_list = [node.parent.key.name, node.parent.value.name]
             target_list = [elt.name for elt in node.target.elts]
 
         elif isinstance(node.parent, (astroid.ListComp, astroid.SetComp)):
             expr = node.parent.elt
-            expr_list = expr.name if isinstance(expr, astroid.Name) else (
-                [elt.name for elt in expr.elts if isinstance(elt, astroid.Name)]
-                if isinstance(expr, astroid.Tuple) else [])
+            expr_list = (
+                expr.name
+                if isinstance(expr, astroid.Name)
+                else (
+                    [elt.name for elt in expr.elts if isinstance(elt, astroid.Name)]
+                    if isinstance(expr, astroid.Tuple)
+                    else []
+                )
+            )
             target = node.parent.generators[0].target
-            target_list = target.name if isinstance(target, astroid.AssignName) else (
-                [elt.name for elt in target.elts if isinstance(elt, astroid.AssignName)]
-                if isinstance(target, astroid.Tuple) else [])
+            target_list = (
+                target.name
+                if isinstance(target, astroid.AssignName)
+                else (
+                    [
+                        elt.name
+                        for elt in target.elts
+                        if isinstance(elt, astroid.AssignName)
+                    ]
+                    if isinstance(target, astroid.Tuple)
+                    else []
+                )
+            )
         else:
             return
         if expr_list == target_list != []:
