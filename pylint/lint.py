@@ -374,7 +374,7 @@ class PyLinter(
                     "default": (),
                     "level": 1,
                     "help": "List of plugins (as comma separated values of "
-                    "python modules names) to load, usually to register "
+                    "python module names) to load, usually to register "
                     "additional checkers.",
                 },
             ),
@@ -413,12 +413,12 @@ class PyLinter(
                     "level": 1,
                     "default": "10.0 - ((float(5 * error + warning + refactor + "
                     "convention) / statement) * 10)",
-                    "help": "Python expression which should return a note less "
-                    "than 10 (10 is the highest note). You have access "
-                    "to the variables errors warning, statement which "
-                    "respectively contain the number of errors / "
-                    "warnings messages and the total number of "
-                    "statements analyzed. This is used by the global "
+                    "help": "Python expression which should return a score less "
+                    "than or equal to 10. You have access to the variables "
+                    "'error', 'warning', 'refactor', and 'convention' which "
+                    "contain the number of messages in each category, as well as "
+                    "'statement' which is the total number of statements "
+                    "analyzed. This score is used by the global "
                     "evaluation report (RP0004).",
                 },
             ),

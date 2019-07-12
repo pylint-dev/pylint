@@ -1090,7 +1090,7 @@ class BasicChecker(_BasicChecker):
         "pointless-statement", "pointless-string-statement", "expression-not-assigned"
     )
     def visit_expr(self, node):
-        """check for various kind of statements without effect"""
+        """Check for various kind of statements without effect"""
         expr = node.value
         if isinstance(expr, astroid.Const) and isinstance(expr.value, str):
             # treat string statement in a separated message
@@ -1117,14 +1117,19 @@ class BasicChecker(_BasicChecker):
         # Ignore if this is :
         # * a direct function call
         # * the unique child of a try/except body
-        # * a yieldd statement
+        # * a yield statement
         # * an ellipsis (which can be used on Python 3 instead of pass)
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
-        if isinstance(
-            expr, (astroid.Yield, astroid.Await, astroid.Ellipsis, astroid.Call)
-        ) or (
-            isinstance(node.parent, astroid.TryExcept) and node.parent.body == [node]
+        if (
+            isinstance(
+                expr, (astroid.Yield, astroid.Await, astroid.Ellipsis, astroid.Call)
+            )
+            or (
+                isinstance(node.parent, astroid.TryExcept)
+                and node.parent.body == [node]
+            )
+            or (isinstance(expr, astroid.Const) and expr.value is Ellipsis)
         ):
             return
         if any(expr.nodes_of_class(astroid.Call)):
@@ -1226,7 +1231,7 @@ class BasicChecker(_BasicChecker):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
-        self.stats[node.is_method() and "method" or "function"] += 1
+        self.stats["method" if node.is_method() else "function"] += 1
         self._check_dangerous_default(node)
 
     visit_asyncfunctiondef = visit_functiondef
@@ -1872,8 +1877,8 @@ class DocStringChecker(_BasicChecker):
         "C0111": (
             "Missing %s docstring",  # W0131
             "missing-docstring",
-            "Used when a module, function, class or method has no docstring."
-            "Some special methods like __init__ doesn't necessary require a "
+            "Used when a module, function, class or method has no docstring. "
+            "Some special methods like __init__ don't necessarily require a "
             "docstring.",
         ),
         "C0112": (

@@ -12,6 +12,10 @@ Release date: TBA
 
   Close #1802
 
+* Excluded PEP 526 instance and class variables from ``no-member``. Close #2945
+
+* Excluded `attrs` from `too-few-public-methods` check. Close #2988.
+
 * ``unused-import`` emitted for the right import names in function scopes.
 
   Close #2928
@@ -303,6 +307,8 @@ Release date: 2019-02-27
 
 * Fix false positive ``useless-else-on-loop`` if the break is deep in the else
   of an inner loop.
+
+* Minor improvements to the help text for a few options.
 
 
 What's New in Pylint 2.2.2?
