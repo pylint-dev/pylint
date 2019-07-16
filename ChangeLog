@@ -5,7 +5,7 @@ Pylint's ChangeLog
 What's New in Pylint 1.9.5?
 =========================
 
-Release date: |TBA|
+Release date: 2019-07-16
 
    * Fix a false positive `invalid name` message when method or attribute name is longer then 30 characters.
 
