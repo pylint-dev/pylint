@@ -896,7 +896,7 @@ def get_exception_handlers(
         return [
             handler for handler in context.handlers if error_of_type(handler, exception)
         ]
-    return None
+    return []
 
 
 def is_node_inside_try_except(node: astroid.Raise) -> bool:
