@@ -875,7 +875,7 @@ def _except_handlers_ignores_exception(
 
 def get_exception_handlers(
     node: astroid.node_classes.NodeNG, exception=Exception
-) -> List[astroid.ExceptHandler]:
+) -> Optional[List[astroid.ExceptHandler]]:
     """Return the collections of handlers handling the exception in arguments.
 
     Args:
@@ -1243,7 +1243,7 @@ def is_overload_stub(node: astroid.node_classes.NodeNG) -> bool:
 def is_protocol_class(cls: astroid.node_classes.NodeNG) -> bool:
     """Check if the given node represents a protocol class
 
-    :param node: The node to check
+    :param cls: The node to check
     :returns: True if the node is a typing protocol class, false otherwise.
     """
     if not isinstance(cls, astroid.ClassDef):
