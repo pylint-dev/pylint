@@ -43,15 +43,6 @@ def test_template_option(linter):
         'C0301:002\n'
 
 
-def test_parseable_output_deprecated():
-    with warnings.catch_warnings(record=True) as cm:
-        warnings.simplefilter("always")
-        ParseableTextReporter()
-
-    assert len(cm) == 1
-    assert isinstance(cm[0].message, DeprecationWarning)
-
-
 def test_parseable_output_regression():
     output = six.StringIO()
     with warnings.catch_warnings(record=True):
