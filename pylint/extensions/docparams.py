@@ -78,7 +78,7 @@ class DocstringParameterChecker(BaseChecker):
             "Missing return documentation",
             "missing-return-doc",
             "Please add documentation about what this method returns.",
-            {"old_names": [("W9007", "missing-returns-doc")]},
+            {"old_names": [("W9007", "old-missing-returns-doc")]},
         ),
         "W9012": (
             "Missing return type documentation",
@@ -91,7 +91,7 @@ class DocstringParameterChecker(BaseChecker):
             "Missing yield documentation",
             "missing-yield-doc",
             "Please add documentation about what this generator yields.",
-            {"old_names": [("W9009", "missing-yields-doc")]},
+            {"old_names": [("W9009", "old-missing-yields-doc")]},
         ),
         "W9014": (
             "Missing yield type documentation",
@@ -104,13 +104,13 @@ class DocstringParameterChecker(BaseChecker):
             '"%s" missing in parameter documentation',
             "missing-param-doc",
             "Please add parameter declarations for all parameters.",
-            {"old_names": [("W9003", "missing-param-doc")]},
+            {"old_names": [("W9003", "old-missing-param-doc")]},
         ),
         "W9016": (
             '"%s" missing in parameter type documentation',
             "missing-type-doc",
             "Please add parameter type declarations for all parameters.",
-            {"old_names": [("W9004", "missing-type-doc")]},
+            {"old_names": [("W9004", "old-missing-type-doc")]},
         ),
         "W9017": (
             '"%s" differing in parameter documentation',
