@@ -20,6 +20,11 @@ New checkers
 
   Close #2905
 
+* Added a new check ``property-with-parameters`` which detects when a property
+  has more than a single argument.
+
+  Close #3006
+
 * Added `subprocess-run-check` to handle subprocess.run without explicitly set `check` keyword.
 
   Close #2848

@@ -623,6 +623,12 @@ MSGS = {
         "Used when a class inherit from object, which under python3 is implicit, "
         "hence can be safely removed from bases.",
     ),
+    "R0206": (
+        "Cannot have defined parameters for properties",
+        "property-with-parameters",
+        "Used when we detect that a property also has parameters, which are useless, "
+        "given that properties cannot be called with additional arguments.",
+    ),
 }
 
 
@@ -871,6 +877,7 @@ a metaclass class method.",
             return
 
         self._check_useless_super_delegation(node)
+        self._check_property_with_parameters(node)
 
         klass = node.parent.frame()
         self._meth_could_be_func = True
@@ -1052,6 +1059,10 @@ a metaclass class method.",
             self.add_message(
                 "useless-super-delegation", node=function, args=(function.name,)
             )
+
+    def _check_property_with_parameters(self, node):
+        if node.args.args and len(node.args.args) > 1 and decorated_with_property(node):
+            self.add_message("property-with-parameters", node=node)
 
     def _check_slots(self, node):
         if "__slots__" not in node.locals:

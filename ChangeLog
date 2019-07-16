@@ -7,6 +7,12 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Added a new check, ``property-with-parameters``.
+
+  This check is emitted when we detect that a defined property also
+  has parameters, which are useless.
+  Close #3006
+
 * Excluded protocol classes from a couple of checks. Close #3002.
 
 * Add a check `unnecessary-comprehension` that detects unnecessary comprehensions.
