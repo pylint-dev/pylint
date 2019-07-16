@@ -64,6 +64,7 @@ ABC_METHODS = {
     "abc.abstractclassmethod",
     "abc.abstractstaticmethod",
 }
+TYPING_PROTOCOLS = frozenset({"typing.Protocol", "typing_extensions.Protocol"})
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
@@ -1237,3 +1238,17 @@ def is_overload_stub(node: astroid.node_classes.NodeNG) -> bool:
     return isinstance(node, astroid.FunctionDef) and decorated_with(
         node, ["typing.overload"]
     )
+
+
+def is_protocol_class(cls: astroid.node_classes.NodeNG) -> bool:
+    """Check if the given node represents a protocol class
+
+    :param node: The node to check
+    :returns: True if the node is a typing protocol class, false otherwise.
+    """
+    if not isinstance(cls, astroid.ClassDef):
+        return False
+
+    # Use .ancestors() since not all protocol classes can have
+    # their mro deduced.
+    return any(parent.qname() in TYPING_PROTOCOLS for parent in cls.ancestors())

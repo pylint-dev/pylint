@@ -7,6 +7,8 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Excluded protocol classes from a couple of checks. Close #3002.
+
 * Add a check `unnecessary-comprehension` that detects unnecessary comprehensions.
 
   This check is emitted when ``pylint`` finds list-, set- or dict-comprehensions,
