@@ -20,6 +20,13 @@ New checkers
 
   Close #2905
 
+* Added a new check, ``redeclared-assigned-name``
+
+  This check is emitted when ``pylint`` detects that a name was assigned one or multiple times in the same assignment,
+  which indicate a potential bug.
+
+  Close #2898
+
 * Added a new check, ``self-assigning-variable``
 
   This check is emitted when we detect that a variable is assigned

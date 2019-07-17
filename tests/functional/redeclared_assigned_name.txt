@@ -1,0 +1,3 @@
+redeclared-assigned-name:3::Redeclared variable 'FIRST' in assignment
+redeclared-assigned-name:5::Redeclared variable 'SECOND' in assignment
+redeclared-assigned-name:8::Redeclared variable 'SECOND' in assignment
