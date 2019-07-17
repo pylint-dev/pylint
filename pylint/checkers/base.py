@@ -1502,9 +1502,7 @@ class BasicChecker(_BasicChecker):
                         # we assume it's a nested "with"
                         self.add_message("confusing-with-statement", node=node)
 
-    @utils.check_messages("self-assigning-variable")
-    def visit_assign(self, node):
-
+    def _check_self_assigning_variable(self, node):
         # Detect assigning to the same variable.
         rhs_names = []
         targets = node.targets
@@ -1533,6 +1531,10 @@ class BasicChecker(_BasicChecker):
                 self.add_message(
                     "self-assigning-variable", args=(target.name,), node=target
                 )
+
+    @utils.check_messages("self-assigning-variable")
+    def visit_assign(self, node):
+        self._check_self_assigning_variable(node)
 
 
 KNOWN_NAME_TYPES = {
