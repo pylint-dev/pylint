@@ -981,6 +981,11 @@ class BasicChecker(_BasicChecker):
             "Emitted when a conditional statement (If or ternary if) "
             "seems to wrongly call a function due to missing parentheses",
         ),
+        "W0127": (
+            "Assigning the same variable %r to itself",
+            "self-assigning-variable",
+            "Emitted when we detect that a variable is assigned to itself",
+        ),
         "E0111": (
             "The first reversed() argument is not a sequence",
             "bad-reversed-sequence",
@@ -1496,6 +1501,38 @@ class BasicChecker(_BasicChecker):
                         # if the line number doesn't match
                         # we assume it's a nested "with"
                         self.add_message("confusing-with-statement", node=node)
+
+    @utils.check_messages("self-assigning-variable")
+    def visit_assign(self, node):
+
+        # Detect assigning to the same variable.
+        rhs_names = []
+        targets = node.targets
+        if isinstance(targets[0], astroid.Tuple):
+            if len(targets) != 1:
+                # A complex assignment, so bail out early.
+                return
+            targets = targets[0].elts
+
+        if isinstance(node.value, astroid.Name):
+            if len(targets) != 1:
+                return
+            rhs_names = [node.value]
+        elif isinstance(node.value, astroid.Tuple):
+            rhs_count = len(node.value.elts)
+            if len(targets) != rhs_count or rhs_count == 1:
+                return
+            rhs_names = node.value.elts
+
+        for target, lhs_name in zip(targets, rhs_names):
+            if not isinstance(lhs_name, astroid.Name):
+                continue
+            if not isinstance(target, astroid.AssignName):
+                continue
+            if target.name == lhs_name.name:
+                self.add_message(
+                    "self-assigning-variable", args=(target.name,), node=target
+                )
 
 
 KNOWN_NAME_TYPES = {
