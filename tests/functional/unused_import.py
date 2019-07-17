@@ -9,7 +9,7 @@ from sys import flags  # [unused-import]
 from collections import deque, OrderedDict, Counter
 import re, html.parser  # [unused-import]
 DATA = Counter()
-
+# pylint: disable=self-assigning-variable
 from fake import SomeName, SomeOtherName  # [unused-import]
 class SomeClass(object):
     SomeName = SomeName # https://bitbucket.org/logilab/pylint/issue/475

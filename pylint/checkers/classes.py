@@ -56,6 +56,7 @@ from pylint.checkers.utils import (
     is_comprehension,
     is_iterable,
     is_property_setter,
+    is_protocol_class,
     node_frame_class,
     overrides_a_method,
     safe_infer,
@@ -622,6 +623,12 @@ MSGS = {
         "Used when a class inherit from object, which under python3 is implicit, "
         "hence can be safely removed from bases.",
     ),
+    "R0206": (
+        "Cannot have defined parameters for properties",
+        "property-with-parameters",
+        "Used when we detect that a property also has parameters, which are useless, "
+        "given that properties cannot be called with additional arguments.",
+    ),
 }
 
 
@@ -870,6 +877,7 @@ a metaclass class method.",
             return
 
         self._check_useless_super_delegation(node)
+        self._check_property_with_parameters(node)
 
         klass = node.parent.frame()
         self._meth_could_be_func = True
@@ -1052,6 +1060,10 @@ a metaclass class method.",
                 "useless-super-delegation", node=function, args=(function.name,)
             )
 
+    def _check_property_with_parameters(self, node):
+        if node.args.args and len(node.args.args) > 1 and decorated_with_property(node):
+            self.add_message("property-with-parameters", node=node)
+
     def _check_slots(self, node):
         if "__slots__" not in node.locals:
             return
@@ -1127,6 +1139,7 @@ a metaclass class method.",
                     or overrides_a_method(class_node, node.name)
                     or decorated_with_property(node)
                     or _has_bare_super_call(node)
+                    or is_protocol_class(class_node)
                 )
             ):
                 self.add_message("no-self-use", node=node)

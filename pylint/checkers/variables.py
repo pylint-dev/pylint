@@ -1005,6 +1005,10 @@ class VariablesChecker(BaseChecker):
         if utils.is_overload_stub(node):
             return
 
+        # Don't check protocol classes
+        if utils.is_protocol_class(klass):
+            return
+
         self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
 
     def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):

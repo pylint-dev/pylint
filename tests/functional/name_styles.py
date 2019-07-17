@@ -1,5 +1,5 @@
 """Test for the invalid-name warning."""
-# pylint: disable=no-absolute-import, useless-object-inheritance, unnecessary-pass
+# pylint: disable=no-absolute-import, useless-object-inheritance, unnecessary-pass, unnecessary-comprehension
 from __future__ import print_function
 import abc
 import collections
