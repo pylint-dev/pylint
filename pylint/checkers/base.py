@@ -986,6 +986,11 @@ class BasicChecker(_BasicChecker):
             "self-assigning-variable",
             "Emitted when we detect that a variable is assigned to itself",
         ),
+        "W0128": (
+            "Redeclared variable %r in assignment",
+            "redeclared-assigned-name",
+            "Emitted when we detect that a variable was redeclared in the same assignment.",
+        ),
         "E0111": (
             "The first reversed() argument is not a sequence",
             "bad-reversed-sequence",
@@ -1532,9 +1537,33 @@ class BasicChecker(_BasicChecker):
                     "self-assigning-variable", args=(target.name,), node=target
                 )
 
-    @utils.check_messages("self-assigning-variable")
+    def _check_redeclared_assign_name(self, targets):
+        for target in targets:
+            if not isinstance(target, astroid.Tuple):
+                continue
+
+            found_names = []
+            for element in target.elts:
+                if isinstance(element, astroid.Tuple):
+                    self._check_redeclared_assign_name([element])
+                elif isinstance(element, astroid.AssignName) and element.name != "_":
+                    found_names.append(element.name)
+
+            names = collections.Counter(found_names)
+            for name, count in names.most_common():
+                if count > 1:
+                    self.add_message(
+                        "redeclared-assigned-name", args=(name,), node=target
+                    )
+
+    @utils.check_messages("self-assigning-variable", "redeclared-assigned-name")
     def visit_assign(self, node):
         self._check_self_assigning_variable(node)
+        self._check_redeclared_assign_name(node.targets)
+
+    @utils.check_messages("redeclared-assigned-name")
+    def visit_for(self, node):
+        self._check_redeclared_assign_name([node.target])
 
 
 KNOWN_NAME_TYPES = {
