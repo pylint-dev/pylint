@@ -1,5 +1,5 @@
 # pylint: disable=too-few-public-methods, no-absolute-import,missing-docstring,import-error,wrong-import-position
-# pylint: disable=wrong-import-order, useless-object-inheritance
+# pylint: disable=wrong-import-order, useless-object-inheritance,unnecessary-lambda
 
 def decorator(fun):
     """Decorator"""
@@ -235,3 +235,10 @@ def mutated_function(arg):
 
 mutated_function(do_something=False)
 mutated_function()
+
+
+def func(one, two, three):
+    return one + two + three
+
+
+CALL = lambda *args: func(*args)

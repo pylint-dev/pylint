@@ -7,6 +7,18 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Ignore lambda calls with variadic arguments without a context.
+
+  Inferring variadic positional arguments and keyword arguments
+  will result into empty Tuples and Dicts, which can lead in
+  some cases to false positives with regard to no-value-for-parameter.
+  In order to avoid this, until we'll have support for call context
+  propagation, we're ignoring such cases if detected.
+  We already did that for function calls, but the previous fix
+  was not taking in consideration ``lambdas``
+
+  Close #2918
+
 * Added a new check, ``self-assigning-variable``
 
   This check is emitted when we detect that a variable is assigned
