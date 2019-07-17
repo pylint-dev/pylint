@@ -1062,6 +1062,39 @@ accessed. Python regular expressions are accepted.",
                     )
                     break
 
+    def _check_argument_order(self, node, call_site, called, called_param_names):
+        """Match the supplied argument names against the function parameters.
+        Warn if some argument names are not in the same order as they are in
+        the function signature.
+        """
+        # Check for called function being an object instance function
+        # If so, ignore the initial 'self' argument in the signature
+        try:
+            if (isinstance(called.parent, astroid.scoped_nodes.ClassDef)
+                and called_param_names[0] == 'self'):
+                called_param_names = called_param_names[1:]
+        except IndexError:
+            return
+
+        # extract argument names, if they have names
+        try:
+            calling_arg_names = [p.name for p in call_site.positional_arguments]
+        except AttributeError:
+            # the type of arg does not provide a `.name`. In this case we
+            # stop checking for out-of-order arguments because it is only relevant
+            # for named variables.
+            return
+
+        # Only warn if all names match something in called function params
+        unmatched_calling_args = set(calling_arg_names) - set(called_param_names)
+        if unmatched_calling_args:
+            return
+
+        # Warn based on the equality of argument ordering
+        if calling_arg_names != called_param_names[:len(calling_arg_names)]:
+            self.add_message("arguments-out-of-order", node=node, args=())
+
+
     # pylint: disable=too-many-branches
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node):
@@ -1173,21 +1206,7 @@ accessed. Python regular expressions are accepted.",
                 name = arg.name
             kwparams[name] = [called.args.kw_defaults[i], False]
 
-        # Match the supplied arguments against the function parameters.
-        called_arg_names = [p[0][0] for p in parameters]
-        try:
-            calling_arg_names = [p.name for p in call_site.positional_arguments]
-        except AttributeError:
-            # the type of arg does not provide a `.name`. In this case we
-            # stop checking for out of order arguments since that requires
-            # passing in named attributes.
-            pass
-        else:
-            unmatched_calling_args = set(calling_arg_names) - set(called_arg_names)
-            if not unmatched_calling_args:
-                num_calling_args = len(calling_arg_names)
-                if calling_arg_names != called_arg_names[:num_calling_args]:
-                    self.add_message("arguments-out-of-order", node=node, args=())
+        self._check_argument_order(node, call_site, called, [p[0][0] for p in parameters])
 
         # 1. Match the positional arguments.
         for i in range(num_positional_args):
