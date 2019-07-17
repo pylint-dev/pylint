@@ -7,6 +7,12 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Added a new check, ``self-assigning-variable``
+
+  This check is emitted when we detect that a variable is assigned
+  to itself, which might indicate a potential bug in the code application.
+  Close #2930
+
 * Added a new check, ``property-with-parameters``.
 
   This check is emitted when we detect that a defined property also

@@ -20,6 +20,22 @@ New checkers
 
   Close #2905
 
+* Added a new check, ``self-assigning-variable``
+
+  This check is emitted when we detect that a variable is assigned
+  to itself, which might indicate a potential bug in the code application.
+
+  For example, the following would raise this warning::
+
+    def new_a(attr, attr2):
+      a_inst = Aclass()
+      a_inst.attr2 = attr2
+      # should be: a_inst.attr = attr, but have a typo
+      attr = attr
+      return a_inst
+
+  Close #2930
+
 * Added a new check ``property-with-parameters`` which detects when a property
   has more than a single argument.
 
