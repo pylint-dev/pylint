@@ -56,6 +56,7 @@ from pylint.checkers.utils import (
     is_comprehension,
     is_iterable,
     is_property_setter,
+    is_property_setter_or_deleter,
     is_protocol_class,
     node_frame_class,
     overrides_a_method,
@@ -70,7 +71,7 @@ if sys.version_info >= (3, 0):
 else:
     NEXT_METHOD = "next"
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
-
+BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
 
 # Dealing with useless override detection, with regard
 # to parameters vs arguments
@@ -566,6 +567,13 @@ MSGS = {
         "relying on super() delegation to do the same thing as another method "
         "from the MRO.",
     ),
+    "W0236": (
+        "Method %r was expected to be %r, found it instead as %r",
+        "invalid-overridden-method",
+        "Used when we detect that a method was overridden as a property "
+        "or the other way around, which could result in potential bugs at "
+        "runtime.",
+    ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
         "invalid-slots-object",
@@ -890,16 +898,18 @@ a metaclass class method.",
         for overridden in klass.local_attr_ancestors(node.name):
             # get astroid for the searched method
             try:
-                meth_node = overridden[node.name]
+                parent_function = overridden[node.name]
             except KeyError:
                 # we have found the method but it's not in the local
                 # dictionary.
                 # This may happen with astroid build from living objects
                 continue
-            if not isinstance(meth_node, astroid.FunctionDef):
+            if not isinstance(parent_function, astroid.FunctionDef):
                 continue
-            self._check_signature(node, meth_node, "overridden", klass)
+            self._check_signature(node, parent_function, "overridden", klass)
+            self._check_invalid_overridden_method(node, parent_function)
             break
+
         if node.decorators:
             for decorator in node.decorators.nodes:
                 if isinstance(decorator, astroid.Attribute) and decorator.attrname in (
@@ -1063,6 +1073,26 @@ a metaclass class method.",
     def _check_property_with_parameters(self, node):
         if node.args.args and len(node.args.args) > 1 and decorated_with_property(node):
             self.add_message("property-with-parameters", node=node)
+
+    def _check_invalid_overridden_method(self, function_node, parent_function_node):
+        parent_is_property = decorated_with_property(
+            parent_function_node
+        ) or is_property_setter_or_deleter(parent_function_node)
+        current_is_property = decorated_with_property(
+            function_node
+        ) or is_property_setter_or_deleter(function_node)
+        if parent_is_property and not current_is_property:
+            self.add_message(
+                "invalid-overridden-method",
+                args=(function_node.name, "property", function_node.type),
+                node=function_node,
+            )
+        elif not parent_is_property and current_is_property:
+            self.add_message(
+                "invalid-overridden-method",
+                args=(function_node.name, "method", "property"),
+                node=function_node,
+            )
 
     def _check_slots(self, node):
         if "__slots__" not in node.locals:

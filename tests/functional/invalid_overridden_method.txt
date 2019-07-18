@@ -1,0 +1,2 @@
+invalid-overridden-method:26:NoProp.prop:Method 'prop' was expected to be 'property', found it instead as 'method'
+invalid-overridden-method:30:NoProp.method:Method 'method' was expected to be 'method', found it instead as 'property'
