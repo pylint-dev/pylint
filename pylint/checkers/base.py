@@ -1943,10 +1943,11 @@ class NameChecker(_BasicChecker):
 class DocStringChecker(_BasicChecker):
     msgs = {
         "C0112": (
-            "Empty %s docstring",  # W0132
+            "Empty %s docstring",
             "empty-docstring",
             "Used when a module, function, class or method has an empty "
             "docstring (it would be too easy ;).",
+            {"old_names": [("W0132", "old-empty-docstring")]},
         ),
         "C0114": (
             "Missing module docstring",
