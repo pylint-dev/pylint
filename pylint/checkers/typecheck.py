@@ -367,8 +367,8 @@ MSGS = {
     "W1114": (
         "Positional arguments appear to be out of order",
         "arguments-out-of-order",
-        "Attributes given to a function call have are being passed in a different order "
-        "to the function's definition",
+        "Emitted  when the caller's argument names fully match the parameter "
+        "names in the function signature but do not have the same order.",
     ),
 }
 
