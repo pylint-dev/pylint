@@ -1072,10 +1072,8 @@ accessed. Python regular expressions are accepted.",
         # Check for called function being an object instance function
         # If so, ignore the initial 'self' argument in the signature
         try:
-            if (
-                isinstance(called.parent, astroid.scoped_nodes.ClassDef)
-                and called_param_names[0] == "self"
-            ):
+            is_classdef = isinstance(called.parent, astroid.scoped_nodes.ClassDef)
+            if is_classdef and called_param_names[0] == "self":
                 called_param_names = called_param_names[1:]
         except IndexError:
             return
