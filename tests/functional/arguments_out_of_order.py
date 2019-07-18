@@ -22,13 +22,12 @@ def args_out_of_order():
     function_3_args(first_argument, third_argument, second_argument) # [arguments-out-of-order]
     function_3_args(second_argument, first_argument, # [arguments-out-of-order]
                     third_argument=third_argument)
-
     function_default_arg(two, one) # [arguments-out-of-order]
 
-    # supplying the same attribute twice instead of two different ones
-    function_3_args(first_argument, first_argument, third_argument) # [arguments-out-of-order]
-
     # Checking exceptions:
+    # supplying the same attribute twice instead of two different ones
+    function_3_args(first_argument, first_argument, third_argument)
+
     # keyword passing
     function_default_arg(two=two, one=one)
 
@@ -41,19 +40,14 @@ def args_out_of_order():
     # we currently don't warn for the case where keyword args have been swapped
     function_default_arg(two=one, one=two)
 
-    # ensure object methods are not penalised
+    # ensure object methods are checked correctly despite implicit self
     class TestClass:
-        fake_method = function_3_args
         @staticmethod
         def function_0_args():
             return
         def function_2_args(self, first_argument, second_argument=2):
             return first_argument, second_argument
+
+    TestClass().function_2_args(second_argument, first_argument) # [arguments-out-of-order]
     TestClass().function_2_args(first_argument, second_argument=second_argument)
     TestClass.function_0_args()
-
-    # this scenario is pretty niche and will trip the warning due to giving
-    # 'self' to the function in place of 'first_argument' without explicitly
-    # passing it. We will warn here because it is going to cause a problem
-    # regardless.
-    TestClass().fake_method(second_argument, third_argument) # [arguments-out-of-order]

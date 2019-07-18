@@ -1080,22 +1080,29 @@ accessed. Python regular expressions are accepted.",
         except IndexError:
             return
 
-        # extract argument names, if they have names
         try:
-            calling_arg_names = [p.name for p in call_site.positional_arguments]
+            # extract argument names, if they have names
+            calling_parg_names = [p.name for p in call_site.positional_arguments]
+
+            # Additionally get names of keyword arguments to use in a full match
+            # against parameters
+            calling_kwarg_names = [
+                arg.name for arg in call_site.keyword_arguments.values()
+            ]
         except AttributeError:
             # the type of arg does not provide a `.name`. In this case we
             # stop checking for out-of-order arguments because it is only relevant
             # for named variables.
             return
 
-        # Only warn if all names match something in called function params
-        unmatched_calling_args = set(calling_arg_names) - set(called_param_names)
-        if unmatched_calling_args:
+        # Don't check for ordering if there is an unmatched arg or param
+        arg_set = set(calling_parg_names) | set(calling_kwarg_names)
+        param_set = set(called_param_names)
+        if arg_set != param_set:
             return
 
         # Warn based on the equality of argument ordering
-        if calling_arg_names != called_param_names[: len(calling_arg_names)]:
+        if calling_parg_names != called_param_names[: len(calling_parg_names)]:
             self.add_message("arguments-out-of-order", node=node, args=())
 
     # pylint: disable=too-many-branches
