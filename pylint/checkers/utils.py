@@ -611,11 +611,11 @@ def is_attr_protected(attrname: str) -> bool:
     )
 
 
-def node_frame_class(
-    node: astroid.node_classes.NodeNG
-) -> Optional[astroid.node_classes.NodeNG]:
-    """return klass node for a method node (or a staticmethod or a
-    classmethod), return null otherwise
+def node_frame_class(node: astroid.node_classes.NodeNG) -> Optional[astroid.ClassDef]:
+    """Return the class that is wrapping the given node
+
+    The function returns a class for a method node (or a staticmethod or a
+    classmethod), otherwise it returns `None`.
     """
     klass = node.frame()
 
@@ -721,12 +721,12 @@ def decorated_with_property(node: astroid.FunctionDef) -> bool:
     return False
 
 
-def _is_property_kind(node, kind):
+def _is_property_kind(node, *kinds):
     if not isinstance(node, (astroid.UnboundMethod, astroid.FunctionDef)):
         return False
     if node.decorators:
         for decorator in node.decorators.nodes:
-            if isinstance(decorator, astroid.Attribute) and decorator.attrname == kind:
+            if isinstance(decorator, astroid.Attribute) and decorator.attrname in kinds:
                 return True
     return False
 
@@ -739,6 +739,11 @@ def is_property_setter(node: astroid.FunctionDef) -> bool:
 def is_property_deleter(node: astroid.FunctionDef) -> bool:
     """Check if the given node is a property deleter"""
     return _is_property_kind(node, "deleter")
+
+
+def is_property_setter_or_deleter(node: astroid.FunctionDef) -> bool:
+    """Check if the given node is either a property setter or a deleter"""
+    return _is_property_kind(node, "setter", "deleter")
 
 
 def _is_property_decorator(decorator: astroid.Name) -> bool:

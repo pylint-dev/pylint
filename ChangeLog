@@ -7,6 +7,14 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Added a new check, ``invalid-overridden-method``
+
+  This check is emitted when we detect that a method is overridden
+  as a property or a property is overridden as a method. This can indicate
+  a bug in the application code that will trigger a runtime error.
+
+  Close #2670
+
 * Added a new check, ``arguments-out-of-order``
 
   This check warns if you have arguments with names that match those in
