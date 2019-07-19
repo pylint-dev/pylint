@@ -62,6 +62,7 @@ from __future__ import print_function
 
 import collections
 import contextlib
+import functools
 import operator
 import os
 import sys
@@ -983,8 +984,21 @@ class PyLinter(
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
 
-        if self.config.jobs == 1:
-            self._do_check(files_or_modules)
+        if self.config.from_stdin:
+            if len(files_or_modules) != 1:
+                raise exceptions.InvalidArgsError(
+                    "Missing filename required for --from-stdin"
+                )
+
+            filepath = files_or_modules[0]
+            self._check_file_items(
+                functools.partial(_ast_from_string, _read_stdin()),
+                [self._get_file_item_from_stdin(filepath)],
+            )
+        elif self.config.jobs == 1:
+            self._check_file_items(
+                self.get_ast, self._iterate_file_items(files_or_modules)
+            )
         else:
             self._parallel_check(files_or_modules)
 
@@ -1081,7 +1095,15 @@ class PyLinter(
             if checker is not self:
                 checker.stats = self.stats
 
-    def _do_check(self, files_or_modules):
+    def _check_file_items(self, get_ast, items):
+        """Check all file items
+
+        The items should be iterable of tuple (get_ast, name, filepath, modname)
+        where
+        - name: full name of the module
+        - filepath: path of the file
+        - modname: module name
+        """
         walker = ASTWalker(self)
         _checkers = self.prepare_checkers()
         tokencheckers = [
@@ -1097,64 +1119,62 @@ class PyLinter(
             checker.open()
             if interfaces.implements(checker, interfaces.IAstroidChecker):
                 walker.add_checker(checker)
-        # build ast and check modules or packages
-        if self.config.from_stdin:
-            if len(files_or_modules) != 1:
-                raise exceptions.InvalidArgsError(
-                    "Missing filename required for --from-stdin"
-                )
 
-            filepath = files_or_modules[0]
-            try:
-                # Note that this function does not really perform an
-                # __import__ but may raise an ImportError exception, which
-                # we want to catch here.
-                modname = ".".join(modutils.modpath_from_file(filepath))
-            except ImportError:
-                modname = os.path.splitext(os.path.basename(filepath))[0]
+        check_astroid_module = functools.partial(
+            self.check_astroid_module,
+            walker=walker,
+            tokencheckers=tokencheckers,
+            rawcheckers=rawcheckers,
+        )
 
-            self.set_current_module(modname, filepath)
+        for name, filepath, modname in items:
+            self._check_file_item(
+                get_ast, check_astroid_module, name, filepath, modname
+            )
 
-            # get the module representation
-            ast_node = _ast_from_string(_read_stdin(), filepath, modname)
-
-            if ast_node is not None:
-                self.file_state = FileState(filepath)
-                self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
-                # warn about spurious inline messages handling
-                spurious_messages = self.file_state.iter_spurious_suppression_messages(
-                    self.msgs_store
-                )
-                for msgid, line, args in spurious_messages:
-                    self.add_message(msgid, line, None, args)
-        else:
-            for descr in self.expand_files(files_or_modules):
-                modname, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
-                if not self.should_analyze_file(modname, filepath, is_argument=is_arg):
-                    continue
-
-                self.set_current_module(modname, filepath)
-                # get the module representation
-                ast_node = self.get_ast(filepath, modname)
-                if ast_node is None:
-                    continue
-
-                self.file_state = FileState(descr["basename"])
-                self._ignore_file = False
-                # fix the current file (if the source file was not available or
-                # if it's actually a c extension)
-                self.current_file = ast_node.file  # pylint: disable=maybe-no-member
-                self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
-                # warn about spurious inline messages handling
-                spurious_messages = self.file_state.iter_spurious_suppression_messages(
-                    self.msgs_store
-                )
-                for msgid, line, args in spurious_messages:
-                    self.add_message(msgid, line, None, args)
         # notify global end
         self.stats["statement"] = walker.nbstatements
         for checker in reversed(_checkers):
             checker.close()
+
+    def _check_file_item(self, get_ast, check_astroid_module, name, filepath, modname):
+        self.set_current_module(name, filepath)
+        # get the module representation
+        ast_node = get_ast(filepath, name)
+        if ast_node is None:
+            return
+
+        self._ignore_file = False
+
+        self.file_state = FileState(modname)
+        # fix the current file (if the source file was not available or
+        # if it's actually a c extension)
+        self.current_file = ast_node.file  # pylint: disable=maybe-no-member
+        check_astroid_module(ast_node)
+        # warn about spurious inline messages handling
+        spurious_messages = self.file_state.iter_spurious_suppression_messages(
+            self.msgs_store
+        )
+        for msgid, line, args in spurious_messages:
+            self.add_message(msgid, line, None, args)
+
+    @staticmethod
+    def _get_file_item_from_stdin(filepath):
+        try:
+            # Note that this function does not really perform an
+            # __import__ but may raise an ImportError exception, which
+            # we want to catch here.
+            modname = ".".join(modutils.modpath_from_file(filepath))
+        except ImportError:
+            modname = os.path.splitext(os.path.basename(filepath))[0]
+
+        return (modname, filepath, filepath)
+
+    def _iterate_file_items(self, files_or_modules):
+        for descr in self.expand_files(files_or_modules):
+            name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
+            if self.should_analyze_file(name, filepath, is_argument=is_arg):
+                yield (name, filepath, descr["basename"])
 
     def expand_files(self, modules):
         """get modules and errors from a list of modules and handle errors
