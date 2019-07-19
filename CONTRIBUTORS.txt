@@ -339,3 +339,4 @@ contributors:
 
 * laike9m: contributor
 
+* Janne Rönkkö: contributor

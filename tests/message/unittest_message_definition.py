@@ -4,6 +4,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import sys
+from unittest import mock
 
 import pytest
 
@@ -21,10 +22,13 @@ from pylint.message import MessageDefinition
     ],
 )
 def test_create_invalid_message_type(msgid, expected):
+    checker_mock = mock.Mock(name='Checker')
+    checker_mock.name = 'checker'
+
     with pytest.raises(InvalidMessageError) as invalid_message_error:
         MessageDefinition.check_msgid(msgid)
     with pytest.raises(InvalidMessageError) as other_invalid_message_error:
-        MessageDefinition("checker", msgid, "msg", "descr", "symbol", "scope")
+        MessageDefinition(checker_mock, msgid, "msg", "descr", "symbol", "scope")
     assert str(invalid_message_error.value) == expected
     assert str(other_invalid_message_error.value) == expected
 
