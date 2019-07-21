@@ -134,6 +134,9 @@ class FunctionalTestFile(object):
         }
         self._parse_options()
 
+    def __repr__(self):
+        return "FunctionalTest:{}".format(self.base)
+
     def _parse_options(self):
         cp = configparser.ConfigParser()
         cp.add_section("testoptions")
