@@ -170,8 +170,7 @@ class FunctionalTestFile(object):
         name = os.path.join(self._directory, self.base + ext)
         if not check_exists or os.path.exists(name):
             return name
-        else:
-            raise NoFileError
+        raise NoFileError("Cannot find '{}'.".format(name))
 
 
 _OPERATORS = {">": operator.gt, "<": operator.lt, ">=": operator.ge, "<=": operator.le}
