@@ -20,7 +20,6 @@ from pylint.reporters import BaseReporter
 
 
 class CompareToZeroTestReporter(BaseReporter):
-
     def handle_message(self, msg):
         self.messages.append(msg)
 
@@ -29,29 +28,29 @@ class CompareToZeroTestReporter(BaseReporter):
 
 
 class CompareToZeroUsedTC(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls._linter = PyLinter()
         cls._linter.set_reporter(CompareToZeroTestReporter())
         checkers.initialize(cls._linter)
         cls._linter.register_checker(CompareToZeroChecker(cls._linter))
-        cls._linter.disable('I')
+        cls._linter.disable("I")
 
     def test_comparetozero_message(self):
-        elif_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
-                             'compare_to_zero.py')
+        elif_test = osp.join(
+            osp.dirname(osp.abspath(__file__)), "data", "compare_to_zero.py"
+        )
         self._linter.check([elif_test])
         msgs = self._linter.reporter.messages
         self.assertEqual(len(msgs), 4)
         for msg in msgs:
-            self.assertEqual(msg.symbol, 'compare-to-zero')
-            self.assertEqual(msg.msg, 'Avoid comparisons to zero')
+            self.assertEqual(msg.symbol, "compare-to-zero")
+            self.assertEqual(msg.msg, "Avoid comparisons to zero")
         self.assertEqual(msgs[0].line, 6)
         self.assertEqual(msgs[1].line, 9)
         self.assertEqual(msgs[2].line, 12)
         self.assertEqual(msgs[3].line, 15)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
