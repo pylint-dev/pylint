@@ -4,7 +4,7 @@ repos:
     hooks:
     - id: black
       args: [--safe, --quiet]
-      exclude: functional|input|test/extension|test/regrtest_data|test/data
+      exclude: tests/functional|input|test/extension|test/regrtest_data|test/data
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.1.0
     hooks:
