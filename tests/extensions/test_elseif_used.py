@@ -21,13 +21,12 @@ def checker(checker):
 
 
 def test_elseif_message(linter):
-    elif_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
-                         'elif.py')
+    elif_test = osp.join(osp.dirname(osp.abspath(__file__)), "data", "elif.py")
     linter.check([elif_test])
     msgs = linter.reporter.messages
     assert len(msgs) == 2
     for msg in msgs:
-        assert msg.symbol == 'else-if-used'
+        assert msg.symbol == "else-if-used"
         assert msg.msg == 'Consider using "elif" instead of "else if"'
     assert msgs[0].line == 9
     assert msgs[1].line == 21
