@@ -313,13 +313,15 @@ class LintModuleTest(object):
         received_msgs = collections.Counter()
         received_output_lines = []
         for msg in messages:
+            assert (
+                msg.symbol != "fatal"
+            ), "Pylint analysis failed because of '{}'".format(msg.msg)
             received_msgs[msg.line, msg.symbol] += 1
             received_output_lines.append(OutputLine.from_msg(msg))
         return received_msgs, received_output_lines
 
     def _runTest(self):
         self._linter.check([self._test_file.module])
-
         expected_messages, expected_text = self._get_expected()
         received_messages, received_text = self._get_received()
 
