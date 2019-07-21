@@ -375,9 +375,12 @@ class LintModuleOutputUpdate(LintModuleTest):
 def get_tests():
     input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "functional")
     suite = []
-    for fname in os.listdir(input_dir):
-        if fname != "__init__.py" and fname.endswith(".py"):
-            suite.append(FunctionalTestFile(input_dir, fname))
+    for dirpath, dirnames, filenames in os.walk(input_dir):
+        if dirpath.endswith("__pycache__"):
+            continue
+        for filename in filenames:
+            if filename != "__init__.py" and filename.endswith(".py"):
+                suite.append(FunctionalTestFile(dirpath, filename))
     return suite
 
 
