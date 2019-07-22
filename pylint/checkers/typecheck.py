@@ -1187,7 +1187,6 @@ accessed. Python regular expressions are accepted.",
         num_positional_args += implicit_args + already_filled_positionals
 
         # Analyze the list of formal parameters.
-
         args = list(itertools.chain(called.args.posonlyargs or (), called.args.args))
         num_mandatory_parameters = len(args) - len(called.args.defaults)
         parameters = []

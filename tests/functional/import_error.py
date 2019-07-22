@@ -24,6 +24,6 @@ try:
 except ImportError:
     pass
 
-from .collections import missing # [import-error]
+from c.collections import missing # [import-error]
 
-from ..s.syntax_error import toto # [syntax-error]
+from .syntax_error import toto # [syntax-error]
