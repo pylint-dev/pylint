@@ -146,7 +146,7 @@ class TestRunTC(object):
             JSONReporter(StringIO()),
         ]
         self._runtest(
-            [join(HERE, "functional/arguments.py")],
+            [join(HERE, "functional", "a", "arguments.py")],
             reporter=MultiReporter(reporters),
             code=2,
         )
@@ -226,7 +226,7 @@ class TestRunTC(object):
             strio = StringIO()
         assert strio.encoding is None
         self._runtest(
-            [join(HERE, "regrtest_data/no_stdout_encoding.py"), "--enable=all"],
+            [join(HERE, "regrtest_data", "no_stdout_encoding.py"), "--enable=all"],
             out=strio,
             code=28,
         )
@@ -235,8 +235,8 @@ class TestRunTC(object):
         self._runtest(
             [
                 "-j 2",
-                join(HERE, "functional/arguments.py"),
-                join(HERE, "functional/arguments.py"),
+                join(HERE, "functional", "a", "arguments.py"),
+                join(HERE, "functional", "a", "arguments.py"),
             ],
             code=2,
         )
@@ -248,13 +248,14 @@ class TestRunTC(object):
         # Test that --py3k flag works.
         rc_code = 0
         self._runtest(
-            [join(HERE, "functional", "unpacked_exceptions.py"), "--py3k"], code=rc_code
+            [join(HERE, "functional", "u", "unpacked_exceptions.py"), "--py3k"],
+            code=rc_code,
         )
 
     def test_py3k_jobs_option(self):
         rc_code = 0
         self._runtest(
-            [join(HERE, "functional", "unpacked_exceptions.py"), "--py3k", "-j 2"],
+            [join(HERE, "functional", "u", "unpacked_exceptions.py"), "--py3k", "-j 2"],
             code=rc_code,
         )
 

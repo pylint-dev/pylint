@@ -321,7 +321,8 @@ class LintModuleTest(object):
         return received_msgs, received_output_lines
 
     def _runTest(self):
-        self._linter.check([self._test_file.module])
+        modules_to_check = [self._test_file.source]
+        self._linter.check(modules_to_check)
         expected_messages, expected_text = self._get_expected()
         received_messages, received_text = self._get_received()
 

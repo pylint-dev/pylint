@@ -4,7 +4,7 @@
 # pylint: disable=using-constant-test, no-init, missing-docstring, wrong-import-order,wrong-import-position,no-else-return, useless-object-inheritance
 from os import rename as nonseq_func
 from six import with_metaclass
-from functional.unpacking import nonseq
+from functional.u.unpacking import nonseq
 
 __revision__ = 0
 
