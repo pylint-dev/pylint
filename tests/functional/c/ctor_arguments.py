@@ -1,6 +1,6 @@
 """Test function argument checker on __init__
 
-Based on test/functional/arguments.py
+Based on tests/functional/a/arguments.py
 """
 # pylint: disable=C0111,R0903,W0231, useless-object-inheritance
 

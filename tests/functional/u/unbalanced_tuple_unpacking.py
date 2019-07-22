@@ -1,6 +1,6 @@
 """Check possible unbalanced tuple unpacking """
 from __future__ import absolute_import
-from functional.unpacking import unpack
+from functional.u.unpacking import unpack
 
 # pylint: disable=using-constant-test, useless-object-inheritance
 
