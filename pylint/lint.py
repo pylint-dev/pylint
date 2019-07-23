@@ -1146,7 +1146,9 @@ class PyLinter(
                 self.current_file = ast_node.file  # pylint: disable=maybe-no-member
                 before_check_statements = walker.nbstatements
                 self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
-                self.stats["by_module"][modname]["statement"] = walker.nbstatements-before_check_statements
+                self.stats["by_module"][modname]["statement"] = (
+                    walker.nbstatements - before_check_statements
+                )
                 # warn about spurious inline messages handling
                 spurious_messages = self.file_state.iter_spurious_suppression_messages(
                     self.msgs_store
