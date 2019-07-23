@@ -7,6 +7,8 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Fix the "statement" values in the PyLinter's stats reports by module.
+
 * Added a new check, ``invalid-overridden-method``
 
   This check is emitted when we detect that a method is overridden
