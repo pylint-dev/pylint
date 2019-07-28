@@ -34,12 +34,12 @@ EXPECTED_MSGS = [
 
 @pytest.fixture(scope="module")
 def enable(enable):
-    return ['too-complex']
+    return ["too-complex"]
 
 
 @pytest.fixture(scope="module")
 def disable(disable):
-    return ['all']
+    return ["all"]
 
 
 @pytest.fixture(scope="module")
@@ -49,15 +49,14 @@ def register(register):
 
 @pytest.fixture
 def fname_mccabe_example():
-    return osp.join(osp.dirname(osp.abspath(__file__)), 'data', 'mccabe.py')
+    return osp.join(osp.dirname(osp.abspath(__file__)), "data", "mccabe.py")
 
 
-@pytest.mark.parametrize("complexity, expected", [
-    (0, EXPECTED_MSGS),
-    (9, EXPECTED_MSGS[-2:]),
-])
+@pytest.mark.parametrize(
+    "complexity, expected", [(0, EXPECTED_MSGS), (9, EXPECTED_MSGS[-2:])]
+)
 def test_max_mccabe_rate(linter, fname_mccabe_example, complexity, expected):
-    linter.global_set_option('max-complexity', complexity)
+    linter.global_set_option("max-complexity", complexity)
     linter.check([fname_mccabe_example])
     real_msgs = [message.msg for message in linter.reporter.messages]
     assert sorted(expected) == sorted(real_msgs)

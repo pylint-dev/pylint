@@ -15,23 +15,23 @@ import pytest
 from pylint.extensions.docstyle import DocStringStyleChecker
 
 EXPECTED_MSGS = [
-    'First line empty in function docstring',
-    'First line empty in class docstring',
-    'First line empty in method docstring',
-    'Bad docstring quotes in method, expected """, given \'\'\'',
+    "First line empty in function docstring",
+    "First line empty in class docstring",
+    "First line empty in method docstring",
+    "Bad docstring quotes in method, expected \"\"\", given '''",
     'Bad docstring quotes in method, expected """, given "',
     'Bad docstring quotes in method, expected """, given \'',
     'Bad docstring quotes in method, expected """, given \'',
 ]
 
 EXPECTED_SYMBOLS = [
-    'docstring-first-line-empty',
-    'docstring-first-line-empty',
-    'docstring-first-line-empty',
-    'bad-docstring-quotes',
-    'bad-docstring-quotes',
-    'bad-docstring-quotes',
-    'bad-docstring-quotes',
+    "docstring-first-line-empty",
+    "docstring-first-line-empty",
+    "docstring-first-line-empty",
+    "bad-docstring-quotes",
+    "bad-docstring-quotes",
+    "bad-docstring-quotes",
+    "bad-docstring-quotes",
 ]
 
 
@@ -41,12 +41,12 @@ def checker(checker):
 
 
 def test_docstring_message(linter):
-    docstring_test = join(dirname(abspath(__file__)), 'data', 'docstring.py')
+    docstring_test = join(dirname(abspath(__file__)), "data", "docstring.py")
     linter.check([docstring_test])
     msgs = linter.reporter.messages
     assert len(msgs) == 7
-    for msg, expected_symbol, expected_msg in zip(msgs,
-                                                  EXPECTED_SYMBOLS,
-                                                  EXPECTED_MSGS):
+    for msg, expected_symbol, expected_msg in zip(
+        msgs, EXPECTED_SYMBOLS, EXPECTED_MSGS
+    ):
         assert msg.symbol == expected_symbol
         assert msg.msg == expected_msg
