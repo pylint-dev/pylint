@@ -953,7 +953,7 @@ class BasicChecker(_BasicChecker):
             "re-raised.",
         ),
         "W0199": (
-            "Assert called on a 2-uple. Did you mean 'assert x,y'?",
+            "Assert called on a 2-item-tuple. Did you mean 'assert x,y'?",
             "assert-on-tuple",
             "A call of assert on a tuple will always evaluate to true if "
             "the tuple is not empty, and will always evaluate to false if "
