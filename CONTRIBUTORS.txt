@@ -313,3 +313,5 @@ contributors:
 * Andrzej Klajnert: contributor
 
 * Andrés Pérez Hortal: contributor
+
+* Niko Wenselowski: contributor
