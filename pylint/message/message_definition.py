@@ -38,7 +38,10 @@ class MessageDefinition:
         self.old_names = old_names or []
 
     def __repr__(self):
-        return "MessageDefinition:{}".format(self.__dict__)
+        return "MessageDefinition:%s (%s)" % (self.symbol, self.msgid)
+
+    def __str__(self):
+        return "%s:\n%s %s" % (repr(self), self.msg, self.description)
 
     def may_be_emitted(self):
         """return True if message may be emitted using the current interpreter"""
