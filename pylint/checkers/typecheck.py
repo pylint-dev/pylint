@@ -443,6 +443,11 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
             return False
         except astroid.NotFoundError:
             pass
+    if isinstance(owner, bases.Generator):
+        if node.attrname in ("__enter__", "__exit__") and decorated_with(
+            owner.parent, ["contextlib.contextmanager"]
+        ):
+            return False
     if owner_name and node.attrname.startswith("_" + owner_name):
         # Test if an attribute has been mangled ('private' attribute)
         unmangled_name = node.attrname.split("_" + owner_name)[-1]

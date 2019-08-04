@@ -209,7 +209,6 @@ class Cls(enum.IntEnum):
 SOME_VALUE = Cls.Baz  # [no-member]
 
 
-
 # Does not crash when inferring the `append` attribute on the slice object
 class SomeClassUsingSlice:
     def __init__(self, flag):
@@ -218,3 +217,15 @@ class SomeClassUsingSlice:
         else:
             self.attribute = []
             self.attribute.append(1)
+
+
+from contextlib import contextmanager
+
+
+@contextmanager
+def context_manager_to_check_members():
+    yield
+
+CM = context_manager_to_check_members()
+CM.__enter__()
+CM.__exit__(None, None, None)
