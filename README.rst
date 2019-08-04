@@ -123,7 +123,12 @@ If you want to run tests on a specific portion of the code use pytest_, (pytest-
     python3 -m pytest tests/message/ # (--cov=pylint.message)
     # ( coverage html )
 
-It can be more than 100 times faster than tox and you can also get the coverage.
+It can be more than 100 times faster than tox and you can also get the coverage. First, you
+need to clone astroid_ and install the last version from source::
+
+    git clone https://github.com/PyCQA/astroid.git
+    python3 astroid/setup.py build sdist
+    pip3 install astroid/dist/astroid*.tar.gz
 
 For more detailed information, check the documentation.
 
@@ -131,6 +136,7 @@ For more detailed information, check the documentation.
 .. _tox: https://tox.readthedocs.io/en/latest/
 .. _pytest: https://docs.pytest.org/en/latest/
 .. _pytest-cov: https://pypi.org/project/pytest-cov/
+.. _astroid: https://github.com/PyCQA/astroid
 
 License
 -------
