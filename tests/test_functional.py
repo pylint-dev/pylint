@@ -347,7 +347,7 @@ class LintModuleTest(object):
     def _check_output_text(self, expected_messages, expected_lines, received_lines):
         assert (
             self._split_lines(expected_messages, expected_lines)[0] == received_lines
-        ), self._test_file.base
+        ), "Error with the following functional test: {}".format(self._test_file.base)
 
 
 class LintModuleOutputUpdate(LintModuleTest):
