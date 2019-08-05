@@ -1,0 +1,1 @@
+property-with-parameters:6:Cls.attribute:Cannot have defined parameters for properties

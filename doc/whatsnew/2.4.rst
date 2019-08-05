@@ -13,6 +13,49 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added `unnecessary-comprehension` that detects unnecessary comprehensions.
+
+  This check is emitted when ``pylint`` finds list-, set- or dict-comprehensions,
+  that are unnecessary and can be rewritten with the list-, set- or dict-constructors.
+
+  Close #2905
+
+* Added a new check, ``invalid-overridden-method``
+
+  This check is emitted when we detect that a method is overridden
+  as a property or a property is overridden as a method. This can indicate
+  a bug in the application code that will trigger a runtime error.
+
+  Close #2670
+
+* Added a new check, ``redeclared-assigned-name``
+
+  This check is emitted when ``pylint`` detects that a name was assigned one or multiple times in the same assignment,
+  which indicate a potential bug.
+
+  Close #2898
+
+* Added a new check, ``self-assigning-variable``
+
+  This check is emitted when we detect that a variable is assigned
+  to itself, which might indicate a potential bug in the code application.
+
+  For example, the following would raise this warning::
+
+    def new_a(attr, attr2):
+      a_inst = Aclass()
+      a_inst.attr2 = attr2
+      # should be: a_inst.attr = attr, but have a typo
+      attr = attr
+      return a_inst
+
+  Close #2930
+
+* Added a new check ``property-with-parameters`` which detects when a property
+  has more than a single argument.
+
+  Close #3006
+
 * Added `subprocess-run-check` to handle subprocess.run without explicitly set `check` keyword.
 
   Close #2848

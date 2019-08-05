@@ -510,44 +510,33 @@ def _has_parent_of_type(node, node_type, statement):
     return isinstance(parent, node_type)
 
 
-def _is_name_used_as_variadic(name, variadics):
-    """Check if the given name is used as a variadic argument."""
-    return any(
-        variadic.value == name or variadic.value.parent_of(name)
-        for variadic in variadics
-    )
-
-
-def _no_context_variadic_keywords(node):
+def _no_context_variadic_keywords(node, scope):
     statement = node.statement()
-    scope = node.scope()
     variadics = ()
 
-    if not isinstance(scope, astroid.FunctionDef):
-        return False
-
-    if isinstance(statement, (astroid.Return, astroid.Expr)) and isinstance(
-        statement.value, astroid.Call
-    ):
-        call = statement.value
-        variadics = list(call.keywords or []) + call.kwargs
+    if isinstance(scope, astroid.Lambda) and not isinstance(scope, astroid.FunctionDef):
+        variadics = list(node.keywords or []) + node.kwargs
+    else:
+        if isinstance(statement, (astroid.Return, astroid.Expr)) and isinstance(
+            statement.value, astroid.Call
+        ):
+            call = statement.value
+            variadics = list(call.keywords or []) + call.kwargs
 
     return _no_context_variadic(node, scope.args.kwarg, astroid.Keyword, variadics)
 
 
-def _no_context_variadic_positional(node):
-    statement = node.statement()
-    scope = node.scope()
+def _no_context_variadic_positional(node, scope):
     variadics = ()
-
-    if not isinstance(scope, astroid.FunctionDef):
-        return False
-
-    if isinstance(statement, (astroid.Expr, astroid.Return)) and isinstance(
-        statement.value, astroid.Call
-    ):
-        call = statement.value
-        variadics = call.starargs + call.kwargs
+    if isinstance(scope, astroid.Lambda) and not isinstance(scope, astroid.FunctionDef):
+        variadics = node.starargs + node.kwargs
+    else:
+        statement = node.statement()
+        if isinstance(statement, (astroid.Expr, astroid.Return)) and isinstance(
+            statement.value, astroid.Call
+        ):
+            call = statement.value
+            variadics = call.starargs + call.kwargs
 
     return _no_context_variadic(node, scope.args.vararg, astroid.Starred, variadics)
 
@@ -563,6 +552,10 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
     This can lead pylint to believe that a function call receives
     too few arguments.
     """
+    scope = node.scope()
+    is_in_lambda_scope = not isinstance(scope, astroid.FunctionDef) and isinstance(
+        scope, astroid.Lambda
+    )
     statement = node.statement()
     for name in statement.nodes_of_class(astroid.Name):
         if name.name != variadic_name:
@@ -576,10 +569,19 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
         else:
             continue
 
-        inferred_statement = inferred.statement()
-        if not length and isinstance(inferred_statement, astroid.FunctionDef):
+        if is_in_lambda_scope and isinstance(inferred.parent, astroid.Arguments):
+            # The statement of the variadic will be the assignment itself,
+            # so we need to go the lambda instead
+            inferred_statement = inferred.parent.parent
+        else:
+            inferred_statement = inferred.statement()
+
+        if not length and isinstance(inferred_statement, astroid.Lambda):
             is_in_starred_context = _has_parent_of_type(node, variadic_type, statement)
-            used_as_starred_argument = _is_name_used_as_variadic(name, variadics)
+            used_as_starred_argument = any(
+                variadic.value == name or variadic.value.parent_of(name)
+                for variadic in variadics
+            )
             if is_in_starred_context or used_as_starred_argument:
                 return True
     return False
@@ -1120,9 +1122,14 @@ accessed. Python regular expressions are accepted.",
         keyword_args = list(call_site.keyword_arguments.keys())
 
         # Determine if we don't have a context for our call and we use variadics.
-        if isinstance(node.scope(), astroid.FunctionDef):
-            has_no_context_positional_variadic = _no_context_variadic_positional(node)
-            has_no_context_keywords_variadic = _no_context_variadic_keywords(node)
+        node_scope = node.scope()
+        if isinstance(node_scope, (astroid.Lambda, astroid.FunctionDef)):
+            has_no_context_positional_variadic = _no_context_variadic_positional(
+                node, node_scope
+            )
+            has_no_context_keywords_variadic = _no_context_variadic_keywords(
+                node, node_scope
+            )
         else:
             has_no_context_positional_variadic = (
                 has_no_context_keywords_variadic

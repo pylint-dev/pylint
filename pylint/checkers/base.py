@@ -981,6 +981,16 @@ class BasicChecker(_BasicChecker):
             "Emitted when a conditional statement (If or ternary if) "
             "seems to wrongly call a function due to missing parentheses",
         ),
+        "W0127": (
+            "Assigning the same variable %r to itself",
+            "self-assigning-variable",
+            "Emitted when we detect that a variable is assigned to itself",
+        ),
+        "W0128": (
+            "Redeclared variable %r in assignment",
+            "redeclared-assigned-name",
+            "Emitted when we detect that a variable was redeclared in the same assignment.",
+        ),
         "E0111": (
             "The first reversed() argument is not a sequence",
             "bad-reversed-sequence",
@@ -1496,6 +1506,64 @@ class BasicChecker(_BasicChecker):
                         # if the line number doesn't match
                         # we assume it's a nested "with"
                         self.add_message("confusing-with-statement", node=node)
+
+    def _check_self_assigning_variable(self, node):
+        # Detect assigning to the same variable.
+        rhs_names = []
+        targets = node.targets
+        if isinstance(targets[0], astroid.Tuple):
+            if len(targets) != 1:
+                # A complex assignment, so bail out early.
+                return
+            targets = targets[0].elts
+
+        if isinstance(node.value, astroid.Name):
+            if len(targets) != 1:
+                return
+            rhs_names = [node.value]
+        elif isinstance(node.value, astroid.Tuple):
+            rhs_count = len(node.value.elts)
+            if len(targets) != rhs_count or rhs_count == 1:
+                return
+            rhs_names = node.value.elts
+
+        for target, lhs_name in zip(targets, rhs_names):
+            if not isinstance(lhs_name, astroid.Name):
+                continue
+            if not isinstance(target, astroid.AssignName):
+                continue
+            if target.name == lhs_name.name:
+                self.add_message(
+                    "self-assigning-variable", args=(target.name,), node=target
+                )
+
+    def _check_redeclared_assign_name(self, targets):
+        for target in targets:
+            if not isinstance(target, astroid.Tuple):
+                continue
+
+            found_names = []
+            for element in target.elts:
+                if isinstance(element, astroid.Tuple):
+                    self._check_redeclared_assign_name([element])
+                elif isinstance(element, astroid.AssignName) and element.name != "_":
+                    found_names.append(element.name)
+
+            names = collections.Counter(found_names)
+            for name, count in names.most_common():
+                if count > 1:
+                    self.add_message(
+                        "redeclared-assigned-name", args=(name,), node=target
+                    )
+
+    @utils.check_messages("self-assigning-variable", "redeclared-assigned-name")
+    def visit_assign(self, node):
+        self._check_self_assigning_variable(node)
+        self._check_redeclared_assign_name(node.targets)
+
+    @utils.check_messages("redeclared-assigned-name")
+    def visit_for(self, node):
+        self._check_redeclared_assign_name([node.target])
 
 
 KNOWN_NAME_TYPES = {
