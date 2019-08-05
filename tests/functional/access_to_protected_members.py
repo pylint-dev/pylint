@@ -66,22 +66,15 @@ class Issue1802(object):
         self.__private = 2 * value
 
     def __eq__(self, other):
-        """Test a correct access as other is an instance of Issue1802"""
+        """Test a correct access as the access to protected member is in a special method"""
         if isinstance(other, self.__class__):
             answer = self._foo == other._foo
             return answer and self.__private == other.__private  # [protected-access]
         return False
 
-    def __ne__(self, other):
-        """Test an incorrect access as other may be not an instance of Issue1802"""
-        if isinstance(other, dict):
-            return self._foo != other._foo  # [protected-access]
-        return False
-
     def not_in_special(self, other):
         """
-        Test an incorrect access as other is an instance of Issue1802 but the access
-        to protected member is not inside a special method
+        Test an incorrect access as the access to protected member is not inside a special method
         """
         if isinstance(other, self.__class__):
             return self._foo == other._foo  # [protected-access]
@@ -89,8 +82,8 @@ class Issue1802(object):
 
     def __le__(self, other):
         """
-        Test a correct access as other is an instance of Issue1802 even if the
-        corresponding test is deeply nested
+        Test a correct access as the access to protected member
+        is inside a special method even if it is deeply nested
         """
         if 2 > 1:
             if isinstance(other, self.__class__):
@@ -98,31 +91,9 @@ class Issue1802(object):
                     return self._foo == other._foo
         return False
 
-    def __ge__(self, other):
-        """
-        Test an incorrect access as other is an instance of Issue1802 but the
-        corresponding test is not hierarchically above the access
-        """
-        if 2 > 1:
-            if isinstance(other, self.__class__):
-                print("Ok")
-            if "answer" == "42":
-                return self._foo == other._foo  # [protected-access]
-        return False
-
-    def __add__(self, other):
-        """
-        Test an incorrect access as other is not an instance of Issue1802
-        """
-        if 2 > 1:
-            if not isinstance(other, self.__class__):
-                if "answer" == "42":
-                    return self._foo == other._foo  # [protected-access]
-        return False
-
     def __fake_special__(self, other):
         """
-        Test an incorrect access as other is an instance of Issue1802 but the access
+        Test an incorrect access as the access
         to protected member is not inside a licit special method
         """
         if isinstance(other, self.__class__):
