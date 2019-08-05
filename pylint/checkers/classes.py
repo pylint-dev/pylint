@@ -1310,8 +1310,6 @@ a metaclass class method.",
                         return
 
                 #  A licit use of protected member is inside a special method
-                #  if the expression that use this member is the same class as
-                #  the current one
                 if (
                     not attrname.startswith("__")
                     and self._is_called_inside_special_method(node)
