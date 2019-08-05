@@ -34,7 +34,6 @@ from __future__ import generators
 import collections
 import sys
 from itertools import chain, zip_longest
-from typing import List, Optional
 
 import astroid
 from astroid import decorators, objects
