@@ -104,7 +104,7 @@ Other Changes
 =============
 
 * Don't emit ``protected-access`` when a single underscore prefixed attribute is used 
-  inside a special method and the corresponding instance is the same as the current class 
+  inside a special method
 
   Close #1802
 
