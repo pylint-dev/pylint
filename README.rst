@@ -120,10 +120,17 @@ To run the test suite for a particular Python version, you can do::
 If you want to run tests on a specific portion of the code use pytest_, (pytest-cov_) and your local python version::
 
     # ( pip install pytest-cov )
-    python3 -m pytest tests/message/ # (--cov=pylint.message)
-    # ( coverage html )
+    # Everything:
+    python3 -m pytest tests/
+    # Everything in tests/message with coverage for the relevant code:
+    python3 -m pytest tests/message/ --cov=pylint.message
+    coverage html
+    # Only the functional test "missing_kwoa_py3":
+    python3 -m pytest "tests/test_functional.py::test_functional[missing_kwoa_py3]"
 
-It can be more than 100 times faster than tox and you can also get the coverage. First, you
+
+It can be more than 100 times faster than tox and you can also get the coverage.
+10000 times if you want to launch a single functional test. First, you
 need to clone astroid_ and install the last version from source::
 
     git clone https://github.com/PyCQA/astroid.git
