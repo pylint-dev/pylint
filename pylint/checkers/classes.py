@@ -1352,10 +1352,9 @@ a metaclass class method.",
                         return
 
                 #  A licit use of protected member is inside a special method
-                if (
-                    not attrname.startswith("__")
-                    and self._is_called_inside_special_method(node)
-                ):
+                if not attrname.startswith(
+                    "__"
+                ) and self._is_called_inside_special_method(node):
                     return
 
                 self.add_message("protected-access", node=node, args=attrname)
