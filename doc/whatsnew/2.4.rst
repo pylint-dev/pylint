@@ -103,6 +103,11 @@ New checkers
 Other Changes
 =============
 
+* Don't emit ``protected-access`` when a single underscore prefixed attribute is used 
+  inside a special method
+
+  Close #1802
+
 * ``len-as-condition`` now only fires when a ``len(x)`` call is made without an explicit comparison.
 
   The message and description accompanying this checker has been changed

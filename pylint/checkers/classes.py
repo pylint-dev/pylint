@@ -1351,7 +1351,24 @@ a metaclass class method.",
                     if _is_attribute_property(name, klass):
                         return
 
+                #  A licit use of protected member is inside a special method
+                if not attrname.startswith(
+                    "__"
+                ) and self._is_called_inside_special_method(node):
+                    return
+
                 self.add_message("protected-access", node=node, args=attrname)
+
+    @staticmethod
+    def _is_called_inside_special_method(node: astroid.node_classes.NodeNG) -> bool:
+        """
+        Returns true if the node is located inside a special (aka dunder) method
+        """
+        try:
+            frame_name = node.frame().name
+        except AttributeError:
+            return False
+        return frame_name and frame_name in PYMETHODS
 
     def _is_type_self_call(self, expr):
         return (

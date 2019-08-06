@@ -57,3 +57,45 @@ class Issue1031(object):
         if self._attr == 1:
             return type(INST)._protected  # [protected-access]
         return None
+
+
+class Issue1802(object):
+    """Test for GitHub issue 1802"""
+    def __init__(self, value):
+        self._foo = value
+        self.__private = 2 * value
+
+    def __eq__(self, other):
+        """Test a correct access as the access to protected member is in a special method"""
+        if isinstance(other, self.__class__):
+            answer = self._foo == other._foo
+            return answer and self.__private == other.__private  # [protected-access]
+        return False
+
+    def not_in_special(self, other):
+        """
+        Test an incorrect access as the access to protected member is not inside a special method
+        """
+        if isinstance(other, self.__class__):
+            return self._foo == other._foo  # [protected-access]
+        return False
+
+    def __le__(self, other):
+        """
+        Test a correct access as the access to protected member
+        is inside a special method even if it is deeply nested
+        """
+        if 2 > 1:
+            if isinstance(other, self.__class__):
+                if "answer" == "42":
+                    return self._foo == other._foo
+        return False
+
+    def __fake_special__(self, other):
+        """
+        Test an incorrect access as the access
+        to protected member is not inside a licit special method
+        """
+        if isinstance(other, self.__class__):
+            return self._foo == other._foo  # [protected-access]
+        return False

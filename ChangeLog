@@ -7,6 +7,11 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Don't emit ``protected-access`` when a single underscore prefixed attribute
+  is used inside a special method
+
+  Close #1802
+
 * Fix the "statement" values in the PyLinter's stats reports by module.
 
 * Added a new check, ``invalid-overridden-method``

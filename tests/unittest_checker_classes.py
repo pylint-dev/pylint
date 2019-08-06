@@ -105,7 +105,7 @@ class TestVariablesChecker(CheckerTestCase):
                 return 1 if self._nargs else 2
 
         class Application(metaclass=MC):
-            def __new__(cls):
+            def __no_special__(cls):
                 nargs = obj._nargs #@
         """
         )
