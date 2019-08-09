@@ -399,7 +399,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         return False
     if is_super(owner) or getattr(owner, "type", None) == "metaclass":
         return False
-    if ignored_mixins and owner_name[-5:].lower() == "mixin":
+    if owner_name and ignored_mixins and owner_name[-5:].lower() == "mixin":
         return False
     if isinstance(owner, astroid.FunctionDef) and owner.decorators:
         return False
@@ -443,7 +443,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
             return False
         except astroid.NotFoundError:
             pass
-    if node.attrname.startswith("_" + owner_name):
+    if owner_name and node.attrname.startswith("_" + owner_name):
         # Test if an attribute has been mangled ('private' attribute)
         unmangled_name = node.attrname.split("_" + owner_name)[-1]
         try:
@@ -883,7 +883,6 @@ accessed. Python regular expressions are accepted.",
             # make sure that we won't emit a false positive, we just stop
             # whenever the inference returns an opaque inference object.
             return
-
         for owner in non_opaque_inference_results:
             name = getattr(owner, "name", None)
             if _is_owner_ignored(
