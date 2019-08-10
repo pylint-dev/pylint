@@ -105,10 +105,9 @@ class MessagesHandlerMixIn:
 
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
-            msgs_store = self.msgs_store
             for checker in self._checkers[msgid.lower()]:
                 for _msgid in checker.msgs:
-                    if _msgid in msgs_store._alternative_names:
+                    if _msgid in self.msgs_store._old_message_definitions:
                         self._set_msg_status(_msgid, enable, scope, line)
             return
 
