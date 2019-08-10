@@ -33,10 +33,6 @@ class MessageIdStore:
     def get_msgid(self, symbol: str) -> str:
         return self.__symbol_to_msgid[symbol]
 
-    @property
-    def msgids(self):
-        return list(self.__msgid_to_symbol.keys()) + list(self.__old_names.keys())
-
     def register_message_definition(self, message_definition):
         self.check_msgid_and_symbol(message_definition.msgid, message_definition.symbol)
         self.add_msgid_and_symbol(message_definition.msgid, message_definition.symbol)

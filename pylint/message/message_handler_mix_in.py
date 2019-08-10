@@ -106,10 +106,8 @@ class MessagesHandlerMixIn:
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
             for checker in self._checkers[msgid.lower()]:
-                msgids = self.msgs_store.msgids
                 for _msgid in checker.msgs:
-                    if _msgid in msgids:
-                        self._set_msg_status(_msgid, enable, scope, line)
+                    self._set_msg_status(_msgid, enable, scope, line)
             return
 
         # msgid is report id?
