@@ -63,14 +63,10 @@ class MessageDefinitionStore:
         :rtype: List of MessageDefinition
         :return: A message definition corresponding to msgid_or_symbol
         """
-        message_definitions = []
-        message_ids = self.message_id_store.get_active_msgids(msgid_or_symbol)
-        for message_id in message_ids:
-            message_definition = self._messages_definitions.get(message_id)
-            if message_definition is None:
-                message_definition = self._old_message_definitions.get(message_id)
-            message_definitions.append(message_definition)
-        return message_definitions
+        return [
+            self._messages_definitions[m]
+            for m in self.message_id_store.get_active_msgids(msgid_or_symbol)
+        ]
 
     def get_msg_display_string(self, msgid_or_symbol: str):
         """Generates a user-consumable representation of a message. """
