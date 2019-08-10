@@ -7,27 +7,27 @@ from __future__ import print_function
 
 import collections
 
-from pylint.exceptions import InvalidMessageError, UnknownMessageError
+from pylint.exceptions import UnknownMessageError
+from pylint.message.message_id_store import MessageIdStore
 
 
 class MessageDefinitionStore:
 
-    """The messages store knows information about every possible message but has
+    """The messages store knows information about every possible message definition but has
     no particular state during analysis.
     """
 
     def __init__(self):
-        # Primary registry for all active messages (i.e. all messages
-        # that can be emitted by pylint for the underlying Python
-        # version). It contains the 1:1 mapping from symbolic names
-        # to message definition objects.
-        # Keys are msg ids, values are a 2-uple with the msg type and the
-        # msg itself
+        self.message_id_store = MessageIdStore()
+        # Primary registry for all active messages definitions.
+        # It contains the 1:1 mapping from msgid to MessageDefinition.
+        # Keys are msgid, values are MessageDefinition
         self._messages_definitions = {}
-        # Maps alternative names (numeric IDs, deprecated names) to
-        # message definitions. May contain several names for each definition
-        # object.
-        self._alternative_names = {}
+        # Secondary registry for all old names kept for compatibility reasons
+        # May contain identical values under different MessageId
+        # (ie a MessageDefinition was renamed more than once)
+        self._old_message_definitions = {}
+        # MessageDefinition kept by category
         self._msgs_by_category = collections.defaultdict(list)
 
     @property
@@ -36,7 +36,7 @@ class MessageDefinitionStore:
         return self._messages_definitions.values()
 
     def register_messages_from_checker(self, checker):
-        """Register all messages from a checker.
+        """Register all messages definitions from a checker.
 
         :param BaseChecker checker:
         """
@@ -49,105 +49,12 @@ class MessageDefinitionStore:
 
         :param MessageDefinition message: The message definition being added.
         """
-        self._check_id_and_symbol_consistency(message.msgid, message.symbol)
-        self._check_symbol(message.msgid, message.symbol)
-        self._check_msgid(message.msgid, message.symbol)
-        for old_name in message.old_names:
-            self._check_symbol(message.msgid, old_name[1])
-        self._messages_definitions[message.symbol] = message
-        self._register_alternative_name(message, message.msgid, message.symbol)
-        for old_id, old_symbol in message.old_names:
-            self._register_alternative_name(message, old_id, old_symbol)
+        self.message_id_store.register_message_definition(message)
+        self._messages_definitions[message.msgid] = message
+        self._old_message_definitions[message.msgid] = message
+        for old_msgid, _ in message.old_names:
+            self._old_message_definitions[old_msgid] = message
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
-
-    def _register_alternative_name(self, msg, msgid, symbol):
-        """helper for register_message()"""
-        self._check_id_and_symbol_consistency(msgid, symbol)
-        self._alternative_names[msgid] = msg
-        self._alternative_names[symbol] = msg
-
-    def _check_symbol(self, msgid, symbol):
-        """Check that a symbol is not already used. """
-        other_message = self._messages_definitions.get(symbol)
-        if other_message:
-            self._raise_duplicate_msgid(symbol, msgid, other_message.msgid)
-        else:
-            alternative_msgid = None
-        alternative_message = self._alternative_names.get(symbol)
-        if alternative_message:
-            if alternative_message.symbol == symbol:
-                alternative_msgid = alternative_message.msgid
-            else:
-                for old_msgid, old_symbol in alternative_message.old_names:
-                    if old_symbol == symbol:
-                        alternative_msgid = old_msgid
-                        break
-            if msgid != alternative_msgid:
-                self._raise_duplicate_msgid(symbol, msgid, alternative_msgid)
-
-    def _check_msgid(self, msgid, symbol):
-        for message in self._messages_definitions.values():
-            if message.msgid == msgid:
-                self._raise_duplicate_symbol(msgid, symbol, message.symbol)
-
-    def _check_id_and_symbol_consistency(self, msgid, symbol):
-        try:
-            alternative = self._alternative_names[msgid]
-        except KeyError:
-            alternative = False
-        try:
-            if not alternative:
-                alternative = self._alternative_names[symbol]
-        except KeyError:
-            # There is no alternative names concerning this msgid/symbol.
-            # So nothing to check
-            return None
-        old_symbolic_name = None
-        old_symbolic_id = None
-        for alternate_msgid, alternate_symbol in alternative.old_names:
-            if alternate_msgid == msgid or alternate_symbol == symbol:
-                old_symbolic_id = alternate_msgid
-                old_symbolic_name = alternate_symbol
-        if symbol not in (alternative.symbol, old_symbolic_name):
-            if msgid == old_symbolic_id:
-                self._raise_duplicate_symbol(msgid, symbol, old_symbolic_name)
-            else:
-                self._raise_duplicate_symbol(msgid, symbol, alternative.symbol)
-        return None
-
-    @staticmethod
-    def _raise_duplicate_symbol(msgid, symbol, other_symbol):
-        """Raise an error when a symbol is duplicated.
-
-        :param str msgid: The msgid corresponding to the symbols
-        :param str symbol: Offending symbol
-        :param str other_symbol: Other offending symbol
-        :raises InvalidMessageError:"""
-        symbols = [symbol, other_symbol]
-        symbols.sort()
-        error_message = "Message id '{msgid}' cannot have both ".format(msgid=msgid)
-        error_message += "'{other_symbol}' and '{symbol}' as symbolic name.".format(
-            other_symbol=symbols[0], symbol=symbols[1]
-        )
-        raise InvalidMessageError(error_message)
-
-    @staticmethod
-    def _raise_duplicate_msgid(symbol, msgid, other_msgid):
-        """Raise an error when a msgid is duplicated.
-
-        :param str symbol: The symbol corresponding to the msgids
-        :param str msgid: Offending msgid
-        :param str other_msgid: Other offending msgid
-        :raises InvalidMessageError:"""
-        msgids = [msgid, other_msgid]
-        msgids.sort()
-        error_message = "Message symbol '{symbol}' cannot be used for ".format(
-            symbol=symbol
-        )
-        error_message += "'{other_msgid}' and '{msgid}' at the same time.".format(
-            other_msgid=msgids[0], msgid=msgids[1]
-        )
-        raise InvalidMessageError(error_message)
 
     def get_message_definitions(self, msgid_or_symbol: str) -> list:
         """Returns the Message object for this message.
@@ -156,32 +63,29 @@ class MessageDefinitionStore:
         :rtype: List of MessageDefinition
         :return: A message definition corresponding to msgid_or_symbol
         """
-        # Only msgid can have a digit as second letter
-        is_msgid = msgid_or_symbol[1:].isdigit()
-        if is_msgid:
-            msgid_or_symbol = msgid_or_symbol.upper()
-        for source in (self._alternative_names, self._messages_definitions):
-            try:
-                return [source[msgid_or_symbol]]
-            except KeyError:
-                pass
-        error_msg = "No such message id or symbol '{msgid_or_symbol}'.".format(
-            msgid_or_symbol=msgid_or_symbol
-        )
-        raise UnknownMessageError(error_msg)
+        message_definitions = []
+        message_ids = self.message_id_store.get_active_msgids(msgid_or_symbol)
+        for message_id in message_ids:
+            message_definition = self._messages_definitions.get(message_id)
+            if message_definition is None:
+                message_definition = self._old_message_definitions.get(message_id)
+            message_definitions.append(message_definition)
+        return message_definitions
 
-    def get_msg_display_string(self, msgid):
+    def get_msg_display_string(self, msgid_or_symbol: str):
         """Generates a user-consumable representation of a message. """
-        message_definitions = self.get_message_definitions(msgid)
+        message_definitions = self.get_message_definitions(msgid_or_symbol)
         if len(message_definitions) == 1:
             return repr(message_definitions[0].symbol)
         return repr([md.symbol for md in message_definitions])
 
-    def help_message(self, msgids):
+    def help_message(self, msgids_or_symbols: list):
         """Display help messages for the given message identifiers"""
-        for msgid in msgids:
+        for msgids_or_symbol in msgids_or_symbols:
             try:
-                for message_definition in self.get_message_definitions(msgid):
+                for message_definition in self.get_message_definitions(
+                    msgids_or_symbol
+                ):
                     print(message_definition.format_help(checkerref=True))
                     print("")
             except UnknownMessageError as ex:
