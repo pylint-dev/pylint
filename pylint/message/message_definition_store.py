@@ -49,10 +49,6 @@ class MessageDefinitionStore:
         self._messages_definitions[message.msgid] = message
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
 
-    @property
-    def msgids(self):
-        return self.message_id_store.msgids
-
     def get_message_definitions(self, msgid_or_symbol: str) -> list:
         """Returns the Message object for this message.
         :param str msgid_or_symbol: msgid_or_symbol may be either a numeric or symbolic id.
