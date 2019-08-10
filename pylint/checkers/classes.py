@@ -1550,7 +1550,7 @@ a metaclass class method.",
 
     def _check_init(self, node):
         """check that the __init__ method call super or ancestors'__init__
-        method
+        method (unless it is used for type hinting with `typing.overload`)
         """
         if not self.linter.is_message_enabled(
             "super-init-not-called"
@@ -1600,6 +1600,8 @@ a metaclass class method.",
             except astroid.InferenceError:
                 continue
         for klass, method in not_called_yet.items():
+            if decorated_with(node, ["typing.overload"]):
+                continue
             cls = node_frame_class(method)
             if klass.name == "object" or (cls and cls.name == "object"):
                 continue
