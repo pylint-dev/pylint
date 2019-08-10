@@ -141,16 +141,3 @@ def test_register_error_new_id_duplicate_of_new(store):
         {"W1234": ("message two", "msg-symbol-two", "another msg description.")},
         "Message id 'W1234' cannot have both 'msg-symbol-one' and 'msg-symbol-two' as symbolic name.",
     )
-
-
-@pytest.mark.parametrize(
-    "msgid,expected",
-    [
-        ("Q1234", "Bad message type Q in 'Q1234'"),
-        ("W12345", "Invalid message id 'W12345'"),
-    ],
-)
-def test_create_invalid_message_type(msgid, expected):
-    with pytest.raises(InvalidMessageError) as cm:
-        MessageDefinition("checker", msgid, "msg", "descr", "symbol", "scope")
-    assert str(cm.value) == expected

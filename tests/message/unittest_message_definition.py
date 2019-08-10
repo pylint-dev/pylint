@@ -5,9 +5,28 @@
 
 import sys
 
+import pytest
+
 from pylint.checkers import BaseChecker
 from pylint.constants import WarningScope
+from pylint.exceptions import InvalidMessageError
 from pylint.message import MessageDefinition
+
+
+@pytest.mark.parametrize(
+    "msgid,expected",
+    [
+        ("Q1234", "Bad message type Q in 'Q1234'"),
+        ("W12345", "Invalid message id 'W12345'"),
+    ],
+)
+def test_create_invalid_message_type(msgid, expected):
+    with pytest.raises(InvalidMessageError) as invalid_message_error:
+        MessageDefinition.check_msgid(msgid)
+    with pytest.raises(InvalidMessageError) as other_invalid_message_error:
+        MessageDefinition("checker", msgid, "msg", "descr", "symbol", "scope")
+    assert str(invalid_message_error.value) == expected
+    assert str(other_invalid_message_error.value) == expected
 
 
 class FalseChecker(BaseChecker):

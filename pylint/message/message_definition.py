@@ -24,10 +24,7 @@ class MessageDefinition:
         old_names=None,
     ):
         self.checker = checker
-        if len(msgid) != 5:
-            raise InvalidMessageError("Invalid message id %r" % msgid)
-        if not msgid[0] in MSG_TYPES:
-            raise InvalidMessageError("Bad message type %s in %r" % (msgid[0], msgid))
+        self.check_msgid(msgid)
         self.msgid = msgid
         self.symbol = symbol
         self.msg = msg
@@ -35,7 +32,18 @@ class MessageDefinition:
         self.scope = scope
         self.minversion = minversion
         self.maxversion = maxversion
-        self.old_names = old_names or []
+        self.old_names = []
+        if old_names:
+            for old_msgid, old_symbol in old_names:
+                self.check_msgid(old_msgid)
+                self.old_names.append([old_msgid, old_symbol])
+
+    @staticmethod
+    def check_msgid(msgid: str) -> None:
+        if len(msgid) != 5:
+            raise InvalidMessageError("Invalid message id %r" % msgid)
+        if msgid[0] not in MSG_TYPES:
+            raise InvalidMessageError("Bad message type %s in %r" % (msgid[0], msgid))
 
     def __repr__(self):
         return "MessageDefinition:%s (%s)" % (self.symbol, self.msgid)
