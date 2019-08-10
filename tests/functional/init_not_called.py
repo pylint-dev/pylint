@@ -62,3 +62,25 @@ from missing import Missing
 
 class UnknownBases(Missing):
     """Don't emit no-init if the bases aren't known."""
+
+
+from typing import overload  # pylint: disable=wrong-import-order
+
+class Parent:
+
+    def __init__(self, num: int):
+        self.number = num
+
+
+class Child(Parent):
+
+    @overload
+    def __init__(self, num: int):
+        ...
+
+    @overload
+    def __init__(self, num: float):
+        ...
+
+    def __init__(self, num):
+        super().__init__(round(num))
