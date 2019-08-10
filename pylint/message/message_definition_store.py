@@ -23,10 +23,6 @@ class MessageDefinitionStore:
         # It contains the 1:1 mapping from msgid to MessageDefinition.
         # Keys are msgid, values are MessageDefinition
         self._messages_definitions = {}
-        # Secondary registry for all old names kept for compatibility reasons
-        # May contain identical values under different MessageId
-        # (ie a MessageDefinition was renamed more than once)
-        self._old_message_definitions = {}
         # MessageDefinition kept by category
         self._msgs_by_category = collections.defaultdict(list)
 
@@ -51,10 +47,11 @@ class MessageDefinitionStore:
         """
         self.message_id_store.register_message_definition(message)
         self._messages_definitions[message.msgid] = message
-        self._old_message_definitions[message.msgid] = message
-        for old_msgid, _ in message.old_names:
-            self._old_message_definitions[old_msgid] = message
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
+
+    @property
+    def msgids(self):
+        return self.message_id_store.msgids
 
     def get_message_definitions(self, msgid_or_symbol: str) -> list:
         """Returns the Message object for this message.
