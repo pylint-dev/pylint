@@ -120,4 +120,9 @@ class MessageIdStore:
                 msgid_or_symbol=msgid_or_symbol
             )
             raise UnknownMessageError(error_msg)
-        return [msgid]
+        # logging.debug(
+        #    "Return for {} and msgid {} is {}".format(
+        #        msgid_or_symbol, msgid, self.__old_names.get(msgid, [msgid])
+        #    )
+        # )
+        return self.__old_names.get(msgid, [msgid])
