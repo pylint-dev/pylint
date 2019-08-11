@@ -769,3 +769,21 @@ def test_filename_with__init__(init_linter):
     linter.check([filepath])
     messages = reporter.messages
     assert len(messages) == 0
+
+
+def test_by_module_statement_value(init_linter):
+    """Test "statement" for each module analized of computed correctly."""
+    linter = init_linter
+    linter.check(os.path.join(os.path.dirname(__file__), "data"))
+
+    for module, module_stats in linter.stats['by_module'].items():
+
+        linter2 = init_linter
+        if module == "data":
+            linter2.check(os.path.join(os.path.dirname(__file__), "data/__init__.py"))
+        else:
+            linter2.check(os.path.join(os.path.dirname(__file__), module))
+
+        # Check that the by_module "statement" is equal to the global "statement"
+        # computed for that module
+        assert module_stats['statement'] == linter2.stats['statement']

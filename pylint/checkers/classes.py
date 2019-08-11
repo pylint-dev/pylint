@@ -56,6 +56,8 @@ from pylint.checkers.utils import (
     is_comprehension,
     is_iterable,
     is_property_setter,
+    is_property_setter_or_deleter,
+    is_protocol_class,
     node_frame_class,
     overrides_a_method,
     safe_infer,
@@ -69,7 +71,7 @@ if sys.version_info >= (3, 0):
 else:
     NEXT_METHOD = "next"
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
-
+BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
 
 # Dealing with useless override detection, with regard
 # to parameters vs arguments
@@ -565,6 +567,13 @@ MSGS = {
         "relying on super() delegation to do the same thing as another method "
         "from the MRO.",
     ),
+    "W0236": (
+        "Method %r was expected to be %r, found it instead as %r",
+        "invalid-overridden-method",
+        "Used when we detect that a method was overridden as a property "
+        "or the other way around, which could result in potential bugs at "
+        "runtime.",
+    ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
         "invalid-slots-object",
@@ -621,6 +630,12 @@ MSGS = {
         "useless-object-inheritance",
         "Used when a class inherit from object, which under python3 is implicit, "
         "hence can be safely removed from bases.",
+    ),
+    "R0206": (
+        "Cannot have defined parameters for properties",
+        "property-with-parameters",
+        "Used when we detect that a property also has parameters, which are useless, "
+        "given that properties cannot be called with additional arguments.",
     ),
 }
 
@@ -870,6 +885,7 @@ a metaclass class method.",
             return
 
         self._check_useless_super_delegation(node)
+        self._check_property_with_parameters(node)
 
         klass = node.parent.frame()
         self._meth_could_be_func = True
@@ -882,16 +898,18 @@ a metaclass class method.",
         for overridden in klass.local_attr_ancestors(node.name):
             # get astroid for the searched method
             try:
-                meth_node = overridden[node.name]
+                parent_function = overridden[node.name]
             except KeyError:
                 # we have found the method but it's not in the local
                 # dictionary.
                 # This may happen with astroid build from living objects
                 continue
-            if not isinstance(meth_node, astroid.FunctionDef):
+            if not isinstance(parent_function, astroid.FunctionDef):
                 continue
-            self._check_signature(node, meth_node, "overridden", klass)
+            self._check_signature(node, parent_function, "overridden", klass)
+            self._check_invalid_overridden_method(node, parent_function)
             break
+
         if node.decorators:
             for decorator in node.decorators.nodes:
                 if isinstance(decorator, astroid.Attribute) and decorator.attrname in (
@@ -1052,6 +1070,30 @@ a metaclass class method.",
                 "useless-super-delegation", node=function, args=(function.name,)
             )
 
+    def _check_property_with_parameters(self, node):
+        if node.args.args and len(node.args.args) > 1 and decorated_with_property(node):
+            self.add_message("property-with-parameters", node=node)
+
+    def _check_invalid_overridden_method(self, function_node, parent_function_node):
+        parent_is_property = decorated_with_property(
+            parent_function_node
+        ) or is_property_setter_or_deleter(parent_function_node)
+        current_is_property = decorated_with_property(
+            function_node
+        ) or is_property_setter_or_deleter(function_node)
+        if parent_is_property and not current_is_property:
+            self.add_message(
+                "invalid-overridden-method",
+                args=(function_node.name, "property", function_node.type),
+                node=function_node,
+            )
+        elif not parent_is_property and current_is_property:
+            self.add_message(
+                "invalid-overridden-method",
+                args=(function_node.name, "method", "property"),
+                node=function_node,
+            )
+
     def _check_slots(self, node):
         if "__slots__" not in node.locals:
             return
@@ -1127,6 +1169,7 @@ a metaclass class method.",
                     or overrides_a_method(class_node, node.name)
                     or decorated_with_property(node)
                     or _has_bare_super_call(node)
+                    or is_protocol_class(class_node)
                 )
             ):
                 self.add_message("no-self-use", node=node)
@@ -1308,7 +1351,24 @@ a metaclass class method.",
                     if _is_attribute_property(name, klass):
                         return
 
+                #  A licit use of protected member is inside a special method
+                if not attrname.startswith(
+                    "__"
+                ) and self._is_called_inside_special_method(node):
+                    return
+
                 self.add_message("protected-access", node=node, args=attrname)
+
+    @staticmethod
+    def _is_called_inside_special_method(node: astroid.node_classes.NodeNG) -> bool:
+        """
+        Returns true if the node is located inside a special (aka dunder) method
+        """
+        try:
+            frame_name = node.frame().name
+        except AttributeError:
+            return False
+        return frame_name and frame_name in PYMETHODS
 
     def _is_type_self_call(self, expr):
         return (

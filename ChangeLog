@@ -7,6 +7,65 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Don't emit ``protected-access`` when a single underscore prefixed attribute
+  is used inside a special method
+
+  Close #1802
+
+* Fix the "statement" values in the PyLinter's stats reports by module.
+
+* Added a new check, ``invalid-overridden-method``
+
+  This check is emitted when we detect that a method is overridden
+  as a property or a property is overridden as a method. This can indicate
+  a bug in the application code that will trigger a runtime error.
+
+  Close #2670
+
+* Added a new check, ``redeclared-assigned-name``
+
+  This check is emitted when ``pylint`` detects that a name
+  was assigned one or multiple times in the same assignment,
+  which indicate a potential bug.
+  Close #2898
+
+* Ignore lambda calls with variadic arguments without a context.
+
+  Inferring variadic positional arguments and keyword arguments
+  will result into empty Tuples and Dicts, which can lead in
+  some cases to false positives with regard to no-value-for-parameter.
+  In order to avoid this, until we'll have support for call context
+  propagation, we're ignoring such cases if detected.
+  We already did that for function calls, but the previous fix
+  was not taking in consideration ``lambdas``
+
+  Close #2918
+
+* Added a new check, ``self-assigning-variable``
+
+  This check is emitted when we detect that a variable is assigned
+  to itself, which might indicate a potential bug in the code application.
+  Close #2930
+
+* Added a new check, ``property-with-parameters``.
+
+  This check is emitted when we detect that a defined property also
+  has parameters, which are useless.
+  Close #3006
+
+* Excluded protocol classes from a couple of checks. Close #3002.
+
+* Add a check `unnecessary-comprehension` that detects unnecessary comprehensions.
+
+  This check is emitted when ``pylint`` finds list-, set- or dict-comprehensions,
+  that are unnecessary and can be rewritten with the list-, set- or dict-constructors.
+
+  Close #2905
+
+* Excluded PEP 526 instance and class variables from ``no-member``. Close #2945
+
+* Excluded `attrs` from `too-few-public-methods` check. Close #2988.
+
 * ``unused-import`` emitted for the right import names in function scopes.
 
   Close #2928
@@ -162,6 +221,9 @@ Release date: TBA
 
   Close #2581
 
+* Changed description of W0199 to use the term 2-item-tuple instead of 2-uple.
+
+
 What's New in Pylint 2.3.0?
 ===========================
 
@@ -298,6 +360,8 @@ Release date: 2019-02-27
 
 * Fix false positive ``useless-else-on-loop`` if the break is deep in the else
   of an inner loop.
+
+* Minor improvements to the help text for a few options.
 
 
 What's New in Pylint 2.2.2?

@@ -1,0 +1,2 @@
+self-assigning-variable:19::Assigning the same variable 'FIRST' to itself
+self-assigning-variable:20::Assigning the same variable 'FIRST' to itself

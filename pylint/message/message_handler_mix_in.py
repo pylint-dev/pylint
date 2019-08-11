@@ -14,18 +14,14 @@ from pylint.constants import (
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
+    MSG_TYPES_LONG,
     MSG_TYPES_STATUS,
     WarningScope,
 )
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.interfaces import UNDEFINED
 from pylint.message.message import Message
-from pylint.utils import (
-    category_id,
-    get_module_and_frameid,
-    get_rst_section,
-    get_rst_title,
-)
+from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
 
 
 class MessagesHandlerMixIn:
@@ -99,9 +95,11 @@ class MessagesHandlerMixIn:
             return
 
         # msgid is a category?
-        catid = category_id(msgid)
-        if catid is not None:
-            for _msgid in self.msgs_store._msgs_by_category.get(catid):
+        category_id = msgid.upper()
+        if category_id not in MSG_TYPES:
+            category_id = MSG_TYPES_LONG.get(category_id)
+        if category_id is not None:
+            for _msgid in self.msgs_store._msgs_by_category.get(category_id):
                 self._set_msg_status(_msgid, enable, scope, line)
             return
 
@@ -228,13 +226,7 @@ class MessagesHandlerMixIn:
             return self._msgs_state.get(msgid, True)
 
     def add_message(
-        self,
-        msg_descr,
-        line=None,
-        node=None,
-        args=None,
-        confidence=UNDEFINED,
-        col_offset=None,
+        self, msgid, line=None, node=None, args=None, confidence=None, col_offset=None
     ):
         """Adds a message given by ID or name.
 
@@ -244,48 +236,56 @@ class MessagesHandlerMixIn:
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
-        message_definitions = self.msgs_store.get_message_definitions(msg_descr)
+        if confidence is None:
+            confidence = UNDEFINED
+        message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             self.add_one_message(
                 message_definition, line, node, args, confidence, col_offset
             )
 
-    def add_one_message(
-        self, message_definition, line, node, args, confidence, col_offset
-    ):
-        msgid = message_definition.msgid
-        # backward compatibility, message may not have a symbol
-        symbol = message_definition.symbol or msgid
-        # Fatal messages and reports are special, the node/scope distinction
-        # does not apply to them.
-        if msgid[0] not in _SCOPE_EXEMPT:
+    @staticmethod
+    def check_message_definition(message_definition, line, node):
+        if message_definition.msgid[0] not in _SCOPE_EXEMPT:
+            # Fatal messages and reports are special, the node/scope distinction
+            # does not apply to them.
             if message_definition.scope == WarningScope.LINE:
                 if line is None:
                     raise InvalidMessageError(
-                        "Message %s must provide line, got None" % msgid
+                        "Message %s must provide line, got None"
+                        % message_definition.msgid
                     )
                 if node is not None:
                     raise InvalidMessageError(
                         "Message %s must only provide line, "
-                        "got line=%s, node=%s" % (msgid, line, node)
+                        "got line=%s, node=%s" % (message_definition.msgid, line, node)
                     )
             elif message_definition.scope == WarningScope.NODE:
                 # Node-based warnings may provide an override line.
                 if node is None:
                     raise InvalidMessageError(
-                        "Message %s must provide Node, got None" % msgid
+                        "Message %s must provide Node, got None"
+                        % message_definition.msgid
                     )
 
+    def add_one_message(
+        self, message_definition, line, node, args, confidence, col_offset
+    ):
+        # backward compatibility, message may not have a symbol
+        symbol = message_definition.symbol or message_definition.msgid
+        self.check_message_definition(message_definition, line, node)
         if line is None and node is not None:
             line = node.fromlineno
         if col_offset is None and hasattr(node, "col_offset"):
             col_offset = node.col_offset
 
         # should this message be displayed
-        if not self.is_message_enabled(msgid, line, confidence):
+        if not self.is_message_enabled(message_definition.msgid, line, confidence):
             self.file_state.handle_ignored_message(
-                self.get_message_state_scope(msgid, line, confidence),
-                msgid,
+                self.get_message_state_scope(
+                    message_definition.msgid, line, confidence
+                ),
+                message_definition.msgid,
                 line,
                 node,
                 args,
@@ -293,8 +293,8 @@ class MessagesHandlerMixIn:
             )
             return
         # update stats
-        msg_cat = MSG_TYPES[msgid[0]]
-        self.msg_status |= MSG_TYPES_STATUS[msgid[0]]
+        msg_cat = MSG_TYPES[message_definition.msgid[0]]
+        self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
         self.stats[msg_cat] += 1
         self.stats["by_module"][self.current_name][msg_cat] += 1
         try:
@@ -316,7 +316,7 @@ class MessagesHandlerMixIn:
         # add the message
         self.reporter.handle_message(
             Message(
-                msgid,
+                message_definition.msgid,
                 symbol,
                 (abspath, path, module, obj, line or 1, col_offset or 0),
                 msg,

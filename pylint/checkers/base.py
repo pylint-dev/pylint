@@ -953,7 +953,7 @@ class BasicChecker(_BasicChecker):
             "re-raised.",
         ),
         "W0199": (
-            "Assert called on a 2-uple. Did you mean 'assert x,y'?",
+            "Assert called on a 2-item-tuple. Did you mean 'assert x,y'?",
             "assert-on-tuple",
             "A call of assert on a tuple will always evaluate to true if "
             "the tuple is not empty, and will always evaluate to false if "
@@ -980,6 +980,16 @@ class BasicChecker(_BasicChecker):
             "missing-parentheses-for-call-in-test",
             "Emitted when a conditional statement (If or ternary if) "
             "seems to wrongly call a function due to missing parentheses",
+        ),
+        "W0127": (
+            "Assigning the same variable %r to itself",
+            "self-assigning-variable",
+            "Emitted when we detect that a variable is assigned to itself",
+        ),
+        "W0128": (
+            "Redeclared variable %r in assignment",
+            "redeclared-assigned-name",
+            "Emitted when we detect that a variable was redeclared in the same assignment.",
         ),
         "E0111": (
             "The first reversed() argument is not a sequence",
@@ -1090,7 +1100,7 @@ class BasicChecker(_BasicChecker):
         "pointless-statement", "pointless-string-statement", "expression-not-assigned"
     )
     def visit_expr(self, node):
-        """check for various kind of statements without effect"""
+        """Check for various kind of statements without effect"""
         expr = node.value
         if isinstance(expr, astroid.Const) and isinstance(expr.value, str):
             # treat string statement in a separated message
@@ -1117,14 +1127,19 @@ class BasicChecker(_BasicChecker):
         # Ignore if this is :
         # * a direct function call
         # * the unique child of a try/except body
-        # * a yieldd statement
+        # * a yield statement
         # * an ellipsis (which can be used on Python 3 instead of pass)
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
-        if isinstance(
-            expr, (astroid.Yield, astroid.Await, astroid.Ellipsis, astroid.Call)
-        ) or (
-            isinstance(node.parent, astroid.TryExcept) and node.parent.body == [node]
+        if (
+            isinstance(
+                expr, (astroid.Yield, astroid.Await, astroid.Ellipsis, astroid.Call)
+            )
+            or (
+                isinstance(node.parent, astroid.TryExcept)
+                and node.parent.body == [node]
+            )
+            or (isinstance(expr, astroid.Const) and expr.value is Ellipsis)
         ):
             return
         if any(expr.nodes_of_class(astroid.Call)):
@@ -1226,7 +1241,7 @@ class BasicChecker(_BasicChecker):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
-        self.stats[node.is_method() and "method" or "function"] += 1
+        self.stats["method" if node.is_method() else "function"] += 1
         self._check_dangerous_default(node)
 
     visit_asyncfunctiondef = visit_functiondef
@@ -1491,6 +1506,64 @@ class BasicChecker(_BasicChecker):
                         # if the line number doesn't match
                         # we assume it's a nested "with"
                         self.add_message("confusing-with-statement", node=node)
+
+    def _check_self_assigning_variable(self, node):
+        # Detect assigning to the same variable.
+        rhs_names = []
+        targets = node.targets
+        if isinstance(targets[0], astroid.Tuple):
+            if len(targets) != 1:
+                # A complex assignment, so bail out early.
+                return
+            targets = targets[0].elts
+
+        if isinstance(node.value, astroid.Name):
+            if len(targets) != 1:
+                return
+            rhs_names = [node.value]
+        elif isinstance(node.value, astroid.Tuple):
+            rhs_count = len(node.value.elts)
+            if len(targets) != rhs_count or rhs_count == 1:
+                return
+            rhs_names = node.value.elts
+
+        for target, lhs_name in zip(targets, rhs_names):
+            if not isinstance(lhs_name, astroid.Name):
+                continue
+            if not isinstance(target, astroid.AssignName):
+                continue
+            if target.name == lhs_name.name:
+                self.add_message(
+                    "self-assigning-variable", args=(target.name,), node=target
+                )
+
+    def _check_redeclared_assign_name(self, targets):
+        for target in targets:
+            if not isinstance(target, astroid.Tuple):
+                continue
+
+            found_names = []
+            for element in target.elts:
+                if isinstance(element, astroid.Tuple):
+                    self._check_redeclared_assign_name([element])
+                elif isinstance(element, astroid.AssignName) and element.name != "_":
+                    found_names.append(element.name)
+
+            names = collections.Counter(found_names)
+            for name, count in names.most_common():
+                if count > 1:
+                    self.add_message(
+                        "redeclared-assigned-name", args=(name,), node=target
+                    )
+
+    @utils.check_messages("self-assigning-variable", "redeclared-assigned-name")
+    def visit_assign(self, node):
+        self._check_self_assigning_variable(node)
+        self._check_redeclared_assign_name(node.targets)
+
+    @utils.check_messages("redeclared-assigned-name")
+    def visit_for(self, node):
+        self._check_redeclared_assign_name([node.target])
 
 
 KNOWN_NAME_TYPES = {
@@ -1872,8 +1945,8 @@ class DocStringChecker(_BasicChecker):
         "C0111": (
             "Missing %s docstring",  # W0131
             "missing-docstring",
-            "Used when a module, function, class or method has no docstring."
-            "Some special methods like __init__ doesn't necessary require a "
+            "Used when a module, function, class or method has no docstring. "
+            "Some special methods like __init__ don't necessarily require a "
             "docstring.",
         ),
         "C0112": (

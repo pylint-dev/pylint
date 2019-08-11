@@ -1,4 +1,4 @@
-# pylint: disable=print-statement
+# pylint: disable=print-statement, unnecessary-comprehension
 """Tests for loopvar-in-closure."""
 from __future__ import print_function
 

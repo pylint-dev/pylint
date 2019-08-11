@@ -306,4 +306,12 @@ contributors:
 
 * Nicholas Smith: contributor
 
+* Peter Kolbus (Garmin): contributor
+
+* Oisin Moran: contributor
+
 * Andrzej Klajnert: contributor
+
+* Andrés Pérez Hortal: contributor
+
+* Niko Wenselowski: contributor

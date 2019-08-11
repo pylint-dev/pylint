@@ -399,7 +399,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         return False
     if is_super(owner) or getattr(owner, "type", None) == "metaclass":
         return False
-    if ignored_mixins and owner_name[-5:].lower() == "mixin":
+    if owner_name and ignored_mixins and owner_name[-5:].lower() == "mixin":
         return False
     if isinstance(owner, astroid.FunctionDef) and owner.decorators:
         return False
@@ -415,6 +415,16 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
                 return metaclass.qname() == "enum.EnumMeta"
             return False
         if not has_known_bases(owner):
+            return False
+
+        # Exclude typed annotations, since these might actually exist
+        # at some point during the runtime of the program.
+        attribute = owner.locals.get(node.attrname, [None])[0]
+        if (
+            attribute
+            and isinstance(attribute, astroid.AssignName)
+            and isinstance(attribute.parent, astroid.AnnAssign)
+        ):
             return False
     if isinstance(owner, objects.Super):
         # Verify if we are dealing with an invalid Super object.
@@ -433,7 +443,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
             return False
         except astroid.NotFoundError:
             pass
-    if node.attrname.startswith("_" + owner_name):
+    if owner_name and node.attrname.startswith("_" + owner_name):
         # Test if an attribute has been mangled ('private' attribute)
         unmangled_name = node.attrname.split("_" + owner_name)[-1]
         try:
@@ -500,44 +510,33 @@ def _has_parent_of_type(node, node_type, statement):
     return isinstance(parent, node_type)
 
 
-def _is_name_used_as_variadic(name, variadics):
-    """Check if the given name is used as a variadic argument."""
-    return any(
-        variadic.value == name or variadic.value.parent_of(name)
-        for variadic in variadics
-    )
-
-
-def _no_context_variadic_keywords(node):
+def _no_context_variadic_keywords(node, scope):
     statement = node.statement()
-    scope = node.scope()
     variadics = ()
 
-    if not isinstance(scope, astroid.FunctionDef):
-        return False
-
-    if isinstance(statement, (astroid.Return, astroid.Expr)) and isinstance(
-        statement.value, astroid.Call
-    ):
-        call = statement.value
-        variadics = list(call.keywords or []) + call.kwargs
+    if isinstance(scope, astroid.Lambda) and not isinstance(scope, astroid.FunctionDef):
+        variadics = list(node.keywords or []) + node.kwargs
+    else:
+        if isinstance(statement, (astroid.Return, astroid.Expr)) and isinstance(
+            statement.value, astroid.Call
+        ):
+            call = statement.value
+            variadics = list(call.keywords or []) + call.kwargs
 
     return _no_context_variadic(node, scope.args.kwarg, astroid.Keyword, variadics)
 
 
-def _no_context_variadic_positional(node):
-    statement = node.statement()
-    scope = node.scope()
+def _no_context_variadic_positional(node, scope):
     variadics = ()
-
-    if not isinstance(scope, astroid.FunctionDef):
-        return False
-
-    if isinstance(statement, (astroid.Expr, astroid.Return)) and isinstance(
-        statement.value, astroid.Call
-    ):
-        call = statement.value
-        variadics = call.starargs + call.kwargs
+    if isinstance(scope, astroid.Lambda) and not isinstance(scope, astroid.FunctionDef):
+        variadics = node.starargs + node.kwargs
+    else:
+        statement = node.statement()
+        if isinstance(statement, (astroid.Expr, astroid.Return)) and isinstance(
+            statement.value, astroid.Call
+        ):
+            call = statement.value
+            variadics = call.starargs + call.kwargs
 
     return _no_context_variadic(node, scope.args.vararg, astroid.Starred, variadics)
 
@@ -553,6 +552,10 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
     This can lead pylint to believe that a function call receives
     too few arguments.
     """
+    scope = node.scope()
+    is_in_lambda_scope = not isinstance(scope, astroid.FunctionDef) and isinstance(
+        scope, astroid.Lambda
+    )
     statement = node.statement()
     for name in statement.nodes_of_class(astroid.Name):
         if name.name != variadic_name:
@@ -566,10 +569,19 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
         else:
             continue
 
-        inferred_statement = inferred.statement()
-        if not length and isinstance(inferred_statement, astroid.FunctionDef):
+        if is_in_lambda_scope and isinstance(inferred.parent, astroid.Arguments):
+            # The statement of the variadic will be the assignment itself,
+            # so we need to go the lambda instead
+            inferred_statement = inferred.parent.parent
+        else:
+            inferred_statement = inferred.statement()
+
+        if not length and isinstance(inferred_statement, astroid.Lambda):
             is_in_starred_context = _has_parent_of_type(node, variadic_type, statement)
-            used_as_starred_argument = _is_name_used_as_variadic(name, variadics)
+            used_as_starred_argument = any(
+                variadic.value == name or variadic.value.parent_of(name)
+                for variadic in variadics
+            )
             if is_in_starred_context or used_as_starred_argument:
                 return True
     return False
@@ -871,7 +883,6 @@ accessed. Python regular expressions are accepted.",
             # make sure that we won't emit a false positive, we just stop
             # whenever the inference returns an opaque inference object.
             return
-
         for owner in non_opaque_inference_results:
             name = getattr(owner, "name", None)
             if _is_owner_ignored(
@@ -1072,7 +1083,6 @@ accessed. Python regular expressions are accepted.",
                 self.add_message("not-callable", node=node, args=node.func.as_string())
 
         self._check_uninferable_call(node)
-
         try:
             called, implicit_args, callable_name = _determine_callable(called)
         except ValueError:
@@ -1111,9 +1121,14 @@ accessed. Python regular expressions are accepted.",
         keyword_args = list(call_site.keyword_arguments.keys())
 
         # Determine if we don't have a context for our call and we use variadics.
-        if isinstance(node.scope(), astroid.FunctionDef):
-            has_no_context_positional_variadic = _no_context_variadic_positional(node)
-            has_no_context_keywords_variadic = _no_context_variadic_keywords(node)
+        node_scope = node.scope()
+        if isinstance(node_scope, (astroid.Lambda, astroid.FunctionDef)):
+            has_no_context_positional_variadic = _no_context_variadic_positional(
+                node, node_scope
+            )
+            has_no_context_keywords_variadic = _no_context_variadic_keywords(
+                node, node_scope
+            )
         else:
             has_no_context_positional_variadic = (
                 has_no_context_keywords_variadic
@@ -1128,10 +1143,11 @@ accessed. Python regular expressions are accepted.",
 
         # Analyze the list of formal parameters.
 
-        num_mandatory_parameters = len(called.args.args) - len(called.args.defaults)
+        args = list(itertools.chain(called.args.posonlyargs or (), called.args.args))
+        num_mandatory_parameters = len(args) - len(called.args.defaults)
         parameters = []
         parameter_name_to_index = {}
-        for i, arg in enumerate(called.args.args):
+        for i, arg in enumerate(args):
             if isinstance(arg, astroid.Tuple):
                 name = None
                 # Don't store any parameter names within the tuple, since those

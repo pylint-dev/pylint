@@ -7,12 +7,12 @@ import pytest
 
 from pylint.checkers import BaseChecker
 from pylint.exceptions import InvalidMessageError
-from pylint.message import MessageDefinition, MessagesStore
+from pylint.message import MessageDefinition, MessageDefinitionStore
 
 
 @pytest.fixture
 def store():
-    return MessagesStore()
+    return MessageDefinitionStore()
 
 
 @pytest.mark.parametrize(

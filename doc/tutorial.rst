@@ -168,8 +168,8 @@ command line and try this:
 
   robertk01 Desktop$ pylint --help-msg=missing-docstring
   :missing-docstring (C0111): *Missing %s docstring*
-  Used when a module, function, class or method has no docstring.Some special
-  methods like __init__ doesn't necessary require a docstring. This message
+  Used when a module, function, class or method has no docstring. Some special
+  methods like __init__ don't necessarily require a docstring. This message
   belongs to the basic checker.
 
 

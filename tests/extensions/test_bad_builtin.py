@@ -20,23 +20,22 @@ EXPECTED = [
 ]
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def checker(checker):
     return BadBuiltinChecker
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def disable(disable):
-    return ['I']
+    return ["I"]
 
 
 def test_types_redefined(linter):
-    elif_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
-                         'bad_builtin.py')
+    elif_test = osp.join(osp.dirname(osp.abspath(__file__)), "data", "bad_builtin.py")
     with fix_import_path([elif_test]):
         linter.check([elif_test])
     msgs = sorted(linter.reporter.messages, key=lambda item: item.line)
     assert len(msgs) == 2
     for msg, expected in zip(msgs, EXPECTED):
-        assert msg.symbol == 'bad-builtin'
+        assert msg.symbol == "bad-builtin"
         assert msg.msg == expected

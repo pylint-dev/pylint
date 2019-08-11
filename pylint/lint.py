@@ -78,7 +78,7 @@ from astroid.builder import AstroidBuilder
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.__pkginfo__ import version
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES, OPTION_RGX
-from pylint.message import Message, MessagesHandlerMixIn, MessagesStore
+from pylint.message import Message, MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
 
@@ -374,7 +374,7 @@ class PyLinter(
                     "default": (),
                     "level": 1,
                     "help": "List of plugins (as comma separated values of "
-                    "python modules names) to load, usually to register "
+                    "python module names) to load, usually to register "
                     "additional checkers.",
                 },
             ),
@@ -413,12 +413,12 @@ class PyLinter(
                     "level": 1,
                     "default": "10.0 - ((float(5 * error + warning + refactor + "
                     "convention) / statement) * 10)",
-                    "help": "Python expression which should return a note less "
-                    "than 10 (10 is the highest note). You have access "
-                    "to the variables errors warning, statement which "
-                    "respectively contain the number of errors / "
-                    "warnings messages and the total number of "
-                    "statements analyzed. This is used by the global "
+                    "help": "Python expression which should return a score less "
+                    "than or equal to 10. You have access to the variables "
+                    "'error', 'warning', 'refactor', and 'convention' which "
+                    "contain the number of messages in each category, as well as "
+                    "'statement' which is the total number of statements "
+                    "analyzed. This score is used by the global "
                     "evaluation report (RP0004).",
                 },
             ),
@@ -593,7 +593,7 @@ class PyLinter(
         # some stuff has to be done before ancestors initialization...
         #
         # messages store / checkers / reporter / astroid manager
-        self.msgs_store = MessagesStore()
+        self.msgs_store = MessageDefinitionStore()
         self.reporter = None
         self._reporter_name = None
         self._reporters = {}
@@ -934,16 +934,16 @@ class PyLinter(
         if not self.config.reports:
             self.disable_reporters()
         # get needed checkers
-        neededcheckers = [self]
+        needed_checkers = [self]
         for checker in self.get_checkers()[1:]:
             messages = {msg for msg in checker.msgs if self.is_message_enabled(msg)}
             if messages or any(self.report_is_enabled(r[0]) for r in checker.reports):
-                neededcheckers.append(checker)
+                needed_checkers.append(checker)
         # Sort checkers by priority
-        neededcheckers = sorted(
-            neededcheckers, key=operator.attrgetter("priority"), reverse=True
+        needed_checkers = sorted(
+            needed_checkers, key=operator.attrgetter("priority"), reverse=True
         )
-        return neededcheckers
+        return needed_checkers
 
     # pylint: disable=unused-argument
     @staticmethod
@@ -1144,7 +1144,11 @@ class PyLinter(
                 # fix the current file (if the source file was not available or
                 # if it's actually a c extension)
                 self.current_file = ast_node.file  # pylint: disable=maybe-no-member
+                before_check_statements = walker.nbstatements
                 self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
+                self.stats["by_module"][modname]["statement"] = (
+                    walker.nbstatements - before_check_statements
+                )
                 # warn about spurious inline messages handling
                 spurious_messages = self.file_state.iter_spurious_suppression_messages(
                     self.msgs_store

@@ -16,7 +16,7 @@ class MessageDefinition:
         checker,
         msgid,
         msg,
-        descr,
+        description,
         symbol,
         scope,
         minversion=None,
@@ -30,7 +30,7 @@ class MessageDefinition:
             raise InvalidMessageError("Bad message type %s in %r" % (msgid[0], msgid))
         self.msgid = msgid
         self.msg = msg
-        self.descr = descr
+        self.description = description
         self.symbol = symbol
         self.scope = scope
         self.minversion = minversion
@@ -38,7 +38,10 @@ class MessageDefinition:
         self.old_names = old_names or []
 
     def __repr__(self):
-        return "MessageDefinition:{}".format(self.__dict__)
+        return "MessageDefinition:%s (%s)" % (self.symbol, self.msgid)
+
+    def __str__(self):
+        return "%s:\n%s %s" % (repr(self), self.msg, self.description)
 
     def may_be_emitted(self):
         """return True if message may be emitted using the current interpreter"""
@@ -50,7 +53,7 @@ class MessageDefinition:
 
     def format_help(self, checkerref=False):
         """return the help string for the given message id"""
-        desc = self.descr
+        desc = self.description
         if checkerref:
             desc += " This message belongs to the %s checker." % self.checker.name
         title = self.msg

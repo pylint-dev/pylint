@@ -10,7 +10,8 @@ import collections
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 
 
-class MessagesStore:
+class MessageDefinitionStore:
+
     """The messages store knows information about every possible message but has
     no particular state during analysis.
     """
@@ -30,18 +31,9 @@ class MessagesStore:
         self._msgs_by_category = collections.defaultdict(list)
 
     @property
-    def messages(self):
+    def messages(self) -> list:
         """The list of all active messages."""
         return self._messages_definitions.values()
-
-    def add_renamed_message(self, old_id, old_symbol, new_symbol):
-        """Register the old ID and symbol for a warning that was renamed.
-
-        This allows users to keep using the old ID/symbol in suppressions.
-        """
-        message_definition = self.get_message_definitions(new_symbol)[0]
-        message_definition.old_names.append((old_id, old_symbol))
-        self._register_alternative_name(message_definition, old_id, old_symbol)
 
     def register_messages_from_checker(self, checker):
         """Register all messages from a checker.
@@ -78,7 +70,7 @@ class MessagesStore:
         """Check that a symbol is not already used. """
         other_message = self._messages_definitions.get(symbol)
         if other_message:
-            self._raise_duplicate_msg_id(symbol, msgid, other_message.msgid)
+            self._raise_duplicate_msgid(symbol, msgid, other_message.msgid)
         else:
             alternative_msgid = None
         alternative_message = self._alternative_names.get(symbol)
@@ -91,7 +83,7 @@ class MessagesStore:
                         alternative_msgid = old_msgid
                         break
             if msgid != alternative_msgid:
-                self._raise_duplicate_msg_id(symbol, msgid, alternative_msgid)
+                self._raise_duplicate_msgid(symbol, msgid, alternative_msgid)
 
     def _check_msgid(self, msgid, symbol):
         for message in self._messages_definitions.values():
@@ -130,8 +122,7 @@ class MessagesStore:
         :param str msgid: The msgid corresponding to the symbols
         :param str symbol: Offending symbol
         :param str other_symbol: Other offending symbol
-        :raises InvalidMessageError: when a symbol is duplicated.
-        """
+        :raises InvalidMessageError:"""
         symbols = [symbol, other_symbol]
         symbols.sort()
         error_message = "Message id '{msgid}' cannot have both ".format(msgid=msgid)
@@ -141,14 +132,13 @@ class MessagesStore:
         raise InvalidMessageError(error_message)
 
     @staticmethod
-    def _raise_duplicate_msg_id(symbol, msgid, other_msgid):
+    def _raise_duplicate_msgid(symbol, msgid, other_msgid):
         """Raise an error when a msgid is duplicated.
 
         :param str symbol: The symbol corresponding to the msgids
         :param str msgid: Offending msgid
         :param str other_msgid: Other offending msgid
-        :raises InvalidMessageError: when a msgid is duplicated.
-        """
+        :raises InvalidMessageError:"""
         msgids = [msgid, other_msgid]
         msgids.sort()
         error_message = "Message symbol '{symbol}' cannot be used for ".format(
@@ -161,13 +151,14 @@ class MessagesStore:
 
     def get_message_definitions(self, msgid_or_symbol: str) -> list:
         """Returns the Message object for this message.
-
         :param str msgid_or_symbol: msgid_or_symbol may be either a numeric or symbolic id.
         :raises UnknownMessageError: if the message id is not defined.
         :rtype: List of MessageDefinition
         :return: A message definition corresponding to msgid_or_symbol
         """
-        if msgid_or_symbol[1:].isdigit():
+        # Only msgid can have a digit as second letter
+        is_msgid = msgid_or_symbol[1:].isdigit()
+        if is_msgid:
             msgid_or_symbol = msgid_or_symbol.upper()
         for source in (self._alternative_names, self._messages_definitions):
             try:
