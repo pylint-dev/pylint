@@ -273,6 +273,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "consider using the list, dict or set constructor. "
             "It is faster and simpler.",
         ),
+        "R1722": (
+            "Consider using sys.exit()",
+            "consider-using-sys-exit",
+            "Instead of using exit() or quit(), consider using the sys.exit().",
+        ),
     }
     options = (
         (
@@ -641,10 +646,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "stop-iteration-return",
         "consider-using-dict-comprehension",
         "consider-using-set-comprehension",
+        "consider-using-sys-exit",
     )
     def visit_call(self, node):
         self._check_raising_stopiteration_in_generator_next_call(node)
         self._check_consider_using_comprehension_constructor(node)
+        self._check_quit_exit_call(node)
+
+    def _check_quit_exit_call(self, node):
+        if isinstance(node.func, astroid.Name) and node.func.name in ("quit", "exit"):
+            self.add_message("consider-using-sys-exit", node=node)
 
     def _check_raising_stopiteration_in_generator_next_call(self, node):
         """Check if a StopIteration exception is raised by the call to next function

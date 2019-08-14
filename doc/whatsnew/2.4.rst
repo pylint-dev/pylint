@@ -13,6 +13,13 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added a new check, ``consider-using-sys-exit``
+
+  This check is emitted when we detect that a quit() or exit() is invoked 
+  instead of sys.exit(), which is the preferred way of exiting in program.
+
+  Close #2925
+  
 * Added `unnecessary-comprehension` that detects unnecessary comprehensions.
 
   This check is emitted when ``pylint`` finds list-, set- or dict-comprehensions,
