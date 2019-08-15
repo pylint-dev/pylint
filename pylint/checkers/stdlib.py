@@ -289,7 +289,7 @@ class StdlibChecker(BaseChecker):
             for inferred in node.func.infer():
                 if inferred is astroid.Uninferable:
                     continue
-                elif inferred.root().name == OPEN_MODULE:
+                if inferred.root().name == OPEN_MODULE:
                     if getattr(node.func, "name", None) in OPEN_FILES:
                         self._check_open_mode(node)
                 elif inferred.root().name == UNITTEST_CASE:

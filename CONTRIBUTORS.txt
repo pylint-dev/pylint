@@ -315,3 +315,5 @@ contributors:
 * Andrés Pérez Hortal: contributor
 
 * Niko Wenselowski: contributor
+
+* Robert Schweizer: contributor

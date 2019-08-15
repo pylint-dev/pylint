@@ -273,6 +273,24 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "consider using the list, dict or set constructor. "
             "It is faster and simpler.",
         ),
+        "R1722": (
+            'Unnecessary "%s" after "break"',
+            "no-else-break",
+            "Used in order to highlight an unnecessary block of "
+            "code following an if containing a break statement. "
+            "As such, it will warn when it encounters an else "
+            "following a chain of ifs, all of them containing a "
+            "break statement.",
+        ),
+        "R1723": (
+            'Unnecessary "%s" after "continue"',
+            "no-else-continue",
+            "Used in order to highlight an unnecessary block of "
+            "code following an if containing a continue statement. "
+            "As such, it will warn when it encounters an else "
+            "following a chain of ifs, all of them containing a "
+            "continue statement.",
+        ),
     }
     options = (
         (
@@ -505,6 +523,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node, msg_id="no-else-raise", returning_node_class=astroid.Raise
         )
 
+    def _check_superfluous_else_break(self, node):
+        return self._check_superfluous_else(
+            node, msg_id="no-else-break", returning_node_class=astroid.Break
+        )
+
+    def _check_superfluous_else_continue(self, node):
+        return self._check_superfluous_else(
+            node, msg_id="no-else-continue", returning_node_class=astroid.Continue
+        )
+
     def _check_consider_get(self, node):
         def type_and_name_are_equal(node_a, node_b):
             for _type in [astroid.Name, astroid.AssignName]:
@@ -545,6 +573,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "simplifiable-if-statement",
         "no-else-return",
         "no-else-raise",
+        "no-else-break",
+        "no-else-continue",
         "consider-using-get",
     )
     def visit_if(self, node):
@@ -552,6 +582,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_nested_blocks(node)
         self._check_superfluous_else_return(node)
         self._check_superfluous_else_raise(node)
+        self._check_superfluous_else_break(node)
+        self._check_superfluous_else_continue(node)
         self._check_consider_get(node)
 
     @utils.check_messages("simplifiable-if-expression")

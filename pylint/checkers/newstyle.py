@@ -79,18 +79,14 @@ class NewStyleConflictChecker(BaseChecker):
             ):
                 continue
 
-            if not klass.newstyle and has_known_bases(klass):
-                # super should not be used on an old style class
-                continue
-            else:
+            # super should not be used on an old style class
+            if klass.newstyle or not has_known_bases(klass):
                 # super first arg should be the class
                 if not call.args:
-                    if sys.version_info[0] == 3:
+                    if sys.version_info[0] == 2:
                         # unless Python 3
-                        continue
-                    else:
                         self.add_message("missing-super-argument", node=call)
-                        continue
+                    continue
 
                 # calling super(type(self), self) can lead to recursion loop
                 # in derived classes

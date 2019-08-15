@@ -1425,9 +1425,7 @@ def fix_import_path(args):
     changes = []
     for arg in args:
         path = _get_python_path(arg)
-        if path in changes:
-            continue
-        else:
+        if path not in changes:
             changes.append(path)
     sys.path[:] = changes + ["."] + sys.path
     try:
