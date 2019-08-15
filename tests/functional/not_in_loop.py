@@ -1,6 +1,7 @@
 """Test that not-in-loop is detected properly."""
 # pylint: disable=missing-docstring, invalid-name, too-few-public-methods
 # pylint: disable=useless-else-on-loop, using-constant-test, useless-object-inheritance
+# pylint: disable=no-else-continue
 
 while True:
     def ala():

@@ -8,13 +8,11 @@ def insidious_break_and_return():
             my_var += 1.0/i
             if i < -3:
                 break
-            else:
-                return my_var
+            return my_var
         finally:
             if i > -2:
                 break # [lost-exception]
-            else:
-                return my_var # [lost-exception]
+            return my_var # [lost-exception]
     return None
 
 
@@ -37,5 +35,4 @@ def break_and_return():
                 strange()
         if i:
             break
-        else:
-            return
+        return

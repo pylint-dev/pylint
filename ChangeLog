@@ -20,6 +20,13 @@ Release date: TBA
 
   Close #3064
 
+* Added new checks, ``no-else-break`` and ``no-else-continue``
+
+  These checks highlight unnecessary ``else`` and ``elif`` blocks after
+  ``break`` and ``continue`` statements.
+
+  Close #2327
+
 * Don't emit ``protected-access`` when a single underscore prefixed attribute
   is used inside a special method
 

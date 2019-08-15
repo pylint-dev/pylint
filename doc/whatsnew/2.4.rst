@@ -28,6 +28,13 @@ New checkers
 
   Close #2975
 
+* Added new checks, ``no-else-break`` and ``no-else-continue``
+
+  These checks highlight unnecessary ``else`` and ``elif`` blocks after
+  ``break`` and ``continue`` statements.
+
+  Close #2327
+
 * Added `unnecessary-comprehension` that detects unnecessary comprehensions.
 
   This check is emitted when ``pylint`` finds list-, set- or dict-comprehensions,
