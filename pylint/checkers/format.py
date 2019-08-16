@@ -1232,13 +1232,17 @@ class FormatChecker(BaseTokenChecker):
         self.add_message("multiple-statements", node=node)
         self._visited_lines[line] = 2
 
-    def check_lines(self, lines, i):
-        """check lines have less than a maximum number of characters
+    def check_lines(self, lines: str, i: int) -> None:
+        """
+        Check lines have :
+            - a final newline
+            - no trailing whitespace
+            - less than a maximum number of characters
         """
         max_chars = self.config.max_line_length
         ignore_long_line = self.config.ignore_long_lines
 
-        def check_line_ending(line, i: int) -> int:
+        def check_line_ending(line: str, i: int) -> int:
             """
             Check that the final newline is not missing and that there is no trailing whitespace.
             """
@@ -1258,10 +1262,22 @@ class FormatChecker(BaseTokenChecker):
                 line = stripped_line
             return i + 1
 
-        def check_line_length(line, i):
+        def check_line_length(line: str, i: int) -> None:
+            """
+            Check that the line length is less than the authorized value
+            """
             line = line.rstrip()
             if len(line) > max_chars and not ignore_long_line.search(line):
                 self.add_message("line-too-long", line=i, args=(len(line), max_chars))
+
+        def remove_pylint_option_from_lines(lines: str) -> str:
+            """
+            Remove the `# pylint ...` pattern from lines 
+            """
+            purged_lines = lines.rsplit("#", 1)[0].rstrip()
+            if lines[-1] == os.linesep:
+                purged_lines += os.linesep
+            return purged_lines
 
         unsplit_ends = {
             "\v",
@@ -1282,10 +1298,7 @@ class FormatChecker(BaseTokenChecker):
             front_of_equal, _, back_of_equal = mobj.group(1).partition("=")
             if front_of_equal.strip() == "disable" and back_of_equal.find("line-too-long") != -1:
                 check_l_length = False
-            if lines[-1] == os.linesep:
-                lines = lines.rsplit("#", 1)[0].rstrip() + os.linesep
-            else:
-                lines = lines.rsplit("#", 1)[0].rstrip()
+            lines = remove_pylint_option_from_lines(lines)
         for line in lines.splitlines(True):
             if line[-1] in unsplit_ends:
                 unsplit.append(line)
