@@ -22,6 +22,14 @@ Release date: TBA
 
   Close #2670
 
+* Added a new check, ``arguments-out-of-order``
+
+  This check warns if you have arguments with names that match those in
+  a function's signature but you are passing them in to the function
+  in a different order.
+
+  Close #2975
+
 * Added a new check, ``redeclared-assigned-name``
 
   This check is emitted when ``pylint`` detects that a name

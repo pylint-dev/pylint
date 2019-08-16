@@ -13,6 +13,14 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added a new check, ``arguments-out-of-order``
+
+  This check warns if you have arguments with names that match those in
+  a function's signature but you are passing them in to the function
+  in a different order.
+
+  Close #2975
+
 * Added `unnecessary-comprehension` that detects unnecessary comprehensions.
 
   This check is emitted when ``pylint`` finds list-, set- or dict-comprehensions,
