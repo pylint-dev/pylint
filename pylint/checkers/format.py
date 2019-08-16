@@ -1301,8 +1301,8 @@ class FormatChecker(BaseTokenChecker):
         unsplit = []
         check_l_length = True
         mobj = OPTION_RGX.search(lines)
-        if mobj and "=" in lines:
-            if is_line_length_check_deactivated(mobj):
+        if mobj:
+            if "=" in lines and is_line_length_check_deactivated(mobj):
                 check_l_length = False
             lines = remove_pylint_option_from_lines(lines)
 
@@ -1322,8 +1322,9 @@ class FormatChecker(BaseTokenChecker):
                 break
 
         if unsplit:
-            if check_l_length: check_line_length("".join(unsplit), i)
-            i = check_line_ending("".join(unsplit), i)
+            line = "".join(unsplit)
+            if check_l_length: check_line_length(line, i)
+            i = check_line_ending(line, i)
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string
