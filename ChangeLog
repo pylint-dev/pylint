@@ -223,6 +223,8 @@ Release date: TBA
 
 * Changed description of W0199 to use the term 2-item-tuple instead of 2-uple.
 
+* Allow a `.` as a prefix for Sphinx name resolution.
+
 
 What's New in Pylint 2.3.0?
 ===========================

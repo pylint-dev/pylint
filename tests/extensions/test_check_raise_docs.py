@@ -167,6 +167,24 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
 
+    def test_google_raises_local_reference(self):
+        raise_node = astroid.extract_node(
+            '''
+        def my_func(self):
+            """This is a google docstring.
+
+            Raises:
+                .LocalException: Always
+            """
+            from neighbor_module import LocalException
+            raise LocalException('hi') #@
+        '''
+        )
+        # pylint allows this to pass since the comparison between Raises and
+        # raise are based on the class name, not the qualified name.
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
     @set_config(accept_no_raise_doc=False)
     def test_google_raises_with_prefix(self):
         code_snippet = '''
