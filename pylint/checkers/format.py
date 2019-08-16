@@ -1238,7 +1238,10 @@ class FormatChecker(BaseTokenChecker):
         max_chars = self.config.max_line_length
         ignore_long_line = self.config.ignore_long_lines
 
-        def check_line_ending(line, i):
+        def check_line_ending(line, i: int) -> int:
+            """
+            Check that the final newline is not missing and that there is no trailing whitespace.
+            """
             if not line.endswith("\n"):
                 self.add_message("missing-final-newline", line=i)
             else:
@@ -1277,12 +1280,10 @@ class FormatChecker(BaseTokenChecker):
         mobj = OPTION_RGX.search(lines)
         if mobj and "=" in lines:
             front_of_equal, _, back_of_equal = mobj.group(1).partition("=")
-            if front_of_equal.strip() == "disable":
-                if back_of_equal.find("line-too-long") != -1:
-                    check_l_length = False
-            #lines = lines[:mobj.start()]
+            if front_of_equal.strip() == "disable" and back_of_equal.find("line-too-long") != -1:
+                check_l_length = False
             if lines[-1] == os.linesep:
-                lines = lines.rsplit("#", 1)[0].rstrip() + lines[-1]
+                lines = lines.rsplit("#", 1)[0].rstrip() + os.linesep
             else:
                 lines = lines.rsplit("#", 1)[0].rstrip()
         for line in lines.splitlines(True):
