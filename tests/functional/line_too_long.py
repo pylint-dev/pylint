@@ -57,7 +57,7 @@ def issue_2957():
 
 def issue_2957_bis():
     # +3: [line-too-long]
-    # +5: [line-too-long]
+    # +4: [line-too-long]
     """
     This is a very very very long line within a docstring that should trigger a pylint C0301 error line-too-long
 
