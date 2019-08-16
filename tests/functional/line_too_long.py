@@ -43,3 +43,21 @@ def func_with_long(parameter):
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccc
     """
     return parameter
+
+
+def issue_2957():
+    """
+    This is a very very very long line within a docstring that should trigger a pylint C0301 error line-too-long
+
+    Even spread on multiple lines, the disable command is still effective on very very very, maybe too much long docstring
+    """#pylint: disable=line-too-long
+    return True
+
+
+def issue_2957_bis():
+    """
+    This is a very very very long line within a docstring that should trigger a pylint C0301 error line-too-long
+
+    Even spread on multiple lines, the disable command is still effective on very very very, maybe too much long docstring
+    """
+    return True
