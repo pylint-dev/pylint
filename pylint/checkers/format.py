@@ -1279,6 +1279,13 @@ class FormatChecker(BaseTokenChecker):
                 purged_lines += os.linesep
             return purged_lines
 
+        def is_line_length_check_deactivated(pylint_pattern_match_object) -> bool:
+            """
+            Return true if the line length check is deactivated
+            """
+            front_of_equal, _, back_of_equal = pylint_pattern_match_object.group(1).partition("=")
+            return front_of_equal.strip() == "disable" and back_of_equal.find("line-too-long") != -1
+
         unsplit_ends = {
             "\v",
             "\x0b",
@@ -1295,10 +1302,10 @@ class FormatChecker(BaseTokenChecker):
         check_l_length = True
         mobj = OPTION_RGX.search(lines)
         if mobj and "=" in lines:
-            front_of_equal, _, back_of_equal = mobj.group(1).partition("=")
-            if front_of_equal.strip() == "disable" and back_of_equal.find("line-too-long") != -1:
+            if is_line_length_check_deactivated(mobj):
                 check_l_length = False
             lines = remove_pylint_option_from_lines(lines)
+
         for line in lines.splitlines(True):
             if line[-1] in unsplit_ends:
                 unsplit.append(line)
