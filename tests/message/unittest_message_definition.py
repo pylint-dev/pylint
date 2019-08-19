@@ -5,9 +5,28 @@
 
 import sys
 
+import pytest
+
 from pylint.checkers import BaseChecker
 from pylint.constants import WarningScope
+from pylint.exceptions import InvalidMessageError
 from pylint.message import MessageDefinition
+
+
+@pytest.mark.parametrize(
+    "msgid,expected",
+    [
+        ("Q1234", "Bad message type Q in 'Q1234'"),
+        ("W12345", "Invalid message id 'W12345'"),
+    ],
+)
+def test_create_invalid_message_type(msgid, expected):
+    with pytest.raises(InvalidMessageError) as invalid_message_error:
+        MessageDefinition.check_msgid(msgid)
+    with pytest.raises(InvalidMessageError) as other_invalid_message_error:
+        MessageDefinition("checker", msgid, "msg", "descr", "symbol", "scope")
+    assert str(invalid_message_error.value) == expected
+    assert str(other_invalid_message_error.value) == expected
 
 
 class FalseChecker(BaseChecker):
@@ -69,6 +88,15 @@ class TestMessagesDefinition(object):
         assert "msg-symbol" in repr_str
         expected = "[MessageDefinition:msg-symbol-one (W1234), MessageDefinition:msg-symbol-two (W1235)]"
         assert str(FalseChecker().messages) == expected
+
+    def test_str(self):
+        msg = self.get_message_definition()
+        str_msg = str(msg)
+        assert "W1234" in str_msg
+        assert "msg-symbol" in str_msg
+        expected = """MessageDefinition:msg-symbol-one (W1234):
+message one msg description"""
+        assert str(FalseChecker().messages[0]) == expected
 
     def test_format_help(self):
         msg = self.get_message_definition()

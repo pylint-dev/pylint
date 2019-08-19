@@ -24,18 +24,26 @@ class MessageDefinition:
         old_names=None,
     ):
         self.checker = checker
-        if len(msgid) != 5:
-            raise InvalidMessageError("Invalid message id %r" % msgid)
-        if not msgid[0] in MSG_TYPES:
-            raise InvalidMessageError("Bad message type %s in %r" % (msgid[0], msgid))
+        self.check_msgid(msgid)
         self.msgid = msgid
+        self.symbol = symbol
         self.msg = msg
         self.description = description
-        self.symbol = symbol
         self.scope = scope
         self.minversion = minversion
         self.maxversion = maxversion
-        self.old_names = old_names or []
+        self.old_names = []
+        if old_names:
+            for old_msgid, old_symbol in old_names:
+                self.check_msgid(old_msgid)
+                self.old_names.append([old_msgid, old_symbol])
+
+    @staticmethod
+    def check_msgid(msgid: str) -> None:
+        if len(msgid) != 5:
+            raise InvalidMessageError("Invalid message id %r" % msgid)
+        if msgid[0] not in MSG_TYPES:
+            raise InvalidMessageError("Bad message type %s in %r" % (msgid[0], msgid))
 
     def __repr__(self):
         return "MessageDefinition:%s (%s)" % (self.symbol, self.msgid)
@@ -57,10 +65,6 @@ class MessageDefinition:
         if checkerref:
             desc += " This message belongs to the %s checker." % self.checker.name
         title = self.msg
-        if self.symbol:
-            msgid = "%s (%s)" % (self.symbol, self.msgid)
-        else:
-            msgid = self.msgid
         if self.minversion or self.maxversion:
             restr = []
             if self.minversion:
@@ -72,9 +76,9 @@ class MessageDefinition:
                 desc += " It can't be emitted when using Python %s." % restr
             else:
                 desc += " This message can't be emitted when using Python %s." % restr
-        desc = normalize_text(" ".join(desc.split()), indent="  ")
+        msg_help = normalize_text(" ".join(desc.split()), indent="  ")
+        message_id = "%s (%s)" % (self.symbol, self.msgid)
         if title != "%s":
             title = title.splitlines()[0]
-
-            return ":%s: *%s*\n%s" % (msgid, title.rstrip(" "), desc)
-        return ":%s:\n%s" % (msgid, desc)
+            return ":%s: *%s*\n%s" % (message_id, title.rstrip(" "), msg_help)
+        return ":%s:\n%s" % (message_id, msg_help)

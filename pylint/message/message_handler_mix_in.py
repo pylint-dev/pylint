@@ -105,10 +105,9 @@ class MessagesHandlerMixIn:
 
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
-            msgs_store = self.msgs_store
             for checker in self._checkers[msgid.lower()]:
                 for _msgid in checker.msgs:
-                    if _msgid in msgs_store._alternative_names:
+                    if _msgid in self.msgs_store._old_message_definitions:
                         self._set_msg_status(_msgid, enable, scope, line)
             return
 
@@ -271,8 +270,6 @@ class MessagesHandlerMixIn:
     def add_one_message(
         self, message_definition, line, node, args, confidence, col_offset
     ):
-        # backward compatibility, message may not have a symbol
-        symbol = message_definition.symbol or message_definition.msgid
         self.check_message_definition(message_definition, line, node)
         if line is None and node is not None:
             line = node.fromlineno
@@ -298,9 +295,9 @@ class MessagesHandlerMixIn:
         self.stats[msg_cat] += 1
         self.stats["by_module"][self.current_name][msg_cat] += 1
         try:
-            self.stats["by_msg"][symbol] += 1
+            self.stats["by_msg"][message_definition.symbol] += 1
         except KeyError:
-            self.stats["by_msg"][symbol] = 1
+            self.stats["by_msg"][message_definition.symbol] = 1
         # expand message ?
         msg = message_definition.msg
         if args:
@@ -317,7 +314,7 @@ class MessagesHandlerMixIn:
         self.reporter.handle_message(
             Message(
                 message_definition.msgid,
-                symbol,
+                message_definition.symbol,
                 (abspath, path, module, obj, line or 1, col_offset or 0),
                 msg,
                 confidence,

@@ -201,7 +201,7 @@ MSGS = {
         "Unable to import %s",
         "import-error",
         "Used when pylint has been unable to import a module.",
-        {"old_names": [("F0401", "import-error")]},
+        {"old_names": [("F0401", "old-import-error")]},
     ),
     "E0402": (
         "Attempted relative import beyond top-level package",
