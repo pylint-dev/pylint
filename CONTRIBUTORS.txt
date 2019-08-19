@@ -288,6 +288,8 @@ contributors:
 
 * Pierre Sassoulas : contributor
     - Made C0412 (ungrouped import) compatible with isort
+    - Made multiple message with the same old name possible
+    - Made Pylint a little faster by refactoring the message store
 
 * Nathan Marrow
 
