@@ -1286,19 +1286,33 @@ class FormatChecker(BaseTokenChecker):
             front_of_equal, _, back_of_equal = pylint_pattern_match_object.group(1).partition("=")
             return front_of_equal.strip() == "disable" and back_of_equal.find("line-too-long") != -1
 
-        unsplit_ends = {
-            "\v",
-            "\x0b",
-            "\f",
-            "\x0c",
-            "\x1c",
-            "\x1d",
-            "\x1e",
-            "\x85",
-            "\u2028",
-            "\u2029",
-        }
-        unsplit = []
+        def specific_split(lines : str) -> str:
+            unsplit_ends = {
+                "\v",
+                "\x0b",
+                "\f",
+                "\x0c",
+                "\x1c",
+                "\x1d",
+                "\x1e",
+                "\x85",
+                "\u2028",
+                "\u2029",
+            }
+            strs = lines.splitlines(True) 
+            res = [] 
+            buffer = "" 
+            for tmp in strs: 
+                if tmp[-1] not in unsplit_ends: 
+                    if buffer: 
+                        res.append(buffer + tmp) 
+                        buffer = "" 
+                    else: 
+                        res.append(tmp) 
+                else: 
+                    buffer += tmp 
+            return res
+
         check_l_length = True
         mobj = OPTION_RGX.search(lines)
         if mobj:
@@ -1306,23 +1320,7 @@ class FormatChecker(BaseTokenChecker):
                 check_l_length = False
             lines = remove_pylint_option_from_lines(lines)
 
-        for line in lines.splitlines(True):
-            if line[-1] in unsplit_ends:
-                unsplit.append(line)
-                continue
-
-            if unsplit:
-                unsplit.append(line)
-                line = "".join(unsplit)
-                unsplit = []
-
-            if check_l_length: check_line_length(line, i)
-            i = check_line_ending(line, i)
-            if i is None:
-                break
-
-        if unsplit:
-            line = "".join(unsplit)
+        for line in specific_split(lines):
             if check_l_length: check_line_length(line, i)
             i = check_line_ending(line, i)
 
