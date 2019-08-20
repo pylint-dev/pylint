@@ -122,7 +122,7 @@ class FileState:
                 if not enable and (warning, line) not in self._ignored_msgs:
                     # ignore cyclic-import check which can show false positives
                     # here due to incomplete context
-                    if warning != 'R0401':
+                    if warning != "R0401":
                         yield "useless-suppression", line, (
                             msgs_store.get_msg_display_string(warning),
                         )
