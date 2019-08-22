@@ -230,7 +230,7 @@ class Docstring:
 
 class SphinxDocstring(Docstring):
     re_type = r"""
-        [~!]?                # Optional link style prefix
+        [~!.]?               # Optional link style prefix
         \w(?:\w|\.[^\.])*    # Valid python name
         """
 

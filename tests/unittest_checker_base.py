@@ -579,7 +579,7 @@ Basic checker Messages
 
 """
         self.assertEqual(str(basic), expected_beginning + expected_end)
-        self.assertEqual(repr(basic), "Checker 'basic' responsible for W0001")
+        self.assertEqual(repr(basic), "Checker 'basic' (responsible for 'W0001')")
         less_basic = LessBasicChecker()
 
         self.assertEqual(

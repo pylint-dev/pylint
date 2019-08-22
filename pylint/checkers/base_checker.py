@@ -54,8 +54,8 @@ class BaseChecker(OptionsProviderMixIn):
 
     def __repr__(self):
         status = "Checker" if self.enabled else "Disabled checker"
-        return "{} '{}' responsible for {}".format(
-            status, self.name, ", ".join(self.msgs.keys())
+        return "{} '{}' (responsible for '{}')".format(
+            status, self.name, "', '".join(self.msgs.keys())
         )
 
     def __str__(self):
