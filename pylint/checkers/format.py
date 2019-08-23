@@ -1286,7 +1286,10 @@ class FormatChecker(BaseTokenChecker):
             front_of_equal, _, back_of_equal = pylint_pattern_match_object.group(1).partition("=")
             return front_of_equal.strip() == "disable" and back_of_equal.find("line-too-long") != -1
 
-        def specific_split(lines : str) -> str:
+        def specific_splitlines(lines : str) -> str:
+            """
+            Split lines according to universal newlines except those in a specific sets
+            """
             unsplit_ends = {
                 "\v",
                 "\x0b",
@@ -1299,15 +1302,14 @@ class FormatChecker(BaseTokenChecker):
                 "\u2028",
                 "\u2029",
             }
-            strs = lines.splitlines(True) 
             res = [] 
             buffer = "" 
-            for tmp in strs: 
-                if tmp[-1] not in unsplit_ends: 
-                    res.append(buffer + tmp) 
+            for atomic_line in lines.splitlines(True): 
+                if atomic_line[-1] not in unsplit_ends: 
+                    res.append(buffer + atomic_line) 
                     buffer = "" 
                 else: 
-                    buffer += tmp 
+                    buffer += atomic_line 
             return res
 
         check_l_length = True
@@ -1317,7 +1319,7 @@ class FormatChecker(BaseTokenChecker):
                 check_l_length = False
             lines = remove_pylint_option_from_lines(lines)
 
-        for line in specific_split(lines):
+        for line in specific_splitlines(lines):
             if check_l_length: check_line_length(line, i)
             i = check_line_ending(line, i)
 
