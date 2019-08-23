@@ -1304,11 +1304,8 @@ class FormatChecker(BaseTokenChecker):
             buffer = "" 
             for tmp in strs: 
                 if tmp[-1] not in unsplit_ends: 
-                    if buffer: 
-                        res.append(buffer + tmp) 
-                        buffer = "" 
-                    else: 
-                        res.append(tmp) 
+                    res.append(buffer + tmp) 
+                    buffer = "" 
                 else: 
                     buffer += tmp 
             return res
