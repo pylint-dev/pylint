@@ -1232,7 +1232,7 @@ class FormatChecker(BaseTokenChecker):
         self.add_message("multiple-statements", node=node)
         self._visited_lines[line] = 2
 
-    def check_line_ending(self, line: str, i: int) -> int:
+    def check_line_ending(self, line: str, i: int) -> None:
         """
         Check that the final newline is not missing and that there is no trailing whitespace.
         """
@@ -1250,7 +1250,6 @@ class FormatChecker(BaseTokenChecker):
                 )
             # Don't count excess whitespace in the line length.
             line = stripped_line
-        return i + 1
 
     def check_line_length(self, line: str, i: int) -> None:
         """
@@ -1324,7 +1323,8 @@ class FormatChecker(BaseTokenChecker):
 
         for line in self.specific_splitlines(lines):
             if check_l_length: self.check_line_length(line, i)
-            i = self.check_line_ending(line, i)
+            self.check_line_ending(line, i)
+            i += 1
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string
