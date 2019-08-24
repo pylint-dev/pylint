@@ -1232,6 +1232,81 @@ class FormatChecker(BaseTokenChecker):
         self.add_message("multiple-statements", node=node)
         self._visited_lines[line] = 2
 
+    def check_line_ending(self, line: str, i: int) -> int:
+        """
+        Check that the final newline is not missing and that there is no trailing whitespace.
+        """
+        if not line.endswith("\n"):
+            self.add_message("missing-final-newline", line=i)
+        else:
+            # exclude \f (formfeed) from the rstrip
+            stripped_line = line.rstrip("\t\n\r\v ")
+            if not stripped_line and _EMPTY_LINE in self.config.no_space_check:
+                # allow empty lines
+                pass
+            elif line[len(stripped_line) :] not in ("\n", "\r\n"):
+                self.add_message(
+                    "trailing-whitespace", line=i, col_offset=len(stripped_line)
+                )
+            # Don't count excess whitespace in the line length.
+            line = stripped_line
+        return i + 1
+
+    def check_line_length(self, line: str, i: int) -> None:
+        """
+        Check that the line length is less than the authorized value
+        """
+        max_chars = self.config.max_line_length
+        ignore_long_line = self.config.ignore_long_lines
+        line = line.rstrip()
+        if len(line) > max_chars and not ignore_long_line.search(line):
+            self.add_message("line-too-long", line=i, args=(len(line), max_chars))
+
+    @staticmethod
+    def remove_pylint_option_from_lines(lines: str) -> str:
+        """
+        Remove the `# pylint ...` pattern from lines 
+        """
+        purged_lines = lines.rsplit("#", 1)[0].rstrip()
+        if lines[-1] == os.linesep:
+            purged_lines += os.linesep
+        return purged_lines
+
+    @staticmethod
+    def is_line_length_check_deactivated(pylint_pattern_match_object) -> bool:
+        """
+        Return true if the line length check is deactivated
+        """
+        front_of_equal, _, back_of_equal = pylint_pattern_match_object.group(1).partition("=")
+        return front_of_equal.strip() == "disable" and back_of_equal.find("line-too-long") != -1
+
+    @staticmethod
+    def specific_splitlines(lines : str) -> str:
+        """
+        Split lines according to universal newlines except those in a specific sets
+        """
+        unsplit_ends = {
+            "\v",
+            "\x0b",
+            "\f",
+            "\x0c",
+            "\x1c",
+            "\x1d",
+            "\x1e",
+            "\x85",
+            "\u2028",
+            "\u2029",
+        }
+        res = [] 
+        buffer = "" 
+        for atomic_line in lines.splitlines(True): 
+            if atomic_line[-1] not in unsplit_ends: 
+                res.append(buffer + atomic_line) 
+                buffer = "" 
+            else: 
+                buffer += atomic_line 
+        return res
+
     def check_lines(self, lines: str, i: int) -> None:
         """
         Check lines have :
@@ -1239,89 +1314,16 @@ class FormatChecker(BaseTokenChecker):
             - no trailing whitespace
             - less than a maximum number of characters
         """
-        max_chars = self.config.max_line_length
-        ignore_long_line = self.config.ignore_long_lines
-
-        def check_line_ending(line: str, i: int) -> int:
-            """
-            Check that the final newline is not missing and that there is no trailing whitespace.
-            """
-            if not line.endswith("\n"):
-                self.add_message("missing-final-newline", line=i)
-            else:
-                # exclude \f (formfeed) from the rstrip
-                stripped_line = line.rstrip("\t\n\r\v ")
-                if not stripped_line and _EMPTY_LINE in self.config.no_space_check:
-                    # allow empty lines
-                    pass
-                elif line[len(stripped_line) :] not in ("\n", "\r\n"):
-                    self.add_message(
-                        "trailing-whitespace", line=i, col_offset=len(stripped_line)
-                    )
-                # Don't count excess whitespace in the line length.
-                line = stripped_line
-            return i + 1
-
-        def check_line_length(line: str, i: int) -> None:
-            """
-            Check that the line length is less than the authorized value
-            """
-            line = line.rstrip()
-            if len(line) > max_chars and not ignore_long_line.search(line):
-                self.add_message("line-too-long", line=i, args=(len(line), max_chars))
-
-        def remove_pylint_option_from_lines(lines: str) -> str:
-            """
-            Remove the `# pylint ...` pattern from lines 
-            """
-            purged_lines = lines.rsplit("#", 1)[0].rstrip()
-            if lines[-1] == os.linesep:
-                purged_lines += os.linesep
-            return purged_lines
-
-        def is_line_length_check_deactivated(pylint_pattern_match_object) -> bool:
-            """
-            Return true if the line length check is deactivated
-            """
-            front_of_equal, _, back_of_equal = pylint_pattern_match_object.group(1).partition("=")
-            return front_of_equal.strip() == "disable" and back_of_equal.find("line-too-long") != -1
-
-        def specific_splitlines(lines : str) -> str:
-            """
-            Split lines according to universal newlines except those in a specific sets
-            """
-            unsplit_ends = {
-                "\v",
-                "\x0b",
-                "\f",
-                "\x0c",
-                "\x1c",
-                "\x1d",
-                "\x1e",
-                "\x85",
-                "\u2028",
-                "\u2029",
-            }
-            res = [] 
-            buffer = "" 
-            for atomic_line in lines.splitlines(True): 
-                if atomic_line[-1] not in unsplit_ends: 
-                    res.append(buffer + atomic_line) 
-                    buffer = "" 
-                else: 
-                    buffer += atomic_line 
-            return res
-
         check_l_length = True
         mobj = OPTION_RGX.search(lines)
         if mobj:
-            if "=" in lines and is_line_length_check_deactivated(mobj):
+            if "=" in lines and self.is_line_length_check_deactivated(mobj):
                 check_l_length = False
-            lines = remove_pylint_option_from_lines(lines)
+            lines = self.remove_pylint_option_from_lines(lines)
 
-        for line in specific_splitlines(lines):
-            if check_l_length: check_line_length(line, i)
-            i = check_line_ending(line, i)
+        for line in self.specific_splitlines(lines):
+            if check_l_length: self.check_line_length(line, i)
+            i = self.check_line_ending(line, i)
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string
