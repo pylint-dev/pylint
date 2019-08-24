@@ -12,6 +12,19 @@ Release date: TBA
 
   Close #2957
 
+* Added a new check, ``consider-using-sys-exit``
+
+  This check is emitted when we detect that a quit() or exit() is invoked 
+  instead of sys.exit(), which is the preferred way of exiting in program.
+
+  Close #2925
+
+* ``useless-suppression`` check now ignores ``cyclic-import`` suppressions,
+  which could lead to false postiives due to incomplete context at the time
+  of the check.
+
+  Close #3064
+
 * Don't emit ``protected-access`` when a single underscore prefixed attribute
   is used inside a special method
 

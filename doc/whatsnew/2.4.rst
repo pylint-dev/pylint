@@ -13,6 +13,13 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added a new check, ``consider-using-sys-exit``
+
+  This check is emitted when we detect that a quit() or exit() is invoked 
+  instead of sys.exit(), which is the preferred way of exiting in program.
+
+  Close #2925
+  
 * Added a new check, ``arguments-out-of-order``
 
   This check warns if you have arguments with names that match those in

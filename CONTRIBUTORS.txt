@@ -317,3 +317,5 @@ contributors:
 * Niko Wenselowski: contributor
 
 * Danny Hermes: contributor
+
+* Eric Froemling: contributor
