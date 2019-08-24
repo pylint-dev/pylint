@@ -1273,12 +1273,14 @@ class FormatChecker(BaseTokenChecker):
         return purged_lines
 
     @staticmethod
-    def is_line_length_check_deactivated(pylint_pattern_match_object) -> bool:
+    def is_line_length_check_activated(pylint_pattern_match_object) -> bool:
         """
-        Return true if the line length check is deactivated
+        Return true if the line length check is activated
         """
-        front_of_equal, _, back_of_equal = pylint_pattern_match_object.group(1).partition("=")
-        return front_of_equal.strip() == "disable" and back_of_equal.find("line-too-long") != -1
+        if "=" in pylint_pattern_match_object.string:
+            front_of_equal, _, back_of_equal = pylint_pattern_match_object.group(1).partition("=")
+            return front_of_equal.strip() != "disable" or back_of_equal.find("line-too-long") == -1
+        return True
 
     @staticmethod
     def specific_splitlines(lines : str) -> str:
@@ -1317,8 +1319,7 @@ class FormatChecker(BaseTokenChecker):
         check_l_length = True
         mobj = OPTION_RGX.search(lines)
         if mobj:
-            if "=" in lines and self.is_line_length_check_deactivated(mobj):
-                check_l_length = False
+            check_l_length = self.is_line_length_check_activated(mobj)
             lines = self.remove_pylint_option_from_lines(lines)
 
         for line in self.specific_splitlines(lines):
