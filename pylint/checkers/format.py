@@ -48,6 +48,7 @@ import os
 import sys
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
+from typing import List
 
 from astroid import nodes
 
@@ -1288,7 +1289,7 @@ class FormatChecker(BaseTokenChecker):
         return True
 
     @staticmethod
-    def specific_splitlines(lines: str) -> str:
+    def specific_splitlines(lines: str) -> List[str]:
         """
         Split lines according to universal newlines except those in a specific sets
         """
