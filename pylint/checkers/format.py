@@ -1278,7 +1278,8 @@ class FormatChecker(BaseTokenChecker):
         """
         if "=" in pylint_pattern_match_object.string:
             front_of_equal, _, back_of_equal = pylint_pattern_match_object.group(1).partition("=")
-            return front_of_equal.strip() != "disable" or back_of_equal.find("line-too-long") == -1
+            deactivated = front_of_equal.strip() == "disable" and back_of_equal.find("line-too-long") != -1
+            return not deactivated
         return True
 
     @staticmethod
@@ -1308,23 +1309,27 @@ class FormatChecker(BaseTokenChecker):
                 buffer += atomic_line 
         return res
 
-    def check_lines(self, lines: str, i: int) -> None:
+    def check_lines(self, lines: str, lineno: int) -> None:
         """
         Check lines have :
             - a final newline
             - no trailing whitespace
             - less than a maximum number of characters
         """
-        check_l_length = True
+        # By default, check the line length
+        check_l_length = True 
+        
+        # Line length check may be deactivated through `pylint: disable` comment
         mobj = OPTION_RGX.search(lines)
         if mobj:
             check_l_length = self.is_line_length_check_activated(mobj)
+            # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(lines)
 
         for line in self.specific_splitlines(lines):
-            if check_l_length: self.check_line_length(line, i)
-            self.check_line_ending(line, i)
-            i += 1
+            if check_l_length: self.check_line_length(line, lineno)
+            self.check_line_ending(line, lineno)
+            lineno += 1
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string
