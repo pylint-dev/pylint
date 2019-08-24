@@ -111,6 +111,20 @@ New checkers
 Other Changes
 =============
 
+* Don't emit ``line-too-long`` for multilines when a
+  `pylint:disable=line-too-long` comment stands at their end.
+
+  For example the following code will not trigger any ``line-too-long`` message::
+
+    def example():
+      """
+      This is a very very very long line within a docstring that should trigger a pylint C0301 error line-too-long
+
+      Even spread on multiple lines, the disable command is still effective on very very very, maybe too much long docstring
+      """#pylint: disable=line-too-long
+    pass
+
+
 * Don't emit ``protected-access`` when a single underscore prefixed attribute is used 
   inside a special method
 
