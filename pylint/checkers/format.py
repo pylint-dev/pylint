@@ -1277,13 +1277,18 @@ class FormatChecker(BaseTokenChecker):
         Return true if the line length check is activated
         """
         if "=" in pylint_pattern_match_object.string:
-            front_of_equal, _, back_of_equal = pylint_pattern_match_object.group(1).partition("=")
-            deactivated = front_of_equal.strip() == "disable" and back_of_equal.find("line-too-long") != -1
+            front_of_equal, _, back_of_equal = pylint_pattern_match_object.group(
+                1
+            ).partition("=")
+            deactivated = (
+                front_of_equal.strip() == "disable"
+                and back_of_equal.find("line-too-long") != -1
+            )
             return not deactivated
         return True
 
     @staticmethod
-    def specific_splitlines(lines : str) -> str:
+    def specific_splitlines(lines: str) -> str:
         """
         Split lines according to universal newlines except those in a specific sets
         """
@@ -1299,14 +1304,14 @@ class FormatChecker(BaseTokenChecker):
             "\u2028",
             "\u2029",
         }
-        res = [] 
-        buffer = "" 
-        for atomic_line in lines.splitlines(True): 
-            if atomic_line[-1] not in unsplit_ends: 
-                res.append(buffer + atomic_line) 
-                buffer = "" 
-            else: 
-                buffer += atomic_line 
+        res = []
+        buffer = ""
+        for atomic_line in lines.splitlines(True):
+            if atomic_line[-1] not in unsplit_ends:
+                res.append(buffer + atomic_line)
+                buffer = ""
+            else:
+                buffer += atomic_line
         return res
 
     def check_lines(self, lines: str, lineno: int) -> None:
@@ -1316,9 +1321,9 @@ class FormatChecker(BaseTokenChecker):
             - no trailing whitespace
             - less than a maximum number of characters
         """
-        # By default, check the line length
-        check_l_length = True 
-        
+        #  By default, check the line length
+        check_l_length = True
+
         # Line length check may be deactivated through `pylint: disable` comment
         mobj = OPTION_RGX.search(lines)
         if mobj:
@@ -1327,7 +1332,8 @@ class FormatChecker(BaseTokenChecker):
             lines = self.remove_pylint_option_from_lines(lines)
 
         for line in self.specific_splitlines(lines):
-            if check_l_length: self.check_line_length(line, lineno)
+            if check_l_length:
+                self.check_line_length(line, lineno)
             self.check_line_ending(line, lineno)
             lineno += 1
 
