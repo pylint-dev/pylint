@@ -47,5 +47,5 @@ def bad_unicode(arg):
 
 def raise_something_without_name(arg):
     '''Regression test for nodes without .node attribute'''
-    import standard_exceptions  # pylint: disable=import-error
+    import standard_exceptions  # pylint: disable=import-error,import-outside-toplevel
     raise standard_exceptions.MyException(u'An %s', arg)  # [raising-format-tuple]

@@ -1,5 +1,5 @@
 """ Tests for invalid-name checker. """
-# pylint: disable=unused-import, no-absolute-import, wrong-import-position
+# pylint: disable=unused-import, no-absolute-import, wrong-import-position,import-outside-toplevel
 
 AAA = 24
 try:

@@ -1,6 +1,6 @@
 """test unused variable
 """
-# pylint: disable=invalid-name, redefined-outer-name, no-absolute-import
+# pylint: disable=invalid-name, redefined-outer-name, no-absolute-import,import-outside-toplevel
 from __future__ import print_function
 PATH = OS = collections = deque = None
 

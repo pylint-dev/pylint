@@ -7,6 +7,11 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* New check: ``import-outside-toplevel``
+
+  This check warns when modules are imported from places other than a
+  module toplevel, e.g. inside a function or a class.
+
 * Added a new check, ``consider-using-sys-exit``
 
   This check is emitted when we detect that a quit() or exit() is invoked
