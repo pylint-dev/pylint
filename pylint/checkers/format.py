@@ -1267,9 +1267,7 @@ class FormatChecker(BaseTokenChecker):
         """
         Remove the `# pylint ...` pattern from lines 
         """
-        purged_lines = lines.rsplit("#", 1)[0].rstrip()
-        if lines.endswith(os.linesep):
-            purged_lines += "\n"
+        purged_lines = lines.rsplit("#", 1)[0].rstrip() + os.linesep
         return purged_lines
 
     @staticmethod
