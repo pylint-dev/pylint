@@ -1269,7 +1269,7 @@ class FormatChecker(BaseTokenChecker):
         """
         purged_lines = lines.rsplit("#", 1)[0].rstrip()
         if lines.endswith(os.linesep):
-            purged_lines += os.linesep
+            purged_lines += "\n"
         return purged_lines
 
     @staticmethod
