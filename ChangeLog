@@ -252,6 +252,10 @@ Release date: TBA
 Caused by #1164. It means if you do a partial old_names for a message definition an exception will tell you that you
 must rename the associated identification.
 
+* Allow the choice of f-strings as a valid way of formatting logging strings.
+
+Closes #2395
+
 
 What's New in Pylint 2.3.0?
 ===========================

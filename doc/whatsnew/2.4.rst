@@ -193,3 +193,11 @@ would mean that `no-value-for-parameter` would not be raised for::
     @given(img=arrays(dtype=np.float32, shape=(3, 3, 3, 3)))
     def test_image(img):
         ...
+
+* Allow the option of f-strings as a valid logging string formatting method.
+
+`logging-fstring--interpolation` has been merged into
+`logging-format-interpolation` to allow the `logging-format-style` option
+to control which logging string format style is valid.
+To allow this, a new `fstr` value is valid for the `logging-format-style`
+option.
