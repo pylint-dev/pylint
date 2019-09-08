@@ -1249,8 +1249,6 @@ class FormatChecker(BaseTokenChecker):
                 self.add_message(
                     "trailing-whitespace", line=i, col_offset=len(stripped_line)
                 )
-            # Don't count excess whitespace in the line length.
-            line = stripped_line
 
     def check_line_length(self, line: str, i: int) -> None:
         """
