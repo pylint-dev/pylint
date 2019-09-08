@@ -52,7 +52,7 @@ COMP_NODE_TYPES = (
     astroid.DictComp,
     astroid.GeneratorExp,
 )
-PY3K = sys.version_info[0] == 3
+PY3K = sys.version_info[0] >= 3
 
 if not PY3K:
     EXCEPTIONS_MODULE = "exceptions"

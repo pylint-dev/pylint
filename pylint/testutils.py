@@ -46,7 +46,7 @@ from pylint.utils import ASTWalker
 SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]
 TITLE_UNDERLINES = ["", "=", "-", "."]
 PREFIX = abspath(dirname(__file__))
-PY3K = sys.version_info[0] == 3
+PY3K = sys.version_info[0] >= 3
 
 
 def _get_tests_info(input_dir, msg_dir, prefix, suffix):
