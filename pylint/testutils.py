@@ -20,8 +20,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """functional/non regression tests for pylint"""
-from __future__ import print_function
-
 import collections
 import contextlib
 import functools

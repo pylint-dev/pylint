@@ -16,8 +16,6 @@
 
 """Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings
 """
-from __future__ import absolute_import, division, print_function
-
 import astroid
 
 import pylint.extensions._check_docs_utils as utils

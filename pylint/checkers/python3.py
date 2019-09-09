@@ -24,8 +24,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Check Python 2 code for Python 2/3 source-compatible issues."""
-from __future__ import absolute_import, print_function
-
 import re
 import tokenize
 from collections import namedtuple

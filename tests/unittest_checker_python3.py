@@ -15,12 +15,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Tests for the python3 checkers."""
-from __future__ import absolute_import
-
-import sys
 
 import astroid
-import pytest
 
 from pylint import testutils
 from pylint.checkers import python3 as checker

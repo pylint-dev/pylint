@@ -12,8 +12,6 @@
 """
 generic classes/functions for pyreverse core/extensions
 """
-from __future__ import print_function
-
 import os
 import re
 import sys

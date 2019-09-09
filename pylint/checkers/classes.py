@@ -29,8 +29,6 @@
 
 """classes checker for Python code
 """
-from __future__ import generators
-
 import collections
 from itertools import chain, zip_longest
 

@@ -7,8 +7,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """JSON reporter"""
-from __future__ import absolute_import, print_function
-
 import html
 import json
 import sys

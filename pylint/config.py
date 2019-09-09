@@ -33,8 +33,6 @@
 * pylintrc
 * pylint.d (PYLINTHOME)
 """
-from __future__ import print_function
-
 import collections
 import configparser
 import contextlib
