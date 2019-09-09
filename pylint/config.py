@@ -69,16 +69,10 @@ def _get_pdata_path(base_name, recurs):
 def load_results(base):
     data_file = _get_pdata_path(base, 1)
     try:
-        with open(data_file, _PICK_LOAD) as stream:
+        with open(data_file, "rb") as stream:
             return pickle.load(stream)
     except Exception:  # pylint: disable=broad-except
         return {}
-
-
-if sys.version_info < (3, 0):
-    _PICK_DUMP, _PICK_LOAD = "w", "r"
-else:
-    _PICK_DUMP, _PICK_LOAD = "wb", "rb"
 
 
 def save_results(results, base):
@@ -89,7 +83,7 @@ def save_results(results, base):
             print("Unable to create directory %s" % PYLINT_HOME, file=sys.stderr)
     data_file = _get_pdata_path(base, 1)
     try:
-        with open(data_file, _PICK_DUMP) as stream:
+        with open(data_file, "wb") as stream:
             pickle.dump(results, stream)
     except (IOError, OSError) as ex:
         print("Unable to create file %s: %s" % (data_file, ex), file=sys.stderr)

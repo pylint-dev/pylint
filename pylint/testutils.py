@@ -46,7 +46,6 @@ from pylint.utils import ASTWalker
 SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]
 TITLE_UNDERLINES = ["", "=", "-", "."]
 PREFIX = abspath(dirname(__file__))
-PY3K = sys.version_info[0] >= 3
 
 
 def _get_tests_info(input_dir, msg_dir, prefix, suffix):
@@ -112,7 +111,7 @@ class TestReporter(BaseReporter):
         if obj:
             obj = ":%s" % obj
         sigle = msg_id[0]
-        if PY3K and linesep != "\n":
+        if linesep != "\n":
             # 2to3 writes os.linesep instead of using
             # the previosly used line separators
             msg = msg.replace("\r\n", "\n")
@@ -283,11 +282,8 @@ def _create_tempfile(content=None):
     # see http://bugs.python.org/issue14243
     file_handle, tmp = tempfile.mkstemp()
     if content:
-        if sys.version_info >= (3, 0):
-            # erff
-            write(file_handle, bytes(content, "ascii"))
-        else:
-            write(file_handle, content)
+        # erff
+        write(file_handle, bytes(content, "ascii"))
     try:
         yield tmp
     finally:

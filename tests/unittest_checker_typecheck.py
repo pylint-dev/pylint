@@ -14,8 +14,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Unittest for the type checker."""
-import sys
-
 import astroid
 import pytest
 
@@ -227,56 +225,6 @@ class TestTypeChecker(CheckerTestCase):
             )
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
-
-    @pytest.mark.skipif(sys.version_info[0] < 3, reason="Needs Python 3.")
-    def test_invalid_metaclass_function_metaclasses(self):
-        module = astroid.parse(
-            """
-        def invalid_metaclass_1(name, bases, attrs):
-            return int
-        def invalid_metaclass_2(name, bases, attrs):
-            return 1
-        class Invalid(metaclass=invalid_metaclass_1):
-            pass
-        class InvalidSecond(metaclass=invalid_metaclass_2):
-            pass
-        """
-        )
-        for class_obj, metaclass_name in (("Invalid", "int"), ("InvalidSecond", "1")):
-            classdef = module[class_obj]
-            message = Message(
-                "invalid-metaclass", node=classdef, args=(metaclass_name,)
-            )
-            with self.assertAddsMessages(message):
-                self.checker.visit_classdef(classdef)
-
-    @pytest.mark.skipif(sys.version_info < (3, 5), reason="Needs Python 3.5.")
-    def test_typing_namedtuple_not_callable_issue1295(self):
-        module = astroid.parse(
-            """
-        import typing
-        Named = typing.NamedTuple('Named', [('foo', int), ('bar', int)])
-        named = Named(1, 2)
-        """
-        )
-        call = module.body[-1].value
-        callables = call.func.inferred()
-        assert len(callables) == 1
-        assert callables[0].callable()
-        with self.assertNoMessages():
-            self.checker.visit_call(call)
-
-    @pytest.mark.skipif(sys.version_info < (3, 5), reason="Needs Python 3.5.")
-    def test_typing_namedtuple_unsubscriptable_object_issue1295(self):
-        module = astroid.parse(
-            """
-        import typing
-        MyType = typing.Tuple[str, str]
-        """
-        )
-        subscript = module.body[-1].value
-        with self.assertNoMessages():
-            self.checker.visit_subscript(subscript)
 
     def test_staticmethod_multiprocessing_call(self):
         """Make sure not-callable isn't raised for descriptors

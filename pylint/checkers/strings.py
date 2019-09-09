@@ -24,7 +24,6 @@
 
 import builtins
 import numbers
-import sys
 import tokenize
 from collections import Counter
 
@@ -37,9 +36,6 @@ from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
-
-_PY3K = sys.version_info[:2] >= (3, 0)
-_PY27 = sys.version_info[:2] == (2, 7)
 
 MSGS = {
     "E1300": (
@@ -715,7 +711,7 @@ class StringConstantChecker(BaseTokenChecker):
             if next_char in self.UNICODE_ESCAPE_CHARACTERS:
                 if "u" in prefix:
                     pass
-                elif (_PY3K or self._unicode_literals) and "b" not in prefix:
+                elif "b" not in prefix:
                     pass  # unicode by default
                 else:
                     self.add_message(
