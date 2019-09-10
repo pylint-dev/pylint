@@ -24,6 +24,5 @@ try:
 except ImportError:
     pass
 
-from c.collections import missing # [import-error]
-
-from .syntax_error import toto # [syntax-error]
+# pylint: disable=no-name-in-module
+from functional.s.syntax_error import toto # [syntax-error]
