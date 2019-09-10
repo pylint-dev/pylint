@@ -113,8 +113,7 @@ def _in_iterating_context(node):
     # value.
     elif isinstance(parent, astroid.Call):
         if isinstance(parent.func, astroid.Name):
-            parent_scope = parent.func.lookup(parent.func.name)[0]
-            if _is_builtin(parent_scope) and parent.func.name in _ACCEPTS_ITERATOR:
+            if parent.func.name in _ACCEPTS_ITERATOR:
                 return True
         elif isinstance(parent.func, astroid.Attribute):
             if parent.func.attrname in ATTRIBUTES_ACCEPTS_ITERATOR:
