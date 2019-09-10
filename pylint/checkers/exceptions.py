@@ -230,7 +230,7 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
             if cls.newstyle:
                 self._checker.add_message("raising-non-exception", node=self._node)
 
-    def visit_tuple(self, tuple_node):
+    def visit_tuple(self, _):
         self._checker.add_message("raising-bad-type", node=self._node, args="tuple")
 
     def visit_default(self, node):
