@@ -988,6 +988,7 @@ accessed. Python regular expressions are accepted.",
 
         # Make sure that it's a valid function that we can analyze.
         # Ordered from less expensive to more expensive checks.
+        # pylint: disable=too-many-boolean-expressions
         if (
             not function_node.is_function
             or isinstance(function_node, astroid.AsyncFunctionDef)
