@@ -24,7 +24,6 @@
 """Checks for various exception related errors."""
 import builtins
 import inspect
-import sys
 import typing
 
 import astroid
@@ -69,7 +68,6 @@ def _is_raising(body: typing.List) -> bool:
     return False
 
 
-PY3K = sys.version_info >= (3, 0)
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
 BUILTINS_NAME = builtins.__name__
 
@@ -232,29 +230,8 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
             if cls.newstyle:
                 self._checker.add_message("raising-non-exception", node=self._node)
 
-    def visit_tuple(self, tuple_node):
-        if PY3K or not tuple_node.elts:
-            self._checker.add_message("raising-bad-type", node=self._node, args="tuple")
-            return
-
-        # On Python 2, using the following is not an error:
-        #    raise (ZeroDivisionError, None)
-        #    raise (ZeroDivisionError, )
-        # What's left to do is to check that the first
-        # argument is indeed an exception. Verifying the other arguments
-        # is not the scope of this check.
-        first = tuple_node.elts[0]
-        inferred = utils.safe_infer(first)
-        if not inferred or inferred is astroid.Uninferable:
-            return
-
-        if (
-            isinstance(inferred, astroid.Instance)
-            and inferred.__class__.__name__ != "Instance"
-        ):
-            self.visit_default(tuple_node)
-        else:
-            self.visit(inferred)
+    def visit_tuple(self, _):
+        self._checker.add_message("raising-bad-type", node=self._node, args="tuple")
 
     def visit_default(self, node):
         name = getattr(node, "name", node.__class__.__name__)
@@ -300,7 +277,7 @@ class ExceptionsChecker(checkers.BaseChecker):
             self._check_misplaced_bare_raise(node)
             return
 
-        if PY3K and node.cause:
+        if node.cause:
             self._check_bad_exception_context(node)
 
         expr = node.exc

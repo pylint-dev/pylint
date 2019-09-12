@@ -24,13 +24,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Check Python 2 code for Python 2/3 source-compatible issues."""
-from __future__ import absolute_import, print_function
-
 import re
-import sys
 import tokenize
 from collections import namedtuple
-from typing import FrozenSet
 
 import astroid
 from astroid import bases
@@ -877,23 +873,18 @@ class Python3Checker(checkers.BaseChecker):
         "deprecated-sys-function": {"sys": frozenset({"exc_clear"})},
     }
 
-    if (3, 4) <= sys.version_info < (3, 4, 4):
-        # Python 3.4.0 -> 3.4.3 has a bug which breaks `repr_tree()`:
-        # https://bugs.python.org/issue23572
-        _python_2_tests = frozenset()  # type: FrozenSet[str]
-    else:
-        _python_2_tests = frozenset(
-            [
-                astroid.extract_node(x).repr_tree()
-                for x in [
-                    "sys.version_info[0] == 2",
-                    "sys.version_info[0] < 3",
-                    "sys.version_info == (2, 7)",
-                    "sys.version_info <= (2, 7)",
-                    "sys.version_info < (3, 0)",
-                ]
+    _python_2_tests = frozenset(
+        [
+            astroid.extract_node(x).repr_tree()
+            for x in [
+                "sys.version_info[0] == 2",
+                "sys.version_info[0] < 3",
+                "sys.version_info == (2, 7)",
+                "sys.version_info <= (2, 7)",
+                "sys.version_info < (3, 0)",
             ]
-        )
+        ]
+    )
 
     def __init__(self, *args, **kwargs):
         self._future_division = False

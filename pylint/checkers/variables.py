@@ -39,7 +39,6 @@ import copy
 import itertools
 import os
 import re
-import sys
 from functools import lru_cache
 
 import astroid
@@ -55,7 +54,6 @@ SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"
 # regexp for ignored argument name
 IGNORED_ARGUMENT_NAMES = re.compile("_.*|^ignored_|^unused_")
-PY3K = sys.version_info >= (3, 0)
 # In Python 3.7 abc has a Python implementation which is preferred
 # by astroid. Unfortunately this also messes up our explicit checks
 # for `abc`
@@ -1308,13 +1306,10 @@ class VariablesChecker(BaseChecker):
         in_annotation_or_default = False
         if isinstance(frame, astroid.FunctionDef) and node.statement() is frame:
             in_annotation_or_default = (
-                PY3K
-                and (
-                    node in frame.args.annotations
-                    or node in frame.args.kwonlyargs_annotations
-                    or node is frame.args.varargannotation
-                    or node is frame.args.kwargannotation
-                )
+                node in frame.args.annotations
+                or node in frame.args.kwonlyargs_annotations
+                or node is frame.args.varargannotation
+                or node is frame.args.kwargannotation
             ) or frame.args.parent_of(node)
         return in_annotation_or_default
 
@@ -1395,7 +1390,7 @@ class VariablesChecker(BaseChecker):
             # Special rule for function return annotations,
             # which uses the same name as the class where
             # the function lives.
-            if PY3K and node is frame.returns and defframe.parent_of(frame.returns):
+            if node is frame.returns and defframe.parent_of(frame.returns):
                 maybee0601 = annotation_return = True
 
             if (
@@ -1966,10 +1961,6 @@ class VariablesChecker3k(VariablesChecker):
         return consumed
 
 
-if sys.version_info >= (3, 0):
-    VariablesChecker = VariablesChecker3k  # type: ignore
-
-
 def register(linter):
     """required method to auto register this checker"""
-    linter.register_checker(VariablesChecker(linter))
+    linter.register_checker(VariablesChecker3k(linter))

@@ -11,8 +11,6 @@
 Visitor doing some postprocessing on the astroid tree.
 Try to resolve definitions (namespace) dictionary, relationship...
 """
-from __future__ import print_function
-
 import collections
 import os
 import traceback

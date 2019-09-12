@@ -300,11 +300,7 @@ class ImportsChecker(BaseChecker):
     name = "imports"
     msgs = MSGS
     priority = -2
-
-    if sys.version_info < (3, 5):
-        deprecated_modules = ("optparse",)
-    else:
-        deprecated_modules = ("optparse", "tkinter.tix")
+    deprecated_modules = ("optparse", "tkinter.tix")
 
     options = (
         (

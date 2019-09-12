@@ -11,7 +11,7 @@ except ImportError:
     class Myclass(object):
         """docstring"""
 
-if sys.version_info[0] == 3:
+if sys.version_info[0] >= 3:
     from collections import OrderedDict
 else:
     class OrderedDict(object):

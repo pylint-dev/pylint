@@ -324,3 +324,5 @@ contributors:
 * Eric Froemling: contributor
 
 * Robert Schweizer: contributor
+
+* Hugo van Kemenade: contributor

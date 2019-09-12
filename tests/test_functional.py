@@ -30,12 +30,8 @@ from pylint import checkers, interfaces, lint, reporters
 
 
 class test_dialect(csv.excel):
-    if sys.version_info[0] < 3:
-        delimiter = b":"
-        lineterminator = b"\n"
-    else:
-        delimiter = ":"
-        lineterminator = "\n"
+    delimiter = ":"
+    lineterminator = "\n"
 
 
 csv.register_dialect("test", test_dialect)

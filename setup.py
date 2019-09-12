@@ -20,10 +20,7 @@
 
 """Generic Setup script, takes package info from __pkginfo__.py file.
 """
-from __future__ import absolute_import, print_function
-
 import os
-import shutil
 import sys
 from distutils.command.build_py import build_py
 from os.path import exists, isdir, join

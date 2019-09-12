@@ -14,8 +14,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Unittest for the type checker."""
-import sys
-
 import astroid
 import pytest
 
@@ -228,7 +226,6 @@ class TestTypeChecker(CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
 
-    @pytest.mark.skipif(sys.version_info[0] < 3, reason="Needs Python 3.")
     def test_invalid_metaclass_function_metaclasses(self):
         module = astroid.parse(
             """
@@ -250,7 +247,6 @@ class TestTypeChecker(CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
 
-    @pytest.mark.skipif(sys.version_info < (3, 5), reason="Needs Python 3.5.")
     def test_typing_namedtuple_not_callable_issue1295(self):
         module = astroid.parse(
             """
@@ -266,7 +262,6 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(call)
 
-    @pytest.mark.skipif(sys.version_info < (3, 5), reason="Needs Python 3.5.")
     def test_typing_namedtuple_unsubscriptable_object_issue1295(self):
         module = astroid.parse(
             """

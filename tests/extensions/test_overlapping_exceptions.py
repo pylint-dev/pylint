@@ -5,7 +5,6 @@
 """
 
 from os.path import dirname, join
-from sys import version_info
 
 import pytest
 
@@ -65,7 +64,6 @@ def test_overlapping_exceptions(linter):
         assert (msg.line, msg.msg) == exp
 
 
-@pytest.mark.skipif(version_info < (3, 3), reason="not relevant to Python version")
 def test_overlapping_exceptions_py33(linter):
     """From Python 3.3 both IOError and socket.error are aliases for OSError."""
     test = join(dirname(__file__), "data", "overlapping_exceptions_py33.py")
