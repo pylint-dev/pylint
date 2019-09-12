@@ -302,7 +302,7 @@ if multiprocessing is not None:
             )
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
     config.OptionsManagerMixIn,
     MessagesHandlerMixIn,
