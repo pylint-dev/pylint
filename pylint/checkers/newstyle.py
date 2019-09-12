@@ -13,8 +13,6 @@
 
 """check for new / old style related problems
 """
-import sys
-
 import astroid
 
 from pylint.checkers import BaseChecker
@@ -81,11 +79,8 @@ class NewStyleConflictChecker(BaseChecker):
 
             # super should not be used on an old style class
             if klass.newstyle or not has_known_bases(klass):
-                # super first arg should be the class
+                # super first arg should not be the class
                 if not call.args:
-                    if sys.version_info[0] == 2:
-                        # unless Python 3
-                        self.add_message("missing-super-argument", node=call)
                     continue
 
                 # calling super(type(self), self) can lead to recursion loop

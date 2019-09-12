@@ -52,8 +52,6 @@ For example:
 You may also use py_run to run pylint with desired options and get back (or not)
 its output.
 """
-from __future__ import print_function
-
 import os
 import os.path as osp
 import shlex

@@ -58,8 +58,6 @@
 
   Display help messages about given message identifiers and exit.
 """
-from __future__ import print_function
-
 import collections
 import contextlib
 import operator

@@ -34,7 +34,6 @@ import itertools
 import numbers
 import re
 import string
-import sys
 from functools import lru_cache, partial
 from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, Union
 
@@ -52,12 +51,7 @@ COMP_NODE_TYPES = (
     astroid.DictComp,
     astroid.GeneratorExp,
 )
-PY3K = sys.version_info[0] == 3
-
-if not PY3K:
-    EXCEPTIONS_MODULE = "exceptions"
-else:
-    EXCEPTIONS_MODULE = "builtins"
+EXCEPTIONS_MODULE = "builtins"
 ABC_METHODS = {
     "abc.abstractproperty",
     "abc.abstractmethod",
@@ -512,10 +506,7 @@ def parse_format_string(
             if char in "hlL":
                 i, char = next_char(i)
             # Parse the conversion type (mandatory).
-            if PY3K:
-                flags = "diouxXeEfFgGcrs%a"
-            else:
-                flags = "diouxXeEfFgGcrs%"
+            flags = "diouxXeEfFgGcrs%a"
             if char not in flags:
                 raise UnsupportedFormatCharacter(i)
             if key:

@@ -974,28 +974,31 @@ accessed. Python regular expressions are accepted.",
         """
         if not isinstance(node.value, astroid.Call):
             return
+
         function_node = safe_infer(node.value.func)
-        # skip class, generator and incomplete function definition
         funcs = (astroid.FunctionDef, astroid.UnboundMethod, astroid.BoundMethod)
-        if not (
-            isinstance(function_node, funcs)
-            and function_node.root().fully_defined()
-            and not function_node.decorators
-        ):
+        if not isinstance(function_node, funcs):
             return
 
+        # Unwrap to get the actual function object
         if isinstance(function_node, astroid.BoundMethod) and isinstance(
             function_node._proxied, astroid.UnboundMethod
         ):
-            # Unwrap to get the actual function object
             function_node = function_node._proxied._proxied
 
+        # Make sure that it's a valid function that we can analyze.
+        # Ordered from less expensive to more expensive checks.
+        # pylint: disable=too-many-boolean-expressions
         if (
-            function_node.is_generator()
-            or function_node.is_abstract(pass_is_abstract=False)
+            not function_node.is_function
             or isinstance(function_node, astroid.AsyncFunctionDef)
+            or function_node.decorators
+            or function_node.is_generator()
+            or function_node.is_abstract(pass_is_abstract=False)
+            or not function_node.root().fully_defined()
         ):
             return
+
         returns = list(
             function_node.nodes_of_class(astroid.Return, skip_klass=astroid.FunctionDef)
         )

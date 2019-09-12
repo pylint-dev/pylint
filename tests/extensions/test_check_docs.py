@@ -16,10 +16,6 @@
 """Unit tests for the pylint checkers in :mod:`pylint.extensions.check_docs`,
 in particular the parameter documentation checker `DocstringChecker`
 """
-from __future__ import absolute_import, division, print_function
-
-import sys
-
 import astroid
 import pytest
 
@@ -1052,7 +1048,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self._visit_methods_of_class(node)
 
-    @pytest.mark.skipif(sys.version_info[0] != 3, reason="Enabled on Python 3")
     def test_kwonlyargs_are_taken_in_account(self):
         node = astroid.extract_node(
             '''
