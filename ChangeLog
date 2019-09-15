@@ -7,6 +7,10 @@ What's New in Pylint 2.4.0?
 
 Release date: TBA
 
+* Support forward references for ``function-redefined`` check.
+
+  Close #2540
+
 * Added a new check, ``consider-using-sys-exit``
 
   This check is emitted when we detect that a quit() or exit() is invoked

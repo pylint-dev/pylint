@@ -171,6 +171,7 @@ REVERSED_COMPS = {"<": ">", "<=": ">=", ">": "<", ">=": "<="}
 COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
 # List of methods which can be redefined
 REDEFINABLE_METHODS = frozenset(("__module__",))
+TYPING_FORWARD_REF_QNAME = "typing.ForwardRef"
 
 
 def _redefines_import(node):
@@ -820,13 +821,11 @@ class BasicErrorChecker(_BasicChecker):
     def _check_redefinition(self, redeftype, node):
         """check for redefinition of a function / method / class name"""
         parent_frame = node.parent.frame()
+
         # Ignore function stubs created for type information
+        redefinitions = parent_frame.locals[node.name]
         defined_self = next(
-            (
-                local
-                for local in parent_frame.locals[node.name]
-                if not utils.is_overload_stub(local)
-            ),
+            (local for local in redefinitions if not utils.is_overload_stub(local)),
             node,
         )
         if defined_self is not node and not astroid.are_exclusive(node, defined_self):
@@ -841,6 +840,16 @@ class BasicErrorChecker(_BasicChecker):
 
             if utils.is_overload_stub(node):
                 return
+
+            # Check if we have forward references for this node.
+            for redefinition in redefinitions[: redefinitions.index(node)]:
+                inferred = utils.safe_infer(redefinition)
+                if (
+                    inferred
+                    and isinstance(inferred, astroid.Instance)
+                    and inferred.qname() == TYPING_FORWARD_REF_QNAME
+                ):
+                    return
 
             dummy_variables_rgx = lint_utils.get_global_option(
                 self, "dummy-variables-rgx", default=None
