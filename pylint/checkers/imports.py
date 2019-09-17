@@ -415,6 +415,7 @@ class ImportsChecker(BaseChecker):
         self._imports_stack = []
         self._first_non_import_node = None
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
+        self._import_outside_toplevel = set()
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
@@ -462,6 +463,7 @@ class ImportsChecker(BaseChecker):
             for module in self.config.preferred_modules
             if ":" in module
         )
+        self._import_outside_toplevel = set(self.config.import_outside_toplevel)
 
     def _import_graph_without_ignored_edges(self):
         filtered_graph = copy.deepcopy(self.import_graph)
@@ -484,7 +486,6 @@ class ImportsChecker(BaseChecker):
         self._check_import_as_rename(node)
         self._check_toplevel(node)
 
-        modnode = node.root()
         names = [name for name, _ in node.names]
         if len(names) >= 2:
             self.add_message("multiple-imports", args=", ".join(names), node=node)
@@ -957,17 +958,19 @@ class ImportsChecker(BaseChecker):
         if isinstance(node.scope(), astroid.Module):
             return
 
-        # Get the full names of all the imports that are not
-        # whitelisted.
-        not_whitelisted = [
-            name[0]
-            for name in node.names
-            if name[0] not in self.config.import_outside_toplevel
+        if isinstance(node, astroid.ImportFrom):
+            module_names = [node.modname]
+        else:
+            module_names = [name[0] for name in node.names]
+
+        # Get the full names of all the imports that are not whitelisted.
+        scoped_imports = [
+            name for name in module_names if name not in self._import_outside_toplevel
         ]
 
-        if not_whitelisted:
+        if scoped_imports:
             self.add_message(
-                "import-outside-toplevel", args=", ".join(not_whitelisted), node=node
+                "import-outside-toplevel", args=", ".join(scoped_imports), node=node
             )
 
 
