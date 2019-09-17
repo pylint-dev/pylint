@@ -842,14 +842,19 @@ class BasicErrorChecker(_BasicChecker):
                 return
 
             # Check if we have forward references for this node.
-            for redefinition in redefinitions[: redefinitions.index(node)]:
-                inferred = utils.safe_infer(redefinition)
-                if (
-                    inferred
-                    and isinstance(inferred, astroid.Instance)
-                    and inferred.qname() == TYPING_FORWARD_REF_QNAME
-                ):
-                    return
+            try:
+                redefinition_index = redefinitions.index(node)
+            except ValueError:
+                pass
+            else:
+                for redefinition in redefinitions[:redefinition_index]:
+                    inferred = utils.safe_infer(redefinition)
+                    if (
+                        inferred
+                        and isinstance(inferred, astroid.Instance)
+                        and inferred.qname() == TYPING_FORWARD_REF_QNAME
+                    ):
+                        return
 
             dummy_variables_rgx = lint_utils.get_global_option(
                 self, "dummy-variables-rgx", default=None
