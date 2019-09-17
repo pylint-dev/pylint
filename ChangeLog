@@ -16,6 +16,10 @@ Release date: TBA
 
   Close #2540
 
+* Handle redefinitions in case of type checking imports.
+
+  Close #2834
+
 * Added a new check, ``consider-using-sys-exit``
 
   This check is emitted when we detect that a quit() or exit() is invoked

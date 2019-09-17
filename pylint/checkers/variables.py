@@ -942,6 +942,15 @@ class VariablesChecker(BaseChecker):
                     # It is a __future__ directive, not a symbol.
                     continue
 
+                # Do not take in account redefined names for the purpose
+                # of type checking.:
+                if any(
+                    isinstance(definition.parent, astroid.If)
+                    and definition.parent.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
+                    for definition in globs[name]
+                ):
+                    continue
+
                 line = definition.fromlineno
                 if not self._is_name_ignored(stmt, name):
                     self.add_message(
