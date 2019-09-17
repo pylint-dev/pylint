@@ -29,4 +29,4 @@ def define_constant():
 def global_with_import():
     """should only warn for global-statement"""
     global sys  # [global-statement]
-    import sys
+    import sys  # pylint: disable=import-outside-toplevel

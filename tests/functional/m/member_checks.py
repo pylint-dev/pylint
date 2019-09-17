@@ -1,5 +1,5 @@
 # pylint: disable=print-statement,missing-docstring,no-self-use,too-few-public-methods,bare-except,broad-except, useless-object-inheritance
-# pylint: disable=using-constant-test,expression-not-assigned, assigning-non-slot, unused-variable,pointless-statement, wrong-import-order, wrong-import-position
+# pylint: disable=using-constant-test,expression-not-assigned, assigning-non-slot, unused-variable,pointless-statement, wrong-import-order, wrong-import-position,import-outside-toplevel
 from __future__ import print_function
 import six
 class Provider(object):

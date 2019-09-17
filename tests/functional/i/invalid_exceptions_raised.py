@@ -1,4 +1,4 @@
-# pylint:disable=too-few-public-methods,no-init,import-error,missing-docstring, not-callable, useless-object-inheritance
+# pylint:disable=too-few-public-methods,no-init,import-error,missing-docstring, not-callable, useless-object-inheritance,import-outside-toplevel
 """test pb with exceptions and old/new style classes"""
 
 
@@ -77,7 +77,7 @@ def bad_case9():
 
 def unknown_bases():
     """Don't emit when we don't know the bases."""
-    from lala import bala
+    from lala import bala  # pylint: disable=import-outside-toplevel
     class MyException(bala):
         pass
     raise MyException

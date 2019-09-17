@@ -278,6 +278,12 @@ MSGS = {
         "Used when an import alias is same as original package."
         "e.g using import numpy as numpy instead of import numpy as np",
     ),
+    "C0415": (
+        "Import outside toplevel (%s)",
+        "import-outside-toplevel",
+        "Used when an import statement is used anywhere other than the module "
+        "toplevel. Move this import to the top of the file.",
+    ),
 }
 
 
@@ -372,6 +378,16 @@ class ImportsChecker(BaseChecker):
                 "metavar": "<modules>",
                 "help": "Force import order to recognize a module as part of "
                 "a third party library.",
+            },
+        ),
+        (
+            "import-outside-toplevel",
+            {
+                "default": (),
+                "type": "csv",
+                "metavar": "<modules>",
+                "help": "Modules that can be imported outside the toplevel "
+                "of other modules.",
             },
         ),
         (
@@ -472,6 +488,7 @@ class ImportsChecker(BaseChecker):
         """triggered when an import statement is seen"""
         self._check_reimport(node)
         self._check_import_as_rename(node)
+        self._check_toplevel(node)
 
         modnode = node.root()
         names = [name for name, _ in node.names]
@@ -964,6 +981,27 @@ class ImportsChecker(BaseChecker):
             and imported_module is not None
             and "__all__" in imported_module.locals
         )
+
+    def _check_toplevel(self, node):
+        """Check whether the import is made outside the module toplevel.
+        """
+        # If the scope of the import is a module, then obviously it is
+        # not outside the module toplevel.
+        if isinstance(node.scope(), astroid.Module):
+            return
+
+        # Get the full names of all the imports that are not
+        # whitelisted.
+        not_whitelisted = [
+            name[0]
+            for name in node.names
+            if name[0] not in self.config.import_outside_toplevel
+        ]
+
+        if not_whitelisted:
+            self.add_message(
+                "import-outside-toplevel", args=", ".join(not_whitelisted), node=node
+            )
 
 
 def register(linter):
