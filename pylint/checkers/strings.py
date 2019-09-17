@@ -471,10 +471,10 @@ class StringFormatChecker(BaseChecker):
             if argname in (astroid.Uninferable, None):
                 continue
             try:
-                argument = next(argname.infer())
+                argument = utils.safe_infer(argname)
             except astroid.InferenceError:
                 continue
-            if not specifiers or argument is astroid.Uninferable:
+            if not specifiers or not argument:
                 # No need to check this key if it doesn't
                 # use attribute / item access
                 continue

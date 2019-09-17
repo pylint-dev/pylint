@@ -2,9 +2,9 @@
 """
 # pylint: disable=too-few-public-methods, import-error, unused-argument, line-too-long, no-absolute-import, useless-object-inheritance
 import os
+import sys
 from missing import Missing
 
-__revision__ = 1
 
 class Custom(object):
     """ Has a __getattr__ """
@@ -186,3 +186,13 @@ def avoid_empty_attribute():
     """The following string is invalid, avoid crashing."""
 
     return "There are {.:2f} undiscovered errors.".format(1) # [bad-format-string]
+
+
+def invalid_format_index_on_inference_ambiguity():
+    """Test inference bug for invalid-format-index"""
+    options = []
+    if len(sys.argv) > 1:
+        options = [["Woof!"]]
+    else:
+        options = [["Barf!"]]
+    return 'Why is this bad? {options[0][0]}'.format(options=options)
