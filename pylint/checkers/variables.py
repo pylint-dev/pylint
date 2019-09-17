@@ -1418,6 +1418,11 @@ class VariablesChecker(BaseChecker):
                     # Single statement function, with the statement on the
                     # same line as the function definition
                     maybee0601 = False
+            if isinstance(defstmt, (astroid.Import, astroid.ImportFrom)):
+                defstmt_parent = defstmt.parent
+                if isinstance(defstmt_parent, astroid.If):
+                    if defstmt_parent.test.as_string() in TYPING_TYPE_CHECKS_GUARDS:
+                        maybee0601 = True
 
         return maybee0601, annotation_return, use_outer_definition
 

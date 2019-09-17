@@ -24,3 +24,4 @@ undefined-variable:161::Undefined variable 'unicode_2'
 undefined-variable:171::Undefined variable 'unicode_4'
 undefined-variable:226:LambdaClass4.<lambda>:Undefined variable 'LambdaClass4'
 undefined-variable:234:LambdaClass5.<lambda>:Undefined variable 'LambdaClass5'
+used-before-assignment:257:func_should_fail:Using variable 'datetime' before assignment
