@@ -1,5 +1,5 @@
 """Checks import order rule"""
-# pylint: disable=unused-import,relative-import,ungrouped-imports,import-error,no-name-in-module,relative-beyond-top-level
+# pylint: disable=unused-import,ungrouped-imports,import-error,no-name-in-module,relative-beyond-top-level
 from __future__ import absolute_import
 try:
     from six.moves import configparser

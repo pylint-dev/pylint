@@ -1296,13 +1296,6 @@ class VariablesChecker(BaseChecker):
             return False
         return stmt.modname in self.config.redefining_builtins_modules
 
-    @utils.check_messages("redefine-in-handler")
-    def visit_excepthandler(self, node):
-        for name in utils.get_all_elements(node.name):
-            clobbering, args = utils.clobber_in_except(name)
-            if clobbering:
-                self.add_message("redefine-in-handler", args=args, node=name)
-
     def visit_assignname(self, node):
         if isinstance(node.assign_type(), astroid.AugAssign):
             self.visit_name(node)

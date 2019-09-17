@@ -1,2 +1,0 @@
-W: 16:some_function: Redefining name 'some_function' from outer scope (line 11) in exception handler
-W: 16:some_function: Unused variable 'some_function'

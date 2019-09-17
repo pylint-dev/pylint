@@ -12,6 +12,9 @@ Release date: TBA
   This check warns when modules are imported from places other than a
   module toplevel, e.g. inside a function or a class.
 
+* Removed Python 2 specific checks such as ``relative-import``,
+  ``invalid-encoded-data``, ``missing-super-argument``.
+
 * Support forward references for ``function-redefined`` check.
 
   Close #2540
