@@ -375,13 +375,15 @@ class ImportsChecker(BaseChecker):
             },
         ),
         (
-            "import-outside-toplevel",
+            "allow-any-import-level",
             {
                 "default": (),
                 "type": "csv",
                 "metavar": "<modules>",
-                "help": "Modules that can be imported outside the toplevel "
-                "of other modules.",
+                "help": (
+                    "List of modules that can be imported at any level, not just "
+                    "the top level one."
+                ),
             },
         ),
         (
@@ -415,7 +417,7 @@ class ImportsChecker(BaseChecker):
         self._imports_stack = []
         self._first_non_import_node = None
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
-        self._import_outside_toplevel = set()
+        self._allow_any_import_level = set()
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
@@ -463,7 +465,7 @@ class ImportsChecker(BaseChecker):
             for module in self.config.preferred_modules
             if ":" in module
         )
-        self._import_outside_toplevel = set(self.config.import_outside_toplevel)
+        self._allow_any_import_level = set(self.config.allow_any_import_level)
 
     def _import_graph_without_ignored_edges(self):
         filtered_graph = copy.deepcopy(self.import_graph)
@@ -965,7 +967,7 @@ class ImportsChecker(BaseChecker):
 
         # Get the full names of all the imports that are not whitelisted.
         scoped_imports = [
-            name for name in module_names if name not in self._import_outside_toplevel
+            name for name in module_names if name not in self._allow_any_import_level
         ]
 
         if scoped_imports:

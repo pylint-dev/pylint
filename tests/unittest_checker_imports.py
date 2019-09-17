@@ -26,7 +26,7 @@ class TestImportsChecker(CheckerTestCase):
 
     CHECKER_CLASS = imports.ImportsChecker
 
-    @set_config(import_outside_toplevel=("astroid",))
+    @set_config(allow_any_import_level=("astroid",))
     def test_import_outside_toplevel(self):
         node = astroid.extract_node(
             """
