@@ -528,7 +528,6 @@ class ImportsChecker(BaseChecker):
             self._record_import(node, imported_module)
         if imported_module is None:
             return
-        modnode = node.root()
         for name, _ in node.names:
             if name != "*":
                 self._add_imported_module(node, "%s.%s" % (imported_module.name, name))
