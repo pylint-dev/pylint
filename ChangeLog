@@ -12,6 +12,10 @@ Release date: TBA
   This check warns when modules are imported from places other than a
   module toplevel, e.g. inside a function or a class.
 
+* Support forward references for ``function-redefined`` check.
+
+  Close #2540
+
 * Added a new check, ``consider-using-sys-exit``
 
   This check is emitted when we detect that a quit() or exit() is invoked

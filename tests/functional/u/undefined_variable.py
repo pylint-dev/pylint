@@ -245,3 +245,14 @@ def nonlocal_in_ifexp():
     fig = plt.figure()
     fig.canvas.mpl_connect('button_press_event', onclick)
     plt.show(block=True)
+
+
+# pylint: disable=wrong-import-position
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from datetime import datetime
+
+
+def func_should_fail(_dt: datetime):  # [used-before-assignment]
+    pass
