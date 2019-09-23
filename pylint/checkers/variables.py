@@ -719,6 +719,8 @@ class VariablesChecker(BaseChecker):
         """leave module: check globals
         """
         assert len(self._to_consume) == 1
+
+        self._check_metaclasses(node)
         not_consumed = self._to_consume.pop().to_consume
         # attempt to check for __all__ if defined
         if "__all__" in node.locals:
@@ -833,6 +835,8 @@ class VariablesChecker(BaseChecker):
 
     def leave_functiondef(self, node):
         """leave function: check function's locals are consumed"""
+        self._check_metaclasses(node)
+
         if node.type_comment_returns:
             self._store_type_annotation_node(node.type_comment_returns)
         if node.type_comment_args:
@@ -1180,6 +1184,18 @@ class VariablesChecker(BaseChecker):
                 self._check_unpacking(inferred, node, targets)
         except astroid.InferenceError:
             return
+
+    # listcomp have now also their scope
+    def visit_listcomp(self, node):
+        """visit dictcomp: update consumption analysis variable
+        """
+        self._to_consume.append(NamesConsumer(node, "comprehension"))
+
+    def leave_listcomp(self, _):
+        """leave dictcomp: update consumption analysis variable
+        """
+        # do not check for not used locals here
+        self._to_consume.pop()
 
     def leave_assign(self, node):
         self._store_type_annotation_names(node)
@@ -1890,31 +1906,6 @@ class VariablesChecker(BaseChecker):
                             self.add_message("unused-import", args=msg, node=stmt)
         del self._to_consume
 
-
-class VariablesChecker3k(VariablesChecker):
-    """Modified variables checker for 3k"""
-
-    # listcomp have now also their scope
-
-    def visit_listcomp(self, node):
-        """visit dictcomp: update consumption analysis variable
-        """
-        self._to_consume.append(NamesConsumer(node, "comprehension"))
-
-    def leave_listcomp(self, _):
-        """leave dictcomp: update consumption analysis variable
-        """
-        # do not check for not used locals here
-        self._to_consume.pop()
-
-    def leave_functiondef(self, node):
-        self._check_metaclasses(node)
-        super(VariablesChecker3k, self).leave_functiondef(node)
-
-    def leave_module(self, node):
-        self._check_metaclasses(node)
-        super(VariablesChecker3k, self).leave_module(node)
-
     def _check_metaclasses(self, node):
         """ Update consumption analysis for metaclasses. """
         consumed = []  # [(scope_locals, consumed_key)]
@@ -1973,4 +1964,4 @@ class VariablesChecker3k(VariablesChecker):
 
 def register(linter):
     """required method to auto register this checker"""
-    linter.register_checker(VariablesChecker3k(linter))
+    linter.register_checker(VariablesChecker(linter))
