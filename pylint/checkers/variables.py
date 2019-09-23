@@ -1203,6 +1203,10 @@ class VariablesChecker(BaseChecker):
     def leave_with(self, node):
         self._store_type_annotation_names(node)
 
+    def visit_arguments(self, node):
+        for annotation in node.type_comment_args:
+            self._store_type_annotation_node(annotation)
+
     # Relying on other checker's options, which might not have been initialized yet.
     @decorators.cachedproperty
     def _analyse_fallback_blocks(self):

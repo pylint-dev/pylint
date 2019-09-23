@@ -15,6 +15,7 @@ from typing import (
     NamedTuple,
     Optional,
     Pattern,
+    Sequence,
     Set,
     Tuple,
 )
@@ -54,3 +55,11 @@ def typing_fully_qualified():
     variable = None  # type: typing.Optional[str]
     other_variable: 'typing.Optional[str]' = None
     return variable, other_variable
+
+
+def function(arg1,  # type: Iterable
+             arg2  # type: List
+            ):
+    # type: (...) -> Sequence
+    """docstring"""
+    print(arg1, arg2)
