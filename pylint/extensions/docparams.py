@@ -327,7 +327,6 @@ class DocstringParameterChecker(BaseChecker):
         found_argument_names,
         message_id,
         not_needed_names,
-        tolerate_missing_params,
         expected_argument_names,
         warning_node,
     ):
@@ -341,17 +340,19 @@ class DocstringParameterChecker(BaseChecker):
 
         :param not_needed_names: names that may be omitted
         :type not_needed_names: set of str
+
+        :param set expected_argument_names: Expected argument names
+        :param NodeNG warning_node: The node to be analyzed
         """
-        if not tolerate_missing_params:
-            missing_argument_names = (
-                expected_argument_names - found_argument_names
-            ) - not_needed_names
-            if missing_argument_names:
-                self.add_message(
-                    message_id,
-                    args=(", ".join(sorted(missing_argument_names)),),
-                    node=warning_node,
-                )
+        missing_argument_names = (
+            expected_argument_names - found_argument_names
+        ) - not_needed_names
+        if missing_argument_names:
+            self.add_message(
+                message_id,
+                args=(", ".join(sorted(missing_argument_names)),),
+                node=warning_node,
+            )
 
     def _compare_different_args(
         self,
@@ -371,6 +372,9 @@ class DocstringParameterChecker(BaseChecker):
 
         :param not_needed_names: names that may be omitted
         :type not_needed_names: set of str
+
+        :param set expected_argument_names: Expected argument names
+        :param NodeNG warning_node: The node to be analyzed
         """
         differing_argument_names = (
             (expected_argument_names ^ found_argument_names)
@@ -447,14 +451,14 @@ class DocstringParameterChecker(BaseChecker):
         if not params_with_doc and not params_with_type and accept_no_param_doc:
             tolerate_missing_params = True
 
-        self._compare_missing_args(
-            params_with_doc,
-            "missing-param-doc",
-            self.not_needed_param_in_docstring,
-            tolerate_missing_params,
-            expected_argument_names,
-            warning_node,
-        )
+        if not tolerate_missing_params:
+            self._compare_missing_args(
+                params_with_doc,
+                "missing-param-doc",
+                self.not_needed_param_in_docstring,
+                expected_argument_names,
+                warning_node,
+            )
 
         for index, arg_name in enumerate(arguments_node.args):
             if arguments_node.annotations[index]:
@@ -463,14 +467,14 @@ class DocstringParameterChecker(BaseChecker):
             if arguments_node.kwonlyargs_annotations[index]:
                 params_with_type.add(arg_name.name)
 
-        self._compare_missing_args(
-            params_with_type,
-            "missing-type-doc",
-            not_needed_type_in_docstring,
-            tolerate_missing_params,
-            expected_argument_names,
-            warning_node,
-        )
+        if not tolerate_missing_params:
+            self._compare_missing_args(
+                params_with_type,
+                "missing-type-doc",
+                not_needed_type_in_docstring,
+                expected_argument_names,
+                warning_node,
+            )
 
         self._compare_different_args(
             params_with_doc,
