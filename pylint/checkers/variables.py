@@ -560,6 +560,7 @@ class NamesConsumer:
         return found_node
 
 
+# pylint: disable=too-many-public-methods
 class VariablesChecker(BaseChecker):
     """checks for
     * unused variables / imports
