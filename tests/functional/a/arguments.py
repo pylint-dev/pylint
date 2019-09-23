@@ -228,13 +228,31 @@ def mutation_decorator(fun):
     return wrapper
 
 
+def other_mutation_decorator(fun):
+    """Another decorator that changes a function's signature"""
+    def wrapper(*args, do_something=True, **kwargs):
+        if do_something:
+            return fun(*args, **kwargs)
+
+        return None
+
+    return wrapper
+
+
 @mutation_decorator
 def mutated_function(arg):
     return arg
 
 
+@other_mutation_decorator
+def mutated(arg):
+    return arg
+
+
 mutated_function(do_something=False)
 mutated_function()
+
+mutated(do_something=True)
 
 
 def func(one, two, three):
