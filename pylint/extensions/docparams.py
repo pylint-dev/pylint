@@ -459,6 +459,9 @@ class DocstringParameterChecker(BaseChecker):
         for index, arg_name in enumerate(arguments_node.args):
             if arguments_node.annotations[index]:
                 params_with_type.add(arg_name.name)
+        for index, arg_name in enumerate(arguments_node.kwonlyargs):
+            if arguments_node.kwonlyargs_annotations[index]:
+                params_with_type.add(arg_name.name)
 
         self._compare_missing_args(
             params_with_type,
