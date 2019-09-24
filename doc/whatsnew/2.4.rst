@@ -3,7 +3,7 @@
 **************************
 
 :Release: 2.4
-:Date: TBA
+:Date: 2019-09-24
 
 
 Summary -- Release highlights
