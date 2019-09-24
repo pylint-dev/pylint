@@ -1,62 +1,58 @@
 language: python
-
 stages:
-  - prechecks
-  - tests-cpython
-  - tests-pypy
-
-# 3.5-dev because of http://bugs.python.org/issue25131
+- prechecks
+- tests-cpython
+- tests-pypy
 jobs:
   include:
-    - stage: prechecks
-      python: 3.6
-      env: TOXENV=pylint
-    - python: 3.6
-      env: TOXENV=docs
-    - python: 3.6
-      env: TOXENV=formatting
-    - python: 3.6
-      env: TOXENV=mypy
-    - stage: tests-cpython
-      python: 3.5-dev
-      env: TOXENV=py35
-    - python: 3.6
-      env: TOXENV=py36
-    - python: 3.7
-      env: TOXENV=py37
-      dist: xenial
-    - python: 3.8-dev
-      env: TOXENV=py38
-      dist: xenial
-      sudo: true
-    - python: 3.6
-      env: TOXENV=spelling
-    - stage: tests-pypy
-      python: pypy3.5
-      env: TOXENV=pypy
+  - stage: prechecks
+    python: 3.6
+    env: TOXENV=pylint
+  - python: 3.6
+    env: TOXENV=docs
+  - python: 3.6
+    env: TOXENV=formatting
+  - python: 3.6
+    env: TOXENV=mypy
+  - stage: tests-cpython
+    python: 3.5-dev
+    env: TOXENV=py35
+  - python: 3.6
+    env: TOXENV=py36
+  - python: 3.7
+    env: TOXENV=py37
+    dist: xenial
+  - python: 3.8-dev
+    env: TOXENV=py38
+    dist: xenial
+    sudo: true
+  - python: 3.6
+    env: TOXENV=spelling
+  - stage: tests-pypy
+    python: pypy3.5
+    env: TOXENV=pypy
 before_install:
-  - python --version
-  - uname -a
-  - lsb_release -a
-  - sudo apt-get -qq update
-  - sudo apt-get install -y enchant
+- python --version
+- uname -a
+- lsb_release -a
+- sudo apt-get -qq update
+- sudo apt-get install -y enchant
 install:
-  - pip install -U setuptools
-  - pip install tox coverage coveralls
-  - virtualenv --version
-  - easy_install --version
-  - pip --version
-  - tox --version
-  - coverage --version
+- pip install -U setuptools
+- pip install tox coverage coveralls
+- virtualenv --version
+- easy_install --version
+- pip --version
+- tox --version
+- coverage --version
 script:
-    # Test install with current version of setuptools
-  - pip install .
-  - tox -e coverage-erase,$TOXENV
+- pip install .
+- tox -e coverage-erase,$TOXENV
 after_success:
-  - tox -e coveralls
+- tox -e coveralls
 after_failure:
-  - more .tox/log/* | cat
-  - more .tox/*/log/* | cat
+- more .tox/log/* | cat
+- more .tox/*/log/* | cat
 notifications:
   email:
     on_success: always
@@ -65,8 +61,11 @@ deploy:
   provider: pypi
   user: Claudiu.Popa
   password:
-    secure: "EEuu9Rn6yhZjHaRPPHorFOWHu13xmMan+lqXh1jmusbEv9weRSz1LH38ziO7+HIST9l8Sup5tfKr9e0nzYw128FaTRf9/5lMJRa3ZLzh+152EfUqOUfcKKDj7rMN9qeWnS6NjKlUubQypUPkgGfFH4c0jHNVU9qUCLFXLkrFsUUcDrU86nPu69hLOfmyMmv1SF/BaOI1SagKbs5Ak1v0ZGHqImzwqs1Aj6Bz7WzXm70jGuVqokCq6HQNHD3aGjgyQTkB9J5cevNY0br7RL7UZMQMPXYFIsXCKmZ1CyEibfiM/TQBry5vVdBTnrSGyFa3/tke96P64ASRu8/V5icx8jPrrZ1zzmNuW9uMRhD1gNhtLNma/g5qbwAnAAaxMON4EpARzQ1ZYJnLVhohKhlKtZyp99Rv0KlLgoOvlFQH0rwTE9kJaiaBApWB5ITREP68XTjQH8OezjiwkmyMNLhG7SUFG8vGWN90oTfBX7thb+reiAUsH5nuNGCx/gzQ8lxdHt/9GrgJCilopjJbdPTF/twcS6tSXrcqAhjktlHMPe3FohnkWbgoKeDznfm/yw3Ux3mYZrrde/Tl+B/InQsTFk9sTMafpEitt9qyA8x5PBNxofXBqLtGlsWfh9O0bHoMVlVd1Nm44WSMnpgFE0QY/dtOsBq1cpuxut2xWwJSr6I="
+    secure: EEuu9Rn6yhZjHaRPPHorFOWHu13xmMan+lqXh1jmusbEv9weRSz1LH38ziO7+HIST9l8Sup5tfKr9e0nzYw128FaTRf9/5lMJRa3ZLzh+152EfUqOUfcKKDj7rMN9qeWnS6NjKlUubQypUPkgGfFH4c0jHNVU9qUCLFXLkrFsUUcDrU86nPu69hLOfmyMmv1SF/BaOI1SagKbs5Ak1v0ZGHqImzwqs1Aj6Bz7WzXm70jGuVqokCq6HQNHD3aGjgyQTkB9J5cevNY0br7RL7UZMQMPXYFIsXCKmZ1CyEibfiM/TQBry5vVdBTnrSGyFa3/tke96P64ASRu8/V5icx8jPrrZ1zzmNuW9uMRhD1gNhtLNma/g5qbwAnAAaxMON4EpARzQ1ZYJnLVhohKhlKtZyp99Rv0KlLgoOvlFQH0rwTE9kJaiaBApWB5ITREP68XTjQH8OezjiwkmyMNLhG7SUFG8vGWN90oTfBX7thb+reiAUsH5nuNGCx/gzQ8lxdHt/9GrgJCilopjJbdPTF/twcS6tSXrcqAhjktlHMPe3FohnkWbgoKeDznfm/yw3Ux3mYZrrde/Tl+B/InQsTFk9sTMafpEitt9qyA8x5PBNxofXBqLtGlsWfh9O0bHoMVlVd1Nm44WSMnpgFE0QY/dtOsBq1cpuxut2xWwJSr6I=
   on:
     tags: true
     condition: "$TOXENV = py36"
   distributions: sdist bdist_wheel
+env:
+  global:
+    secure: zEL6Ezp4YwJmBDMyB1gp57bSBLd7LBiAHAUoP8KD5ON4/p8azlpwJcAudn1/bEUsyI67MrCuI+7nJtuxLfkpd0mSGnEplIEsXUc+mDM9CBoTkBcv/LztENYNx4vNS1Q6KJ6KnU+oKIQaRggT+NNN1OB19SNAezLXCXOgiG3m3zEAGcU7rbj26bfDChppxA9Q2WMUfRhQcJ9VwkFIVKPnopPcjp+WvdQoUAA61q4Rdkt5wY/HIKOIIYNqFLsYyQF0Qgb6W2LRyfgwdsXueugswVLFFS+ZJyioF5pJRMKkczXTssCzHb4dOSDDqnATQ/ZjIakYiNSEQ+A4iebrJxJmwDDpPj55VeaxVWWmrfc0kPJtXTBNFjp923op+IMAkIbugEY4WI56Hyyyy0L3TEyYrtmTdMoK8JDMAJcKJr7NrOY7nvBTX5qimc2rBQzc8UVY+O+mBh1acipZH2ZloyVd59vBGQsSwlx4NrMfnpfiVcBx7dSYBVQgOs5yjWyWY8tBH44MEg2ilMFyzPZBbe7oub2KTp3EdLwXDLadx6qzq8CAw3yo5qtVQaOAdrhD5eD14TzZmU956PV+/Nt23EisuzQRxy/ILlQ+4dW5HrpCU9MdwhxBWqnUv9XgqAoDI55MvcHBpU+iSLy/ysGNDAjHUxw75IFdSBl2lrq4/iw5Gl0=
