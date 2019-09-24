@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring
-import typing
 import dataclasses
+import typing
 from dataclasses import dataclass
 
 
@@ -22,3 +22,16 @@ class Test:
 
 class Example(typing.NamedTuple):
     some_int: int
+
+
+@dataclasses.dataclass(frozen=True)
+class Point:
+    """A three dimensional point with x, y and z components."""
+
+    x: float
+    y: float
+    z: float
+
+    def to_array(self):
+        """Convert to a NumPy array `np.array((x, y, z))`."""
+        return self.x

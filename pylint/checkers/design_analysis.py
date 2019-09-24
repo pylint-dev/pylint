@@ -153,8 +153,9 @@ def _is_dataclass_like(node: astroid.ClassDef) -> bool:
             name = decorator.name
         else:
             name = decorator.attrname
-        if name in DATACLASSES_DECORATORS and root_locals.intersection(
-            DATACLASSES_DECORATORS
+        if name in DATACLASSES_DECORATORS and (
+            root_locals.intersection(DATACLASSES_DECORATORS)
+            or DATACLASS_IMPORT in root_locals
         ):
             return True
     return False
