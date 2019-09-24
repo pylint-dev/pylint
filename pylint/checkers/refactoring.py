@@ -1260,12 +1260,17 @@ class RecommandationChecker(checkers.BaseChecker):
 
     @utils.check_messages("consider-iterating-dictionary")
     def visit_call(self, node):
+        if not isinstance(node.func, astroid.Attribute):
+            return
+        if node.func.attrname != "keys":
+            return
+        if not isinstance(node.parent, (astroid.For, astroid.Comprehension)):
+            return
+
         inferred = utils.safe_infer(node.func)
-        if not inferred:
-            return
-        if not isinstance(inferred, astroid.BoundMethod):
-            return
-        if not isinstance(inferred.bound, astroid.Dict) or inferred.name != "keys":
+        if not isinstance(inferred, astroid.BoundMethod) or not isinstance(
+            inferred.bound, astroid.Dict
+        ):
             return
 
         if isinstance(node.parent, (astroid.For, astroid.Comprehension)):
