@@ -1,2 +1,3 @@
-from __future__ import division
-print 1 / 3
+from __future__ import division, print_function
+
+print(1 / 3)
