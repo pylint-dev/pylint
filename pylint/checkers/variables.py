@@ -1338,12 +1338,28 @@ class VariablesChecker(BaseChecker):
                     # Single statement function, with the statement on the
                     # same line as the function definition
                     maybee0601 = False
+
+            # Look for type checking definitions inside a type checking guard.
             if isinstance(defstmt, (astroid.Import, astroid.ImportFrom)):
                 defstmt_parent = defstmt.parent
-                if isinstance(
-                    defstmt_parent, astroid.If
-                ) and not defstmt_parent.parent_of(node):
-                    if defstmt_parent.test.as_string() in TYPING_TYPE_CHECKS_GUARDS:
+
+                if (
+                    isinstance(defstmt_parent, astroid.If)
+                    and defstmt_parent.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
+                ):
+                    # Exempt those definitions that are used inside the type checking
+                    # guard or that are defined in both type checking guard branches.
+                    used_in_branch = defstmt_parent.parent_of(node)
+                    defined_in_or_else = False
+
+                    for definition in defstmt_parent.orelse:
+                        if isinstance(definition, astroid.Assign):
+                            defined_in_or_else = any(
+                                target.name == name for target in definition.targets
+                            )
+                            break
+
+                    if not used_in_branch and not defined_in_or_else:
                         maybee0601 = True
 
         return maybee0601, annotation_return, use_outer_definition

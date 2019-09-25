@@ -1,6 +1,10 @@
 # pylint: disable=missing-docstring, multiple-statements, useless-object-inheritance,import-outside-toplevel
 # pylint: disable=too-few-public-methods, no-init, no-self-use,bare-except,broad-except, import-error
 from __future__ import print_function
+
+# pylint: disable=wrong-import-position
+from typing import TYPE_CHECKING
+
 DEFINED = 1
 
 if DEFINED != 1:
@@ -247,8 +251,6 @@ def nonlocal_in_ifexp():
     plt.show(block=True)
 
 
-# pylint: disable=wrong-import-position
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -264,3 +266,13 @@ if TYPE_CHECKING:
     from typing_extensions import Literal
 
     AllowedValues = Literal['hello', 'world']
+
+
+if TYPE_CHECKING:
+    from collections import Counter
+else:
+    Counter = object
+
+
+def tick(counter: Counter, name: str) -> None:
+    counter[name] += 1
