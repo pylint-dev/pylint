@@ -2,6 +2,30 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 2.4.1?
+===========================
+
+Release date: 2019-09-25
+
+
+* Exempt type checking definitions defined in both clauses of a type checking guard
+
+  Close #3127
+
+
+* Exempt type checking definitions inside the type check guard
+
+  In a7f236528bb3758886b97285a56f3f9ce5b13a99 we added basic support
+  for emitting `used-before-assignment` if a variable was only defined
+  inside a type checking guard (using `TYPE_CHECKING` variable from `typing`)
+  Unfortunately that missed the case of using those type checking imports
+  inside the guard itself, which triggered spurious used-before-assignment errors.
+
+  Close #3119
+
+* Require astroid >= 2.3 to avoid any compatibility issues.
+
+
 What's New in Pylint 2.4.0?
 ===========================
 
