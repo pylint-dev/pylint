@@ -1340,7 +1340,9 @@ class VariablesChecker(BaseChecker):
                     maybee0601 = False
             if isinstance(defstmt, (astroid.Import, astroid.ImportFrom)):
                 defstmt_parent = defstmt.parent
-                if isinstance(defstmt_parent, astroid.If):
+                if isinstance(
+                    defstmt_parent, astroid.If
+                ) and not defstmt_parent.parent_of(node):
                     if defstmt_parent.test.as_string() in TYPING_TYPE_CHECKS_GUARDS:
                         maybee0601 = True
 

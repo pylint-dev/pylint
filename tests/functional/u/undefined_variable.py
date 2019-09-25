@@ -256,3 +256,11 @@ if TYPE_CHECKING:
 
 def func_should_fail(_dt: datetime):  # [used-before-assignment]
     pass
+
+
+# The following should not emit an error.
+# pylint: disable=invalid-name
+if TYPE_CHECKING:
+    from typing_extensions import Literal
+
+    AllowedValues = Literal['hello', 'world']
