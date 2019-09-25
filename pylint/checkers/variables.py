@@ -1245,6 +1245,7 @@ class VariablesChecker(BaseChecker):
         base_scope_type,
         recursive_klass,
     ):
+        # pylint: disable=too-many-nested-blocks
         # node: Node to check for violation
         # name: name of node to check violation for
         # frame: Scope of statement of node
