@@ -276,6 +276,6 @@ else:
     OrderedDict = object
 
 
-def tick(counter: Counter, name: str, dictionary: OrderedDict) -> None:
+def tick(counter: Counter, name: str, dictionary: OrderedDict) -> OrderedDict:
     counter[name] += 1
     return dictionary
