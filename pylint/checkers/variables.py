@@ -1357,7 +1357,8 @@ class VariablesChecker(BaseChecker):
                             defined_in_or_else = any(
                                 target.name == name for target in definition.targets
                             )
-                            break
+                            if defined_in_or_else:
+                                break
 
                     if not used_in_branch and not defined_in_or_else:
                         maybee0601 = True

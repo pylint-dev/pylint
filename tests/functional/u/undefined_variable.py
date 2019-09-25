@@ -270,9 +270,12 @@ if TYPE_CHECKING:
 
 if TYPE_CHECKING:
     from collections import Counter
+    from collections import OrderedDict
 else:
     Counter = object
+    OrderedDict = object
 
 
-def tick(counter: Counter, name: str) -> None:
+def tick(counter: Counter, name: str, dictionary: OrderedDict) -> None:
     counter[name] += 1
+    return dictionary
