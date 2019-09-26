@@ -43,6 +43,7 @@ import re
 import shlex
 import sys
 import types
+from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
 
@@ -99,7 +100,7 @@ def _flatten_container(iterable):
             yield item
 
 
-def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
+def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
     """Check if the given owner should be ignored
 
     This will verify if the owner's module is in *ignored_modules*
@@ -114,20 +115,37 @@ def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
     ignored_modules = set(ignored_modules)
     module_name = owner.root().name
     module_qname = owner.root().qname()
-    if any(
-        module_name in ignored_modules
-        or module_qname in ignored_modules
-        or fnmatch.fnmatch(module_qname, ignore)
-        for ignore in ignored_modules
-    ):
-        return True
 
+    for ignore in ignored_modules:
+        # Try to match the module name / fully qualified name directly
+        if module_qname in ignored_modules or module_name in ignored_modules:
+            return True
+
+        # Try to see if the ignores pattern match against the module name.
+        if fnmatch.fnmatch(module_qname, ignore):
+            return True
+
+        # Otherwise we might have a root module name being ignored,
+        # and the qualified owner has more levels of depth.
+        parts = deque(module_name.split("."))
+        current_module = ""
+
+        while parts:
+            part = parts.popleft()
+            if not current_module:
+                current_module = part
+            else:
+                current_module += ".{}".format(part)
+            if current_module in ignored_modules:
+                return True
+
+    # Match against ignored classes.
     ignored_classes = set(ignored_classes)
     if hasattr(owner, "qname"):
         qname = owner.qname()
     else:
         qname = ""
-    return any(ignore in (name, qname) for ignore in ignored_classes)
+    return any(ignore in (attrname, qname) for ignore in ignored_classes)
 
 
 @singledispatch
