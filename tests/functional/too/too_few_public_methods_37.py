@@ -28,10 +28,10 @@ class Example(typing.NamedTuple):
 class Point:
     """A three dimensional point with x, y and z components."""
 
-    x: float
-    y: float
-    z: float
+    attr1: float
+    attr2: float
+    attr3: float
 
     def to_array(self):
         """Convert to a NumPy array `np.array((x, y, z))`."""
-        return self.x
+        return self.attr1
