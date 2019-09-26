@@ -1495,6 +1495,10 @@ class BasicChecker(_BasicChecker):
 
     def _check_self_assigning_variable(self, node):
         # Detect assigning to the same variable.
+
+        scope = node.scope()
+        scope_locals = scope.locals
+
         rhs_names = []
         targets = node.targets
         if isinstance(targets[0], astroid.Tuple):
@@ -1517,6 +1521,10 @@ class BasicChecker(_BasicChecker):
             if not isinstance(lhs_name, astroid.Name):
                 continue
             if not isinstance(target, astroid.AssignName):
+                continue
+            if isinstance(scope, astroid.ClassDef) and target.name in scope_locals:
+                # Check that the scope is different than a class level, which is usually
+                # a pattern to expose module level attributes as class level ones.
                 continue
             if target.name == lhs_name.name:
                 self.add_message(

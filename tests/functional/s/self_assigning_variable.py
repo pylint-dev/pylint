@@ -18,3 +18,10 @@ CLS.FIRST = FIRST
 FIRST = Class()
 FIRST = FIRST # [self-assigning-variable]
 FIRST, SECOND = FIRST, CLS.FIRST # [self-assigning-variable]
+
+
+FOO = 1
+
+
+class RedefinedModuleLevel:
+    FOO = FOO
