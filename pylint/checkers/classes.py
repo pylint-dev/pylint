@@ -1135,9 +1135,14 @@ a metaclass class method.",
                     "invalid-slots-object", args=inferred.as_string(), node=elt
                 )
 
-            # Check if we have a conflict with a class variable
+            # Check if we have a conflict with a class variable.
             class_variable = node.locals.get(inferred.value)
             if class_variable:
+                # Skip annotated assignments which don't conflict at all with slots.
+                if len(class_variable) == 1:
+                    parent = class_variable[0].parent
+                    if isinstance(parent, astroid.AnnAssign) and parent.value is None:
+                        return
                 self.add_message(
                     "class-variable-slots-conflict", args=(inferred.value,), node=elt
                 )

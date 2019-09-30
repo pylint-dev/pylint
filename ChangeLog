@@ -18,6 +18,10 @@ Release date: TBA
 
    Close #3145
 
+* Exempt annotated assignments without variable from ``class-variable-slots-conflict``
+
+  Close #3141
+
 
 What's New in Pylint 2.4.1?
 ===========================
