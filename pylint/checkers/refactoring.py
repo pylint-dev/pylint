@@ -1047,15 +1047,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         elif isinstance(node.parent, (astroid.ListComp, astroid.SetComp)):
             expr = node.parent.elt
-            expr_list = (
-                expr.name
-                if isinstance(expr, astroid.Name)
-                else (
-                    [elt.name for elt in expr.elts if isinstance(elt, astroid.Name)]
-                    if isinstance(expr, astroid.Tuple)
-                    else []
-                )
-            )
+            if isinstance(expr, astroid.Name):
+                expr_list = expr.name
+            elif isinstance(expr, astroid.Tuple):
+                expr_list = [elt.name for elt in expr.elts if isinstance(elt, astroid.Name)]
+            else:
+                expr_list = []
             target = node.parent.generators[0].target
             target_list = (
                 target.name
