@@ -1050,7 +1050,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if isinstance(expr, astroid.Name):
                 expr_list = expr.name
             elif isinstance(expr, astroid.Tuple):
-                expr_list = [elt.name for elt in expr.elts if isinstance(elt, astroid.Name)]
+                if any(not isinstance(elt, astroid.Name) for elt in expr.elts):
+                    return
+                expr_list = [elt.name for elt in expr.elts]
             else:
                 expr_list = []
             target = node.parent.generators[0].target
