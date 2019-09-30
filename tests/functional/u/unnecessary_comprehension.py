@@ -11,6 +11,7 @@
 [x for x in iterable if condition]  # exclude comp_if
 [y for x in iterable for y in x]  # exclude nested comprehensions
 [2 * x for x in iterable]  # exclude useful comprehensions
+[(x, y, 1) for x, y in iterable]  # exclude useful comprehensions
 
 # Set comprehensions
 {x for x in iterable}  # [unnecessary-comprehension]
