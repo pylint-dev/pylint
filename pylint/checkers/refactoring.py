@@ -35,6 +35,7 @@ from pylint import utils as lint_utils
 from pylint.checkers import utils
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
+BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
 
 
 def _if_statement_is_always_returning(if_node, returning_node_class):
@@ -686,7 +687,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_quit_exit_call(node)
 
     def _check_quit_exit_call(self, node):
-        if isinstance(node.func, astroid.Name) and node.func.name in ("quit", "exit"):
+        if isinstance(node.func, astroid.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
+            # If we have `exit` imported from `sys` in the scope, exempt this instance.
+            scope = node.root()
+            exit_func = scope.locals.get("exit")
+            if exit_func and isinstance(
+                exit_func[0], (astroid.ImportFrom, astroid.Import)
+            ):
+                return
             self.add_message("consider-using-sys-exit", node=node)
 
     def _check_raising_stopiteration_in_generator_next_call(self, node):

@@ -14,6 +14,10 @@ Release date: TBA
 
    Close #2930
 
+* ``consider-using-sys-exit`` is exempted when `exit()` is imported from `sys`
+
+   Close #3145
+
 
 What's New in Pylint 2.4.1?
 ===========================
