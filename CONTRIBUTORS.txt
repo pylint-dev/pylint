@@ -329,3 +329,5 @@ contributors:
 
 * Trevor Bekolay: contributor
     - Added --list-msgs-enabled command
+
+* Rémi Cardona: contributor
