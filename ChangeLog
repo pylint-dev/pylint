@@ -22,6 +22,14 @@ Release date: TBA
 
   Close #3141
 
+* Fix ``utils.is_error`` to account for functions returning early.
+
+  This fixes a false negative with ``unused-variable`` which was no longer triggered
+  when a function raised an exception as the last instruction, but the body of the function
+  still had unused variables.
+
+  Close #3028
+
 
 What's New in Pylint 2.4.1?
 ===========================

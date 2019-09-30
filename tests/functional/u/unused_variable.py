@@ -58,3 +58,10 @@ def unused_import_from():
 def unused_import_in_function(value):
     from six import PY2, text_type # [unused-import]
     return value.encode("utf-8") if PY2 else value
+
+
+def hello(arg):
+    my_var = 'something' # [unused-variable]
+    if arg:
+        return True
+    raise Exception

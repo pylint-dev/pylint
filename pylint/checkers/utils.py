@@ -266,10 +266,14 @@ def is_super(node: astroid.node_classes.NodeNG) -> bool:
 
 def is_error(node: astroid.node_classes.NodeNG) -> bool:
     """return true if the function does nothing but raising an exception"""
-    for child_node in node.get_children():
+    raises = False
+    returns = False
+    for child_node in node.nodes_of_class((astroid.Raise, astroid.Return)):
         if isinstance(child_node, astroid.Raise):
-            return True
-    return False
+            raises = True
+        if isinstance(child_node, astroid.Return):
+            returns = True
+    return raises and not returns
 
 
 builtins = builtins.__dict__.copy()  # type: ignore
