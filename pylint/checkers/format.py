@@ -54,8 +54,9 @@ from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-from pylint.constants import OPTION_RGX, WarningScope
+from pylint.constants import WarningScope
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+from pylint.utils.pragma_parser import OPTION_PO 
 
 _ASYNC_TOKEN = "async"
 _CONTINUATION_BLOCK_OPENERS = [
@@ -1322,7 +1323,7 @@ class FormatChecker(BaseTokenChecker):
         check_l_length = True
 
         # Line length check may be deactivated through `pylint: disable` comment
-        mobj = OPTION_RGX.search(lines)
+        mobj = OPTION_PO.search(lines)
         if mobj:
             check_l_length = self.is_line_length_check_activated(mobj)
             # The 'pylint: disable whatever' should not be taken into account for line length count
