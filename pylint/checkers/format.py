@@ -55,7 +55,7 @@ from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.constants import WarningScope
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
-from pylint.utils.pragma_parser import OPTION_PO 
+from pylint.utils.pragma_parser import OPTION_PO, parse_pragma
 
 _ASYNC_TOKEN = "async"
 _CONTINUATION_BLOCK_OPENERS = [
@@ -1259,11 +1259,13 @@ class FormatChecker(BaseTokenChecker):
             self.add_message("line-too-long", line=i, args=(len(line), max_chars))
 
     @staticmethod
-    def remove_pylint_option_from_lines(lines: str) -> str:
+    def remove_pylint_option_from_lines(options_pattern_obj) -> str:
         """
         Remove the `# pylint ...` pattern from lines 
         """
-        purged_lines = lines.rsplit("#", 1)[0].rstrip() + os.linesep
+        lines = options_pattern_obj.string
+        purged_lines = (lines[:options_pattern_obj.start(1)].rstrip() + 
+                        lines[options_pattern_obj.end(1):])
         return purged_lines
 
     @staticmethod
@@ -1271,15 +1273,9 @@ class FormatChecker(BaseTokenChecker):
         """
         Return true if the line length check is activated
         """
-        if "=" in pylint_pattern_match_object.string:
-            front_of_equal, _, back_of_equal = pylint_pattern_match_object.group(
-                1
-            ).partition("=")
-            deactivated = (
-                front_of_equal.strip() == "disable"
-                and back_of_equal.find("line-too-long") != -1
-            )
-            return not deactivated
+        for pragma in parse_pragma(pylint_pattern_match_object.string):
+            if pragma.action == 'disable' and 'line-too-long' in pragma.messages:
+                return False
         return True
 
     @staticmethod
@@ -1324,7 +1320,7 @@ class FormatChecker(BaseTokenChecker):
         if mobj:
             check_l_length = self.is_line_length_check_activated(mobj)
             # The 'pylint: disable whatever' should not be taken into account for line length count
-            lines = self.remove_pylint_option_from_lines(lines)
+            lines = self.remove_pylint_option_from_lines(mobj)
 
         for line in self.specific_splitlines(lines):
             if check_l_length:
