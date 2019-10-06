@@ -11,12 +11,15 @@ import re
 # so that an option can be continued with the reasons
 # why it is active or disabled.
 OPTION_RGX = r"""
-    \s*                # Any number of whitespaces
+    \s*                # Any number of whithespace
+    \#?                # One or zero hash
+    .*                 # Anything (as much as possible)
+    (\s*               # Any number of whitespaces
     \#                 # Beginning of comment
-    .*                 # Anything
+    .*?                # Anything (as little as possible)
     \bpylint:          # pylint word and column
     \s*                # Any number of whitespaces
-    ([^;#]+)           # Anything except semicolon or hash
+    [^;#\n]+)          # Anything except semicolon or hash or newline
     [;#]{0,1}"""       # From 0 to 1 repetition of semicolon or hash
 OPTION_PO = re.compile(OPTION_RGX, re.VERBOSE)
 
