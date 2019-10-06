@@ -10,8 +10,6 @@
 """Unit tests for the raised exception documentation checking in the
 `DocstringChecker` in :mod:`pylint.extensions.check_docs`
 """
-from __future__ import absolute_import, division, print_function
-
 import astroid
 
 from pylint.extensions.docparams import DocstringParameterChecker

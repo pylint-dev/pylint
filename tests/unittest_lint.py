@@ -596,6 +596,28 @@ def test_full_documentation(linter):
         assert re.search(regexp, output)
 
 
+def test_list_msgs_enabled(init_linter, capsys):
+    linter = init_linter
+    linter.enable("W0101", scope="package")
+    linter.disable("W0102", scope="package")
+    linter.list_messages_enabled()
+
+    lines = capsys.readouterr().out.splitlines()
+
+    assert "Enabled messages:" in lines
+    assert "  unreachable (W0101)" in lines
+
+    assert "Disabled messages:" in lines
+    disabled_ix = lines.index("Disabled messages:")
+
+    # W0101 should be in the enabled section
+    assert lines.index("  unreachable (W0101)") < disabled_ix
+
+    assert "  dangerous-default-value (W0102)" in lines
+    # W0102 should be in the disabled section
+    assert lines.index("  dangerous-default-value (W0102)") > disabled_ix
+
+
 @pytest.fixture
 def pop_pylintrc():
     os.environ.pop("PYLINTRC", None)
@@ -776,7 +798,7 @@ def test_by_module_statement_value(init_linter):
     linter = init_linter
     linter.check(os.path.join(os.path.dirname(__file__), "data"))
 
-    for module, module_stats in linter.stats['by_module'].items():
+    for module, module_stats in linter.stats["by_module"].items():
 
         linter2 = init_linter
         if module == "data":
@@ -786,4 +808,4 @@ def test_by_module_statement_value(init_linter):
 
         # Check that the by_module "statement" is equal to the global "statement"
         # computed for that module
-        assert module_stats['statement'] == linter2.stats['statement']
+        assert module_stats["statement"] == linter2.stats["statement"]

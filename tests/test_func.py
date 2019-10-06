@@ -21,7 +21,6 @@ import pytest
 
 from pylint.testutils import _get_tests_info, linter
 
-PY3K = sys.version_info >= (3, 0)
 SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]
 
 # Configure paths
@@ -33,8 +32,6 @@ UPDATE = False
 INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
 
 # Classes
-
-quote = "'" if sys.version_info >= (3, 3) else ""
 
 
 def exception_str(self, ex):  # pylint: disable=unused-argument

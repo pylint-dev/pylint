@@ -30,8 +30,6 @@ from astroid.node_classes import Const
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import IAstroidChecker
 
-PY35 = sys.version_info >= (3, 5)
-
 OPEN_FILES = {"open", "file"}
 UNITTEST_CASE = "unittest.case"
 THREADING_THREAD = "threading.Thread"
@@ -40,11 +38,7 @@ OS_ENVIRON = "os._Environ"
 ENV_GETTERS = {"os.getenv"}
 SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
-
-if sys.version_info >= (3, 0):
-    OPEN_MODULE = "_io"
-else:
-    OPEN_MODULE = "__builtin__"
+OPEN_MODULE = "_io"
 
 
 def _check_mode_str(mode):
@@ -289,7 +283,7 @@ class StdlibChecker(BaseChecker):
             for inferred in node.func.infer():
                 if inferred is astroid.Uninferable:
                     continue
-                elif inferred.root().name == OPEN_MODULE:
+                if inferred.root().name == OPEN_MODULE:
                     if getattr(node.func, "name", None) in OPEN_FILES:
                         self._check_open_mode(node)
                 elif inferred.root().name == UNITTEST_CASE:
@@ -305,7 +299,7 @@ class StdlibChecker(BaseChecker):
                         self._check_shallow_copy_environ(node)
                     elif name in ENV_GETTERS:
                         self._check_env_function(node, inferred)
-                    elif name == SUBPROCESS_RUN and PY35:
+                    elif name == SUBPROCESS_RUN:
                         self._check_for_check_kw_in_run(node)
                 self._check_deprecated_method(node, inferred)
         except astroid.InferenceError:

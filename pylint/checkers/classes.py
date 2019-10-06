@@ -29,10 +29,7 @@
 
 """classes checker for Python code
 """
-from __future__ import generators
-
 import collections
-import sys
 from itertools import chain, zip_longest
 
 import astroid
@@ -66,10 +63,7 @@ from pylint.checkers.utils import (
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import get_global_option
 
-if sys.version_info >= (3, 0):
-    NEXT_METHOD = "__next__"
-else:
-    NEXT_METHOD = "next"
+NEXT_METHOD = "__next__"
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
 
@@ -1141,9 +1135,14 @@ a metaclass class method.",
                     "invalid-slots-object", args=inferred.as_string(), node=elt
                 )
 
-            # Check if we have a conflict with a class variable
+            # Check if we have a conflict with a class variable.
             class_variable = node.locals.get(inferred.value)
             if class_variable:
+                # Skip annotated assignments which don't conflict at all with slots.
+                if len(class_variable) == 1:
+                    parent = class_variable[0].parent
+                    if isinstance(parent, astroid.AnnAssign) and parent.value is None:
+                        return
                 self.add_message(
                     "class-variable-slots-conflict", args=(inferred.value,), node=elt
                 )

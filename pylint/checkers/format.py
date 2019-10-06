@@ -45,7 +45,6 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 import keyword
 import os
-import sys
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
 from typing import List
@@ -84,8 +83,6 @@ _KEYWORD_TOKENS = [
     "yield",
     "with",
 ]
-if sys.version_info < (3, 0):
-    _KEYWORD_TOKENS.append("print")
 
 _SPACED_OPERATORS = [
     "==",

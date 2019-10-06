@@ -2,10 +2,83 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 2.4.2?
+===========================
+
+Release date: 2019-09-30
+
+
+* ``ignored-modules`` can skip submodules. Close #3135
+
+* ``self-assigning-variable`` skips class level assignments.
+
+   Close #2930
+
+* ``consider-using-sys-exit`` is exempted when `exit()` is imported from `sys`
+
+   Close #3145
+
+* Exempt annotated assignments without variable from ``class-variable-slots-conflict``
+
+  Close #3141
+
+* Fix ``utils.is_error`` to account for functions returning early.
+
+  This fixes a false negative with ``unused-variable`` which was no longer triggered
+  when a function raised an exception as the last instruction, but the body of the function
+  still had unused variables.
+
+  Close #3028
+
+
+What's New in Pylint 2.4.1?
+===========================
+
+Release date: 2019-09-25
+
+
+* Exempt type checking definitions defined in both clauses of a type checking guard
+
+  Close #3127
+
+
+* Exempt type checking definitions inside the type check guard
+
+  In a7f236528bb3758886b97285a56f3f9ce5b13a99 we added basic support
+  for emitting `used-before-assignment` if a variable was only defined
+  inside a type checking guard (using `TYPE_CHECKING` variable from `typing`)
+  Unfortunately that missed the case of using those type checking imports
+  inside the guard itself, which triggered spurious used-before-assignment errors.
+
+  Close #3119
+
+* Require astroid >= 2.3 to avoid any compatibility issues.
+
+
 What's New in Pylint 2.4.0?
 ===========================
 
-Release date: TBA
+Release date: 2019-09-24
+
+* New check: ``import-outside-toplevel``
+
+  This check warns when modules are imported from places other than a
+  module toplevel, e.g. inside a function or a class.
+
+* Handle inference ambiguity for ``invalid-format-index``
+
+  Close #2752
+
+* Removed Python 2 specific checks such as ``relative-import``,
+  ``invalid-encoded-data``, ``missing-super-argument``.
+
+* Support forward references for ``function-redefined`` check.
+
+  Close #2540
+
+* Handle redefinitions in case of type checking imports.
+
+  Close #2834
 
 * Don't emit ``line-too-long`` for multilines when a
   `pylint:disable=line-too-long` comment stands at their end
@@ -14,7 +87,7 @@ Release date: TBA
 
 * Added a new check, ``consider-using-sys-exit``
 
-  This check is emitted when we detect that a quit() or exit() is invoked 
+  This check is emitted when we detect that a quit() or exit() is invoked
   instead of sys.exit(), which is the preferred way of exiting in program.
 
   Close #2925
@@ -24,6 +97,13 @@ Release date: TBA
   of the check.
 
   Close #3064
+
+* Added new checks, ``no-else-break`` and ``no-else-continue``
+
+  These checks highlight unnecessary ``else`` and ``elif`` blocks after
+  ``break`` and ``continue`` statements.
+
+  Close #2327
 
 * Don't emit ``protected-access`` when a single underscore prefixed attribute
   is used inside a special method
@@ -252,11 +332,16 @@ Release date: TBA
 * Allow a `.` as a prefix for Sphinx name resolution.
 
 * Checkers must now keep a 1 to 1 relationship between "msgid" (ie: C1234) and "symbol" (ie : human-readable-symbol)
-* In checkers, an old_names can now be used for multiple new messages
+* In checkers, an old_names can now be used for multiple new messages and pylint is now a little faster
 
 Caused by #1164. It means if you do a partial old_names for a message definition an exception will tell you that you
 must rename the associated identification.
 
+* Allow the choice of f-strings as a valid way of formatting logging strings.
+
+Closes #2395
+
+* Added ``--list-msgs-enabled`` command to list all enabled and disabled messages given the current RC file and command line arguments.
 
 What's New in Pylint 2.3.0?
 ===========================
@@ -1073,6 +1158,13 @@ Release date: 2018-07-15
       with ellipses in them
 
       Close 1992
+
+    * Broke down "missing-docstrings" between "module", "class" and "function"
+
+      For this to work we had to make multiple messages with the same old name
+      possible.
+
+      Closes #1164
 
 What's New in Pylint 1.9?
 =========================

@@ -26,7 +26,7 @@ severity of the warnings and errors.
 .. _pychecker: http://pychecker.sf.net
 .. _pyflakes: https://github.com/pyflakes/pyflakes
 .. _flake8: https://gitlab.com/pycqa/flake8/
-.. _mypy: https://github.com/JukkaL/mypy
+.. _mypy: https://github.com/python/mypy
 .. _`PEP 8`: https://www.python.org/dev/peps/pep-0008/
 .. _`Guido's style guide`: https://www.python.org/doc/essays/styleguide/
 .. _`refactoring book`: https://www.refactoring.com/

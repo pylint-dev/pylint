@@ -40,24 +40,12 @@ MSGS = {
         "http://www.python.org/dev/peps/pep-0282/.",
     ),
     "W1202": (
-        "Use % formatting in logging functions and pass the % "
-        "parameters as arguments",
+        "Use %s formatting in logging functions%s",
         "logging-format-interpolation",
         "Used when a logging statement has a call form of "
-        '"logging.<logging method>(format_string.format(format_args...))"'
-        ". Such calls should use % formatting instead, but leave "
-        "interpolation to the logging function by passing the parameters "
-        "as arguments.",
-    ),
-    "W1203": (
-        "Use % formatting in logging functions and pass the % "
-        "parameters as arguments",
-        "logging-fstring-interpolation",
-        "Used when a logging statement has a call form of "
-        '"logging.method(f"..."))"'
-        ". Such calls should use % formatting instead, but leave "
-        "interpolation to the logging function by passing the parameters "
-        "as arguments.",
+        '"logging.<logging method>(<string formatting>)".'
+        " with invalid string formatting. "
+        "Use another way for format the string instead.",
     ),
     "E1200": (
         "Unsupported logging format character %r (%#02x) at index %d",
@@ -139,10 +127,11 @@ class LoggingChecker(checkers.BaseChecker):
             {
                 "default": "old",
                 "type": "choice",
-                "metavar": "<old (%) or new ({)>",
-                "choices": ["old", "new"],
+                "metavar": "<old (%) or new ({) or fstr (f'')>",
+                "choices": ["old", "new", "fstr"],
                 "help": "Format style used to check logging format string. "
-                "`old` means using % formatting, while `new` is for `{}` formatting.",
+                "`old` means using % formatting, `new` is for `{}` formatting,"
+                "and `fstr` is for f-strings.",
             },
         ),
     )
@@ -156,6 +145,13 @@ class LoggingChecker(checkers.BaseChecker):
         logging_mods = self.config.logging_modules
 
         self._format_style = self.config.logging_format_style
+        format_styles = {"old": "%", "new": "{", "fstr": "f-string"}
+        format_style_help = ""
+        if self._format_style == "old":
+            format_style_help = " and pass the % parameters as arguments"
+
+        self._format_style_args = (format_styles[self._format_style], format_style_help)
+
         self._logging_modules = set(logging_mods)
         self._from_imports = {}
         for logging_mod in logging_mods:
@@ -251,7 +247,12 @@ class LoggingChecker(checkers.BaseChecker):
         elif isinstance(
             node.args[format_pos], (astroid.FormattedValue, astroid.JoinedStr)
         ):
-            self.add_message("logging-fstring-interpolation", node=node)
+            if self._format_style != "fstr":
+                self.add_message(
+                    "logging-format-interpolation",
+                    node=node,
+                    args=self._format_style_args,
+                )
 
     @staticmethod
     def _is_operand_literal_str(operand):
@@ -273,7 +274,9 @@ class LoggingChecker(checkers.BaseChecker):
         if is_method_call(func, types, methods) and not is_complex_format_str(
             func.bound
         ):
-            self.add_message("logging-format-interpolation", node=node)
+            self.add_message(
+                "logging-format-interpolation", node=node, args=self._format_style_args
+            )
 
     def _check_format_string(self, node, format_arg):
         """Checks that format string tokens match the supplied arguments.
@@ -312,6 +315,12 @@ class LoggingChecker(checkers.BaseChecker):
                     )
                     required_num_args = (
                         keyword_args_cnt + implicit_pos_args + explicit_pos_args
+                    )
+                else:
+                    self.add_message(
+                        "logging-format-interpolation",
+                        node=node,
+                        args=self._format_style_args,
                     )
             except utils.UnsupportedFormatCharacter as ex:
                 char = format_string[ex.index]

@@ -58,8 +58,6 @@
 
   Display help messages about given message identifiers and exit.
 """
-from __future__ import print_function
-
 import collections
 import contextlib
 import operator
@@ -304,7 +302,7 @@ if multiprocessing is not None:
             )
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
     config.OptionsManagerMixIn,
     MessagesHandlerMixIn,
@@ -821,6 +819,25 @@ class PyLinter(
             value = config_parser.get("MESSAGES CONTROL", "disable")
             self.global_set_option("disable", value)
         self._python3_porting_mode = True
+
+    def list_messages_enabled(self):
+        enabled = [
+            "  %s (%s)" % (message.symbol, message.msgid)
+            for message in self.msgs_store.messages
+            if self.is_message_enabled(message.msgid)
+        ]
+        disabled = [
+            "  %s (%s)" % (message.symbol, message.msgid)
+            for message in self.msgs_store.messages
+            if not self.is_message_enabled(message.msgid)
+        ]
+        print("Enabled messages:")
+        for msg in sorted(enabled):
+            print(msg)
+        print("\nDisabled messages:")
+        for msg in sorted(disabled):
+            print(msg)
+        print("")
 
     # block level option handling #############################################
     #
@@ -1425,9 +1442,7 @@ def fix_import_path(args):
     changes = []
     for arg in args:
         path = _get_python_path(arg)
-        if path in changes:
-            continue
-        else:
+        if path not in changes:
             changes.append(path)
     sys.path[:] = changes + ["."] + sys.path
     try:
@@ -1515,6 +1530,18 @@ group are mutually exclusive.",
                         "group": "Commands",
                         "level": 1,
                         "help": "Generate pylint's messages.",
+                    },
+                ),
+                (
+                    "list-msgs-enabled",
+                    {
+                        "action": "callback",
+                        "metavar": "<msg-id>",
+                        "callback": self.cb_list_messages_enabled,
+                        "group": "Commands",
+                        "level": 1,
+                        "help": "Display a list of what messages are enabled "
+                        "and disabled with the given configuration.",
                     },
                 ),
                 (
@@ -1752,6 +1779,11 @@ group are mutually exclusive.",
     def cb_list_messages(self, option, optname, value, parser):
         """optik callback for printing available messages"""
         self.linter.msgs_store.list_messages()
+        sys.exit(0)
+
+    def cb_list_messages_enabled(self, option, optname, value, parser):
+        """optik callback for printing available messages"""
+        self.linter.list_messages_enabled()
         sys.exit(0)
 
     def cb_list_groups(self, *args, **kwargs):

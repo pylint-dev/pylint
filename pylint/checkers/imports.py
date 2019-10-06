@@ -224,12 +224,6 @@ MSGS = {
         "deprecated-module",
         "Used a module marked as deprecated is imported.",
     ),
-    "W0403": (
-        "Relative import %r, should be %r",
-        "relative-import",
-        "Used when an import relative to the package directory is detected.",
-        {"maxversion": (3, 0)},
-    ),
     "W0404": (
         "Reimport %r (imported line %s)",
         "reimported",
@@ -278,6 +272,12 @@ MSGS = {
         "Used when an import alias is same as original package."
         "e.g using import numpy as numpy instead of import numpy as np",
     ),
+    "C0415": (
+        "Import outside toplevel (%s)",
+        "import-outside-toplevel",
+        "Used when an import statement is used anywhere other than the module "
+        "toplevel. Move this import to the top of the file.",
+    ),
 }
 
 
@@ -300,11 +300,7 @@ class ImportsChecker(BaseChecker):
     name = "imports"
     msgs = MSGS
     priority = -2
-
-    if sys.version_info < (3, 5):
-        deprecated_modules = ("optparse",)
-    else:
-        deprecated_modules = ("optparse", "tkinter.tix")
+    deprecated_modules = ("optparse", "tkinter.tix")
 
     options = (
         (
@@ -379,6 +375,18 @@ class ImportsChecker(BaseChecker):
             },
         ),
         (
+            "allow-any-import-level",
+            {
+                "default": (),
+                "type": "csv",
+                "metavar": "<modules>",
+                "help": (
+                    "List of modules that can be imported at any level, not just "
+                    "the top level one."
+                ),
+            },
+        ),
+        (
             "analyse-fallback-blocks",
             {
                 "default": False,
@@ -409,6 +417,7 @@ class ImportsChecker(BaseChecker):
         self._imports_stack = []
         self._first_non_import_node = None
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
+        self._allow_any_import_level = set()
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
@@ -456,6 +465,7 @@ class ImportsChecker(BaseChecker):
             for module in self.config.preferred_modules
             if ":" in module
         )
+        self._allow_any_import_level = set(self.config.allow_any_import_level)
 
     def _import_graph_without_ignored_edges(self):
         filtered_graph = copy.deepcopy(self.import_graph)
@@ -476,8 +486,8 @@ class ImportsChecker(BaseChecker):
         """triggered when an import statement is seen"""
         self._check_reimport(node)
         self._check_import_as_rename(node)
+        self._check_toplevel(node)
 
-        modnode = node.root()
         names = [name for name, _ in node.names]
         if len(names) >= 2:
             self.add_message("multiple-imports", args=", ".join(names), node=node)
@@ -495,7 +505,6 @@ class ImportsChecker(BaseChecker):
             if imported_module is None:
                 continue
 
-            self._check_relative_import(modnode, node, imported_module, name)
             self._add_imported_module(node, imported_module.name)
 
     @check_messages(*MSGS)
@@ -519,9 +528,6 @@ class ImportsChecker(BaseChecker):
             self._record_import(node, imported_module)
         if imported_module is None:
             return
-        modnode = node.root()
-        self._check_relative_import(modnode, node, imported_module, basename)
-
         for name, _ in node.names:
             if name != "*":
                 self._add_imported_module(node, "%s.%s" % (imported_module.name, name))
@@ -790,30 +796,6 @@ class ImportsChecker(BaseChecker):
             dotted_modname = _get_import_name(importnode, modname)
             self.add_message("import-error", args=repr(dotted_modname), node=importnode)
 
-    def _check_relative_import(
-        self, modnode, importnode, importedmodnode, importedasname
-    ):
-        """check relative import. node is either an Import or From node, modname
-        the imported module name.
-        """
-        if not self.linter.is_message_enabled("relative-import"):
-            return None
-        if importedmodnode.file is None:
-            return False  # built-in module
-        if modnode is importedmodnode:
-            return False  # module importing itself
-        if modnode.absolute_import_activated() or getattr(importnode, "level", None):
-            return False
-        if importedmodnode.name != importedasname:
-            # this must be a relative import...
-            self.add_message(
-                "relative-import",
-                args=(importedasname, importedmodnode.name),
-                node=importnode,
-            )
-            return None
-        return None
-
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""
         module_file = node.root().file
@@ -968,6 +950,29 @@ class ImportsChecker(BaseChecker):
             and imported_module is not None
             and "__all__" in imported_module.locals
         )
+
+    def _check_toplevel(self, node):
+        """Check whether the import is made outside the module toplevel.
+        """
+        # If the scope of the import is a module, then obviously it is
+        # not outside the module toplevel.
+        if isinstance(node.scope(), astroid.Module):
+            return
+
+        if isinstance(node, astroid.ImportFrom):
+            module_names = [node.modname]
+        else:
+            module_names = [name[0] for name in node.names]
+
+        # Get the full names of all the imports that are not whitelisted.
+        scoped_imports = [
+            name for name in module_names if name not in self._allow_any_import_level
+        ]
+
+        if scoped_imports:
+            self.add_message(
+                "import-outside-toplevel", args=", ".join(scoped_imports), node=node
+            )
 
 
 def register(linter):

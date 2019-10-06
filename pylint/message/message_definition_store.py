@@ -3,8 +3,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-from __future__ import print_function
-
 import collections
 
 from pylint.exceptions import UnknownMessageError
@@ -23,10 +21,6 @@ class MessageDefinitionStore:
         # It contains the 1:1 mapping from msgid to MessageDefinition.
         # Keys are msgid, values are MessageDefinition
         self._messages_definitions = {}
-        # Secondary registry for all old names kept for compatibility reasons
-        # May contain identical values under different MessageId
-        # (ie a MessageDefinition was renamed more than once)
-        self._old_message_definitions = {}
         # MessageDefinition kept by category
         self._msgs_by_category = collections.defaultdict(list)
 
@@ -51,9 +45,6 @@ class MessageDefinitionStore:
         """
         self.message_id_store.register_message_definition(message)
         self._messages_definitions[message.msgid] = message
-        self._old_message_definitions[message.msgid] = message
-        for old_msgid, _ in message.old_names:
-            self._old_message_definitions[old_msgid] = message
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
 
     def get_message_definitions(self, msgid_or_symbol: str) -> list:
@@ -63,14 +54,10 @@ class MessageDefinitionStore:
         :rtype: List of MessageDefinition
         :return: A message definition corresponding to msgid_or_symbol
         """
-        message_definitions = []
-        message_ids = self.message_id_store.get_active_msgids(msgid_or_symbol)
-        for message_id in message_ids:
-            message_definition = self._messages_definitions.get(message_id)
-            if message_definition is None:
-                message_definition = self._old_message_definitions.get(message_id)
-            message_definitions.append(message_definition)
-        return message_definitions
+        return [
+            self._messages_definitions[m]
+            for m in self.message_id_store.get_active_msgids(msgid_or_symbol)
+        ]
 
     def get_msg_display_string(self, msgid_or_symbol: str):
         """Generates a user-consumable representation of a message. """

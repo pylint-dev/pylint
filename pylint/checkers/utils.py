@@ -34,7 +34,6 @@ import itertools
 import numbers
 import re
 import string
-import sys
 from functools import lru_cache, partial
 from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, Union
 
@@ -52,12 +51,7 @@ COMP_NODE_TYPES = (
     astroid.DictComp,
     astroid.GeneratorExp,
 )
-PY3K = sys.version_info[0] == 3
-
-if not PY3K:
-    EXCEPTIONS_MODULE = "exceptions"
-else:
-    EXCEPTIONS_MODULE = "builtins"
+EXCEPTIONS_MODULE = "builtins"
 ABC_METHODS = {
     "abc.abstractproperty",
     "abc.abstractmethod",
@@ -272,10 +266,14 @@ def is_super(node: astroid.node_classes.NodeNG) -> bool:
 
 def is_error(node: astroid.node_classes.NodeNG) -> bool:
     """return true if the function does nothing but raising an exception"""
-    for child_node in node.get_children():
+    raises = False
+    returns = False
+    for child_node in node.nodes_of_class((astroid.Raise, astroid.Return)):
         if isinstance(child_node, astroid.Raise):
-            return True
-    return False
+            raises = True
+        if isinstance(child_node, astroid.Return):
+            returns = True
+    return raises and not returns
 
 
 builtins = builtins.__dict__.copy()  # type: ignore
@@ -512,10 +510,7 @@ def parse_format_string(
             if char in "hlL":
                 i, char = next_char(i)
             # Parse the conversion type (mandatory).
-            if PY3K:
-                flags = "diouxXeEfFgGcrs%a"
-            else:
-                flags = "diouxXeEfFgGcrs%"
+            flags = "diouxXeEfFgGcrs%a"
             if char not in flags:
                 raise UnsupportedFormatCharacter(i)
             if key:
@@ -764,9 +759,13 @@ def decorated_with(func: astroid.FunctionDef, qnames: Iterable[str]) -> bool:
     """Determine if the `func` node has a decorator with the qualified name `qname`."""
     decorators = func.decorators.nodes if func.decorators else []
     for decorator_node in decorators:
+        if isinstance(decorator_node, astroid.Call):
+            # We only want to infer the function name
+            decorator_node = decorator_node.func
         try:
             if any(
-                i is not None and i.qname() in qnames for i in decorator_node.infer()
+                i is not None and i.qname() in qnames or i.name in qnames
+                for i in decorator_node.infer()
             ):
                 return True
         except astroid.InferenceError:

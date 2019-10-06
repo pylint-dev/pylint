@@ -30,12 +30,8 @@ from pylint import checkers, interfaces, lint, reporters
 
 
 class test_dialect(csv.excel):
-    if sys.version_info[0] < 3:
-        delimiter = b":"
-        lineterminator = b"\n"
-    else:
-        delimiter = ":"
-        lineterminator = "\n"
+    delimiter = ":"
+    lineterminator = "\n"
 
 
 csv.register_dialect("test", test_dialect)
@@ -134,6 +130,9 @@ class FunctionalTestFile(object):
         }
         self._parse_options()
 
+    def __repr__(self):
+        return "FunctionalTest:{}".format(self.base)
+
     def _parse_options(self):
         cp = configparser.ConfigParser()
         cp.add_section("testoptions")
@@ -167,8 +166,7 @@ class FunctionalTestFile(object):
         name = os.path.join(self._directory, self.base + ext)
         if not check_exists or os.path.exists(name):
             return name
-        else:
-            raise NoFileError
+        raise NoFileError("Cannot find '{}'.".format(name))
 
 
 _OPERATORS = {">": operator.gt, "<": operator.lt, ">=": operator.ge, "<=": operator.le}
@@ -311,13 +309,16 @@ class LintModuleTest(object):
         received_msgs = collections.Counter()
         received_output_lines = []
         for msg in messages:
+            assert (
+                msg.symbol != "fatal"
+            ), "Pylint analysis failed because of '{}'".format(msg.msg)
             received_msgs[msg.line, msg.symbol] += 1
             received_output_lines.append(OutputLine.from_msg(msg))
         return received_msgs, received_output_lines
 
     def _runTest(self):
-        self._linter.check([self._test_file.module])
-
+        modules_to_check = [self._test_file.source]
+        self._linter.check(modules_to_check)
         expected_messages, expected_text = self._get_expected()
         received_messages, received_text = self._get_received()
 
@@ -347,7 +348,7 @@ class LintModuleTest(object):
     def _check_output_text(self, expected_messages, expected_lines, received_lines):
         assert (
             self._split_lines(expected_messages, expected_lines)[0] == received_lines
-        ), self._test_file.base
+        ), "Error with the following functional test: {}".format(self._test_file.base)
 
 
 class LintModuleOutputUpdate(LintModuleTest):
@@ -373,9 +374,12 @@ class LintModuleOutputUpdate(LintModuleTest):
 def get_tests():
     input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "functional")
     suite = []
-    for fname in os.listdir(input_dir):
-        if fname != "__init__.py" and fname.endswith(".py"):
-            suite.append(FunctionalTestFile(input_dir, fname))
+    for dirpath, dirnames, filenames in os.walk(input_dir):
+        if dirpath.endswith("__pycache__"):
+            continue
+        for filename in filenames:
+            if filename != "__init__.py" and filename.endswith(".py"):
+                suite.append(FunctionalTestFile(dirpath, filename))
     return suite
 
 

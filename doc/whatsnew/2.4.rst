@@ -3,7 +3,7 @@
 **************************
 
 :Release: 2.4
-:Date: TBA
+:Date: 2019-09-24
 
 
 Summary -- Release highlights
@@ -13,13 +13,18 @@ Summary -- Release highlights
 New checkers
 ============
 
+* ``import-outside-toplevel``
+
+  This check warns when modules are imported from places other than a
+  module toplevel, e.g. inside a function or a class.
+
 * Added a new check, ``consider-using-sys-exit``
 
-  This check is emitted when we detect that a quit() or exit() is invoked 
+  This check is emitted when we detect that a quit() or exit() is invoked
   instead of sys.exit(), which is the preferred way of exiting in program.
 
   Close #2925
-  
+
 * Added a new check, ``arguments-out-of-order``
 
   This check warns if you have arguments with names that match those in
@@ -27,6 +32,13 @@ New checkers
   in a different order.
 
   Close #2975
+
+* Added new checks, ``no-else-break`` and ``no-else-continue``
+
+  These checks highlight unnecessary ``else`` and ``elif`` blocks after
+  ``break`` and ``continue`` statements.
+
+  Close #2327
 
 * Added `unnecessary-comprehension` that detects unnecessary comprehensions.
 
@@ -207,3 +219,18 @@ would mean that `no-value-for-parameter` would not be raised for::
     @given(img=arrays(dtype=np.float32, shape=(3, 3, 3, 3)))
     def test_image(img):
         ...
+
+* Allow the option of f-strings as a valid logging string formatting method.
+
+`logging-fstring--interpolation` has been merged into
+`logging-format-interpolation` to allow the `logging-format-style` option
+to control which logging string format style is valid.
+To allow this, a new `fstr` value is valid for the `logging-format-style`
+option.
+
+* ``--list-msgs-enabled`` command was added.
+
+When enabling/disabling several messages and groups in a config file,
+it can be unclear which messages are actually enabled and which are disabled.
+This new command produces the final resolved lists of enabled/disabled messages,
+sorted by symbol but with the ID provided for use with ``--help-msg``.

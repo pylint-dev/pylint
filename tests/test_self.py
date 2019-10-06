@@ -146,7 +146,7 @@ class TestRunTC(object):
             JSONReporter(StringIO()),
         ]
         self._runtest(
-            [join(HERE, "functional/arguments.py")],
+            [join(HERE, "functional", "a", "arguments.py")],
             reporter=MultiReporter(reporters),
             code=2,
         )
@@ -220,13 +220,10 @@ class TestRunTC(object):
         # This test reproduces bug #48066 ; it happens when stdout is redirected
         # through '>' : the sys.stdout.encoding becomes then None, and if the
         # output contains non ascii, pylint will crash
-        if sys.version_info < (3, 0):
-            strio = tempfile.TemporaryFile()
-        else:
-            strio = StringIO()
+        strio = StringIO()
         assert strio.encoding is None
         self._runtest(
-            [join(HERE, "regrtest_data/no_stdout_encoding.py"), "--enable=all"],
+            [join(HERE, "regrtest_data", "no_stdout_encoding.py"), "--enable=all"],
             out=strio,
             code=28,
         )
@@ -235,8 +232,8 @@ class TestRunTC(object):
         self._runtest(
             [
                 "-j 2",
-                join(HERE, "functional/arguments.py"),
-                join(HERE, "functional/arguments.py"),
+                join(HERE, "functional", "a", "arguments.py"),
+                join(HERE, "functional", "a", "arguments.py"),
             ],
             code=2,
         )
@@ -248,89 +245,15 @@ class TestRunTC(object):
         # Test that --py3k flag works.
         rc_code = 0
         self._runtest(
-            [join(HERE, "functional", "unpacked_exceptions.py"), "--py3k"], code=rc_code
+            [join(HERE, "functional", "u", "unpacked_exceptions.py"), "--py3k"],
+            code=rc_code,
         )
 
     def test_py3k_jobs_option(self):
         rc_code = 0
         self._runtest(
-            [join(HERE, "functional", "unpacked_exceptions.py"), "--py3k", "-j 2"],
+            [join(HERE, "functional", "u", "unpacked_exceptions.py"), "--py3k", "-j 2"],
             code=rc_code,
-        )
-
-    @pytest.mark.skipif(sys.version_info[0] > 2, reason="Requires the --py3k flag.")
-    def test_py3k_commutative_with_errors_only(self):
-
-        # Test what gets emitted with -E only
-        module = join(HERE, "regrtest_data", "py3k_error_flag.py")
-        expected = textwrap.dedent(
-            """
-        ************* Module py3k_error_flag
-        Explicit return in __init__
-        """
-        )
-        self._test_output(
-            [module, "-E", "--msg-template='{msg}'"], expected_output=expected
-        )
-
-        # Test what gets emitted with -E --py3k
-        expected = textwrap.dedent(
-            """
-        ************* Module py3k_error_flag
-        Use raise ErrorClass(args) instead of raise ErrorClass, args.
-        """
-        )
-        self._test_output(
-            [module, "-E", "--py3k", "--msg-template='{msg}'"], expected_output=expected
-        )
-
-        # Test what gets emitted with --py3k -E
-        self._test_output(
-            [module, "--py3k", "-E", "--msg-template='{msg}'"], expected_output=expected
-        )
-
-    @pytest.mark.skipif(sys.version_info[0] > 2, reason="Requires the --py3k flag.")
-    def test_py3k_commutative_with_config_disable(self):
-        module = join(HERE, "regrtest_data", "py3k_errors_and_warnings.py")
-        rcfile = join(HERE, "regrtest_data", "py3k-disabled.rc")
-        cmd = [module, "--msg-template='{msg}'", "--reports=n"]
-
-        expected = textwrap.dedent(
-            """
-        ************* Module py3k_errors_and_warnings
-        import missing `from __future__ import absolute_import`
-        Use raise ErrorClass(args) instead of raise ErrorClass, args.
-        Calling a dict.iter*() method
-        print statement used
-        """
-        )
-        self._test_output(cmd + ["--py3k"], expected_output=expected)
-
-        expected = textwrap.dedent(
-            """
-        ************* Module py3k_errors_and_warnings
-        Use raise ErrorClass(args) instead of raise ErrorClass, args.
-        Calling a dict.iter*() method
-        print statement used
-        """
-        )
-        self._test_output(
-            cmd + ["--py3k", "--rcfile", rcfile], expected_output=expected
-        )
-
-        expected = textwrap.dedent(
-            """
-        ************* Module py3k_errors_and_warnings
-        Use raise ErrorClass(args) instead of raise ErrorClass, args.
-        print statement used
-        """
-        )
-        self._test_output(
-            cmd + ["--py3k", "-E", "--rcfile", rcfile], expected_output=expected
-        )
-
-        self._test_output(
-            cmd + ["-E", "--py3k", "--rcfile", rcfile], expected_output=expected
         )
 
     def test_abbreviations_are_not_supported(self):
@@ -343,8 +266,8 @@ class TestRunTC(object):
             """
         ************* Module data.clientmodule_test
         {0}:10:8: W0612: Unused variable 'local_variable' (unused-variable)
-        {0}:18:4: C0111: Missing method docstring (missing-docstring)
-        {0}:22:0: C0111: Missing class docstring (missing-docstring)
+        {0}:18:4: C0116: Missing function or method docstring (missing-function-docstring)
+        {0}:22:0: C0115: Missing class docstring (missing-class-docstring)
         """.format(
                 module
             )
@@ -541,8 +464,8 @@ class TestRunTC(object):
             """
         ************* Module test_pylintrc_comments
         {0}:2:0: W0311: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
-        {0}:1:0: C0111: Missing module docstring (missing-docstring)
-        {0}:1:0: C0111: Missing function docstring (missing-docstring)
+        {0}:1:0: C0114: Missing module docstring (missing-module-docstring)
+        {0}:1:0: C0116: Missing function or method docstring (missing-function-docstring)
         """.format(
                 path
             )

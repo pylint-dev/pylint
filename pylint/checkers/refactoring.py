@@ -35,6 +35,7 @@ from pylint import utils as lint_utils
 from pylint.checkers import utils
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
+BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
 
 
 def _if_statement_is_always_returning(if_node, returning_node_class):
@@ -278,6 +279,24 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "consider-using-sys-exit",
             "Instead of using exit() or quit(), consider using the sys.exit().",
         ),
+        "R1723": (
+            'Unnecessary "%s" after "break"',
+            "no-else-break",
+            "Used in order to highlight an unnecessary block of "
+            "code following an if containing a break statement. "
+            "As such, it will warn when it encounters an else "
+            "following a chain of ifs, all of them containing a "
+            "break statement.",
+        ),
+        "R1724": (
+            'Unnecessary "%s" after "continue"',
+            "no-else-continue",
+            "Used in order to highlight an unnecessary block of "
+            "code following an if containing a continue statement. "
+            "As such, it will warn when it encounters an else "
+            "following a chain of ifs, all of them containing a "
+            "continue statement.",
+        ),
     }
     options = (
         (
@@ -510,6 +529,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node, msg_id="no-else-raise", returning_node_class=astroid.Raise
         )
 
+    def _check_superfluous_else_break(self, node):
+        return self._check_superfluous_else(
+            node, msg_id="no-else-break", returning_node_class=astroid.Break
+        )
+
+    def _check_superfluous_else_continue(self, node):
+        return self._check_superfluous_else(
+            node, msg_id="no-else-continue", returning_node_class=astroid.Continue
+        )
+
     def _check_consider_get(self, node):
         def type_and_name_are_equal(node_a, node_b):
             for _type in [astroid.Name, astroid.AssignName]:
@@ -550,6 +579,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "simplifiable-if-statement",
         "no-else-return",
         "no-else-raise",
+        "no-else-break",
+        "no-else-continue",
         "consider-using-get",
     )
     def visit_if(self, node):
@@ -557,6 +588,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_nested_blocks(node)
         self._check_superfluous_else_return(node)
         self._check_superfluous_else_raise(node)
+        self._check_superfluous_else_break(node)
+        self._check_superfluous_else_continue(node)
         self._check_consider_get(node)
 
     @utils.check_messages("simplifiable-if-expression")
@@ -654,7 +687,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_quit_exit_call(node)
 
     def _check_quit_exit_call(self, node):
-        if isinstance(node.func, astroid.Name) and node.func.name in ("quit", "exit"):
+        if isinstance(node.func, astroid.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
+            # If we have `exit` imported from `sys` in the scope, exempt this instance.
+            scope = node.root()
+            exit_func = scope.locals.get("exit")
+            if exit_func and isinstance(
+                exit_func[0], (astroid.ImportFrom, astroid.Import)
+            ):
+                return
             self.add_message("consider-using-sys-exit", node=node)
 
     def _check_raising_stopiteration_in_generator_next_call(self, node):
@@ -1007,15 +1047,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         elif isinstance(node.parent, (astroid.ListComp, astroid.SetComp)):
             expr = node.parent.elt
-            expr_list = (
-                expr.name
-                if isinstance(expr, astroid.Name)
-                else (
-                    [elt.name for elt in expr.elts if isinstance(elt, astroid.Name)]
-                    if isinstance(expr, astroid.Tuple)
-                    else []
-                )
-            )
+            if isinstance(expr, astroid.Name):
+                expr_list = expr.name
+            elif isinstance(expr, astroid.Tuple):
+                if any(not isinstance(elt, astroid.Name) for elt in expr.elts):
+                    return
+                expr_list = [elt.name for elt in expr.elts]
+            else:
+                expr_list = []
             target = node.parent.generators[0].target
             target_list = (
                 target.name
@@ -1228,12 +1267,17 @@ class RecommandationChecker(checkers.BaseChecker):
 
     @utils.check_messages("consider-iterating-dictionary")
     def visit_call(self, node):
+        if not isinstance(node.func, astroid.Attribute):
+            return
+        if node.func.attrname != "keys":
+            return
+        if not isinstance(node.parent, (astroid.For, astroid.Comprehension)):
+            return
+
         inferred = utils.safe_infer(node.func)
-        if not inferred:
-            return
-        if not isinstance(inferred, astroid.BoundMethod):
-            return
-        if not isinstance(inferred.bound, astroid.Dict) or inferred.name != "keys":
+        if not isinstance(inferred, astroid.BoundMethod) or not isinstance(
+            inferred.bound, astroid.Dict
+        ):
             return
 
         if isinstance(node.parent, (astroid.For, astroid.Comprehension)):

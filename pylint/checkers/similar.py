@@ -17,8 +17,6 @@
 """a similarities / code duplication command line tool and pylint checker
 """
 
-from __future__ import print_function
-
 import sys
 from collections import defaultdict
 from itertools import groupby

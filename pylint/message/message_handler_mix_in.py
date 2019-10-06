@@ -3,8 +3,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-from __future__ import print_function
-
 import sys
 
 from pylint.constants import (
@@ -107,8 +105,7 @@ class MessagesHandlerMixIn:
         if msgid.lower() in self._checkers:
             for checker in self._checkers[msgid.lower()]:
                 for _msgid in checker.msgs:
-                    if _msgid in self.msgs_store._old_message_definitions:
-                        self._set_msg_status(_msgid, enable, scope, line)
+                    self._set_msg_status(_msgid, enable, scope, line)
             return
 
         # msgid is report id?

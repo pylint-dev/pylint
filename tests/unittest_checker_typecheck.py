@@ -14,8 +14,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Unittest for the type checker."""
-import sys
-
 import astroid
 import pytest
 
@@ -77,7 +75,7 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
-    @set_config(ignored_classes=("xml.etree.",))
+    @set_config(ignored_modules=("xml.etree.",))
     def test_ignored_modules_invalid_pattern(self):
         node = astroid.extract_node(
             """
@@ -89,6 +87,18 @@ class TestTypeChecker(CheckerTestCase):
             "no-member", node=node, args=("Module", "xml.etree", "Lala", "")
         )
         with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    @set_config(ignored_modules=("xml",))
+    def test_ignored_modules_root_one_applies_as_well(self):
+        # Check that when a root module is completely ignored, submodules are skipped.
+        node = astroid.extract_node(
+            """
+        import xml
+        xml.etree.Lala
+        """
+        )
+        with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
     @set_config(ignored_modules=("xml.etree*",))
@@ -228,7 +238,6 @@ class TestTypeChecker(CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
 
-    @pytest.mark.skipif(sys.version_info[0] < 3, reason="Needs Python 3.")
     def test_invalid_metaclass_function_metaclasses(self):
         module = astroid.parse(
             """
@@ -250,7 +259,6 @@ class TestTypeChecker(CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
 
-    @pytest.mark.skipif(sys.version_info < (3, 5), reason="Needs Python 3.5.")
     def test_typing_namedtuple_not_callable_issue1295(self):
         module = astroid.parse(
             """
@@ -266,7 +274,6 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(call)
 
-    @pytest.mark.skipif(sys.version_info < (3, 5), reason="Needs Python 3.5.")
     def test_typing_namedtuple_unsubscriptable_object_issue1295(self):
         module = astroid.parse(
             """

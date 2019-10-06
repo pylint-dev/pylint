@@ -43,6 +43,7 @@ import re
 import shlex
 import sys
 import types
+from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
 
@@ -99,7 +100,7 @@ def _flatten_container(iterable):
             yield item
 
 
-def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
+def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
     """Check if the given owner should be ignored
 
     This will verify if the owner's module is in *ignored_modules*
@@ -114,20 +115,37 @@ def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
     ignored_modules = set(ignored_modules)
     module_name = owner.root().name
     module_qname = owner.root().qname()
-    if any(
-        module_name in ignored_modules
-        or module_qname in ignored_modules
-        or fnmatch.fnmatch(module_qname, ignore)
-        for ignore in ignored_modules
-    ):
-        return True
 
+    for ignore in ignored_modules:
+        # Try to match the module name / fully qualified name directly
+        if module_qname in ignored_modules or module_name in ignored_modules:
+            return True
+
+        # Try to see if the ignores pattern match against the module name.
+        if fnmatch.fnmatch(module_qname, ignore):
+            return True
+
+        # Otherwise we might have a root module name being ignored,
+        # and the qualified owner has more levels of depth.
+        parts = deque(module_name.split("."))
+        current_module = ""
+
+        while parts:
+            part = parts.popleft()
+            if not current_module:
+                current_module = part
+            else:
+                current_module += ".{}".format(part)
+            if current_module in ignored_modules:
+                return True
+
+    # Match against ignored classes.
     ignored_classes = set(ignored_classes)
     if hasattr(owner, "qname"):
         qname = owner.qname()
     else:
         qname = ""
-    return any(ignore in (name, qname) for ignore in ignored_classes)
+    return any(ignore in (attrname, qname) for ignore in ignored_classes)
 
 
 @singledispatch
@@ -974,28 +992,31 @@ accessed. Python regular expressions are accepted.",
         """
         if not isinstance(node.value, astroid.Call):
             return
+
         function_node = safe_infer(node.value.func)
-        # skip class, generator and incomplete function definition
         funcs = (astroid.FunctionDef, astroid.UnboundMethod, astroid.BoundMethod)
-        if not (
-            isinstance(function_node, funcs)
-            and function_node.root().fully_defined()
-            and not function_node.decorators
-        ):
+        if not isinstance(function_node, funcs):
             return
 
+        # Unwrap to get the actual function object
         if isinstance(function_node, astroid.BoundMethod) and isinstance(
             function_node._proxied, astroid.UnboundMethod
         ):
-            # Unwrap to get the actual function object
             function_node = function_node._proxied._proxied
 
+        # Make sure that it's a valid function that we can analyze.
+        # Ordered from less expensive to more expensive checks.
+        # pylint: disable=too-many-boolean-expressions
         if (
-            function_node.is_generator()
-            or function_node.is_abstract(pass_is_abstract=False)
+            not function_node.is_function
             or isinstance(function_node, astroid.AsyncFunctionDef)
+            or function_node.decorators
+            or function_node.is_generator()
+            or function_node.is_abstract(pass_is_abstract=False)
+            or not function_node.root().fully_defined()
         ):
             return
+
         returns = list(
             function_node.nodes_of_class(astroid.Return, skip_klass=astroid.FunctionDef)
         )
@@ -1187,7 +1208,6 @@ accessed. Python regular expressions are accepted.",
         num_positional_args += implicit_args + already_filled_positionals
 
         # Analyze the list of formal parameters.
-
         args = list(itertools.chain(called.args.posonlyargs or (), called.args.args))
         num_mandatory_parameters = len(args) - len(called.args.defaults)
         parameters = []

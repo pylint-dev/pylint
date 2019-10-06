@@ -234,3 +234,36 @@ class TestMessageDefinitionStore(object):
     def test_renamed_message_register(self, store):
         assert "msg-symbol" == store.get_message_definitions("W0001")[0].symbol
         assert "msg-symbol" == store.get_message_definitions("old-symbol")[0].symbol
+
+
+def test_multiple_child_of_old_name(store):
+    """ We can define multiple name with the same old name. """
+
+    class FamillyChecker(BaseChecker):
+        name = "famillychecker"
+        msgs = {
+            "W1235": (
+                "Child 1",
+                "child-one",
+                "Child one description.",
+                {"old_names": [("C1234", "mother")]},
+            ),
+            "W1236": (
+                "Child 2",
+                "child-two",
+                "Child two description",
+                {"old_names": [("C1234", "mother")]},
+            ),
+        }
+
+    store.register_messages_from_checker(FamillyChecker())
+    mother = store.get_message_definitions("C1234")
+    child = store.get_message_definitions("W1235")
+    other_child = store.get_message_definitions("W1236")
+    assert len(mother) == 2
+    assert len(child) == 1
+    assert len(other_child) == 1
+    child = child[0]
+    other_child = other_child[0]
+    assert child in mother
+    assert other_child in mother
