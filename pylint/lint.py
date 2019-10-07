@@ -620,7 +620,9 @@ class PyLinter(
         MessagesHandlerMixIn.__init__(self)
         reporters.ReportsHandlerMixIn.__init__(self)
         super(PyLinter, self).__init__(
-            usage=__doc__, version=full_version, config_file=pylintrc or config.PYLINTRC
+            usage=__doc__,
+            version=full_version,
+            config_file=pylintrc or next(config.find_default_config_files(), None),
         )
         checkers.BaseTokenChecker.__init__(self)
         # provided reports
