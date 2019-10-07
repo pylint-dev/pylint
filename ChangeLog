@@ -7,6 +7,10 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* Can read config from a setup.cfg or pyproject.toml file.
+
+  Close #617
+
 
 What's New in Pylint 2.4.3?
 ===========================
@@ -21,6 +25,7 @@ Release date: TBA
 * ``import-outside-toplevel`` is emitted for ``ImportFrom`` nodes as well.
 
   Close #3175
+
 
 What's New in Pylint 2.4.2?
 ===========================

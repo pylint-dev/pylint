@@ -29,7 +29,12 @@ version = ".".join(str(num) for num in numversion)
 if dev_version is not None:
     version += "-dev" + str(dev_version)
 
-install_requires = ["astroid>=2.3.0,<2.4", "isort>=4.2.5,<5", "mccabe>=0.6,<0.7"]
+install_requires = [
+    "astroid>=2.3.0,<2.4",
+    "isort>=4.2.5,<5",
+    "mccabe>=0.6,<0.7",
+    "toml>=0.7.1",
+]
 
 dependency_links = []  # type: ignore
 

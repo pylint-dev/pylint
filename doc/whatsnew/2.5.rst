@@ -1,0 +1,27 @@
+**************************
+ What's New in Pylint 2.5
+**************************
+
+:Release: 2.5
+:Date: TBC
+
+
+Summary -- Release highlights
+=============================
+
+
+New checkers
+============
+
+
+Other Changes
+=============
+
+* Configuration can be read from a setup.cfg or pyproject.toml file
+  in the current directory.
+  A setup.cfg must prepend pylintrc section names with ``pylint.``,
+  for example ``[pylint.MESSAGES CONTROL]``.
+  A pyproject.toml file must prepend section names with ``tool.pylint.``,
+  for example ``[tool.pylint.'MESSAGES CONTROL']``.
+  These files can also be passed in on the command line.
+
