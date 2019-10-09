@@ -12,6 +12,10 @@ Release date: TBA
   Close #3148
 
 
+* ``import-outside-toplevel`` is emitted for ``ImportFrom`` nodes as well.
+
+  Close #3175
+
 What's New in Pylint 2.4.2?
 ===========================
 

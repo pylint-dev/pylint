@@ -32,3 +32,7 @@ class C:
 def k(flag):
     if flag:
         import tabnanny  # [import-outside-toplevel]
+
+
+def j():
+    from collections import defaultdict # [import-outside-toplevel]

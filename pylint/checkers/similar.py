@@ -19,6 +19,7 @@
 
 import sys
 from collections import defaultdict
+from getopt import getopt
 from itertools import groupby
 
 import astroid
@@ -412,7 +413,6 @@ def Run(argv=None):
     """standalone command line access point"""
     if argv is None:
         argv = sys.argv[1:]
-    from getopt import getopt
 
     s_opts = "hdi"
     l_opts = (

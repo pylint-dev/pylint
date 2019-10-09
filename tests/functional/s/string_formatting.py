@@ -134,7 +134,7 @@ def issue338():
     trying to infer EmptyNodes (resulted after mocking the
     members of namedtuples).
     """
-    from collections import namedtuple
+    from collections import namedtuple # pylint: disable=import-outside-toplevel
 
     class Crash(namedtuple("C", "foo bar")):
         """ Looking for attributes in __str__ will crash,
