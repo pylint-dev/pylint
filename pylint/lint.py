@@ -73,7 +73,7 @@ from astroid import modutils
 from astroid.__pkginfo__ import version as astroid_version
 from astroid.builder import AstroidBuilder
 
-from pylint import checkers, config, exceptions, interfaces, reporters
+from pylint import __pkginfo__, checkers, config, exceptions, interfaces, reporters
 from pylint.__pkginfo__ import version
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES, OPTION_RGX
 from pylint.message import Message, MessageDefinitionStore, MessagesHandlerMixIn
@@ -1761,8 +1761,6 @@ group are mutually exclusive.",
 
     def cb_generate_manpage(self, *args, **kwargs):
         """optik callback for sample config file generation"""
-        from pylint import __pkginfo__
-
         self.linter.generate_manpage(__pkginfo__)
         sys.exit(0)
 

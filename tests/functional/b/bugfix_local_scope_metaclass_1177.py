@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,too-few-public-methods,import-error
-from UNINFERABLE import ImportedMetaclass
+from UNINFERABLE import ImportedMetaclass, ImportedMetaclass2
 
 
 class Meta(type):
@@ -48,8 +48,6 @@ def imported_and_nested_scope1():
 
 
 def imported_and_nested_scope2():
-    from UNINFERABLE import ImportedMetaclass2
-
     class ClassImp3(metaclass=ImportedMetaclass2):
         pass
 

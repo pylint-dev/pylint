@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 class Cls:
     def func(self, stuff: defaultdict):
         # This import makes the definition work.
+        # pylint: disable=import-outside-toplevel
         from collections import defaultdict
 
         obj = defaultdict()

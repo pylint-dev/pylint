@@ -17,5 +17,5 @@ def issue_957_bad2():
 
 
 def issue_957_uninferable():
-    from butchery import meat
+    from butchery import meat # pylint: disable=import-outside-toplevel
     print('%s%s%s' % ('eggs', *meat))
