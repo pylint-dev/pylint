@@ -342,3 +342,6 @@ contributors:
 * laike9m: contributor
 
 * Janne Rönkkö: contributor
+
+* Hugues Bruant: contributor
+
