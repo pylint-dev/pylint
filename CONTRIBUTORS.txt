@@ -333,3 +333,6 @@ contributors:
     - Added --list-msgs-enabled command
 
 * Rémi Cardona: contributor
+
+* Gabriel R. Sezefredo: contributor
+    - Fixed "exception-escape" false positive with generators

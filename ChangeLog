@@ -11,6 +11,10 @@ Release date: TBA
 
   Close #617
 
+* Fix exception-escape false positive with generators
+
+  Close #3128
+
 
 What's New in Pylint 2.4.3?
 ===========================
