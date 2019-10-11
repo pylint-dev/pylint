@@ -16,6 +16,12 @@ Release date: TBA
 
   Close #3175
 
+
+* Do not emit ``no-method-argument`` for functions using positional only args.
+
+  Close #3161
+
+
 What's New in Pylint 2.4.2?
 ===========================
 
