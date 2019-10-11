@@ -1460,7 +1460,12 @@ a metaclass class method.",
         # don't care about functions with unknown argument (builtins)
         if node.args.args is None:
             return
-        first_arg = node.args.args and node.argnames()[0]
+        if node.args.args:
+            first_arg = node.argnames()[0]
+        elif node.args.posonlyargs:
+            first_arg = node.args.posonlyargs[0].name
+        else:
+            first_arg = None
         self._first_attrs.append(first_arg)
         first = self._first_attrs[-1]
         # static method
@@ -1474,7 +1479,7 @@ a metaclass class method.",
                 return
             self._first_attrs[-1] = None
         # class / regular method with no args
-        elif not node.args.args:
+        elif not node.args.args and not node.args.posonlyargs:
             self.add_message("no-method-argument", node=node)
         # metaclass
         elif metaclass:
