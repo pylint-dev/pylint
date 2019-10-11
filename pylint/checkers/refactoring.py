@@ -686,13 +686,20 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_using_comprehension_constructor(node)
         self._check_quit_exit_call(node)
 
+    @staticmethod
+    def _has_exit_in_scope(scope):
+        exit_func = scope.locals.get("exit")
+        return bool(
+            exit_func and isinstance(exit_func[0], (astroid.ImportFrom, astroid.Import))
+        )
+
     def _check_quit_exit_call(self, node):
+
         if isinstance(node.func, astroid.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
-            # If we have `exit` imported from `sys` in the scope, exempt this instance.
-            scope = node.root()
-            exit_func = scope.locals.get("exit")
-            if exit_func and isinstance(
-                exit_func[0], (astroid.ImportFrom, astroid.Import)
+            # If we have `exit` imported from `sys` in the current or global scope, exempt this instance.
+            local_scope = node.scope()
+            if self._has_exit_in_scope(local_scope) or self._has_exit_in_scope(
+                node.root()
             ):
                 return
             self.add_message("consider-using-sys-exit", node=node)
