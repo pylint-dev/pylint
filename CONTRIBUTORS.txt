@@ -334,6 +334,8 @@ contributors:
 
 * Rémi Cardona: contributor
 
+* Daniel Draper: contributor
+
 * Gabriel R. Sezefredo: contributor
     - Fixed "exception-escape" false positive with generators
 

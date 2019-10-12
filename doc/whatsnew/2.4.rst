@@ -220,3 +220,10 @@ When enabling/disabling several messages and groups in a config file,
 it can be unclear which messages are actually enabled and which are disabled.
 This new command produces the final resolved lists of enabled/disabled messages,
 sorted by symbol but with the ID provided for use with ``--help-msg``.
+
+
+* Add new good-names-rgx and bad-names-rgx to enable white-/blacklisting of regular expressions
+
+To enable better handling of whitelisting/blacklisting names, we added two new config options: good-names-rgxs: a comma-
+separated list of regexes, that if a name matches will be exempt of naming-checking. bad-names-rgxs: a comma-
+separated list of regexes, that if a name matches will be always marked as a blacklisted name.
