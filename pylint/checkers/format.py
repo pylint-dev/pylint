@@ -1273,7 +1273,7 @@ class FormatChecker(BaseTokenChecker):
         """
         Return true if the line length check is activated
         """
-        for pragma in parse_pragma(pylint_pattern_match_object.string):
+        for pragma in parse_pragma(pylint_pattern_match_object.group(2)):
             if pragma.action == 'disable' and 'line-too-long' in pragma.messages:
                 return False
         return True
