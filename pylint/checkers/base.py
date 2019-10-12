@@ -42,7 +42,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import Pattern
+from typing import List, Pattern
 
 import astroid
 import astroid.bases
@@ -1915,7 +1915,7 @@ class NameChecker(_BasicChecker):
         self.stats["badname_" + node_type] += 1
 
     def _name_valid_due_to_whitelist(self, name: str) -> bool:
-        good_names_patterns: [Pattern[str]] = self.config.good_names_rgxs
+        good_names_patterns: List[Pattern[str]] = self.config.good_names_rgxs
         matches = [
             match
             for match in (pattern.search(name) for pattern in good_names_patterns)
@@ -1924,7 +1924,7 @@ class NameChecker(_BasicChecker):
         return len(matches) > 0 or name in self.config.good_names
 
     def _name_invalid_due_to_blacklist(self, node_type: str, name: str, node) -> bool:
-        bad_names_patterns: [Pattern[str]] = self.config.bad_names_rgxs
+        bad_names_patterns: List[Pattern[str]] = self.config.bad_names_rgxs
         matches = [
             match
             for match in (pattern.search(name) for pattern in bad_names_patterns)
