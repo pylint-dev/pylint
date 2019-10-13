@@ -42,7 +42,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import List, Pattern
+from typing import Pattern
 
 import astroid
 import astroid.bases
