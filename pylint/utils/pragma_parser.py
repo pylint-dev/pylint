@@ -65,6 +65,8 @@ def parse_pragma(pylint_pragma: str) -> List[PragmaRepresenter]:
                                     'missing right after the token', requiring_assignment[1])
         else:
             requiring_assignment = (False, requiring_assignment[1])
+
+        requiring_assignment = (False, value)
         if kind == 'KEYWORD':
             if action:
                 yield PragmaRepresenter(action, messages)
@@ -72,8 +74,6 @@ def parse_pragma(pylint_pragma: str) -> List[PragmaRepresenter]:
             messages = list()
             if value in ('disable-msg', 'enable-msg', 'disable', 'enable'):
                 requiring_assignment = (True, value)
-            else:
-                requiring_assignment = (False, value)
         elif kind in ('MESSAGE_STRING', 'MESSAGE_NUMBER'):
             messages.append(value)
     if action:
