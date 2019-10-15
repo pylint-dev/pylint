@@ -234,7 +234,6 @@ class StdlibChecker(BaseChecker):
             (3, 5, 0): {
                 "fractions.gcd",
                 "inspect.formatargspec",
-                "inspect.formatargvalues",
                 "inspect.getcallargs",
                 "platform.linux_distribution",
                 "platform.dist",
