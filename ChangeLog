@@ -11,6 +11,8 @@ Release date: TBA
 
   Close #617
 
+* ``inspect.getargvalues`` is no longer marked as deprecated.
+
 
 What's New in Pylint 2.4.3?
 ===========================
