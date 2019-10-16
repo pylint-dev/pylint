@@ -30,3 +30,5 @@ Other Changes
   A pyproject.toml file must prepend section names with ``tool.pylint.``,
   for example ``[tool.pylint.'MESSAGES CONTROL']``.
   These files can also be passed in on the command line.
+
+* Mutable ``collections.*`` are now flagged as dangerous defaults.

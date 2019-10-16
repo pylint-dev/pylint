@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-
+import collections
 
 HEHE = {}
 
@@ -76,4 +76,32 @@ def function15(value=INVALID_DICT): # [dangerous-default-value]
 
 def function16(value={1}): # [dangerous-default-value]
     """set literal as default value"""
+    return value
+
+def function17(value=collections.deque()):  # [dangerous-default-value]
+    """mutable, dangerous"""
+    return value
+
+def function18(value=collections.ChainMap()):  # [dangerous-default-value]
+    """mutable, dangerous"""
+    return value
+
+def function19(value=collections.Counter()):  # [dangerous-default-value]
+    """mutable, dangerous"""
+    return value
+
+def function20(value=collections.OrderedDict()):  # [dangerous-default-value]
+    """mutable, dangerous"""
+    return value
+
+def function21(value=collections.defaultdict()):  # [dangerous-default-value]
+    """mutable, dangerous"""
+    return value
+
+def function22(value=collections.UserDict()):  # [dangerous-default-value]
+    """mutable, dangerous"""
+    return value
+
+def function23(value=collections.UserList()):  # [dangerous-default-value]
+    """mutable, dangerous"""
     return value
