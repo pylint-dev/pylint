@@ -706,8 +706,6 @@ def decorated_with_property(node: astroid.FunctionDef) -> bool:
     if not node.decorators:
         return False
     for decorator in node.decorators.nodes:
-        if not isinstance(decorator, astroid.Name):
-            continue
         try:
             if _is_property_decorator(decorator):
                 return True
