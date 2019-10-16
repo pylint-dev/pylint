@@ -731,11 +731,6 @@ def is_property_setter(node: astroid.FunctionDef) -> bool:
     return _is_property_kind(node, "setter")
 
 
-def is_property_deleter(node: astroid.FunctionDef) -> bool:
-    """Check if the given node is a property deleter"""
-    return _is_property_kind(node, "deleter")
-
-
 def is_property_setter_or_deleter(node: astroid.FunctionDef) -> bool:
     """Check if the given node is either a property setter or a deleter"""
     return _is_property_kind(node, "setter", "deleter")

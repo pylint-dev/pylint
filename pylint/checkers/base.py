@@ -52,7 +52,7 @@ from astroid.arguments import CallSite
 import pylint.utils as lint_utils
 from pylint import checkers, exceptions, interfaces
 from pylint.checkers import utils
-from pylint.checkers.utils import is_property_deleter, is_property_setter
+from pylint.checkers.utils import is_property_setter_or_deleter
 from pylint.reporters.ureports import nodes as reporter_nodes
 
 
@@ -316,7 +316,7 @@ def _determine_function_name_type(node, config=None):
     if not node.is_method():
         return "function"
 
-    if is_property_setter(node) or is_property_deleter(node):
+    if is_property_setter_or_deleter(node):
         # If the function is decorated using the prop_method.{setter,getter}
         # form, treat it like an attribute as well.
         return "attr"
@@ -2013,7 +2013,7 @@ class DocStringChecker(_BasicChecker):
     def visit_functiondef(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             ftype = "method" if node.is_method() else "function"
-            if is_property_setter(node) or is_property_deleter(node):
+            if is_property_setter_or_deleter(node):
                 return
 
             if isinstance(node.parent.frame(), astroid.ClassDef):
