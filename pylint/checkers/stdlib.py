@@ -233,9 +233,7 @@ class StdlibChecker(BaseChecker):
             (3, 4, 4): {"asyncio.tasks.async"},
             (3, 5, 0): {
                 "fractions.gcd",
-                "inspect.getargvalues",
                 "inspect.formatargspec",
-                "inspect.formatargvalues",
                 "inspect.getcallargs",
                 "platform.linux_distribution",
                 "platform.dist",
