@@ -1265,16 +1265,11 @@ class Python3Checker(checkers.BaseChecker):
     def visit_excepthandler(self, node):
         """Visit an except handler block and check for exception unpacking."""
 
-        def _is_used_in_except_block(node):
-            scope = node.scope()
+        def _is_used_in_except_block(node, block):
             current = node
-            while (
-                current
-                and current != scope
-                and not isinstance(current, astroid.ExceptHandler)
-            ):
+            while current and current is not block:
                 current = current.parent
-            return isinstance(current, astroid.ExceptHandler) and current.type != node
+            return current is not None
 
         if isinstance(node.name, (astroid.Tuple, astroid.List)):
             self.add_message("unpacking-in-except", node=node)
@@ -1292,7 +1287,7 @@ class Python3Checker(checkers.BaseChecker):
             for scope_name in scope_names
             if scope_name.name == node.name.name
             and scope_name.lineno > node.lineno
-            and not _is_used_in_except_block(scope_name)
+            and not _is_used_in_except_block(scope_name, node)
         ]
         reassignments_for_same_name = {
             assign_name.lineno
