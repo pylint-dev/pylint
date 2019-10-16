@@ -13,6 +13,12 @@ Summary -- Release highlights
 New checkers
 ============
 
+* A new check ``f-string-without-interpolation`` was added.
+
+  This check is emitted whenever **pylint** detects the use of an
+  f-string without having any interpolated values in it, which means
+  that the f-string can be a normal string.
+
 
 Other Changes
 =============
@@ -24,4 +30,3 @@ Other Changes
   A pyproject.toml file must prepend section names with ``tool.pylint.``,
   for example ``[tool.pylint.'MESSAGES CONTROL']``.
   These files can also be passed in on the command line.
-

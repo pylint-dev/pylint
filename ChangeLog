@@ -18,6 +18,10 @@ Release date: TBA
 * ``inspect.getargvalues`` is no longer marked as deprecated.
 
 
+* A new check ``f-string-without-interpolation`` was added
+
+  Close #3190
+
 
 What's New in Pylint 2.4.3?
 ===========================
