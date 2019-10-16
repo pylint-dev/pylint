@@ -25,6 +25,10 @@ Release date: TBA
 
   Close #3147
 
+* `invalid-overridden-method` takes `abc.abstractproperty` in account
+
+  Close #3150
+
 
 What's New in Pylint 2.4.2?
 ===========================

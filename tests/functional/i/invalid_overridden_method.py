@@ -51,3 +51,10 @@ class PropertySetter(Property):
     @close.deleter
     def close(self):
         return None
+
+
+class AbstractProperty:
+
+    @abc.abstractproperty
+    def prop(self):
+        return
