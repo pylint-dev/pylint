@@ -1124,7 +1124,7 @@ accessed. Python regular expressions are accepted.",
         if calling_parg_names != called_param_names[: len(calling_parg_names)]:
             self.add_message("arguments-out-of-order", node=node, args=())
 
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches,too-many-locals
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node):
         """check that called functions/methods are inferred to callable objects,
