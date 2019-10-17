@@ -107,7 +107,7 @@ def _get_raise_target(node):
 
 
 def _split_multiple_exc_types(target: str) -> List[str]:
-    delimiters = r'(\s*,(?:\s*or\s)?\s*|\s+or\s+)'
+    delimiters = r"(\s*,(?:\s*or\s)?\s*|\s+or\s+)"
     return re.split(delimiters, target)
 
 
