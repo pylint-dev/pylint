@@ -110,7 +110,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
-        pass
 
     def test_find_google_attr_raises_substr_exc(self):
         raise_node = astroid.extract_node(
@@ -290,6 +289,43 @@ class TestDocstringCheckerRaise(CheckerTestCase):
             """
             raise RuntimeError('hi') #@
             raise NameError('hi')
+        '''
+        )
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+    def test_find_multiple_sphinx_raises(self):
+        raise_node = astroid.extract_node(
+            '''
+        def my_func(self):
+            """This is a docstring.
+
+            :raises RuntimeError: Always
+            :raises NameError, OSError, ValueError: Never
+            """
+            raise RuntimeError('hi')
+            raise NameError('hi') #@
+            raise OSError(2, 'abort!')
+            raise ValueError('foo')
+        '''
+        )
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+    def test_find_multiple_google_raises(self):
+        raise_node = astroid.extract_node(
+            '''
+        def my_func(self):
+            """This is a docstring.
+
+            Raises:
+                RuntimeError: Always
+                NameError, OSError, ValueError: Never
+            """
+            raise RuntimeError('hi')
+            raise NameError('hi') #@
+            raise OSError(2, 'abort!')
+            raise ValueError('foo')
         '''
         )
         with self.assertNoMessages():

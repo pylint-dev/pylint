@@ -26,6 +26,11 @@ Release date: TBA
 
   Close #3183
 
+* ``docparams`` extension supports multiple types in raises sections.
+  Multiple types can also be separated by commas in all valid sections.
+
+  Closes #2729
+
 
 What's New in Pylint 2.4.3?
 ===========================
