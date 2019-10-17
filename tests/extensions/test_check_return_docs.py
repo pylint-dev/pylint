@@ -76,21 +76,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         ):
             self.checker.visit_return(return_node)
 
-    def test_sphinx_returns_annotations(self):
-        node = astroid.extract_node(
-            '''
-        def my_func(self) -> bool:
-            """This is a docstring.
-
-            :returns: Always False
-            """
-            return False
-        '''
-        )
-        return_node = node.body[0]
-        with self.assertNoMessages():
-            self.checker.visit_return(return_node)
-
     def test_sphinx_missing_return_type_with_annotations(self):
         node = astroid.extract_node(
             '''
