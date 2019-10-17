@@ -29,6 +29,11 @@ Release date: TBA
 
   Close #3150
 
+* Fixed ``missing-yield-type-doc`` getting incorrectly raised when
+  a generator does not document a yield type but has a type annotation.
+
+  Closes #3185
+
 
 What's New in Pylint 2.4.2?
 ===========================
@@ -362,7 +367,7 @@ must rename the associated identification.
 
 * Allow the choice of f-strings as a valid way of formatting logging strings.
 
-Closes #2395
+  Closes #2395
 
 * Added ``--list-msgs-enabled`` command to list all enabled and disabled messages given the current RC file and command line arguments.
 
