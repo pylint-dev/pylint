@@ -445,3 +445,38 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         with self.assertAddsMessages(Message(msg_id="redundant-yields-doc", node=node)):
             self.checker.visit_functiondef(node)
+
+    def test_sphinx_missing_yield_type_with_annotations(self):
+        node = astroid.extract_node(
+            '''
+            import typing
+
+            def generator() -> typing.Iterator[int]:
+                """A simple function for checking type hints.
+
+                :returns: The number 0
+                """
+                yield 0
+            '''
+        )
+        yield_node = node.body[0]
+        with self.assertNoMessages():
+            self.checker.visit_yield(yield_node)
+
+    def test_google_missing_yield_type_with_annotations(self):
+        node = astroid.extract_node(
+            '''
+            import typing
+
+            def generator() -> typing.Iterator[int]:
+                """A simple function for checking type hints.
+
+                Yields:
+                    The number 0
+                """
+                yield 0
+            '''
+        )
+        yield_node = node.body[0]
+        with self.assertNoMessages():
+            self.checker.visit_yield(yield_node)
