@@ -753,7 +753,10 @@ def _is_property_decorator(decorator: astroid.Name) -> bool:
     return False
 
 
-def decorated_with(func: astroid.FunctionDef, qnames: Iterable[str]) -> bool:
+def decorated_with(
+    func: Union[astroid.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod],
+    qnames: Iterable[str],
+) -> bool:
     """Determine if the `func` node has a decorator with the qualified name `qname`."""
     decorators = func.decorators.nodes if func.decorators else []
     for decorator_node in decorators:
@@ -1237,9 +1240,8 @@ def is_overload_stub(node: astroid.node_classes.NodeNG) -> bool:
     :param node: Node to check.
     :returns: True if node is an overload function stub. False otherwise.
     """
-    return isinstance(node, astroid.FunctionDef) and decorated_with(
-        node, ["typing.overload"]
-    )
+    decorators = getattr(node, "decorators", None)
+    return bool(decorators and decorated_with(node, ["typing.overload", "overload"]))
 
 
 def is_protocol_class(cls: astroid.node_classes.NodeNG) -> bool:
