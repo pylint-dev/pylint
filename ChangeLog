@@ -5,7 +5,7 @@ Pylint's ChangeLog
 What's New in Pylint 2.5.0?
 ===========================
 
-Release date: 2019-10-18
+Release date: TBA
 
 * Can read config from a setup.cfg or pyproject.toml file.
 
@@ -36,6 +36,8 @@ Release date: 2019-10-18
 
 What's New in Pylint 2.4.3?
 ===========================
+
+Release date: 2019-10-18
 
   Pass the actual PyLinter object to sub processes to allow using custom
   PyLinter classes.
