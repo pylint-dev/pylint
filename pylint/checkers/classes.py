@@ -634,11 +634,15 @@ MSGS = {
 }
 
 
+def _scope_default():
+    return collections.defaultdict(list)
+
+
 class ScopeAccessMap:
     """Store the accessed variables per scope."""
 
     def __init__(self):
-        self._scopes = collections.defaultdict(lambda: collections.defaultdict(list))
+        self._scopes = collections.defaultdict(_scope_default)
 
     def set_accessed(self, node):
         """Set the given node as accessed."""

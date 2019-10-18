@@ -23,7 +23,7 @@ class MessageDefinition:
         maxversion=None,
         old_names=None,
     ):
-        self.checker = checker
+        self.checker_name = checker.name
         self.check_msgid(msgid)
         self.msgid = msgid
         self.symbol = symbol
@@ -63,7 +63,7 @@ class MessageDefinition:
         """return the help string for the given message id"""
         desc = self.description
         if checkerref:
-            desc += " This message belongs to the %s checker." % self.checker.name
+            desc += " This message belongs to the %s checker." % self.checker_name
         title = self.msg
         if self.minversion or self.maxversion:
             restr = []

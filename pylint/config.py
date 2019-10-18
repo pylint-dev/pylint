@@ -37,6 +37,7 @@ import collections
 import configparser
 import contextlib
 import copy
+import functools
 import io
 import optparse
 import os
@@ -719,10 +720,8 @@ class OptionsManagerMixIn:
             opt = "-".join(["long"] * helplevel) + "-help"
             if opt in self._all_options:
                 break  # already processed
-            # pylint: disable=unused-argument
-            def helpfunc(option, opt, val, p, level=helplevel):
-                print(self.help(level))
-                sys.exit(0)
+
+            helpfunc = functools.partial(self.helpfunc, level=helplevel)
 
             helpmsg = "%s verbose help." % " ".join(["more"] * helplevel)
             optdict = {"action": "callback", "callback": helpfunc, "help": helpmsg}
@@ -829,6 +828,10 @@ class OptionsManagerMixIn:
         self.cmdline_parser.formatter.output_level = level
         with _patch_optparse():
             return self.cmdline_parser.format_help()
+
+    def helpfunc(self, option, opt, val, p, level):  # pylint: disable=unused-argument
+        print(self.help(level))
+        sys.exit(0)
 
 
 class OptionsProviderMixIn:

@@ -743,26 +743,26 @@ class TestPreprocessOptions(object):
             )
 
 
+class _CustomPyLinter(PyLinter):
+    def should_analyze_file(self, modname, path, is_argument=False):
+        if os.path.basename(path) == "wrong.py":
+            return False
+
+        return super(_CustomPyLinter, self).should_analyze_file(
+            modname, path, is_argument=is_argument
+        )
+
+
 def test_custom_should_analyze_file():
     """Check that we can write custom should_analyze_file that work
     even for arguments.
     """
-
-    class CustomPyLinter(PyLinter):
-        def should_analyze_file(self, modname, path, is_argument=False):
-            if os.path.basename(path) == "wrong.py":
-                return False
-
-            return super(CustomPyLinter, self).should_analyze_file(
-                modname, path, is_argument=is_argument
-            )
-
     package_dir = os.path.join(HERE, "regrtest_data", "bad_package")
     wrong_file = os.path.join(package_dir, "wrong.py")
 
     for jobs in [1, 2]:
         reporter = testutils.TestReporter()
-        linter = CustomPyLinter()
+        linter = _CustomPyLinter()
         linter.config.jobs = jobs
         linter.config.persistent = 0
         linter.open()
