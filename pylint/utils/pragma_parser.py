@@ -32,10 +32,15 @@ TOKEN_SPECIFICATION = [
     ('KEYWORD', r"\b(disable-all|skip-file|disable-msg|enable-msg|disable|enable)\b"),
     ('MESSAGE_STRING', r'[A-Za-z\-]{2,}'),  # Identifiers
     ('ASSIGN', r'='),      # Assignment operator
-    ('MESSAGE_NUMBER', r'[CREIWF]{1}\d{4}'),
+    ('MESSAGE_NUMBER', r'[CREIWF]{1}\d*'),
 ]
+
 TOK_REGEX = '|'.join('(?P<{:s}>{:s})'.format(token_name, token_rgx) for token_name, token_rgx in TOKEN_SPECIFICATION)
 
+def emit_pragma_representer(action, messages):
+    if messages:
+        return PragmaRepresenter(action, messages)
+    raise MissingMessage('The keyword is not followed by message identifier', action)
 
 class PragmaParserError(Exception):
     """
@@ -49,32 +54,71 @@ class PragmaParserError(Exception):
         self.message = message
         self.token = token
 
+class UnknownKeyword(PragmaParserError):
+    """
+    Thrown in case the keyword is not recognized
+    """
+
+class MissingAssignment(PragmaParserError):
+    """
+    Thrown in case the = sign is missing
+    """
+
+class UnsupportedAssignment(PragmaParserError):
+    """
+    Throw in case the assignment sign follows a licit keyword but
+    that doesn't support assignment
+    """
+
+class MissingKeyword(PragmaParserError):
+    """
+    Thrown in case keyword is missing
+    """
+
+class MissingMessage(PragmaParserError):
+    """
+    Thrown in case message identifier is missing
+    """
 
 def parse_pragma(pylint_pragma: str) -> List[PragmaRepresenter]:
     action = None
     messages = []
-    requiring_assignment = (False, '')
+    assignment_required = False
+    previous_token = ''
+
     for mo in re.finditer(TOK_REGEX, pylint_pragma):
         kind = mo.lastgroup
         value = mo.group()
-        if kind == 'ASSIGN' and not requiring_assignment[0]:
-            raise PragmaParserError('The assignment operator = should '
-                                    'not be present right after the token', requiring_assignment[1])
-        elif requiring_assignment[0] and kind != 'ASSIGN':
-            raise PragmaParserError('The assignment operator = is '
-                                    'missing right after the token', requiring_assignment[1])
-        else:
-            requiring_assignment = (False, requiring_assignment[1])
 
-        requiring_assignment = (False, value)
-        if kind == 'KEYWORD':
+        if kind == 'ASSIGN':
+            if not assignment_required:
+                if action:
+                    # A keyword has been found previously but doesn't support assignement
+                    raise UnsupportedAssignment("The keyword doesn't support assignment", action)
+                elif previous_token:
+                    # Something found previously but not a known keyword
+                    raise UnknownKeyword('The keyword is not licit', previous_token)
+                else:
+                    # Nothing at all detected before this assignment 
+                    raise MissingKeyword('Missing keyword before assignment', '')
+            assignment_required = False
+        elif assignment_required:
+            raise MissingAssignment('The = sign is missing after the keyword', action)
+        elif kind == 'KEYWORD':
             if action:
-                yield PragmaRepresenter(action, messages)
+                yield emit_pragma_representer(action, messages)
             action = value
             messages = list()
-            if value in ('disable-msg', 'enable-msg', 'disable', 'enable'):
-                requiring_assignment = (True, value)
+            assignment_required = False
+            if action in ('disable-msg', 'enable-msg', 'disable', 'enable'):
+                assignment_required = True
         elif kind in ('MESSAGE_STRING', 'MESSAGE_NUMBER'):
             messages.append(value)
+            assignment_required = False
+        else:
+            raise RuntimeError("Token not recognized")
+
+        previous_token = value
+
     if action:
-        yield PragmaRepresenter(action, messages)
+        yield emit_pragma_representer(action, messages)
