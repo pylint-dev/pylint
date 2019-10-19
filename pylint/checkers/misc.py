@@ -24,7 +24,7 @@ import tokenize
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IRawChecker, ITokenChecker
 from pylint.message import MessagesHandlerMixIn
-from pylint.utils.pragma_parser import OPTION_PO, parse_pragma
+from pylint.utils.pragma_parser import OPTION_PO, parse_pragma, PragmaParserError
 
 
 class ByIdManagedMessagesChecker(BaseChecker):
@@ -142,9 +142,13 @@ class EncodingChecker(BaseChecker):
             if disable_option_match:
                 try:
                     values = []
-                    for  pragma_repr in parse_pragma(disable_option_match.group(2)):
-                        if pragma_repr.action == 'disable':
-                            values.extend(pragma_repr.messages)
+                    try:
+                        for  pragma_repr in parse_pragma(disable_option_match.group(2)):
+                            if pragma_repr.action == 'disable':
+                                values.extend(pragma_repr.messages)
+                    except PragmaParserError:
+                        # Printing usefull informations dealing with this error is done in lint.py
+                        pass
                     values = [_val.upper() for _val in values]
                     if set(values) & set(self.config.notes):
                         continue
