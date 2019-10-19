@@ -1755,6 +1755,8 @@ class NameChecker(_BasicChecker):
         self._bad_names = {}
         self._name_regexps = {}
         self._name_hints = {}
+        self._good_names_rgxs_compiled = []
+        self._bad_names_rgxs_compiled = []
 
     def open(self):
         self.stats = self.linter.add_stats(
@@ -1776,6 +1778,12 @@ class NameChecker(_BasicChecker):
         regexps, hints = self._create_naming_rules()
         self._name_regexps = regexps
         self._name_hints = hints
+        self._good_names_rgxs_compiled = [
+            re.compile(rgxp) for rgxp in self.config.good_names_rgxs
+        ]
+        self._bad_names_rgxs_compiled = [
+            re.compile(rgxp) for rgxp in self.config.bad_names_rgxs
+        ]
 
     def _create_naming_rules(self):
         regexps = {}
@@ -1915,26 +1923,14 @@ class NameChecker(_BasicChecker):
         self.stats["badname_" + node_type] += 1
 
     def _name_valid_due_to_whitelist(self, name: str) -> bool:
-        good_names_patterns = self.config.good_names_rgxs
-        matches = [
-            match
-            for match in (pattern.search(name) for pattern in good_names_patterns)
-            if match is not None
-        ]
-        return len(matches) > 0 or name in self.config.good_names
+        return name in self.config.good_names or any(
+            pattern.match(name) for pattern in self._good_names_rgxs_compiled
+        )
 
-    def _name_invalid_due_to_blacklist(self, node_type: str, name: str, node) -> bool:
-        bad_names_patterns = self.config.bad_names_rgxs
-        matches = [
-            match
-            for match in (pattern.search(name) for pattern in bad_names_patterns)
-            if match is not None
-        ]
-        if len(matches) > 0 or name in self.config.bad_names:
-            self.stats["badname_" + node_type] += 1
-            self.add_message("blacklisted-name", node=node, args=name)
-            return True
-        return False
+    def _name_invalid_due_to_blacklist(self, name: str) -> bool:
+        return name in self.config.bad_names or any(
+            pattern.match(name) for pattern in self._bad_names_rgxs_compiled
+        )
 
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
@@ -1950,11 +1946,11 @@ class NameChecker(_BasicChecker):
             clobbering, _ = utils.clobber_in_except(node)
             if clobbering:
                 return
-        if self._name_valid_due_to_whitelist(name):
+        if self._name_valid_due_to_whitelist(name=name):
             return
-        if self._name_invalid_due_to_blacklist(
-            node_type=node_type, name=name, node=node
-        ):
+        if self._name_invalid_due_to_blacklist(name=name):
+            self.stats["badname_" + node_type] += 1
+            self.add_message("blacklisted-name", node=node, args=name)
             return
         regexp = self._name_regexps[node_type]
         match = regexp.match(name)
