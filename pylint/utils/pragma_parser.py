@@ -28,8 +28,13 @@ OPTION_PO = re.compile(OPTION_RGX, re.VERBOSE)
 PragmaRepresenter = namedtuple('PragmaRepresenter', "action messages")
 
 
+ATOMIC_KEYWORDS = ('disable-all', 'skip-file') 
+MESSAGE_KEYWORDS = ('disable-msg', 'enable-msg', 'disable', 'enable')
+ALL_KEYWORDS = '|'.join(ATOMIC_KEYWORDS + MESSAGE_KEYWORDS)
+
+
 TOKEN_SPECIFICATION = [
-    ('KEYWORD', r"\b(disable-all|skip-file|disable-msg|enable-msg|disable|enable)\b"),
+    ('KEYWORD', r"\b({:s})\b".format(ALL_KEYWORDS)),
     ('MESSAGE_STRING', r'[A-Za-z\-]{2,}'),  # Identifiers
     ('ASSIGN', r'='),      # Assignment operator
     ('MESSAGE_NUMBER', r'[CREIWF]{1}\d*'),
@@ -38,9 +43,9 @@ TOKEN_SPECIFICATION = [
 TOK_REGEX = '|'.join('(?P<{:s}>{:s})'.format(token_name, token_rgx) for token_name, token_rgx in TOKEN_SPECIFICATION)
 
 def emit_pragma_representer(action, messages):
-    if messages:
-        return PragmaRepresenter(action, messages)
-    raise MissingMessage('The keyword is not followed by message identifier', action)
+    if not messages and action in MESSAGE_KEYWORDS:
+        raise MissingMessage('The keyword is not followed by message identifier', action)
+    return PragmaRepresenter(action, messages)
 
 class PragmaParserError(Exception):
     """
@@ -109,9 +114,7 @@ def parse_pragma(pylint_pragma: str) -> List[PragmaRepresenter]:
                 yield emit_pragma_representer(action, messages)
             action = value
             messages = list()
-            assignment_required = False
-            if action in ('disable-msg', 'enable-msg', 'disable', 'enable'):
-                assignment_required = True
+            assignment_required = action in MESSAGE_KEYWORDS
         elif kind in ('MESSAGE_STRING', 'MESSAGE_NUMBER'):
             messages.append(value)
             assignment_required = False
@@ -122,3 +125,5 @@ def parse_pragma(pylint_pragma: str) -> List[PragmaRepresenter]:
 
     if action:
         yield emit_pragma_representer(action, messages)
+    else:
+        raise UnknownKeyword("The keyword is not licit", previous_token)
