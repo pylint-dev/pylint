@@ -79,8 +79,15 @@ from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
 from pylint.message import Message, MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
-from pylint.utils.pragma_parser import (OPTION_PO, parse_pragma, MissingKeyword, MissingAssignment,
-    MissingMessage, UnknownKeyword, UnsupportedAssignment)
+from pylint.utils.pragma_parser import (
+    OPTION_PO,
+    MissingAssignment,
+    MissingKeyword,
+    MissingMessage,
+    UnknownKeyword,
+    UnsupportedAssignment,
+    parse_pragma,
+)
 
 try:
     import multiprocessing
@@ -870,8 +877,8 @@ class PyLinter(
 
             try:
                 for pragma_repr in parse_pragma(match.group(2)):
-                    if pragma_repr.action in ('disable-all', 'skip-file'):
-                        if pragma_repr.action == "disable-all": 
+                    if pragma_repr.action in ("disable-all", "skip-file"):
+                        if pragma_repr.action == "disable-all":
                             self.add_message(
                                 "deprecated-pragma",
                                 line=start[0],
@@ -888,7 +895,10 @@ class PyLinter(
                         self.add_message(
                             "deprecated-pragma",
                             line=start[0],
-                            args=(pragma_repr.action, pragma_repr.action.replace("-msg", "")),
+                            args=(
+                                pragma_repr.action,
+                                pragma_repr.action.replace("-msg", ""),
+                            ),
                         )
                     for msgid in pragma_repr.messages:
                         # Add the line where a control pragma was encountered.
@@ -910,14 +920,16 @@ class PyLinter(
                                 meth(msgid, "module", start[0] - 1)
                             meth(msgid, "module", start[0])
                         except exceptions.UnknownMessageError:
-                            self.add_message("bad-option-value", args=msgid, line=start[0])
+                            self.add_message(
+                                "bad-option-value", args=msgid, line=start[0]
+                            )
             except (UnknownKeyword, UnsupportedAssignment) as err:
-                self.add_message("unrecognized-inline-option", args=err.token, line=start[0])
+                self.add_message(
+                    "unrecognized-inline-option", args=err.token, line=start[0]
+                )
                 continue
             except (MissingAssignment, MissingKeyword, MissingMessage) as err:
-                self.add_message(
-                    "bad-inline-option", args=err.token, line=start[0]
-                )
+                self.add_message("bad-inline-option", args=err.token, line=start[0])
                 continue
 
     # code checking methods ###################################################

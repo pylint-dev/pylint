@@ -55,7 +55,7 @@ from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.constants import WarningScope
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
-from pylint.utils.pragma_parser import OPTION_PO, parse_pragma, PragmaParserError
+from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 _ASYNC_TOKEN = "async"
 _CONTINUATION_BLOCK_OPENERS = [
@@ -1264,8 +1264,10 @@ class FormatChecker(BaseTokenChecker):
         Remove the `# pylint ...` pattern from lines 
         """
         lines = options_pattern_obj.string
-        purged_lines = (lines[:options_pattern_obj.start(1)].rstrip() + 
-                        lines[options_pattern_obj.end(1):])
+        purged_lines = (
+            lines[: options_pattern_obj.start(1)].rstrip()
+            + lines[options_pattern_obj.end(1) :]
+        )
         return purged_lines
 
     @staticmethod
@@ -1275,7 +1277,7 @@ class FormatChecker(BaseTokenChecker):
         """
         try:
             for pragma in parse_pragma(pylint_pattern_match_object.group(2)):
-                if pragma.action == 'disable' and 'line-too-long' in pragma.messages:
+                if pragma.action == "disable" and "line-too-long" in pragma.messages:
                     return False
         except PragmaParserError:
             # Printing usefull informations dealing with this error is done in lint.py
