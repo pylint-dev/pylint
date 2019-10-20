@@ -880,40 +880,37 @@ class PyLinter(
                         self.add_message("file-ignored", line=start[0])
                         self._ignore_file = True
                         return
-                    if pragma_repr.action in self._options_methods or pragma_repr.action in self._bw_options_methods:
+                    try:
+                        meth = self._options_methods[pragma_repr.action]
+                    except KeyError:
+                        meth = self._bw_options_methods[pragma_repr.action]
+                        # found a "(dis|en)able-msg" pragma deprecated suppression
+                        self.add_message(
+                            "deprecated-pragma",
+                            line=start[0],
+                            args=(pragma_repr.action, pragma_repr.action.replace("-msg", "")),
+                        )
+                    for msgid in pragma_repr.messages:
+                        # Add the line where a control pragma was encountered.
+                        if pragma_repr.action in control_pragmas:
+                            self._pragma_lineno[msgid] = start[0]
                         try:
-                            meth = self._options_methods[pragma_repr.action]
-                        except KeyError:
-                            meth = self._bw_options_methods[pragma_repr.action]
-                            # found a "(dis|en)able-msg" pragma deprecated suppression
-                            self.add_message(
-                                "deprecated-pragma",
-                                line=start[0],
-                                args=(pragma_repr.action, pragma_repr.action.replace("-msg", "")),
-                            )
-                        for msgid in pragma_repr.messages:
-                            # Add the line where a control pragma was encountered.
-                            if pragma_repr.action in control_pragmas:
-                                self._pragma_lineno[msgid] = start[0]
-                            try:
-                                if (pragma_repr.action, msgid) == ("disable", "all"):
-                                    self.add_message(
-                                        "deprecated-pragma",
-                                        line=start[0],
-                                        args=("disable=all", "skip-file"),
-                                    )
-                                    self.add_message("file-ignored", line=start[0])
-                                    self._ignore_file = True
-                                    return
-                                # If we did not see a newline between the previous line and now,
-                                # we saw a backslash so treat the two lines as one.
-                                if not saw_newline:
-                                    meth(msgid, "module", start[0] - 1)
-                                meth(msgid, "module", start[0])
-                            except exceptions.UnknownMessageError:
-                                self.add_message("bad-option-value", args=msgid, line=start[0])
-                    else:
-                        self.add_message("unrecognized-inline-option", args=opt, line=start[0])
+                            if (pragma_repr.action, msgid) == ("disable", "all"):
+                                self.add_message(
+                                    "deprecated-pragma",
+                                    line=start[0],
+                                    args=("disable=all", "skip-file"),
+                                )
+                                self.add_message("file-ignored", line=start[0])
+                                self._ignore_file = True
+                                return
+                            # If we did not see a newline between the previous line and now,
+                            # we saw a backslash so treat the two lines as one.
+                            if not saw_newline:
+                                meth(msgid, "module", start[0] - 1)
+                            meth(msgid, "module", start[0])
+                        except exceptions.UnknownMessageError:
+                            self.add_message("bad-option-value", args=msgid, line=start[0])
             except (UnknownKeyword, UnsupportedAssignment) as err:
                 self.add_message("unrecognized-inline-option", args=err.token, line=start[0])
                 continue
