@@ -2,6 +2,83 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 2.5.0?
+===========================
+
+Release date: TBA
+
+* Can read config from a setup.cfg or pyproject.toml file.
+
+  Close #617
+
+* Fix exception-escape false positive with generators
+
+  Close #3128
+
+* ``inspect.getargvalues`` is no longer marked as deprecated.
+
+
+* A new check ``f-string-without-interpolation`` was added
+
+  Close #3190
+
+* Flag mutable ``collections.*`` utilities as dangerous defaults
+
+  Close #3183
+
+* ``docparams`` extension supports multiple types in raises sections.
+  Multiple types can also be separated by commas in all valid sections.
+
+  Closes #2729
+
+* Allow parallel linting when run under Prospector
+
+
+What's New in Pylint 2.4.3?
+===========================
+
+Release date: 2019-10-18
+
+  Pass the actual PyLinter object to sub processes to allow using custom
+  PyLinter classes.
+
+  PyLinter object (and all its members except reporter) needs to support
+  pickling so the PyLinter object can be passed to worker processes.
+
+* Refactor file checking
+
+  Remove code duplication from file checking.
+
+* Fix an issue with ``unnecessary-comprehension`` in comprehensions with additional repacking of elements.
+
+  Close #3148
+
+* ``import-outside-toplevel`` is emitted for ``ImportFrom`` nodes as well.
+
+  Close #3175
+
+* Do not emit ``no-method-argument`` for functions using positional only args.
+
+  Close #3161
+
+* ``consider-using-sys-exit`` is no longer emitted when `exit` is imported in the local scope.
+
+  Close #3147
+
+* `invalid-overridden-method` takes `abc.abstractproperty` in account
+
+  Close #3150
+
+* Fixed ``missing-yield-type-doc`` getting incorrectly raised when
+  a generator does not document a yield type but has a type annotation.
+
+  Closes #3185
+
+* ``typing.overload`` functions are exempted from ``too-many-function-args``
+
+  Close #3170
+
+
 What's New in Pylint 2.4.2?
 ===========================
 
@@ -339,7 +416,7 @@ must rename the associated identification.
 
 * Allow the choice of f-strings as a valid way of formatting logging strings.
 
-Closes #2395
+  Closes #2395
 
 * Added ``--list-msgs-enabled`` command to list all enabled and disabled messages given the current RC file and command line arguments.
 

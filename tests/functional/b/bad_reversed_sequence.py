@@ -1,9 +1,9 @@
 """ Checks that reversed() receive proper argument """
 # pylint: disable=missing-docstring, useless-object-inheritance
 # pylint: disable=too-few-public-methods,no-self-use,no-absolute-import
-from collections import deque
+from collections import deque, OrderedDict
+from enum import IntEnum
 
-__revision__ = 0
 
 class GoodReversed(object):
     """ Implements __reversed__ """
@@ -61,8 +61,6 @@ def test(path):
 
 def test_dict_ancestor_and_reversed():
     """Don't emit for subclasses of dict, with __reversed__ implemented."""
-    from collections import OrderedDict
-
     class Child(dict):
         def __reversed__(self):
             return reversed(range(10))
@@ -73,8 +71,6 @@ def test_dict_ancestor_and_reversed():
 
 def test_dont_emit_for_reversing_enums():
     """Don't emit when reversing enum classes"""
-    from enum import IntEnum
-
     class Color(IntEnum):
         RED = 1
         GREEN = 2

@@ -49,6 +49,7 @@ def good():
     for index in range(len(iterable)):
         yield other_obj[index]
 
+    # pylint: disable=import-outside-toplevel
     from unknown import unknown
     for index in range(unknown(iterable)):
         yield iterable[index]

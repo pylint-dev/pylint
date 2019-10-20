@@ -89,6 +89,10 @@ configuration file in the following order and uses the first one it finds:
 
 #. ``pylintrc`` in the current working directory
 #. ``.pylintrc`` in the current working directory
+#. ``pyproject.toml`` in the current working directory,
+   providing it has at least one ``tool.pylint.`` section.
+#. ``setup.cfg`` in the current working directory,
+   providing it has at least one ``pylint.`` section
 #. If the current working directory is in a Python module, Pylint searches \
    up the hierarchy of Python modules until it finds a ``pylintrc`` file. \
    This allows you to specify coding standards on a module-by-module \

@@ -520,6 +520,7 @@ class ImportsChecker(BaseChecker):
         self._check_wildcard_imports(node, imported_module)
         self._check_same_line_imports(node)
         self._check_reimport(node, basename=basename, level=node.level)
+        self._check_toplevel(node)
 
         if isinstance(node.parent, astroid.Module):
             # Allow imports nested

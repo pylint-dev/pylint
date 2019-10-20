@@ -60,6 +60,7 @@
 """
 import collections
 import contextlib
+import functools
 import operator
 import os
 import sys
@@ -73,7 +74,7 @@ from astroid import modutils
 from astroid.__pkginfo__ import version as astroid_version
 from astroid.builder import AstroidBuilder
 
-from pylint import checkers, config, exceptions, interfaces, reporters
+from pylint import __pkginfo__, checkers, config, exceptions, interfaces, reporters
 from pylint.__pkginfo__ import version
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
 from pylint.message import Message, MessageDefinitionStore, MessagesHandlerMixIn
@@ -249,68 +250,6 @@ def _cpu_count() -> int:
     return 1
 
 
-if multiprocessing is not None:
-
-    class ChildLinter(multiprocessing.Process):
-        def run(self):
-            # pylint: disable=no-member, unbalanced-tuple-unpacking
-            tasks_queue, results_queue, self._config = self._args
-
-            self._config["jobs"] = 1  # Child does not parallelize any further.
-            self._python3_porting_mode = self._config.pop("python3_porting_mode", None)
-            self._plugins = self._config.pop("plugins", None)
-
-            # Run linter for received files/modules.
-            for file_or_module in iter(tasks_queue.get, "STOP"):
-                try:
-                    result = self._run_linter(file_or_module[0])
-                    results_queue.put(result)
-                except Exception as ex:
-                    print(
-                        "internal error with sending report for module %s"
-                        % file_or_module,
-                        file=sys.stderr,
-                    )
-                    print(ex, file=sys.stderr)
-                    results_queue.put({})
-
-        def _run_linter(self, file_or_module):
-            linter = PyLinter()
-
-            # Register standard checkers.
-            linter.load_default_plugins()
-            # Load command line plugins.
-            if self._plugins:
-                linter.load_plugin_modules(self._plugins)
-
-            linter.load_configuration_from_config(self._config)
-
-            # Load plugin specific configuration
-            linter.load_plugin_configuration()
-
-            linter.set_reporter(reporters.CollectingReporter())
-
-            # Enable the Python 3 checker mode. This option is
-            # passed down from the parent linter up to here, since
-            # the Python 3 porting flag belongs to the Run class,
-            # instead of the Linter class.
-            if self._python3_porting_mode:
-                linter.python3_porting_mode()
-
-            # Run the checks.
-            linter.check(file_or_module)
-
-            msgs = [_get_new_args(m) for m in linter.reporter.messages]
-            return (
-                file_or_module,
-                linter.file_state.base_name,
-                linter.current_name,
-                msgs,
-                linter.stats,
-                linter.msg_status,
-            )
-
-
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
     config.OptionsManagerMixIn,
@@ -329,6 +268,9 @@ class PyLinter(
     IDE plugin developers: you may have to call
     `astroid.builder.MANAGER.astroid_cache.clear()` across runs if you want
     to ensure the latest code version is actually checked.
+
+    This class needs to support pickling for parallel linting to work. The exception
+    is reporter member; see check_parallel function for more details.
     """
 
     __implements__ = (interfaces.ITokenChecker,)
@@ -629,7 +571,9 @@ class PyLinter(
         MessagesHandlerMixIn.__init__(self)
         reporters.ReportsHandlerMixIn.__init__(self)
         super(PyLinter, self).__init__(
-            usage=__doc__, version=full_version, config_file=pylintrc or config.PYLINTRC
+            usage=__doc__,
+            version=full_version,
+            config_file=pylintrc or next(config.find_default_config_files(), None),
         )
         checkers.BaseTokenChecker.__init__(self)
         # provided reports
@@ -995,9 +939,10 @@ class PyLinter(
 
     # pylint: enable=unused-argument
 
-    def check(self, files_or_modules):
-        """main checking entry: check a list of files or modules from their
-        name.
+    def initialize(self):
+        """Initialize linter for linting
+
+        This method is called before any linting is done.
         """
         # initialize msgs_state now that all messages have been registered into
         # the store
@@ -1005,124 +950,17 @@ class PyLinter(
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
 
+    def check(self, files_or_modules):
+        """main checking entry: check a list of files or modules from their name.
+
+        files_or_modules is either a string or list of strings presenting modules to check.
+        """
+
+        self.initialize()
+
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
 
-        if self.config.jobs == 1:
-            self._do_check(files_or_modules)
-        else:
-            self._parallel_check(files_or_modules)
-
-    def _get_jobs_config(self):
-        child_config = collections.OrderedDict()
-        filter_options = {"long-help"}
-        filter_options.update((opt_name for opt_name, _ in self._external_opts))
-        for opt_providers in self._all_options.values():
-            for optname, optdict, val in opt_providers.options_and_values():
-                if optdict.get("deprecated"):
-                    continue
-
-                if optname not in filter_options:
-                    child_config[optname] = utils._format_option_value(optdict, val)
-        child_config["python3_porting_mode"] = self._python3_porting_mode
-        child_config["plugins"] = self._dynamic_plugins
-        return child_config
-
-    def _parallel_task(self, files_or_modules):
-        # Prepare configuration for child linters.
-        child_config = self._get_jobs_config()
-
-        children = []
-        manager = multiprocessing.Manager()
-        tasks_queue = manager.Queue()
-        results_queue = manager.Queue()
-
-        # Send files to child linters.
-        expanded_files = []
-        for descr in self.expand_files(files_or_modules):
-            modname, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
-            if self.should_analyze_file(modname, filepath, is_argument=is_arg):
-                expanded_files.append(descr)
-
-        # do not start more jobs than needed
-        for _ in range(min(self.config.jobs, len(expanded_files))):
-            child_linter = ChildLinter(args=(tasks_queue, results_queue, child_config))
-            child_linter.start()
-            children.append(child_linter)
-
-        for files_or_module in expanded_files:
-            path = files_or_module["path"]
-            tasks_queue.put([path])
-
-        # collect results from child linters
-        failed = False
-        for _ in expanded_files:
-            try:
-                result = results_queue.get()
-            except Exception as ex:
-                print(
-                    "internal error while receiving results from child linter",
-                    file=sys.stderr,
-                )
-                print(ex, file=sys.stderr)
-                failed = True
-                break
-            yield result
-
-        # Stop child linters and wait for their completion.
-        for _ in range(self.config.jobs):
-            tasks_queue.put("STOP")
-        for child in children:
-            child.join()
-
-        if failed:
-            print("Error occurred, stopping the linter.", file=sys.stderr)
-            sys.exit(32)
-
-    def _parallel_check(self, files_or_modules):
-        # Reset stats.
-        self.open()
-
-        all_stats = []
-        module = None
-        for result in self._parallel_task(files_or_modules):
-            if not result:
-                continue
-            (_, self.file_state.base_name, module, messages, stats, msg_status) = result
-
-            for msg in messages:
-                msg = Message(*msg)
-                self.set_current_module(module)
-                self.reporter.handle_message(msg)
-
-            all_stats.append(stats)
-            self.msg_status |= msg_status
-
-        self.stats = _merge_stats(all_stats)
-        self.current_name = module
-
-        # Insert stats data to local checkers.
-        for checker in self.get_checkers():
-            if checker is not self:
-                checker.stats = self.stats
-
-    def _do_check(self, files_or_modules):
-        walker = ASTWalker(self)
-        _checkers = self.prepare_checkers()
-        tokencheckers = [
-            c
-            for c in _checkers
-            if interfaces.implements(c, interfaces.ITokenChecker) and c is not self
-        ]
-        rawcheckers = [
-            c for c in _checkers if interfaces.implements(c, interfaces.IRawChecker)
-        ]
-        # notify global begin
-        for checker in _checkers:
-            checker.open()
-            if interfaces.implements(checker, interfaces.IAstroidChecker):
-                walker.add_checker(checker)
-        # build ast and check modules or packages
         if self.config.from_stdin:
             if len(files_or_modules) != 1:
                 raise exceptions.InvalidArgsError(
@@ -1130,62 +968,102 @@ class PyLinter(
                 )
 
             filepath = files_or_modules[0]
-            try:
-                # Note that this function does not really perform an
-                # __import__ but may raise an ImportError exception, which
-                # we want to catch here.
-                modname = ".".join(modutils.modpath_from_file(filepath))
-            except ImportError:
-                modname = os.path.splitext(os.path.basename(filepath))[0]
-
-            self.set_current_module(modname, filepath)
-
-            # get the module representation
-            ast_node = _ast_from_string(_read_stdin(), filepath, modname)
-
-            if ast_node is not None:
-                self.file_state = FileState(filepath)
-                self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
-                # warn about spurious inline messages handling
-                spurious_messages = self.file_state.iter_spurious_suppression_messages(
-                    self.msgs_store
-                )
-                for msgid, line, args in spurious_messages:
-                    self.add_message(msgid, line, None, args)
+            self._check_files(
+                functools.partial(_ast_from_string, _read_stdin()),
+                [self._get_file_descr_from_stdin(filepath)],
+            )
+        elif self.config.jobs == 1:
+            self._check_files(self.get_ast, self._iterate_file_descrs(files_or_modules))
         else:
-            for descr in self.expand_files(files_or_modules):
-                modname, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
-                if not self.should_analyze_file(modname, filepath, is_argument=is_arg):
-                    continue
+            check_parallel(
+                self, self.config.jobs, self._iterate_file_descrs(files_or_modules)
+            )
 
-                self.set_current_module(modname, filepath)
-                # get the module representation
-                ast_node = self.get_ast(filepath, modname)
-                if ast_node is None:
-                    continue
+    def check_single_file(self, name, filepath, modname):
+        """Check single file
 
-                self.file_state = FileState(descr["basename"])
-                self._ignore_file = False
-                # fix the current file (if the source file was not available or
-                # if it's actually a c extension)
-                self.current_file = ast_node.file  # pylint: disable=maybe-no-member
-                before_check_statements = walker.nbstatements
-                self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
-                self.stats["by_module"][modname]["statement"] = (
-                    walker.nbstatements - before_check_statements
-                )
-                # warn about spurious inline messages handling
-                spurious_messages = self.file_state.iter_spurious_suppression_messages(
-                    self.msgs_store
-                )
-                for msgid, line, args in spurious_messages:
-                    self.add_message(msgid, line, None, args)
-        # notify global end
-        self.stats["statement"] = walker.nbstatements
-        for checker in reversed(_checkers):
-            checker.close()
+        The arguments are the same that are documented in _check_files
 
-    def expand_files(self, modules):
+        The initialize() method should be called before calling this method
+        """
+        with self._astroid_module_checker() as check_astroid_module:
+            self._check_file(
+                self.get_ast, check_astroid_module, name, filepath, modname
+            )
+
+    def _check_files(self, get_ast, file_descrs):
+        """Check all files from file_descrs
+
+        The file_descrs should be iterable of tuple (name, filepath, modname)
+        where
+        - name: full name of the module
+        - filepath: path of the file
+        - modname: module name
+        """
+        with self._astroid_module_checker() as check_astroid_module:
+            for name, filepath, modname in file_descrs:
+                self._check_file(get_ast, check_astroid_module, name, filepath, modname)
+
+    def _check_file(self, get_ast, check_astroid_module, name, filepath, modname):
+        """Check a file using the passed utility functions (get_ast and check_astroid_module)
+
+        :param callable get_ast: callable returning AST from defined file taking the following arguments
+        - filepath: path to the file to check
+        - name: Python module name
+        :param callable check_astroid_module: callable checking an AST taking the following arguments
+        - ast: AST of the module
+        :param str name: full name of the module
+        :param str filepath: path to checked file
+        :param str modname: name of the checked Python module
+        """
+        self.set_current_module(name, filepath)
+        # get the module representation
+        ast_node = get_ast(filepath, name)
+        if ast_node is None:
+            return
+
+        self._ignore_file = False
+
+        self.file_state = FileState(modname)
+        # fix the current file (if the source file was not available or
+        # if it's actually a c extension)
+        self.current_file = ast_node.file  # pylint: disable=maybe-no-member
+        check_astroid_module(ast_node)
+        # warn about spurious inline messages handling
+        spurious_messages = self.file_state.iter_spurious_suppression_messages(
+            self.msgs_store
+        )
+        for msgid, line, args in spurious_messages:
+            self.add_message(msgid, line, None, args)
+
+    @staticmethod
+    def _get_file_descr_from_stdin(filepath):
+        """Return file description (tuple of module name, file path, base name) from given file path
+
+        This method is used for creating suitable file description for _check_files when the
+        source is standard input.
+        """
+        try:
+            # Note that this function does not really perform an
+            # __import__ but may raise an ImportError exception, which
+            # we want to catch here.
+            modname = ".".join(modutils.modpath_from_file(filepath))
+        except ImportError:
+            modname = os.path.splitext(os.path.basename(filepath))[0]
+
+        return (modname, filepath, filepath)
+
+    def _iterate_file_descrs(self, files_or_modules):
+        """Return generator yielding file descriptions (tuples of module name, file path, base name)
+
+        The returned generator yield one item for each Python module that should be linted.
+        """
+        for descr in self._expand_files(files_or_modules):
+            name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
+            if self.should_analyze_file(name, filepath, is_argument=is_arg):
+                yield (name, filepath, descr["basename"])
+
+    def _expand_files(self, modules):
         """get modules and errors from a list of modules and handle errors
         """
         result, errors = utils.expand_modules(
@@ -1214,6 +1092,40 @@ class PyLinter(
         for msg_cat in MSG_TYPES.values():
             self.stats["by_module"][modname][msg_cat] = 0
 
+    @contextlib.contextmanager
+    def _astroid_module_checker(self):
+        """Context manager for checking ASTs
+
+        The value in the context is callable accepting AST as its only argument.
+        """
+        walker = ASTWalker(self)
+        _checkers = self.prepare_checkers()
+        tokencheckers = [
+            c
+            for c in _checkers
+            if interfaces.implements(c, interfaces.ITokenChecker) and c is not self
+        ]
+        rawcheckers = [
+            c for c in _checkers if interfaces.implements(c, interfaces.IRawChecker)
+        ]
+        # notify global begin
+        for checker in _checkers:
+            checker.open()
+            if interfaces.implements(checker, interfaces.IAstroidChecker):
+                walker.add_checker(checker)
+
+        yield functools.partial(
+            self.check_astroid_module,
+            walker=walker,
+            tokencheckers=tokencheckers,
+            rawcheckers=rawcheckers,
+        )
+
+        # notify global end
+        self.stats["statement"] = walker.nbstatements
+        for checker in reversed(_checkers):
+            checker.close()
+
     def get_ast(self, filepath, modname):
         """return an ast(roid) representation for a module"""
         try:
@@ -1233,7 +1145,34 @@ class PyLinter(
             self.add_message("astroid-error", args=(ex.__class__, ex))
 
     def check_astroid_module(self, ast_node, walker, rawcheckers, tokencheckers):
-        """Check a module from its astroid representation."""
+        """Check a module from its astroid representation.
+
+        For return value see _check_astroid_module
+        """
+        before_check_statements = walker.nbstatements
+
+        retval = self._check_astroid_module(
+            ast_node, walker, rawcheckers, tokencheckers
+        )
+
+        self.stats["by_module"][self.current_name]["statement"] = (
+            walker.nbstatements - before_check_statements
+        )
+
+        return retval
+
+    def _check_astroid_module(self, ast_node, walker, rawcheckers, tokencheckers):
+        """Check given AST node with given walker and checkers
+
+        :param astroid.nodes.Module ast_node: AST node of the module to check
+        :param pylint.utils.ast_walker.ASTWalker walker: AST walker
+        :param list rawcheckers: List of token checkers to use
+        :param list tokencheckers: List of raw checkers to use
+
+        :returns: True if the module was checked, False if ignored,
+            None if the module contents could not be parsed
+        :rtype: bool
+        """
         try:
             tokens = utils.tokenize_module(ast_node)
         except tokenize.TokenError as ex:
@@ -1321,6 +1260,77 @@ class PyLinter(
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)
             self.reporter.display_reports(sect)
+
+
+def check_parallel(linter, jobs, files):
+    """Use the given linter to lint the files with given amount of workers (jobs)
+    """
+    # The reporter does not need to be passed to worker processess, i.e. the reporter does
+    # not need to be pickleable
+    original_reporter = linter.reporter
+    linter.reporter = None
+
+    # The linter is inherited by all the pool's workers, i.e. the linter
+    # is identical to the linter object here. This is requred so that
+    # a custom PyLinter object can be used.
+    with multiprocessing.Pool(
+        jobs, initializer=_worker_initialize, initargs=[linter]
+    ) as pool:
+        # ..and now when the workers have inherited the linter, the actual reporter
+        # can be set back here on the parent process so that results get stored into
+        # correct reporter
+        linter.set_reporter(original_reporter)
+        linter.open()
+
+        all_stats = []
+
+        for module, messages, stats, msg_status in pool.imap_unordered(
+            _worker_check_single_file, files
+        ):
+            linter.set_current_module(module)
+            for msg in messages:
+                msg = Message(*msg)
+                linter.reporter.handle_message(msg)
+
+            all_stats.append(stats)
+            linter.msg_status |= msg_status
+
+    linter.stats = _merge_stats(all_stats)
+
+    # Insert stats data to local checkers.
+    for checker in linter.get_checkers():
+        if checker is not linter:
+            checker.stats = linter.stats
+
+
+# PyLinter object used by worker processes when checking files using multiprocessing
+# should only be used by the worker processes
+_worker_linter = None
+
+
+def _worker_initialize(linter):
+    global _worker_linter  # pylint: disable=global-statement
+    _worker_linter = linter
+
+    # On the worker process side the messages are just collected and passed back to
+    # parent process as _worker_check_file function's return value
+    _worker_linter.set_reporter(reporters.CollectingReporter())
+    _worker_linter.open()
+
+
+def _worker_check_single_file(file_item):
+    name, filepath, modname = file_item
+
+    _worker_linter.open()
+    _worker_linter.check_single_file(name, filepath, modname)
+
+    msgs = [_get_new_args(m) for m in _worker_linter.reporter.messages]
+    return (
+        _worker_linter.current_name,
+        msgs,
+        _worker_linter.stats,
+        _worker_linter.msg_status,
+    )
 
 
 # some reporting functions ####################################################
@@ -1474,6 +1484,10 @@ group are mutually exclusive.",
         ),
     )
 
+    @staticmethod
+    def _return_one(*args):  # pylint: disable=unused-argument
+        return 1
+
     def __init__(self, args, reporter=None, do_exit=True):
         self._rcfile = None
         self._plugins = []
@@ -1499,7 +1513,7 @@ group are mutually exclusive.",
                     "rcfile",
                     {
                         "action": "callback",
-                        "callback": lambda *args: 1,
+                        "callback": Run._return_one,
                         "type": "string",
                         "metavar": "<file>",
                         "help": "Specify a configuration file.",
@@ -1509,7 +1523,7 @@ group are mutually exclusive.",
                     "init-hook",
                     {
                         "action": "callback",
-                        "callback": lambda *args: 1,
+                        "callback": Run._return_one,
                         "type": "string",
                         "metavar": "<code>",
                         "level": 1,
@@ -1769,8 +1783,6 @@ group are mutually exclusive.",
 
     def cb_generate_manpage(self, *args, **kwargs):
         """optik callback for sample config file generation"""
-        from pylint import __pkginfo__
-
         self.linter.generate_manpage(__pkginfo__)
         sys.exit(0)
 

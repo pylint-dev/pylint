@@ -65,6 +65,7 @@ from pylint.checkers.utils import (
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
+    is_overload_stub,
     is_super,
     node_ignores_exception,
     safe_infer,
@@ -1123,7 +1124,7 @@ accessed. Python regular expressions are accepted.",
         if calling_parg_names != called_param_names[: len(calling_parg_names)]:
             self.add_message("arguments-out-of-order", node=node, args=())
 
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches,too-many-locals
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node):
         """check that called functions/methods are inferred to callable objects,
@@ -1185,6 +1186,7 @@ accessed. Python regular expressions are accepted.",
 
         num_positional_args = len(call_site.positional_arguments)
         keyword_args = list(call_site.keyword_arguments.keys())
+        overload_function = is_overload_stub(called)
 
         # Determine if we don't have a context for our call and we use variadics.
         node_scope = node.scope()
@@ -1251,11 +1253,12 @@ accessed. Python regular expressions are accepted.",
                 # parameter.
                 break
             else:
-                # Too many positional arguments.
-                self.add_message(
-                    "too-many-function-args", node=node, args=(callable_name,)
-                )
-                break
+                if not overload_function:
+                    # Too many positional arguments.
+                    self.add_message(
+                        "too-many-function-args", node=node, args=(callable_name,)
+                    )
+                    break
 
         # 2. Match the keyword arguments.
         for keyword in keyword_args:
@@ -1290,7 +1293,7 @@ accessed. Python regular expressions are accepted.",
             elif called.args.kwarg is not None:
                 # The keyword argument gets assigned to the **kwargs parameter.
                 pass
-            else:
+            elif not overload_function:
                 # Unexpected keyword argument.
                 self.add_message(
                     "unexpected-keyword-arg", node=node, args=(keyword, callable_name)
@@ -1315,7 +1318,7 @@ accessed. Python regular expressions are accepted.",
                     display_name = "<tuple>"
                 else:
                     display_name = repr(name)
-                if not has_no_context_positional_variadic:
+                if not has_no_context_positional_variadic and not overload_function:
                     self.add_message(
                         "no-value-for-parameter",
                         node=node,

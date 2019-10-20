@@ -159,13 +159,25 @@ ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
 # Name categories that are always consistent with all naming conventions.
 EXEMPT_NAME_CATEGORIES = {"exempt", "ignore"}
 
-# A mapping from builtin-qname -> symbol, to be used when generating messages
+# A mapping from qname -> symbol, to be used when generating messages
 # about dangerous default values as arguments
 DEFAULT_ARGUMENT_SYMBOLS = dict(
     zip(
         [".".join([BUILTINS, x]) for x in ("set", "dict", "list")],
         ["set()", "{}", "[]"],
-    )
+    ),
+    **{
+        x: "%s()" % x
+        for x in (
+            "collections.deque",
+            "collections.ChainMap",
+            "collections.Counter",
+            "collections.OrderedDict",
+            "collections.defaultdict",
+            "collections.UserDict",
+            "collections.UserList",
+        )
+    },
 )
 REVERSED_COMPS = {"<": ">", "<=": ">=", ">": "<", ">=": "<="}
 COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))

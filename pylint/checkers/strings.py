@@ -152,6 +152,12 @@ MSGS = {
         "Used when we detect that a string formatting is "
         "repeating an argument instead of using named string arguments",
     ),
+    "W1309": (
+        "Using an f-string that does not have any interpolated variables",
+        "f-string-without-interpolation",
+        "Used when we detect an f-string that does not use any interpolation variables, "
+        "in which case it can be either a normal string or a bug in the code.",
+    ),
 }
 
 OTHER_NODES = (
@@ -332,6 +338,15 @@ class StringFormatChecker(BaseChecker):
                             node=node,
                             args=(arg_type.pytype(), format_type),
                         )
+
+    @check_messages("f-string-without-interpolation")
+    def visit_joinedstr(self, node):
+        if isinstance(node.parent, astroid.FormattedValue):
+            return
+        for value in node.values:
+            if isinstance(value, astroid.FormattedValue):
+                return
+        self.add_message("f-string-without-interpolation", node=node)
 
     @check_messages(*MSGS)
     def visit_call(self, node):
