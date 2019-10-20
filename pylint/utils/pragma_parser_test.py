@@ -11,6 +11,14 @@ def test_simple_pragma():
         assert pragma_repr.messages == ['missing-docstring']
 
 
+def test_simple_pragma_no_messages():
+    comment = "#pylint: skip-file"
+    match = OPTION_PO.search(comment)
+    for pragma_repr in parse_pragma(match.group(2)):
+        assert pragma_repr.action == 'skip-file'
+        assert pragma_repr.messages == []
+
+
 def test_simple_pragma_multiple_messages():
     comment = "#pylint: disable = missing-docstring, invalid-name"
     match = OPTION_PO.search(comment)
@@ -53,8 +61,16 @@ def test_unsupported_assignment():
             pass
 
 
-def test_unknown_keyword():
+def test_unknown_keyword_with_messages():
     comment = "#pylint: unknown-keyword = missing-docstring"
+    match = OPTION_PO.search(comment)
+    with pytest.raises(UnknownKeyword):
+        for pragma_repr in parse_pragma(match.group(2)):
+            pass
+
+
+def test_unknown_keyword_without_messages():
+    comment = "#pylint: unknown-keyword"
     match = OPTION_PO.search(comment)
     with pytest.raises(UnknownKeyword):
         for pragma_repr in parse_pragma(match.group(2)):
@@ -70,5 +86,5 @@ def test_missing_message():
 
 
 if __name__ == "__main__":
-    test_simple_pragma()
-    test_multiple_pragma_multiple_messages()
+    test_missing_message()
+    
