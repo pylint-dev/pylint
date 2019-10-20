@@ -33,6 +33,11 @@ Release date: TBA
 
 * Allow parallel linting when run under Prospector
 
+* Fixed false positives of ``method-hidden`` when a subclass defines
+  the method that is being hidden.
+
+  Closes #414
+
 
 What's New in Pylint 2.4.3?
 ===========================
