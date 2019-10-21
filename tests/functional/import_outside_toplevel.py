@@ -36,3 +36,7 @@ def k(flag):
 
 def j():
     from collections import defaultdict # [import-outside-toplevel]
+
+
+def m():
+    from math import sin as sign, cos as cosplay  # [import-outside-toplevel]

@@ -960,10 +960,12 @@ class ImportsChecker(BaseChecker):
         if isinstance(node.scope(), astroid.Module):
             return
 
-        if isinstance(node, astroid.ImportFrom):
-            module_names = [node.modname]
-        else:
-            module_names = [name[0] for name in node.names]
+        module_names = [
+            "{}.{}".format(node.modname, name[0])
+            if isinstance(node, astroid.ImportFrom)
+            else name[0]
+            for name in node.names
+        ]
 
         # Get the full names of all the imports that are not whitelisted.
         scoped_imports = [
