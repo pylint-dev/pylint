@@ -38,6 +38,8 @@ Release date: TBA
 
   Closes #414
 
+* Python 3 porting mode is 30-50% faster on most codebases
+
 
 What's New in Pylint 2.4.3?
 ===========================
