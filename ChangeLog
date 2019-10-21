@@ -33,6 +33,8 @@ Release date: TBA
 
 * Allow parallel linting when run under Prospector
 
+* Python 3 porting mode is 30-50% faster on most codebases
+
 
 What's New in Pylint 2.4.3?
 ===========================
