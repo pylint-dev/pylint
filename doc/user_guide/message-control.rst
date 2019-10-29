@@ -1,3 +1,5 @@
+.. _messages-control:
+
 Messages control
 ================
 
@@ -24,6 +26,18 @@ For all of these controls, ``pylint`` accepts the following values:
   * ``F`` fatal, if an error occurred which prevented ``pylint`` from doing further processing.
 
 * All the checks with ``all``
+
+.. note::
+
+    ``pylint`` also supports using the ``# noqa: ...`` pragma
+    as an alternative to ``# pylint: disable=...``.
+    Note that other linters may not be able to parse pragmas that use
+    symbolic messages.
+    Therefore is it recommended to use numerical IDs inside ``# noqa`` pragmas
+    when using ``pylint`` with another linter.
+    Disabling ``use-symbolic-message-instead`` may be needed in this case.
+
+    Bare ``# noqa`` pragmas without a list of messages to disable is not supported.
 
 
 Block disables

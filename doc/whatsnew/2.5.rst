@@ -32,3 +32,9 @@ Other Changes
   These files can also be passed in on the command line.
 
 * Mutable ``collections.*`` are now flagged as dangerous defaults.
+
+* ``# noqa: ...` pragmas are now supported as an alternative to
+  ``# pylint: disable=...``.
+  See :ref:`messages-control` for detailed usage.
+
+  Closes #2493

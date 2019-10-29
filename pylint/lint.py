@@ -68,6 +68,7 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
+from typing import List
 
 import astroid
 from astroid import modutils
@@ -76,7 +77,7 @@ from astroid.builder import AstroidBuilder
 
 from pylint import __pkginfo__, checkers, config, exceptions, interfaces, reporters
 from pylint.__pkginfo__ import version
-from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES, OPTION_RGX
+from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES, NOQA_RGX, OPTION_RGX
 from pylint.message import Message, MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
@@ -806,6 +807,14 @@ class PyLinter(
 
             if tok_type != tokenize.COMMENT:
                 continue
+
+            # If we did not see a newline between the previous line and now,
+            # we saw a backslash so treat the two lines as one.
+            line_nos = [start[0]]
+            if not saw_newline:
+                line_nos.append(start[0] - 1)
+            self._process_noqa(content, line_nos)
+
             match = OPTION_RGX.search(content)
             if match is None:
                 continue
@@ -846,7 +855,7 @@ class PyLinter(
                 for msgid in utils._splitstrip(value):
                     # Add the line where a control pragma was encountered.
                     if opt in control_pragmas:
-                        self._pragma_lineno[msgid] = start[0]
+                        self._pragma_lineno[msgid] = line_nos[-1]
 
                     try:
                         if (opt, msgid) == ("disable", "all"):
@@ -858,15 +867,29 @@ class PyLinter(
                             self.add_message("file-ignored", line=start[0])
                             self._ignore_file = True
                             return
-                        # If we did not see a newline between the previous line and now,
-                        # we saw a backslash so treat the two lines as one.
-                        if not saw_newline:
-                            meth(msgid, "module", start[0] - 1)
-                        meth(msgid, "module", start[0])
+
+                        for line_no in line_nos:
+                            meth(msgid, "module", line_no)
                     except exceptions.UnknownMessageError:
                         self.add_message("bad-option-value", args=msgid, line=start[0])
             else:
                 self.add_message("unrecognized-inline-option", args=opt, line=start[0])
+
+    def _process_noqa(self, content: str, line_nos: List[int]) -> None:
+        """Find and process any supported noqa pragmas.
+
+        :param content: The comment to parse (including the leading "#").
+        :param line_nos: The line numbers of the lines that the pragma affects.
+        """
+        match = NOQA_RGX.search(content)
+        if not match:
+            return
+
+        for msgid in utils._splitstrip(match.group(1)):
+            for line_no in line_nos:
+                self._pragma_lineno[msgid] = line_no
+                # Ignore unknown messages because this message may not be ours
+                self.disable(msgid, "module", line_no, ignore_unknown=True)
 
     # code checking methods ###################################################
 

@@ -8,3 +8,9 @@ class Foo:
         """test one line disabling"""
         print(self.bla) \
            # pylint: disable=E1101
+
+        print(self.bla \
+              + self.bla)  # pylint: disable=E1101
+
+        print(self.bla) \
+           # noqa: E1101

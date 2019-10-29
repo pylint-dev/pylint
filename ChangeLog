@@ -33,6 +33,11 @@ Release date: TBA
 
 * Allow parallel linting when run under Prospector
 
+* ``# noqa: ...` pragmas are now supported as an alternative to
+  ``# pylint: disable=...``.
+
+  Closes #2493
+  
 
 What's New in Pylint 2.4.3?
 ===========================
