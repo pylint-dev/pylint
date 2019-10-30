@@ -115,6 +115,7 @@ TYPING_NAMES = frozenset(
         "AnyStr",
         "Text",
         "Pattern",
+        "BinaryIO",
     }
 )
 
