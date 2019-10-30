@@ -956,11 +956,15 @@ a metaclass class method.",
                 overridden_frame.qname()
             ):
                 # If a subclass defined the method then it's not our fault.
-                mro = klass.mro()
-                for subklass in mro[1 : mro.index(overridden_frame) + 1]:
-                    for obj in subklass.lookup(node.name)[1]:
-                        if isinstance(obj, astroid.FunctionDef):
-                            return
+                try:
+                    mro = klass.mro()
+                except (InconsistentMroError, DuplicateBasesError):
+                    pass
+                else:
+                    for subklass in mro[1 : mro.index(overridden_frame) + 1]:
+                        for obj in subklass.lookup(node.name)[1]:
+                            if isinstance(obj, astroid.FunctionDef):
+                                return
                 args = (overridden.root().name, overridden.fromlineno)
                 self.add_message("method-hidden", args=args, node=node)
         except astroid.NotFoundError:
