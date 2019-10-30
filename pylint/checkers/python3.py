@@ -887,6 +887,10 @@ class Python3Checker(checkers.BaseChecker):
         )
     )
 
+    _relevant_call_attrs = (
+        DICT_METHODS | _deprecated_attrs | {"encode", "decode", "translate"}
+    )
+
     _python_2_tests = frozenset(
         [
             astroid.extract_node(x).repr_tree()
@@ -1149,10 +1153,7 @@ class Python3Checker(checkers.BaseChecker):
 
             try:
                 for inferred_receiver in _infer_if_relevant_attr(
-                    node.func,
-                    DICT_METHODS
-                    | self._deprecated_attrs
-                    | {"encode", "decode", "translate"},
+                    node.func, self._relevant_call_attrs
                 ):
                     if inferred_receiver is astroid.Uninferable:
                         continue
