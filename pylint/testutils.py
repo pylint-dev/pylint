@@ -334,8 +334,8 @@ class OutputLine(
     def to_csv(self):
         if self.confidence == interfaces.HIGH.name:
             return self[:-1]
-        else:
-            return self
+
+        return self
 
 
 # Common sub-expressions.
@@ -352,11 +352,11 @@ _EXPECTED_RE = re.compile(
 )
 
 
-def parse_python_version(str):
-    return tuple(int(digit) for digit in str.split("."))
+def parse_python_version(ver_str):
+    return tuple(int(digit) for digit in ver_str.split("."))
 
 
-class FunctionalTestReporter(BaseReporter):
+class FunctionalTestReporter(BaseReporter):  # pylint: disable=abstract-method
     def handle_message(self, msg):
         self.messages.append(msg)
 
@@ -364,10 +364,10 @@ class FunctionalTestReporter(BaseReporter):
         self.messages = []
 
     def display_reports(self, layout):
-        """Ignore layouts."""
+        """Ignore layouts and don't call self._display()."""
 
 
-class FunctionalTestFile(object):
+class FunctionalTestFile:
     """A single functional test case file with options."""
 
     _CONVERTERS = {
@@ -437,7 +437,9 @@ def get_expected_messages(stream):
     """Parses a file and get expected messages.
 
     :param stream: File-like input stream.
+    :type stream: enumerable
     :returns: A dict mapping line,msg-symbol tuples to the count on this line.
+    :rtype: dict
     """
     messages = collections.Counter()
     for i, line in enumerate(stream):
@@ -470,9 +472,12 @@ def multiset_difference(left_op, right_op):
     A multiset is a dict with the cardinality of the key as the value.
 
     :param left_op: The expected entries.
+    :type left_op: set
     :param right_op: Actual entries.
+    :type right_op: set
 
     :returns: The two multisets of missing and unexpected messages.
+    :rtype: tuple
     """
     missing = left_op.copy()
     missing.subtract(right_op)
@@ -485,13 +490,13 @@ def multiset_difference(left_op, right_op):
     return missing, unexpected
 
 
-class LintModuleTest(object):
+class LintModuleTest:
     maxDiff = None
 
     def __init__(self, test_file):
-        test_reporter = FunctionalTestReporter()
+        _test_reporter = FunctionalTestReporter()
         self._linter = PyLinter()
-        self._linter.set_reporter(test_reporter)
+        self._linter.set_reporter(_test_reporter)
         self._linter.config.persistent = 0
         checkers.initialize(self._linter)
         self._linter.disable("I")
@@ -593,7 +598,8 @@ class LintModuleTest(object):
             pytest.fail("\n".join(msg))
         self._check_output_text(expected_messages, expected_text, received_text)
 
-    def _split_lines(self, expected_messages, lines):
+    @classmethod
+    def _split_lines(cls, expected_messages, lines):
         emitted, omitted = [], []
         for msg in lines:
             if (msg[1], msg[0]) in expected_messages:
