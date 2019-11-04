@@ -748,6 +748,11 @@ class PyLinter(
     def python3_porting_mode(self):
         """Disable all other checkers and enable Python 3 warnings."""
         self.disable("all")
+        # re-enable some errors, or 'print', 'raise', 'async', 'await' will mistakenly lint fine
+        self.enable("fatal")  # F0001
+        self.enable("astroid-error")  # F0002
+        self.enable("parse-error")  # F0010
+        self.enable("syntax-error")  # E0001
         self.enable("python3")
         if self._error_mode:
             # The error mode was activated, using the -E flag.

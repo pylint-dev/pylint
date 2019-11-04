@@ -40,6 +40,10 @@ Release date: TBA
 
 * Python 3 porting mode is 30-50% faster on most codebases
 
+* Python 3 porting mode no longer swallows syntax errors
+
+  Closes #2956
+
 
 What's New in Pylint 2.4.3?
 ===========================
