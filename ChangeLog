@@ -7,6 +7,8 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* The ``json`` reporter no longer bypasses ``redirect_stdout``. Close #3227
+
 * Move ``NoFileError``, ``OutputLine``, ``FunctionalTestReporter``,
   ``FunctionalTestFile``, ``LintModuleTest`` and related methods from
   ``test_functional.py`` to ``pylint.testutils`` to help testing for 3rd
