@@ -7,6 +7,10 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* ``Ellipsis` is exempted from ``multiple-statements`` for function overloads.
+
+  Close #3224
+
 * The ``json`` reporter no longer bypasses ``redirect_stdout``. Close #3227
 
 * Move ``NoFileError``, ``OutputLine``, ``FunctionalTestReporter``,
