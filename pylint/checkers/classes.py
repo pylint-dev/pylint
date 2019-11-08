@@ -1477,10 +1477,10 @@ a metaclass class method.",
         # don't care about functions with unknown argument (builtins)
         if node.args.args is None:
             return
-        if node.args.args:
-            first_arg = node.argnames()[0]
-        elif node.args.posonlyargs:
+        if node.args.posonlyargs:
             first_arg = node.args.posonlyargs[0].name
+        elif node.args.args:
+            first_arg = node.argnames()[0]
         else:
             first_arg = None
         self._first_attrs.append(first_arg)
