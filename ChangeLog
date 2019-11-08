@@ -11,6 +11,10 @@ Release date: TBA
 
   Close #3224
 
+* Allow ``implicit-str-concat-in-sequence`` to be emitted for string juxtaposition
+
+  Close #3030
+
 * The ``json`` reporter no longer bypasses ``redirect_stdout``. Close #3227
 
 * Move ``NoFileError``, ``OutputLine``, ``FunctionalTestReporter``,

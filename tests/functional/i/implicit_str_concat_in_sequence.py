@@ -19,8 +19,13 @@ TEST_LIST5 = ('a', 'b'
               'c')
 
 # The following shouldn't raise a warning because of the escaped newline
-TEST_LIST6 = ('a' 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb \
+TEST_LIST6 = ('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb \
+              ccc')
+
+# But we should emit when there is an actual juxtaposition
+# +1: [implicit-str-concat-in-sequence]
+TEST_LIST7 = ('a' 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb \
               ccc')
 
 # No warning for bytes
-TEST_LIST7 = [b'A' b'B']
+TEST_LIST8 = [b'A' b'B']
