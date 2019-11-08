@@ -1693,7 +1693,6 @@ class VariablesChecker(BaseChecker):
         self._type_annotation_names.extend(
             annotation.name
             for annotation in type_annotation.nodes_of_class(astroid.Name)
-            if annotation.name in TYPING_NAMES
         )
 
     def _store_type_annotation_names(self, node):
