@@ -215,7 +215,19 @@ class StringFormatChecker(BaseChecker):
     msgs = MSGS
 
     # pylint: disable=too-many-branches
-    @check_messages(*MSGS)
+    @check_messages(
+        "bad-format-character",
+        "truncated-format-string",
+        "mixed-format-string",
+        "bad-format-string-key",
+        "missing-format-string-key",
+        "unused-format-string-key",
+        "bad-string-format-type",
+        "format-needs-mapping",
+        "too-many-format-args",
+        "too-few-format-args",
+        "bad-string-format-type",
+    )
     def visit_binop(self, node):
         if node.op != "%":
             return
@@ -640,15 +652,15 @@ class StringConstantChecker(BaseTokenChecker):
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
-    @check_messages(*(msgs.keys()))
+    @check_messages("implicit-str-concat-in-sequence")
     def visit_list(self, node):
         self.check_for_concatenated_strings(node, "list")
 
-    @check_messages(*(msgs.keys()))
+    @check_messages("implicit-str-concat-in-sequence")
     def visit_set(self, node):
         self.check_for_concatenated_strings(node, "set")
 
-    @check_messages(*(msgs.keys()))
+    @check_messages("implicit-str-concat-in-sequence")
     def visit_tuple(self, node):
         self.check_for_concatenated_strings(node, "tuple")
 
