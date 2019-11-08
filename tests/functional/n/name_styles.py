@@ -134,6 +134,9 @@ def _private_scope_function_with_long_descriptive_name():
     return 12
 
 LONG_CONSTANT_NAME_IN_PUBLIC_SCOPE_ARE_OKAY = True
+# We don't emit for non-const nodes
+good_name_for_funcs = lambda: None
+good_name_for_lists = [1, 2, 3]
 
 class _AnExceptionalExceptionThatOccursVeryVeryRarely(Exception):
     """A very exceptional exception with a nice descriptive name"""

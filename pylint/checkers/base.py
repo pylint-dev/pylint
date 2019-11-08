@@ -1886,9 +1886,11 @@ class NameChecker(_BasicChecker):
                 if isinstance(utils.safe_infer(assign_type.value), astroid.ClassDef):
                     self._check_name("class", node.name, node)
                 else:
-                    if not _redefines_import(node):
-                        # Don't emit if the name redefines an import
-                        # in an ImportError except handler.
+                    # Don't emit if the name redefines an import
+                    # in an ImportError except handler.
+                    if not _redefines_import(node) and isinstance(
+                        utils.safe_infer(assign_type.value), astroid.Const
+                    ):
                         self._check_name("const", node.name, node)
             elif isinstance(assign_type, astroid.ExceptHandler):
                 self._check_name("variable", node.name, node)

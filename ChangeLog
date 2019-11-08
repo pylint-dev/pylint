@@ -11,6 +11,17 @@ Release date: TBA
 
   Close #3224
 
+* No longer emit ``invalid-name`` for non-constants found at module level.
+
+  Pylint was taking the following statement from PEP-8 too far, considering
+  all module level variables as constants, which is not what the statement is saying:
+
+  `Constants are usually defined on a module level and written in
+  all capital letters with underscores separating words.`
+
+  Close #3111
+  Close #3132
+
 * Allow ``implicit-str-concat-in-sequence`` to be emitted for string juxtaposition
 
   Close #3030
