@@ -7,6 +7,7 @@ which means we were never processing them.
 
 import re
 import typing
+from datetime import datetime
 from typing import (
     Any,
     Callable,
@@ -63,3 +64,9 @@ def function(arg1,  # type: Iterable
     # type: (...) -> Sequence
     """docstring"""
     print(arg1, arg2)
+
+
+def magic(alpha, beta, gamma):
+    # type: (str, Optional[str], Optional[datetime]) -> Any
+    """going strong"""
+    return alpha, beta, gamma
