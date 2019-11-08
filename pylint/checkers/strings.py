@@ -589,12 +589,13 @@ class StringConstantChecker(BaseTokenChecker):
             "Used when an escape like \\u is encountered in a byte "
             "string where it has no effect.",
         ),
-        "W1403": (
+        "W1404": (
             "Implicit string concatenation found in %s",
-            "implicit-str-concat-in-sequence",
+            "implicit-str-concat",
             "String literals are implicitly concatenated in a "
             "literal iterable definition : "
             "maybe a comma is missing ?",
+            {"old_names": [("W1403", "implicit-str-concat-in-sequence")]},
         ),
     }
     options = (
@@ -605,7 +606,7 @@ class StringConstantChecker(BaseTokenChecker):
                 "type": "yn",
                 "metavar": "<y_or_n>",
                 "help": "This flag controls whether the "
-                "implicit-str-concat-in-sequence should generate a warning "
+                "implicit-str-concat should generate a warning "
                 "on implicit string concatenation in sequences defined over "
                 "several lines.",
             },
@@ -652,15 +653,15 @@ class StringConstantChecker(BaseTokenChecker):
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
-    @check_messages("implicit-str-concat-in-sequence")
+    @check_messages("implicit-str-concat")
     def visit_list(self, node):
         self.check_for_concatenated_strings(node.elts, "list")
 
-    @check_messages("implicit-str-concat-in-sequence")
+    @check_messages("implicit-str-concat")
     def visit_set(self, node):
         self.check_for_concatenated_strings(node.elts, "set")
 
-    @check_messages("implicit-str-concat-in-sequence")
+    @check_messages("implicit-str-concat")
     def visit_tuple(self, node):
         self.check_for_concatenated_strings(node.elts, "tuple")
 
@@ -690,9 +691,7 @@ class StringConstantChecker(BaseTokenChecker):
                     or self.config.check_str_concat_over_line_jumps
                 ):
                     self.add_message(
-                        "implicit-str-concat-in-sequence",
-                        line=elt.lineno,
-                        args=(iterable_type,),
+                        "implicit-str-concat", line=elt.lineno, args=(iterable_type,)
                     )
 
     def process_string_token(self, token, start_row):
