@@ -71,6 +71,7 @@ Release date: TBA
 * Python 3 porting mode no longer swallows syntax errors
 
   Closes #2956
+  Closes #3237
 
 
 What's New in Pylint 2.4.4?
