@@ -71,6 +71,9 @@ Release date: TBA
 * Python 3 porting mode no longer swallows syntax errors
 
   Closes #2956
+
+* Fixes a typo in tests/functional/t/ternary.py
+
   Closes #3237
 
 
