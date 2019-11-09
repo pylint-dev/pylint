@@ -43,6 +43,7 @@ import re
 import shlex
 import sys
 import types
+from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
 
@@ -64,6 +65,7 @@ from pylint.checkers.utils import (
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
+    is_overload_stub,
     is_super,
     node_ignores_exception,
     safe_infer,
@@ -99,7 +101,7 @@ def _flatten_container(iterable):
             yield item
 
 
-def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
+def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
     """Check if the given owner should be ignored
 
     This will verify if the owner's module is in *ignored_modules*
@@ -114,20 +116,37 @@ def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
     ignored_modules = set(ignored_modules)
     module_name = owner.root().name
     module_qname = owner.root().qname()
-    if any(
-        module_name in ignored_modules
-        or module_qname in ignored_modules
-        or fnmatch.fnmatch(module_qname, ignore)
-        for ignore in ignored_modules
-    ):
-        return True
 
+    for ignore in ignored_modules:
+        # Try to match the module name / fully qualified name directly
+        if module_qname in ignored_modules or module_name in ignored_modules:
+            return True
+
+        # Try to see if the ignores pattern match against the module name.
+        if fnmatch.fnmatch(module_qname, ignore):
+            return True
+
+        # Otherwise we might have a root module name being ignored,
+        # and the qualified owner has more levels of depth.
+        parts = deque(module_name.split("."))
+        current_module = ""
+
+        while parts:
+            part = parts.popleft()
+            if not current_module:
+                current_module = part
+            else:
+                current_module += ".{}".format(part)
+            if current_module in ignored_modules:
+                return True
+
+    # Match against ignored classes.
     ignored_classes = set(ignored_classes)
     if hasattr(owner, "qname"):
         qname = owner.qname()
     else:
         qname = ""
-    return any(ignore in (name, qname) for ignore in ignored_classes)
+    return any(ignore in (attrname, qname) for ignore in ignored_classes)
 
 
 @singledispatch
@@ -289,7 +308,7 @@ MSGS = {
         "assignment-from-none",
         "Used when an assignment is done on a function call but the "
         "inferred function returns nothing but None.",
-        {"old_names": [("W1111", "assignment-from-none")]},
+        {"old_names": [("W1111", "old-assignment-from-none")]},
     ),
     "E1129": (
         "Context manager '%s' doesn't implement __enter__ and __exit__.",
@@ -364,6 +383,12 @@ MSGS = {
         "end up in having multiple values passed for the aforementioned parameter in "
         "case the method is called with keyword arguments.",
     ),
+    "W1114": (
+        "Positional arguments appear to be out of order",
+        "arguments-out-of-order",
+        "Emitted  when the caller's argument names fully match the parameter "
+        "names in the function signature but do not have the same order.",
+    ),
 }
 
 # builtin sequence types in Python 2 and 3.
@@ -399,7 +424,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         return False
     if is_super(owner) or getattr(owner, "type", None) == "metaclass":
         return False
-    if ignored_mixins and owner_name[-5:].lower() == "mixin":
+    if owner_name and ignored_mixins and owner_name[-5:].lower() == "mixin":
         return False
     if isinstance(owner, astroid.FunctionDef) and owner.decorators:
         return False
@@ -443,7 +468,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
             return False
         except astroid.NotFoundError:
             pass
-    if node.attrname.startswith("_" + owner_name):
+    if owner_name and node.attrname.startswith("_" + owner_name):
         # Test if an attribute has been mangled ('private' attribute)
         unmangled_name = node.attrname.split("_" + owner_name)[-1]
         try:
@@ -510,44 +535,33 @@ def _has_parent_of_type(node, node_type, statement):
     return isinstance(parent, node_type)
 
 
-def _is_name_used_as_variadic(name, variadics):
-    """Check if the given name is used as a variadic argument."""
-    return any(
-        variadic.value == name or variadic.value.parent_of(name)
-        for variadic in variadics
-    )
-
-
-def _no_context_variadic_keywords(node):
+def _no_context_variadic_keywords(node, scope):
     statement = node.statement()
-    scope = node.scope()
     variadics = ()
 
-    if not isinstance(scope, astroid.FunctionDef):
-        return False
-
-    if isinstance(statement, (astroid.Return, astroid.Expr)) and isinstance(
-        statement.value, astroid.Call
-    ):
-        call = statement.value
-        variadics = list(call.keywords or []) + call.kwargs
+    if isinstance(scope, astroid.Lambda) and not isinstance(scope, astroid.FunctionDef):
+        variadics = list(node.keywords or []) + node.kwargs
+    else:
+        if isinstance(statement, (astroid.Return, astroid.Expr)) and isinstance(
+            statement.value, astroid.Call
+        ):
+            call = statement.value
+            variadics = list(call.keywords or []) + call.kwargs
 
     return _no_context_variadic(node, scope.args.kwarg, astroid.Keyword, variadics)
 
 
-def _no_context_variadic_positional(node):
-    statement = node.statement()
-    scope = node.scope()
+def _no_context_variadic_positional(node, scope):
     variadics = ()
-
-    if not isinstance(scope, astroid.FunctionDef):
-        return False
-
-    if isinstance(statement, (astroid.Expr, astroid.Return)) and isinstance(
-        statement.value, astroid.Call
-    ):
-        call = statement.value
-        variadics = call.starargs + call.kwargs
+    if isinstance(scope, astroid.Lambda) and not isinstance(scope, astroid.FunctionDef):
+        variadics = node.starargs + node.kwargs
+    else:
+        statement = node.statement()
+        if isinstance(statement, (astroid.Expr, astroid.Return)) and isinstance(
+            statement.value, astroid.Call
+        ):
+            call = statement.value
+            variadics = call.starargs + call.kwargs
 
     return _no_context_variadic(node, scope.args.vararg, astroid.Starred, variadics)
 
@@ -563,6 +577,10 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
     This can lead pylint to believe that a function call receives
     too few arguments.
     """
+    scope = node.scope()
+    is_in_lambda_scope = not isinstance(scope, astroid.FunctionDef) and isinstance(
+        scope, astroid.Lambda
+    )
     statement = node.statement()
     for name in statement.nodes_of_class(astroid.Name):
         if name.name != variadic_name:
@@ -576,10 +594,19 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
         else:
             continue
 
-        inferred_statement = inferred.statement()
-        if not length and isinstance(inferred_statement, astroid.FunctionDef):
+        if is_in_lambda_scope and isinstance(inferred.parent, astroid.Arguments):
+            # The statement of the variadic will be the assignment itself,
+            # so we need to go the lambda instead
+            inferred_statement = inferred.parent.parent
+        else:
+            inferred_statement = inferred.statement()
+
+        if not length and isinstance(inferred_statement, astroid.Lambda):
             is_in_starred_context = _has_parent_of_type(node, variadic_type, statement)
-            used_as_starred_argument = _is_name_used_as_variadic(name, variadics)
+            used_as_starred_argument = any(
+                variadic.value == name or variadic.value.parent_of(name)
+                for variadic in variadics
+            )
             if is_in_starred_context or used_as_starred_argument:
                 return True
     return False
@@ -881,7 +908,6 @@ accessed. Python regular expressions are accepted.",
             # make sure that we won't emit a false positive, we just stop
             # whenever the inference returns an opaque inference object.
             return
-
         for owner in non_opaque_inference_results:
             name = getattr(owner, "name", None)
             if _is_owner_ignored(
@@ -967,28 +993,31 @@ accessed. Python regular expressions are accepted.",
         """
         if not isinstance(node.value, astroid.Call):
             return
+
         function_node = safe_infer(node.value.func)
-        # skip class, generator and incomplete function definition
         funcs = (astroid.FunctionDef, astroid.UnboundMethod, astroid.BoundMethod)
-        if not (
-            isinstance(function_node, funcs)
-            and function_node.root().fully_defined()
-            and not function_node.decorators
-        ):
+        if not isinstance(function_node, funcs):
             return
 
+        # Unwrap to get the actual function object
         if isinstance(function_node, astroid.BoundMethod) and isinstance(
             function_node._proxied, astroid.UnboundMethod
         ):
-            # Unwrap to get the actual function object
             function_node = function_node._proxied._proxied
 
+        # Make sure that it's a valid function that we can analyze.
+        # Ordered from less expensive to more expensive checks.
+        # pylint: disable=too-many-boolean-expressions
         if (
-            function_node.is_generator()
-            or function_node.is_abstract(pass_is_abstract=False)
+            not function_node.is_function
             or isinstance(function_node, astroid.AsyncFunctionDef)
+            or function_node.decorators
+            or function_node.is_generator()
+            or function_node.is_abstract(pass_is_abstract=False)
+            or not function_node.root().fully_defined()
         ):
             return
+
         returns = list(
             function_node.nodes_of_class(astroid.Return, skip_klass=astroid.FunctionDef)
         )
@@ -1056,7 +1085,46 @@ accessed. Python regular expressions are accepted.",
                     )
                     break
 
-    # pylint: disable=too-many-branches
+    def _check_argument_order(self, node, call_site, called, called_param_names):
+        """Match the supplied argument names against the function parameters.
+        Warn if some argument names are not in the same order as they are in
+        the function signature.
+        """
+        # Check for called function being an object instance function
+        # If so, ignore the initial 'self' argument in the signature
+        try:
+            is_classdef = isinstance(called.parent, astroid.scoped_nodes.ClassDef)
+            if is_classdef and called_param_names[0] == "self":
+                called_param_names = called_param_names[1:]
+        except IndexError:
+            return
+
+        try:
+            # extract argument names, if they have names
+            calling_parg_names = [p.name for p in call_site.positional_arguments]
+
+            # Additionally get names of keyword arguments to use in a full match
+            # against parameters
+            calling_kwarg_names = [
+                arg.name for arg in call_site.keyword_arguments.values()
+            ]
+        except AttributeError:
+            # the type of arg does not provide a `.name`. In this case we
+            # stop checking for out-of-order arguments because it is only relevant
+            # for named variables.
+            return
+
+        # Don't check for ordering if there is an unmatched arg or param
+        arg_set = set(calling_parg_names) | set(calling_kwarg_names)
+        param_set = set(called_param_names)
+        if arg_set != param_set:
+            return
+
+        # Warn based on the equality of argument ordering
+        if calling_parg_names != called_param_names[: len(calling_parg_names)]:
+            self.add_message("arguments-out-of-order", node=node, args=())
+
+    # pylint: disable=too-many-branches,too-many-locals
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node):
         """check that called functions/methods are inferred to callable objects,
@@ -1118,11 +1186,17 @@ accessed. Python regular expressions are accepted.",
 
         num_positional_args = len(call_site.positional_arguments)
         keyword_args = list(call_site.keyword_arguments.keys())
+        overload_function = is_overload_stub(called)
 
         # Determine if we don't have a context for our call and we use variadics.
-        if isinstance(node.scope(), astroid.FunctionDef):
-            has_no_context_positional_variadic = _no_context_variadic_positional(node)
-            has_no_context_keywords_variadic = _no_context_variadic_keywords(node)
+        node_scope = node.scope()
+        if isinstance(node_scope, (astroid.Lambda, astroid.FunctionDef)):
+            has_no_context_positional_variadic = _no_context_variadic_positional(
+                node, node_scope
+            )
+            has_no_context_keywords_variadic = _no_context_variadic_keywords(
+                node, node_scope
+            )
         else:
             has_no_context_positional_variadic = (
                 has_no_context_keywords_variadic
@@ -1136,7 +1210,6 @@ accessed. Python regular expressions are accepted.",
         num_positional_args += implicit_args + already_filled_positionals
 
         # Analyze the list of formal parameters.
-
         args = list(itertools.chain(called.args.posonlyargs or (), called.args.args))
         num_mandatory_parameters = len(args) - len(called.args.defaults)
         parameters = []
@@ -1167,7 +1240,9 @@ accessed. Python regular expressions are accepted.",
                 name = arg.name
             kwparams[name] = [called.args.kw_defaults[i], False]
 
-        # Match the supplied arguments against the function parameters.
+        self._check_argument_order(
+            node, call_site, called, [p[0][0] for p in parameters]
+        )
 
         # 1. Match the positional arguments.
         for i in range(num_positional_args):
@@ -1178,11 +1253,12 @@ accessed. Python regular expressions are accepted.",
                 # parameter.
                 break
             else:
-                # Too many positional arguments.
-                self.add_message(
-                    "too-many-function-args", node=node, args=(callable_name,)
-                )
-                break
+                if not overload_function:
+                    # Too many positional arguments.
+                    self.add_message(
+                        "too-many-function-args", node=node, args=(callable_name,)
+                    )
+                    break
 
         # 2. Match the keyword arguments.
         for keyword in keyword_args:
@@ -1217,7 +1293,7 @@ accessed. Python regular expressions are accepted.",
             elif called.args.kwarg is not None:
                 # The keyword argument gets assigned to the **kwargs parameter.
                 pass
-            else:
+            elif not overload_function:
                 # Unexpected keyword argument.
                 self.add_message(
                     "unexpected-keyword-arg", node=node, args=(keyword, callable_name)
@@ -1242,7 +1318,7 @@ accessed. Python regular expressions are accepted.",
                     display_name = "<tuple>"
                 else:
                     display_name = repr(name)
-                if not has_no_context_positional_variadic:
+                if not has_no_context_positional_variadic and not overload_function:
                     self.add_message(
                         "no-value-for-parameter",
                         node=node,

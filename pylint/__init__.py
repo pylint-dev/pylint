@@ -9,35 +9,35 @@
 
 import sys
 
-from .__pkginfo__ import version as __version__
+from pylint.__pkginfo__ import version as __version__
+from pylint.checkers.similar import Run as SimilarRun
+from pylint.epylint import Run as EpylintRun
+from pylint.lint import Run as PylintRun
+from pylint.pyreverse.main import Run as PyreverseRun
 
 
 def run_pylint():
     """run pylint"""
-    from pylint.lint import Run
 
     try:
-        Run(sys.argv[1:])
+        PylintRun(sys.argv[1:])
     except KeyboardInterrupt:
         sys.exit(1)
 
 
 def run_epylint():
     """run pylint"""
-    from pylint.epylint import Run
 
-    Run()
+    EpylintRun()
 
 
 def run_pyreverse():
     """run pyreverse"""
-    from pylint.pyreverse.main import Run
 
-    Run(sys.argv[1:])
+    PyreverseRun(sys.argv[1:])
 
 
 def run_symilar():
     """run symilar"""
-    from pylint.checkers.similar import Run
 
-    Run(sys.argv[1:])
+    SimilarRun(sys.argv[1:])

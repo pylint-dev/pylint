@@ -44,14 +44,18 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
 import keyword
-import sys
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
 
 from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import (
+    check_messages,
+    is_overload_stub,
+    is_protocol_class,
+    node_frame_class,
+)
 from pylint.constants import OPTION_RGX, WarningScope
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 
@@ -81,8 +85,6 @@ _KEYWORD_TOKENS = [
     "yield",
     "with",
 ]
-if sys.version_info < (3, 0):
-    _KEYWORD_TOKENS.append("print")
 
 _SPACED_OPERATORS = [
     "==",
@@ -1228,6 +1230,16 @@ class FormatChecker(BaseTokenChecker):
             and self.config.single_line_class_stmt
         ):
             return
+
+        # Function overloads that use ``Ellipsis`` are exempted.
+        if isinstance(node, nodes.Expr) and (
+            isinstance(node.value, nodes.Ellipsis)
+            or (isinstance(node.value, nodes.Const) and node.value.value is Ellipsis)
+        ):
+            frame = node.frame()
+            if is_overload_stub(frame) or is_protocol_class(node_frame_class(frame)):
+                return
+
         self.add_message("multiple-statements", node=node)
         self._visited_lines[line] = 2
 

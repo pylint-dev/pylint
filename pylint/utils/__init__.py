@@ -49,7 +49,6 @@ from pylint.utils.utils import (
     _format_option_value,
     _splitstrip,
     _unquote,
-    category_id,
     decoding_stream,
     deprecated_option,
     expand_modules,

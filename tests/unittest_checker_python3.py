@@ -15,20 +15,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Tests for the python3 checkers."""
-from __future__ import absolute_import
-
-import sys
-import textwrap
 
 import astroid
-import pytest
 
 from pylint import testutils
 from pylint.checkers import python3 as checker
 from pylint.interfaces import INFERENCE, INFERENCE_FAILURE
-
-# Decorator for any tests that will fail under Python 3
-python2_only = pytest.mark.skipif(sys.version_info[0] > 2, reason="Python 2 only")
 
 # TODO(cpopa): Port these to the functional test framework instead.
 
@@ -42,30 +34,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         message = builtin_name.lower() + "-builtin"
         with self.assertAddsMessages(testutils.Message(message, node=node)):
             self.checker.visit_name(node)
-
-    @python2_only
-    def test_bad_builtins(self):
-        builtins = [
-            "apply",
-            "buffer",
-            "cmp",
-            "coerce",
-            "execfile",
-            "file",
-            "input",
-            "intern",
-            "long",
-            "raw_input",
-            "round",
-            "reduce",
-            "StandardError",
-            "unichr",
-            "unicode",
-            "xrange",
-            "reload",
-        ]
-        for builtin in builtins:
-            self.check_bad_builtin(builtin)
 
     def as_iterable_in_for_loop_test(self, fxn):
         code = "for x in {}(): pass".format(fxn)
@@ -400,20 +368,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_classdef(node)
 
-    @python2_only
-    def test_print_statement(self):
-        node = astroid.extract_node('print "Hello, World!" #@')
-        message = testutils.Message("print-statement", node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_print(node)
-
-    @python2_only
-    def test_backtick(self):
-        node = astroid.extract_node("`test`")
-        message = testutils.Message("backtick", node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_repr(node)
-
     def test_relative_import(self):
         node = astroid.extract_node("import string  #@")
         message = testutils.Message("no-absolute-import", node=node)
@@ -606,22 +560,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
-    @python2_only
-    def test_parameter_unpacking(self):
-        node = astroid.extract_node("def func((a, b)):#@\n pass")
-        arg = node.args.args[0]
-        with self.assertAddsMessages(
-            testutils.Message("parameter-unpacking", node=arg)
-        ):
-            self.checker.visit_arguments(node.args)
-
-    @python2_only
-    def test_old_raise_syntax(self):
-        node = astroid.extract_node('raise Exception, "test"')
-        message = testutils.Message("old-raise-syntax", node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_raise(node)
-
     def test_xreadlines_attribute(self):
         node = astroid.extract_node(
             """
@@ -680,28 +618,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         node = astroid.extract_node('open(foobar, encoding="palmos") #@')
         with self.assertNoMessages():
             self.checker.visit_call(node)
-
-    @python2_only
-    def test_raising_string(self):
-        node = astroid.extract_node('raise "Test"')
-        message = testutils.Message("raising-string", node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_raise(node)
-
-    @python2_only
-    def test_checker_disabled_by_default(self):
-        node = astroid.parse(
-            textwrap.dedent(
-                """
-        abc = 1l
-        raise Exception, "test"
-        raise "test"
-        `abc`
-        """
-            )
-        )
-        with self.assertNoMessages():
-            self.walk(node)
 
     def test_using_cmp_argument(self):
         nodes = astroid.extract_node(
@@ -804,16 +720,6 @@ class TestPython3Checker(testutils.CheckerTestCase):
         absolute_import_message = testutils.Message("no-absolute-import", node=node)
         with self.assertAddsMessages(absolute_import_message):
             self.checker.visit_importfrom(node)
-
-    @python2_only
-    def test_bad_import_not_on_relative(self):
-        samples = ["from .commands import titi", "from . import commands"]
-        for code in samples:
-            node = astroid.extract_node(code)
-            absolute_import_message = testutils.Message("no-absolute-import", node=node)
-            with self.assertAddsMessages(absolute_import_message):
-                self.checker.visit_importfrom(node)
-            self.checker._future_absolute_import = False
 
     def test_bad_import_conditional(self):
         node = astroid.extract_node(
@@ -951,6 +857,11 @@ class TestPython3Checker(testutils.CheckerTestCase):
            2/0
         except (ValueError, TypeError): #@
            exc = 2
+        exc #@
+        try:
+           1/0
+        except (ValueError, TypeError) as exc:
+           foo(bar for bar in exc.bar)
         """
         )
         message = testutils.Message("exception-escape", node=module.body[1].value)
@@ -959,6 +870,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_excepthandler(module.body[2].handlers[0])
             self.checker.visit_excepthandler(module.body[4].handlers[0])
+            self.checker.visit_excepthandler(module.body[6].handlers[0])
 
     def test_bad_sys_attribute(self):
         node = astroid.extract_node(
@@ -1231,40 +1143,3 @@ class TestPython3Checker(testutils.CheckerTestCase):
         message = testutils.Message("next-method-defined", node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(node)
-
-
-@python2_only
-class TestPython3TokenChecker(testutils.CheckerTestCase):
-
-    CHECKER_CLASS = checker.Python3TokenChecker
-
-    def _test_token_message(self, code, symbolic_message):
-        tokens = testutils._tokenize_str(code)
-        message = testutils.Message(symbolic_message, line=1)
-        with self.assertAddsMessages(message):
-            self.checker.process_tokens(tokens)
-
-    def test_long_suffix(self):
-        for code in ("1l", "1L"):
-            self._test_token_message(code, "long-suffix")
-
-    def test_old_ne_operator(self):
-        self._test_token_message("1 <> 2", "old-ne-operator")
-
-    def test_old_octal_literal(self):
-        for octal in ("045", "055", "075", "077", "076543"):
-            self._test_token_message(octal, "old-octal-literal")
-
-        # Make sure we are catching only octals.
-        for non_octal in ("45", "00", "085", "08", "1"):
-            tokens = testutils._tokenize_str(non_octal)
-            with self.assertNoMessages():
-                self.checker.process_tokens(tokens)
-
-    def test_non_ascii_bytes_literal(self):
-        code = 'b"测试"'
-        self._test_token_message(code, "non-ascii-bytes-literal")
-        for code in ("测试", "测试", "abcdef", b"\x80"):
-            tokens = testutils._tokenize_str(code)
-            with self.assertNoMessages():
-                self.checker.process_tokens(tokens)

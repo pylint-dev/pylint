@@ -16,9 +16,8 @@
 
 """Utility methods for docstring checking."""
 
-from __future__ import absolute_import, print_function
-
 import re
+from typing import List
 
 import astroid
 
@@ -105,6 +104,11 @@ def _get_raise_target(node):
         if isinstance(func, (astroid.Name, astroid.Attribute)):
             return utils.safe_infer(func)
     return None
+
+
+def _split_multiple_exc_types(target: str) -> List[str]:
+    delimiters = r"(\s*,(?:\s*or\s)?\s*|\s+or\s+)"
+    return re.split(delimiters, target)
 
 
 def possible_exc_types(node):
@@ -230,7 +234,7 @@ class Docstring:
 
 class SphinxDocstring(Docstring):
     re_type = r"""
-        [~!]?                # Optional link style prefix
+        [~!.]?               # Optional link style prefix
         \w(?:\w|\.[^\.])*    # Valid python name
         """
 
@@ -239,6 +243,13 @@ class SphinxDocstring(Docstring):
         [\(\[] [^\n\s]+ [\)\]]        # with the contents of the container
     """.format(
         type=re_type
+    )
+
+    re_multiple_simple_type = r"""
+        (?:{container_type}|{type})
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*)(?:{container_type}|{type}))*
+    """.format(
+        type=re_type, container_type=re_simple_container_type
     )
 
     re_xref = r"""
@@ -277,7 +288,7 @@ class SphinxDocstring(Docstring):
         \s*                     # whitespace
         :                       # final colon
         """.format(
-        type=re_type
+        type=re_multiple_simple_type
     )
     re_type_in_docstring = re.compile(re_type_raw, re.X | re.S)
 
@@ -286,7 +297,7 @@ class SphinxDocstring(Docstring):
         \s+                     # whitespace
         {type}                  # type declaration
         """.format(
-        type=re_type
+        type=re_multiple_simple_type
     )
     re_property_type_in_docstring = re.compile(re_property_type_raw, re.X | re.S)
 
@@ -301,7 +312,7 @@ class SphinxDocstring(Docstring):
         \s*                     # whitespace
         :                       # final colon
         """.format(
-        type=re_type
+        type=re_multiple_simple_type
     )
     re_raise_in_docstring = re.compile(re_raise_raw, re.X | re.S)
 
@@ -325,7 +336,7 @@ class SphinxDocstring(Docstring):
 
         for match in re.finditer(self.re_raise_in_docstring, self.doc):
             raise_type = match.group(1)
-            types.add(raise_type)
+            types.update(_split_multiple_exc_types(raise_type))
 
         return types
 
@@ -443,7 +454,7 @@ class GoogleDocstring(Docstring):
 
     re_multiple_type = r"""
         (?:{container_type}|{type}|{xref})
-        (?:\s+(?:of|or)\s+(?:{container_type}|{type}|{xref}))*
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*)(?:{container_type}|{type}|{xref}))*
     """.format(
         type=re_type, xref=re_xref, container_type=re_container_type
     )
@@ -486,7 +497,7 @@ class GoogleDocstring(Docstring):
         \s*  ({type}) \s* :              # identifier
         \s*  (.*)                        # beginning of optional description
     """.format(
-            type=re_type
+            type=re_multiple_type
         ),
         re.X | re.S | re.M,
     )
@@ -631,7 +642,7 @@ class GoogleDocstring(Docstring):
             exc_type = match.group(1)
             exc_desc = match.group(2)
             if exc_desc:
-                types.add(exc_type)
+                types.update(_split_multiple_exc_types(exc_type))
 
         return types
 

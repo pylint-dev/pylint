@@ -596,6 +596,28 @@ def test_full_documentation(linter):
         assert re.search(regexp, output)
 
 
+def test_list_msgs_enabled(init_linter, capsys):
+    linter = init_linter
+    linter.enable("W0101", scope="package")
+    linter.disable("W0102", scope="package")
+    linter.list_messages_enabled()
+
+    lines = capsys.readouterr().out.splitlines()
+
+    assert "Enabled messages:" in lines
+    assert "  unreachable (W0101)" in lines
+
+    assert "Disabled messages:" in lines
+    disabled_ix = lines.index("Disabled messages:")
+
+    # W0101 should be in the enabled section
+    assert lines.index("  unreachable (W0101)") < disabled_ix
+
+    assert "  dangerous-default-value (W0102)" in lines
+    # W0102 should be in the disabled section
+    assert lines.index("  dangerous-default-value (W0102)") > disabled_ix
+
+
 @pytest.fixture
 def pop_pylintrc():
     os.environ.pop("PYLINTRC", None)
@@ -721,26 +743,26 @@ class TestPreprocessOptions(object):
             )
 
 
+class _CustomPyLinter(PyLinter):
+    def should_analyze_file(self, modname, path, is_argument=False):
+        if os.path.basename(path) == "wrong.py":
+            return False
+
+        return super(_CustomPyLinter, self).should_analyze_file(
+            modname, path, is_argument=is_argument
+        )
+
+
 def test_custom_should_analyze_file():
     """Check that we can write custom should_analyze_file that work
     even for arguments.
     """
-
-    class CustomPyLinter(PyLinter):
-        def should_analyze_file(self, modname, path, is_argument=False):
-            if os.path.basename(path) == "wrong.py":
-                return False
-
-            return super(CustomPyLinter, self).should_analyze_file(
-                modname, path, is_argument=is_argument
-            )
-
     package_dir = os.path.join(HERE, "regrtest_data", "bad_package")
     wrong_file = os.path.join(package_dir, "wrong.py")
 
     for jobs in [1, 2]:
         reporter = testutils.TestReporter()
-        linter = CustomPyLinter()
+        linter = _CustomPyLinter()
         linter.config.jobs = jobs
         linter.config.persistent = 0
         linter.open()
@@ -769,3 +791,21 @@ def test_filename_with__init__(init_linter):
     linter.check([filepath])
     messages = reporter.messages
     assert len(messages) == 0
+
+
+def test_by_module_statement_value(init_linter):
+    """Test "statement" for each module analized of computed correctly."""
+    linter = init_linter
+    linter.check(os.path.join(os.path.dirname(__file__), "data"))
+
+    for module, module_stats in linter.stats["by_module"].items():
+
+        linter2 = init_linter
+        if module == "data":
+            linter2.check(os.path.join(os.path.dirname(__file__), "data/__init__.py"))
+        else:
+            linter2.check(os.path.join(os.path.dirname(__file__), module))
+
+        # Check that the by_module "statement" is equal to the global "statement"
+        # computed for that module
+        assert module_stats["statement"] == linter2.stats["statement"]

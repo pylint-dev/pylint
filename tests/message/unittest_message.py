@@ -3,154 +3,54 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-import pytest
+from pylint.message import Message
 
-from pylint.checkers import BaseChecker
-from pylint.exceptions import InvalidMessageError
-from pylint.message import MessageDefinition, MessagesStore
+from .generic_fixtures import message_definitions, store
 
 
-@pytest.fixture
-def store():
-    return MessagesStore()
+def test_new_message(message_definitions):
+    def build_message(message_definition, location_value):
+        return Message(
+            symbol=message_definition.symbol,
+            msg_id=message_definition.msgid,
+            location=[
+                location_value["abspath"],
+                location_value["path"],
+                location_value["module"],
+                location_value["obj"],
+                location_value["line"],
+                location_value["column"],
+            ],
+            msg=message_definition.msg,
+            confidence="high",
+        )
 
-
-@pytest.mark.parametrize(
-    "messages,expected",
-    [
-        (
-            {
-                "W1234": ("message one", "msg-symbol-one", "msg description"),
-                "W4321": ("message two", "msg-symbol-two", "msg description"),
-            },
-            r"Inconsistent checker part in message id 'W4321' (expected 'x12xx' because we already had ['W1234']).",
-        ),
-        (
-            {
-                "W1233": (
-                    "message two",
-                    "msg-symbol-two",
-                    "msg description",
-                    {"old_names": [("W1234", "old-symbol")]},
-                ),
-                "W1234": ("message one", "msg-symbol-one", "msg description"),
-            },
-            "Message id 'W1234' cannot have both 'msg-symbol-one' and 'old-symbol' as symbolic name.",
-        ),
-        (
-            {
-                "W1234": ("message one", "msg-symbol-one", "msg description"),
-                "W1235": (
-                    "message two",
-                    "msg-symbol-two",
-                    "msg description",
-                    {"old_names": [("W1234", "old-symbol")]},
-                ),
-            },
-            "Message id 'W1234' cannot have both 'msg-symbol-one' and 'old-symbol' as symbolic name.",
-        ),
-        (
-            {
-                "W1234": (
-                    "message one",
-                    "msg-symbol-one",
-                    "msg description",
-                    {"old_names": [("W1201", "old-symbol-one")]},
-                ),
-                "W1235": (
-                    "message two",
-                    "msg-symbol-two",
-                    "msg description",
-                    {"old_names": [("W1201", "old-symbol-two")]},
-                ),
-            },
-            "Message id 'W1201' cannot have both 'old-symbol-one' and 'old-symbol-two' as symbolic name.",
-        ),
-        (
-            {
-                "W1234": ("message one", "msg-symbol", "msg description"),
-                "W1235": ("message two", "msg-symbol", "msg description"),
-            },
-            "Message symbol 'msg-symbol' cannot be used for 'W1234' and 'W1235' at the same time.",
-        ),
-        (
-            {
-                "W1233": (
-                    "message two",
-                    "msg-symbol-two",
-                    "msg description",
-                    {"old_names": [("W1230", "msg-symbol-one")]},
-                ),
-                "W1234": ("message one", "msg-symbol-one", "msg description"),
-            },
-            "Message symbol 'msg-symbol-one' cannot be used for 'W1230' and 'W1234' at the same time.",
-        ),
-        (
-            {
-                "W1234": ("message one", "msg-symbol-one", "msg description"),
-                "W1235": (
-                    "message two",
-                    "msg-symbol-two",
-                    "msg description",
-                    {"old_names": [("W1230", "msg-symbol-one")]},
-                ),
-            },
-            "Message symbol 'msg-symbol-one' cannot be used for 'W1234' and 'W1235' at the same time.",
-        ),
-        (
-            {
-                "W1234": (
-                    "message one",
-                    "msg-symbol-one",
-                    "msg description",
-                    {"old_names": [("W1230", "old-symbol-one")]},
-                ),
-                "W1235": (
-                    "message two",
-                    "msg-symbol-two",
-                    "msg description",
-                    {"old_names": [("W1231", "old-symbol-one")]},
-                ),
-            },
-            "Message symbol 'old-symbol-one' cannot be used for 'W1230' and 'W1235' at the same time.",
-        ),
-    ],
-)
-def test_register_error(store, messages, expected):
-    class Checker(BaseChecker):
-        name = "checker"
-        msgs = messages
-
-    with pytest.raises(InvalidMessageError) as cm:
-        store.register_messages_from_checker(Checker())
-    assert str(cm.value) == expected
-
-
-def test_register_error_new_id_duplicate_of_new(store):
-    class CheckerOne(BaseChecker):
-        name = "checker_one"
-        msgs = {"W1234": ("message one", "msg-symbol-one", "msg description.")}
-
-    class CheckerTwo(BaseChecker):
-        name = "checker_two"
-        msgs = {"W1234": ("message two", "msg-symbol-two", "another msg description.")}
-
-    store.register_messages_from_checker(CheckerOne())
-    test_register_error(
-        store,
-        {"W1234": ("message two", "msg-symbol-two", "another msg description.")},
-        "Message id 'W1234' cannot have both 'msg-symbol-one' and 'msg-symbol-two' as symbolic name.",
+    template = "{path}:{line}:{column}: {msg_id}: {msg} ({symbol})"
+    for message_definition in message_definitions:
+        if message_definition.msgid == "E1234":
+            e1234_message_definition = message_definition
+        if message_definition.msgid == "W1234":
+            w1234_message_definition = message_definition
+    e1234_location_values = {
+        "abspath": "1",
+        "path": "2",
+        "module": "3",
+        "obj": "4",
+        "line": "5",
+        "column": "6",
+    }
+    w1234_location_values = {
+        "abspath": "7",
+        "path": "8",
+        "module": "9",
+        "obj": "10",
+        "line": "11",
+        "column": "12",
+    }
+    expected = (
+        "2:5:6: E1234: Duplicate keyword argument %r in %s call (duplicate-keyword-arg)"
     )
-
-
-@pytest.mark.parametrize(
-    "msgid,expected",
-    [
-        ("Q1234", "Bad message type Q in 'Q1234'"),
-        ("W12345", "Invalid message id 'W12345'"),
-    ],
-)
-def test_create_invalid_message_type(msgid, expected):
-    with pytest.raises(InvalidMessageError) as cm:
-        MessageDefinition("checker", msgid, "msg", "descr", "symbol", "scope")
-    assert str(cm.value) == expected
+    e1234 = build_message(e1234_message_definition, e1234_location_values)
+    w1234 = build_message(w1234_message_definition, w1234_location_values)
+    assert e1234.format(template) == expected
+    assert w1234.format(template) == "8:11:12: W1234: message (msg-symbol)"

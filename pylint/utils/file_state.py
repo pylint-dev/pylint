@@ -120,9 +120,12 @@ class FileState:
         for warning, lines in self._raw_module_msgs_state.items():
             for line, enable in lines.items():
                 if not enable and (warning, line) not in self._ignored_msgs:
-                    yield "useless-suppression", line, (
-                        msgs_store.get_msg_display_string(warning),
-                    )
+                    # ignore cyclic-import check which can show false positives
+                    # here due to incomplete context
+                    if warning != "R0401":
+                        yield "useless-suppression", line, (
+                            msgs_store.get_msg_display_string(warning),
+                        )
         # don't use iteritems here, _ignored_msgs may be modified by add_message
         for (warning, from_), lines in list(self._ignored_msgs.items()):
             for line in lines:

@@ -13,8 +13,6 @@
 
 """check for new / old style related problems
 """
-import sys
-
 import astroid
 
 from pylint.checkers import BaseChecker
@@ -27,13 +25,7 @@ MSGS = {
         "bad-super-call",
         "Used when another argument than the current class is given as "
         "first argument of the super builtin.",
-    ),
-    "E1004": (
-        "Missing argument to super()",
-        "missing-super-argument",
-        "Used when the super builtin didn't receive an argument.",
-        {"maxversion": (3, 0)},
-    ),
+    )
 }
 
 
@@ -54,7 +46,7 @@ class NewStyleConflictChecker(BaseChecker):
     # configuration options
     options = ()
 
-    @check_messages("bad-super-call", "missing-super-argument")
+    @check_messages("bad-super-call")
     def visit_functiondef(self, node):
         """check use of super"""
         # ignore actual functions or method within a new style class
@@ -79,18 +71,11 @@ class NewStyleConflictChecker(BaseChecker):
             ):
                 continue
 
-            if not klass.newstyle and has_known_bases(klass):
-                # super should not be used on an old style class
-                continue
-            else:
-                # super first arg should be the class
+            # super should not be used on an old style class
+            if klass.newstyle or not has_known_bases(klass):
+                # super first arg should not be the class
                 if not call.args:
-                    if sys.version_info[0] == 3:
-                        # unless Python 3
-                        continue
-                    else:
-                        self.add_message("missing-super-argument", node=call)
-                        continue
+                    continue
 
                 # calling super(type(self), self) can lead to recursion loop
                 # in derived classes

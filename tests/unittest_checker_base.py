@@ -32,7 +32,7 @@ class TestDocstring(CheckerTestCase):
 
     def test_missing_docstring_module(self):
         module = astroid.parse("something")
-        message = Message("missing-docstring", node=module, args=("module",))
+        message = Message("missing-module-docstring", node=module)
         with self.assertAddsMessages(message):
             self.checker.visit_module(module)
 
@@ -53,7 +53,7 @@ class TestDocstring(CheckerTestCase):
         def func(tion):
            pass"""
         )
-        message = Message("missing-docstring", node=func, args=("function",))
+        message = Message("missing-function-docstring", node=func)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
@@ -76,7 +76,7 @@ class TestDocstring(CheckerTestCase):
             pass
            """
         )
-        message = Message("missing-docstring", node=func, args=("function",))
+        message = Message("missing-function-docstring", node=func)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
@@ -91,7 +91,7 @@ class TestDocstring(CheckerTestCase):
                 pass
            """
         )
-        message = Message("missing-docstring", node=func, args=("function",))
+        message = Message("missing-function-docstring", node=func)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
@@ -111,7 +111,7 @@ class TestDocstring(CheckerTestCase):
         class Klass(object):
            pass"""
         )
-        message = Message("missing-docstring", node=klass, args=("class",))
+        message = Message("missing-class-docstring", node=klass)
         with self.assertAddsMessages(message):
             self.checker.visit_classdef(klass)
 
@@ -579,7 +579,7 @@ Basic checker Messages
 
 """
         self.assertEqual(str(basic), expected_beginning + expected_end)
-        self.assertEqual(repr(basic), "Checker 'basic' responsible for W0001")
+        self.assertEqual(repr(basic), "Checker 'basic' (responsible for 'W0001')")
         less_basic = LessBasicChecker()
 
         self.assertEqual(

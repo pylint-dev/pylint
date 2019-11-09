@@ -14,13 +14,13 @@ __revision__ = 0
 
 def no_reimport():
     """docstring"""
-    import os
+    import os  #pylint: disable=import-outside-toplevel
     print(os)
 
 
 def reimport():
     """This function contains a reimport."""
-    import sys
+    import sys  #pylint: disable=import-outside-toplevel
     del sys
 
 

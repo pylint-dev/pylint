@@ -117,10 +117,46 @@ To run the test suite for a particular Python version, you can do::
     tox -e py37
 
 
+To run individual tests with ``tox``, you can do::
+
+    tox -e py37 -- -k name_of_the_test
+
+
+We use pytest_ for testing ``pylint``, which you can use without using ``tox`` for a faster development cycle.
+
+If you want to run tests on a specific portion of the code with pytest_, (pytest-cov_) and your local python version::
+
+    # ( pip install pytest-cov )
+    # Everything:
+    python3 -m pytest tests/
+    # Everything in tests/message with coverage for the relevant code:
+    python3 -m pytest tests/message/ --cov=pylint.message
+    coverage html
+    # Only the functional test "missing_kwoa_py3":
+    python3 -m pytest "tests/test_functional.py::test_functional[missing_kwoa_py3]"
+
+
+Do not forget to clone astroid_ and install the last version::
+
+
+    git clone https://github.com/PyCQA/astroid.git
+
+    # From source
+    python3 astroid/setup.py build sdist
+    pip3 install astroid/dist/astroid*.tar.gz
+
+    # Using an editable installation
+    cd astroid
+    python3 -m pip install -e .
+
+
 For more detailed information, check the documentation.
 
 .. _here: http://pylint.pycqa.org/en/latest/user_guide/installation.html
 .. _tox: https://tox.readthedocs.io/en/latest/
+.. _pytest: https://docs.pytest.org/en/latest/
+.. _pytest-cov: https://pypi.org/project/pytest-cov/
+.. _astroid: https://github.com/PyCQA/astroid
 
 License
 -------

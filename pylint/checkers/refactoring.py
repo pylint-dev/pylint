@@ -35,6 +35,7 @@ from pylint import utils as lint_utils
 from pylint.checkers import utils
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
+BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
 
 
 def _if_statement_is_always_returning(if_node, returning_node_class):
@@ -141,13 +142,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Used when a function or a method has too many nested "
             "blocks. This makes the code less understandable and "
             "maintainable.",
-            {"old_names": [("R0101", "too-many-nested-blocks")]},
+            {"old_names": [("R0101", "old-too-many-nested-blocks")]},
         ),
         "R1703": (
             "The if statement can be replaced with %s",
             "simplifiable-if-statement",
             "Used when an if statement can be replaced with 'bool(test)'. ",
-            {"old_names": [("R0102", "simplifiable-if-statement")]},
+            {"old_names": [("R0102", "old-simplifiable-if-statement")]},
         ),
         "R1704": (
             "Redefining argument with the local name %r",
@@ -265,6 +266,36 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "As such, it will warn when it encounters an else "
             "following a chain of ifs, all of them containing a "
             "raise statement.",
+        ),
+        "R1721": (
+            "Unnecessary use of a comprehension",
+            "unnecessary-comprehension",
+            "Instead of using an identitiy comprehension, "
+            "consider using the list, dict or set constructor. "
+            "It is faster and simpler.",
+        ),
+        "R1722": (
+            "Consider using sys.exit()",
+            "consider-using-sys-exit",
+            "Instead of using exit() or quit(), consider using the sys.exit().",
+        ),
+        "R1723": (
+            'Unnecessary "%s" after "break"',
+            "no-else-break",
+            "Used in order to highlight an unnecessary block of "
+            "code following an if containing a break statement. "
+            "As such, it will warn when it encounters an else "
+            "following a chain of ifs, all of them containing a "
+            "break statement.",
+        ),
+        "R1724": (
+            'Unnecessary "%s" after "continue"',
+            "no-else-continue",
+            "Used in order to highlight an unnecessary block of "
+            "code following an if containing a continue statement. "
+            "As such, it will warn when it encounters an else "
+            "following a chain of ifs, all of them containing a "
+            "continue statement.",
         ),
     }
     options = (
@@ -498,6 +529,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node, msg_id="no-else-raise", returning_node_class=astroid.Raise
         )
 
+    def _check_superfluous_else_break(self, node):
+        return self._check_superfluous_else(
+            node, msg_id="no-else-break", returning_node_class=astroid.Break
+        )
+
+    def _check_superfluous_else_continue(self, node):
+        return self._check_superfluous_else(
+            node, msg_id="no-else-continue", returning_node_class=astroid.Continue
+        )
+
     def _check_consider_get(self, node):
         def type_and_name_are_equal(node_a, node_b):
             for _type in [astroid.Name, astroid.AssignName]:
@@ -538,6 +579,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "simplifiable-if-statement",
         "no-else-return",
         "no-else-raise",
+        "no-else-break",
+        "no-else-continue",
         "consider-using-get",
     )
     def visit_if(self, node):
@@ -545,6 +588,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_nested_blocks(node)
         self._check_superfluous_else_return(node)
         self._check_superfluous_else_raise(node)
+        self._check_superfluous_else_break(node)
+        self._check_superfluous_else_continue(node)
         self._check_consider_get(node)
 
     @utils.check_messages("simplifiable-if-expression")
@@ -634,10 +679,30 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "stop-iteration-return",
         "consider-using-dict-comprehension",
         "consider-using-set-comprehension",
+        "consider-using-sys-exit",
     )
     def visit_call(self, node):
         self._check_raising_stopiteration_in_generator_next_call(node)
         self._check_consider_using_comprehension_constructor(node)
+        self._check_quit_exit_call(node)
+
+    @staticmethod
+    def _has_exit_in_scope(scope):
+        exit_func = scope.locals.get("exit")
+        return bool(
+            exit_func and isinstance(exit_func[0], (astroid.ImportFrom, astroid.Import))
+        )
+
+    def _check_quit_exit_call(self, node):
+
+        if isinstance(node.func, astroid.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
+            # If we have `exit` imported from `sys` in the current or global scope, exempt this instance.
+            local_scope = node.scope()
+            if self._has_exit_in_scope(local_scope) or self._has_exit_in_scope(
+                node.root()
+            ):
+                return
+            self.add_message("consider-using-sys-exit", node=node)
 
     def _check_raising_stopiteration_in_generator_next_call(self, node):
         """Check if a StopIteration exception is raised by the call to next function
@@ -964,6 +1029,58 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_augassign(self, node):
         self._check_consider_using_join(node)
 
+    @utils.check_messages("unnecessary-comprehension")
+    def visit_comprehension(self, node):
+        self._check_unnecessary_comprehension(node)
+
+    def _check_unnecessary_comprehension(self, node):
+        if (
+            isinstance(node.parent, astroid.GeneratorExp)
+            or len(node.ifs) != 0
+            or len(node.parent.generators) != 1
+            or node.is_async
+        ):
+            return
+
+        if (
+            isinstance(node.parent, astroid.DictComp)
+            and isinstance(node.parent.key, astroid.Name)
+            and isinstance(node.parent.value, astroid.Name)
+            and isinstance(node.target, astroid.Tuple)
+            and all(isinstance(elt, astroid.AssignName) for elt in node.target.elts)
+        ):
+            expr_list = [node.parent.key.name, node.parent.value.name]
+            target_list = [elt.name for elt in node.target.elts]
+
+        elif isinstance(node.parent, (astroid.ListComp, astroid.SetComp)):
+            expr = node.parent.elt
+            if isinstance(expr, astroid.Name):
+                expr_list = expr.name
+            elif isinstance(expr, astroid.Tuple):
+                if any(not isinstance(elt, astroid.Name) for elt in expr.elts):
+                    return
+                expr_list = [elt.name for elt in expr.elts]
+            else:
+                expr_list = []
+            target = node.parent.generators[0].target
+            target_list = (
+                target.name
+                if isinstance(target, astroid.AssignName)
+                else (
+                    [
+                        elt.name
+                        for elt in target.elts
+                        if isinstance(elt, astroid.AssignName)
+                    ]
+                    if isinstance(target, astroid.Tuple)
+                    else []
+                )
+            )
+        else:
+            return
+        if expr_list == target_list != []:
+            self.add_message("unnecessary-comprehension", node=node)
+
     @staticmethod
     def _is_and_or_ternary(node):
         """
@@ -1157,12 +1274,17 @@ class RecommandationChecker(checkers.BaseChecker):
 
     @utils.check_messages("consider-iterating-dictionary")
     def visit_call(self, node):
+        if not isinstance(node.func, astroid.Attribute):
+            return
+        if node.func.attrname != "keys":
+            return
+        if not isinstance(node.parent, (astroid.For, astroid.Comprehension)):
+            return
+
         inferred = utils.safe_infer(node.func)
-        if not inferred:
-            return
-        if not isinstance(inferred, astroid.BoundMethod):
-            return
-        if not isinstance(inferred.bound, astroid.Dict) or inferred.name != "keys":
+        if not isinstance(inferred, astroid.BoundMethod) or not isinstance(
+            inferred.bound, astroid.Dict
+        ):
             return
 
         if isinstance(node.parent, (astroid.For, astroid.Comprehension)):

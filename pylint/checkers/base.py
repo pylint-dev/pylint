@@ -154,26 +154,36 @@ LITERAL_NODE_TYPES = (astroid.Const, astroid.Dict, astroid.List, astroid.Set)
 UNITTEST_CASE = "unittest.case"
 BUILTINS = builtins.__name__
 TYPE_QNAME = "%s.type" % BUILTINS
-PY33 = sys.version_info >= (3, 3)
-PY3K = sys.version_info >= (3, 0)
-PY35 = sys.version_info >= (3, 5)
 ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
 
 # Name categories that are always consistent with all naming conventions.
 EXEMPT_NAME_CATEGORIES = {"exempt", "ignore"}
 
-# A mapping from builtin-qname -> symbol, to be used when generating messages
+# A mapping from qname -> symbol, to be used when generating messages
 # about dangerous default values as arguments
 DEFAULT_ARGUMENT_SYMBOLS = dict(
     zip(
         [".".join([BUILTINS, x]) for x in ("set", "dict", "list")],
         ["set()", "{}", "[]"],
-    )
+    ),
+    **{
+        x: "%s()" % x
+        for x in (
+            "collections.deque",
+            "collections.ChainMap",
+            "collections.Counter",
+            "collections.OrderedDict",
+            "collections.defaultdict",
+            "collections.UserDict",
+            "collections.UserList",
+        )
+    },
 )
 REVERSED_COMPS = {"<": ">", "<=": ">=", ">": "<", ">=": "<="}
 COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
 # List of methods which can be redefined
 REDEFINABLE_METHODS = frozenset(("__module__",))
+TYPING_FORWARD_REF_QNAME = "typing.ForwardRef"
 
 
 def _redefines_import(node):
@@ -555,7 +565,7 @@ class BasicErrorChecker(_BasicChecker):
             # f(*args) is converted to Call(args=[Starred]), so ignore
             # them for this check.
             return
-        if PY35 and isinstance(
+        if isinstance(
             node.parent, (astroid.List, astroid.Tuple, astroid.Set, astroid.Dict)
         ):
             # PEP 448 unpacking.
@@ -596,19 +606,6 @@ class BasicErrorChecker(_BasicChecker):
                 # Are we returning anything but None from constructors
                 if any(v for v in values if not utils.is_none(v)):
                     self.add_message("return-in-init", node=node)
-        elif node.is_generator():
-            # make sure we don't mix non-None returns and yields
-            if not PY33:
-                for retnode in returns:
-                    if (
-                        isinstance(retnode.value, astroid.Const)
-                        and retnode.value.value is not None
-                    ):
-                        self.add_message(
-                            "return-arg-in-generator",
-                            node=node,
-                            line=retnode.fromlineno,
-                        )
         # Check for duplicate names by clustering args with same name for detailed report
         arg_clusters = collections.defaultdict(list)
         arguments = filter(None, [node.args.args, node.args.kwonlyargs])
@@ -836,13 +833,11 @@ class BasicErrorChecker(_BasicChecker):
     def _check_redefinition(self, redeftype, node):
         """check for redefinition of a function / method / class name"""
         parent_frame = node.parent.frame()
+
         # Ignore function stubs created for type information
+        redefinitions = parent_frame.locals[node.name]
         defined_self = next(
-            (
-                local
-                for local in parent_frame.locals[node.name]
-                if not utils.is_overload_stub(local)
-            ),
+            (local for local in redefinitions if not utils.is_overload_stub(local)),
             node,
         )
         if defined_self is not node and not astroid.are_exclusive(node, defined_self):
@@ -857,6 +852,21 @@ class BasicErrorChecker(_BasicChecker):
 
             if utils.is_overload_stub(node):
                 return
+
+            # Check if we have forward references for this node.
+            try:
+                redefinition_index = redefinitions.index(node)
+            except ValueError:
+                pass
+            else:
+                for redefinition in redefinitions[:redefinition_index]:
+                    inferred = utils.safe_infer(redefinition)
+                    if (
+                        inferred
+                        and isinstance(inferred, astroid.Instance)
+                        and inferred.qname() == TYPING_FORWARD_REF_QNAME
+                    ):
+                        return
 
             dummy_variables_rgx = lint_utils.get_global_option(
                 self, "dummy-variables-rgx", default=None
@@ -953,7 +963,7 @@ class BasicChecker(_BasicChecker):
             "re-raised.",
         ),
         "W0199": (
-            "Assert called on a 2-uple. Did you mean 'assert x,y'?",
+            "Assert called on a 2-item-tuple. Did you mean 'assert x,y'?",
             "assert-on-tuple",
             "A call of assert on a tuple will always evaluate to true if "
             "the tuple is not empty, and will always evaluate to false if "
@@ -980,6 +990,16 @@ class BasicChecker(_BasicChecker):
             "missing-parentheses-for-call-in-test",
             "Emitted when a conditional statement (If or ternary if) "
             "seems to wrongly call a function due to missing parentheses",
+        ),
+        "W0127": (
+            "Assigning the same variable %r to itself",
+            "self-assigning-variable",
+            "Emitted when we detect that a variable is assigned to itself",
+        ),
+        "W0128": (
+            "Redeclared variable %r in assignment",
+            "redeclared-assigned-name",
+            "Emitted when we detect that a variable was redeclared in the same assignment.",
         ),
         "E0111": (
             "The first reversed() argument is not a sequence",
@@ -1471,31 +1491,85 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("confusing-with-statement")
     def visit_with(self, node):
-        if not PY3K:
-            # in Python 2 a "with" statement with multiple managers coresponds
-            # to multiple nested AST "With" nodes
-            pairs = []
-            parent_node = node.parent
-            if isinstance(parent_node, astroid.With):
-                # we only care about the direct parent, since this method
-                # gets called for each with node anyway
-                pairs.extend(parent_node.items)
-            pairs.extend(node.items)
-        else:
-            # in PY3K a "with" statement with multiple managers coresponds
-            # to one AST "With" node with multiple items
-            pairs = node.items
+        # a "with" statement with multiple managers coresponds
+        # to one AST "With" node with multiple items
+        pairs = node.items
         if pairs:
             for prev_pair, pair in zip(pairs, pairs[1:]):
                 if isinstance(prev_pair[1], astroid.AssignName) and (
                     pair[1] is None and not isinstance(pair[0], astroid.Call)
                 ):
-                    # don't emit a message if the second is a function call
-                    # there's no way that can be mistaken for a name assignment
-                    if PY3K or node.lineno == node.parent.lineno:
-                        # if the line number doesn't match
-                        # we assume it's a nested "with"
-                        self.add_message("confusing-with-statement", node=node)
+                    # Don't emit a message if the second is a function call
+                    # there's no way that can be mistaken for a name assignment.
+                    # If the line number doesn't match
+                    # we assume it's a nested "with".
+                    self.add_message("confusing-with-statement", node=node)
+
+    def _check_self_assigning_variable(self, node):
+        # Detect assigning to the same variable.
+
+        scope = node.scope()
+        scope_locals = scope.locals
+
+        rhs_names = []
+        targets = node.targets
+        if isinstance(targets[0], astroid.Tuple):
+            if len(targets) != 1:
+                # A complex assignment, so bail out early.
+                return
+            targets = targets[0].elts
+
+        if isinstance(node.value, astroid.Name):
+            if len(targets) != 1:
+                return
+            rhs_names = [node.value]
+        elif isinstance(node.value, astroid.Tuple):
+            rhs_count = len(node.value.elts)
+            if len(targets) != rhs_count or rhs_count == 1:
+                return
+            rhs_names = node.value.elts
+
+        for target, lhs_name in zip(targets, rhs_names):
+            if not isinstance(lhs_name, astroid.Name):
+                continue
+            if not isinstance(target, astroid.AssignName):
+                continue
+            if isinstance(scope, astroid.ClassDef) and target.name in scope_locals:
+                # Check that the scope is different than a class level, which is usually
+                # a pattern to expose module level attributes as class level ones.
+                continue
+            if target.name == lhs_name.name:
+                self.add_message(
+                    "self-assigning-variable", args=(target.name,), node=target
+                )
+
+    def _check_redeclared_assign_name(self, targets):
+        for target in targets:
+            if not isinstance(target, astroid.Tuple):
+                continue
+
+            found_names = []
+            for element in target.elts:
+                if isinstance(element, astroid.Tuple):
+                    self._check_redeclared_assign_name([element])
+                elif isinstance(element, astroid.AssignName) and element.name != "_":
+                    found_names.append(element.name)
+
+            names = collections.Counter(found_names)
+            for name, count in names.most_common():
+                if count > 1:
+                    self.add_message(
+                        "redeclared-assigned-name", args=(name,), node=target
+                    )
+
+    @utils.check_messages("self-assigning-variable", "redeclared-assigned-name")
+    def visit_assign(self, node):
+        self._check_self_assigning_variable(node)
+        self._check_redeclared_assign_name(node.targets)
+
+    @utils.check_messages("redeclared-assigned-name")
+    def visit_for(self, node):
+        self._check_redeclared_assign_name([node.target])
 
 
 KNOWN_NAME_TYPES = {
@@ -1607,6 +1681,16 @@ class NameChecker(_BasicChecker):
             },
         ),
         (
+            "good-names-rgxs",
+            {
+                "default": "",
+                "type": "regexp_csv",
+                "metavar": "<names>",
+                "help": "Good variable names regexes, separated by a comma. If names match any regex,"
+                " they will always be accepted",
+            },
+        ),
+        (
             "bad-names",
             {
                 "default": ("foo", "bar", "baz", "toto", "tutu", "tata"),
@@ -1614,6 +1698,16 @@ class NameChecker(_BasicChecker):
                 "metavar": "<names>",
                 "help": "Bad variable names which should always be refused, "
                 "separated by a comma.",
+            },
+        ),
+        (
+            "bad-names-rgxs",
+            {
+                "default": "",
+                "type": "regexp_csv",
+                "metavar": "<names>",
+                "help": "Bad variable names regexes, separated by a comma. If names match any regex,"
+                " they will always be refused",
             },
         ),
         (
@@ -1661,6 +1755,8 @@ class NameChecker(_BasicChecker):
         self._bad_names = {}
         self._name_regexps = {}
         self._name_hints = {}
+        self._good_names_rgxs_compiled = []
+        self._bad_names_rgxs_compiled = []
 
     def open(self):
         self.stats = self.linter.add_stats(
@@ -1682,6 +1778,12 @@ class NameChecker(_BasicChecker):
         regexps, hints = self._create_naming_rules()
         self._name_regexps = regexps
         self._name_hints = hints
+        self._good_names_rgxs_compiled = [
+            re.compile(rgxp) for rgxp in self.config.good_names_rgxs
+        ]
+        self._bad_names_rgxs_compiled = [
+            re.compile(rgxp) for rgxp in self.config.bad_names_rgxs
+        ]
 
     def _create_naming_rules(self):
         regexps = {}
@@ -1784,9 +1886,11 @@ class NameChecker(_BasicChecker):
                 if isinstance(utils.safe_infer(assign_type.value), astroid.ClassDef):
                     self._check_name("class", node.name, node)
                 else:
-                    if not _redefines_import(node):
-                        # Don't emit if the name redefines an import
-                        # in an ImportError except handler.
+                    # Don't emit if the name redefines an import
+                    # in an ImportError except handler.
+                    if not _redefines_import(node) and isinstance(
+                        utils.safe_infer(assign_type.value), astroid.Const
+                    ):
                         self._check_name("const", node.name, node)
             elif isinstance(assign_type, astroid.ExceptHandler):
                 self._check_name("variable", node.name, node)
@@ -1820,6 +1924,16 @@ class NameChecker(_BasicChecker):
         self.add_message("invalid-name", node=node, args=args, confidence=confidence)
         self.stats["badname_" + node_type] += 1
 
+    def _name_valid_due_to_whitelist(self, name: str) -> bool:
+        return name in self.config.good_names or any(
+            pattern.match(name) for pattern in self._good_names_rgxs_compiled
+        )
+
+    def _name_invalid_due_to_blacklist(self, name: str) -> bool:
+        return name in self.config.bad_names or any(
+            pattern.match(name) for pattern in self._bad_names_rgxs_compiled
+        )
+
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
 
@@ -1834,9 +1948,9 @@ class NameChecker(_BasicChecker):
             clobbering, _ = utils.clobber_in_except(node)
             if clobbering:
                 return
-        if name in self.config.good_names:
+        if self._name_valid_due_to_whitelist(name=name):
             return
-        if name in self.config.bad_names:
+        if self._name_invalid_due_to_blacklist(name=name):
             self.stats["badname_" + node_type] += 1
             self.add_message("blacklisted-name", node=node, args=name)
             return
@@ -1874,18 +1988,34 @@ class NameChecker(_BasicChecker):
 
 class DocStringChecker(_BasicChecker):
     msgs = {
-        "C0111": (
-            "Missing %s docstring",  # W0131
-            "missing-docstring",
-            "Used when a module, function, class or method has no docstring. "
-            "Some special methods like __init__ don't necessarily require a "
-            "docstring.",
-        ),
         "C0112": (
-            "Empty %s docstring",  # W0132
+            "Empty %s docstring",
             "empty-docstring",
             "Used when a module, function, class or method has an empty "
             "docstring (it would be too easy ;).",
+            {"old_names": [("W0132", "old-empty-docstring")]},
+        ),
+        "C0114": (
+            "Missing module docstring",
+            "missing-module-docstring",
+            "Used when a module has no docstring."
+            "Empty modules do not require a docstring.",
+            {"old_names": [("C0111", "missing-docstring")]},
+        ),
+        "C0115": (
+            "Missing class docstring",
+            "missing-class-docstring",
+            "Used when a class has no docstring."
+            "Even an empty class must have a docstring.",
+            {"old_names": [("C0111", "missing-docstring")]},
+        ),
+        "C0116": (
+            "Missing function or method docstring",
+            "missing-function-docstring",
+            "Used when a function or method has no docstring."
+            "Some special methods like __init__ do not require a "
+            "docstring.",
+            {"old_names": [("C0111", "missing-docstring")]},
         ),
     }
     options = (
@@ -1991,14 +2121,18 @@ class DocStringChecker(_BasicChecker):
                 if isinstance(func, astroid.BoundMethod) and isinstance(
                     func.bound, astroid.Instance
                 ):
-                    # Strings in Python 3, others in Python 2.
-                    if PY3K and func.bound.name == "str":
+                    # Strings.
+                    if func.bound.name == "str":
                         return
                     if func.bound.name in ("str", "unicode", "bytes"):
                         return
-            self.add_message(
-                "missing-docstring", node=node, args=(node_type,), confidence=confidence
-            )
+            if node_type == "module":
+                message = "missing-module-docstring"
+            elif node_type == "class":
+                message = "missing-class-docstring"
+            else:
+                message = "missing-function-docstring"
+            self.add_message(message, node=node, confidence=confidence)
         elif not docstring.strip():
             self.stats["undocumented_" + node_type] += 1
             self.add_message(
@@ -2063,7 +2197,7 @@ class ComparisonChecker(_BasicChecker):
             "Python is to use isinstance(x, Y) rather than "
             "type(x) == Y, type(x) is Y. Though there are unusual "
             "situations where these give different results.",
-            {"old_names": [("W0154", "unidiomatic-typecheck")]},
+            {"old_names": [("W0154", "old-unidiomatic-typecheck")]},
         ),
         "R0123": (
             "Comparison to literal",

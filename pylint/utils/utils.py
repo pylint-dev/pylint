@@ -3,8 +3,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-from __future__ import print_function
-
 import codecs
 import re
 import sys
@@ -15,10 +13,12 @@ from os.path import basename, dirname, exists, isdir, join, normpath, splitext
 
 from astroid import Module, modutils
 
-from pylint.constants import MSG_TYPES, MSG_TYPES_LONG, PY_EXTS
+from pylint.constants import PY_EXTS
+
+DEFAULT_LINE_LENGTH = 79
 
 
-def normalize_text(text, line_len=80, indent=""):
+def normalize_text(text, line_len=DEFAULT_LINE_LENGTH, indent=""):
     """Wrap the text on the given line length."""
     return "\n".join(
         textwrap.wrap(
@@ -44,13 +44,6 @@ def get_module_and_frameid(node):
     return module, ".".join(obj)
 
 
-def category_id(cid):
-    cid = cid.upper()
-    if cid in MSG_TYPES:
-        return cid
-    return MSG_TYPES_LONG.get(cid)
-
-
 def get_rst_title(title, character):
     """Permit to get a title formatted as ReStructuredText test (underlined with a chosen character)."""
     return "%s\n%s\n" % (title, character * len(title))
@@ -62,13 +55,13 @@ def get_rst_section(section, options, doc=None):
     if section:
         result += get_rst_title(section, "'")
     if doc:
-        formatted_doc = normalize_text(doc, line_len=79, indent="")
+        formatted_doc = normalize_text(doc)
         result += "%s\n\n" % formatted_doc
     for optname, optdict, value in options:
         help_opt = optdict.get("help")
         result += ":%s:\n" % optname
         if help_opt:
-            formatted_help = normalize_text(help_opt, line_len=79, indent="  ")
+            formatted_help = normalize_text(help_opt, indent="  ")
             result += "%s\n" % formatted_help
         if value:
             value = str(_format_option_value(optdict, value))
@@ -363,7 +356,7 @@ def _ini_format(stream, options):
         value = _format_option_value(optdict, value)
         help_opt = optdict.get("help")
         if help_opt:
-            help_opt = normalize_text(help_opt, line_len=79, indent="# ")
+            help_opt = normalize_text(help_opt, indent="# ")
             print(file=stream)
             print(help_opt, file=stream)
         else:

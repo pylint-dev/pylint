@@ -19,19 +19,22 @@
 # pylint: disable=redefined-builtin,invalid-name
 """pylint packaging information"""
 
-from __future__ import absolute_import
-
 from os.path import join
 
 # For an official release, use dev_version = None
-numversion = (2, 4, 0)
-dev_version = 0
+numversion = (2, 5, 0)
+dev_version = "1"
 
 version = ".".join(str(num) for num in numversion)
 if dev_version is not None:
     version += "-dev" + str(dev_version)
 
-install_requires = ["astroid>=2.2.0,<3", "isort>=4.2.5,<5", "mccabe>=0.6,<0.7"]
+install_requires = [
+    "astroid>=2.3.0,<2.4",
+    "isort>=4.2.5,<5",
+    "mccabe>=0.6,<0.7",
+    "toml>=0.7.1",
+]
 
 dependency_links = []  # type: ignore
 

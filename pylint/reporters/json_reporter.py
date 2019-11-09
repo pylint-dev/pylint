@@ -7,8 +7,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """JSON reporter"""
-from __future__ import absolute_import, print_function
-
 import html
 import json
 import sys
@@ -24,8 +22,8 @@ class JSONReporter(BaseReporter):
     name = "json"
     extension = "json"
 
-    def __init__(self, output=sys.stdout):
-        BaseReporter.__init__(self, output)
+    def __init__(self, output=None):
+        BaseReporter.__init__(self, output or sys.stdout)
         self.messages = []
 
     def handle_message(self, msg):

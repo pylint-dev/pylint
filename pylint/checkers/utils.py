@@ -34,7 +34,6 @@ import itertools
 import numbers
 import re
 import string
-import sys
 from functools import lru_cache, partial
 from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, Union
 
@@ -52,18 +51,14 @@ COMP_NODE_TYPES = (
     astroid.DictComp,
     astroid.GeneratorExp,
 )
-PY3K = sys.version_info[0] == 3
-
-if not PY3K:
-    EXCEPTIONS_MODULE = "exceptions"
-else:
-    EXCEPTIONS_MODULE = "builtins"
+EXCEPTIONS_MODULE = "builtins"
 ABC_METHODS = {
     "abc.abstractproperty",
     "abc.abstractmethod",
     "abc.abstractclassmethod",
     "abc.abstractstaticmethod",
 }
+TYPING_PROTOCOLS = frozenset({"typing.Protocol", "typing_extensions.Protocol"})
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
@@ -271,10 +266,14 @@ def is_super(node: astroid.node_classes.NodeNG) -> bool:
 
 def is_error(node: astroid.node_classes.NodeNG) -> bool:
     """return true if the function does nothing but raising an exception"""
-    for child_node in node.get_children():
+    raises = False
+    returns = False
+    for child_node in node.nodes_of_class((astroid.Raise, astroid.Return)):
         if isinstance(child_node, astroid.Raise):
-            return True
-    return False
+            raises = True
+        if isinstance(child_node, astroid.Return):
+            returns = True
+    return raises and not returns
 
 
 builtins = builtins.__dict__.copy()  # type: ignore
@@ -511,10 +510,7 @@ def parse_format_string(
             if char in "hlL":
                 i, char = next_char(i)
             # Parse the conversion type (mandatory).
-            if PY3K:
-                flags = "diouxXeEfFgGcrs%a"
-            else:
-                flags = "diouxXeEfFgGcrs%"
+            flags = "diouxXeEfFgGcrs%a"
             if char not in flags:
                 raise UnsupportedFormatCharacter(i)
             if key:
@@ -610,11 +606,11 @@ def is_attr_protected(attrname: str) -> bool:
     )
 
 
-def node_frame_class(
-    node: astroid.node_classes.NodeNG
-) -> Optional[astroid.node_classes.NodeNG]:
-    """return klass node for a method node (or a staticmethod or a
-    classmethod), return null otherwise
+def node_frame_class(node: astroid.node_classes.NodeNG) -> Optional[astroid.ClassDef]:
+    """Return the class that is wrapping the given node
+
+    The function returns a class for a method node (or a staticmethod or a
+    classmethod), otherwise it returns `None`.
     """
     klass = node.frame()
 
@@ -710,8 +706,6 @@ def decorated_with_property(node: astroid.FunctionDef) -> bool:
     if not node.decorators:
         return False
     for decorator in node.decorators.nodes:
-        if not isinstance(decorator, astroid.Name):
-            continue
         try:
             if _is_property_decorator(decorator):
                 return True
@@ -720,12 +714,12 @@ def decorated_with_property(node: astroid.FunctionDef) -> bool:
     return False
 
 
-def _is_property_kind(node, kind):
+def _is_property_kind(node, *kinds):
     if not isinstance(node, (astroid.UnboundMethod, astroid.FunctionDef)):
         return False
     if node.decorators:
         for decorator in node.decorators.nodes:
-            if isinstance(decorator, astroid.Attribute) and decorator.attrname == kind:
+            if isinstance(decorator, astroid.Attribute) and decorator.attrname in kinds:
                 return True
     return False
 
@@ -738,6 +732,11 @@ def is_property_setter(node: astroid.FunctionDef) -> bool:
 def is_property_deleter(node: astroid.FunctionDef) -> bool:
     """Check if the given node is a property deleter"""
     return _is_property_kind(node, "deleter")
+
+
+def is_property_setter_or_deleter(node: astroid.FunctionDef) -> bool:
+    """Check if the given node is either a property setter or a deleter"""
+    return _is_property_kind(node, "setter", "deleter")
 
 
 def _is_property_decorator(decorator: astroid.Name) -> bool:
@@ -754,13 +753,20 @@ def _is_property_decorator(decorator: astroid.Name) -> bool:
     return False
 
 
-def decorated_with(func: astroid.FunctionDef, qnames: Iterable[str]) -> bool:
+def decorated_with(
+    func: Union[astroid.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod],
+    qnames: Iterable[str],
+) -> bool:
     """Determine if the `func` node has a decorator with the qualified name `qname`."""
     decorators = func.decorators.nodes if func.decorators else []
     for decorator_node in decorators:
+        if isinstance(decorator_node, astroid.Call):
+            # We only want to infer the function name
+            decorator_node = decorator_node.func
         try:
             if any(
-                i is not None and i.qname() in qnames for i in decorator_node.infer()
+                i is not None and i.qname() in qnames or i.name in qnames
+                for i in decorator_node.infer()
             ):
                 return True
         except astroid.InferenceError:
@@ -874,7 +880,7 @@ def _except_handlers_ignores_exception(
 
 def get_exception_handlers(
     node: astroid.node_classes.NodeNG, exception=Exception
-) -> List[astroid.ExceptHandler]:
+) -> Optional[List[astroid.ExceptHandler]]:
     """Return the collections of handlers handling the exception in arguments.
 
     Args:
@@ -890,7 +896,7 @@ def get_exception_handlers(
         return [
             handler for handler in context.handlers if error_of_type(handler, exception)
         ]
-    return None
+    return []
 
 
 def is_node_inside_try_except(node: astroid.Raise) -> bool:
@@ -1234,6 +1240,19 @@ def is_overload_stub(node: astroid.node_classes.NodeNG) -> bool:
     :param node: Node to check.
     :returns: True if node is an overload function stub. False otherwise.
     """
-    return isinstance(node, astroid.FunctionDef) and decorated_with(
-        node, ["typing.overload"]
-    )
+    decorators = getattr(node, "decorators", None)
+    return bool(decorators and decorated_with(node, ["typing.overload", "overload"]))
+
+
+def is_protocol_class(cls: astroid.node_classes.NodeNG) -> bool:
+    """Check if the given node represents a protocol class
+
+    :param cls: The node to check
+    :returns: True if the node is a typing protocol class, false otherwise.
+    """
+    if not isinstance(cls, astroid.ClassDef):
+        return False
+
+    # Use .ancestors() since not all protocol classes can have
+    # their mro deduced.
+    return any(parent.qname() in TYPING_PROTOCOLS for parent in cls.ancestors())

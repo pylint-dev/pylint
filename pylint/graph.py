@@ -14,6 +14,7 @@
 import codecs
 import os
 import os.path as osp
+import subprocess
 import sys
 import tempfile
 
@@ -80,8 +81,6 @@ class DotBackend:
         :rtype: str
         :return: a path to the generated file
         """
-        import subprocess  # introduced in py 2.4
-
         name = self.graphname
         if not dotfile:
             # if 'outputfile' is a dot file use it as 'dotfile'

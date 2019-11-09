@@ -29,10 +29,7 @@
 
 """classes checker for Python code
 """
-from __future__ import generators
-
 import collections
-import sys
 from itertools import chain, zip_longest
 
 import astroid
@@ -56,6 +53,8 @@ from pylint.checkers.utils import (
     is_comprehension,
     is_iterable,
     is_property_setter,
+    is_property_setter_or_deleter,
+    is_protocol_class,
     node_frame_class,
     overrides_a_method,
     safe_infer,
@@ -64,12 +63,9 @@ from pylint.checkers.utils import (
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import get_global_option
 
-if sys.version_info >= (3, 0):
-    NEXT_METHOD = "__next__"
-else:
-    NEXT_METHOD = "next"
+NEXT_METHOD = "__next__"
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
-
+BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
 
 # Dealing with useless override detection, with regard
 # to parameters vs arguments
@@ -565,6 +561,13 @@ MSGS = {
         "relying on super() delegation to do the same thing as another method "
         "from the MRO.",
     ),
+    "W0236": (
+        "Method %r was expected to be %r, found it instead as %r",
+        "invalid-overridden-method",
+        "Used when we detect that a method was overridden as a property "
+        "or the other way around, which could result in potential bugs at "
+        "runtime.",
+    ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
         "invalid-slots-object",
@@ -622,14 +625,24 @@ MSGS = {
         "Used when a class inherit from object, which under python3 is implicit, "
         "hence can be safely removed from bases.",
     ),
+    "R0206": (
+        "Cannot have defined parameters for properties",
+        "property-with-parameters",
+        "Used when we detect that a property also has parameters, which are useless, "
+        "given that properties cannot be called with additional arguments.",
+    ),
 }
+
+
+def _scope_default():
+    return collections.defaultdict(list)
 
 
 class ScopeAccessMap:
     """Store the accessed variables per scope."""
 
     def __init__(self):
-        self._scopes = collections.defaultdict(lambda: collections.defaultdict(list))
+        self._scopes = collections.defaultdict(_scope_default)
 
     def set_accessed(self, node):
         """Set the given node as accessed."""
@@ -870,6 +883,7 @@ a metaclass class method.",
             return
 
         self._check_useless_super_delegation(node)
+        self._check_property_with_parameters(node)
 
         klass = node.parent.frame()
         self._meth_could_be_func = True
@@ -882,16 +896,18 @@ a metaclass class method.",
         for overridden in klass.local_attr_ancestors(node.name):
             # get astroid for the searched method
             try:
-                meth_node = overridden[node.name]
+                parent_function = overridden[node.name]
             except KeyError:
                 # we have found the method but it's not in the local
                 # dictionary.
                 # This may happen with astroid build from living objects
                 continue
-            if not isinstance(meth_node, astroid.FunctionDef):
+            if not isinstance(parent_function, astroid.FunctionDef):
                 continue
-            self._check_signature(node, meth_node, "overridden", klass)
+            self._check_signature(node, parent_function, "overridden", klass)
+            self._check_invalid_overridden_method(node, parent_function)
             break
+
         if node.decorators:
             for decorator in node.decorators.nodes:
                 if isinstance(decorator, astroid.Attribute) and decorator.attrname in (
@@ -936,11 +952,24 @@ a metaclass class method.",
                 and overridden_frame.type == "method"
             ):
                 overridden_frame = overridden_frame.parent.frame()
-            if isinstance(overridden_frame, astroid.ClassDef) and klass.is_subtype_of(
-                overridden_frame.qname()
+            if not (
+                isinstance(overridden_frame, astroid.ClassDef)
+                and klass.is_subtype_of(overridden_frame.qname())
             ):
-                args = (overridden.root().name, overridden.fromlineno)
-                self.add_message("method-hidden", args=args, node=node)
+                return
+
+            # If a subclass defined the method then it's not our fault.
+            try:
+                mro = klass.mro()
+            except (InconsistentMroError, DuplicateBasesError):
+                pass
+            else:
+                for subklass in mro[1 : mro.index(overridden_frame) + 1]:
+                    for obj in subklass.lookup(node.name)[1]:
+                        if isinstance(obj, astroid.FunctionDef):
+                            return
+            args = (overridden.root().name, overridden.fromlineno)
+            self.add_message("method-hidden", args=args, node=node)
         except astroid.NotFoundError:
             pass
 
@@ -1052,6 +1081,30 @@ a metaclass class method.",
                 "useless-super-delegation", node=function, args=(function.name,)
             )
 
+    def _check_property_with_parameters(self, node):
+        if node.args.args and len(node.args.args) > 1 and decorated_with_property(node):
+            self.add_message("property-with-parameters", node=node)
+
+    def _check_invalid_overridden_method(self, function_node, parent_function_node):
+        parent_is_property = decorated_with_property(
+            parent_function_node
+        ) or is_property_setter_or_deleter(parent_function_node)
+        current_is_property = decorated_with_property(
+            function_node
+        ) or is_property_setter_or_deleter(function_node)
+        if parent_is_property and not current_is_property:
+            self.add_message(
+                "invalid-overridden-method",
+                args=(function_node.name, "property", function_node.type),
+                node=function_node,
+            )
+        elif not parent_is_property and current_is_property:
+            self.add_message(
+                "invalid-overridden-method",
+                args=(function_node.name, "method", "property"),
+                node=function_node,
+            )
+
     def _check_slots(self, node):
         if "__slots__" not in node.locals:
             return
@@ -1099,9 +1152,14 @@ a metaclass class method.",
                     "invalid-slots-object", args=inferred.as_string(), node=elt
                 )
 
-            # Check if we have a conflict with a class variable
+            # Check if we have a conflict with a class variable.
             class_variable = node.locals.get(inferred.value)
             if class_variable:
+                # Skip annotated assignments which don't conflict at all with slots.
+                if len(class_variable) == 1:
+                    parent = class_variable[0].parent
+                    if isinstance(parent, astroid.AnnAssign) and parent.value is None:
+                        return
                 self.add_message(
                     "class-variable-slots-conflict", args=(inferred.value,), node=elt
                 )
@@ -1127,6 +1185,7 @@ a metaclass class method.",
                     or overrides_a_method(class_node, node.name)
                     or decorated_with_property(node)
                     or _has_bare_super_call(node)
+                    or is_protocol_class(class_node)
                 )
             ):
                 self.add_message("no-self-use", node=node)
@@ -1308,7 +1367,24 @@ a metaclass class method.",
                     if _is_attribute_property(name, klass):
                         return
 
+                #  A licit use of protected member is inside a special method
+                if not attrname.startswith(
+                    "__"
+                ) and self._is_called_inside_special_method(node):
+                    return
+
                 self.add_message("protected-access", node=node, args=attrname)
+
+    @staticmethod
+    def _is_called_inside_special_method(node: astroid.node_classes.NodeNG) -> bool:
+        """
+        Returns true if the node is located inside a special (aka dunder) method
+        """
+        try:
+            frame_name = node.frame().name
+        except AttributeError:
+            return False
+        return frame_name and frame_name in PYMETHODS
 
     def _is_type_self_call(self, expr):
         return (
@@ -1401,7 +1477,12 @@ a metaclass class method.",
         # don't care about functions with unknown argument (builtins)
         if node.args.args is None:
             return
-        first_arg = node.args.args and node.argnames()[0]
+        if node.args.posonlyargs:
+            first_arg = node.args.posonlyargs[0].name
+        elif node.args.args:
+            first_arg = node.argnames()[0]
+        else:
+            first_arg = None
         self._first_attrs.append(first_arg)
         first = self._first_attrs[-1]
         # static method
@@ -1415,7 +1496,7 @@ a metaclass class method.",
                 return
             self._first_attrs[-1] = None
         # class / regular method with no args
-        elif not node.args.args:
+        elif not node.args.args and not node.args.posonlyargs:
             self.add_message("no-method-argument", node=node)
         # metaclass
         elif metaclass:
@@ -1490,7 +1571,7 @@ a metaclass class method.",
 
     def _check_init(self, node):
         """check that the __init__ method call super or ancestors'__init__
-        method
+        method (unless it is used for type hinting with `typing.overload`)
         """
         if not self.linter.is_message_enabled(
             "super-init-not-called"
@@ -1540,6 +1621,8 @@ a metaclass class method.",
             except astroid.InferenceError:
                 continue
         for klass, method in not_called_yet.items():
+            if decorated_with(node, ["typing.overload"]):
+                continue
             cls = node_frame_class(method)
             if klass.name == "object" or (cls and cls.name == "object"):
                 continue
@@ -1618,8 +1701,8 @@ class SpecialMethodsChecker(BaseChecker):
             "iterable (i.e. has no `%s` method)" % NEXT_METHOD,
             {
                 "old_names": [
-                    ("W0234", "non-iterator-returned"),
-                    ("E0234", "non-iterator-returned"),
+                    ("W0234", "old-non-iterator-returned-1"),
+                    ("E0234", "old-non-iterator-returned-2"),
                 ]
             },
         ),
