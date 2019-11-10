@@ -102,7 +102,7 @@ class MissingMessage(PragmaParserError):
 
 def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]:
     action = None
-    messages : List[str] = []
+    messages: List[str] = []
     assignment_required = False
     previous_token = ""
 

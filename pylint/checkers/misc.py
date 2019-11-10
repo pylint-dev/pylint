@@ -143,8 +143,11 @@ class EncodingChecker(BaseChecker):
                 try:
                     values = []
                     try:
-                        for pragma_repr in (p_rep for p_rep in parse_pragma(disable_option_match.group(2))
-                                            if p_rep.action == 'disable'):
+                        for pragma_repr in (
+                            p_rep
+                            for p_rep in parse_pragma(disable_option_match.group(2))
+                            if p_rep.action == "disable"
+                        ):
                             values.extend(pragma_repr.messages)
                     except PragmaParserError:
                         # Printing usefull informations dealing with this error is done in lint.py
