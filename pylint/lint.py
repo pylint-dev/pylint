@@ -848,21 +848,23 @@ class PyLinter(
                         # Add the line where a control pragma was encountered.
                         if pragma_repr.action in control_pragmas:
                             self._pragma_lineno[msgid] = start[0]
-                        try:
-                            if (pragma_repr.action, msgid) == ("disable", "all"):
-                                self.add_message(
-                                    "deprecated-pragma",
-                                    line=start[0],
-                                    args=("disable=all", "skip-file"),
-                                )
-                                self.add_message("file-ignored", line=start[0])
-                                self._ignore_file = True
-                                return
+
+                        if (pragma_repr.action, msgid) == ("disable", "all"):
+                            self.add_message(
+                                "deprecated-pragma",
+                                line=start[0],
+                                args=("disable=all", "skip-file"),
+                            )
+                            self.add_message("file-ignored", line=start[0])
+                            self._ignore_file = True
+                            return
                             # If we did not see a newline between the previous line and now,
                             # we saw a backslash so treat the two lines as one.
-                            if not saw_newline:
-                                meth(msgid, "module", start[0] - 1)
-                            meth(msgid, "module", start[0])
+                        l_start = start[0]
+                        if not saw_newline:
+                            l_start -= 1
+                        try:
+                            meth(msgid, "module", l_start)
                         except exceptions.UnknownMessageError:
                             self.add_message(
                                 "bad-option-value", args=msgid, line=start[0]

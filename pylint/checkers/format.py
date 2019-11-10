@@ -44,7 +44,6 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
 import keyword
-import os
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
 from typing import List

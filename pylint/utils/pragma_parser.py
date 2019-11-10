@@ -5,7 +5,7 @@
 
 import re
 from collections import namedtuple
-from typing import List
+from typing import Generator, List
 
 # Allow stopping after the first semicolon/hash encountered,
 # so that an option can be continued with the reasons
@@ -66,6 +66,7 @@ class PragmaParserError(Exception):
         """
         self.message = message
         self.token = token
+        super(PragmaParserError, self).__init__(self.message)
 
 
 class UnknownKeyword(PragmaParserError):
@@ -99,9 +100,9 @@ class MissingMessage(PragmaParserError):
     """
 
 
-def parse_pragma(pylint_pragma: str) -> List[PragmaRepresenter]:
+def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]:
     action = None
-    messages = []
+    messages : List[str] = []
     assignment_required = False
     previous_token = ""
 
@@ -116,12 +117,11 @@ def parse_pragma(pylint_pragma: str) -> List[PragmaRepresenter]:
                     raise UnsupportedAssignment(
                         "The keyword doesn't support assignment", action
                     )
-                elif previous_token:
+                if previous_token:
                     #  Something found previously but not a known keyword
                     raise UnknownKeyword("The keyword is not licit", previous_token)
-                else:
-                    # Nothing at all detected before this assignment
-                    raise MissingKeyword("Missing keyword before assignment", "")
+                # Nothing at all detected before this assignment
+                raise MissingKeyword("Missing keyword before assignment", "")
             assignment_required = False
         elif assignment_required:
             raise MissingAssignment("The = sign is missing after the keyword", action)
