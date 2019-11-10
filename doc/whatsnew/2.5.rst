@@ -31,4 +31,10 @@ Other Changes
   for example ``[tool.pylint.'MESSAGES CONTROL']``.
   These files can also be passed in on the command line.
 
+* Add new good-names-rgx and bad-names-rgx to enable white-/blacklisting of regular expressions
+
+To enable better handling of whitelisting/blacklisting names, we added two new config options: good-names-rgxs: a comma-
+separated list of regexes, that if a name matches will be exempt of naming-checking. bad-names-rgxs: a comma-
+separated list of regexes, that if a name matches will be always marked as a blacklisted name.
+
 * Mutable ``collections.*`` are now flagged as dangerous defaults.

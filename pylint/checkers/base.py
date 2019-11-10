@@ -1681,6 +1681,16 @@ class NameChecker(_BasicChecker):
             },
         ),
         (
+            "good-names-rgxs",
+            {
+                "default": "",
+                "type": "regexp_csv",
+                "metavar": "<names>",
+                "help": "Good variable names regexes, separated by a comma. If names match any regex,"
+                " they will always be accepted",
+            },
+        ),
+        (
             "bad-names",
             {
                 "default": ("foo", "bar", "baz", "toto", "tutu", "tata"),
@@ -1688,6 +1698,16 @@ class NameChecker(_BasicChecker):
                 "metavar": "<names>",
                 "help": "Bad variable names which should always be refused, "
                 "separated by a comma.",
+            },
+        ),
+        (
+            "bad-names-rgxs",
+            {
+                "default": "",
+                "type": "regexp_csv",
+                "metavar": "<names>",
+                "help": "Bad variable names regexes, separated by a comma. If names match any regex,"
+                " they will always be refused",
             },
         ),
         (
@@ -1735,6 +1755,8 @@ class NameChecker(_BasicChecker):
         self._bad_names = {}
         self._name_regexps = {}
         self._name_hints = {}
+        self._good_names_rgxs_compiled = []
+        self._bad_names_rgxs_compiled = []
 
     def open(self):
         self.stats = self.linter.add_stats(
@@ -1756,6 +1778,12 @@ class NameChecker(_BasicChecker):
         regexps, hints = self._create_naming_rules()
         self._name_regexps = regexps
         self._name_hints = hints
+        self._good_names_rgxs_compiled = [
+            re.compile(rgxp) for rgxp in self.config.good_names_rgxs
+        ]
+        self._bad_names_rgxs_compiled = [
+            re.compile(rgxp) for rgxp in self.config.bad_names_rgxs
+        ]
 
     def _create_naming_rules(self):
         regexps = {}
@@ -1858,9 +1886,11 @@ class NameChecker(_BasicChecker):
                 if isinstance(utils.safe_infer(assign_type.value), astroid.ClassDef):
                     self._check_name("class", node.name, node)
                 else:
-                    if not _redefines_import(node):
-                        # Don't emit if the name redefines an import
-                        # in an ImportError except handler.
+                    # Don't emit if the name redefines an import
+                    # in an ImportError except handler.
+                    if not _redefines_import(node) and isinstance(
+                        utils.safe_infer(assign_type.value), astroid.Const
+                    ):
                         self._check_name("const", node.name, node)
             elif isinstance(assign_type, astroid.ExceptHandler):
                 self._check_name("variable", node.name, node)
@@ -1894,6 +1924,16 @@ class NameChecker(_BasicChecker):
         self.add_message("invalid-name", node=node, args=args, confidence=confidence)
         self.stats["badname_" + node_type] += 1
 
+    def _name_valid_due_to_whitelist(self, name: str) -> bool:
+        return name in self.config.good_names or any(
+            pattern.match(name) for pattern in self._good_names_rgxs_compiled
+        )
+
+    def _name_invalid_due_to_blacklist(self, name: str) -> bool:
+        return name in self.config.bad_names or any(
+            pattern.match(name) for pattern in self._bad_names_rgxs_compiled
+        )
+
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
 
@@ -1908,9 +1948,9 @@ class NameChecker(_BasicChecker):
             clobbering, _ = utils.clobber_in_except(node)
             if clobbering:
                 return
-        if name in self.config.good_names:
+        if self._name_valid_due_to_whitelist(name=name):
             return
-        if name in self.config.bad_names:
+        if self._name_invalid_due_to_blacklist(name=name):
             self.stats["badname_" + node_type] += 1
             self.add_message("blacklisted-name", node=node, args=name)
             return

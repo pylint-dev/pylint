@@ -215,7 +215,19 @@ class StringFormatChecker(BaseChecker):
     msgs = MSGS
 
     # pylint: disable=too-many-branches
-    @check_messages(*MSGS)
+    @check_messages(
+        "bad-format-character",
+        "truncated-format-string",
+        "mixed-format-string",
+        "bad-format-string-key",
+        "missing-format-string-key",
+        "unused-format-string-key",
+        "bad-string-format-type",
+        "format-needs-mapping",
+        "too-many-format-args",
+        "too-few-format-args",
+        "bad-string-format-type",
+    )
     def visit_binop(self, node):
         if node.op != "%":
             return
@@ -577,12 +589,13 @@ class StringConstantChecker(BaseTokenChecker):
             "Used when an escape like \\u is encountered in a byte "
             "string where it has no effect.",
         ),
-        "W1403": (
+        "W1404": (
             "Implicit string concatenation found in %s",
-            "implicit-str-concat-in-sequence",
+            "implicit-str-concat",
             "String literals are implicitly concatenated in a "
             "literal iterable definition : "
             "maybe a comma is missing ?",
+            {"old_names": [("W1403", "implicit-str-concat-in-sequence")]},
         ),
     }
     options = (
@@ -593,7 +606,7 @@ class StringConstantChecker(BaseTokenChecker):
                 "type": "yn",
                 "metavar": "<y_or_n>",
                 "help": "This flag controls whether the "
-                "implicit-str-concat-in-sequence should generate a warning "
+                "implicit-str-concat should generate a warning "
                 "on implicit string concatenation in sequences defined over "
                 "several lines.",
             },
@@ -640,43 +653,46 @@ class StringConstantChecker(BaseTokenChecker):
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
-    @check_messages(*(msgs.keys()))
+    @check_messages("implicit-str-concat")
     def visit_list(self, node):
-        self.check_for_concatenated_strings(node, "list")
+        self.check_for_concatenated_strings(node.elts, "list")
 
-    @check_messages(*(msgs.keys()))
+    @check_messages("implicit-str-concat")
     def visit_set(self, node):
-        self.check_for_concatenated_strings(node, "set")
+        self.check_for_concatenated_strings(node.elts, "set")
 
-    @check_messages(*(msgs.keys()))
+    @check_messages("implicit-str-concat")
     def visit_tuple(self, node):
-        self.check_for_concatenated_strings(node, "tuple")
+        self.check_for_concatenated_strings(node.elts, "tuple")
 
-    def check_for_concatenated_strings(self, iterable_node, iterable_type):
-        for elt in iterable_node.elts:
-            if isinstance(elt, Const) and elt.pytype() in _AST_NODE_STR_TYPES:
-                if elt.col_offset < 0:
-                    # This can happen in case of escaped newlines
-                    continue
-                if (elt.lineno, elt.col_offset) not in self.string_tokens:
-                    # This may happen with Latin1 encoding
-                    # cf. https://github.com/PyCQA/pylint/issues/2610
-                    continue
-                matching_token, next_token = self.string_tokens[
-                    (elt.lineno, elt.col_offset)
-                ]
-                # We detect string concatenation: the AST Const is the
-                # combination of 2 string tokens
-                if matching_token != elt.value and next_token is not None:
-                    if next_token.type == tokenize.STRING and (
-                        next_token.start[0] == elt.lineno
-                        or self.config.check_str_concat_over_line_jumps
-                    ):
-                        self.add_message(
-                            "implicit-str-concat-in-sequence",
-                            line=elt.lineno,
-                            args=(iterable_type,),
-                        )
+    def visit_assign(self, node):
+        if isinstance(node.value, astroid.Const) and isinstance(node.value.value, str):
+            self.check_for_concatenated_strings([node.value], "assignment")
+
+    def check_for_concatenated_strings(self, elements, iterable_type):
+        for elt in elements:
+            if not (isinstance(elt, Const) and elt.pytype() in _AST_NODE_STR_TYPES):
+                continue
+            if elt.col_offset < 0:
+                # This can happen in case of escaped newlines
+                continue
+            if (elt.lineno, elt.col_offset) not in self.string_tokens:
+                # This may happen with Latin1 encoding
+                # cf. https://github.com/PyCQA/pylint/issues/2610
+                continue
+            matching_token, next_token = self.string_tokens[
+                (elt.lineno, elt.col_offset)
+            ]
+            # We detect string concatenation: the AST Const is the
+            # combination of 2 string tokens
+            if matching_token != elt.value and next_token is not None:
+                if next_token.type == tokenize.STRING and (
+                    next_token.start[0] == elt.lineno
+                    or self.config.check_str_concat_over_line_jumps
+                ):
+                    self.add_message(
+                        "implicit-str-concat", line=elt.lineno, args=(iterable_type,)
+                    )
 
     def process_string_token(self, token, start_row):
         quote_char = None

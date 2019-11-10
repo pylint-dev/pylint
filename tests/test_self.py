@@ -245,14 +245,14 @@ class TestRunTC(object):
         # Test that --py3k flag works.
         rc_code = 0
         self._runtest(
-            [join(HERE, "functional", "u", "unpacked_exceptions.py"), "--py3k"],
+            [join(HERE, "functional", "u", "unnecessary_lambda.py"), "--py3k"],
             code=rc_code,
         )
 
     def test_py3k_jobs_option(self):
         rc_code = 0
         self._runtest(
-            [join(HERE, "functional", "u", "unpacked_exceptions.py"), "--py3k", "-j 2"],
+            [join(HERE, "functional", "u", "unnecessary_lambda.py"), "--py3k", "-j 2"],
             code=rc_code,
         )
 

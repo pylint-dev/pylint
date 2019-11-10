@@ -112,6 +112,23 @@ class TestMultiStatementLine(CheckerTestCase):
         self.checker.process_tokens([])
         self.checker.visit_default(tree.body[0])
 
+    def test_ellipsis_is_ignored(self):
+        code = """
+        from typing import overload
+        @overload
+        def concat2(arg1: str) -> str: ...
+        """
+        tree = astroid.extract_node(code)
+        with self.assertNoMessages():
+            self.visitFirst(tree)
+
+        code = """
+        def concat2(arg1: str) -> str: ...
+        """
+        stmt = astroid.extract_node(code)
+        with self.assertAddsMessages(Message("multiple-statements", node=stmt.body[0])):
+            self.visitFirst(stmt)
+
 
 class TestSuperfluousParentheses(CheckerTestCase):
     CHECKER_CLASS = FormatChecker

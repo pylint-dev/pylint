@@ -15,6 +15,14 @@ class Cdef(Abcd):
         """
         print(self)
 
+class AbcdMixin:
+    def abcd(self):
+        pass
+
+class Dabc(AbcdMixin, Abcd):
+    def abcd(self):
+        pass
+
 class CustomProperty:
     """dummy"""
     def __init__(self, _):
@@ -58,3 +66,16 @@ class Foo:
 
     def do_something_with_baz(self, value):
         self.method = value
+
+
+class One:
+    def __init__(self, one=None):
+        if one is not None:
+            self.one = one
+
+    def one(self): # [method-hidden]
+        pass
+
+class Two(One):
+    def one(self):
+        pass

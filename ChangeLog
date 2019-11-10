@@ -7,6 +7,34 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* ``Ellipsis` is exempted from ``multiple-statements`` for function overloads.
+
+  Close #3224
+
+* No longer emit ``invalid-name`` for non-constants found at module level.
+
+  Pylint was taking the following statement from PEP-8 too far, considering
+  all module level variables as constants, which is not what the statement is saying:
+
+  `Constants are usually defined on a module level and written in
+  all capital letters with underscores separating words.`
+
+  Close #3111
+  Close #3132
+
+* Allow ``implicit-str-concat-in-sequence`` to be emitted for string juxtaposition
+
+  Close #3030
+
+* ``implicit-str-concat-in-sequence`` was renamed ``implicit-str-concat``
+
+* The ``json`` reporter no longer bypasses ``redirect_stdout``. Close #3227
+
+* Move ``NoFileError``, ``OutputLine``, ``FunctionalTestReporter``,
+  ``FunctionalTestFile``, ``LintModuleTest`` and related methods from
+  ``test_functional.py`` to ``pylint.testutils`` to help testing for 3rd
+  party pylint plugins.
+
 * Can read config from a setup.cfg or pyproject.toml file.
 
   Close #617
@@ -32,6 +60,30 @@ Release date: TBA
   Closes #2729
 
 * Allow parallel linting when run under Prospector
+
+* Fixed false positives of ``method-hidden`` when a subclass defines
+  the method that is being hidden.
+
+  Closes #414
+
+* Python 3 porting mode is 30-50% faster on most codebases
+
+* Python 3 porting mode no longer swallows syntax errors
+
+  Closes #2956
+
+
+What's New in Pylint 2.4.4?
+===========================
+Release date: TBA
+
+* Exempt all the names found in type annotations from ``unused-import``
+
+  The previous code was assuming that only ``typing`` names need to be
+  exempted, but we need to do that for the rest of the type comment
+  names as well.
+
+  Close #3112
 
 
 What's New in Pylint 2.4.3?

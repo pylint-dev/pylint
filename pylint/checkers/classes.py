@@ -952,11 +952,24 @@ a metaclass class method.",
                 and overridden_frame.type == "method"
             ):
                 overridden_frame = overridden_frame.parent.frame()
-            if isinstance(overridden_frame, astroid.ClassDef) and klass.is_subtype_of(
-                overridden_frame.qname()
+            if not (
+                isinstance(overridden_frame, astroid.ClassDef)
+                and klass.is_subtype_of(overridden_frame.qname())
             ):
-                args = (overridden.root().name, overridden.fromlineno)
-                self.add_message("method-hidden", args=args, node=node)
+                return
+
+            # If a subclass defined the method then it's not our fault.
+            try:
+                mro = klass.mro()
+            except (InconsistentMroError, DuplicateBasesError):
+                pass
+            else:
+                for subklass in mro[1 : mro.index(overridden_frame) + 1]:
+                    for obj in subklass.lookup(node.name)[1]:
+                        if isinstance(obj, astroid.FunctionDef):
+                            return
+            args = (overridden.root().name, overridden.fromlineno)
+            self.add_message("method-hidden", args=args, node=node)
         except astroid.NotFoundError:
             pass
 
@@ -1464,10 +1477,10 @@ a metaclass class method.",
         # don't care about functions with unknown argument (builtins)
         if node.args.args is None:
             return
-        if node.args.args:
-            first_arg = node.argnames()[0]
-        elif node.args.posonlyargs:
+        if node.args.posonlyargs:
             first_arg = node.args.posonlyargs[0].name
+        elif node.args.args:
+            first_arg = node.argnames()[0]
         else:
             first_arg = None
         self._first_attrs.append(first_arg)

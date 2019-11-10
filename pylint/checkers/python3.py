@@ -24,6 +24,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Check Python 2 code for Python 2/3 source-compatible issues."""
+import itertools
 import re
 import tokenize
 from collections import namedtuple
@@ -56,6 +57,10 @@ def _inferred_value_is_dict(value):
     if isinstance(value, astroid.Dict):
         return True
     return isinstance(value, astroid.Instance) and "dict" in value.basenames
+
+
+def _infer_if_relevant_attr(node, whitelist):
+    return node.expr.infer() if node.attrname in whitelist else []
 
 
 def _is_builtin(node):
@@ -873,6 +878,19 @@ class Python3Checker(checkers.BaseChecker):
         "deprecated-sys-function": {"sys": frozenset({"exc_clear"})},
     }
 
+    _deprecated_attrs = frozenset(
+        itertools.chain.from_iterable(
+            attr
+            for module_map in _bad_python3_module_map.values()
+            if isinstance(module_map, dict)
+            for attr in module_map.values()
+        )
+    )
+
+    _relevant_call_attrs = (
+        DICT_METHODS | _deprecated_attrs | {"encode", "decode", "translate"}
+    )
+
     _python_2_tests = frozenset(
         [
             astroid.extract_node(x).repr_tree()
@@ -1132,8 +1150,11 @@ class Python3Checker(checkers.BaseChecker):
 
         if isinstance(node.func, astroid.Attribute):
             inferred_types = set()
+
             try:
-                for inferred_receiver in node.func.expr.infer():
+                for inferred_receiver in _infer_if_relevant_attr(
+                    node.func, self._relevant_call_attrs
+                ):
                     if inferred_receiver is astroid.Uninferable:
                         continue
                     inferred_types.add(inferred_receiver)
@@ -1244,7 +1265,9 @@ class Python3Checker(checkers.BaseChecker):
 
         exception_message = "message"
         try:
-            for inferred in node.expr.infer():
+            for inferred in _infer_if_relevant_attr(
+                node, self._deprecated_attrs | {exception_message}
+            ):
                 if isinstance(inferred, astroid.Instance) and utils.inherit_from_std_ex(
                     inferred
                 ):
