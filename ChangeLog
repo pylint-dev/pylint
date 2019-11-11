@@ -7,6 +7,11 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* Don't emit ``line-too-long`` for multilines when a
+  `pylint:disable=line-too-long` comment stands at their end
+
+  Close #2957
+
 * ``Ellipsis` is exempted from ``multiple-statements`` for function overloads.
 
   Close #3224
@@ -208,11 +213,6 @@ Release date: 2019-09-24
 * Handle redefinitions in case of type checking imports.
 
   Close #2834
-
-* Don't emit ``line-too-long`` for multilines when a
-  `pylint:disable=line-too-long` comment stands at their end
-
-  Close #2957
 
 * Added a new check, ``consider-using-sys-exit``
 
