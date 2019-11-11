@@ -1,4 +1,4 @@
-"""Test for old tenrary constructs"""
+"""Test for old ternary constructs"""
 from UNINFERABLE import condition, true_value, false_value, some_callable  # pylint: disable=import-error
 
 SOME_VALUE1 = true_value if condition else false_value

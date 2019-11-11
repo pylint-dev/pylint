@@ -72,6 +72,10 @@ Release date: TBA
 
   Closes #2956
 
+* Fixes a typo in tests/functional/t/ternary.py
+
+  Closes #3237
+
 
 What's New in Pylint 2.4.4?
 ===========================

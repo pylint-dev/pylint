@@ -345,3 +345,4 @@ contributors:
 
 * Hugues Bruant: contributor
 
+* Tim Gates: contributor
