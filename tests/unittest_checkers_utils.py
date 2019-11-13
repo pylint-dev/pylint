@@ -81,7 +81,6 @@ def test_error_of_type():
     assert utils.error_of_type(nodes[0], (AttributeError,))
     assert not utils.error_of_type(nodes[0], Exception)
     assert utils.error_of_type(nodes[1], Exception)
-    assert utils.error_of_type(nodes[2], ImportError)
 
 
 def test_node_ignores_exception():
@@ -107,7 +106,7 @@ def test_node_ignores_exception():
     )
     assert utils.node_ignores_exception(nodes[0], ZeroDivisionError)
     assert not utils.node_ignores_exception(nodes[1], ZeroDivisionError)
-    assert utils.node_ignores_exception(nodes[2], ZeroDivisionError)
+    assert not utils.node_ignores_exception(nodes[2], ZeroDivisionError)
     assert not utils.node_ignores_exception(nodes[3], ZeroDivisionError)
 
 
