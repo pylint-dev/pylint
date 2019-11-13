@@ -1144,6 +1144,8 @@ class VariablesChecker(BaseChecker):
                 module = next(_infer_name_module(node, parts[0]))
             except astroid.ResolveError:
                 continue
+            if not isinstance(module, astroid.Module):
+                continue
             self._check_module_attrs(node, module, parts[1:])
 
     @utils.check_messages("no-name-in-module")
@@ -1779,7 +1781,6 @@ class VariablesChecker(BaseChecker):
         given module
         if the latest access name corresponds to a module, return it
         """
-        assert isinstance(module, astroid.Module), module
         while module_names:
             name = module_names.pop(0)
             if name == "__dict__":
