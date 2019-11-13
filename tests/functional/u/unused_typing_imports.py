@@ -7,6 +7,7 @@ which means we were never processing them.
 
 import re
 import typing
+from collections import defaultdict
 from datetime import datetime
 from typing import (
     Any,
@@ -70,3 +71,8 @@ def magic(alpha, beta, gamma):
     # type: (str, Optional[str], Optional[datetime]) -> Any
     """going strong"""
     return alpha, beta, gamma
+
+
+def unused_assignment_import():
+    foo_or_bar = defaultdict(int)  # type: defaultdict
+    return foo_or_bar
