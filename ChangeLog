@@ -79,7 +79,7 @@ Release date: TBA
 
 What's New in Pylint 2.4.4?
 ===========================
-Release date: TBA
+Release date: 2019-11-13
 
 * Exempt all the names found in type annotations from ``unused-import``
 
