@@ -1672,17 +1672,13 @@ class VariablesChecker(BaseChecker):
 
     def _store_type_annotation_node(self, type_annotation):
         """Given a type annotation, store all the name nodes it refers to"""
-        if (
-            isinstance(type_annotation, astroid.Name)
-            and type_annotation.name in TYPING_NAMES
-        ):
+        if isinstance(type_annotation, astroid.Name):
             self._type_annotation_names.append(type_annotation.name)
             return
 
         if not isinstance(type_annotation, astroid.Subscript):
             return
 
-        # Check if it is namespaced by typing or not.
         if (
             isinstance(type_annotation.value, astroid.Attribute)
             and isinstance(type_annotation.value.expr, astroid.Name)
