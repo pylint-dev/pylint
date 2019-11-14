@@ -17,3 +17,5 @@ class Foobar:
         """Do something funcy."""
         if self.abc and qrs and xyz:
             print("found something else")
+
+    abc = 42
