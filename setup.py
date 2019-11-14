@@ -62,6 +62,10 @@ else:
     long_description = ""
 
 
+needs_pytest = set(['pytest', 'test', 'ptr']).intersection(sys.argv)
+pytest_runner = ['pytest-runner'] if needs_pytest else []
+
+
 def ensure_scripts(linux_scripts):
     """Creates the proper script names required for each platform
     (taken from 4Suite)
@@ -143,7 +147,7 @@ def install(**kwargs):
         extras_require=extras_require,
         test_suite="test",
         python_requires=">=3.5.*",
-        setup_requires=["pytest-runner"],
+        setup_requires=pytest_runner,
         tests_require=["pytest"],
         **kwargs
     )
