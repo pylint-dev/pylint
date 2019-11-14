@@ -1879,6 +1879,10 @@ class VariablesChecker(BaseChecker):
                     continue
                 checked.add(real_name)
 
+                is_type_annotation_import = (
+                    imported_name in self._type_annotation_names
+                    or as_name in self._type_annotation_names
+                )
                 if isinstance(stmt, astroid.Import) or (
                     isinstance(stmt, astroid.ImportFrom) and not stmt.modname
                 ):
@@ -1889,7 +1893,7 @@ class VariablesChecker(BaseChecker):
                         # because they can be imported for exporting.
                         continue
 
-                    if imported_name in self._type_annotation_names:
+                    if is_type_annotation_import:
                         # Most likely a typing import if it wasn't used so far.
                         continue
 
@@ -1912,7 +1916,7 @@ class VariablesChecker(BaseChecker):
                         # __future__ import in another module.
                         continue
 
-                    if imported_name in self._type_annotation_names:
+                    if is_type_annotation_import:
                         # Most likely a typing import if it wasn't used so far.
                         continue
 

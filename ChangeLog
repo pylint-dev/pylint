@@ -16,6 +16,10 @@ Release date: TBA
 
   Close #3235
 
+* Allow import aliases to exempt ``import-error`` when used in type annotations.
+
+  Close #3178
+
 * ``Ellipsis` is exempted from ``multiple-statements`` for function overloads.
 
   Close #3224
