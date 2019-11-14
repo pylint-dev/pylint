@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pylint: disable=W0404,W0622,W0704,W0613
+# pylint: disable=W0404,W0622,W0613
 # Copyright (c) 2006, 2009-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
@@ -20,10 +20,10 @@
 
 """Generic Setup script, takes package info from __pkginfo__.py file.
 """
-import os
-import sys
 from distutils.command.build_py import build_py
+import os
 from os.path import exists, isdir, join
+import sys
 
 __docformat__ = "restructuredtext en"
 
@@ -31,12 +31,12 @@ __docformat__ = "restructuredtext en"
 try:
     from setuptools import setup
     from setuptools.command import easy_install as easy_install_lib
-    from setuptools.command import install_lib
+    from setuptools.command import install_lib  # pylint: disable=unused-import
 
     USE_SETUPTOOLS = 1
 except ImportError:
     from distutils.core import setup
-    from distutils.command import install_lib
+    from distutils.command import install_lib  # pylint: disable=unused-import
 
     USE_SETUPTOOLS = 0
     easy_install_lib = None
@@ -45,8 +45,8 @@ except ImportError:
 base_dir = os.path.dirname(__file__)
 
 __pkginfo__ = {}
-with open(os.path.join(base_dir, "pylint", "__pkginfo__.py")) as f:
-    exec(f.read(), __pkginfo__)
+with open(os.path.join(base_dir, "pylint", "__pkginfo__.py")) as pkginfo_fp:
+    exec(pkginfo_fp.read(), __pkginfo__)
 scripts = __pkginfo__.get("scripts", [])
 data_files = __pkginfo__.get("data_files", None)
 ext_modules = __pkginfo__.get("ext_modules", None)
