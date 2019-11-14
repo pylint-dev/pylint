@@ -95,6 +95,11 @@ Release date: TBA
   PyLinter object (and all its members except reporter) needs to support
   pickling so the PyLinter object can be passed to worker processes.
 
+* Clean up setup.py
+
+  Make pytest-runner a requirement only if running tests, similar to McCabe.
+
+  Clean up the setup.py file, resolving a number of warnings around it.
 
 What's New in Pylint 2.4.4?
 ===========================
