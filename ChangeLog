@@ -85,6 +85,12 @@ Release date: TBA
 
   Closes #3237
 
+* Pass the actual PyLinter object to sub processes to allow using custom
+  PyLinter classes.
+
+  PyLinter object (and all its members except reporter) needs to support
+  pickling so the PyLinter object can be passed to worker processes.
+
 
 What's New in Pylint 2.4.4?
 ===========================
@@ -107,16 +113,6 @@ What's New in Pylint 2.4.3?
 ===========================
 
 Release date: 2019-10-18
-
-  Pass the actual PyLinter object to sub processes to allow using custom
-  PyLinter classes.
-
-  PyLinter object (and all its members except reporter) needs to support
-  pickling so the PyLinter object can be passed to worker processes.
-
-* Refactor file checking
-
-  Remove code duplication from file checking.
 
 * Fix an issue with ``unnecessary-comprehension`` in comprehensions with additional repacking of elements.
 
