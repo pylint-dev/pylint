@@ -9,6 +9,9 @@ from pylint.lint import PyLinter
 from pylint.testutils import MinimalTestReporter
 
 
+collect_ignore = ["regrtest_data"]
+
+
 @pytest.fixture
 def linter(checker, register, enable, disable, reporter):
     _linter = PyLinter()
