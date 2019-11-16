@@ -595,6 +595,19 @@ class TestRunTC(object):
         finally:
             os.chdir(curdir)
 
+    def test_stdin_syntaxerror(self):
+        expected_output = (
+            "************* Module a\n"
+            "a.py:1:4: E0001: invalid syntax (<unknown>, line 1) (syntax-error)"
+        )
+
+        with mock.patch("pylint.lint._read_stdin", return_value="for\n") as mock_stdin:
+            self._test_output(
+                ["--from-stdin", "a.py", "--disable=all", "--enable=syntax-error"],
+                expected_output=expected_output,
+            )
+            assert mock_stdin.call_count == 1
+
     def test_version(self):
         def check(lines):
             assert lines[0].startswith("pylint ")

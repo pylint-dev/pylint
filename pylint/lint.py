@@ -89,14 +89,6 @@ except ImportError:
 MANAGER = astroid.MANAGER
 
 
-def _ast_from_string(data, filepath, modname):
-    cached = MANAGER.astroid_cache.get(modname)
-    if cached and cached.file == filepath:
-        return cached
-
-    return AstroidBuilder(MANAGER).string_build(data, modname, filepath)
-
-
 def _read_stdin():
     # https://mail.python.org/pipermail/python-list/2012-November/634424.html
     sys.stdin = TextIOWrapper(sys.stdin.detach(), encoding="utf-8")
@@ -1133,7 +1125,7 @@ class PyLinter(
             self.set_current_module(modname, filepath)
 
             # get the module representation
-            ast_node = _ast_from_string(_read_stdin(), filepath, modname)
+            ast_node = self.get_ast(filepath, modname, data=_read_stdin())
 
             if ast_node is not None:
                 self.file_state = FileState(filepath)
@@ -1206,10 +1198,23 @@ class PyLinter(
         for msg_cat in MSG_TYPES.values():
             self.stats["by_module"][modname][msg_cat] = 0
 
-    def get_ast(self, filepath, modname):
-        """return an ast(roid) representation for a module"""
+    def get_ast(self, filepath, modname, data=None):
+        """Return an ast(roid) representation of a module or a string.
+
+        :param str filepath: path to checked file.
+        :param str modname: The name of the module to be checked.
+        :param str data: optional contents of the checked file.
+        :returns: the AST
+        :rtype: astroid.nodes.Module
+        """
         try:
-            return MANAGER.ast_from_file(filepath, modname, source=True)
+            if data is None:
+                return MANAGER.ast_from_file(filepath, modname, source=True)
+
+            cached = MANAGER.astroid_cache.get(modname)
+            if cached and cached.file == filepath:
+                return cached
+            return AstroidBuilder(MANAGER).string_build(data, modname, filepath)
         except astroid.AstroidSyntaxError as ex:
             # pylint: disable=no-member
             self.add_message(
