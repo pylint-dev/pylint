@@ -101,6 +101,12 @@ Release date: TBA
 
   Clean up the setup.py file, resolving a number of warnings around it.
 
+* Handle SyntaxError in files passed via ``--from-stdin`` option
+
+  Pylint no longer outputs a traceback, if a file, read from stdin,
+  contains a syntaxerror.
+
+
 What's New in Pylint 2.4.4?
 ===========================
 Release date: 2019-11-13

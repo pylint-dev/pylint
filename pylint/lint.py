@@ -90,14 +90,6 @@ except ImportError:
 MANAGER = astroid.MANAGER
 
 
-def _ast_from_string(data, filepath, modname):
-    cached = MANAGER.astroid_cache.get(modname)
-    if cached and cached.file == filepath:
-        return cached
-
-    return AstroidBuilder(MANAGER).string_build(data, modname, filepath)
-
-
 def _read_stdin():
     # https://mail.python.org/pipermail/python-list/2012-November/634424.html
     sys.stdin = TextIOWrapper(sys.stdin.detach(), encoding="utf-8")
@@ -966,7 +958,7 @@ class PyLinter(
 
             filepath = files_or_modules[0]
             self._check_files(
-                functools.partial(_ast_from_string, _read_stdin()),
+                functools.partial(self.get_ast, data=_read_stdin()),
                 [self._get_file_descr_from_stdin(filepath)],
             )
         elif self.config.jobs == 1:
@@ -1123,10 +1115,23 @@ class PyLinter(
         for checker in reversed(_checkers):
             checker.close()
 
-    def get_ast(self, filepath, modname):
-        """return an ast(roid) representation for a module"""
+    def get_ast(self, filepath, modname, data=None):
+        """Return an ast(roid) representation of a module or a string.
+
+        :param str filepath: path to checked file.
+        :param str modname: The name of the module to be checked.
+        :param str data: optional contents of the checked file.
+        :returns: the AST
+        :rtype: astroid.nodes.Module
+        """
         try:
-            return MANAGER.ast_from_file(filepath, modname, source=True)
+            if data is None:
+                return MANAGER.ast_from_file(filepath, modname, source=True)
+
+            cached = MANAGER.astroid_cache.get(modname)
+            if cached and cached.file == filepath:
+                return cached
+            return AstroidBuilder(MANAGER).string_build(data, modname, filepath)
         except astroid.AstroidSyntaxError as ex:
             # pylint: disable=no-member
             self.add_message(
