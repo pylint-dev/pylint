@@ -28,9 +28,9 @@ OPTION_PO = re.compile(OPTION_RGX, re.VERBOSE)
 PragmaRepresenter = namedtuple("PragmaRepresenter", "action messages")
 
 
-ATOMIC_KEYWORDS = ("disable-all", "skip-file")
-MESSAGE_KEYWORDS = ("disable-msg", "enable-msg", "disable", "enable")
-ALL_KEYWORDS = "|".join(ATOMIC_KEYWORDS + MESSAGE_KEYWORDS)
+ATOMIC_KEYWORDS = frozenset(("disable-all", "skip-file"))
+MESSAGE_KEYWORDS = frozenset(("disable-msg", "enable-msg", "disable", "enable"))
+ALL_KEYWORDS = "|".join(ATOMIC_KEYWORDS | MESSAGE_KEYWORDS)
 
 
 TOKEN_SPECIFICATION = [
