@@ -306,9 +306,11 @@ class LoggingChecker(checkers.BaseChecker):
                         # special keywords - out of scope.
                         return
                 elif self._format_style == "new":
-                    keyword_arguments, implicit_pos_args, explicit_pos_args = utils.parse_format_method_string(
-                        format_string
-                    )
+                    (
+                        keyword_arguments,
+                        implicit_pos_args,
+                        explicit_pos_args,
+                    ) = utils.parse_format_method_string(format_string)
 
                     keyword_args_cnt = len(
                         set(k for k, l in keyword_arguments if not isinstance(k, int))

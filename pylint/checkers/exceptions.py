@@ -380,7 +380,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     def _check_try_except_raise(self, node):
         def gather_exceptions_from_handler(
-            handler
+            handler,
         ) -> typing.Optional[typing.List[NodeNG]]:
             exceptions = []  # type: typing.List[NodeNG]
             if handler.type:

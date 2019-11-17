@@ -221,7 +221,7 @@ def is_inside_lambda(node: astroid.node_classes.NodeNG) -> bool:
 
 
 def get_all_elements(
-    node: astroid.node_classes.NodeNG
+    node: astroid.node_classes.NodeNG,
 ) -> Iterable[astroid.node_classes.NodeNG]:
     """Recursively returns all atoms in nested lists and tuples."""
     if isinstance(node, (astroid.Tuple, astroid.List)):
@@ -232,7 +232,7 @@ def get_all_elements(
 
 
 def clobber_in_except(
-    node: astroid.node_classes.NodeNG
+    node: astroid.node_classes.NodeNG,
 ) -> Tuple[bool, Optional[Tuple[str, str]]]:
     """Checks if an assignment node in an except handler clobbers an existing
     variable.
@@ -449,7 +449,7 @@ class UnsupportedFormatCharacter(Exception):
 
 
 def parse_format_string(
-    format_string: str
+    format_string: str,
 ) -> Tuple[Set[str], int, Dict[str, str], List[str]]:
     """Parses a format string, returning a tuple of (keys, num_args), where keys
     is the set of mapping keys in the format string, and num_args is the number
@@ -564,7 +564,7 @@ def collect_string_fields(format_string) -> Iterable[Optional[str]]:
 
 
 def parse_format_method_string(
-    format_string: str
+    format_string: str,
 ) -> Tuple[List[Tuple[str, List[Tuple[bool, str]]]], int, int]:
     """
     Parses a PEP 3101 format string, returning a tuple of
@@ -835,7 +835,7 @@ def unimplemented_abstract_methods(
 
 
 def find_try_except_wrapper_node(
-    node: astroid.node_classes.NodeNG
+    node: astroid.node_classes.NodeNG,
 ) -> Union[astroid.ExceptHandler, astroid.TryExcept]:
     """Return the ExceptHandler or the TryExcept node in which the node is."""
     current = node

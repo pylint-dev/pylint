@@ -238,9 +238,12 @@ class StringFormatChecker(BaseChecker):
             return
         format_string = left.value
         try:
-            required_keys, required_num_args, required_key_types, required_arg_types = utils.parse_format_string(
-                format_string
-            )
+            (
+                required_keys,
+                required_num_args,
+                required_key_types,
+                required_arg_types,
+            ) = utils.parse_format_string(format_string)
         except utils.UnsupportedFormatCharacter as exc:
             formatted = format_string[exc.index]
             self.add_message(
