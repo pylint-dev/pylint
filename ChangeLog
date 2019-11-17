@@ -114,6 +114,8 @@ Release date: TBA
 
   Use up to date version of python interpreters
 
+* Use new release of black 19.10b0 for formating
+
 
 What's New in Pylint 2.4.4?
 ===========================
