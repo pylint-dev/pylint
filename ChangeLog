@@ -11,6 +11,23 @@ Release date: TBA
   `pylint:disable=line-too-long` comment stands at their end
 
   Close #2957
+  
+* Do not exempt bare except from ``undefined-variable`` and similar checks
+
+  If a node was wrapped in a ``TryExcept``, ``pylint`` was taking a hint
+  from the except handler when deciding to emit or not a message.
+  We were treating bare except as a fully fledged ignore but only
+  the corresponding exceptions should be handled that way (e.g. ``NameError`` or ``ImportError``)
+
+  Close #3235
+
+* No longer emit ``assignment-from-no-return`` when a function only raises an exception
+
+  Close #3218
+
+* Allow import aliases to exempt ``import-error`` when used in type annotations.
+
+  Close #3178
 
 * ``Ellipsis` is exempted from ``multiple-statements`` for function overloads.
 
@@ -77,10 +94,31 @@ Release date: TBA
 
   Closes #2956
 
+* Fixes a typo in tests/functional/t/ternary.py
+
+  Closes #3237
+
+* Pass the actual PyLinter object to sub processes to allow using custom
+  PyLinter classes.
+
+  PyLinter object (and all its members except reporter) needs to support
+  pickling so the PyLinter object can be passed to worker processes.
+
+* Clean up setup.py
+
+  Make pytest-runner a requirement only if running tests, similar to McCabe.
+
+  Clean up the setup.py file, resolving a number of warnings around it.
+
+* Handle SyntaxError in files passed via ``--from-stdin`` option
+
+  Pylint no longer outputs a traceback, if a file, read from stdin,
+  contains a syntaxerror.
+
 
 What's New in Pylint 2.4.4?
 ===========================
-Release date: TBA
+Release date: 2019-11-13
 
 * Exempt all the names found in type annotations from ``unused-import``
 
@@ -90,21 +128,15 @@ Release date: TBA
 
   Close #3112
 
+* Relax type import detection for names that do not come from the ``typing`` module
+
+  Close #3191
+
 
 What's New in Pylint 2.4.3?
 ===========================
 
 Release date: 2019-10-18
-
-  Pass the actual PyLinter object to sub processes to allow using custom
-  PyLinter classes.
-
-  PyLinter object (and all its members except reporter) needs to support
-  pickling so the PyLinter object can be passed to worker processes.
-
-* Refactor file checking
-
-  Remove code duplication from file checking.
 
 * Fix an issue with ``unnecessary-comprehension`` in comprehensions with additional repacking of elements.
 

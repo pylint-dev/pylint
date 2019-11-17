@@ -1144,6 +1144,8 @@ class VariablesChecker(BaseChecker):
                 module = next(_infer_name_module(node, parts[0]))
             except astroid.ResolveError:
                 continue
+            if not isinstance(module, astroid.Module):
+                continue
             self._check_module_attrs(node, module, parts[1:])
 
     @utils.check_messages("no-name-in-module")
@@ -1672,17 +1674,13 @@ class VariablesChecker(BaseChecker):
 
     def _store_type_annotation_node(self, type_annotation):
         """Given a type annotation, store all the name nodes it refers to"""
-        if (
-            isinstance(type_annotation, astroid.Name)
-            and type_annotation.name in TYPING_NAMES
-        ):
+        if isinstance(type_annotation, astroid.Name):
             self._type_annotation_names.append(type_annotation.name)
             return
 
         if not isinstance(type_annotation, astroid.Subscript):
             return
 
-        # Check if it is namespaced by typing or not.
         if (
             isinstance(type_annotation.value, astroid.Attribute)
             and isinstance(type_annotation.value.expr, astroid.Name)
@@ -1783,7 +1781,6 @@ class VariablesChecker(BaseChecker):
         given module
         if the latest access name corresponds to a module, return it
         """
-        assert isinstance(module, astroid.Module), module
         while module_names:
             name = module_names.pop(0)
             if name == "__dict__":
@@ -1882,6 +1879,10 @@ class VariablesChecker(BaseChecker):
                     continue
                 checked.add(real_name)
 
+                is_type_annotation_import = (
+                    imported_name in self._type_annotation_names
+                    or as_name in self._type_annotation_names
+                )
                 if isinstance(stmt, astroid.Import) or (
                     isinstance(stmt, astroid.ImportFrom) and not stmt.modname
                 ):
@@ -1892,7 +1893,7 @@ class VariablesChecker(BaseChecker):
                         # because they can be imported for exporting.
                         continue
 
-                    if imported_name in self._type_annotation_names:
+                    if is_type_annotation_import:
                         # Most likely a typing import if it wasn't used so far.
                         continue
 
@@ -1915,7 +1916,7 @@ class VariablesChecker(BaseChecker):
                         # __future__ import in another module.
                         continue
 
-                    if imported_name in self._type_annotation_names:
+                    if is_type_annotation_import:
                         # Most likely a typing import if it wasn't used so far.
                         continue
 

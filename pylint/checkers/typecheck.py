@@ -54,7 +54,7 @@ import astroid.nodes
 from astroid import bases, decorators, exceptions, modutils, objects
 from astroid.interpreter import dunder_lookup
 
-from pylint.checkers import BaseChecker
+from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     check_messages,
     decorated_with,
@@ -1014,6 +1014,7 @@ accessed. Python regular expressions are accepted.",
             or function_node.decorators
             or function_node.is_generator()
             or function_node.is_abstract(pass_is_abstract=False)
+            or utils.is_error(function_node)
             or not function_node.root().fully_defined()
         ):
             return

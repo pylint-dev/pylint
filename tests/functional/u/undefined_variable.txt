@@ -21,7 +21,7 @@ used-before-assignment:145:KeywordArgument.test1:Using variable 'enabled' before
 undefined-variable:148:KeywordArgument.test2:Undefined variable 'disabled'
 undefined-variable:153:KeywordArgument.<lambda>:Undefined variable 'arg'
 undefined-variable:165::Undefined variable 'unicode_2'
-undefined-variable:175::Undefined variable 'unicode_4'
-undefined-variable:230:LambdaClass4.<lambda>:Undefined variable 'LambdaClass4'
-undefined-variable:238:LambdaClass5.<lambda>:Undefined variable 'LambdaClass5'
-used-before-assignment:259:func_should_fail:Using variable 'datetime' before assignment
+undefined-variable:170::Undefined variable 'unicode_3'
+undefined-variable:225:LambdaClass4.<lambda>:Undefined variable 'LambdaClass4'
+undefined-variable:233:LambdaClass5.<lambda>:Undefined variable 'LambdaClass5'
+used-before-assignment:254:func_should_fail:Using variable 'datetime' before assignment

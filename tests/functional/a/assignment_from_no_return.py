@@ -29,3 +29,28 @@ class Class:
 
 
 VALUE = some_func() # [assignment-from-no-return]
+
+
+class Parent:
+    """Parent class"""
+
+    def compute(self):
+        """This isn't supported by all child classes"""
+
+        # pylint: disable=no-self-use
+        raise ValueError('Not supported for this object')
+
+    def test(self):
+        """Test"""
+
+        result = self.compute()
+        return result
+
+
+class Child(Parent):
+    """Child class"""
+
+    def compute(self):
+        """This is supported for this child class"""
+
+        return 42

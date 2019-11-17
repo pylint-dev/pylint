@@ -52,7 +52,7 @@ except Exception:
 
 try:
     import collections.emit1
-except:
+except ImportError:
     pass
 
 try:

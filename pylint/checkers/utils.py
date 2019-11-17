@@ -697,7 +697,7 @@ def error_of_type(handler: astroid.ExceptHandler, error_type) -> bool:
         error_type = (error_type,)  # type: ignore
     expected_errors = {stringify_error(error) for error in error_type}  # type: ignore
     if not handler.type:
-        return True
+        return False
     return handler.catch(expected_errors)
 
 

@@ -345,3 +345,6 @@ contributors:
 
 * Hugues Bruant: contributor
 
+* Tim Gates: contributor
+
+* Enji Cooper: contributor

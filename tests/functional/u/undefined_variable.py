@@ -167,12 +167,7 @@ except Exception:
     pass
 
 try:
-    unicode_3
-except:
-    pass
-
-try:
-    unicode_4 # [undefined-variable]
+    unicode_3 # [undefined-variable]
 except ValueError:
     pass
 
