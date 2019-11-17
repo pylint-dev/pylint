@@ -16,6 +16,10 @@ Release date: TBA
 
   Close #3235
 
+* No longer emit ``assignment-from-no-return`` when a function only raises an exception
+
+  Close #3218
+
 * Allow import aliases to exempt ``import-error`` when used in type annotations.
 
   Close #3178
