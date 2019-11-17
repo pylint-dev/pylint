@@ -48,7 +48,7 @@ TOK_REGEX = "|".join(
 
 def emit_pragma_representer(action, messages):
     if not messages and action in MESSAGE_KEYWORDS:
-        raise MissingMessage(
+        raise InvalidPragmaError(
             "The keyword is not followed by message identifier", action
         )
     return PragmaRepresenter(action, messages)
@@ -69,34 +69,15 @@ class PragmaParserError(Exception):
         super(PragmaParserError, self).__init__(self.message)
 
 
-class UnknownKeyword(PragmaParserError):
+class UnRecognizedOptionError(PragmaParserError):
     """
-    Thrown in case the keyword is not recognized
-    """
-
-
-class MissingAssignment(PragmaParserError):
-    """
-    Thrown in case the = sign is missing
+    Thrown in case the of a valid but unrecognized option
     """
 
 
-class UnsupportedAssignment(PragmaParserError):
+class InvalidPragmaError(PragmaParserError):
     """
-    Throw in case the assignment sign follows a licit keyword but
-    that doesn't support assignment
-    """
-
-
-class MissingKeyword(PragmaParserError):
-    """
-    Thrown in case keyword is missing
-    """
-
-
-class MissingMessage(PragmaParserError):
-    """
-    Thrown in case message identifier is missing
+    Thrown in case the pragma is invalid
     """
 
 
@@ -114,17 +95,17 @@ def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]
             if not assignment_required:
                 if action:
                     # A keyword has been found previously but doesn't support assignement
-                    raise UnsupportedAssignment(
+                    raise UnRecognizedOptionError(
                         "The keyword doesn't support assignment", action
                     )
                 if previous_token:
                     #  Something found previously but not a known keyword
-                    raise UnknownKeyword("The keyword is not licit", previous_token)
+                    raise UnRecognizedOptionError("The keyword is unknown", previous_token)
                 # Nothing at all detected before this assignment
-                raise MissingKeyword("Missing keyword before assignment", "")
+                raise InvalidPragmaError("Missing keyword before assignment", "")
             assignment_required = False
         elif assignment_required:
-            raise MissingAssignment("The = sign is missing after the keyword", action)
+            raise InvalidPragmaError("The = sign is missing after the keyword", action)
         elif kind == "KEYWORD":
             if action:
                 yield emit_pragma_representer(action, messages)
@@ -142,4 +123,4 @@ def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]
     if action:
         yield emit_pragma_representer(action, messages)
     else:
-        raise UnknownKeyword("The keyword is not licit", previous_token)
+        raise UnRecognizedOptionError("The keyword is unknown", previous_token)
