@@ -100,7 +100,9 @@ def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]
                     )
                 if previous_token:
                     #  Something found previously but not a known keyword
-                    raise UnRecognizedOptionError("The keyword is unknown", previous_token)
+                    raise UnRecognizedOptionError(
+                        "The keyword is unknown", previous_token
+                    )
                 # Nothing at all detected before this assignment
                 raise InvalidPragmaError("Missing keyword before assignment", "")
             assignment_required = False
