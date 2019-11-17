@@ -82,11 +82,8 @@ from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,
-    MissingAssignment,
-    MissingKeyword,
-    MissingMessage,
-    UnknownKeyword,
-    UnsupportedAssignment,
+    InvalidPragmaError,
+    UnRecognizedOptionError,
     parse_pragma,
 )
 
@@ -874,12 +871,12 @@ class PyLinter(
                             self.add_message(
                                 "bad-option-value", args=msgid, line=start[0]
                             )
-            except (UnknownKeyword, UnsupportedAssignment) as err:
+            except UnRecognizedOptionError as err:
                 self.add_message(
                     "unrecognized-inline-option", args=err.token, line=start[0]
                 )
                 continue
-            except (MissingAssignment, MissingKeyword, MissingMessage) as err:
+            except InvalidPragmaError as err:
                 self.add_message("bad-inline-option", args=err.token, line=start[0])
                 continue
 

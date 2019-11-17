@@ -1,6 +1,6 @@
 import pytest
 from pylint.utils.pragma_parser import (OPTION_PO, parse_pragma,
-    MissingKeyword, MissingAssignment, MissingMessage, UnknownKeyword, UnsupportedAssignment)
+    InvalidPragmaError, UnRecognizedOptionError)
 
 
 def test_simple_pragma():
@@ -40,7 +40,7 @@ def test_multiple_pragma_multiple_messages():
 def test_missing_assignment():
     comment = "#pylint: disable missing-docstring"
     match = OPTION_PO.search(comment)
-    with pytest.raises(MissingAssignment):
+    with pytest.raises(InvalidPragmaError):
         for pragma_repr in parse_pragma(match.group(2)):
             pass
 
@@ -48,7 +48,7 @@ def test_missing_assignment():
 def test_missing_keyword():
     comment = "#pylint: = missing-docstring"
     match = OPTION_PO.search(comment)
-    with pytest.raises(MissingKeyword):
+    with pytest.raises(InvalidPragmaError):
         for pragma_repr in parse_pragma(match.group(2)):
             pass
 
@@ -56,7 +56,7 @@ def test_missing_keyword():
 def test_unsupported_assignment():
     comment = "#pylint: disable-all = missing-docstring"
     match = OPTION_PO.search(comment)
-    with pytest.raises(UnsupportedAssignment):
+    with pytest.raises(UnRecognizedOptionError):
         for pragma_repr in parse_pragma(match.group(2)):
             pass
 
@@ -64,7 +64,7 @@ def test_unsupported_assignment():
 def test_unknown_keyword_with_messages():
     comment = "#pylint: unknown-keyword = missing-docstring"
     match = OPTION_PO.search(comment)
-    with pytest.raises(UnknownKeyword):
+    with pytest.raises(UnRecognizedOptionError):
         for pragma_repr in parse_pragma(match.group(2)):
             pass
 
@@ -72,7 +72,7 @@ def test_unknown_keyword_with_messages():
 def test_unknown_keyword_without_messages():
     comment = "#pylint: unknown-keyword"
     match = OPTION_PO.search(comment)
-    with pytest.raises(UnknownKeyword):
+    with pytest.raises(UnRecognizedOptionError):
         for pragma_repr in parse_pragma(match.group(2)):
             pass
 
@@ -80,7 +80,7 @@ def test_unknown_keyword_without_messages():
 def test_missing_message():
     comment = "#pylint: disable = "
     match = OPTION_PO.search(comment)
-    with pytest.raises(MissingMessage):
+    with pytest.raises(InvalidPragmaError):
         for pragma_repr in parse_pragma(match.group(2)):
             pass
 
