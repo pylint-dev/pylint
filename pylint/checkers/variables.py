@@ -660,8 +660,8 @@ class VariablesChecker(BaseChecker):
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
         self._to_consume = (
-            None
-        )  # list of tuples: (to_consume:dict, consumed:dict, scope_type:str)
+            None  # list of tuples: (to_consume:dict, consumed:dict, scope_type:str)
+        )
         self._checking_mod_attr = None
         self._loop_variables = []
         self._type_annotation_names = []
@@ -1030,7 +1030,11 @@ class VariablesChecker(BaseChecker):
                     # -- quit
                     break
 
-                maybee0601, annotation_return, use_outer_definition = self._is_variable_violation(
+                (
+                    maybee0601,
+                    annotation_return,
+                    use_outer_definition,
+                ) = self._is_variable_violation(
                     node,
                     name,
                     defnode,
