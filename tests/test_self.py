@@ -330,7 +330,7 @@ class TestRunTC(object):
         assert isinstance(output[0], dict)
         # So each version wants a different column number...
         if platform.python_implementation() == "PyPy":
-            column = 8
+            column = 9
         elif sys.version_info >= (3, 8):
             column = 9
         else:
