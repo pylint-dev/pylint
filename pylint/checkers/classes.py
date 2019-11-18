@@ -1855,7 +1855,9 @@ class SpecialMethodsChecker(BaseChecker):
         if not inferred or inferred is astroid.Uninferable:
             return
 
-        if not isinstance(inferred, astroid.Instance) or inferred.name != "bool":
+        if not isinstance(inferred, astroid.Const) or not isinstance(
+            inferred.value, bool
+        ):
             self.add_message("invalid-bool-returned", node=node)
 
 
