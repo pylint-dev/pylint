@@ -1721,6 +1721,12 @@ class SpecialMethodsChecker(BaseChecker):
             "non-negative integer",
             {},
         ),
+        "E0304": (
+            "__bool__ does not return bool",
+            "invalid-bool-returned",
+            "Used when a __bool__ method returns something which is not a bool",
+            {},
+        ),
     }
     priority = -2
 
@@ -1728,6 +1734,7 @@ class SpecialMethodsChecker(BaseChecker):
         "unexpected-special-method-signature",
         "non-iterator-returned",
         "invalid-length-returned",
+        "invalid-bool-returned",
     )
     def visit_functiondef(self, node):
         if not node.is_method():
@@ -1736,6 +1743,8 @@ class SpecialMethodsChecker(BaseChecker):
             self._check_iter(node)
         if node.name == "__len__":
             self._check_len(node)
+        if node.name == "__bool__":
+            self._check_bool(node)
         if node.name in PYMETHODS:
             self._check_unexpected_method_signature(node)
 
@@ -1840,6 +1849,14 @@ class SpecialMethodsChecker(BaseChecker):
         value = inferred.value
         if not isinstance(value, int) or value < 0:
             self.add_message("invalid-length-returned", node=node)
+
+    def _check_bool(self, node):
+        inferred = _safe_infer_call_result(node, node)
+        if not inferred or inferred is astroid.Uninferable:
+            return
+
+        if not isinstance(inferred, astroid.Instance) or inferred.name != "bool":
+            self.add_message("invalid-bool-returned", node=node)
 
 
 def _ancestors_to_call(klass_node, method="__init__"):
