@@ -348,3 +348,5 @@ contributors:
 * Tim Gates: contributor
 
 * Enji Cooper: contributor
+
+* Bastien Vallet: contributor

@@ -115,6 +115,12 @@ Release date: TBA
   Pylint no longer outputs a traceback, if a file, read from stdin,
   contains a syntaxerror.
 
+* Clean up .travis.yml
+
+  Use up to date version of python interpreters
+
+* Use new release of black 19.10b0 for formating
+
 
 What's New in Pylint 2.4.4?
 ===========================

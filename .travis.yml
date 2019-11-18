@@ -14,22 +14,19 @@ jobs:
     env: TOXENV=formatting
   - python: 3.6
     env: TOXENV=mypy
+  - python: 3.6
+    env: TOXENV=spelling
   - stage: tests-cpython
-    python: 3.5-dev
+    python: 3.5
     env: TOXENV=py35
   - python: 3.6
     env: TOXENV=py36
   - python: 3.7
     env: TOXENV=py37
-    dist: xenial
-  - python: 3.8-dev
+  - python: 3.8
     env: TOXENV=py38
-    dist: xenial
-    sudo: true
-  - python: 3.6
-    env: TOXENV=spelling
   - stage: tests-pypy
-    python: pypy3.5
+    python: pypy3
     env: TOXENV=pypy
 before_install:
 - python --version

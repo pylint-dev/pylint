@@ -330,7 +330,7 @@ class TestRunTC(object):
         assert isinstance(output[0], dict)
         # So each version wants a different column number...
         if platform.python_implementation() == "PyPy":
-            column = 8
+            column = 9
         elif sys.version_info >= (3, 8):
             column = 9
         else:
@@ -563,10 +563,8 @@ class TestRunTC(object):
             a.join("b.py").write(b_code)
         a.join("c.py").write(c_code)
 
-        curdir = os.getcwd()
-        try:
+        with tmpdir.as_cwd():
             # why don't we start pylint in a subprocess?
-            os.chdir(str(tmpdir))
             expected = (
                 "************* Module a.b\n"
                 "a/b.py:3:0: E0401: Unable to import 'a.d' (import-error)\n\n"
@@ -591,9 +589,6 @@ class TestRunTC(object):
                     ],
                     expected_output=expected,
                 )
-
-        finally:
-            os.chdir(curdir)
 
     def test_stdin_syntaxerror(self):
         expected_output = (
