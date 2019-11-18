@@ -9,10 +9,7 @@ Release date: TBA
 
   Close #2242
 
-* Add a --fail-under <score> flag, also configurable in a .pylintrc file. If the
-final score is more than the specified score, it's considered a success and
-pylint exits with exitcode 0. Otherwise, it's considered a failure and pylint
-exits with its current exitcode based on the messages issued.
+* Add a --fail-under <score> flag, also configurable in a .pylintrc file. If the final score is more than the specified score, it's considered a success and pylint exits with exitcode 0. Otherwise, it's considered a failure and pylint exits with its current exitcode based on the messages issued.
 
 * Do not exempt bare except from ``undefined-variable`` and similar checks
 
