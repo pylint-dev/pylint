@@ -1244,17 +1244,19 @@ class PyLinter(
             # save results if persistent run
             if self.config.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
-            return score_value
         else:
             self.reporter.on_close(self.stats, {})
+            score_value = None
+        return score_value
 
     def _report_evaluation(self):
         """make the global evaluation report"""
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
+        note = None
         previous_stats = config.load_results(self.file_state.base_name)
         if self.stats["statement"] == 0:
-            return
+            return note
 
         # get a global note for the code
         evaluation = self.config.evaluation
