@@ -1,1 +1,1 @@
-bad-inline-option:3::Unable to consider inline option 'errors-only'
+bad-inline-option:3::Unable to consider inline option 'disable'
