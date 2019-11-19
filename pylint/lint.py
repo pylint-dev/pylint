@@ -76,10 +76,16 @@ from astroid.builder import AstroidBuilder
 
 from pylint import __pkginfo__, checkers, config, exceptions, interfaces, reporters
 from pylint.__pkginfo__ import version
-from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES, OPTION_RGX
+from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
 from pylint.message import Message, MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
+from pylint.utils.pragma_parser import (
+    OPTION_PO,
+    InvalidPragmaError,
+    UnRecognizedOptionError,
+    parse_pragma,
+)
 
 try:
     import multiprocessing
@@ -803,50 +809,41 @@ class PyLinter(
 
             if tok_type != tokenize.COMMENT:
                 continue
-            match = OPTION_RGX.search(content)
+            match = OPTION_PO.search(content)
             if match is None:
                 continue
 
-            first_group = match.group(1)
-            if (
-                first_group.strip() == "disable-all"
-                or first_group.strip() == "skip-file"
-            ):
-                if first_group.strip() == "disable-all":
-                    self.add_message(
-                        "deprecated-pragma",
-                        line=start[0],
-                        args=("disable-all", "skip-file"),
-                    )
-                self.add_message("file-ignored", line=start[0])
-                self._ignore_file = True
-                return
             try:
-                opt, value = first_group.split("=", 1)
-            except ValueError:
-                self.add_message(
-                    "bad-inline-option", args=first_group.strip(), line=start[0]
-                )
-                continue
-            opt = opt.strip()
-            if opt in self._options_methods or opt in self._bw_options_methods:
-                try:
-                    meth = self._options_methods[opt]
-                except KeyError:
-                    meth = self._bw_options_methods[opt]
-                    # found a "(dis|en)able-msg" pragma deprecated suppression
-                    self.add_message(
-                        "deprecated-pragma",
-                        line=start[0],
-                        args=(opt, opt.replace("-msg", "")),
-                    )
-                for msgid in utils._splitstrip(value):
-                    # Add the line where a control pragma was encountered.
-                    if opt in control_pragmas:
-                        self._pragma_lineno[msgid] = start[0]
-
+                for pragma_repr in parse_pragma(match.group(2)):
+                    if pragma_repr.action in ("disable-all", "skip-file"):
+                        if pragma_repr.action == "disable-all":
+                            self.add_message(
+                                "deprecated-pragma",
+                                line=start[0],
+                                args=("disable-all", "skip-file"),
+                            )
+                        self.add_message("file-ignored", line=start[0])
+                        self._ignore_file = True
+                        return
                     try:
-                        if (opt, msgid) == ("disable", "all"):
+                        meth = self._options_methods[pragma_repr.action]
+                    except KeyError:
+                        meth = self._bw_options_methods[pragma_repr.action]
+                        # found a "(dis|en)able-msg" pragma deprecated suppression
+                        self.add_message(
+                            "deprecated-pragma",
+                            line=start[0],
+                            args=(
+                                pragma_repr.action,
+                                pragma_repr.action.replace("-msg", ""),
+                            ),
+                        )
+                    for msgid in pragma_repr.messages:
+                        # Add the line where a control pragma was encountered.
+                        if pragma_repr.action in control_pragmas:
+                            self._pragma_lineno[msgid] = start[0]
+
+                        if (pragma_repr.action, msgid) == ("disable", "all"):
                             self.add_message(
                                 "deprecated-pragma",
                                 line=start[0],
@@ -855,15 +852,25 @@ class PyLinter(
                             self.add_message("file-ignored", line=start[0])
                             self._ignore_file = True
                             return
-                        # If we did not see a newline between the previous line and now,
-                        # we saw a backslash so treat the two lines as one.
+                            # If we did not see a newline between the previous line and now,
+                            # we saw a backslash so treat the two lines as one.
+                        l_start = start[0]
                         if not saw_newline:
-                            meth(msgid, "module", start[0] - 1)
-                        meth(msgid, "module", start[0])
-                    except exceptions.UnknownMessageError:
-                        self.add_message("bad-option-value", args=msgid, line=start[0])
-            else:
-                self.add_message("unrecognized-inline-option", args=opt, line=start[0])
+                            l_start -= 1
+                        try:
+                            meth(msgid, "module", l_start)
+                        except exceptions.UnknownMessageError:
+                            self.add_message(
+                                "bad-option-value", args=msgid, line=start[0]
+                            )
+            except UnRecognizedOptionError as err:
+                self.add_message(
+                    "unrecognized-inline-option", args=err.token, line=start[0]
+                )
+                continue
+            except InvalidPragmaError as err:
+                self.add_message("bad-inline-option", args=err.token, line=start[0])
+                continue
 
     # code checking methods ###################################################
 
