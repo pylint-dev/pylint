@@ -988,6 +988,13 @@ accessed. Python regular expressions are accepted.",
 
     @check_messages("assignment-from-no-return", "assignment-from-none")
     def visit_assign(self, node):
+        """
+        Process assignments in the AST.
+        """
+
+        self._check_assignment_from_function_call(node)
+
+    def _check_assignment_from_function_call(self, node):
         """check that if assigning to a function call, the function is
         possibly returning something valuable
         """
