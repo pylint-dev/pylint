@@ -1,0 +1,4 @@
+non-str-assignment-to-dunder-name:13::Non-string value assigned to __name__
+non-str-assignment-to-dunder-name:14::Non-string value assigned to __name__
+non-str-assignment-to-dunder-name:16::Non-string value assigned to __name__
+non-str-assignment-to-dunder-name:17::Non-string value assigned to __name__

@@ -389,6 +389,11 @@ MSGS = {
         "Emitted  when the caller's argument names fully match the parameter "
         "names in the function signature but do not have the same order.",
     ),
+    "W1115": (
+        "Non-string value assigned to __name__",
+        "non-str-assignment-to-dunder-name",
+        "Emitted when a non-string vaue is assigned to __name__",
+    ),
 }
 
 # builtin sequence types in Python 2 and 3.
@@ -986,13 +991,18 @@ accessed. Python regular expressions are accepted.",
                 hint = ""
         return msg, hint
 
-    @check_messages("assignment-from-no-return", "assignment-from-none")
+    @check_messages(
+        "assignment-from-no-return",
+        "assignment-from-none",
+        "non-str-assignment-to-dunder-name",
+    )
     def visit_assign(self, node):
         """
         Process assignments in the AST.
         """
 
         self._check_assignment_from_function_call(node)
+        self._check_dundername_is_string(node)
 
     def _check_assignment_from_function_call(self, node):
         """check that if assigning to a function call, the function is
@@ -1041,6 +1051,25 @@ accessed. Python regular expressions are accepted.",
                     break
             else:
                 self.add_message("assignment-from-none", node=node)
+
+    def _check_dundername_is_string(self, node):
+        """
+        Check a string is assigned to self.__name__
+        """
+
+        # Check the left hand side of the assignment is <something.__name__
+        lhs = list(node.get_children())[0]
+        if not isinstance(lhs, astroid.node_classes.AssignAttr):
+            return
+        if not lhs.attrname == "__name__":
+            return
+
+        # If the right hand side is not a string
+        rhs = list(node.get_children())[1]
+        if not (isinstance(rhs, astroid.node_classes.Const)
+                and rhs.pytype() == "{0}.str".format(BUILTINS)):
+            # Add the message
+            self.add_message("non-str-assignment-to-dunder-name", node=node)
 
     def _check_uninferable_call(self, node):
         """
