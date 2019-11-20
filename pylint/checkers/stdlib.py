@@ -149,7 +149,7 @@ class StdlibChecker(BaseChecker):
             "subprocess-run-check",
             "The check parameter should always be used with explicitly set "
             "`check` keyword to make clear what the error-handling behavior is."
-            "https://docs.python.org/3/library/subprocess.html#subprocess.runs",
+            "https://docs.python.org/3/library/subprocess.html#subprocess.run",
         ),
     }
 
