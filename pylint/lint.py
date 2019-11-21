@@ -1134,10 +1134,6 @@ class PyLinter(
         try:
             if data is None:
                 return MANAGER.ast_from_file(filepath, modname, source=True)
-
-            cached = MANAGER.astroid_cache.get(modname)
-            if cached and cached.file == filepath:
-                return cached
             return AstroidBuilder(MANAGER).string_build(data, modname, filepath)
         except astroid.AstroidSyntaxError as ex:
             # pylint: disable=no-member
