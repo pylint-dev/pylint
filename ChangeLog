@@ -11,10 +11,13 @@ Release date: TBA
 
   Close #2242
 
-* Don't emit ``line-too-long`` for multilines when a
-  `pylint:disable=line-too-long` comment stands at their end
+* Don't emit ``line-too-long`` for multilines when `disable=line-too-long` comment stands at their end
 
   Close #2957
+
+* Fixed an ``AttributeError`` caused by improper handling of ``dataclasses`` inference in ``pyreverse``
+
+  Close #3256
 
 * Do not exempt bare except from ``undefined-variable`` and similar checks
 
