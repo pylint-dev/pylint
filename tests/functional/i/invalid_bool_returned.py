@@ -17,7 +17,7 @@ class SecondGoodBool(object):
     """__bool__ returns <type 'bool'>"""
 
     def __bool__(self):
-        return True
+        return bool(0)
 
 
 class BoolMetaclass(type):
