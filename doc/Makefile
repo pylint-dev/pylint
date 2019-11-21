@@ -140,14 +140,12 @@ doctest:
 
 
 extensions.rst: exts/pylint_extensions.py
-extensions.rst: ../pylint/utils.py
 extensions.rst: $(shell find ../pylint/extensions -type f -regex '.*\.py')
 extensions.rst: $(shell find ../pylint/extensions -type f -regex '.*\.rst')
 	rm -f extensions.rst
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) ./exts/pylint_extensions.py
 
 features.rst: exts/pylint_features.py
-features.rst: ../pylint/utils.py
 features.rst: $(shell find ../pylint/checkers -type f -regex '.*\.py')
 	rm -f features.rst
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) ./exts/pylint_features.py
