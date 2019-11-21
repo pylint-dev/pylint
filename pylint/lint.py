@@ -372,6 +372,15 @@ class PyLinter(
                 },
             ),
             (
+                "fail-under",
+                {
+                    "default": 10,
+                    "type": "int",
+                    "metavar": "<score>",
+                    "help": "Specify a score threshold to be exceeded before program exits with error.",
+                },
+            ),
+            (
                 "confidence",
                 {
                     "type": "multiple_choice",
@@ -1234,20 +1243,23 @@ class PyLinter(
 
             if self.config.reports:
                 self.reporter.display_reports(sect)
-            self._report_evaluation()
+            score_value = self._report_evaluation()
             # save results if persistent run
             if self.config.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
         else:
             self.reporter.on_close(self.stats, {})
+            score_value = None
+        return score_value
 
     def _report_evaluation(self):
         """make the global evaluation report"""
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
+        note = None
         previous_stats = config.load_results(self.file_state.base_name)
         if self.stats["statement"] == 0:
-            return
+            return note
 
         # get a global note for the code
         evaluation = self.config.evaluation
@@ -1265,6 +1277,7 @@ class PyLinter(
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)
             self.reporter.display_reports(sect)
+        return note
 
 
 def check_parallel(linter, jobs, files):
@@ -1756,11 +1769,13 @@ group are mutually exclusive.",
         # behaviour
         with fix_import_path(args):
             linter.check(args)
-            linter.generate_reports()
+            score_value = linter.generate_reports()
         if do_exit:
             if linter.config.exit_zero:
                 sys.exit(0)
             else:
+                if score_value and score_value > linter.config.fail_under:
+                    sys.exit(0)
                 sys.exit(self.linter.msg_status)
 
     def cb_set_rcfile(self, name, value):

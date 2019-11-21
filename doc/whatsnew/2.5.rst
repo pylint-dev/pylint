@@ -51,3 +51,5 @@ separated list of regexes, that if a name matches will be exempt of naming-check
 separated list of regexes, that if a name matches will be always marked as a blacklisted name.
 
 * Mutable ``collections.*`` are now flagged as dangerous defaults.
+
+* Add new --fail-under flag for setting the threshold for the score to fail overall tests. If the score is over the fail-under threshold, pylint will complete SystemExit with value 0 to indicate no errors.
