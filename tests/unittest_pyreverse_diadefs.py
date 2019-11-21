@@ -13,6 +13,9 @@
 unit test for the extensions.diadefslib modules
 """
 
+import sys
+from pathlib import Path
+
 import astroid
 import pytest
 
@@ -173,3 +176,14 @@ def test_known_values2(HANDLER, PROJECT):
         (True, "DoNothing"),
         (True, "Specialization"),
     ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires dataclasses")
+def test_regression_dataclasses_inference(HANDLER):
+    project_path = Path("regrtest_data") / "dataclasses_pyreverse"
+    path = get_project(str(project_path))
+
+    cdg = ClassDiadefGenerator(Linker(path), HANDLER)
+    special = "regrtest_data.dataclasses_pyreverse.InventoryItem"
+    cd = cdg.class_diagram(path, special)
+    assert cd.title == special

@@ -163,7 +163,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         node.instance_attrs_type = collections.defaultdict(list)
         for assignattrs in node.instance_attrs.values():
             for assignattr in assignattrs:
-                self.handle_assignattr_type(assignattr, node)
+                if not isinstance(assignattr, astroid.Unknown):
+                    self.handle_assignattr_type(assignattr, node)
         # resolve implemented interface
         try:
             node.implements = list(interfaces(node, self.inherited_interfaces))
