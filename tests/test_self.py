@@ -616,3 +616,51 @@ class TestRunTC(object):
         result = subprocess.check_output([sys.executable, "-m", "pylint", "--version"])
         result = result.decode("utf-8")
         check(result.splitlines())
+
+    def test_fail_under(self):
+        self._runtest(
+            [
+                "--fail-under",
+                "5",
+                "--enable=all",
+                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+            ],
+            code=0,
+        )
+        self._runtest(
+            [
+                "--fail-under",
+                "6",
+                "--enable=all",
+                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+            ],
+            code=0,
+        )
+        self._runtest(
+            [
+                "--fail-under",
+                "7",
+                "--enable=all",
+                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+            ],
+            code=16,
+        )
+
+        self._runtest(
+            [
+                "--fail-under",
+                "0",
+                "--enable=all",
+                join(HERE, "regrtest_data", "fail_under_minus6.py"),
+            ],
+            code=22,
+        )
+        self._runtest(
+            [
+                "--fail-under",
+                "-10",
+                "--enable=all",
+                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+            ],
+            code=0,
+        )
