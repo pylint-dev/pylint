@@ -43,3 +43,35 @@ def func_with_long(parameter):
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccc
     """
     return parameter
+
+
+# No line-too-long message should be emitted as the disable comment stands for all the multiline
+def issue_2957():
+    """
+    This is a very very very long line within a docstring that should trigger a pylint C0301 error line-too-long
+
+    Even spread on multiple lines, the disable command is still effective on very very very, maybe too much long docstring
+    """#pylint: disable=line-too-long
+    return True
+
+
+def issue_2957_bis():
+    # +3: [line-too-long]
+    # +4: [line-too-long]
+    """
+    This is a very very very long line within a docstring that should trigger a pylint C0301 error line-too-long
+
+    Even spread on multiple lines, the disable command is still effective on very very very, maybe too much long docstring
+    """
+    return True
+
+
+# +2: [line-too-long]
+# +2: [line-too-long]
+VAR = """A very very long, maybe too much, constant. Just here to trigger message emission and check everything is fine and nice"""
+"""But it is however too long, isn't it? I don't know what to say more here. I got a lack of imagination, just listening to music..."""
+
+
+# +1: [line-too-long]
+VAR_BIS = """A very very long, maybe too much, constant. Just here to trigger message emission and check everything is fine and nice"""
+"""But it is however too long, isn't it? I don't know what to say more here. I got a lack of imagination, just listening to music..."""#pylint: disable=line-too-long

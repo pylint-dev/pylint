@@ -23,6 +23,19 @@ New checkers
 Other Changes
 =============
 
+* Don't emit ``line-too-long`` for multilines when a
+  `pylint:disable=line-too-long` comment stands at their end.
+
+  For example the following code will not trigger any ``line-too-long`` message::
+
+    def example():
+      """
+      This is a very very very long line within a docstring that should trigger a pylint C0301 error line-too-long
+
+      Even spread on multiple lines, the disable command is still effective on very very very, maybe too much long docstring
+      """#pylint: disable=line-too-long
+    pass
+
 * Configuration can be read from a setup.cfg or pyproject.toml file
   in the current directory.
   A setup.cfg must prepend pylintrc section names with ``pylint.``,
@@ -38,3 +51,5 @@ separated list of regexes, that if a name matches will be exempt of naming-check
 separated list of regexes, that if a name matches will be always marked as a blacklisted name.
 
 * Mutable ``collections.*`` are now flagged as dangerous defaults.
+
+* Add new --fail-under flag for setting the threshold for the score to fail overall tests. If the score is over the fail-under threshold, pylint will complete SystemExit with value 0 to indicate no errors.

@@ -22,9 +22,9 @@ import re
 import tokenize
 
 from pylint.checkers import BaseChecker
-from pylint.constants import OPTION_RGX
 from pylint.interfaces import IRawChecker, ITokenChecker
 from pylint.message import MessagesHandlerMixIn
+from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 
 class ByIdManagedMessagesChecker(BaseChecker):
@@ -138,11 +138,21 @@ class EncodingChecker(BaseChecker):
             comment_text = comment.string[1:].lstrip()  # trim '#' and whitespaces
 
             # handle pylint disable clauses
-            disable_option_match = OPTION_RGX.search(comment_text)
+            disable_option_match = OPTION_PO.search(comment_text)
             if disable_option_match:
                 try:
-                    _, value = disable_option_match.group(1).split("=", 1)
-                    values = [_val.strip().upper() for _val in value.split(",")]
+                    values = []
+                    try:
+                        for pragma_repr in (
+                            p_rep
+                            for p_rep in parse_pragma(disable_option_match.group(2))
+                            if p_rep.action == "disable"
+                        ):
+                            values.extend(pragma_repr.messages)
+                    except PragmaParserError:
+                        # Printing usefull informations dealing with this error is done in lint.py
+                        pass
+                    values = [_val.upper() for _val in values]
                     if set(values) & set(self.config.notes):
                         continue
                 except ValueError:
