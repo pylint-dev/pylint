@@ -1774,7 +1774,6 @@ group are mutually exclusive.",
             if linter.config.exit_zero:
                 sys.exit(0)
             else:
-                print(score_value, linter.config.fail_under)
                 if score_value and score_value > linter.config.fail_under:
                     sys.exit(0)
                 sys.exit(self.linter.msg_status)
