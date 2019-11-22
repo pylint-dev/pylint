@@ -352,3 +352,5 @@ contributors:
 * Bastien Vallet: contributor
 
 * Pek Chhan: contributor
+
+* Craig Henriques: contributor

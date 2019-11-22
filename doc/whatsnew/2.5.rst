@@ -53,3 +53,6 @@ separated list of regexes, that if a name matches will be always marked as a bla
 * Mutable ``collections.*`` are now flagged as dangerous defaults.
 
 * Add new --fail-under flag for setting the threshold for the score to fail overall tests. If the score is over the fail-under threshold, pylint will complete SystemExit with value 0 to indicate no errors.
+
+* Add errors for invalid return types from functions ``__index__``, ``__repr__``, ``__str__``, ``__bytes__``,
+  ``__getnewargs_ex__``, ``__getnewargs__``, ``__bool__``, ``__hash__``, ``__length_hint__``, and ``__format__``
