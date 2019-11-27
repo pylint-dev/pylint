@@ -1075,6 +1075,13 @@ def supports_delitem(value: astroid.node_classes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_delitem_protocol)
 
 
+def _get_python_type_of_node(node):
+    pytype = getattr(node, "pytype", None)
+    if callable(pytype):
+        return pytype()
+    return None
+
+
 @lru_cache(maxsize=1024)
 def safe_infer(
     node: astroid.node_classes.NodeNG, context=None
@@ -1082,20 +1089,28 @@ def safe_infer(
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
-    one node has been inferred).
+    one node has been inferred of different types).
     """
+    inferred_types = set()
     try:
-        inferit = node.infer(context=context)
-        value = next(inferit)
+        infer_gen = node.infer(context=context)
+        value = next(infer_gen)
     except astroid.InferenceError:
         return None
+
+    if value is not astroid.Uninferable:
+        inferred_types.add(_get_python_type_of_node(value))
+
     try:
-        next(inferit)
-        return None  # None if there is ambiguity on the inferred node
+        for inferred in infer_gen:
+            inferred_type = _get_python_type_of_node(inferred)
+            if inferred_type not in inferred_types:
+                return None  # If there is ambiguity on the inferred node.
     except astroid.InferenceError:
-        return None  # there is some kind of ambiguity
+        return None  # There is some kind of ambiguity
     except StopIteration:
         return value
+    return value if len(inferred_types) <= 1 else None
 
 
 def has_known_bases(klass: astroid.ClassDef, context=None) -> bool:

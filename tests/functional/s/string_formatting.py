@@ -190,7 +190,6 @@ def avoid_empty_attribute():
 
 def invalid_format_index_on_inference_ambiguity():
     """Test inference bug for invalid-format-index"""
-    options = []
     if len(sys.argv) > 1:
         options = [["Woof!"]]
     else:
