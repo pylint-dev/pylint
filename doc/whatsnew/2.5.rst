@@ -19,18 +19,19 @@ New checkers
   f-string without having any interpolated values in it, which means
   that the f-string can be a normal string.
 
-* Checks for invalid return types from protocol functions:
+* Multiple checks for invalid return types of protocol functions were added:
 
-   * ``__bool__`` must return a bool
-   * ``__index__`` must return an integer
-   * ``__repr__`` must return a string
-   * ``__str__`` must return a string
-   * ``__bytes__`` must return bytes
-   * ``__hash__`` must return a string
-   * ``__length__hint__`` must return a non-negative integer
-   * ``__format__`` must return a string
-   * ``__getnewargs__`` must return a tuple
-   * ``__getnewargs_ex__`` must return a tuple of the form (tuple, dict)
+   * ``invalid-bool-returned``: ``__bool__`` did not return a bool
+   * ``invalid-index-returned``: ``__index__`` did not return an integer
+   * ``invalid-repr-returned)``: ``__repr__`` did not return a string
+   * ``invalid-str-returned)``: ``__str__`` did not return a string
+   * ``invalid-bytes-returned)``: ``__bytes__`` did not return a string
+   * ``invalid-hash-returned)``: ``__hash__`` did not return an integer
+   * ``invalid-length-hint-returned)``: ``__length_hint__`` did not return a non-negative integer
+   * ``invalid-format-returned)``: ``__format__`` did not return a string
+   * ``invalid-getnewargs-returned)``: ``__getnewargs__`` did not return a tuple
+   * ``invalid-getnewargs-ex-returned)``: ``__getnewargs_ex__`` did not return a tuple of the form (tuple, dict)
+
 
 Other Changes
 =============
