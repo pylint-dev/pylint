@@ -12,3 +12,4 @@ unsubscriptable-object:56::Value 'set(numbers)' is unsubscriptable
 unsubscriptable-object:57::Value 'frozenset(numbers)' is unsubscriptable
 unsubscriptable-object:77::Value 'SubscriptableClass()' is unsubscriptable
 unsubscriptable-object:84::Value 'test' is unsubscriptable
+unsubscriptable-object:127:test_one:Value 'var_one' is unsubscriptable

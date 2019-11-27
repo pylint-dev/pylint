@@ -112,3 +112,16 @@ class ClassMixin(object):
     def test_unsubscriptable(self):
         self.bala[0]
         self.portocala[0]
+
+
+def return_an_int(param):
+    """Returns an int"""
+    if param == 0:
+        return 1
+    return 0
+
+
+def test_one(param):
+    """Should complain about var_one[0], but doesn't"""
+    var_one = return_an_int(param)
+    return var_one[0]  # [unsubscriptable-object]

@@ -111,7 +111,7 @@ except AttributeError:
         def __init__(self):
             returncode = -1
             self.timeout = -1
-            super(TimeoutExpired, self).__init__(returncode)
+            super(TimeoutExpired, self).__init__("", returncode)
 
 
 class SuperWithType(object):
