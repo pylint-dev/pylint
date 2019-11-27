@@ -1890,50 +1890,35 @@ class SpecialMethodsChecker(BaseChecker):
         if SpecialMethodsChecker._is_wrapped_type(node, "str"):
             return True
 
-        if isinstance(node, astroid.Const) and isinstance(node.value, str):
-            return True
-
-        return False
+        return isinstance(node, astroid.Const) and isinstance(node.value, str)
 
     @staticmethod
     def _is_bool(node):
         if SpecialMethodsChecker._is_wrapped_type(node, "bool"):
             return True
 
-        if isinstance(node, astroid.Const) and isinstance(node.value, bool):
-            return True
-
-        return False
+        return isinstance(node, astroid.Const) and isinstance(node.value, bool)
 
     @staticmethod
     def _is_bytes(node):
         if SpecialMethodsChecker._is_wrapped_type(node, "bytes"):
             return True
 
-        if isinstance(node, astroid.Const) and isinstance(node.value, bytes):
-            return True
-
-        return False
+        return isinstance(node, astroid.Const) and isinstance(node.value, bytes)
 
     @staticmethod
     def _is_tuple(node):
         if SpecialMethodsChecker._is_wrapped_type(node, "tuple"):
             return True
 
-        if isinstance(node, astroid.Const) and isinstance(node.value, tuple):
-            return True
-
-        return False
+        return isinstance(node, astroid.Const) and isinstance(node.value, tuple)
 
     @staticmethod
     def _is_dict(node):
         if SpecialMethodsChecker._is_wrapped_type(node, "dict"):
             return True
 
-        if isinstance(node, astroid.Const) and isinstance(node.value, dict):
-            return True
-
-        return False
+        return isinstance(node, astroid.Const) and isinstance(node.value, dict)
 
     @staticmethod
     def _is_iterator(node):
