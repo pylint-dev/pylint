@@ -1719,23 +1719,105 @@ class SpecialMethodsChecker(BaseChecker):
             "invalid-length-returned",
             "Used when a __len__ method returns something which is not a "
             "non-negative integer",
-            {},
+        ),
+        "E0304": (
+            "__bool__ does not return bool",
+            "invalid-bool-returned",
+            "Used when a __bool__ method returns something which is not a bool",
+        ),
+        "E0305": (
+            "__index__ does not return int",
+            "invalid-index-returned",
+            "Used when an __index__ method returns something which is not "
+            "an integer",
+        ),
+        "E0306": (
+            "__repr__ does not return str",
+            "invalid-repr-returned",
+            "Used when a __repr__ method returns something which is not a string",
+        ),
+        "E0307": (
+            "__str__ does not return str",
+            "invalid-str-returned",
+            "Used when a __str__ method returns something which is not a string",
+        ),
+        "E0308": (
+            "__bytes__ does not return bytes",
+            "invalid-bytes-returned",
+            "Used when a __bytes__ method returns something which is not bytes",
+        ),
+        "E0309": (
+            "__hash__ does not return int",
+            "invalid-hash-returned",
+            "Used when a __hash__ method returns something which is not an integer",
+        ),
+        "E0310": (
+            "__length_hint__ does not return non-negative integer",
+            "invalid-length-hint-returned",
+            "Used when a __length_hint__ method returns something which is not a "
+            "non-negative integer",
+        ),
+        "E0311": (
+            "__format__ does not return str",
+            "invalid-format-returned",
+            "Used when a __format__ method returns something which is not a string",
+        ),
+        "E0312": (
+            "__getnewargs__ does not return a tuple",
+            "invalid-getnewargs-returned",
+            "Used when a __getnewargs__ method returns something which is not "
+            "a tuple",
+        ),
+        "E0313": (
+            "__getnewargs_ex__ does not return a tuple containing (tuple, dict)",
+            "invalid-getnewargs-ex-returned",
+            "Used when a __getnewargs_ex__ method returns something which is not "
+            "of the form tuple(tuple, dict)",
         ),
     }
     priority = -2
+
+    def __init__(self, linter=None):
+        BaseChecker.__init__(self, linter)
+        self._protocol_map = {
+            "__iter__": self._check_iter,
+            "__len__": self._check_len,
+            "__bool__": self._check_bool,
+            "__index__": self._check_index,
+            "__repr__": self._check_repr,
+            "__str__": self._check_str,
+            "__bytes__": self._check_bytes,
+            "__hash__": self._check_hash,
+            "__length_hint__": self._check_length_hint,
+            "__format__": self._check_format,
+            "__getnewargs__": self._check_getnewargs,
+            "__getnewargs_ex__": self._check_getnewargs_ex,
+        }
 
     @check_messages(
         "unexpected-special-method-signature",
         "non-iterator-returned",
         "invalid-length-returned",
+        "invalid-bool-returned",
+        "invalid-index-returned",
+        "invalid-repr-returned",
+        "invalid-str-returned",
+        "invalid-bytes-returned",
+        "invalid-hash-returned",
+        "invalid-length-hint-returned",
+        "invalid-format-returned",
+        "invalid-getnewargs-returned",
+        "invalid-getnewargs-ex-returned",
     )
     def visit_functiondef(self, node):
         if not node.is_method():
             return
-        if node.name == "__iter__":
-            self._check_iter(node)
-        if node.name == "__len__":
-            self._check_len(node)
+
+        inferred = _safe_infer_call_result(node, node)
+        # Only want to check types that we are able to infer
+        if inferred and node.name in self._protocol_map:
+            self._protocol_map[node.name](node, inferred)
+
         if node.name in PYMETHODS:
             self._check_unexpected_method_signature(node)
 
@@ -1789,6 +1871,56 @@ class SpecialMethodsChecker(BaseChecker):
             )
 
     @staticmethod
+    def _is_wrapped_type(node, type_):
+        return (
+            isinstance(node, astroid.Instance)
+            and node.name == type_
+            and not isinstance(node, astroid.Const)
+        )
+
+    @staticmethod
+    def _is_int(node):
+        if SpecialMethodsChecker._is_wrapped_type(node, "int"):
+            return True
+
+        return isinstance(node, astroid.Const) and isinstance(node.value, int)
+
+    @staticmethod
+    def _is_str(node):
+        if SpecialMethodsChecker._is_wrapped_type(node, "str"):
+            return True
+
+        return isinstance(node, astroid.Const) and isinstance(node.value, str)
+
+    @staticmethod
+    def _is_bool(node):
+        if SpecialMethodsChecker._is_wrapped_type(node, "bool"):
+            return True
+
+        return isinstance(node, astroid.Const) and isinstance(node.value, bool)
+
+    @staticmethod
+    def _is_bytes(node):
+        if SpecialMethodsChecker._is_wrapped_type(node, "bytes"):
+            return True
+
+        return isinstance(node, astroid.Const) and isinstance(node.value, bytes)
+
+    @staticmethod
+    def _is_tuple(node):
+        if SpecialMethodsChecker._is_wrapped_type(node, "tuple"):
+            return True
+
+        return isinstance(node, astroid.Const) and isinstance(node.value, tuple)
+
+    @staticmethod
+    def _is_dict(node):
+        if SpecialMethodsChecker._is_wrapped_type(node, "dict"):
+            return True
+
+        return isinstance(node, astroid.Const) and isinstance(node.value, dict)
+
+    @staticmethod
     def _is_iterator(node):
         if node is astroid.Uninferable:
             # Just ignore Uninferable objects.
@@ -1813,33 +1945,83 @@ class SpecialMethodsChecker(BaseChecker):
                     pass
         return False
 
-    def _check_iter(self, node):
-        inferred = _safe_infer_call_result(node, node)
-        if inferred is not None:
-            if not self._is_iterator(inferred):
-                self.add_message("non-iterator-returned", node=node)
+    def _check_iter(self, node, inferred):
+        if not self._is_iterator(inferred):
+            self.add_message("non-iterator-returned", node=node)
 
-    def _check_len(self, node):
-        inferred = _safe_infer_call_result(node, node)
-        if not inferred or inferred is astroid.Uninferable:
-            return
-
-        if (
-            isinstance(inferred, astroid.Instance)
-            and inferred.name == "int"
-            and not isinstance(inferred, astroid.Const)
-        ):
-            # Assume it's good enough, since the int() call might wrap
-            # something that's uninferable for us
-            return
-
-        if not isinstance(inferred, astroid.Const):
+    def _check_len(self, node, inferred):
+        if not self._is_int(inferred):
             self.add_message("invalid-length-returned", node=node)
+        elif isinstance(inferred, astroid.Const) and inferred.value < 0:
+            self.add_message("invalid-length-returned", node=node)
+
+    def _check_bool(self, node, inferred):
+        if not self._is_bool(inferred):
+            self.add_message("invalid-bool-returned", node=node)
+
+    def _check_index(self, node, inferred):
+        if not self._is_int(inferred):
+            self.add_message("invalid-index-returned", node=node)
+
+    def _check_repr(self, node, inferred):
+        if not self._is_str(inferred):
+            self.add_message("invalid-repr-returned", node=node)
+
+    def _check_str(self, node, inferred):
+        if not self._is_str(inferred):
+            self.add_message("invalid-str-returned", node=node)
+
+    def _check_bytes(self, node, inferred):
+        if not self._is_bytes(inferred):
+            self.add_message("invalid-bytes-returned", node=node)
+
+    def _check_hash(self, node, inferred):
+        if not self._is_int(inferred):
+            self.add_message("invalid-hash-returned", node=node)
+
+    def _check_length_hint(self, node, inferred):
+        if not self._is_int(inferred):
+            self.add_message("invalid-length-hint-returned", node=node)
+        elif isinstance(inferred, astroid.Const) and inferred.value < 0:
+            self.add_message("invalid-length-hint-returned", node=node)
+
+    def _check_format(self, node, inferred):
+        if not self._is_str(inferred):
+            self.add_message("invalid-format-returned", node=node)
+
+    def _check_getnewargs(self, node, inferred):
+        if not self._is_tuple(inferred):
+            self.add_message("invalid-getnewargs-returned", node=node)
+
+    def _check_getnewargs_ex(self, node, inferred):
+        if not self._is_tuple(inferred):
+            self.add_message("invalid-getnewargs-ex-returned", node=node)
             return
 
-        value = inferred.value
-        if not isinstance(value, int) or value < 0:
-            self.add_message("invalid-length-returned", node=node)
+        if not isinstance(inferred, astroid.Tuple):
+            # If it's not an astroid.Tuple we can't analyze it further
+            return
+
+        found_error = False
+
+        if len(inferred.elts) != 2:
+            found_error = True
+        else:
+            for arg, check in [
+                (inferred.elts[0], self._is_tuple),
+                (inferred.elts[1], self._is_dict),
+            ]:
+
+                if isinstance(arg, astroid.Call):
+                    arg = safe_infer(arg)
+
+                if arg and arg is not astroid.Uninferable:
+                    if not check(arg):
+                        found_error = True
+                        break
+
+        if found_error:
+            self.add_message("invalid-getnewargs-ex-returned", node=node)
 
 
 def _ancestors_to_call(klass_node, method="__init__"):

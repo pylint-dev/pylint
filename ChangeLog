@@ -7,6 +7,20 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* Added errors for protocol functions when invalid return types are detected.
+  E0304 (invalid-bool-returned): __bool__ did not return a bool
+  E0305 (invalid-index-returned): __index__ did not return an integer
+  E0306 (invalid-repr-returned): __repr__ did not return a string
+  E0307 (invalid-str-returned): __str__ did not return a string
+  E0308 (invalid-bytes-returned): __bytes__ did not return a string
+  E0309 (invalid-hash-returned): __hash__ did not return an integer
+  E0310 (invalid-length-hint-returned): __length_hint__ did not return a non-negative integer
+  E0311 (invalid-format-returned): __format__ did not return a string
+  E0312 (invalid-getnewargs-returned): __getnewargs__ did not return a tuple
+  E0313 (invalid-getnewargs-ex-returned): __getnewargs_ex__ did not return a tuple of the form (tuple, dict)
+
+  Close #560
+
 * ``safe_infer`` can infer a value as long as all the paths share the same type.
 
   Close #2503

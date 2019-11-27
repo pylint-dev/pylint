@@ -19,6 +19,18 @@ New checkers
   f-string without having any interpolated values in it, which means
   that the f-string can be a normal string.
 
+* Checks for invalid return types from protocol functions:
+
+   * ``__bool__`` must return a bool
+   * ``__index__`` must return an integer
+   * ``__repr__`` must return a string
+   * ``__str__`` must return a string
+   * ``__bytes__`` must return bytes
+   * ``__hash__`` must return a string
+   * ``__length__hint__`` must return a non-negative integer
+   * ``__format__`` must return a string
+   * ``__getnewargs__`` must return a tuple
+   * ``__getnewargs_ex__`` must return a tuple of the form (tuple, dict)
 
 Other Changes
 =============
