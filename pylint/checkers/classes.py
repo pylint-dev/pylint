@@ -1719,74 +1719,80 @@ class SpecialMethodsChecker(BaseChecker):
             "invalid-length-returned",
             "Used when a __len__ method returns something which is not a "
             "non-negative integer",
-            {},
         ),
         "E0304": (
             "__bool__ does not return bool",
             "invalid-bool-returned",
             "Used when a __bool__ method returns something which is not a bool",
-            {},
         ),
         "E0305": (
             "__index__ does not return int",
             "invalid-index-returned",
             "Used when an __index__ method returns something which is not "
             "an integer",
-            {},
         ),
         "E0306": (
             "__repr__ does not return str",
             "invalid-repr-returned",
             "Used when a __repr__ method returns something which is not a string",
-            {},
         ),
         "E0307": (
             "__str__ does not return str",
             "invalid-str-returned",
             "Used when a __str__ method returns something which is not a string",
-            {},
         ),
         "E0308": (
             "__bytes__ does not return bytes",
             "invalid-bytes-returned",
             "Used when a __bytes__ method returns something which is not bytes",
-            {},
         ),
         "E0309": (
             "__hash__ does not return int",
             "invalid-hash-returned",
             "Used when a __hash__ method returns something which is not an integer",
-            {},
         ),
         "E0310": (
             "__length_hint__ does not return non-negative integer",
             "invalid-length-hint-returned",
             "Used when a __length_hint__ method returns something which is not a "
             "non-negative integer",
-            {},
         ),
         "E0311": (
             "__format__ does not return str",
             "invalid-format-returned",
             "Used when a __format__ method returns something which is not a string",
-            {},
         ),
         "E0312": (
             "__getnewargs__ does not return a tuple",
             "invalid-getnewargs-returned",
             "Used when a __getnewargs__ method returns something which is not "
             "a tuple",
-            {},
         ),
         "E0313": (
             "__getnewargs_ex__ does not return a tuple containing (tuple, dict)",
             "invalid-getnewargs-ex-returned",
             "Used when a __getnewargs_ex__ method returns something which is not "
             "of the form tuple(tuple, dict)",
-            {},
         ),
     }
     priority = -2
+
+    def __init__(self, linter=None):
+        BaseChecker.__init__(self, linter)
+        self._protocol_map = {
+            "__iter__": self._check_iter,
+            "__len__": self._check_len,
+            "__bool__": self._check_bool,
+            "__index__": self._check_index,
+            "__repr__": self._check_repr,
+            "__str__": self._check_str,
+            "__bytes__": self._check_bytes,
+            "__hash__": self._check_hash,
+            "__length_hint__": self._check_length_hint,
+            "__format__": self._check_format,
+            "__getnewargs__": self._check_getnewargs,
+            "__getnewargs_ex__": self._check_getnewargs_ex,
+        }
 
     @check_messages(
         "unexpected-special-method-signature",
@@ -1809,23 +1815,8 @@ class SpecialMethodsChecker(BaseChecker):
 
         inferred = _safe_infer_call_result(node, node)
         # Only want to check types that we are able to infer
-        if inferred and inferred is not astroid.Uninferable:
-            call_map = {
-                "__iter__": self._check_iter,
-                "__len__": self._check_len,
-                "__bool__": self._check_bool,
-                "__index__": self._check_index,
-                "__repr__": self._check_repr,
-                "__str__": self._check_str,
-                "__bytes__": self._check_bytes,
-                "__hash__": self._check_hash,
-                "__length_hint__": self._check_length_hint,
-                "__format__": self._check_format,
-                "__getnewargs__": self._check_getnewargs,
-                "__getnewargs_ex__": self._check_getnewargs_ex,
-            }
-            if node.name in call_map:
-                call_map[node.name](node, inferred)
+        if inferred and node.name in self._protocol_map:
+            self._protocol_map[node.name](node, inferred)
 
         if node.name in PYMETHODS:
             self._check_unexpected_method_signature(node)
@@ -1892,10 +1883,7 @@ class SpecialMethodsChecker(BaseChecker):
         if SpecialMethodsChecker._is_wrapped_type(node, "int"):
             return True
 
-        if isinstance(node, astroid.Const) and isinstance(node.value, int):
-            return True
-
-        return False
+        return isinstance(node, astroid.Const) and isinstance(node.value, int)
 
     @staticmethod
     def _is_str(node):
