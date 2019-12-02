@@ -354,3 +354,5 @@ contributors:
 * Pek Chhan: contributor
 
 * Craig Henriques: contributor
+
+* Matthijs Blom: contributor

@@ -7,6 +7,10 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* `__pow__`, `__imatmul__`, `__trunc__`, `__floor__`, and `__ceil__` are recognized as special method names.
+
+  Close #3281
+
 * Added errors for protocol functions when invalid return types are detected.
   E0304 (invalid-bool-returned): __bool__ did not return a bool
   E0305 (invalid-index-returned): __index__ did not return an integer
