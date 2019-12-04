@@ -363,8 +363,7 @@ def _called_in_methods(func, klass, methods):
 
 
 def _is_attribute_property(name, klass):
-    """ Check if the given attribute *name* is a property
-    in the given *klass*.
+    """Check if the given attribute *name* is a property in the given *klass*.
 
     It will look for `property` calls or for functions
     with the given name, decorated by `property` or `property`
@@ -389,8 +388,13 @@ def _is_attribute_property(name, klass):
             inferred
         ):
             return True
-        if inferred.pytype() == property_name:
-            return True
+        if inferred.pytype() != property_name:
+            continue
+
+        cls = node_frame_class(inferred)
+        if cls == klass.declared_metaclass():
+            continue
+        return True
     return False
 
 

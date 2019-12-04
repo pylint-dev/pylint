@@ -94,8 +94,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_uninferable_attribute(self):
-        """Make sure protect-access doesn't raise
-        an exception Uninferable attributes"""
+        """Make sure protect-access doesn't raise an exception Uninferable attributes"""
 
         node = astroid.extract_node(
             """
