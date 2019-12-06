@@ -150,6 +150,7 @@ Release date: TBA
 
 * Use new release of black 19.10b0 for formating
 
+* Fix uppercase style to disallow 3+ uppercase followed by lowercase.
 
 What's New in Pylint 2.4.4?
 ===========================
