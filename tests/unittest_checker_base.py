@@ -514,6 +514,7 @@ class TestNamePresets(unittest.TestCase):
             self._test_name_is_correct_for_all_name_types(naming_style, name)
         for name in self.ALL_NAMES - self.UPPER_CASE_NAMES:
             self._test_name_is_incorrect_for_all_name_types(naming_style, name)
+        self._test_name_is_incorrect_for_all_name_types(naming_style, "UPPERcase")
 
         self._test_should_always_pass(naming_style)
 
