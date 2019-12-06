@@ -700,11 +700,20 @@ class ImportsChecker(BaseChecker):
         third_party_not_ignored = []
         first_party_not_ignored = []
         local_not_ignored = []
-        isort_obj = isort.SortImports(
-            file_contents="",
-            known_third_party=self.config.known_third_party,
-            known_standard_library=self.config.known_standard_library,
-        )
+
+        # We need to cleanup sys.argv or we'll get pylint's usage header
+        # for each checked file
+        argv = sys.argv[:]
+        sys.argv = []
+        try:
+            isort_obj = isort.SortImports(
+                file_contents="",
+                known_third_party=self.config.known_third_party,
+                known_standard_library=self.config.known_standard_library,
+            )
+        finally:
+            sys.argv = argv
+
         for node, modname in self._imports_stack:
             if modname.startswith("."):
                 package = "." + modname.split(".")[1]

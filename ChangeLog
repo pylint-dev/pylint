@@ -231,6 +231,8 @@ Release date: 2019-09-30
 
   Close #3028
 
+* Clear `sys.argv` before calling out to the isort lib on the imports checker. Prevent's PyLint's usage header to be printed out for each cheked file.
+
 
 What's New in Pylint 2.4.1?
 ===========================
