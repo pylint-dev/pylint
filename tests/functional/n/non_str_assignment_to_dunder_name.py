@@ -1,5 +1,6 @@
 # pylint: disable=missing-module-docstring, missing-class-docstring
 # pylint: disable=too-few-public-methods, missing-function-docstring
+# pylint: disable=import-error
 
 import random
 
@@ -28,10 +29,10 @@ def returns_tuple():
 
 # Might not be thorough if same hash seed is used in testing...
 def returns_random_type():
-    if random.randint(0,1) > 0:
+    if random.randint(0, 1) > 0:
         return 0
-    else:
-        return "abc"
+
+    return "abc"
 
 ExampleClass.__name__ = 1  # [non-str-assignment-to-dunder-name]
 ExampleClass.__name__ = True  # [non-str-assignment-to-dunder-name]
@@ -40,7 +41,6 @@ ExampleClass.__name__ = returns_int() # [non-str-assignment-to-dunder-name]
 ExampleClass.__name__ = "foo"
 ExampleClass.__name__ = returns_str()
 ExampleClass.__name__ = returns_random_type()
-
 ExampleClass.__name__ = Unknown
 
 example_function.__name__ = 1  # [non-str-assignment-to-dunder-name]

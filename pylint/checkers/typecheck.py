@@ -27,6 +27,7 @@
 # Copyright (c) 2018 Konstantin <Github@pheanex.de>
 # Copyright (c) 2018 Justin Li <justinnhli@users.noreply.github.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2019 Andy Palmer <contactninezerozeronine@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -1057,7 +1058,7 @@ accessed. Python regular expressions are accepted.",
         Check a string is assigned to self.__name__
         """
 
-        # Check the left hand side of the assignment is <something.__name__
+        # Check the left hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
         if not isinstance(lhs, astroid.node_classes.AssignAttr):
             return
