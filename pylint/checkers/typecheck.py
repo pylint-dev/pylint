@@ -1058,16 +1058,22 @@ accessed. Python regular expressions are accepted.",
         """
 
         # Check the left hand side of the assignment is <something.__name__
-        lhs = list(node.get_children())[0]
+        lhs = node.targets[0]
         if not isinstance(lhs, astroid.node_classes.AssignAttr):
             return
         if not lhs.attrname == "__name__":
             return
 
         # If the right hand side is not a string
-        rhs = list(node.get_children())[1]
-        if not (isinstance(rhs, astroid.node_classes.Const)
-                and rhs.pytype() == "{0}.str".format(BUILTINS)):
+        rhs = node.value
+        if isinstance(rhs, astroid.Const) and isinstance(rhs.value, str):
+            return
+        inferred = utils.safe_infer(rhs)
+        if not inferred:
+            return
+        if not (
+            isinstance(inferred, astroid.Const) and isinstance(inferred.value, str)
+        ):
             # Add the message
             self.add_message("non-str-assignment-to-dunder-name", node=node)
 
