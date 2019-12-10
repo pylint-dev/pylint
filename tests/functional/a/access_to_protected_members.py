@@ -3,6 +3,7 @@
 """Test external access to protected class members."""
 from __future__ import print_function
 
+
 class MyClass(object):
     """Class with protected members."""
     _cls_protected = 5
@@ -99,3 +100,62 @@ class Issue1802(object):
         if isinstance(other, self.__class__):
             return self._foo == other._foo  # [protected-access]
         return False
+
+
+class Issue3066:
+    """Test for GitHub issue 3066"""
+    attr = 0
+    _attr = 1
+
+    @staticmethod
+    def _bar(i):
+        """Docstring."""
+
+    @staticmethod
+    def foobar(i):
+        """Test access from outer class"""
+        Issue3066._attr = 2
+        Issue3066.Aclass._attr = 'y'  # [protected-access]
+        Issue3066.Aclass.Bclass._attr = 'b'  # [protected-access]
+
+        Issue3066._bar(i)
+        Issue3066.Aclass._bar(i)  # [protected-access]
+        Issue3066.Aclass.Bclass._bar(i)  # [protected-access]
+
+    class Aclass:
+        """Inner class for GitHub issue 3066"""
+        _attr = 'x'
+
+        @staticmethod
+        def foobar(i):
+            """Test access from inner class"""
+            Issue3066._attr = 2  # [protected-access]
+            Issue3066.Aclass._attr = 'y'
+            Issue3066.Aclass.Bclass._attr = 'b'  # [protected-access]
+
+            Issue3066._bar(i)  # [protected-access]
+            Issue3066.Aclass._bar(i)
+            Issue3066.Aclass.Bclass._bar(i)  # [protected-access]
+
+        @staticmethod
+        def _bar(i):
+            """Docstring."""
+
+        class Bclass:
+            """Inner inner class for GitHub issue 3066"""
+            _attr = 'a'
+
+            @staticmethod
+            def foobar(i):
+                """Test access from inner inner class"""
+                Issue3066._attr = 2  # [protected-access]
+                Issue3066.Aclass._attr = 'y'  # [protected-access]
+                Issue3066.Aclass.Bclass._attr = 'b'
+
+                Issue3066._bar(i)  # [protected-access]
+                Issue3066.Aclass._bar(i)  # [protected-access]
+                Issue3066.Aclass.Bclass._bar(i)
+
+            @staticmethod
+            def _bar(i):
+                """Docstring."""
