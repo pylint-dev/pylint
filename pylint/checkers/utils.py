@@ -622,6 +622,13 @@ def node_frame_class(node: astroid.node_classes.NodeNG) -> Optional[astroid.Clas
     return klass
 
 
+def get_outer_class(class_node: astroid.ClassDef) -> Optional[astroid.ClassDef]:
+    """Return the class that is outer class of given class_node"""
+    parent_klass = class_node.parent.frame()
+
+    return parent_klass if isinstance(parent_klass, astroid.ClassDef) else None
+
+
 def is_attr_private(attrname: str) -> Optional[Match[str]]:
     """Check that attribute name is private (at least two leading underscores,
     at most one trailing underscore)

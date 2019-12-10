@@ -46,6 +46,7 @@ from pylint.checkers.utils import (
     class_is_abstract,
     decorated_with,
     decorated_with_property,
+    get_outer_class,
     has_known_bases,
     is_attr_private,
     is_attr_protected,
@@ -1352,9 +1353,20 @@ a metaclass class method.",
             if self._is_type_self_call(node.expr):
                 return
 
+            # Check if we are inside class or inner class
+            inside_klass = True
+            curr_klass = klass
+            parents_callee = callee.split(".")
+            parents_callee.reverse()
+            for c in parents_callee:
+                if c != curr_klass.name:
+                    inside_klass = False
+                    break
+                curr_klass = get_outer_class(curr_klass)
+
             # We are in a class, one remaining valid cases, Klass._attr inside
             # Klass
-            if not (callee == klass.name or callee in klass.basenames):
+            if not (inside_klass or callee in klass.basenames):
                 # Detect property assignments in the body of the class.
                 # This is acceptable:
                 #
