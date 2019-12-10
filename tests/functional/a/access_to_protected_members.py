@@ -3,7 +3,6 @@
 """Test external access to protected class members."""
 from __future__ import print_function
 
-
 class MyClass(object):
     """Class with protected members."""
     _cls_protected = 5
