@@ -27,6 +27,7 @@
 # Copyright (c) 2018 Konstantin <Github@pheanex.de>
 # Copyright (c) 2018 Justin Li <justinnhli@users.noreply.github.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2019 Andy Palmer <contactninezerozeronine@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -388,6 +389,11 @@ MSGS = {
         "arguments-out-of-order",
         "Emitted  when the caller's argument names fully match the parameter "
         "names in the function signature but do not have the same order.",
+    ),
+    "W1115": (
+        "Non-string value assigned to __name__",
+        "non-str-assignment-to-dunder-name",
+        "Emitted when a non-string vaue is assigned to __name__",
     ),
 }
 
@@ -986,8 +992,20 @@ accessed. Python regular expressions are accepted.",
                 hint = ""
         return msg, hint
 
-    @check_messages("assignment-from-no-return", "assignment-from-none")
+    @check_messages(
+        "assignment-from-no-return",
+        "assignment-from-none",
+        "non-str-assignment-to-dunder-name",
+    )
     def visit_assign(self, node):
+        """
+        Process assignments in the AST.
+        """
+
+        self._check_assignment_from_function_call(node)
+        self._check_dundername_is_string(node)
+
+    def _check_assignment_from_function_call(self, node):
         """check that if assigning to a function call, the function is
         possibly returning something valuable
         """
@@ -1034,6 +1052,31 @@ accessed. Python regular expressions are accepted.",
                     break
             else:
                 self.add_message("assignment-from-none", node=node)
+
+    def _check_dundername_is_string(self, node):
+        """
+        Check a string is assigned to self.__name__
+        """
+
+        # Check the left hand side of the assignment is <something>.__name__
+        lhs = node.targets[0]
+        if not isinstance(lhs, astroid.node_classes.AssignAttr):
+            return
+        if not lhs.attrname == "__name__":
+            return
+
+        # If the right hand side is not a string
+        rhs = node.value
+        if isinstance(rhs, astroid.Const) and isinstance(rhs.value, str):
+            return
+        inferred = utils.safe_infer(rhs)
+        if not inferred:
+            return
+        if not (
+            isinstance(inferred, astroid.Const) and isinstance(inferred.value, str)
+        ):
+            # Add the message
+            self.add_message("non-str-assignment-to-dunder-name", node=node)
 
     def _check_uninferable_call(self, node):
         """
