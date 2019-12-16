@@ -274,3 +274,10 @@ else:
 def tick(counter: Counter, name: str, dictionary: OrderedDict) -> OrderedDict:
     counter[name] += 1
     return dictionary
+
+
+# pylint: disable=unused-argument
+def not_using_loop_variable_accordingly(iterator):
+    for iteree in iteree: # [undefined-variable]
+        yield iteree
+# pylint: enable=unused-argument

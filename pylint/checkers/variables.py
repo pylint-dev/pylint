@@ -546,7 +546,7 @@ class NamesConsumer:
         del self.to_consume[name]
 
     def get_next_to_consume(self, node):
-        # mark the name as consumed if it's defined in this scope
+        # Get the definition of `node` from this scope
         name = node.name
         parent_node = node.parent
         found_node = self.to_consume.get(name)
@@ -558,6 +558,14 @@ class NamesConsumer:
             lhs = found_node[0].parent.targets[0]
             if lhs.name == name:  # this name is defined in this very statement
                 found_node = None
+
+        if (
+            found_node
+            and isinstance(parent_node, astroid.For)
+            and parent_node.iter == node
+            and parent_node.target in found_node
+        ):
+            found_node = None
         return found_node
 
 

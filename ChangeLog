@@ -29,6 +29,10 @@ Release date: TBA
 
    Close #3301
 
+* ``undefined-variable`` can now find undefined loop iterables
+
+   Close #498
+
 * ``safe_infer`` can infer a value as long as all the paths share the same type.
 
   Close #2503
