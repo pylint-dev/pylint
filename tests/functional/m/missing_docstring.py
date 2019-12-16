@@ -52,3 +52,7 @@ class Property(object):
     @test.deleter
     def test(self):
         pass
+
+
+class DocumentedViaDunderDoc(object):
+    __doc__ = "This one"

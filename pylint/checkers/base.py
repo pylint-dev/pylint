@@ -2098,6 +2098,9 @@ class DocStringChecker(_BasicChecker):
         """check the node has a non empty docstring"""
         docstring = node.doc
         if docstring is None:
+            docstring = _infer_dunder_doc_attribute(node)
+
+        if docstring is None:
             if not report_missing:
                 return
             lines = utils.get_node_last_lineno(node) - node.lineno
@@ -2165,6 +2168,21 @@ def _is_one_arg_pos_call(call):
     where that argument is positional?
     """
     return isinstance(call, astroid.Call) and len(call.args) == 1 and not call.keywords
+
+
+def _infer_dunder_doc_attribute(node):
+    # Try to see if we have a `__doc__` attribute.
+    try:
+        docstring = node["__doc__"]
+    except KeyError:
+        return None
+
+    docstring = utils.safe_infer(docstring)
+    if not docstring:
+        return None
+    if not isinstance(docstring, astroid.Const):
+        return None
+    return docstring.value
 
 
 class ComparisonChecker(_BasicChecker):
