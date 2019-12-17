@@ -398,6 +398,14 @@ Release date: 2020-04-27
 
 * A new check `inconsistent-quotes` was added.
 
+* New check: ``consider-using-generator``
+
+  This check warns when comprehension used inside `any` or `all` function
+  since it is unnecessary and should be replaced by a generator instead.
+  Using generator would be less code and way faster.
+
+  Close #3165
+
 * Add a check for non string assignment to __name__ attribute.
 
   Close #583

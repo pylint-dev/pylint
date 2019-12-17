@@ -25,6 +25,13 @@ New checkers
    with a string literal as its first argument. Such assert statements
    are probably unintended as they will always pass.
 
+* A new check ``consider-using-generator`` was added.
+
+   This check is emitted whenever **pylint** detects the use
+   of list comprehension inside ``any`` or ``all`` function.
+   The comprehension should be replaced by a generator instead
+   since it would be less code and way faster.
+
 * A new check ``f-string-without-interpolation`` was added.
 
    This check is emitted whenever **pylint** detects the use of an
