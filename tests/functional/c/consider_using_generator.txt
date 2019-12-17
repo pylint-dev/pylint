@@ -1,0 +1,2 @@
+consider-using-generator:7::Consider using generator any(0 for x in list(range(10)))
+consider-using-generator:8::Consider using generator all(0 for y in list(range(10)))
