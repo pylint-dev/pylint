@@ -445,3 +445,6 @@ contributors:
 * Marc Mueller (cdce8p): contributor
 
 * David Gilman: contributor
+
+* Ikraduya Edian: contributor
+    - Added new check 'consider-using-generator'.
