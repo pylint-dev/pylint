@@ -1,4 +1,22 @@
 # -*- coding: utf-8 -*-
+# Copyright (c) 2016-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2017 Hugo <hugovk@users.noreply.github.com>
+# Copyright (c) 2017 Łukasz Sznuk <ls@rdprojekt.pl>
+# Copyright (c) 2017 Alex Hearn <alex.d.hearn@gmail.com>
+# Copyright (c) 2017 Antonio Ossa <aaossa@uc.cl>
+# Copyright (c) 2018 Konstantin Manna <Konstantin@Manna.uno>
+# Copyright (c) 2018 Konstantin <Github@pheanex.de>
+# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2018 Matej Marušák <marusak.matej@gmail.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
+# Copyright (c) 2018 Mr. Senko <atodorov@mrsenko.com>
+# Copyright (c) 2019 Ikraduya Edian <ikraduya@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -282,6 +300,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when calling the super() builtin with the current class "
             "and instance. On Python 3 these arguments are the default and they can be omitted.",
         ),
+        "R1726": (
+            "Consider using generator %s(%s)",
+            "consider-using-generator",
+            "Comprehension inside of any or all calls is unnecessary "
+            "and should be replaced by a generator",
+        )
     }
     options = (
         (
@@ -684,18 +708,40 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 message_name = "consider-using-set-comprehension"
                 self.add_message(message_name, node=node)
 
+    def _check_consider_using_generator(self, node):
+        checked_call = ["any", "all"]
+        if (
+            isinstance(node, astroid.Call)
+            and node.func
+            and isinstance(node.func, astroid.Name)
+            and node.func.name in checked_call
+        ):
+            # any or all calls takes exactly one argument
+            if len(node.args) == 1 and isinstance(node.args[0], astroid.ListComp):
+                inside_comp = node.args[0].as_string()[
+                    1:-1
+                ]  # remove square brackets '[]'
+                call_name = node.func.name
+                self.add_message(
+                    "consider-using-generator",
+                    node=node,
+                    args=(call_name, inside_comp),
+                )
+
     @utils.check_messages(
         "stop-iteration-return",
         "consider-using-dict-comprehension",
         "consider-using-set-comprehension",
         "consider-using-sys-exit",
         "super-with-arguments",
+        "consider-using-generator",
     )
     def visit_call(self, node):
         self._check_raising_stopiteration_in_generator_next_call(node)
         self._check_consider_using_comprehension_constructor(node)
         self._check_quit_exit_call(node)
         self._check_super_with_arguments(node)
+        self._check_consider_using_generator(node)
 
     @staticmethod
     def _has_exit_in_scope(scope):
