@@ -358,3 +358,5 @@ contributors:
 * Matthijs Blom: contributor
 
 * Andy Palmer: contributor
+
+* Wes Turner (Google): added new check 'inconsistent-quotes'

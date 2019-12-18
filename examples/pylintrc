@@ -476,6 +476,10 @@ notes=FIXME,
 # several lines.
 check-str-concat-over-line-jumps=no
 
+# This flag controls whether inconsistent-quotes generates a warning when the
+# character used as a quote delimiter is used inconsistently within a module.
+check-quote-consistency=no
+
 
 [IMPORTS]
 

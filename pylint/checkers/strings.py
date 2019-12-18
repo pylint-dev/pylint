@@ -23,9 +23,11 @@
 """
 
 import builtins
+import collections
 import numbers
+import re
 import tokenize
-from collections import Counter
+from typing import Counter, Iterable
 
 import astroid
 from astroid.arguments import CallSite
@@ -36,6 +38,34 @@ from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
+# Prefixes for both strings and bytes literals per
+# https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
+_PREFIXES = {
+    "r",
+    "u",
+    "R",
+    "U",
+    "f",
+    "F",
+    "fr",
+    "Fr",
+    "fR",
+    "FR",
+    "rf",
+    "rF",
+    "Rf",
+    "RF",
+    "b",
+    "B",
+    "br",
+    "Br",
+    "bR",
+    "BR",
+    "rb",
+    "rB",
+    "Rb",
+    "RB",
+}
 
 MSGS = {
     "E1300": (
@@ -385,7 +415,7 @@ class StringFormatChecker(BaseChecker):
                 self._check_new_format(node, func)
 
     def _detect_vacuous_formatting(self, node, positional_arguments):
-        counter = Counter(
+        counter = collections.Counter(
             arg.name for arg in positional_arguments if isinstance(arg, astroid.Name)
         )
         for name, count in counter.items():
@@ -600,6 +630,12 @@ class StringConstantChecker(BaseTokenChecker):
             "maybe a comma is missing ?",
             {"old_names": [("W1403", "implicit-str-concat-in-sequence")]},
         ),
+        "W1405": (
+            "Quote delimiter %s is inconsistent with the rest of the file",
+            "inconsistent-quotes",
+            "Quote delimiters are not used consistently throughout a module "
+            "(with allowances made for avoiding unnecessary escaping).",
+        ),
     }
     options = (
         (
@@ -612,6 +648,17 @@ class StringConstantChecker(BaseTokenChecker):
                 "implicit-str-concat should generate a warning "
                 "on implicit string concatenation in sequences defined over "
                 "several lines.",
+            },
+        ),
+        (
+            "check-quote-consistency",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y_or_n>",
+                "help": "This flag controls whether inconsistent-quotes generates a "
+                "warning when the character used as a quote delimiter is used "
+                "inconsistently within a module.",
             },
         ),
     )
@@ -656,6 +703,9 @@ class StringConstantChecker(BaseTokenChecker):
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
+        if self.config.check_quote_consistency:
+            self.check_for_consistent_string_delimiters(tokens)
+
     @check_messages("implicit-str-concat")
     def visit_list(self, node):
         self.check_for_concatenated_strings(node.elts, "list")
@@ -671,6 +721,40 @@ class StringConstantChecker(BaseTokenChecker):
     def visit_assign(self, node):
         if isinstance(node.value, astroid.Const) and isinstance(node.value.value, str):
             self.check_for_concatenated_strings([node.value], "assignment")
+
+    def check_for_consistent_string_delimiters(
+        self, tokens: Iterable[tokenize.TokenInfo]
+    ) -> None:
+        """Adds a message for each string using inconsistent quote delimiters.
+
+        Quote delimiters are used inconsistently if " and ' are mixed in a module's
+        shortstrings without having done so to avoid escaping an internal quote
+        character.
+
+        Args:
+          tokens: The tokens to be checked against for consistent usage.
+        """
+        string_delimiters: Counter[str] = collections.Counter()
+
+        # First, figure out which quote character predominates in the module
+        for tok_type, token, _, _, _ in tokens:
+            if tok_type == tokenize.STRING and _is_quote_delimiter_chosen_freely(token):
+                string_delimiters[_get_quote_delimiter(token)] += 1
+
+        if len(string_delimiters) > 1:
+            # Ties are broken arbitrarily
+            most_common_delimiter = string_delimiters.most_common(1)[0][0]
+            for tok_type, token, start, _, _ in tokens:
+                if tok_type != tokenize.STRING:
+                    continue
+                quote_delimiter = _get_quote_delimiter(token)
+                if (
+                    _is_quote_delimiter_chosen_freely(token)
+                    and quote_delimiter != most_common_delimiter
+                ):
+                    self.add_message(
+                        "inconsistent-quotes", line=start[0], args=(quote_delimiter,)
+                    )
 
     def check_for_concatenated_strings(self, elements, iterable_type):
         for elt in elements:
@@ -787,3 +871,72 @@ def str_eval(token):
     if token[0:3] in ('"""', "'''"):
         return token[3:-3]
     return token[1:-1]
+
+
+def _is_long_string(string_token: str) -> bool:
+    """Is this string token a "longstring" (is it triple-quoted)?
+
+    Long strings are triple-quoted as defined in
+    https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
+
+    This function only checks characters up through the open quotes.  Because it's meant
+    to be applied only to tokens that represent string literals, it doesn't bother to
+    check for close-quotes (demonstrating that the literal is a well-formed string).
+
+    Args:
+        string_token: The string token to be parsed.
+
+    Returns:
+        A boolean representing whether or not this token matches a longstring
+        regex.
+    """
+    single_quoted_regex = "(%s)?'''" % "|".join(_PREFIXES)
+    double_quoted_regex = '(%s)?"""' % "|".join(_PREFIXES)
+
+    return bool(
+        re.match(single_quoted_regex, string_token)
+        or re.match(double_quoted_regex, string_token)
+    )
+
+
+def _get_quote_delimiter(string_token: str) -> str:
+    """Returns the quote character used to delimit this token string.
+
+    This function does little checking for whether the token is a well-formed
+    string.
+
+    Args:
+        string_token: The token to be parsed.
+
+    Returns:
+        A string containing solely the first quote delimiter character in the passed
+        string.
+
+    Raises:
+      ValueError: No quote delimiter characters are present.
+    """
+    match = re.match("(%s)?(\"|')" % "|".join(_PREFIXES), string_token, re.DOTALL)
+    if not match:
+        raise ValueError("string token %s is not a well-formed string" % string_token)
+    return match.group(2)
+
+
+def _is_quote_delimiter_chosen_freely(string_token: str) -> bool:
+    """Was there a non-awkward option for the quote delimiter?
+
+    Args:
+        string_token: The quoted string whose delimiters are to be checked.
+
+    Returns:
+        Whether there was a choice in this token's quote character that would
+        not have involved backslash-escaping an interior quote character.  Long
+        strings are excepted from this analysis under the assumption that their
+        quote characters are set by policy.
+    """
+    quote_delimiter = _get_quote_delimiter(string_token)
+    unchosen_delimiter = '"' if quote_delimiter == "'" else "'"
+    return bool(
+        quote_delimiter
+        and not _is_long_string(string_token)
+        and unchosen_delimiter not in str_eval(string_token)
+    )
