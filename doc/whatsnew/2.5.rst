@@ -32,6 +32,14 @@ New checkers
    * ``invalid-getnewargs-returned)``: ``__getnewargs__`` did not return a tuple
    * ``invalid-getnewargs-ex-returned)``: ``__getnewargs_ex__`` did not return a tuple of the form (tuple, dict)
 
+* A new check ``inconsistent-quotes`` was added.
+
+  This check is emitted when quotes delimiters (" and ') are not used
+  consistently throughout a module.  It makes allowances for avoiding
+  unnecessary escaping, allowing, for example, ``"Don't error"`` in a module in
+  which single-quotes otherwise delimit strings so that the single quote in
+  ``Don't`` doesn't need to be escaped.
+
 
 Other Changes
 =============
