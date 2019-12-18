@@ -734,7 +734,7 @@ class StringConstantChecker(BaseTokenChecker):
         Args:
           tokens: The tokens to be checked against for consistent usage.
         """
-        string_delimiters: Counter[str] = collections.Counter()
+        string_delimiters = collections.Counter()  # type: Counter[str]
 
         # First, figure out which quote character predominates in the module
         for tok_type, token, _, _, _ in tokens:
