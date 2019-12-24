@@ -547,12 +547,11 @@ def _no_context_variadic_keywords(node, scope):
 
     if isinstance(scope, astroid.Lambda) and not isinstance(scope, astroid.FunctionDef):
         variadics = list(node.keywords or []) + node.kwargs
-    else:
-        if isinstance(statement, (astroid.Return, astroid.Expr)) and isinstance(
-            statement.value, astroid.Call
-        ):
-            call = statement.value
-            variadics = list(call.keywords or []) + call.kwargs
+    elif isinstance(statement, (astroid.Return, astroid.Expr)) and isinstance(
+        statement.value, astroid.Call
+    ):
+        call = statement.value
+        variadics = list(call.keywords or []) + call.kwargs
 
     return _no_context_variadic(node, scope.args.kwarg, astroid.Keyword, variadics)
 
@@ -1296,13 +1295,12 @@ accessed. Python regular expressions are accepted.",
                 # The remaining positional arguments get assigned to the *args
                 # parameter.
                 break
-            else:
-                if not overload_function:
-                    # Too many positional arguments.
-                    self.add_message(
-                        "too-many-function-args", node=node, args=(callable_name,)
-                    )
-                    break
+            elif not overload_function:
+                # Too many positional arguments.
+                self.add_message(
+                    "too-many-function-args", node=node, args=(callable_name,)
+                )
+                break
 
         # 2. Match the keyword arguments.
         for keyword in keyword_args:

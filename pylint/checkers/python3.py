@@ -1212,11 +1212,10 @@ class Python3Checker(checkers.BaseChecker):
                 return
             if node.func.attrname == "next":
                 self.add_message("next-method-called", node=node)
-            else:
-                if node.func.attrname in ("iterkeys", "itervalues", "iteritems"):
-                    self.add_message("dict-iter-method", node=node)
-                elif node.func.attrname in ("viewkeys", "viewvalues", "viewitems"):
-                    self.add_message("dict-view-method", node=node)
+            elif node.func.attrname in ("iterkeys", "itervalues", "iteritems"):
+                self.add_message("dict-iter-method", node=node)
+            elif node.func.attrname in ("viewkeys", "viewvalues", "viewitems"):
+                self.add_message("dict-view-method", node=node)
         elif isinstance(node.func, astroid.Name):
             found_node = node.func.lookup(node.func.name)[0]
             if _is_builtin(found_node):

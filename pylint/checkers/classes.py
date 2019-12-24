@@ -1523,7 +1523,7 @@ a metaclass class method.",
                     node.name,
                 )
         # regular class
-        else:
+        else:  # pylint: disable=else-if-used
             # class method
             if node.type == "classmethod" or node.name == "__class_getitem__":
                 self._check_first_arg_config(

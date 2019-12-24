@@ -1290,13 +1290,12 @@ class VariablesChecker(BaseChecker):
                 use_outer_definition = stmt == defstmt and not isinstance(
                     defnode, astroid.node_classes.Comprehension
                 )
-            else:
-                # check if we have a nonlocal
-                if name in defframe.locals:
-                    maybee0601 = not any(
-                        isinstance(child, astroid.Nonlocal) and name in child.names
-                        for child in defframe.get_children()
-                    )
+            # check if we have a nonlocal
+            elif name in defframe.locals:
+                maybee0601 = not any(
+                    isinstance(child, astroid.Nonlocal) and name in child.names
+                    for child in defframe.get_children()
+                )
 
         if (
             base_scope_type == "lambda"
@@ -1780,13 +1779,12 @@ class VariablesChecker(BaseChecker):
                     ),
                 )
         # attempt to check unpacking may be possible (ie RHS is iterable)
-        else:
-            if not utils.is_iterable(inferred):
-                self.add_message(
-                    "unpacking-non-sequence",
-                    node=node,
-                    args=(_get_unpacking_extra_info(node, inferred),),
-                )
+        elif not utils.is_iterable(inferred):
+            self.add_message(
+                "unpacking-non-sequence",
+                node=node,
+                args=(_get_unpacking_extra_info(node, inferred),),
+            )
 
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the

@@ -138,11 +138,10 @@ def _merge_stats(stats):
         for key, item in stat.items():
             if key not in merged:
                 merged[key] = item
+            elif isinstance(item, dict):
+                merged[key].update(item)
             else:
-                if isinstance(item, dict):
-                    merged[key].update(item)
-                else:
-                    merged[key] = merged[key] + item
+                merged[key] = merged[key] + item
 
     merged["by_msg"] = by_msg
     return merged
@@ -1757,9 +1756,8 @@ group are mutually exclusive.",
                     file=sys.stderr,
                 )
                 linter.set_option("jobs", 1)
-            else:
-                if linter.config.jobs == 0:
-                    linter.config.jobs = _cpu_count()
+            elif linter.config.jobs == 0:
+                linter.config.jobs = _cpu_count()
 
         # We have loaded configuration from config file and command line. Now, we can
         # load plugin specific configuration.
