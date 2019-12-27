@@ -28,6 +28,35 @@ jobs:
   - stage: tests-pypy
     python: pypy3
     env: TOXENV=pypy
+  - arch: arm64
+    stage: prechecks
+    python: 3.6
+    env: TOXENV=pylint
+  - arch: arm64
+    python: 3.6
+    env: TOXENV=docs
+  - arch: arm64
+    python: 3.6
+    env: TOXENV=formatting
+  - arch: arm64
+    python: 3.6
+    env: TOXENV=mypy
+  - arch: arm64
+    python: 3.6
+    env: TOXENV=spelling
+  - arch: arm64
+    stage: tests-cpython
+    python: 3.5
+    env: TOXENV=py35
+  - arch: arm64
+    python: 3.6
+    env: TOXENV=py36
+  - arch: arm64
+    python: 3.7
+    env: TOXENV=py37
+  - arch: arm64
+    python: 3.8
+    env: TOXENV=py38
 before_install:
 - python --version
 - uname -a
