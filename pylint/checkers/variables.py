@@ -1985,7 +1985,10 @@ class VariablesChecker(BaseChecker):
             name = None
             if isinstance(klass._metaclass, astroid.Name):
                 name = klass._metaclass.name
-            elif isinstance(klass._metaclass, astroid.Attribute) and klass._metaclass.expr:
+            elif (
+                isinstance(klass._metaclass, astroid.Attribute)
+                and klass._metaclass.expr
+            ):
                 name = klass._metaclass.expr.name
 
             if name is not None:
