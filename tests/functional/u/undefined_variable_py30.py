@@ -1,6 +1,6 @@
 """Test warnings about access to undefined variables
 for various Python 3 constructs. """
-# pylint: disable=too-few-public-methods, no-init, no-self-use
+# pylint: disable=too-few-public-methods, no-init, no-self-use, import-error
 # pylint: disable=wrong-import-position, invalid-metaclass, useless-object-inheritance
 class Undefined:
     """ test various annotation problems. """
@@ -57,6 +57,7 @@ class FalsePositive342(object):
     def test_bad2(self, **bac: trop2): # [undefined-variable]
         """ trop2 is undefined at this moment. """
 
+import abc
 from abc import ABCMeta
 
 class Bad(metaclass=ABCMet): # [undefined-variable]
@@ -76,6 +77,9 @@ class ThirdGood(metaclass=ABCMeta):
 
 class FourthGood(ThirdGood):
     """ This should not trigger anything. """
+
+class FifthGood(metaclass=abc.Metaclass):
+    """Metaclasses can come from imported modules."""
 
 # The following used to raise used-before-assignment
 # pylint: disable=missing-docstring, multiple-statements

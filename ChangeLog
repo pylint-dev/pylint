@@ -164,6 +164,11 @@ Release date: TBA
 
 * Fix uppercase style to disallow 3+ uppercase followed by lowercase.
 
+* Fixed ``undefined-variable`` and ``unused-import`` false positives
+  when using a metaclass via an attribute.
+
+  Close #1603
+
 What's New in Pylint 2.4.4?
 ===========================
 Release date: 2019-11-13
