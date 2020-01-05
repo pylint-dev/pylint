@@ -360,3 +360,6 @@ contributors:
 * Andy Palmer: contributor
 
 * Wes Turner (Google): added new check 'inconsistent-quotes'
+
+* Athos Ribeiro
+    Fixed dict-keys-not-iterating false positive for inverse containment checks
