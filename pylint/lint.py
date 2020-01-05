@@ -1531,9 +1531,10 @@ group are mutually exclusive.",
                     {
                         "action": "callback",
                         "callback": Run._return_one,
+                        "group": "Commands",
                         "type": "string",
                         "metavar": "<file>",
-                        "help": "Specify a configuration file.",
+                        "help": "Specify a configuration file to load.",
                     },
                 ),
                 (
