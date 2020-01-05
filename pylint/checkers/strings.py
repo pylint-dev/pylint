@@ -66,6 +66,9 @@ _PREFIXES = {
     "Rb",
     "RB",
 }
+SINGLE_QUOTED_REGEX = re.compile("(%s)?'''" % "|".join(_PREFIXES))
+DOUBLE_QUOTED_REGEX = re.compile('(%s)?"""' % "|".join(_PREFIXES))
+QUOTE_DELIMITER_REGEX = re.compile("(%s)?(\"|')" % "|".join(_PREFIXES), re.DOTALL)
 
 MSGS = {
     "E1300": (
@@ -890,12 +893,9 @@ def _is_long_string(string_token: str) -> bool:
         A boolean representing whether or not this token matches a longstring
         regex.
     """
-    single_quoted_regex = "(%s)?'''" % "|".join(_PREFIXES)
-    double_quoted_regex = '(%s)?"""' % "|".join(_PREFIXES)
-
     return bool(
-        re.match(single_quoted_regex, string_token)
-        or re.match(double_quoted_regex, string_token)
+        SINGLE_QUOTED_REGEX.match(string_token)
+        or DOUBLE_QUOTED_REGEX.match(string_token)
     )
 
 
@@ -915,7 +915,7 @@ def _get_quote_delimiter(string_token: str) -> str:
     Raises:
       ValueError: No quote delimiter characters are present.
     """
-    match = re.match("(%s)?(\"|')" % "|".join(_PREFIXES), string_token, re.DOTALL)
+    match = QUOTE_DELIMITER_REGEX.match(string_token)
     if not match:
         raise ValueError("string token %s is not a well-formed string" % string_token)
     return match.group(2)
