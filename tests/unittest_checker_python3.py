@@ -243,6 +243,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
             "max({}())",
             "min({}())",
             "3 in {}()",
+            "3 not in {}()",
             "set().update({}())",
             "[].extend({}())",
             "{{}}.update({}())",
