@@ -14,7 +14,7 @@ and tailored to a particular module, library of framework.
 In general, a plugin is a module which should have a function ``register``,
 which takes an instance of ``pylint.lint.PyLinter`` as input.
 
-A plugin can optionally define also function ``load_configuration``,
+A plugin can optionally define a function, ``load_configuration``,
 which takes an instance of ``pylint.lint.PyLinter`` as input. This
 function is called after Pylint loads configuration from configuration
 file and command line interface. This function should load additional
@@ -26,7 +26,7 @@ So a basic hello-world plugin can be implemented as:
 
   # Inside hello_plugin.py
   def register(linter):
-    print 'Hello world'
+    print('Hello world')
 
 
 We can run this plugin by placing this module in the PYTHONPATH and invoking
@@ -44,7 +44,7 @@ We can extend hello-world plugin to ignore some specific names using
 
   # Inside hello_plugin.py
   def register(linter):
-    print 'Hello world'
+    print('Hello world')
 
   def load_configuration(linter):
 
