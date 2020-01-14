@@ -7,6 +7,10 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* Add a check for asserts on string literals.
+
+  Close #3284
+
 * Clean up plugin HOWTO documentation.
 
 * `not in` is considered iterating context for some of the Python 3 porting checkers.
