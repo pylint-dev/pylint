@@ -1393,7 +1393,7 @@ class BasicChecker(_BasicChecker):
         ):
             self.add_message("assert-on-tuple", node=node)
 
-        if isinstance(node.test.value, str):
+        if isinstance(node.test, astroid.Const) and isinstance(node.test.value, str):
             self.add_message("assert-on-string-literal", node=node)
 
     @utils.check_messages("duplicate-key")
