@@ -1491,7 +1491,7 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("confusing-with-statement")
     def visit_with(self, node):
-        # a "with" statement with multiple managers coresponds
+        # a "with" statement with multiple managers corresponds
         # to one AST "With" node with multiple items
         pairs = node.items
         if pairs:
