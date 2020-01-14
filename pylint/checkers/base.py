@@ -1016,6 +1016,12 @@ class BasicChecker(_BasicChecker):
             'print("value: {}".format(123)). This might not be what the user '
             "intended to do.",
         ),
+        "W0129": (
+            "Assert statement has a string literal as its first argument. The assert will never fail.",
+            "assert-on-string-literal",
+            "Used when an assert statement has a string literal as its first argument, which will "
+            "cause the assert to always pass.",
+        ),
     }
 
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
@@ -1377,15 +1383,18 @@ class BasicChecker(_BasicChecker):
                 elif name == "eval":
                     self.add_message("eval-used", node=node)
 
-    @utils.check_messages("assert-on-tuple")
+    @utils.check_messages("assert-on-tuple", "assert-on-string-literal")
     def visit_assert(self, node):
-        """check the use of an assert statement on a tuple."""
+        """check whether assert is used on a tuple or string literal."""
         if (
             node.fail is None
             and isinstance(node.test, astroid.Tuple)
             and len(node.test.elts) == 2
         ):
             self.add_message("assert-on-tuple", node=node)
+
+        if isinstance(node.test, astroid.Const) and isinstance(node.test.value, str):
+            self.add_message("assert-on-string-literal", node=node)
 
     @utils.check_messages("duplicate-key")
     def visit_dict(self, node):

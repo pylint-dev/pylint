@@ -1,0 +1,1 @@
+assert-on-string-literal:3::Assert statement has a string literal as its first argument. The assert will never fail.
