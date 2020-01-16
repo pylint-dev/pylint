@@ -1606,6 +1606,16 @@ group are mutually exclusive.",
                     },
                 ),
                 (
+                    "list-extensions",
+                    {
+                        "action": "callback",
+                        "callback": cb_list_extensions,
+                        "group": "Commands",
+                        "level": 1,
+                        "help": "List available extensions.",
+                    },
+                ),
+                (
                     "full-documentation",
                     {
                         "action": "callback",
