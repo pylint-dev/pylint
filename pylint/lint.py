@@ -73,7 +73,15 @@ from astroid import modutils
 from astroid.__pkginfo__ import version as astroid_version
 from astroid.builder import AstroidBuilder
 
-from pylint import __pkginfo__, checkers, config, exceptions, interfaces, reporters
+from pylint import (
+    __pkginfo__,
+    checkers,
+    config,
+    exceptions,
+    extensions,
+    interfaces,
+    reporters,
+)
 from pylint.__pkginfo__ import version
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
 from pylint.message import Message, MessageDefinitionStore, MessagesHandlerMixIn
@@ -1607,6 +1615,16 @@ group are mutually exclusive.",
                     },
                 ),
                 (
+                    "list-extensions",
+                    {
+                        "action": "callback",
+                        "callback": cb_list_extensions,
+                        "group": "Commands",
+                        "level": 1,
+                        "help": "List available extensions.",
+                    },
+                ),
+                (
                     "full-documentation",
                     {
                         "action": "callback",
@@ -1839,6 +1857,13 @@ group are mutually exclusive.",
 
     def cb_verbose_mode(self, *args, **kwargs):
         self.verbose = True
+
+
+def cb_list_extensions(option, optname, value, parser):
+    """List all the extensions under pylint.extensions"""
+    for extension in extensions.extension_names:
+        print(extension)
+    sys.exit(0)
 
 
 def cb_list_confidence_levels(option, optname, value, parser):

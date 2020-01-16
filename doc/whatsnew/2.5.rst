@@ -87,4 +87,8 @@ Other Changes
 
 * ``python -m pylint`` can no longer be made to import files from the local directory.
 
+* A new command ``--list-extensions`` was added.
+
+  This command lists all extensions present in ``pylint.extensions``.
+
 * Various false positives have been fixed which you can read more about in the Changelog files.

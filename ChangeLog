@@ -7,9 +7,12 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+
 * Adjust the `invalid-name` rule to work with non-ASCII identifiers and add the `non-ascii-name` rule.
 
   Close #2725
+
+* Add a command to list available extensions.
 
 * Allow used variables to be properly consumed when different checks are enabled / disabled
 
