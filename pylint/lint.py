@@ -61,6 +61,7 @@
 import collections
 import contextlib
 import functools
+import importlib
 import operator
 import os
 import sys
@@ -77,6 +78,7 @@ from astroid.builder import AstroidBuilder
 from pylint import __pkginfo__, checkers, config, exceptions, interfaces, reporters
 from pylint.__pkginfo__ import version
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
+from pylint.extensions import extension_names
 from pylint.message import Message, MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
@@ -1609,7 +1611,7 @@ group are mutually exclusive.",
                     "list-extensions",
                     {
                         "action": "callback",
-                        "callback": cb_list_extensions,
+                        "callback": self.cb_list_extensions,
                         "group": "Commands",
                         "level": 1,
                         "help": "List available extensions.",
@@ -1843,6 +1845,14 @@ group are mutually exclusive.",
         """
         for check in self.linter.get_checker_names():
             print(check)
+        sys.exit(0)
+
+    def cb_list_extensions(self, *args, **kwargs):
+        """List all the extensions that pylint knows about"""
+        for extension in extension_names:
+            print(extension)
+            full_extension_path = "pylint.extensions." + extension
+            print("  " + importlib.import_module(full_extension_path).__doc__)
         sys.exit(0)
 
     def cb_python3_porting_mode(self, *args, **kwargs):
