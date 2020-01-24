@@ -242,7 +242,7 @@ signature-mutators=
 [LOGGING]
 
 # Format style used to check logging format string. `old` means using %
-# formatting, while `new` is for `{}` formatting.
+# formatting, `new` is for `{}` formatting, and `fstr` is for f-strings.
 logging-format-style=old
 
 # Logging modules to check that the string format arguments are in logging
