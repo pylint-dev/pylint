@@ -78,7 +78,7 @@ from astroid.builder import AstroidBuilder
 from pylint import __pkginfo__, checkers, config, exceptions, interfaces, reporters
 from pylint.__pkginfo__ import version
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
-from pylint.extensions import extension_names
+from pylint.extensions import ExtensionStore
 from pylint.message import Message, MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
@@ -1847,12 +1847,12 @@ group are mutually exclusive.",
             print(check)
         sys.exit(0)
 
+    @staticmethod
     def cb_list_extensions(self, *args, **kwargs):
         """List all the extensions that pylint knows about"""
-        for extension in extension_names:
+        for extension in ExtensionStore.extension_names:
             print(extension)
-            full_extension_path = "pylint.extensions." + extension
-            print("  " + importlib.import_module(full_extension_path).__doc__)
+            print(ExtensionStore.get_extension_documentation(extension))
         sys.exit(0)
 
     def cb_python3_porting_mode(self, *args, **kwargs):
