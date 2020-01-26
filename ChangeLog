@@ -7,6 +7,8 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* Add a command to list available extensions.
+
 * Add a check for asserts on string literals.
 
   Close #3284

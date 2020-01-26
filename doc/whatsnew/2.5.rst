@@ -13,6 +13,10 @@ Summary -- Release highlights
 New checkers
 ============
 
+* A new command ``--list-extensions`` was added.
+
+  This command lists all extensions present in ``pylint.extensions``.
+
 * A new check ``assert-on-string-literal`` was added.
 
   This check is emitted whenever **pylint** finds an assert statement
