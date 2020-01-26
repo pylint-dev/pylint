@@ -61,7 +61,6 @@
 import collections
 import contextlib
 import functools
-import importlib
 import operator
 import os
 import sys
@@ -75,10 +74,17 @@ from astroid import modutils
 from astroid.__pkginfo__ import version as astroid_version
 from astroid.builder import AstroidBuilder
 
-from pylint import __pkginfo__, checkers, config, exceptions, interfaces, reporters
+from pylint import (
+    __pkginfo__,
+    checkers,
+    config,
+    exceptions,
+    extensions,
+    interfaces,
+    reporters,
+)
 from pylint.__pkginfo__ import version
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
-from pylint.extensions import ExtensionStore
 from pylint.message import Message, MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
@@ -1611,7 +1617,7 @@ group are mutually exclusive.",
                     "list-extensions",
                     {
                         "action": "callback",
-                        "callback": self.cb_list_extensions,
+                        "callback": cb_list_extensions,
                         "group": "Commands",
                         "level": 1,
                         "help": "List available extensions.",
@@ -1847,20 +1853,20 @@ group are mutually exclusive.",
             print(check)
         sys.exit(0)
 
-    @staticmethod
-    def cb_list_extensions(self, *args, **kwargs):
-        """List all the extensions that pylint knows about"""
-        for extension in ExtensionStore.extension_names:
-            print(extension)
-            print(ExtensionStore.get_extension_documentation(extension))
-        sys.exit(0)
-
     def cb_python3_porting_mode(self, *args, **kwargs):
         """Activate only the python3 porting checker."""
         self.linter.python3_porting_mode()
 
     def cb_verbose_mode(self, *args, **kwargs):
         self.verbose = True
+
+
+def cb_list_extensions(option, optname, value, parser):
+    """List all the extensions that pylint knows about"""
+    for extension in extensions.extension_names:
+        print(extension)
+        print(extensions.get_extension_documentation(extension))
+    sys.exit(0)
 
 
 def cb_list_confidence_levels(option, optname, value, parser):
