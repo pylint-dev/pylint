@@ -13,6 +13,12 @@ Summary -- Release highlights
 New checkers
 ============
 
+* A new check ``assert-on-string-literal`` was added.
+
+  This check is emitted whenever **pylint** finds an assert statement
+  with a string literal as its first argument. Such assert statements
+  are probably unintended as they will always pass.
+
 * A new check ``f-string-without-interpolation`` was added.
 
   This check is emitted whenever **pylint** detects the use of an

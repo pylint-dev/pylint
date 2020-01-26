@@ -363,3 +363,5 @@ contributors:
 
 * Athos Ribeiro
     Fixed dict-keys-not-iterating false positive for inverse containment checks
+
+* Anubhav: contributor
