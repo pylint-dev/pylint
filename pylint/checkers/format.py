@@ -44,16 +44,22 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
 import keyword
-import sys
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
+from typing import List
 
 from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
-from pylint.checkers.utils import check_messages
-from pylint.constants import OPTION_RGX, WarningScope
+from pylint.checkers.utils import (
+    check_messages,
+    is_overload_stub,
+    is_protocol_class,
+    node_frame_class,
+)
+from pylint.constants import WarningScope
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 _ASYNC_TOKEN = "async"
 _CONTINUATION_BLOCK_OPENERS = [
@@ -81,8 +87,6 @@ _KEYWORD_TOKENS = [
     "yield",
     "with",
 ]
-if sys.version_info < (3, 0):
-    _KEYWORD_TOKENS.append("print")
 
 _SPACED_OPERATORS = [
     "==",
@@ -273,8 +277,8 @@ def _get_indent_length(line):
 def _get_indent_hint_line(bar_positions, bad_position):
     """Return a line with |s for each of the positions in the given lists."""
     if not bar_positions:
-        return ("", "")
-    # TODO tabs should not be replaced by some random (8) number of spaces
+        return "", ""
+
     bar_positions = [_get_indent_length(indent) for indent in bar_positions]
     bad_position = _get_indent_length(bad_position)
     delta_message = ""
@@ -294,7 +298,7 @@ def _get_indent_hint_line(bar_positions, bad_position):
     line = [" "] * (markers[-1][0] + 1)
     for position, marker in markers:
         line[position] = marker
-    return ("".join(line), delta_message)
+    return "".join(line), delta_message
 
 
 class _ContinuedIndent:
@@ -1168,22 +1172,20 @@ class FormatChecker(BaseTokenChecker):
         if not node.is_statement:
             return
         if not node.root().pure_python:
-            return  # XXX block visit of child nodes
+            return
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
+        # The line on which a finally: occurs in a try/finally
+        # is not directly represented in the AST. We infer it
+        # by taking the last line of the body and adding 1, which
+        # should be the line of finally:
+        elif (
+            isinstance(node.parent, nodes.TryFinally) and node in node.parent.finalbody
+        ):
+            prev_line = node.parent.body[0].tolineno + 1
         else:
-            # The line on which a finally: occurs in a try/finally
-            # is not directly represented in the AST. We infer it
-            # by taking the last line of the body and adding 1, which
-            # should be the line of finally:
-            if (
-                isinstance(node.parent, nodes.TryFinally)
-                and node in node.parent.finalbody
-            ):
-                prev_line = node.parent.body[0].tolineno + 1
-            else:
-                prev_line = node.parent.statement().fromlineno
+            prev_line = node.parent.statement().fromlineno
         line = node.fromlineno
         assert line, node
         if prev_line == line and self._visited_lines.get(line) != 2:
@@ -1228,44 +1230,77 @@ class FormatChecker(BaseTokenChecker):
             and self.config.single_line_class_stmt
         ):
             return
+
+        # Function overloads that use ``Ellipsis`` are exempted.
+        if isinstance(node, nodes.Expr) and (
+            isinstance(node.value, nodes.Ellipsis)
+            or (isinstance(node.value, nodes.Const) and node.value.value is Ellipsis)
+        ):
+            frame = node.frame()
+            if is_overload_stub(frame) or is_protocol_class(node_frame_class(frame)):
+                return
+
         self.add_message("multiple-statements", node=node)
         self._visited_lines[line] = 2
 
-    def check_lines(self, lines, i):
-        """check lines have less than a maximum number of characters
+    def check_line_ending(self, line: str, i: int) -> None:
+        """
+        Check that the final newline is not missing and that there is no trailing whitespace.
+        """
+        if not line.endswith("\n"):
+            self.add_message("missing-final-newline", line=i)
+        else:
+            # exclude \f (formfeed) from the rstrip
+            stripped_line = line.rstrip("\t\n\r\v ")
+            if not stripped_line and _EMPTY_LINE in self.config.no_space_check:
+                # allow empty lines
+                pass
+            elif line[len(stripped_line) :] not in ("\n", "\r\n"):
+                self.add_message(
+                    "trailing-whitespace", line=i, col_offset=len(stripped_line)
+                )
+
+    def check_line_length(self, line: str, i: int) -> None:
+        """
+        Check that the line length is less than the authorized value
         """
         max_chars = self.config.max_line_length
         ignore_long_line = self.config.ignore_long_lines
+        line = line.rstrip()
+        if len(line) > max_chars and not ignore_long_line.search(line):
+            self.add_message("line-too-long", line=i, args=(len(line), max_chars))
 
-        def check_line(line, i):
-            if not line.endswith("\n"):
-                self.add_message("missing-final-newline", line=i)
-            else:
-                # exclude \f (formfeed) from the rstrip
-                stripped_line = line.rstrip("\t\n\r\v ")
-                if not stripped_line and _EMPTY_LINE in self.config.no_space_check:
-                    # allow empty lines
-                    pass
-                elif line[len(stripped_line) :] not in ("\n", "\r\n"):
-                    self.add_message(
-                        "trailing-whitespace", line=i, col_offset=len(stripped_line)
-                    )
-                # Don't count excess whitespace in the line length.
-                line = stripped_line
-            mobj = OPTION_RGX.search(line)
-            if mobj and "=" in line:
-                front_of_equal, _, back_of_equal = mobj.group(1).partition("=")
-                if front_of_equal.strip() == "disable":
-                    if "line-too-long" in {
-                        _msg_id.strip() for _msg_id in back_of_equal.split(",")
-                    }:
-                        return None
-                    line = line.rsplit("#", 1)[0].rstrip()
+    @staticmethod
+    def remove_pylint_option_from_lines(options_pattern_obj) -> str:
+        """
+        Remove the `# pylint ...` pattern from lines
+        """
+        lines = options_pattern_obj.string
+        purged_lines = (
+            lines[: options_pattern_obj.start(1)].rstrip()
+            + lines[options_pattern_obj.end(1) :]
+        )
+        return purged_lines
 
-            if len(line) > max_chars and not ignore_long_line.search(line):
-                self.add_message("line-too-long", line=i, args=(len(line), max_chars))
-            return i + 1
+    @staticmethod
+    def is_line_length_check_activated(pylint_pattern_match_object) -> bool:
+        """
+        Return true if the line length check is activated
+        """
+        try:
+            for pragma in parse_pragma(pylint_pattern_match_object.group(2)):
+                if pragma.action == "disable" and "line-too-long" in pragma.messages:
+                    return False
+        except PragmaParserError:
+            # Printing usefull informations dealing with this error is done in lint.py
+            pass
+        return True
 
+    @staticmethod
+    def specific_splitlines(lines: str) -> List[str]:
+        """
+        Split lines according to universal newlines except those in a specific sets
+        """
         unsplit_ends = {
             "\v",
             "\x0b",
@@ -1278,23 +1313,38 @@ class FormatChecker(BaseTokenChecker):
             "\u2028",
             "\u2029",
         }
-        unsplit = []
-        for line in lines.splitlines(True):
-            if line[-1] in unsplit_ends:
-                unsplit.append(line)
-                continue
+        res = []
+        buffer = ""
+        for atomic_line in lines.splitlines(True):
+            if atomic_line[-1] not in unsplit_ends:
+                res.append(buffer + atomic_line)
+                buffer = ""
+            else:
+                buffer += atomic_line
+        return res
 
-            if unsplit:
-                unsplit.append(line)
-                line = "".join(unsplit)
-                unsplit = []
+    def check_lines(self, lines: str, lineno: int) -> None:
+        """
+        Check lines have :
+            - a final newline
+            - no trailing whitespace
+            - less than a maximum number of characters
+        """
+        #  By default, check the line length
+        check_l_length = True
 
-            i = check_line(line, i)
-            if i is None:
-                break
+        # Line length check may be deactivated through `pylint: disable` comment
+        mobj = OPTION_PO.search(lines)
+        if mobj:
+            check_l_length = self.is_line_length_check_activated(mobj)
+            # The 'pylint: disable whatever' should not be taken into account for line length count
+            lines = self.remove_pylint_option_from_lines(mobj)
 
-        if unsplit:
-            check_line("".join(unsplit), i)
+        for line in self.specific_splitlines(lines):
+            if check_l_length:
+                self.check_line_length(line, lineno)
+            self.check_line_ending(line, lineno)
+            lineno += 1
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string
@@ -1333,9 +1383,3 @@ class FormatChecker(BaseTokenChecker):
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(FormatChecker(linter))
-
-
-def funkier():
-    for val in range(3):
-        pass
-    print(val)

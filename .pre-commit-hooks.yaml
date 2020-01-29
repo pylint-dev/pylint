@@ -1,0 +1,5 @@
+-   id: pylint
+    name: pylint
+    entry: pylint
+    language: python
+    types: [python]

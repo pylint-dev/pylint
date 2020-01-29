@@ -18,8 +18,6 @@
 :text: the default one grouping messages by module
 :colorized: an ANSI colorized text reporter
 """
-from __future__ import print_function
-
 import os
 import sys
 import warnings
@@ -202,7 +200,7 @@ class ColorizedTextReporter(TextReporter):
         ansi_terms = ["xterm-16color", "xterm-256color"]
         if os.environ.get("TERM") not in ansi_terms:
             if sys.platform == "win32":
-                # pylint: disable=import-error
+                # pylint: disable=import-error,import-outside-toplevel
                 import colorama
 
                 self.out = colorama.AnsiToWin32(self.out)

@@ -24,7 +24,6 @@
 """Checks for various exception related errors."""
 import builtins
 import inspect
-import sys
 import typing
 
 import astroid
@@ -47,7 +46,7 @@ def _annotated_unpack_infer(stmt, context=None):
     Recursively generate nodes inferred by the given statement.
     If the inferred value is a list or a tuple, recurse on the elements.
     Returns an iterator which yields tuples in the format
-    ('original node', 'infered node').
+    ('original node', 'inferred node').
     """
     if isinstance(stmt, (astroid.List, astroid.Tuple)):
         for elt in stmt.elts:
@@ -55,10 +54,10 @@ def _annotated_unpack_infer(stmt, context=None):
             if inferred and inferred is not astroid.Uninferable:
                 yield elt, inferred
         return
-    for infered in stmt.infer(context):
-        if infered is astroid.Uninferable:
+    for inferred in stmt.infer(context):
+        if inferred is astroid.Uninferable:
             continue
-        yield stmt, infered
+        yield stmt, inferred
 
 
 def _is_raising(body: typing.List) -> bool:
@@ -69,7 +68,6 @@ def _is_raising(body: typing.List) -> bool:
     return False
 
 
-PY3K = sys.version_info >= (3, 0)
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
 BUILTINS_NAME = builtins.__name__
 
@@ -231,33 +229,9 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
         if not utils.inherit_from_std_ex(cls) and utils.has_known_bases(cls):
             if cls.newstyle:
                 self._checker.add_message("raising-non-exception", node=self._node)
-            else:
-                self._checker.add_message("nonstandard-exception", node=self._node)
 
-    def visit_tuple(self, tuple_node):
-        if PY3K or not tuple_node.elts:
-            self._checker.add_message("raising-bad-type", node=self._node, args="tuple")
-            return
-
-        # On Python 2, using the following is not an error:
-        #    raise (ZeroDivisionError, None)
-        #    raise (ZeroDivisionError, )
-        # What's left to do is to check that the first
-        # argument is indeed an exception. Verifying the other arguments
-        # is not the scope of this check.
-        first = tuple_node.elts[0]
-        inferred = utils.safe_infer(first)
-        if not inferred or inferred is astroid.Uninferable:
-            return
-
-        if (
-            isinstance(inferred, astroid.Instance)
-            and inferred.__class__.__name__ != "Instance"
-        ):
-            # TODO: explain why
-            self.visit_default(tuple_node)
-        else:
-            self.visit(inferred)
+    def visit_tuple(self, _):
+        self._checker.add_message("raising-bad-type", node=self._node, args="tuple")
 
     def visit_default(self, node):
         name = getattr(node, "name", node.__class__.__name__)
@@ -291,7 +265,6 @@ class ExceptionsChecker(checkers.BaseChecker):
         super(ExceptionsChecker, self).open()
 
     @utils.check_messages(
-        "nonstandard-exception",
         "misplaced-bare-raise",
         "raising-bad-type",
         "raising-non-exception",
@@ -304,7 +277,7 @@ class ExceptionsChecker(checkers.BaseChecker):
             self._check_misplaced_bare_raise(node)
             return
 
-        if PY3K and node.cause:
+        if node.cause:
             self._check_bad_exception_context(node)
 
         expr = node.exc
@@ -371,7 +344,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 return
 
         if not isinstance(exc, astroid.ClassDef):
-            # Don't emit the warning if the infered stmt
+            # Don't emit the warning if the inferred stmt
             # is None, but the exception handler is something else,
             # maybe it was redefined.
             if isinstance(exc, astroid.Const) and exc.value is None:
@@ -407,7 +380,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     def _check_try_except_raise(self, node):
         def gather_exceptions_from_handler(
-            handler
+            handler,
         ) -> typing.Optional[typing.List[NodeNG]]:
             exceptions = []  # type: typing.List[NodeNG]
             if handler.type:

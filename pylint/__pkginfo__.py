@@ -16,24 +16,25 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-# pylint: disable=W0622,C0103
+# pylint: disable=redefined-builtin,invalid-name
 """pylint packaging information"""
-
-from __future__ import absolute_import
 
 from os.path import join
 
-modname = distname = "pylint"
-
 # For an official release, use dev_version = None
-numversion = (2, 4, 0)
-dev_version = 0
+numversion = (2, 5, 0)
+dev_version = "1"
 
 version = ".".join(str(num) for num in numversion)
 if dev_version is not None:
     version += "-dev" + str(dev_version)
 
-install_requires = ["astroid>=2.2.0,<3", "isort>=4.2.5,<5", "mccabe>=0.6,<0.7"]
+install_requires = [
+    "astroid>=2.3.0,<=2.5",
+    "isort>=4.2.5,<5",
+    "mccabe>=0.6,<0.7",
+    "toml>=0.7.1",
+]
 
 dependency_links = []  # type: ignore
 
@@ -55,7 +56,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
@@ -88,5 +88,3 @@ long_desc = """\
 scripts = [
     join("bin", filename) for filename in ("pylint", "symilar", "epylint", "pyreverse")
 ]
-
-include_dirs = [join("pylint", "test")]

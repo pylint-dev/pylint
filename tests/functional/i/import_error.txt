@@ -1,0 +1,3 @@
+import-error:3::"Unable to import 'totally_missing'"
+import-error:16::"Unable to import 'maybe_missing_2'"
+syntax-error:28::"Cannot import 'functional.s.syntax_error' due to syntax error 'invalid syntax (<unknown>, line 1)'"

@@ -24,13 +24,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Check Python 2 code for Python 2/3 source-compatible issues."""
-from __future__ import absolute_import, print_function
-
+import itertools
 import re
-import sys
 import tokenize
 from collections import namedtuple
-from typing import FrozenSet
 
 import astroid
 from astroid import bases
@@ -60,6 +57,10 @@ def _inferred_value_is_dict(value):
     if isinstance(value, astroid.Dict):
         return True
     return isinstance(value, astroid.Instance) and "dict" in value.basenames
+
+
+def _infer_if_relevant_attr(node, whitelist):
+    return node.expr.infer() if node.attrname in whitelist else []
 
 
 def _is_builtin(node):
@@ -113,8 +114,7 @@ def _in_iterating_context(node):
     # value.
     elif isinstance(parent, astroid.Call):
         if isinstance(parent.func, astroid.Name):
-            parent_scope = parent.func.lookup(parent.func.name)[0]
-            if _is_builtin(parent_scope) and parent.func.name in _ACCEPTS_ITERATOR:
+            if parent.func.name in _ACCEPTS_ITERATOR:
                 return True
         elif isinstance(parent.func, astroid.Attribute):
             if parent.func.attrname in ATTRIBUTES_ACCEPTS_ITERATOR:
@@ -139,7 +139,7 @@ def _in_iterating_context(node):
     elif (
         isinstance(parent, astroid.Compare)
         and len(parent.ops) == 1
-        and parent.ops[0][0] == "in"
+        and parent.ops[0][0] in ["in", "not in"]
     ):
         return True
     # Also if it's an `yield from`, that's fair
@@ -189,7 +189,7 @@ class Python3Checker(checkers.BaseChecker):
             "Python3 will not allow implicit unpacking of "
             "exceptions in except clauses. "
             "See http://www.python.org/dev/peps/pep-3110/",
-            {"old_names": [("W0712", "unpacking-in-except")]},
+            {"old_names": [("W0712", "old-unpacking-in-except")]},
         ),
         "E1604": (
             "Use raise ErrorClass(args) instead of raise ErrorClass, args.",
@@ -197,14 +197,14 @@ class Python3Checker(checkers.BaseChecker):
             "Used when the alternate raise syntax "
             "'raise foo, bar' is used "
             "instead of 'raise foo(bar)'.",
-            {"old_names": [("W0121", "old-raise-syntax")]},
+            {"old_names": [("W0121", "old-old-raise-syntax")]},
         ),
         "E1605": (
             "Use of the `` operator",
             "backtick",
             'Used when the deprecated "``" (backtick) operator is used '
             "instead  of the str() function.",
-            {"scope": WarningScope.NODE, "old_names": [("W0333", "backtick")]},
+            {"scope": WarningScope.NODE, "old_names": [("W0333", "old-backtick")]},
         ),
         "E1609": (
             "Import * only allowed at module level",
@@ -358,14 +358,14 @@ class Python3Checker(checkers.BaseChecker):
             "indexing-exception",
             "Indexing exceptions will not work on Python 3. Use "
             "`exception.args[index]` instead.",
-            {"old_names": [("W0713", "indexing-exception")]},
+            {"old_names": [("W0713", "old-indexing-exception")]},
         ),
         "W1625": (
             "Raising a string exception",
             "raising-string",
             "Used when a string exception is raised. This will not "
             "work on Python 3.",
-            {"old_names": [("W0701", "raising-string")]},
+            {"old_names": [("W0701", "old-raising-string")]},
         ),
         "W1626": (
             "reload built-in referenced",
@@ -878,23 +878,31 @@ class Python3Checker(checkers.BaseChecker):
         "deprecated-sys-function": {"sys": frozenset({"exc_clear"})},
     }
 
-    if (3, 4) <= sys.version_info < (3, 4, 4):
-        # Python 3.4.0 -> 3.4.3 has a bug which breaks `repr_tree()`:
-        # https://bugs.python.org/issue23572
-        _python_2_tests = frozenset()  # type: FrozenSet[str]
-    else:
-        _python_2_tests = frozenset(
-            [
-                astroid.extract_node(x).repr_tree()
-                for x in [
-                    "sys.version_info[0] == 2",
-                    "sys.version_info[0] < 3",
-                    "sys.version_info == (2, 7)",
-                    "sys.version_info <= (2, 7)",
-                    "sys.version_info < (3, 0)",
-                ]
-            ]
+    _deprecated_attrs = frozenset(
+        itertools.chain.from_iterable(
+            attr
+            for module_map in _bad_python3_module_map.values()
+            if isinstance(module_map, dict)
+            for attr in module_map.values()
         )
+    )
+
+    _relevant_call_attrs = (
+        DICT_METHODS | _deprecated_attrs | {"encode", "decode", "translate"}
+    )
+
+    _python_2_tests = frozenset(
+        [
+            astroid.extract_node(x).repr_tree()
+            for x in [
+                "sys.version_info[0] == 2",
+                "sys.version_info[0] < 3",
+                "sys.version_info == (2, 7)",
+                "sys.version_info <= (2, 7)",
+                "sys.version_info < (3, 0)",
+            ]
+        ]
+    )
 
     def __init__(self, *args, **kwargs):
         self._future_division = False
@@ -1069,13 +1077,17 @@ class Python3Checker(checkers.BaseChecker):
         if not self._future_division and node.op == "/":
             for arg in (node.left, node.right):
                 inferred = utils.safe_infer(arg)
-                # If we can infer the object and that object is not a numeric one, bail out.
+                # If we can infer the object and that object is not an int, bail out.
                 if inferred and not (
-                    isinstance(inferred, astroid.Const)
-                    and isinstance(inferred.value, (int, float))
+                    (
+                        isinstance(inferred, astroid.Const)
+                        and isinstance(inferred.value, int)
+                    )
+                    or (
+                        isinstance(inferred, astroid.Instance)
+                        and inferred.name == "int"
+                    )
                 ):
-                    break
-                if isinstance(arg, astroid.Const) and isinstance(arg.value, float):
                     break
             else:
                 self.add_message("old-division", node=node)
@@ -1138,8 +1150,11 @@ class Python3Checker(checkers.BaseChecker):
 
         if isinstance(node.func, astroid.Attribute):
             inferred_types = set()
+
             try:
-                for inferred_receiver in node.func.expr.infer():
+                for inferred_receiver in _infer_if_relevant_attr(
+                    node.func, self._relevant_call_attrs
+                ):
                     if inferred_receiver is astroid.Uninferable:
                         continue
                     inferred_types.add(inferred_receiver)
@@ -1197,11 +1212,10 @@ class Python3Checker(checkers.BaseChecker):
                 return
             if node.func.attrname == "next":
                 self.add_message("next-method-called", node=node)
-            else:
-                if node.func.attrname in ("iterkeys", "itervalues", "iteritems"):
-                    self.add_message("dict-iter-method", node=node)
-                elif node.func.attrname in ("viewkeys", "viewvalues", "viewitems"):
-                    self.add_message("dict-view-method", node=node)
+            elif node.func.attrname in ("iterkeys", "itervalues", "iteritems"):
+                self.add_message("dict-iter-method", node=node)
+            elif node.func.attrname in ("viewkeys", "viewvalues", "viewitems"):
+                self.add_message("dict-view-method", node=node)
         elif isinstance(node.func, astroid.Name):
             found_node = node.func.lookup(node.func.name)[0]
             if _is_builtin(found_node):
@@ -1250,7 +1264,9 @@ class Python3Checker(checkers.BaseChecker):
 
         exception_message = "message"
         try:
-            for inferred in node.expr.infer():
+            for inferred in _infer_if_relevant_attr(
+                node, self._deprecated_attrs | {exception_message}
+            ):
                 if isinstance(inferred, astroid.Instance) and utils.inherit_from_std_ex(
                     inferred
                 ):
@@ -1271,16 +1287,11 @@ class Python3Checker(checkers.BaseChecker):
     def visit_excepthandler(self, node):
         """Visit an except handler block and check for exception unpacking."""
 
-        def _is_used_in_except_block(node):
-            scope = node.scope()
+        def _is_used_in_except_block(node, block):
             current = node
-            while (
-                current
-                and current != scope
-                and not isinstance(current, astroid.ExceptHandler)
-            ):
+            while current and current is not block:
                 current = current.parent
-            return isinstance(current, astroid.ExceptHandler) and current.type != node
+            return current is not None
 
         if isinstance(node.name, (astroid.Tuple, astroid.List)):
             self.add_message("unpacking-in-except", node=node)
@@ -1298,7 +1309,7 @@ class Python3Checker(checkers.BaseChecker):
             for scope_name in scope_names
             if scope_name.name == node.name.name
             and scope_name.lineno > node.lineno
-            and not _is_used_in_except_block(scope_name)
+            and not _is_used_in_except_block(scope_name, node)
         ]
         reassignments_for_same_name = {
             assign_name.lineno
@@ -1365,7 +1376,7 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
             "old-ne-operator",
             'Used when the deprecated "<>" operator is used instead '
             'of "!=". This is removed in Python 3.',
-            {"maxversion": (3, 0), "old_names": [("W0331", "old-ne-operator")]},
+            {"maxversion": (3, 0), "old_names": [("W0331", "old-old-ne-operator")]},
         ),
         "E1608": (
             "Use of old octal literal",

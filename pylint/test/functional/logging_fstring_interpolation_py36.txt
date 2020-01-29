@@ -1,5 +1,0 @@
-logging-fstring-interpolation:17::Use % formatting in logging functions and pass the % parameters as arguments
-logging-fstring-interpolation:18::Use % formatting in logging functions and pass the % parameters as arguments
-logging-fstring-interpolation:19::Use % formatting in logging functions and pass the % parameters as arguments
-logging-fstring-interpolation:20::Use % formatting in logging functions and pass the % parameters as arguments
-logging-fstring-interpolation:21::Use % formatting in logging functions and pass the % parameters as arguments

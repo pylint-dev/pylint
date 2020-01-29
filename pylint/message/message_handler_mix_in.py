@@ -3,50 +3,23 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-from __future__ import print_function
-
 import sys
-from inspect import cleandoc
 
 from pylint.constants import (
-    _MSG_ORDER,
     _SCOPE_EXEMPT,
+    MAIN_CHECKER_NAME,
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
+    MSG_TYPES_LONG,
     MSG_TYPES_STATUS,
     WarningScope,
 )
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.interfaces import UNDEFINED
-from pylint.message.build_message_definition import build_message_definition
 from pylint.message.message import Message
-from pylint.utils.utils import (
-    _format_option_value,
-    category_id,
-    get_module_and_frameid,
-    normalize_text,
-)
-
-
-def _rest_format_section(stream, section, options, doc=None):
-    """format an options section using as ReST formatted output"""
-    if section:
-        print("%s\n%s" % (section, "'" * len(section)), file=stream)
-    if doc:
-        print(normalize_text(doc, line_len=79, indent=""), file=stream)
-        print(file=stream)
-    for optname, optdict, value in options:
-        help_opt = optdict.get("help")
-        print(":%s:" % optname, file=stream)
-        if help_opt:
-            help_opt = normalize_text(help_opt, line_len=79, indent="  ")
-            print(help_opt, file=stream)
-        if value:
-            value = str(_format_option_value(optdict, value))
-            print(file=stream)
-            print("  Default: ``%s``" % value.replace("`` ", "```` ``"), file=stream)
+from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
 
 
 class MessagesHandlerMixIn:
@@ -120,19 +93,19 @@ class MessagesHandlerMixIn:
             return
 
         # msgid is a category?
-        catid = category_id(msgid)
-        if catid is not None:
-            for _msgid in self.msgs_store._msgs_by_category.get(catid):
+        category_id = msgid.upper()
+        if category_id not in MSG_TYPES:
+            category_id = MSG_TYPES_LONG.get(category_id)
+        if category_id is not None:
+            for _msgid in self.msgs_store._msgs_by_category.get(category_id):
                 self._set_msg_status(_msgid, enable, scope, line)
             return
 
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
-            msgs_store = self.msgs_store
             for checker in self._checkers[msgid.lower()]:
                 for _msgid in checker.msgs:
-                    if _msgid in msgs_store._alternative_names:
-                        self._set_msg_status(_msgid, enable, scope, line)
+                    self._set_msg_status(_msgid, enable, scope, line)
             return
 
         # msgid is report id?
@@ -249,13 +222,7 @@ class MessagesHandlerMixIn:
             return self._msgs_state.get(msgid, True)
 
     def add_message(
-        self,
-        msg_descr,
-        line=None,
-        node=None,
-        args=None,
-        confidence=UNDEFINED,
-        col_offset=None,
+        self, msgid, line=None, node=None, args=None, confidence=None, col_offset=None
     ):
         """Adds a message given by ID or name.
 
@@ -265,50 +232,54 @@ class MessagesHandlerMixIn:
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
-        message_definitions = self.msgs_store.get_message_definitions(msg_descr)
+        if confidence is None:
+            confidence = UNDEFINED
+        message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             self.add_one_message(
                 message_definition, line, node, args, confidence, col_offset
             )
 
-    def add_one_message(
-        self, message_definition, line, node, args, confidence, col_offset
-    ):
-        msgid = message_definition.msgid
-        # backward compatibility, message may not have a symbol
-        symbol = message_definition.symbol or msgid
-        # Fatal messages and reports are special, the node/scope distinction
-        # does not apply to them.
-        if msgid[0] not in _SCOPE_EXEMPT:
+    @staticmethod
+    def check_message_definition(message_definition, line, node):
+        if message_definition.msgid[0] not in _SCOPE_EXEMPT:
+            # Fatal messages and reports are special, the node/scope distinction
+            # does not apply to them.
             if message_definition.scope == WarningScope.LINE:
                 if line is None:
                     raise InvalidMessageError(
-                        "Message %s must provide line, got None" % msgid
+                        "Message %s must provide line, got None"
+                        % message_definition.msgid
                     )
                 if node is not None:
                     raise InvalidMessageError(
                         "Message %s must only provide line, "
-                        "got line=%s, node=%s" % (msgid, line, node)
+                        "got line=%s, node=%s" % (message_definition.msgid, line, node)
                     )
             elif message_definition.scope == WarningScope.NODE:
                 # Node-based warnings may provide an override line.
                 if node is None:
                     raise InvalidMessageError(
-                        "Message %s must provide Node, got None" % msgid
+                        "Message %s must provide Node, got None"
+                        % message_definition.msgid
                     )
 
+    def add_one_message(
+        self, message_definition, line, node, args, confidence, col_offset
+    ):
+        self.check_message_definition(message_definition, line, node)
         if line is None and node is not None:
             line = node.fromlineno
         if col_offset is None and hasattr(node, "col_offset"):
-            col_offset = (
-                node.col_offset
-            )  # XXX measured in bytes for utf-8, divide by two for chars?
+            col_offset = node.col_offset
 
         # should this message be displayed
-        if not self.is_message_enabled(msgid, line, confidence):
+        if not self.is_message_enabled(message_definition.msgid, line, confidence):
             self.file_state.handle_ignored_message(
-                self.get_message_state_scope(msgid, line, confidence),
-                msgid,
+                self.get_message_state_scope(
+                    message_definition.msgid, line, confidence
+                ),
+                message_definition.msgid,
                 line,
                 node,
                 args,
@@ -316,14 +287,14 @@ class MessagesHandlerMixIn:
             )
             return
         # update stats
-        msg_cat = MSG_TYPES[msgid[0]]
-        self.msg_status |= MSG_TYPES_STATUS[msgid[0]]
+        msg_cat = MSG_TYPES[message_definition.msgid[0]]
+        self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
         self.stats[msg_cat] += 1
         self.stats["by_module"][self.current_name][msg_cat] += 1
         try:
-            self.stats["by_msg"][symbol] += 1
+            self.stats["by_msg"][message_definition.symbol] += 1
         except KeyError:
-            self.stats["by_msg"][symbol] = 1
+            self.stats["by_msg"][message_definition.symbol] = 1
         # expand message ?
         msg = message_definition.msg
         if args:
@@ -339,121 +310,84 @@ class MessagesHandlerMixIn:
         # add the message
         self.reporter.handle_message(
             Message(
-                msgid,
-                symbol,
+                message_definition.msgid,
+                message_definition.symbol,
                 (abspath, path, module, obj, line or 1, col_offset or 0),
                 msg,
                 confidence,
             )
         )
 
-    def print_full_documentation(self, stream=None):
-        """output a full documentation in ReST format"""
-        if not stream:
-            stream = sys.stdout
-
-        print("Pylint global options and switches", file=stream)
-        print("----------------------------------", file=stream)
-        print("", file=stream)
-        print("Pylint provides global options and switches.", file=stream)
-        print("", file=stream)
-
+    def _get_checkers_infos(self):
         by_checker = {}
         for checker in self.get_checkers():
-            if checker.name == "master":
+            name = checker.name
+            if name != "master":
+                try:
+                    by_checker[name]["checker"] = checker
+                    by_checker[name]["options"] += checker.options_and_values()
+                    by_checker[name]["msgs"].update(checker.msgs)
+                    by_checker[name]["reports"] += checker.reports
+                except KeyError:
+                    by_checker[name] = {
+                        "checker": checker,
+                        "options": list(checker.options_and_values()),
+                        "msgs": dict(checker.msgs),
+                        "reports": list(checker.reports),
+                    }
+        return by_checker
+
+    def get_checkers_documentation(self):
+        result = get_rst_title("Pylint global options and switches", "-")
+        result += """
+Pylint provides global options and switches.
+
+"""
+        for checker in self.get_checkers():
+            name = checker.name
+            if name == MAIN_CHECKER_NAME:
                 if checker.options:
                     for section, options in checker.options_by_section():
                         if section is None:
                             title = "General options"
                         else:
                             title = "%s options" % section.capitalize()
-                        print(title, file=stream)
-                        print("~" * len(title), file=stream)
-                        _rest_format_section(stream, None, options)
-                        print("", file=stream)
-            else:
-                name = checker.name
-                try:
-                    by_checker[name]["options"] += checker.options_and_values()
-                    by_checker[name]["msgs"].update(checker.msgs)
-                    by_checker[name]["reports"] += checker.reports
-                except KeyError:
-                    by_checker[name] = {
-                        "options": list(checker.options_and_values()),
-                        "msgs": dict(checker.msgs),
-                        "reports": list(checker.reports),
-                    }
+                        result += get_rst_title(title, "~")
+                        result += "%s\n" % get_rst_section(None, options)
+        result += get_rst_title("Pylint checkers' options and switches", "-")
+        result += """\
 
-        print("Pylint checkers' options and switches", file=stream)
-        print("-------------------------------------", file=stream)
-        print("", file=stream)
-        print("Pylint checkers can provide three set of features:", file=stream)
-        print("", file=stream)
-        print("* options that control their execution,", file=stream)
-        print("* messages that they can raise,", file=stream)
-        print("* reports that they can generate.", file=stream)
-        print("", file=stream)
-        print("Below is a list of all checkers and their features.", file=stream)
-        print("", file=stream)
+Pylint checkers can provide three set of features:
 
-        for checker, info in sorted(by_checker.items()):
-            self._print_checker_doc(checker, info, stream=stream)
+* options that control their execution,
+* messages that they can raise,
+* reports that they can generate.
+
+Below is a list of all checkers and their features.
+
+"""
+        by_checker = self._get_checkers_infos()
+        for checker in sorted(by_checker):
+            information = by_checker[checker]
+            checker = information["checker"]
+            del information["checker"]
+            result += checker.get_full_documentation(**information)
+        return result
+
+    def print_full_documentation(self, stream=None):
+        """output a full documentation in ReST format"""
+        if not stream:
+            stream = sys.stdout
+        print(self.get_checkers_documentation()[:-1], file=stream)
 
     @staticmethod
-    def _print_checker_doc(checker_name, info, stream=None):
+    def _print_checker_doc(information, stream=None):
         """Helper method for print_full_documentation.
 
         Also used by doc/exts/pylint_extensions.py.
         """
         if not stream:
             stream = sys.stdout
-
-        doc = info.get("doc")
-        module = info.get("module")
-        msgs = info.get("msgs")
-        options = info.get("options")
-        reports = info.get("reports")
-
-        checker_title = "%s checker" % (checker_name.replace("_", " ").title())
-
-        if module:
-            # Provide anchor to link against
-            print(".. _%s:\n" % module, file=stream)
-        print(checker_title, file=stream)
-        print("~" * len(checker_title), file=stream)
-        print("", file=stream)
-        if module:
-            print("This checker is provided by ``%s``." % module, file=stream)
-        print("Verbatim name of the checker is ``%s``." % checker_name, file=stream)
-        print("", file=stream)
-        if doc:
-            # Provide anchor to link against
-            title = "{} Documentation".format(checker_title)
-            print(title, file=stream)
-            print("^" * len(title), file=stream)
-            print(cleandoc(doc), file=stream)
-            print("", file=stream)
-        if options:
-            title = "{} Options".format(checker_title)
-            print(title, file=stream)
-            print("^" * len(title), file=stream)
-            _rest_format_section(stream, None, options)
-            print("", file=stream)
-        if msgs:
-            title = "{} Messages".format(checker_title)
-            print(title, file=stream)
-            print("^" * len(title), file=stream)
-            for msgid, msg in sorted(
-                msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
-            ):
-                msg = build_message_definition(checker_name, msgid, msg)
-                print(msg.format_help(checkerref=False), file=stream)
-            print("", file=stream)
-        if reports:
-            title = "{} Reports".format(checker_title)
-            print(title, file=stream)
-            print("^" * len(title), file=stream)
-            for report in reports:
-                print(":%s: %s" % report[:2], file=stream)
-            print("", file=stream)
-        print("", file=stream)
+        checker = information["checker"]
+        del information["checker"]
+        print(checker.get_full_documentation(**information)[:-1], file=stream)

@@ -30,8 +30,6 @@ from astroid.node_classes import Const
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import IAstroidChecker
 
-PY35 = sys.version_info >= (3, 5)
-
 OPEN_FILES = {"open", "file"}
 UNITTEST_CASE = "unittest.case"
 THREADING_THREAD = "threading.Thread"
@@ -40,11 +38,7 @@ OS_ENVIRON = "os._Environ"
 ENV_GETTERS = {"os.getenv"}
 SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
-
-if sys.version_info >= (3, 0):
-    OPEN_MODULE = "_io"
-else:
-    OPEN_MODULE = "__builtin__"
+OPEN_MODULE = "_io"
 
 
 def _check_mode_str(mode):
@@ -155,7 +149,7 @@ class StdlibChecker(BaseChecker):
             "subprocess-run-check",
             "The check parameter should always be used with explicitly set "
             "`check` keyword to make clear what the error-handling behavior is."
-            "https://docs.python.org/3/library/subprocess.html#subprocess.runs",
+            "https://docs.python.org/3/library/subprocess.html#subprocess.run",
         ),
     }
 
@@ -239,9 +233,7 @@ class StdlibChecker(BaseChecker):
             (3, 4, 4): {"asyncio.tasks.async"},
             (3, 5, 0): {
                 "fractions.gcd",
-                "inspect.getargvalues",
                 "inspect.formatargspec",
-                "inspect.formatargvalues",
                 "inspect.getcallargs",
                 "platform.linux_distribution",
                 "platform.dist",
@@ -289,7 +281,7 @@ class StdlibChecker(BaseChecker):
             for inferred in node.func.infer():
                 if inferred is astroid.Uninferable:
                     continue
-                elif inferred.root().name == OPEN_MODULE:
+                if inferred.root().name == OPEN_MODULE:
                     if getattr(node.func, "name", None) in OPEN_FILES:
                         self._check_open_mode(node)
                 elif inferred.root().name == UNITTEST_CASE:
@@ -305,7 +297,7 @@ class StdlibChecker(BaseChecker):
                         self._check_shallow_copy_environ(node)
                     elif name in ENV_GETTERS:
                         self._check_env_function(node, inferred)
-                    elif name == SUBPROCESS_RUN and PY35:
+                    elif name == SUBPROCESS_RUN:
                         self._check_for_check_kw_in_run(node)
                 self._check_deprecated_method(node, inferred)
         except astroid.InferenceError:
@@ -374,14 +366,14 @@ class StdlibChecker(BaseChecker):
             )
 
     def _check_datetime(self, node):
-        """ Check that a datetime was infered.
+        """ Check that a datetime was inferred.
         If so, emit boolean-datetime warning.
         """
         try:
-            infered = next(node.infer())
+            inferred = next(node.infer())
         except astroid.InferenceError:
             return
-        if isinstance(infered, Instance) and infered.qname() == "datetime.time":
+        if isinstance(inferred, Instance) and inferred.qname() == "datetime.time":
             self.add_message("boolean-datetime", node=node)
 
     def _check_open_mode(self, node):

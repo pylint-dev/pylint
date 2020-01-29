@@ -13,8 +13,6 @@
 
   create UML diagrams for classes and modules in <packages>
 """
-from __future__ import print_function
-
 import os
 import subprocess
 import sys
@@ -113,11 +111,6 @@ OPTIONS = (
             help="include module name in representation of classes",
         ),
     ),
-    # TODO : generate dependencies like in pylint
-    # ("package-dependencies",
-    # dict(short="M", action="store", metavar='<package_depth>', type='int',
-    #     help='show <package_depth> module dependencies beyond modules in \
-    # <projects> (for the package diagram)')),
     (
         "only-classnames",
         dict(

@@ -45,10 +45,10 @@ class FileState:
         #
         # 1.   def meth8(self):
         # 2.        """test late disabling"""
-        # 3.        # pylint: disable=E1102
-        # 4.        print self.blip
-        # 5.        # pylint: disable=E1101
-        # 6.        print self.bla
+        # 3.        pylint: disable=not-callable
+        # 4.        print(self.blip)
+        # 5.        pylint: disable=no-member
+        # 6.        print(self.bla)
         #
         # E1102 should be disabled from line 1 to 6 while E1101 from line 5 to 6
         #
@@ -120,9 +120,12 @@ class FileState:
         for warning, lines in self._raw_module_msgs_state.items():
             for line, enable in lines.items():
                 if not enable and (warning, line) not in self._ignored_msgs:
-                    yield "useless-suppression", line, (
-                        msgs_store.get_msg_display_string(warning),
-                    )
+                    # ignore cyclic-import check which can show false positives
+                    # here due to incomplete context
+                    if warning != "R0401":
+                        yield "useless-suppression", line, (
+                            msgs_store.get_msg_display_string(warning),
+                        )
         # don't use iteritems here, _ignored_msgs may be modified by add_message
         for (warning, from_), lines in list(self._ignored_msgs.items()):
             for line in lines:

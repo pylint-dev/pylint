@@ -23,10 +23,11 @@
 """
 
 import builtins
+import collections
 import numbers
-import sys
+import re
 import tokenize
-from collections import Counter
+from typing import Counter, Iterable
 
 import astroid
 from astroid.arguments import CallSite
@@ -37,9 +38,37 @@ from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
-
-_PY3K = sys.version_info[:2] >= (3, 0)
-_PY27 = sys.version_info[:2] == (2, 7)
+# Prefixes for both strings and bytes literals per
+# https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
+_PREFIXES = {
+    "r",
+    "u",
+    "R",
+    "U",
+    "f",
+    "F",
+    "fr",
+    "Fr",
+    "fR",
+    "FR",
+    "rf",
+    "rF",
+    "Rf",
+    "RF",
+    "b",
+    "B",
+    "br",
+    "Br",
+    "bR",
+    "BR",
+    "rb",
+    "rB",
+    "Rb",
+    "RB",
+}
+SINGLE_QUOTED_REGEX = re.compile("(%s)?'''" % "|".join(_PREFIXES))
+DOUBLE_QUOTED_REGEX = re.compile('(%s)?"""' % "|".join(_PREFIXES))
+QUOTE_DELIMITER_REGEX = re.compile("(%s)?(\"|')" % "|".join(_PREFIXES), re.DOTALL)
 
 MSGS = {
     "E1300": (
@@ -156,6 +185,12 @@ MSGS = {
         "Used when we detect that a string formatting is "
         "repeating an argument instead of using named string arguments",
     ),
+    "W1309": (
+        "Using an f-string that does not have any interpolated variables",
+        "f-string-without-interpolation",
+        "Used when we detect an f-string that does not use any interpolation variables, "
+        "in which case it can be either a normal string or a bug in the code.",
+    ),
 }
 
 OTHER_NODES = (
@@ -213,7 +248,19 @@ class StringFormatChecker(BaseChecker):
     msgs = MSGS
 
     # pylint: disable=too-many-branches
-    @check_messages(*MSGS)
+    @check_messages(
+        "bad-format-character",
+        "truncated-format-string",
+        "mixed-format-string",
+        "bad-format-string-key",
+        "missing-format-string-key",
+        "unused-format-string-key",
+        "bad-string-format-type",
+        "format-needs-mapping",
+        "too-many-format-args",
+        "too-few-format-args",
+        "bad-string-format-type",
+    )
     def visit_binop(self, node):
         if node.op != "%":
             return
@@ -224,13 +271,18 @@ class StringFormatChecker(BaseChecker):
             return
         format_string = left.value
         try:
-            required_keys, required_num_args, required_key_types, required_arg_types = utils.parse_format_string(
-                format_string
-            )
-        except utils.UnsupportedFormatCharacter as e:
-            c = format_string[e.index]
+            (
+                required_keys,
+                required_num_args,
+                required_key_types,
+                required_arg_types,
+            ) = utils.parse_format_string(format_string)
+        except utils.UnsupportedFormatCharacter as exc:
+            formatted = format_string[exc.index]
             self.add_message(
-                "bad-format-character", node=node, args=(c, ord(c), e.index)
+                "bad-format-character",
+                node=node,
+                args=(formatted, ord(formatted), exc.index),
             )
             return
         except utils.IncompleteFormatString:
@@ -335,6 +387,15 @@ class StringFormatChecker(BaseChecker):
                             args=(arg_type.pytype(), format_type),
                         )
 
+    @check_messages("f-string-without-interpolation")
+    def visit_joinedstr(self, node):
+        if isinstance(node.parent, astroid.FormattedValue):
+            return
+        for value in node.values:
+            if isinstance(value, astroid.FormattedValue):
+                return
+        self.add_message("f-string-without-interpolation", node=node)
+
     @check_messages(*MSGS)
     def visit_call(self, node):
         func = utils.safe_infer(node.func)
@@ -357,7 +418,7 @@ class StringFormatChecker(BaseChecker):
                 self._check_new_format(node, func)
 
     def _detect_vacuous_formatting(self, node, positional_arguments):
-        counter = Counter(
+        counter = collections.Counter(
             arg.name for arg in positional_arguments if isinstance(arg, astroid.Name)
         )
         for name, count in counter.items():
@@ -368,13 +429,11 @@ class StringFormatChecker(BaseChecker):
             )
 
     def _check_new_format(self, node, func):
-        """ Check the new string formatting. """
-        # TODO: skip (for now) format nodes which don't have
-        #       an explicit string on the left side of the format operation.
-        #       We do this because our inference engine can't properly handle
-        #       redefinitions of the original string.
-        #       For more details, see issue 287.
-        #
+        """Check the new string formatting. """
+        # Skip ormat nodes which don't have an explicit string on the
+        # left side of the format operation.
+        # We do this because our inference engine can't properly handle
+        # redefinitions of the original string.
         # Note that there may not be any left side at all, if the format method
         # has been assigned to another variable. See issue 351. For example:
         #
@@ -457,7 +516,7 @@ class StringFormatChecker(BaseChecker):
         """
         for key, specifiers in fields:
             # Obtain the argument. If it can't be obtained
-            # or infered, skip this check.
+            # or inferred, skip this check.
             if key == "":
                 # {[0]} will have an unnamed argument, defaulting
                 # to 0. It will not be present in `named`, so use the value
@@ -475,10 +534,10 @@ class StringFormatChecker(BaseChecker):
             if argname in (astroid.Uninferable, None):
                 continue
             try:
-                argument = next(argname.infer())
+                argument = utils.safe_infer(argname)
             except astroid.InferenceError:
                 continue
-            if not specifiers or argument is astroid.Uninferable:
+            if not specifiers or not argument:
                 # No need to check this key if it doesn't
                 # use attribute / item access
                 continue
@@ -566,12 +625,19 @@ class StringConstantChecker(BaseTokenChecker):
             "Used when an escape like \\u is encountered in a byte "
             "string where it has no effect.",
         ),
-        "W1403": (
+        "W1404": (
             "Implicit string concatenation found in %s",
-            "implicit-str-concat-in-sequence",
+            "implicit-str-concat",
             "String literals are implicitly concatenated in a "
             "literal iterable definition : "
             "maybe a comma is missing ?",
+            {"old_names": [("W1403", "implicit-str-concat-in-sequence")]},
+        ),
+        "W1405": (
+            "Quote delimiter %s is inconsistent with the rest of the file",
+            "inconsistent-quotes",
+            "Quote delimiters are not used consistently throughout a module "
+            "(with allowances made for avoiding unnecessary escaping).",
         ),
     }
     options = (
@@ -582,9 +648,20 @@ class StringConstantChecker(BaseTokenChecker):
                 "type": "yn",
                 "metavar": "<y_or_n>",
                 "help": "This flag controls whether the "
-                "implicit-str-concat-in-sequence should generate a warning "
+                "implicit-str-concat should generate a warning "
                 "on implicit string concatenation in sequences defined over "
                 "several lines.",
+            },
+        ),
+        (
+            "check-quote-consistency",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y_or_n>",
+                "help": "This flag controls whether inconsistent-quotes generates a "
+                "warning when the character used as a quote delimiter is used "
+                "inconsistently within a module.",
             },
         ),
     )
@@ -592,9 +669,6 @@ class StringConstantChecker(BaseTokenChecker):
     # Characters that have a special meaning after a backslash in either
     # Unicode or byte strings.
     ESCAPE_CHARACTERS = "abfnrtvx\n\r\t\\'\"01234567"
-
-    # TODO(mbp): Octal characters are quite an edge case today; people may
-    # prefer a separate warning where they occur.  \0 should be allowed.
 
     # Characters that have a special meaning after a backslash but only in
     # Unicode strings.
@@ -632,55 +706,95 @@ class StringConstantChecker(BaseTokenChecker):
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
 
-    @check_messages(*(msgs.keys()))
+        if self.config.check_quote_consistency:
+            self.check_for_consistent_string_delimiters(tokens)
+
+    @check_messages("implicit-str-concat")
     def visit_list(self, node):
-        self.check_for_concatenated_strings(node, "list")
+        self.check_for_concatenated_strings(node.elts, "list")
 
-    @check_messages(*(msgs.keys()))
+    @check_messages("implicit-str-concat")
     def visit_set(self, node):
-        self.check_for_concatenated_strings(node, "set")
+        self.check_for_concatenated_strings(node.elts, "set")
 
-    @check_messages(*(msgs.keys()))
+    @check_messages("implicit-str-concat")
     def visit_tuple(self, node):
-        self.check_for_concatenated_strings(node, "tuple")
+        self.check_for_concatenated_strings(node.elts, "tuple")
 
-    def check_for_concatenated_strings(self, iterable_node, iterable_type):
-        for elt in iterable_node.elts:
-            if isinstance(elt, Const) and elt.pytype() in _AST_NODE_STR_TYPES:
-                if elt.col_offset < 0:
-                    # This can happen in case of escaped newlines
+    def visit_assign(self, node):
+        if isinstance(node.value, astroid.Const) and isinstance(node.value.value, str):
+            self.check_for_concatenated_strings([node.value], "assignment")
+
+    def check_for_consistent_string_delimiters(
+        self, tokens: Iterable[tokenize.TokenInfo]
+    ) -> None:
+        """Adds a message for each string using inconsistent quote delimiters.
+
+        Quote delimiters are used inconsistently if " and ' are mixed in a module's
+        shortstrings without having done so to avoid escaping an internal quote
+        character.
+
+        Args:
+          tokens: The tokens to be checked against for consistent usage.
+        """
+        string_delimiters = collections.Counter()  # type: Counter[str]
+
+        # First, figure out which quote character predominates in the module
+        for tok_type, token, _, _, _ in tokens:
+            if tok_type == tokenize.STRING and _is_quote_delimiter_chosen_freely(token):
+                string_delimiters[_get_quote_delimiter(token)] += 1
+
+        if len(string_delimiters) > 1:
+            # Ties are broken arbitrarily
+            most_common_delimiter = string_delimiters.most_common(1)[0][0]
+            for tok_type, token, start, _, _ in tokens:
+                if tok_type != tokenize.STRING:
                     continue
-                if (elt.lineno, elt.col_offset) not in self.string_tokens:
-                    # This may happen with Latin1 encoding
-                    # cf. https://github.com/PyCQA/pylint/issues/2610
-                    continue
-                matching_token, next_token = self.string_tokens[
-                    (elt.lineno, elt.col_offset)
-                ]
-                # We detect string concatenation: the AST Const is the
-                # combination of 2 string tokens
-                if matching_token != elt.value and next_token is not None:
-                    if next_token.type == tokenize.STRING and (
-                        next_token.start[0] == elt.lineno
-                        or self.config.check_str_concat_over_line_jumps
-                    ):
-                        self.add_message(
-                            "implicit-str-concat-in-sequence",
-                            line=elt.lineno,
-                            args=(iterable_type,),
-                        )
+                quote_delimiter = _get_quote_delimiter(token)
+                if (
+                    _is_quote_delimiter_chosen_freely(token)
+                    and quote_delimiter != most_common_delimiter
+                ):
+                    self.add_message(
+                        "inconsistent-quotes", line=start[0], args=(quote_delimiter,)
+                    )
+
+    def check_for_concatenated_strings(self, elements, iterable_type):
+        for elt in elements:
+            if not (isinstance(elt, Const) and elt.pytype() in _AST_NODE_STR_TYPES):
+                continue
+            if elt.col_offset < 0:
+                # This can happen in case of escaped newlines
+                continue
+            if (elt.lineno, elt.col_offset) not in self.string_tokens:
+                # This may happen with Latin1 encoding
+                # cf. https://github.com/PyCQA/pylint/issues/2610
+                continue
+            matching_token, next_token = self.string_tokens[
+                (elt.lineno, elt.col_offset)
+            ]
+            # We detect string concatenation: the AST Const is the
+            # combination of 2 string tokens
+            if matching_token != elt.value and next_token is not None:
+                if next_token.type == tokenize.STRING and (
+                    next_token.start[0] == elt.lineno
+                    or self.config.check_str_concat_over_line_jumps
+                ):
+                    self.add_message(
+                        "implicit-str-concat", line=elt.lineno, args=(iterable_type,)
+                    )
 
     def process_string_token(self, token, start_row):
         quote_char = None
         index = None
-        for index, c in enumerate(token):
-            if c in "'\"":
-                quote_char = c
+        for index, char in enumerate(token):
+            if char in "'\"":
+                quote_char = char
                 break
         if quote_char is None:
             return
 
-        prefix = token[:index].lower()  #  markers like u, b, r.
+        prefix = token[:index].lower()  # markers like u, b, r.
         after_prefix = token[index:]
         if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char:
             string_body = after_prefix[3:-3]
@@ -706,39 +820,38 @@ class StringConstantChecker(BaseTokenChecker):
         # end-of-line, or one of the letters that introduce a special escape
         # sequence <http://docs.python.org/reference/lexical_analysis.html>
         #
-        # TODO(mbp): Maybe give a separate warning about the rarely-used
-        # \a \b \v \f?
-        #
-        # TODO(mbp): We could give the column of the problem character, but
-        # add_message doesn't seem to have a way to pass it through at present.
-        i = 0
+        index = 0
         while True:
-            i = string_body.find("\\", i)
-            if i == -1:
+            index = string_body.find("\\", index)
+            if index == -1:
                 break
             # There must be a next character; having a backslash at the end
             # of the string would be a SyntaxError.
-            next_char = string_body[i + 1]
-            match = string_body[i : i + 2]
+            next_char = string_body[index + 1]
+            match = string_body[index : index + 2]
             if next_char in self.UNICODE_ESCAPE_CHARACTERS:
                 if "u" in prefix:
                     pass
-                elif (_PY3K or self._unicode_literals) and "b" not in prefix:
+                elif "b" not in prefix:
                     pass  # unicode by default
                 else:
                     self.add_message(
                         "anomalous-unicode-escape-in-string",
                         line=start_row,
                         args=(match,),
+                        col_offset=index,
                     )
             elif next_char not in self.ESCAPE_CHARACTERS:
                 self.add_message(
-                    "anomalous-backslash-in-string", line=start_row, args=(match,)
+                    "anomalous-backslash-in-string",
+                    line=start_row,
+                    args=(match,),
+                    col_offset=index,
                 )
             # Whether it was a valid escape or not, backslash followed by
             # another character can always be consumed whole: the second
             # character can never be the start of a new backslash escape.
-            i += 2
+            index += 2
 
 
 def register(linter):
@@ -761,3 +874,69 @@ def str_eval(token):
     if token[0:3] in ('"""', "'''"):
         return token[3:-3]
     return token[1:-1]
+
+
+def _is_long_string(string_token: str) -> bool:
+    """Is this string token a "longstring" (is it triple-quoted)?
+
+    Long strings are triple-quoted as defined in
+    https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
+
+    This function only checks characters up through the open quotes.  Because it's meant
+    to be applied only to tokens that represent string literals, it doesn't bother to
+    check for close-quotes (demonstrating that the literal is a well-formed string).
+
+    Args:
+        string_token: The string token to be parsed.
+
+    Returns:
+        A boolean representing whether or not this token matches a longstring
+        regex.
+    """
+    return bool(
+        SINGLE_QUOTED_REGEX.match(string_token)
+        or DOUBLE_QUOTED_REGEX.match(string_token)
+    )
+
+
+def _get_quote_delimiter(string_token: str) -> str:
+    """Returns the quote character used to delimit this token string.
+
+    This function does little checking for whether the token is a well-formed
+    string.
+
+    Args:
+        string_token: The token to be parsed.
+
+    Returns:
+        A string containing solely the first quote delimiter character in the passed
+        string.
+
+    Raises:
+      ValueError: No quote delimiter characters are present.
+    """
+    match = QUOTE_DELIMITER_REGEX.match(string_token)
+    if not match:
+        raise ValueError("string token %s is not a well-formed string" % string_token)
+    return match.group(2)
+
+
+def _is_quote_delimiter_chosen_freely(string_token: str) -> bool:
+    """Was there a non-awkward option for the quote delimiter?
+
+    Args:
+        string_token: The quoted string whose delimiters are to be checked.
+
+    Returns:
+        Whether there was a choice in this token's quote character that would
+        not have involved backslash-escaping an interior quote character.  Long
+        strings are excepted from this analysis under the assumption that their
+        quote characters are set by policy.
+    """
+    quote_delimiter = _get_quote_delimiter(string_token)
+    unchosen_delimiter = '"' if quote_delimiter == "'" else "'"
+    return bool(
+        quote_delimiter
+        and not _is_long_string(string_token)
+        and unchosen_delimiter not in str_eval(string_token)
+    )

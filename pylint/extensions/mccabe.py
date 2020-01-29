@@ -7,8 +7,6 @@
 
 """Module to add McCabe checker class for pylint. """
 
-from __future__ import absolute_import
-
 from mccabe import PathGraph as Mccabe_PathGraph
 from mccabe import PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
 
@@ -37,8 +35,8 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         klass = node.__class__
         meth = self._cache.get(klass)
         if meth is None:
-            className = klass.__name__
-            meth = getattr(self.visitor, "visit" + className, self.default)
+            class_name = klass.__name__
+            meth = getattr(self.visitor, "visit" + class_name, self.default)
             self._cache[klass] = meth
         return meth(node, *args)
 
@@ -116,9 +114,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
             self._append_node(node)
             self._subgraph_parse(node, node, extra_blocks)
 
-    def _subgraph_parse(
-        self, node, pathnode, extra_blocks
-    ):  # pylint: disable=unused-argument
+    def _subgraph_parse(self, node, pathnode, extra_blocks):
         """parse the body and any `else` block of `if` and `for` statements"""
         loose_ends = []
         self.tail = node
@@ -137,8 +133,8 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         if node:
             bottom = "%s" % self._bottom_counter
             self._bottom_counter += 1
-            for le in loose_ends:
-                self.graph.connect(le, bottom)
+            for end in loose_ends:
+                self.graph.connect(end, bottom)
             self.tail = bottom
 
 

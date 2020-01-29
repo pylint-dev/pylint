@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pylint: disable=W0404,W0622,W0704,W0613
+# pylint: disable=W0404,W0622,W0613
 # Copyright (c) 2006, 2009-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
@@ -20,13 +20,10 @@
 
 """Generic Setup script, takes package info from __pkginfo__.py file.
 """
-from __future__ import absolute_import, print_function
-
-import os
-import shutil
-import sys
 from distutils.command.build_py import build_py
+import os
 from os.path import exists, isdir, join
+import sys
 
 __docformat__ = "restructuredtext en"
 
@@ -34,12 +31,12 @@ __docformat__ = "restructuredtext en"
 try:
     from setuptools import setup
     from setuptools.command import easy_install as easy_install_lib
-    from setuptools.command import install_lib
+    from setuptools.command import install_lib  # pylint: disable=unused-import
 
     USE_SETUPTOOLS = 1
 except ImportError:
     from distutils.core import setup
-    from distutils.command import install_lib
+    from distutils.command import install_lib  # pylint: disable=unused-import
 
     USE_SETUPTOOLS = 0
     easy_install_lib = None
@@ -48,13 +45,10 @@ except ImportError:
 base_dir = os.path.dirname(__file__)
 
 __pkginfo__ = {}
-with open(os.path.join(base_dir, "pylint", "__pkginfo__.py")) as f:
-    exec(f.read(), __pkginfo__)
-modname = __pkginfo__["modname"]
-distname = __pkginfo__.get("distname", modname)
+with open(os.path.join(base_dir, "pylint", "__pkginfo__.py")) as pkginfo_fp:
+    exec(pkginfo_fp.read(), __pkginfo__)
 scripts = __pkginfo__.get("scripts", [])
 data_files = __pkginfo__.get("data_files", None)
-include_dirs = __pkginfo__.get("include_dirs", [])
 ext_modules = __pkginfo__.get("ext_modules", None)
 install_requires = __pkginfo__.get("install_requires", None)
 dependency_links = __pkginfo__.get("dependency_links", [])
@@ -66,6 +60,10 @@ if exists(readme_path):
         long_description = stream.read()
 else:
     long_description = ""
+
+
+needs_pytest = set(['pytest', 'test', 'ptr']).intersection(sys.argv)
+pytest_runner = ['pytest-runner'] if needs_pytest else []
 
 
 def ensure_scripts(linux_scripts):
@@ -99,35 +97,6 @@ def _filter_tests(files):
     return [f for f in files if testdir not in f]
 
 
-class MyInstallLib(install_lib.install_lib):
-    """extend install_lib command to handle package __init__.py and
-    include_dirs variable if necessary
-    """
-
-    def run(self):
-        """overridden from install_lib class"""
-        install_lib.install_lib.run(self)
-        # manually install included directories if any
-        if include_dirs:
-            for directory in include_dirs:
-                dest = join(self.install_dir, directory)
-                if sys.version_info >= (3, 0):
-                    exclude = {"invalid_encoded_data*", "unknown_encoding*"}
-                else:
-                    exclude = set()
-                shutil.rmtree(dest, ignore_errors=True)
-                shutil.copytree(
-                    directory, dest, ignore=shutil.ignore_patterns(*exclude)
-                )
-
-    # override this since pip/easy_install attempt to byte compile test data
-    # files, some of them being syntactically wrong by design, and this scares
-    # the end-user
-    def byte_compile(self, files):
-        files = _filter_tests(files)
-        install_lib.install_lib.byte_compile(self, files)
-
-
 if easy_install_lib:
 
     class easy_install(easy_install_lib.easy_install):
@@ -144,7 +113,7 @@ def install(**kwargs):
     if USE_SETUPTOOLS:
         if "--force-manifest" in sys.argv:
             sys.argv.remove("--force-manifest")
-    packages = [modname] + get_packages(join(base_dir, "pylint"), modname)
+    packages = ["pylint"] + get_packages(join(base_dir, "pylint"), "pylint")
     if USE_SETUPTOOLS:
         if install_requires:
             kwargs["install_requires"] = install_requires
@@ -158,11 +127,11 @@ def install(**kwargs):
             ]
         }
     kwargs["packages"] = packages
-    cmdclass = {"install_lib": MyInstallLib, "build_py": build_py}
+    cmdclass = {"build_py": build_py}
     if easy_install_lib:
         cmdclass["easy_install"] = easy_install
     return setup(
-        name=distname,
+        name="pylint",
         version=__pkginfo__["version"],
         license=__pkginfo__["license"],
         description=__pkginfo__["description"],
@@ -177,8 +146,8 @@ def install(**kwargs):
         cmdclass=cmdclass,
         extras_require=extras_require,
         test_suite="test",
-        python_requires=">=3.4.*",
-        setup_requires=["pytest-runner"],
+        python_requires=">=3.5.*",
+        setup_requires=pytest_runner,
         tests_require=["pytest"],
         **kwargs
     )

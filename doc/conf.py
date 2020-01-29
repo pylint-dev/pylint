@@ -138,7 +138,7 @@ html_theme_options = {
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
-html_last_updated_fmt = '%b %d, %Y'
+html_last_updated_fmt = "%b %d, %Y"
 
 smartquotes = False
 
@@ -239,5 +239,5 @@ intersphinx_mapping = {
 }
 
 # Prevent label issues due to colliding section names
-# through including mulitple documents
+# through including multiple documents
 autosectionlabel_prefix_document = True

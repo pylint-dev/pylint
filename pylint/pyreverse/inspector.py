@@ -11,8 +11,6 @@
 Visitor doing some postprocessing on the astroid tree.
 Try to resolve definitions (namespace) dictionary, relationship...
 """
-from __future__ import print_function
-
 import collections
 import os
 import traceback
@@ -40,7 +38,6 @@ def _astroid_wrapper(func, modname):
 
 def interfaces(node, herited=True, handler_func=_iface_hdlr):
     """Return an iterator on interfaces implemented by the given class node."""
-    # FIXME: what if __implements__ = (MyIFace, MyParent.__implements__)...
     try:
         implements = bases.Instance(node).getattr("__implements__")[0]
     except exceptions.NotFoundError:
@@ -166,7 +163,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         node.instance_attrs_type = collections.defaultdict(list)
         for assignattrs in node.instance_attrs.values():
             for assignattr in assignattrs:
-                self.handle_assignattr_type(assignattr, node)
+                if not isinstance(assignattr, astroid.Unknown):
+                    self.handle_assignattr_type(assignattr, node)
         # resolve implemented interface
         try:
             node.implements = list(interfaces(node, self.inherited_interfaces))
@@ -265,8 +263,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             fullname = "%s.%s" % (basename, name[0])
             if fullname.find(".") > -1:
                 try:
-                    # TODO: don't use get_module_part,
-                    # missing package precedence
                     fullname = modutils.get_module_part(fullname, context_file)
                 except ImportError:
                     continue
@@ -346,7 +342,6 @@ def project_from_files(
         ast = func_wrapper(astroid_manager.ast_from_file, fpath)
         if ast is None:
             continue
-        # XXX why is first file defining the project.path ?
         project.path = project.path or ast.file
         project.add_module(ast)
         base_name = ast.name

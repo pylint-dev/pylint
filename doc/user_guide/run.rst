@@ -89,6 +89,10 @@ configuration file in the following order and uses the first one it finds:
 
 #. ``pylintrc`` in the current working directory
 #. ``.pylintrc`` in the current working directory
+#. ``pyproject.toml`` in the current working directory,
+   providing it has at least one ``tool.pylint.`` section.
+#. ``setup.cfg`` in the current working directory,
+   providing it has at least one ``pylint.`` section
 #. If the current working directory is in a Python module, Pylint searches \
    up the hierarchy of Python modules until it finds a ``pylintrc`` file. \
    This allows you to specify coding standards on a module-by-module \
@@ -119,6 +123,8 @@ Other useful global options include:
 --output-format=<format>   Select output format (text, json, custom).
 --msg-template=<template>  Modify text output message template.
 --list-msgs                Generate pylint's messages.
+--list-msgs-enabled        Display a list of what messages are enabled and
+                           disabled with the given configuration.
 --full-documentation       Generate pylint's full documentation, in reST
                              format.
 

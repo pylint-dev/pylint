@@ -288,9 +288,80 @@ contributors:
 
 * Pierre Sassoulas : contributor
     - Made C0412 (ungrouped import) compatible with isort
+    - Made multiple message with the same old name possible
+    - Made Pylint a little faster by refactoring the message store
+    - Broke down "missing-docstrings" between "module", "class" and "function"
 
 * Nathan Marrow
 
 * Taewon Kim : contributor
 
 * Daniil Kharkov: contributor
+
+* Tyler N. Thieding: contributor
+
+* Zeb Nicholls: contributor
+    - Made W9011 compatible with 'of' syntax in return types
+
+* Martin Vielsmaier: contributor
+
+* Agustin Toledo: contributor
+
+* Nicholas Smith: contributor
+
+* Peter Kolbus (Garmin): contributor
+
+* Oisin Moran: contributor
+
+* Andrzej Klajnert: contributor
+
+* Andrés Pérez Hortal: contributor
+
+* Niko Wenselowski: contributor
+
+* Danny Hermes: contributor
+
+* Eric Froemling: contributor
+
+* Robert Schweizer: contributor
+
+* Hugo van Kemenade: contributor
+
+* Mikhail Fesenko: contributor
+
+* Trevor Bekolay: contributor
+    - Added --list-msgs-enabled command
+
+* Rémi Cardona: contributor
+
+* Daniel Draper: contributor
+
+* Gabriel R. Sezefredo: contributor
+    - Fixed "exception-escape" false positive with generators
+
+* laike9m: contributor
+
+* Janne Rönkkö: contributor
+
+* Hugues Bruant: contributor
+
+* Tim Gates: contributor
+
+* Enji Cooper: contributor
+
+* Bastien Vallet: contributor
+
+* Pek Chhan: contributor
+
+* Craig Henriques: contributor
+
+* Matthijs Blom: contributor
+
+* Andy Palmer: contributor
+
+* Wes Turner (Google): added new check 'inconsistent-quotes'
+
+* Athos Ribeiro
+    Fixed dict-keys-not-iterating false positive for inverse containment checks
+
+* Anubhav: contributor

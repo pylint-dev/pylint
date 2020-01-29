@@ -1,3 +1,0 @@
-invalid-name:3::"Constant name ""SOME_CONSTANT"" doesn't conform to camelCase naming style ('(([a-z_][A-Za-z0-9]*)|(__.*__))$' pattern)"
-invalid-name:10:MyClass:"Class name ""MyClass"" doesn't conform to camelCase naming style ('[a-z_][a-zA-Z0-9]+$' pattern)"
-invalid-name:22:say_hello:"Function name ""say_hello"" doesn't conform to camelCase naming style ('(([a-z_][a-zA-Z0-9]{2,})|(__[a-z][a-zA-Z0-9_]+__))$' pattern)"

@@ -88,57 +88,26 @@ MSGS = {
     ),
 }
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
-DATACLASS_DECORATOR = "dataclass"
+DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
 TYPING_NAMEDTUPLE = "typing.NamedTuple"
 
 
-def _is_typing_namedtuple(node: astroid.ClassDef) -> bool:
-    """Check if a class node is a typing.NamedTuple class"""
-    for base in node.ancestors():
-        if base.qname() == TYPING_NAMEDTUPLE:
+def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
+    """Check if a class is exempt from too-few-public-methods"""
+
+    # If it's a typing.Namedtuple or an Enum
+    for ancestor in node.ancestors():
+        if ancestor.name == "Enum" and ancestor.root().name == "enum":
             return True
-    return False
+        if ancestor.qname() == TYPING_NAMEDTUPLE:
+            return True
 
-
-def _is_enum_class(node: astroid.ClassDef) -> bool:
-    """Check if a class definition defines an Enum class.
-
-    :param node: The class node to check.
-    :type node: astroid.ClassDef
-
-    :returns: True if the given node represents an Enum class. False otherwise.
-    :rtype: bool
-    """
-    for base in node.bases:
-        try:
-            inferred_bases = base.inferred()
-        except astroid.InferenceError:
-            continue
-
-        for ancestor in inferred_bases:
-            if not isinstance(ancestor, astroid.ClassDef):
-                continue
-
-            if ancestor.name == "Enum" and ancestor.root().name == "enum":
-                return True
-
-    return False
-
-
-def _is_dataclass(node: astroid.ClassDef) -> bool:
-    """Check if a class definition defines a Python 3.7+ dataclass
-
-    :param node: The class node to check.
-    :type node: astroid.ClassDef
-
-    :returns: True if the given node represents a dataclass class. False otherwise.
-    :rtype: bool
-    """
+    # Or if it's a dataclass
     if not node.decorators:
         return False
 
-    root_locals = node.root().locals
+    root_locals = set(node.root().locals)
     for decorator in node.decorators.nodes:
         if isinstance(decorator, astroid.Call):
             decorator = decorator.func
@@ -148,7 +117,10 @@ def _is_dataclass(node: astroid.ClassDef) -> bool:
             name = decorator.name
         else:
             name = decorator.attrname
-        if name == DATACLASS_DECORATOR and DATACLASS_DECORATOR in root_locals:
+        if name in DATACLASSES_DECORATORS and (
+            root_locals.intersection(DATACLASSES_DECORATORS)
+            or DATACLASS_IMPORT in root_locals
+        ):
             return True
     return False
 
@@ -358,12 +330,7 @@ class MisdesignChecker(BaseChecker):
 
         # Stop here for exception, metaclass, interface classes and other
         # classes for which we don't need to count the methods.
-        if (
-            node.type != "class"
-            or _is_enum_class(node)
-            or _is_dataclass(node)
-            or _is_typing_namedtuple(node)
-        ):
+        if node.type != "class" or _is_exempt_from_public_methods(node):
             return
 
         # Does the class contain more than n public methods ?

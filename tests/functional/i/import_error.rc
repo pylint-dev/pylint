@@ -1,0 +1,5 @@
+[Messages Control]
+disable=C,R,W
+
+[testoptions]
+except_implementations=PyPy

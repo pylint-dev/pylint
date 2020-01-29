@@ -18,15 +18,13 @@
 
 """Check source code is ascii only or has an encoding declaration (PEP 263)"""
 
-# pylint: disable=W0511
-
 import re
 import tokenize
 
 from pylint.checkers import BaseChecker
-from pylint.constants import OPTION_RGX
 from pylint.interfaces import IRawChecker, ITokenChecker
 from pylint.message import MessagesHandlerMixIn
+from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 
 class ByIdManagedMessagesChecker(BaseChecker):
@@ -80,14 +78,7 @@ class EncodingChecker(BaseChecker):
             "%s",
             "fixme",
             "Used when a warning note as FIXME or XXX is detected.",
-        ),
-        "W0512": (
-            'Cannot decode using encoding "%s", unexpected byte at position %d',
-            "invalid-encoded-data",
-            "Used when a source line cannot be decoded using the specified "
-            "source file encoding.",
-            {"maxversion": (3, 0)},
-        ),
+        )
     }
 
     options = (
@@ -114,11 +105,9 @@ class EncodingChecker(BaseChecker):
     def _check_encoding(self, lineno, line, file_encoding):
         try:
             return line.decode(file_encoding)
-        except UnicodeDecodeError as ex:
-            self.add_message(
-                "invalid-encoded-data", line=lineno, args=(file_encoding, ex.args[2])
-            )
-        except LookupError as ex:
+        except UnicodeDecodeError:
+            pass
+        except LookupError:
             if line.startswith("#") and "coding" in line and file_encoding in line:
                 self.add_message(
                     "syntax-error",
@@ -149,18 +138,28 @@ class EncodingChecker(BaseChecker):
             comment_text = comment.string[1:].lstrip()  # trim '#' and whitespaces
 
             # handle pylint disable clauses
-            disable_option_match = OPTION_RGX.search(comment_text)
+            disable_option_match = OPTION_PO.search(comment_text)
             if disable_option_match:
                 try:
-                    _, value = disable_option_match.group(1).split("=", 1)
-                    values = [_val.strip().upper() for _val in value.split(",")]
+                    values = []
+                    try:
+                        for pragma_repr in (
+                            p_rep
+                            for p_rep in parse_pragma(disable_option_match.group(2))
+                            if p_rep.action == "disable"
+                        ):
+                            values.extend(pragma_repr.messages)
+                    except PragmaParserError:
+                        # Printing usefull informations dealing with this error is done in lint.py
+                        pass
+                    values = [_val.upper() for _val in values]
                     if set(values) & set(self.config.notes):
                         continue
                 except ValueError:
                     self.add_message(
                         "bad-inline-option",
                         args=disable_option_match.group(1).strip(),
-                        line=comment.string,
+                        line=comment.start[0],
                     )
                     continue
 
