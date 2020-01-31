@@ -82,19 +82,13 @@ class DotBackend:
         :return: a path to the generated file
         """
         name = self.graphname
-        if not dotfile:
-            # if 'outputfile' is a dot file use it as 'dotfile'
-            if outputfile and outputfile.endswith(".dot"):
-                dotfile = outputfile
-            else:
-                dotfile = "%s.dot" % name
         if outputfile is not None:
-            storedir, _, target = target_info_from_filename(outputfile)
+            _, _, target = target_info_from_filename(outputfile)
             if target != "dot":
                 pdot, dot_sourcepath = tempfile.mkstemp(".dot", name)
                 os.close(pdot)
             else:
-                dot_sourcepath = osp.join(storedir, dotfile)
+                dot_sourcepath = outputfile
         else:
             target = "png"
             pdot, dot_sourcepath = tempfile.mkstemp(".dot", name)
