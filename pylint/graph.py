@@ -75,7 +75,6 @@ class DotBackend:
         """Generates a graph file.
 
         :param str outputfile: filename and path [defaults to graphname.png]
-        :param str dotfile: filename and path [defaults to graphname.dot]
         :param str mapfile: filename and path
 
         :rtype: str
