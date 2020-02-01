@@ -71,7 +71,7 @@ class DotBackend:
 
     source = property(get_source)
 
-    def generate(self, outputfile=None, dotfile=None, mapfile=None):
+    def generate(self, outputfile=None, mapfile=None):
         """Generates a graph file.
 
         :param str outputfile: filename and path [defaults to graphname.png]
