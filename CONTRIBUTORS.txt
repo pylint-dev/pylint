@@ -365,3 +365,5 @@ contributors:
     Fixed dict-keys-not-iterating false positive for inverse containment checks
 
 * Anubhav: contributor
+
+* Benny Müller: contributor
