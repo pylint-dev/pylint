@@ -181,6 +181,10 @@ Release date: TBA
 
   Close #1603
 
+* Emit ``unused-argument`` for functions that partially uses their argument list before raising an exception.
+
+  Close #3246
+
 * Fixed ``broad_try_clause`` extension to check try/finally statements and to
   check for nested statements (e.g., inside of an ``if`` statement).
 
