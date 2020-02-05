@@ -370,3 +370,4 @@ contributors:
 
 * Anthony Tan: contributor
 
+* Benny Müller: contributor
