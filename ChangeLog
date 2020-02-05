@@ -9,6 +9,8 @@ Release date: TBA
 
 * Add a command to list available extensions.
 
+* Fixed graph creation for relative paths
+
 * Add a check for asserts on string literals.
 
   Close #3284
@@ -180,6 +182,13 @@ Release date: TBA
   when using a metaclass via an attribute.
 
   Close #1603
+
+* Emit ``unused-argument`` for functions that partially uses their argument list before raising an exception.
+
+  Close #3246
+
+* Fixed ``broad_try_clause`` extension to check try/finally statements and to
+  check for nested statements (e.g., inside of an ``if`` statement).
 
 What's New in Pylint 2.4.4?
 ===========================

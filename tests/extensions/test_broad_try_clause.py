@@ -34,18 +34,36 @@ class BroadTryClauseTC(unittest.TestCase):
         cls._linter.disable("I")
 
     def test_broad_try_clause_message(self):
-        elif_test = osp.join(
+        broad_try_clause_test = osp.join(
             osp.dirname(osp.abspath(__file__)), "data", "broad_try_clause.py"
         )
-        self._linter.check([elif_test])
+        self._linter.check([broad_try_clause_test])
         msgs = self._linter.reporter.messages
-        self.assertEqual(len(msgs), 1)
+        self.assertEqual(len(msgs), 4)
 
         self.assertEqual(msgs[0].symbol, "too-many-try-statements")
         self.assertEqual(
-            msgs[0].msg, "try clause contains 2 statements, expected at most 1"
+            msgs[0].msg, "try clause contains 3 statements, expected at most 1"
         )
         self.assertEqual(msgs[0].line, 5)
+
+        self.assertEqual(msgs[1].symbol, "too-many-try-statements")
+        self.assertEqual(
+            msgs[1].msg, "try clause contains 3 statements, expected at most 1"
+        )
+        self.assertEqual(msgs[1].line, 12)
+
+        self.assertEqual(msgs[2].symbol, "too-many-try-statements")
+        self.assertEqual(
+            msgs[2].msg, "try clause contains 4 statements, expected at most 1"
+        )
+        self.assertEqual(msgs[2].line, 19)
+
+        self.assertEqual(msgs[3].symbol, "too-many-try-statements")
+        self.assertEqual(
+            msgs[3].msg, "try clause contains 7 statements, expected at most 1"
+        )
+        self.assertEqual(msgs[3].line, 29)
 
 
 if __name__ == "__main__":
