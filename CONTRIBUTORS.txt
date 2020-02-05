@@ -366,4 +366,8 @@ contributors:
 
 * Anubhav: contributor
 
+* Ben Graham: contributor
+
+* Anthony Tan: contributor
+
 * Benny Müller: contributor

@@ -6,6 +6,8 @@
 
 """Looks for try/except statements with too much code in the try clause."""
 
+from astroid.node_classes import For, If, While, With
+
 from pylint import checkers, interfaces
 
 
@@ -43,8 +45,17 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         ),
     )
 
+    def _count_statements(self, try_node):
+        statement_count = len(try_node.body)
+
+        for body_node in try_node.body:
+            if isinstance(body_node, (For, If, While, With)):
+                statement_count += self._count_statements(body_node)
+
+        return statement_count
+
     def visit_tryexcept(self, node):
-        try_clause_statements = len(node.body)
+        try_clause_statements = self._count_statements(node)
         if try_clause_statements > self.config.max_try_statements:
             msg = "try clause contains {0} statements, expected at most {1}".format(
                 try_clause_statements, self.config.max_try_statements
@@ -52,6 +63,9 @@ class BroadTryClauseChecker(checkers.BaseChecker):
             self.add_message(
                 "too-many-try-statements", node.lineno, node=node, args=msg
             )
+
+    def visit_tryfinally(self, node):
+        self.visit_tryexcept(node)
 
 
 def register(linter):
