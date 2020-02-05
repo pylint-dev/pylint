@@ -1865,7 +1865,6 @@ def cb_list_extensions(option, optname, value, parser):
     """List all the extensions under pylint.extensions"""
     for extension in extensions.extension_names:
         print(extension)
-        print(extensions.get_extension_documentation(extension))
     sys.exit(0)
 
 
