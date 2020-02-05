@@ -1,6 +1,6 @@
 import os
 
-EXTENSIONS_DIRECTORY = "pylint/extensions"
+EXTENSIONS_DIRECTORY = os.path.dirname(__file__)
 extension_names = [
     filename
     for filename in os.listdir(EXTENSIONS_DIRECTORY)
