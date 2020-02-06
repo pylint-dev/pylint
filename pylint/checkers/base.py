@@ -1553,6 +1553,10 @@ class BasicChecker(_BasicChecker):
                 )
 
     def _check_redeclared_assign_name(self, targets):
+        dummy_variables_rgx = lint_utils.get_global_option(
+            self, "dummy-variables-rgx", default=None
+        )
+
         for target in targets:
             if not isinstance(target, astroid.Tuple):
                 continue
@@ -1562,6 +1566,8 @@ class BasicChecker(_BasicChecker):
                 if isinstance(element, astroid.Tuple):
                     self._check_redeclared_assign_name([element])
                 elif isinstance(element, astroid.AssignName) and element.name != "_":
+                    if dummy_variables_rgx and dummy_variables_rgx.match(element.name):
+                        return
                     found_names.append(element.name)
 
             names = collections.Counter(found_names)

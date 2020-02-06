@@ -9,6 +9,10 @@ Release date: TBA
 
 * Add a command to list available extensions.
 
+* Add `dummy-variables-rgx` option for `_redeclared-assigned-name` check.
+
+  Close #3341
+
 * Fixed graph creation for relative paths
 
 * Add a check for asserts on string literals.
