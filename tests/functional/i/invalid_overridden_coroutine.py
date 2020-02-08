@@ -1,12 +1,12 @@
 # pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance
 
 
-class AsyncSuperClass(object):
+class AsyncSuperClass:
     async def async_func(self, arg):
         pass
 
 
-class SuperClass(object):
+class SuperClass:
     def func(self, arg):
         pass
 
