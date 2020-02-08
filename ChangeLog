@@ -7,6 +7,10 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* Add ``invalid-overridden-coroutine`` warning (W0237)
+
+  Close #3355
+
 * Add `dummy-variables-rgx` option for `_redeclared-assigned-name` check.
 
   Close #3341

@@ -572,6 +572,13 @@ MSGS = {
         "or the other way around, which could result in potential bugs at "
         "runtime.",
     ),
+    "W0237": (
+        "Method %r is a coroutine in %r, but not in %r",
+        "invalid-overridden-coroutine",
+        "Used when we detect that a method expected to be overridden "
+        "using async def or the other way around, which could result "
+        "potential bugs at runtime.",
+    ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
         "invalid-slots-object",
@@ -910,6 +917,7 @@ a metaclass class method.",
                 continue
             self._check_signature(node, parent_function, "overridden", klass)
             self._check_invalid_overridden_method(node, parent_function)
+            self._check_invalid_overridden_coroutine(node, parent_function)
             break
 
         if node.decorators:
@@ -1106,6 +1114,32 @@ a metaclass class method.",
             self.add_message(
                 "invalid-overridden-method",
                 args=(function_node.name, "method", "property"),
+                node=function_node,
+            )
+
+    def _check_invalid_overridden_coroutine(self, function_node, parent_function_node):
+        parent_is_async = isinstance(parent_function_node, astroid.AsyncFunctionDef)
+        current_is_async = isinstance(function_node, astroid.AsyncFunctionDef)
+
+        if parent_is_async and not current_is_async:
+            self.add_message(
+                "invalid-overridden-coroutine",
+                args=(
+                    function_node.name,
+                    parent_function_node.parent.name,
+                    function_node.parent.name,
+                ),
+                node=function_node,
+            )
+
+        elif not parent_is_async and current_is_async:
+            self.add_message(
+                "invalid-overridden-coroutine",
+                args=(
+                    function_node.name,
+                    function_node.parent.name,
+                    parent_function_node.parent.name,
+                ),
                 node=function_node,
             )
 

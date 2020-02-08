@@ -1,0 +1,2 @@
+invalid-overridden-coroutine:20:AsyncDerivedInvalid.async_func:Method 'async_func' is a coroutine in 'AsyncSuperClass', but not in 'AsyncDerivedInvalid'
+invalid-overridden-coroutine:30:DerivedInvalid.func:Method 'func' is a coroutine in 'DerivedInvalid', but not in 'SuperClass'

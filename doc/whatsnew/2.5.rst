@@ -13,6 +13,11 @@ Summary -- Release highlights
 New checkers
 ============
 
+* A new check ``invalid-overridden-coroutine`` was added.
+
+  This check is emitted when a parent class defines an async
+  function and a child overrides it with a non-async function or vice versa.
+
 * A new check ``assert-on-string-literal`` was added.
 
   This check is emitted whenever **pylint** finds an assert statement
