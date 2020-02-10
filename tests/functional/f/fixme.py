@@ -18,6 +18,15 @@ def function():
     #FIXME: no space after hash
     # +1: [fixme]
     #todo: no space after hash
+
+    # +1: [fixme]
+	# FIXME: this is broken
+    # +1: [fixme]
+    # ./TODO: find with notes
+	# +1: [fixme]
+    # TO make something DO: find with regex
+	# FIXME: this is broken (ISSUE-1234)
+
     #FIXME: in fact nothing to fix #pylint: disable=fixme
     #TODO: in fact nothing to do #pylint: disable=fixme
     #TODO: in fact nothing to do #pylint: disable=line-too-long, fixme
