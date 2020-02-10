@@ -94,12 +94,23 @@ class EncodingChecker(BaseChecker):
                 ),
             },
         ),
+        (
+            "notes-rgx",
+            {
+                "type": "string",
+                "metavar": "<regexp>",
+                "default": ("a^"),
+                "help": "Regular expression of note tags to take in consideration.",
+            },
+        ),
     )
 
     def open(self):
         super().open()
+
+        notes = "|".join(map(re.escape, self.config.notes))
         self._fixme_pattern = re.compile(
-            r"#\s*(%s)\b" % "|".join(map(re.escape, self.config.notes)), re.I
+            r"#\s*(%s|%s)\b" % (notes, self.config.notes_rgx), re.I
         )
 
     def _check_encoding(self, lineno, line, file_encoding):
