@@ -7,6 +7,15 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* Do not allow ``python -m pylint ...`` to import user code
+
+  ``python -m pylint ...`` adds the current working directory as the first element
+  of ``sys.path``. This opens up a potential security hole where ``pylint`` will import
+  user level code as long as that code resides in modules having the same name as stdlib
+  or pylint's own modules.
+
+  Close #3386
+
 * Add `dummy-variables-rgx` option for `_redeclared-assigned-name` check.
 
   Close #3341
