@@ -324,6 +324,7 @@ class LoggingChecker(checkers.BaseChecker):
                         node=node,
                         args=self._format_style_args,
                     )
+                    return
             except utils.UnsupportedFormatCharacter as ex:
                 char = format_string[ex.index]
                 self.add_message(
