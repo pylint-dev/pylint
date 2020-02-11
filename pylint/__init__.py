@@ -10,14 +10,13 @@
 import sys
 
 from pylint.__pkginfo__ import version as __version__
-from pylint.checkers.similar import Run as SimilarRun
-from pylint.epylint import Run as EpylintRun
-from pylint.lint import Run as PylintRun
-from pylint.pyreverse.main import Run as PyreverseRun
+
+# pylint: disable=import-outside-toplevel
 
 
 def run_pylint():
     """run pylint"""
+    from pylint.lint import Run as PylintRun
 
     try:
         PylintRun(sys.argv[1:])
@@ -27,17 +26,20 @@ def run_pylint():
 
 def run_epylint():
     """run pylint"""
+    from pylint.epylint import Run as EpylintRun
 
     EpylintRun()
 
 
 def run_pyreverse():
     """run pyreverse"""
+    from pylint.pyreverse.main import Run as PyreverseRun
 
     PyreverseRun(sys.argv[1:])
 
 
 def run_symilar():
     """run symilar"""
+    from pylint.checkers.similar import Run as SimilarRun
 
     SimilarRun(sys.argv[1:])
