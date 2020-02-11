@@ -148,7 +148,7 @@ class TestLoggingModuleDetection(CheckerTestCase):
     def test_modulo_not_fstr_format_style_matching_arguments(self):
         msg = "logging-format-interpolation"
         args = ("f-string", "")
-        with_too_many = True
+        with_too_many = False
         self._assert_logging_format_message(msg, "('%s', 1)", args, with_too_many)
         self._assert_logging_format_message(
             msg, "('%(named)s', {'named': 1})", args, with_too_many
@@ -161,7 +161,7 @@ class TestLoggingModuleDetection(CheckerTestCase):
     def test_brace_not_fstr_format_style_matching_arguments(self):
         msg = "logging-format-interpolation"
         args = ("f-string", "")
-        with_too_many = True
+        with_too_many = False
         self._assert_logging_format_message(msg, "('{}', 1)", args, with_too_many)
         self._assert_logging_format_message(msg, "('{0}', 1)", args, with_too_many)
         self._assert_logging_format_message(
