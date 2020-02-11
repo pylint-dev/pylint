@@ -103,8 +103,6 @@ logging-modules=logging
 # List of note tags to take in consideration, separated by a comma.
 notes=FIXME,XXX,TODO
 
-# Regular expression of note tags to take in consideration.
-notes-rgx=a^
 
 [SIMILARITIES]
 

@@ -99,7 +99,6 @@ class EncodingChecker(BaseChecker):
             {
                 "type": "string",
                 "metavar": "<regexp>",
-                "default": ("a^"),
                 "help": "Regular expression of note tags to take in consideration.",
             },
         ),
@@ -109,9 +108,12 @@ class EncodingChecker(BaseChecker):
         super().open()
 
         notes = "|".join(map(re.escape, self.config.notes))
-        self._fixme_pattern = re.compile(
-            r"#\s*(%s|%s)\b" % (notes, self.config.notes_rgx), re.I
-        )
+        if self.config.notes_rgx:
+            regex_string = r"#\s*(%s|%s)\b" % (notes, self.config.notes_rgx)
+        else:
+            regex_string = r"#\s*(%s)\b" % (notes)
+
+        self._fixme_pattern = re.compile(regex_string, re.I)
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
