@@ -1,4 +1,4 @@
-#pylint: disable=missing-docstring, undefined-variable, invalid-name, too-few-public-methods
+#pylint: disable=missing-docstring, undefined-variable, invalid-name, too-few-public-methods, wrong-import-position
 
 # Positive test cases
 class A:
@@ -13,8 +13,10 @@ isinstance(A(), B)
 isinstance(-9999, int)
 isinstance(True and False, bool)
 isinstance("a 'string'", float)
-isinstance(3.123213, set)
-isinstance(foo, (int, str))
+import collections
+
+isinstance(3.123213, collections.OrderedDict)
+isinstance(foo, (int, collections.Counter))
 isinstance("a string", ((int, bool), (float, set), str))
 
 # Negative test cases

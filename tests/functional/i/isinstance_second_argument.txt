@@ -1,4 +1,4 @@
-isinstance-second-argument-not-valid-type:21::Second argument of isinstance is not a type
 isinstance-second-argument-not-valid-type:22::Second argument of isinstance is not a type
 isinstance-second-argument-not-valid-type:23::Second argument of isinstance is not a type
 isinstance-second-argument-not-valid-type:24::Second argument of isinstance is not a type
+isinstance-second-argument-not-valid-type:25::Second argument of isinstance is not a type
