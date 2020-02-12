@@ -1184,7 +1184,7 @@ accessed. Python regular expressions are accepted.",
                 return is_type(utils.safe_infer(args))
             elif isinstance(args, astroid.Tuple):
                 return all([is_type(elt) for elt in args.elts])
-            elif args is None:
+            elif args is None or (args == astroid.Uninferable):
                 # We cannot infer the type of the argument
                 return True
 
