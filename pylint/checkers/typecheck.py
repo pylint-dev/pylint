@@ -1184,6 +1184,9 @@ accessed. Python regular expressions are accepted.",
                 return is_type(utils.safe_infer(args))
             elif isinstance(args, astroid.Tuple):
                 return all([is_type(elt) for elt in args.elts])
+            elif args is None:
+                # We cannot infer the type of the argument
+                return True
 
         second_arg = node.args[1]
         if not is_type(second_arg):

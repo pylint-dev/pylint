@@ -1,0 +1,1 @@
+isinstance-second-argument-not-valid-type:18::Second argument of isinstance is not a type
