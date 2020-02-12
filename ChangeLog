@@ -7,6 +7,11 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* Add a check for cases where the second argument to `isinstance`
+  is not a type.
+
+	Close #3308
+
 * Emit ``invalid-overridden-method`` for improper async def overrides.
 
   Close #3355

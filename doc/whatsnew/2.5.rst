@@ -13,6 +13,12 @@ Summary -- Release highlights
 New checkers
 ============
 
+* A new check ``isinstance-second-argument-not-valid-type``` was added.
+
+  This check is emitted whenver **pylint** finds a call to the `isinstance`
+  function with a second argument that is not a type. Such code is likely
+  unintended as it will cause a TypeError to be thrown at runtime error.
+
 * A new check ``assert-on-string-literal`` was added.
 
   This check is emitted whenever **pylint** finds an assert statement
