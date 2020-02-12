@@ -1177,24 +1177,17 @@ accessed. Python regular expressions are accepted.",
             # isinstance called with wrong number of args
             return
 
-        def is_type(args):
-            if isinstance(args, astroid.ClassDef):
+        def is_not_type(arg):
+            # Return True if we are sure that arg is not a type
+            if isinstance(utils.safe_infer(arg), astroid.FunctionDef):
                 return True
-            if isinstance(args, astroid.Call):
-                # Check if the argument is an application of the type function
-                return args.func.name == "type"
-            if isinstance(args, (astroid.Name, astroid.Attribute)):
-                return is_type(utils.safe_infer(args))
-            if isinstance(args, astroid.Tuple):
-                return all([is_type(elt) for elt in args.elts])
-            if args is None or (args == astroid.Uninferable):
-                # We cannot infer the type of the argument
-                return True
+            if isinstance(arg, astroid.Tuple):
+                return any([is_not_type(elt) for elt in arg.elts])
 
             return False
 
         second_arg = node.args[1]
-        if not is_type(second_arg):
+        if is_not_type(second_arg):
             self.add_message("isinstance-second-argument-not-valid-type", node=node)
 
     # pylint: disable=too-many-branches,too-many-locals
