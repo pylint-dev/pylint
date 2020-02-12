@@ -165,7 +165,7 @@ def fake_path():
 
 def test_no_args(fake_path):
     with lint.fix_import_path([]):
-        assert sys.path == ["."] + fake_path
+        assert sys.path == fake_path
     assert sys.path == fake_path
 
 
@@ -175,7 +175,7 @@ def test_no_args(fake_path):
 def test_one_arg(fake_path, case):
     with tempdir() as chroot:
         create_files(["a/b/__init__.py"])
-        expected = [join(chroot, "a")] + ["."] + fake_path
+        expected = [join(chroot, "a")] + fake_path
 
         assert sys.path == fake_path
         with lint.fix_import_path(case):
@@ -195,7 +195,7 @@ def test_one_arg(fake_path, case):
 def test_two_similar_args(fake_path, case):
     with tempdir() as chroot:
         create_files(["a/b/__init__.py", "a/c/__init__.py"])
-        expected = [join(chroot, "a")] + ["."] + fake_path
+        expected = [join(chroot, "a")] + fake_path
 
         assert sys.path == fake_path
         with lint.fix_import_path(case):
@@ -214,14 +214,10 @@ def test_two_similar_args(fake_path, case):
 def test_more_args(fake_path, case):
     with tempdir() as chroot:
         create_files(["a/b/c/__init__.py", "a/d/__init__.py", "a/e/f.py"])
-        expected = (
-            [
-                join(chroot, suffix)
-                for suffix in [sep.join(("a", "b")), "a", sep.join(("a", "e"))]
-            ]
-            + ["."]
-            + fake_path
-        )
+        expected = [
+            join(chroot, suffix)
+            for suffix in [sep.join(("a", "b")), "a", sep.join(("a", "e"))]
+        ] + fake_path
 
         assert sys.path == fake_path
         with lint.fix_import_path(case):
