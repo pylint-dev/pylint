@@ -9,27 +9,44 @@ class SuperClass(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def method(self):
+    async def async_method(self):
         pass
 
+    @abc.abstractmethod
+    def method_a(self):
+        pass
 
-class Prop(SuperClass):
+    @abc.abstractmethod
+    def method_b(self):
+        pass
+
+class ValidDerived(SuperClass):
     @property
     def prop(self):
         return None
 
-    def method(self):
+    async def async_method(self):
+        return None
+
+    def method_a(self):
         pass
 
+    def method_b(self):
+        pass
 
-class NoProp(SuperClass):
+class InvalidDerived(SuperClass):
     def prop(self):  # [invalid-overridden-method]
         return None
 
-    @property
-    def method(self): # [invalid-overridden-method]
+    def async_method(self): # [invalid-overridden-method]
         return None
 
+    @property
+    def method_a(self): # [invalid-overridden-method]
+        return None
+
+    async def method_b(self): # [invalid-overridden-method]
+        return None
 
 class Property:
 

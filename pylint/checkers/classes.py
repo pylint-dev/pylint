@@ -568,9 +568,9 @@ MSGS = {
     "W0236": (
         "Method %r was expected to be %r, found it instead as %r",
         "invalid-overridden-method",
-        "Used when we detect that a method was overridden as a property "
-        "or the other way around, which could result in potential bugs at "
-        "runtime.",
+        "Used when we detect that a method was overridden in a way "
+        "that does not match its base class "
+        "which could result in potential bugs at runtime.",
     ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
@@ -1106,6 +1106,23 @@ a metaclass class method.",
             self.add_message(
                 "invalid-overridden-method",
                 args=(function_node.name, "method", "property"),
+                node=function_node,
+            )
+
+        parent_is_async = isinstance(parent_function_node, astroid.AsyncFunctionDef)
+        current_is_async = isinstance(function_node, astroid.AsyncFunctionDef)
+
+        if parent_is_async and not current_is_async:
+            self.add_message(
+                "invalid-overridden-method",
+                args=(function_node.name, "async", "non-async",),
+                node=function_node,
+            )
+
+        elif not parent_is_async and current_is_async:
+            self.add_message(
+                "invalid-overridden-method",
+                args=(function_node.name, "non-async", "async",),
                 node=function_node,
             )
 

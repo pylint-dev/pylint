@@ -9,6 +9,10 @@ Release date: TBA
 
 * Add a command to list available extensions.
 
+* Emit ``invalid-overridden-method`` for improper async def overrides.
+
+  Close #3355
+
 * Do not allow ``python -m pylint ...`` to import user code
 
   ``python -m pylint ...`` adds the current working directory as the first element
