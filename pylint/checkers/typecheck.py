@@ -1180,13 +1180,18 @@ accessed. Python regular expressions are accepted.",
         def is_type(args):
             if isinstance(args, astroid.ClassDef):
                 return True
-            elif isinstance(args, (astroid.Name, astroid.Attribute)):
+            if isinstance(args, astroid.Call):
+                # Check if the argument is an application of the type function
+                return args.func.name == "type"
+            if isinstance(args, (astroid.Name, astroid.Attribute)):
                 return is_type(utils.safe_infer(args))
-            elif isinstance(args, astroid.Tuple):
+            if isinstance(args, astroid.Tuple):
                 return all([is_type(elt) for elt in args.elts])
-            elif args is None or (args == astroid.Uninferable):
+            if args is None or (args == astroid.Uninferable):
                 # We cannot infer the type of the argument
                 return True
+
+            return False
 
         second_arg = node.args[1]
         if not is_type(second_arg):
