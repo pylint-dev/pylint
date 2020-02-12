@@ -11,6 +11,15 @@ Release date: TBA
 
   Close #3355
 
+* Do not allow ``python -m pylint ...`` to import user code
+
+  ``python -m pylint ...`` adds the current working directory as the first element
+  of ``sys.path``. This opens up a potential security hole where ``pylint`` will import
+  user level code as long as that code resides in modules having the same name as stdlib
+  or pylint's own modules.
+
+  Close #3386
+
 * Add `dummy-variables-rgx` option for `_redeclared-assigned-name` check.
 
   Close #3341
@@ -20,8 +29,6 @@ Release date: TBA
 * Add a check for asserts on string literals.
 
   Close #3284
-
-* Clean up plugin HOWTO documentation.
 
 * `not in` is considered iterating context for some of the Python 3 porting checkers.
 
@@ -128,7 +135,6 @@ Release date: TBA
 
 * ``inspect.getargvalues`` is no longer marked as deprecated.
 
-
 * A new check ``f-string-without-interpolation`` was added
 
   Close #3190
@@ -138,14 +144,14 @@ Release date: TBA
   Close #3183
 
 * ``docparams`` extension supports multiple types in raises sections.
+
   Multiple types can also be separated by commas in all valid sections.
 
   Closes #2729
 
 * Allow parallel linting when run under Prospector
 
-* Fixed false positives of ``method-hidden`` when a subclass defines
-  the method that is being hidden.
+* Fixed false positives of ``method-hidden`` when a subclass defines the method that is being hidden.
 
   Closes #414
 
@@ -154,10 +160,6 @@ Release date: TBA
 * Python 3 porting mode no longer swallows syntax errors
 
   Closes #2956
-
-* Fixes a typo in tests/functional/t/ternary.py
-
-  Closes #3237
 
 * Pass the actual PyLinter object to sub processes to allow using custom
   PyLinter classes.
@@ -175,12 +177,6 @@ Release date: TBA
 
   Pylint no longer outputs a traceback, if a file, read from stdin,
   contains a syntaxerror.
-
-* Clean up .travis.yml
-
-  Use up to date version of python interpreters
-
-* Use new release of black 19.10b0 for formating
 
 * Fix uppercase style to disallow 3+ uppercase followed by lowercase.
 
