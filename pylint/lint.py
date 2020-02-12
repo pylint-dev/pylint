@@ -1475,11 +1475,15 @@ def fix_import_path(args):
     """
     orig = list(sys.path)
     changes = []
+    seen = set()
+    cwd = os.getcwd()
     for arg in args:
         path = _get_python_path(arg)
-        if path not in changes:
+        if path not in seen and path != cwd:
             changes.append(path)
-    sys.path[:] = changes + ["."] + sys.path
+            seen.add(path)
+
+    sys.path[:] = changes + sys.path
     try:
         yield
     finally:
