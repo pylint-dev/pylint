@@ -1017,7 +1017,7 @@ class BasicChecker(_BasicChecker):
             "intended to do.",
         ),
         "W0129": (
-            "Assert statement has a string literal as its first argument. The assert will never fail.",
+            "Assert statement has a string literal as its first argument. The assert will %s fail.",
             "assert-on-string-literal",
             "Used when an assert statement has a string literal as its first argument, which will "
             "cause the assert to always pass.",
@@ -1394,7 +1394,11 @@ class BasicChecker(_BasicChecker):
             self.add_message("assert-on-tuple", node=node)
 
         if isinstance(node.test, astroid.Const) and isinstance(node.test.value, str):
-            self.add_message("assert-on-string-literal", node=node)
+            if node.test.value:
+                when = "never"
+            else:
+                when = "always"
+            self.add_message("assert-on-string-literal", node=node, args=(when,))
 
     @utils.check_messages("duplicate-key")
     def visit_dict(self, node):
