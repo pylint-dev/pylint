@@ -12,6 +12,10 @@ Release date: TBA
 
 	Close #3308
 
+* Add 'notes-rgx' option, to be used for fixme check.
+
+  Close #2874
+
 * Emit ``invalid-overridden-method`` for improper async def overrides.
 
   Close #3355

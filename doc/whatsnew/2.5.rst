@@ -88,3 +88,5 @@ separated list of regexes, that if a name matches will be always marked as a bla
 * Add new --fail-under flag for setting the threshold for the score to fail overall tests. If the score is over the fail-under threshold, pylint will complete SystemExit with value 0 to indicate no errors.
 
 * Add a new check (non-str-assignment-to-dunder-name) to ensure that only strings are assigned to ``__name__`` attributes
+
+* Add a new option ``notes-rgx`` to make fixme warnings more flexible. Now either ``notes`` or ``notes-rgx`` option can be used to detect fixme warnings. 
