@@ -7,10 +7,9 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
-* Add a check for cases where the second argument to `isinstance`
-  is not a type.
+* Add a check for cases where the second argument to `isinstance` is not a type.
 
-	Close #3308
+  Close #3308
 
 * Add 'notes-rgx' option, to be used for fixme check.
 
