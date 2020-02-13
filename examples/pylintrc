@@ -468,6 +468,8 @@ notes=FIXME,
       XXX,
       TODO
 
+# Regular expressio of note tags to take in consideration.
+notes-rgx=a^
 
 [STRING]
 
