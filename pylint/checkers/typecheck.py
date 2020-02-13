@@ -678,6 +678,19 @@ def _is_c_extension(module_node):
     )
 
 
+def _is_invalid_isinstance_type(arg):
+    # Return True if we are sure that arg is not a type
+    inferred = utils.safe_infer(arg)
+    if not inferred:
+        # Cannot infer it so skip it.
+        return False
+    if isinstance(inferred, astroid.Tuple):
+        return any(_is_invalid_isinstance_type(elt) for elt in inferred.elts)
+    if isinstance(inferred, astroid.ClassDef):
+        return False
+    return True
+
+
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
     """
@@ -1177,17 +1190,8 @@ accessed. Python regular expressions are accepted.",
             # isinstance called with wrong number of args
             return
 
-        def is_not_type(arg):
-            # Return True if we are sure that arg is not a type
-            if isinstance(utils.safe_infer(arg), astroid.FunctionDef):
-                return True
-            if isinstance(arg, astroid.Tuple):
-                return any([is_not_type(elt) for elt in arg.elts])
-
-            return False
-
         second_arg = node.args[1]
-        if is_not_type(second_arg):
+        if _is_invalid_isinstance_type(second_arg):
             self.add_message("isinstance-second-argument-not-valid-type", node=node)
 
     # pylint: disable=too-many-branches,too-many-locals
