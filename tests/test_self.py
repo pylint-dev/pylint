@@ -664,3 +664,35 @@ class TestRunTC(object):
             ],
             code=0,
         )
+
+    def test_do_not_import_files_from_local_directory(self, tmpdir):
+        p_astroid = tmpdir / "astroid.py"
+        p_astroid.write("'Docstring'\nimport completely_unknown\n")
+        p_hmac = tmpdir / "hmac.py"
+        p_hmac.write("'Docstring'\nimport completely_unknown\n")
+
+        with tmpdir.as_cwd():
+            subprocess.check_output(
+                [
+                    sys.executable,
+                    "-m",
+                    "pylint",
+                    "astroid.py",
+                    "--disable=import-error,unused-import",
+                ],
+                cwd=str(tmpdir),
+            )
+
+        # Test with multiple jobs
+        with tmpdir.as_cwd():
+            subprocess.call(
+                [
+                    sys.executable,
+                    "-m",
+                    "pylint",
+                    "-j2",
+                    "hmac.py",
+                    "--disable=import-error,unused-import",
+                ],
+                cwd=str(tmpdir),
+            )
