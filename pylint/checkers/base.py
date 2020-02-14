@@ -87,47 +87,47 @@ class NamingStyle:
 class SnakeCaseStyle(NamingStyle):
     """Regex rules for snake_case naming style."""
 
-    CLASS_NAME_RGX = re.compile("[a-z_][a-z0-9_]+$")
-    MOD_NAME_RGX = re.compile("[a-z_][a-z0-9_]*$")
-    CONST_NAME_RGX = re.compile("([a-z_][a-z0-9_]*|__.*__)$")
-    COMP_VAR_RGX = re.compile("[a-z_][a-z0-9_]*$")
+    CLASS_NAME_RGX = re.compile("[^\W\dA-Z][^\WA-Z]+$")
+    MOD_NAME_RGX = re.compile("[^\W\dA-Z][^\WA-Z]*$")
+    CONST_NAME_RGX = re.compile("([^\W\dA-Z][^\WA-Z]*|__.*__)$")
+    COMP_VAR_RGX = re.compile("[^\W\dA-Z][^\WA-Z]*$")
     DEFAULT_NAME_RGX = re.compile(
-        "([a-z_][a-z0-9_]{2,}|_[a-z0-9_]*|__[a-z][a-z0-9_]+__)$"
+        "([^\W\dA-Z][^\WA-Z]{2,}|_[^\WA-Z]*|__[^\WA-Z\d_][^\WA-Z]+__)$"
     )
-    CLASS_ATTRIBUTE_RGX = re.compile(r"([a-z_][a-z0-9_]{2,}|__.*__)$")
+    CLASS_ATTRIBUTE_RGX = re.compile("([^\W\dA-Z][^\WA-Z]{2,}|__.*__)$")
 
 
 class CamelCaseStyle(NamingStyle):
     """Regex rules for camelCase naming style."""
 
-    CLASS_NAME_RGX = re.compile("[a-z_][a-zA-Z0-9]+$")
-    MOD_NAME_RGX = re.compile("[a-z_][a-zA-Z0-9]*$")
-    CONST_NAME_RGX = re.compile("([a-z_][A-Za-z0-9]*|__.*__)$")
-    COMP_VAR_RGX = re.compile("[a-z_][A-Za-z0-9]*$")
-    DEFAULT_NAME_RGX = re.compile("([a-z_][a-zA-Z0-9]{2,}|__[a-z][a-zA-Z0-9_]+__)$")
-    CLASS_ATTRIBUTE_RGX = re.compile(r"([a-z_][A-Za-z0-9]{2,}|__.*__)$")
+    CLASS_NAME_RGX = re.compile("[^\W\dA-Z][^\W_]+$")
+    MOD_NAME_RGX = re.compile("[^\W\dA-Z][^\W_]*$")
+    CONST_NAME_RGX = re.compile("([^\W\dA-Z][^\W_]*|__.*__)$")
+    COMP_VAR_RGX = re.compile("[^\W\dA-Z][^\W_]*$")
+    DEFAULT_NAME_RGX = re.compile("([^\W\dA-Z][^\W_]{2,}|__[^\W\dA-Z_]\w+__)$")
+    CLASS_ATTRIBUTE_RGX = re.compile("([^\W\dA-Z][^\W_]{2,}|__.*__)$")
 
 
 class PascalCaseStyle(NamingStyle):
     """Regex rules for PascalCase naming style."""
 
-    CLASS_NAME_RGX = re.compile("[A-Z_][a-zA-Z0-9]+$")
-    MOD_NAME_RGX = re.compile("[A-Z_][a-zA-Z0-9]+$")
-    CONST_NAME_RGX = re.compile("([A-Z_][A-Za-z0-9]*|__.*__)$")
-    COMP_VAR_RGX = re.compile("[A-Z_][a-zA-Z0-9]+$")
-    DEFAULT_NAME_RGX = re.compile("([A-Z_][a-zA-Z0-9]{2,}|__[a-z][a-zA-Z0-9_]+__)$")
-    CLASS_ATTRIBUTE_RGX = re.compile("[A-Z_][a-zA-Z0-9]{2,}$")
+    CLASS_NAME_RGX = re.compile("[^\W\da-z][^\W_]+$")
+    MOD_NAME_RGX = re.compile("[^\W\da-z][^\W_]+$")
+    CONST_NAME_RGX = re.compile("([^\W\da-z][^\W_]*|__.*__)$")
+    COMP_VAR_RGX = re.compile("[^\W\da-z][^\W_]+$")
+    DEFAULT_NAME_RGX = re.compile("([^\W\da-z][^\W_]{2,}|__[^\W\dA-Z_]\w+__)$")
+    CLASS_ATTRIBUTE_RGX = re.compile("[^\W\da-z][^\W_]{2,}$")
 
 
 class UpperCaseStyle(NamingStyle):
     """Regex rules for UPPER_CASE naming style."""
 
-    CLASS_NAME_RGX = re.compile("[A-Z_][A-Z0-9_]+$")
-    MOD_NAME_RGX = re.compile("[A-Z_][A-Z0-9_]+$")
-    CONST_NAME_RGX = re.compile("([A-Z_][A-Z0-9_]*|__.*__)$")
-    COMP_VAR_RGX = re.compile("[A-Z_][A-Z0-9_]+$")
-    DEFAULT_NAME_RGX = re.compile("([A-Z_][A-Z0-9_]{2,}|__[a-z][a-zA-Z0-9_]+__)$")
-    CLASS_ATTRIBUTE_RGX = re.compile("[A-Z_][A-Z0-9_]{2,}$")
+    CLASS_NAME_RGX = re.compile("[^\W\da-z][^\Wa-z]+$")
+    MOD_NAME_RGX = re.compile("[^\W\da-z][^\Wa-z]+$")
+    CONST_NAME_RGX = re.compile("([^\W\da-z][^\Wa-z]*|__.*__)$")
+    COMP_VAR_RGX = re.compile("[^\W\da-z][^\Wa-z]+$")
+    DEFAULT_NAME_RGX = re.compile("([^\W\da-z][^\Wa-z]{2,}|__[^\W\dA-Z_]\w+__)$")
+    CLASS_ATTRIBUTE_RGX = re.compile("[^\W\da-z][^\Wa-z]{2,}$")
 
 
 class AnyStyle(NamingStyle):
