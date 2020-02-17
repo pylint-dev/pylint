@@ -1680,6 +1680,11 @@ class NameChecker(_BasicChecker):
             "Used when the name doesn't conform to naming rules "
             "associated to its type (constant, variable, class...).",
         ),
+        "CXXXX": (
+            '%s name "%s" contains a non-ASCII unicode character',
+            "non-ascii-name",
+            "Used when the name contains at least one non-ASCII unciode character.",
+        ),
         "W0111": (
             "Name %s will become a keyword in Python %s",
             "assign-to-new-keyword",
@@ -1826,7 +1831,7 @@ class NameChecker(_BasicChecker):
 
         return regexps, hints
 
-    @utils.check_messages("blacklisted-name", "invalid-name")
+    @utils.check_messages("blacklisted-name", "invalid-name", "non-ascii-name")
     def visit_module(self, node):
         self._check_name("module", node.name.split(".")[-1], node)
         self._bad_names = {}
@@ -1851,7 +1856,9 @@ class NameChecker(_BasicChecker):
             for args in warnings:
                 self._raise_name_warning(*args)
 
-    @utils.check_messages("blacklisted-name", "invalid-name", "assign-to-new-keyword")
+    @utils.check_messages(
+        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+    )
     def visit_classdef(self, node):
         self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name("class", node.name, node)
@@ -1859,7 +1866,9 @@ class NameChecker(_BasicChecker):
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
-    @utils.check_messages("blacklisted-name", "invalid-name", "assign-to-new-keyword")
+    @utils.check_messages(
+        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+    )
     def visit_functiondef(self, node):
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
@@ -1887,12 +1896,14 @@ class NameChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @utils.check_messages("blacklisted-name", "invalid-name")
+    @utils.check_messages("blacklisted-name", "invalid-name", "non-ascii-name")
     def visit_global(self, node):
         for name in node.names:
             self._check_name("const", name, node)
 
-    @utils.check_messages("blacklisted-name", "invalid-name", "assign-to-new-keyword")
+    @utils.check_messages(
+        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+    )
     def visit_assignname(self, node):
         """check module level assigned names"""
         self._check_assign_to_new_keyword_violation(node.name, node)
