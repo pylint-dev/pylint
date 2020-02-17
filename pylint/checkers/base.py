@@ -1833,7 +1833,6 @@ class NameChecker(_BasicChecker):
 
     @utils.check_messages("blacklisted-name", "invalid-name", "non-ascii-name")
     def visit_module(self, node):
-        self._check_non_ascii_name("module", node.name.split(".")[-1], node)
         self._check_name("module", node.name.split(".")[-1], node)
         self._bad_names = {}
 
@@ -1862,7 +1861,6 @@ class NameChecker(_BasicChecker):
     )
     def visit_classdef(self, node):
         self._check_assign_to_new_keyword_violation(node.name, node)
-        self._check_non_ascii_name("class", node.name, node)
         self._check_name("class", node.name, node)
         for attr, anodes in node.instance_attrs.items():
             if not any(node.instance_attr_ancestors(attr)):
@@ -1875,7 +1873,6 @@ class NameChecker(_BasicChecker):
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
         self._check_assign_to_new_keyword_violation(node.name, node)
-        self._check_non_ascii_name("function", node.name, node)
         confidence = interfaces.HIGH
         if node.is_method():
             if utils.overrides_a_method(node.parent.frame(), node.name):
@@ -1903,7 +1900,6 @@ class NameChecker(_BasicChecker):
     def visit_global(self, node):
         for name in node.names:
             self._check_name("const", name, node)
-            self._check_non_ascii_name("const", name, node)
 
     @utils.check_messages(
         "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
@@ -1915,32 +1911,26 @@ class NameChecker(_BasicChecker):
         assign_type = node.assign_type()
         if isinstance(assign_type, astroid.Comprehension):
             self._check_name("inlinevar", node.name, node)
-            self._check_non_ascii_name("inlinevar", node.name, node)
         elif isinstance(frame, astroid.Module):
             if isinstance(assign_type, astroid.Assign) and not in_loop(assign_type):
                 if isinstance(utils.safe_infer(assign_type.value), astroid.ClassDef):
                     self._check_name("class", node.name, node)
-                    self._check_non_ascii_name("class", node.name, node)
                 # Don't emit if the name redefines an import
                 # in an ImportError except handler.
                 elif not _redefines_import(node) and isinstance(
                     utils.safe_infer(assign_type.value), astroid.Const
                 ):
                     self._check_name("const", node.name, node)
-                    self._check_non_ascii_name("const", node.name, node)
             elif isinstance(assign_type, astroid.ExceptHandler):
                 self._check_name("variable", node.name, node)
-                self._check_non_ascii_name("variable", node.name, node)
         elif isinstance(frame, astroid.FunctionDef):
             # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
                 if not _redefines_import(node):
                     self._check_name("variable", node.name, node)
-                    self._check_non_ascii_name("variable", node.name, node)
         elif isinstance(frame, astroid.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
                 self._check_name("class_attribute", node.name, node)
-                self._check_non_ascii_name("class_attribute", node.name, node)
 
     def _recursive_check_names(self, args, node):
         """check names in a possibly recursive list <arg>"""
@@ -1953,14 +1943,20 @@ class NameChecker(_BasicChecker):
     def _find_name_group(self, node_type):
         return self._name_group.get(node_type, node_type)
 
-    def _raise_name_warning(self, node, node_type, name, confidence):
+    def _raise_name_warning(
+        self, node, node_type, name, confidence, warning="invalid-name"
+    ):
         type_label = HUMAN_READABLE_TYPES[node_type]
         hint = self._name_hints[node_type]
         if self.config.include_naming_hint:
             hint += " (%r pattern)" % self._name_regexps[node_type].pattern
-        args = (type_label.capitalize(), name, hint)
+        args = (
+            (type_label.capitalize(), name, hint)
+            if warning == "invalid-name"
+            else (type_label.capitalize(), name)
+        )
 
-        self.add_message("invalid-name", node=node, args=args, confidence=confidence)
+        self.add_message(warning, node=node, args=args, confidence=confidence)
         self.stats["badname_" + node_type] += 1
 
     def _name_valid_due_to_whitelist(self, name: str) -> bool:
@@ -1975,6 +1971,14 @@ class NameChecker(_BasicChecker):
 
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
+
+        non_ascii_regexp = re.compile("[^\u0000-\u007F]")
+        non_ascii_match = non_ascii_regexp.match(name)
+
+        if non_ascii_match is not None:
+            self._raise_name_warning(
+                node, node_type, name, confidence, warning="non-ascii-name"
+            )
 
         def _should_exempt_from_invalid_name(node):
             if node_type == "variable":
@@ -2023,18 +2027,6 @@ class NameChecker(_BasicChecker):
             if name in keywords and sys.version_info < version:
                 return ".".join(map(str, version))
         return None
-
-    def _check_non_ascii_name(self, node_type, name, node):
-        regexp = re.compile("[^\u0000-\u007F]")
-        match = regexp.match(name)
-
-        if match is not None:
-            self.add_message(
-                "non-ascii-name",
-                node=node,
-                args=(HUMAN_READABLE_TYPES[node_type].title(), name),
-                confidence=interfaces.HIGH,
-            )
 
 
 class DocStringChecker(_BasicChecker):
