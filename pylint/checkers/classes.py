@@ -282,7 +282,7 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
     overridden_parameters = _positional_parameters(overridden)
 
     # Copy kwonlyargs list so that we don't affect later function linting
-    original_kwonlyargs = [v for v in original.args.kwonlyargs]
+    original_kwonlyargs = original.args.kwonlyargs
 
     # Allow positional/keyword variadic in overridden to match against any
     # positional/keyword argument in original.
