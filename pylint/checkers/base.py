@@ -1265,7 +1265,10 @@ class BasicChecker(_BasicChecker):
     def _check_dangerous_default(self, node):
         # check for dangerous default values as arguments
         is_iterable = lambda n: isinstance(n, (astroid.List, astroid.Set, astroid.Dict))
-        for default in node.args.defaults:
+        defaults = node.args.defaults or [] + node.args.kw_defaults or []
+        for default in defaults:
+            if not default:
+                continue
             try:
                 value = next(default.infer())
             except astroid.InferenceError:
