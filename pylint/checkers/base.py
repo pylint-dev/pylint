@@ -869,6 +869,7 @@ class BasicErrorChecker(_BasicChecker):
                     return
 
                 # Exempt "if <func> is not None" cases
+                # pylint: disable=too-many-boolean-expressions
                 if (
                     isinstance(node.parent.test, astroid.Compare)
                     and isinstance(node.parent.test.left, astroid.Name)
