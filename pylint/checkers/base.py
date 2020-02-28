@@ -52,7 +52,11 @@ from astroid.arguments import CallSite
 import pylint.utils as lint_utils
 from pylint import checkers, exceptions, interfaces
 from pylint.checkers import utils
-from pylint.checkers.utils import is_property_deleter, is_property_setter
+from pylint.checkers.utils import (
+    is_overload_stub,
+    is_property_deleter,
+    is_property_setter,
+)
 from pylint.reporters.ureports import nodes as reporter_nodes
 
 
@@ -2083,7 +2087,11 @@ class DocStringChecker(_BasicChecker):
     def visit_functiondef(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             ftype = "method" if node.is_method() else "function"
-            if is_property_setter(node) or is_property_deleter(node):
+            if (
+                is_property_setter(node)
+                or is_property_deleter(node)
+                or is_overload_stub(node)
+            ):
                 return
 
             if isinstance(node.parent.frame(), astroid.ClassDef):
