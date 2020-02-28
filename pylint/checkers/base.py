@@ -1781,6 +1781,7 @@ class NameChecker(_BasicChecker):
         self._name_hints = {}
         self._good_names_rgxs_compiled = []
         self._bad_names_rgxs_compiled = []
+        self._non_ascii_rgx_compiled = re.compile("[^\u0000-\u007F]")
 
     def open(self):
         self.stats = self.linter.add_stats(
@@ -1972,8 +1973,7 @@ class NameChecker(_BasicChecker):
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
 
-        non_ascii_regexp = re.compile("[^\u0000-\u007F]")
-        non_ascii_match = non_ascii_regexp.match(name)
+        non_ascii_match = self._non_ascii_rgx_compiled.match(name)
 
         if non_ascii_match is not None:
             self._raise_name_warning(
