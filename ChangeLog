@@ -15,6 +15,10 @@ Release date: TBA
 
   Close #2874
 
+* ``function-redefined`` exempts function redefined on a condition.
+
+   Close #2410
+
 * ``typing.overload`` functions are exempted from docstring checks
 
   Close #3350
