@@ -937,11 +937,14 @@ class VariablesChecker(BaseChecker):
     def visit_delname(self, node):
         self.visit_name(node)
 
-    @utils.check_messages(*MSGS)
+    @utils.check_messages(
+        "cell-var-from-loop",
+        "undefined-loop-variable",
+        "undefined-variable",
+        "used-before-assignment",
+    )
     def visit_name(self, node):
-        """check that a name is defined if the current scope and doesn't
-        redefine a built-in
-        """
+        """Check that a name is defined in the current scope"""
         stmt = node.statement()
         if stmt.fromlineno is None:
             # name node from an astroid built from live code, skip
