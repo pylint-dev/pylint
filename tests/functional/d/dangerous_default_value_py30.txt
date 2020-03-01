@@ -19,3 +19,4 @@ dangerous-default-value:93:function20:Dangerous default value OrderedDict() (col
 dangerous-default-value:97:function21:Dangerous default value defaultdict() (collections.defaultdict) as argument
 dangerous-default-value:101:function22:Dangerous default value UserDict() (collections.UserDict) as argument
 dangerous-default-value:105:function23:Dangerous default value UserList() (collections.UserList) as argument
+dangerous-default-value:109:function24:Dangerous default value [] as argument

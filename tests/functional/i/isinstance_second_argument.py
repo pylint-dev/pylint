@@ -1,4 +1,7 @@
-#pylint: disable=missing-docstring, undefined-variable, invalid-name, too-few-public-methods, wrong-import-position
+#pylint: disable=missing-docstring, undefined-variable, invalid-name, too-few-public-methods, wrong-import-position,import-error
+
+import collections
+from unknown import Unknown
 
 # Positive test cases
 class A:
@@ -14,12 +17,11 @@ isinstance(-9999, int)
 isinstance(True and False, bool)
 isinstance("a 'string'", type("test"))
 
-import collections
-
 isinstance(3.123213, collections.OrderedDict)
 isinstance(foo, (int, collections.Counter))
 isinstance("a string", ((int, type(False)), (float, set), str))
 isinstance(10, (int,) + (str, bool) + (dict, list, tuple))
+isinstance(10, tuple(Unknown))
 
 # Negative test cases
 isinstance({a:1}, hash) # [isinstance-second-argument-not-valid-type]

@@ -81,6 +81,7 @@ from pylint.utils import get_global_option
 BUILTINS = builtins.__name__
 STR_FORMAT = {"%s.str.format" % BUILTINS}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
+BUILTIN_TUPLE = "builtins.tuple"
 
 
 def _unflatten(iterable):
@@ -687,6 +688,8 @@ def _is_invalid_isinstance_type(arg):
     if isinstance(inferred, astroid.Tuple):
         return any(_is_invalid_isinstance_type(elt) for elt in inferred.elts)
     if isinstance(inferred, astroid.ClassDef):
+        return False
+    if isinstance(inferred, astroid.Instance) and inferred.qname() == BUILTIN_TUPLE:
         return False
     return True
 

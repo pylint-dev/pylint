@@ -105,3 +105,7 @@ def function22(value=collections.UserDict()):  # [dangerous-default-value]
 def function23(value=collections.UserList()):  # [dangerous-default-value]
     """mutable, dangerous"""
     return value
+
+def function24(*, value=[]): # [dangerous-default-value]
+    """dangerous default value in kwarg."""
+    return value

@@ -11,6 +11,14 @@ Release date: TBA
 
   Close #2725
 
+* Fix dangerous-default-value rule to account for keyword argument defaults
+
+  Close #3373
+
+* Fix a false positive for ``undefined-variable`` when ``__class__`` is used
+
+  Close #3090
+
 * Add a check for cases where the second argument to `isinstance` is not a type.
 
   Close #3308
@@ -18,6 +26,14 @@ Release date: TBA
 * Add 'notes-rgx' option, to be used for fixme check.
 
   Close #2874
+
+* ``function-redefined`` exempts function redefined on a condition.
+
+   Close #2410
+
+* ``typing.overload`` functions are exempted from docstring checks
+
+  Close #3350
 
 * Emit ``invalid-overridden-method`` for improper async def overrides.
 
