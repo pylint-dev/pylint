@@ -605,8 +605,16 @@ def node_frame_class(node: astroid.node_classes.NodeNG) -> Optional[astroid.Clas
     classmethod), otherwise it returns `None`.
     """
     klass = node.frame()
-
-    while klass is not None and not isinstance(klass, astroid.ClassDef):
+    nodes_to_check = (
+        astroid.node_classes.NodeNG,
+        astroid.UnboundMethod,
+        astroid.BaseInstance,
+    )
+    while (
+        klass
+        and isinstance(klass, nodes_to_check)
+        and not isinstance(klass, astroid.ClassDef)
+    ):
         if klass.parent is None:
             klass = None
         else:
