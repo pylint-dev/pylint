@@ -1141,7 +1141,11 @@ class VariablesChecker(BaseChecker):
                 name in astroid.Module.scope_attrs
                 or utils.is_builtin(name)
                 or name in self.config.additional_builtins
-                or (name == "__class__" and isinstance(frame, astroid.FunctionDef))
+                or (
+                    name == "__class__"
+                    and isinstance(frame, astroid.FunctionDef)
+                    and frame.is_method()
+                )
             ):
                 if not utils.node_ignores_exception(node, NameError):
                     self.add_message("undefined-variable", args=name, node=node)
