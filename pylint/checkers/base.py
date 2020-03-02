@@ -1931,7 +1931,7 @@ class NameChecker(_BasicChecker):
         if isinstance(assign_type, astroid.Comprehension):
             self._check_name("inlinevar", node.name, node)
         elif isinstance(frame, astroid.Module):
-            if isinstance(assign_type, astroid.Assign) and not in_loop(assign_type):
+            if isinstance(assign_type, astroid.Assign):
                 if isinstance(utils.safe_infer(assign_type.value), astroid.ClassDef):
                     self._check_name("class", node.name, node)
                 # Don't emit if the name redefines an import

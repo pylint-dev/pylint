@@ -15,6 +15,10 @@ Release date: TBA
 
   Close #3090
 
+* Emit ``invalid-name`` for variables defined in loops at module level.
+
+  Close #2695
+
 * Add a check for cases where the second argument to `isinstance` is not a type.
 
   Close #3308

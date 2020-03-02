@@ -37,3 +37,8 @@ def _generate_cmdline_tests():
     # Valid command only -> valid
     for item in valid:
         yield TestCase(''.join(item), True)
+
+
+# We should emit for the loop variable.
+for i in range(10):
+    Foocapfor = 2  # [invalid-name]
