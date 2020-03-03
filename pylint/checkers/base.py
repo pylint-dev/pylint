@@ -2180,8 +2180,6 @@ class DocStringChecker(_BasicChecker):
                     func.bound, astroid.Instance
                 ):
                     # Strings.
-                    if func.bound.name == "str":
-                        return
                     if func.bound.name in ("str", "unicode", "bytes"):
                         return
             if node_type == "module":
