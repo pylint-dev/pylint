@@ -107,3 +107,14 @@ class ObjectProxy:
     @property
     def __doc__(self):
         return "Docstring"
+
+
+# Do not emit the error for conditional definitions
+def func(callback1=None, callback2=None):
+    if not callback1:
+        def callback1():
+            return 42
+    if callback2 is None:
+        def callback2():
+            return 24
+    return callback1(), callback2()

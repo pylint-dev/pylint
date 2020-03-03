@@ -52,7 +52,11 @@ from astroid.arguments import CallSite
 import pylint.utils as lint_utils
 from pylint import checkers, exceptions, interfaces
 from pylint.checkers import utils
-from pylint.checkers.utils import is_property_deleter, is_property_setter
+from pylint.checkers.utils import (
+    is_overload_stub,
+    is_property_deleter,
+    is_property_setter,
+)
 from pylint.reporters.ureports import nodes as reporter_nodes
 
 
@@ -841,7 +845,6 @@ class BasicErrorChecker(_BasicChecker):
             node,
         )
         if defined_self is not node and not astroid.are_exclusive(node, defined_self):
-
             # Additional checks for methods which are not considered
             # redefined, since they are already part of the base API.
             if (
@@ -850,8 +853,32 @@ class BasicErrorChecker(_BasicChecker):
             ):
                 return
 
+            # Skip typing.overload() functions.
             if utils.is_overload_stub(node):
                 return
+
+            # Exempt functions redefined on a condition.
+            if isinstance(node.parent, astroid.If):
+                # Exempt "if not <func>" cases
+                if (
+                    isinstance(node.parent.test, astroid.UnaryOp)
+                    and node.parent.test.op == "not"
+                    and isinstance(node.parent.test.operand, astroid.Name)
+                    and node.parent.test.operand.name == node.name
+                ):
+                    return
+
+                # Exempt "if <func> is not None" cases
+                # pylint: disable=too-many-boolean-expressions
+                if (
+                    isinstance(node.parent.test, astroid.Compare)
+                    and isinstance(node.parent.test.left, astroid.Name)
+                    and node.parent.test.left.name == node.name
+                    and node.parent.test.ops[0][0] == "is"
+                    and isinstance(node.parent.test.ops[0][1], astroid.Const)
+                    and node.parent.test.ops[0][1].value is None
+                ):
+                    return
 
             # Check if we have forward references for this node.
             try:
@@ -1265,7 +1292,10 @@ class BasicChecker(_BasicChecker):
     def _check_dangerous_default(self, node):
         # check for dangerous default values as arguments
         is_iterable = lambda n: isinstance(n, (astroid.List, astroid.Set, astroid.Dict))
-        for default in node.args.defaults:
+        defaults = node.args.defaults or [] + node.args.kw_defaults or []
+        for default in defaults:
+            if not default:
+                continue
             try:
                 value = next(default.infer())
             except astroid.InferenceError:
@@ -1901,7 +1931,7 @@ class NameChecker(_BasicChecker):
         if isinstance(assign_type, astroid.Comprehension):
             self._check_name("inlinevar", node.name, node)
         elif isinstance(frame, astroid.Module):
-            if isinstance(assign_type, astroid.Assign) and not in_loop(assign_type):
+            if isinstance(assign_type, astroid.Assign):
                 if isinstance(utils.safe_infer(assign_type.value), astroid.ClassDef):
                     self._check_name("class", node.name, node)
                 # Don't emit if the name redefines an import
@@ -2083,7 +2113,11 @@ class DocStringChecker(_BasicChecker):
     def visit_functiondef(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             ftype = "method" if node.is_method() else "function"
-            if is_property_setter(node) or is_property_deleter(node):
+            if (
+                is_property_setter(node)
+                or is_property_deleter(node)
+                or is_overload_stub(node)
+            ):
                 return
 
             if isinstance(node.parent.frame(), astroid.ClassDef):
