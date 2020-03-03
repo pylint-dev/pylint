@@ -21,6 +21,7 @@ FIRST, SECOND = FIRST, CLS.FIRST # [self-assigning-variable]
 
 
 FOO = 1
+FOO, = [FOO]
 
 
 class RedefinedModuleLevel:

@@ -11,6 +11,10 @@ Release date: TBA
 
   Close #3373
 
+* Fix a false positive of ``self-assigning-variable`` on tuple unpacking.
+
+  Close #3433
+
 * Fix a false positive for ``undefined-variable`` when ``__class__`` is used
 
   Close #3090

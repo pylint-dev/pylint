@@ -1561,6 +1561,9 @@ class BasicChecker(_BasicChecker):
                 # A complex assignment, so bail out early.
                 return
             targets = targets[0].elts
+            if len(targets) == 1:
+                # Unpacking a variable into the same name.
+                return
 
         if isinstance(node.value, astroid.Name):
             if len(targets) != 1:
