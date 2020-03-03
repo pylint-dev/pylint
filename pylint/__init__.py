@@ -33,7 +33,7 @@ def run_epylint():
 
 def run_pyreverse():
     """run pyreverse"""
-    from pylint.pyreverse.main import Run as PyreverseRun
+    from pylint.pyreverse.__main__ import Run as PyreverseRun
 
     PyreverseRun(sys.argv[1:])
 

@@ -214,3 +214,131 @@ class VCGWriter(DiagramWriter):
         """close graph and file"""
         self.printer.close_graph()
         self.graph_file.close()
+
+class PlantUMLPrinter:
+
+    def __init__(self, output_stream,basename):
+        self._stream = output_stream
+        self._stream.write("@startuml\n")
+        self.basename = basename
+        self.classarr = []
+        self.packagestate = ""
+
+    def close(self):
+        self._stream.write("@enduml")
+        self._stream.close()
+
+    def emit_node(self,title,**args):
+        if self.basename == "classes":
+            if 'label' in args and 'classname' in args:
+                self.classarr.append(args['classname'])
+                assert self.classarr[title] == args['classname']
+                self._stream.write("class %s { %s\n}\n" % (args['classname'], args['label']))
+            else:
+                print(title)
+                print(args)
+        elif self.basename == "packages":
+            import os.path
+
+            x = args['label']
+            prefix = os.path.commonprefix([x,self.packagestate])
+            if prefix == self.packagestate:
+                # goes deeper
+                self._stream.write("package %s {\n " % x)
+                self.packagestate = x
+            else:
+                self._stream.write("}\n")
+                # how many dots are after in state vs. prefix
+                # oidcproxy.ac.parser
+                # oidcproxy.config
+                # prefix -> oidcproxy.
+                # one closing for ac.parser
+                # one closing for ac
+                for i in range(self.packagestate.count(".",len(prefix))):
+                    self._stream.write("}\n")
+                if x != "":
+                    self._stream.write("package %s { \n" % x)
+                    self.packagestate = x
+
+    def emit_edge(self,from_node, to_node, edge_type="",**args):
+        if len(self.classarr) > max([from_node, to_node]):
+            if 'plantuml_style' in args:
+                if 'label' in args:
+                    self._stream.write("%s %s %s : %s \n" %( self.classarr[from_node],
+                        args['plantuml_style'],
+                        self.classarr[to_node],
+                        args['label']))
+
+                else:
+                    self._stream.write("%s %s %s\n" %(self.classarr[from_node],args['plantuml_style'],self.classarr[to_node]))
+            else:
+                self._stream.write("%s --> %s\n" %(self.classarr[from_node], self.classarr[to_node]))
+        else:
+            print(from_node)
+            print(to_node)
+            print(edge_type)
+            print(args)
+
+class PlantUMLWriter(DiagramWriter):
+    def __init__(self, config):
+        #self.pkg_edges, self.inh_edges, self.imp_edges, self.association_edges = styles
+        styles = [
+            dict(arrowtail="none", arrowhead="open"),
+            dict(plantuml_style = "--|>", arrowtail="none", arrowhead="empty"),
+            dict(arrowtail="node", arrowhead="empty", style="dashed"),
+            dict(plantuml_style = "--*", fontcolor="green")
+        ]
+        DiagramWriter.__init__(self, config, styles)
+
+        self.projectname = ""
+
+    def set_printer(self, file_name, basename):
+        self.graph_file = open(file_name, "w+")
+        self.printer = PlantUMLPrinter(self.graph_file,basename)
+        self.file_name = file_name
+
+    def get_title(self, obj):
+        if "/" in obj.title:
+            if not self.projectname:
+                last = obj.title.rfind('/')
+                prelast = obj.title.rfind('/',0,last)
+                self.projectname = prelast
+            else:
+                prelast = self.projectname
+            title = obj.title[prelast + 1:]
+            title = title.replace("/__init__.py", '')
+            title = title.replace(".py", '')
+            title = title.replace("/", '.')
+
+        else:
+            title = obj.title
+        return title
+
+    def close_graph(self):
+        self.printer.close()
+
+    def get_values(self, obj):
+        """get label and shape for classes.
+
+        The label contains all attributes and methods
+        """
+        if is_exception(obj.node):
+            print("Exception Warning")
+        if obj.shape == "interface":
+            shape = "ellipse"
+        else:
+            shape = "box"
+        if not self.config.only_classnames:
+            attrs = obj.attrs
+            methods = [func.name for func in obj.methods]
+            # box width for UML like diagram
+            #maxlen = max(len(name) for name in [obj.title] + methods + attrs)
+            #line = "_" * (maxlen + 2)
+            label = ""
+            for attr in attrs:
+                label += "\n  %s" % (attr)
+            if attrs:
+                label += "\n"
+            for func in methods:
+                label += "\n  %s()" % (func)
+        return {"classname" : self.get_title(obj),"label" : label, "shape" :  shape}

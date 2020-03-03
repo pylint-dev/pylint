@@ -203,8 +203,11 @@ class Run(ConfigurationMixIn):
         finally:
             sys.path.pop(0)
 
+
         if self.config.output_format == "vcg":
             writer.VCGWriter(self.config).write(diadefs)
+        elif self.config.output_format == "plantuml":
+            writer.PlantUMLWriter(self.config).write(diadefs)
         else:
             writer.DotWriter(self.config).write(diadefs)
         return 0
