@@ -221,8 +221,15 @@ class PlantUMLWriter(DiagramWriter):
     """base class for writing project diagrams
     """
 
-    def __init__(self, config, styles):
-
+    def __init__(self, config):
+        # pkg, inh, imp, assoc
+        print(config)
+        styles = [
+            dict(arrow = "--"),
+            dict(arrow = "--"),
+            dict(arrow = "--"),
+            dict(arrow = "--")]
+        super().__init__(config, styles)
         self.config = config
         self.pkg_edges, self.inh_edges, self.imp_edges, self.association_edges = styles
         self.printer = None  # defined in set_printer
@@ -231,63 +238,83 @@ class PlantUMLWriter(DiagramWriter):
         self.packagestate = ""
         self._stream = None
         self.classarr = []
+        self.flag_write_packages = False
 
     def write(self, diadefs):
         """write files for <project> according to <diadefs>
         """
-        for diagram in diadefs:
-            basename = diagram.title.strip().replace(" ", "_")
-            file_name = "%s.%s" % (basename, self.config.output_format)
- 
-            self.set_printer(file_name, basename)
-            if diagram.TYPE == "class":
-                self.write_classes(diagram)
-            else:
-                self.write_packages(diagram)
-            self.close_graph()
+        if len(diadefs) > 1:
+            self.flag_write_packages = True
+#        for diagram in diadefs:
+#            print(diagram.TYPE)
+        super().write(diadefs)
 
     def write_packages(self, diagram):
         """write a package diagram"""
         # sorted to get predictable (hence testable) results
+        indent = ""
         for i, obj in enumerate(sorted(diagram.modules(), key=lambda x: x.title)):
             pkg_name = self.get_title(obj)
+            print(pkg_name)
+            print(self.packagestate)
+            if self.packagestate == "":
+                # first run
+                self._stream.write("package %s { \n" % pkg_name)
+                indent += "  "
+                self.packagestate = pkg_name
+                continue
+
             prefix = os.path.commonprefix([pkg_name, self.packagestate])
             if prefix == self.packagestate:
-                self._stream.write("}\n")
+                # we're going deeper
+                self._stream.write("%spackage %s { \n" % (indent, pkg_name))
+                indent += "  "
                 self.packagestate = pkg_name
             else:
-                self._stream.write("}\n")
+                indent = indent[:-2]
+                self._stream.write("%s}\n" % indent)
                 for _ in range(self.packagestate.count(".", len(prefix))):
-                    self._stream.write("}\n")
+                    indent = indent[:-2]
+                    self._stream.write("%s}\n" % indent)
                 if pkg_name != "":
-                    self._stream.write("package %s { \n" % pkg_name)
+                    self._stream.write("%spackage %s { \n" % (indent, pkg_name))
+                    indent += "  "
                     self.packagestate = pkg_name
 
             obj.fig_id = i
+        # closing the rest now
+        while indent:
+            indent = indent[:-2]
+            self._stream.write("%s}\n" % indent)
+
         # package dependencies
         for rel in diagram.get_relationships("depends"):
             pass # NotImplemented
 
     def write_classes(self, diagram):
         """write a class diagram"""
+        if self.flag_write_packages:
+            self._stream.write("include packages.plantuml\n")
         # sorted to get predictable (hence testable) results
         for i, obj in enumerate(sorted(diagram.objects, key=lambda x: x.title)):
             args = self.get_values(obj)
             if 'label' in args and 'classname' in args:
                 self.classarr.append(args['classname'])
                 assert self.classarr[i] == args['classname']
-                self._stream.write("class %s { %s \n %s \n}\n" % (args['classname'], args['attributes'], args['methods']))
+                str_attr = '\n'.join(args['attributes'])
+                str_methods = '()\n'.join(args['methods']) + "()\n" if args['methods'] else ""
+                self._stream.write("class %s {\n%s\n\n%s \n}\n" % (args['classname'], str_attr, str_methods))
             obj.fig_id = i
         # inheritance links
         for rel in diagram.get_relationships("specialization"):
             # plantuml: --|>
-            self._stream.write("%s --|> %s" % (rel.from_object.title, rel.to_object.title))
+            self._stream.write("%s --|> %s\n" % (self.get_title(rel.from_object), self.get_title(rel.to_object)))
         # implementation links
         for rel in diagram.get_relationships("implements"):
             pass
         # generate associations
         for rel in diagram.get_relationships("association"):
-            self._stream.write("%s -- %s" % (rel.from_object.title, rel.to_object.title))
+            self._stream.write("%s -- %s\n" % (self.get_title(rel.from_object), self.get_title(rel.to_object)))
 
     def set_printer(self, file_name, basename):
         """set printer"""
@@ -320,6 +347,9 @@ class PlantUMLWriter(DiagramWriter):
             shape = "ellipse"
         else:
             shape = "box"
+
+        attributes = []
+        methods = []
         if not self.config.only_classnames:
             attrs = obj.attrs
             methods = [func.name for func in obj.methods]
@@ -327,13 +357,8 @@ class PlantUMLWriter(DiagramWriter):
             #maxlen = max(len(name) for name in [obj.title] + methods + attrs)
             #line = "_" * (maxlen + 2)
             label = ""
-            for attr in attrs:
-                label += "\n  %s" % (attr)
-            if attrs:
-                label += "\n"
-            for func in methods:
-                label += "\n  %s()" % (func)
-        return {"classname" : self.get_title(obj),"label" : label, "shape" :  shape}
+            attributes = attrs
+        return {"classname" : self.get_title(obj),"attributes" : attributes, "methods": methods, "label" : label, "shape" :  shape}
 
     def close_graph(self):
         """finalize the graph"""
