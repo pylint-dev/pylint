@@ -52,6 +52,7 @@ from pylint.checkers.utils import (
     is_builtin_object,
     is_comprehension,
     is_iterable,
+    is_overload_stub,
     is_property_setter,
     is_property_setter_or_deleter,
     is_protocol_class,
@@ -1207,6 +1208,7 @@ a metaclass class method.",
                     or decorated_with_property(node)
                     or _has_bare_super_call(node)
                     or is_protocol_class(class_node)
+                    or is_overload_stub(node)
                 )
             ):
                 self.add_message("no-self-use", node=node)

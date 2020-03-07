@@ -15,6 +15,10 @@ Release date: TBA
 
   Close #3433
 
+* ``no-self-use`` is no longer emitted for typing stubs.
+
+  Close #3439
+
 * Fix a false positive for ``undefined-variable`` when ``__class__`` is used
 
   Close #3090

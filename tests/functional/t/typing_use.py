@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring
 
 import typing
-
+from typing import overload
 
 @typing.overload
 def double_with_docstring(arg: str) -> str:
@@ -49,3 +49,17 @@ def double_with_pass(arg: int) -> int:
 
 def double_with_pass(arg):
     return 2 * arg
+
+# pylint: disable=too-few-public-methods
+class Cls:
+    @typing.overload
+    def method(self, param: int) -> None:
+        ...
+
+    @overload
+    def method(self, param: str) -> None:
+        ...
+
+    def method(self, param):
+        return (self, param)
+# pylint: enable=too-few-public-methods
