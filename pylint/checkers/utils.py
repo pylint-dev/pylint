@@ -331,10 +331,13 @@ def is_defined_in_scope(
     return False
 
 
-def is_defined_before(var_node: astroid.node_classes.NodeNG) -> bool:
-    """return True if the variable node is defined by a parent node (list,
-    set, dict, or generator comprehension, lambda) or in a previous sibling
-    node on the same line (statement_defining ; statement_using)
+def is_defined_before(var_node: astroid.Name) -> bool:
+    """Check if the given variable node is defined before
+
+    Verify that the variable node is defined by a parent node
+    (list, set, dict, or generator comprehension, lambda)
+    or in a previous sibling node on the same line
+    (statement_defining ; statement_using).
     """
     varname = var_node.name
     _node = var_node.parent
@@ -386,16 +389,14 @@ def is_func_decorator(node: astroid.node_classes.NodeNG) -> bool:
 
 
 def is_ancestor_name(
-    frame: astroid.node_classes.NodeNG, node: astroid.node_classes.NodeNG
+    frame: astroid.ClassDef, node: astroid.node_classes.NodeNG
 ) -> bool:
     """return True if `frame` is an astroid.Class node with `node` in the
     subtree of its bases attribute
     """
-    try:
-        bases = frame.bases
-    except AttributeError:
+    if not isinstance(frame, astroid.ClassDef):
         return False
-    for base in bases:
+    for base in frame.bases:
         if node in base.nodes_of_class(astroid.Name):
             return True
     return False
@@ -409,7 +410,7 @@ def assign_parent(node: astroid.node_classes.NodeNG) -> astroid.node_classes.Nod
     return node
 
 
-def overrides_a_method(class_node: astroid.node_classes.NodeNG, name: str) -> bool:
+def overrides_a_method(class_node: astroid.ClassDef, name: str) -> bool:
     """return True if <name> is a method overridden from an ancestor"""
     for ancestor in class_node.ancestors():
         if name in ancestor and isinstance(ancestor[name], astroid.FunctionDef):
@@ -836,7 +837,7 @@ def unimplemented_abstract_methods(
 
 def find_try_except_wrapper_node(
     node: astroid.node_classes.NodeNG,
-) -> Union[astroid.ExceptHandler, astroid.TryExcept]:
+) -> Optional[Union[astroid.ExceptHandler, astroid.TryExcept]]:
     """Return the ExceptHandler or the TryExcept node in which the node is."""
     current = node
     ignores = (astroid.ExceptHandler, astroid.TryExcept)

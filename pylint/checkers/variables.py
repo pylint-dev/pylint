@@ -1751,7 +1751,7 @@ class VariablesChecker(BaseChecker):
             if isinstance(target, astroid.node_classes.AssignName)
         )
         if self_cls_name in target_assign_names:
-            self.add_message("self-cls-assignment", node=node, args=(self_cls_name))
+            self.add_message("self-cls-assignment", node=node, args=(self_cls_name,))
 
     def _check_unpacking(self, inferred, node, targets):
         """ Check for unbalanced tuple unpacking
