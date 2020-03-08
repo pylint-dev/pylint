@@ -317,11 +317,10 @@ def _get_properties(config):
     return property_classes, property_names
 
 
-def _determine_function_name_type(node, config=None):
+def _determine_function_name_type(node: astroid.FunctionDef, config=None):
     """Determine the name type whose regex the a function's name should match.
 
     :param node: A function node.
-    :type node: astroid.node_classes.NodeNG
     :param config: Configuration from which to pull additional property classes.
     :type config: :class:`optparse.Values`
 
@@ -349,7 +348,11 @@ def _determine_function_name_type(node, config=None):
             and decorator.attrname in property_names
         ):
             inferred = utils.safe_infer(decorator)
-            if inferred and inferred.qname() in property_classes:
+            if (
+                inferred
+                and hasattr(inferred, "qname")
+                and inferred.qname() in property_classes
+            ):
                 return "attr"
     return "method"
 

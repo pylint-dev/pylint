@@ -791,7 +791,7 @@ a metaclass class method.",
         """
         for base in node.bases:
             ancestor = safe_infer(base)
-            if ancestor in (astroid.Uninferable, None):
+            if not ancestor:
                 continue
             if isinstance(ancestor, astroid.Instance) and ancestor.is_subtype_of(
                 "%s.type" % (BUILTINS,)

@@ -776,7 +776,7 @@ def decorated_with(
 
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
-    node: astroid.node_classes.NodeNG, is_abstract_cb: astroid.FunctionDef = None
+    node: astroid.ClassDef, is_abstract_cb: astroid.FunctionDef = None
 ) -> Dict[str, astroid.node_classes.NodeNG]:
     """
     Get the unimplemented abstract methods for the given *node*.
