@@ -135,15 +135,22 @@ def expand_modules(files_or_modules, black_list, black_list_re):
     """
     result = []
     errors = []
+    path = sys.path.copy()
+
     for something in files_or_modules:
         if os.path.basename(something) in black_list:
             continue
         if _basename_in_blacklist_re(os.path.basename(something), black_list_re):
             continue
+
+        module_path = get_python_path(something)
+        additional_search_path = [module_path] + path
         if os.path.exists(something):
             # this is a file or a directory
             try:
-                modname = ".".join(modutils.modpath_from_file(something))
+                modname = ".".join(
+                    modutils.modpath_from_file(something, path=additional_search_path)
+                )
             except ImportError:
                 modname = os.path.splitext(os.path.basename(something))[0]
             if os.path.isdir(something):
@@ -154,7 +161,9 @@ def expand_modules(files_or_modules, black_list, black_list_re):
             # suppose it's a module or package
             modname = something
             try:
-                filepath = modutils.file_from_modpath(modname.split("."))
+                filepath = modutils.file_from_modpath(
+                    modname.split("."), path=additional_search_path
+                )
                 if filepath is None:
                     continue
             except (ImportError, SyntaxError) as ex:
@@ -167,7 +176,9 @@ def expand_modules(files_or_modules, black_list, black_list_re):
         modparts = (modname or something).split(".")
 
         try:
-            spec = modutils.file_info_from_modpath(modparts, path=sys.path)
+            spec = modutils.file_info_from_modpath(
+                modparts, path=additional_search_path
+            )
         except ImportError:
             # Might not be acceptable, don't crash.
             is_namespace = False
