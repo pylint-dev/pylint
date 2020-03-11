@@ -443,10 +443,10 @@ class TestComparison(CheckerTestCase):
 
 
 class TestNamePresets(unittest.TestCase):
-    SNAKE_CASE_NAMES = {"test_snake_case", "test_snake_case11", "test_https_200"}
-    CAMEL_CASE_NAMES = {"testCamelCase", "testCamelCase11", "testHTTP200"}
-    UPPER_CASE_NAMES = {"TEST_UPPER_CASE", "TEST_UPPER_CASE11", "TEST_HTTP_200"}
-    PASCAL_CASE_NAMES = {"TestPascalCase", "TestPascalCase11", "TestHTTP200"}
+    SNAKE_CASE_NAMES = {"tést_snake_case", "test_snake_case11", "test_https_200"}
+    CAMEL_CASE_NAMES = {"téstCamelCase", "testCamelCase11", "testHTTP200"}
+    UPPER_CASE_NAMES = {"TÉST_UPPER_CASE", "TEST_UPPER_CASE11", "TEST_HTTP_200"}
+    PASCAL_CASE_NAMES = {"TéstPascalCase", "TestPascalCase11", "TestHTTP200"}
     ALL_NAMES = (
         SNAKE_CASE_NAMES | CAMEL_CASE_NAMES | UPPER_CASE_NAMES | PASCAL_CASE_NAMES
     )

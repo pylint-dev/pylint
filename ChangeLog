@@ -7,6 +7,10 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* Adjust the `invalid-name` rule to work with non-ASCII identifiers and add the `non-ascii-name` rule.
+
+  Close #2725
+
 * Fix dangerous-default-value rule to account for keyword argument defaults
 
   Close #3373

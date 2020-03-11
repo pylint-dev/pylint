@@ -91,47 +91,47 @@ class NamingStyle:
 class SnakeCaseStyle(NamingStyle):
     """Regex rules for snake_case naming style."""
 
-    CLASS_NAME_RGX = re.compile("[a-z_][a-z0-9_]+$")
-    MOD_NAME_RGX = re.compile("[a-z_][a-z0-9_]*$")
-    CONST_NAME_RGX = re.compile("([a-z_][a-z0-9_]*|__.*__)$")
-    COMP_VAR_RGX = re.compile("[a-z_][a-z0-9_]*$")
+    CLASS_NAME_RGX = re.compile(r"[^\W\dA-Z][^\WA-Z]+$")
+    MOD_NAME_RGX = re.compile(r"[^\W\dA-Z][^\WA-Z]*$")
+    CONST_NAME_RGX = re.compile(r"([^\W\dA-Z][^\WA-Z]*|__.*__)$")
+    COMP_VAR_RGX = re.compile(r"[^\W\dA-Z][^\WA-Z]*$")
     DEFAULT_NAME_RGX = re.compile(
-        "([a-z_][a-z0-9_]{2,}|_[a-z0-9_]*|__[a-z][a-z0-9_]+__)$"
+        r"([^\W\dA-Z][^\WA-Z]{2,}|_[^\WA-Z]*|__[^\WA-Z\d_][^\WA-Z]+__)$"
     )
-    CLASS_ATTRIBUTE_RGX = re.compile(r"([a-z_][a-z0-9_]{2,}|__.*__)$")
+    CLASS_ATTRIBUTE_RGX = re.compile(r"([^\W\dA-Z][^\WA-Z]{2,}|__.*__)$")
 
 
 class CamelCaseStyle(NamingStyle):
     """Regex rules for camelCase naming style."""
 
-    CLASS_NAME_RGX = re.compile("[a-z_][a-zA-Z0-9]+$")
-    MOD_NAME_RGX = re.compile("[a-z_][a-zA-Z0-9]*$")
-    CONST_NAME_RGX = re.compile("([a-z_][A-Za-z0-9]*|__.*__)$")
-    COMP_VAR_RGX = re.compile("[a-z_][A-Za-z0-9]*$")
-    DEFAULT_NAME_RGX = re.compile("([a-z_][a-zA-Z0-9]{2,}|__[a-z][a-zA-Z0-9_]+__)$")
-    CLASS_ATTRIBUTE_RGX = re.compile(r"([a-z_][A-Za-z0-9]{2,}|__.*__)$")
+    CLASS_NAME_RGX = re.compile(r"[^\W\dA-Z][^\W_]+$")
+    MOD_NAME_RGX = re.compile(r"[^\W\dA-Z][^\W_]*$")
+    CONST_NAME_RGX = re.compile(r"([^\W\dA-Z][^\W_]*|__.*__)$")
+    COMP_VAR_RGX = re.compile(r"[^\W\dA-Z][^\W_]*$")
+    DEFAULT_NAME_RGX = re.compile(r"([^\W\dA-Z][^\W_]{2,}|__[^\W\dA-Z_]\w+__)$")
+    CLASS_ATTRIBUTE_RGX = re.compile(r"([^\W\dA-Z][^\W_]{2,}|__.*__)$")
 
 
 class PascalCaseStyle(NamingStyle):
     """Regex rules for PascalCase naming style."""
 
-    CLASS_NAME_RGX = re.compile("[A-Z_][a-zA-Z0-9]+$")
-    MOD_NAME_RGX = re.compile("[A-Z_][a-zA-Z0-9]+$")
-    CONST_NAME_RGX = re.compile("([A-Z_][A-Za-z0-9]*|__.*__)$")
-    COMP_VAR_RGX = re.compile("[A-Z_][a-zA-Z0-9]+$")
-    DEFAULT_NAME_RGX = re.compile("([A-Z_][a-zA-Z0-9]{2,}|__[a-z][a-zA-Z0-9_]+__)$")
-    CLASS_ATTRIBUTE_RGX = re.compile("[A-Z_][a-zA-Z0-9]{2,}$")
+    CLASS_NAME_RGX = re.compile(r"[^\W\da-z][^\W_]+$")
+    MOD_NAME_RGX = re.compile(r"[^\W\da-z][^\W_]+$")
+    CONST_NAME_RGX = re.compile(r"([^\W\da-z][^\W_]*|__.*__)$")
+    COMP_VAR_RGX = re.compile(r"[^\W\da-z][^\W_]+$")
+    DEFAULT_NAME_RGX = re.compile(r"([^\W\da-z][^\W_]{2,}|__[^\W\dA-Z_]\w+__)$")
+    CLASS_ATTRIBUTE_RGX = re.compile(r"[^\W\da-z][^\W_]{2,}$")
 
 
 class UpperCaseStyle(NamingStyle):
     """Regex rules for UPPER_CASE naming style."""
 
-    CLASS_NAME_RGX = re.compile("[A-Z_][A-Z0-9_]+$")
-    MOD_NAME_RGX = re.compile("[A-Z_][A-Z0-9_]+$")
-    CONST_NAME_RGX = re.compile("([A-Z_][A-Z0-9_]*|__.*__)$")
-    COMP_VAR_RGX = re.compile("[A-Z_][A-Z0-9_]+$")
-    DEFAULT_NAME_RGX = re.compile("([A-Z_][A-Z0-9_]{2,}|__[a-z][a-zA-Z0-9_]+__)$")
-    CLASS_ATTRIBUTE_RGX = re.compile("[A-Z_][A-Z0-9_]{2,}$")
+    CLASS_NAME_RGX = re.compile(r"[^\W\da-z][^\Wa-z]+$")
+    MOD_NAME_RGX = re.compile(r"[^\W\da-z][^\Wa-z]+$")
+    CONST_NAME_RGX = re.compile(r"([^\W\da-z][^\Wa-z]*|__.*__)$")
+    COMP_VAR_RGX = re.compile(r"[^\W\da-z][^\Wa-z]+$")
+    DEFAULT_NAME_RGX = re.compile(r"([^\W\da-z][^\Wa-z]{2,}|__[^\W\dA-Z_]\w+__)$")
+    CLASS_ATTRIBUTE_RGX = re.compile(r"[^\W\da-z][^\Wa-z]{2,}$")
 
 
 class AnyStyle(NamingStyle):
@@ -1716,6 +1716,11 @@ class NameChecker(_BasicChecker):
             "Used when the name doesn't conform to naming rules "
             "associated to its type (constant, variable, class...).",
         ),
+        "C0144": (
+            '%s name "%s" contains a non-ASCII unicode character',
+            "non-ascii-name",
+            "Used when the name contains at least one non-ASCII unciode character.",
+        ),
         "W0111": (
             "Name %s will become a keyword in Python %s",
             "assign-to-new-keyword",
@@ -1812,6 +1817,7 @@ class NameChecker(_BasicChecker):
         self._name_hints = {}
         self._good_names_rgxs_compiled = []
         self._bad_names_rgxs_compiled = []
+        self._non_ascii_rgx_compiled = re.compile("[^\u0000-\u007F]")
 
     def open(self):
         self.stats = self.linter.add_stats(
@@ -1862,7 +1868,7 @@ class NameChecker(_BasicChecker):
 
         return regexps, hints
 
-    @utils.check_messages("blacklisted-name", "invalid-name")
+    @utils.check_messages("blacklisted-name", "invalid-name", "non-ascii-name")
     def visit_module(self, node):
         self._check_name("module", node.name.split(".")[-1], node)
         self._bad_names = {}
@@ -1887,7 +1893,9 @@ class NameChecker(_BasicChecker):
             for args in warnings:
                 self._raise_name_warning(*args)
 
-    @utils.check_messages("blacklisted-name", "invalid-name", "assign-to-new-keyword")
+    @utils.check_messages(
+        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+    )
     def visit_classdef(self, node):
         self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name("class", node.name, node)
@@ -1895,7 +1903,9 @@ class NameChecker(_BasicChecker):
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
-    @utils.check_messages("blacklisted-name", "invalid-name", "assign-to-new-keyword")
+    @utils.check_messages(
+        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+    )
     def visit_functiondef(self, node):
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
@@ -1923,12 +1933,14 @@ class NameChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @utils.check_messages("blacklisted-name", "invalid-name")
+    @utils.check_messages("blacklisted-name", "invalid-name", "non-ascii-name")
     def visit_global(self, node):
         for name in node.names:
             self._check_name("const", name, node)
 
-    @utils.check_messages("blacklisted-name", "invalid-name", "assign-to-new-keyword")
+    @utils.check_messages(
+        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+    )
     def visit_assignname(self, node):
         """check module level assigned names"""
         self._check_assign_to_new_keyword_violation(node.name, node)
@@ -1968,14 +1980,20 @@ class NameChecker(_BasicChecker):
     def _find_name_group(self, node_type):
         return self._name_group.get(node_type, node_type)
 
-    def _raise_name_warning(self, node, node_type, name, confidence):
+    def _raise_name_warning(
+        self, node, node_type, name, confidence, warning="invalid-name"
+    ):
         type_label = HUMAN_READABLE_TYPES[node_type]
         hint = self._name_hints[node_type]
         if self.config.include_naming_hint:
             hint += " (%r pattern)" % self._name_regexps[node_type].pattern
-        args = (type_label.capitalize(), name, hint)
+        args = (
+            (type_label.capitalize(), name, hint)
+            if warning == "invalid-name"
+            else (type_label.capitalize(), name)
+        )
 
-        self.add_message("invalid-name", node=node, args=args, confidence=confidence)
+        self.add_message(warning, node=node, args=args, confidence=confidence)
         self.stats["badname_" + node_type] += 1
 
     def _name_valid_due_to_whitelist(self, name: str) -> bool:
@@ -1990,6 +2008,13 @@ class NameChecker(_BasicChecker):
 
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
+
+        non_ascii_match = self._non_ascii_rgx_compiled.match(name)
+
+        if non_ascii_match is not None:
+            self._raise_name_warning(
+                node, node_type, name, confidence, warning="non-ascii-name"
+            )
 
         def _should_exempt_from_invalid_name(node):
             if node_type == "variable":

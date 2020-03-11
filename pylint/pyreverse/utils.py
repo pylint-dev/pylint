@@ -48,9 +48,9 @@ def insert_default_options():
 
 # astroid utilities ###########################################################
 
-SPECIAL = re.compile("^__[A-Za-z0-9]+[A-Za-z0-9_]*__$")
-PRIVATE = re.compile("^__[_A-Za-z0-9]*[A-Za-z0-9]+_?$")
-PROTECTED = re.compile("^_[_A-Za-z0-9]*$")
+SPECIAL = re.compile(r"^__[^\W_]+\w*__$")
+PRIVATE = re.compile(r"^__\w*[^\W_]+_?$")
+PROTECTED = re.compile(r"^_\w*$")
 
 
 def get_visibility(name):
@@ -68,8 +68,8 @@ def get_visibility(name):
     return visibility
 
 
-ABSTRACT = re.compile("^.*Abstract.*")
-FINAL = re.compile("^[A-Z_]*$")
+ABSTRACT = re.compile(r"^.*Abstract.*")
+FINAL = re.compile(r"^[^\W\da-z]*$")
 
 
 def is_abstract(node):

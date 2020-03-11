@@ -70,6 +70,9 @@ def get_tests():
         if dirpath.endswith("__pycache__"):
             continue
         for filename in filenames:
+            if filename == "non_ascii_name.py" and os.name == "nt":
+                # skip this test on Windows since it involves Unicode
+                continue
             if filename != "__init__.py" and filename.endswith(".py"):
                 suite.append(testutils.FunctionalTestFile(dirpath, filename))
     return suite
@@ -82,7 +85,9 @@ TESTS_NAMES = [t.base for t in TESTS]
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
 def test_functional(test_file):
     LintTest = (
-        LintModuleOutputUpdate(test_file) if UPDATE else testutils.LintModuleTest(test_file)
+        LintModuleOutputUpdate(test_file)
+        if UPDATE
+        else testutils.LintModuleTest(test_file)
     )
     LintTest.setUp()
     LintTest._runTest()
