@@ -114,20 +114,6 @@ def _get_new_args(message):
     return (message.msg_id, message.symbol, location, message.msg, message.confidence)
 
 
-def _get_python_path(filepath):
-    dirname = os.path.realpath(os.path.expanduser(filepath))
-    if not os.path.isdir(dirname):
-        dirname = os.path.dirname(dirname)
-    while True:
-        if not os.path.exists(os.path.join(dirname, "__init__.py")):
-            return dirname
-        old_dirname = dirname
-        dirname = os.path.dirname(dirname)
-        if old_dirname == dirname:
-            return os.getcwd()
-    return None
-
-
 def _merge_stats(stats):
     merged = {}
     by_msg = collections.Counter()
@@ -1478,7 +1464,7 @@ def fix_import_path(args):
     seen = set()
     cwd = os.getcwd()
     for arg in args:
-        path = _get_python_path(arg)
+        path = utils.get_python_path(arg)
         if path not in seen and path != cwd:
             changes.append(path)
             seen.add(path)
