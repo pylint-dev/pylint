@@ -575,10 +575,7 @@ def parse_format_method_string(
         elif name:
             keyname, fielditerator = split_format_field_names(name)
             if isinstance(keyname, numbers.Number):
-                # In Python 2 it will return long which will lead
-                # to different output between 2 and 3
                 explicit_pos_args.add(str(keyname))
-                keyname = int(keyname)
             try:
                 keyword_arguments.append((keyname, list(fielditerator)))
             except ValueError:
