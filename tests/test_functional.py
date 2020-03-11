@@ -16,7 +16,6 @@
 import csv
 import io
 import os
-import platform
 import sys
 
 import pytest
@@ -70,9 +69,6 @@ def get_tests():
         if dirpath.endswith("__pycache__"):
             continue
         for filename in filenames:
-            if filename == "non_ascii_name.py" and os.name == "nt":
-                # skip this test on Windows since it involves Unicode
-                continue
             if filename != "__init__.py" and filename.endswith(".py"):
                 suite.append(testutils.FunctionalTestFile(dirpath, filename))
     return suite

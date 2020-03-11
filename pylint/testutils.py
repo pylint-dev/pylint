@@ -384,6 +384,7 @@ class FunctionalTestFile:
             "max_pyver": (4, 0),
             "requires": [],
             "except_implementations": [],
+            "exclude_platforms": [],
         }
         self._parse_options()
 
@@ -530,6 +531,13 @@ class LintModuleTest:
                 pytest.skip(
                     "Test cannot run with Python implementation %r" % (implementation,)
                 )
+        if self._test_file.options["exclude_platforms"]:
+            platforms = [
+                item.strip()
+                for item in self._test_file.options["exclude_platforms"].split(",")
+            ]
+            if sys.platform.lower() in platforms:
+                pytest.skip("Test cannot run on platform %r" % (sys.platform,))
 
     def _should_be_skipped_due_to_version(self):
         return (

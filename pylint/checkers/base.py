@@ -1719,7 +1719,7 @@ class NameChecker(_BasicChecker):
         "C0144": (
             '%s name "%s" contains a non-ASCII unicode character',
             "non-ascii-name",
-            "Used when the name contains at least one non-ASCII unciode character.",
+            "Used when the name contains at least one non-ASCII unicode character.",
         ),
         "W0111": (
             "Name %s will become a keyword in Python %s",
