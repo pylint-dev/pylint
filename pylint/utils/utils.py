@@ -4,12 +4,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import codecs
+import os
 import re
 import sys
 import textwrap
 import tokenize
-from os import linesep, listdir
-from os.path import basename, dirname, exists, isdir, join, normpath, splitext
 
 from astroid import Module, modutils
 
@@ -123,18 +122,18 @@ def expand_modules(files_or_modules, black_list, black_list_re):
     result = []
     errors = []
     for something in files_or_modules:
-        if basename(something) in black_list:
+        if os.path.basename(something) in black_list:
             continue
-        if _basename_in_blacklist_re(basename(something), black_list_re):
+        if _basename_in_blacklist_re(os.path.basename(something), black_list_re):
             continue
-        if exists(something):
+        if os.path.exists(something):
             # this is a file or a directory
             try:
                 modname = ".".join(modutils.modpath_from_file(something))
             except ImportError:
-                modname = splitext(basename(something))[0]
-            if isdir(something):
-                filepath = join(something, "__init__.py")
+                modname = os.path.splitext(os.path.basename(something))[0]
+            if os.path.isdir(something):
+                filepath = os.path.join(something, "__init__.py")
             else:
                 filepath = something
         else:
@@ -150,7 +149,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
                 errors.append({"key": "fatal", "mod": modname, "ex": ex})
                 continue
 
-        filepath = normpath(filepath)
+        filepath = os.path.normpath(filepath)
         modparts = (modname or something).split(".")
 
         try:
@@ -158,7 +157,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
         except ImportError:
             # Might not be acceptable, don't crash.
             is_namespace = False
-            is_directory = isdir(something)
+            is_directory = os.path.isdir(something)
         else:
             is_namespace = modutils.is_namespace(spec)
             is_directory = modutils.is_directory(spec)
@@ -176,16 +175,18 @@ def expand_modules(files_or_modules, black_list, black_list_re):
 
         has_init = (
             not (modname.endswith(".__init__") or modname == "__init__")
-            and basename(filepath) == "__init__.py"
+            and os.path.basename(filepath) == "__init__.py"
         )
 
         if has_init or is_namespace or is_directory:
             for subfilepath in modutils.get_module_files(
-                dirname(filepath), black_list, list_all=is_namespace
+                os.path.dirname(filepath), black_list, list_all=is_namespace
             ):
                 if filepath == subfilepath:
                     continue
-                if _basename_in_blacklist_re(basename(subfilepath), black_list_re):
+                if _basename_in_blacklist_re(
+                    os.path.basename(subfilepath), black_list_re
+                ):
                     continue
 
                 modpath = _modpath_from_file(subfilepath, is_namespace)
@@ -207,17 +208,19 @@ def register_plugins(linter, directory):
     'register' function in each one, used to register pylint checkers
     """
     imported = {}
-    for filename in listdir(directory):
-        base, extension = splitext(filename)
+    for filename in os.listdir(directory):
+        base, extension = os.path.splitext(filename)
         if base in imported or base == "__pycache__":
             continue
         if (
             extension in PY_EXTS
             and base != "__init__"
-            or (not extension and isdir(join(directory, base)))
+            or (not extension and os.path.isdir(os.path.join(directory, base)))
         ):
             try:
-                module = modutils.load_module_from_file(join(directory, filename))
+                module = modutils.load_module_from_file(
+                    os.path.join(directory, filename)
+                )
             except ValueError:
                 # empty module name (usually emacs auto-save files)
                 continue
@@ -323,7 +326,7 @@ def _check_csv(value):
 def _comment(string):
     """return string as a comment"""
     lines = [line.strip() for line in string.splitlines()]
-    return "# " + ("%s# " % linesep).join(lines)
+    return "# " + ("%s# " % os.linesep).join(lines)
 
 
 def _format_option_value(optdict, value):
