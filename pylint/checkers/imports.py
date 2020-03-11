@@ -776,7 +776,6 @@ class ImportsChecker(BaseChecker):
         except astroid.TooManyLevelsError:
             if _ignore_import_failure(importnode, modname, self._ignored_modules):
                 return None
-
             self.add_message("relative-beyond-top-level", node=importnode)
         except astroid.AstroidSyntaxError as exc:
             message = "Cannot import {!r} due to syntax error {!r}".format(
