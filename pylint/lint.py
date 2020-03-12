@@ -958,15 +958,22 @@ class PyLinter(
                 )
 
             filepath = files_or_modules[0]
-            self._check_files(
-                functools.partial(self.get_ast, data=_read_stdin()),
-                [self._get_file_descr_from_stdin(filepath)],
-            )
+            with fix_import_path(files_or_modules):
+                self._check_files(
+                    functools.partial(self.get_ast, data=_read_stdin()),
+                    [self._get_file_descr_from_stdin(filepath)],
+                )
         elif self.config.jobs == 1:
-            self._check_files(self.get_ast, self._iterate_file_descrs(files_or_modules))
+            with fix_import_path(files_or_modules):
+                self._check_files(
+                    self.get_ast, self._iterate_file_descrs(files_or_modules)
+                )
         else:
             check_parallel(
-                self, self.config.jobs, self._iterate_file_descrs(files_or_modules)
+                self,
+                self.config.jobs,
+                self._iterate_file_descrs(files_or_modules),
+                files_or_modules,
             )
 
     def check_single_file(self, name, filepath, modname):
@@ -1265,9 +1272,8 @@ class PyLinter(
         return note
 
 
-def check_parallel(linter, jobs, files):
-    """Use the given linter to lint the files with given amount of workers (jobs)
-    """
+def check_parallel(linter, jobs, files, arguments=None):
+    """Use the given linter to lint the files with given amount of workers (jobs)"""
     # The reporter does not need to be passed to worker processess, i.e. the reporter does
     # not need to be pickleable
     original_reporter = linter.reporter
@@ -1276,9 +1282,8 @@ def check_parallel(linter, jobs, files):
     # The linter is inherited by all the pool's workers, i.e. the linter
     # is identical to the linter object here. This is requred so that
     # a custom PyLinter object can be used.
-    with multiprocessing.Pool(
-        jobs, initializer=_worker_initialize, initargs=[linter]
-    ) as pool:
+    initializer = functools.partial(_worker_initialize, arguments=arguments)
+    with multiprocessing.Pool(jobs, initializer=initializer, initargs=[linter]) as pool:
         # ..and now when the workers have inherited the linter, the actual reporter
         # can be set back here on the parent process so that results get stored into
         # correct reporter
@@ -1311,7 +1316,7 @@ def check_parallel(linter, jobs, files):
 _worker_linter = None
 
 
-def _worker_initialize(linter):
+def _worker_initialize(linter, arguments=None):
     global _worker_linter  # pylint: disable=global-statement
     _worker_linter = linter
 
@@ -1319,6 +1324,9 @@ def _worker_initialize(linter):
     # parent process as _worker_check_file function's return value
     _worker_linter.set_reporter(reporters.CollectingReporter())
     _worker_linter.open()
+
+    # Patch sys.path so that each argument is importable just like in single job mode
+    _patch_sys_path(arguments or ())
 
 
 def _worker_check_single_file(file_item):
@@ -1450,6 +1458,21 @@ def preprocess_options(args, search_for):
             i += 1
 
 
+def _patch_sys_path(args):
+    original = list(sys.path)
+    changes = []
+    seen = set()
+    cwd = os.getcwd()
+    for arg in args:
+        path = utils.get_python_path(arg)
+        if path not in seen:
+            changes.append(path)
+            seen.add(path)
+
+    sys.path[:] = changes + sys.path
+    return original
+
+
 @contextlib.contextmanager
 def fix_import_path(args):
     """Prepare sys.path for running the linter checks.
@@ -1459,21 +1482,11 @@ def fix_import_path(args):
     We avoid adding duplicate directories to sys.path.
     `sys.path` is reset to its original value upon exiting this context.
     """
-    orig = list(sys.path)
-    changes = []
-    seen = set()
-    cwd = os.getcwd()
-    for arg in args:
-        path = utils.get_python_path(arg)
-        if path not in seen and path != cwd:
-            changes.append(path)
-            seen.add(path)
-
-    sys.path[:] = changes + sys.path
+    original = _patch_sys_path(args)
     try:
         yield
     finally:
-        sys.path[:] = orig
+        sys.path[:] = original
 
 
 class Run:
@@ -1754,11 +1767,8 @@ group are mutually exclusive.",
         # load plugin specific configuration.
         linter.load_plugin_configuration()
 
-        # insert current working directory to the python path to have a correct
-        # behaviour
-        with fix_import_path(args):
-            linter.check(args)
-            score_value = linter.generate_reports()
+        linter.check(args)
+        score_value = linter.generate_reports()
         if do_exit:
             if linter.config.exit_zero:
                 sys.exit(0)
