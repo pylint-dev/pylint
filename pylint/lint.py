@@ -1462,7 +1462,6 @@ def _patch_sys_path(args):
     original = list(sys.path)
     changes = []
     seen = set()
-    cwd = os.getcwd()
     for arg in args:
         path = utils.get_python_path(arg)
         if path not in seen:

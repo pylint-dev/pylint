@@ -683,7 +683,22 @@ class TestRunTC(object):
                 cwd=str(tmpdir),
             )
 
-        # Test with multiple jobs
+        # Linting this astroid file does not import it
+        with tmpdir.as_cwd():
+            subprocess.check_output(
+                [
+                    sys.executable,
+                    "-m",
+                    "pylint",
+                    "-j2",
+                    "astroid.py",
+                    "--disable=import-error,unused-import",
+                ],
+                cwd=str(tmpdir),
+            )
+
+        # Test with multiple jobs for hmac.py for which we have a
+        # CVE against: https://github.com/PyCQA/pylint/issues/959
         with tmpdir.as_cwd():
             subprocess.call(
                 [
