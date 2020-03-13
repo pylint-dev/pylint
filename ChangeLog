@@ -41,7 +41,7 @@ Release date: TBA
 
 * ``function-redefined`` exempts function redefined on a condition.
 
-   Close #2410
+  Close #2410
 
 * ``typing.overload`` functions are exempted from docstring checks
 
@@ -98,11 +98,11 @@ Release date: TBA
 
 * ``missing-*-docstring`` can look for ``__doc__`` assignments.
 
-   Close #3301
+  Close #3301
 
 * ``undefined-variable`` can now find undefined loop iterables
 
-   Close #498
+  Close #498
 
 * ``safe_infer`` can infer a value as long as all the paths share the same type.
 
