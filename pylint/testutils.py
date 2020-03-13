@@ -617,6 +617,7 @@ class LintModuleTest:
         return emitted, omitted
 
     def _check_output_text(self, expected_messages, expected_lines, received_lines):
+        expected_lines = self._split_lines(expected_messages, expected_lines)[0]
         assert (
-            self._split_lines(expected_messages, expected_lines)[0] == received_lines
-        ), "Error with the following functional test: {}".format(self._test_file.base)
+            expected_lines == received_lines
+        ), "Expected test lines did not match for test: {}".format(self._test_file.base)
