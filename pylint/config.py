@@ -48,7 +48,6 @@ import time
 from typing import Any, Dict, Tuple
 
 import toml
-
 from pylint import utils
 
 USER_HOME = os.path.expanduser("~")
@@ -512,7 +511,7 @@ Please report bugs on the project\'s mailing list:
 .SH AUTHOR
 %s <%s>
 """ % (
-            getattr(pkginfo, "debian_name", pkginfo.modname),
+            getattr(pkginfo, "debian_name", "pylint"),
             pkginfo.mailinglist,
             pkginfo.author,
             pkginfo.author_email,
