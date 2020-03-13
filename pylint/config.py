@@ -48,6 +48,7 @@ import time
 from typing import Any, Dict, Tuple
 
 import toml
+
 from pylint import utils
 
 USER_HOME = os.path.expanduser("~")
