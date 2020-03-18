@@ -933,17 +933,11 @@ def class_is_abstract(node: astroid.ClassDef) -> bool:
     # Only check for explicit metaclass=ABCMeta on this specific class
     meta = node.declared_metaclass()
     if meta is not None:
-        if (
-            meta.name == "ABCMeta"
-            and meta.root().name in ABC_MODULES
-        ):
+        if meta.name == "ABCMeta" and meta.root().name in ABC_MODULES:
             return True
 
     for ancestor in node.ancestors():
-        if (
-            ancestor.name == "ABC"
-            and ancestor.root().name in ABC_MODULES
-        ):
+        if ancestor.name == "ABC" and ancestor.root().name in ABC_MODULES:
             # abc.ABC inheritance
             return True
 

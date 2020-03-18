@@ -5,6 +5,7 @@ from __future__ import print_function
 # pylint: disable=too-few-public-methods, useless-object-inheritance
 import abc
 
+
 class Abstract(object):
     def aaaa(self):
         """should be overridden in concrete class"""
