@@ -232,6 +232,11 @@ Release date: TBA
 * Fixed ``broad_try_clause`` extension to check try/finally statements and to
   check for nested statements (e.g., inside of an ``if`` statement).
 
+* Recognize classes explicitly inheriting from ``abc.ABC`` or having an
+  ``abc.ABCMeta`` metaclass as abstract. This makes them not trigger W0223.
+
+  Closes #3098
+
 What's New in Pylint 2.4.4?
 ===========================
 Release date: 2019-11-13
