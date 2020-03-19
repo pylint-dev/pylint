@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006, 2008-2010, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>

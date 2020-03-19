@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009 Charles Hebert <charles.hebert@logilab.fr>
 # Copyright (c) 2011-2014 Google, Inc.
@@ -297,7 +296,7 @@ def test_enable_message_category(init_linter):
 
 
 def test_message_state_scope(init_linter):
-    class FakeConfig(object):
+    class FakeConfig:
         confidence = ["HIGH"]
 
     linter = init_linter
@@ -709,7 +708,7 @@ def test_pylintrc_parentdir_no_package():
                 assert config.find_pylintrc() == expected
 
 
-class TestPreprocessOptions(object):
+class TestPreprocessOptions:
     def _callback(self, name, value):
         self.args.append((name, value))
 
@@ -744,7 +743,7 @@ class _CustomPyLinter(PyLinter):
         if os.path.basename(path) == "wrong.py":
             return False
 
-        return super(_CustomPyLinter, self).should_analyze_file(
+        return super().should_analyze_file(
             modname, path, is_argument=is_argument
         )
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2019 Tyler N. Thieding <python@thieding.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -57,7 +56,7 @@ class BroadTryClauseChecker(checkers.BaseChecker):
     def visit_tryexcept(self, node):
         try_clause_statements = self._count_statements(node)
         if try_clause_statements > self.config.max_try_statements:
-            msg = "try clause contains {0} statements, expected at most {1}".format(
+            msg = "try clause contains {} statements, expected at most {}".format(
                 try_clause_statements, self.config.max_try_statements
             )
             self.add_message(

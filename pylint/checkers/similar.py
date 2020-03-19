@@ -149,8 +149,7 @@ class Similar:
         """
         for idx, lineset in enumerate(self.linesets[:-1]):
             for lineset2 in self.linesets[idx + 1 :]:
-                for sim in self._find_common(lineset, lineset2):
-                    yield sim
+                yield from self._find_common(lineset, lineset2)
 
 
 def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):

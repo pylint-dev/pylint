@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
@@ -126,7 +125,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
 
     def setup_method(self):
-        super(TestVariablesCheckerWithTearDown, self).setup_method()
+        super().setup_method()
         self._to_consume_backup = self.checker._to_consume
         self.checker._to_consume = []
 

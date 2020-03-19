@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006, 2009-2010, 2012-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012, 2014 Google, Inc.
 # Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>

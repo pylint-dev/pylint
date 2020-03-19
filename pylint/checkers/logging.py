@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2009-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009, 2012, 2014 Google, Inc.
 # Copyright (c) 2012 Mike Bryant <leachim@leachim.info>
@@ -313,7 +312,7 @@ class LoggingChecker(checkers.BaseChecker):
                     ) = utils.parse_format_method_string(format_string)
 
                     keyword_args_cnt = len(
-                        set(k for k, l in keyword_arguments if not isinstance(k, int))
+                        {k for k, l in keyword_arguments if not isinstance(k, int)}
                     )
                     required_num_args = (
                         keyword_args_cnt + implicit_pos_args + explicit_pos_args

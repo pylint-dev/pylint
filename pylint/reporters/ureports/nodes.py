@@ -62,7 +62,7 @@ class BaseLayout(VNode):
     """
 
     def __init__(self, children=(), **kwargs):
-        super(BaseLayout, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         for child in children:
             if isinstance(child, VNode):
                 self.append(child)
@@ -97,7 +97,7 @@ class Text(VNode):
     """
 
     def __init__(self, data, escaped=True, **kwargs):
-        super(Text, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         # if isinstance(data, unicode):
         #    data = data.encode('ascii')
         assert isinstance(data, str), data.__class__
@@ -129,7 +129,7 @@ class Section(BaseLayout):
     """
 
     def __init__(self, title=None, description=None, **kwargs):
-        super(Section, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if description:
             self.insert(0, Paragraph([Text(description)]))
         if title:
@@ -138,7 +138,7 @@ class Section(BaseLayout):
 
 class EvaluationSection(Section):
     def __init__(self, message, **kwargs):
-        super(EvaluationSection, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         title = Paragraph()
         title.append(Text("-" * len(message)))
         self.append(title)
@@ -180,7 +180,7 @@ class Table(BaseLayout):
     """
 
     def __init__(self, cols, title=None, rheaders=0, cheaders=0, **kwargs):
-        super(Table, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         assert isinstance(cols, int)
         self.cols = cols
         self.title = title

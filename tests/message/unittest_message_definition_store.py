@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -174,7 +172,7 @@ def test_get_msg_display_string(store):
     assert store.get_msg_display_string("E1234") == "'duplicate-keyword-arg'"
 
 
-class TestMessageDefinitionStore(object):
+class TestMessageDefinitionStore:
     def _compare_messages(self, desc, msg, checkerref=False):
         assert desc == msg.format_help(checkerref=checkerref)
 

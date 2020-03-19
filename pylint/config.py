@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2008 pyves@crater.logilab.fr <pyves@crater.logilab.fr>
 # Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
@@ -38,7 +37,6 @@ import configparser
 import contextlib
 import copy
 import functools
-import io
 import optparse
 import os
 import pickle
@@ -86,12 +84,12 @@ def save_results(results, base):
     try:
         with open(data_file, "wb") as stream:
             pickle.dump(results, stream)
-    except (IOError, OSError) as ex:
+    except OSError as ex:
         print("Unable to create file %s: %s" % (data_file, ex), file=sys.stderr)
 
 
 def _toml_has_config(path):
-    with open(path, "r") as toml_handle:
+    with open(path) as toml_handle:
         content = toml.load(toml_handle)
         try:
             content["tool"]["pylint"]
@@ -734,14 +732,14 @@ class OptionsManagerMixIn:
         if config_file is not None:
             config_file = os.path.expanduser(config_file)
             if not os.path.exists(config_file):
-                raise IOError("The config file {:s} doesn't exist!".format(config_file))
+                raise OSError("The config file {:s} doesn't exist!".format(config_file))
 
         use_config_file = config_file and os.path.exists(config_file)
         if use_config_file:
             parser = self.cfgfile_parser
 
             if config_file.endswith(".toml"):
-                with open(config_file, "r") as fp:
+                with open(config_file) as fp:
                     content = toml.load(fp)
 
                 try:
@@ -753,7 +751,7 @@ class OptionsManagerMixIn:
                         parser._sections[section.upper()] = values
             else:
                 # Use this encoding in order to strip the BOM marker, if any.
-                with io.open(config_file, "r", encoding="utf_8_sig") as fp:
+                with open(config_file, encoding="utf_8_sig") as fp:
                     parser.read_file(fp)
 
                 # normalize sections'title

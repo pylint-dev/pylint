@@ -21,10 +21,10 @@
 
 """functional/non regression tests for pylint"""
 import collections
+import configparser
 import contextlib
 import csv
 import functools
-import io
 import operator
 import platform
 import re
@@ -38,8 +38,6 @@ from os.path import abspath, basename, dirname, exists, join, splitext
 
 import astroid
 import pytest
-import six
-from six.moves import configparser
 
 from pylint import checkers, interfaces
 from pylint.lint import PyLinter
@@ -161,7 +159,7 @@ class Message(
     def __eq__(self, other):
         if isinstance(other, Message):
             if self.confidence and other.confidence:
-                return super(Message, self).__eq__(other)
+                return super().__eq__(other)
             return self[:-1] == other[:-1]
         return NotImplemented  # pragma: no cover
 
@@ -483,7 +481,7 @@ def multiset_difference(left_op, right_op):
     missing = left_op.copy()
     missing.subtract(right_op)
     unexpected = {}
-    for key, value in list(six.iteritems(missing)):
+    for key, value in list(missing.items()):
         if value <= 0:
             missing.pop(key)
             if value < 0:
@@ -559,8 +557,8 @@ class LintModuleTest:
         if self._test_file.base == "invalid_encoded_data":
             return open(self._test_file.source)
         if "latin1" in self._test_file.base:
-            return io.open(self._test_file.source, encoding="latin1")
-        return io.open(self._test_file.source, encoding="utf8")
+            return open(self._test_file.source, encoding="latin1")
+        return open(self._test_file.source, encoding="utf8")
 
     def _get_expected(self):
         with self._open_source_file() as fobj:

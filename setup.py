@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # pylint: disable=W0404,W0622,W0613
 # Copyright (c) 2006, 2009-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
@@ -62,7 +61,7 @@ else:
     long_description = ""
 
 
-needs_pytest = set(['pytest', 'test', 'ptr']).intersection(sys.argv)
+needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
 pytest_runner = ['pytest-runner'] if needs_pytest else []
 
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
 # Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
@@ -909,14 +908,14 @@ class Python3Checker(checkers.BaseChecker):
         self._future_absolute_import = False
         self._modules_warned_about = set()
         self._branch_stack = []
-        super(Python3Checker, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     # pylint: disable=keyword-arg-before-vararg, arguments-differ
     def add_message(self, msg_id, always_warn=False, *args, **kwargs):
         if always_warn or not (
             self._branch_stack and self._branch_stack[-1].is_py2_only
         ):
-            super(Python3Checker, self).add_message(msg_id, *args, **kwargs)
+            super().add_message(msg_id, *args, **kwargs)
 
     def _is_py2_test(self, node):
         if isinstance(node.test, astroid.Attribute) and isinstance(

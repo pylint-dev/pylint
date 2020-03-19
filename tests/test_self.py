@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
@@ -97,7 +96,7 @@ class MultiReporter(BaseReporter):
             rep.linter = value
 
 
-class TestRunTC(object):
+class TestRunTC:
     def _runtest(self, args, reporter=None, out=None, code=None):
         if out is None:
             out = StringIO()

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -72,7 +70,7 @@ class PragmaParserError(Exception):
         """
         self.message = message
         self.token = token
-        super(PragmaParserError, self).__init__(self.message)
+        super().__init__(self.message)
 
 
 class UnRecognizedOptionError(PragmaParserError):

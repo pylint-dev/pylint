@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -11,15 +9,15 @@ from pylint.checkers.utils import check_messages
 from pylint.utils import ASTWalker
 
 
-class TestASTWalker(object):
-    class MockLinter(object):
+class TestASTWalker:
+    class MockLinter:
         def __init__(self, msgs):
             self._msgs = msgs
 
         def is_message_enabled(self, msgid):
             return self._msgs.get(msgid, True)
 
-    class Checker(object):
+    class Checker:
         def __init__(self):
             self.called = set()
 
@@ -50,7 +48,7 @@ class TestASTWalker(object):
         assert {"module", "assignname"} == checker.called
 
     def test_deprecated_methods(self):
-        class Checker(object):
+        class Checker:
             def __init__(self):
                 self.called = False
 
