@@ -18,7 +18,7 @@ init:
   - ps: ls C:\Python*
   - ps: mkdir C:\tmp
 install:
-  - 'powershell ./appveyor/install.ps1'
+  - 'SET PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%'
   - 'python -m pip install -U setuptools pip tox wheel virtualenv'
   - 'python -m pip --version'
   - 'python -m tox --version'
