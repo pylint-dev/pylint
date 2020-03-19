@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2008, 2010, 2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
@@ -42,7 +41,7 @@ _DEFAULTS = {
 }
 
 
-class Config(object):
+class Config:
     """config object for tests"""
 
     def __init__(self):

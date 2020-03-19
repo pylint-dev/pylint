@@ -85,7 +85,7 @@ def get_plugins_info(linter, doc_files):
         doc = ""
         doc_file = doc_files.get(module)
         if doc_file:
-            with open(doc_file, "r") as f:
+            with open(doc_file) as f:
                 doc = f.read()
         try:
             by_checker[checker]["checker"] = checker

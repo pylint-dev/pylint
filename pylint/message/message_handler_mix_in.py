@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -35,8 +33,7 @@ class MessagesHandlerMixIn:
 
     def _checker_messages(self, checker):
         for known_checker in self._checkers[checker.lower()]:
-            for msgid in known_checker.msgs:
-                yield msgid
+            yield from known_checker.msgs
 
     @classmethod
     def clear_by_id_managed_msgs(cls):

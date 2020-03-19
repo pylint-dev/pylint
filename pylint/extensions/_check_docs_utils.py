@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2016-2018 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Yuri Bochkarev <baltazar.bz@gmail.com>

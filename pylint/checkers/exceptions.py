@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2011-2014 Google, Inc.
 # Copyright (c) 2012 Tim Hatch <tim@timhatch.com>
@@ -262,7 +261,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     def open(self):
         self._builtin_exceptions = _builtin_exceptions()
-        super(ExceptionsChecker, self).open()
+        super().open()
 
     @utils.check_messages(
         "misplaced-bare-raise",

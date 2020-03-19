@@ -17,13 +17,13 @@ from pylint.interfaces import HIGH, IAstroidChecker
 
 class PathGraph(Mccabe_PathGraph):
     def __init__(self, node):
-        super(PathGraph, self).__init__(name="", entity="", lineno=1)
+        super().__init__(name="", entity="", lineno=1)
         self.root = node
 
 
 class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
     def __init__(self):
-        super(PathGraphingAstVisitor, self).__init__()
+        super().__init__()
         self._bottom_counter = 0
 
     def default(self, node, *args):

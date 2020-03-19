@@ -85,7 +85,7 @@ def test_option_values(HANDLER, PROJECT):
     # or class diagrams
 
 
-class TestDefaultDiadefGenerator(object):
+class TestDefaultDiadefGenerator:
     def test_known_values1(self, HANDLER, PROJECT):
         dd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)
         assert len(dd) == 2

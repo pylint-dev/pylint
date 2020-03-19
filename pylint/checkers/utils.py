@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2007, 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
@@ -539,8 +538,7 @@ def collect_string_fields(format_string) -> Iterable[Optional[str]]:
             nested = result[2]
             yield name
             if nested:
-                for field in collect_string_fields(nested):
-                    yield field
+                yield from collect_string_fields(nested)
     except ValueError as exc:
         # Probably the format string is invalid.
         if exc.args[0].startswith("cannot switch from manual"):

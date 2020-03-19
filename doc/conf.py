@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Pylint documentation build configuration file, created by
 # sphinx-quickstart on Thu Apr  4 20:31:25 2013.

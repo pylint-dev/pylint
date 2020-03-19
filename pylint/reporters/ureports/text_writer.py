@@ -18,7 +18,7 @@ class TextWriter(BaseWriter):
     """
 
     def begin_format(self):
-        super(TextWriter, self).begin_format()
+        super().begin_format()
         self.list_level = 0
 
     def visit_section(self, layout):

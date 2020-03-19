@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2016 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2012-2014 Google, Inc.
@@ -312,7 +311,7 @@ def _get_properties(config):
     if config is not None:
         property_classes.update(config.property_classes)
         property_names.update(
-            (prop.rsplit(".", 1)[-1] for prop in config.property_classes)
+            prop.rsplit(".", 1)[-1] for prop in config.property_classes
         )
     return property_classes, property_names
 

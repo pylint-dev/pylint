@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
@@ -45,8 +44,8 @@ UPDATE = False
 class LintModuleOutputUpdate(testutils.LintModuleTest):
     def _open_expected_file(self):
         try:
-            return super(LintModuleOutputUpdate, self)._open_expected_file()
-        except IOError:
+            return super()._open_expected_file()
+        except OSError:
             return io.StringIO()
 
     def _check_output_text(self, expected_messages, expected_lines, received_lines):

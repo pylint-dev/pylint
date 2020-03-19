@@ -32,7 +32,7 @@ def get_default_options():
         rcfile = os.path.join(home, RCFILE)
         try:
             options = open(rcfile).read().split()
-        except IOError:
+        except OSError:
             pass  # ignore if no config file found
     return options
 

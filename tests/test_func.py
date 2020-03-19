@@ -39,7 +39,7 @@ def exception_str(self, ex):  # pylint: disable=unused-argument
     return "in %s\n:: %s" % (ex.file, ", ".join(ex.args))
 
 
-class LintTestUsingModule(object):
+class LintTestUsingModule:
     INPUT_DIR = None
     DEFAULT_PACKAGE = "input"
     package = DEFAULT_PACKAGE
@@ -87,7 +87,7 @@ class LintTestUsingModule(object):
 
     def _get_expected(self):
         if self._has_output() and self.output:
-            with open(self.output, "r") as fobj:
+            with open(self.output) as fobj:
                 return fobj.read().strip() + "\n"
         else:
             return ""
@@ -101,7 +101,7 @@ class LintTestUpdate(LintTestUsingModule):
         if self._has_output():
             try:
                 expected = self._get_expected()
-            except IOError:
+            except OSError:
                 expected = ""
             if got != expected:
                 with open(self.output, "w") as fobj:

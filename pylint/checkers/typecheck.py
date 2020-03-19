@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009 James Lingard <jchl@aristanetworks.com>
 # Copyright (c) 2012-2014 Google, Inc.
@@ -87,8 +86,7 @@ BUILTIN_TUPLE = "builtins.tuple"
 def _unflatten(iterable):
     for index, elem in enumerate(iterable):
         if isinstance(elem, Sequence) and not isinstance(elem, str):
-            for single_elem in _unflatten(elem):
-                yield single_elem
+            yield from _unflatten(elem)
         elif elem and not index:
             # We're interested only in the first element.
             yield elem

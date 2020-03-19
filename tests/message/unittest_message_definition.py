@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -46,7 +44,7 @@ class FalseChecker(BaseChecker):
     }
 
 
-class TestMessagesDefinition(object):
+class TestMessagesDefinition:
     def assert_with_fail_msg(self, msg, expected=True):
         fail_msg = "With minversion='{}' and maxversion='{}',".format(
             msg.minversion, msg.maxversion

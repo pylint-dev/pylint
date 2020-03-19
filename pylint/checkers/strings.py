@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2009 Charles Hebert <charles.hebert@logilab.fr>
 # Copyright (c) 2010-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
@@ -676,7 +675,7 @@ class StringConstantChecker(BaseTokenChecker):
     UNICODE_ESCAPE_CHARACTERS = "uUN"
 
     def __init__(self, *args, **kwargs):
-        super(StringConstantChecker, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.string_tokens = {}  # token position -> (token value, next token)
 
     def process_module(self, module):

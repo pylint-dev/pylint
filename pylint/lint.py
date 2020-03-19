@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2008 Fabrice Douchant <Fabrice.Douchant@logilab.fr>
 # Copyright (c) 2009 Vincent
@@ -553,7 +552,7 @@ class PyLinter(
         )
         MessagesHandlerMixIn.__init__(self)
         reporters.ReportsHandlerMixIn.__init__(self)
-        super(PyLinter, self).__init__(
+        super().__init__(
             usage=__doc__,
             version=full_version,
             config_file=pylintrc or next(config.find_default_config_files(), None),
