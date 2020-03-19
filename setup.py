@@ -19,10 +19,10 @@
 
 """Generic Setup script, takes package info from __pkginfo__.py file.
 """
-from distutils.command.build_py import build_py
 import os
-from os.path import exists, isdir, join
 import sys
+from distutils.command.build_py import build_py
+from os.path import exists, isdir, join
 
 __docformat__ = "restructuredtext en"
 
@@ -61,8 +61,8 @@ else:
     long_description = ""
 
 
-needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
-pytest_runner = ['pytest-runner'] if needs_pytest else []
+needs_pytest = {"pytest", "test", "ptr"}.intersection(sys.argv)
+pytest_runner = ["pytest-runner"] if needs_pytest else []
 
 
 def ensure_scripts(linux_scripts):
