@@ -56,7 +56,7 @@ extras_require = __pkginfo__.get("extras_require", {})
 
 readme_path = join(base_dir, "README.rst")
 if exists(readme_path):
-    with open(readme_path) as stream:
+    with open(readme_path, encoding="UTF-8") as stream:
         long_description = stream.read()
 else:
     long_description = ""
