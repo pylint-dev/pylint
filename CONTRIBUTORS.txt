@@ -373,3 +373,5 @@ contributors:
 * Benny Müller: contributor
 
 * Bernie Gray: contributor
+
+* Slavfox: contributor

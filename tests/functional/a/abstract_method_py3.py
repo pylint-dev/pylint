@@ -5,6 +5,7 @@ from __future__ import print_function
 # pylint: disable=too-few-public-methods, useless-object-inheritance
 import abc
 
+
 class Abstract(object):
     def aaaa(self):
         """should be overridden in concrete class"""
@@ -24,6 +25,24 @@ class AbstractB(Abstract):
     def cccc(self):
         """should be overridden in concrete class"""
         raise NotImplementedError()
+
+class AbstractC(AbstractB, abc.ABC):
+    """
+    Abstract class.
+
+    Should not trigger a warning for unimplemented
+    abstract methods, because of explicit abc.ABC inheritance.
+    """
+
+
+class AbstractD(AbstractB, metaclass=abc.ABCMeta):
+    """
+    Abstract class.
+
+    Should not trigger a warning for unimplemented
+    abstract methods, because of explicit metaclass.
+    """
+
 
 class Concrete(Abstract): # [abstract-method]
     """Concrete class"""
