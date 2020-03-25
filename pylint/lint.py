@@ -1861,8 +1861,11 @@ group are mutually exclusive.",
 
 def cb_list_extensions(option, optname, value, parser):
     """List all the extensions under pylint.extensions"""
-    for extension in extensions.extension_names:
-        print(extension)
+
+    for filename in os.listdir(os.path.dirname(extensions.__file__)):
+        if filename.endswith(".py") and not filename.startswith("_"):
+            extension_name, _, _ = filename.partition(".")
+            print("pylint.extensions.{}".format(extension_name))
     sys.exit(0)
 
 
