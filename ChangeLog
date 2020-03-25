@@ -11,6 +11,10 @@ Release date: TBA
 
   Close #2725
 
+* Allow used variables to be properly consumed when different checks are enabled / disabled
+
+  Close #3445
+
 * Fix dangerous-default-value rule to account for keyword argument defaults
 
   Close #3373
