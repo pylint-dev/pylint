@@ -160,6 +160,20 @@ class Similar:
             for lineset2 in self.linesets[idx + 1 :]:
                 yield from self._find_common(lineset, lineset2)
 
+    def get_map_data(self):
+        """ Returns the data we can use for a map/reduce process
+
+        In this case we are returning this instance's Linesets, that is all file
+        information that will later be used for vectorisation.
+        """
+        return self.linesets
+
+    def combine_mapreduce_data(self, linesets_collection):
+        """ Reduces and recombines data into a format that we can report on
+
+        The partner function of get_map_data() """
+        self.linesets = [line for lineset in linesets_collection for line in lineset]
+
 
 def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     """return lines with leading/trailing whitespace and any ignored code
@@ -352,7 +366,7 @@ class SimilarChecker(BaseChecker, Similar):
     def set_option(self, optname, value, action=None, optdict=None):
         """method called to set an option (registered in the options list)
 
-        overridden to report options setting to Similar
+        Overridden to report options setting to Similar
         """
         BaseChecker.set_option(self, optname, value, action, optdict)
         if optname == "min-similarity-lines":
@@ -401,6 +415,20 @@ class SimilarChecker(BaseChecker, Similar):
             duplicated += num * (len(couples) - 1)
         stats["nb_duplicated_lines"] = duplicated
         stats["percent_duplicated_lines"] = total and duplicated * 100.0 / total
+
+    def get_map_data(self):
+        """ Passthru override """
+        return Similar.get_map_data(self)
+
+    @classmethod
+    def reduce_map_data(cls, linter, data):
+        """ Reduces and recombines data into a format that we can report on
+
+        The partner function of get_map_data() """
+        recombined = SimilarChecker(linter)
+        recombined.open()
+        Similar.combine_mapreduce_data(recombined, linesets_collection=data)
+        recombined.close()
 
 
 def register(linter):

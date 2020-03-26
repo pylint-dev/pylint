@@ -21,6 +21,8 @@ from pathlib import Path
 import pytest
 
 from pylint.checkers import similar
+from pylint.lint import PyLinter
+from pylint.testutils import TestReporter as Reporter
 
 INPUT = Path(__file__).parent / ".." / "input"
 SIMILAR1 = str(INPUT / "similar1")
@@ -234,3 +236,141 @@ def test_no_args():
             assert ex.code == 1
         else:
             pytest.fail("not system exit")
+
+
+def test_get_map_data():
+    """ Tests that a SimilarChecker respects the MapReduceMixin interface
+    """
+    linter = PyLinter(reporter=Reporter())
+
+    # Add a parallel checker to ensure it can map and reduce
+    linter.register_checker(similar.SimilarChecker(linter))
+
+    source_streams = (
+        str(INPUT / "similar_lines_a.py"),
+        str(INPUT / "similar_lines_b.py"),
+    )
+    expected_linelists = (
+        (
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "def adipiscing(elit):",
+            'etiam = "id"',
+            'dictum = "purus,"',
+            'vitae = "pretium"',
+            'neque = "Vivamus"',
+            'nec = "ornare"',
+            'tortor = "sit"',
+            "return etiam, dictum, vitae, neque, nec, tortor",
+            "",
+            "",
+            "class Amet:",
+            "def similar_function_3_lines(self, tellus):",
+            "agittis = 10",
+            "tellus *= 300",
+            "return agittis, tellus",
+            "",
+            "def lorem(self, ipsum):",
+            'dolor = "sit"',
+            'amet = "consectetur"',
+            "return (lorem, dolor, amet)",
+            "",
+            "def similar_function_5_lines(self, similar):",
+            "some_var = 10",
+            "someother_var *= 300",
+            'fusce = "sit"',
+            'amet = "tortor"',
+            "return some_var, someother_var, fusce, amet",
+            "",
+            'def __init__(self, moleskie, lectus="Mauris", ac="pellentesque"):',
+            'metus = "ut"',
+            'lobortis = "urna."',
+            'Integer = "nisl"',
+            '(mauris,) = "interdum"',
+            'non = "odio"',
+            'semper = "aliquam"',
+            'malesuada = "nunc."',
+            'iaculis = "dolor"',
+            'facilisis = "ultrices"',
+            'vitae = "ut."',
+            "",
+            "return (",
+            "metus,",
+            "lobortis,",
+            "Integer,",
+            "mauris,",
+            "non,",
+            "semper,",
+            "malesuada,",
+            "iaculis,",
+            "facilisis,",
+            "vitae,",
+            ")",
+            "",
+            "def similar_function_3_lines(self, tellus):",
+            "agittis = 10",
+            "tellus *= 300",
+            "return agittis, tellus",
+        ),
+        (
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "class Nulla:",
+            'tortor = "ultrices quis porta in"',
+            'sagittis = "ut tellus"',
+            "",
+            "def pulvinar(self, blandit, metus):",
+            "egestas = [mauris for mauris in zip(blandit, metus)]",
+            "neque = (egestas, blandit)",
+            "",
+            "def similar_function_5_lines(self, similar):",
+            "some_var = 10",
+            "someother_var *= 300",
+            'fusce = "sit"',
+            'amet = "tortor"',
+            'iaculis = "dolor"',
+            "return some_var, someother_var, fusce, amet, iaculis, iaculis",
+            "",
+            "",
+            "def tortor(self):",
+            "ultrices = 2",
+            'quis = ultricies * "porta"',
+            "return ultricies, quis",
+            "",
+            "",
+            "class Commodo:",
+            "def similar_function_3_lines(self, tellus):",
+            "agittis = 10",
+            "tellus *= 300",
+            'laoreet = "commodo "',
+            "return agittis, tellus, laoreet",
+        ),
+    )
+
+    data = []
+
+    # Manually perform a 'map' type function
+    for source_fname in source_streams:
+        sim = similar.SimilarChecker(linter)
+        with open(source_fname) as stream:
+            sim.append_stream(source_fname, stream)
+        # The map bit, can you tell? ;)
+        data.extend(sim.get_map_data())
+
+    assert len(expected_linelists) == len(data)
+    for source_fname, expected_lines, lineset_obj in zip(
+        source_streams, expected_linelists, data
+    ):
+        assert source_fname == lineset_obj.name
+        # There doesn't seem to be a faster way of doing this, yet.
+        lines = (line for idx, line in lineset_obj.enumerate_stripped())
+        assert tuple(expected_lines) == tuple(lines)
