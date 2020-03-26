@@ -2,7 +2,7 @@
 
 https://github.com/PyCQA/pylint/issues/2335
 """
-# pylint: disable=missing-class-docstring
+# pylint: disable=missing-class-docstring,unused-argument,arguments-differ
 from abc import ABCMeta
 
 
