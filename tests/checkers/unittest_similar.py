@@ -239,8 +239,7 @@ def test_no_args():
 
 
 def test_get_map_data():
-    """ Tests that a SimilarChecker respects the MapReduceMixin interface
-    """
+    """Tests that a SimilarChecker respects the MapReduceMixin interface"""
     linter = PyLinter(reporter=Reporter())
 
     # Add a parallel checker to ensure it can map and reduce

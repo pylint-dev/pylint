@@ -31,7 +31,7 @@ from itertools import groupby
 
 import astroid
 
-from pylint.checkers import BaseChecker, table_lines_from_stats
+from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.utils import decoding_stream
@@ -161,7 +161,7 @@ class Similar:
                 yield from self._find_common(lineset, lineset2)
 
     def get_map_data(self):
-        """ Returns the data we can use for a map/reduce process
+        """Returns the data we can use for a map/reduce process
 
         In this case we are returning this instance's Linesets, that is all file
         information that will later be used for vectorisation.
@@ -169,9 +169,9 @@ class Similar:
         return self.linesets
 
     def combine_mapreduce_data(self, linesets_collection):
-        """ Reduces and recombines data into a format that we can report on
+        """Reduces and recombines data into a format that we can report on
 
-        The partner function of get_map_data() """
+        The partner function of get_map_data()"""
         self.linesets = [line for lineset in linesets_collection for line in lineset]
 
 
@@ -302,7 +302,7 @@ def report_similarities(sect, stats, old_stats):
 
 
 # wrapper to get a pylint checker from the similar class
-class SimilarChecker(BaseChecker, Similar):
+class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     """checks for similarities and duplicated code. This computation may be
     memory / CPU intensive, so you should disable it if you experiment some
     problems.
@@ -422,9 +422,9 @@ class SimilarChecker(BaseChecker, Similar):
 
     @classmethod
     def reduce_map_data(cls, linter, data):
-        """ Reduces and recombines data into a format that we can report on
+        """Reduces and recombines data into a format that we can report on
 
-        The partner function of get_map_data() """
+        The partner function of get_map_data()"""
         recombined = SimilarChecker(linter)
         recombined.open()
         Similar.combine_mapreduce_data(recombined, linesets_collection=data)
