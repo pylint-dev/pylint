@@ -1331,11 +1331,13 @@ class RecommandationChecker(checkers.BaseChecker):
             for subscript in child.nodes_of_class(astroid.Subscript):
                 if not isinstance(subscript.value, astroid.Name):
                     continue
-                if not isinstance(subscript.slice, astroid.Index):
+
+                slice = subscript.slice
+                if isinstance(slice, astroid.Index):
+                    slice = slice.value
+                if not isinstance(slice, astroid.Name):
                     continue
-                if not isinstance(subscript.slice.value, astroid.Name):
-                    continue
-                if subscript.slice.value.name != node.target.name:
+                if slice.name != node.target.name:
                     continue
                 if iterating_object.name != subscript.value.name:
                     continue
