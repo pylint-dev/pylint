@@ -1403,20 +1403,11 @@ accessed. Python regular expressions are accepted.",
             if defval is None and not assigned and not has_no_context_keywords_variadic:
                 self.add_message("missing-kwoa", node=node, args=(name, callable_name))
 
-    @check_messages("invalid-sequence-index")
-    def visit_extslice(self, node):
-        # Check extended slice objects as if they were used as a sequence
-        # index to check if the object being sliced can support them
-        return self.visit_index(node)
-
-    @check_messages("invalid-sequence-index")
-    def visit_index(self, node):
-        if not node.parent or not hasattr(node.parent, "value"):
-            return None
+    def _check_invalid_sequence_index(self, subscript: astroid.Subscript):
         # Look for index operations where the parent is a sequence type.
         # If the types can be determined, only allow indices to be int,
         # slice or instances with __index__.
-        parent_type = safe_infer(node.parent.value)
+        parent_type = safe_infer(subscript.value)
         if not isinstance(
             parent_type, (astroid.ClassDef, astroid.Instance)
         ) or not has_known_bases(parent_type):
@@ -1425,9 +1416,9 @@ accessed. Python regular expressions are accepted.",
         # Determine what method on the parent this index will use
         # The parent of this node will be a Subscript, and the parent of that
         # node determines if the Subscript is a get, set, or delete operation.
-        if node.parent.ctx is astroid.Store:
+        if subscript.ctx is astroid.Store:
             methodname = "__setitem__"
-        elif node.parent.ctx is astroid.Del:
+        elif subscript.ctx is astroid.Del:
             methodname = "__delitem__"
         else:
             methodname = "__getitem__"
@@ -1459,10 +1450,10 @@ accessed. Python regular expressions are accepted.",
         # For ExtSlice objects coming from visit_extslice, no further
         # inference is necessary, since if we got this far the ExtSlice
         # is an error.
-        if isinstance(node, astroid.ExtSlice):
-            index_type = node
+        if isinstance(subscript.value, astroid.ExtSlice):
+            index_type = subscript.value
         else:
-            index_type = safe_infer(node)
+            index_type = safe_infer(subscript.slice)
         if index_type is None or index_type is astroid.Uninferable:
             return None
         # Constants must be of type int
@@ -1479,17 +1470,24 @@ accessed. Python regular expressions are accepted.",
             except exceptions.NotFoundError:
                 pass
         elif isinstance(index_type, astroid.Slice):
-            # Delegate to visit_slice. A slice can be present
+            # A slice can be present
             # here after inferring the index node, which could
             # be a `slice(...)` call for instance.
-            return self.visit_slice(index_type)
+            return self._check_invalid_slice_index(index_type)
 
         # Anything else is an error
-        self.add_message("invalid-sequence-index", node=node)
+        self.add_message("invalid-sequence-index", node=subscript)
         return None
 
-    @check_messages("invalid-slice-index")
-    def visit_slice(self, node):
+    @check_messages("invalid-sequence-index")
+    def visit_extslice(self, node):
+        if not node.parent or not hasattr(node.parent, "value"):
+            return None
+        # Check extended slice objects as if they were used as a sequence
+        # index to check if the object being sliced can support them
+        return self._check_invalid_sequence_index(node.parent)
+
+    def _check_invalid_slice_index(self, node):
         # Check the type of each part of the slice
         invalid_slices = 0
         for index in (node.lower, node.upper, node.step):
@@ -1660,8 +1658,12 @@ accessed. Python regular expressions are accepted.",
         "unsupported-assignment-operation",
         "unsupported-delete-operation",
         "unhashable-dict-key",
+        "invalid-sequence-index",
+        "invalid-slice-index",
     )
     def visit_subscript(self, node):
+        self._check_invalid_sequence_index(node)
+
         supported_protocol = None
         if isinstance(node.value, (astroid.ListComp, astroid.DictComp)):
             return
