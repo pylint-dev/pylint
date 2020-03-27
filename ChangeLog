@@ -107,6 +107,10 @@ Release date: TBA
 
   Close #1879
 
+* Fixes duplicate-errors not working with -j2+
+
+  Close #3314
+
 What's New in Pylint 2.6.0?
 ===========================
 
