@@ -100,3 +100,5 @@ multiple types of string formatting to be used.
 The type of formatting to use is chosen through enabling and disabling messages
 rather than through the logging-format-style option.
 The fstr value of the logging-format-style option is not valid.
+
+* Fixes duplicate code detection for --jobs=2+

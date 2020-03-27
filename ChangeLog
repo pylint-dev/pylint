@@ -216,6 +216,10 @@ What's New in Pylint 2.5.0?
 
 Release date: 2020-04-27
 
+* Fixes duplicate-errors not working with -j2+
+
+  Close #3314
+
 * Fix a false negative for ``undefined-variable`` when using class attribute in comprehension.
 
   Close #3494
