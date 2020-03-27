@@ -1332,12 +1332,12 @@ class RecommandationChecker(checkers.BaseChecker):
                 if not isinstance(subscript.value, astroid.Name):
                     continue
 
-                slice = subscript.slice
-                if isinstance(slice, astroid.Index):
-                    slice = slice.value
-                if not isinstance(slice, astroid.Name):
+                value = subscript.slice
+                if isinstance(value, astroid.Index):
+                    value = value.value
+                if not isinstance(value, astroid.Name):
                     continue
-                if slice.name != node.target.name:
+                if value.name != node.target.name:
                     continue
                 if iterating_object.name != subscript.value.name:
                     continue
