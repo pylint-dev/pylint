@@ -58,3 +58,5 @@ Other Changes
 .. _the migration guide in isort documentation: https://timothycrosley.github.io/isort/docs/upgrade_guides/5.0.0/#known_standard_library
 
 * `len-as-conditions` is now triggered only for classes that are inheriting directly from list, dict, or set and not implementing the `__bool__` function, or from generators like range or list/dict/set comprehension. This should reduce the false positive for other classes, like pandas's DataFrame or numpy's Array.
+
+* Fixes duplicate code detection for --jobs=2+

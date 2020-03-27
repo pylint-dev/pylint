@@ -433,3 +433,5 @@ contributors:
 * Gergely Kalmár: contributor
 
 * Batuhan Taskaya: contributor
+
+* Frank Harrison (doublethefish): contributor
