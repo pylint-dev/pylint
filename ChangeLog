@@ -14,6 +14,10 @@ Release date: TBA
 
 * Positional-only arguments are taken in account for ``useless-super-delegation``
 
+* Positional-only argument annotations are taken in account for ``unused-import``
+
+  Close #3462
+
 * Add a command to list available extensions.
 
 * Allow used variables to be properly consumed when different checks are enabled / disabled
