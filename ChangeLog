@@ -12,6 +12,8 @@ Release date: TBA
 
   Close #2725
 
+* Positional-only arguments are taken in account for ``useless-super-delegation``
+
 * Add a command to list available extensions.
 
 * Allow used variables to be properly consumed when different checks are enabled / disabled

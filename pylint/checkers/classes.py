@@ -110,7 +110,11 @@ def _signature_from_call(call):
 def _signature_from_arguments(arguments):
     kwarg = arguments.kwarg
     vararg = arguments.vararg
-    args = [arg.name for arg in arguments.args if arg.name != "self"]
+    args = [
+        arg.name
+        for arg in chain(arguments.posonlyargs, arguments.args)
+        if arg.name != "self"
+    ]
     kwonlyargs = [arg.name for arg in arguments.kwonlyargs]
     return _ParameterSignature(args, kwonlyargs, vararg, kwarg)
 
@@ -1079,13 +1083,16 @@ a metaclass class method.",
 
         if meth_node is not None:
 
-            def form_annotations(annotations):
+            def form_annotations(arguments):
+                annotations = chain(
+                    (arguments.posonlyargs_annotations or []), arguments.annotations
+                )
                 return [
                     annotation.as_string() for annotation in filter(None, annotations)
                 ]
 
-            called_annotations = form_annotations(function.args.annotations)
-            overridden_annotations = form_annotations(meth_node.args.annotations)
+            called_annotations = form_annotations(function.args)
+            overridden_annotations = form_annotations(meth_node.args)
             if called_annotations and overridden_annotations:
                 if called_annotations != overridden_annotations:
                     return
@@ -1125,14 +1132,14 @@ a metaclass class method.",
         if parent_is_async and not current_is_async:
             self.add_message(
                 "invalid-overridden-method",
-                args=(function_node.name, "async", "non-async",),
+                args=(function_node.name, "async", "non-async"),
                 node=function_node,
             )
 
         elif not parent_is_async and current_is_async:
             self.add_message(
                 "invalid-overridden-method",
-                args=(function_node.name, "non-async", "async",),
+                args=(function_node.name, "non-async", "async"),
                 node=function_node,
             )
 

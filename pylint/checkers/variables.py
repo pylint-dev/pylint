@@ -1253,6 +1253,7 @@ class VariablesChecker(BaseChecker):
         if isinstance(frame, astroid.FunctionDef) and node.statement() is frame:
             in_annotation_or_default = (
                 node in frame.args.annotations
+                or node in frame.args.posonlyargs_annotations
                 or node in frame.args.kwonlyargs_annotations
                 or node is frame.args.varargannotation
                 or node is frame.args.kwargannotation
