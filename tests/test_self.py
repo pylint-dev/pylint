@@ -237,6 +237,20 @@ class TestRunTC:
             code=2,
         )
 
+    def test_parallel_execution_bug_2674(self):
+        """  Tests that disabling absolute imports works the same in -j1/j2 """
+        expected_ret_code = 0  # we are disabling the check, should pass
+        for jobs in (1, 2):
+            self._runtest(
+                [
+                    "--py3k",
+                    "--disable=no-absolute-import",
+                    "-j %d" % jobs,
+                    join(HERE, "input", "no_absolute_import.py"),
+                ],
+                code=expected_ret_code,
+            )
+
     def test_parallel_execution_missing_arguments(self):
         self._runtest(["-j 2", "not_here", "not_here_too"], code=1)
 
