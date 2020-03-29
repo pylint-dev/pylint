@@ -1,5 +1,5 @@
 """ Tests for invalid-name checker. """
-# pylint: disable=unused-import, no-absolute-import, wrong-import-position,import-outside-toplevel
+# pylint: disable=unused-import, no-absolute-import, wrong-import-position,import-outside-toplevel, too-few-public-methods, missing-class-docstring
 
 AAA = 24
 try:
@@ -42,3 +42,15 @@ def _generate_cmdline_tests():
 # We should emit for the loop variable.
 for i in range(10):
     Foocapfor = 2  # [invalid-name]
+
+
+from typing import TypeVar
+
+T = TypeVar("T")
+T_contra = TypeVar("T_contra", contravariant=True)
+VT_co = TypeVar("VT_co", covariant=True)
+
+R_bi = TypeVar("R_bi")  # [invalid-name]
+
+class S_co:  # [invalid-name]
+    pass

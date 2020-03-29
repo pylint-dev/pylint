@@ -37,6 +37,8 @@ name is found in, and not the type of object assigned.
 +--------------------+---------------------------------------------------------------------------------------------------+
 | ``inlinevar``      | Loop variables in list comprehensions and generator expressions.                                  |
 +--------------------+---------------------------------------------------------------------------------------------------+
+| ``typevar``        | Type variable declared with ``TypeVar``.                                                          |
++--------------------+---------------------------------------------------------------------------------------------------+
 
 Default behavior
 ~~~~~~~~~~~~~~~~
@@ -78,6 +80,8 @@ Following options are exposed:
 
 .. option:: --inlinevar-naming-style=<style>
 
+.. option:: --typevar-naming-style=<style>
+
 
 Custom regular expressions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,6 +115,8 @@ expression will lead to an instance of ``invalid-name``.
 .. option:: --class-attribute-rgx=<regex>
 
 .. option:: --inlinevar-rgx=<regex>
+
+.. option:: --typevar-rgx=<regex>
 
 Multiple naming styles for custom regular expressions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^

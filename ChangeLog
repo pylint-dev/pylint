@@ -7,6 +7,10 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* Fix a false positive of ``invalid-name`` on TypeVar.
+  Close #3401
+
+* Don't emit ``continue-in-finally`` in Python 3.8 or higher.
 
 * Adjust the `invalid-name` rule to work with non-ASCII identifiers and add the `non-ascii-name` rule.
 

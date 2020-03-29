@@ -53,6 +53,17 @@ New checkers
 
 * A new check ``non-str-assignment-to-dunder-name`` was added to ensure that only strings are assigned to ``__name__`` attributes.
 
+* A new check ``bad-typevar-name`` was added.
+
+   This check is emitted when type variable name doesn't reflect its type variant.
+
+   .. code-block:: python
+
+     T_co = TypeVar("T_co", covariant=True)  # good
+
+     VT = TypeVar("VT", contravariant=True)  # bad, should be "VT_contra"
+
+     CT = TypeVar("CT")  # good
 
 Other Changes
 =============
@@ -90,5 +101,9 @@ Other Changes
 * A new command ``--list-extensions`` was added.
 
   This command lists all extensions present in ``pylint.extensions``.
+
+* ``invalid-name`` check is now also checks type variable name.
+
+* Add new ``--typevar-naming-style`` and ``--typevar-rgx`` options to configure naming style for type variable.
 
 * Various false positives have been fixed which you can read more about in the Changelog files.
