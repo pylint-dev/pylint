@@ -2074,7 +2074,7 @@ class NameChecker(_BasicChecker):
         if match is None and not _should_exempt_from_invalid_name(node):
             self._raise_name_warning(node, node_type, name, confidence)
 
-        if match and node_type == "typevar":
+        if match is not None and node_type == "typevar":
             self._check_typevar_variance(name, node)
 
     def _check_assign_to_new_keyword_violation(self, name, node):
@@ -2118,10 +2118,11 @@ class NameChecker(_BasicChecker):
         if keywords:
             for kw in keywords:
                 if kw.arg == "covariant" and kw.value.value and not name.endswith(_co):
+                    suggest_name = "".join((name.rsplit("_", 1)[0], _co))
                     self.add_message(
                         "bad-typevar-name",
                         node=node,
-                        args=(name, "covariant", name.rsplit("_", 1)[0] + _co),
+                        args=(name, "covariant", suggest_name),
                         confidence=interfaces.HIGH,
                     )
                     return
@@ -2130,18 +2131,20 @@ class NameChecker(_BasicChecker):
                     and kw.value.value
                     and not name.endswith(_contra)
                 ):
+                    suggest_name = "".join((name.rsplit("_", 1)[0], _contra))
                     self.add_message(
                         "bad-typevar-name",
                         node=node,
-                        args=(name, "contravariant", name.rsplit("_", 1)[0] + _contra),
+                        args=(name, "contravariant", suggest_name),
                         confidence=interfaces.HIGH,
                     )
                     return
         elif name.endswith(_co) or name.endswith(_contra):
+            suggest_name = name.rsplit("_", 1)[0]
             self.add_message(
                 "bad-typevar-name",
                 node=node,
-                args=(name, "invariant", name.rsplit("_", 1)[0]),
+                args=(name, "invariant", suggest_name),
                 confidence=interfaces.HIGH,
             )
 

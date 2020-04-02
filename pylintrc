@@ -57,6 +57,7 @@ disable=
     attribute-defined-outside-init,
     duplicate-code,
     invalid-name,
+    bad-typevar-name,
     missing-docstring,
     protected-access,
     too-few-public-methods,
