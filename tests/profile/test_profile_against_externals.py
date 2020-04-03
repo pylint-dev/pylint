@@ -1,0 +1,78 @@
+""" Profiles basic -jX functionality """
+# Copyright (c) 2020 Frank Harrison <doublethefish@gmail.com>
+
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+
+# pylint: disable=protected-access,missing-function-docstring,no-self-use
+
+import os
+import pprint
+import shutil
+import tempfile
+
+import pytest
+
+from pylint.lint import Run
+from pylint.testutils import TestReporter as Reporter
+
+
+class TempdirGuard:
+    """ creates and deletes a tmp-dir compatible with python2 and 3 """
+
+    def __init__(self, prefix):
+        self.path = tempfile.mkdtemp(prefix=prefix + "_")
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, x_type, x_value, x_traceback):
+        shutil.rmtree(self.path)  # always clean up on exit
+
+
+def _get_py_files(scanpath):
+    assert os.path.exists(scanpath), "Dir not found %s" % scanpath
+
+    filepaths = []
+    for dirpath, dirnames, filenames in os.walk(scanpath):
+        dirnames[:] = [dirname for dirname in dirnames if dirname != "__pycache__"]
+        filepaths.extend(
+            [
+                os.path.join(dirpath, filename)
+                for filename in filenames
+                if filename.endswith(".py")
+            ]
+        )
+    return filepaths
+
+
+@pytest.mark.skipif(
+    not os.environ.get("PYTEST_PROFILE_EXTERNAL", False),
+    reason="PYTEST_PROFILE_EXTERNAL, not set, assuming not a profile run",
+)
+@pytest.mark.parametrize(
+    "name,git_repo", [("numpy", "https://github.com/numpy/numpy.git")]
+)
+def test_run(name, git_repo):
+    """ Runs pylint against external sources """
+    with TempdirGuard(prefix=name) as checkoutdir:
+        os.system(
+            "git clone --depth=1 {git_repo} {checkoutdir}".format(
+                git_repo=git_repo, checkoutdir=checkoutdir.path
+            )
+        )
+        filepaths = _get_py_files(scanpath=checkoutdir.path)
+        print("Have %d files" % len(filepaths))
+
+        runner = Run(filepaths, reporter=Reporter(), do_exit=False)
+
+        print(
+            "Had %d files with %d messages"
+            % (len(filepaths), len(runner.linter.reporter.messages))
+        )
+        pprint.pprint(runner.linter.reporter.messages)
+
+        # one day: assert runner.linter.msg_status == 0, (
+        # one day:     "Expected no errors to be thrown: %s"
+        # one day:     % pprint.pformat(runner.linter.reporter.messages)
+        # one day: )
