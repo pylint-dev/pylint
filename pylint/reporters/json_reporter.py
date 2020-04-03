@@ -7,7 +7,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """JSON reporter"""
-import html
 import json
 import sys
 
@@ -37,7 +36,7 @@ class JSONReporter(BaseReporter):
                 "column": msg.column,
                 "path": msg.path,
                 "symbol": msg.symbol,
-                "message": html.escape(msg.msg or "", quote=False),
+                "message": msg.msg or "",
                 "message-id": msg.msg_id,
             }
         )

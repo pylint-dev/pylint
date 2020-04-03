@@ -347,6 +347,7 @@ class TestRunTC:
             assert key in message
             assert message[key] == value
         assert "invalid syntax" in message["message"].lower()
+        assert "<unknown>" in message["message"].lower()
 
     def test_json_report_when_file_is_missing(self):
         out = StringIO()
