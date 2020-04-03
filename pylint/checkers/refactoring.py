@@ -538,35 +538,58 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node, msg_id="no-else-continue", returning_node_class=astroid.Continue
         )
 
-    def _check_consider_get(self, node):
-        def type_and_name_are_equal(node_a, node_b):
-            for _type in [astroid.Name, astroid.AssignName]:
-                if all(isinstance(_node, _type) for _node in [node_a, node_b]):
-                    return node_a.name == node_b.name
-            if all(isinstance(_node, astroid.Const) for _node in [node_a, node_b]):
-                return node_a.value == node_b.value
+    @staticmethod
+    def _type_and_name_are_equal(node_a, node_b):
+        for _type in [astroid.Name, astroid.AssignName]:
+            if all(isinstance(_node, _type) for _node in [node_a, node_b]):
+                return node_a.name == node_b.name
+        if all(isinstance(_node, astroid.Const) for _node in [node_a, node_b]):
+            return node_a.value == node_b.value
+        return False
+
+    def _is_dict_get_block(self, node):
+
+        # "if <compare node>"
+        if not isinstance(node.test, astroid.Compare):
             return False
 
-        if_block_ok = (
-            isinstance(node.test, astroid.Compare)
-            and len(node.body) == 1
-            and isinstance(node.body[0], astroid.Assign)
-            and isinstance(node.body[0].value, astroid.Subscript)
-            and type_and_name_are_equal(node.body[0].value.value, node.test.ops[0][1])
-            and isinstance(node.body[0].value.slice, astroid.Index)
-            and type_and_name_are_equal(node.body[0].value.slice.value, node.test.left)
+        # Does not have a single statement in the guard's body
+        if len(node.body) != 1:
+            return False
+
+        # Look for a single variable assignment on the LHS and a subscript on RHS
+        stmt = node.body[0]
+        if not (
+            isinstance(stmt, astroid.Assign)
             and len(node.body[0].targets) == 1
             and isinstance(node.body[0].targets[0], astroid.AssignName)
-            and isinstance(utils.safe_infer(node.test.ops[0][1]), astroid.Dict)
-        )
+            and isinstance(stmt.value, astroid.Subscript)
+        ):
+            return False
 
+        # The subscript's slice needs to be the same as the test variable.
+        # Python 3.9 we no longer have the `Index` node.
+        slice_value = stmt.value.slice
+        if isinstance(slice_value, astroid.Index):
+            slice_value = slice_value.value
+        if not (
+            self._type_and_name_are_equal(stmt.value.value, node.test.ops[0][1])
+            and self._type_and_name_are_equal(slice_value, node.test.left)
+        ):
+            return False
+
+        # The object needs to be a dictionary instance
+        return isinstance(utils.safe_infer(node.test.ops[0][1]), astroid.Dict)
+
+    def _check_consider_get(self, node):
+        if_block_ok = self._is_dict_get_block(node)
         if if_block_ok and not node.orelse:
             self.add_message("consider-using-get", node=node)
         elif (
             if_block_ok
             and len(node.orelse) == 1
             and isinstance(node.orelse[0], astroid.Assign)
-            and type_and_name_are_equal(
+            and self._type_and_name_are_equal(
                 node.orelse[0].targets[0], node.body[0].targets[0]
             )
             and len(node.orelse[0].targets) == 1
