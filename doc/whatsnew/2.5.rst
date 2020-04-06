@@ -92,3 +92,11 @@ Other Changes
   This command lists all extensions present in ``pylint.extensions``.
 
 * Various false positives have been fixed which you can read more about in the Changelog files.
+
+* Multiple types of string formatting are allowed in logging functions.
+
+The `logging-fstring-interpolation` message has been brought back to allow
+multiple types of string formatting to be used.
+The type of formatting to use is chosen through enabling and disabling messages
+rather than through the logging-format-style option.
+The fstr value of the logging-format-style option is not valid.

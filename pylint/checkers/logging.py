@@ -26,25 +26,43 @@ from pylint.checkers.utils import check_messages
 
 MSGS = {
     "W1201": (
-        "Specify string format arguments as logging function parameters",
+        "Use %s formatting in logging functions",
         "logging-not-lazy",
         "Used when a logging statement has a call form of "
         '"logging.<logging method>(format_string % (format_args...))". '
-        "Such calls should leave string interpolation to the logging "
-        "method itself and be written "
-        '"logging.<logging method>(format_string, format_args...)" '
-        "so that the program may avoid incurring the cost of the "
-        "interpolation in those cases in which no message will be "
-        "logged. For more, see "
-        "http://www.python.org/dev/peps/pep-0282/.",
+        "Use another type of string formatting instead. "
+        "You can use % formatting but leave interpolation to "
+        "the logging function by passing the parameters as arguments. "
+        "If logging-fstring-interpolation is disabled then "
+        "you can use fstring formatting. "
+        "If logging-format-interpolation is disabled then "
+        "you can use str.format.",
     ),
     "W1202": (
-        "Use %s formatting in logging functions%s",
+        "Use %s formatting in logging functions",
         "logging-format-interpolation",
         "Used when a logging statement has a call form of "
-        '"logging.<logging method>(<string formatting>)".'
-        " with invalid string formatting. "
-        "Use another way for format the string instead.",
+        '"logging.<logging method>(format_string.format(format_args...))". '
+        "Use another type of string formatting instead. "
+        "You can use % formatting but leave interpolation to "
+        "the logging function by passing the parameters as arguments. "
+        "If logging-fstring-interpolation is disabled then "
+        "you can use fstring formatting. "
+        "If logging-not-lazy is disabled then "
+        "you can use % formatting as normal.",
+    ),
+    "W1203": (
+        "Use %s formatting in logging functions",
+        "logging-fstring-interpolation",
+        "Used when a logging statement has a call form of "
+        '"logging.<logging method>(f"...")".'
+        "Use another type of string formatting instead. "
+        "You can use % formatting but leave interpolation to "
+        "the logging function by passing the parameters as arguments. "
+        "If logging-format-interpolation is disabled then "
+        "you can use str.format. "
+        "If logging-not-lazy is disabled then "
+        "you can use % formatting as normal.",
     ),
     "E1200": (
         "Unsupported logging format character %r (%#02x) at index %d",
@@ -126,11 +144,10 @@ class LoggingChecker(checkers.BaseChecker):
             {
                 "default": "old",
                 "type": "choice",
-                "metavar": "<old (%) or new ({) or fstr (f'')>",
-                "choices": ["old", "new", "fstr"],
-                "help": "Format style used to check logging format string. "
-                "`old` means using % formatting, `new` is for `{}` formatting,"
-                "and `fstr` is for f-strings.",
+                "metavar": "<old (%) or new ({)>",
+                "choices": ["old", "new"],
+                "help": "The type of string formatting that logging methods do. "
+                "`old` means using % formatting, `new` is for `{}` formatting.",
             },
         ),
     )
@@ -144,12 +161,6 @@ class LoggingChecker(checkers.BaseChecker):
         logging_mods = self.config.logging_modules
 
         self._format_style = self.config.logging_format_style
-        format_styles = {"old": "%", "new": "{", "fstr": "f-string"}
-        format_style_help = ""
-        if self._format_style == "old":
-            format_style_help = " and pass the % parameters as arguments"
-
-        self._format_style_args = (format_styles[self._format_style], format_style_help)
 
         self._logging_modules = set(logging_mods)
         self._from_imports = {}
@@ -238,20 +249,36 @@ class LoggingChecker(checkers.BaseChecker):
                 )
                 emit = total_number_of_strings > 0
             if emit:
-                self.add_message("logging-not-lazy", node=node)
+                self.add_message(
+                    "logging-not-lazy", node=node, args=(self._helper_string(node),),
+                )
         elif isinstance(node.args[format_pos], astroid.Call):
             self._check_call_func(node.args[format_pos])
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)
-        elif isinstance(
-            node.args[format_pos], (astroid.FormattedValue, astroid.JoinedStr)
+        elif isinstance(node.args[format_pos], astroid.JoinedStr):
+            self.add_message(
+                "logging-fstring-interpolation",
+                node=node,
+                args=(self._helper_string(node),),
+            )
+
+    def _helper_string(self, node):
+        """Create a string that lists the valid types of formatting for this node."""
+        valid_types = ["lazy %"]
+
+        if not self.linter.is_message_enabled(
+            "logging-fstring-formatting", node.fromlineno
         ):
-            if self._format_style != "fstr":
-                self.add_message(
-                    "logging-format-interpolation",
-                    node=node,
-                    args=self._format_style_args,
-                )
+            valid_types.append("fstring")
+        if not self.linter.is_message_enabled(
+            "logging-format-formatting", node.fromlineno
+        ):
+            valid_types.append(".format()")
+        if not self.linter.is_message_enabled("logging-not-lazy", node.fromlineno):
+            valid_types.append("%")
+
+        return " or ".join(valid_types)
 
     @staticmethod
     def _is_operand_literal_str(operand):
@@ -274,7 +301,9 @@ class LoggingChecker(checkers.BaseChecker):
             func.bound
         ):
             self.add_message(
-                "logging-format-interpolation", node=node, args=self._format_style_args
+                "logging-format-interpolation",
+                node=node,
+                args=(self._helper_string(node),),
             )
 
     def _check_format_string(self, node, format_arg):
@@ -317,13 +346,6 @@ class LoggingChecker(checkers.BaseChecker):
                     required_num_args = (
                         keyword_args_cnt + implicit_pos_args + explicit_pos_args
                     )
-                else:
-                    self.add_message(
-                        "logging-format-interpolation",
-                        node=node,
-                        args=self._format_style_args,
-                    )
-                    return
             except utils.UnsupportedFormatCharacter as ex:
                 char = format_string[ex.index]
                 self.add_message(

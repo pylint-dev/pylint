@@ -30,7 +30,7 @@ class TestLoggingModuleDetection(CheckerTestCase):
         )
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1])):
+        with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1], args=("lazy %",))):
             self.checker.visit_call(stmts[1])
 
     def test_dont_crash_on_invalid_format_string(self):
@@ -51,7 +51,7 @@ class TestLoggingModuleDetection(CheckerTestCase):
         )
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1])):
+        with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1], args=("lazy %",))):
             self.checker.visit_call(stmts[1])
 
     @set_config(logging_modules=["logging", "my.logging"])
@@ -64,7 +64,7 @@ class TestLoggingModuleDetection(CheckerTestCase):
         )
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1])):
+        with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1], args=("lazy %",))):
             self.checker.visit_call(stmts[1])
 
     def _assert_logging_format_no_messages(self, stmt):
@@ -140,42 +140,6 @@ class TestLoggingModuleDetection(CheckerTestCase):
     @pytest.mark.skipif(sys.version_info < (3, 6), reason="F-string require >=3.6")
     @set_config(logging_format_style="new")
     def test_fstr_not_new_format_style_matching_arguments(self):
-        msg = "logging-format-interpolation"
-        args = ("{", "")
+        msg = "logging-fstring-interpolation"
+        args = ("lazy %",)
         self._assert_logging_format_message(msg, "(f'{named}')", args)
-
-    @set_config(logging_format_style="fstr")
-    def test_modulo_not_fstr_format_style_matching_arguments(self):
-        msg = "logging-format-interpolation"
-        args = ("f-string", "")
-        with_too_many = False
-        self._assert_logging_format_message(msg, "('%s', 1)", args, with_too_many)
-        self._assert_logging_format_message(
-            msg, "('%(named)s', {'named': 1})", args, with_too_many
-        )
-        self._assert_logging_format_message(
-            msg, "('%s %(named)s', 1, {'named': 1})", args, with_too_many
-        )
-
-    @set_config(logging_format_style="fstr")
-    def test_brace_not_fstr_format_style_matching_arguments(self):
-        msg = "logging-format-interpolation"
-        args = ("f-string", "")
-        with_too_many = False
-        self._assert_logging_format_message(msg, "('{}', 1)", args, with_too_many)
-        self._assert_logging_format_message(msg, "('{0}', 1)", args, with_too_many)
-        self._assert_logging_format_message(
-            msg, "('{named}', {'named': 1})", args, with_too_many
-        )
-        self._assert_logging_format_message(
-            msg, "('{} {named}', 1, {'named': 1})", args, with_too_many
-        )
-        self._assert_logging_format_message(
-            msg, "('{0} {named}', 1, {'named': 1})", args, with_too_many
-        )
-
-    @pytest.mark.skipif(sys.version_info < (3, 6), reason="F-string require >=3.6")
-    @set_config(logging_format_style="fstr")
-    def test_fstr_format_style_matching_arguments(self):
-        self._assert_logging_format_no_messages("(f'constant string')")
-        self._assert_logging_format_no_messages("(f'{named}')")
