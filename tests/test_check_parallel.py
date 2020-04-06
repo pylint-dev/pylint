@@ -29,7 +29,7 @@ def _gen_file_data(idx=0):
     file_data = (
         "--test-file_data-name-%d--" % idx,
         filepath,
-        "--test-file_data-modname--",
+        "--test-file_data-modname-%d--" % idx,
     )
     return file_data
 
@@ -58,6 +58,20 @@ class SequentialTestChecker(BaseChecker):
         # record the number of invocations with the data object
         record = self.test_data + str(len(self.data))
         self.data.append(record)
+
+
+class ExtraSequentialTestChecker(SequentialTestChecker):
+    """ A checker that does not need to consolidate data across run invocations """
+
+    name = "extra-sequential-checker"
+    test_data = "extra-sequential"
+
+
+class ThirdSequentialTestChecker(SequentialTestChecker):
+    """ A checker that does not need to consolidate data across run invocations """
+
+    name = "third-sequential-checker"
+    test_data = "third-sequential"
 
 
 class TestCheckParallelFramework:
@@ -260,3 +274,114 @@ class TestCheckParallel:
             "warning": 0,
         } == linter.stats
         assert linter.msg_status == 0, "We expect a single-file check to exit cleanly"
+
+    @pytest.mark.parametrize(
+        "num_files,num_jobs,num_checkers",
+        [
+            (1, 2, 1),
+            (1, 2, 2),
+            (1, 2, 3),
+            (2, 2, 1),
+            (2, 2, 2),
+            (2, 2, 3),
+            (3, 2, 1),
+            (3, 2, 2),
+            (3, 2, 3),
+            (3, 1, 1),
+            (3, 1, 2),
+            (3, 1, 3),
+            (3, 5, 1),
+            (3, 5, 2),
+            (3, 5, 3),
+            (10, 2, 1),
+            (10, 2, 2),
+            (10, 2, 3),
+            (2, 10, 1),
+            (2, 10, 2),
+            (2, 10, 3),
+        ],
+    )
+    def test_compare_workers_to_single_proc(self, num_files, num_jobs, num_checkers):
+        """ Compares the 3 key parameters for check_parallel() produces the same results
+
+        The intent here is to ensure that the check_parallel() operates on each file,
+        without ordering issues, irespective of the number of workers used and the
+        number of checkers applied.
+
+        This test becomes mre important if we want to change how we paraterise the
+        checkers, for example if we aim to batch the files across jobs. """
+        print(
+            (
+                "{buff} {num_files} files, {num_jobs} jobs, {num_checkers} checkers "
+                "{buff}"
+            ).format(
+                buff="_" * 4,
+                num_files=num_files,
+                num_jobs=num_jobs,
+                num_checkers=num_checkers,
+            )
+        )
+
+        # define the stats we expect to get back from the runs, these should only vary
+        # with the number of files.
+        expected_stats = {
+            "by_module": {
+                "--test-file_data-name-%d--"
+                % idx: {
+                    "convention": 0,
+                    "error": 0,
+                    "fatal": 0,
+                    "info": 0,
+                    "refactor": 0,
+                    "statement": 18,
+                    "warning": 0,
+                }
+                for idx in range(num_files)
+            },
+            "by_msg": {},
+            "convention": 0,
+            "error": 0,
+            "fatal": 0,
+            "info": 0,
+            "refactor": 0,
+            "statement": 18 * num_files,
+            "warning": 0,
+        }
+
+        file_infos = _gen_file_datas(num_files)
+
+        # Loop for single-proc and mult-proc so we can ensure the same linter-config
+        for do_single_proc in range(2):
+            linter = PyLinter(reporter=Reporter())
+
+            # Assign between 1 and 3 checkers to the linter, they should not change the
+            # results of the lint
+            linter.register_checker(SequentialTestChecker(linter))
+            if num_checkers > 1:
+                linter.register_checker(ExtraSequentialTestChecker(linter))
+            if num_checkers > 2:
+                linter.register_checker(ThirdSequentialTestChecker(linter))
+
+            if do_single_proc:
+                # establish the baseline
+                print("single proc, via linter._check_files")
+                assert (
+                    linter.config.jobs == 1
+                ), "jobs>1 are ignored when calling _check_files"
+                linter._check_files(linter.get_ast, file_infos)
+                assert linter.msg_status == 0, "We should not fail the lint"
+                stats_single_proc = linter.stats
+            else:
+                print("check_parallel")
+                check_parallel(
+                    linter, jobs=num_jobs, files=file_infos, arguments=None,
+                )
+                stats_check_parallel = linter.stats
+                assert linter.msg_status == 0, "We should not fail the lint"
+
+        assert (
+            stats_single_proc == stats_check_parallel
+        ), "Single-proc and check_parallel() should return the same thing"
+        assert (
+            stats_check_parallel == expected_stats
+        ), "The lint is returning unexpected results, has something changed?"
