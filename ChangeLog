@@ -275,6 +275,13 @@ Release date: TBA
   Close #1482
   Close #1553
 
+* Multiple types of string formatting are allowed in logging functions.
+
+  The `logging-fstring-interpolation` message has been brought back to allow
+  multiple types of string formatting to be used.
+
+  Close #3361
+
 What's New in Pylint 2.4.4?
 ===========================
 Release date: 2019-11-13
