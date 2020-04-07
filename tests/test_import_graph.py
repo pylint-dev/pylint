@@ -23,7 +23,11 @@ from pylint.lint import PyLinter
 def dest():
     dest = "dependencies_graph.dot"
     yield dest
-    os.remove(dest)
+    try:
+        os.remove(dest)
+    except FileNotFoundError:
+        # file may not have been created if tests inside fixture skipped
+        pass
 
 
 def test_dependencies_graph(dest):
