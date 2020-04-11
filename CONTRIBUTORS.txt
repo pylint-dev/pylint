@@ -377,3 +377,5 @@ contributors:
 * Slavfox: contributor
 
 * Matthew Beckers (mattlbeck): contributor
+
+* Yang Yang: contributor

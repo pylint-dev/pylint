@@ -5,3 +5,5 @@ trailing-comma-tuple:6::Disallow trailing comma tuple
 trailing-comma-tuple:31::Disallow trailing comma tuple
 trailing-comma-tuple:34::Disallow trailing comma tuple
 trailing-comma-tuple:38::Disallow trailing comma tuple
+trailing-comma-tuple:41::Disallow trailing comma tuple
+trailing-comma-tuple:47::Disallow trailing comma tuple

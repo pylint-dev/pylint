@@ -95,7 +95,7 @@ def _is_trailing_comma(tokens, index):
         """Get the index denoting the start of the current line"""
         for subindex, token in enumerate(reversed(tokens[:index])):
             # See Lib/tokenize.py and Lib/token.py in cpython for more info
-            if token.type in (tokenize.NEWLINE, tokenize.NL):
+            if token.type == tokenize.NEWLINE:
                 return index - subindex
         return 0
 
