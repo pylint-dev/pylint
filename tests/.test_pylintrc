@@ -25,7 +25,6 @@ disable=
     no-member,
     bare-except,
     too-many-ancestors,
-    wildcard-import,
     singleton-comparison,
     fixme,
     super-init-not-called,
