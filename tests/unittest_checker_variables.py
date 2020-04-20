@@ -270,7 +270,8 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 class TestMissingSubmodule(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
 
-    def test_package_all(self):
+    @staticmethod
+    def test_package_all():
         regr_data = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "regrtest_data"
         )

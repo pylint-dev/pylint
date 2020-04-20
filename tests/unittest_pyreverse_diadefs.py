@@ -91,31 +91,6 @@ def test_default_values():
 
 
 class TestDefaultDiadefGenerator:
-    def test_known_values1(self, HANDLER, PROJECT):
-        dd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)
-        assert len(dd) == 2
-        keys = [d.TYPE for d in dd]
-        assert keys == ["package", "class"]
-        pd = dd[0]
-        assert pd.title == "packages No Name"
-        modules = sorted(
-            [(isinstance(m.node, astroid.Module), m.title) for m in pd.objects]
-        )
-        assert modules == [
-            (True, "data"),
-            (True, "data.clientmodule_test"),
-            (True, "data.suppliermodule_test"),
-        ]
-        cd = dd[1]
-        assert cd.title == "classes No Name"
-        classes = _process_classes(cd.objects)
-        assert classes == [
-            (True, "Ancestor"),
-            (True, "DoNothing"),
-            (True, "Interface"),
-            (True, "Specialization"),
-        ]
-
     _should_rels = [
         ("association", "DoNothing", "Ancestor"),
         ("association", "DoNothing", "Specialization"),
@@ -142,19 +117,46 @@ class TestDefaultDiadefGenerator:
         relations = _process_relations(cd.relationships)
         assert relations == self._should_rels
 
-    def test_known_values2(self, HANDLER):
-        project = get_project("data.clientmodule_test")
-        dd = DefaultDiadefGenerator(Linker(project), HANDLER).visit(project)
-        assert len(dd) == 1
-        keys = [d.TYPE for d in dd]
-        assert keys == ["class"]
-        cd = dd[0]
-        assert cd.title == "classes No Name"
-        classes = _process_classes(cd.objects)
-        assert classes == [(True, "Ancestor"), (True, "Specialization")]
-
 
 def test_known_values1(HANDLER, PROJECT):
+    dd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)
+    assert len(dd) == 2
+    keys = [d.TYPE for d in dd]
+    assert keys == ["package", "class"]
+    pd = dd[0]
+    assert pd.title == "packages No Name"
+    modules = sorted(
+        [(isinstance(m.node, astroid.Module), m.title) for m in pd.objects]
+    )
+    assert modules == [
+        (True, "data"),
+        (True, "data.clientmodule_test"),
+        (True, "data.suppliermodule_test"),
+    ]
+    cd = dd[1]
+    assert cd.title == "classes No Name"
+    classes = _process_classes(cd.objects)
+    assert classes == [
+        (True, "Ancestor"),
+        (True, "DoNothing"),
+        (True, "Interface"),
+        (True, "Specialization"),
+    ]
+
+
+def test_known_values2(HANDLER):
+    project = get_project("data.clientmodule_test")
+    dd = DefaultDiadefGenerator(Linker(project), HANDLER).visit(project)
+    assert len(dd) == 1
+    keys = [d.TYPE for d in dd]
+    assert keys == ["class"]
+    cd = dd[0]
+    assert cd.title == "classes No Name"
+    classes = _process_classes(cd.objects)
+    assert classes == [(True, "Ancestor"), (True, "Specialization")]
+
+
+def test_known_values3(HANDLER, PROJECT):
     HANDLER.config.classes = ["Specialization"]
     cdg = ClassDiadefGenerator(Linker(PROJECT), HANDLER)
     special = "data.clientmodule_test.Specialization"
@@ -168,7 +170,7 @@ def test_known_values1(HANDLER, PROJECT):
     ]
 
 
-def test_known_values2(HANDLER, PROJECT):
+def test_known_values4(HANDLER, PROJECT):
     HANDLER.config.classes = ["Specialization"]
     HANDLER.config.module_names = False
     cd = ClassDiadefGenerator(Linker(PROJECT), HANDLER).class_diagram(
