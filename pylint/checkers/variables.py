@@ -1261,6 +1261,10 @@ class VariablesChecker(BaseChecker):
                 )
                 or frame.args.parent_of(node)
                 or (frame.decorators and frame.decorators.parent_of(node))
+                or (
+                    frame.returns
+                    and (node is frame.returns or frame.returns.parent_of(node))
+                )
             )
         return in_annotation_or_default_or_decorator
 
