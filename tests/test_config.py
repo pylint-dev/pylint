@@ -1,7 +1,8 @@
 import unittest.mock
 
-import pylint.lint
 import pytest
+
+import pylint.lint
 
 
 def test_can_read_toml(tmp_path):
