@@ -60,17 +60,17 @@ def test_option_values(HANDLER, PROJECT):
     cl_config = Config()
     cl_config.classes = ["Specialization"]
     cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
-    assert (0, 0) == df_h._get_levels()
-    assert False == df_h.module_names
-    assert (-1, -1) == cl_h._get_levels()
-    assert True == cl_h.module_names
+    assert df_h._get_levels() == (0, 0)
+    assert df_h.module_names == False
+    assert cl_h._get_levels() == (-1, -1)
+    assert cl_h.module_names
     for hndl in [df_h, cl_h]:
         hndl.config.all_ancestors = True
         hndl.config.all_associated = True
         hndl.config.module_names = True
         hndl._set_default_options()
-        assert (-1, -1) == hndl._get_levels()
-        assert True == hndl.module_names
+        assert hndl._get_levels() == (-1, -1)
+        assert hndl.module_names
     handler = DiadefsHandler(Config())
     df_h = DiaDefGenerator(Linker(PROJECT), handler)
     cl_config = Config()
@@ -81,8 +81,8 @@ def test_option_values(HANDLER, PROJECT):
         hndl.config.show_associated = 1
         hndl.config.module_names = False
         hndl._set_default_options()
-        assert (2, 1) == hndl._get_levels()
-        assert False == hndl.module_names
+        assert hndl._get_levels() == (2, 1)
+        assert not hndl.module_names
 
 
 def test_default_values():

@@ -359,16 +359,16 @@ def test_enable_message_block(init_linter):
     assert linter.is_message_enabled("E1101", 77)
 
     fs = linter.file_state
-    assert 17 == fs._suppression_mapping["W0613", 18]
-    assert 30 == fs._suppression_mapping["E1101", 33]
+    assert fs._suppression_mapping["W0613", 18] == 17
+    assert fs._suppression_mapping["E1101", 33] == 30
     assert ("E1101", 46) not in fs._suppression_mapping
-    assert 1 == fs._suppression_mapping["C0302", 18]
-    assert 1 == fs._suppression_mapping["C0302", 50]
+    assert fs._suppression_mapping["C0302", 18] == 1
+    assert fs._suppression_mapping["C0302", 50] == 1
     # This is tricky. While the disable in line 106 is disabling
     # both 108 and 110, this is usually not what the user wanted.
     # Therefore, we report the closest previous disable comment.
-    assert 106 == fs._suppression_mapping["E1101", 108]
-    assert 109 == fs._suppression_mapping["E1101", 110]
+    assert fs._suppression_mapping["E1101", 108] == 106
+    assert fs._suppression_mapping["E1101", 110] == 109
 
 
 def test_enable_by_symbol(init_linter):

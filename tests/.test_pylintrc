@@ -15,7 +15,6 @@ disable=
     # handled by black
     format,
     redefined-outer-name,
-    misplaced-comparison-constant,
     import-outside-toplevel,
     no-self-use,
     abstract-method,

@@ -230,8 +230,8 @@ class TestMessageDefinitionStore:
         assert ":msg-symbol (W1234): *message*" in output.getvalue()
 
     def test_renamed_message_register(self, store):
-        assert "msg-symbol" == store.get_message_definitions("W0001")[0].symbol
-        assert "msg-symbol" == store.get_message_definitions("old-symbol")[0].symbol
+        assert store.get_message_definitions("W0001")[0].symbol == "msg-symbol"
+        assert store.get_message_definitions("old-symbol")[0].symbol == "msg-symbol"
 
 
 def test_multiple_child_of_old_name(store):
