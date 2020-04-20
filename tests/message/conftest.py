@@ -1,5 +1,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# pylint: disable=redefined-outer-name
+
 
 import pytest
 
@@ -24,7 +26,7 @@ def empty_store():
 
 @pytest.fixture
 def store():
-    store = MessageDefinitionStore()
+    store_ = MessageDefinitionStore()
 
     class Checker(BaseChecker):
         name = "achecker"
@@ -43,8 +45,8 @@ def store():
             ),
         }
 
-    store.register_messages_from_checker(Checker())
-    return store
+    store_.register_messages_from_checker(Checker())
+    return store_
 
 
 @pytest.fixture

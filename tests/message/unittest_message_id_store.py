@@ -5,14 +5,6 @@ import pytest
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 
-from .generic_fixtures import (  # pylint: disable=unused-import
-    empty_msgid_store,
-    message_definitions,
-    msgid_store,
-    msgids,
-    store,
-)
-
 
 def test_len_str(msgid_store, msgids):
     assert len(msgid_store) == len(msgids)
