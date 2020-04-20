@@ -12,27 +12,22 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""Unittest for the type checker."""
 import astroid
 import pytest
 
 from pylint.checkers import typecheck
 from pylint.testutils import CheckerTestCase, Message, set_config
 
+try:
+    import coverage.tracer as _
 
-def c_extension_missing():
-    """Coverage module has C-extension, which we can reuse for test"""
-    try:
-        import coverage.tracer as _
-
-        return False
-    except ImportError:
-        _ = None
-        return True
-
+    C_EXTENTIONS_AVAILABLE = True
+except ImportError:
+    _ = None
+    C_EXTENTIONS_AVAILABLE = False
 
 needs_c_extension = pytest.mark.skipif(
-    c_extension_missing(), reason="Requires coverage (source of C-extension)"
+    not C_EXTENTIONS_AVAILABLE, reason="Requires coverage (source of C-extension)"
 )
 
 
