@@ -52,6 +52,8 @@ from pylint.reporters import text
 from pylint.utils import FileState, tokenize_module
 
 if os.name == "java":
+    # pylint: disable=no-member
+    # os._name is valid see https://www.programcreek.com/python/example/3842/os._name
     if os._name == "nt":
         HOME = "USERPROFILE"
     else:
