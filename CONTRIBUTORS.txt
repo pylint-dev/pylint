@@ -379,3 +379,5 @@ contributors:
 * Matthew Beckers (mattlbeck): contributor
 
 * Yang Yang: contributor
+
+* Andrew J. Simmons (anjsimmo): contributor
