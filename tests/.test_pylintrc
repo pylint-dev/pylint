@@ -28,7 +28,6 @@ disable=
     missing-type-doc,
     bare-except,
     too-many-ancestors,
-    implicit-str-concat,
     wildcard-import,
     singleton-comparison,
     fixme,
