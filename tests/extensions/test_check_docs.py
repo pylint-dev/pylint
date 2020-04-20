@@ -1690,7 +1690,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_raise(node)
 
-    def test_finds_missing_raises_from_setter_google(self):
+    def test_finds_missing_raises_from_setter_google_2(self):
         """Example of a setter having missing raises documentation in
         its own Google style docstring of the property
         """
@@ -1726,7 +1726,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_raise(node)
 
-    def test_finds_missing_raises_from_setter_numpy(self):
+    def test_finds_missing_raises_from_setter_numpy_2(self):
         """Example of a setter having missing raises documentation in
         its own Numpy style docstring of the property
         """
