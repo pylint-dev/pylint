@@ -53,7 +53,7 @@ def testGetArgumentFromCallExists(fn, kw):
 def testGetArgumentFromCall():
     node = astroid.extract_node("foo(a, not_this_one=1, this_one=2)")
     arg = utils.get_argument_from_call(node, position=2, keyword="this_one")
-    assert 2 == arg.value
+    assert arg.value == 2
 
     node = astroid.extract_node("foo(a)")
     with pytest.raises(utils.NoSuchArgumentError):
