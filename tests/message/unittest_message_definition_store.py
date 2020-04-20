@@ -140,7 +140,7 @@ def test_register_error_new_id_duplicate_of_new(empty_store):
     empty_store.register_messages_from_checker(CheckerOne())
     test_register_error(
         empty_store,
-        {"W1234": ("message two", "msg-symbol-two", "another msg description.")},
+        CheckerTwo.msgs,
         "Message id 'W1234' cannot have both 'msg-symbol-one' and 'msg-symbol-two' as symbolic name.",
     )
 

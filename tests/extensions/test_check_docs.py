@@ -1830,7 +1830,7 @@ class TestParamDocChecker(CheckerTestCase):
         """Example of a property having missing return documentation in
         a Sphinx style docstring
         """
-        property_node, node = astroid.extract_node(
+        _, node = astroid.extract_node(
             """
         class Foo(object):
             @property
@@ -1872,7 +1872,7 @@ class TestParamDocChecker(CheckerTestCase):
         """Example of a property having return documentation in
         a Google style docstring
         """
-        property_node, node = astroid.extract_node(
+        _, node = astroid.extract_node(
             """
         class Foo(object):
             @property

@@ -24,7 +24,6 @@ disable=
     too-many-public-methods,
     unused-argument,
     undefined-loop-variable,
-    unused-variable,
     no-member,
     missing-type-doc,
     bare-except,
