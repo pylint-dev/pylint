@@ -15,7 +15,6 @@ disable=
     # handled by black
     format,
     redefined-outer-name,
-    abstract-method,
     function-redefined,
     undefined-loop-variable,
     fixme,

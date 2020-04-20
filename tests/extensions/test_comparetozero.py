@@ -24,6 +24,9 @@ class CompareToZeroTestReporter(BaseReporter):
     def on_set_current_module(self, module, filepath):
         self.messages = []
 
+    def _display(self, layout):
+        pass
+
 
 class CompareToZeroUsedTC(unittest.TestCase):
     @classmethod
