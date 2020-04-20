@@ -87,7 +87,7 @@ class MultiReporter(BaseReporter):
         for rep in self._reporters:
             rep.handle_message(msg)
 
-    def display_reports(self, layout):
+    def _display(self, layout):
         pass
 
     @property
