@@ -70,6 +70,10 @@ def _configure_lc_ctype(lc_ctype):
 
 class MultiReporter(BaseReporter):
     def __init__(self, reporters):
+        # pylint: disable=super-init-not-called
+        # We don't call it because there is an attribute "linter" that is set inside the base class
+        # and we have another setter here using yet undefined attribute.
+        # I don't think fixing the init order in a test class used once is worth it.
         self._reporters = reporters
         self.path_strip_prefix = os.getcwd() + os.sep
 

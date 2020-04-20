@@ -25,4 +25,3 @@ disable=
     too-many-ancestors,
     singleton-comparison,
     fixme,
-    super-init-not-called,
