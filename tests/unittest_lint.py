@@ -636,7 +636,7 @@ def test_pylint_home():
         finally:
             try:
                 os.remove(pylintd)
-            except:
+            except FileNotFoundError:
                 pass
     finally:
         del os.environ["PYLINTHOME"]

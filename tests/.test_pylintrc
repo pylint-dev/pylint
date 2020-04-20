@@ -23,7 +23,6 @@ disable=
     unused-argument,
     undefined-loop-variable,
     no-member,
-    bare-except,
     too-many-ancestors,
     singleton-comparison,
     fixme,
