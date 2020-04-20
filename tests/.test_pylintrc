@@ -34,7 +34,6 @@ disable=
     implicit-str-concat,
     wildcard-import,
     singleton-comparison,
-    pointless-statement,
     fixme,
     pointless-string-statement,
     super-init-not-called,
