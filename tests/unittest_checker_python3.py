@@ -15,6 +15,8 @@
 
 """Tests for the python3 checkers."""
 
+# pylint: disable=too-many-public-methods
+
 import astroid
 
 from pylint import testutils

@@ -17,7 +17,6 @@ disable=
     redefined-outer-name,
     abstract-method,
     function-redefined,
-    too-many-public-methods,
     unused-argument,
     undefined-loop-variable,
     too-many-ancestors,
