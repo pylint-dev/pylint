@@ -15,7 +15,6 @@ disable=
     # handled by black
     format,
     redefined-outer-name,
-    import-outside-toplevel,
     abstract-method,
     function-redefined,
     unused-import,
