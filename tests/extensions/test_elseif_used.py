@@ -16,7 +16,7 @@ from pylint.extensions.check_elif import ElseifUsedChecker
 
 
 @pytest.fixture(scope="module")
-def checker(checker):
+def checker():
     return ElseifUsedChecker
 
 

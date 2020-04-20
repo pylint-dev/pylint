@@ -17,12 +17,12 @@ from pylint.extensions.emptystring import CompareToEmptyStringChecker
 
 
 @pytest.fixture(scope="module")
-def checker(checker):
+def checker():
     return CompareToEmptyStringChecker
 
 
 @pytest.fixture(scope="module")
-def disable(disable):
+def disable():
     return ["I"]
 
 

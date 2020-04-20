@@ -21,12 +21,12 @@ EXPECTED = [
 
 
 @pytest.fixture(scope="module")
-def checker(checker):
+def checker():
     return BadBuiltinChecker
 
 
 @pytest.fixture(scope="module")
-def disable(disable):
+def disable():
     return ["I"]
 
 

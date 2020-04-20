@@ -12,12 +12,12 @@ from pylint.extensions.overlapping_exceptions import OverlappingExceptionsChecke
 
 
 @pytest.fixture(scope="module")
-def checker(checker):
+def checker():
     return OverlappingExceptionsChecker
 
 
 @pytest.fixture(scope="module")
-def disable(disable):
+def disable():
     return ["I"]
 
 

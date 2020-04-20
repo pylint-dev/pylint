@@ -33,12 +33,12 @@ except AttributeError:
 
 
 @pytest.fixture(scope="module")
-def reporter(reporter):
+def reporter():
     return testutils.TestReporter
 
 
 @pytest.fixture(scope="module")
-def disable(disable):
+def disable():
     return ["I"]
 
 

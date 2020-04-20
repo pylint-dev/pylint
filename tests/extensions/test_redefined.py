@@ -4,8 +4,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""Tests for the pylint checker in :mod:`pylint.extensions.check_elif
-"""
+"""Tests for the pylint checker in :mod:`pylint.extensions.check_elif"""
 
 import os.path as osp
 
@@ -29,12 +28,12 @@ EXPECTED = [
 
 
 @pytest.fixture(scope="module")
-def checker(checker):
+def checker():
     return MultipleTypesChecker
 
 
 @pytest.fixture(scope="module")
-def disable(disable):
+def disable():
     return ["I"]
 
 
