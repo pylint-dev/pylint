@@ -79,10 +79,11 @@ def test_option_values(HANDLER, PROJECT):
         assert (2, 1) == hndl._get_levels()
         assert False == hndl.module_names
 
-    # def test_default_values():
-    """test efault values for package or class diagrams"""
-    # TODO : should test difference between default values for package
-    # or class diagrams
+
+def test_default_values():
+    """test default values for package or class diagrams"""
+    pass
+    # TODO : should test difference between default values for package or class diagrams
 
 
 class TestDefaultDiadefGenerator:

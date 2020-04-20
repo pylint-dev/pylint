@@ -35,5 +35,4 @@ disable=
     wildcard-import,
     singleton-comparison,
     fixme,
-    pointless-string-statement,
     super-init-not-called,
