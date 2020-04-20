@@ -22,7 +22,7 @@ class TestASTWalker:
             self.called = set()
 
         @check_messages("first-message")
-        def visit_module(self, module):
+        def visit_module(self, module):  # pylint: disable=unused-argument
             self.called.add("module")
 
         @check_messages("second-message")
@@ -30,7 +30,7 @@ class TestASTWalker:
             raise NotImplementedError
 
         @check_messages("second-message", "third-message")
-        def visit_assignname(self, module):
+        def visit_assignname(self, module):  # pylint: disable=unused-argument
             self.called.add("assignname")
 
         @check_messages("second-message")
@@ -53,7 +53,7 @@ class TestASTWalker:
                 self.called = False
 
             @check_messages("first-message")
-            def visit_assname(self, node):
+            def visit_assname(self, node):  # pylint: disable=unused-argument
                 self.called = True
 
         linter = self.MockLinter({"first-message": True})

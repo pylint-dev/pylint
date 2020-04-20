@@ -21,12 +21,12 @@ from pylint.reporters.text import ParseableTextReporter, TextReporter
 
 
 @pytest.fixture(scope="module")
-def reporter(reporter):
+def reporter():
     return TextReporter
 
 
 @pytest.fixture(scope="module")
-def disable(disable):
+def disable():
     return ["I"]
 
 

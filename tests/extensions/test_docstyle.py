@@ -36,7 +36,7 @@ EXPECTED_SYMBOLS = [
 
 
 @pytest.fixture(scope="module")
-def checker(checker):
+def checker():
     return DocStringStyleChecker
 
 

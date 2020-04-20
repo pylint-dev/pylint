@@ -5,8 +5,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""Tests for the pylint checker in :mod:`pylint.extensions.check_mccabe
-"""
+"""Tests for the pylint checker in :mod:`pylint.extensions.check_mccabe"""
 
 import os.path as osp
 
@@ -33,17 +32,17 @@ EXPECTED_MSGS = [
 
 
 @pytest.fixture(scope="module")
-def enable(enable):
+def enable():
     return ["too-complex"]
 
 
 @pytest.fixture(scope="module")
-def disable(disable):
+def disable():
     return ["all"]
 
 
 @pytest.fixture(scope="module")
-def register(register):
+def register():
     return mccabe.register
 
 

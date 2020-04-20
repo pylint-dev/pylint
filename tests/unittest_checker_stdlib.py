@@ -36,7 +36,7 @@ class TestStdlibChecker(CheckerTestCase):
         # got to be the result of a function inference
         # beats me..)
 
-        def infer_func(node, context=None):
+        def infer_func(node, context=None):  # pylint: disable=unused-argument
             new_node = astroid.AssignAttr()
             new_node.parent = node
             yield new_node

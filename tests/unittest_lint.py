@@ -227,12 +227,12 @@ def test_more_args(fake_path, case):
 
 
 @pytest.fixture(scope="module")
-def disable(disable):
+def disable():
     return ["I"]
 
 
 @pytest.fixture(scope="module")
-def reporter(reporter):
+def reporter():
     return testutils.TestReporter
 
 

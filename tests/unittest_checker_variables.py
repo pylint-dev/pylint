@@ -129,7 +129,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         self._to_consume_backup = self.checker._to_consume
         self.checker._to_consume = []
 
-    def teardown_method(self, method):
+    def teardown_method(self):
         self.checker._to_consume = self._to_consume_backup
 
     @set_config(callbacks=("callback_", "_callback"))
