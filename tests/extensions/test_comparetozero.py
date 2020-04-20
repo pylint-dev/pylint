@@ -9,7 +9,6 @@
 """
 
 import os
-import os.path as osp
 import unittest
 
 from pylint import checkers
@@ -36,8 +35,8 @@ class CompareToZeroUsedTC(unittest.TestCase):
         cls._linter.disable("I")
 
     def test_comparetozero_message(self):
-        elif_test = osp.join(
-            osp.dirname(osp.abspath(__file__)), "data", "compare_to_zero.py"
+        elif_test = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "data", "compare_to_zero.py"
         )
         self._linter.check([elif_test])
         msgs = self._linter.reporter.messages

@@ -19,7 +19,7 @@ import sys
 
 import pytest
 
-from pylint import checkers, lint, reporters, testutils
+from pylint import testutils
 
 
 class test_dialect(csv.excel):
