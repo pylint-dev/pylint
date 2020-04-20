@@ -119,8 +119,8 @@ def tempdir():
 def create_files(paths, chroot="."):
     """Creates directories and files found in <path>.
 
-    :param paths: list of relative paths to files or directories
-    :param chroot: the root directory in which paths will be created
+    :param list paths: list of relative paths to files or directories
+    :param str chroot: the root directory in which paths will be created
 
     >>> from os.path import isdir, isfile
     >>> isdir('/tmp/a')
