@@ -24,7 +24,6 @@ disable=
     unused-argument,
     undefined-loop-variable,
     no-member,
-    missing-type-doc,
     bare-except,
     too-many-ancestors,
     wildcard-import,
