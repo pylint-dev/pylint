@@ -16,6 +16,9 @@
 """Unit tests for the pylint checkers in :mod:`pylint.extensions.check_docs`,
 in particular the parameter documentation checker `DocstringChecker`
 """
+
+# pylint: disable=too-many-public-methods
+
 import astroid
 import pytest
 

@@ -10,6 +10,9 @@
 """Unit tests for the raised exception documentation checking in the
 `DocstringChecker` in :mod:`pylint.extensions.check_docs`
 """
+
+# pylint: disable=too-many-public-methods
+
 import astroid
 
 from pylint.extensions.docparams import DocstringParameterChecker
