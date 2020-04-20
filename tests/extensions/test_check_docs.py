@@ -2113,7 +2113,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_return_in_abstract_method_google(self):
+    def test_ignores_return_in_abstract_method_google_2(self):
         """Example of a method documenting the return type that an
         implementation should return.
         """
@@ -2132,7 +2132,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_return_in_abstract_method_numpy(self):
+    def test_ignores_return_in_abstract_method_numpy_2(self):
         """Example of a method documenting the return type that an
         implementation should return.
         """
