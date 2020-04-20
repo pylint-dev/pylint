@@ -61,7 +61,7 @@ def test_option_values(HANDLER, PROJECT):
     cl_config.classes = ["Specialization"]
     cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
     assert df_h._get_levels() == (0, 0)
-    assert df_h.module_names == False
+    assert not df_h.module_names
     assert cl_h._get_levels() == (-1, -1)
     assert cl_h.module_names
     for hndl in [df_h, cl_h]:
