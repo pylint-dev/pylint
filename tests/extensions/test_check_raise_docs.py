@@ -561,7 +561,6 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
-        pass
 
     def test_find_numpy_attr_raises_substr_exc(self):
         raise_node = astroid.extract_node(

@@ -82,7 +82,6 @@ def test_option_values(HANDLER, PROJECT):
 
 def test_default_values():
     """test default values for package or class diagrams"""
-    pass
     # TODO : should test difference between default values for package or class diagrams
 
 

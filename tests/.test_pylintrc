@@ -21,7 +21,6 @@ disable=
     abstract-method,
     function-redefined,
     unused-import,
-    unnecessary-pass,
     too-many-public-methods,
     unused-argument,
     unused-wildcard-import,
