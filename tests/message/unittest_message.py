@@ -3,11 +3,6 @@
 
 from pylint.message import Message
 
-from .generic_fixtures import (  # pylint: disable=unused-import
-    message_definitions,
-    store,
-)
-
 
 def test_new_message(message_definitions):
     def build_message(message_definition, location_value):

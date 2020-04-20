@@ -10,8 +10,6 @@ from pylint.checkers import BaseChecker
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.message import MessageDefinition
 
-from .generic_fixtures import empty_store, store  # pylint: disable=unused-import
-
 
 @pytest.mark.parametrize(
     "messages,expected",
