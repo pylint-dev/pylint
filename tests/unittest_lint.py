@@ -743,9 +743,7 @@ class _CustomPyLinter(PyLinter):
         if os.path.basename(path) == "wrong.py":
             return False
 
-        return super().should_analyze_file(
-            modname, path, is_argument=is_argument
-        )
+        return super().should_analyze_file(modname, path, is_argument=is_argument)
 
 
 def test_custom_should_analyze_file():
