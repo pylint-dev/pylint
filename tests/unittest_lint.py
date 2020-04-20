@@ -743,6 +743,7 @@ class TestPreprocessOptions:
 
 
 class _CustomPyLinter(PyLinter):
+    # pylint: disable=too-many-ancestors
     def should_analyze_file(self, modname, path, is_argument=False):
         if os.path.basename(path) == "wrong.py":
             return False

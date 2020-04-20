@@ -18,5 +18,4 @@ disable=
     abstract-method,
     function-redefined,
     undefined-loop-variable,
-    too-many-ancestors,
     fixme,
