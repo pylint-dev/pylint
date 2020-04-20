@@ -1249,16 +1249,20 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _defined_in_function_definition(node, frame):
-        in_annotation_or_default = False
+        in_annotation_or_default_or_decorator = False
         if isinstance(frame, astroid.FunctionDef) and node.statement() is frame:
-            in_annotation_or_default = (
-                node in frame.args.annotations
-                or node in frame.args.posonlyargs_annotations
-                or node in frame.args.kwonlyargs_annotations
-                or node is frame.args.varargannotation
-                or node is frame.args.kwargannotation
-            ) or frame.args.parent_of(node)
-        return in_annotation_or_default
+            in_annotation_or_default_or_decorator = (
+                (
+                    node in frame.args.annotations
+                    or node in frame.args.posonlyargs_annotations
+                    or node in frame.args.kwonlyargs_annotations
+                    or node is frame.args.varargannotation
+                    or node is frame.args.kwargannotation
+                )
+                or frame.args.parent_of(node)
+                or (frame.decorators and frame.decorators.parent_of(node))
+            )
+        return in_annotation_or_default_or_decorator
 
     @staticmethod
     def _is_variable_violation(
@@ -1419,13 +1423,18 @@ class VariablesChecker(BaseChecker):
 
         name = node.name
         frame = node.statement().scope()
-        in_annotation_or_default = self._defined_in_function_definition(node, frame)
-        if in_annotation_or_default:
+        in_annotation_or_default_or_decorator = self._defined_in_function_definition(
+            node, frame
+        )
+        if in_annotation_or_default_or_decorator:
             frame_locals = frame.parent.scope().locals
         else:
             frame_locals = frame.locals
         return not (
-            (isinstance(frame, astroid.ClassDef) or in_annotation_or_default)
+            (
+                isinstance(frame, astroid.ClassDef)
+                or in_annotation_or_default_or_decorator
+            )
             and name in frame_locals
         )
 

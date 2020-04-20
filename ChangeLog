@@ -7,6 +7,10 @@ What's New in Pylint 2.5.0?
 
 Release date: TBA
 
+* Fix a false positive for ``undefined-variable`` when using class attribute in decorator
+
+  Close #511
+
 * Remove HTML quoting of messages in JSON output.
 
   Close #2769
