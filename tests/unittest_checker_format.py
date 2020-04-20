@@ -417,7 +417,7 @@ class TestCheckSpace(CheckerTestCase):
             )
 
     def testOperatorSpacingGood(self):
-        good_cases = ["a = b\n" "a < b\n" "a\n< b\n"]
+        good_cases = ["a = b\n", "a < b\n", "a\n< b\n"]
         with self.assertNoMessages():
             for code in good_cases:
                 self.checker.process_tokens(_tokenize_str(code))
