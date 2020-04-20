@@ -78,5 +78,6 @@ def test_display_results_is_renamed():
 
     reporter = CustomReporter()
     with pytest.raises(AttributeError) as exc:
+        # pylint: disable=no-member
         reporter.display_results()
     assert "no attribute 'display_results'" in str(exc)

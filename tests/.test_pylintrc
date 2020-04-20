@@ -22,7 +22,6 @@ disable=
     too-many-public-methods,
     unused-argument,
     undefined-loop-variable,
-    no-member,
     too-many-ancestors,
     singleton-comparison,
     fixme,
