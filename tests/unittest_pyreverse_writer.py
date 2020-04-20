@@ -90,7 +90,7 @@ def setup():
     for fname in DOT_FILES:
         try:
             os.remove(fname)
-        except:
+        except FileNotFoundError:
             continue
 
 

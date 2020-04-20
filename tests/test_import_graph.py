@@ -64,7 +64,7 @@ def remove_files():
     for fname in ("import.dot", "ext_import.dot", "int_import.dot"):
         try:
             os.remove(fname)
-        except:
+        except FileNotFoundError:
             pass
 
 
