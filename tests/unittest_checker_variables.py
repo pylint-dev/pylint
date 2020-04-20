@@ -145,6 +145,23 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    def test_return_type_annotation(self):
+        """ Make sure class attributes in scope for return type annotations.
+
+        https://github.com/PyCQA/pylint/issues/1976
+        """
+        module = astroid.parse(
+            """
+        class MyObject:
+            class MyType:
+                pass
+            def my_method(self) -> MyType:
+                pass
+        """
+        )
+        with self.assertNoMessages():
+            self.walk(module)
+
 
 class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
