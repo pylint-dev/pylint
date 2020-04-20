@@ -23,5 +23,4 @@ disable=
     unused-argument,
     undefined-loop-variable,
     too-many-ancestors,
-    singleton-comparison,
     fixme,
