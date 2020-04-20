@@ -22,11 +22,13 @@
 import configparser
 import contextlib
 import json
+import os
 import platform
 import re
 import subprocess
-import tempfile
+import sys
 import textwrap
+import warnings
 from io import StringIO
 from os.path import abspath, dirname, join
 from unittest import mock
@@ -36,7 +38,8 @@ import pytest
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import Run
 from pylint.reporters import JSONReporter
-from pylint.reporters.text import *
+from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextReporter
+from pylint.utils import utils
 
 HERE = abspath(dirname(__file__))
 CLEAN_PATH = re.escape(dirname(dirname(__file__)) + "/")

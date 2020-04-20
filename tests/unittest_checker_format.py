@@ -28,7 +28,7 @@ import tokenize
 import astroid
 
 from pylint import lint, reporters
-from pylint.checkers.format import *
+from pylint.checkers.format import FormatChecker
 from pylint.testutils import CheckerTestCase, Message, _tokenize_str, set_config
 
 
