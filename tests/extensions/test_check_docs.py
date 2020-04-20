@@ -1609,7 +1609,7 @@ class TestParamDocChecker(CheckerTestCase):
 
             @foo.setter
             def foo(self, value):
-                raises AttributeError() #@
+                raise AttributeError() #@
         """
         )
         with self.assertAddsMessages(
@@ -1645,7 +1645,7 @@ class TestParamDocChecker(CheckerTestCase):
 
             @foo.setter
             def foo(self, value):
-                raises AttributeError() #@
+                raise AttributeError() #@
         """
         )
         with self.assertAddsMessages(
