@@ -4,9 +4,8 @@
 import pytest
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
-from pylint.message import MessageIdStore
 
-from .generic_fixtures import (
+from .generic_fixtures import (  # pylint: disable=unused-import
     empty_msgid_store,
     message_definitions,
     msgid_store,

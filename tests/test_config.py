@@ -1,7 +1,5 @@
 import unittest.mock
 
-import pytest
-
 import pylint.lint
 
 
@@ -13,7 +11,6 @@ def test_can_read_toml(tmp_path):
         "enable='missing-module-docstring'\n"
         "jobs=10\n"
     )
-
     linter = pylint.lint.PyLinter()
     linter.global_set_option = unittest.mock.MagicMock()
     linter.read_config_file(str(config_file))
@@ -31,7 +28,6 @@ def test_can_read_setup_cfg(tmp_path):
         "enable=missing-module-docstring\n"
         "jobs=10\n"
     )
-
     linter = pylint.lint.PyLinter()
     linter.global_set_option = unittest.mock.MagicMock()
     linter.read_config_file(str(config_file))
