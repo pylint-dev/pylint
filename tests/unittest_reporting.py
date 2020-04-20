@@ -77,5 +77,6 @@ def test_display_results_is_renamed():
             return None
 
     reporter = CustomReporter()
-    with pytest.raises(AttributeError):
-        reporter.display_results
+    with pytest.raises(AttributeError) as exc:
+        reporter.display_results()
+    assert "no attribute 'display_results'" in str(exc)
