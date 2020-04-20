@@ -45,7 +45,8 @@ class FalseChecker(BaseChecker):
 
 
 class TestMessagesDefinition:
-    def assert_with_fail_msg(self, msg, expected=True):
+    @staticmethod
+    def assert_with_fail_msg(msg, expected=True):
         fail_msg = "With minversion='{}' and maxversion='{}',".format(
             msg.minversion, msg.maxversion
         )
@@ -56,7 +57,8 @@ class TestMessagesDefinition:
         else:
             assert not msg.may_be_emitted(), fail_msg.format(" not ")
 
-    def get_message_definition(self):
+    @staticmethod
+    def get_message_definition():
         args = [
             FalseChecker(),
             "W1234",

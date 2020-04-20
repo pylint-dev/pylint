@@ -725,13 +725,15 @@ class TestPreprocessOptions:
         preprocess_options(["--qu", "ux"], {"qu": (self._callback, True)})
         assert [("qu", "ux")] == self.args
 
-    def test_error_missing_expected_value(self):
+    @staticmethod
+    def test_error_missing_expected_value():
         with pytest.raises(ArgumentPreprocessingError):
             preprocess_options(["--foo", "--bar", "--qu=ux"], {"bar": (None, True)})
         with pytest.raises(ArgumentPreprocessingError):
             preprocess_options(["--foo", "--bar"], {"bar": (None, True)})
 
-    def test_error_unexpected_value(self):
+    @staticmethod
+    def test_error_unexpected_value():
         with pytest.raises(ArgumentPreprocessingError):
             preprocess_options(
                 ["--foo", "--bar=spam", "--qu=ux"], {"bar": (None, False)}

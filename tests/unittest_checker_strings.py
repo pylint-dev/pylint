@@ -80,6 +80,7 @@ class TestStringChecker(CheckerTestCase):
             ):
                 self.checker.visit_binop(node)
 
-    def test_str_eval(self):
-        for token in TEST_TOKENS:
-            assert strings.str_eval(token) == "X"
+
+def test_str_eval():
+    for token in TEST_TOKENS:
+        assert strings.str_eval(token) == "X"

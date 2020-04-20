@@ -115,7 +115,8 @@ class TestRunTC:
             msg = "%s. Below pylint output: \n%s" % (msg, output)
         assert pylint_code == code, msg
 
-    def _run_pylint(self, args, out, reporter=None):
+    @staticmethod
+    def _run_pylint(args, out, reporter=None):
         args = args + ["--persistent=no"]
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
@@ -668,7 +669,8 @@ class TestRunTC:
             code=0,
         )
 
-    def test_do_not_import_files_from_local_directory(self, tmpdir):
+    @staticmethod
+    def test_do_not_import_files_from_local_directory(tmpdir):
         p_astroid = tmpdir / "astroid.py"
         p_astroid.write("'Docstring'\nimport completely_unknown\n")
         p_hmac = tmpdir / "hmac.py"

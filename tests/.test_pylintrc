@@ -16,7 +16,6 @@ disable=
     format,
     redefined-outer-name,
     import-outside-toplevel,
-    no-self-use,
     abstract-method,
     function-redefined,
     unused-import,
