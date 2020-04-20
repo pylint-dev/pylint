@@ -20,8 +20,8 @@ from pylint.message import MessageDefinition
     ],
 )
 def test_create_invalid_message_type(msgid, expected):
-    checker_mock = mock.Mock(name='Checker')
-    checker_mock.name = 'checker'
+    checker_mock = mock.Mock(name="Checker")
+    checker_mock.name = "checker"
 
     with pytest.raises(InvalidMessageError) as invalid_message_error:
         MessageDefinition.check_msgid(msgid)
