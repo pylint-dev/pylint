@@ -23,7 +23,6 @@ disable=
     unused-import,
     too-many-public-methods,
     unused-argument,
-    unused-wildcard-import,
     undefined-loop-variable,
     unused-variable,
     no-member,

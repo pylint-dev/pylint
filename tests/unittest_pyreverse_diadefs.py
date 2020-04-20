@@ -19,7 +19,12 @@ from pathlib import Path
 import astroid
 import pytest
 
-from pylint.pyreverse.diadefslib import *
+from pylint.pyreverse.diadefslib import (
+    ClassDiadefGenerator,
+    DefaultDiadefGenerator,
+    DiaDefGenerator,
+    DiadefsHandler,
+)
 from pylint.pyreverse.inspector import Linker
 from unittest_pyreverse_writer import Config, get_project
 
