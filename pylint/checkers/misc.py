@@ -162,7 +162,7 @@ class EncodingChecker(BaseChecker):
                         ):
                             values.extend(pragma_repr.messages)
                     except PragmaParserError:
-                        # Printing usefull informations dealing with this error is done in lint.py
+                        # Printing useful information dealing with this error is done in the lint package
                         pass
                     values = [_val.upper() for _val in values]
                     if set(values) & set(self.config.notes):
