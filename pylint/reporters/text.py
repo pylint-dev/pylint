@@ -119,7 +119,7 @@ def colorize_ansi(msg, color=None, style=None):
 
 
 class TextReporter(BaseReporter):
-    """reports messages and layouts in plain text"""
+    """Reports messages and layouts in plain text"""
 
     __implements__ = IReporter
     name = "text"
@@ -135,7 +135,7 @@ class TextReporter(BaseReporter):
         self._template = str(self.linter.config.msg_template or self.line_format)
 
     def write_message(self, msg):
-        """Convenience method to write a formated message with class default template"""
+        """Convenience method to write a formatted message with class default template"""
         self.writeln(msg.format(self._template))
 
     def handle_message(self, msg):
