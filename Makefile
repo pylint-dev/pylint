@@ -50,7 +50,7 @@ $(PKG_SDIST):
 
 lint: $(PIP)
 	$(PIP) install .
-	$(PYVE)/bin/pylint lint.py || true  # for now ignore errors
+	$(PYVE)/bin/pylint lint/__init__.py || true  # for now ignore errors
 
 clean:
 	rm -rf $(PYVE)
