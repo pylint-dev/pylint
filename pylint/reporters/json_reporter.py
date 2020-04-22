@@ -46,7 +46,7 @@ class JSONReporter(BaseReporter):
         print(json.dumps(self.messages, indent=4), file=self.out)
 
     def display_reports(self, layout):
-        """Don't do nothing in this reporter."""
+        """Don't do anything in this reporter."""
 
     def _display(self, layout):
         """Do nothing."""

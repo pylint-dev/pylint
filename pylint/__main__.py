@@ -15,5 +15,4 @@ import pylint
 if sys.path[0] == "" or sys.path[0] == os.getcwd():
     sys.path.pop(0)
 
-
 pylint.run_pylint()
