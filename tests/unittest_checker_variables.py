@@ -20,12 +20,15 @@
 import os
 import re
 import sys
+from pathlib import Path
 
 import astroid
 
 from pylint.checkers import variables
 from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, Message, linter, set_config
+
+REGR_DATA_DIR = Path(__file__).parent / "regrtest_data"
 
 
 class TestVariablesChecker(CheckerTestCase):
@@ -320,12 +323,10 @@ class TestMissingSubmodule(CheckerTestCase):
 
     @staticmethod
     def test_package_all():
-        regr_data = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "regrtest_data"
-        )
-        sys.path.insert(0, regr_data)
+
+        sys.path.insert(0, REGR_DATA_DIR)
         try:
-            linter.check(os.path.join(regr_data, "package_all"))
+            linter.check(os.path.join(REGR_DATA_DIR, "package_all"))
             got = linter.reporter.finalize().strip()
             assert got == "E:  3: Undefined variable name 'missing' in __all__"
         finally:
