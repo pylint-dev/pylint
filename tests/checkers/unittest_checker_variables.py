@@ -27,7 +27,7 @@ from pylint.checkers import variables
 from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, Message, linter, set_config
 
-REGR_DATA_DIR = Path(__file__).parent / ".." / "regrtest_data"
+REGR_DATA_DIR = str(Path(__file__).parent / ".." / "regrtest_data")
 
 
 class TestVariablesChecker(CheckerTestCase):
