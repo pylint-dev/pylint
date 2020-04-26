@@ -15,7 +15,6 @@ from pylint.__pkginfo__ import version as __version__
 
 
 def run_pylint():
-    """run pylint"""
     from pylint.lint import Run as PylintRun
 
     try:
@@ -25,7 +24,6 @@ def run_pylint():
 
 
 def run_epylint():
-    """run pylint"""
     from pylint.epylint import Run as EpylintRun
 
     EpylintRun()

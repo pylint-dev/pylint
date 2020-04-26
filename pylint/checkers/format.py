@@ -1291,7 +1291,7 @@ class FormatChecker(BaseTokenChecker):
                 if pragma.action == "disable" and "line-too-long" in pragma.messages:
                     return False
         except PragmaParserError:
-            # Printing usefull informations dealing with this error is done in lint.py
+            # Printing useful information dealing with this error is done in the lint package
             pass
         return True
 

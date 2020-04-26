@@ -94,8 +94,9 @@ def remove(file):
 
 
 HERE = abspath(dirname(__file__))
-INPUTDIR = join(HERE, "input")
-REGRTEST_DATA = join(HERE, "regrtest_data")
+INPUT_DIR = join(HERE, "..", "input")
+REGRTEST_DATA_DIR = join(HERE, "..", "regrtest_data")
+DATA_DIR = join(HERE, "..", "data")
 
 
 @contextmanager
@@ -318,7 +319,7 @@ def test_message_state_scope(init_linter):
 def test_enable_message_block(init_linter):
     linter = init_linter
     linter.open()
-    filepath = join(REGRTEST_DATA, "func_block_disable_msg.py")
+    filepath = join(REGRTEST_DATA_DIR, "func_block_disable_msg.py")
     linter.set_current_module("func_block_disable_msg")
     astroid = linter.get_ast(filepath, "func_block_disable_msg")
     linter.process_tokens(tokenize_module(astroid))
@@ -504,11 +505,11 @@ def test_addmessage_invalid(linter):
 
 
 def test_load_plugin_command_line():
-    dummy_plugin_path = join(HERE, "regrtest_data", "dummy_plugin")
+    dummy_plugin_path = join(REGRTEST_DATA_DIR, "dummy_plugin")
     sys.path.append(dummy_plugin_path)
 
     run = Run(
-        ["--load-plugins", "dummy_plugin", join(HERE, "regrtest_data", "empty.py")],
+        ["--load-plugins", "dummy_plugin", join(REGRTEST_DATA_DIR, "empty.py")],
         do_exit=False,
     )
     assert (
@@ -520,13 +521,12 @@ def test_load_plugin_command_line():
 
 
 def test_load_plugin_config_file():
-    dummy_plugin_path = join(HERE, "regrtest_data", "dummy_plugin")
+    dummy_plugin_path = join(REGRTEST_DATA_DIR, "dummy_plugin")
     sys.path.append(dummy_plugin_path)
-    config_path = join(HERE, "regrtest_data", "dummy_plugin.rc")
+    config_path = join(REGRTEST_DATA_DIR, "dummy_plugin.rc")
 
     run = Run(
-        ["--rcfile", config_path, join(HERE, "regrtest_data", "empty.py")],
-        do_exit=False,
+        ["--rcfile", config_path, join(REGRTEST_DATA_DIR, "empty.py")], do_exit=False,
     )
     assert (
         len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
@@ -537,7 +537,7 @@ def test_load_plugin_config_file():
 
 
 def test_load_plugin_configuration():
-    dummy_plugin_path = join(HERE, "regrtest_data", "dummy_plugin")
+    dummy_plugin_path = join(REGRTEST_DATA_DIR, "dummy_plugin")
     sys.path.append(dummy_plugin_path)
 
     run = Run(
@@ -546,7 +546,7 @@ def test_load_plugin_configuration():
             "dummy_conf_plugin",
             "--ignore",
             "foo,bar",
-            join(HERE, "regrtest_data", "empty.py"),
+            join(REGRTEST_DATA_DIR, "empty.py"),
         ],
         do_exit=False,
     )
@@ -562,7 +562,7 @@ def test_init_hooks_called_before_load_plugins():
 
 def test_analyze_explicit_script(linter):
     linter.set_reporter(testutils.TestReporter())
-    linter.check(os.path.join(os.path.dirname(__file__), "data", "ascript"))
+    linter.check(os.path.join(DATA_DIR, "ascript"))
     assert ["C:  2: Line too long (175/100)"] == linter.reporter.messages
 
 
@@ -755,7 +755,7 @@ def test_custom_should_analyze_file():
     """Check that we can write custom should_analyze_file that work
     even for arguments.
     """
-    package_dir = os.path.join(HERE, "regrtest_data", "bad_package")
+    package_dir = os.path.join(REGRTEST_DATA_DIR, "bad_package")
     wrong_file = os.path.join(package_dir, "wrong.py")
 
     for jobs in [1, 2]:
@@ -785,7 +785,7 @@ def test_filename_with__init__(init_linter):
     linter = init_linter
     linter.open()
     linter.set_reporter(reporter)
-    filepath = join(INPUTDIR, "not__init__.py")
+    filepath = join(INPUT_DIR, "not__init__.py")
     linter.check([filepath])
     messages = reporter.messages
     assert len(messages) == 0

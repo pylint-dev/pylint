@@ -973,13 +973,11 @@ class VariablesChecker(BaseChecker):
             # if the current scope is a class scope but it's not the inner
             # scope, ignore it. This prevents to access this scope instead of
             # the globals one in function members when there are some common
-            # names. The only exception is when the starting scope is a
-            # comprehension and its direct outer scope is a class
-            if (
-                current_consumer.scope_type == "class"
-                and i != start_index
-                and not (base_scope_type == "comprehension" and i == start_index - 1)
-            ):
+            # names.
+            if current_consumer.scope_type == "class" and i != start_index:
+                # The only exceptions are: when the variable forms an iter within a
+                # comprehension scope; and/or when used as a default, decorator,
+                # or annotation within a function.
                 if self._ignore_class_scope(node):
                     continue
 
@@ -1249,16 +1247,53 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _defined_in_function_definition(node, frame):
-        in_annotation_or_default = False
+        in_annotation_or_default_or_decorator = False
         if isinstance(frame, astroid.FunctionDef) and node.statement() is frame:
-            in_annotation_or_default = (
-                node in frame.args.annotations
-                or node in frame.args.posonlyargs_annotations
-                or node in frame.args.kwonlyargs_annotations
-                or node is frame.args.varargannotation
-                or node is frame.args.kwargannotation
-            ) or frame.args.parent_of(node)
-        return in_annotation_or_default
+            in_annotation_or_default_or_decorator = (
+                (
+                    node in frame.args.annotations
+                    or node in frame.args.posonlyargs_annotations
+                    or node in frame.args.kwonlyargs_annotations
+                    or node is frame.args.varargannotation
+                    or node is frame.args.kwargannotation
+                )
+                or frame.args.parent_of(node)
+                or (frame.decorators and frame.decorators.parent_of(node))
+                or (
+                    frame.returns
+                    and (node is frame.returns or frame.returns.parent_of(node))
+                )
+            )
+        return in_annotation_or_default_or_decorator
+
+    @staticmethod
+    def _in_lambda_or_comprehension_body(
+        node: astroid.node_classes.NodeNG, frame: astroid.node_classes.NodeNG
+    ) -> bool:
+        """return True if node within a lambda/comprehension body (or similar) and thus should not have access to class attributes in frame"""
+        child = node
+        parent = node.parent
+        while parent is not None:
+            if parent is frame:
+                return False
+            if isinstance(parent, astroid.Lambda) and not child is parent.args:
+                # Body of lambda should not have access to class attributes.
+                return True
+            if (
+                isinstance(parent, astroid.node_classes.Comprehension)
+                and not child is parent.iter
+            ):
+                # Only iter of list/set/dict/generator comprehension should have access.
+                return True
+            if isinstance(parent, astroid.scoped_nodes.ComprehensionScope) and not (
+                parent.generators and child is parent.generators[0]
+            ):
+                # Body of list/set/dict/generator comprehension should not have access to class attributes.
+                # Furthermore, only the first generator (if multiple) in comprehension should have access.
+                return True
+            child = parent
+            parent = parent.parent
+        return False
 
     @staticmethod
     def _is_variable_violation(
@@ -1419,13 +1454,19 @@ class VariablesChecker(BaseChecker):
 
         name = node.name
         frame = node.statement().scope()
-        in_annotation_or_default = self._defined_in_function_definition(node, frame)
-        if in_annotation_or_default:
+        in_annotation_or_default_or_decorator = self._defined_in_function_definition(
+            node, frame
+        )
+        if in_annotation_or_default_or_decorator:
             frame_locals = frame.parent.scope().locals
         else:
             frame_locals = frame.locals
         return not (
-            (isinstance(frame, astroid.ClassDef) or in_annotation_or_default)
+            (
+                isinstance(frame, astroid.ClassDef)
+                or in_annotation_or_default_or_decorator
+            )
+            and not self._in_lambda_or_comprehension_body(node, frame)
             and name in frame_locals
         )
 

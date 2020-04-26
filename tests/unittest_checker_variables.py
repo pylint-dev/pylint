@@ -119,6 +119,49 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertAddsMessages(msg):
             self.checker.visit_global(node)
 
+    def test_listcomp_in_decorator(self):
+        """ Make sure class attributes in scope for listcomp in decorator.
+
+        https://github.com/PyCQA/pylint/issues/511
+        """
+        module = astroid.parse(
+            """
+        def dec(inp):
+            def inner(func):
+                print(inp)
+                return func
+            return inner
+
+
+        class Cls:
+
+            DATA = "foo"
+
+            @dec([x for x in DATA])
+            def fun(self):
+                pass
+        """
+        )
+        with self.assertNoMessages():
+            self.walk(module)
+
+    def test_return_type_annotation(self):
+        """ Make sure class attributes in scope for return type annotations.
+
+        https://github.com/PyCQA/pylint/issues/1976
+        """
+        module = astroid.parse(
+            """
+        class MyObject:
+            class MyType:
+                pass
+            def my_method(self) -> MyType:
+                pass
+        """
+        )
+        with self.assertNoMessages():
+            self.walk(module)
+
 
 class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
