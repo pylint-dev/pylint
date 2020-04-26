@@ -21,7 +21,7 @@ import pytest
 
 from pylint.checkers import similar
 
-INPUT = Path(__file__).parent / "input"
+INPUT = Path(__file__).parent / ".." / "input"
 SIMILAR1 = str(INPUT / "similar1")
 SIMILAR2 = str(INPUT / "similar2")
 MULTILINE = str(INPUT / "multiline-import")

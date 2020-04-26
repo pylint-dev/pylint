@@ -16,6 +16,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Unit tests for the imports checker."""
+
 import os
 
 import astroid
@@ -24,7 +25,7 @@ from pylint.checkers import imports
 from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, Message, set_config
 
-REGR_DATA = os.path.join(os.path.dirname(__file__), "regrtest_data", "")
+REGR_DATA = os.path.join(os.path.dirname(__file__), "..", "regrtest_data", "")
 
 
 class TestImportsChecker(CheckerTestCase):
