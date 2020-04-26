@@ -1,8 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-# pylint: disable=broad-except
-
 import collections
 import contextlib
 import functools
@@ -1050,7 +1048,7 @@ class PyLinter(
             )
         except astroid.AstroidBuildingException as ex:
             self.add_message("parse-error", args=ex)
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=broad-except
             traceback.print_exc()
             self.add_message("astroid-error", args=(ex.__class__, ex))
 
@@ -1161,7 +1159,7 @@ class PyLinter(
         evaluation = self.config.evaluation
         try:
             note = eval(evaluation, {}, self.stats)  # pylint: disable=eval-used
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=broad-except
             msg = "An exception occurred while rating: %s" % ex
         else:
             self.stats["global_note"] = note
