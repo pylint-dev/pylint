@@ -15,18 +15,17 @@
 
 from contextlib import redirect_stdout
 from io import StringIO
-from os.path import abspath, dirname, join
+from pathlib import Path
 
 import pytest
 
 from pylint.checkers import similar
 
-SIMILAR1 = join(dirname(abspath(__file__)), "input", "similar1")
-SIMILAR2 = join(dirname(abspath(__file__)), "input", "similar2")
-MULTILINE = join(dirname(abspath(__file__)), "input", "multiline-import")
-HIDE_CODE_WITH_IMPORTS = join(
-    dirname(abspath(__file__)), "input", "hide_code_with_imports.py"
-)
+INPUT = Path(__file__).parent / "input"
+SIMILAR1 = str(INPUT / "similar1")
+SIMILAR2 = str(INPUT / "similar2")
+MULTILINE = str(INPUT / "multiline-import")
+HIDE_CODE_WITH_IMPORTS = str(INPUT / "hide_code_with_imports.py")
 
 
 def test_ignore_comments():
