@@ -118,7 +118,7 @@ def test_check_package___init__(finalize_linter):
 
 
 def test_pylint_config_attr():
-    mod = astroid.MANAGER.ast_from_module_name("pylint.lint")
+    mod = astroid.MANAGER.ast_from_module_name("pylint.lint.pylinter")
     pylinter = mod["PyLinter"]
     expect = [
         "OptionsManagerMixIn",
