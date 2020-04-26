@@ -535,7 +535,7 @@ class TestRunTC:
         ).format(path=expected_path, module=module)
 
         with mock.patch(
-            "pylint.lint._read_stdin", return_value="import os\n"
+            "pylint.lint.pylinter._read_stdin", return_value="import os\n"
         ) as mock_stdin:
             self._test_output(
                 ["--from-stdin", input_path, "--disable=all", "--enable=unused-import"],
@@ -589,7 +589,7 @@ class TestRunTC:
 
             # this code needs to work w/ and w/o a file named a/b.py on the
             # harddisk.
-            with mock.patch("pylint.lint._read_stdin", return_value=b_code):
+            with mock.patch("pylint.lint.pylinter._read_stdin", return_value=b_code):
                 self._test_output(
                     [
                         "--from-stdin",
@@ -606,7 +606,9 @@ class TestRunTC:
             "a.py:1:4: E0001: invalid syntax (<unknown>, line 1) (syntax-error)"
         )
 
-        with mock.patch("pylint.lint._read_stdin", return_value="for\n") as mock_stdin:
+        with mock.patch(
+            "pylint.lint.pylinter._read_stdin", return_value="for\n"
+        ) as mock_stdin:
             self._test_output(
                 ["--from-stdin", "a.py", "--disable=all", "--enable=syntax-error"],
                 expected_output=expected_output,
