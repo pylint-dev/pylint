@@ -152,7 +152,7 @@ NO_REQUIRED_DOC_RGX = re.compile("^_")
 REVERSED_PROTOCOL_METHOD = "__reversed__"
 SEQUENCE_PROTOCOL_METHODS = ("__getitem__", "__len__")
 REVERSED_METHODS = (SEQUENCE_PROTOCOL_METHODS, (REVERSED_PROTOCOL_METHOD,))
-TYPECHECK_COMPARISON_OPERATORS = frozenset(("is", "is not", "==", "!=", "in", "not in"))
+TYPECHECK_COMPARISON_OPERATORS = frozenset(("is", "is not", "==", "!="))
 LITERAL_NODE_TYPES = (astroid.Const, astroid.Dict, astroid.List, astroid.Set)
 UNITTEST_CASE = "unittest.case"
 BUILTINS = builtins.__name__

@@ -6,8 +6,6 @@ def simple_positives():
     type(42) is not int # [unidiomatic-typecheck]
     type(42) == int # [unidiomatic-typecheck]
     type(42) != int # [unidiomatic-typecheck]
-    type(42) in [int] # [unidiomatic-typecheck]
-    type(42) not in [int] # [unidiomatic-typecheck]
 
 def simple_inference_positives():
     alias = type
@@ -15,16 +13,12 @@ def simple_inference_positives():
     alias(42) is not int # [unidiomatic-typecheck]
     alias(42) == int # [unidiomatic-typecheck]
     alias(42) != int # [unidiomatic-typecheck]
-    alias(42) in [int] # [unidiomatic-typecheck]
-    alias(42) not in [int] # [unidiomatic-typecheck]
 
 def type_creation_negatives():
     type('Q', (object,), dict(a=1)) is int
     type('Q', (object,), dict(a=1)) is not int
     type('Q', (object,), dict(a=1)) == int
     type('Q', (object,), dict(a=1)) != int
-    type('Q', (object,), dict(a=1)) in [int]
-    type('Q', (object,), dict(a=1)) not in [int]
 
 def invalid_type_call_negatives(**kwargs):
     type(bad=7) is int
