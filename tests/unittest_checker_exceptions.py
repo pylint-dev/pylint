@@ -5,6 +5,7 @@
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2018 Brian Shaginaw <brian.shaginaw@warbyparker.com>
+# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

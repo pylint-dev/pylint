@@ -1,16 +1,23 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2009-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009, 2012, 2014 Google, Inc.
 # Copyright (c) 2012 Mike Bryant <leachim@leachim.info>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016, 2019-2020 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 Chris Murray <chris@chrismurray.scot>
-# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2017 guillaume2 <guillaume.peillex@gmail.col>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2018 Alan Chan <achan961117@gmail.com>
+# Copyright (c) 2018 Yury Gribov <tetra2005@gmail.com>
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Mariatta Wijaya <mariatta@python.org>
+# Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
+# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019 Svet <svet@hyperscience.com>
+# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 

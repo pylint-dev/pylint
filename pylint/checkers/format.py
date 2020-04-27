@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012-2015 Google, Inc.
 # Copyright (c) 2013 moxian <aleftmail@inbox.ru>
-# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2019 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 frost-nzcr4 <frost.nzcr4@jagmort.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
@@ -15,20 +16,27 @@
 # Copyright (c) 2016 Petr Pulc <petrpulc@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2017, 2019 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Krzysztof Czapla <k.czapla68@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 James M. Allen <james.m.allen@gmail.com>
 # Copyright (c) 2017 vinnyrose <vinnyrose@users.noreply.github.com>
+# Copyright (c) 2018-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2018 Pierre Sassoulas <pierre.sassoulas@wisebim.fr>
+# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
+# Copyright (c) 2018 Michael Hudson-Doyle <michael.hudson@canonical.com>
+# Copyright (c) 2018 Natalie Serebryakova <natalie.serebryakova@Natalies-MacBook-Pro.local>
+# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2018 Marcus Näslund <naslundx@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
-# Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018 Fureigh <rhys.fureigh@gsa.gov>
-# Copyright (c) 2018 Pierre Sassoulas <pierre.sassoulas@wisebim.fr>
 # Copyright (c) 2018 Andreas Freimuth <andreas.freimuth@united-bits.de>
 # Copyright (c) 2018 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

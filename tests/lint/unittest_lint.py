@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009 Charles Hebert <charles.hebert@logilab.fr>
 # Copyright (c) 2011-2014 Google, Inc.
 # Copyright (c) 2012 Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
 # Copyright (c) 2012 Anthony VEREZ <anthony.verez.external@cassidian.com>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Noam Yorav-Raphael <noamraph@gmail.com>
@@ -16,11 +17,18 @@
 # Copyright (c) 2017 Craig Citro <craigcitro@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2018 Pierre Sassoulas <pierre.sassoulas@wisebim.fr>
+# Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2018 Matus Valo <matusvalo@users.noreply.github.com>
+# Copyright (c) 2018 Scott Worley <scottworley@scottworley.com>
 # Copyright (c) 2018 Randall Leeds <randall@bleeds.info>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2018 Pierre Sassoulas <pierre.sassoulas@wisebim.fr>
 # Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
+# Copyright (c) 2019 Janne Rönkkö <jannero@users.noreply.github.com>
+# Copyright (c) 2019 Trevor Bekolay <tbekolay@gmail.com>
+# Copyright (c) 2019 Andres Perez Hortal <andresperezcba@gmail.com>
+# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

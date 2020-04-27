@@ -1,4 +1,6 @@
-# Copyright (c) 2019 Tyler N. Thieding <python@thieding.com>
+# Copyright (c) 2019-2020 Tyler Thieding <tyler@thieding.com>
+# Copyright (c) 2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
