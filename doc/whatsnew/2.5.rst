@@ -3,7 +3,7 @@
 **************************
 
 :Release: 2.5
-:Date: TBC
+:Date: 2020-04-27
 
 
 Summary -- Release highlights

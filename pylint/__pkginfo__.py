@@ -23,14 +23,14 @@ from os.path import join
 
 # For an official release, use dev_version = None
 numversion = (2, 5, 0)
-dev_version = "1"
+dev_version = None
 
 version = ".".join(str(num) for num in numversion)
 if dev_version is not None:
     version += "-dev" + str(dev_version)
 
 install_requires = [
-    "astroid>=2.3.0,<=2.5",
+    "astroid>=2.4.0,<=2.5",
     "isort>=4.2.5,<5",
     "mccabe>=0.6,<0.7",
     "toml>=0.7.1",
@@ -59,6 +59,7 @@ classifiers = [
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
