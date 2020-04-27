@@ -30,7 +30,9 @@ class TestLoggingModuleDetection(CheckerTestCase):
         )
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1], args=("lazy %",))):
+        with self.assertAddsMessages(
+            Message("logging-not-lazy", node=stmts[1], args=("lazy %",))
+        ):
             self.checker.visit_call(stmts[1])
 
     def test_dont_crash_on_invalid_format_string(self):
@@ -51,7 +53,9 @@ class TestLoggingModuleDetection(CheckerTestCase):
         )
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1], args=("lazy %",))):
+        with self.assertAddsMessages(
+            Message("logging-not-lazy", node=stmts[1], args=("lazy %",))
+        ):
             self.checker.visit_call(stmts[1])
 
     @set_config(logging_modules=["logging", "my.logging"])
@@ -64,7 +68,9 @@ class TestLoggingModuleDetection(CheckerTestCase):
         )
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        with self.assertAddsMessages(Message("logging-not-lazy", node=stmts[1], args=("lazy %",))):
+        with self.assertAddsMessages(
+            Message("logging-not-lazy", node=stmts[1], args=("lazy %",))
+        ):
             self.checker.visit_call(stmts[1])
 
     def _assert_logging_format_no_messages(self, stmt):
