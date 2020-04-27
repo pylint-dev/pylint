@@ -272,7 +272,7 @@ class LoggingChecker(checkers.BaseChecker):
         ):
             valid_types.append("fstring")
         if not self.linter.is_message_enabled(
-            "logging-format-formatting", node.fromlineno
+            "logging-format-interpolation", node.fromlineno
         ):
             valid_types.append(".format()")
         if not self.linter.is_message_enabled("logging-not-lazy", node.fromlineno):
