@@ -26,6 +26,10 @@ Release date: TBA
 
 * Positional-only arguments are taken in account for ``useless-super-delegation``
 
+* ``unidiomatic-typecheck`` is no longer emitted for ``in`` and ``not in`` operators
+
+  Close #3337
+
 * Positional-only argument annotations are taken in account for ``unused-import``
 
   Close #3462
