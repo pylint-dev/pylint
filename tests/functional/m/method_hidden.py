@@ -79,3 +79,14 @@ class One:
 class Two(One):
     def one(self):
         pass
+
+try:
+    import unknown as js
+except ImportError:
+    import json as js
+
+
+class JsonEncoder(js.JSONEncoder):
+    # pylint: disable=useless-super-delegation
+    def default(self, o):
+        return super(JsonEncoder, self).default(o)
