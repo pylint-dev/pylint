@@ -1,0 +1,17 @@
+**************************
+ What's New in Pylint 2.6
+**************************
+
+:Release: 2.6
+:Date: TBA
+
+
+Summary -- Release highlights
+=============================
+
+
+New checkers
+============
+
+Other Changes
+=============
