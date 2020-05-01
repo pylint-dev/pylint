@@ -16,6 +16,10 @@ Release date: TBA
 
   Close #3527
 
+* Changed setup.py to work with [distlib](https://pypi.org/project/distlib)
+
+  Close #3555
+
 What's New in Pylint 2.5.0?
 ===========================
 
