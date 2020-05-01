@@ -9,8 +9,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""Tests for the pylint checker in :mod:`pylint.extensions.emptystring
-"""
+"""Tests for the pylint checker in :mod:`pylint.extensions.emptystring"""
 
 import os
 import unittest
@@ -55,7 +54,3 @@ class CompareToZeroUsedTC(unittest.TestCase):
         self.assertEqual(msgs[1].line, 9)
         self.assertEqual(msgs[2].line, 12)
         self.assertEqual(msgs[3].line, 15)
-
-
-if __name__ == "__main__":
-    unittest.main()
