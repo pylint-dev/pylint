@@ -302,9 +302,11 @@ class TestMultiNamingStyle(CheckerTestCase):
             args=("Class", "classb", "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern"),
         )
         with self.assertAddsMessages(message):
+            cls = None
             for cls in classes:
                 self.checker.visit_classdef(cls)
-            self.checker.leave_module(cls.root)
+            if cls:
+                self.checker.leave_module(cls.root)
 
     @set_config(class_rgx=MULTI_STYLE_RE)
     def test_multi_name_detection_first_invalid(self):
@@ -339,9 +341,11 @@ class TestMultiNamingStyle(CheckerTestCase):
             ),
         ]
         with self.assertAddsMessages(*messages):
+            cls = None
             for cls in classes:
                 self.checker.visit_classdef(cls)
-            self.checker.leave_module(cls.root)
+            if cls:
+                self.checker.leave_module(cls.root)
 
     @set_config(
         method_rgx=MULTI_STYLE_RE,
@@ -366,9 +370,11 @@ class TestMultiNamingStyle(CheckerTestCase):
             args=("Function", "FUNC", "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern"),
         )
         with self.assertAddsMessages(message):
+            func = None
             for func in function_defs:
                 self.checker.visit_functiondef(func)
-            self.checker.leave_module(func.root)
+            if func:
+                self.checker.leave_module(func.root)
 
     @set_config(
         function_rgx=re.compile("(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$")
@@ -396,9 +402,11 @@ class TestMultiNamingStyle(CheckerTestCase):
             ),
         )
         with self.assertAddsMessages(message):
+            func = None
             for func in function_defs:
                 self.checker.visit_functiondef(func)
-            self.checker.leave_module(func.root)
+            if func:
+                self.checker.leave_module(func.root)
 
 
 class TestComparison(CheckerTestCase):
