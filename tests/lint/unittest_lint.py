@@ -67,11 +67,10 @@ if os.name == "java":
         HOME = "USERPROFILE"
     else:
         HOME = "HOME"
+elif sys.platform == "win32":
+    HOME = "USERPROFILE"
 else:
-    if sys.platform == "win32":
-        HOME = "USERPROFILE"
-    else:
-        HOME = "HOME"
+    HOME = "HOME"
 
 try:
     PYPY_VERSION_INFO = sys.pypy_version_info
