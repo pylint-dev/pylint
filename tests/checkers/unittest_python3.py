@@ -23,7 +23,7 @@
 
 """Tests for the python3 checkers."""
 
-# pylint: disable=too-many-public-methods
+# pylint: disable=too-many-public-methods,redefined-outer-name
 
 import astroid
 

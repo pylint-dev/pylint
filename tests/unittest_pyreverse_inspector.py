@@ -9,6 +9,8 @@
 """
  for the visitors.diadefs module
 """
+# pylint: disable=redefined-outer-name
+
 import os
 
 import astroid
