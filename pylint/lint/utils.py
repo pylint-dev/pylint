@@ -2,9 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import contextlib
+import os
 import sys
-
-from pylint.utils import utils
 
 
 class ArgumentPreprocessingError(Exception):
@@ -46,17 +45,28 @@ def preprocess_options(args, search_for):
             i += 1
 
 
+def _get_python_path(filepath):
+    dirname = os.path.realpath(os.path.expanduser(filepath))
+    if not os.path.isdir(dirname):
+        dirname = os.path.dirname(dirname)
+    while True:
+        if not os.path.exists(os.path.join(dirname, "__init__.py")):
+            return dirname
+        old_dirname = dirname
+        dirname = os.path.dirname(dirname)
+        if old_dirname == dirname:
+            return os.getcwd()
+    return None
+
+
 def _patch_sys_path(args):
     original = list(sys.path)
     changes = []
-    seen = set()
     for arg in args:
-        path = utils.get_python_path(arg)
-        if path not in seen:
+        path = _get_python_path(arg)
+        if path not in changes:
             changes.append(path)
-            seen.add(path)
-
-    sys.path[:] = changes + sys.path
+    sys.path[:] = changes + ["."] + sys.path
     return original
 
 
