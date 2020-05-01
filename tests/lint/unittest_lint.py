@@ -518,7 +518,7 @@ def test_load_plugin_command_line():
 
     run = Run(
         ["--load-plugins", "dummy_plugin", join(REGRTEST_DATA_DIR, "empty.py")],
-        do_exit=False,
+        exit=False,
     )
     assert (
         len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
@@ -534,7 +534,7 @@ def test_load_plugin_config_file():
     config_path = join(REGRTEST_DATA_DIR, "dummy_plugin.rc")
 
     run = Run(
-        ["--rcfile", config_path, join(REGRTEST_DATA_DIR, "empty.py")], do_exit=False,
+        ["--rcfile", config_path, join(REGRTEST_DATA_DIR, "empty.py")], exit=False,
     )
     assert (
         len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
@@ -556,7 +556,7 @@ def test_load_plugin_configuration():
             "foo,bar",
             join(REGRTEST_DATA_DIR, "empty.py"),
         ],
-        do_exit=False,
+        exit=False,
     )
     assert run.linter.config.black_list == ["foo", "bar", "bin"]
 

@@ -16,6 +16,12 @@ Release date: TBA
 
   Close #3527
 
+* Revert pylint.Run's `exit` parameter to ``do_exit``
+
+  This has been inadvertently changed several releases ago to ``do_exit``.
+
+  Close #3533
+
 What's New in Pylint 2.5.0?
 ===========================
 
