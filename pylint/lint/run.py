@@ -66,7 +66,9 @@ group are mutually exclusive.",
     def _return_one(*args):  # pylint: disable=unused-argument
         return 1
 
-    def __init__(self, args, reporter=None, do_exit=True):
+    def __init__(
+        self, args, reporter=None, exit=True
+    ):  # pylint: disable=redefined-builtin
         self._rcfile = None
         self._plugins = []
         self.verbose = None
@@ -337,7 +339,7 @@ group are mutually exclusive.",
 
         linter.check(args)
         score_value = linter.generate_reports()
-        if do_exit:
+        if exit:
             if linter.config.exit_zero:
                 sys.exit(0)
             else:

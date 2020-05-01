@@ -286,7 +286,7 @@ class TestEstablishBaselineBenchmarks:
         # Just 1 file, but all Checkers/Extensions
         fileinfos = [self.empty_filepath]
 
-        runner = benchmark(Run, fileinfos, reporter=Reporter(), do_exit=False)
+        runner = benchmark(Run, fileinfos, reporter=Reporter(), exit=False)
         assert runner.linter.config.jobs == 1
         print("len(runner.linter._checkers)", len(runner.linter._checkers))
         assert len(runner.linter._checkers) > 1, "Should have more than 'master'"
