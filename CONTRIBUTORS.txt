@@ -381,3 +381,5 @@ contributors:
 * Yang Yang: contributor
 
 * Andrew J. Simmons (anjsimmo): contributor
+
+* Colin Kennedy: contributor
