@@ -150,7 +150,7 @@ def install(**kwargs):
         cmdclass=cmdclass,
         extras_require=extras_require,
         test_suite="test",
-        python_requires=">=3.5.*",
+        python_requires=">=3.5",
         setup_requires=pytest_runner,
         tests_require=["pytest"],
         **kwargs
