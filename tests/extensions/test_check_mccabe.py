@@ -8,6 +8,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Tests for the pylint checker in :mod:`pylint.extensions.check_mccabe"""
+# pylint: disable=redefined-outer-name
 
 import os.path as osp
 

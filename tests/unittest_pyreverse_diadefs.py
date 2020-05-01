@@ -15,7 +15,7 @@
 """
 unit test for the extensions.diadefslib modules
 """
-
+# pylint: disable=redefined-outer-name
 import sys
 from pathlib import Path
 
