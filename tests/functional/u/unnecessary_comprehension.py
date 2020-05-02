@@ -1,4 +1,4 @@
-# pylint: disable=undefined-variable, pointless-statement, missing-docstring, line-too-long, bad-whitespace
+# pylint: disable=undefined-variable, pointless-statement, missing-docstring, line-too-long
 # For name-reference see https://docs.python.org/3/reference/expressions.html#displays-for-lists-sets-and-dictionaries
 
 # List comprehensions

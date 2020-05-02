@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, bad-whitespace
+# pylint: disable=missing-docstring
 """Regression test for https://github.com/PyCQA/pylint/issues/1168
 
 The problem was that we weren't handling keyword-only arguments annotations,
