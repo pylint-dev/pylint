@@ -763,3 +763,18 @@ class TestRunTC:
                 ],
                 code=0,
             )
+
+    def test_can_list_directories_without_dunder_init(self, tmpdir):
+        test_directory = tmpdir / "test_directory"
+        test_directory.mkdir()
+        spam_module = test_directory / "spam.py"
+        spam_module.write("'Empty'")
+
+        with tmpdir.as_cwd():
+            self._runtest(
+                [
+                    "--disable=missing-docstring, missing-final-newline",
+                    "test_directory",
+                ],
+                code=0,
+            )
