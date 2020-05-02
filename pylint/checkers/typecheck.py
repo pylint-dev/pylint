@@ -564,9 +564,9 @@ def _no_context_variadic_keywords(node, scope):
 
     if isinstance(scope, astroid.Lambda) and not isinstance(scope, astroid.FunctionDef):
         variadics = list(node.keywords or []) + node.kwargs
-    elif isinstance(statement, (astroid.Return, astroid.Expr)) and isinstance(
-        statement.value, astroid.Call
-    ):
+    elif isinstance(
+        statement, (astroid.Return, astroid.Expr, astroid.Assign)
+    ) and isinstance(statement.value, astroid.Call):
         call = statement.value
         variadics = list(call.keywords or []) + call.kwargs
 
@@ -579,9 +579,9 @@ def _no_context_variadic_positional(node, scope):
         variadics = node.starargs + node.kwargs
     else:
         statement = node.statement()
-        if isinstance(statement, (astroid.Expr, astroid.Return)) and isinstance(
-            statement.value, astroid.Call
-        ):
+        if isinstance(
+            statement, (astroid.Expr, astroid.Return, astroid.Assign)
+        ) and isinstance(statement.value, astroid.Call):
             call = statement.value
             variadics = call.starargs + call.kwargs
 
