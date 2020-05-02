@@ -69,16 +69,6 @@ from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 _ASYNC_TOKEN = "async"
-_CONTINUATION_BLOCK_OPENERS = [
-    "elif",
-    "except",
-    "for",
-    "if",
-    "while",
-    "def",
-    "class",
-    "with",
-]
 _KEYWORD_TOKENS = [
     "assert",
     "del",
@@ -167,7 +157,6 @@ MSGS = {
         "Used when an unexpected number of indentation's tabulations or "
         "spaces has been found.",
     ),
-    "C0330": ("Wrong %s indentation%s%s.\n%s%s", "bad-continuation", "TODO"),
     "W0312": (
         "Found indentation with %ss instead of %ss",
         "mixed-indentation",
@@ -249,89 +238,6 @@ def _last_token_on_line_is(tokens, line_end, token):
     )
 
 
-def _token_followed_by_eol(tokens, position):
-    return (
-        tokens.type(position + 1) == tokenize.NL
-        or tokens.type(position + 1) == tokenize.COMMENT
-        and tokens.type(position + 2) == tokenize.NL
-    )
-
-
-def _get_indent_string(line):
-    """Return the indention string of the given line."""
-    result = ""
-    for char in line:
-        if char in " \t":
-            result += char
-        else:
-            break
-    return result
-
-
-def _get_indent_length(line):
-    """Return the length of the indentation on the given token's line."""
-    result = 0
-    for char in line:
-        if char == " ":
-            result += 1
-        elif char == "\t":
-            result += _TAB_LENGTH
-        else:
-            break
-    return result
-
-
-def _get_indent_hint_line(bar_positions, bad_position):
-    """Return a line with |s for each of the positions in the given lists."""
-    if not bar_positions:
-        return "", ""
-
-    bar_positions = [_get_indent_length(indent) for indent in bar_positions]
-    bad_position = _get_indent_length(bad_position)
-    delta_message = ""
-    markers = [(pos, "|") for pos in bar_positions]
-    if len(markers) == 1:
-        # if we have only one marker we'll provide an extra hint on how to fix
-        expected_position = markers[0][0]
-        delta = abs(expected_position - bad_position)
-        direction = "add" if expected_position > bad_position else "remove"
-        delta_message = _CONTINUATION_HINT_MESSAGE % (
-            direction,
-            delta,
-            "s" if delta > 1 else "",
-        )
-    markers.append((bad_position, "^"))
-    markers.sort()
-    line = [" "] * (markers[-1][0] + 1)
-    for position, marker in markers:
-        line[position] = marker
-    return "".join(line), delta_message
-
-
-class _ContinuedIndent:
-    __slots__ = (
-        "valid_outdent_strings",
-        "valid_continuation_strings",
-        "context_type",
-        "token",
-        "position",
-    )
-
-    def __init__(
-        self,
-        context_type,
-        token,
-        position,
-        valid_outdent_strings,
-        valid_continuation_strings,
-    ):
-        self.valid_outdent_strings = valid_outdent_strings
-        self.valid_continuation_strings = valid_continuation_strings
-        self.context_type = context_type
-        self.position = position
-        self.token = token
-
-
 # The contexts for hanging indents.
 # A hanging indented dictionary value after :
 HANGING_DICT_VALUE = "dict-value"
@@ -346,34 +252,6 @@ CONTINUED_BLOCK = "continued-block"
 
 SINGLE_LINE = "single"
 WITH_BODY = "multi"
-
-_CONTINUATION_MSG_PARTS = {
-    HANGING_DICT_VALUE: ("hanging", " in dict value"),
-    HANGING: ("hanging", ""),
-    HANGING_BLOCK: ("hanging", " before block"),
-    CONTINUED: ("continued", ""),
-    CONTINUED_BLOCK: ("continued", " before block"),
-}
-
-_CONTINUATION_HINT_MESSAGE = " (%s %d space%s)"  # Ex: (remove 2 spaces)
-
-
-def _Indentations(*args):
-    """Valid indentation strings for a continued line."""
-    return {a: None for a in args}
-
-
-def _BeforeBlockIndentations(single, with_body):
-    """Valid alternative indentation strings for continued lines before blocks.
-
-    :param int single: Valid indentation string for statements on a single logical line.
-    :param int with_body: Valid indentation string for statements on several lines.
-
-    :returns: A dictionary mapping indent offsets to a string representing
-        whether the indent if for a line or block.
-    :rtype: dict
-    """
-    return {single: SINGLE_LINE, with_body: WITH_BODY}
 
 
 class TokenWrapper:
@@ -396,195 +274,6 @@ class TokenWrapper:
 
     def line(self, idx):
         return self._tokens[idx][4]
-
-    def line_indent(self, idx):
-        """Get the string of TABs and Spaces used for indentation of the line of this token"""
-        return _get_indent_string(self.line(idx))
-
-    def token_indent(self, idx):
-        """Get an indentation string for hanging indentation, consisting of the line-indent plus
-        a number of spaces to fill up to the column of this token.
-
-        e.g. the token indent for foo
-        in "<TAB><TAB>print(foo)"
-        is "<TAB><TAB>      "
-        """
-        line_indent = self.line_indent(idx)
-        return line_indent + " " * (self.start_col(idx) - len(line_indent))
-
-
-class ContinuedLineState:
-    """Tracker for continued indentation inside a logical line."""
-
-    def __init__(self, tokens, config):
-        self._line_start = -1
-        self._cont_stack = []
-        self._is_block_opener = False
-        self.retained_warnings = []
-        self._config = config
-        self._tokens = TokenWrapper(tokens)
-
-    @property
-    def has_content(self):
-        return bool(self._cont_stack)
-
-    @property
-    def _block_indent_string(self):
-        return self._config.indent_string.replace("\\t", "\t")
-
-    @property
-    def _continuation_string(self):
-        return self._block_indent_string[0] * self._config.indent_after_paren
-
-    @property
-    def _continuation_size(self):
-        return self._config.indent_after_paren
-
-    def handle_line_start(self, pos):
-        """Record the first non-junk token at the start of a line."""
-        if self._line_start > -1:
-            return
-
-        check_token_position = pos
-        if self._tokens.token(pos) == _ASYNC_TOKEN:
-            check_token_position += 1
-        self._is_block_opener = (
-            self._tokens.token(check_token_position) in _CONTINUATION_BLOCK_OPENERS
-        )
-        self._line_start = pos
-
-    def next_physical_line(self):
-        """Prepares the tracker for a new physical line (NL)."""
-        self._line_start = -1
-        self._is_block_opener = False
-
-    def next_logical_line(self):
-        """Prepares the tracker for a new logical line (NEWLINE).
-
-        A new logical line only starts with block indentation.
-        """
-        self.next_physical_line()
-        self.retained_warnings = []
-        self._cont_stack = []
-
-    def add_block_warning(self, token_position, state, valid_indentations):
-        self.retained_warnings.append((token_position, state, valid_indentations))
-
-    def get_valid_indentations(self, idx):
-        """Returns the valid offsets for the token at the given position."""
-        # The closing brace on a dict or the 'for' in a dict comprehension may
-        # reset two indent levels because the dict value is ended implicitly
-        stack_top = -1
-        if (
-            self._tokens.token(idx) in ("}", "for")
-            and self._cont_stack[-1].token == ":"
-        ):
-            stack_top = -2
-        indent = self._cont_stack[stack_top]
-        if self._tokens.token(idx) in _CLOSING_BRACKETS:
-            valid_indentations = indent.valid_outdent_strings
-        else:
-            valid_indentations = indent.valid_continuation_strings
-        return indent, valid_indentations.copy()
-
-    def _hanging_indent_after_bracket(self, bracket, position):
-        """Extracts indentation information for a hanging indent
-
-        Case of hanging indent after a bracket (including parenthesis)
-
-        :param str bracket: bracket in question
-        :param int position: Position of bracket in self._tokens
-
-        :returns: the state and valid positions for hanging indentation
-        :rtype: _ContinuedIndent
-        """
-        indentation = self._tokens.line_indent(position)
-        if (
-            self._is_block_opener
-            and self._continuation_string == self._block_indent_string
-        ):
-            return _ContinuedIndent(
-                HANGING_BLOCK,
-                bracket,
-                position,
-                _Indentations(indentation + self._continuation_string, indentation),
-                _BeforeBlockIndentations(
-                    indentation + self._continuation_string,
-                    indentation + self._continuation_string * 2,
-                ),
-            )
-        if bracket == ":":
-            # If the dict key was on the same line as the open brace, the new
-            # correct indent should be relative to the key instead of the
-            # current indent level
-            paren_align = self._cont_stack[-1].valid_outdent_strings
-            next_align = self._cont_stack[-1].valid_continuation_strings.copy()
-            next_align_keys = list(next_align.keys())
-            next_align[next_align_keys[0] + self._continuation_string] = True
-            # Note that the continuation of
-            # d = {
-            #       'a': 'b'
-            #            'c'
-            # }
-            # is handled by the special-casing for hanging continued string indents.
-            return _ContinuedIndent(
-                HANGING_DICT_VALUE, bracket, position, paren_align, next_align
-            )
-        return _ContinuedIndent(
-            HANGING,
-            bracket,
-            position,
-            _Indentations(indentation, indentation + self._continuation_string),
-            _Indentations(indentation + self._continuation_string),
-        )
-
-    def _continuation_inside_bracket(self, bracket, position):
-        """Extracts indentation information for a continued indent."""
-        indentation = self._tokens.line_indent(position)
-        token_indent = self._tokens.token_indent(position)
-        next_token_indent = self._tokens.token_indent(position + 1)
-        if (
-            self._is_block_opener
-            and next_token_indent == indentation + self._block_indent_string
-        ):
-            return _ContinuedIndent(
-                CONTINUED_BLOCK,
-                bracket,
-                position,
-                _Indentations(token_indent),
-                _BeforeBlockIndentations(
-                    next_token_indent, next_token_indent + self._continuation_string
-                ),
-            )
-        return _ContinuedIndent(
-            CONTINUED,
-            bracket,
-            position,
-            _Indentations(token_indent, next_token_indent),
-            _Indentations(next_token_indent),
-        )
-
-    def pop_token(self):
-        self._cont_stack.pop()
-
-    def push_token(self, token, position):
-        """Pushes a new token for continued indentation on the stack.
-
-        Tokens that can modify continued indentation offsets are:
-          * opening brackets
-          * 'lambda'
-          * : inside dictionaries
-
-        push_token relies on the caller to filter out those
-        interesting tokens.
-
-        :param int token: The concrete token
-        :param int position: The position of the token in the stream.
-        """
-        if _token_followed_by_eol(self._tokens, position):
-            self._cont_stack.append(self._hanging_indent_after_bracket(token, position))
-        else:
-            self._cont_stack.append(self._continuation_inside_bracket(token, position))
 
 
 class FormatChecker(BaseTokenChecker):
@@ -716,14 +405,6 @@ class FormatChecker(BaseTokenChecker):
         self._visited_lines = None
         self._bracket_stack = [None]
 
-    def _pop_token(self):
-        self._bracket_stack.pop()
-        self._current_line.pop_token()
-
-    def _push_token(self, token, idx):
-        self._bracket_stack.append(token)
-        self._current_line.push_token(token, idx)
-
     def new_line(self, tokens, line_end, line_start):
         """a new line has been encountered, process it if necessary"""
         if _last_token_on_line_is(tokens, line_end, ";"):
@@ -751,7 +432,7 @@ class FormatChecker(BaseTokenChecker):
         """
         # If the next token is not a paren, we're fine.
         if self._inside_brackets(":") and tokens[start][1] == "for":
-            self._pop_token()
+            self._bracket_stack.pop()
         if tokens[start + 1][1] != "(":
             return
 
@@ -815,7 +496,7 @@ class FormatChecker(BaseTokenChecker):
                     return
 
     def _opening_bracket(self, tokens, i):
-        self._push_token(tokens[i][1], i)
+        self._bracket_stack.append(tokens[i][1])
         # Special case: ignore slices
         if tokens[i][1] == "[" and tokens[i + 1][1] == ":":
             return
@@ -831,8 +512,8 @@ class FormatChecker(BaseTokenChecker):
 
     def _closing_bracket(self, tokens, i):
         if self._inside_brackets(":"):
-            self._pop_token()
-        self._pop_token()
+            self._bracket_stack.pop()
+        self._bracket_stack.pop()
         # Special case: ignore slices
         if tokens[i - 1][1] == ":" and tokens[i][1] == "]":
             return
@@ -879,7 +560,7 @@ class FormatChecker(BaseTokenChecker):
             self._check_space(tokens, i, (_MUST, _MUST))
 
     def _open_lambda(self, tokens, i):  # pylint:disable=unused-argument
-        self._push_token("lambda", i)
+        self._bracket_stack.append("lambda")
 
     def _handle_colon(self, tokens, i):
         # Special case: ignore slices
@@ -892,9 +573,9 @@ class FormatChecker(BaseTokenChecker):
         self._check_space(tokens, i, policy)
 
         if self._inside_brackets("lambda"):
-            self._pop_token()
+            self._bracket_stack.pop()
         elif self._inside_brackets("{"):
-            self._push_token(":", i)
+            self._bracket_stack.append(":")
 
     def _handle_comma(self, tokens, i):
         # Only require a following whitespace if this is
@@ -904,7 +585,7 @@ class FormatChecker(BaseTokenChecker):
         else:
             self._check_space(tokens, i, (_MUST_NOT, _MUST))
         if self._inside_brackets(":"):
-            self._pop_token()
+            self._bracket_stack.pop()
 
     def _check_surrounded_by_space(self, tokens, i):
         """Check that a binary operator is surrounded by exactly one space."""
@@ -985,8 +666,6 @@ class FormatChecker(BaseTokenChecker):
     def process_tokens(self, tokens):
         """process tokens and search for :
 
-         _ non strict indentation (i.e. not always using the <indent> parameter as
-           indent unit)
          _ too long lines (i.e. longer than <max_chars>)
          _ optionally bad construct (if given, bad_construct must be a compiled
            regular expression).
@@ -1000,8 +679,6 @@ class FormatChecker(BaseTokenChecker):
         token_handlers = self._prepare_token_dispatcher()
         self._last_line_ending = None
         last_blank_line_num = 0
-
-        self._current_line = ContinuedLineState(tokens, self.config)
         for idx, (tok_type, token, start, _, line) in enumerate(tokens):
             if start[0] != line_num:
                 line_num = start[0]
@@ -1020,8 +697,6 @@ class FormatChecker(BaseTokenChecker):
                 # If an INDENT appears, setting check_equal is wrong, and will
                 # be undone when we see the INDENT.
                 check_equal = True
-                self._process_retained_warnings(TokenWrapper(tokens), idx)
-                self._current_line.next_logical_line()
                 self._check_line_ending(token, line_num)
             elif tok_type == tokenize.INDENT:
                 check_equal = False
@@ -1038,10 +713,7 @@ class FormatChecker(BaseTokenChecker):
             elif tok_type == tokenize.NL:
                 if not line.strip("\r\n"):
                     last_blank_line_num = line_num
-                self._check_continued_indentation(TokenWrapper(tokens), idx + 1)
-                self._current_line.next_physical_line()
             elif tok_type not in (tokenize.COMMENT, tokenize.ENCODING):
-                self._current_line.handle_line_start(idx)
                 # This is the first concrete token following a NEWLINE, so it
                 # must be the first token of the next program statement, or an
                 # ENDMARKER; the "line" argument exposes the leading whitespace
@@ -1105,73 +777,6 @@ class FormatChecker(BaseTokenChecker):
                     args=(line_ending, expected),
                     line=line_num,
                 )
-
-    def _process_retained_warnings(self, tokens, current_pos):
-        single_line_block_stmt = not _last_token_on_line_is(tokens, current_pos, ":")
-
-        for indent_pos, state, indentations in self._current_line.retained_warnings:
-            block_type = indentations[tokens.token_indent(indent_pos)]
-            hints = {k: v for k, v in indentations.items() if v != block_type}
-            if single_line_block_stmt and block_type == WITH_BODY:
-                self._add_continuation_message(state, hints, tokens, indent_pos)
-            elif not single_line_block_stmt and block_type == SINGLE_LINE:
-                self._add_continuation_message(state, hints, tokens, indent_pos)
-
-    def _check_continued_indentation(self, tokens, next_idx):
-        def same_token_around_nl(token_type):
-            return (
-                tokens.type(next_idx) == token_type
-                and tokens.type(next_idx - 2) == token_type
-            )
-
-        # Do not issue any warnings if the next line is empty.
-        if not self._current_line.has_content or tokens.type(next_idx) == tokenize.NL:
-            return
-
-        state, valid_indentations = self._current_line.get_valid_indentations(next_idx)
-        # Special handling for hanging comments and strings. If the last line ended
-        # with a comment (string) and the new line contains only a comment, the line
-        # may also be indented to the start of the previous token.
-        if same_token_around_nl(tokenize.COMMENT) or same_token_around_nl(
-            tokenize.STRING
-        ):
-            valid_indentations[tokens.token_indent(next_idx - 2)] = True
-
-        # We can only decide if the indentation of a continued line before opening
-        # a new block is valid once we know of the body of the block is on the
-        # same line as the block opener. Since the token processing is single-pass,
-        # emitting those warnings is delayed until the block opener is processed.
-        if (
-            state.context_type in (HANGING_BLOCK, CONTINUED_BLOCK)
-            and tokens.token_indent(next_idx) in valid_indentations
-        ):
-            self._current_line.add_block_warning(next_idx, state, valid_indentations)
-        elif tokens.token_indent(next_idx) not in valid_indentations:
-            length_indentation = len(tokens.token_indent(next_idx))
-            if not any(
-                length_indentation == 2 * len(indentation)
-                for indentation in valid_indentations
-            ):
-                self._add_continuation_message(
-                    state, valid_indentations, tokens, next_idx
-                )
-
-    def _add_continuation_message(self, state, indentations, tokens, position):
-        readable_type, readable_position = _CONTINUATION_MSG_PARTS[state.context_type]
-        hint_line, delta_message = _get_indent_hint_line(
-            indentations, tokens.token_indent(position)
-        )
-        self.add_message(
-            "bad-continuation",
-            line=tokens.start_line(position),
-            args=(
-                readable_type,
-                readable_position,
-                delta_message,
-                tokens.line(position),
-                hint_line,
-            ),
-        )
 
     @check_messages("multiple-statements")
     def visit_default(self, node):
