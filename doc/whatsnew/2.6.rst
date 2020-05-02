@@ -16,4 +16,4 @@ New checkers
 Other Changes
 =============
 
-* `bad-continuation` has been removed, `black` or another formatter can help you with this better than Pylint
+* `bad-continuation` and `bad-whitespace` have been removed, `black` or another formatter can help you with this better than Pylint

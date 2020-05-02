@@ -6,6 +6,10 @@ What's New in Pylint 2.6.0?
 ===========================
 Release date: TBA
 
+* bad-continuation and bad-whitespace have been removed, black or another formatter can help you with this better than Pylint
+
+Close #246, #289, #638, #747, #1148, #1179, #1943, #2041, #2301, #2304, #2944, #3565
+
 
 What's New in Pylint 2.5.1?
 ===========================
@@ -33,10 +37,6 @@ Release date: TBA
 * Allow linting directories without `__init__.py` which was a regression in 2.5.
 
   Close #3528
-
-* bad-continuation has been removed, black or another formatter can help you with this better than Pylint
-
-Close #289, #638, #747, #1148, #1179, #1943, #2301, #2304, #2944, #3565
 
 What's New in Pylint 2.5.0?
 ===========================
