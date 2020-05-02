@@ -252,7 +252,6 @@ group are mutually exclusive.",
         linter.load_plugin_modules(self._plugins)
         # add some help section
         linter.add_help_section("Environment variables", config.ENV_HELP, level=1)
-        # pylint: disable=bad-continuation
         linter.add_help_section(
             "Output",
             "Using the default text output, the message format is :                          \n"
