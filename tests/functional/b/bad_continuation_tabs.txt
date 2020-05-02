@@ -1,6 +1,0 @@
-bad-continuation:26::"Wrong hanging indentation (add 1 space).
-		       e)  # [bad-continuation] (is: 2 tabs + 7 spaces)
-                       ^|"
-bad-continuation:40::"Wrong continued indentation.
-		]  # [bad-continuation] (is: tabs only)
-                ^      ||"
