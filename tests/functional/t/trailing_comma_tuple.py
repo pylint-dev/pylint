@@ -1,5 +1,5 @@
 """Check trailing comma one element tuples."""
-# pylint: disable=bad-whitespace, missing-docstring, bad-continuation
+# pylint: disable=bad-whitespace, missing-docstring
 AAA = 1, # [trailing-comma-tuple]
 BBB = "aaaa", # [trailing-comma-tuple]
 CCC="aaa", # [trailing-comma-tuple]
