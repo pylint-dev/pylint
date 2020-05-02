@@ -142,7 +142,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
             continue
 
         module_path = get_python_path(something)
-        additional_search_path = [module_path] + path
+        additional_search_path = [".", module_path] + path
         if os.path.exists(something):
             # this is a file or a directory
             try:
