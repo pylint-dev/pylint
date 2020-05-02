@@ -17,6 +17,10 @@ Release date: TBA
 
   Close #3533
 
+* ``no-value-for-parameter`` variadic detection has improved for assign statements
+
+  Close #3563
+
 What's New in Pylint 2.5.0?
 ===========================
 
