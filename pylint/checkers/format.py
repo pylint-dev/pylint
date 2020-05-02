@@ -50,7 +50,6 @@ https://www.python.org/doc/essays/styleguide/
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
-import keyword
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
 from typing import List
@@ -180,21 +179,6 @@ MSGS = {
         "Used when a single item in parentheses follows an if, for, or "
         "other keyword.",
     ),
-    "C0326": (
-        "%s space %s %s %s\n%s",
-        "bad-whitespace",
-        (
-            "Used when a wrong number of spaces is used around an operator, "
-            "bracket or block opener."
-        ),
-        {
-            "old_names": [
-                ("C0323", "no-space-after-operator"),
-                ("C0324", "no-space-after-comma"),
-                ("C0322", "no-space-before-operator"),
-            ]
-        },
-    ),
     "C0327": (
         "Mixed line endings LF and CRLF",
         "mixed-line-endings",
@@ -206,26 +190,6 @@ MSGS = {
         "Used when there is different newline than expected.",
     ),
 }
-
-
-def _underline_token(token):
-    length = token[3][1] - token[2][1]
-    offset = token[2][1]
-    referenced_line = token[4]
-    # If the referenced line does not end with a newline char, fix it
-    if referenced_line[-1] != "\n":
-        referenced_line += "\n"
-    return referenced_line + (" " * offset) + ("^" * length)
-
-
-def _column_distance(token1, token2):
-    if token1 == token2:
-        return 0
-    if token2[3] < token1[3]:
-        token1, token2 = token2, token1
-    if token1[3][0] != token2[2][0]:
-        return None
-    return token2[2][1] - token1[3][1]
 
 
 def _last_token_on_line_is(tokens, line_end, token):
@@ -431,23 +395,19 @@ class FormatChecker(BaseTokenChecker):
         start: int; the position of the keyword in the token list.
         """
         # If the next token is not a paren, we're fine.
-        if self._inside_brackets(":") and tokens[start][1] == "for":
+        if self._bracket_stack[-1] == ":" and tokens[start][1] == "for":
             self._bracket_stack.pop()
         if tokens[start + 1][1] != "(":
             return
-
         found_and_or = False
         depth = 0
         keyword_token = str(tokens[start][1])
         line_num = tokens[start][2][0]
-
         for i in range(start, len(tokens) - 1):
             token = tokens[i]
-
             # If we hit a newline, then assume any parens were for continuation.
             if token[0] == tokenize.NL:
                 return
-
             if token[1] == "(":
                 depth += 1
             elif token[1] == ")":
@@ -495,170 +455,11 @@ class FormatChecker(BaseTokenChecker):
                 elif token[1] == "for":
                     return
 
-    def _opening_bracket(self, tokens, i):
-        self._bracket_stack.append(tokens[i][1])
-        # Special case: ignore slices
-        if tokens[i][1] == "[" and tokens[i + 1][1] == ":":
-            return
-
-        if i > 0 and (
-            tokens[i - 1][0] == tokenize.NAME
-            and not (keyword.iskeyword(tokens[i - 1][1]))
-            or tokens[i - 1][1] in _CLOSING_BRACKETS
-        ):
-            self._check_space(tokens, i, (_MUST_NOT, _MUST_NOT))
-        else:
-            self._check_space(tokens, i, (_IGNORE, _MUST_NOT))
-
-    def _closing_bracket(self, tokens, i):
-        if self._inside_brackets(":"):
-            self._bracket_stack.pop()
-        self._bracket_stack.pop()
-        # Special case: ignore slices
-        if tokens[i - 1][1] == ":" and tokens[i][1] == "]":
-            return
-        policy_before = _MUST_NOT
-        if tokens[i][1] in _CLOSING_BRACKETS and tokens[i - 1][1] == ",":
-            if _TRAILING_COMMA in self.config.no_space_check:
-                policy_before = _IGNORE
-
-        self._check_space(tokens, i, (policy_before, _IGNORE))
-
-    def _has_valid_type_annotation(self, tokens, i):
-        """Extended check of PEP-484 type hint presence"""
-        if not self._inside_brackets("("):
-            return False
-        # token_info
-        # type string start end line
-        #  0      1     2    3    4
-        bracket_level = 0
-        for token in tokens[i - 1 :: -1]:
-            if token[1] == ":":
-                return True
-            if token[1] == "(":
-                return False
-            if token[1] == "]":
-                bracket_level += 1
-            elif token[1] == "[":
-                bracket_level -= 1
-            elif token[1] == ",":
-                if not bracket_level:
-                    return False
-            elif token[1] in (".", "..."):
-                continue
-            elif token[0] not in (tokenize.NAME, tokenize.STRING, tokenize.NL):
-                return False
-        return False
-
-    def _check_equals_spacing(self, tokens, i):
-        """Check the spacing of a single equals sign."""
-        if self._has_valid_type_annotation(tokens, i):
-            self._check_space(tokens, i, (_MUST, _MUST))
-        elif self._inside_brackets("(") or self._inside_brackets("lambda"):
-            self._check_space(tokens, i, (_MUST_NOT, _MUST_NOT))
-        else:
-            self._check_space(tokens, i, (_MUST, _MUST))
-
-    def _open_lambda(self, tokens, i):  # pylint:disable=unused-argument
-        self._bracket_stack.append("lambda")
-
-    def _handle_colon(self, tokens, i):
-        # Special case: ignore slices
-        if self._inside_brackets("["):
-            return
-        if self._inside_brackets("{") and _DICT_SEPARATOR in self.config.no_space_check:
-            policy = (_IGNORE, _IGNORE)
-        else:
-            policy = (_MUST_NOT, _MUST)
-        self._check_space(tokens, i, policy)
-
-        if self._inside_brackets("lambda"):
-            self._bracket_stack.pop()
-        elif self._inside_brackets("{"):
-            self._bracket_stack.append(":")
-
-    def _handle_comma(self, tokens, i):
-        # Only require a following whitespace if this is
-        # not a hanging comma before a closing bracket.
-        if tokens[i + 1][1] in _CLOSING_BRACKETS:
-            self._check_space(tokens, i, (_MUST_NOT, _IGNORE))
-        else:
-            self._check_space(tokens, i, (_MUST_NOT, _MUST))
-        if self._inside_brackets(":"):
-            self._bracket_stack.pop()
-
-    def _check_surrounded_by_space(self, tokens, i):
-        """Check that a binary operator is surrounded by exactly one space."""
-        self._check_space(tokens, i, (_MUST, _MUST))
-
-    def _check_space(self, tokens, i, policies):
-        def _policy_string(policy):
-            if policy == _MUST:
-                return "Exactly one", "required"
-            return "No", "allowed"
-
-        def _name_construct(token):
-            if token[1] == ",":
-                return "comma"
-            if token[1] == ":":
-                return ":"
-            if token[1] in "()[]{}":
-                return "bracket"
-            if token[1] in ("<", ">", "<=", ">=", "!=", "=="):
-                return "comparison"
-            if self._inside_brackets("("):
-                return "keyword argument assignment"
-            return "assignment"
-
-        good_space = [True, True]
-        token = tokens[i]
-        pairs = [(tokens[i - 1], token), (token, tokens[i + 1])]
-
-        for other_idx, (policy, token_pair) in enumerate(zip(policies, pairs)):
-            if token_pair[other_idx][0] in _EOL or policy == _IGNORE:
-                continue
-
-            distance = _column_distance(*token_pair)
-            if distance is None:
-                continue
-            good_space[other_idx] = (policy == _MUST and distance == 1) or (
-                policy == _MUST_NOT and distance == 0
-            )
-
-        warnings = []
-        if not any(good_space) and policies[0] == policies[1]:
-            warnings.append((policies[0], "around"))
-        else:
-            for ok, policy, position in zip(good_space, policies, ("before", "after")):
-                if not ok:
-                    warnings.append((policy, position))
-        for policy, position in warnings:
-            construct = _name_construct(token)
-            count, state = _policy_string(policy)
-            self.add_message(
-                "bad-whitespace",
-                line=token[2][0],
-                args=(count, state, position, construct, _underline_token(token)),
-                col_offset=token[2][1],
-            )
-
-    def _inside_brackets(self, left):
-        return self._bracket_stack[-1] == left
-
     def _prepare_token_dispatcher(self):
-        raw = [
-            (_KEYWORD_TOKENS, self._check_keyword_parentheses),
-            (_OPENING_BRACKETS, self._opening_bracket),
-            (_CLOSING_BRACKETS, self._closing_bracket),
-            (["="], self._check_equals_spacing),
-            (_SPACED_OPERATORS, self._check_surrounded_by_space),
-            ([","], self._handle_comma),
-            ([":"], self._handle_colon),
-            (["lambda"], self._open_lambda),
-        ]
-
         dispatch = {}
-        for tokens, handler in raw:
+        for tokens, handler in [
+            (_KEYWORD_TOKENS, self._check_keyword_parentheses),
+        ]:
             for token in tokens:
                 dispatch[token] = handler
         return dispatch
