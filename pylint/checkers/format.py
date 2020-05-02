@@ -149,11 +149,6 @@ MSGS = {
         "Used when an unexpected number of indentation's tabulations or "
         "spaces has been found.",
     ),
-    "W0312": (
-        "Found indentation with %ss instead of %ss",
-        "mixed-indentation",
-        "Used when there are some mixed tabs and spaces in a module.",
-    ),
     "W0301": (
         "Unnecessary semicolon",  # was W0106
         "unnecessary-semicolon",
@@ -744,13 +739,6 @@ class FormatChecker(BaseTokenChecker):
             level += 1
         suppl = ""
         while string and string[0] in " \t":
-            if string[0] != indent[0]:
-                if string[0] == "\t":
-                    args = ("tab", "space")
-                else:
-                    args = ("space", "tab")
-                self.add_message("mixed-indentation", args=args, line=line_num)
-                return level
             suppl += string[0]
             string = string[1:]
         if level != expected or suppl:
@@ -762,7 +750,6 @@ class FormatChecker(BaseTokenChecker):
                 line=line_num,
                 args=(level * unit_size + len(suppl), i_type, expected * unit_size),
             )
-        return None
 
 
 def register(linter):
