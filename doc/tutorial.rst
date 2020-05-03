@@ -18,7 +18,7 @@ in open source.  Whatever the motivation, your good intentions may not have the
 desired outcome if people find your code hard to use or understand.  The Python
 community has formalized some recommended programming styles to help everyone
 write code in a common, agreed-upon style that makes the most sense for shared
-code.  This style is captured in `PEP 8`_, the "Style Guide for Python Code".  
+code.  This style is captured in `PEP 8`_, the "Style Guide for Python Code".
 Pylint can be a quick and easy way of
 seeing if your code has captured the essence of `PEP 8`_ and is therefore
 ``friendly`` to other potential users.

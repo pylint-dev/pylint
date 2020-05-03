@@ -7,4 +7,3 @@ pylint (0.13.2-2) unstable; urgency=low
     users may get it from /usr/share/doc/pylint/examples/pylint.el
 
  -- Alexandre Fayolle <afayolle@debian.org>  Wed, 04 Jul 2007 12:18:23 +0200
-

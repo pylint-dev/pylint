@@ -29,9 +29,9 @@ https://github.com/PyCQA/pylint/blob/master/doc/development_guide/contribute.rst
 
 ## Related Issue
 
-<!-- 
+<!--
 If this PR fixes a particular issue, use the following to automatically close that issue
 once this PR gets merged:
 
-Closes #XXX 
+Closes #XXX
 -->

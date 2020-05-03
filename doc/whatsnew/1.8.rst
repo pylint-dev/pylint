@@ -52,7 +52,7 @@ New checkers
 
      # Case1: a=0, b=2, args=(4,5)
      foo(0,2,4,5) # 0 2 (4,5) ==> Observed values are same as expected values
-     
+
      # Case2: a=0, b=<default_value>, args=(4,5)
      foo(0,4,5) # 0 4 (5,) ==> args list got modified as well as the observed value of b
 
@@ -253,7 +253,7 @@ New checkers
         elif arg < 20:
             return
 
-  According to PEP8_, if any return statement returns an expression, 
+  According to PEP8_, if any return statement returns an expression,
   any return statements where no value is returned should explicitly state this as return None,
   and an explicit return statement should be present at the end of the function (if reachable).
   Thus, the previous function should be written:
@@ -340,7 +340,7 @@ Other Changes
 
 * ``missing-param-doc`` and ``missing-type-doc`` are no longer emitted when
   ``Args`` and ``Keyword Args`` are mixed in Google docstring.
-    
+
 * Fix of false positive ``useless-super-delegation`` message when
   parameters default values are different from those used in the base class.
 
@@ -360,9 +360,9 @@ Other Changes
 
 * Fix the ignored ``pylint disable=fixme`` directives for comments following
   the last statement in a file.
-   
+
 * Fix ``line-too-long`` message deactivated by wrong disable directive.
-  The directive ``disable=fixme`` doesn't deactivate anymore the emission 
+  The directive ``disable=fixme`` doesn't deactivate anymore the emission
   of ``line-too-long`` message for long commented lines.
 
 * If the rcfile specified on the command line doesn't exist, then an
@@ -371,4 +371,4 @@ Other Changes
 * Fix the wrong scope of ``disable=`` directive after a commented line.
   For example when a ``disable=line-too-long`` directive is at the end of a
   long commented line, it no longer disables the emission of ``line-too-long``
-  message for lines that follow. 
+  message for lines that follow.

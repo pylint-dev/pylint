@@ -24,7 +24,7 @@
         "afayolle.ml@free.fr",
         "aurelien.campeas@logilab.fr",
         "lmedioni@logilab.fr"
-        
+
     ],
     "authoritative_mail": "contact@logilab.fr",
     "name": "LOGILAB S.A. (Paris, FRANCE)"
@@ -45,7 +45,7 @@
        "balparda@google.com",
        "dlindquist@google.com"
     ],
-    "name": "Google, Inc." 
+    "name": "Google, Inc."
   },
   {
    "mails": [

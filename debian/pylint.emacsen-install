@@ -23,7 +23,7 @@ FLAGS="${SITEFLAG} -q -batch -l path.el -f batch-byte-compile"
 ELDIR=/usr/share/emacs/site-lisp/${PACKAGE}
 ELCDIR=/usr/share/${FLAVOR}/site-lisp/${PACKAGE}
 
-# Install-info-altdir does not actually exist. 
+# Install-info-altdir does not actually exist.
 # Maybe somebody will write it.
 if test -x /usr/sbin/install-info-altdir; then
     echo install/${PACKAGE}: install Info links for ${FLAVOR}

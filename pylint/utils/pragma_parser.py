@@ -17,7 +17,7 @@ OPTION_RGX = r"""
     .*?                # Anything (as little as possible)
     \bpylint:          # pylint word and column
     \s*                # Any number of whitespaces
-    ([^;#\n]+))        # Anything except semicolon or hash or newline (it is the second matched group) 
+    ([^;#\n]+))        # Anything except semicolon or hash or newline (it is the second matched group)
                        # and end of the first matched group
     [;#]{0,1}"""  # From 0 to 1 repetition of semicolon or hash
 OPTION_PO = re.compile(OPTION_RGX, re.VERBOSE)
