@@ -37,6 +37,7 @@ import os
 import pickle
 import sys
 
+from pylint.config.configuration_mixin import ConfigurationMixIn
 from pylint.config.find_default_config_files import find_default_config_files
 from pylint.config.man_help_formatter import _ManHelpFormatter
 from pylint.config.option import (
@@ -48,9 +49,11 @@ from pylint.config.option import (
 )
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
 from pylint.config.option_parser import OptionParser
-from pylint.config.options_provider_mixin import OptionsProviderMixIn
+from pylint.config.options_provider_mixin import OptionsProviderMixIn, UnsupportedAction
 
 __all__ = [
+    "UnsupportedAction",
+    "ConfigurationMixIn",
     "_csv_validator",
     "_regexp_csv_validator",
     "_regexp_validator",
@@ -121,25 +124,3 @@ to search for configuration file.
 """
     % globals()  # type: ignore
 )
-
-
-class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
-    """basic mixin for simple configurations which don't need the
-    manager / providers model
-    """
-
-    def __init__(self, *args, **kwargs):
-        if not args:
-            kwargs.setdefault("usage", "")
-        OptionsManagerMixIn.__init__(self, *args, **kwargs)
-        OptionsProviderMixIn.__init__(self)
-        if not getattr(self, "option_groups", None):
-            self.option_groups = []
-            for _, optdict in self.options:
-                try:
-                    gdef = (optdict["group"].upper(), "")
-                except KeyError:
-                    continue
-                if gdef not in self.option_groups:
-                    self.option_groups.append(gdef)
-        self.register_options_provider(self, own_group=False)
