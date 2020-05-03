@@ -61,6 +61,7 @@ from pylint.config.option import (
     _regexp_validator,
     _validate,
 )
+from pylint.config.option_parser import OptionParser
 
 __all__ = ["_csv_validator", "_regexp_csv_validator", "_regexp_validator"]
 
@@ -134,15 +135,6 @@ class UnsupportedAction(Exception):
     """raised by set_option when it doesn't know what to do for an action"""
 
 
-def _level_options(group, outputlevel):
-    return [
-        option
-        for option in group.option_list
-        if (getattr(option, "level", 0) or 0) <= outputlevel
-        and option.help is not optparse.SUPPRESS_HELP
-    ]
-
-
 def _expand_default(self, option):
     """Patch OptionParser.expand_default with custom behaviour
 
@@ -174,38 +166,6 @@ def _patch_optparse():
         yield
     finally:
         optparse.HelpFormatter.expand_default = orig_default
-
-
-class OptionParser(optparse.OptionParser):
-    def __init__(self, option_class, *args, **kwargs):
-        optparse.OptionParser.__init__(self, option_class=Option, *args, **kwargs)
-
-    def format_option_help(self, formatter=None):
-        if formatter is None:
-            formatter = self.formatter
-        outputlevel = getattr(formatter, "output_level", 0)
-        formatter.store_option_strings(self)
-        result = []
-        result.append(formatter.format_heading("Options"))
-        formatter.indent()
-        if self.option_list:
-            result.append(optparse.OptionContainer.format_option_help(self, formatter))
-            result.append("\n")
-        for group in self.option_groups:
-            if group.level <= outputlevel and (
-                group.description or _level_options(group, outputlevel)
-            ):
-                result.append(group.format_help(formatter))
-                result.append("\n")
-        formatter.dedent()
-        # Drop the last "\n", or the header if no options or option groups:
-        return "".join(result[:-1])
-
-    def _match_long_opt(self, opt):
-        """Disable abbreviations."""
-        if opt not in self._long_opt:
-            raise optparse.BadOptionError(opt)
-        return opt
 
 
 class OptionsManagerMixIn:
