@@ -130,7 +130,7 @@ New checkers
 Other Changes
 =============
 
-* Don't emit ``protected-access`` when a single underscore prefixed attribute is used 
+* Don't emit ``protected-access`` when a single underscore prefixed attribute is used
   inside a special method
 
   Close #1802

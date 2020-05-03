@@ -101,7 +101,7 @@ Lets run Pylint with this plugin and see:
   amitdev$
 
 All the false positives associated with ``WarningMessage`` are now gone. This is just
-an example, any code transformation can be done by plugins. 
+an example, any code transformation can be done by plugins.
 
 See `astroid/brain`_ for real life examples of transform plugins.
 
