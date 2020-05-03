@@ -55,9 +55,9 @@ def _patch_optparse():
 class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options"""
 
-    def __init__(self, usage, config_file=None, version=None):
+    def __init__(self, usage, config_file=None):
         self.config_file = config_file
-        self.reset_parsers(usage, version=version)
+        self.reset_parsers(usage)
         # list of registered options providers
         self.options_providers = []
         # dictionary associating option name to checker
@@ -68,13 +68,13 @@ class OptionsManagerMixIn:
         # verbosity
         self._maxlevel = 0
 
-    def reset_parsers(self, usage="", version=None):
+    def reset_parsers(self, usage=""):
         # configuration file parser
         self.cfgfile_parser = configparser.ConfigParser(
             inline_comment_prefixes=("#", ";")
         )
         # command line parser
-        self.cmdline_parser = OptionParser(Option, usage=usage, version=version)
+        self.cmdline_parser = OptionParser(Option, usage=usage)
         self.cmdline_parser.options_manager = self
         self._optik_option_attrs = set(self.cmdline_parser.option_class.ATTRS)
 

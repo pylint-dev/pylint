@@ -14,11 +14,9 @@ from io import TextIOWrapper
 
 import astroid
 from astroid import modutils
-from astroid.__pkginfo__ import version as astroid_version
 from astroid.builder import AstroidBuilder
 
 from pylint import checkers, config, exceptions, interfaces, reporters
-from pylint.__pkginfo__ import version
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
 from pylint.lint.check_parallel import check_parallel
 from pylint.lint.report_functions import (
@@ -448,16 +446,10 @@ class PyLinter(
             "disable-msg": self.disable,
             "enable-msg": self.enable,
         }
-        full_version = "pylint %s\nastroid %s\nPython %s" % (
-            version,
-            astroid_version,
-            sys.version,
-        )
         MessagesHandlerMixIn.__init__(self)
         reporters.ReportsHandlerMixIn.__init__(self)
         super().__init__(
             usage=__doc__,
-            version=full_version,
             config_file=pylintrc or next(config.find_default_config_files(), None),
         )
         checkers.BaseTokenChecker.__init__(self)

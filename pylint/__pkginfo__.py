@@ -25,6 +25,7 @@
 # pylint: disable=redefined-builtin,invalid-name
 """pylint packaging information"""
 
+
 from os.path import join
 
 # For an official release, use dev_version = None
