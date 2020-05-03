@@ -2,6 +2,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import re
+import sys
+
+from astroid.__pkginfo__ import version as astroid_version
+
+from pylint.__pkginfo__ import version as pylint_version
 
 # Allow stopping after the first semicolon/hash encountered,
 # so that an option can be continued with the reasons
@@ -39,3 +44,10 @@ MAIN_CHECKER_NAME = "master"
 class WarningScope:
     LINE = "line-based-msg"
     NODE = "node-based-msg"
+
+
+full_version = "pylint %s\nastroid %s\nPython %s" % (
+    pylint_version,
+    astroid_version,
+    sys.version,
+)
