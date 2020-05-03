@@ -6,6 +6,7 @@ import sys
 import warnings
 
 from pylint import __pkginfo__, config, extensions, interfaces
+from pylint.constants import full_version
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.utils import ArgumentPreprocessingError, preprocess_options
 from pylint.utils import utils
@@ -73,6 +74,10 @@ group are mutually exclusive.",
     def __init__(
         self, args, reporter=None, exit=True, do_exit=UNUSED_PARAM_SENTINEL,
     ):  # pylint: disable=redefined-builtin
+        def display_version(_, __):
+            print(full_version)
+            sys.exit(0)
+
         self._rcfile = None
         self._plugins = []
         self.verbose = None
@@ -81,6 +86,7 @@ group are mutually exclusive.",
                 args,
                 {
                     # option: (callback, takearg)
+                    "version": (display_version, False),
                     "init-hook": (cb_init_hook, True),
                     "rcfile": (self.cb_set_rcfile, True),
                     "load-plugins": (self.cb_add_plugins, True),
