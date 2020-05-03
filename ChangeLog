@@ -10,6 +10,9 @@ Release date: TBA
 
 Close #246, #289, #638, #747, #1148, #1179, #1943, #2041, #2301, #2304, #2944, #3565
 
+* The no-space-check option has been removed. It's no longer possible to consider empty line like a `trailing-whitespace` by using clever options
+
+Close #1368
 
 What's New in Pylint 2.5.1?
 ===========================

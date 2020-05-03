@@ -117,13 +117,6 @@ _MUST = 0
 _MUST_NOT = 1
 _IGNORE = 2
 
-# Whitespace checking config constants
-_DICT_SEPARATOR = "dict-separator"
-_TRAILING_COMMA = "trailing-comma"
-_EMPTY_LINE = "empty-line"
-_NO_SPACE_CHECK_CHOICES = [_TRAILING_COMMA, _DICT_SEPARATOR, _EMPTY_LINE]
-_DEFAULT_NO_SPACE_CHECK_CHOICES = [_TRAILING_COMMA, _DICT_SEPARATOR]
-
 MSGS = {
     "C0301": (
         "Line too long (%s/%s)",
@@ -298,24 +291,6 @@ class FormatChecker(BaseTokenChecker):
                     "Allow the body of a class to be on the same "
                     "line as the declaration if body contains "
                     "single statement."
-                ),
-            },
-        ),
-        (
-            "no-space-check",
-            {
-                "default": ",".join(_DEFAULT_NO_SPACE_CHECK_CHOICES),
-                "metavar": ",".join(_NO_SPACE_CHECK_CHOICES),
-                "type": "multiple_choice",
-                "choices": _NO_SPACE_CHECK_CHOICES,
-                "help": (
-                    "List of optional constructs for which whitespace "
-                    "checking is disabled. "
-                    "`" + _DICT_SEPARATOR + "` is used to allow tabulation "
-                    "in dicts, etc.: {1  : 1,\\n222: 2}. "
-                    "`" + _TRAILING_COMMA + "` allows a space between comma "
-                    "and closing bracket: (a, ). "
-                    "`" + _EMPTY_LINE + "` allows space-only lines."
                 ),
             },
         ),
@@ -662,16 +637,13 @@ class FormatChecker(BaseTokenChecker):
         """
         if not line.endswith("\n"):
             self.add_message("missing-final-newline", line=i)
-        else:
-            # exclude \f (formfeed) from the rstrip
-            stripped_line = line.rstrip("\t\n\r\v ")
-            if not stripped_line and _EMPTY_LINE in self.config.no_space_check:
-                # allow empty lines
-                pass
-            elif line[len(stripped_line) :] not in ("\n", "\r\n"):
-                self.add_message(
-                    "trailing-whitespace", line=i, col_offset=len(stripped_line)
-                )
+            return
+        # exclude \f (formfeed) from the rstrip
+        stripped_line = line.rstrip("\t\n\r\v ")
+        if line[len(stripped_line) :] not in ("\n", "\r\n"):
+            self.add_message(
+                "trailing-whitespace", line=i, col_offset=len(stripped_line)
+            )
 
     def check_line_length(self, line: str, i: int) -> None:
         """
