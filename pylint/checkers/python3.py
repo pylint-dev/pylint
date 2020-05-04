@@ -598,6 +598,12 @@ class Python3Checker(checkers.BaseChecker):
             "variables will be deleted outside of the "
             "comprehension.",
         ),
+        "C1601": (
+            "Consider using Python 3 style super() without arguments",
+            "old-style-super",
+            "Emitted when calling the super builtin with the current class "
+            "and instance. On Python 3 these arguments are the default.",
+        ),
     }
 
     _bad_builtins = frozenset(
@@ -1233,12 +1239,26 @@ class Python3Checker(checkers.BaseChecker):
                     if not _in_iterating_context(node):
                         checker = "{}-builtin-not-iterating".format(node.func.name)
                         self.add_message(checker, node=node)
-                if node.func.name == "open" and node.keywords:
+                elif node.func.name == "open" and node.keywords:
                     kwargs = node.keywords
                     for kwarg in kwargs or []:
                         if kwarg.arg == "encoding":
                             self._validate_encoding(kwarg.value, node)
                             break
+                elif node.func.name == "super":
+                    if len(node.args) != 2:
+                        return
+                    if (
+                        not isinstance(node.args[1], astroid.Name)
+                        or node.args[1].name != "self"
+                    ):
+                        return
+                    if (
+                        not isinstance(node.args[1], astroid.Name)
+                        or node.args[0].name != node.scope().parent.name
+                    ):
+                        return
+                    self.add_message("old-style-super", node=node)
 
     def _validate_encoding(self, encoding, node):
         if isinstance(encoding, astroid.Const):
