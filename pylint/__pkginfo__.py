@@ -28,7 +28,7 @@
 from os.path import join
 
 # For an official release, use dev_version = None
-numversion = (2, 5, 0)
+numversion = (2, 5, 1)
 dev_version = None
 
 version = ".".join(str(num) for num in numversion)
