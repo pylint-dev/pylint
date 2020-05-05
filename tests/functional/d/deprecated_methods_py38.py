@@ -27,7 +27,7 @@ class SuperCrash(unittest.TestCase):
 
     def __init__(self):
         # should not crash.
-        super(SuperCrash, self)()
+        super()()
 
 xml.etree.ElementTree.iterparse(None)
 

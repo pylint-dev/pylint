@@ -87,6 +87,6 @@ except ImportError:
 
 
 class JsonEncoder(js.JSONEncoder):
-    # pylint: disable=useless-super-delegation
+    # pylint: disable=useless-super-delegation,super-with-arguments
     def default(self, o):
         return super(JsonEncoder, self).default(o)

@@ -93,7 +93,7 @@ class Sub(Super):
 
     # pylint: disable=unused-argument
     def __init__(self, arg):
-        super(Sub, self).__init__()
+        super().__init__()
 
     def __private(self, arg):
         pass
@@ -142,7 +142,7 @@ class PropertySetter(Property):
 class StaticmethodChild2(Staticmethod):
 
     def func(self, data):
-        super(StaticmethodChild2, self).func(data)
+        super().func(data)
 
 
 class SuperClass(object):
@@ -158,7 +158,7 @@ class MyClass(SuperClass):
         """
         Acceptable use of vararg in subclass because it does not violate LSP.
         """
-        super(MyClass, self).impl(*args, **kwargs)
+        super().impl(*args, **kwargs)
 
 
 class FirstHasArgs(object):
@@ -185,7 +185,7 @@ class PositionalChild(Positional):
         """
         Acceptable use of vararg in subclass because it does not violate LSP.
         """
-        super(PositionalChild, self).test(args[0], args[1])
+        super().test(args[0], args[1])
 
 class Mixed(object):
 
@@ -199,7 +199,7 @@ class MixedChild1(Mixed):
         """
         Acceptable use of vararg in subclass because it does not violate LSP.
         """
-        super(MixedChild1, self).mixed(first, *args, **kwargs)
+        super().mixed(first, *args, **kwargs)
 
 
 class MixedChild2(Mixed):
@@ -208,7 +208,7 @@ class MixedChild2(Mixed):
         """
         Acceptable use of vararg in subclass because it does not violate LSP.
         """
-        super(MixedChild2, self).mixed(first, *args, third, **kwargs)
+        super().mixed(first, *args, third, **kwargs)
 
 
 class HasSpecialMethod(object):

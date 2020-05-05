@@ -62,7 +62,7 @@ class Client(object):
         none = None
         print(none.whatever)
         # No misssing in the parents.
-        super(Client, self).misssing() # [no-member]
+        super().misssing() # [no-member]
 
 
 class Mixin(object):
@@ -129,7 +129,7 @@ except AttributeError:
 class SuperChecks(str, str): # pylint: disable=duplicate-bases
     """Don't fail when the MRO is invalid."""
     def test(self):
-        super(SuperChecks, self).lalala()
+        super().lalala()
 
 type(Client()).ala # [no-member]
 type({}).bala # [no-member]
