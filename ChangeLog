@@ -23,7 +23,7 @@ Release date: TBA
 What's New in Pylint 2.5.1?
 ===========================
 
-Release date: TBA
+Release date: 2020-05-05
 
 * Fix a crash in `method-hidden` lookup for unknown base classes
 
