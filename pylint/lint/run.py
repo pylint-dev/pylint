@@ -3,6 +3,7 @@
 
 import os
 import sys
+import warnings
 
 from pylint import __pkginfo__, config, extensions, interfaces
 from pylint.lint.pylinter import PyLinter
@@ -47,6 +48,9 @@ def cb_init_hook(optname, value):
     exec(value)  # pylint: disable=exec-used
 
 
+UNUSED_PARAM_SENTINEL = object()
+
+
 class Run:
     """helper class to use as main for pylint :
 
@@ -67,7 +71,7 @@ group are mutually exclusive.",
         return 1
 
     def __init__(
-        self, args, reporter=None, exit=True
+        self, args, reporter=None, exit=True, do_exit=UNUSED_PARAM_SENTINEL,
     ):  # pylint: disable=redefined-builtin
         self._rcfile = None
         self._plugins = []
@@ -338,6 +342,14 @@ group are mutually exclusive.",
 
         linter.check(args)
         score_value = linter.generate_reports()
+
+        if do_exit is not UNUSED_PARAM_SENTINEL:
+            warnings.warn(
+                "do_exit is deprecated and it is going to be removed in a future version.",
+                DeprecationWarning,
+            )
+            exit = do_exit
+
         if exit:
             if linter.config.exit_zero:
                 sys.exit(0)

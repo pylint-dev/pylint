@@ -21,6 +21,16 @@ Release date: TBA
 * Add `super-with-arguments` check for flagging instances of Python 2 style super calls.
 
 
+What's New in Pylint 2.5.2?
+===========================
+
+Release date: 2020-05-05
+
+* ``pylint.Run`` accepts ``do_exit`` as a deprecated parameter
+
+  Close #3590
+
+
 What's New in Pylint 2.5.1?
 ===========================
 
