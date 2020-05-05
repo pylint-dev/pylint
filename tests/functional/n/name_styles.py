@@ -59,7 +59,7 @@ class DerivedFromCorrect(CorrectClassName):
     zz = 'Now a good class attribute'
 
     def __init__(self):
-        super(DerivedFromCorrect, self).__init__()
+        super().__init__()
         self._Bad_AtTR_name = None  # Ignored
 
     def BadMethodName(self):

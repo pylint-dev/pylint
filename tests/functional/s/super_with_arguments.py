@@ -20,3 +20,8 @@ class Qux(Foo):
 class NotSuperCall(Foo):
     def __init__(self):
         super.test(Bar, self).__init__()
+
+
+class InvalidSuperCall(Foo):
+    def __init__(self):
+        super(InvalidSuperCall.__class__, self).__init__()

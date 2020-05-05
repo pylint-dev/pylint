@@ -751,15 +751,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_super_with_arguments(self, node):
         if not isinstance(node.func, astroid.Name) or node.func.name != "super":
             return
-        if len(node.args) != 2:
-            return
-        if not isinstance(node.args[1], astroid.Name) or node.args[1].name != "self":
-            return
+
+        # pylint: disable=too-many-boolean-expressions
         if (
-            not isinstance(node.args[1], astroid.Name)
+            len(node.args) != 2
+            or not isinstance(node.args[1], astroid.Name)
+            or node.args[1].name != "self"
+            or not isinstance(node.args[0], astroid.Name)
+            or not isinstance(node.args[1], astroid.Name)
             or node.args[0].name != node_frame_class(node).name
         ):
             return
+
         self.add_message("super-with-arguments", node=node)
 
     def _check_raising_stopiteration_in_generator_next_call(self, node):

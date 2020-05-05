@@ -33,7 +33,7 @@ class Subclass(MyClass):
 
     def __init__(self):
         MyClass._protected = 5
-        super(Subclass, self)._private_method()
+        super()._private_method()
 
 INST = Subclass()
 INST.attr = 1
