@@ -8,17 +8,18 @@ Release date: TBA
 
 * bad-continuation and bad-whitespace have been removed, black or another formatter can help you with this better than Pylint
 
-    Close #246, #289, #638, #747, #1148, #1179, #1943, #2041, #2301, #2304, #2944, #3565
+  Close #246, #289, #638, #747, #1148, #1179, #1943, #2041, #2301, #2304, #2944, #3565
 
 * The no-space-check option has been removed. It's no longer possible to consider empty line like a `trailing-whitespace` by using clever options
 
-    Close #1368
+  Close #1368
 
 * mixed-indentation has been removed, it is no longer useful since TabError is included directly in python3
 
-* Add `old-style-super` check for flagging instances of Python 2 style super calls.
+  Close #2984 #3573
 
-   Close #2984 #3573
+* Add `super-with-arguments` check for flagging instances of Python 2 style super calls.
+
 
 What's New in Pylint 2.5.1?
 ===========================

@@ -13,7 +13,7 @@ Summary -- Release highlights
 New checkers
 ============
 
-* Add `old-style-super` check for flagging instances of Python 2 style super calls.
+* Add `super-with-arguments` check for flagging instances of Python 2 style super calls.
 
 Other Changes
 =============

@@ -1153,37 +1153,3 @@ class TestPython3Checker(testutils.CheckerTestCase):
         message = testutils.Message("next-method-defined", node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(node)
-
-    def test_old_style_super(self):
-        node = astroid.extract_node(
-            """
-            class Foo(object):
-                def __init__():
-                    super(Foo, self).__init__()  #@
-            """
-        ).func.expr
-        message = testutils.Message("old-style-super", node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_call(node)
-
-    def test_super_non_default_args(self):
-        node = astroid.extract_node(
-            """
-            class Foo(object):
-                def __init__():
-                    super(Bar, self).__init__()  #@
-            """
-        ).func.expr
-        with self.assertNoMessages():
-            self.checker.visit_call(node)
-
-    def test_new_style_super(self):
-        node = astroid.extract_node(
-            """
-            class Foo(object):
-                def __init__():
-                    super().__init__()  #@
-            """
-        ).func.expr
-        with self.assertNoMessages():
-            self.checker.visit_call(node)
