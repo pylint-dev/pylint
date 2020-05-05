@@ -4,7 +4,7 @@ class Foo:
 
 class Bar(Foo):
     def __init__(self):
-        super(Bar, self).__init__()  # [old-style-super]
+        super(Bar, self).__init__()  # [super-with-arguments]
 
 
 class Baz(Foo):
@@ -15,3 +15,8 @@ class Baz(Foo):
 class Qux(Foo):
     def __init__(self):
         super(Bar, self).__init__()
+
+
+class NotSuperCall(Foo):
+    def __init__(self):
+        super.test(Bar, self).__init__()
