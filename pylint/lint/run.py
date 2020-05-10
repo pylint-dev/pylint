@@ -74,11 +74,8 @@ group are mutually exclusive.",
     def __init__(
         self, args, reporter=None, exit=True, do_exit=UNUSED_PARAM_SENTINEL,
     ):  # pylint: disable=redefined-builtin
-        def display_version(_, __):
-            print(full_version)
-            sys.exit(0)
-
         self._rcfile = None
+        self._version_asked = False
         self._plugins = []
         self.verbose = None
         try:
@@ -86,7 +83,7 @@ group are mutually exclusive.",
                 args,
                 {
                     # option: (callback, takearg)
-                    "version": (display_version, False),
+                    "version": (self.version_asked, False),
                     "init-hook": (cb_init_hook, True),
                     "rcfile": (self.cb_set_rcfile, True),
                     "load-plugins": (self.cb_add_plugins, True),
@@ -257,6 +254,9 @@ group are mutually exclusive.",
             pylintrc=self._rcfile,
         )
         # register standard checkers
+        if self._version_asked:
+            print(full_version)
+            sys.exit(0)
         linter.load_default_plugins()
         # load command line plugins
         linter.load_plugin_modules(self._plugins)
@@ -363,6 +363,10 @@ group are mutually exclusive.",
                 if score_value and score_value > linter.config.fail_under:
                     sys.exit(0)
                 sys.exit(self.linter.msg_status)
+
+    def version_asked(self, _, __):
+        """callback for version (i.e. before option parsing)"""
+        self._version_asked = True
 
     def cb_set_rcfile(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""
