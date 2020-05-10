@@ -12,4 +12,3 @@ Python code:
 * SaltStack (https://github.com/saltstack)
 * CodeFactor (https://github.com/codefactor-io)
 * many more...
-

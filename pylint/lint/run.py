@@ -3,8 +3,10 @@
 
 import os
 import sys
+import warnings
 
 from pylint import __pkginfo__, config, extensions, interfaces
+from pylint.constants import full_version
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.utils import ArgumentPreprocessingError, preprocess_options
 from pylint.utils import utils
@@ -47,6 +49,9 @@ def cb_init_hook(optname, value):
     exec(value)  # pylint: disable=exec-used
 
 
+UNUSED_PARAM_SENTINEL = object()
+
+
 class Run:
     """helper class to use as main for pylint :
 
@@ -66,8 +71,11 @@ group are mutually exclusive.",
     def _return_one(*args):  # pylint: disable=unused-argument
         return 1
 
-    def __init__(self, args, reporter=None, do_exit=True):
+    def __init__(
+        self, args, reporter=None, exit=True, do_exit=UNUSED_PARAM_SENTINEL,
+    ):  # pylint: disable=redefined-builtin
         self._rcfile = None
+        self._version_asked = False
         self._plugins = []
         self.verbose = None
         try:
@@ -75,6 +83,7 @@ group are mutually exclusive.",
                 args,
                 {
                     # option: (callback, takearg)
+                    "version": (self.version_asked, False),
                     "init-hook": (cb_init_hook, True),
                     "rcfile": (self.cb_set_rcfile, True),
                     "load-plugins": (self.cb_add_plugins, True),
@@ -245,12 +254,14 @@ group are mutually exclusive.",
             pylintrc=self._rcfile,
         )
         # register standard checkers
+        if self._version_asked:
+            print(full_version)
+            sys.exit(0)
         linter.load_default_plugins()
         # load command line plugins
         linter.load_plugin_modules(self._plugins)
         # add some help section
         linter.add_help_section("Environment variables", config.ENV_HELP, level=1)
-        # pylint: disable=bad-continuation
         linter.add_help_section(
             "Output",
             "Using the default text output, the message format is :                          \n"
@@ -337,13 +348,25 @@ group are mutually exclusive.",
 
         linter.check(args)
         score_value = linter.generate_reports()
-        if do_exit:
+
+        if do_exit is not UNUSED_PARAM_SENTINEL:
+            warnings.warn(
+                "do_exit is deprecated and it is going to be removed in a future version.",
+                DeprecationWarning,
+            )
+            exit = do_exit
+
+        if exit:
             if linter.config.exit_zero:
                 sys.exit(0)
             else:
                 if score_value and score_value > linter.config.fail_under:
                     sys.exit(0)
                 sys.exit(self.linter.msg_status)
+
+    def version_asked(self, _, __):
+        """callback for version (i.e. before option parsing)"""
+        self._version_asked = True
 
     def cb_set_rcfile(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""

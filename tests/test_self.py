@@ -732,3 +732,49 @@ class TestRunTC:
                 ],
                 cwd=str(tmpdir),
             )
+
+    def test_allow_import_of_files_found_in_modules_during_parallel_check(self, tmpdir):
+        test_directory = tmpdir / "test_directory"
+        test_directory.mkdir()
+        spam_module = test_directory / "spam.py"
+        spam_module.write("'Empty'")
+
+        init_module = test_directory / "__init__.py"
+        init_module.write("'Empty'")
+
+        # For multiple jobs we could not find the `spam.py` file.
+        with tmpdir.as_cwd():
+            self._runtest(
+                [
+                    "-j2",
+                    "--disable=missing-docstring, missing-final-newline",
+                    "test_directory",
+                ],
+                code=0,
+            )
+
+        # A single job should be fine as well
+        with tmpdir.as_cwd():
+            self._runtest(
+                [
+                    "-j1",
+                    "--disable=missing-docstring, missing-final-newline",
+                    "test_directory",
+                ],
+                code=0,
+            )
+
+    def test_can_list_directories_without_dunder_init(self, tmpdir):
+        test_directory = tmpdir / "test_directory"
+        test_directory.mkdir()
+        spam_module = test_directory / "spam.py"
+        spam_module.write("'Empty'")
+
+        with tmpdir.as_cwd():
+            self._runtest(
+                [
+                    "--disable=missing-docstring, missing-final-newline",
+                    "test_directory",
+                ],
+                code=0,
+            )

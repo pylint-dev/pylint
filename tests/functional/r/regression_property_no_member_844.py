@@ -12,7 +12,7 @@ class Parent:
 class Child(Parent):
     @Parent.thing.getter
     def thing(self):
-        return super(Child, self).thing + '!'
+        return super().thing + '!'
 
 
 print(Child().thing)

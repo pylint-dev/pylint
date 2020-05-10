@@ -57,6 +57,7 @@ ext_modules = __pkginfo__.get("ext_modules", None)
 install_requires = __pkginfo__.get("install_requires", None)
 dependency_links = __pkginfo__.get("dependency_links", [])
 extras_require = __pkginfo__.get("extras_require", {})
+project_urls = __pkginfo__.get("project_urls", {})
 
 readme_path = join(base_dir, "README.rst")
 if exists(readme_path):
@@ -153,6 +154,7 @@ def install(**kwargs):
         python_requires=">=3.5",
         setup_requires=pytest_runner,
         tests_require=["pytest"],
+        project_urls=project_urls,
         **kwargs
     )
 

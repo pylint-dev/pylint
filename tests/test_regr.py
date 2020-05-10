@@ -15,6 +15,7 @@
 """non regression tests for pylint, which requires a too specific configuration
 to be incorporated in the automatic functional test framework
 """
+# pylint: disable=redefined-outer-name
 
 import os
 import sys

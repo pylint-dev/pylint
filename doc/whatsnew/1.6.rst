@@ -25,7 +25,7 @@ New checkers
 
       for key in dictionary.keys():
           ...
-      
+
       # Can be refactored to:
       for key in dictionary:
           ...
@@ -80,7 +80,7 @@ New features
 
 
 * We added a new option, ``redefining-builtins-modules``, which is used for
-  defining the modules which can redefine builtins. 
+  defining the modules which can redefine builtins.
   *pylint* will emit an error when a builtin is redefined, such as defining
   a variable called ``next``. But in some cases, the builtins can be
   redefined in the case they are imported from other places, different
@@ -102,7 +102,7 @@ Bug fixes
 * Fixed a bug where the top name of a qualified import was detected as an unused variable.
 
 * We don't warn about ``invalid-sequence-index`` if the indexed object has unknown
-  base classes, that Pylint cannot deduce.  
+  base classes, that Pylint cannot deduce.
 
 
 

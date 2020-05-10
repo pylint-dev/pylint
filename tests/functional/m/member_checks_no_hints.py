@@ -16,7 +16,7 @@ class Parent(object):
 class Child(Parent):
 
     def __init__(self):
-        super(Child, self).__init__()
+        super().__init__()
 
         self._similar # [no-member]
         self._really_similar # [no-member]

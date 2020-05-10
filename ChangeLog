@@ -6,19 +6,61 @@ What's New in Pylint 2.6.0?
 ===========================
 Release date: TBA
 
+* bad-continuation and bad-whitespace have been removed, black or another formatter can help you with this better than Pylint
+
+  Close #246, #289, #638, #747, #1148, #1179, #1943, #2041, #2301, #2304, #2944, #3565
+
+* The no-space-check option has been removed. It's no longer possible to consider empty line like a `trailing-whitespace` by using clever options
+
+  Close #1368
+
+* mixed-indentation has been removed, it is no longer useful since TabError is included directly in python3
+
+  Close #2984 #3573
+
+* Add `super-with-arguments` check for flagging instances of Python 2 style super calls.
+
+* Changed setup.py to work with [distlib](https://pypi.org/project/distlib)
+
+  Close #3555
+
+
+What's New in Pylint 2.5.2?
+===========================
+
+Release date: 2020-05-05
+
+* ``pylint.Run`` accepts ``do_exit`` as a deprecated parameter
+
+  Close #3590
+
 
 What's New in Pylint 2.5.1?
 ===========================
 
-Release date: TBA
+Release date: 2020-05-05
 
 * Fix a crash in `method-hidden` lookup for unknown base classes
 
   Close #3527
 
-* Changed setup.py to work with [distlib](https://pypi.org/project/distlib)
+* Revert pylint.Run's `exit` parameter to ``do_exit``
 
-  Close #3555
+  This has been inadvertently changed several releases ago to ``do_exit``.
+
+  Close #3533
+
+* ``no-value-for-parameter`` variadic detection has improved for assign statements
+
+  Close #3563
+
+* Allow package files to be properly discovered with multiple jobs
+
+  Close #3524
+
+* Allow linting directories without `__init__.py` which was a regression in 2.5.
+
+  Close #3528
 
 What's New in Pylint 2.5.0?
 ===========================

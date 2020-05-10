@@ -12,10 +12,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""
-unit test for the extensions.diadefslib modules
-"""
-
+"""Unit test for the extensions.diadefslib modules"""
+# pylint: disable=redefined-outer-name
 import sys
 from pathlib import Path
 
@@ -90,7 +88,7 @@ def test_option_values(HANDLER, PROJECT):
 
 def test_default_values():
     """test default values for package or class diagrams"""
-    # TODO : should test difference between default values for package or class diagrams
+    # TODO : should test difference between default values for package or class diagrams pylint: disable=fixme
 
 
 class TestDefaultDiadefGenerator:

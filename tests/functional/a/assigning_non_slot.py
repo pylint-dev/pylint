@@ -34,7 +34,7 @@ class Bad3(Bad):
         self.component = 42
         self.member = 24
         self.missing = 42 # [assigning-non-slot]
-        super(Bad3, self).__init__()
+        super().__init__()
 
 class Good(Empty):
     """ missing not in slots, but Empty doesn't

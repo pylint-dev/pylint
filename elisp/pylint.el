@@ -238,7 +238,7 @@ output buffer, to go to the lines where pylint found matches.
   (let ((map (cond
               ((boundp 'py-mode-map) py-mode-map)
               ((boundp 'python-mode-map) python-mode-map))))
-  
+
     (define-key map [menu-bar Python pylint-separator]
       '("--" . pylint-separator))
     (define-key map [menu-bar Python next-error]

@@ -23,7 +23,7 @@
 
 """Tests for the python3 checkers."""
 
-# pylint: disable=too-many-public-methods
+# pylint: disable=too-many-public-methods,redefined-outer-name
 
 import astroid
 
@@ -31,7 +31,7 @@ from pylint import testutils
 from pylint.checkers import python3 as checker
 from pylint.interfaces import INFERENCE, INFERENCE_FAILURE
 
-# TODO(cpopa): Port these to the functional test framework instead.
+# TODO(cpopa): Port these to the functional test framework instead. pylint: disable=fixme
 
 
 class TestPython3Checker(testutils.CheckerTestCase):

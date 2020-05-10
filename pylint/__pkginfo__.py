@@ -25,6 +25,7 @@
 # pylint: disable=redefined-builtin,invalid-name
 """pylint packaging information"""
 
+
 from os.path import join
 
 # For an official release, use dev_version = None
@@ -51,6 +52,7 @@ license = "GPL"
 description = "python code static checker"
 web = "https://github.com/PyCQA/pylint"
 mailinglist = "mailto:code-quality@python.org"
+project_urls = {"What's New": "https://pylint.pycqa.org/en/latest/whatsnew/"}
 author = "Python Code Quality Authority"
 author_email = "code-quality@python.org"
 

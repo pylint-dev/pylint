@@ -45,6 +45,7 @@ from astroid import decorators
 from pylint import checkers, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
+from pylint.checkers.utils import node_frame_class
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
@@ -308,6 +309,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "As such, it will warn when it encounters an else "
             "following a chain of ifs, all of them containing a "
             "continue statement.",
+        ),
+        "R1725": (
+            "Consider using Python 3 style super() without arguments",
+            "super-with-arguments",
+            "Emitted when calling the super() builtin with the current class "
+            "and instance. On Python 3 these arguments are the default and they can be omitted.",
         ),
     }
     options = (
@@ -715,11 +722,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-using-dict-comprehension",
         "consider-using-set-comprehension",
         "consider-using-sys-exit",
+        "super-with-arguments",
     )
     def visit_call(self, node):
         self._check_raising_stopiteration_in_generator_next_call(node)
         self._check_consider_using_comprehension_constructor(node)
         self._check_quit_exit_call(node)
+        self._check_super_with_arguments(node)
 
     @staticmethod
     def _has_exit_in_scope(scope):
@@ -738,6 +747,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             ):
                 return
             self.add_message("consider-using-sys-exit", node=node)
+
+    def _check_super_with_arguments(self, node):
+        if not isinstance(node.func, astroid.Name) or node.func.name != "super":
+            return
+
+        # pylint: disable=too-many-boolean-expressions
+        if (
+            len(node.args) != 2
+            or not isinstance(node.args[1], astroid.Name)
+            or node.args[1].name != "self"
+            or not isinstance(node.args[0], astroid.Name)
+            or not isinstance(node.args[1], astroid.Name)
+            or node.args[0].name != node_frame_class(node).name
+        ):
+            return
+
+        self.add_message("super-with-arguments", node=node)
 
     def _check_raising_stopiteration_in_generator_next_call(self, node):
         """Check if a StopIteration exception is raised by the call to next function

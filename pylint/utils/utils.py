@@ -104,12 +104,12 @@ def _basename_in_blacklist_re(base_name, black_list_re):
     return False
 
 
-def _modpath_from_file(filename, is_namespace):
+def _modpath_from_file(filename, is_namespace, path=None):
     def _is_package_cb(path, parts):
         return modutils.check_modpath_has_init(path, parts) or is_namespace
 
     return modutils.modpath_from_file_with_callback(
-        filename, is_package_cb=_is_package_cb
+        filename, path=path, is_package_cb=_is_package_cb
     )
 
 
@@ -142,7 +142,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
             continue
 
         module_path = get_python_path(something)
-        additional_search_path = [module_path] + path
+        additional_search_path = [".", module_path] + path
         if os.path.exists(something):
             # this is a file or a directory
             try:
@@ -200,7 +200,6 @@ def expand_modules(files_or_modules, black_list, black_list_re):
             not (modname.endswith(".__init__") or modname == "__init__")
             and os.path.basename(filepath) == "__init__.py"
         )
-
         if has_init or is_namespace or is_directory:
             for subfilepath in modutils.get_module_files(
                 os.path.dirname(filepath), black_list, list_all=is_namespace
@@ -212,7 +211,9 @@ def expand_modules(files_or_modules, black_list, black_list_re):
                 ):
                     continue
 
-                modpath = _modpath_from_file(subfilepath, is_namespace)
+                modpath = _modpath_from_file(
+                    subfilepath, is_namespace, path=additional_search_path
+                )
                 submodname = ".".join(modpath)
                 result.append(
                     {

@@ -26,4 +26,3 @@ about: Report a bug in pylint
 
 
 ### pylint --version output
-

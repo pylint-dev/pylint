@@ -1233,7 +1233,7 @@ class Python3Checker(checkers.BaseChecker):
                     if not _in_iterating_context(node):
                         checker = "{}-builtin-not-iterating".format(node.func.name)
                         self.add_message(checker, node=node)
-                if node.func.name == "open" and node.keywords:
+                elif node.func.name == "open" and node.keywords:
                     kwargs = node.keywords
                     for kwarg in kwargs or []:
                         if kwarg.arg == "encoding":

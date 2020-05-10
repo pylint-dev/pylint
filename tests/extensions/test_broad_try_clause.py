@@ -7,8 +7,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""Tests for the pylint checker in :mod:`pylint.extensions.broad_try_clause
-"""
+"""Tests for the pylint checker in :mod:`pylint.extensions.broad_try_clause`"""
 
 import os.path as osp
 import unittest
@@ -70,7 +69,3 @@ class BroadTryClauseTC(unittest.TestCase):
             msgs[3].msg, "try clause contains 7 statements, expected at most 1"
         )
         self.assertEqual(msgs[3].line, 29)
-
-
-if __name__ == "__main__":
-    unittest.main()
