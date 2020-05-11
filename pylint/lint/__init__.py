@@ -72,7 +72,7 @@
 """
 import sys
 
-from pylint.lint.check_parallel import check_parallel
+from pylint.lint.parallel import check_parallel
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
