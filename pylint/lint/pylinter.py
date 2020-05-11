@@ -18,7 +18,7 @@ from astroid.builder import AstroidBuilder
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
-from pylint.lint.check_parallel import check_parallel
+from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
     report_messages_stats,
