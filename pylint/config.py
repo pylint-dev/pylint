@@ -741,7 +741,7 @@ class OptionsManagerMixIn:
                 raise OSError("The config file {:s} doesn't exist!".format(config_file))
 
         use_config_file = config_file and os.path.exists(config_file)
-        if use_config_file:
+        if use_config_file:  # pylint: disable=too-many-nested-blocks
             parser = self.cfgfile_parser
 
             if config_file.endswith(".toml"):
@@ -754,6 +754,15 @@ class OptionsManagerMixIn:
                     pass
                 else:
                     for section, values in sections_values.items():
+                        # TOML has rich types, convert values to
+                        # strings as ConfigParser expects.
+                        for option, value in values.items():
+                            if isinstance(value, bool):
+                                values[option] = "yes" if value else "no"
+                            elif isinstance(value, int):
+                                values[option] = str(value)
+                            elif isinstance(value, list):
+                                values[option] = ",".join(value)
                         parser._sections[section.upper()] = values
             else:
                 # Use this encoding in order to strip the BOM marker, if any.
