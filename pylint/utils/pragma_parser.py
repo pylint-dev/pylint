@@ -17,7 +17,7 @@ OPTION_RGX = r"""
     .*?                # Anything (as little as possible)
     \bpylint:          # pylint word and column
     \s*                # Any number of whitespaces
-    ([^;#\n]+))        # Anything except semicolon or hash or newline (it is the second matched group) 
+    ([^;#\n]+))        # Anything except semicolon or hash or newline (it is the second matched group)
                        # and end of the first matched group
     [;#]{0,1}"""  # From 0 to 1 repetition of semicolon or hash
 OPTION_PO = re.compile(OPTION_RGX, re.VERBOSE)
@@ -39,7 +39,7 @@ ALL_KEYWORDS = "|".join(
 
 TOKEN_SPECIFICATION = [
     ("KEYWORD", r"\b({:s})\b".format(ALL_KEYWORDS)),
-    ("MESSAGE_STRING", r"[A-Za-z\-]{2,}"),  #  Identifiers
+    ("MESSAGE_STRING", r"[A-Za-z\-\_]{2,}"),  #  Identifiers
     ("ASSIGN", r"="),  #  Assignment operator
     ("MESSAGE_NUMBER", r"[CREIWF]{1}\d*"),
 ]

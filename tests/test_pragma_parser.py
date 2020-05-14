@@ -82,3 +82,11 @@ def test_missing_message():
     match = OPTION_PO.search(comment)
     with pytest.raises(InvalidPragmaError):
         list(parse_pragma(match.group(2)))
+
+
+def test_parse_message_with_dash():
+    comment = "#pylint: disable = raw_input-builtin"
+    match = OPTION_PO.search(comment)
+    res = list(parse_pragma(match.group(2)))
+    assert res[0].action == "disable"
+    assert res[0].messages == ["raw_input-builtin"]
