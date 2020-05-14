@@ -7,6 +7,10 @@ What's New in Pylint 2.5.3?
 
 Release date: TBA
 
+* `property-with-parameters` properly handles abstract properties
+
+  Close #3600
+
 
 What's New in Pylint 2.5.2?
 ===========================
