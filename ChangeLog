@@ -30,6 +30,10 @@ Release date: TBA
 
   Close #3600
 
+* `continue-in-finally` no longer emitted on Python 3.8 where it's now valid
+
+  Close #3612
+
 
 What's New in Pylint 2.5.2?
 ===========================
