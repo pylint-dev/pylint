@@ -1109,7 +1109,12 @@ a metaclass class method.",
             )
 
     def _check_property_with_parameters(self, node):
-        if node.args.args and len(node.args.args) > 1 and decorated_with_property(node):
+        if (
+            node.args.args
+            and len(node.args.args) > 1
+            and decorated_with_property(node)
+            and not is_property_setter(node)
+        ):
             self.add_message("property-with-parameters", node=node)
 
     def _check_invalid_overridden_method(self, function_node, parent_function_node):
