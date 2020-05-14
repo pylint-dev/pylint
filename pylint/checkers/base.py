@@ -541,6 +541,7 @@ class BasicErrorChecker(_BasicChecker):
             "continue-in-finally",
             "Emitted when the `continue` keyword is found "
             "inside a finally clause, which is a SyntaxError.",
+            {"maxversion": (3, 8)},
         ),
         "E0117": (
             "nonlocal name %s found without binding",
