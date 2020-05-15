@@ -71,6 +71,7 @@ def _worker_check_single_file(file_item):
     msgs = [_get_new_args(m) for m in _worker_linter.reporter.messages]
     return (
         _worker_linter.current_name,
+        _worker_linter.file_state.base_name,
         msgs,
         _worker_linter.stats,
         _worker_linter.msg_status,
@@ -97,9 +98,10 @@ def check_parallel(linter, jobs, files, arguments=None):
 
         all_stats = []
 
-        for module, messages, stats, msg_status in pool.imap_unordered(
+        for module, base_name, messages, stats, msg_status in pool.imap_unordered(
             _worker_check_single_file, files
         ):
+            linter.file_state.base_name = base_name
             linter.set_current_module(module)
             for msg in messages:
                 msg = Message(*msg)
