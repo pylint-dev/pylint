@@ -19,6 +19,10 @@ Release date: TBA
 
   Close #3604
 
+* Fix a regression where the score was not reported with multiple jobs
+
+  Close #3547
+
 
 What's New in Pylint 2.5.2?
 ===========================

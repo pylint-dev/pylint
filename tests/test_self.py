@@ -778,3 +778,8 @@ class TestRunTC:
                 ],
                 code=0,
             )
+
+    def test_jobs_score(self):
+        path = join(HERE, "regrtest_data", "unused_variable.py")
+        expected = "Your code has been rated at 7.50/10"
+        self._test_output([path, "--jobs=2", "-ry"], expected_output=expected)
