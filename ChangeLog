@@ -58,6 +58,11 @@ Release date: 2020-08-20
 
 * Add check for bool function to `len-as-condition`
 
+* Add `simplifiable-condition` check for extraneous constants in conditionals using and/or.
+
+* Add `condition-evals-to-constant` check for conditionals using and/or that evaluate to a constant.
+
+  Close #3407
 
 What's New in Pylint 2.5.4?
 ===========================
