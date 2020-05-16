@@ -1,4 +1,4 @@
-# pylint: disable=useless-return, useless-object-inheritance
+# pylint: disable=useless-return, useless-object-inheritance, condition-evals-to-constant
 """check assignment to function call where the function doesn't return
 
     'E1111': ('Assigning to function call which doesn\'t return',

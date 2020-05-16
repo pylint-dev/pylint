@@ -36,6 +36,7 @@
 """Looks for code which can be refactored."""
 import builtins
 import collections
+import copy
 import itertools
 import tokenize
 from functools import reduce
@@ -126,6 +127,8 @@ def _is_test_condition(
     parent = parent or node.parent
     if isinstance(parent, (astroid.While, astroid.If, astroid.IfExp, astroid.Assert)):
         return node is parent.test or parent.test.parent_of(node)
+    if isinstance(parent, astroid.Comprehension):
+        return node in parent.ifs
     return _is_call_of_name(parent, "bool") and parent.parent_of(node)
 
 
@@ -156,6 +159,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Boolean expression may be simplified to %s",
             "simplify-boolean-expression",
             "Emitted when redundant pre-python 2.5 ternary syntax is used.",
+        ),
+        "R1726": (
+            "Boolean condition '%s' may be simplified to '%s'",
+            "simplifiable-condition",
+            "Emitted when a boolean condition is able to be simplified.",
+        ),
+        "R1727": (
+            "Boolean condition '%s' will always evaluate to '%s'",
+            "condition-evals-to-constant",
+            "Emitted when a boolean condition can be simplified to a constant value.",
         ),
         "R1702": (
             "Too many nested blocks (%s/%s)",
@@ -361,6 +374,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._elifs = []
         self._nested_blocks_msg = None
         self._reported_swap_nodes = set()
+        self._can_simplify_bool_op = False
 
     def open(self):
         # do this in open since config not fully initialized in __init__
@@ -992,13 +1006,92 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message("chained-comparison", node=node)
                 break
 
+    @staticmethod
+    def _apply_boolean_simplification_rules(operator, values):
+        """Removes irrelevant values or returns shortcircuiting values
+
+        This function applies the following two rules:
+        1) an OR expression with True in it will always be true, and the
+           reverse for AND
+
+        2) False values in OR expressions are only relevant if all values are
+           false, and the reverse for AND"""
+        simplified_values = []
+
+        for subnode in values:
+            inferred_bool = None
+            if not next(subnode.nodes_of_class(astroid.Name), False):
+                inferred = utils.safe_infer(subnode)
+                if inferred:
+                    inferred_bool = inferred.bool_value()
+
+            if not isinstance(inferred_bool, bool):
+                simplified_values.append(subnode)
+            elif (operator == "or") == inferred_bool:
+                return [subnode]
+
+        return simplified_values or [astroid.Const(operator == "and")]
+
+    def _simplify_boolean_operation(self, bool_op):
+        """Attempts to simplify a boolean operation
+
+        Recursively applies simplification on the operator terms,
+        and keeps track of whether reductions have been made."""
+        children = list(bool_op.get_children())
+        intermediate = [
+            self._simplify_boolean_operation(child)
+            if isinstance(child, astroid.BoolOp)
+            else child
+            for child in children
+        ]
+        result = self._apply_boolean_simplification_rules(bool_op.op, intermediate)
+        if len(result) < len(children):
+            self._can_simplify_bool_op = True
+        if len(result) == 1:
+            return result[0]
+        simplified_bool_op = copy.copy(bool_op)
+        simplified_bool_op.postinit(result)
+        return simplified_bool_op
+
+    def _check_simplifiable_condition(self, node):
+        """Check if a boolean condition can be simplified.
+
+        Variables will not be simplified, even in the value can be inferred,
+        and expressions like '3 + 4' will remain expanded."""
+        if not _is_test_condition(node):
+            return
+
+        self._can_simplify_bool_op = False
+        simplified_expr = self._simplify_boolean_operation(node)
+
+        if not self._can_simplify_bool_op:
+            return
+
+        if not next(simplified_expr.nodes_of_class(astroid.Name), False):
+            self.add_message(
+                "condition-evals-to-constant",
+                node=node,
+                args=(node.as_string(), simplified_expr.as_string()),
+            )
+        else:
+            self.add_message(
+                "simplifiable-condition",
+                node=node,
+                args=(node.as_string(), simplified_expr.as_string()),
+            )
+
     @utils.check_messages(
-        "consider-merging-isinstance", "consider-using-in", "chained-comparison"
+        "consider-merging-isinstance",
+        "consider-using-in",
+        "chained-comparison",
+        "simplifiable-condition",
+        "condition-evals-to-constant",
     )
     def visit_boolop(self, node):
         self._check_consider_merging_isinstance(node)
         self._check_consider_using_in(node)
         self._check_chained_comparison(node)
+        self._check_simplifiable_condition(node)
 
     @staticmethod
     def _is_simple_assignment(node):

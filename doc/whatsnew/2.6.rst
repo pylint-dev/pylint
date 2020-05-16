@@ -17,6 +17,10 @@ New checkers
 
 * Add `raise-missing-from` check for exceptions that should have a cause.
 
+* Add `simplifiable-condition` check for extraneous constants in conditionals using and/or.
+
+* Add `condition-evals-to-constant` check for conditionals using and/or that evaluate to a constant.
+
 Other Changes
 =============
 
