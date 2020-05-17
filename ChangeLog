@@ -20,6 +20,10 @@ Release date: TBA
 
 * Add `super-with-arguments` check for flagging instances of Python 2 style super calls.
 
+* `generated-members` now matches the qualified name of members
+
+  Close #2498
+
 
 What's New in Pylint 2.5.3?
 ===========================

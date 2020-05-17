@@ -916,13 +916,6 @@ accessed. Python regular expressions are accepted.",
 
         function/method, super call and metaclasses are ignored
         """
-        for pattern in self.config.generated_members:
-            # attribute is marked as generated, stop here
-            if re.match(pattern, node.attrname):
-                return
-            if re.match(pattern, node.as_string()):
-                return
-
         try:
             inferred = list(node.expr.infer())
         except exceptions.InferenceError:
@@ -950,6 +943,24 @@ accessed. Python regular expressions are accepted.",
             if _is_owner_ignored(
                 owner, name, self.config.ignored_classes, self.config.ignored_modules
             ):
+                continue
+
+            # ignore pattern added to generated-members
+            ignored = False
+            for pattern in self.config.generated_members:
+                # attribute is marked as generated, stop here
+                if re.match(pattern, node.attrname):
+                    ignored = True
+                    break
+                if re.match(pattern, node.as_string()):
+                    ignored = True
+                    break
+                if re.match(pattern, "%s.%s" % (owner.pytype(), node.attrname)):
+                    ignored = True
+                    break
+
+            # continue the outer loop if a pattern matched
+            if ignored:
                 continue
 
             try:
