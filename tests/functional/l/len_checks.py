@@ -99,3 +99,6 @@ def github_issue_1331_v3(*args):
 
 def github_issue_1331_v4(*args):
     assert z and len(args), args  # [len-as-condition]
+
+b = bool(len(z)) # [len-as-condition]
+c = bool(len('TEST') or 42) # [len-as-condition]

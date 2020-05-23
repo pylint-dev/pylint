@@ -39,6 +39,7 @@ import collections
 import itertools
 import tokenize
 from functools import reduce
+from typing import Optional
 
 import astroid
 from astroid import decorators
@@ -59,22 +60,8 @@ def _if_statement_is_always_returning(if_node, returning_node_class):
     return False
 
 
-def _is_len_call(node):
-    """Checks if node is len(SOMETHING)."""
-    return (
-        isinstance(node, astroid.Call)
-        and isinstance(node.func, astroid.Name)
-        and node.func.name == "len"
-    )
-
-
 def _is_constant_zero(node):
     return isinstance(node, astroid.Const) and node.value == 0
-
-
-def _node_is_test_condition(node):
-    """ Checks if node is an if, while, assert or if expression statement."""
-    return isinstance(node, (astroid.If, astroid.While, astroid.Assert, astroid.IfExp))
 
 
 def _is_trailing_comma(tokens, index):
@@ -120,6 +107,26 @@ def _is_trailing_comma(tokens, index):
         if "=" in prevtoken.string or prevtoken.string in expected_tokens:
             return True
     return False
+
+
+def _is_call_of_name(node: astroid.node_classes.NodeNG, name: str) -> bool:
+    """Checks if node is a function call with the given name"""
+    return (
+        isinstance(node, astroid.Call)
+        and isinstance(node.func, astroid.Name)
+        and node.func.name == name
+    )
+
+
+def _is_test_condition(
+    node: astroid.node_classes.NodeNG,
+    parent: Optional[astroid.node_classes.NodeNG] = None,
+) -> bool:
+    """Returns true if the given node is being tested for truthiness"""
+    parent = parent or node.parent
+    if isinstance(parent, (astroid.While, astroid.If, astroid.IfExp, astroid.Assert)):
+        return node is parent.test or parent.test.parent_of(node)
+    return _is_call_of_name(parent, "bool") and parent.parent_of(node)
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
@@ -1512,6 +1519,7 @@ class LenChecker(checkers.BaseChecker):
     * while not len(sequence):
     * assert len(sequence):
     * assert not len(sequence):
+    * bool(len(sequence))
     """
 
     __implements__ = (interfaces.IAstroidChecker,)
@@ -1538,7 +1546,7 @@ class LenChecker(checkers.BaseChecker):
         # a len(S) call is used inside a test condition
         # could be if, while, assert or if expression statement
         # e.g. `if len(S):`
-        if _is_len_call(node):
+        if _is_call_of_name(node, "len"):
             # the len() call could also be nested together with other
             # boolean operations, e.g. `if z or len(x):`
             parent = node.parent
@@ -1547,11 +1555,8 @@ class LenChecker(checkers.BaseChecker):
 
             # we're finally out of any nested boolean operations so check if
             # this len() call is part of a test condition
-            if not _node_is_test_condition(parent):
-                return
-            if not (node is parent.test or parent.test.parent_of(node)):
-                return
-            self.add_message("len-as-condition", node=node)
+            if _is_test_condition(node, parent):
+                self.add_message("len-as-condition", node=node)
 
     @utils.check_messages("len-as-condition")
     def visit_unaryop(self, node):
@@ -1561,7 +1566,7 @@ class LenChecker(checkers.BaseChecker):
         if (
             isinstance(node, astroid.UnaryOp)
             and node.op == "not"
-            and _is_len_call(node.operand)
+            and _is_call_of_name(node.operand, "len")
         ):
             self.add_message("len-as-condition", node=node)
 
