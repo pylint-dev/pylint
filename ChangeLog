@@ -25,6 +25,8 @@ Release date: TBA
 
 * Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comman, etc.)
 
+* Improve lint message for `singleton-comparison` with bools
+
 What's New in Pylint 2.6.0?
 ===========================
 
