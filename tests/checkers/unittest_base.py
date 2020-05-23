@@ -414,18 +414,32 @@ class TestComparison(CheckerTestCase):
 
     def test_comparison(self):
         node = astroid.extract_node("foo == True")
-        message = Message("singleton-comparison", node=node, args=(True, "just 'expr'"))
+        message = Message(
+            "singleton-comparison",
+            node=node,
+            args=(
+                "'foo == True'",
+                "'foo is True' if checking for the singleton value True, or 'bool(foo)' if testing for truthiness",
+            ),
+        )
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
 
         node = astroid.extract_node("foo == False")
-        message = Message("singleton-comparison", node=node, args=(False, "'not expr'"))
+        message = Message(
+            "singleton-comparison",
+            node=node,
+            args=(
+                "'foo == False'",
+                "'foo is False' if checking for the singleton value False, or 'not foo' if testing for falsiness",
+            ),
+        )
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
 
         node = astroid.extract_node("foo == None")
         message = Message(
-            "singleton-comparison", node=node, args=(None, "'expr is None'")
+            "singleton-comparison", node=node, args=("'foo == None'", "'foo is None'")
         )
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
@@ -433,7 +447,14 @@ class TestComparison(CheckerTestCase):
         node = astroid.extract_node("True == foo")
         messages = (
             Message("misplaced-comparison-constant", node=node, args=("foo == True",)),
-            Message("singleton-comparison", node=node, args=(True, "just 'expr'")),
+            Message(
+                "singleton-comparison",
+                node=node,
+                args=(
+                    "'True == foo'",
+                    "'True is foo' if checking for the singleton value True, or 'bool(foo)' if testing for truthiness",
+                ),
+            ),
         )
         with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
@@ -441,7 +462,14 @@ class TestComparison(CheckerTestCase):
         node = astroid.extract_node("False == foo")
         messages = (
             Message("misplaced-comparison-constant", node=node, args=("foo == False",)),
-            Message("singleton-comparison", node=node, args=(False, "'not expr'")),
+            Message(
+                "singleton-comparison",
+                node=node,
+                args=(
+                    "'False == foo'",
+                    "'False is foo' if checking for the singleton value False, or 'not foo' if testing for falsiness",
+                ),
+            ),
         )
         with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
@@ -449,7 +477,11 @@ class TestComparison(CheckerTestCase):
         node = astroid.extract_node("None == foo")
         messages = (
             Message("misplaced-comparison-constant", node=node, args=("foo == None",)),
-            Message("singleton-comparison", node=node, args=(None, "'expr is None'")),
+            Message(
+                "singleton-comparison",
+                node=node,
+                args=("'None == foo'", "'None is foo'"),
+            ),
         )
         with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
