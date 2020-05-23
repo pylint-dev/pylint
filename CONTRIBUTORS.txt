@@ -395,3 +395,5 @@ contributors:
 * Ram Rachum (cool-RR)
 
 * Pieter Engelbrecht
+
+* Ethan Leba: contributor
