@@ -20,6 +20,7 @@ Release date: TBA
 
 * Add `super-with-arguments` check for flagging instances of Python 2 style super calls.
 
+* Add an faq detailing which messages to disable to avoid duplicates w/ other popular linters
 
 What's New in Pylint 2.5.3?
 ===========================
