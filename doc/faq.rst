@@ -154,7 +154,6 @@ No, starting from 0.25.3, you can use symbolic names for messages::
 
     # pylint: disable=fixme, line-too-long
 
-
 4.5 I have a callback function where I have no control over received arguments. How do I avoid getting unused argument warnings?
 ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -185,6 +184,21 @@ they are prone to false positives or that they are opinionated enough
 for not being included as default messages. But most of the disabled
 messages are from the Python 3 porting checker, which is disabled by
 default. It needs special activation with the ``--py3k`` flag.
+
+4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
+-------------------------------------------------------------------------------------------
+
+pycodestyle: unneeded-not, line-too-long, unnecessary-semicolon, trailing-whitespace, missing-final-newline, bad-indentation, mixed-indentation, multiple-statements, bad-whitespace, bad-continuation, bare-except
+
+pyflakes: undefined-variable, unused-import, unused-variable
+
+mccabe: too-many-branches
+
+pydocstyle: missing-module-docstring, missing-class-docstring, missing-function-docstring
+
+pep8-naming: invalid-name, bad-classmethod-argument, bad-mcs-classmethod-argument, no-self-argument
+
+flake8-import-order: wrong-import-order
 
 5. Classes and Inheritance
 ==========================
