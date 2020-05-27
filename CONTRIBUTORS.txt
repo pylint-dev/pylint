@@ -383,3 +383,5 @@ contributors:
 * Andrew J. Simmons (anjsimmo): contributor
 
 * Damien Baty: contributor
+
+* Daniel R. Neal (danrneal): contributer
