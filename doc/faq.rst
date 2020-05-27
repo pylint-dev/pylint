@@ -187,7 +187,7 @@ messages are from the Python 3 porting checker, which is disabled by
 default. It needs special activation with the ``--py3k`` flag.
 
 4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
--------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
 
 pycodestyle: unneeded-not, line-too-long, unnecessary-semicolon, trailing-whitespace, missing-final-newline, bad-indentation, mixed-indentation, multiple-statements, bad-whitespace, bad-continuation, bare-except
 
