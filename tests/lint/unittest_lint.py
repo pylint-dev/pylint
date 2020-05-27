@@ -584,6 +584,15 @@ def test_python3_checker_disabled(linter):
     assert "python3" in checker_names
 
 
+def test_design_checker_disabled(linter):
+    checker_names = [c.name for c in linter.prepare_checkers()]
+    assert "design" not in checker_names
+
+    linter.set_option("enable", "design")
+    checker_names = [c.name for c in linter.prepare_checkers()]
+    assert "design" in checker_names
+
+
 def test_full_documentation(linter):
     out = StringIO()
     linter.print_full_documentation(out)

@@ -182,9 +182,12 @@ tricks like: ::
 
 pylint does have some messages disabled by default, either because
 they are prone to false positives or that they are opinionated enough
-for not being included as default messages. But most of the disabled
-messages are from the Python 3 porting checker, which is disabled by
-default. It needs special activation with the ``--py3k`` flag.
+for not being included as default messages. The disabled messages are 
+from the Python 3 porting check and design checker, which are disabled 
+by default. The Python 3 porting checker needs special activation with 
+the ``--py3k`` flag. The design checker can be enabled with
+``--enabled=design``.
+
 
 4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
 ------------------------------------------------------------------------------------------------------------

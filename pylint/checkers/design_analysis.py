@@ -160,6 +160,7 @@ class MisdesignChecker(BaseChecker):
     """
 
     __implements__ = (IAstroidChecker,)
+    enabled = False
 
     # configuration section name
     name = "design"
