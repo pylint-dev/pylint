@@ -189,17 +189,25 @@ default. It needs special activation with the ``--py3k`` flag.
 4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
 ------------------------------------------------------------------------------------------------------------
 
-pycodestyle: unneeded-not, line-too-long, unnecessary-semicolon, trailing-whitespace, missing-final-newline, bad-indentation, mixed-indentation, multiple-statements, bad-whitespace, bad-continuation, bare-except
+pycodestyle: unneeded-not, line-too-long, unnecessary-semicolon, trailing-whitespace, missing-final-newline, bad-indentation, multiple-statements, bare-except
 
-pyflakes: undefined-variable, unused-import, unused-variable
+pyflakes_: undefined-variable, unused-import, unused-variable
 
-mccabe: too-many-branches
+mccabe_: too-many-branches
 
-pydocstyle: missing-module-docstring, missing-class-docstring, missing-function-docstring
+pydocstyle_: missing-module-docstring, missing-class-docstring, missing-function-docstring
 
-pep8-naming: invalid-name, bad-classmethod-argument, bad-mcs-classmethod-argument, no-self-argument
+pep8-naming_: invalid-name, bad-classmethod-argument, bad-mcs-classmethod-argument, no-self-argument
 
-flake8-import-order: wrong-import-order
+flake8-import-order_: wrong-import-order
+
+.. _`pycodestyle`: https://github.com/PyCQA/pycodestyle
+.. _`pyflakes`: https://github.com/PyCQA/pyflakes
+.. _`mccabe`: https://github.com/PyCQA/mccabe
+.. _`pydocstyle`: https://github.com/PyCQA/pydocstyle
+.. _`pep8-naming`: https://github.com/PyCQA/pep8-naming
+.. _`flake8-import-order`: https://github.com/PyCQA/flake8-import-order
+
 
 5. Classes and Inheritance
 ==========================
