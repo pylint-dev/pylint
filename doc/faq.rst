@@ -186,6 +186,29 @@ for not being included as default messages. But most of the disabled
 messages are from the Python 3 porting checker, which is disabled by
 default. It needs special activation with the ``--py3k`` flag.
 
+4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
+------------------------------------------------------------------------------------------------------------
+
+pycodestyle_: unneeded-not, line-too-long, unnecessary-semicolon, trailing-whitespace, missing-final-newline, bad-indentation, multiple-statements, bare-except
+
+pyflakes_: undefined-variable, unused-import, unused-variable
+
+mccabe_: too-many-branches
+
+pydocstyle_: missing-module-docstring, missing-class-docstring, missing-function-docstring
+
+pep8-naming_: invalid-name, bad-classmethod-argument, bad-mcs-classmethod-argument, no-self-argument
+
+flake8-import-order_: wrong-import-order
+
+.. _`pycodestyle`: https://github.com/PyCQA/pycodestyle
+.. _`pyflakes`: https://github.com/PyCQA/pyflakes
+.. _`mccabe`: https://github.com/PyCQA/mccabe
+.. _`pydocstyle`: https://github.com/PyCQA/pydocstyle
+.. _`pep8-naming`: https://github.com/PyCQA/pep8-naming
+.. _`flake8-import-order`: https://github.com/PyCQA/flake8-import-order
+
+
 5. Classes and Inheritance
 ==========================
 
