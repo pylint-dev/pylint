@@ -20,3 +20,5 @@ Other Changes
 * Fix bug that lead to duplicate messages when using ``--jobs 2`` or more.
 
   Close #3584
+
+* The `design` checker has been disabled by default, users can still explicitly enable the checker by specifying ``--enabled=design`` at the command line or including ``enable=design`` under the "MESSAGES CONTROL" section in their config files.
