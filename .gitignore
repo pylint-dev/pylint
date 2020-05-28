@@ -25,3 +25,5 @@ debian/pylint
 .eggs/
 .pytest_cache/
 .mypy_cache/
+.vscode
+venv/
