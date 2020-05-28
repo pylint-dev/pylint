@@ -71,6 +71,7 @@ class LintTestUsingModule:
         assert self._get_expected().strip() + "\n" == got.strip() + "\n"
 
     def _test(self, tocheck):
+        self.linter.enable("design")
         if INFO_TEST_RGX.match(self.module):
             self.linter.enable("I")
         else:

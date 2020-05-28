@@ -504,6 +504,7 @@ class LintModuleTest:
         self._linter.set_reporter(_test_reporter)
         self._linter.config.persistent = 0
         checkers.initialize(self._linter)
+        self._linter.enable("design")
         self._linter.disable("I")
         try:
             self._linter.read_config_file(test_file.option_file)
