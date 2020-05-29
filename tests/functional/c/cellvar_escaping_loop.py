@@ -1,6 +1,9 @@
-# pylint: disable=print-statement, unnecessary-comprehension
+# pylint: disable=print-statement, unnecessary-comprehension,missing-docstring,too-few-public-methods
 """Tests for loopvar-in-closure."""
 from __future__ import print_function
+
+from enum import Enum
+
 
 def good_case():
     """No problems here."""
@@ -118,3 +121,11 @@ def bad_case6():
         print(j)
         lst.append(lambda: i)  # [cell-var-from-loop]
     return lst
+
+
+class Test(Enum):
+    TEST = (40, 160)
+
+    @staticmethod
+    def new_test(minimum=TEST[0], maximum=TEST[1]):
+        return minimum, maximum

@@ -1716,13 +1716,14 @@ class VariablesChecker(BaseChecker):
         else:
             assign_scope = assignment_node.scope()
             maybe_for = assignment_node
-            while not isinstance(maybe_for, astroid.For):
+            while maybe_for and not isinstance(maybe_for, astroid.For):
                 if maybe_for is assign_scope:
                     break
                 maybe_for = maybe_for.parent
             else:
                 if (
-                    maybe_for.parent_of(node_scope)
+                    maybe_for
+                    and maybe_for.parent_of(node_scope)
                     and not _is_direct_lambda_call()
                     and not isinstance(node_scope.statement(), astroid.Return)
                 ):
