@@ -385,3 +385,5 @@ contributors:
 * Damien Baty: contributor
 
 * Daniel R. Neal (danrneal): contributer
+
+* Jeremy Fleischman (jfly): contributer

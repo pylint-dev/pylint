@@ -6,6 +6,10 @@ What's New in Pylint 2.6.0?
 ===========================
 Release date: TBA
 
+* Fix a regression where disable comments that have checker names with numbers in them are not parsed correctly
+
+  Close #3666
+
 * bad-continuation and bad-whitespace have been removed, black or another formatter can help you with this better than Pylint
 
   Close #246, #289, #638, #747, #1148, #1179, #1943, #2041, #2301, #2304, #2944, #3565
