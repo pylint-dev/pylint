@@ -16,6 +16,14 @@ def test_simple_pragma():
         assert pragma_repr.messages == ["missing-docstring"]
 
 
+def test_disable_checker_with_number_in_name():
+    comment = "#pylint: disable = j3-custom-checker"
+    match = OPTION_PO.search(comment)
+    for pragma_repr in parse_pragma(match.group(2)):
+        assert pragma_repr.action == "disable"
+        assert pragma_repr.messages == ["j3-custom-checker"]
+
+
 def test_simple_pragma_no_messages():
     comment = "#pylint: skip-file"
     match = OPTION_PO.search(comment)

@@ -39,7 +39,7 @@ ALL_KEYWORDS = "|".join(
 
 TOKEN_SPECIFICATION = [
     ("KEYWORD", r"\b({:s})\b".format(ALL_KEYWORDS)),
-    ("MESSAGE_STRING", r"[A-Za-z\-\_]{2,}"),  #  Identifiers
+    ("MESSAGE_STRING", r"[0-9A-Za-z\-\_]{2,}"),  #  Identifiers
     ("ASSIGN", r"="),  #  Assignment operator
     ("MESSAGE_NUMBER", r"[CREIWF]{1}\d*"),
 ]
