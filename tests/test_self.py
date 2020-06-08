@@ -783,3 +783,11 @@ class TestRunTC:
         path = join(HERE, "regrtest_data", "unused_variable.py")
         expected = "Your code has been rated at 7.50/10"
         self._test_output([path, "--jobs=2", "-ry"], expected_output=expected)
+
+    def test_duplicate_code_raw_strings(self):
+        path = join(HERE, "regrtest_data", "duplicate_data_raw_strings")
+        expected_output = "Similar lines in 2 files"
+        self._test_output(
+            [path, "--disable=all", "--enable=duplicate-code"],
+            expected_output=expected_output,
+        )
