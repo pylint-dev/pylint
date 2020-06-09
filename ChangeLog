@@ -14,6 +14,10 @@ Release date: TBA
 
   Close #1368
 
+* ``missing-kwoa`` is no longer emitted when dealing with overload functions
+
+  Close #3655
+
 * mixed-indentation has been removed, it is no longer useful since TabError is included directly in python3
 
   Close #2984 #3573
