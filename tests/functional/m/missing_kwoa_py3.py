@@ -1,4 +1,6 @@
-# pylint: disable=missing-docstring,unused-argument
+# pylint: disable=missing-docstring,unused-argument,too-few-public-methods
+import typing
+
 
 def target(pos, *, keyword):
     return pos + keyword
@@ -34,3 +36,38 @@ def other_function(**kwargs):
 
 
 other_function(param=2)
+
+
+class Parent:
+
+    @typing.overload
+    def __init__( self, *, first, second, third):
+        pass
+
+    @typing.overload
+    def __init__(self, *, first, second):
+        pass
+
+    @typing.overload
+    def __init__(self, *, first):
+        pass
+
+    def __init__(
+            self,
+            *,
+            first,
+            second: typing.Optional[str] = None,
+            third: typing.Optional[str] = None):
+        self._first = first
+        self._second = second
+        self._third = third
+
+
+class Child(Parent):
+    def __init__(
+            self,
+            *,
+            first,
+            second):
+        super().__init__(first=first, second=second)
+        self._first = first + second

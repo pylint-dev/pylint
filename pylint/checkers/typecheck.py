@@ -1413,7 +1413,12 @@ accessed. Python regular expressions are accepted.",
 
         for name in kwparams:
             defval, assigned = kwparams[name]
-            if defval is None and not assigned and not has_no_context_keywords_variadic:
+            if (
+                defval is None
+                and not assigned
+                and not has_no_context_keywords_variadic
+                and not overload_function
+            ):
                 self.add_message("missing-kwoa", node=node, args=(name, callable_name))
 
     def _check_invalid_sequence_index(self, subscript: astroid.Subscript):
