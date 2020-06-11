@@ -198,7 +198,7 @@ class Python3Checker(checkers.BaseChecker):
             "unpacking-in-except",
             "Python3 will not allow implicit unpacking of "
             "exceptions in except clauses. "
-            "See http://www.python.org/dev/peps/pep-3110/",
+            "See https://www.python.org/dev/peps/pep-3110/",
             {"old_names": [("W0712", "old-unpacking-in-except")]},
         ),
         "E1604": (

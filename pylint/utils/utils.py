@@ -166,7 +166,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
                     continue
             except (ImportError, SyntaxError) as ex:
                 # The SyntaxError is a Python bug and should be
-                # removed once we move away from imp.find_module: http://bugs.python.org/issue10588
+                # removed once we move away from imp.find_module: https://bugs.python.org/issue10588
                 errors.append({"key": "fatal", "mod": modname, "ex": ex})
                 continue
 

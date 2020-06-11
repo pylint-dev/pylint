@@ -89,7 +89,7 @@ class StdlibChecker(BaseChecker):
             "bad-open-mode",
             "Python supports: r, w, a[, x] modes with b, +, "
             "and U (only with r) options. "
-            "See http://docs.python.org/2/library/functions.html#open",
+            "See https://docs.python.org/2/library/functions.html#open",
         ),
         "W1502": (
             "Using datetime.time in a boolean context.",
@@ -97,7 +97,7 @@ class StdlibChecker(BaseChecker):
             "Using datetime.time in a boolean context can hide "
             "subtle bugs when the time they represent matches "
             "midnight UTC. This behaviour was fixed in Python 3.5. "
-            "See http://bugs.python.org/issue13936 for reference.",
+            "See https://bugs.python.org/issue13936 for reference.",
             {"maxversion": (3, 5)},
         ),
         "W1503": (

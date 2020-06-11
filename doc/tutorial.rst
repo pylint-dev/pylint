@@ -38,7 +38,7 @@ My command line prompt for these examples is:
 
   robertk01 Desktop$
 
-.. _PEP 8: http://www.python.org/dev/peps/pep-0008/
+.. _PEP 8: https://www.python.org/dev/peps/pep-0008/
 
 Getting Started
 ---------------
@@ -283,4 +283,4 @@ example but go ahead and `read up`_ on them if you want.
 
 That's it for the basic intro. More tutorials will follow.
 
-.. _`read up`: http://docs.python.org/library/re.html
+.. _`read up`: https://docs.python.org/library/re.html

@@ -44,7 +44,7 @@ class Message(_MsgBase):
         """Format the message according to the given template.
 
         The template format is the one of the format method :
-        cf. http://docs.python.org/2/library/string.html#formatstrings
+        cf. https://docs.python.org/2/library/string.html#formatstrings
         """
         # For some reason, _asdict on derived namedtuples does not work with
         # Python 3.4. Needs some investigation.

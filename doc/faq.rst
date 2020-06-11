@@ -16,7 +16,7 @@ Pylint is a `static code checker`_, meaning it can analyse your code without
 actually running it. Pylint checks for errors, tries to enforce a coding
 standard, and tries to enforce a coding style.
 
-.. _`static code checker`: http://en.wikipedia.org/wiki/Static_code_analysis
+.. _`static code checker`: https://en.wikipedia.org/wiki/Static_code_analysis
 
 
 2. Installation
@@ -36,7 +36,7 @@ Pylint from the repository, simply invoke ::
 
     git clone https://github.com/PyCQA/pylint
 
-.. _git: http://git-scm.com/
+.. _git: https://git-scm.com/
 
 2.3 What are Pylint's dependencies?
 -----------------------------------

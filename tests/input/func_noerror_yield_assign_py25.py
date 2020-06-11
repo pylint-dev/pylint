@@ -1,4 +1,4 @@
-"""http://www.logilab.org/ticket/8771"""
+"""https://www.logilab.org/ticket/8771"""
 
 from __future__ import print_function
 

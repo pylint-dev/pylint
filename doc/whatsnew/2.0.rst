@@ -355,5 +355,5 @@ Other Changes
 
 
 .. _PEP 563: https://www.python.org/dev/peps/pep-0563/
-.. _style guide: http://docs.python-guide.org/en/latest/writing/style/
+.. _style guide: https://docs.python-guide.org/en/latest/writing/style/
 .. _swap values presentation: http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html#swap-values

@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring,too-few-public-methods
 """
-http://www.logilab.org/ticket/355
+https://www.logilab.org/ticket/355
 If you are using assertTrue or assertFalse and the first argument is a
 constant(like a string), then the assert will always be true. Therefore,
 it should emit a warning message.
