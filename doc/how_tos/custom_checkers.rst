@@ -170,7 +170,7 @@ We could also construct a more complete example::
 For :func:`astroid.extract_node`, you can use ``#@`` at the end of a line to choose which statements will be extracted into nodes.
 
 For more information on :func:`astroid.extract_node`,
-see the `astroid documentation <http://astroid.readthedocs.io/en/latest/>`_.
+see the `astroid documentation <https://astroid.readthedocs.io/en/latest/>`_.
 
 Now we know how to use the astroid node, we can implement our check.
 

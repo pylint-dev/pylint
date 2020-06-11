@@ -828,7 +828,7 @@ class StringConstantChecker(BaseTokenChecker):
         #
         # Accept a backslash when it escapes a backslash, or a quote, or
         # end-of-line, or one of the letters that introduce a special escape
-        # sequence <http://docs.python.org/reference/lexical_analysis.html>
+        # sequence <https://docs.python.org/reference/lexical_analysis.html>
         #
         index = 0
         while True:

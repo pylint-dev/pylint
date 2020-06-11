@@ -12,7 +12,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """ Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
- http://www.logilab.fr/ -- mailto:contact@logilab.fr
+ https://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 Raw metrics checker
 """

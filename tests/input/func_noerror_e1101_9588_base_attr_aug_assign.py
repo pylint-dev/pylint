@@ -5,7 +5,7 @@ False positive case of E1101:
 The error is triggered when the attribute set in the base class is
 modified with augmented assignment in a derived class.
 
-http://www.logilab.org/ticket/9588
+https://www.logilab.org/ticket/9588
 """
 __revision__ = 0
 

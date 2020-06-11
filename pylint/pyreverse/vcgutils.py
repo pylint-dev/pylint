@@ -9,7 +9,7 @@
 """Functions to generate files readable with Georg Sander's vcg
 (Visualization of Compiler Graphs).
 
-You can download vcg at http://rw4.cs.uni-sb.de/~sander/html/gshome.html
+You can download vcg at https://rw4.cs.uni-sb.de/~sander/html/gshome.html
 Note that vcg exists as a debian package.
 
 See vcg's documentation for explanation about the different values that

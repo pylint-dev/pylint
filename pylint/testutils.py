@@ -286,7 +286,7 @@ def _create_tempfile(content=None):
     """
     # Can't use tempfile.NamedTemporaryFile here
     # because on Windows the file must be closed before writing to it,
-    # see http://bugs.python.org/issue14243
+    # see https://bugs.python.org/issue14243
     file_handle, tmp = tempfile.mkstemp()
     if content:
         # erff

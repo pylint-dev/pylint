@@ -9,7 +9,7 @@ Build-Depends: debhelper (>= 5.0.38), python (>= 2.5)
 Build-Depends-Indep: python-support
 XS-Python-Version: >= 2.5
 Standards-Version: 3.8.2
-Homepage: http://www.pylint.org
+Homepage: https://www.pylint.org
 Vcs-Svn: svn://svn.debian.org/svn/python-apps/packages/pylint/trunk/
 Vcs-Hg: https://bitbucket.org/logilab/pylint
 Vcs-Browser: https://bitbucket.org/logilab/pylint/src

@@ -52,7 +52,7 @@ A few other examples:
     {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
 
-.. _Python new format syntax: http://docs.python.org/2/library/string.html#formatstrings
+.. _Python new format syntax: https://docs.python.org/2/library/string.html#formatstrings
 
 Source code analysis section
 ''''''''''''''''''''''''''''

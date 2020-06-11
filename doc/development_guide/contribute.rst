@@ -34,13 +34,13 @@ Mailing lists
 -------------
 
 You can subscribe to this mailing list at
-http://mail.python.org/mailman/listinfo/code-quality
+https://mail.python.org/mailman/listinfo/code-quality
 
 Archives are available at
-http://mail.python.org/pipermail/code-quality/
+https://mail.python.org/pipermail/code-quality/
 
 Archives before April 2013 are available at
-http://lists.logilab.org/pipermail/python-projects/
+https://lists.logilab.org/pipermail/python-projects/
 
 
 .. _repository:
@@ -162,8 +162,8 @@ current environment in order to have faster feedback. Run with::
 
 .. _`Closing issues via commit messages`: https://help.github.com/articles/closing-issues-via-commit-messages/
 .. _`About pull requests`: https://help.github.com/articles/using-pull-requests/
-.. _tox: http://tox.readthedocs.io/en/latest/
-.. _pytest: http://pytest.readthedocs.io/en/latest/
+.. _tox: https://tox.readthedocs.io/en/latest/
+.. _pytest: https://pytest.readthedocs.io/en/latest/
 .. _black: https://github.com/ambv/black
 .. _isort: https://github.com/timothycrosley/isort
 .. _astroid: https://github.com/pycqa/astroid
