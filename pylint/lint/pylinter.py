@@ -509,8 +509,8 @@ class PyLinter(
         else:
             try:
                 reporter_class = self._load_reporter_class()
-            except (ImportError, AttributeError):
-                raise exceptions.InvalidReporterError(name)
+            except (ImportError, AttributeError) as e:
+                raise exceptions.InvalidReporterError(name) from e
             else:
                 self.set_reporter(reporter_class())
 

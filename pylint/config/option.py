@@ -86,10 +86,10 @@ def _call_validator(opttype, optdict, option, value):
     except TypeError:
         try:
             return VALIDATORS[opttype](value)
-        except Exception:
+        except Exception as e:
             raise optparse.OptionValueError(
                 "%s value (%r) should be of type %s" % (option, value, opttype)
-            )
+            ) from e
 
 
 def _validate(value, optdict, name=""):
