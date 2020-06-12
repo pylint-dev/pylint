@@ -533,8 +533,8 @@ def parse_format_string(
 def split_format_field_names(format_string) -> Tuple[str, Iterable[Tuple[bool, str]]]:
     try:
         return _string.formatter_field_name_split(format_string)
-    except ValueError:
-        raise IncompleteFormatString()
+    except ValueError as e:
+        raise IncompleteFormatString() from e
 
 
 def collect_string_fields(format_string) -> Iterable[Optional[str]]:
@@ -566,7 +566,7 @@ def collect_string_fields(format_string) -> Iterable[Optional[str]]:
             yield ""
             yield "1"
             return
-        raise IncompleteFormatString(format_string)
+        raise IncompleteFormatString(format_string) from exc
 
 
 def parse_format_method_string(
@@ -591,8 +591,8 @@ def parse_format_method_string(
                 explicit_pos_args.add(str(keyname))
             try:
                 keyword_arguments.append((keyname, list(fielditerator)))
-            except ValueError:
-                raise IncompleteFormatString()
+            except ValueError as e:
+                raise IncompleteFormatString() from e
         else:
             implicit_pos_args_cnt += 1
     return keyword_arguments, implicit_pos_args_cnt, len(explicit_pos_args)

@@ -396,8 +396,8 @@ def report_by_type_stats(sect, stats, _):
     for node_type in ("module", "class", "method", "function"):
         try:
             total = stats[node_type]
-        except KeyError:
-            raise exceptions.EmptyReportError()
+        except KeyError as e:
+            raise exceptions.EmptyReportError() from e
         nice_stats[node_type] = {}
         if total != 0:
             try:

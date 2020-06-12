@@ -198,12 +198,12 @@ class VCGPrinter:
         for key, value in args.items():
             try:
                 _type = attributes_dict[key]
-            except KeyError:
+            except KeyError as e:
                 raise Exception(
                     """no such attribute %s
 possible attributes are %s"""
                     % (key, attributes_dict.keys())
-                )
+                ) from e
 
             if not _type:
                 self._stream.write('%s%s:"%s"\n' % (self._indent, key, value))
