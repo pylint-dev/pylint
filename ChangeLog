@@ -28,6 +28,7 @@ Release date: TBA
 
 * Fix a bug with `ignore-docstrings` ignoring all lines in a module
 
+* Fix `pre-commit` config that could lead to undetected duplicate lines of code
 
 What's New in Pylint 2.5.3?
 ===========================
