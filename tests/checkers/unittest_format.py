@@ -137,7 +137,6 @@ class TestSuperfluousParentheses(CheckerTestCase):
     CHECKER_CLASS = FormatChecker
 
     def testCheckKeywordParensHandlesValidCases(self):
-        self.checker._keywords_with_parens = set()
         cases = [
             "if foo:",
             "if foo():",
@@ -157,7 +156,6 @@ class TestSuperfluousParentheses(CheckerTestCase):
                 self.checker._check_keyword_parentheses(_tokenize_str(code), 0)
 
     def testCheckKeywordParensHandlesUnnecessaryParens(self):
-        self.checker._keywords_with_parens = set()
         cases = [
             (Message("superfluous-parens", line=1, args="if"), "if (foo):", 0),
             (Message("superfluous-parens", line=1, args="if"), "if ((foo, bar)):", 0),
@@ -187,7 +185,6 @@ class TestSuperfluousParentheses(CheckerTestCase):
                 self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
 
     def testCheckIfArgsAreNotUnicode(self):
-        self.checker._keywords_with_parens = set()
         cases = [("if (foo):", 0), ("assert (1 == 1)", 0)]
 
         for code, offset in cases:
@@ -205,7 +202,6 @@ print('Hello world!')
             self.checker.process_tokens(_tokenize_str(code))
 
     def testKeywordParensFalsePositive(self):
-        self.checker._keywords_with_parens = set()
         code = "if 'bar' in (DICT or {}):"
         with self.assertNoMessages():
             self.checker._check_keyword_parentheses(_tokenize_str(code), start=2)
