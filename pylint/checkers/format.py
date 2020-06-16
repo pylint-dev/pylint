@@ -352,7 +352,7 @@ class FormatChecker(BaseTokenChecker):
         self.check_lines(line, line_num)
 
     def process_module(self, _module):
-        self._keywords_with_parens = set()
+        pass
 
     def _check_keyword_parentheses(self, tokens: List[TokenInfo], start: int) -> None:
         """Check that there are not unnecessary parens after a keyword.
@@ -401,11 +401,10 @@ class FormatChecker(BaseTokenChecker):
                         self.add_message(
                             "superfluous-parens", line=line_num, args=keyword_token
                         )
-                    elif keyword_token not in self._keywords_with_parens:
-                        if not found_and_or:
-                            self.add_message(
-                                "superfluous-parens", line=line_num, args=keyword_token
-                            )
+                    elif not found_and_or:
+                        self.add_message(
+                            "superfluous-parens", line=line_num, args=keyword_token
+                        )
                 return
             elif depth == 1:
                 # This is a tuple, which is always acceptable.
