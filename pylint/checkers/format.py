@@ -53,6 +53,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
 from typing import List
+from tokenize import TokenInfo
 
 from astroid import nodes
 
@@ -353,7 +354,7 @@ class FormatChecker(BaseTokenChecker):
     def process_module(self, _module):
         self._keywords_with_parens = set()
 
-    def _check_keyword_parentheses(self, tokens, start):
+    def _check_keyword_parentheses(self, tokens: List[TokenInfo], start: int) -> None:
         """Check that there are not unnecessary parens after a keyword.
 
         Parens are unnecessary if there is exactly one balanced outer pair on a
@@ -365,29 +366,29 @@ class FormatChecker(BaseTokenChecker):
         start: int; the position of the keyword in the token list.
         """
         # If the next token is not a paren, we're fine.
-        if self._bracket_stack[-1] == ":" and tokens[start][1] == "for":
+        if self._bracket_stack[-1] == ":" and tokens[start].string == "for":
             self._bracket_stack.pop()
-        if tokens[start + 1][1] != "(":
+        if tokens[start + 1].string != "(":
             return
         found_and_or = False
         depth = 0
-        keyword_token = str(tokens[start][1])
-        line_num = tokens[start][2][0]
+        keyword_token = str(tokens[start].string)
+        line_num = tokens[start].start[0]
         for i in range(start, len(tokens) - 1):
             token = tokens[i]
             # If we hit a newline, then assume any parens were for continuation.
-            if token[0] == tokenize.NL:
+            if token.type == tokenize.NL:
                 return
-            if token[1] == "(":
+            if token.string == "(":
                 depth += 1
-            elif token[1] == ")":
+            elif token.string == ")":
                 depth -= 1
                 if depth:
                     continue
                 # ')' can't happen after if (foo), since it would be a syntax error.
-                if tokens[i + 1][1] in (":", ")", "]", "}", "in") or tokens[i + 1][
-                    0
-                ] in (tokenize.NEWLINE, tokenize.ENDMARKER, tokenize.COMMENT):
+                if (tokens[i + 1].string in (":", ")", "]", "}", "in") or
+                        tokens[i + 1].type in
+                         (tokenize.NEWLINE, tokenize.ENDMARKER, tokenize.COMMENT)):
                     # The empty tuple () is always accepted.
                     if i == start + 2:
                         return
