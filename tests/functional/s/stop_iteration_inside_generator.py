@@ -1,7 +1,7 @@
 """
 Test that no StopIteration is raised inside a generator
 """
-# pylint: disable=missing-docstring,invalid-name,import-error, try-except-raise, wrong-import-position,not-callable
+# pylint: disable=missing-docstring,invalid-name,import-error, try-except-raise, wrong-import-position,not-callable,raise-missing-from
 import asyncio
 
 class RebornStopIteration(StopIteration):

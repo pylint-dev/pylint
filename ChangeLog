@@ -39,6 +39,8 @@ Release date: TBA
 
   Close #3564
 
+* Add `raise-missing-from` check for exceptions that should have a cause.
+
 
 What's New in Pylint 2.5.4?
 ===========================

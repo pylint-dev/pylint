@@ -859,6 +859,24 @@ def find_try_except_wrapper_node(
     return None
 
 
+def find_except_wrapper_node_in_scope(
+    node: astroid.node_classes.NodeNG,
+) -> Optional[Union[astroid.ExceptHandler, astroid.TryExcept]]:
+    """Return the ExceptHandler in which the node is, without going out of scope."""
+    current = node
+    while current.parent is not None:
+        current = current.parent
+        if isinstance(current, astroid.scoped_nodes.LocalsDictNodeNG):
+            # If we're inside a function/class definition, we don't want to keep checking
+            # higher ancestors for `except` clauses, because if these exist, it means our
+            # function/class was defined in an `except` clause, rather than the current code
+            # actually running in an `except` clause.
+            return None
+        if isinstance(current, astroid.ExceptHandler):
+            return current
+    return None
+
+
 def is_from_fallback_block(node: astroid.node_classes.NodeNG) -> bool:
     """Check if the given node is from a fallback import block."""
     context = find_try_except_wrapper_node(node)
