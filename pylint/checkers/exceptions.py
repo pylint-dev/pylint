@@ -152,6 +152,15 @@ MSGS = {
         "immediately. Remove the raise operator or the entire "
         "try-except-raise block!",
     ),
+    "W0707": (
+        "Consider explicitly re-raising using the 'from' keyword",
+        "raise-missing-from",
+        "Python 3's exception chaining means it shows the traceback of the "
+        "current exception, but also the original exception. Not using `raise "
+        "from` makes the traceback inaccurate, because the message implies "
+        "there is a bug in the exception-handling code itself, which is a "
+        "separate situation than wrapping an exception.",
+    ),
     "W0711": (
         'Exception to catch is the result of a binary "%s" operation',
         "binary-op-exception",
@@ -279,13 +288,16 @@ class ExceptionsChecker(checkers.BaseChecker):
         "notimplemented-raised",
         "bad-exception-context",
         "raising-format-tuple",
+        "raise-missing-from",
     )
     def visit_raise(self, node):
         if node.exc is None:
             self._check_misplaced_bare_raise(node)
             return
 
-        if node.cause:
+        if node.cause is None:
+            self._check_raise_missing_from(node)
+        else:
             self._check_bad_exception_context(node)
 
         expr = node.exc
@@ -320,7 +332,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         if not current or not isinstance(current.parent, expected):
             self.add_message("misplaced-bare-raise", node=node)
 
-    def _check_bad_exception_context(self, node):
+    def _check_bad_exception_context(self, node: astroid.Raise) -> None:
         """Verify that the exception context is properly set.
 
         An exception context can be only `None` or an exception.
@@ -336,6 +348,37 @@ class ExceptionsChecker(checkers.BaseChecker):
             cause
         ):
             self.add_message("bad-exception-context", node=node)
+
+    def _check_raise_missing_from(self, node: astroid.Raise) -> None:
+        if node.exc is None:
+            # This is a plain `raise`, raising the previously-caught exception. No need for a
+            # cause.
+            return
+        # We'd like to check whether we're inside an `except` clause:
+        containing_except_node = utils.find_except_wrapper_node_in_scope(node)
+        if not containing_except_node:
+            return
+        # We found a surrounding `except`! We're almost done proving there's a
+        # `raise-missing-from` here. The only thing we need to protect against is that maybe
+        # the `raise` is raising the exception that was caught, possibly with some shenanigans
+        # like `exc.with_traceback(whatever)`. We won't analyze these, we'll just assume
+        # there's a violation on two simple cases: `raise SomeException(whatever)` and `raise
+        # SomeException`.
+        if containing_except_node.name is None:
+            # The `except` doesn't have an `as exception:` part, meaning there's no way that
+            # the `raise` is raising the same exception.
+            self.add_message("raise-missing-from", node=node)
+        elif isinstance(node.exc, astroid.Call) and isinstance(
+            node.exc.func, astroid.Name
+        ):
+            # We have a `raise SomeException(whatever)`.
+            self.add_message("raise-missing-from", node=node)
+        elif (
+            isinstance(node.exc, astroid.Name)
+            and node.exc.name != containing_except_node.name.name
+        ):
+            # We have a `raise SomeException`.
+            self.add_message("raise-missing-from", node=node)
 
     def _check_catching_non_exception(self, handler, exc, part):
         if isinstance(exc, astroid.Tuple):

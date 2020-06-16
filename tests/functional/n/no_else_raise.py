@@ -1,6 +1,6 @@
 """ Test that superfluous else return are detected. """
 
-# pylint:disable=invalid-name,missing-docstring,unused-variable
+# pylint:disable=invalid-name,missing-docstring,unused-variable,raise-missing-from
 
 def foo1(x, y, z):
     if x:  # [no-else-raise]

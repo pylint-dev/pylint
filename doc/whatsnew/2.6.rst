@@ -15,6 +15,8 @@ New checkers
 
 * Add `super-with-arguments` check for flagging instances of Python 2 style super calls.
 
+* Add `raise-missing-from` check for exceptions that should have a cause.
+
 Other Changes
 =============
 
