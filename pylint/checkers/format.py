@@ -52,8 +52,8 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
-from typing import List
 from tokenize import TokenInfo
+from typing import List
 
 from astroid import nodes
 
@@ -371,14 +371,25 @@ class FormatChecker(BaseTokenChecker):
         if tokens[start + 1].string != "(":
             return
         found_and_or = False
+        contains_walrus_operator = False
+        walrus_operator_depth = 0
         depth = 0
         keyword_token = str(tokens[start].string)
         line_num = tokens[start].start[0]
         for i in range(start, len(tokens) - 1):
             token = tokens[i]
+
             # If we hit a newline, then assume any parens were for continuation.
             if token.type == tokenize.NL:
                 return
+            # Since the walrus operator doesn't exist below python3.8, the tokenizer
+            # generates independent tokens
+            if (
+                token.string == ":="  #  <-- python3.8+ path
+                or token.string + tokens[i + 1].string == ":="
+            ):
+                contains_walrus_operator = True
+                walrus_operator_depth = depth
             if token.string == "(":
                 depth += 1
             elif token.string == ")":
@@ -386,10 +397,14 @@ class FormatChecker(BaseTokenChecker):
                 if depth:
                     continue
                 # ')' can't happen after if (foo), since it would be a syntax error.
-                if (tokens[i + 1].string in (":", ")", "]", "}", "in") or
-                        tokens[i + 1].type in
-                         (tokenize.NEWLINE, tokenize.ENDMARKER, tokenize.COMMENT)):
+                if tokens[i + 1].string in (":", ")", "]", "}", "in") or tokens[
+                    i + 1
+                ].type in (tokenize.NEWLINE, tokenize.ENDMARKER, tokenize.COMMENT):
                     # The empty tuple () is always accepted.
+                    if contains_walrus_operator and walrus_operator_depth - 1 == depth:
+                        # Reset variable for possible following expressions
+                        contains_walrus_operator = False
+                        continue
                     if i == start + 2:
                         return
                     if keyword_token == "not":

@@ -184,6 +184,27 @@ class TestSuperfluousParentheses(CheckerTestCase):
             with self.assertAddsMessages(msg):
                 self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
 
+    def testNoSuperfluousParensWalrusOperatorIf(self):
+        """Parenthesis change the meaning of assignment in the walrus operator
+        and so are not superfluous:"""
+        code = "if (odd := is_odd(i))"
+        offset = 0
+        with self.assertNoMessages():
+            self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
+
+    def testPositiveSuperfluousParensWalrusOperatorIf(self):
+        """Test positive superfluous parens with the walrus operator"""
+        code = "if ((odd := is_odd(i))):"
+        msg = Message("superfluous-parens", line=1, args="if")
+        with self.assertAddsMessages(msg):
+            self.checker._check_keyword_parentheses(_tokenize_str(code), 0)
+
+    def testNoSuperfluousParensWalrusOperatorNot(self):
+        """Test superfluous-parens with the not operator"""
+        code = "not (foo := 5)"
+        with self.assertNoMessages():
+            self.checker._check_keyword_parentheses(_tokenize_str(code), 0)
+
     def testCheckIfArgsAreNotUnicode(self):
         cases = [("if (foo):", 0), ("assert (1 == 1)", 0)]
 

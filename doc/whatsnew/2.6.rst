@@ -23,3 +23,5 @@ Other Changes
 * The `no-space-check` option has been removed, it's no longer possible to consider empty line like a `trailing-whitespace` by using clever options.
 
 * `mixed-indentation` has been removed, it is no longer useful since TabError is included directly in python3
+
+* Fix superfluous-parens false-positive for the walrus operator
