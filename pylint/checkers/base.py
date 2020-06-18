@@ -1134,10 +1134,13 @@ class BasicChecker(_BasicChecker):
             # If the constant node is a FunctionDef or Lambda then
             #  it may be a illicit function call due to missing parentheses
             call_inferred = None
-            if isinstance(inferred, astroid.FunctionDef):
-                call_inferred = inferred.infer_call_result()
-            elif isinstance(inferred, astroid.Lambda):
-                call_inferred = inferred.infer_call_result(node)
+            try:
+                if isinstance(inferred, astroid.FunctionDef):
+                    call_inferred = inferred.infer_call_result()
+                elif isinstance(inferred, astroid.Lambda):
+                    call_inferred = inferred.infer_call_result(node)
+            except astroid.InferenceError:
+                call_inferred = None
             if call_inferred:
                 try:
                     for inf_call in call_inferred:
