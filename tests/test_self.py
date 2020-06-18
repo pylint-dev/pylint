@@ -791,3 +791,11 @@ class TestRunTC:
             [path, "--disable=all", "--enable=duplicate-code"],
             expected_output=expected_output,
         )
+
+    def test_regression_parallel_mode_without_filepath(self):
+        # Test that parallel mode properly passes filepath
+        # https://github.com/PyCQA/pylint/issues/3564
+        path = join(
+            HERE, "regrtest_data", "regression_missing_init_3564", "subdirectory/"
+        )
+        self._test_output([path, "-j2"], expected_output="No such file or directory")
