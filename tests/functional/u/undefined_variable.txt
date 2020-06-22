@@ -26,3 +26,5 @@ undefined-variable:225:LambdaClass4.<lambda>:Undefined variable 'LambdaClass4'
 undefined-variable:233:LambdaClass5.<lambda>:Undefined variable 'LambdaClass5'
 used-before-assignment:254:func_should_fail:Using variable 'datetime' before assignment
 undefined-variable:281:not_using_loop_variable_accordingly:Undefined variable 'iteree'
+undefined-variable:292:undefined_annotation:Undefined variable 'x'
+used-before-assignment:293:undefined_annotation:Using variable 'x' before assignment

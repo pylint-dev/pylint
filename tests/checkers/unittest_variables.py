@@ -152,6 +152,26 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    def test_listcomp_in_ancestors(self):
+        """ Ensure list comprehensions in base classes are scoped correctly
+
+        https://github.com/PyCQA/pylint/issues/3434
+        """
+        module = astroid.parse(
+            """
+        import collections
+
+
+        l = ["a","b","c"]
+
+
+        class Foo(collections.namedtuple("Foo",[x+"_foo" for x in l])):
+            pass
+        """
+        )
+        with self.assertNoMessages():
+            self.walk(module)
+
     def test_return_type_annotation(self):
         """ Make sure class attributes in scope for return type annotations.
 
