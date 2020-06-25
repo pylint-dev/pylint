@@ -153,7 +153,7 @@ def install(**kwargs):
         test_suite="test",
         python_requires=">=3.5.*",
         setup_requires=pytest_runner,
-        tests_require=["pytest"],
+        tests_require=["pytest", "pytest-benchmark"],
         project_urls=project_urls,
         **kwargs
     )
