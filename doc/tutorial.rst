@@ -98,7 +98,7 @@ Your First Pylint'ing
 ---------------------
 
 We'll use a basic Python script as fodder for our tutorial.
-The starting code we will use is called simplecaeser.py and is here in its
+The starting code we will use is called simplecaesar.py and is here in its
 entirety:
 
 .. sourcecode:: python
@@ -136,7 +136,7 @@ If we run this:
 
 .. sourcecode:: console
 
-  robertk01 Desktop$ pylint simplecaeser.py
+  robertk01 Desktop$ pylint simplecaesar.py
   ************* Module simplecaesar
   simplecaesar.py:16:19: C0326: Exactly one space required around assignment
               encoded=encoded + letters[x]
@@ -202,7 +202,7 @@ Here is the updated code:
 
    1  #!/usr/bin/env python3
    2  """This script prompts a user to enter a message to encode or decode
-   3  using a classic Caeser shift substitution (3 letter shift)"""
+   3  using a classic Caesar shift substitution (3 letter shift)"""
    4
    5  import string
    6
@@ -232,7 +232,7 @@ Here is what happens when we run it:
 
 .. sourcecode:: console
 
-  robertk01 Desktop$ pylint simplecaeser.py
+  robertk01 Desktop$ pylint simplecaesar.py
   ************* Module simplecaesar
   simplecaesar.py:7:0: C0103: Constant name "shift" doesn't conform to UPPER_CASE naming style (invalid-name)
   simplecaesar.py:8:0: C0103: Constant name "choice" doesn't conform to UPPER_CASE naming style (invalid-name)
