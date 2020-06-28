@@ -974,40 +974,32 @@ class VariablesChecker(BaseChecker):
         for i in range(start_index, -1, -1):
             current_consumer = self._to_consume[i]
 
-            if current_consumer.scope_type == "class":
-                # The list of base classes in the class definition is not part
-                # of the class body
-                if utils.is_ancestor_name(current_consumer.node, node):
-                    continue
-
-                # if the current scope is a class scope but it's not the inner
-                # scope, ignore it. This prevents to access this scope instead of
-                # the globals one in function members when there are some common
-                # names.
-                if i != start_index:
-                    # The only exceptions are: when the variable forms an iter
-                    # within a comprehension scope; is an ancestor name; and/or
-                    # when used as a default, decorator, or annotation within a function.
-                    if self._ignore_class_scope(node):
-                        continue
+            # The list of base classes in the class definition is not part
+            # of the class body.
+            # If the current scope is a class scope but it's not the inner
+            # scope, ignore it. This prevents to access this scope instead of
+            # the globals one in function members when there are some common
+            # names.
+            if current_consumer.scope_type == "class" and (
+                utils.is_ancestor_name(current_consumer.node, node)
+                or (i != start_index and self._ignore_class_scope(node))
+            ):
+                continue
 
             # if the name node is used as a function default argument's value or as
             # a decorator, then start from the parent frame of the function instead
             # of the function frame - and thus open an inner class scope
-            if current_consumer.scope_type == "function":
-                in_annotation_or_default_or_decorator = self._defined_in_function_definition(
-                    node, current_consumer.node
-                )
-                if in_annotation_or_default_or_decorator:
-                    # ignore function scope if is an annotation/default/decorator, as not in the body
-                    continue
+            if (
+                current_consumer.scope_type == "function"
+                and self._defined_in_function_definition(node, current_consumer.node)
+            ):
+                # ignore function scope if is an annotation/default/decorator, as not in the body
+                continue
 
-            if current_consumer.scope_type == "lambda":
-                in_lambda_default = utils.is_default_argument(
-                    node, current_consumer.node
-                )
-                if in_lambda_default:
-                    continue
+            if current_consumer.scope_type == "lambda" and utils.is_default_argument(
+                node, current_consumer.node
+            ):
+                continue
 
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
