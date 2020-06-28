@@ -283,7 +283,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1721": (
             "Unnecessary use of a comprehension",
             "unnecessary-comprehension",
-            "Instead of using an identitiy comprehension, "
+            "Instead of using an identity comprehension, "
             "consider using the list, dict or set constructor. "
             "It is faster and simpler.",
         ),
