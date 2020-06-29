@@ -66,6 +66,7 @@ def _multiple_choices_validating_option(opt, name, value):
 VALIDATORS = {
     "string": utils._unquote,
     "int": int,
+    "float": float,
     "regexp": re.compile,
     "regexp_csv": _regexp_csv_validator,
     "csv": _csv_validator,
