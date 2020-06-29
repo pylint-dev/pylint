@@ -31,6 +31,8 @@ Release date: TBA
 
   Close #3383
 
+* Fix `fail-under` not accepting floats
+
 * Fix a bug with `ignore-docstrings` ignoring all lines in a module
 
 * Fix `pre-commit` config that could lead to undetected duplicate lines of code
