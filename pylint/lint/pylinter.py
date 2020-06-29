@@ -260,7 +260,7 @@ class PyLinter(
                 "fail-under",
                 {
                     "default": 10,
-                    "type": "int",
+                    "type": "float",
                     "metavar": "<score>",
                     "help": "Specify a score threshold to be exceeded before program exits with error.",
                 },
