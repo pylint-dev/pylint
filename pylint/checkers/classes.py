@@ -767,6 +767,10 @@ a metaclass class method.",
         return get_global_option(self, "dummy-variables-rgx", default=None)
 
     @decorators.cachedproperty
+    def _mixin_rgx(self):
+        return get_global_option(self, "mixin-class-rgx", default=True)
+
+    @decorators.cachedproperty
     def _ignore_mixin(self):
         return get_global_option(self, "ignore-mixin-members", default=True)
 
@@ -838,7 +842,7 @@ a metaclass class method.",
         access to existent members
         """
         # check access to existent members on non metaclass classes
-        if self._ignore_mixin and cnode.name[-5:].lower() == "mixin":
+        if self._ignore_mixin and self._mixin_rgx.match(cnode.name):
             # We are in a mixin class. No need to try to figure out if
             # something is missing, since it is most likely that it will
             # miss.
