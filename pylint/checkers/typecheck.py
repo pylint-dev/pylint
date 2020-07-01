@@ -428,7 +428,9 @@ SEQUENCE_TYPES = {
 }
 
 
-def _emit_no_member(node, owner, owner_name, ignored_mixins, ignored_none, mixin_class_rgx):
+def _emit_no_member(
+    node, owner, owner_name, ignored_mixins, ignored_none, mixin_class_rgx
+):
     """Try to see if no-member should be emitted for the given owner.
 
     The following cases are ignored:

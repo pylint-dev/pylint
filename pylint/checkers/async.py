@@ -41,9 +41,7 @@ class AsyncChecker(checkers.BaseChecker):
         self._ignore_mixin_members = utils.get_global_option(
             self, "ignore-mixin-members"
         )
-        self._mixin_class_rgx = utils.get_global_option(
-            self, "mixin-class-rgx"
-        )
+        self._mixin_class_rgx = utils.get_global_option(self, "mixin-class-rgx")
         self._async_generators = ["contextlib.asynccontextmanager"]
 
     @checker_utils.check_messages("yield-inside-async-function")
