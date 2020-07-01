@@ -447,7 +447,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins, ignored_none, mixin
         return False
     if is_super(owner) or getattr(owner, "type", None) == "metaclass":
         return False
-    if owner_name and ignored_mixins and mixin_class_rgx.match(owner_name):
+    if owner_name and ignored_mixins and mixin_class_rgx.match(owner_name.lower()):
         return False
     if isinstance(owner, astroid.FunctionDef) and owner.decorators:
         return False
@@ -736,11 +736,12 @@ class TypeChecker(BaseChecker):
         (
             "mixin-class-rgx",
             {
-                "default": ".*[Mm]ixin",
+                "default": ".*mixin",
                 "type": "regexp",
                 "metavar": "<regexp>",
                 "help": "Indicates which classes are considered mixins if "
-                "ignore-mixin-members is True. Defaults to ending in Mixin.",
+                "ignore-mixin-members is True. Defaults to ending in Mixin "
+                "(case insensitive).",
             },
         ),
         (

@@ -78,7 +78,7 @@ class AsyncChecker(checkers.BaseChecker):
                             continue
                         # Just ignore mixin classes.
                         if self._ignore_mixin_members:
-                            if self._mixin_class_rgx.match(inferred.name):
+                            if self._mixin_class_rgx.match(inferred.name.lower()):
                                 continue
                 else:
                     continue
