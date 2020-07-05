@@ -1,6 +1,15 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
+try:
+    import isort.api
+
+    HAS_ISORT_5 = True
+except ImportError:  # isort < 5
+    import isort
+
+    HAS_ISORT_5 = False
+
 import codecs
 import os
 import re
@@ -398,3 +407,29 @@ def _ini_format(stream, options):
                 # remove trailing ',' from last element of the list
                 value = value[:-1]
             print("%s=%s" % (optname, value), file=stream)
+
+
+class IsortDriver:
+    """A wrapper around isort API that changed between versions 4 and 5."""
+
+    def __init__(self, config):
+        if HAS_ISORT_5:
+            self.isort5_config = isort.api.Config(
+                # There is not typo here. EXTRA_standard_library is
+                # what most users want. The option has been named
+                # KNOWN_standard_library for ages in pylint and we
+                # don't want to break compatibility.
+                extra_standard_library=config.known_standard_library,
+                known_third_party=config.known_third_party,
+            )
+        else:
+            self.isort4_obj = isort.SortImports(  # pylint: disable=no-member
+                file_contents="",
+                known_standard_library=config.known_standard_library,
+                known_third_party=config.known_third_party,
+            )
+
+    def place_module(self, package):
+        if HAS_ISORT_5:
+            return isort.api.place_module(package, self.isort5_config)
+        return self.isort4_obj.place_module(package)
