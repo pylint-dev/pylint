@@ -46,6 +46,8 @@ main pylint class
 from pylint.utils.ast_walker import ASTWalker
 from pylint.utils.file_state import FileState
 from pylint.utils.utils import (
+    HAS_ISORT_5,
+    IsortDriver,
     _basename_in_blacklist_re,
     _check_csv,
     _format_option_value,
