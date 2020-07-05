@@ -26,7 +26,7 @@ from pylint.checkers import typecheck
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 try:
-    import coverage.tracer as _
+    from coverage import tracer as _
 
     C_EXTENTIONS_AVAILABLE = True
 except ImportError:

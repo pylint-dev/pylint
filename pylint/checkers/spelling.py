@@ -21,7 +21,6 @@
 
 """Checker for spelling errors in comments and docstrings.
 """
-
 import os
 import re
 import tokenize
@@ -33,12 +32,12 @@ from pylint.interfaces import IAstroidChecker, ITokenChecker
 try:
     import enchant
     from enchant.tokenize import (  # type: ignore
-        get_tokenizer,
         Chunker,
-        Filter,
         EmailFilter,
+        Filter,
         URLFilter,
         WikiWordFilter,
+        get_tokenizer,
     )
 except ImportError:
     enchant = None

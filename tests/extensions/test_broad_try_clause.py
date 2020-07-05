@@ -8,9 +8,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Tests for the pylint checker in :mod:`pylint.extensions.broad_try_clause`"""
-
-import os.path as osp
 import unittest
+from os import path as osp
 
 from pylint import checkers
 from pylint.extensions.broad_try_clause import BroadTryClauseChecker
