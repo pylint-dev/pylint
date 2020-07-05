@@ -13,13 +13,12 @@
 
 (dot generation adapted from pypy/translator/tool/make_dot.py)
 """
-
 import codecs
 import os
-import os.path as osp
 import subprocess
 import sys
 import tempfile
+from os import path as osp
 
 
 def target_info_from_filename(filename):

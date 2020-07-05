@@ -47,8 +47,7 @@ from shutil import rmtree
 
 import pytest
 
-import pylint.testutils as testutils
-from pylint import checkers, config, exceptions, interfaces, lint
+from pylint import checkers, config, exceptions, interfaces, lint, testutils
 from pylint.checkers.utils import check_messages
 from pylint.constants import (
     MSG_STATE_CONFIDENCE,

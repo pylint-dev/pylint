@@ -39,8 +39,8 @@ try:
 
     USE_SETUPTOOLS = 1
 except ImportError:
-    from distutils.core import setup
     from distutils.command import install_lib  # pylint: disable=unused-import
+    from distutils.core import setup
 
     USE_SETUPTOOLS = 0
     easy_install_lib = None

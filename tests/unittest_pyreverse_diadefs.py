@@ -19,6 +19,7 @@ from pathlib import Path
 
 import astroid
 import pytest
+from unittest_pyreverse_writer import Config, get_project
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
@@ -27,7 +28,6 @@ from pylint.pyreverse.diadefslib import (
     DiadefsHandler,
 )
 from pylint.pyreverse.inspector import Linker
-from unittest_pyreverse_writer import Config, get_project
 
 
 def _process_classes(classes):

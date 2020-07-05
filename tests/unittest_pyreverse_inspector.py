@@ -16,9 +16,9 @@ import os
 import astroid
 import pytest
 from astroid import bases, nodes
+from unittest_pyreverse_writer import get_project
 
 from pylint.pyreverse import inspector
-from unittest_pyreverse_writer import get_project
 
 
 @pytest.fixture

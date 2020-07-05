@@ -8,8 +8,7 @@
 
 """Tests for the pylint checker in :mod:`pylint.extensions.bad_builtin
 """
-
-import os.path as osp
+from os import path as osp
 
 import pytest
 

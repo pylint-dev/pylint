@@ -56,10 +56,10 @@ You may also use py_run to run pylint with desired options and get back (or not)
 its output.
 """
 import os
-import os.path as osp
 import shlex
 import sys
 from io import StringIO
+from os import path as osp
 from subprocess import PIPE, Popen
 
 
