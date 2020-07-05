@@ -46,7 +46,7 @@ import sys
 from distutils import sysconfig
 
 import astroid
-import isort
+import isort.api
 from astroid import modutils
 from astroid.decorators import cached
 
@@ -709,8 +709,7 @@ class ImportsChecker(BaseChecker):
         third_party_not_ignored = []
         first_party_not_ignored = []
         local_not_ignored = []
-        isort_obj = isort.SortImports(
-            file_contents="",
+        isort_config = isort.api.Config(
             known_third_party=self.config.known_third_party,
             known_standard_library=self.config.known_standard_library,
         )
@@ -723,7 +722,7 @@ class ImportsChecker(BaseChecker):
             ignore_for_import_order = not self.linter.is_message_enabled(
                 "wrong-import-order", node.fromlineno
             )
-            import_category = isort_obj.place_module(package)
+            import_category = isort.api.place_module(package, isort_config)
             node_and_package_import = (node, package)
             if import_category in ("FUTURE", "STDLIB"):
                 std_imports.append(node_and_package_import)

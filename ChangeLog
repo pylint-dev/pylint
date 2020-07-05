@@ -41,6 +41,10 @@ Release date: TBA
 
 * Add `raise-missing-from` check for exceptions that should have a cause.
 
+* Be compatible (and actually require) isort 5.
+
+  Close #3722
+
 
 What's New in Pylint 2.5.4?
 ===========================
