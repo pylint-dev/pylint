@@ -18,7 +18,7 @@ from os.path import exists
 
 import pytest
 
-import pylint.testutils as testutils
+from pylint import testutils
 from pylint.checkers import imports, initialize
 from pylint.lint import PyLinter
 

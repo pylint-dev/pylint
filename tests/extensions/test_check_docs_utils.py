@@ -14,7 +14,7 @@ in particular the parameter documentation checker `DocstringChecker`
 import astroid
 import pytest
 
-import pylint.extensions._check_docs_utils as utils
+from pylint.extensions import _check_docs_utils as utils
 
 
 @pytest.mark.parametrize(

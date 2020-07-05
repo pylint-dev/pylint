@@ -54,7 +54,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """basic checker for Python code"""
-
 import builtins
 import collections
 import itertools
@@ -67,8 +66,8 @@ import astroid.bases
 import astroid.scoped_nodes
 from astroid.arguments import CallSite
 
-import pylint.utils as lint_utils
 from pylint import checkers, exceptions, interfaces
+from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import (
     is_overload_stub,

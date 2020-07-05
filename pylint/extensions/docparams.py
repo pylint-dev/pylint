@@ -21,9 +21,9 @@
 """
 import astroid
 
-import pylint.extensions._check_docs_utils as utils
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
+from pylint.extensions import _check_docs_utils as utils
 from pylint.interfaces import IAstroidChecker
 
 

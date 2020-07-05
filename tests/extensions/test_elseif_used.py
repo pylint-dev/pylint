@@ -9,8 +9,7 @@
 
 """Tests for the pylint checker in :mod:`pylint.extensions.check_elif
 """
-
-import os.path as osp
+from os import path as osp
 
 import pytest
 
