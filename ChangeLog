@@ -7,6 +7,10 @@ What's New in Pylint 2.6.0?
 
 Release date: TBA
 
+* Add `consider-using-min-max-builtin` check for if statement which could be replaced by Python builtin min or max
+
+  Close #3406
+
 * Fix various scope-related bugs in ``undefined-variable`` checker
 
   Close #1082, #3434, #3461
