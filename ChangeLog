@@ -7,6 +7,10 @@ What's New in Pylint 2.6.0?
 
 Release date: TBA
 
+* Added ``ignore-paths`` behaviour. Defined regex patterns are matched against full file path.
+
+  Close #2541
+
 * Fix various scope-related bugs in ``undefined-variable`` checker
 
   Close #1082, #3434, #3461

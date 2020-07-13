@@ -46,9 +46,9 @@ main pylint class
 from pylint.utils.ast_walker import ASTWalker
 from pylint.utils.file_state import FileState
 from pylint.utils.utils import (
-    _basename_in_blacklist_re,
     _check_csv,
     _format_option_value,
+    _is_in_blacklist_re,
     _splitstrip,
     _unquote,
     decoding_stream,

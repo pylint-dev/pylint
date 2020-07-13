@@ -24,16 +24,16 @@ import re
 from pylint.utils import utils
 
 
-def test__basename_in_blacklist_re_match():
+def test__is_in_blacklist_re_match():
     patterns = [re.compile(".*enchilada.*"), re.compile("unittest_.*")]
-    assert utils._basename_in_blacklist_re("unittest_utils.py", patterns)
-    assert utils._basename_in_blacklist_re("cheese_enchiladas.xml", patterns)
+    assert utils._is_in_blacklist_re("unittest_utils.py", patterns)
+    assert utils._is_in_blacklist_re("cheese_enchiladas.xml", patterns)
 
 
-def test__basename_in_blacklist_re_nomatch():
+def test__is_in_blacklist_re_nomatch():
     patterns = [re.compile(".*enchilada.*"), re.compile("unittest_.*")]
-    assert not utils._basename_in_blacklist_re("test_utils.py", patterns)
-    assert not utils._basename_in_blacklist_re("enchilad.py", patterns)
+    assert not utils._is_in_blacklist_re("test_utils.py", patterns)
+    assert not utils._is_in_blacklist_re("enchilad.py", patterns)
 
 
 def test_decoding_stream_unknown_encoding():

@@ -27,3 +27,5 @@ Other Changes
 * `mixed-indentation` has been removed, it is no longer useful since TabError is included directly in python3
 
 * Fix superfluous-parens false-positive for the walrus operator
+
+* `ignore-paths` configuration directive has been added. Defined regex patterns are matched against file path.

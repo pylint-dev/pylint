@@ -88,10 +88,10 @@ def tokenize_module(module):
         return list(tokenize.tokenize(readline))
 
 
-def _basename_in_blacklist_re(base_name, black_list_re):
-    """Determines if the basename is matched in a regex blacklist
+def _is_in_blacklist_re(element, black_list_re):
+    """Determines if the element is matched in a regex blacklist
 
-    :param str base_name: The basename of the file
+    :param str element: The element to be checked.
     :param list black_list_re: A collection of regex patterns to match against.
         Successful matches are blacklisted.
 
@@ -99,7 +99,7 @@ def _basename_in_blacklist_re(base_name, black_list_re):
     :rtype: bool
     """
     for file_pattern in black_list_re:
-        if file_pattern.match(base_name):
+        if file_pattern.match(element):
             return True
     return False
 
@@ -127,7 +127,7 @@ def get_python_path(filepath):
     return None
 
 
-def expand_modules(files_or_modules, black_list, black_list_re):
+def expand_modules(files_or_modules, black_list, black_list_re, black_list_paths_re):
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
     """
@@ -138,7 +138,11 @@ def expand_modules(files_or_modules, black_list, black_list_re):
     for something in files_or_modules:
         if os.path.basename(something) in black_list:
             continue
-        if _basename_in_blacklist_re(os.path.basename(something), black_list_re):
+
+        if _is_in_blacklist_re(os.path.basename(something), black_list_re):
+            continue
+
+        if _is_in_blacklist_re(something, black_list_paths_re):
             continue
 
         module_path = get_python_path(something)
@@ -206,9 +210,9 @@ def expand_modules(files_or_modules, black_list, black_list_re):
             ):
                 if filepath == subfilepath:
                     continue
-                if _basename_in_blacklist_re(
-                    os.path.basename(subfilepath), black_list_re
-                ):
+                if _is_in_blacklist_re(os.path.basename(subfilepath), black_list_re):
+                    continue
+                if _is_in_blacklist_re(subfilepath, black_list_paths_re):
                     continue
 
                 modpath = _modpath_from_file(

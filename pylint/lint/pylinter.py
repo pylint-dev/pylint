@@ -180,6 +180,17 @@ class PyLinter(
                 },
             ),
             (
+                "ignore-paths",
+                {
+                    "type": "regexp_csv",
+                    "metavar": "<pattern>[,<pattern>...]",
+                    "dest": "black_list_paths_re",
+                    "default": (),
+                    "help": "Add files or directories matching the regex patterns to the"
+                    " blacklist. The regex matches against paths.",
+                },
+            ),
+            (
                 "persistent",
                 {
                     "default": True,
@@ -958,7 +969,10 @@ class PyLinter(
         """get modules and errors from a list of modules and handle errors
         """
         result, errors = utils.expand_modules(
-            modules, self.config.black_list, self.config.black_list_re
+            modules,
+            self.config.black_list,
+            self.config.black_list_re,
+            self.config.black_list_paths_re,
         )
         for error in errors:
             message = modname = error["mod"]
