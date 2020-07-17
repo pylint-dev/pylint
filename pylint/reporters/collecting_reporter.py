@@ -16,4 +16,7 @@ class CollectingReporter(BaseReporter):
     def handle_message(self, msg):
         self.messages.append(msg)
 
+    def reset(self):
+        self.messages = []
+
     _display = None
