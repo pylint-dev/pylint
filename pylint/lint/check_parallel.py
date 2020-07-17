@@ -69,6 +69,7 @@ def _worker_check_single_file(file_item):
     _worker_linter.check_single_file(name, filepath, modname)
 
     msgs = [_get_new_args(m) for m in _worker_linter.reporter.messages]
+    _worker_linter.reporter.reset()
     return (
         _worker_linter.current_name,
         filepath,
