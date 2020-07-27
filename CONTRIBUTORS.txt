@@ -395,3 +395,5 @@ contributors:
 * Ram Rachum (cool-RR)
 
 * Pieter Engelbrecht
+
+* Pedro Algarvio (s0undt3ch): contributor
