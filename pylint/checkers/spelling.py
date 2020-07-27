@@ -102,12 +102,12 @@ class SphinxDirectives(Filter):
     r"""Filter skipping over Sphinx Directives.
     This filter skips any words matching the following regular expression:
 
-           ^:([a-z]+):`([^`]+)(`)?
+           ^(:([a-z]+)){1,2}:`([^`]+)(`)?
 
     That is, for example, :class:`BaseQuery`
     """
     # The final ` in the pattern is optional because enchant strips it out
-    _pattern = re.compile(r"^:([a-z]+):`([^`]+)(`)?")
+    _pattern = re.compile(r"^(:([a-z]+)){1,2}:`([^`]+)(`)?")
 
     def _skip(self, word):
         return bool(self._pattern.match(word))
