@@ -285,6 +285,26 @@ class TestSpellingChecker(CheckerTestCase):
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
+    def test_skip_sphinx_directives_2(self):
+        stmt = astroid.extract_node(
+            'class ComentAbc(object):\n   """This is :py:attr:`ComentAbc` with a bad coment"""\n   pass'
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=2,
+                args=(
+                    "coment",
+                    "This is :py:attr:`ComentAbc` with a bad coment",
+                    "                                        ^^^^^^",
+                    self._get_msg_suggestions("coment"),
+                ),
+            )
+        ):
+            self.checker.visit_classdef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
     def test_handle_words_joined_by_forward_slash(self):
         stmt = astroid.extract_node(
             '''
