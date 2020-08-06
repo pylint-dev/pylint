@@ -76,10 +76,10 @@ class ThirdSequentialTestChecker(SequentialTestChecker):
 class TestCheckParallelFramework:
     """Tests the check_parallel() function's framework"""
 
-    def setUp(self):
+    def setup_class(self):
         self._prev_global_linter = pylint.lint.parallel._worker_linter
 
-    def tearDown(self):
+    def teardown_class(self):
         pylint.lint.parallel._worker_linter = self._prev_global_linter
 
     def test_worker_initialize(self):
