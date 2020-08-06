@@ -45,7 +45,13 @@ class SequentialTestChecker(BaseChecker):
 
     name = "sequential-checker"
     test_data = "sequential"
-    msgs = {"R9999": ("Test", "sequential-test-check", "Some helpful text.",)}
+    msgs = {
+        "R9999": (
+            "Test",
+            "sequential-test-check",
+            "Some helpful text.",
+        )
+    }
 
     def __init__(self, linter, *args, **kwargs):
         super().__init__(linter, *args, **kwargs)
@@ -89,7 +95,9 @@ class TestCheckParallelFramework:
 
     def test_worker_check_single_file_uninitialised(self):
         pylint.lint.parallel._worker_linter = None
-        with pytest.raises(AttributeError, msg="Something has unexpectedly changed"):
+        with pytest.raises(  # Objects that do not match the linter interface will fail
+            AttributeError, match="'NoneType' object has no attribute 'open'"
+        ):
             worker_check_single_file(_gen_file_data())
 
     def test_worker_check_single_file_no_checkers(self):
@@ -125,8 +133,7 @@ class TestCheckParallelFramework:
         } == stats
 
     def test_worker_check_sequential_checker(self):
-        """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker
-        """
+        """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker"""
         linter = PyLinter(reporter=Reporter())
         worker_initialize(linter=linter)
 
@@ -312,7 +319,7 @@ class TestCheckParallel:
         number of checkers applied.
 
         This test becomes more important if we want to change how we parametrise the
-        checkers, for example if we aim to batch the files across jobs. """
+        checkers, for example if we aim to batch the files across jobs."""
 
         # define the stats we expect to get back from the runs, these should only vary
         # with the number of files.
@@ -364,7 +371,10 @@ class TestCheckParallel:
                 stats_single_proc = linter.stats
             else:
                 check_parallel(
-                    linter, jobs=num_jobs, files=file_infos, arguments=None,
+                    linter,
+                    jobs=num_jobs,
+                    files=file_infos,
+                    arguments=None,
                 )
                 stats_check_parallel = linter.stats
                 assert linter.msg_status == 0, "We should not fail the lint"
