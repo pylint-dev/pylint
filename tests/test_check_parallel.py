@@ -308,10 +308,10 @@ class TestCheckParallel:
         """Compares the 3 key parameters for check_parallel() produces the same results
 
         The intent here is to ensure that the check_parallel() operates on each file,
-        without ordering issues, irespective of the number of workers used and the
+        without ordering issues, irrespective of the number of workers used and the
         number of checkers applied.
 
-        This test becomes mre important if we want to change how we paraterise the
+        This test becomes more important if we want to change how we parametrise the
         checkers, for example if we aim to batch the files across jobs. """
 
         # define the stats we expect to get back from the runs, these should only vary
