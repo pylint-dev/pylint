@@ -313,17 +313,6 @@ class TestCheckParallel:
 
         This test becomes mre important if we want to change how we paraterise the
         checkers, for example if we aim to batch the files across jobs. """
-        print(
-            (
-                "{buff} {num_files} files, {num_jobs} jobs, {num_checkers} checkers "
-                "{buff}"
-            ).format(
-                buff="_" * 4,
-                num_files=num_files,
-                num_jobs=num_jobs,
-                num_checkers=num_checkers,
-            )
-        )
 
         # define the stats we expect to get back from the runs, these should only vary
         # with the number of files.
@@ -367,7 +356,6 @@ class TestCheckParallel:
 
             if do_single_proc:
                 # establish the baseline
-                print("single proc, via linter._check_files")
                 assert (
                     linter.config.jobs == 1
                 ), "jobs>1 are ignored when calling _check_files"
@@ -375,7 +363,6 @@ class TestCheckParallel:
                 assert linter.msg_status == 0, "We should not fail the lint"
                 stats_single_proc = linter.stats
             else:
-                print("check_parallel")
                 check_parallel(
                     linter, jobs=num_jobs, files=file_infos, arguments=None,
                 )
