@@ -89,7 +89,7 @@ class TestCheckParallelFramework:
 
     def test_worker_check_single_file_uninitialised(self):
         pylint.lint.parallel._worker_linter = None
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError, msg="Something has unexpectedly changed"):
             worker_check_single_file(_gen_file_data())
 
     def test_worker_check_single_file_no_checkers(self):
