@@ -1,4 +1,4 @@
-""" Puts the check_parallel system under test """
+"""Puts the check_parallel system under test"""
 # Copyright (c) 2020 Frank Harrison <doublethefish@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -22,7 +22,7 @@ from pylint.testutils import TestReporter as Reporter
 
 
 def _gen_file_data(idx=0):
-    """ Generates a file to use as a stream """
+    """Generates a file to use as a stream"""
     filepath = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "input", "similar1")
     )
@@ -40,7 +40,7 @@ def _gen_file_datas(count=1):
 
 
 class SequentialTestChecker(BaseChecker):
-    """ A checker that does not need to consolidate data across run invocations """
+    """A checker that does not need to consolidate data across run invocations"""
 
     __implements__ = (pylint.interfaces.IRawChecker,)
 
@@ -54,28 +54,28 @@ class SequentialTestChecker(BaseChecker):
         self.linter = linter
 
     def process_module(self, _astroid):
-        """ Called once per stream/file/astroid object """
+        """Called once per stream/file/astroid object"""
         # record the number of invocations with the data object
         record = self.test_data + str(len(self.data))
         self.data.append(record)
 
 
 class ExtraSequentialTestChecker(SequentialTestChecker):
-    """ A checker that does not need to consolidate data across run invocations """
+    """A checker that does not need to consolidate data across run invocations"""
 
     name = "extra-sequential-checker"
     test_data = "extra-sequential"
 
 
 class ThirdSequentialTestChecker(SequentialTestChecker):
-    """ A checker that does not need to consolidate data across run invocations """
+    """A checker that does not need to consolidate data across run invocations"""
 
     name = "third-sequential-checker"
     test_data = "third-sequential"
 
 
 class TestCheckParallelFramework:
-    """ Tests the check_parallel() function's framework """
+    """Tests the check_parallel() function's framework"""
 
     def setUp(self):
         self._prev_global_linter = pylint.lint.parallel._worker_linter
@@ -126,7 +126,7 @@ class TestCheckParallelFramework:
         } == stats
 
     def test_worker_check_sequential_checker(self):
-        """ Same as test_worker_check_single_file_no_checkers with SequentialTestChecker
+        """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker
         """
         linter = PyLinter(reporter=Reporter())
         worker_initialize(linter=linter)
@@ -167,7 +167,7 @@ class TestCheckParallelFramework:
 
 
 class TestCheckParallel:
-    """ Tests the check_parallel() function """
+    """Tests the check_parallel() function"""
 
     def test_sequential_checkers_work(self):
         """Tests original basic types of checker works as expected in -jN
@@ -243,7 +243,7 @@ class TestCheckParallel:
     def test_invoke_single_job(self):
         """Tests basic checkers functionality using just a single workderdo
 
-        This is *not* the same -j1 and does not happen under normal operation """
+        This is *not* the same -j1 and does not happen under normal operation"""
         linter = PyLinter(reporter=Reporter())
 
         linter.register_checker(SequentialTestChecker(linter))
@@ -306,7 +306,7 @@ class TestCheckParallel:
         ],
     )
     def test_compare_workers_to_single_proc(self, num_files, num_jobs, num_checkers):
-        """ Compares the 3 key parameters for check_parallel() produces the same results
+        """Compares the 3 key parameters for check_parallel() produces the same results
 
         The intent here is to ensure that the check_parallel() operates on each file,
         without ordering issues, irespective of the number of workers used and the
