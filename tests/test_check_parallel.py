@@ -35,8 +35,7 @@ def _gen_file_data(idx=0):
 
 
 def _gen_file_datas(count=1):
-    file_infos = [_gen_file_data(idx) for idx in range(count)]
-    return file_infos
+    return [_gen_file_data(idx) for idx in range(count)]
 
 
 class SequentialTestChecker(BaseChecker):
