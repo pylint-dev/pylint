@@ -96,7 +96,9 @@ class TestCheckParallelFramework:
     def test_worker_check_single_file_no_checkers(self):
         linter = PyLinter(reporter=Reporter())
         worker_initialize(linter=linter)
-        (name, msgs, stats, msg_status) = worker_check_single_file(_gen_file_data())
+        (name, _, _, msgs, stats, msg_status) = worker_check_single_file(
+            _gen_file_data()
+        )
         assert name == "--test-file_data-name-0--"
         assert [] == msgs
         no_errors_status = 0
@@ -132,7 +134,9 @@ class TestCheckParallelFramework:
         # Add the only checker we care about in this test
         linter.register_checker(SequentialTestChecker(linter))
 
-        (name, msgs, stats, msg_status) = worker_check_single_file(_gen_file_data())
+        (name, _, _, msgs, stats, msg_status) = worker_check_single_file(
+            _gen_file_data()
+        )
 
         # Ensure we return the same data as the single_file_no_checkers test
         assert name == "--test-file_data-name-0--"
