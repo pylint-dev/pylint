@@ -89,7 +89,9 @@ class TestCheckParallelFramework:
 
     def test_worker_check_single_file_uninitialised(self):
         pylint.lint.parallel._worker_linter = None
-        with pytest.raises(AttributeError, msg="Something has unexpectedly changed"):
+        with pytest.raises(  # Objects that do not match the linter interface will fail
+            AttributeError, match="'NoneType' object has no attribute 'open'"
+        ):
             worker_check_single_file(_gen_file_data())
 
     def test_worker_check_single_file_no_checkers(self):
