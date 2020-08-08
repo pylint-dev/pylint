@@ -2,6 +2,7 @@
 import unittest.mock
 
 import pylint.lint
+from pylint.config.find_default_config_files import _get_config_paths
 
 
 def check_configuration_file_reader(config_file):
@@ -91,3 +92,16 @@ reports = true
 """
     )
     check_configuration_file_reader(config_file)
+
+
+def test_gets_correct_config_files(tmp_path):
+    toml = tmp_path / "pyproject.toml"
+    toml.write_text("[tool.pylint]")
+    rc = tmp_path / ".pylintrc"
+    rc.write_text("[]")
+    cfg = tmp_path / "not_a_pylint_config.cfg"
+    cfg.write_text("[pylint]")
+    paths = _get_config_paths(tmp_path)
+    assert len(paths) == 2
+    assert rc.samefile(paths[0])
+    assert toml.samefile(paths[1])

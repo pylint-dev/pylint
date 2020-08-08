@@ -3,6 +3,8 @@
 
 import configparser
 import os
+from pathlib import Path
+from typing import Generator, List, Union
 
 import toml
 
@@ -24,40 +26,45 @@ def _cfg_has_config(path):
     return any(section.startswith("pylint.") for section in parser.sections())
 
 
-def find_default_config_files():
-    """Find all possible config files."""
-    rc_names = ("pylintrc", ".pylintrc")
-    config_names = rc_names + ("pyproject.toml", "setup.cfg")
+def _get_config_paths(curdir: Union[Path, str]) -> List[str]:
+    paths = []
+    config_names = ("pylintrc", ".pylintrc", "pyproject.toml", "setup.cfg")
     for config_name in config_names:
-        if os.path.isfile(config_name):
-            if config_name.endswith(".toml") and not _toml_has_config(config_name):
+        config_path = os.path.join(curdir, config_name)
+        if os.path.isfile(config_path):
+            if config_name.endswith(".toml") and not _toml_has_config(config_path):
                 continue
-            if config_name.endswith(".cfg") and not _cfg_has_config(config_name):
+            if config_name.endswith(".cfg") and not _cfg_has_config(config_path):
                 continue
 
-            yield os.path.abspath(config_name)
+            paths.append(config_path)
+
+    return paths
+
+
+def find_default_config_files() -> Generator:
+    """Find all possible config files."""
+    for path in _get_config_paths(os.path.abspath(".")):
+        yield (path)
 
     if os.path.isfile("__init__.py"):
         curdir = os.path.abspath(os.getcwd())
         while os.path.isfile(os.path.join(curdir, "__init__.py")):
             curdir = os.path.abspath(os.path.join(curdir, ".."))
-            for rc_name in rc_names:
-                rc_path = os.path.join(curdir, rc_name)
-                if os.path.isfile(rc_path):
-                    yield rc_path
+            for path in _get_config_paths(curdir):
+                yield (path)
 
     if "PYLINTRC" in os.environ and os.path.exists(os.environ["PYLINTRC"]):
         if os.path.isfile(os.environ["PYLINTRC"]):
             yield os.environ["PYLINTRC"]
-    else:
-        user_home = os.path.expanduser("~")
-        if user_home not in ("~", "/root"):
-            home_rc = os.path.join(user_home, ".pylintrc")
-            if os.path.isfile(home_rc):
-                yield home_rc
-            home_rc = os.path.join(user_home, ".config", "pylintrc")
-            if os.path.isfile(home_rc):
-                yield home_rc
 
-    if os.path.isfile("/etc/pylintrc"):
-        yield "/etc/pylintrc"
+    user_home = os.path.expanduser("~")
+    if user_home not in ("~", "/root"):
+        for path in _get_config_paths(user_home):
+            yield path
+        for path in _get_config_paths(os.path.join(user_home, ".config")):
+            yield path
+
+    curdir = os.path.abspath("/etc")
+    for path in _get_config_paths(curdir):
+        yield path

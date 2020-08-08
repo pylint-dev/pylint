@@ -85,26 +85,27 @@ Specifying all the options suitable for your setup and coding
 standards can be tedious, so it is possible to use a configuration file to
 specify the default values.  You can specify a configuration file on the
 command line using the ``--rcfile`` option.  Otherwise, Pylint searches for a
-configuration file in the following order and uses the first one it finds:
+configuration file valid configuration file (defined below) in the following
+order and uses the first one it finds:
 
-#. ``pylintrc`` in the current working directory
-#. ``.pylintrc`` in the current working directory
-#. ``pyproject.toml`` in the current working directory,
-   providing it has at least one ``tool.pylint.`` section.
-#. ``setup.cfg`` in the current working directory,
-   providing it has at least one ``pylint.`` section
+#. In the current working directory
 #. If the current working directory is in a Python module, Pylint searches \
-   up the hierarchy of Python modules until it finds a ``pylintrc`` file. \
-   This allows you to specify coding standards on a module-by-module \
+   up the hierarchy of Python modules until it finds a valid configuration \
+   file.  This allows you to specify coding standards on a module-by-module \
    basis.  Of course, a directory is judged to be a Python module if it \
    contains an ``__init__.py`` file.
 #. The file named by environment variable ``PYLINTRC``
-#. if you have a home directory which isn't ``/root``:
+#. In your home directory if it isn't ``/root``
+#. In a ``.config/`` directory in your home directory if your home directory \
+   isn't ``/root``
+#. In ``/etc/``
 
-   #. ``.pylintrc`` in your home directory
-   #. ``.config/pylintrc`` in your home directory
+A valid configuration file is one of the following:
 
-#. ``/etc/pylintrc``
+#. ``pylintrc``
+#. ``.pylintrc``
+#. ``pyproject.toml``, provided it has at least one ``tool.pylint.`` section.
+#. ``setup.cfg``, provided it has at least one ``pylint.`` section.
 
 The ``--generate-rcfile`` option will generate a commented configuration file
 on standard output according to the current configuration and exit. This
