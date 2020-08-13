@@ -295,7 +295,12 @@ group are mutually exclusive.",
         # read configuration
         linter.disable("I")
         linter.enable("c-extension-no-member")
-        linter.read_config_file(verbose=self.verbose)
+        try:
+            linter.read_config_file(verbose=self.verbose)
+        except OSError as ex:
+            print(ex, file=sys.stderr)
+            sys.exit(32)
+
         config_parser = linter.cfgfile_parser
         # run init hook, if present, before loading plugins
         if config_parser.has_option("MASTER", "init-hook"):

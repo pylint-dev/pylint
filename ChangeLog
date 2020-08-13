@@ -11,6 +11,8 @@ Release date: TBA
 
   Close #3773
 
+* Fix a crash when a specified config file does not exist
+
 What's New in Pylint 2.6.0?
 ===========================
 
