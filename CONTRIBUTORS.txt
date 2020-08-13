@@ -397,3 +397,5 @@ contributors:
 * Pieter Engelbrecht
 
 * Ethan Leba: contributor
+
+* Matěj Grabovský: contributor
