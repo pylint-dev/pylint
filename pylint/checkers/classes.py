@@ -246,6 +246,7 @@ def _has_different_parameters_default_value(original, overridden):
             astroid.ClassDef: "name",
             astroid.Tuple: "elts",
             astroid.List: "elts",
+            astroid.Dict: "items",
         }
         handled_types = tuple(
             astroid_type for astroid_type in astroid_type_compared_attr
