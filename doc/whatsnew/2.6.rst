@@ -20,6 +20,8 @@ New checkers
 Other Changes
 =============
 
+* Fix false positive message ``useless-super-delegation`` when default keyword argument is a dictionnary.
+
 * `bad-continuation` and `bad-whitespace` have been removed. `black` or another formatter can help you with this better than Pylint
 
 * The `no-space-check` option has been removed, it's no longer possible to consider empty line like a `trailing-whitespace` by using clever options.
