@@ -1258,6 +1258,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 for _ifn in node.body
                 if not isinstance(_ifn, astroid.FunctionDef)
             )
+            if not node.orelse:
+                has_return_in_sibling = False
+                next_sibling = node.next_sibling()
+                while next_sibling:
+                    if isinstance(next_sibling, astroid.Return):
+                        has_return_in_sibling = True
+                        break
+                    next_sibling = next_sibling.next_sibling()
+                if not has_return_in_sibling:
+                    return False
+                return True
             return is_if_returning and is_orelse_returning
         if isinstance(node, astroid.TryExcept):
             return all(
