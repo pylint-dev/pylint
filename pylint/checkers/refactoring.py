@@ -1259,6 +1259,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if not isinstance(_ifn, astroid.FunctionDef)
             )
             return is_if_returning and is_orelse_returning
+        if isinstance(node, astroid.TryExcept):
+            return all(
+                self._is_node_return_ended(_child)
+                for _child in node.get_children()
+            )
         #  recurses on the children of the node except for those which are except handler
         # because one cannot be sure that the handler will really be used
         return any(
