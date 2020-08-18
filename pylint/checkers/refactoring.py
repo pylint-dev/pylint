@@ -1280,7 +1280,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return any(
             self._is_node_return_ended(_child)
             for _child in node.get_children()
-            if not isinstance(_child, astroid.ExceptHandler)
         )
 
     def _is_function_def_never_returning(self, node):
