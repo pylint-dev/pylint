@@ -14,6 +14,8 @@ Pylint's ChangeLog
 
   Close #3834
 
+* Add missing checks for deprecated functions.
+
 
 What's New in Pylint 2.6.1?
 ===========================
