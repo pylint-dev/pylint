@@ -1261,7 +1261,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if not node.orelse:
                 if not self._has_return_in_siblings(node):
                     return False
-                return True
+                return is_if_returning
             return is_if_returning and is_orelse_returning
         if isinstance(node, astroid.TryExcept):
             return all(
