@@ -1259,14 +1259,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if not isinstance(_ifn, astroid.FunctionDef)
             )
             if not node.orelse:
-                has_return_in_sibling = False
-                next_sibling = node.next_sibling()
-                while next_sibling:
-                    if isinstance(next_sibling, astroid.Return):
-                        has_return_in_sibling = True
-                        break
-                    next_sibling = next_sibling.next_sibling()
-                if not has_return_in_sibling:
+                if not self._has_return_in_siblings(node):
                     return False
                 return True
             return is_if_returning and is_orelse_returning
@@ -1275,12 +1268,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self._is_node_return_ended(_child)
                 for _child in node.get_children()
             )
-        #  recurses on the children of the node except for those which are except handler
-        # because one cannot be sure that the handler will really be used
+        #  recurses on the children of the node
         return any(
             self._is_node_return_ended(_child)
             for _child in node.get_children()
         )
+
+    @staticmethod
+    def _has_return_in_siblings(node):
+        """
+        Returns True if there is at least one return in the node's siblings
+        """
+        next_sibling = node.next_sibling()
+        while next_sibling:
+            if isinstance(next_sibling, astroid.Return):
+                return True
+            next_sibling = next_sibling.next_sibling()
+        return False
 
     def _is_function_def_never_returning(self, node):
         """Return True if the function never returns. False otherwise.
