@@ -1245,23 +1245,25 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # if no handlers handle the exception then it's ok
             return True
         if isinstance(node, astroid.If):
-            # if statement is returning if there are exactly two return statements in its
-            #  children : one for the body part, the other for the orelse part
             # Do not check if inner function definition are return ended.
-            is_orelse_returning = any(
-                self._is_node_return_ended(_ore)
-                for _ore in node.orelse
-                if not isinstance(_ore, astroid.FunctionDef)
-            )
             is_if_returning = any(
                 self._is_node_return_ended(_ifn)
                 for _ifn in node.body
                 if not isinstance(_ifn, astroid.FunctionDef)
             )
             if not node.orelse:
+                # If there is not orelse part then the if statement is returning if :
+                # - there is at least one return statement in its siblings;
+                # - the if body is itself returning.
                 if not self._has_return_in_siblings(node):
                     return False
                 return is_if_returning
+            # If there is an orelse part then both if body and orelse part should return.
+            is_orelse_returning = any(
+                self._is_node_return_ended(_ore)
+                for _ore in node.orelse
+                if not isinstance(_ore, astroid.FunctionDef)
+            )
             return is_if_returning and is_orelse_returning
         if isinstance(node, astroid.TryExcept):
             return all(
