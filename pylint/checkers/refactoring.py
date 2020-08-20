@@ -1253,7 +1253,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
             if not node.orelse:
                 # If there is not orelse part then the if statement is returning if :
-                # - there is at least one return statement in its siblings;
+                #  - there is at least one return statement in its siblings;
                 # - the if body is itself returning.
                 if not self._has_return_in_siblings(node):
                     return False
@@ -1267,14 +1267,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return is_if_returning and is_orelse_returning
         if isinstance(node, astroid.TryExcept):
             return all(
-                self._is_node_return_ended(_child)
-                for _child in node.get_children()
+                self._is_node_return_ended(_child) for _child in node.get_children()
             )
         #  recurses on the children of the node
-        return any(
-            self._is_node_return_ended(_child)
-            for _child in node.get_children()
-        )
+        return any(self._is_node_return_ended(_child) for _child in node.get_children())
 
     @staticmethod
     def _has_return_in_siblings(node):
