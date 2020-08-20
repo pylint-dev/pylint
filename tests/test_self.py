@@ -21,6 +21,7 @@
 # Copyright (c) 2019 Hugues <hugues.bruant@affirm.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 Pieter Engelbrecht <pengelbrecht@rems2.com>
 # Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 

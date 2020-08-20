@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2016, 2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>

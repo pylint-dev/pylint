@@ -3,7 +3,7 @@
 **************************
 
 :Release: 2.6
-:Date: TBA
+:Date: 2020-08-20
 
 
 Summary -- Release highlights

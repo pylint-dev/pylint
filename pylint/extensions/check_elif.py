@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2016-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>

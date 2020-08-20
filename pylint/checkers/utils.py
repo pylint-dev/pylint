@@ -34,6 +34,9 @@
 # Copyright (c) 2019 Nathan Marrow <nmarrow@google.com>
 # Copyright (c) 2019 Svet <svet@hyperscience.com>
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Slavfox <slavfoxman@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 

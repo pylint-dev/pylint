@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2014-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
 # Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
@@ -15,6 +15,7 @@
 # Copyright (c) 2019 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2019 agutole <toldo_carp@hotmail.com>
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

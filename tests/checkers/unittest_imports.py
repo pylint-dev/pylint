@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2015-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
 # Copyright (c) 2015 Cezar <celnazli@bitdefender.com>
 # Copyright (c) 2015 James Morgensen <james.morgensen@gmail.com>
@@ -7,9 +7,9 @@
 # Copyright (c) 2018 Hornwitser <github@hornwitser.no>
 # Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

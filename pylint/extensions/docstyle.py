@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Luis Escobar <lescobar@vauxoo.com>
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>

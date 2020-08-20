@@ -2,7 +2,7 @@
 # Copyright (c) 2012 Ry4an Brase <ry4an-hg@ry4an.org>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2018 Scott Worley <scottworley@scottworley.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
