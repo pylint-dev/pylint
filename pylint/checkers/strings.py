@@ -22,6 +22,7 @@
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
 
 

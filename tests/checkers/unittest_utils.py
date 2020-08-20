@@ -1,5 +1,5 @@
 # Copyright (c) 2010 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2013-2014 Google, Inc.
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>

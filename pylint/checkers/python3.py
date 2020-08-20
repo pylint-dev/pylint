@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2014-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
 # Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
 # Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
@@ -29,6 +29,8 @@
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 bluesheeptoken <louis.fruleux1@gmail.com>
+# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
+# Copyright (c) 2020 Federico Bond <federicobond@gmail.com>
 # Copyright (c) 2020 Athos Ribeiro <athoscr@fedoraproject.org>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

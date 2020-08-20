@@ -44,6 +44,8 @@
 # Copyright (c) 2019 Nikita Sobolev <mail@sobolevn.me>
 # Copyright (c) 2019 Oisín Moran <OisinMoran@users.noreply.github.com>
 # Copyright (c) 2019 Fantix King <fantix@uchicago.edu>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 bernie gray <bfgray3@users.noreply.github.com>
 # Copyright (c) 2020 Gabriel R Sezefredo <g@briel.dev>

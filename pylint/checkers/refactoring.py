@@ -26,6 +26,7 @@
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 PHeanEX <github@pheanex.de>
 # Copyright (c) 2019 Paul Renvoise <PaulRenvoise@users.noreply.github.com>
+# Copyright (c) 2020 lrjball <50599110+lrjball@users.noreply.github.com>
 # Copyright (c) 2020 Yang Yang <y4n9squared@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 

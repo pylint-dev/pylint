@@ -3,7 +3,7 @@
 # Copyright (c) 2013-2014 Google, Inc.
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>

@@ -1,4 +1,5 @@
 """ Profiles basic -jX functionality """
+# Copyright (c) 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

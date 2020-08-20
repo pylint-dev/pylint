@@ -36,6 +36,7 @@
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Ashley Whetter <ashleyw@activestate.com>

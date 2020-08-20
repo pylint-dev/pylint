@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
 # Copyright (c) 2018 Yury Gribov <tetra2005@gmail.com>
