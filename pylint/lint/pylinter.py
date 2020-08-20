@@ -1043,6 +1043,7 @@ class PyLinter(
         except Exception as ex:  # pylint: disable=broad-except
             traceback.print_exc()
             self.add_message("astroid-error", args=(ex.__class__, ex))
+        return None
 
     def check_astroid_module(self, ast_node, walker, rawcheckers, tokencheckers):
         """Check a module from its astroid representation.
