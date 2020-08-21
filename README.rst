@@ -1,6 +1,6 @@
 
 README for Pylint - https://pylint.pycqa.org/
-============================================
+=============================================
 
 .. image:: https://travis-ci.org/PyCQA/pylint.svg?branch=master
     :target: https://travis-ci.org/PyCQA/pylint
