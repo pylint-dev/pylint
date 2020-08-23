@@ -291,7 +291,7 @@ class SpellingChecker(BaseTokenChecker):
             initial_space = re.search(r"^[^\S]\s*", line).regs[0][1]
         except (IndexError, AttributeError):
             initial_space = 0
-        if line.strip().startswith("#"):
+        if line.strip().startswith("#") and "docstring" not in msgid:
             line = line.strip()[1:]
             starts_with_comment = True
         else:
