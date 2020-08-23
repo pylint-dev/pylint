@@ -27,6 +27,10 @@ Release date: TBA
 
 * Improve lint message for `singleton-comparison` with bools
 
+* Fix spell-checker crash on indented docstring lines that look like # comments
+
+  Close #3786
+
 What's New in Pylint 2.6.0?
 ===========================
 
