@@ -71,8 +71,3 @@ def test_run(name, git_repo):
             % (len(filepaths), len(runner.linter.reporter.messages))
         )
         pprint.pprint(runner.linter.reporter.messages)
-
-        # one day: assert runner.linter.msg_status == 0, (
-        # one day:     "Expected no errors to be thrown: %s"
-        # one day:     % pprint.pformat(runner.linter.reporter.messages)
-        # one day: )
