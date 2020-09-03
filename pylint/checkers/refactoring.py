@@ -1194,7 +1194,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
         self.add_message("inconsistent-return-statements", node=node)
 
-    def _is_if_node_return_ended(self, node):
+    def _is_if_node_return_ended(self, node: astroid.If) -> bool:
         """Check if the If node ends with an explicit return statement.
 
         Args:
