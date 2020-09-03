@@ -1,7 +1,8 @@
-# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -16,9 +17,9 @@ import os
 import astroid
 import pytest
 from astroid import bases, nodes
+from unittest_pyreverse_writer import get_project
 
 from pylint.pyreverse import inspector
-from unittest_pyreverse_writer import get_project
 
 
 @pytest.fixture

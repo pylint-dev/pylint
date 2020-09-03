@@ -34,6 +34,9 @@
 # Copyright (c) 2019 Nathan Marrow <nmarrow@google.com>
 # Copyright (c) 2019 Svet <svet@hyperscience.com>
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Slavfox <slavfoxman@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
@@ -50,12 +53,11 @@ import string
 from functools import lru_cache, partial
 from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, Union
 
+import _string
 import astroid
 from astroid import bases as _bases
 from astroid import helpers, scoped_nodes
 from astroid.exceptions import _NonDeducibleTypeHierarchy
-
-import _string  # pylint: disable=wrong-import-position, wrong-import-order
 
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = (

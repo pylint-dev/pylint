@@ -1,5 +1,5 @@
 """Checks use of consider-merging-isinstance"""
-# pylint:disable=line-too-long
+# pylint:disable=line-too-long, simplifiable-condition
 
 
 def isinstances():

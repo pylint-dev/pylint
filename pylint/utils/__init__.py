@@ -3,7 +3,7 @@
 # Copyright (c) 2009 Vincent
 # Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Michal Nowikowski <godfryd@gmail.com>
 # Copyright (c) 2014 LCD 47 <lcd047@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
@@ -35,6 +35,7 @@
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -46,6 +47,8 @@ main pylint class
 from pylint.utils.ast_walker import ASTWalker
 from pylint.utils.file_state import FileState
 from pylint.utils.utils import (
+    HAS_ISORT_5,
+    IsortDriver,
     _basename_in_blacklist_re,
     _check_csv,
     _format_option_value,

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 # pylint: disable=W0404,W0622,W0613
 # Copyright (c) 2006, 2009-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
@@ -5,7 +6,7 @@
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2013 Benedikt Morbach <benedikt.morbach@googlemail.com>
 # Copyright (c) 2013 T.Rzepka <Tobias.Rzepka@gmail.com>
-# Copyright (c) 2014-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Pedro Algarvio <pedro@algarvio.me>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Google, Inc.
@@ -17,6 +18,9 @@
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2020 Bryce Guinta <bryce.guinta@protonmail.com>
+# Copyright (c) 2020 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -39,8 +43,8 @@ try:
 
     USE_SETUPTOOLS = 1
 except ImportError:
-    from distutils.core import setup
     from distutils.command import install_lib  # pylint: disable=unused-import
+    from distutils.core import setup
 
     USE_SETUPTOOLS = 0
     easy_install_lib = None

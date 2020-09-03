@@ -32,6 +32,7 @@
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Nick Smith <clickthisnick@users.noreply.github.com>
 # Copyright (c) 2019 Paul Renvoisé <renvoisepaul@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -46,7 +47,6 @@ import sys
 from distutils import sysconfig
 
 import astroid
-import isort
 from astroid import modutils
 from astroid.decorators import cached
 
@@ -60,7 +60,7 @@ from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
 from pylint.reporters.ureports.nodes import Paragraph, VerbatimText
-from pylint.utils import get_global_option
+from pylint.utils import IsortDriver, get_global_option
 
 
 def _qualified_names(modname):
@@ -709,11 +709,7 @@ class ImportsChecker(BaseChecker):
         third_party_not_ignored = []
         first_party_not_ignored = []
         local_not_ignored = []
-        isort_obj = isort.SortImports(
-            file_contents="",
-            known_third_party=self.config.known_third_party,
-            known_standard_library=self.config.known_standard_library,
-        )
+        isort_driver = IsortDriver(self.config)
         for node, modname in self._imports_stack:
             if modname.startswith("."):
                 package = "." + modname.split(".")[1]
@@ -723,7 +719,7 @@ class ImportsChecker(BaseChecker):
             ignore_for_import_order = not self.linter.is_message_enabled(
                 "wrong-import-order", node.fromlineno
             )
-            import_category = isort_obj.place_module(package)
+            import_category = isort_driver.place_module(package)
             node_and_package_import = (node, package)
             if import_category in ("FUTURE", "STDLIB"):
                 std_imports.append(node_and_package_import)

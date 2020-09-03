@@ -44,6 +44,8 @@
 # Copyright (c) 2019 Nikita Sobolev <mail@sobolevn.me>
 # Copyright (c) 2019 Oisín Moran <OisinMoran@users.noreply.github.com>
 # Copyright (c) 2019 Fantix King <fantix@uchicago.edu>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 bernie gray <bfgray3@users.noreply.github.com>
 # Copyright (c) 2020 Gabriel R Sezefredo <g@briel.dev>
@@ -54,7 +56,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """basic checker for Python code"""
-
 import builtins
 import collections
 import itertools
@@ -67,8 +68,8 @@ import astroid.bases
 import astroid.scoped_nodes
 from astroid.arguments import CallSite
 
-import pylint.utils as lint_utils
 from pylint import checkers, exceptions, interfaces
+from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import (
     is_overload_stub,

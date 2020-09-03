@@ -1,7 +1,7 @@
 # Copyright (c) 2006, 2008, 2010, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>

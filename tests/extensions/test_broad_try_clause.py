@@ -1,6 +1,7 @@
+# Copyright (c) 2019-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2019-2020 Tyler Thieding <tyler@thieding.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
@@ -8,9 +9,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Tests for the pylint checker in :mod:`pylint.extensions.broad_try_clause`"""
-
-import os.path as osp
 import unittest
+from os import path as osp
 
 from pylint import checkers
 from pylint.extensions.broad_try_clause import BroadTryClauseChecker

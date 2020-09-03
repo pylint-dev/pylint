@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2013-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
@@ -18,6 +19,7 @@
 # Copyright (c) 2019 Mr. Senko <atodorov@mrsenko.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

@@ -2,7 +2,7 @@
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Holger Peters <email@holger-peters.de>
-# Copyright (c) 2015-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
@@ -14,6 +14,7 @@
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Martin Vielsmaier <martin.vielsmaier@gmail.com>
 # Copyright (c) 2019 Federico Bond <federicobond@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -26,7 +27,7 @@ from pylint.checkers import typecheck
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 try:
-    import coverage.tracer as _
+    from coverage import tracer as _  # pylint: disable=unused-import
 
     C_EXTENTIONS_AVAILABLE = True
 except ImportError:

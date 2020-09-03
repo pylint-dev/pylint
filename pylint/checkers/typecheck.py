@@ -38,6 +38,7 @@
 # Copyright (c) 2019 yory8 <39745367+yory8@users.noreply.github.com>
 # Copyright (c) 2019 Federico Bond <federicobond@gmail.com>
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
 

@@ -29,6 +29,7 @@
 # Copyright (c) 2019 Trevor Bekolay <tbekolay@gmail.com>
 # Copyright (c) 2019 Andres Perez Hortal <andresperezcba@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -47,8 +48,7 @@ from shutil import rmtree
 
 import pytest
 
-import pylint.testutils as testutils
-from pylint import checkers, config, exceptions, interfaces, lint
+from pylint import checkers, config, exceptions, interfaces, lint, testutils
 from pylint.checkers.utils import check_messages
 from pylint.constants import (
     MSG_STATE_CONFIDENCE,

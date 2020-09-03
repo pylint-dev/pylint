@@ -1,5 +1,5 @@
+# Copyright (c) 2019-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2019-2020 Tyler Thieding <tyler@thieding.com>
-# Copyright (c) 2019 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

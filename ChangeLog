@@ -2,7 +2,7 @@
 Pylint's ChangeLog
 ------------------
 
-What's New in Pylint 2.6.0?
+What's New in Pylint 2.6.1?
 ===========================
 
 Release date: TBA
@@ -10,6 +10,11 @@ Release date: TBA
 * Fix ``useless-super-delegation`` false positive when default keyword argument is a dictionnary.
 
   Close #3773
+
+What's New in Pylint 2.6.0?
+===========================
+
+Release date: 2020-08-20
 
 * Fix various scope-related bugs in ``undefined-variable`` checker
 
@@ -51,6 +56,17 @@ Release date: TBA
 
 * Add `raise-missing-from` check for exceptions that should have a cause.
 
+* Support both isort 4 and isort 5. If you have pinned isort 4 in your projet requirements, nothing changes. If you use isort 5, though, note that the `known-standard-library` option is not interpreted the same in isort 4 and isort 5 (see the migration guide in isort documentation for further details). For compatibility's sake for most pylint users, the `known-standard-library` option in pylint now maps to `extra-standard-library` in isort 5. If you really want what `known-standard-library` now means in isort 5, you must disable the `wrong-import-order` check in pylint and run isort manually with a proper isort configuration file.
+
+  Close #3722
+
+* Add check for bool function to `len-as-condition`
+
+* Add `simplifiable-condition` check for extraneous constants in conditionals using and/or.
+
+* Add `condition-evals-to-constant` check for conditionals using and/or that evaluate to a constant.
+
+  Close #3407
 
 What's New in Pylint 2.5.4?
 ===========================

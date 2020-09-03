@@ -12,6 +12,7 @@
 # Copyright (c) 2019 Mr. Senko <atodorov@mrsenko.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 bernie gray <bfgray3@users.noreply.github.com>
 
@@ -28,6 +29,7 @@ import sys
 import pytest
 
 from pylint import testutils
+from pylint.utils import HAS_ISORT_5
 
 
 class test_dialect(csv.excel):
@@ -77,6 +79,10 @@ def get_tests():
             continue
         for filename in filenames:
             if filename != "__init__.py" and filename.endswith(".py"):
+                # isort 5 has slightly different rules as isort 4. Testing
+                # both would be hard: test with isort 5 only.
+                if filename == "wrong_import_order.py" and not HAS_ISORT_5:
+                    continue
                 suite.append(testutils.FunctionalTestFile(dirpath, filename))
     return suite
 

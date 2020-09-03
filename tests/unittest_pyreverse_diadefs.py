@@ -1,12 +1,13 @@
 # Copyright (c) 2008-2010, 2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -19,6 +20,7 @@ from pathlib import Path
 
 import astroid
 import pytest
+from unittest_pyreverse_writer import Config, get_project
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
@@ -27,7 +29,6 @@ from pylint.pyreverse.diadefslib import (
     DiadefsHandler,
 )
 from pylint.pyreverse.inspector import Linker
-from unittest_pyreverse_writer import Config, get_project
 
 
 def _process_classes(classes):

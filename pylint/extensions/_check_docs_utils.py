@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016-2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 Yuri Bochkarev <baltazar.bz@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>

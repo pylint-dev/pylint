@@ -1,5 +1,5 @@
 # Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2017-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2017-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
