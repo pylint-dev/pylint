@@ -1,6 +1,7 @@
+# Copyright (c) 2019-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2019-2020 Tyler Thieding <tyler@thieding.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 

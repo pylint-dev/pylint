@@ -1,5 +1,5 @@
 # pylint: disable=too-few-public-methods,import-error, no-absolute-import,missing-docstring, misplaced-comparison-constant
-# pylint: disable=useless-super-delegation,wrong-import-position,invalid-name, wrong-import-order
+# pylint: disable=useless-super-delegation,wrong-import-position,invalid-name, wrong-import-order, condition-evals-to-constant
 
 if len('TEST'):  # [len-as-condition]
     pass
@@ -99,3 +99,6 @@ def github_issue_1331_v3(*args):
 
 def github_issue_1331_v4(*args):
     assert z and len(args), args  # [len-as-condition]
+
+b = bool(len(z)) # [len-as-condition]
+c = bool(len('TEST') or 42) # [len-as-condition]

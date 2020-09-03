@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2013-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
-# Copyright (c) 2017, 2019 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017 Pierre Sassoulas <pierre.sassoulas@cea.fr>
+# Copyright (c) 2017, 2019 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2018 Fureigh <fureigh@users.noreply.github.com>
 # Copyright (c) 2018 glmdgrielson <32415403+glmdgrielson@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 bernie gray <bfgray3@users.noreply.github.com>

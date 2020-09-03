@@ -14,10 +14,13 @@
 # Copyright (c) 2018-2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2019 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2019-2020 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Dan Hemberger <846186+hemberger@users.noreply.github.com>
 # Copyright (c) 2019 jab <jab@users.noreply.github.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -29,8 +32,8 @@
 from os.path import join
 
 # For an official release, use dev_version = None
-numversion = (2, 6, 0)
-dev_version = "1"
+numversion = (2, 6, 1)
+dev_version = 1
 
 version = ".".join(str(num) for num in numversion)
 if dev_version is not None:

@@ -3,7 +3,7 @@
 # Copyright (c) 2009 Vincent
 # Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Michal Nowikowski <godfryd@gmail.com>
 # Copyright (c) 2014 LCD 47 <lcd047@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>

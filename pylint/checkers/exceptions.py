@@ -2,7 +2,7 @@
 # Copyright (c) 2006-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2011-2014 Google, Inc.
 # Copyright (c) 2012 Tim Hatch <tim@timhatch.com>
-# Copyright (c) 2013-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
@@ -24,6 +24,7 @@
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
