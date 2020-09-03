@@ -781,6 +781,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             or node.args[1].name != "self"
             or not isinstance(node.args[0], astroid.Name)
             or not isinstance(node.args[1], astroid.Name)
+            or node_frame_class(node) is None
             or node.args[0].name != node_frame_class(node).name
         ):
             return
