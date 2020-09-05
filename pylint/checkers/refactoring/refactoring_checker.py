@@ -8,6 +8,7 @@ import copy
 import itertools
 import tokenize
 from functools import reduce
+from typing import List
 
 import astroid
 from astroid import decorators
@@ -22,14 +23,14 @@ KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
 
 
-def _if_statement_is_always_returning(if_node, returning_node_class):
+def _if_statement_is_always_returning(if_node, returning_node_class) -> bool:
     for node in if_node.body:
         if isinstance(node, returning_node_class):
             return True
     return False
 
 
-def _is_trailing_comma(tokens, index):
+def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
     """Check if the given token is a trailing comma
 
     :param tokens: Sequence of modules tokens
@@ -43,11 +44,14 @@ def _is_trailing_comma(tokens, index):
         return False
     # Must have remaining tokens on the same line such as NEWLINE
     left_tokens = itertools.islice(tokens, index + 1, None)
+
+    def same_start_token(
+        other_token: tokenize.TokenInfo, _token: tokenize.TokenInfo = token
+    ) -> bool:
+        return other_token.start[0] == _token.start[0]
+
     same_line_remaining_tokens = list(
-        itertools.takewhile(
-            lambda other_token, _token=token: other_token.start[0] == _token.start[0],
-            left_tokens,
-        )
+        itertools.takewhile(same_start_token, left_tokens)
     )
     # Note: If the newline is tokenize.NEWLINE and not tokenize.NL
     # then the newline denotes the end of expression
