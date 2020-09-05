@@ -49,7 +49,7 @@ from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.refactoring.len_checker import LenChecker, _is_test_condition
 from pylint.checkers.refactoring.not_checker import NotChecker
-from pylint.checkers.refactoring.recommendation_checker import RecommandationChecker
+from pylint.checkers.refactoring.recommendation_checker import RecommendationChecker
 from pylint.checkers.utils import node_frame_class
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
@@ -1387,5 +1387,5 @@ def register(linter):
     """Required method to auto register this checker."""
     linter.register_checker(RefactoringChecker(linter))
     linter.register_checker(NotChecker(linter))
-    linter.register_checker(RecommandationChecker(linter))
+    linter.register_checker(RecommendationChecker(linter))
     linter.register_checker(LenChecker(linter))

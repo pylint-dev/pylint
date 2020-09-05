@@ -13,7 +13,8 @@ def _is_constant_zero(node):
     return isinstance(node, astroid.Const) and node.value == 0
 
 
-class RecommandationChecker(checkers.BaseChecker):
+class RecommendationChecker(checkers.BaseChecker):
+
     __implements__ = (interfaces.IAstroidChecker,)
     name = "refactoring"
     msgs = {
