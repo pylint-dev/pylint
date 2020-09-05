@@ -7,7 +7,7 @@ if len('TEST'):  # [len-as-condition]
 if not len('TEST'):  # [len-as-condition]
     pass
 
-z = False
+z = []
 if z and len(['T', 'E', 'S', 'T']):  # [len-as-condition]
     pass
 
@@ -102,3 +102,46 @@ def github_issue_1331_v4(*args):
 
 b = bool(len(z)) # [len-as-condition]
 c = bool(len('TEST') or 42) # [len-as-condition]
+
+
+def github_issue_1879():
+
+    class ClassWithBool(list):
+        def __bool__(self):
+            return True
+
+    class ClassWithoutBool(list):
+        pass
+
+    class ChildClassWithBool(ClassWithBool):
+        pass
+
+    class ChildClassWithoutBool(ClassWithoutBool):
+        pass
+
+    assert len(ClassWithBool())
+    # We could expect to not have a len-as-condition for ChildClassWithBool,
+    # but I don't think the required analysis is worth it.
+    assert len(ChildClassWithBool()) # [len-as-condition]
+    assert len(ClassWithoutBool())  # [len-as-condition]
+    assert len(ChildClassWithoutBool())  # [len-as-condition]
+    # assert len(range(0)) != 0
+
+    # pylint: disable=import-outside-toplevel
+    import numpy
+    numpy_array = numpy.array([0])
+    if len(numpy_array) > 0:
+        print('numpy_array')
+    if len(numpy_array):
+        print('numpy_array')
+    if numpy_array:
+        print('b')
+
+    import pandas as pd
+    pandas_df = pd.DataFrame()
+    if len(pandas_df):
+        print("this works, but pylint tells me not to use len() without comparison")
+    if len(pandas_df) > 0:
+        print("this works and pylint likes it, but it's not the solution intended by PEP-8")
+    if pandas_df:
+        print("this does not work (truth value of dataframe is ambiguous)")
