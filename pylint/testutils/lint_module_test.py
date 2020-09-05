@@ -3,7 +3,6 @@
 
 import collections
 import csv
-import itertools
 import platform
 import sys
 from io import StringIO
@@ -174,13 +173,12 @@ class LintModuleTest:
     def _runTest(self):
         modules_to_check = [self._test_file.source]
         self._linter.check(modules_to_check)
-        expected_messages, expected_output = self._get_expected()
-        actual_messages, actual_output = self._get_actual()
-
-        if expected_messages != actual_messages:
+        expected_messages, expected_text = self._get_expected()
+        received_messages, received_text = self._get_actual()
+        if expected_messages != received_messages:
             msg = ['Wrong results for file "%s":' % (self._test_file.base)]
             missing, unexpected = self.multiset_difference(
-                expected_messages, actual_messages
+                expected_messages, received_messages
             )
             if missing:
                 msg.append("\nExpected in testdata:")
@@ -189,7 +187,7 @@ class LintModuleTest:
                 msg.append("\nUnexpected in testdata:")
                 msg.extend(" %3d: %s" % msg for msg in sorted(unexpected))
             pytest.fail("\n".join(msg))
-        self._check_output_text(expected_messages, expected_output, actual_output)
+        self._check_output_text(expected_messages, expected_text, received_text)
 
     @classmethod
     def _split_lines(cls, expected_messages, lines):
@@ -203,16 +201,22 @@ class LintModuleTest:
 
     def _check_output_text(self, expected_messages, expected_lines, received_lines):
         expected_lines = self._split_lines(expected_messages, expected_lines)[0]
-        for exp, rec in itertools.zip_longest(expected_lines, received_lines):
-            assert exp == rec, (
-                "Wrong output for '{_file}.txt':\n"
-                "You can update the expected output automatically with: '"
-                'python tests/test_functional.py {update_option} -k "test_functional[{_file}]"\'\n\n'
-                "Expected : {expected}\n"
-                "Received : {received}".format(
-                    update_option=UPDATE_OPTION,
-                    expected=exp,
-                    received=rec,
-                    _file=self._test_file.base,
-                )
+        missing = set(expected_lines) - set(received_lines)
+        unexpected = set(received_lines) - set(expected_lines)
+        error_msg = (
+            "Wrong output for '{_file}.txt':\n"
+            "You can update the expected output automatically with: '"
+            'python tests/test_functional.py {update_option} -k "test_functional[{_file}]"\'\n\n'.format(
+                update_option=UPDATE_OPTION,
+                _file=self._test_file.base,
             )
+        )
+        if missing:
+            error_msg += "\n- Missing lines:\n"
+            for line in missing:
+                error_msg += "{}\n".format(line)
+        if unexpected:
+            error_msg += "\n- Unexpected lines:\n"
+            for line in unexpected:
+                error_msg += "{}\n".format(line)
+        assert expected_lines == received_lines, error_msg
