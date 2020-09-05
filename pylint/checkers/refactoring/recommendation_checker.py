@@ -9,10 +9,6 @@ from pylint import checkers, interfaces
 from pylint.checkers import utils
 
 
-def _is_constant_zero(node):
-    return isinstance(node, astroid.Const) and node.value == 0
-
-
 class RecommendationChecker(checkers.BaseChecker):
 
     __implements__ = (interfaces.IAstroidChecker,)
@@ -71,7 +67,11 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if not self._is_builtin(node.iter.func, "range"):
             return
-        if len(node.iter.args) == 2 and not _is_constant_zero(node.iter.args[0]):
+        is_constant_zero = (
+            isinstance(node.iter.args[0], astroid.Const)
+            and node.iter.args[0].value == 0
+        )
+        if len(node.iter.args) == 2 and not is_constant_zero:
             return
         if len(node.iter.args) > 2:
             return
