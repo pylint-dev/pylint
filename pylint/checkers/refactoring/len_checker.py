@@ -67,11 +67,18 @@ class LenChecker(checkers.BaseChecker):
             # this len() call is part of a test condition
             if utils.is_test_condition(node, parent):
                 instance = next(node.args[0].infer())
+                try:
+                    instance = next(node.args[0].infer())
+                except astroid.InferenceError:
+                    self.add_message("len-as-condition", node=node)
+                    return
                 mother_classes = self.base_classes_of_node(instance)
                 affected_by_pep8 = any(
-                    t in mother_classes for t in ["str", "tuple", "range", "list"]
+                    t in mother_classes for t in ["str", "tuple", "list", "set"]
                 )
-                if affected_by_pep8 and not self.instance_has_bool(instance):
+                if "range" in mother_classes or (
+                    affected_by_pep8 and not self.instance_has_bool(instance)
+                ):
                     self.add_message("len-as-condition", node=node)
 
     @staticmethod
