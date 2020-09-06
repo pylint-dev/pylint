@@ -50,9 +50,11 @@ def insert_default_options():
 
 
 # astroid utilities ###########################################################
-
-SPECIAL = re.compile(r"^__[^\W_]+\w*__$")
-PRIVATE = re.compile(r"^__\w*[^\W_]+_?$")
+# fix SPECIAL and PRIVATE to avoid Redos
+# SPECIAL = re.compile(r"^__[^\W_]+\w*__$")
+# PRIVATE = re.compile(r"^__\w*[^\W_]+_?$")
+SPECIAL = re.compile(r"^__([^\W_]\w*)+__$")
+PRIVATE = re.compile(r"^__(\w*[^\W_])+_?$")
 PROTECTED = re.compile(r"^_\w*$")
 
 
