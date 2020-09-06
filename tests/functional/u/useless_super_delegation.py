@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring, no-member, no-self-use, bad-super-call
 # pylint: disable=too-few-public-methods, unused-argument, invalid-name, too-many-public-methods
 # pylint: disable=line-too-long, useless-object-inheritance, arguments-out-of-order
-# pylint: disable=super-with-arguments
+# pylint: disable=super-with-arguments, dangerous-default-value
 
 def not_a_method(param, param2):
     return super(None, None).not_a_method(param, param2)
@@ -47,6 +47,9 @@ class Base(SuperBase):
         pass
 
     def with_default_argument_tuple(self, first, default_arg=()):
+        pass
+
+    def with_default_argument_dict(self, first, default_arg={}):
         pass
 
     def with_default_arg_ter(self, first, default_arg="has_been_changed"):
@@ -160,6 +163,10 @@ class NotUselessSuper(Base):
         # Not useless because the default_arg is different from the one in the base class
         super(NotUselessSuper, self).with_default_argument_tuple(first, default_arg)
 
+    def with_default_argument_dict(self, first, default_arg={'foo': 'bar'}):
+        # Not useless because the default_arg is different from the one in the base class
+        super(NotUselessSuper, self).with_default_argument_dict(first, default_arg)
+
     def with_default_argument_bis(self, first, default_arg="default"):
         # Although the default_arg is the same as in the base class, the call signature
         # differs. Thus it is not useless.
@@ -225,6 +232,9 @@ class UselessSuper(Base):
 
     def with_default_argument_tuple(self, first, default_arg=()): # [useless-super-delegation]
         super(UselessSuper, self).with_default_argument_tuple(first, default_arg)
+
+    def with_default_argument_dict(self, first, default_arg={}): # [useless-super-delegation]
+        super(UselessSuper, self).with_default_argument_dict(first, default_arg)
 
     def __init__(self): # [useless-super-delegation]
         super(UselessSuper, self).__init__()

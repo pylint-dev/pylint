@@ -1,46 +1,14 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017-2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2017 Hugo <hugovk@users.noreply.github.com>
-# Copyright (c) 2017 Łukasz Sznuk <ls@rdprojekt.pl>
-# Copyright (c) 2017 Alex Hearn <alex.d.hearn@gmail.com>
-# Copyright (c) 2017 Antonio Ossa <aaossa@uc.cl>
-# Copyright (c) 2018-2019 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Justin Li <justinnhli@gmail.com>
-# Copyright (c) 2018 Jim Robertson <jrobertson98atx@gmail.com>
-# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
-# Copyright (c) 2018 Ben James <benjames1999@hotmail.co.uk>
-# Copyright (c) 2018 Tomer Chachamu <tomer.chachamu@gmail.com>
-# Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2018 Konstantin Manna <Konstantin@Manna.uno>
-# Copyright (c) 2018 Konstantin <Github@pheanex.de>
-# Copyright (c) 2018 Matej Marušák <marusak.matej@gmail.com>
-# Copyright (c) 2018 Mr. Senko <atodorov@mrsenko.com>
-# Copyright (c) 2019 Rémi Cardona <remi.cardona@polyconseil.fr>
-# Copyright (c) 2019 Robert Schweizer <robert_schweizer@gmx.de>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 PHeanEX <github@pheanex.de>
-# Copyright (c) 2019 Paul Renvoise <PaulRenvoise@users.noreply.github.com>
-# Copyright (c) 2020 lrjball <50599110+lrjball@users.noreply.github.com>
-# Copyright (c) 2020 Yang Yang <y4n9squared@gmail.com>
-# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""Looks for code which can be refactored."""
-import builtins
 import collections
 import copy
 import itertools
 import tokenize
 from functools import reduce
-from typing import Optional
+from typing import List
 
 import astroid
 from astroid import decorators
@@ -48,24 +16,21 @@ from astroid import decorators
 from pylint import checkers, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
+from pylint.checkers.refactoring.len_checker import _is_test_condition
 from pylint.checkers.utils import node_frame_class
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
 
 
-def _if_statement_is_always_returning(if_node, returning_node_class):
+def _if_statement_is_always_returning(if_node, returning_node_class) -> bool:
     for node in if_node.body:
         if isinstance(node, returning_node_class):
             return True
     return False
 
 
-def _is_constant_zero(node):
-    return isinstance(node, astroid.Const) and node.value == 0
-
-
-def _is_trailing_comma(tokens, index):
+def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
     """Check if the given token is a trailing comma
 
     :param tokens: Sequence of modules tokens
@@ -79,11 +44,14 @@ def _is_trailing_comma(tokens, index):
         return False
     # Must have remaining tokens on the same line such as NEWLINE
     left_tokens = itertools.islice(tokens, index + 1, None)
+
+    def same_start_token(
+        other_token: tokenize.TokenInfo, _token: tokenize.TokenInfo = token
+    ) -> bool:
+        return other_token.start[0] == _token.start[0]
+
     same_line_remaining_tokens = list(
-        itertools.takewhile(
-            lambda other_token, _token=token: other_token.start[0] == _token.start[0],
-            left_tokens,
-        )
+        itertools.takewhile(same_start_token, left_tokens)
     )
     # Note: If the newline is tokenize.NEWLINE and not tokenize.NL
     # then the newline denotes the end of expression
@@ -108,28 +76,6 @@ def _is_trailing_comma(tokens, index):
         if "=" in prevtoken.string or prevtoken.string in expected_tokens:
             return True
     return False
-
-
-def _is_call_of_name(node: astroid.node_classes.NodeNG, name: str) -> bool:
-    """Checks if node is a function call with the given name"""
-    return (
-        isinstance(node, astroid.Call)
-        and isinstance(node.func, astroid.Name)
-        and node.func.name == name
-    )
-
-
-def _is_test_condition(
-    node: astroid.node_classes.NodeNG,
-    parent: Optional[astroid.node_classes.NodeNG] = None,
-) -> bool:
-    """Returns true if the given node is being tested for truthiness"""
-    parent = parent or node.parent
-    if isinstance(parent, (astroid.While, astroid.If, astroid.IfExp, astroid.Assert)):
-        return node is parent.test or parent.test.parent_of(node)
-    if isinstance(parent, astroid.Comprehension):
-        return node in parent.ifs
-    return _is_call_of_name(parent, "bool") and parent.parent_of(node)
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
@@ -1444,268 +1390,3 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # return None"
             elif isinstance(last.value, astroid.Const) and (last.value.value is None):
                 self.add_message("useless-return", node=node)
-
-
-class RecommandationChecker(checkers.BaseChecker):
-    __implements__ = (interfaces.IAstroidChecker,)
-    name = "refactoring"
-    msgs = {
-        "C0200": (
-            "Consider using enumerate instead of iterating with range and len",
-            "consider-using-enumerate",
-            "Emitted when code that iterates with range and len is "
-            "encountered. Such code can be simplified by using the "
-            "enumerate builtin.",
-        ),
-        "C0201": (
-            "Consider iterating the dictionary directly instead of calling .keys()",
-            "consider-iterating-dictionary",
-            "Emitted when the keys of a dictionary are iterated through the .keys() "
-            "method. It is enough to just iterate through the dictionary itself, as "
-            'in "for key in dictionary".',
-        ),
-    }
-
-    @staticmethod
-    def _is_builtin(node, function):
-        inferred = utils.safe_infer(node)
-        if not inferred:
-            return False
-        return utils.is_builtin_object(inferred) and inferred.name == function
-
-    @utils.check_messages("consider-iterating-dictionary")
-    def visit_call(self, node):
-        if not isinstance(node.func, astroid.Attribute):
-            return
-        if node.func.attrname != "keys":
-            return
-        if not isinstance(node.parent, (astroid.For, astroid.Comprehension)):
-            return
-
-        inferred = utils.safe_infer(node.func)
-        if not isinstance(inferred, astroid.BoundMethod) or not isinstance(
-            inferred.bound, astroid.Dict
-        ):
-            return
-
-        if isinstance(node.parent, (astroid.For, astroid.Comprehension)):
-            self.add_message("consider-iterating-dictionary", node=node)
-
-    @utils.check_messages("consider-using-enumerate")
-    def visit_for(self, node):
-        """Emit a convention whenever range and len are used for indexing."""
-        # Verify that we have a `range([start], len(...), [stop])` call and
-        # that the object which is iterated is used as a subscript in the
-        # body of the for.
-
-        # Is it a proper range call?
-        if not isinstance(node.iter, astroid.Call):
-            return
-        if not self._is_builtin(node.iter.func, "range"):
-            return
-        if len(node.iter.args) == 2 and not _is_constant_zero(node.iter.args[0]):
-            return
-        if len(node.iter.args) > 2:
-            return
-
-        # Is it a proper len call?
-        if not isinstance(node.iter.args[-1], astroid.Call):
-            return
-        second_func = node.iter.args[-1].func
-        if not self._is_builtin(second_func, "len"):
-            return
-        len_args = node.iter.args[-1].args
-        if not len_args or len(len_args) != 1:
-            return
-        iterating_object = len_args[0]
-        if not isinstance(iterating_object, astroid.Name):
-            return
-        # If we're defining __iter__ on self, enumerate won't work
-        scope = node.scope()
-        if iterating_object.name == "self" and scope.name == "__iter__":
-            return
-
-        # Verify that the body of the for loop uses a subscript
-        # with the object that was iterated. This uses some heuristics
-        # in order to make sure that the same object is used in the
-        # for body.
-        for child in node.body:
-            for subscript in child.nodes_of_class(astroid.Subscript):
-                if not isinstance(subscript.value, astroid.Name):
-                    continue
-
-                value = subscript.slice
-                if isinstance(value, astroid.Index):
-                    value = value.value
-                if not isinstance(value, astroid.Name):
-                    continue
-                if value.name != node.target.name:
-                    continue
-                if iterating_object.name != subscript.value.name:
-                    continue
-                if subscript.value.scope() != node.scope():
-                    # Ignore this subscript if it's not in the same
-                    # scope. This means that in the body of the for
-                    # loop, another scope was created, where the same
-                    # name for the iterating object was used.
-                    continue
-                self.add_message("consider-using-enumerate", node=node)
-                return
-
-
-class NotChecker(checkers.BaseChecker):
-    """checks for too many not in comparison expressions
-
-    - "not not" should trigger a warning
-    - "not" followed by a comparison should trigger a warning
-    """
-
-    __implements__ = (interfaces.IAstroidChecker,)
-    msgs = {
-        "C0113": (
-            'Consider changing "%s" to "%s"',
-            "unneeded-not",
-            "Used when a boolean expression contains an unneeded negation.",
-        )
-    }
-    name = "refactoring"
-    reverse_op = {
-        "<": ">=",
-        "<=": ">",
-        ">": "<=",
-        ">=": "<",
-        "==": "!=",
-        "!=": "==",
-        "in": "not in",
-        "is": "is not",
-    }
-    # sets are not ordered, so for example "not set(LEFT_VALS) <= set(RIGHT_VALS)" is
-    # not equivalent to "set(LEFT_VALS) > set(RIGHT_VALS)"
-    skipped_nodes = (astroid.Set,)
-    # 'builtins' py3, '__builtin__' py2
-    skipped_classnames = [
-        "%s.%s" % (builtins.__name__, qname) for qname in ("set", "frozenset")
-    ]
-
-    @utils.check_messages("unneeded-not")
-    def visit_unaryop(self, node):
-        if node.op != "not":
-            return
-        operand = node.operand
-
-        if isinstance(operand, astroid.UnaryOp) and operand.op == "not":
-            self.add_message(
-                "unneeded-not",
-                node=node,
-                args=(node.as_string(), operand.operand.as_string()),
-            )
-        elif isinstance(operand, astroid.Compare):
-            left = operand.left
-            # ignore multiple comparisons
-            if len(operand.ops) > 1:
-                return
-            operator, right = operand.ops[0]
-            if operator not in self.reverse_op:
-                return
-            # Ignore __ne__ as function of __eq__
-            frame = node.frame()
-            if frame.name == "__ne__" and operator == "==":
-                return
-            for _type in (utils.node_type(left), utils.node_type(right)):
-                if not _type:
-                    return
-                if isinstance(_type, self.skipped_nodes):
-                    return
-                if (
-                    isinstance(_type, astroid.Instance)
-                    and _type.qname() in self.skipped_classnames
-                ):
-                    return
-            suggestion = "%s %s %s" % (
-                left.as_string(),
-                self.reverse_op[operator],
-                right.as_string(),
-            )
-            self.add_message(
-                "unneeded-not", node=node, args=(node.as_string(), suggestion)
-            )
-
-
-class LenChecker(checkers.BaseChecker):
-    """Checks for incorrect usage of len() inside conditions.
-    Pep8 states:
-    For sequences, (strings, lists, tuples), use the fact that empty sequences are false.
-
-        Yes: if not seq:
-             if seq:
-
-        No: if len(seq):
-            if not len(seq):
-
-    Problems detected:
-    * if len(sequence):
-    * if not len(sequence):
-    * elif len(sequence):
-    * elif not len(sequence):
-    * while len(sequence):
-    * while not len(sequence):
-    * assert len(sequence):
-    * assert not len(sequence):
-    * bool(len(sequence))
-    """
-
-    __implements__ = (interfaces.IAstroidChecker,)
-
-    # configuration section name
-    name = "refactoring"
-    msgs = {
-        "C1801": (
-            "Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty",
-            "len-as-condition",
-            "Used when Pylint detects that len(sequence) is being used "
-            "without explicit comparison inside a condition to determine if a sequence is empty. "
-            "Instead of coercing the length to a boolean, either "
-            "rely on the fact that empty sequences are false or "
-            "compare the length against a scalar.",
-        )
-    }
-
-    priority = -2
-    options = ()
-
-    @utils.check_messages("len-as-condition")
-    def visit_call(self, node):
-        # a len(S) call is used inside a test condition
-        # could be if, while, assert or if expression statement
-        # e.g. `if len(S):`
-        if _is_call_of_name(node, "len"):
-            # the len() call could also be nested together with other
-            # boolean operations, e.g. `if z or len(x):`
-            parent = node.parent
-            while isinstance(parent, astroid.BoolOp):
-                parent = parent.parent
-
-            # we're finally out of any nested boolean operations so check if
-            # this len() call is part of a test condition
-            if _is_test_condition(node, parent):
-                self.add_message("len-as-condition", node=node)
-
-    @utils.check_messages("len-as-condition")
-    def visit_unaryop(self, node):
-        """`not len(S)` must become `not S` regardless if the parent block
-        is a test condition or something else (boolean expression)
-        e.g. `if not len(S):`"""
-        if (
-            isinstance(node, astroid.UnaryOp)
-            and node.op == "not"
-            and _is_call_of_name(node.operand, "len")
-        ):
-            self.add_message("len-as-condition", node=node)
-
-
-def register(linter):
-    """Required method to auto register this checker."""
-    linter.register_checker(RefactoringChecker(linter))
-    linter.register_checker(NotChecker(linter))
-    linter.register_checker(RecommandationChecker(linter))
-    linter.register_checker(LenChecker(linter))
