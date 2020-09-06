@@ -453,6 +453,7 @@ def _safe_infer_call_result(node, caller, context=None):
         return None  # there is some kind of ambiguity
     except StopIteration:
         return value
+    return None
 
 
 def _has_same_layout_slots(slots, assigned_value):

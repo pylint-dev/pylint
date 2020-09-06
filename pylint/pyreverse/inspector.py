@@ -37,6 +37,7 @@ def _astroid_wrapper(func, modname):
         print(exc)
     except Exception as exc:  # pylint: disable=broad-except
         traceback.print_exc()
+    return None
 
 
 def interfaces(node, herited=True, handler_func=_iface_hdlr):

@@ -133,6 +133,7 @@ class EncodingChecker(BaseChecker):
                     args='Cannot decode using encoding "{}",'
                     " bad encoding".format(file_encoding),
                 )
+        return None
 
     def process_module(self, module):
         """inspect the source file to find encoding problem"""

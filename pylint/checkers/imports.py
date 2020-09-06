@@ -800,6 +800,7 @@ class ImportsChecker(BaseChecker):
 
             dotted_modname = _get_import_name(importnode, modname)
             self.add_message("import-error", args=repr(dotted_modname), node=importnode)
+        return None
 
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""

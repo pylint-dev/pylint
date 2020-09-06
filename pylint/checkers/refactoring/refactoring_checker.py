@@ -1218,7 +1218,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node.nodes_of_class(astroid.Return, skip_klass=astroid.FunctionDef)
         )
 
-    def _check_consistent_returns(self, node):
+    def _check_consistent_returns(self, node: astroid.FunctionDef) -> None:
         """Check that all return statements inside a function are consistent.
 
         Return statements are consistent if:
@@ -1241,11 +1241,74 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
         self.add_message("inconsistent-return-statements", node=node)
 
-    def _is_node_return_ended(self, node):
+    def _is_if_node_return_ended(self, node: astroid.If) -> bool:
+        """Check if the If node ends with an explicit return statement.
+
+        Args:
+            node (astroid.If): If node to be checked.
+
+        Returns:
+            bool: True if the node ends with an explicit statement, False otherwise.
+        """
+        # Do not check if inner function definition are return ended.
+        is_if_returning = any(
+            self._is_node_return_ended(_ifn)
+            for _ifn in node.body
+            if not isinstance(_ifn, astroid.FunctionDef)
+        )
+        if not node.orelse:
+            # If there is not orelse part then the if statement is returning if :
+            #  - there is at least one return statement in its siblings;
+            # - the if body is itself returning.
+            if not self._has_return_in_siblings(node):
+                return False
+            return is_if_returning
+        # If there is an orelse part then both if body and orelse part should return.
+        is_orelse_returning = any(
+            self._is_node_return_ended(_ore)
+            for _ore in node.orelse
+            if not isinstance(_ore, astroid.FunctionDef)
+        )
+        return is_if_returning and is_orelse_returning
+
+    def _is_raise_node_return_ended(self, node: astroid.Raise) -> bool:
+        """Check if the Raise node ends with an explicit return statement.
+
+        Args:
+            node (astroid.Raise): Raise node to be checked.
+
+        Returns:
+            bool: True if the node ends with an explicit statement, False otherwise.
+        """
+        # a Raise statement doesn't need to end with a return statement
+        # but if the exception raised is handled, then the handler has to
+        # ends with a return statement
+        if not node.exc:
+            # Ignore bare raises
+            return True
+        if not utils.is_node_inside_try_except(node):
+            # If the raise statement is not inside a try/except statement
+            #  then the exception is raised and cannot be caught. No need
+            #  to infer it.
+            return True
+        exc = utils.safe_infer(node.exc)
+        if exc is None or exc is astroid.Uninferable or not hasattr(exc, "pytype"):
+            return False
+        exc_name = exc.pytype().split(".")[-1]
+        handlers = utils.get_exception_handlers(node, exc_name)
+        handlers = list(handlers) if handlers is not None else []
+        if handlers:
+            # among all the handlers handling the exception at least one
+            # must end with a return statement
+            return any(self._is_node_return_ended(_handler) for _handler in handlers)
+        # if no handlers handle the exception then it's ok
+        return True
+
+    def _is_node_return_ended(self, node: astroid.node_classes.NodeNG) -> bool:
         """Check if the node ends with an explicit return statement.
 
         Args:
-            node (astroid.NodeNG): node to be checked.
+            node (astroid.node_classes.NodeNG): node to be checked.
 
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
@@ -1266,55 +1329,29 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if isinstance(node, astroid.While):
             return True
         if isinstance(node, astroid.Raise):
-            # a Raise statement doesn't need to end with a return statement
-            # but if the exception raised is handled, then the handler has to
-            # ends with a return statement
-            if not node.exc:
-                # Ignore bare raises
-                return True
-            if not utils.is_node_inside_try_except(node):
-                # If the raise statement is not inside a try/except statement
-                #  then the exception is raised and cannot be caught. No need
-                #  to infer it.
-                return True
-            exc = utils.safe_infer(node.exc)
-            if exc is None or exc is astroid.Uninferable or not hasattr(exc, "pytype"):
-                return False
-            exc_name = exc.pytype().split(".")[-1]
-            handlers = utils.get_exception_handlers(node, exc_name)
-            handlers = list(handlers) if handlers is not None else []
-            if handlers:
-                # among all the handlers handling the exception at least one
-                # must end with a return statement
-                return any(
-                    self._is_node_return_ended(_handler) for _handler in handlers
-                )
-            # if no handlers handle the exception then it's ok
-            return True
+            return self._is_raise_node_return_ended(node)
         if isinstance(node, astroid.If):
-            # if statement is returning if there are exactly two return statements in its
-            #  children : one for the body part, the other for the orelse part
-            # Do not check if inner function definition are return ended.
-            is_orelse_returning = any(
-                self._is_node_return_ended(_ore)
-                for _ore in node.orelse
-                if not isinstance(_ore, astroid.FunctionDef)
+            return self._is_if_node_return_ended(node)
+        if isinstance(node, astroid.TryExcept):
+            return all(
+                self._is_node_return_ended(_child) for _child in node.get_children()
             )
-            is_if_returning = any(
-                self._is_node_return_ended(_ifn)
-                for _ifn in node.body
-                if not isinstance(_ifn, astroid.FunctionDef)
-            )
-            return is_if_returning and is_orelse_returning
-        #  recurses on the children of the node except for those which are except handler
-        # because one cannot be sure that the handler will really be used
-        return any(
-            self._is_node_return_ended(_child)
-            for _child in node.get_children()
-            if not isinstance(_child, astroid.ExceptHandler)
-        )
+        #  recurses on the children of the node
+        return any(self._is_node_return_ended(_child) for _child in node.get_children())
 
-    def _is_function_def_never_returning(self, node):
+    @staticmethod
+    def _has_return_in_siblings(node: astroid.node_classes.NodeNG) -> bool:
+        """
+        Returns True if there is at least one return in the node's siblings
+        """
+        next_sibling = node.next_sibling()
+        while next_sibling:
+            if isinstance(next_sibling, astroid.Return):
+                return True
+            next_sibling = next_sibling.next_sibling()
+        return False
+
+    def _is_function_def_never_returning(self, node: astroid.FunctionDef) -> bool:
         """Return True if the function never returns. False otherwise.
 
         Args:
