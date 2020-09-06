@@ -1250,7 +1250,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
         """
-        assert isinstance(node, astroid.If)
         # Do not check if inner function definition are return ended.
         is_if_returning = any(
             self._is_node_return_ended(_ifn)
@@ -1281,7 +1280,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
         """
-        assert isinstance(node, astroid.Raise)
         # a Raise statement doesn't need to end with a return statement
         # but if the exception raised is handled, then the handler has to
         # ends with a return statement
@@ -1306,11 +1304,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # if no handlers handle the exception then it's ok
         return True
 
-    def _is_node_return_ended(self, node: astroid.NodeNG) -> bool:
+    def _is_node_return_ended(self, node: astroid.node_classes.NodeNG) -> bool:
         """Check if the node ends with an explicit return statement.
 
         Args:
-            node (astroid.NodeNG): node to be checked.
+            node (astroid.node_classes.NodeNG): node to be checked.
 
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
@@ -1342,7 +1340,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return any(self._is_node_return_ended(_child) for _child in node.get_children())
 
     @staticmethod
-    def _has_return_in_siblings(node: astroid.NodeNG) -> bool:
+    def _has_return_in_siblings(node: astroid.node_classes.NodeNG) -> bool:
         """
         Returns True if there is at least one return in the node's siblings
         """
