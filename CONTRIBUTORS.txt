@@ -400,4 +400,6 @@ contributors:
 
 * Matěj Grabovský: contributor
 
+* Yeting Li (yetingli): contributor
+
 * Frost Ming (frostming): contributor
