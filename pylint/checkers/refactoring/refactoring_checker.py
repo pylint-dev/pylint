@@ -1218,7 +1218,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node.nodes_of_class(astroid.Return, skip_klass=astroid.FunctionDef)
         )
 
-    def _check_consistent_returns(self, node: astroid.FunctionDef) -> bool:
+    def _check_consistent_returns(self, node: astroid.FunctionDef) -> None:
         """Check that all return statements inside a function are consistent.
 
         Return statements are consistent if:
