@@ -1218,7 +1218,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node.nodes_of_class(astroid.Return, skip_klass=astroid.FunctionDef)
         )
 
-    def _check_consistent_returns(self, node):
+    def _check_consistent_returns(self, node: astroid.FunctionDef) -> bool:
         """Check that all return statements inside a function are consistent.
 
         Return statements are consistent if:
@@ -1272,7 +1272,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         return is_if_returning and is_orelse_returning
 
-    def _is_raise_node_return_ended(self, node):
+    def _is_raise_node_return_ended(self, node: astroid.Raise) -> bool:
         """Check if the Raise node ends with an explicit return statement.
 
         Args:
@@ -1306,7 +1306,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # if no handlers handle the exception then it's ok
         return True
 
-    def _is_node_return_ended(self, node):
+    def _is_node_return_ended(self, node: astroid.NodeNG) -> bool:
         """Check if the node ends with an explicit return statement.
 
         Args:
@@ -1342,7 +1342,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return any(self._is_node_return_ended(_child) for _child in node.get_children())
 
     @staticmethod
-    def _has_return_in_siblings(node):
+    def _has_return_in_siblings(node: astroid.NodeNG) -> bool:
         """
         Returns True if there is at least one return in the node's siblings
         """
@@ -1353,7 +1353,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             next_sibling = next_sibling.next_sibling()
         return False
 
-    def _is_function_def_never_returning(self, node):
+    def _is_function_def_never_returning(self, node: astroid.FunctionDef) -> bool:
         """Return True if the function never returns. False otherwise.
 
         Args:
