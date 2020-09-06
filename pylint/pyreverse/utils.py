@@ -50,12 +50,13 @@ def insert_default_options():
 
 
 # astroid utilities ###########################################################
-
-SPECIAL = re.compile(r"^__[^\W_]+\w*__$")
-PRIVATE = re.compile(r"^__\w*[^\W_]+_?$")
+# fix SPECIAL and PRIVATE to avoid potential ReDoS
+SPECIAL = re.compile(r"^__([^\W_]_*)+__$")
+PRIVATE = re.compile(r"^__(_*[^\W_])+_?$")
 PROTECTED = re.compile(r"^_\w*$")
 
 
+gi
 def get_visibility(name):
     """return the visibility from a name: public, protected, private or special
     """
