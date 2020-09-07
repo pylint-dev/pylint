@@ -99,6 +99,7 @@ class LenChecker(checkers.BaseChecker):
 
     @staticmethod
     def base_classes_of_node(instance: astroid.nodes.ClassDef) -> List[astroid.Name]:
+        """Return all the classes names that a ClassDef inherit from including 'object'."""
         mother_classes = [instance.name]
         base_classes = instance.bases
         while base_classes and "object" not in mother_classes:
