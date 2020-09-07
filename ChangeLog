@@ -103,6 +103,10 @@ Release date: TBA
 
   Close #3735
 
+* `len-as-conditions` is now triggered only for classes that are inheriting directly from list, dict, or set and not implementing the `__bool__` function, or from generators like range or list/dict/set comprehension. This should reduce the false positives for other classes, like pandas's DataFrame or numpy's Array.
+
+  Close #1879
+
 What's New in Pylint 2.6.0?
 ===========================
 
