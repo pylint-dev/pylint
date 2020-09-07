@@ -70,6 +70,8 @@ class LenChecker(checkers.BaseChecker):
                 try:
                     instance = next(node.args[0].infer())
                 except astroid.InferenceError:
+                    # Inference error happens for list comprehension, dict comprehension,
+                    # set comprehension and generators (like range)
                     self.add_message("len-as-condition", node=node)
                     return
                 mother_classes = self.base_classes_of_node(instance)
