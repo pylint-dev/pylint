@@ -791,7 +791,6 @@ def test_custom_should_analyze_file():
 def test_multiprocessing(jobs):
     """ Check that multiprocessing does not create duplicates.
     """
-    source_dir = os.path.join(REGRTEST_DATA_DIR)
     # For the bug (#3584) to show up we need more than one file with issues
     # per process
     filenames = [
@@ -810,8 +809,8 @@ def test_multiprocessing(jobs):
     linter.set_reporter(reporter)
 
     try:
-        sys.path.append(os.path.dirname(source_dir))
-        linter.check([os.path.join(source_dir, fname) for fname in filenames])
+        sys.path.append(os.path.dirname(REGRTEST_DATA_DIR))
+        linter.check([os.path.join(REGRTEST_DATA_DIR, fname) for fname in filenames])
     finally:
         sys.path.pop()
 
