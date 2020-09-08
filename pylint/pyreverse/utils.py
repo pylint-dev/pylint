@@ -56,7 +56,6 @@ PRIVATE = re.compile(r"^__(_*[^\W_])+_?$")
 PROTECTED = re.compile(r"^_\w*$")
 
 
-gi
 def get_visibility(name):
     """return the visibility from a name: public, protected, private or special
     """
