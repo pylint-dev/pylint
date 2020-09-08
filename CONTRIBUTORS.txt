@@ -399,3 +399,5 @@ contributors:
 * Ethan Leba: contributor
 
 * Matěj Grabovský: contributor
+
+* Frost Ming (frostming): contributor
