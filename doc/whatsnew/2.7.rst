@@ -16,3 +16,7 @@ New checkers
 
 Other Changes
 =============
+
+* Fix bug that lead to duplicate messages when using ``--jobs 2`` or more.
+
+  Close #3584
