@@ -69,6 +69,10 @@ Release date: TBA
 
   Closes #4365
 
+* Added optional extension ``while_used``: Emitted whenever a ``while`` loop is used.
+
+  Closes # 4367
+
 * Added ``forgotten-debug-statement``: Emitted when ``breakpoint``, ``pdb.set_trace`` or ``sys.breakpointhook`` calls are found
 
   Closes #3692
