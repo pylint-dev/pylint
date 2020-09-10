@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/ambv/black
-    rev: 19.10b0
+    rev: 20.8b1
     hooks:
     - id: black
       args: [--safe, --quiet]
@@ -10,7 +10,7 @@ repos:
     hooks:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
--   repo: https://github.com/pre-commit/mirrors-isort
-    rev: v4.3.21
+-   repo: https://github.com/PyCQA/isort
+    rev: 5.5.2
     hooks:
     -   id: isort
