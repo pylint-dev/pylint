@@ -534,7 +534,8 @@ def test_load_plugin_config_file():
     config_path = join(REGRTEST_DATA_DIR, "dummy_plugin.rc")
 
     run = Run(
-        ["--rcfile", config_path, join(REGRTEST_DATA_DIR, "empty.py")], exit=False,
+        ["--rcfile", config_path, join(REGRTEST_DATA_DIR, "empty.py")],
+        exit=False,
     )
     assert (
         len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
@@ -789,8 +790,7 @@ def test_custom_should_analyze_file():
 # are created by the multiprocessing problem.
 @pytest.mark.parametrize("jobs", [1, 2])
 def test_multiprocessing(jobs):
-    """ Check that multiprocessing does not create duplicates.
-    """
+    """Check that multiprocessing does not create duplicates."""
     # For the bug (#3584) to show up we need more than one file with issues
     # per process
     filenames = [

@@ -163,8 +163,7 @@ def _in_iterating_context(node):
 
 
 def _is_conditional_import(node):
-    """Checks if an import node is in the context of a conditional.
-    """
+    """Checks if an import node is in the context of a conditional."""
     parent = node.parent
     return isinstance(
         parent, (astroid.TryExcept, astroid.ExceptHandler, astroid.If, astroid.IfExp)

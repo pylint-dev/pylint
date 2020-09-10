@@ -128,7 +128,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.checker.visit_global(node)
 
     def test_listcomp_in_decorator(self):
-        """ Make sure class attributes in scope for listcomp in decorator.
+        """Make sure class attributes in scope for listcomp in decorator.
 
         https://github.com/PyCQA/pylint/issues/511
         """
@@ -154,7 +154,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.walk(module)
 
     def test_listcomp_in_ancestors(self):
-        """ Ensure list comprehensions in base classes are scoped correctly
+        """Ensure list comprehensions in base classes are scoped correctly
 
         https://github.com/PyCQA/pylint/issues/3434
         """
@@ -174,7 +174,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.walk(module)
 
     def test_return_type_annotation(self):
-        """ Make sure class attributes in scope for return type annotations.
+        """Make sure class attributes in scope for return type annotations.
 
         https://github.com/PyCQA/pylint/issues/1976
         """

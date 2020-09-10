@@ -20,8 +20,7 @@ from pylint.pyreverse.vcgutils import VCGPrinter
 
 
 class DiagramWriter:
-    """base class for writing project diagrams
-    """
+    """base class for writing project diagrams"""
 
     def __init__(self, config, styles):
         self.config = config
@@ -29,8 +28,7 @@ class DiagramWriter:
         self.printer = None  # defined in set_printer
 
     def write(self, diadefs):
-        """write files for <project> according to <diadefs>
-        """
+        """write files for <project> according to <diadefs>"""
         for diagram in diadefs:
             basename = diagram.title.strip().replace(" ", "_")
             file_name = "%s.%s" % (basename, self.config.output_format)
@@ -96,8 +94,7 @@ class DiagramWriter:
 
 
 class DotWriter(DiagramWriter):
-    """write dot graphs from a diagram definition and a project
-    """
+    """write dot graphs from a diagram definition and a project"""
 
     def __init__(self, config):
         styles = [
@@ -111,8 +108,7 @@ class DotWriter(DiagramWriter):
         DiagramWriter.__init__(self, config, styles)
 
     def set_printer(self, file_name, basename):
-        """initialize DotWriter and add options for layout.
-        """
+        """initialize DotWriter and add options for layout."""
         layout = dict(rankdir="BT")
         self.printer = DotBackend(basename, additional_param=layout)
         self.file_name = file_name
@@ -148,8 +144,7 @@ class DotWriter(DiagramWriter):
 
 
 class VCGWriter(DiagramWriter):
-    """write vcg graphs from a diagram definition and a project
-    """
+    """write vcg graphs from a diagram definition and a project"""
 
     def __init__(self, config):
         styles = [

@@ -17,8 +17,7 @@ from pylint.interfaces import IAstroidChecker, ITokenChecker
 
 
 class ElseifUsedChecker(BaseTokenChecker):
-    """Checks for use of "else if" when an "elif" could be used
-    """
+    """Checks for use of "else if" when an "elif" could be used"""
 
     __implements__ = (ITokenChecker, IAstroidChecker)
     name = "else_if_used"

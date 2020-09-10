@@ -955,8 +955,7 @@ class PyLinter(
                 yield (name, filepath, descr["basename"])
 
     def _expand_files(self, modules):
-        """get modules and errors from a list of modules and handle errors
-        """
+        """get modules and errors from a list of modules and handle errors"""
         result, errors = utils.expand_modules(
             modules, self.config.black_list, self.config.black_list_re
         )

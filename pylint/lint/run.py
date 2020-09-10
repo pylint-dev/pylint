@@ -72,7 +72,11 @@ group are mutually exclusive.",
         return 1
 
     def __init__(
-        self, args, reporter=None, exit=True, do_exit=UNUSED_PARAM_SENTINEL,
+        self,
+        args,
+        reporter=None,
+        exit=True,
+        do_exit=UNUSED_PARAM_SENTINEL,
     ):  # pylint: disable=redefined-builtin
         self._rcfile = None
         self._version_asked = False

@@ -768,8 +768,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message("stop-iteration-return", node=node)
 
     def _check_nested_blocks(self, node):
-        """Update and check the number of nested blocks
-        """
+        """Update and check the number of nested blocks"""
         # only check block levels inside functions or methods
         if not isinstance(node.scope(), astroid.FunctionDef):
             return

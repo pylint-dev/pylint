@@ -294,8 +294,7 @@ class MisdesignChecker(BaseChecker):
         "too-many-public-methods",
     )
     def visit_classdef(self, node):
-        """check size of inheritance hierarchy and number of instance attributes
-        """
+        """check size of inheritance hierarchy and number of instance attributes"""
         nb_parents = len(list(node.ancestors()))
         if nb_parents > self.config.max_parents:
             self.add_message(

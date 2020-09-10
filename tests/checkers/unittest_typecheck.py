@@ -44,8 +44,7 @@ class TestTypeChecker(CheckerTestCase):
     CHECKER_CLASS = typecheck.TypeChecker
 
     def test_no_member_in_getattr(self):
-        """Make sure that a module attribute access is checked by pylint.
-        """
+        """Make sure that a module attribute access is checked by pylint."""
 
         node = astroid.extract_node(
             """
