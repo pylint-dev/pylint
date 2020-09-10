@@ -257,7 +257,9 @@ class LoggingChecker(checkers.BaseChecker):
                 emit = total_number_of_strings > 0
             if emit:
                 self.add_message(
-                    "logging-not-lazy", node=node, args=(self._helper_string(node),),
+                    "logging-not-lazy",
+                    node=node,
+                    args=(self._helper_string(node),),
                 )
         elif isinstance(node.args[format_pos], astroid.Call):
             self._check_call_func(node.args[format_pos])

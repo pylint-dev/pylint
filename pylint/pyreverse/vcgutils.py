@@ -156,36 +156,31 @@ EDGE_ATTRS = {
 
 
 class VCGPrinter:
-    """A vcg graph writer.
-    """
+    """A vcg graph writer."""
 
     def __init__(self, output_stream):
         self._stream = output_stream
         self._indent = ""
 
     def open_graph(self, **args):
-        """open a vcg graph
-        """
+        """open a vcg graph"""
         self._stream.write("%sgraph:{\n" % self._indent)
         self._inc_indent()
         self._write_attributes(GRAPH_ATTRS, **args)
 
     def close_graph(self):
-        """close a vcg graph
-        """
+        """close a vcg graph"""
         self._dec_indent()
         self._stream.write("%s}\n" % self._indent)
 
     def node(self, title, **args):
-        """draw a node
-        """
+        """draw a node"""
         self._stream.write('%snode: {title:"%s"' % (self._indent, title))
         self._write_attributes(NODE_ATTRS, **args)
         self._stream.write("}\n")
 
     def edge(self, from_node, to_node, edge_type="", **args):
-        """draw an edge from a node to another.
-        """
+        """draw an edge from a node to another."""
         self._stream.write(
             '%s%sedge: {sourcename:"%s" targetname:"%s"'
             % (self._indent, edge_type, from_node, to_node)
@@ -196,8 +191,7 @@ class VCGPrinter:
     # private ##################################################################
 
     def _write_attributes(self, attributes_dict, **args):
-        """write graph, node or edge attributes
-        """
+        """write graph, node or edge attributes"""
         for key, value in args.items():
             try:
                 _type = attributes_dict[key]
@@ -222,11 +216,9 @@ correct values are %s"""
                 )
 
     def _inc_indent(self):
-        """increment indentation
-        """
+        """increment indentation"""
         self._indent = "  %s" % self._indent
 
     def _dec_indent(self):
-        """decrement indentation
-        """
+        """decrement indentation"""
         self._indent = self._indent[:-2]

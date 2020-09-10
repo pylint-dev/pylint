@@ -171,8 +171,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         self.extract_classes(node, anc_level, association_level)
 
     def visit_importfrom(self, node):
-        """visit astroid.ImportFrom  and catch modules for package diagram
-        """
+        """visit astroid.ImportFrom  and catch modules for package diagram"""
         if self.pkgdiagram:
             self.pkgdiagram.add_from_depend(node, node.modname)
 

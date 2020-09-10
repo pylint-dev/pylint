@@ -707,8 +707,7 @@ def _is_invalid_isinstance_type(arg):
 
 
 class TypeChecker(BaseChecker):
-    """try to find bugs in the code using type inference
-    """
+    """try to find bugs in the code using type inference"""
 
     __implements__ = (IAstroidChecker,)
 

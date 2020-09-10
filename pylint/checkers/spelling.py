@@ -65,8 +65,7 @@ else:
 
 
 class WordsWithDigigtsFilter(Filter):
-    """Skips words with digits.
-    """
+    """Skips words with digits."""
 
     def _skip(self, word):
         for char in word:

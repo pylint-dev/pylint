@@ -362,7 +362,7 @@ def _has_data_descriptor(cls, attr):
 
 
 def _called_in_methods(func, klass, methods):
-    """ Check if the func was called in any of the given methods,
+    """Check if the func was called in any of the given methods,
     belonging to the *klass*. Returns True if so, False otherwise.
     """
     if not isinstance(func, astroid.FunctionDef):
@@ -785,8 +785,7 @@ a metaclass class method.",
         "duplicate-bases",
     )
     def visit_classdef(self, node):
-        """init visit variable _accessed
-        """
+        """init visit variable _accessed"""
         self._check_bases_classes(node)
         # if not an exception or a metaclass
         if node.type == "class" and has_known_bases(node):
@@ -1265,7 +1264,7 @@ a metaclass class method.",
         self._check_in_slots(node)
 
     def _check_in_slots(self, node):
-        """ Check that the given AssignAttr node
+        """Check that the given AssignAttr node
         is defined in the class slots.
         """
         inferred = safe_infer(node.expr)
@@ -1681,8 +1680,7 @@ a metaclass class method.",
             self.add_message("super-init-not-called", args=klass.name, node=node)
 
     def _check_signature(self, method1, refmethod, class_type, cls):
-        """check that the signature of the two given methods match
-        """
+        """check that the signature of the two given methods match"""
         if not (
             isinstance(method1, astroid.FunctionDef)
             and isinstance(refmethod, astroid.FunctionDef)

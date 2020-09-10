@@ -62,11 +62,10 @@ class IChecker(Interface):
 
 
 class IRawChecker(IChecker):
-    """interface for checker which need to parse the raw file
-    """
+    """interface for checker which need to parse the raw file"""
 
     def process_module(self, astroid):
-        """ process a module
+        """process a module
 
         the module's content is accessible via astroid.stream
         """
@@ -83,21 +82,19 @@ class ITokenChecker(IChecker):
 
 
 class IAstroidChecker(IChecker):
-    """ interface for checker which prefers receive events according to
+    """interface for checker which prefers receive events according to
     statement type
     """
 
 
 class IReporter(Interface):
-    """ reporter collect messages and display results encapsulated in a layout
-    """
+    """reporter collect messages and display results encapsulated in a layout"""
 
     def handle_message(self, msg):
         """Handle the given message object."""
 
     def display_reports(self, layout):
-        """display results encapsulated in the layout tree
-        """
+        """display results encapsulated in the layout tree"""
 
 
 __all__ = ("IRawChecker", "IAstroidChecker", "ITokenChecker", "IReporter")

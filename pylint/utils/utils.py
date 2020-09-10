@@ -268,7 +268,7 @@ def register_plugins(linter, directory):
 
 
 def get_global_option(checker, option, default=None):
-    """ Retrieve an option defined by the given *checker* or
+    """Retrieve an option defined by the given *checker* or
     by all known option providers.
 
     It will look in the list of all options providers

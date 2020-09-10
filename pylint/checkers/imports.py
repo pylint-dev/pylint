@@ -94,8 +94,7 @@ def _get_import_name(importnode, modname):
 
 
 def _get_first_import(node, context, name, base, level, alias):
-    """return the node where [base.]<name> is imported or None if not found
-    """
+    """return the node where [base.]<name> is imported or None if not found"""
     fullname = "%s.%s" % (base, name) if base else name
 
     first = None
@@ -177,8 +176,7 @@ def _repr_tree_defs(data, indent_str=None):
 
 
 def _dependencies_graph(filename, dep_info):
-    """write dependencies as a dot (graphviz) file
-    """
+    """write dependencies as a dot (graphviz) file"""
     done = {}
     printer = DotBackend(filename[:-4], rankdir="LR")
     printer.emit('URL="." node[shape="box"]')
@@ -958,8 +956,7 @@ class ImportsChecker(BaseChecker):
         )
 
     def _check_toplevel(self, node):
-        """Check whether the import is made outside the module toplevel.
-        """
+        """Check whether the import is made outside the module toplevel."""
         # If the scope of the import is a module, then obviously it is
         # not outside the module toplevel.
         if isinstance(node.scope(), astroid.Module):

@@ -17,7 +17,7 @@ class ReportsHandlerMixIn:
         self._reports_state = {}
 
     def report_order(self):
-        """ Return a list of reports, sorted in the order
+        """Return a list of reports, sorted in the order
         in which they must be called.
         """
         return list(self._reports)

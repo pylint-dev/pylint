@@ -91,8 +91,7 @@ def save_results(results, base):
 
 
 def find_pylintrc():
-    """search the pylint rc file and return its path if it find it, else None
-    """
+    """search the pylint rc file and return its path if it find it, else None"""
     for config_file in find_default_config_files():
         if config_file.endswith("pylintrc"):
             return config_file

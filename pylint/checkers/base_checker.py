@@ -118,7 +118,7 @@ class BaseChecker(OptionsProviderMixIn):
         checker.
 
         :raises InvalidMessageError: If the checker id in the messages are not
-        always the same. """
+        always the same."""
         checker_id = None
         existing_ids = []
         for message in self.messages:

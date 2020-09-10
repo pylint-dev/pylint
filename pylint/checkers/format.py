@@ -452,9 +452,9 @@ class FormatChecker(BaseTokenChecker):
     def process_tokens(self, tokens):
         """process tokens and search for :
 
-         _ too long lines (i.e. longer than <max_chars>)
-         _ optionally bad construct (if given, bad_construct must be a compiled
-           regular expression).
+        _ too long lines (i.e. longer than <max_chars>)
+        _ optionally bad construct (if given, bad_construct must be a compiled
+          regular expression).
         """
         self._bracket_stack = [None]
         indents = [0]
@@ -742,8 +742,7 @@ class FormatChecker(BaseTokenChecker):
             lineno += 1
 
     def check_indent_level(self, string, expected, line_num):
-        """return the indent level of the string
-        """
+        """return the indent level of the string"""
         indent = self.config.indent_string
         if indent == "\\t":  # \t is not interpreted in the configuration file
             indent = "\t"

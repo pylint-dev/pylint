@@ -375,7 +375,7 @@ class StdlibChecker(BaseChecker):
             )
 
     def _check_datetime(self, node):
-        """ Check that a datetime was inferred.
+        """Check that a datetime was inferred.
         If so, emit boolean-datetime warning.
         """
         try:
