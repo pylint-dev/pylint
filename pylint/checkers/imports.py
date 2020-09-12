@@ -548,8 +548,8 @@ class ImportsChecker(BaseChecker):
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
 
         # Check that imports are grouped by package within a given category
-        met_import = set()  #  set for 'import x' style
-        met_from = set()  #  set for 'from x import y' style
+        met_import = set()  # set for 'import x' style
+        met_from = set()  # set for 'from x import y' style
         current_package = None
         for import_node, import_name in std_imports + ext_imports + loc_imports:
             if not self.linter.is_message_enabled(

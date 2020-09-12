@@ -445,7 +445,7 @@ class StringFormatChecker(BaseChecker):
 
     def _check_new_format(self, node, func):
         """Check the new string formatting. """
-        # Skip ormat nodes which don't have an explicit string on the
+        # Skip format nodes which don't have an explicit string on the
         # left side of the format operation.
         # We do this because our inference engine can't properly handle
         # redefinitions of the original string.

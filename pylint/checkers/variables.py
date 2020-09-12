@@ -993,7 +993,7 @@ class VariablesChecker(BaseChecker):
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
             # avoid the case where there are homonyms inside function scope and
-            #  comprehension current scope (avoid bug #1731)
+            # comprehension current scope (avoid bug #1731)
             if name in current_consumer.consumed and not (
                 current_consumer.scope_type == "comprehension"
                 and self._has_homonym_in_upper_function_scope(node, i)
