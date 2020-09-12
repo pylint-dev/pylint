@@ -253,9 +253,9 @@ def _has_different_parameters_default_value(original, overridden):
         )
         original_type = _get_node_type(original_default, handled_types)
         if original_type:
-            #  We handle only astroid types that are inside the dict astroid_type_compared_attr
+            # We handle only astroid types that are inside the dict astroid_type_compared_attr
             if not isinstance(overridden_default, original_type):
-                #  Two args with same name but different types
+                # Two args with same name but different types
                 return True
             if not _check_arg_equality(
                 original_default,
@@ -1061,7 +1061,7 @@ a metaclass class method.",
         ):
             return
 
-        #  Check values of default args
+        # Check values of default args
         klass = function.parent.frame()
         meth_node = None
         for overridden in klass.local_attr_ancestors(function.name):
@@ -1418,7 +1418,7 @@ a metaclass class method.",
                     if _is_attribute_property(name, klass):
                         return
 
-                #  A licit use of protected member is inside a special method
+                # A licit use of protected member is inside a special method
                 if not attrname.startswith(
                     "__"
                 ) and self._is_called_inside_special_method(node):

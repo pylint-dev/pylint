@@ -385,7 +385,7 @@ class FormatChecker(BaseTokenChecker):
             # Since the walrus operator doesn't exist below python3.8, the tokenizer
             # generates independent tokens
             if (
-                token.string == ":="  #  <-- python3.8+ path
+                token.string == ":="  # <-- python3.8+ path
                 or token.string + tokens[i + 1].string == ":="
             ):
                 contains_walrus_operator = True
@@ -725,7 +725,7 @@ class FormatChecker(BaseTokenChecker):
             - no trailing whitespace
             - less than a maximum number of characters
         """
-        #  By default, check the line length
+        # By default, check the line length
         check_l_length = True
 
         # Line length check may be deactivated through `pylint: disable` comment

@@ -639,7 +639,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._emit_nested_blocks_message_if_needed(self._nested_blocks)
         # new scope = reinitialize the stack of nested blocks
         self._nested_blocks = []
-        #  check consistent return statements
+        # check consistent return statements
         self._check_consistent_returns(node)
         # check for single return or return None at the end
         self._check_return_at_the_end(node)
@@ -1257,7 +1257,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         if not node.orelse:
             # If there is not orelse part then the if statement is returning if :
-            #  - there is at least one return statement in its siblings;
+            # - there is at least one return statement in its siblings;
             # - the if body is itself returning.
             if not self._has_return_in_siblings(node):
                 return False
@@ -1287,8 +1287,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return True
         if not utils.is_node_inside_try_except(node):
             # If the raise statement is not inside a try/except statement
-            #  then the exception is raised and cannot be caught. No need
-            #  to infer it.
+            # then the exception is raised and cannot be caught. No need
+            # to infer it.
             return True
         exc = utils.safe_infer(node.exc)
         if exc is None or exc is astroid.Uninferable or not hasattr(exc, "pytype"):
@@ -1313,7 +1313,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             bool: True if the node ends with an explicit statement, False otherwise.
 
         """
-        #  Recursion base case
+        # Recursion base case
         if isinstance(node, astroid.Return):
             return True
         if isinstance(node, astroid.Call):
@@ -1324,7 +1324,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             except astroid.InferenceError:
                 pass
         # Avoid the check inside while loop as we don't know
-        #  if they will be completed
+        # if they will be completed
         if isinstance(node, astroid.While):
             return True
         if isinstance(node, astroid.Raise):
@@ -1335,7 +1335,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return all(
                 self._is_node_return_ended(_child) for _child in node.get_children()
             )
-        #  recurses on the children of the node
+        # recurses on the children of the node
         return any(self._is_node_return_ended(_child) for _child in node.get_children())
 
     @staticmethod

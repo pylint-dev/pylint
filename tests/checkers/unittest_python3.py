@@ -32,7 +32,7 @@ from pylint import testutils
 from pylint.checkers import python3 as checker
 from pylint.interfaces import INFERENCE, INFERENCE_FAILURE
 
-# TODO(cpopa): Port these to the functional test framework instead. pylint: disable=fixme
+# TODO(cpopa): Port these to the functional test framework instead. pylint: disable=fixme
 
 
 class TestPython3Checker(testutils.CheckerTestCase):
