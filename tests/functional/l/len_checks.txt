@@ -21,3 +21,4 @@ len-as-condition:129:github_issue_1879:Do not use `len(SEQUENCE)` without compar
 len-as-condition:130:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
 len-as-condition:131:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
 len-as-condition:132:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:163:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty

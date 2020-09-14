@@ -149,3 +149,16 @@ def github_issue_1879():
         print("this works and pylint likes it, but it's not the solution intended by PEP-8")
     if pandas_df:
         print("this does not work (truth value of dataframe is ambiguous)")
+
+    def function_returning_list(r):
+        if r==1:
+            return [1]
+        return [2]
+
+    def function_returning_int(r):
+        if r==1:
+            return 1
+        return 2
+
+    assert len(function_returning_list(z)) # [len-as-condition]
+    assert len(function_returning_int(z))
