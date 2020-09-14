@@ -120,9 +120,7 @@ def github_issue_1879():
         pass
 
     assert len(ClassWithBool())
-    # We could expect to not have a len-as-condition for ChildClassWithBool,
-    # but I don't think the required analysis is worth it.
-    assert len(ChildClassWithBool()) # [len-as-condition]
+    assert len(ChildClassWithBool())
     assert len(ClassWithoutBool())  # [len-as-condition]
     assert len(ChildClassWithoutBool())  # [len-as-condition]
     assert len(range(0))  # [len-as-condition]

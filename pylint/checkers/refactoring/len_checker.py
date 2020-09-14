@@ -85,7 +85,12 @@ class LenChecker(checkers.BaseChecker):
 
     @staticmethod
     def instance_has_bool(class_def: astroid.ClassDef) -> bool:
-        return any(hasattr(f, "name") and f.name == "__bool__" for f in class_def.body)
+        try:
+            class_def.getattr("__bool__")
+            return True
+        except astroid.AttributeInferenceError:
+            ...
+        return False
 
     @utils.check_messages("len-as-condition")
     def visit_unaryop(self, node):
