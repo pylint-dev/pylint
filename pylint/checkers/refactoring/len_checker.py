@@ -5,6 +5,7 @@
 from typing import List
 
 import astroid
+from astroid import DictComp, GeneratorExp, ListComp, SetComp
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -66,14 +67,13 @@ class LenChecker(checkers.BaseChecker):
             # we're finally out of any nested boolean operations so check if
             # this len() call is part of a test condition
             if utils.is_test_condition(node, parent):
-                instance = next(node.args[0].infer())
-                try:
-                    instance = next(node.args[0].infer())
-                except astroid.InferenceError:
-                    # Inference error happens for list comprehension, dict comprehension,
-                    # set comprehension and generators (like range)
+                len_arg = node.args[0]
+                generator_or_comprehension = (ListComp, SetComp, DictComp, GeneratorExp)
+                if isinstance(len_arg, generator_or_comprehension):
+                    # The node is a generator or comprehension as in len([x for x in ...])
                     self.add_message("len-as-condition", node=node)
                     return
+                instance = next(len_arg.infer())
                 mother_classes = self.base_classes_of_node(instance)
                 affected_by_pep8 = any(
                     t in mother_classes for t in ["str", "tuple", "list", "set"]
