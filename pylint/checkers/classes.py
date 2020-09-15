@@ -246,15 +246,16 @@ def _has_different_parameters_default_value(original, overridden):
             astroid.ClassDef: "name",
             astroid.Tuple: "elts",
             astroid.List: "elts",
+            astroid.Dict: "items",
         }
         handled_types = tuple(
             astroid_type for astroid_type in astroid_type_compared_attr
         )
         original_type = _get_node_type(original_default, handled_types)
         if original_type:
-            #  We handle only astroid types that are inside the dict astroid_type_compared_attr
+            # We handle only astroid types that are inside the dict astroid_type_compared_attr
             if not isinstance(overridden_default, original_type):
-                #  Two args with same name but different types
+                # Two args with same name but different types
                 return True
             if not _check_arg_equality(
                 original_default,
@@ -361,7 +362,7 @@ def _has_data_descriptor(cls, attr):
 
 
 def _called_in_methods(func, klass, methods):
-    """ Check if the func was called in any of the given methods,
+    """Check if the func was called in any of the given methods,
     belonging to the *klass*. Returns True if so, False otherwise.
     """
     if not isinstance(func, astroid.FunctionDef):
@@ -452,6 +453,7 @@ def _safe_infer_call_result(node, caller, context=None):
         return None  # there is some kind of ambiguity
     except StopIteration:
         return value
+    return None
 
 
 def _has_same_layout_slots(slots, assigned_value):
@@ -783,8 +785,7 @@ a metaclass class method.",
         "duplicate-bases",
     )
     def visit_classdef(self, node):
-        """init visit variable _accessed
-        """
+        """init visit variable _accessed"""
         self._check_bases_classes(node)
         # if not an exception or a metaclass
         if node.type == "class" and has_known_bases(node):
@@ -1060,7 +1061,7 @@ a metaclass class method.",
         ):
             return
 
-        #  Check values of default args
+        # Check values of default args
         klass = function.parent.frame()
         meth_node = None
         for overridden in klass.local_attr_ancestors(function.name):
@@ -1263,7 +1264,7 @@ a metaclass class method.",
         self._check_in_slots(node)
 
     def _check_in_slots(self, node):
-        """ Check that the given AssignAttr node
+        """Check that the given AssignAttr node
         is defined in the class slots.
         """
         inferred = safe_infer(node.expr)
@@ -1417,7 +1418,7 @@ a metaclass class method.",
                     if _is_attribute_property(name, klass):
                         return
 
-                #  A licit use of protected member is inside a special method
+                # A licit use of protected member is inside a special method
                 if not attrname.startswith(
                     "__"
                 ) and self._is_called_inside_special_method(node):
@@ -1679,8 +1680,7 @@ a metaclass class method.",
             self.add_message("super-init-not-called", args=klass.name, node=node)
 
     def _check_signature(self, method1, refmethod, class_type, cls):
-        """check that the signature of the two given methods match
-        """
+        """check that the signature of the two given methods match"""
         if not (
             isinstance(method1, astroid.FunctionDef)
             and isinstance(refmethod, astroid.FunctionDef)

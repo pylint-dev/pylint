@@ -187,7 +187,7 @@ def _get_unpacking_extra_info(node, inferred):
 
 
 def _detect_global_scope(node, frame, defframe):
-    """ Detect that the given frames shares a global
+    """Detect that the given frames shares a global
     scope.
 
     Two frames shares a global scope when neither
@@ -258,7 +258,7 @@ def _infer_name_module(node, name):
 
 
 def _fix_dot_imports(not_consumed):
-    """ Try to fix imports with multiple dots, by returning a dictionary
+    """Try to fix imports with multiple dots, by returning a dictionary
     with the import names expanded. The function unflattens root imports,
     like 'xml' (when we have both 'xml.etree' and 'xml.sax'), to 'xml.etree'
     and 'xml.sax' respectively.
@@ -739,8 +739,7 @@ class VariablesChecker(BaseChecker):
         "unused-variable",
     )
     def leave_module(self, node):
-        """leave module: check globals
-        """
+        """leave module: check globals"""
         assert len(self._to_consume) == 1
 
         self._check_metaclasses(node)
@@ -759,63 +758,52 @@ class VariablesChecker(BaseChecker):
         self._check_imports(not_consumed)
 
     def visit_classdef(self, node):
-        """visit class: update consumption analysis variable
-        """
+        """visit class: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "class"))
 
     def leave_classdef(self, _):
-        """leave class: update consumption analysis variable
-        """
+        """leave class: update consumption analysis variable"""
         # do not check for not used locals here (no sense)
         self._to_consume.pop()
 
     def visit_lambda(self, node):
-        """visit lambda: update consumption analysis variable
-        """
+        """visit lambda: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "lambda"))
 
     def leave_lambda(self, _):
-        """leave lambda: update consumption analysis variable
-        """
+        """leave lambda: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
 
     def visit_generatorexp(self, node):
-        """visit genexpr: update consumption analysis variable
-        """
+        """visit genexpr: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
     def leave_generatorexp(self, _):
-        """leave genexpr: update consumption analysis variable
-        """
+        """leave genexpr: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
 
     def visit_dictcomp(self, node):
-        """visit dictcomp: update consumption analysis variable
-        """
+        """visit dictcomp: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
     def leave_dictcomp(self, _):
-        """leave dictcomp: update consumption analysis variable
-        """
+        """leave dictcomp: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
 
     def visit_setcomp(self, node):
-        """visit setcomp: update consumption analysis variable
-        """
+        """visit setcomp: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
     def leave_setcomp(self, _):
-        """leave setcomp: update consumption analysis variable
-        """
+        """leave setcomp: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
 
     def visit_functiondef(self, node):
-        """visit function: update consumption analysis variable and check locals
-        """
+        """visit function: update consumption analysis variable and check locals"""
         self._to_consume.append(NamesConsumer(node, "function"))
         if not (
             self.linter.is_message_enabled("redefined-outer-name")
@@ -1005,7 +993,7 @@ class VariablesChecker(BaseChecker):
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
             # avoid the case where there are homonyms inside function scope and
-            #  comprehension current scope (avoid bug #1731)
+            # comprehension current scope (avoid bug #1731)
             if name in current_consumer.consumed and not (
                 current_consumer.scope_type == "comprehension"
                 and self._has_homonym_in_upper_function_scope(node, i)
@@ -1233,13 +1221,11 @@ class VariablesChecker(BaseChecker):
 
     # listcomp have now also their scope
     def visit_listcomp(self, node):
-        """visit dictcomp: update consumption analysis variable
-        """
+        """visit dictcomp: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
     def leave_listcomp(self, _):
-        """leave dictcomp: update consumption analysis variable
-        """
+        """leave dictcomp: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
 
@@ -1830,7 +1816,7 @@ class VariablesChecker(BaseChecker):
             self.add_message("self-cls-assignment", node=node, args=(self_cls_name,))
 
     def _check_unpacking(self, inferred, node, targets):
-        """ Check for unbalanced tuple unpacking
+        """Check for unbalanced tuple unpacking
         and unpacking non sequences.
         """
         if utils.is_inside_abstract_class(node):

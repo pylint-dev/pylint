@@ -534,7 +534,8 @@ def test_load_plugin_config_file():
     config_path = join(REGRTEST_DATA_DIR, "dummy_plugin.rc")
 
     run = Run(
-        ["--rcfile", config_path, join(REGRTEST_DATA_DIR, "empty.py")], exit=False,
+        ["--rcfile", config_path, join(REGRTEST_DATA_DIR, "empty.py")],
+        exit=False,
     )
     assert (
         len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
@@ -783,6 +784,38 @@ def test_custom_should_analyze_file():
         messages = reporter.messages
         assert len(messages) == 1
         assert "invalid syntax" in messages[0]
+
+
+# we do the check with jobs=1 as well, so that we are sure that the duplicates
+# are created by the multiprocessing problem.
+@pytest.mark.parametrize("jobs", [1, 2])
+def test_multiprocessing(jobs):
+    """Check that multiprocessing does not create duplicates."""
+    # For the bug (#3584) to show up we need more than one file with issues
+    # per process
+    filenames = [
+        "special_attr_scope_lookup_crash.py",
+        "syntax_error.py",
+        "unused_variable.py",
+        "wildcard.py",
+        "wrong_import_position.py",
+    ]
+
+    reporter = testutils.TestReporter()
+    linter = PyLinter()
+    linter.config.jobs = jobs
+    linter.config.persistent = 0
+    linter.open()
+    linter.set_reporter(reporter)
+
+    try:
+        sys.path.append(os.path.dirname(REGRTEST_DATA_DIR))
+        linter.check([os.path.join(REGRTEST_DATA_DIR, fname) for fname in filenames])
+    finally:
+        sys.path.pop()
+
+    messages = reporter.messages
+    assert len(messages) == len(set(messages))
 
 
 def test_filename_with__init__(init_linter):

@@ -41,8 +41,7 @@ def get_default_options():
 
 
 def insert_default_options():
-    """insert default options to sys.argv
-    """
+    """insert default options to sys.argv"""
     options = get_default_options()
     options.reverse()
     for arg in options:
@@ -50,15 +49,13 @@ def insert_default_options():
 
 
 # astroid utilities ###########################################################
-
-SPECIAL = re.compile(r"^__[^\W_]+\w*__$")
-PRIVATE = re.compile(r"^__\w*[^\W_]+_?$")
+SPECIAL = re.compile(r"^__([^\W_]_*)+__$")
+PRIVATE = re.compile(r"^__(_*[^\W_])+_?$")
 PROTECTED = re.compile(r"^_\w*$")
 
 
 def get_visibility(name):
-    """return the visibility from a name: public, protected, private or special
-    """
+    """return the visibility from a name: public, protected, private or special"""
     if SPECIAL.match(name):
         visibility = "special"
     elif PRIVATE.match(name):
@@ -120,8 +117,7 @@ VIS_MOD = {
 
 
 class FilterMixIn:
-    """filter nodes according to a mode and nodes' visibility
-    """
+    """filter nodes according to a mode and nodes' visibility"""
 
     def __init__(self, mode):
         "init filter modes"
@@ -134,8 +130,7 @@ class FilterMixIn:
         self.__mode = __mode
 
     def show_attr(self, node):
-        """return true if the node should be treated
-        """
+        """return true if the node should be treated"""
         visibility = get_visibility(getattr(node, "name", node))
         return not self.__mode & VIS_MOD[visibility]
 

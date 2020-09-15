@@ -398,4 +398,10 @@ contributors:
 
 * Ethan Leba: contributor
 
+* Matěj Grabovský: contributor
+
+* Yeting Li (yetingli): contributor
+
+* Frost Ming (frostming): contributor
+
 * Josselin Feist: contributor

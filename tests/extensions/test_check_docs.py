@@ -2101,8 +2101,7 @@ class TestParamDocChecker(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_ignores_raise_notimplementederror_sphinx(self):
-        """Example of an abstract
-        """
+        """Example of an abstract"""
         node = astroid.extract_node(
             """
         class Foo(object):

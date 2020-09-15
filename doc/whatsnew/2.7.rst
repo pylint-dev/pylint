@@ -1,0 +1,22 @@
+**************************
+ What's New in Pylint 2.7
+**************************
+
+:Release: 2.7
+:Date: TODO
+
+
+Summary -- Release highlights
+=============================
+
+
+New checkers
+============
+
+
+Other Changes
+=============
+
+* Fix bug that lead to duplicate messages when using ``--jobs 2`` or more.
+
+  Close #3584

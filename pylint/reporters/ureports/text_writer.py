@@ -24,8 +24,7 @@ class TextWriter(BaseWriter):
         self.list_level = 0
 
     def visit_section(self, layout):
-        """display a section as text
-        """
+        """display a section as text"""
         self.section += 1
         self.writeln()
         self.format_children(layout)
@@ -84,8 +83,7 @@ class TextWriter(BaseWriter):
                 self.write(table_linesep)
 
     def visit_verbatimtext(self, layout):
-        """display a verbatim layout as text (so difficult ;)
-        """
+        """display a verbatim layout as text (so difficult ;)"""
         self.writeln("::\n")
         for line in layout.data.splitlines():
             self.writeln("    " + line)

@@ -4,8 +4,24 @@ Pylint's ChangeLog
 
 What's New in Pylint 2.6.1?
 ===========================
+Release date: 2020-09-08
+
+* Fix vulnerable regular expressions in ``pyreverse``
+
+  Close #3811
 
 Release date: TBA
+
+* ``inconsistent-return-statements`` message is now emitted if one of ``try/except`` statement
+  is not returning explicitly while the other do.
+
+  Closes #3468
+
+* Fix ``useless-super-delegation`` false positive when default keyword argument is a dictionnary.
+
+  Close #3773
+
+* Fix a crash when a specified config file does not exist
 
 * Fix AttributeError in checkers/refactoring.py
 
@@ -65,6 +81,10 @@ Release date: 2020-08-20
 * Add `condition-evals-to-constant` check for conditionals using and/or that evaluate to a constant.
 
   Close #3407
+
+* Changed setup.py to work with [distlib](https://pypi.org/project/distlib)
+
+  Close #3555
 
 What's New in Pylint 2.5.4?
 ===========================

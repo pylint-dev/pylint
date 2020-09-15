@@ -50,6 +50,7 @@ dependency_links = []  # type: ignore
 
 extras_require = {}
 extras_require[':sys_platform=="win32"'] = ["colorama"]
+extras_require["docs"] = ["sphinx~=3.2", "python-docs-theme"]
 
 license = "GPL"
 description = "python code static checker"

@@ -23,8 +23,7 @@ class Figure:
 
 
 class Relationship(Figure):
-    """a relation ship from an object in the diagram to another
-    """
+    """a relation ship from an object in the diagram to another"""
 
     def __init__(self, from_object, to_object, relation_type, name=None):
         Figure.__init__(self)
@@ -35,8 +34,7 @@ class Relationship(Figure):
 
 
 class DiagramEntity(Figure):
-    """a diagram object, i.e. a label associated to an astroid node
-    """
+    """a diagram object, i.e. a label associated to an astroid node"""
 
     def __init__(self, title="No name", node=None):
         Figure.__init__(self)
@@ -45,8 +43,7 @@ class DiagramEntity(Figure):
 
 
 class ClassDiagram(Figure, FilterMixIn):
-    """main class diagram handling
-    """
+    """main class diagram handling"""
 
     TYPE = "class"
 
@@ -67,14 +64,12 @@ class ClassDiagram(Figure, FilterMixIn):
         )
 
     def add_relationship(self, from_object, to_object, relation_type, name=None):
-        """create a relation ship
-        """
+        """create a relation ship"""
         rel = Relationship(from_object, to_object, relation_type, name)
         self.relationships.setdefault(relation_type, []).append(rel)
 
     def get_relationship(self, from_object, relation_type):
-        """return a relation ship or None
-        """
+        """return a relation ship or None"""
         for rel in self.relationships.get(relation_type, ()):
             if rel.from_object is from_object:
                 return rel
@@ -113,8 +108,7 @@ class ClassDiagram(Figure, FilterMixIn):
         return sorted(methods, key=lambda n: n.name)
 
     def add_object(self, title, node):
-        """create a diagram object
-        """
+        """create a diagram object"""
         assert node not in self._nodes
         ent = DiagramEntity(title, node)
         self._nodes[node] = ent
@@ -137,18 +131,15 @@ class ClassDiagram(Figure, FilterMixIn):
         return names
 
     def nodes(self):
-        """return the list of underlying nodes
-        """
+        """return the list of underlying nodes"""
         return self._nodes.keys()
 
     def has_node(self, node):
-        """return true if the given node is included in the diagram
-        """
+        """return true if the given node is included in the diagram"""
         return node in self._nodes
 
     def object_from_node(self, node):
-        """return the diagram object mapped to node
-        """
+        """return the diagram object mapped to node"""
         return self._nodes[node]
 
     def classes(self):
@@ -156,16 +147,14 @@ class ClassDiagram(Figure, FilterMixIn):
         return [o for o in self.objects if isinstance(o.node, astroid.ClassDef)]
 
     def classe(self, name):
-        """return a class by its name, raise KeyError if not found
-        """
+        """return a class by its name, raise KeyError if not found"""
         for klass in self.classes():
             if klass.node.name == name:
                 return klass
         raise KeyError(name)
 
     def extract_relationships(self):
-        """extract relation ships between nodes in the diagram
-        """
+        """extract relation ships between nodes in the diagram"""
         for obj in self.classes():
             node = obj.node
             obj.attrs = self.get_attrs(node)
@@ -206,8 +195,7 @@ class ClassDiagram(Figure, FilterMixIn):
 
 
 class PackageDiagram(ClassDiagram):
-    """package diagram handling
-    """
+    """package diagram handling"""
 
     TYPE = "package"
 
@@ -216,8 +204,7 @@ class PackageDiagram(ClassDiagram):
         return [o for o in self.objects if isinstance(o.node, astroid.Module)]
 
     def module(self, name):
-        """return a module by its name, raise KeyError if not found
-        """
+        """return a module by its name, raise KeyError if not found"""
         for mod in self.modules():
             if mod.node.name == name:
                 return mod
@@ -240,16 +227,14 @@ class PackageDiagram(ClassDiagram):
         raise KeyError(name)
 
     def add_from_depend(self, node, from_module):
-        """add dependencies created by from-imports
-        """
+        """add dependencies created by from-imports"""
         mod_name = node.root().name
         obj = self.module(mod_name)
         if from_module not in obj.node.depends:
             obj.node.depends.append(from_module)
 
     def extract_relationships(self):
-        """extract relation ships between nodes in the diagram
-        """
+        """extract relation ships between nodes in the diagram"""
         ClassDiagram.extract_relationships(self)
         for obj in self.classes():
             # ownership

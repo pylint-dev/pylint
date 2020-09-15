@@ -220,7 +220,7 @@ BUILTINS_INT = builtins.__name__ + ".int"
 
 
 def get_access_path(key, parts):
-    """ Given a list of format specifiers, returns
+    """Given a list of format specifiers, returns
     the final access path (e.g. a.b.c[0][1]).
     """
     path = []
@@ -388,10 +388,14 @@ class StringFormatChecker(BaseChecker):
                     if not arg:
                         continue
                     arg_type = utils.safe_infer(arg)
-                    if arg_type not in (
-                        None,
-                        astroid.Uninferable,
-                    ) and not arg_matches_format_type(arg_type, format_type):
+                    if (
+                        arg_type
+                        not in (
+                            None,
+                            astroid.Uninferable,
+                        )
+                        and not arg_matches_format_type(arg_type, format_type)
+                    ):
                         self.add_message(
                             "bad-string-format-type",
                             node=node,
@@ -441,7 +445,7 @@ class StringFormatChecker(BaseChecker):
 
     def _check_new_format(self, node, func):
         """Check the new string formatting. """
-        # Skip ormat nodes which don't have an explicit string on the
+        # Skip format nodes which don't have an explicit string on the
         # left side of the format operation.
         # We do this because our inference engine can't properly handle
         # redefinitions of the original string.

@@ -1,7 +1,7 @@
 """Verify if constant tests are used inside if statements."""
 # pylint: disable=invalid-name, missing-docstring,too-few-public-methods
 # pylint: disable=no-init,expression-not-assigned, useless-object-inheritance
-# pylint: disable=missing-parentheses-for-call-in-test, unnecessary-comprehension, condition-evals-to-constant
+# pylint: disable=missing-parentheses-for-call-in-test, unnecessary-comprehension, condition-evals-to-constant
 
 
 import collections

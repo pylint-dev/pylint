@@ -1,4 +1,5 @@
 #pylint: disable=missing-docstring, no-else-return, no-else-break, invalid-name, unused-variable, superfluous-parens, try-except-raise
+#pylint: disable=blacklisted-name
 """Testing inconsistent returns"""
 import math
 import sys
@@ -262,3 +263,48 @@ def bug_1794_inner_func_in_if_counter_example_3(var): # [inconsistent-return-sta
             if var_bis:
                 return True
             return
+
+def bug_3468(bar):  # [inconsistent-return-statements]
+    """
+    In case of AttributeError the function returns implicitly None.
+    There are one explicit return and one implicit.
+    """
+    try:
+        return bar.baz
+    except AttributeError:
+        pass
+
+def bug_3468_variant(bar):  # [inconsistent-return-statements]
+    """
+    In case of AttributeError the function returns implicitly None
+    There are one explicit return and one implicit.
+    """
+    try:
+        return bar.baz
+    except AttributeError:
+        pass
+    except KeyError:
+        return True
+    except ValueError:
+        raise
+
+def bug_3468_counter_example(bar):
+    """
+    In case of AttributeError the function returns explicitly None.
+    Thus all returns are explicit.
+    """
+    try:
+        return bar.baz
+    except AttributeError:
+        pass
+    return None
+
+def bug_3468_counter_example_2(bar):
+    """
+    In case of AttributeError the function returns explicitly None.
+    Thus all returns are explicit.
+    """
+    try:
+        return bar.baz
+    except AttributeError:
+        return None

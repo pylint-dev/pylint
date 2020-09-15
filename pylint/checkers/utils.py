@@ -272,8 +272,7 @@ def clobber_in_except(
 
 
 def is_super(node: astroid.node_classes.NodeNG) -> bool:
-    """return True if the node is referencing the "super" builtin function
-    """
+    """return True if the node is referencing the "super" builtin function"""
     if getattr(node, "name", None) == "super" and node.root().name == BUILTINS_NAME:
         return True
     return False
@@ -294,8 +293,7 @@ def is_builtin_object(node: astroid.node_classes.NodeNG) -> bool:
 
 
 def is_builtin(name: str) -> bool:
-    """return true if <name> could be considered as a builtin defined by python
-    """
+    """return true if <name> could be considered as a builtin defined by python"""
     return name in builtins or name in SPECIAL_BUILTINS  # type: ignore
 
 
@@ -423,8 +421,7 @@ def is_ancestor_name(
 
 
 def assign_parent(node: astroid.node_classes.NodeNG) -> astroid.node_classes.NodeNG:
-    """return the higher parent which is not an AssignName, Tuple or List node
-    """
+    """return the higher parent which is not an AssignName, Tuple or List node"""
     while node and isinstance(node, (astroid.AssignName, astroid.Tuple, astroid.List)):
         node = node.parent
     return node
@@ -544,7 +541,7 @@ def split_format_field_names(format_string) -> Tuple[str, Iterable[Tuple[bool, s
 
 
 def collect_string_fields(format_string) -> Iterable[Optional[str]]:
-    """ Given a format string, return an iterator
+    """Given a format string, return an iterator
     of all the valid format fields. It handles nested fields
     as well.
     """

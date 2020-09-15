@@ -385,7 +385,7 @@ class FormatChecker(BaseTokenChecker):
             # Since the walrus operator doesn't exist below python3.8, the tokenizer
             # generates independent tokens
             if (
-                token.string == ":="  #  <-- python3.8+ path
+                token.string == ":="  # <-- python3.8+ path
                 or token.string + tokens[i + 1].string == ":="
             ):
                 contains_walrus_operator = True
@@ -452,9 +452,9 @@ class FormatChecker(BaseTokenChecker):
     def process_tokens(self, tokens):
         """process tokens and search for :
 
-         _ too long lines (i.e. longer than <max_chars>)
-         _ optionally bad construct (if given, bad_construct must be a compiled
-           regular expression).
+        _ too long lines (i.e. longer than <max_chars>)
+        _ optionally bad construct (if given, bad_construct must be a compiled
+          regular expression).
         """
         self._bracket_stack = [None]
         indents = [0]
@@ -725,7 +725,7 @@ class FormatChecker(BaseTokenChecker):
             - no trailing whitespace
             - less than a maximum number of characters
         """
-        #  By default, check the line length
+        # By default, check the line length
         check_l_length = True
 
         # Line length check may be deactivated through `pylint: disable` comment
@@ -742,8 +742,7 @@ class FormatChecker(BaseTokenChecker):
             lineno += 1
 
     def check_indent_level(self, string, expected, line_num):
-        """return the indent level of the string
-        """
+        """return the indent level of the string"""
         indent = self.config.indent_string
         if indent == "\\t":  # \t is not interpreted in the configuration file
             indent = "\t"

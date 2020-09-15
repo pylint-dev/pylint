@@ -37,6 +37,7 @@ def _astroid_wrapper(func, modname):
         print(exc)
     except Exception as exc:  # pylint: disable=broad-except
         traceback.print_exc()
+    return None
 
 
 def interfaces(node, herited=True, handler_func=_iface_hdlr):
@@ -67,13 +68,11 @@ class IdGeneratorMixIn:
         self.id_count = start_value
 
     def init_counter(self, start_value=0):
-        """init the id counter
-        """
+        """init the id counter"""
         self.id_count = start_value
 
     def generate_id(self):
-        """generate a new identifier
-        """
+        """generate a new identifier"""
         self.id_count += 1
         return self.id_count
 
@@ -114,7 +113,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     def visit_project(self, node):
         """visit a pyreverse.utils.Project node
 
-         * optionally tag the node with a unique id
+        * optionally tag the node with a unique id
         """
         if self.tag:
             node.uid = self.generate_id()
@@ -124,7 +123,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     def visit_package(self, node):
         """visit an astroid.Package node
 
-         * optionally tag the node with a unique id
+        * optionally tag the node with a unique id
         """
         if self.tag:
             node.uid = self.generate_id()
@@ -134,9 +133,9 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     def visit_module(self, node):
         """visit an astroid.Module node
 
-         * set the locals_type mapping
-         * set the depends mapping
-         * optionally tag the node with a unique id
+        * set the locals_type mapping
+        * set the depends mapping
+        * optionally tag the node with a unique id
         """
         if hasattr(node, "locals_type"):
             return
@@ -148,9 +147,9 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     def visit_classdef(self, node):
         """visit an astroid.Class node
 
-         * set the locals_type and instance_attrs_type mappings
-         * set the implements list and build it
-         * optionally tag the node with a unique id
+        * set the locals_type and instance_attrs_type mappings
+        * set the implements list and build it
+        * optionally tag the node with a unique id
         """
         if hasattr(node, "locals_type"):
             return
@@ -177,8 +176,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     def visit_functiondef(self, node):
         """visit an astroid.Function node
 
-         * set the locals_type mapping
-         * optionally tag the node with a unique id
+        * set the locals_type mapping
+        * optionally tag the node with a unique id
         """
         if hasattr(node, "locals_type"):
             return

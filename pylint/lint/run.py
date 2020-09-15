@@ -72,7 +72,11 @@ group are mutually exclusive.",
         return 1
 
     def __init__(
-        self, args, reporter=None, exit=True, do_exit=UNUSED_PARAM_SENTINEL,
+        self,
+        args,
+        reporter=None,
+        exit=True,
+        do_exit=UNUSED_PARAM_SENTINEL,
     ):  # pylint: disable=redefined-builtin
         self._rcfile = None
         self._version_asked = False
@@ -295,7 +299,12 @@ group are mutually exclusive.",
         # read configuration
         linter.disable("I")
         linter.enable("c-extension-no-member")
-        linter.read_config_file(verbose=self.verbose)
+        try:
+            linter.read_config_file(verbose=self.verbose)
+        except OSError as ex:
+            print(ex, file=sys.stderr)
+            sys.exit(32)
+
         config_parser = linter.cfgfile_parser
         # run init hook, if present, before loading plugins
         if config_parser.has_option("MASTER", "init-hook"):

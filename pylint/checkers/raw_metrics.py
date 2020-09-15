@@ -29,8 +29,7 @@ from pylint.reporters.ureports.nodes import Table
 
 
 def report_raw_stats(sect, stats, _):
-    """calculate percentage of code / doc / comment / empty
-    """
+    """calculate percentage of code / doc / comment / empty"""
     total_lines = stats["total_lines"]
     if not total_lines:
         raise EmptyReportError()

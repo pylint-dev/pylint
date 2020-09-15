@@ -955,8 +955,7 @@ class PyLinter(
                 yield (name, filepath, descr["basename"])
 
     def _expand_files(self, modules):
-        """get modules and errors from a list of modules and handle errors
-        """
+        """get modules and errors from a list of modules and handle errors"""
         result, errors = utils.expand_modules(
             modules, self.config.black_list, self.config.black_list_re
         )
@@ -1043,6 +1042,7 @@ class PyLinter(
         except Exception as ex:  # pylint: disable=broad-except
             traceback.print_exc()
             self.add_message("astroid-error", args=(ex.__class__, ex))
+        return None
 
     def check_astroid_module(self, ast_node, walker, rawcheckers, tokencheckers):
         """Check a module from its astroid representation.

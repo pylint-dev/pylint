@@ -18,7 +18,7 @@ from astroid import exceptions # [ungrouped-imports]
 if True:
     import logging.handlers  # [ungrouped-imports]
 from os.path import join  # [ungrouped-imports]
-# Test related to compatibility with isort:
+# Test related to compatibility with isort:
 # We check that we do not create error with the old way pylint was handling it
 import subprocess
 import unittest

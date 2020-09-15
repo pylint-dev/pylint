@@ -210,7 +210,7 @@ TYPING_FORWARD_REF_QNAME = "typing.ForwardRef"
 
 
 def _redefines_import(node):
-    """ Detect that the given node (AssignName) is inside an
+    """Detect that the given node (AssignName) is inside an
     exception handler and redefines an import from the tryexcept body.
     Returns True if the node redefines an import, False otherwise.
     """
@@ -774,7 +774,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.check_messages("abstract-class-instantiated")
     def visit_call(self, node):
-        """ Check instantiating abstract class with
+        """Check instantiating abstract class with
         abc.ABCMeta as metaclass.
         """
         try:
@@ -1082,8 +1082,7 @@ class BasicChecker(_BasicChecker):
         self._tryfinallys = None
 
     def open(self):
-        """initialize visit variables and statistics
-        """
+        """initialize visit variables and statistics"""
         self._tryfinallys = []
         self.stats = self.linter.add_stats(module=0, function=0, method=0, class_=0)
 
@@ -1133,7 +1132,7 @@ class BasicChecker(_BasicChecker):
             self.add_message("using-constant-test", node=node)
         elif isinstance(inferred, const_nodes):
             # If the constant node is a FunctionDef or Lambda then
-            #  it may be a illicit function call due to missing parentheses
+            # it may be a illicit function call due to missing parentheses
             call_inferred = None
             try:
                 if isinstance(inferred, astroid.FunctionDef):
@@ -1155,8 +1154,7 @@ class BasicChecker(_BasicChecker):
             self.add_message("using-constant-test", node=node)
 
     def visit_module(self, _):
-        """check module name, docstring and required arguments
-        """
+        """check module name, docstring and required arguments"""
         self.stats["module"] += 1
 
     def visit_classdef(self, node):  # pylint: disable=unused-argument
@@ -1246,8 +1244,7 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unnecessary-lambda")
     def visit_lambda(self, node):
-        """check whether or not the lambda is suspicious
-        """
+        """check whether or not the lambda is suspicious"""
         # if the body of the lambda is a call expression with the same
         # argument list as the lambda itself, then the lambda is
         # possibly unnecessary and at least suspicious.
