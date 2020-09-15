@@ -46,9 +46,14 @@ from pylint.config.option_parser import OptionParser
 from pylint.config.options_provider_mixin import OptionsProviderMixIn, UnsupportedAction
 
 __all__ = [
-    "UnsupportedAction",
     "ConfigurationMixIn",
+    "find_default_config_files",
+    "_ManHelpFormatter",
+    "Option",
     "OptionsManagerMixIn",
+    "OptionParser",
+    "OptionsProviderMixIn",
+    "UnsupportedAction",
 ]
 
 USER_HOME = os.path.expanduser("~")

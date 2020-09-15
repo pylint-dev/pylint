@@ -87,5 +87,18 @@ from pylint.lint.utils import (
     preprocess_options,
 )
 
+__all__ = [
+    "check_parallel",
+    "PyLinter",
+    "report_messages_by_module_stats",
+    "report_messages_stats",
+    "report_total_messages_stats",
+    "Run",
+    "ArgumentPreprocessingError",
+    "_patch_sys_path",
+    "fix_import_path",
+    "preprocess_options",
+]
+
 if __name__ == "__main__":
     Run(sys.argv[1:])
