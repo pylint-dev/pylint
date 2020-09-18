@@ -188,9 +188,29 @@ def test_lines_without_meaningful_content_do_not_trigger_similarity():
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
-        == """
-TOTAL lines=18 duplicates=0 percent=0.00
-""".strip()
+        == (
+            """
+14 similar lines in 2 files
+==%s:11
+==%s:11
+   b = (
+       (
+           [
+               "Lines 12-25 still trigger a similarity...",
+               "...warning, because..."
+           ],
+           [
+               "...even after ignoring lines with only symbols..."
+           ],
+       ),
+       (
+           "...there are still 5 similar lines in this code block.",
+       )
+   )
+TOTAL lines=50 duplicates=14 percent=28.00
+"""
+            % (SIMILAR3, SIMILAR4)
+        ).strip()
     )
 
 

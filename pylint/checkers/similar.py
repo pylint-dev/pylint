@@ -36,6 +36,8 @@ from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.utils import decoding_stream
 
+REGEX_FOR_LINES_WITH_CONTENT = re.compile(r".*\w+")
+
 
 class Similar:
     """finds copy-pasted lines of code in a project"""
@@ -140,10 +142,10 @@ class Similar:
                             yield num, lineset1, index1, lineset2, index2
                         skip = max(skip, num)
                         break
-                    if re.match(r"\w", line1):
+                    if re.match(REGEX_FOR_LINES_WITH_CONTENT, line1):
                         num_lines_with_content += 1
                 else:
-                    # we may have reach the end
+                    # we may have reached the end
                     num += 1
                     if num_lines_with_content > min_lines:
                         yield num, lineset1, index1, lineset2, index2
