@@ -26,6 +26,7 @@ from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
 from pylint.extensions import _check_docs_utils as utils
 from pylint.interfaces import IAstroidChecker
+from pylint.utils import get_global_option
 
 
 class DocstringParameterChecker(BaseChecker):
@@ -443,6 +444,16 @@ class DocstringParameterChecker(BaseChecker):
         expected_argument_names.update(arg.name for arg in arguments_node.kwonlyargs)
         not_needed_type_in_docstring = self.not_needed_param_in_docstring.copy()
 
+        ignored_argument_names = get_global_option(
+            self, "ignored-argument-names", set()
+        )
+        if ignored_argument_names:
+            ignored_argument_names = {
+                arg
+                for arg in expected_argument_names
+                if ignored_argument_names.match(arg)
+            }
+
         if arguments_node.vararg is not None:
             expected_argument_names.add(arguments_node.vararg)
             not_needed_type_in_docstring.add(arguments_node.vararg)
@@ -460,7 +471,7 @@ class DocstringParameterChecker(BaseChecker):
                 params_with_doc,
                 "missing-param-doc",
                 self.not_needed_param_in_docstring,
-                expected_argument_names,
+                expected_argument_names - ignored_argument_names,
                 warning_node,
             )
 
@@ -476,7 +487,7 @@ class DocstringParameterChecker(BaseChecker):
                 params_with_type,
                 "missing-type-doc",
                 not_needed_type_in_docstring,
-                expected_argument_names,
+                expected_argument_names - ignored_argument_names,
                 warning_node,
             )
 

@@ -2156,3 +2156,128 @@ class TestParamDocChecker(CheckerTestCase):
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
+
+    def test_ignores_ignored_argument_names_sphinx(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _): #@
+                '''docstring ...
+
+                :param arg: An argument.
+                :type arg: int
+                '''
+                raise NotImplementedError()
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_ignored_argument_names_google(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _): #@
+                '''docstring ...
+
+                Args:
+                    arg (int): An argument.
+                '''
+                raise NotImplementedError()
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_ignored_argument_names_numpy(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _): #@
+                '''docstring ...
+
+                Parameters
+                ----------
+                arg : int
+                    An argument.
+                '''
+                raise NotImplementedError()
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_accepts_ignored_argument_names_sphinx(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _): #@
+                '''docstring ...
+
+                :param arg: An argument.
+                :type arg: int
+
+                :param _: Another argument.
+                :type _: float
+                '''
+                raise NotImplementedError()
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_accepts_ignored_argument_names_google(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _): #@
+                '''docstring ...
+
+                Args:
+                    arg (int): An argument.
+                    _ (float): Another argument.
+                '''
+                raise NotImplementedError()
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_accepts_ignored_argument_names_numpy(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _): #@
+                '''docstring ...
+
+                Parameters
+                ----------
+                arg : int
+                    An argument.
+
+                _ : float
+                    Another argument.
+                '''
+                raise NotImplementedError()
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
