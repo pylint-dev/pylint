@@ -154,6 +154,8 @@ class Similar:
         """
         for idx, lineset in enumerate(self.linesets[:-1]):
             for lineset2 in self.linesets[idx + 1 :]:
+                if lineset.name == lineset2.name:
+                    continue
                 yield from self._find_common(lineset, lineset2)
 
 
