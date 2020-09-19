@@ -23,6 +23,8 @@ Release date: TBA
 
 * Fix a crash when a specified config file does not exist
 
+* Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comman, etc.)
+
 What's New in Pylint 2.6.0?
 ===========================
 

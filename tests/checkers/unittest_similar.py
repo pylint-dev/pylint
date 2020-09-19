@@ -9,6 +9,7 @@
 # Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Taewon D. Kim <kimt33@mcmaster.ca>
+# Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -24,6 +25,8 @@ from pylint.checkers import similar
 INPUT = Path(__file__).parent / ".." / "input"
 SIMILAR1 = str(INPUT / "similar1")
 SIMILAR2 = str(INPUT / "similar2")
+SIMILAR3 = str(INPUT / "similar3")
+SIMILAR4 = str(INPUT / "similar4")
 MULTILINE = str(INPUT / "multiline-import")
 HIDE_CODE_WITH_IMPORTS = str(INPUT / "hide_code_with_imports.py")
 
@@ -174,6 +177,39 @@ def test_ignore_nothing():
 TOTAL lines=60 duplicates=5 percent=8.33
 """
             % (SIMILAR1, SIMILAR2)
+        ).strip()
+    )
+
+
+def test_lines_without_meaningful_content_do_not_trigger_similarity():
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        similar.Run([SIMILAR3, SIMILAR4])
+    assert ex.value.code == 0
+    assert (
+        output.getvalue().strip()
+        == (
+            """
+14 similar lines in 2 files
+==%s:11
+==%s:11
+   b = (
+       (
+           [
+               "Lines 12-25 still trigger a similarity...",
+               "...warning, because..."
+           ],
+           [
+               "...even after ignoring lines with only symbols..."
+           ],
+       ),
+       (
+           "...there are still 5 similar lines in this code block.",
+       )
+   )
+TOTAL lines=50 duplicates=14 percent=28.00
+"""
+            % (SIMILAR3, SIMILAR4)
         ).strip()
     )
 
