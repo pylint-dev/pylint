@@ -42,3 +42,6 @@ def run_symilar():
     from pylint.checkers.similar import Run as SimilarRun
 
     SimilarRun(sys.argv[1:])
+
+
+__all__ = ["__version__"]

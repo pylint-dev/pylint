@@ -14,6 +14,7 @@
 # Copyright (c) 2019 Taewon D. Kim <kimt33@mcmaster.ca>
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
+# Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -22,6 +23,7 @@
 """a similarities / code duplication command line tool and pylint checker
 """
 
+import re
 import sys
 from collections import defaultdict
 from getopt import getopt
@@ -33,6 +35,8 @@ from pylint.checkers import BaseChecker, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.utils import decoding_stream
+
+REGEX_FOR_LINES_WITH_CONTENT = re.compile(r".*\w+")
 
 
 class Similar:
@@ -129,21 +133,21 @@ class Similar:
             skip = 1
             num = 0
             for index2 in find(lineset1[index1]):
-                non_blank = 0
+                num_lines_with_content = 0
                 for num, ((_, line1), (_, line2)) in enumerate(
                     zip(lines1(index1), lines2(index2))
                 ):
                     if line1 != line2:
-                        if non_blank > min_lines:
+                        if num_lines_with_content > min_lines:
                             yield num, lineset1, index1, lineset2, index2
                         skip = max(skip, num)
                         break
-                    if line1:
-                        non_blank += 1
+                    if re.match(REGEX_FOR_LINES_WITH_CONTENT, line1):
+                        num_lines_with_content += 1
                 else:
-                    # we may have reach the end
+                    # we may have reached the end
                     num += 1
-                    if non_blank > min_lines:
+                    if num_lines_with_content > min_lines:
                         yield num, lineset1, index1, lineset2, index2
                     skip = max(skip, num)
             index1 += skip

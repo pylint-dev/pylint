@@ -64,4 +64,4 @@ def initialize(linter):
     register_plugins(linter, __path__[0])
 
 
-__all__ = ("BaseChecker", "BaseTokenChecker", "initialize")
+__all__ = ["BaseChecker", "BaseTokenChecker", "initialize", "register_plugins"]

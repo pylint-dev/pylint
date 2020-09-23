@@ -405,3 +405,8 @@ contributors:
 * Frost Ming (frostming): contributor
 
 * Josselin Feist: contributor
+
+* Eli Fine (eli88fine): Fixed false positive duplicate code warning for lines with symbols only
+
+* Ganden Schaffner: contributor
+

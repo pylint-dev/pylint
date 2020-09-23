@@ -2297,7 +2297,7 @@ class ComparisonChecker(_BasicChecker):
 
     msgs = {
         "C0121": (
-            "Comparison to %s should be %s",
+            "Comparison %s should be %s",
             "singleton-comparison",
             "Used when an expression is compared to singleton "
             "values like True, False or None.",
@@ -2339,31 +2339,63 @@ class ComparisonChecker(_BasicChecker):
         ),
     }
 
-    def _check_singleton_comparison(self, singleton, root_node, negative_check=False):
-        if singleton.value is True:
-            if not negative_check:
-                suggestion = "just 'expr'"
-            else:
-                suggestion = "just 'not expr'"
-            self.add_message(
-                "singleton-comparison", node=root_node, args=(True, suggestion)
+    def _check_singleton_comparison(
+        self, left_value, right_value, root_node, checking_for_absence: bool = False
+    ):
+        """Check if == or != is being used to compare a singleton value"""
+        singleton_values = (True, False, None)
+
+        def _is_singleton_const(node) -> bool:
+            return isinstance(node, astroid.Const) and any(
+                node.value is value for value in singleton_values
             )
-        elif singleton.value is False:
-            if not negative_check:
-                suggestion = "'not expr'"
-            else:
-                suggestion = "'expr'"
-            self.add_message(
-                "singleton-comparison", node=root_node, args=(False, suggestion)
+
+        if _is_singleton_const(left_value):
+            singleton, other_value = left_value.value, right_value
+        elif _is_singleton_const(right_value):
+            singleton, other_value = right_value.value, left_value
+        else:
+            return
+
+        singleton_comparison_example = {False: "'{} is {}'", True: "'{} is not {}'"}
+
+        # True/False singletons have a special-cased message in case the user is
+        # mistakenly using == or != to check for truthiness
+        if singleton in (True, False):
+            suggestion_template = (
+                "{} if checking for the singleton value {}, or {} if testing for {}"
             )
-        elif singleton.value is None:
-            if not negative_check:
-                suggestion = "'expr is None'"
-            else:
-                suggestion = "'expr is not None'"
-            self.add_message(
-                "singleton-comparison", node=root_node, args=(None, suggestion)
+            truthiness_example = {False: "not {}", True: "{}"}
+            truthiness_phrase = {True: "truthiness", False: "falsiness"}
+
+            # Looks for comparisons like x == True or x != False
+            checking_truthiness = singleton is not checking_for_absence
+
+            suggestion = suggestion_template.format(
+                singleton_comparison_example[checking_for_absence].format(
+                    left_value.as_string(), right_value.as_string()
+                ),
+                singleton,
+                (
+                    "'bool({})'"
+                    if not utils.is_test_condition(root_node) and checking_truthiness
+                    else "'{}'"
+                ).format(
+                    truthiness_example[checking_truthiness].format(
+                        other_value.as_string()
+                    )
+                ),
+                truthiness_phrase[checking_truthiness],
             )
+        else:
+            suggestion = singleton_comparison_example[checking_for_absence].format(
+                left_value.as_string(), right_value.as_string()
+            )
+        self.add_message(
+            "singleton-comparison",
+            node=root_node,
+            args=("'{}'".format(root_node.as_string()), suggestion),
+        )
 
     def _check_literal_comparison(self, literal, node):
         """Check if we compare to a literal, which is usually what we do not want to do."""
@@ -2454,14 +2486,10 @@ class ComparisonChecker(_BasicChecker):
         if operator in COMPARISON_OPERATORS and isinstance(left, astroid.Const):
             self._check_misplaced_constant(node, left, right, operator)
 
-        if operator == "==":
-            if isinstance(left, astroid.Const):
-                self._check_singleton_comparison(left, node)
-            elif isinstance(right, astroid.Const):
-                self._check_singleton_comparison(right, node)
-        if operator == "!=":
-            if isinstance(right, astroid.Const):
-                self._check_singleton_comparison(right, node, negative_check=True)
+        if operator in ("==", "!="):
+            self._check_singleton_comparison(
+                left, right, node, checking_for_absence=operator == "!="
+            )
         if operator in ("is", "is not"):
             self._check_literal_comparison(right, node)
 

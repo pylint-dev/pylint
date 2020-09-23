@@ -16,7 +16,6 @@ from astroid import decorators
 from pylint import checkers, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
-from pylint.checkers.refactoring.len_checker import _is_test_condition
 from pylint.checkers.utils import node_frame_class
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
@@ -1004,7 +1003,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Variables will not be simplified, even in the value can be inferred,
         and expressions like '3 + 4' will remain expanded."""
-        if not _is_test_condition(node):
+        if not utils.is_test_condition(node):
             return
 
         self._can_simplify_bool_op = False

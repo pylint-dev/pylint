@@ -5,7 +5,6 @@
 """Script used to generate the features file before building the actual documentation."""
 
 import os
-import sys
 
 import sphinx
 
@@ -19,7 +18,6 @@ def builder_inited(app):
     )
     linter = PyLinter()
     linter.load_default_plugins()
-
     features = os.path.join(base_path, "doc", "technical_reference", "features.rst")
     with open(features, "w") as stream:
         stream.write("Pylint features\n")
