@@ -125,6 +125,16 @@ class DocstringParameterChecker(BaseChecker):
             "differing-type-doc",
             "Please check parameter names in type declarations.",
         ),
+        "W9019": (
+            '"%s" useless ignored parameter documentation',
+            "useless-param-doc",
+            "Please check ignored parameter names in declarations.",
+        ),
+        "W9020": (
+            '"%s" useless ignored parameter type documentation',
+            "useless-type-doc",
+            "Please check ignored parameter names in type declarations.",
+        ),
     }
 
     options = (
@@ -444,11 +454,10 @@ class DocstringParameterChecker(BaseChecker):
         expected_argument_names.update(arg.name for arg in arguments_node.kwonlyargs)
         not_needed_type_in_docstring = self.not_needed_param_in_docstring.copy()
 
-        ignored_argument_names = get_global_option(
-            self, "ignored-argument-names", set()
-        )
+        expected_but_ignored_argument_names = set()
+        ignored_argument_names = get_global_option(self, "ignored-argument-names")
         if ignored_argument_names:
-            ignored_argument_names = {
+            expected_but_ignored_argument_names = {
                 arg
                 for arg in expected_argument_names
                 if ignored_argument_names.match(arg)
@@ -471,7 +480,7 @@ class DocstringParameterChecker(BaseChecker):
                 params_with_doc,
                 "missing-param-doc",
                 self.not_needed_param_in_docstring,
-                expected_argument_names - ignored_argument_names,
+                expected_argument_names - expected_but_ignored_argument_names,
                 warning_node,
             )
 
@@ -487,7 +496,7 @@ class DocstringParameterChecker(BaseChecker):
                 params_with_type,
                 "missing-type-doc",
                 not_needed_type_in_docstring,
-                expected_argument_names - ignored_argument_names,
+                expected_argument_names - expected_but_ignored_argument_names,
                 warning_node,
             )
 
@@ -503,6 +512,20 @@ class DocstringParameterChecker(BaseChecker):
             "differing-type-doc",
             not_needed_type_in_docstring,
             expected_argument_names,
+            warning_node,
+        )
+        self._compare_different_args(
+            params_with_doc,
+            "useless-param-doc",
+            self.not_needed_param_in_docstring,
+            expected_argument_names - expected_but_ignored_argument_names,
+            warning_node,
+        )
+        self._compare_different_args(
+            params_with_type,
+            "useless-type-doc",
+            not_needed_type_in_docstring,
+            expected_argument_names - expected_but_ignored_argument_names,
             warning_node,
         )
 

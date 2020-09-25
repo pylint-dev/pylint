@@ -23,7 +23,7 @@ Release date: TBA
 
 * Fix a crash when a specified config file does not exist
 
-* Add support to ``ignored-argument-names`` in DocstringParameterChecker.
+* Add support to ``ignored-argument-names`` in DocstringParameterChecker and adds `useless-param-doc` and `useless-type-doc` messages.
 
   Close #3800
 

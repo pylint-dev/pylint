@@ -2170,7 +2170,7 @@ class TestParamDocChecker(CheckerTestCase):
                 :param arg: An argument.
                 :type arg: int
                 '''
-                raise NotImplementedError()
+                pass
         """
         )
         with self.assertNoMessages():
@@ -2189,7 +2189,7 @@ class TestParamDocChecker(CheckerTestCase):
                 Args:
                     arg (int): An argument.
                 '''
-                raise NotImplementedError()
+                pass
         """
         )
         with self.assertNoMessages():
@@ -2210,20 +2210,20 @@ class TestParamDocChecker(CheckerTestCase):
                 arg : int
                     An argument.
                 '''
-                raise NotImplementedError()
+                pass
         """
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_accepts_ignored_argument_names_sphinx(self):
+    def test_useless_docs_ignored_argument_names_sphinx(self):
         """Example of a method documenting the return type that an
         implementation should return.
         """
         node = astroid.extract_node(
             """
         class Foo(object):
-            def foo(self, arg, _): #@
+            def foo(self, arg, _, _ignored): #@
                 '''docstring ...
 
                 :param arg: An argument.
@@ -2231,41 +2231,50 @@ class TestParamDocChecker(CheckerTestCase):
 
                 :param _: Another argument.
                 :type _: float
+
+                :param _ignored: Ignored argument.
                 '''
-                raise NotImplementedError()
+                pass
         """
         )
-        with self.assertNoMessages():
+        with self.assertAddsMessages(
+            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+            Message(msg_id="useless-type-doc", node=node, args=("_",)),
+        ):
             self.checker.visit_functiondef(node)
 
-    def test_accepts_ignored_argument_names_google(self):
+    def test_useless_docs_ignored_argument_names_google(self):
         """Example of a method documenting the return type that an
         implementation should return.
         """
         node = astroid.extract_node(
             """
         class Foo(object):
-            def foo(self, arg, _): #@
+            def foo(self, arg, _, _ignored): #@
                 '''docstring ...
 
                 Args:
                     arg (int): An argument.
                     _ (float): Another argument.
+                    _ignored: Ignored argument.
                 '''
-                raise NotImplementedError()
+                pass
         """
         )
-        with self.assertNoMessages():
+        with self.assertAddsMessages(
+            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+            Message(msg_id="useless-type-doc", node=node, args=("_",)),
+        ):
             self.checker.visit_functiondef(node)
 
-    def test_accepts_ignored_argument_names_numpy(self):
+    def test_useless_docs_ignored_argument_names_numpy(self):
         """Example of a method documenting the return type that an
         implementation should return.
         """
         node = astroid.extract_node(
             """
         class Foo(object):
-            def foo(self, arg, _): #@
+            def foo(self, arg, _, _ignored): #@
                 '''docstring ...
 
                 Parameters
@@ -2275,9 +2284,15 @@ class TestParamDocChecker(CheckerTestCase):
 
                 _ : float
                     Another argument.
+
+                _ignored :
+                    Ignored Argument
                 '''
-                raise NotImplementedError()
+                pass
         """
         )
-        with self.assertNoMessages():
+        with self.assertAddsMessages(
+            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+            Message(msg_id="useless-type-doc", node=node, args=("_",)),
+        ):
             self.checker.visit_functiondef(node)
