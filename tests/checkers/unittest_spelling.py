@@ -363,3 +363,140 @@ class TestSpellingChecker(CheckerTestCase):
             ),
         ):
             self.checker.process_tokens(_tokenize_str("# bad coment coment"))
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_docstring_lines_that_look_like_comments_1(self):
+        stmt = astroid.extract_node(
+            # fmt: off
+            'def f():\n'
+            '    """\n'
+            '    # msitake\n'
+            '    """'
+            # fmt: on
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=3,
+                args=(
+                    "msitake",
+                    "    # msitake",
+                    "      ^^^^^^^",
+                    self._get_msg_suggestions("msitake"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_docstring_lines_that_look_like_comments_2(self):
+        stmt = astroid.extract_node(
+            # fmt: off
+            'def f():\n'
+            '    """# msitake"""'
+            # fmt: on
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=2,
+                args=(
+                    "msitake",
+                    "# msitake",
+                    "  ^^^^^^^",
+                    self._get_msg_suggestions("msitake"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_docstring_lines_that_look_like_comments_3(self):
+        stmt = astroid.extract_node(
+            # fmt: off
+            'def f():\n'
+            '    """\n'
+            '# msitake\n'
+            '    """'
+            # fmt: on
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=3,
+                args=(
+                    "msitake",
+                    "# msitake",
+                    "  ^^^^^^^",
+                    self._get_msg_suggestions("msitake"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_docstring_lines_that_look_like_comments_4(self):
+        stmt = astroid.extract_node(
+            # fmt: off
+            'def f():\n'
+            '    """\n'
+            '    # cat\n'
+            '    """'
+            # fmt: on
+        )
+        with self.assertAddsMessages():
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_docstring_lines_that_look_like_comments_5(self):
+        stmt = astroid.extract_node(
+            # fmt: off
+            'def f():\n'
+            '    """\n'
+            '    msitake # cat\n'
+            '    """'
+            # fmt: on
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=3,
+                args=(
+                    "msitake",
+                    "    msitake # cat",
+                    "    ^^^^^^^",
+                    self._get_msg_suggestions("msitake"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_docstring_lines_that_look_like_comments_6(self):
+        stmt = astroid.extract_node(
+            # fmt: off
+            'def f():\n'
+            '    """\n'
+            '    cat # msitake\n'
+            '    """'
+            # fmt: on
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=3,
+                args=(
+                    "msitake",
+                    "    cat # msitake",
+                    "          ^^^^^^^",
+                    self._get_msg_suggestions("msitake"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)

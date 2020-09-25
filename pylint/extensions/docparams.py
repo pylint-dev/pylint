@@ -404,6 +404,33 @@ class DocstringParameterChecker(BaseChecker):
                 node=warning_node,
             )
 
+    def _compare_ignored_args(
+        self,
+        found_argument_names,
+        message_id,
+        ignored_argument_names,
+        warning_node,
+    ):
+        """Compare the found argument names with the ignored ones and
+        generate a message if there are ignored arguments found.
+
+        :param set found_argument_names: argument names found in the
+            docstring
+
+        :param str message_id: pylint message id
+
+        :param set ignored_argument_names: Ignored argument names
+        :param NodeNG warning_node: The node to be analyzed
+        """
+        existing_ignored_argument_names = ignored_argument_names & found_argument_names
+
+        if existing_ignored_argument_names:
+            self.add_message(
+                message_id,
+                args=(", ".join(sorted(existing_ignored_argument_names)),),
+                node=warning_node,
+            )
+
     def check_arguments_in_docstring(
         self, doc, arguments_node, warning_node, accept_no_param_doc=None
     ):
@@ -479,8 +506,9 @@ class DocstringParameterChecker(BaseChecker):
             self._compare_missing_args(
                 params_with_doc,
                 "missing-param-doc",
-                self.not_needed_param_in_docstring,
-                expected_argument_names - expected_but_ignored_argument_names,
+                self.not_needed_param_in_docstring
+                | expected_but_ignored_argument_names,
+                expected_argument_names,
                 warning_node,
             )
 
@@ -495,8 +523,8 @@ class DocstringParameterChecker(BaseChecker):
             self._compare_missing_args(
                 params_with_type,
                 "missing-type-doc",
-                not_needed_type_in_docstring,
-                expected_argument_names - expected_but_ignored_argument_names,
+                not_needed_type_in_docstring | expected_but_ignored_argument_names,
+                expected_argument_names,
                 warning_node,
             )
 
@@ -514,18 +542,16 @@ class DocstringParameterChecker(BaseChecker):
             expected_argument_names,
             warning_node,
         )
-        self._compare_different_args(
+        self._compare_ignored_args(
             params_with_doc,
             "useless-param-doc",
-            self.not_needed_param_in_docstring,
-            expected_argument_names - expected_but_ignored_argument_names,
+            expected_but_ignored_argument_names,
             warning_node,
         )
-        self._compare_different_args(
+        self._compare_ignored_args(
             params_with_type,
             "useless-type-doc",
-            not_needed_type_in_docstring,
-            expected_argument_names - expected_but_ignored_argument_names,
+            expected_but_ignored_argument_names,
             warning_node,
         )
 

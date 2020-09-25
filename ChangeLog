@@ -27,6 +27,16 @@ Release date: TBA
 
   Close #3800
 
+* Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comman, etc.)
+
+* Improve lint message for `singleton-comparison` with bools
+
+* Fix spell-checker crash on indented docstring lines that look like # comments
+
+  Close #3786
+
+* Fix AttributeError in checkers/refactoring.py
+
 What's New in Pylint 2.6.0?
 ===========================
 
