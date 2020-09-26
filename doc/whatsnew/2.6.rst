@@ -24,6 +24,9 @@ New checkers
 Other Changes
 =============
 
+* Adds option ``check-protected-access-in-special-methods`` in the ClassChecker to activate/deactivate
+  ``protected-access`` message emission for single underscore prefixed attribute in special methods.
+
 * ``inconsistent-return-statements`` message is now emitted if one of ``try/except`` statement
   is not returning explicitly while the other do.
 
