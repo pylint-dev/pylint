@@ -756,6 +756,15 @@ a metaclass class method.",
                 ),
             },
         ),
+        (
+            "check-protected-access-in-special-methods",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Warn about protected attribute access inside special methods",
+            },
+        ),
     )
 
     def __init__(self, linter=None):
@@ -1418,11 +1427,12 @@ a metaclass class method.",
                     if _is_attribute_property(name, klass):
                         return
 
-                # A licit use of protected member is inside a special method
-                if not attrname.startswith(
-                    "__"
-                ) and self._is_called_inside_special_method(node):
-                    return
+                if not self.config.check_protected_access_in_special_methods:
+                    # A licit use of protected member is inside a special method
+                    if not attrname.startswith(
+                        "__"
+                    ) and self._is_called_inside_special_method(node):
+                        return
 
                 self.add_message("protected-access", node=node, args=attrname)
 
