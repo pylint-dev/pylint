@@ -142,17 +142,11 @@ class TestVariablesChecker(CheckerTestCase):
         )
         classdef = node.body[-1]
         assign_attribute_in_eq = classdef.instance_attr("_protected")[-1]
-        attribute_in_eq = [_ for _ in assign_attribute_in_eq.assigned_stmts()][
-            -1
-        ]  # pylint:disable=unnecessary-comprehension
+        attribute_in_eq = list(assign_attribute_in_eq.assigned_stmts())[-1]
         assign_attribute_in_fake_1 = classdef.instance_attr("public")[-1]
-        attribute_in_fake_1 = [_ for _ in assign_attribute_in_fake_1.assigned_stmts()][
-            -1
-        ]  # pylint:disable=unnecessary-comprehension
+        attribute_in_fake_1 = list(assign_attribute_in_fake_1.assigned_stmts())[-1]
         assign_attribute_in_fake_2 = classdef.instance_attr("__private")[-1]
-        attribute_in_fake_2 = [_ for _ in assign_attribute_in_fake_2.assigned_stmts()][
-            -1
-        ]  # pylint:disable=unnecessary-comprehension
+        attribute_in_fake_2 = list(assign_attribute_in_fake_2.assigned_stmts())[-1]
         with self.assertAddsMessages(
             Message("protected-access", node=attribute_in_eq, args="_protected"),
             Message("protected-access", node=attribute_in_fake_1, args="_protected"),
@@ -185,13 +179,9 @@ class TestVariablesChecker(CheckerTestCase):
         )
         classdef = node.body[-1]
         assign_attribute_in_fake_1 = classdef.instance_attr("public")[-1]
-        attribute_in_fake_1 = [_ for _ in assign_attribute_in_fake_1.assigned_stmts()][
-            -1
-        ]  # pylint:disable=unnecessary-comprehension
+        attribute_in_fake_1 = list(assign_attribute_in_fake_1.assigned_stmts())[-1]
         assign_attribute_in_fake_2 = classdef.instance_attr("__private")[-1]
-        attribute_in_fake_2 = [_ for _ in assign_attribute_in_fake_2.assigned_stmts()][
-            -1
-        ]  # pylint:disable=unnecessary-comprehension
+        attribute_in_fake_2 = list(assign_attribute_in_fake_2.assigned_stmts())[-1]
         with self.assertAddsMessages(
             Message("protected-access", node=attribute_in_fake_1, args="_protected"),
             Message("protected-access", node=attribute_in_fake_2, args="__private"),

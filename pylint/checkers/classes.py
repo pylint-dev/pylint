@@ -1427,12 +1427,14 @@ a metaclass class method.",
                     if _is_attribute_property(name, klass):
                         return
 
-                if not self.config.check_protected_access_in_special_methods:
+                if (
+                    not self.config.check_protected_access_in_special_methods
+                    and
                     # A licit use of protected member is inside a special method
-                    if not attrname.startswith(
-                        "__"
-                    ) and self._is_called_inside_special_method(node):
-                        return
+                    not attrname.startswith("__")
+                    and self._is_called_inside_special_method(node)
+                ):
+                    return
 
                 self.add_message("protected-access", node=node, args=attrname)
 
