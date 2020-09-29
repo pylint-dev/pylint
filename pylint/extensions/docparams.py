@@ -128,12 +128,12 @@ class DocstringParameterChecker(BaseChecker):
         "W9019": (
             '"%s" useless ignored parameter documentation',
             "useless-param-doc",
-            "Please check ignored parameter names in declarations.",
+            "Please remove the ignored parameter documentation.",
         ),
         "W9020": (
             '"%s" useless ignored parameter type documentation',
             "useless-type-doc",
-            "Please check ignored parameter names in type declarations.",
+            "Please remove the ignored parameter type documentation.",
         ),
     }
 
