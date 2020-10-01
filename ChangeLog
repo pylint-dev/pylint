@@ -33,6 +33,10 @@ Release date: TBA
 
 * Fix AttributeError in checkers/refactoring.py
 
+* Fix a bug with postponed evaluation when using aliases for annotations.
+
+  Close #3798
+
 What's New in Pylint 2.6.0?
 ===========================
 
