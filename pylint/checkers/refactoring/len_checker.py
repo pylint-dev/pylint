@@ -58,30 +58,32 @@ class LenChecker(checkers.BaseChecker):
         # a len(S) call is used inside a test condition
         # could be if, while, assert or if expression statement
         # e.g. `if len(S):`
-        if utils.is_call_of_name(node, "len"):
-            # the len() call could also be nested together with other
-            # boolean operations, e.g. `if z or len(x):`
-            parent = node.parent
-            while isinstance(parent, astroid.BoolOp):
-                parent = parent.parent
-            # we're finally out of any nested boolean operations so check if
-            # this len() call is part of a test condition
-            if utils.is_test_condition(node, parent):
-                len_arg = node.args[0]
-                generator_or_comprehension = (ListComp, SetComp, DictComp, GeneratorExp)
-                if isinstance(len_arg, generator_or_comprehension):
-                    # The node is a generator or comprehension as in len([x for x in ...])
-                    self.add_message("len-as-condition", node=node)
-                    return
-                instance = next(len_arg.infer())
-                mother_classes = self.base_classes_of_node(instance)
-                affected_by_pep8 = any(
-                    t in mother_classes for t in ["str", "tuple", "list", "set"]
-                )
-                if "range" in mother_classes or (
-                    affected_by_pep8 and not self.instance_has_bool(instance)
-                ):
-                    self.add_message("len-as-condition", node=node)
+        if not utils.is_call_of_name(node, "len"):
+            return
+        # the len() call could also be nested together with other
+        # boolean operations, e.g. `if z or len(x):`
+        parent = node.parent
+        while isinstance(parent, astroid.BoolOp):
+            parent = parent.parent
+        # we're finally out of any nested boolean operations so check if
+        # this len() call is part of a test condition
+        if not utils.is_test_condition(node, parent):
+            return
+        len_arg = node.args[0]
+        generator_or_comprehension = (ListComp, SetComp, DictComp, GeneratorExp)
+        if isinstance(len_arg, generator_or_comprehension):
+            # The node is a generator or comprehension as in len([x for x in ...])
+            self.add_message("len-as-condition", node=node)
+            return
+        instance = next(len_arg.infer())
+        mother_classes = self.base_classes_of_node(instance)
+        affected_by_pep8 = any(
+            t in mother_classes for t in ["str", "tuple", "list", "set"]
+        )
+        if "range" in mother_classes or (
+            affected_by_pep8 and not self.instance_has_bool(instance)
+        ):
+            self.add_message("len-as-condition", node=node)
 
     @staticmethod
     def instance_has_bool(class_def: astroid.ClassDef) -> bool:
