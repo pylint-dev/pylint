@@ -29,6 +29,8 @@ New checkers
 Other Changes
 =============
 
+* Fix linter multiprocessing pool shutdown which triggered warnings when runned in parallels with other pytest plugins.
+
 * Enums are now required to be named in UPPER_CASE by ``invalid-name``.
 
 * Fix bug that lead to duplicate messages when using ``--jobs 2`` or more.
