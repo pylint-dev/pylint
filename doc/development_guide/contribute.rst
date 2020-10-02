@@ -156,9 +156,9 @@ If you need special control over Pylint's flag, you can also create a .rc file, 
 can have sections of Pylint's configuration.
 
 During development, it's sometimes helpful to run all functional tests in your
-current environment in order to have faster feedback. Run with::
+current environment in order to have faster feedback. Run from Pylint root directory with::
 
-    python pylint/test/test_functional.py
+    python tests/test_functional.py
 
 .. _`Closing issues via commit messages`: https://help.github.com/articles/closing-issues-via-commit-messages/
 .. _`About pull requests`: https://help.github.com/articles/using-pull-requests/
