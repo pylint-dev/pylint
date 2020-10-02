@@ -13,6 +13,7 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Add `empty-comment` check for empty comments.
 
 Other Changes
 =============

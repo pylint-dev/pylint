@@ -2,7 +2,10 @@
 Pylint's ChangeLog
 ------------------
 
+* Add check for empty comments
+
 * Fix minor documentation issue in contribute.rst
+
 
 What's New in Pylint 2.6.1?
 ===========================
