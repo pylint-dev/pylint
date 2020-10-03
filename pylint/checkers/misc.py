@@ -171,7 +171,6 @@ class EncodingChecker(BaseChecker):
                     except PragmaParserError:
                         # Printing useful information dealing with this error is done in the lint package
                         pass
-                    values = [_val.upper() for _val in values]
                     if set(values) & set(self.config.notes):
                         continue
                 except ValueError:
