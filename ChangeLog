@@ -35,6 +35,8 @@ Release date: TBA
 
 * Fix AttributeError in checkers/refactoring.py
 
+* Fix minor documentation issues
+
 What's New in Pylint 2.6.0?
 ===========================
 
