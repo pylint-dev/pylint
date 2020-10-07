@@ -3,9 +3,9 @@
 from __future__ import annotations as __annotations__
 
 
-class Class:
+class MyClass:
     @classmethod
-    def from_string(cls, source) -> Class:
+    def from_string(cls, source) -> MyClass:
         ...
 
     def validate_b(self, obj: OtherClass) -> bool:
