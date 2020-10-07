@@ -415,3 +415,5 @@ contributors:
 * Or Bahari
 
 * Joshua Cannon: contributor
+
+* Giuseppe Valente: contributor
