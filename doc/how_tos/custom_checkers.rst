@@ -80,7 +80,7 @@ So far we have defined the following required components of our checker:
            )
        }
 
-   * The ``message-id`` should be a 5-digit number,
+   * The ``message-id`` should be a 4-digit number,
      prefixed with a **message category**.
      There are multiple message categories,
      these being ``C``, ``W``, ``E``, ``F``, ``R``,
