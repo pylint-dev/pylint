@@ -24,6 +24,7 @@ import astroid
 import pytest
 
 from pylint.checkers import typecheck
+from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 try:
@@ -284,6 +285,62 @@ class TestTypeChecker(CheckerTestCase):
         )
         subscript = module.body[-1].value
         with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
+    def test_typing_option_object_is_subscriptable_issue3882(self):
+        module = astroid.parse(
+            """
+        import typing
+        test = typing.Optional[int]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
+    def test_decorated_by_a_subscriptable_class_issue3882(self):
+        module = astroid.parse(
+            """
+        class Deco:
+            def __init__(self, f):
+                self.f = f
+
+            def __getitem__(self, item):
+                return item
+        @Deco
+        def decorated():
+            ...
+
+        test = decorated[None]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
+    def test_decorated_by_an_unsubscriptable_class_issue3882(self):
+        module = astroid.parse(
+            """
+        class Deco:
+            def __init__(self, f):
+                self.f = f
+
+        @Deco
+        def decorated():
+            ...
+
+        test = decorated[None]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertAddsMessages(
+            Message(
+                "unsubscriptable-object",
+                node=subscript.value,
+                args="decorated",
+                confidence=UNDEFINED,
+            )
+        ):
             self.checker.visit_subscript(subscript)
 
     def test_staticmethod_multiprocessing_call(self):

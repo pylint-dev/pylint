@@ -2,6 +2,10 @@
 Pylint's ChangeLog
 ------------------
 
+* Handle class decorators applied to function.
+
+  Closes #3882
+
 * Add check for empty comments
 
 * Fix minor documentation issue in contribute.rst
