@@ -1262,14 +1262,8 @@ def get_node_last_lineno(node: astroid.node_classes.NodeNG) -> int:
 
 def is_postponed_evaluation_enabled(node: astroid.node_classes.NodeNG) -> bool:
     """Check if the postponed evaluation of annotations is enabled"""
-    name = "annotations"
     module = node.root()
-    stmt = module.locals.get(name)
-    return (
-        stmt
-        and isinstance(stmt[0], astroid.ImportFrom)
-        and stmt[0].modname == "__future__"
-    )
+    return "annotations" in module.future_imports
 
 
 def is_subclass_of(child: astroid.ClassDef, parent: astroid.ClassDef) -> bool:
