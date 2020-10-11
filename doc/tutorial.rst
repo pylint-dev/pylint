@@ -105,7 +105,7 @@ entirety:
 
    1  #!/usr/bin/env python3
    2
-   3  import string
+   3  import string;
    4
    5  shift = 3
    6  choice = input("would you like to encode or decode?")
@@ -118,7 +118,7 @@ entirety:
   13              encoded = encoded + ' '
   14          else:
   15              x = letters.index(letter) + shift
-  16              encoded=encoded + letters[x]
+  16              encoded = encoded + letters[x]
   17  if choice == "decode":
   18      for letter in word:
   19          if letter == ' ':
@@ -138,39 +138,34 @@ If we run this:
 
   robertk01 Desktop$ pylint simplecaesar.py
   ************* Module simplecaesar
-  simplecaesar.py:16:19: C0326: Exactly one space required around assignment
-              encoded=encoded + letters[x]
-                     ^ (bad-whitespace)
-  simplecaesar.py:1:0: C0111: Missing module docstring (missing-docstring)
+  simplecaesar.py:3:0: W0301: Unnecessary semicolon (unnecessary-semicolon)
+  simplecaesar.py:1:0: C0114: Missing module docstring (missing-module-docstring)
   simplecaesar.py:5:0: C0103: Constant name "shift" doesn't conform to UPPER_CASE naming style (invalid-name)
-  simplecaesar.py:6:0: C0103: Constant name "choice" doesn't conform to UPPER_CASE naming style (invalid-name)
-  simplecaesar.py:7:0: C0103: Constant name "word" doesn't conform to UPPER_CASE naming style (invalid-name)
-  simplecaesar.py:8:0: C0103: Constant name "letters" doesn't conform to UPPER_CASE naming style (invalid-name)
   simplecaesar.py:9:0: C0103: Constant name "encoded" doesn't conform to UPPER_CASE naming style (invalid-name)
+  simplecaesar.py:13:12: C0103: Constant name "encoded" doesn't conform to UPPER_CASE naming style (invalid-name)
 
   -----------------------------------
-  Your code has been rated at 6.32/10
+  Your code has been rated at 7.37/10
 
 
 Previous experience taught me that the default output for the messages
 needed a bit more info.  We can see the second line is: ::
 
-  "simplecaesar.py:1:0: C0111: Missing module docstring (missing-docstring)"
+  "simplecaesar.py:1:0: C0114: Missing module docstring (missing-module-docstring)"
 
 This basically means that line 1 violates a convention ``C0111``.  It's telling me I really should have a docstring.  I agree, but what if I didn't fully understand what rule I violated.  Knowing only that I violated a convention
 isn't much help if I'm a newbie. Another piece of information there is the
-message symbol between parens, ``missing-docstring`` here.
+message symbol between parens, ``missing-module-docstring`` here.
 
 If I want to read up a bit more about that, I can go back to the
 command line and try this:
 
 .. sourcecode:: console
 
-  robertk01 Desktop$ pylint --help-msg=missing-docstring
-  :missing-docstring (C0111): *Missing %s docstring*
-  Used when a module, function, class or method has no docstring. Some special
-  methods like __init__ don't necessarily require a docstring. This message
-  belongs to the basic checker.
+  robertk01 Desktop$ pylint --help-msg=missing-module-docstring
+  :missing-module-docstring (C0114): *Missing module docstring*
+    Used when a module has no docstring.Empty modules do not require a docstring.
+    This message belongs to the basic checker.
 
 
 Yeah, ok. That one was a bit of a no-brainer, but I have run into error messages
@@ -192,9 +187,9 @@ do with the remaining warnings.
 
 If we add a docstring to describe what the code is meant to do that will help.
 There are 5 ``invalid-name`` messages that we will get to later.  Lastly, I
-violated the convention of using spaces around an operator such as ``=`` so I'll
-fix that too. To sum up, I'll add a docstring to line 2, and put spaces around
-the ``=`` sign on line 16.
+put an unnecessary semicolon at the end of the import line so I'll
+fix that too. To sum up, I'll add a docstring to line 2, and remove the ``;``
+from line 3.
 
 Here is the updated code:
 
@@ -235,14 +230,11 @@ Here is what happens when we run it:
   robertk01 Desktop$ pylint simplecaesar.py
   ************* Module simplecaesar
   simplecaesar.py:7:0: C0103: Constant name "shift" doesn't conform to UPPER_CASE naming style (invalid-name)
-  simplecaesar.py:8:0: C0103: Constant name "choice" doesn't conform to UPPER_CASE naming style (invalid-name)
-  simplecaesar.py:9:0: C0103: Constant name "word" doesn't conform to UPPER_CASE naming style (invalid-name)
-  simplecaesar.py:10:0: C0103: Constant name "letters" doesn't conform to UPPER_CASE naming style (invalid-name)
   simplecaesar.py:11:0: C0103: Constant name "encoded" doesn't conform to UPPER_CASE naming style (invalid-name)
+  simplecaesar.py:15:12: C0103: Constant name "encoded" doesn't conform to UPPER_CASE naming style (invalid-name)
 
   ------------------------------------------------------------------
-  Your code has been rated at 7.37/10 (previous run: 6.32/10, +1.05)
-
+  Your code has been rated at 8.42/10 (previous run: 7.37/10, +1.05)
 
 Nice! Pylint told us how much our code rating has improved since our last run, and we're down to just the ``invalid-name`` messages.
 
@@ -269,7 +261,7 @@ will now be quite quiet:
   robertk01 Desktop$ pylint --const-rgx='[a-z_][a-z0-9_]{2,30}$' simplecaesar.py
 
   -------------------------------------------------------------------
-  Your code has been rated at 10.00/10 (previous run: 7.37/10, +2.63)
+  Your code has been rated at 10.00/10 (previous run: 8.42/10, +1.58)
 
 
 Regular expressions can be quite a beast so take my word on this particular
