@@ -348,16 +348,20 @@ class DocstringParameterChecker(BaseChecker):
         """Compare the found argument names with the expected ones and
         generate a message if there are arguments missing.
 
-        :param set found_argument_names: argument names found in the
-            docstring
+        :param found_argument_names: argument names found in the docstring
+        :type found_argument_names: set
 
-        :param str message_id: pylint message id
+        :param message_id: pylint message id
+        :type message_id: str
 
         :param not_needed_names: names that may be omitted
-        :type not_needed_names: set of str
+        :type not_needed_names: set
 
-        :param set expected_argument_names: Expected argument names
-        :param NodeNG warning_node: The node to be analyzed
+        :param expected_argument_names: Expected argument names
+        :type expected_argument_names: set
+
+        :param warning_node: The node to be analyzed
+        :type warning_node: :class:`astroid.scoped_nodes.Node`
         """
         missing_argument_names = (
             expected_argument_names - found_argument_names
@@ -380,16 +384,20 @@ class DocstringParameterChecker(BaseChecker):
         """Compare the found argument names with the expected ones and
         generate a message if there are extra arguments found.
 
-        :param set found_argument_names: argument names found in the
-            docstring
+        :param found_argument_names: argument names found in the docstring
+        :type found_argument_names: set
 
-        :param str message_id: pylint message id
+        :param message_id: pylint message id
+        :type message_id: str
 
         :param not_needed_names: names that may be omitted
-        :type not_needed_names: set of str
+        :type not_needed_names: set
 
-        :param set expected_argument_names: Expected argument names
-        :param NodeNG warning_node: The node to be analyzed
+        :param expected_argument_names: Expected argument names
+        :type expected_argument_names: set
+
+        :param warning_node: The node to be analyzed
+        :type warning_node: :class:`astroid.scoped_nodes.Node`
         """
         differing_argument_names = (
             (expected_argument_names ^ found_argument_names)
@@ -414,13 +422,17 @@ class DocstringParameterChecker(BaseChecker):
         """Compare the found argument names with the ignored ones and
         generate a message if there are ignored arguments found.
 
-        :param set found_argument_names: argument names found in the
-            docstring
+        :param found_argument_names: argument names found in the docstring
+        :type found_argument_names: set
 
-        :param str message_id: pylint message id
+        :param message_id: pylint message id
+        :type message_id: str
 
-        :param set ignored_argument_names: Ignored argument names
-        :param NodeNG warning_node: The node to be analyzed
+        :param expected_argument_names: Expected argument names
+        :type expected_argument_names: set
+
+        :param warning_node: The node to be analyzed
+        :type warning_node: :class:`astroid.scoped_nodes.Node`
         """
         existing_ignored_argument_names = ignored_argument_names & found_argument_names
 
