@@ -428,8 +428,8 @@ class DocstringParameterChecker(BaseChecker):
         :param message_id: pylint message id
         :type message_id: str
 
-        :param expected_argument_names: Expected argument names
-        :type expected_argument_names: set
+        :param ignored_argument_names: Expected argument names
+        :type ignored_argument_names: set
 
         :param warning_node: The node to be analyzed
         :type warning_node: :class:`astroid.scoped_nodes.Node`
