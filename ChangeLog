@@ -9,7 +9,12 @@ Pylint's ChangeLog
 
 What's New in Pylint 2.6.1?
 ===========================
-Release date: 2020-09-08
+Release date: TBA
+
+* Fix a false-positive emission of `no-self-use` and `unused-argument` for methods
+  of generic structural types (`Protocol[T]`)
+
+  Closes #3885
 
 * Fix vulnerable regular expressions in ``pyreverse``
 
