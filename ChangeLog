@@ -2,9 +2,14 @@
 Pylint's ChangeLog
 ------------------
 
+* Add check for empty comments
+
+* Fix minor documentation issue in contribute.rst
+
 * Enums are now required to be named in UPPER_CASE by ``invalid-name``.
 
   Close #3834
+
 
 What's New in Pylint 2.6.1?
 ===========================
@@ -36,6 +41,12 @@ Release date: TBA
   Close #3786
 
 * Fix AttributeError in checkers/refactoring.py
+
+* Fix a bug with postponed evaluation when using aliases for annotations.
+
+  Close #3798
+
+* Fix minor documentation issues
 
 What's New in Pylint 2.6.0?
 ===========================

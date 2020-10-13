@@ -412,4 +412,11 @@ contributors:
 
 * David Cain: contributor
 
+* Luigi Bertaco Cristofolini (luigibertaco): contributor
+
+* Or Bahari
+
+* Joshua Cannon: contributor
+
+
 * Takashi Hirashima: contributor
