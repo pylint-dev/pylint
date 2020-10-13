@@ -3,6 +3,7 @@
 from __future__ import print_function
 import abc
 import collections
+from enum import Enum
 
 GOOD_CONST_NAME = ''
 bad_const_name = 0  # [invalid-name]
@@ -141,3 +142,8 @@ good_name_for_lists = [1, 2, 3]
 class _AnExceptionalExceptionThatOccursVeryVeryRarely(Exception):
     """A very exceptional exception with a nice descriptive name"""
     pass
+
+class FooEnum(Enum):
+    """A test case for enum names."""
+    GOOD_ENUM_NAME = 1
+    bad_enum_name = 2  # [invalid-name]

@@ -1987,6 +1987,10 @@ class NameChecker(_BasicChecker):
                     self._check_name("variable", node.name, node)
         elif isinstance(frame, astroid.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
+                for ancestor in frame.ancestors():
+                    if ancestor.name == "Enum" and ancestor.root().name == "enum":
+                        self._check_name("const", node.name, node)
+                        return
                 self._check_name("class_attribute", node.name, node)
 
     def _recursive_check_names(self, args, node):

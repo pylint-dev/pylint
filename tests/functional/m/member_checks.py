@@ -203,10 +203,10 @@ import enum
 
 
 class Cls(enum.IntEnum):
-    Bar = 0
+    BAR = 0
 
 
-SOME_VALUE = Cls.Baz  # [no-member]
+SOME_VALUE = Cls.BAZ  # [no-member]
 
 
 
