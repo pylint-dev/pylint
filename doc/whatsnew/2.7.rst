@@ -20,3 +20,7 @@ Other Changes
 * Fix bug that lead to duplicate messages when using ``--jobs 2`` or more.
 
   Close #3584
+
+* Enums are now required to be named in UPPER_CASE by ``invalid-name``.
+
+  Close #3834

@@ -411,3 +411,5 @@ contributors:
 * Josselin Feist: contributor
 
 * David Cain: contributor
+
+* Takashi Hirashima: contributor

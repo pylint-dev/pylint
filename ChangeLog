@@ -2,6 +2,10 @@
 Pylint's ChangeLog
 ------------------
 
+* Enums are now required to be named in UPPER_CASE by ``invalid-name``.
+
+  Close #3834
+
 What's New in Pylint 2.6.1?
 ===========================
 Release date: 2020-09-08
