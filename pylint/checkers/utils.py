@@ -1076,6 +1076,9 @@ def _supports_protocol(
             return True
         if protocol_callback(value):
             return True
+    if isinstance(value, astroid.FunctionDef):
+        if value.name in ("Optional", "Union"):
+            return True
 
     if (
         isinstance(value, _bases.Proxy)
