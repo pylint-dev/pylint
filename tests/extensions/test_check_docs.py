@@ -2156,3 +2156,143 @@ class TestParamDocChecker(CheckerTestCase):
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
+
+    def test_ignores_ignored_argument_names_sphinx(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _): #@
+                '''docstring ...
+
+                :param arg: An argument.
+                :type arg: int
+                '''
+                pass
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_ignored_argument_names_google(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _): #@
+                '''docstring ...
+
+                Args:
+                    arg (int): An argument.
+                '''
+                pass
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_ignored_argument_names_numpy(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _): #@
+                '''docstring ...
+
+                Parameters
+                ----------
+                arg : int
+                    An argument.
+                '''
+                pass
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_useless_docs_ignored_argument_names_sphinx(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _, _ignored): #@
+                '''docstring ...
+
+                :param arg: An argument.
+                :type arg: int
+
+                :param _: Another argument.
+                :type _: float
+
+                :param _ignored: Ignored argument.
+                '''
+                pass
+        """
+        )
+        with self.assertAddsMessages(
+            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+            Message(msg_id="useless-type-doc", node=node, args=("_",)),
+        ):
+            self.checker.visit_functiondef(node)
+
+    def test_useless_docs_ignored_argument_names_google(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _, _ignored): #@
+                '''docstring ...
+
+                Args:
+                    arg (int): An argument.
+                    _ (float): Another argument.
+                    _ignored: Ignored argument.
+                '''
+                pass
+        """
+        )
+        with self.assertAddsMessages(
+            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+            Message(msg_id="useless-type-doc", node=node, args=("_",)),
+        ):
+            self.checker.visit_functiondef(node)
+
+    def test_useless_docs_ignored_argument_names_numpy(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _, _ignored): #@
+                '''docstring ...
+
+                Parameters
+                ----------
+                arg : int
+                    An argument.
+
+                _ : float
+                    Another argument.
+
+                _ignored :
+                    Ignored Argument
+                '''
+                pass
+        """
+        )
+        with self.assertAddsMessages(
+            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+            Message(msg_id="useless-type-doc", node=node, args=("_",)),
+        ):
+            self.checker.visit_functiondef(node)
