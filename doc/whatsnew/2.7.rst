@@ -9,6 +9,8 @@
 Summary -- Release highlights
 =============================
 
+* Add support to ``ignored-argument-names`` in DocstringParameterChecker and
+  adds `useless-param-doc` and `useless-type-doc` messages.
 
 New checkers
 ============
