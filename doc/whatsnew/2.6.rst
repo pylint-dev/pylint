@@ -52,3 +52,5 @@ Other Changes
 * Fix vulnerable regular expressions in ``pyreverse``. The ambiguities of vulnerable regular expressions are removed, making the repaired regular expressions safer and faster matching.
 
 .. _the migration guide in isort documentation: https://timothycrosley.github.io/isort/docs/upgrade_guides/5.0.0/#known_standard_library
+
+* Fix false-positive ``unsubscriptable-object`` message for ``typing.Union`` and ``typing.Optional``. Closes #3882
