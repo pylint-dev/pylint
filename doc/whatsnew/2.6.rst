@@ -13,6 +13,11 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Add support to ``ignored-argument-names`` in DocstringParameterChecker and
+  adds `useless-param-doc` and `useless-type-doc` messages.
+
+* Add `empty-comment` check for empty comments.
+
 * Add `super-with-arguments` check for flagging instances of Python 2 style super calls.
 
 * Add `raise-missing-from` check for exceptions that should have a cause.
@@ -23,6 +28,10 @@ New checkers
 
 Other Changes
 =============
+
+* Fix bug that lead to duplicate messages when using ``--jobs 2`` or more.
+
+  Close #3584
 
 * Adds option ``check-protected-access-in-special-methods`` in the ClassChecker to activate/deactivate
   ``protected-access`` message emission for single underscore prefixed attribute in special methods.
