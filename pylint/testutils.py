@@ -31,8 +31,8 @@ import collections
 import configparser
 import contextlib
 import csv
-import itertools
 import functools
+import itertools
 import operator
 import os
 import platform
@@ -626,10 +626,10 @@ class LintModuleTest:
     def _check_output_text(self, expected_messages, expected_lines, received_lines):
         expected_lines = self._split_lines(expected_messages, expected_lines)[0]
         for exp, rec in itertools.zip_longest(expected_lines, received_lines):
-            assert (
-                exp == rec
-            ), ("Expected test lines did not match for test: {}."
+            assert exp == rec, (
+                "Expected test lines did not match for test: {}."
                 "{_linesep:s}Expected : {}"
                 "{_linesep:s}Received : {}".format(
-                    self._test_file.base, exp, rec,
-                    _linesep=os.linesep))
+                    self._test_file.base, exp, rec, _linesep=os.linesep
+                )
+            )
