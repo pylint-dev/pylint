@@ -38,6 +38,8 @@ Release date: TBA
 
 * Fix AttributeError in checkers/refactoring.py
 
+* Improve sphinx directives spelling filter
+
 * Fix a bug with postponed evaluation when using aliases for annotations.
 
   Close #3798

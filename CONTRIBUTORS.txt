@@ -412,6 +412,8 @@ contributors:
 
 * David Cain: contributor
 
+* Pedro Algarvio (s0undt3ch): contributor
+
 * Luigi Bertaco Cristofolini (luigibertaco): contributor
 
 * Or Bahari
