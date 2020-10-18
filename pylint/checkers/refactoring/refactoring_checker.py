@@ -1332,9 +1332,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if isinstance(node, astroid.If):
             return self._is_if_node_return_ended(node)
         if isinstance(node, astroid.TryExcept):
-            return all(
-                self._is_node_return_ended(_child) for _child in node.get_children()
-            )
+            handlers = {
+                _child
+                for _child in node.get_children()
+                if isinstance(_child, astroid.ExceptHandler)
+            }
+            all_but_handler = set(node.get_children()) - handlers
+            return any(
+                self._is_node_return_ended(_child) for _child in all_but_handler
+            ) and all(self._is_node_return_ended(_child) for _child in handlers)
         # recurses on the children of the node
         return any(self._is_node_return_ended(_child) for _child in node.get_children())
 

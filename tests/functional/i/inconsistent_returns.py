@@ -308,3 +308,30 @@ def bug_3468_counter_example_2(bar):
         return bar.baz
     except AttributeError:
         return None
+
+def nothing_to_do():
+    pass
+
+def bug_pylint_3873():
+    try:
+        nothing_to_do()
+        return True
+    except IndexError:
+        return False
+
+def bug_pylint_3873_1():  # [inconsistent-return-statements]
+    try:
+        nothing_to_do()
+        return True
+    except IndexError:
+        pass
+    except ValueError:
+        return False
+
+def bug_pylint_3873_2():
+    try:
+        nothing_to_do()
+        return True
+    except IndexError:
+        nothing_to_do()
+    return False
