@@ -116,3 +116,74 @@ class TestVariablesChecker(CheckerTestCase):
             Message("protected-access", node=node.value, args="_nargs")
         ):
             self.checker.visit_attribute(node.value)
+
+    @set_config(check_protected_access_in_special_methods=True)
+    def test_check_protected_access_in_special_methods(self):
+        """Test that check-protected-access-in-special-methods can be used to
+        trigger protected-access message emission for single underscore prefixed names
+        inside special methods
+        """
+
+        node = astroid.parse(
+            """
+        class Protected:
+            '''empty'''
+            def __init__(self):
+                self._protected = 42
+                self.public = "A"
+                self.__private = None
+            def __eq__(self, other):
+                self._protected = other._protected
+            def _fake_special_(self, other):
+                a = other.public
+                self.public = other._protected
+                self.__private = other.__private
+        """
+        )
+        classdef = node.body[-1]
+        assign_attribute_in_eq = classdef.instance_attr("_protected")[-1]
+        attribute_in_eq = list(assign_attribute_in_eq.assigned_stmts())[-1]
+        assign_attribute_in_fake_1 = classdef.instance_attr("public")[-1]
+        attribute_in_fake_1 = list(assign_attribute_in_fake_1.assigned_stmts())[-1]
+        assign_attribute_in_fake_2 = classdef.instance_attr("__private")[-1]
+        attribute_in_fake_2 = list(assign_attribute_in_fake_2.assigned_stmts())[-1]
+        with self.assertAddsMessages(
+            Message("protected-access", node=attribute_in_eq, args="_protected"),
+            Message("protected-access", node=attribute_in_fake_1, args="_protected"),
+            Message("protected-access", node=attribute_in_fake_2, args="__private"),
+        ):
+            self.walk(node.root())
+
+    @set_config(check_protected_access_in_special_methods=False)
+    def test_check_protected_access_in_special_methods_deact(self):
+        """Test that when check-protected-access-in-special-methods is False (default)
+        no protected-access message emission for single underscore prefixed names
+        inside special methods occur
+        """
+
+        node = astroid.parse(
+            """
+        class Protected:
+            '''empty'''
+            def __init__(self):
+                self._protected = 42
+                self.public = "A"
+                self.__private = None
+            def __eq__(self, other):
+                self._protected = other._protected
+            def _fake_special_(self, other):
+                a = other.public
+                self.public = other._protected
+                self.__private = other.__private
+        """
+        )
+        classdef = node.body[-1]
+        assign_attribute_in_fake_1 = classdef.instance_attr("public")[-1]
+        attribute_in_fake_1 = list(assign_attribute_in_fake_1.assigned_stmts())[-1]
+        assign_attribute_in_fake_2 = classdef.instance_attr("__private")[-1]
+        attribute_in_fake_2 = list(assign_attribute_in_fake_2.assigned_stmts())[-1]
+        with self.assertAddsMessages(
+            Message("protected-access", node=attribute_in_fake_1, args="_protected"),
+            Message("protected-access", node=attribute_in_fake_2, args="__private"),
+        ):
+            self.walk(node.root())
