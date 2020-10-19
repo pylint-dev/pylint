@@ -423,3 +423,5 @@ contributors:
 * Joshua Cannon: contributor
 
 * Giuseppe Valente: contributor
+
+* Julius Simonelli
