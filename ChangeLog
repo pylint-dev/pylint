@@ -6,6 +6,8 @@ Pylint's ChangeLog
 
 * Fix minor documentation issue in contribute.rst
 
+* Fix link in faq.rst
+
 
 What's New in Pylint 2.6.1?
 ===========================
