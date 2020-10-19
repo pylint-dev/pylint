@@ -23,5 +23,3 @@ Other Changes
   Close #3584
 
 * Enums are now required to be named in UPPER_CASE by ``invalid-name``.
-
-  Close #3834

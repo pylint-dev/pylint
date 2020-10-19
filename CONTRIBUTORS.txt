@@ -418,5 +418,4 @@ contributors:
 
 * Joshua Cannon: contributor
 
-
 * Takashi Hirashima: contributor
