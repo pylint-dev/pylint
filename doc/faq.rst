@@ -112,7 +112,7 @@ For example::
 3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
 ---------------------------------------------------------------------------------------
 
-Much probably. Read :ref:`ide-integration`
+Much probably. Read http://pylint.pycqa.org/en/latest/user_guide/ide-integration.html
 
 
 4. Message Control
