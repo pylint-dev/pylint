@@ -17,19 +17,6 @@ from pylint.lint import Run
 from pylint.testutils import TestReporter as Reporter
 
 
-class TempdirGuard:
-    """ creates and deletes a tmp-dir compatible with python2 and 3 """
-
-    def __init__(self, prefix):
-        self.path = tempfile.mkdtemp(prefix=prefix + "_")
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, x_type, x_value, x_traceback):
-        shutil.rmtree(self.path)  # always clean up on exit
-
-
 def _get_py_files(scanpath):
     assert os.path.exists(scanpath), "Dir not found %s" % scanpath
 
@@ -53,21 +40,22 @@ def _get_py_files(scanpath):
 @pytest.mark.parametrize(
     "name,git_repo", [("numpy", "https://github.com/numpy/numpy.git")]
 )
-def test_run(name, git_repo):
+def test_run(tmp_path, name, git_repo):
     """ Runs pylint against external sources """
-    with TempdirGuard(prefix=name) as checkoutdir:
-        os.system(
-            "git clone --depth=1 {git_repo} {checkoutdir}".format(
-                git_repo=git_repo, checkoutdir=checkoutdir.path
-            )
+    checkoutdir = tmp_path / name
+    checkoutdir.mkdir()
+    os.system(
+        "git clone --depth=1 {git_repo} {checkoutdir}".format(
+            git_repo=git_repo, checkoutdir=str(checkoutdir)
         )
-        filepaths = _get_py_files(scanpath=checkoutdir.path)
-        print("Have %d files" % len(filepaths))
+    )
+    filepaths = _get_py_files(scanpath=str(checkoutdir))
+    print("Have %d files" % len(filepaths))
 
-        runner = Run(filepaths, reporter=Reporter(), do_exit=False)
+    runner = Run(filepaths, reporter=Reporter(), do_exit=False)
 
-        print(
-            "Had %d files with %d messages"
-            % (len(filepaths), len(runner.linter.reporter.messages))
-        )
-        pprint.pprint(runner.linter.reporter.messages)
+    print(
+        "Had %d files with %d messages"
+        % (len(filepaths), len(runner.linter.reporter.messages))
+    )
+    pprint.pprint(runner.linter.reporter.messages)
