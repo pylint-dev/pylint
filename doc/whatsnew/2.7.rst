@@ -12,6 +12,9 @@ Summary -- Release highlights
 * Add support to ``ignored-argument-names`` in DocstringParameterChecker and
   adds `useless-param-doc` and `useless-type-doc` messages.
 
+* Docparams extension now respects the ``no-docstring-rgx`` and 
+  ``docstring-min-length`` config parameters. #2738
+
 New checkers
 ============
 

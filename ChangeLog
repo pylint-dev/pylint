@@ -35,6 +35,10 @@ Release date: TBA
 
   Close #3800
 
+* Enforce docparams consistently when docstring is not present
+
+  Close #2738
+
 * Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comman, etc.)
 
 * Improve lint message for `singleton-comparison` with bools
