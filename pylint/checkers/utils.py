@@ -74,7 +74,9 @@ ABC_METHODS = {
     "abc.abstractclassmethod",
     "abc.abstractstaticmethod",
 }
-TYPING_PROTOCOLS = frozenset({"typing.Protocol", "typing_extensions.Protocol"})
+TYPING_PROTOCOLS = frozenset(
+    {"typing.Protocol", "typing_extensions.Protocol", ".Protocol"}
+)
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
