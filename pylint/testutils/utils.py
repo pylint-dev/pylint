@@ -476,7 +476,7 @@ class LintModuleTest:
             expected_output_lines = []
         return expected_msgs, expected_output_lines
 
-    def _get_received(self):
+    def _get_actual(self):
         messages = self._linter.reporter.messages
         messages.sort(key=lambda m: (m.line, m.symbol, m.msg))
         received_msgs = collections.Counter()
@@ -492,13 +492,13 @@ class LintModuleTest:
     def _runTest(self):
         modules_to_check = [self._test_file.source]
         self._linter.check(modules_to_check)
-        expected_messages, expected_text = self._get_expected()
-        received_messages, received_text = self._get_received()
+        expected_messages, expected_output = self._get_expected()
+        actual_messages, actual_output = self._get_actual()
 
-        if expected_messages != received_messages:
+        if expected_messages != actual_messages:
             msg = ['Wrong results for file "%s":' % (self._test_file.base)]
             missing, unexpected = multiset_difference(
-                expected_messages, received_messages
+                expected_messages, actual_messages
             )
             if missing:
                 msg.append("\nExpected in testdata:")
@@ -507,7 +507,7 @@ class LintModuleTest:
                 msg.append("\nUnexpected in testdata:")
                 msg.extend(" %3d: %s" % msg for msg in sorted(unexpected))
             pytest.fail("\n".join(msg))
-        self._check_output_text(expected_messages, expected_text, received_text)
+        self._check_output_text(expected_messages, expected_output, actual_output)
 
     @classmethod
     def _split_lines(cls, expected_messages, lines):
