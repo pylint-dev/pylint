@@ -105,9 +105,10 @@ def test_functional(test_file):
 
 
 if __name__ == "__main__":
-    if "-u" in sys.argv:
+    update_option = "--update-functional-output"
+    if update_option in sys.argv:
         UPDATE.touch()
-        sys.argv.remove("-u")
+        sys.argv.remove(update_option)
     pytest.main(sys.argv)
     if UPDATE.exists():
         print("The expected output for functional tests has been updated.")
