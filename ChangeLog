@@ -16,11 +16,18 @@ Release date: TBA
 
   Closes #3885
 
+* Fix bug that lead to duplicate messages when using ``--jobs 2`` or more.
+
+  Close #3584
+ 
+* Adds option ``check-protected-access-in-special-methods`` in the ClassChecker to activate/deactivate
+  ``protected-access`` message emission for single underscore prefixed attribute in special methods.
+
+  Close #3120
+
 * Fix vulnerable regular expressions in ``pyreverse``
 
   Close #3811
-
-Release date: TBA
 
 * ``inconsistent-return-statements`` message is now emitted if one of ``try/except`` statement
   is not returning explicitly while the other do.
@@ -33,6 +40,10 @@ Release date: TBA
 
 * Fix a crash when a specified config file does not exist
 
+* Add support to ``ignored-argument-names`` in DocstringParameterChecker and adds `useless-param-doc` and `useless-type-doc` messages.
+
+  Close #3800
+
 * Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comman, etc.)
 
 * Improve lint message for `singleton-comparison` with bools
@@ -42,6 +53,8 @@ Release date: TBA
   Close #3786
 
 * Fix AttributeError in checkers/refactoring.py
+
+* Improve sphinx directives spelling filter
 
 * Fix a bug with postponed evaluation when using aliases for annotations.
 

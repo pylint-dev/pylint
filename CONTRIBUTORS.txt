@@ -404,6 +404,8 @@ contributors:
 
 * Frost Ming (frostming): contributor
 
+* Luigi Bertaco Cristofolini (luigibertaco): contributor
+
 * Eli Fine (eli88fine): Fixed false positive duplicate code warning for lines with symbols only
 
 * Ganden Schaffner: contributor
@@ -412,8 +414,12 @@ contributors:
 
 * David Cain: contributor
 
+* Pedro Algarvio (s0undt3ch): contributor
+
 * Luigi Bertaco Cristofolini (luigibertaco): contributor
 
 * Or Bahari
 
 * Joshua Cannon: contributor
+
+* Giuseppe Valente: contributor
