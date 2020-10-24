@@ -173,21 +173,29 @@ class LintModuleTest:
     def _runTest(self):
         modules_to_check = [self._test_file.source]
         self._linter.check(modules_to_check)
-        expected_messages, expected_text = self._get_expected()
-        received_messages, received_text = self._get_actual()
-        if expected_messages != received_messages:
-            msg = ['Wrong results for file "%s":' % (self._test_file.base)]
-            missing, unexpected = self.multiset_difference(
-                expected_messages, received_messages
+        expected_messages, expected_output = self._get_expected()
+        actual_messages, actual_output = self._get_actual()
+
+        if expected_messages != actual_messages:
+            error_msg = self.error_msg_for_unequal_messages(
+                actual_messages, expected_messages
             )
-            if missing:
-                msg.append("\nExpected in testdata:")
-                msg.extend(" %3d: %s" % msg for msg in sorted(missing))
-            if unexpected:
-                msg.append("\nUnexpected in testdata:")
-                msg.extend(" %3d: %s" % msg for msg in sorted(unexpected))
-            pytest.fail("\n".join(msg))
-        self._check_output_text(expected_messages, expected_text, received_text)
+            pytest.fail(error_msg)
+        self._check_output_text(expected_messages, expected_output, actual_output)
+
+    def error_msg_for_unequal_messages(self, actual_messages, expected_messages):
+        msg = ['Wrong results for file "%s":' % (self._test_file.base)]
+        missing, unexpected = self.multiset_difference(
+            expected_messages, actual_messages
+        )
+        if missing:
+            msg.append("\nExpected in testdata:")
+            msg.extend(" %3d: %s" % msg for msg in sorted(missing))
+        if unexpected:
+            msg.append("\nUnexpected in testdata:")
+            msg.extend(" %3d: %s" % msg for msg in sorted(unexpected))
+        error_msg = "\n".join(msg)
+        return error_msg
 
     @classmethod
     def _split_lines(cls, expected_messages, lines):
