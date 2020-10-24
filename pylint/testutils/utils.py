@@ -18,6 +18,7 @@ from glob import glob
 from io import StringIO
 from os import close, remove, write
 from os.path import abspath, basename, dirname, exists, join, splitext
+from typing import Tuple
 
 import astroid
 import pytest
@@ -378,21 +379,12 @@ def get_expected_messages(stream):
     return messages
 
 
-def multiset_difference(left_op, right_op):
+def multiset_difference(expected_entries: set, actual_entries: set) -> Tuple[set]:
     """Takes two multisets and compares them.
 
-    A multiset is a dict with the cardinality of the key as the value.
-
-    :param left_op: The expected entries.
-    :type left_op: set
-    :param right_op: Actual entries.
-    :type right_op: set
-
-    :returns: The two multisets of missing and unexpected messages.
-    :rtype: tuple
-    """
-    missing = left_op.copy()
-    missing.subtract(right_op)
+    A multiset is a dict with the cardinality of the key as the value."""
+    missing = expected_entries.copy()
+    missing.subtract(actual_entries)
     unexpected = {}
     for key, value in list(missing.items()):
         if value <= 0:
