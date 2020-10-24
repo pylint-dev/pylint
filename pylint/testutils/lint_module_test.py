@@ -194,18 +194,7 @@ class LintModuleTest:
         error_msg = "\n".join(msg)
         return error_msg
 
-    @classmethod
-    def _split_lines(cls, expected_messages, lines):
-        emitted, omitted = [], []
-        for msg in lines:
-            if (msg[1], msg[0]) in expected_messages:
-                emitted.append(msg)
-            else:
-                omitted.append(msg)
-        return emitted, omitted
-
-    def _check_output_text(self, expected_messages, expected_lines, received_lines):
-        expected_lines = self._split_lines(expected_messages, expected_lines)[0]
+    def error_msg_for_unequal_output(self, expected_lines, received_lines) -> str:
         missing = set(expected_lines) - set(received_lines)
         unexpected = set(received_lines) - set(expected_lines)
         error_msg = (
@@ -224,4 +213,20 @@ class LintModuleTest:
             error_msg += "\n- Unexpected lines:\n"
             for line in unexpected:
                 error_msg += "{}\n".format(line)
+        return error_msg
+
+    @classmethod
+    def _split_lines(cls, expected_messages, lines):
+        emitted, omitted = [], []
+        for msg in lines:
+            if (msg[1], msg[0]) in expected_messages:
+                emitted.append(msg)
+            else:
+                omitted.append(msg)
+        return emitted, omitted
+
+    def _check_output_text(self, expected_messages, expected_lines, received_lines):
+        """This is a function because we want to be able to update the text in LintModuleOutputUpdate"""
+        expected_lines = self._split_lines(expected_messages, expected_lines)[0]
+        error_msg = self.error_msg_for_unequal_output(expected_lines, received_lines)
         assert expected_lines == received_lines, error_msg
