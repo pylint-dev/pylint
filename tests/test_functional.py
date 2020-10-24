@@ -25,6 +25,7 @@ import csv
 import io
 import os
 import sys
+import warnings
 from pathlib import Path
 
 import pytest
@@ -65,8 +66,14 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
             return
         emitted, remaining = self._split_lines(expected_messages, expected_lines)
         if emitted != received_lines:
+
             remaining.extend(received_lines)
             remaining.sort(key=lambda m: (m[1], m[0], m[3]))
+            warnings.warn(
+                "Updated '{}' with the new content generated from '{}'".format(
+                    self._test_file.expected_output, self._test_file.base
+                )
+            )
             with open(self._test_file.expected_output, "w") as fobj:
                 writer = csv.writer(fobj, dialect="test")
                 for line in remaining:
@@ -111,5 +118,4 @@ if __name__ == "__main__":
         sys.argv.remove(update_option)
     pytest.main(sys.argv)
     if UPDATE.exists():
-        print("The expected output for functional tests has been updated.")
         UPDATE.unlink()
