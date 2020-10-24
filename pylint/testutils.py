@@ -21,6 +21,7 @@
 # Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2020 Guillaume Peillex <guillaume.peillex@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -31,7 +32,9 @@ import configparser
 import contextlib
 import csv
 import functools
+import itertools
 import operator
+import os
 import platform
 import re
 import sys
@@ -622,6 +625,11 @@ class LintModuleTest:
 
     def _check_output_text(self, expected_messages, expected_lines, received_lines):
         expected_lines = self._split_lines(expected_messages, expected_lines)[0]
-        assert (
-            expected_lines == received_lines
-        ), "Expected test lines did not match for test: {}".format(self._test_file.base)
+        for exp, rec in itertools.zip_longest(expected_lines, received_lines):
+            assert exp == rec, (
+                "Expected test lines did not match for test: {}."
+                "{_linesep:s}Expected : {}"
+                "{_linesep:s}Received : {}".format(
+                    self._test_file.base, exp, rec, _linesep=os.linesep
+                )
+            )

@@ -11,6 +11,10 @@ What's New in Pylint 2.6.1?
 ===========================
 Release date: TBA
 
+* Fix bug that lead to duplicate messages when using ``--jobs 2`` or more.
+
+  Close #3584
+ 
 * Adds option ``check-protected-access-in-special-methods`` in the ClassChecker to activate/deactivate
   ``protected-access`` message emission for single underscore prefixed attribute in special methods.
 
