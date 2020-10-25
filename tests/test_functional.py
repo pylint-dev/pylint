@@ -112,10 +112,9 @@ def test_functional(test_file):
 
 
 if __name__ == "__main__":
-    update_option = "--update-functional-output"
-    if update_option in sys.argv:
+    if testutils.UPDATE_OPTION in sys.argv:
         UPDATE.touch()
-        sys.argv.remove(update_option)
+        sys.argv.remove(testutils.UPDATE_OPTION)
     pytest.main(sys.argv)
     if UPDATE.exists():
         UPDATE.unlink()
