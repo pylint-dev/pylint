@@ -628,9 +628,15 @@ class LintModuleTest:
         expected_lines = self._split_lines(expected_messages, expected_lines)[0]
         for exp, rec in itertools.zip_longest(expected_lines, received_lines):
             assert exp == rec, (
-                "Expected test lines did not match for test: {}."
+                "Wrong output for '{_file}.txt':"
+                "{_linesep}You can update the expected output automatically with: '"
+                'python tests/test_functional.py {} -k "test_functional[{_file}]"\'{_linesep:s}'
                 "{_linesep:s}Expected : {}"
                 "{_linesep:s}Received : {}".format(
-                    self._test_file.base, exp, rec, _linesep=os.linesep
+                    UPDATE_OPTION,
+                    exp,
+                    rec,
+                    _linesep=os.linesep,
+                    _file=self._test_file.base,
                 )
             )
