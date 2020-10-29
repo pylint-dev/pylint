@@ -34,8 +34,8 @@ class EnoughPublicMethods(Klass):
 
 class BossMonster(Enum):
     """An enum does not need methods to be useful."""
-    megashark = 1
-    octopus = 2
+    MEGASHARK = 1
+    OCTOPUS = 2
 
 
 class DumbList:

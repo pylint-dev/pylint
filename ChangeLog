@@ -6,6 +6,10 @@ Pylint's ChangeLog
 
 * Fix minor documentation issue in contribute.rst
 
+* Enums are now required to be named in UPPER_CASE by ``invalid-name``.
+
+  Close #3834
+
 
 What's New in Pylint 2.6.1?
 ===========================
