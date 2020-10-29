@@ -34,7 +34,6 @@ import csv
 import functools
 import itertools
 import operator
-import os
 import platform
 import re
 import sys
@@ -628,15 +627,14 @@ class LintModuleTest:
         expected_lines = self._split_lines(expected_messages, expected_lines)[0]
         for exp, rec in itertools.zip_longest(expected_lines, received_lines):
             assert exp == rec, (
-                "Wrong output for '{_file}.txt':"
-                "{_linesep}You can update the expected output automatically with: '"
-                'python tests/test_functional.py {} -k "test_functional[{_file}]"\'{_linesep:s}'
-                "{_linesep:s}Expected : {}"
-                "{_linesep:s}Received : {}".format(
-                    UPDATE_OPTION,
-                    exp,
-                    rec,
-                    _linesep=os.linesep,
+                "Wrong output for '{_file}.txt':\n"
+                "You can update the expected output automatically with: '"
+                'python tests/test_functional.py {update_option} -k "test_functional[{_file}]"\'\n\n'
+                "Expected : {expected}\n"
+                "Received : {received}".format(
+                    update_option=UPDATE_OPTION,
+                    expected=exp,
+                    received=rec,
                     _file=self._test_file.base,
                 )
             )
