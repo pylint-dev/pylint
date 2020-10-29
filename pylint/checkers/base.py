@@ -51,6 +51,7 @@
 # Copyright (c) 2020 Gabriel R Sezefredo <g@briel.dev>
 # Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
+# Copyright (c) 2020 Takashi Hirashima <hira9603859504@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -1987,6 +1988,10 @@ class NameChecker(_BasicChecker):
                     self._check_name("variable", node.name, node)
         elif isinstance(frame, astroid.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
+                for ancestor in frame.ancestors():
+                    if ancestor.name == "Enum" and ancestor.root().name == "enum":
+                        self._check_name("const", node.name, node)
+                        break
                 self._check_name("class_attribute", node.name, node)
 
     def _recursive_check_names(self, args, node):

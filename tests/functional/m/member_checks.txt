@@ -16,4 +16,4 @@ no-member:135::Class 'dict' has no 'bala' member:INFERENCE
 no-member:136::Class 'str' has no 'portocala' member:INFERENCE
 no-member:171:NoDunderNameInInstance.__init__:Instance of 'NoDunderNameInInstance' has no '__name__' member:INFERENCE
 no-member:177:InvalidAccessBySlots.__init__:Instance of 'InvalidAccessBySlots' has no 'teta' member:INFERENCE
-no-member:209::Class 'Cls' has no 'Baz' member; maybe 'Bar'?:INFERENCE
+no-member:209::Class 'Cls' has no 'BAZ' member; maybe 'BAR'?:INFERENCE
