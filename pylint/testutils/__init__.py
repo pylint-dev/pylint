@@ -52,8 +52,6 @@ from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 from pylint.utils import ASTWalker
 
-# Utils
-
 SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]
 TITLE_UNDERLINES = ["", "=", "-", "."]
 PREFIX = abspath(dirname(__file__))
