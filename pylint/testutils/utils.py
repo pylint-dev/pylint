@@ -397,7 +397,7 @@ def multiset_difference(expected_entries: set, actual_entries: set) -> Tuple[set
 class LintModuleTest:
     maxDiff = None
 
-    def __init__(self, test_file):
+    def __init__(self, test_file: FunctionalTestFile):
         _test_reporter = FunctionalTestReporter()
         self._linter = PyLinter()
         self._linter.set_reporter(_test_reporter)
