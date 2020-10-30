@@ -41,7 +41,7 @@ import tempfile
 import tokenize
 from glob import glob
 from io import StringIO
-from os import close, getcwd, linesep, remove, sep, write
+from os import close, remove, write
 from os.path import abspath, basename, dirname, exists, join, splitext
 
 import astroid
@@ -49,7 +49,7 @@ import pytest
 
 from pylint import checkers, interfaces
 from pylint.lint import PyLinter
-from pylint.reporters import BaseReporter
+from pylint.testutils.test_reporter import FunctionalTestReporter, TestReporter
 from pylint.utils import ASTWalker
 
 SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]
@@ -94,67 +94,6 @@ def _get_tests_info(input_dir, msg_dir, prefix, suffix):
             outfile = join(msg_dir, fbase + ".txt")
         result.append((infile, outfile))
     return result
-
-
-class TestReporter(BaseReporter):
-    """reporter storing plain text messages"""
-
-    __implements__ = interfaces.IReporter
-
-    def __init__(self):  # pylint: disable=super-init-not-called
-
-        self.message_ids = {}
-        self.reset()
-        self.path_strip_prefix = getcwd() + sep
-
-    def reset(self):
-        self.out = StringIO()
-        self.messages = []
-
-    def handle_message(self, msg):
-        """manage message of different type and in the context of path """
-        obj = msg.obj
-        line = msg.line
-        msg_id = msg.msg_id
-        msg = msg.msg
-        self.message_ids[msg_id] = 1
-        if obj:
-            obj = ":%s" % obj
-        sigle = msg_id[0]
-        if linesep != "\n":
-            # 2to3 writes os.linesep instead of using
-            # the previously used line separators
-            msg = msg.replace("\r\n", "\n")
-        self.messages.append("%s:%3s%s: %s" % (sigle, line, obj, msg))
-
-    def finalize(self):
-        self.messages.sort()
-        for msg in self.messages:
-            print(msg, file=self.out)
-        result = self.out.getvalue()
-        self.reset()
-        return result
-
-    # pylint: disable=unused-argument
-    def on_set_current_module(self, module, filepath):
-        pass
-
-    # pylint: enable=unused-argument
-
-    def display_reports(self, layout):
-        """ignore layouts"""
-
-    _display = None
-
-
-class MinimalTestReporter(BaseReporter):
-    def handle_message(self, msg):
-        self.messages.append(msg)
-
-    def on_set_current_module(self, module, filepath):
-        self.messages = []
-
-    _display = None
 
 
 class Message(
@@ -359,17 +298,6 @@ _EXPECTED_RE = re.compile(
 
 def parse_python_version(ver_str):
     return tuple(int(digit) for digit in ver_str.split("."))
-
-
-class FunctionalTestReporter(BaseReporter):  # pylint: disable=abstract-method
-    def handle_message(self, msg):
-        self.messages.append(msg)
-
-    def on_set_current_module(self, module, filepath):
-        self.messages = []
-
-    def display_reports(self, layout):
-        """Ignore layouts and don't call self._display()."""
 
 
 class FunctionalTestFile:
