@@ -91,15 +91,16 @@ def check_parallel(linter, jobs, files, arguments=None):
     # is identical to the linter object here. This is requred so that
     # a custom PyLinter object can be used.
     initializer = functools.partial(_worker_initialize, arguments=arguments)
-    with multiprocessing.Pool(jobs, initializer=initializer, initargs=[linter]) as pool:
-        # ..and now when the workers have inherited the linter, the actual reporter
-        # can be set back here on the parent process so that results get stored into
-        # correct reporter
-        linter.set_reporter(original_reporter)
-        linter.open()
+    pool = multiprocessing.Pool(jobs, initializer=initializer, initargs=[linter])
+    # ..and now when the workers have inherited the linter, the actual reporter
+    # can be set back here on the parent process so that results get stored into
+    # correct reporter
+    linter.set_reporter(original_reporter)
+    linter.open()
 
-        all_stats = []
+    all_stats = []
 
+    try:
         for (
             module,
             file_path,
@@ -116,6 +117,9 @@ def check_parallel(linter, jobs, files, arguments=None):
 
             all_stats.append(stats)
             linter.msg_status |= msg_status
+    finally:
+        pool.close()
+        pool.join()
 
     linter.stats = _merge_stats(all_stats)
 

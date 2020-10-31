@@ -15,6 +15,10 @@ What's New in Pylint 2.6.1?
 ===========================
 Release date: TBA
 
+* Fix linter multiprocessing pool shutdown (triggered warnings when runned in parallels with other pytest plugins)
+
+  Closes #3779
+
 * Fix a false-positive emission of `no-self-use` and `unused-argument` for methods
   of generic structural types (`Protocol[T]`)
 
@@ -23,7 +27,7 @@ Release date: TBA
 * Fix bug that lead to duplicate messages when using ``--jobs 2`` or more.
 
   Close #3584
- 
+
 * Adds option ``check-protected-access-in-special-methods`` in the ClassChecker to activate/deactivate
   ``protected-access`` message emission for single underscore prefixed attribute in special methods.
 
