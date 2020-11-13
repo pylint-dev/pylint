@@ -318,6 +318,66 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
 
+    def test_decorated_by_subscriptable_then_unsubscriptable_class_issue3882(self):
+        module = astroid.parse(
+            """
+        class Unsubscriptable:
+            def __init__(self, f):
+                self.f = f
+
+        class Subscriptable:
+            def __init__(self, f):
+                self.f = f
+
+            def __getitem__(self, item):
+                return item
+
+        @Unsubscriptable
+        @Subscriptable
+        def decorated():
+            ...
+
+        test = decorated[None]
+        # TypeError: 'Unsubscriptable' object is not subscriptable
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertAddsMessages(
+            Message(
+                "unsubscriptable-object",
+                node=subscript.value,
+                args="decorated",
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_subscript(subscript)
+
+    def test_decorated_by_unsubscriptable_then_subscriptable_class_issue3882(self):
+        module = astroid.parse(
+            """
+        class Unsubscriptable:
+            def __init__(self, f):
+                self.f = f
+
+        class Subscriptable:
+            def __init__(self, f):
+                self.f = f
+
+            def __getitem__(self, item):
+                return item
+
+        @Subscriptable
+        @Unsubscriptable
+        def decorated():
+            ...
+
+        test = decorated[None]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
     def test_decorated_by_an_unsubscriptable_class_issue3882(self):
         module = astroid.parse(
             """
