@@ -300,7 +300,8 @@ class TestTypeChecker(CheckerTestCase):
             def __getitem__(self, item):
                 return item
         """
-        self.typing_option_object_is_subscriptable(decorators)
+        for generic in "Optional", "List", "ClassVar", "Final", "Literal":
+            self.typing_objects_are_subscriptable(generic)
 
         self.decorated_by_a_subscriptable_class(decorators)
         self.decorated_by_an_unsubscriptable_class(decorators)
@@ -308,12 +309,14 @@ class TestTypeChecker(CheckerTestCase):
         self.decorated_by_subscriptable_then_unsubscriptable_class(decorators)
         self.decorated_by_unsubscriptable_then_subscriptable_class(decorators)
 
-    def typing_option_object_is_subscriptable(self, decorators):
+    def typing_objects_are_subscriptable(self, generic):
         module = astroid.parse(
             """
         import typing
-        test = typing.Optional[int]
-        """
+        test = typing.{}[int]
+        """.format(
+                generic
+            )
         )
         subscript = module.body[-1].value
         with self.assertNoMessages():
