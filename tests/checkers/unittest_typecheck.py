@@ -287,40 +287,8 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
 
-    def test_typing_option_object_is_subscriptable_issue3882(self):
-        module = astroid.parse(
-            """
-        import typing
-        test = typing.Optional[int]
-        """
-        )
-        subscript = module.body[-1].value
-        with self.assertNoMessages():
-            self.checker.visit_subscript(subscript)
-
-    def test_decorated_by_a_subscriptable_class_issue3882(self):
-        module = astroid.parse(
-            """
-        class Deco:
-            def __init__(self, f):
-                self.f = f
-
-            def __getitem__(self, item):
-                return item
-        @Deco
-        def decorated():
-            ...
-
-        test = decorated[None]
-        """
-        )
-        subscript = module.body[-1].value
-        with self.assertNoMessages():
-            self.checker.visit_subscript(subscript)
-
-    def test_decorated_by_subscriptable_then_unsubscriptable_class_issue3882(self):
-        module = astroid.parse(
-            """
+    def test_issue3882_class_decorators(self):
+        decorators = """
         class Unsubscriptable:
             def __init__(self, f):
                 self.f = f
@@ -331,14 +299,51 @@ class TestTypeChecker(CheckerTestCase):
 
             def __getitem__(self, item):
                 return item
+        """
+        self.typing_option_object_is_subscriptable(decorators)
 
+        self.decorated_by_a_subscriptable_class(decorators)
+        self.decorated_by_an_unsubscriptable_class(decorators)
+
+        self.decorated_by_subscriptable_then_unsubscriptable_class(decorators)
+        self.decorated_by_unsubscriptable_then_subscriptable_class(decorators)
+
+    def typing_option_object_is_subscriptable(self, decorators):
+        module = astroid.parse(
+            """
+        import typing
+        test = typing.Optional[int]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
+    def decorated_by_a_subscriptable_class(self, decorators):
+        module = astroid.parse(
+            decorators
+            + """
+        @Subscriptable
+        def decorated():
+            ...
+
+        test = decorated[None]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
+    def decorated_by_subscriptable_then_unsubscriptable_class(self, decorators):
+        module = astroid.parse(
+            decorators
+            + """
         @Unsubscriptable
         @Subscriptable
         def decorated():
             ...
 
         test = decorated[None]
-        # TypeError: 'Unsubscriptable' object is not subscriptable
         """
         )
         subscript = module.body[-1].value
@@ -352,20 +357,10 @@ class TestTypeChecker(CheckerTestCase):
         ):
             self.checker.visit_subscript(subscript)
 
-    def test_decorated_by_unsubscriptable_then_subscriptable_class_issue3882(self):
+    def decorated_by_unsubscriptable_then_subscriptable_class(self, decorators):
         module = astroid.parse(
-            """
-        class Unsubscriptable:
-            def __init__(self, f):
-                self.f = f
-
-        class Subscriptable:
-            def __init__(self, f):
-                self.f = f
-
-            def __getitem__(self, item):
-                return item
-
+            decorators
+            + """
         @Subscriptable
         @Unsubscriptable
         def decorated():
@@ -378,14 +373,11 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
 
-    def test_decorated_by_an_unsubscriptable_class_issue3882(self):
+    def decorated_by_an_unsubscriptable_class(self, decorators):
         module = astroid.parse(
-            """
-        class Deco:
-            def __init__(self, f):
-                self.f = f
-
-        @Deco
+            decorators
+            + """
+        @Unsubscriptable
         def decorated():
             ...
 
