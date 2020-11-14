@@ -25,3 +25,10 @@ repos:
     - id: black
       args: [--safe, --quiet]
       exclude: *fixtures
+-   repo: local
+    hooks:
+    -   id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
