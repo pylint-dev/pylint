@@ -53,10 +53,6 @@ class LintTestUsingModule:
     output = None
     _TEST_TYPE = "module"
 
-    # def runTest(self):
-    #     # This is a hack to make ./test/test_func.py work under pytest.
-    #     pass
-
     def _test_functionality(self):
         tocheck = [self.package + "." + self.module]
         # pylint: disable=not-an-iterable; can't handle boolean checks for now
