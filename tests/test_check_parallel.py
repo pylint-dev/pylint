@@ -18,7 +18,7 @@ from pylint.lint import PyLinter
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
 from pylint.lint.parallel import check_parallel
-from pylint.testutils import TestReporter as Reporter
+from pylint.testutils import GenericTestReporter as Reporter
 
 
 def _gen_file_data(idx=0):
