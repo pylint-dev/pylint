@@ -112,7 +112,7 @@ def test_functional(test_file):
         else testutils.LintModuleTest(test_file)
     )
     LintTest.setUp()
-    if test_file.base in TEST_WITH_EXPECTED_DEPRECATION:
+    if test_file.base in TEST_WITH_EXPECTED_DEPRECATION and sys.version_info.minor > 5:
         with pytest.deprecated_call():
             LintTest._runTest()
     else:
