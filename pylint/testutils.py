@@ -125,7 +125,7 @@ class TestReporter(BaseReporter):
         sigle = msg_id[0]
         if linesep != "\n":
             # 2to3 writes os.linesep instead of using
-            # the previosly used line separators
+            # the previously used line separators
             msg = msg.replace("\r\n", "\n")
         self.messages.append("%s:%3s%s: %s" % (sigle, line, obj, msg))
 
@@ -294,7 +294,6 @@ def _create_tempfile(content=None):
     # see https://bugs.python.org/issue14243
     file_handle, tmp = tempfile.mkstemp()
     if content:
-        # erff
         write(file_handle, bytes(content, "ascii"))
     try:
         yield tmp
