@@ -196,7 +196,8 @@ class UnittestLinter:
         # Do not test col_offset for now since changing Message breaks everything
         self._messages.append(Message(msg_id, line, node, args, confidence))
 
-    def is_message_enabled(self, *unused_args, **unused_kwargs):
+    @staticmethod
+    def is_message_enabled(*unused_args, **unused_kwargs):
         return True
 
     def add_stats(self, **kwargs):
