@@ -8,7 +8,7 @@ from pylint import interfaces
 from pylint.reporters import BaseReporter
 
 
-class TestReporter(BaseReporter):
+class GenericTestReporter(BaseReporter):
     """reporter storing plain text messages"""
 
     __implements__ = interfaces.IReporter

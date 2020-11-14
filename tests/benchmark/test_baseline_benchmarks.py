@@ -16,7 +16,7 @@ import pytest
 import pylint.interfaces
 from pylint.checkers.base_checker import BaseChecker
 from pylint.lint import PyLinter, Run, check_parallel
-from pylint.testutils import TestReporter as Reporter
+from pylint.testutils import GenericTestReporter as Reporter
 from pylint.utils import register_plugins
 
 

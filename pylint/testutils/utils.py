@@ -24,7 +24,10 @@ import pytest
 
 from pylint import checkers, interfaces
 from pylint.lint import PyLinter
-from pylint.testutils.test_reporter import FunctionalTestReporter, TestReporter
+from pylint.testutils.reporter_for_tests import (
+    FunctionalTestReporter,
+    GenericTestReporter,
+)
 from pylint.utils import ASTWalker
 
 SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]
@@ -183,7 +186,7 @@ class CheckerTestCase:
 
 
 # Init
-test_reporter = TestReporter()
+test_reporter = GenericTestReporter()
 linter = PyLinter()
 linter.set_reporter(test_reporter)
 linter.config.persistent = 0

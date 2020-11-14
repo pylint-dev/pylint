@@ -38,11 +38,11 @@ __all__ = [
     "Message",
     "MinimalTestReporter",
     "set_config",
-    "TestReporter",
+    "GenericTestReporter",
     "UPDATE_OPTION",
 ]
 
-from pylint.testutils.test_reporter import MinimalTestReporter, TestReporter
+from pylint.testutils.reporter_for_tests import GenericTestReporter, MinimalTestReporter
 from pylint.testutils.utils import (
     UPDATE_OPTION,
     CheckerTestCase,
