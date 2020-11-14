@@ -98,6 +98,10 @@ def get_tests():
 
 TESTS = get_tests()
 TESTS_NAMES = [t.base for t in TESTS]
+TEST_WITH_EXPECTED_DEPRECATION = [
+    "future_unicode_literals",
+    "anomalous_unicode_escape_py3",
+]
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
@@ -108,7 +112,11 @@ def test_functional(test_file):
         else testutils.LintModuleTest(test_file)
     )
     LintTest.setUp()
-    LintTest._runTest()
+    if test_file.base in TEST_WITH_EXPECTED_DEPRECATION:
+        with pytest.deprecated_call():
+            LintTest._runTest()
+    else:
+        LintTest._runTest()
 
 
 if __name__ == "__main__":
