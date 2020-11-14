@@ -135,12 +135,19 @@ TEST_WITH_EXPECTED_DEPRECATION = ["func_excess_escapes.py"]
     gen_tests(FILTER_RGX),
     ids=[o[0] for o in gen_tests(FILTER_RGX)],
 )
-def test_functionality(module_file, messages_file, dependencies):
-    if module_file in TEST_WITH_EXPECTED_DEPRECATION and sys.version_info.minor > 5:
-        # Remove <unknown>:x: DeprecationWarning: invalid escape sequence
-        with pytest.deprecated_call():
-            __test_functionality(module_file, messages_file, dependencies)
+def test_functionality(module_file, messages_file, dependencies, recwarn):
     __test_functionality(module_file, messages_file, dependencies)
+    warning = None
+    try:
+        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence
+        # so it's not shown during tests
+        warning = recwarn.pop()
+    except AssertionError:
+        pass
+    if warning is not None:
+        if module_file in TEST_WITH_EXPECTED_DEPRECATION and sys.version_info.minor > 5:
+            assert issubclass(warning.category, DeprecationWarning)
+            assert "invalid escape sequence" in str(warning.message)
 
 
 def __test_functionality(module_file, messages_file, dependencies):

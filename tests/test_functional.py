@@ -105,18 +105,28 @@ TEST_WITH_EXPECTED_DEPRECATION = [
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
-def test_functional(test_file):
+def test_functional(test_file, recwarn):
     LintTest = (
         LintModuleOutputUpdate(test_file)
         if UPDATE.exists()
         else testutils.LintModuleTest(test_file)
     )
     LintTest.setUp()
-    if test_file.base in TEST_WITH_EXPECTED_DEPRECATION and sys.version_info.minor > 5:
-        with pytest.deprecated_call():
-            LintTest._runTest()
-    else:
-        LintTest._runTest()
+    LintTest._runTest()
+    warning = None
+    try:
+        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence
+        # so it's not shown during tests
+        warning = recwarn.pop()
+    except AssertionError:
+        pass
+    if warning is not None:
+        if (
+            test_file.base in TEST_WITH_EXPECTED_DEPRECATION
+            and sys.version_info.minor > 5
+        ):
+            assert issubclass(warning.category, DeprecationWarning)
+            assert "invalid escape sequence" in str(warning.message)
 
 
 if __name__ == "__main__":
