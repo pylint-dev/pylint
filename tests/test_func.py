@@ -134,14 +134,12 @@ def gen_tests(filter_rgx):
     ids=[o[0] for o in gen_tests(FILTER_RGX)],
 )
 def test_functionality(module_file, messages_file, dependencies):
-
-    LT = LintTestUpdate() if UPDATE else LintTestUsingModule()
-
-    LT.module = module_file.replace(".py", "")
-    LT.output = messages_file
-    LT.depends = dependencies or None
-    LT.INPUT_DIR = INPUT_DIR
-    LT._test_functionality()
+    lint_test = LintTestUpdate() if UPDATE else LintTestUsingModule()
+    lint_test.module = module_file.replace(".py", "")
+    lint_test.output = messages_file
+    lint_test.depends = dependencies or None
+    lint_test.INPUT_DIR = INPUT_DIR
+    lint_test._test_functionality()
 
 
 if __name__ == "__main__":
