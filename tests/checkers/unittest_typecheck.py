@@ -303,11 +303,31 @@ class TestTypeChecker(CheckerTestCase):
         for generic in "Optional", "List", "ClassVar", "Final", "Literal":
             self.typing_objects_are_subscriptable(generic)
 
+        self.getitem_on_modules()
         self.decorated_by_a_subscriptable_class(decorators)
         self.decorated_by_an_unsubscriptable_class(decorators)
 
         self.decorated_by_subscriptable_then_unsubscriptable_class(decorators)
         self.decorated_by_unsubscriptable_then_subscriptable_class(decorators)
+
+    def getitem_on_modules(self):
+        """Mainly validate the code won't crash if we're not having a function."""
+        module = astroid.parse(
+            """
+        import collections
+        test = collections[int]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertAddsMessages(
+            Message(
+                "unsubscriptable-object",
+                node=subscript.value,
+                args="collections",
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_subscript(subscript)
 
     def typing_objects_are_subscriptable(self, generic):
         module = astroid.parse(

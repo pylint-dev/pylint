@@ -1724,7 +1724,7 @@ accessed. Python regular expressions are accepted.",
         if inferred is None or inferred is astroid.Uninferable:
             return
 
-        if inferred.decorators:
+        if getattr(inferred, "decorators", None):
             first_decorator = helpers.safe_infer(inferred.decorators.nodes[0])
             if isinstance(first_decorator, astroid.ClassDef):
                 inferred = first_decorator.instantiate_class()
