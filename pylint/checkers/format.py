@@ -442,9 +442,7 @@ class FormatChecker(BaseTokenChecker):
 
     def _prepare_token_dispatcher(self):
         dispatch = {}
-        for tokens, handler in [
-            (_KEYWORD_TOKENS, self._check_keyword_parentheses),
-        ]:
+        for tokens, handler in [(_KEYWORD_TOKENS, self._check_keyword_parentheses)]:
             for token in tokens:
                 dispatch[token] = handler
         return dispatch
@@ -735,18 +733,20 @@ class FormatChecker(BaseTokenChecker):
 
         max_chars = self.config.max_line_length
 
-        potential_line_length_warning = False
+        split_lines = self.specific_splitlines(lines)
+
+        for offset, line in enumerate(split_lines):
+            self.check_line_ending(line, lineno + offset)
 
         # hold onto the initial lineno for later
-        starting_lineno = lineno
-        for line in self.specific_splitlines(lines):
-            self.check_line_ending(line, lineno)
+        potential_line_length_warning = False
+        for offset, line in enumerate(split_lines):
             # this check is purposefully simple and doesn't rstrip
             # since this is running on every line you're checking it's
             # advantageous to avoid doing a lot of work
             if len(line) > max_chars:
                 potential_line_length_warning = True
-            lineno += 1
+                break
 
         # if there were no lines passing the max_chars config, we don't bother
         # running the full line check (as we've met an even more strict condition)
@@ -762,13 +762,9 @@ class FormatChecker(BaseTokenChecker):
             # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(mobj)
 
-        # reset the lineno back to its original value
-        # (since we iterated over stuff earlier)
-        lineno = starting_lineno
-
-        for line in self.specific_splitlines(lines):
-            self.check_line_length(line, lineno)
-            lineno += 1
+        # here we re-run specific_splitlines since we have filtered out pylint options above
+        for offset, line in enumerate(self.specific_splitlines(lines)):
+            self.check_line_length(line, lineno + offset)
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string"""

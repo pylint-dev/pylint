@@ -70,6 +70,9 @@ Release date: TBA
 
 * Fix minor documentation issues
 
+* Improve the performance of the line length check.
+
+
 What's New in Pylint 2.6.0?
 ===========================
 
