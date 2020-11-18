@@ -28,12 +28,12 @@ class CustomProperty:
     def __init__(self, _):
         pass
 
-    def __get__(self, obj, __):
+    def __get__(self, obj, _):
         if not obj:
             return self
         return 5
 
-    def __set__(self, _, __):
+    def __set__(self, _key, _val):
         pass
 
 class Ddef:

@@ -1,6 +1,7 @@
 """test code similarities
-by defaut docstring are not considered
+by default docstring are not considered
 """
+# pylint: disable=invalid-name
 __revision__ = 'id'
 A = 2
 B = 3

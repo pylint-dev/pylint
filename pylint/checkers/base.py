@@ -62,7 +62,6 @@ import collections
 import itertools
 import re
 import sys
-from typing import Pattern
 
 import astroid
 import astroid.bases
@@ -81,83 +80,69 @@ from pylint.reporters.ureports import nodes as reporter_nodes
 
 
 class NamingStyle:
-    # It may seem counterintuitive that single naming style
-    # has multiple "accepted" forms of regular expressions,
-    # but we need to special-case stuff like dunder names
-    # in method names.
-    CLASS_NAME_RGX = None  # type: Pattern[str]
-    MOD_NAME_RGX = None  # type: Pattern[str]
-    CONST_NAME_RGX = None  # type: Pattern[str]
-    COMP_VAR_RGX = None  # type: Pattern[str]
-    DEFAULT_NAME_RGX = None  # type: Pattern[str]
-    CLASS_ATTRIBUTE_RGX = None  # type: Pattern[str]
+    name_template = r"[^\W\d_%s][^\W%s]%s"
 
-    @classmethod
-    def get_regex(cls, name_type):
+    def __init__(self, head_exclude: str, tail_exclude: str, min_length: int):
+        self.head_exclude = head_exclude
+        self.tail_exclude = tail_exclude
+        self.min_length = min_length
+
+        if min_length == 1:
+            tail_length = "*"
+        elif min_length == 2:
+            tail_length = "+"
+        elif min_length > 2:
+            tail_length = "{%i,}" % (min_length - 1)
+        else:
+            raise AssertionError(tail_length)
+
+        word = self.name_template % (head_exclude, tail_exclude, tail_length)
+        snake_word = self.name_template % ("A-Z", "A-Z", tail_length)
+
+        name = r"_{0,2}%s" % word
+        dunder = r"__%s__" % snake_word
+
+        self.NAME_RGX = re.compile("^(%s)$" % name)
+        self.ATTR_RGX = re.compile("^(%s|%s)$" % (name, dunder))
+
+    def get_regex(self, name_type):
+        # It may seem counterintuitive that single naming style
+        # has multiple "accepted" forms of regular expressions,
+        # but we need to special-case stuff like dunder names
+        # in method names.
         return {
-            "module": cls.MOD_NAME_RGX,
-            "const": cls.CONST_NAME_RGX,
-            "class": cls.CLASS_NAME_RGX,
-            "function": cls.DEFAULT_NAME_RGX,
-            "method": cls.DEFAULT_NAME_RGX,
-            "attr": cls.DEFAULT_NAME_RGX,
-            "argument": cls.DEFAULT_NAME_RGX,
-            "variable": cls.DEFAULT_NAME_RGX,
-            "class_attribute": cls.CLASS_ATTRIBUTE_RGX,
-            "inlinevar": cls.COMP_VAR_RGX,
+            "module": self.NAME_RGX,
+            "const": self.ATTR_RGX,
+            "class": self.NAME_RGX,
+            "function": self.ATTR_RGX,
+            "method": self.ATTR_RGX,
+            "attr": self.ATTR_RGX,
+            "argument": self.ATTR_RGX,
+            "variable": self.ATTR_RGX,
+            "class_attribute": self.ATTR_RGX,
+            "inlinevar": self.NAME_RGX,
         }[name_type]
 
 
-class SnakeCaseStyle(NamingStyle):
-    """Regex rules for snake_case naming style."""
+# Regex rules for snake_case naming style.
+SnakeCaseStyle = NamingStyle("A-Z", "A-Z", 3)
 
-    CLASS_NAME_RGX = re.compile(r"[^\W\dA-Z][^\WA-Z]+$")
-    MOD_NAME_RGX = re.compile(r"[^\W\dA-Z][^\WA-Z]*$")
-    CONST_NAME_RGX = re.compile(r"([^\W\dA-Z][^\WA-Z]*|__.*__)$")
-    COMP_VAR_RGX = re.compile(r"[^\W\dA-Z][^\WA-Z]*$")
-    DEFAULT_NAME_RGX = re.compile(
-        r"([^\W\dA-Z][^\WA-Z]{2,}|_[^\WA-Z]*|__[^\WA-Z\d_][^\WA-Z]+__)$"
-    )
-    CLASS_ATTRIBUTE_RGX = re.compile(r"([^\W\dA-Z][^\WA-Z]{2,}|__.*__)$")
+# Regex rules for camelCase naming style.
+CamelCaseStyle = NamingStyle("A-Z", "_", 3)
 
+# Regex rules for PascalCase naming style.
+PascalCaseStyle = NamingStyle("a-z", "_", 3)
 
-class CamelCaseStyle(NamingStyle):
-    """Regex rules for camelCase naming style."""
+# Regex rules for UPPER_CASE naming style.
+UpperCaseStyle = NamingStyle("a-z", "a-z", 3)
 
-    CLASS_NAME_RGX = re.compile(r"[^\W\dA-Z][^\W_]+$")
-    MOD_NAME_RGX = re.compile(r"[^\W\dA-Z][^\W_]*$")
-    CONST_NAME_RGX = re.compile(r"([^\W\dA-Z][^\W_]*|__.*__)$")
-    COMP_VAR_RGX = re.compile(r"[^\W\dA-Z][^\W_]*$")
-    DEFAULT_NAME_RGX = re.compile(r"([^\W\dA-Z][^\W_]{2,}|__[^\W\dA-Z_]\w+__)$")
-    CLASS_ATTRIBUTE_RGX = re.compile(r"([^\W\dA-Z][^\W_]{2,}|__.*__)$")
+AnyStyle = NamingStyle("", "", 1)
 
 
-class PascalCaseStyle(NamingStyle):
-    """Regex rules for PascalCase naming style."""
-
-    CLASS_NAME_RGX = re.compile(r"[^\W\da-z][^\W_]+$")
-    MOD_NAME_RGX = re.compile(r"[^\W\da-z][^\W_]+$")
-    CONST_NAME_RGX = re.compile(r"([^\W\da-z][^\W_]*|__.*__)$")
-    COMP_VAR_RGX = re.compile(r"[^\W\da-z][^\W_]+$")
-    DEFAULT_NAME_RGX = re.compile(r"([^\W\da-z][^\W_]{2,}|__[^\W\dA-Z_]\w+__)$")
-    CLASS_ATTRIBUTE_RGX = re.compile(r"[^\W\da-z][^\W_]{2,}$")
-
-
-class UpperCaseStyle(NamingStyle):
-    """Regex rules for UPPER_CASE naming style."""
-
-    CLASS_NAME_RGX = re.compile(r"[^\W\da-z][^\Wa-z]+$")
-    MOD_NAME_RGX = re.compile(r"[^\W\da-z][^\Wa-z]+$")
-    CONST_NAME_RGX = re.compile(r"([^\W\da-z][^\Wa-z]*|__.*__)$")
-    COMP_VAR_RGX = re.compile(r"[^\W\da-z][^\Wa-z]+$")
-    DEFAULT_NAME_RGX = re.compile(r"([^\W\da-z][^\Wa-z]{2,}|__[^\W\dA-Z_]\w+__)$")
-    CLASS_ATTRIBUTE_RGX = re.compile(r"[^\W\da-z][^\Wa-z]{2,}$")
-
-
-class AnyStyle(NamingStyle):
-    @classmethod
-    def get_regex(cls, name_type):
-        return re.compile(".*")
+class NoStyle(NamingStyle):
+    @staticmethod
+    def get_regex(name_type):
+        return re.compile(".+")
 
 
 NAMING_STYLES = {
@@ -166,6 +151,7 @@ NAMING_STYLES = {
     "PascalCase": PascalCaseStyle,
     "UPPER_CASE": UpperCaseStyle,
     "any": AnyStyle,
+    "none": NoStyle,
 }
 
 # do not require a doc string on private/system methods

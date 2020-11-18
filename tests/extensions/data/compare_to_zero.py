@@ -1,4 +1,4 @@
-# pylint: disable=literal-comparison,missing-docstring,misplaced-comparison-constant
+# pylint: disable=literal-comparison,missing-docstring,misplaced-comparison-constant,invalid-name
 
 X = 123
 Y = len('test')

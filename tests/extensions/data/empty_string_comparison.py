@@ -1,4 +1,4 @@
-# pylint: disable=literal-comparison,missing-docstring
+# pylint: disable=literal-comparison,missing-docstring,invalid-name
 
 X = ''
 Y = 'test'

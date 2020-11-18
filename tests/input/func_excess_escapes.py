@@ -4,7 +4,7 @@
 __revision__ = '$Id$'
 
 # Bad escape sequences, which probably don't do what you expect.
-A = "\[\]\\"
+_ = "\[\]\\"
 assert '\/' == '\\/'
 ESCAPE_BACKSLASH = '\`'
 

@@ -1,9 +1,9 @@
 # pylint: disable=missing-docstring, too-few-public-methods
 
 try:
-    A = 2
+    _ = 2
 except ValueError:
-    A = 24
+    _ = 24
     pass # [unnecessary-pass]
 
 def docstring_only():

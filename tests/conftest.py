@@ -8,6 +8,14 @@ from pylint import checkers
 from pylint.lint import PyLinter
 from pylint.testutils import MinimalTestReporter
 
+TOP = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PYLINTRC = os.path.join(TOP, "pylintrc")
+
+
+@pytest.fixture(autouse=True)
+def pylintrc():
+    os.environ["PYLINTRC"] = PYLINTRC
+
 
 @pytest.fixture
 def linter(checker, register, enable, disable, reporter):
@@ -24,7 +32,7 @@ def linter(checker, register, enable, disable, reporter):
     if enable:
         for msg in enable:
             _linter.enable(msg)
-    os.environ.pop("PYLINTRC", None)
+    os.environ["PYLINTRC"] = PYLINTRC
     return _linter
 
 

@@ -15,7 +15,7 @@ def func_no_return():
     """function without return"""
     print('dougloup')
 
-A = func_no_return()
+_ = func_no_return()
 
 
 def func_return_none():
@@ -23,14 +23,14 @@ def func_return_none():
     print('dougloup')
     return None
 
-A = func_return_none()
+_ = func_return_none()
 
 
 def func_implicit_return_none():
     """Function returning None from bare return statement."""
     return
 
-A = func_implicit_return_none()
+_ = func_implicit_return_none()
 
 
 def func_return_none_and_smth():
@@ -40,13 +40,13 @@ def func_return_none_and_smth():
         return None
     return 3
 
-A = func_return_none_and_smth()
+_ = func_return_none_and_smth()
 
 def generator():
     """no problemo"""
     yield 2
 
-A = generator()
+_ = generator()
 
 class Abstract(object):
     """bla bla"""

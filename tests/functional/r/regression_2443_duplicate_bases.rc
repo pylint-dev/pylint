@@ -1,2 +1,4 @@
 [testoptions]
 min_pyver=3.6
+[basics]
+good-names=IN

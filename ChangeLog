@@ -10,6 +10,14 @@ Pylint's ChangeLog
 
   Close #3834
 
+* The `invalid-name` checker has been re-worked for increased consistency. Some
+  names that previously passed unnoticed will be flagged. You may solve these
+  new issues three (or more) ways:
+
+   1. increase the length of names to be more descriptive (recommended)
+   2. add strange-but-useful names to the good-names configuration
+   3. override the default regexen, via pylintrc (not recommended)
+
 
 What's New in Pylint 2.6.1?
 ===========================

@@ -392,6 +392,8 @@ contributors:
 
 * Jochen Preusche (iilei): contributor
 
+* Buck Evan (bukzor, Google LLC): contributor
+
 * Ram Rachum (cool-RR)
 
 * Pieter Engelbrecht

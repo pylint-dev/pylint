@@ -5,7 +5,7 @@
 """ that one is too long tooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo loooooong"""
 
 # The next line is exactly 80 characters long.
-A = "--------------------------------------------------------------------------"
+_ = "--------------------------------------------------------------------------"
 
 # Do not trigger the line-too-long warning if the only token that makes the
 # line longer than 80 characters is a trailing pylint disable.
