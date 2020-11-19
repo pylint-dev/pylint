@@ -47,6 +47,7 @@ install:
 - coverage --version
 script:
 - pip install .
+- ln -sf $PWD/examples/pylintrc_alwaysfail $HOME/.pylintrc
 - tox -e coverage-erase,$TOXENV
 after_success:
 - tox -e coveralls

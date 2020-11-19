@@ -24,6 +24,7 @@ install:
   - 'python -m tox --version'
 
 test_script:
+  - 'copy examples\pylintrc_alwaysfail %userprofile%\.pylintrc'
   - 'python -m tox'
 
 on_failure:
