@@ -645,7 +645,7 @@ class LintModuleTest:
 def cwd(path):
     old_cwd = getcwd()
     try:
-        with patch.dict(environ, PWD=str(path)):
+        with patch.dict(environ, PWD=path):
             chdir(path)
             # Return a real path, otherwise tests fail on mac os x
             yield abspath(".")

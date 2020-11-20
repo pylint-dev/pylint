@@ -24,11 +24,13 @@ from difflib import unified_diff
 
 import pytest
 
+from pylint import testutils
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.utils import get_visibility
 from pylint.pyreverse.writer import DotWriter
 
+TEST_DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 _DEFAULTS = {
     "all_ancestors": None,
     "show_associated": None,
@@ -80,8 +82,9 @@ DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
 
 
 @pytest.fixture(scope="module")
-def setup():
-    project = get_project(os.path.join(os.path.dirname(__file__), "data"))
+def chroot(tmp_path_factory):
+    dot_files = tmp_path_factory.mktemp("dot_files")
+    project = get_project(TEST_DATA)
     linker = Linker(project)
     CONFIG = Config()
     handler = DiadefsHandler(CONFIG)
@@ -89,19 +92,15 @@ def setup():
     for diagram in dd:
         diagram.extract_relationships()
     writer = DotWriter(CONFIG)
-    writer.write(dd)
-    yield
-    for fname in DOT_FILES:
-        try:
-            os.remove(fname)
-        except FileNotFoundError:
-            continue
+    with testutils.cwd(dot_files):
+        writer.write(dd)
+        yield
 
 
-@pytest.mark.usefixtures("setup")
+@pytest.mark.usefixtures("chroot")
 @pytest.mark.parametrize("generated_file", DOT_FILES)
 def test_dot_files(generated_file):
-    expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)
+    expected_file = os.path.join(TEST_DATA, generated_file)
     generated = _file_lines(generated_file)
     expected = _file_lines(expected_file)
     generated = "\n".join(generated)
@@ -113,7 +112,6 @@ def test_dot_files(generated_file):
             line for line in unified_diff(expected.splitlines(), generated.splitlines())
         ),
     )
-    os.remove(generated_file)
 
 
 @pytest.mark.parametrize(

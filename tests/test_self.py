@@ -55,6 +55,8 @@ from pylint.utils import utils
 HERE = abspath(dirname(__file__))
 CLEAN_PATH = re.escape(dirname(dirname(__file__)) + "/")
 
+pytestmark = [pytest.mark.usefixtures("pylintrc")]
+
 
 @contextlib.contextmanager
 def _patch_streams(out):
@@ -80,13 +82,13 @@ def _configure_lc_ctype(lc_ctype):
 
 
 class MultiReporter(BaseReporter):
-    def __init__(self, reporters):
+    def __init__(self, reporters, cwd):
         # pylint: disable=super-init-not-called
         # We don't call it because there is an attribute "linter" that is set inside the base class
         # and we have another setter here using yet undefined attribute.
         # I don't think fixing the init order in a test class used once is worth it.
         self._reporters = reporters
-        self.path_strip_prefix = os.getcwd() + os.sep
+        self.path_strip_prefix = str(cwd) + os.sep
 
     def on_set_current_module(self, *args, **kwargs):
         for rep in self._reporters:
@@ -156,7 +158,7 @@ class TestRunTC:
         """Make pylint check itself."""
         self._runtest(["pylint.__pkginfo__"], reporter=TextReporter(StringIO()), code=0)
 
-    def test_all(self):
+    def test_all(self, chroot):
         """Make pylint check itself."""
         reporters = [
             TextReporter(StringIO()),
@@ -165,7 +167,7 @@ class TestRunTC:
         ]
         self._runtest(
             [join(HERE, "functional", "a", "arguments.py")],
-            reporter=MultiReporter(reporters),
+            reporter=MultiReporter(reporters, chroot),
             code=2,
         )
 
@@ -507,24 +509,20 @@ class TestRunTC:
             self._test_output([module, "-E"], expected_output=expected_output)
 
     @pytest.mark.skipif(sys.platform == "win32", reason="only occurs on *nix")
-    def test_parseable_file_path(self):
+    def test_parseable_file_path(self, chroot):
         file_name = "test_target.py"
-        fake_path = HERE + os.getcwd()
+        fake_path = str(chroot / "a/b c/d")
         module = join(fake_path, file_name)
 
-        try:
-            # create module under directories which have the same name as reporter.path_strip_prefix
-            # e.g. /src/some/path/src/test_target.py when reporter.path_strip_prefix = /src/
-            os.makedirs(fake_path)
-            with open(module, "w") as test_target:
-                test_target.write("a,b = object()")
+        # create module under directories which have the same name as reporter.path_strip_prefix
+        # e.g. /src/some/path/src/test_target.py when reporter.path_strip_prefix = /src/
+        os.makedirs(fake_path)
+        with open(module, "w") as test_target:
+            test_target.write("a,b = object()")
 
-            self._test_output(
-                [module, "--output-format=parseable"], expected_output=file_name
-            )
-        finally:
-            os.remove(module)
-            os.removedirs(fake_path)
+        self._test_output(
+            [module, "--output-format=parseable"], expected_output=file_name
+        )
 
     @pytest.mark.parametrize(
         "input_path,module,expected_path",
@@ -578,32 +576,31 @@ class TestRunTC:
             a.join("b.py").write(b_code)
         a.join("c.py").write(c_code)
 
-        with tmpdir.as_cwd():
-            # why don't we start pylint in a subprocess?
-            expected = (
-                "************* Module a.b\n"
-                "a/b.py:3:0: E0401: Unable to import 'a.d' (import-error)\n\n"
+        # why don't we start pylint in a subprocess?
+        expected = (
+            "************* Module a.b\n"
+            "a/b.py:3:0: E0401: Unable to import 'a.d' (import-error)\n\n"
+        )
+
+        if write_bpy_to_disk:
+            # --from-stdin is not used here
+            self._test_output(
+                ["a/b.py", "--disable=all", "--enable=import-error"],
+                expected_output=expected,
             )
 
-            if write_bpy_to_disk:
-                # --from-stdin is not used here
-                self._test_output(
-                    ["a/b.py", "--disable=all", "--enable=import-error"],
-                    expected_output=expected,
-                )
-
-            # this code needs to work w/ and w/o a file named a/b.py on the
-            # harddisk.
-            with mock.patch("pylint.lint.pylinter._read_stdin", return_value=b_code):
-                self._test_output(
-                    [
-                        "--from-stdin",
-                        join("a", "b.py"),
-                        "--disable=all",
-                        "--enable=import-error",
-                    ],
-                    expected_output=expected,
-                )
+        # this code needs to work w/ and w/o a file named a/b.py on the
+        # harddisk.
+        with mock.patch("pylint.lint.pylinter._read_stdin", return_value=b_code):
+            self._test_output(
+                [
+                    "--from-stdin",
+                    join("a", "b.py"),
+                    "--disable=all",
+                    "--enable=import-error",
+                ],
+                expected_output=expected,
+            )
 
     def test_stdin_syntaxerror(self):
         expected_output = (
@@ -707,46 +704,40 @@ class TestRunTC:
         p_hmac = tmpdir / "hmac.py"
         p_hmac.write("'Docstring'\nimport completely_unknown\n")
 
-        with tmpdir.as_cwd():
-            subprocess.check_output(
-                [
-                    sys.executable,
-                    "-m",
-                    "pylint",
-                    "astroid.py",
-                    "--disable=import-error,unused-import",
-                ],
-                cwd=str(tmpdir),
-            )
+        subprocess.check_output(
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                "astroid.py",
+                "--disable=import-error,unused-import",
+            ],
+        )
 
         # Linting this astroid file does not import it
-        with tmpdir.as_cwd():
-            subprocess.check_output(
-                [
-                    sys.executable,
-                    "-m",
-                    "pylint",
-                    "-j2",
-                    "astroid.py",
-                    "--disable=import-error,unused-import",
-                ],
-                cwd=str(tmpdir),
-            )
+        subprocess.check_output(
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                "-j2",
+                "astroid.py",
+                "--disable=import-error,unused-import",
+            ],
+        )
 
         # Test with multiple jobs for hmac.py for which we have a
         # CVE against: https://github.com/PyCQA/pylint/issues/959
-        with tmpdir.as_cwd():
-            subprocess.call(
-                [
-                    sys.executable,
-                    "-m",
-                    "pylint",
-                    "-j2",
-                    "hmac.py",
-                    "--disable=import-error,unused-import",
-                ],
-                cwd=str(tmpdir),
-            )
+        subprocess.call(
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                "-j2",
+                "hmac.py",
+                "--disable=import-error,unused-import",
+            ],
+        )
 
     def test_allow_import_of_files_found_in_modules_during_parallel_check(self, tmpdir):
         test_directory = tmpdir / "test_directory"
@@ -758,26 +749,24 @@ class TestRunTC:
         init_module.write("'Empty'")
 
         # For multiple jobs we could not find the `spam.py` file.
-        with tmpdir.as_cwd():
-            self._runtest(
-                [
-                    "-j2",
-                    "--disable=missing-docstring, missing-final-newline",
-                    "test_directory",
-                ],
-                code=0,
-            )
+        self._runtest(
+            [
+                "-j2",
+                "--disable=missing-docstring, missing-final-newline",
+                "test_directory",
+            ],
+            code=0,
+        )
 
         # A single job should be fine as well
-        with tmpdir.as_cwd():
-            self._runtest(
-                [
-                    "-j1",
-                    "--disable=missing-docstring, missing-final-newline",
-                    "test_directory",
-                ],
-                code=0,
-            )
+        self._runtest(
+            [
+                "-j1",
+                "--disable=missing-docstring, missing-final-newline",
+                "test_directory",
+            ],
+            code=0,
+        )
 
     def test_can_list_directories_without_dunder_init(self, tmpdir):
         test_directory = tmpdir / "test_directory"
@@ -785,14 +774,13 @@ class TestRunTC:
         spam_module = test_directory / "spam.py"
         spam_module.write("'Empty'")
 
-        with tmpdir.as_cwd():
-            self._runtest(
-                [
-                    "--disable=missing-docstring, missing-final-newline",
-                    "test_directory",
-                ],
-                code=0,
-            )
+        self._runtest(
+            [
+                "--disable=missing-docstring, missing-final-newline",
+                "test_directory",
+            ],
+            code=0,
+        )
 
     def test_jobs_score(self):
         path = join(HERE, "regrtest_data", "unused_variable.py")

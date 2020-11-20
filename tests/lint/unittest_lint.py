@@ -39,11 +39,9 @@ import os
 import re
 import sys
 import tempfile
-from contextlib import contextmanager
 from importlib import reload
 from io import StringIO
 from os.path import abspath, basename, dirname, isdir, join, sep
-from shutil import rmtree
 
 import pytest
 
@@ -59,65 +57,10 @@ from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_op
 from pylint.reporters import text
 from pylint.utils import FileState, tokenize_module
 
-if os.name == "java":
-    # pylint: disable=no-member
-    # os._name is valid see https://www.programcreek.com/python/example/3842/os._name
-    if os._name == "nt":
-        HOME = "USERPROFILE"
-    else:
-        HOME = "HOME"
-elif sys.platform == "win32":
-    HOME = "USERPROFILE"
-else:
-    HOME = "HOME"
-
-try:
-    PYPY_VERSION_INFO = sys.pypy_version_info
-except AttributeError:
-    PYPY_VERSION_INFO = None
-
-
-@contextmanager
-def fake_home():
-    folder = tempfile.mkdtemp("fake-home")
-    old_home = os.environ.get(HOME)
-    try:
-        os.environ[HOME] = folder
-        yield
-    finally:
-        os.environ.pop("PYLINTRC", "")
-        if old_home is None:
-            del os.environ[HOME]
-        else:
-            os.environ[HOME] = old_home
-        rmtree(folder, ignore_errors=True)
-
-
-def remove(file):
-    try:
-        os.remove(file)
-    except OSError:
-        pass
-
-
 HERE = abspath(dirname(__file__))
 INPUT_DIR = join(HERE, "..", "input")
 REGRTEST_DATA_DIR = join(HERE, "..", "regrtest_data")
 DATA_DIR = join(HERE, "..", "data")
-
-
-@contextmanager
-def tempdir():
-    """Create a temp directory and change the current location to it.
-
-    This is supposed to be used with a *with* statement.
-    """
-    tmp = tempfile.mkdtemp()
-    try:
-        with testutils.cwd(tmp) as tmp:
-            yield tmp
-    finally:
-        rmtree(tmp)
 
 
 def create_files(paths, chroot="."):
@@ -175,15 +118,14 @@ def test_no_args(fake_path):
 @pytest.mark.parametrize(
     "case", [["a/b/"], ["a/b"], ["a/b/__init__.py"], ["a/"], ["a"]]
 )
-def test_one_arg(fake_path, case):
-    with tempdir() as chroot:
-        create_files(["a/b/__init__.py"])
-        expected = [join(chroot, "a")] + fake_path
+def test_one_arg(chroot, fake_path, case):
+    create_files(["a/b/__init__.py"])
+    expected = [join(chroot, "a")] + fake_path
 
-        assert sys.path == fake_path
-        with lint.fix_import_path(case):
-            assert sys.path == expected
-        assert sys.path == fake_path
+    assert sys.path == fake_path
+    with lint.fix_import_path(case):
+        assert sys.path == expected
+    assert sys.path == fake_path
 
 
 @pytest.mark.parametrize(
@@ -195,15 +137,14 @@ def test_one_arg(fake_path, case):
         ["a", "a/c/__init__.py"],
     ],
 )
-def test_two_similar_args(fake_path, case):
-    with tempdir() as chroot:
-        create_files(["a/b/__init__.py", "a/c/__init__.py"])
-        expected = [join(chroot, "a")] + fake_path
+def test_two_similar_args(chroot, fake_path, case):
+    create_files(["a/b/__init__.py", "a/c/__init__.py"])
+    expected = [join(chroot, "a")] + fake_path
 
-        assert sys.path == fake_path
-        with lint.fix_import_path(case):
-            assert sys.path == expected
-        assert sys.path == fake_path
+    assert sys.path == fake_path
+    with lint.fix_import_path(case):
+        assert sys.path == expected
+    assert sys.path == fake_path
 
 
 @pytest.mark.parametrize(
@@ -214,18 +155,17 @@ def test_two_similar_args(fake_path, case):
         ["a/b/c", "a", "a/b/c", "a/e", "a"],
     ],
 )
-def test_more_args(fake_path, case):
-    with tempdir() as chroot:
-        create_files(["a/b/c/__init__.py", "a/d/__init__.py", "a/e/f.py"])
-        expected = [
-            join(chroot, suffix)
-            for suffix in [sep.join(("a", "b")), "a", sep.join(("a", "e"))]
-        ] + fake_path
+def test_more_args(chroot, fake_path, case):
+    create_files(["a/b/c/__init__.py", "a/d/__init__.py", "a/e/f.py"])
+    expected = [
+        join(chroot, suffix)
+        for suffix in [sep.join(("a", "b")), "a", sep.join(("a", "e"))]
+    ] + fake_path
 
-        assert sys.path == fake_path
-        with lint.fix_import_path(case):
-            assert sys.path == expected
-        assert sys.path == fake_path
+    assert sys.path == fake_path
+    with lint.fix_import_path(case):
+        assert sys.path == expected
+    assert sys.path == fake_path
 
 
 @pytest.fixture(scope="module")
@@ -618,96 +558,79 @@ def test_list_msgs_enabled(init_linter, capsys):
 
 
 @pytest.fixture
-def pop_pylintrc():
-    os.environ.pop("PYLINTRC", None)
+def pylintrc_path():
+    return None
 
 
-@pytest.mark.usefixtures("pop_pylintrc")
+@pytest.fixture(autouse=True)
+def reload_config():
+    yield
+    reload(config)
+
+
+@pytest.mark.usefixtures("pylintrc")
 def test_pylint_home():
     uhome = os.path.expanduser("~")
     if uhome == "~":
         expected = ".pylint.d"
     else:
         expected = os.path.join(uhome, ".pylint.d")
+    reload(config)
     assert config.PYLINT_HOME == expected
 
-    try:
-        pylintd = join(tempfile.gettempdir(), ".pylint.d")
-        os.environ["PYLINTHOME"] = pylintd
-        try:
-            reload(config)
-            assert config.PYLINT_HOME == pylintd
-        finally:
-            try:
-                os.remove(pylintd)
-            except FileNotFoundError:
-                pass
-    finally:
-        del os.environ["PYLINTHOME"]
+    pylintd = join(tempfile.gettempdir(), ".pylint.d")
+    os.environ["PYLINTHOME"] = pylintd
+    reload(config)
+    assert config.PYLINT_HOME == pylintd
 
 
-@pytest.mark.skipif(
-    PYPY_VERSION_INFO,
-    reason="TOX runs this test from within the repo and finds "
-    "the project's pylintrc.",
-)
-@pytest.mark.usefixtures("pop_pylintrc")
+@pytest.mark.usefixtures("pylintrc")
 def test_pylintrc():
-    with fake_home():
-        try:
-            with testutils.cwd(os.path.dirname(os.path.abspath(sys.executable))):
-                assert config.find_pylintrc() is None
-                os.environ["PYLINTRC"] = join(tempfile.gettempdir(), ".pylintrc")
-                assert config.find_pylintrc() is None
-                os.environ["PYLINTRC"] = "."
-                assert config.find_pylintrc() is None
-        finally:
-            reload(config)
+    assert config.find_pylintrc() is None
+    os.environ["PYLINTRC"] = join(tempfile.gettempdir(), ".pylintrc")
+    assert config.find_pylintrc() is None
+    os.environ["PYLINTRC"] = "."
+    assert config.find_pylintrc() is None
 
 
-@pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc_parentdir():
-    with tempdir() as chroot:
-
-        create_files(
-            [
-                "a/pylintrc",
-                "a/b/__init__.py",
-                "a/b/pylintrc",
-                "a/b/c/__init__.py",
-                "a/b/c/d/__init__.py",
-                "a/b/c/d/e/.pylintrc",
-            ]
-        )
-        with fake_home():
-            assert config.find_pylintrc() is None
-        results = {
-            "a": join(chroot, "a", "pylintrc"),
-            "a/b": join(chroot, "a", "b", "pylintrc"),
-            "a/b/c": join(chroot, "a", "b", "pylintrc"),
-            "a/b/c/d": join(chroot, "a", "b", "pylintrc"),
-            "a/b/c/d/e": join(chroot, "a", "b", "c", "d", "e", ".pylintrc"),
-        }
-        for basedir, expected in results.items():
-            with testutils.cwd(join(chroot, basedir)):
-                assert config.find_pylintrc() == expected
+@pytest.mark.usefixtures("pylintrc")
+def test_pylintrc_parentdir(chroot):
+    create_files(
+        [
+            "a/pylintrc",
+            "a/b/__init__.py",
+            "a/b/pylintrc",
+            "a/b/c/__init__.py",
+            "a/b/c/d/__init__.py",
+            "a/b/c/d/e/.pylintrc",
+        ]
+    )
+    assert config.find_pylintrc() is None
+    results = {
+        "a": join(chroot, "a", "pylintrc"),
+        "a/b": join(chroot, "a", "b", "pylintrc"),
+        "a/b/c": join(chroot, "a", "b", "pylintrc"),
+        "a/b/c/d": join(chroot, "a", "b", "pylintrc"),
+        "a/b/c/d/e": join(chroot, "a", "b", "c", "d", "e", ".pylintrc"),
+    }
+    for basedir, expected in results.items():
+        with testutils.cwd(join(chroot, basedir)):
+            assert config.find_pylintrc() == expected
 
 
-@pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc_parentdir_no_package():
-    with tempdir() as chroot:
-        with fake_home():
-            create_files(["a/pylintrc", "a/b/pylintrc", "a/b/c/d/__init__.py"])
-            assert config.find_pylintrc() is None
-            results = {
-                "a": join(chroot, "a", "pylintrc"),
-                "a/b": join(chroot, "a", "b", "pylintrc"),
-                "a/b/c": None,
-                "a/b/c/d": None,
-            }
-            for basedir, expected in results.items():
-                with testutils.cwd(join(chroot, basedir)):
-                    assert config.find_pylintrc() == expected
+@pytest.mark.usefixtures("pylintrc")
+def test_pylintrc_parentdir_no_package(chroot):
+    create_files(["a/pylintrc", "a/b/pylintrc", "a/b/c/d/__init__.py"])
+    assert config.find_pylintrc() is None
+    results = {
+        "a": join(chroot, "a", "pylintrc"),
+        "a/b": join(chroot, "a", "b", "pylintrc"),
+        "a/b/c": None,
+        "a/b/c/d": None,
+    }
+    for basedir, expected in results.items():
+        with testutils.cwd(join(chroot, basedir)):
+            assert config.find_pylintrc() == expected
 
 
 class TestPreprocessOptions:

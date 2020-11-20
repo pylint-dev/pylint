@@ -19,6 +19,8 @@ from pylint.lint import PyLinter, Run, check_parallel
 from pylint.testutils import TestReporter as Reporter
 from pylint.utils import register_plugins
 
+pytestmark = [pytest.mark.usefixtures("pylintrc")]
+
 
 def _empty_filepath():
     return os.path.abspath(
