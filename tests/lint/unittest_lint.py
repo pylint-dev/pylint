@@ -42,7 +42,6 @@ import tempfile
 from contextlib import contextmanager
 from importlib import reload
 from io import StringIO
-from os import chdir, getcwd
 from os.path import abspath, basename, dirname, isdir, join, sep
 from shutil import rmtree
 
@@ -114,17 +113,11 @@ def tempdir():
     This is supposed to be used with a *with* statement.
     """
     tmp = tempfile.mkdtemp()
-
-    # Get real path of tempfile, otherwise test fail on mac os x
-    current_dir = getcwd()
-    chdir(tmp)
-    abs_tmp = abspath(".")
-
     try:
-        yield abs_tmp
+        with testutils.cwd(tmp) as tmp:
+            yield tmp
     finally:
-        chdir(current_dir)
-        rmtree(abs_tmp)
+        rmtree(tmp)
 
 
 def create_files(paths, chroot="."):
@@ -661,16 +654,14 @@ def test_pylint_home():
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc():
     with fake_home():
-        current_dir = getcwd()
-        chdir(os.path.dirname(os.path.abspath(sys.executable)))
         try:
-            assert config.find_pylintrc() is None
-            os.environ["PYLINTRC"] = join(tempfile.gettempdir(), ".pylintrc")
-            assert config.find_pylintrc() is None
-            os.environ["PYLINTRC"] = "."
-            assert config.find_pylintrc() is None
+            with testutils.cwd(os.path.dirname(os.path.abspath(sys.executable))):
+                assert config.find_pylintrc() is None
+                os.environ["PYLINTRC"] = join(tempfile.gettempdir(), ".pylintrc")
+                assert config.find_pylintrc() is None
+                os.environ["PYLINTRC"] = "."
+                assert config.find_pylintrc() is None
         finally:
-            chdir(current_dir)
             reload(config)
 
 
@@ -698,8 +689,8 @@ def test_pylintrc_parentdir():
             "a/b/c/d/e": join(chroot, "a", "b", "c", "d", "e", ".pylintrc"),
         }
         for basedir, expected in results.items():
-            os.chdir(join(chroot, basedir))
-            assert config.find_pylintrc() == expected
+            with testutils.cwd(join(chroot, basedir)):
+                assert config.find_pylintrc() == expected
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
@@ -715,8 +706,8 @@ def test_pylintrc_parentdir_no_package():
                 "a/b/c/d": None,
             }
             for basedir, expected in results.items():
-                os.chdir(join(chroot, basedir))
-                assert config.find_pylintrc() == expected
+                with testutils.cwd(join(chroot, basedir)):
+                    assert config.find_pylintrc() == expected
 
 
 class TestPreprocessOptions:

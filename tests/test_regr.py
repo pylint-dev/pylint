@@ -101,11 +101,9 @@ def test_descriptor_crash(fname, finalize_linter):
 
 @pytest.fixture
 def modify_path():
-    cwd = os.getcwd()
     sys.path.insert(0, "")
     yield
     sys.path.pop(0)
-    os.chdir(cwd)
 
 
 @pytest.mark.usefixtures("modify_path")
@@ -115,10 +113,10 @@ def test_check_package___init__(finalize_linter):
     checked = list(finalize_linter.stats["by_module"].keys())
     assert checked == [filename]
 
-    os.chdir(join(REGR_DATA, "package"))
-    finalize_linter.check("__init__")
-    checked = list(finalize_linter.stats["by_module"].keys())
-    assert checked == ["__init__"]
+    with testutils.cwd(join(REGR_DATA, "package")):
+      finalize_linter.check("__init__")
+      checked = list(finalize_linter.stats["by_module"].keys())
+      assert checked == ["__init__"]
 
 
 def test_pylint_config_attr():

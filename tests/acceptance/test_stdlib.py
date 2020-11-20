@@ -9,6 +9,7 @@ import sys
 import pytest
 
 import pylint.lint
+from pylint import testutils
 
 
 def is_module(filename):
@@ -43,8 +44,7 @@ MODULES_NAMES = [m[1] for m in MODULES_TO_CHECK]
     ("test_module_location", "test_module_name"), MODULES_TO_CHECK, ids=MODULES_NAMES
 )
 def test_libmodule(test_module_location, test_module_name):
-    os.chdir(test_module_location)
-    with _patch_stdout(io.StringIO()):
+    with testutils.cwd(test_module_location), _patch_stdout(io.StringIO()):
         try:
             pylint.lint.Run([test_module_name, "--enable=all", "--ignore=test"])
         except SystemExit as ex:

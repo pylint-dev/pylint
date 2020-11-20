@@ -41,8 +41,9 @@ import tempfile
 import tokenize
 from glob import glob
 from io import StringIO
-from os import close, getcwd, linesep, remove, sep, write
+from os import chdir, close, environ, getcwd, linesep, remove, sep, write
 from os.path import abspath, basename, dirname, exists, join, splitext
+from unittest.mock import patch
 
 import astroid
 import pytest
@@ -638,3 +639,15 @@ class LintModuleTest:
                     _file=self._test_file.base,
                 )
             )
+
+
+@contextlib.contextmanager
+def cwd(path):
+    old_cwd = getcwd()
+    try:
+        with patch.dict(environ, PWD=path):
+            chdir(path)
+            # Return a real path, otherwise tests fail on mac os x
+            yield abspath(".")
+    finally:
+        chdir(old_cwd)
