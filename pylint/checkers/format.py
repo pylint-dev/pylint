@@ -442,9 +442,7 @@ class FormatChecker(BaseTokenChecker):
 
     def _prepare_token_dispatcher(self):
         dispatch = {}
-        for tokens, handler in [
-            (_KEYWORD_TOKENS, self._check_keyword_parentheses),
-        ]:
+        for tokens, handler in [(_KEYWORD_TOKENS, self._check_keyword_parentheses)]:
             for token in tokens:
                 dispatch[token] = handler
         return dispatch
@@ -725,21 +723,48 @@ class FormatChecker(BaseTokenChecker):
             - no trailing whitespace
             - less than a maximum number of characters
         """
-        # By default, check the line length
-        check_l_length = True
+        # we're first going to do a rough check whether any lines in this set
+        # go over the line limit. If none of them do, then we don't need to
+        # parse out the pylint options later on and can just assume that these
+        # lines are clean
+
+        # we'll also handle the line ending check here to avoid double-iteration
+        # unless the line lengths are suspect
+
+        max_chars = self.config.max_line_length
+
+        split_lines = self.specific_splitlines(lines)
+
+        for offset, line in enumerate(split_lines):
+            self.check_line_ending(line, lineno + offset)
+
+        # hold onto the initial lineno for later
+        potential_line_length_warning = False
+        for offset, line in enumerate(split_lines):
+            # this check is purposefully simple and doesn't rstrip
+            # since this is running on every line you're checking it's
+            # advantageous to avoid doing a lot of work
+            if len(line) > max_chars:
+                potential_line_length_warning = True
+                break
+
+        # if there were no lines passing the max_chars config, we don't bother
+        # running the full line check (as we've met an even more strict condition)
+        if not potential_line_length_warning:
+            return
 
         # Line length check may be deactivated through `pylint: disable` comment
         mobj = OPTION_PO.search(lines)
         if mobj:
-            check_l_length = self.is_line_length_check_activated(mobj)
+            if not self.is_line_length_check_activated(mobj):
+                # the line length check is deactivated, we can stop here
+                return
             # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(mobj)
 
-        for line in self.specific_splitlines(lines):
-            if check_l_length:
-                self.check_line_length(line, lineno)
-            self.check_line_ending(line, lineno)
-            lineno += 1
+        # here we re-run specific_splitlines since we have filtered out pylint options above
+        for offset, line in enumerate(self.specific_splitlines(lines)):
+            self.check_line_length(line, lineno + offset)
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string"""
