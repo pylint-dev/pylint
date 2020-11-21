@@ -65,7 +65,7 @@ import astroid
 import astroid.arguments
 import astroid.context
 import astroid.nodes
-from astroid import bases, decorators, exceptions, modutils, objects
+from astroid import bases, decorators, exceptions, helpers, modutils, objects
 from astroid.interpreter import dunder_lookup
 
 from pylint.checkers import BaseChecker, utils
@@ -1720,8 +1720,17 @@ accessed. Python regular expressions are accepted.",
             return
 
         inferred = safe_infer(node.value)
+
         if inferred is None or inferred is astroid.Uninferable:
             return
+
+        if getattr(inferred, "decorators", None):
+            first_decorator = helpers.safe_infer(inferred.decorators.nodes[0])
+            if isinstance(first_decorator, astroid.ClassDef):
+                inferred = first_decorator.instantiate_class()
+            else:
+                return  # It would be better to handle function
+                # decorators, but let's start slow.
 
         if not supported_protocol(inferred):
             self.add_message(msg, args=node.value.as_string(), node=node.value)

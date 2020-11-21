@@ -110,7 +110,10 @@ your patch gets accepted.
   (`What's New` section). For the release document we usually write some more details,
   and it is also a good place to offer examples on how the new change is supposed to work.
 
-- Add yourself to the `CONTRIBUTORS` file, if you are not already there.
+- Add a short entry in :file:`doc/whatsnew/VERSION.rst`.
+
+- Add yourself to the `CONTRIBUTORS` file, flag youself appropriately
+  (if in doubt, you're a ``contributor``).
 
 - Write a comprehensive commit message
 

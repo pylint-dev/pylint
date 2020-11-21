@@ -428,4 +428,6 @@ contributors:
 
 * Joffrey Mander: contributor
 
+* Julien Palard: contributor
+
 * Raphael Gaschignard: contributor
