@@ -1524,14 +1524,11 @@ class BasicChecker(_BasicChecker):
                 return
 
             if isinstance(argument, astroid.Instance):
-                if argument._proxied.name == "dict" and utils.is_builtin_object(
-                    argument._proxied
-                ):
-                    self.add_message("bad-reversed-sequence", node=node)
-                    return
                 if any(
                     ancestor.name == "dict" and utils.is_builtin_object(ancestor)
-                    for ancestor in argument._proxied.ancestors()
+                    for ancestor in itertools.chain(
+                        (argument._proxied,), argument._proxied.ancestors()
+                    )
                 ):
                     # Mappings aren't accepted by reversed(), unless
                     # they provide explicitly a __reversed__ method.
