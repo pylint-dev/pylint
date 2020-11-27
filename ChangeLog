@@ -1,6 +1,9 @@
 ------------------
 Pylint's ChangeLog
 ------------------
+* Only emit `bad-reversed-sequence` on dictionaries if below py3.8
+
+  Closes #3940
 
 * Handle class decorators applied to function.
 
