@@ -76,7 +76,6 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
             return
         emitted, remaining = self._split_lines(expected_messages, expected_output)
         if emitted != actual_output:
-
             remaining.extend(actual_output)
             remaining.sort(key=lambda m: (m[1], m[0], m[3]))
             warnings.warn(
