@@ -215,18 +215,8 @@ class LintModuleTest:
                 error_msg += "{}\n".format(line)
         return error_msg
 
-    @classmethod
-    def _split_lines(cls, expected_messages, lines):
-        emitted, omitted = [], []
-        for msg in lines:
-            if (msg[1], msg[0]) in expected_messages:
-                emitted.append(msg)
-            else:
-                omitted.append(msg)
-        return emitted, omitted
-
-    def _check_output_text(self, expected_messages, expected_lines, received_lines):
+    def _check_output_text(self, _, expected_output, actual_output):
         """This is a function because we want to be able to update the text in LintModuleOutputUpdate"""
-        expected_lines = self._split_lines(expected_messages, expected_lines)[0]
-        error_msg = self.error_msg_for_unequal_output(expected_lines, received_lines)
-        assert expected_lines == received_lines, error_msg
+        assert expected_output == actual_output, self.error_msg_for_unequal_output(
+            expected_output, actual_output
+        )
