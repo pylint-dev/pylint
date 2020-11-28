@@ -3,6 +3,7 @@
 
 import collections
 import csv
+import operator
 import platform
 import sys
 from io import StringIO
@@ -205,13 +206,14 @@ class LintModuleTest:
                 _file=self._test_file.base,
             )
         )
+        sort_by_line_number = operator.attrgetter("lineno")
         if missing:
             error_msg += "\n- Missing lines:\n"
-            for line in missing:
+            for line in sorted(missing, key=sort_by_line_number):
                 error_msg += "{}\n".format(line)
         if unexpected:
             error_msg += "\n- Unexpected lines:\n"
-            for line in unexpected:
+            for line in sorted(unexpected, key=sort_by_line_number):
                 error_msg += "{}\n".format(line)
         return error_msg
 
