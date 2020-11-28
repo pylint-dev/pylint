@@ -61,13 +61,23 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
         except OSError:
             return io.StringIO()
 
-    def _check_output_text(self, expected_messages, expected_lines, received_lines):
+    @classmethod
+    def _split_lines(cls, expected_messages, lines):
+        emitted, omitted = [], []
+        for msg in lines:
+            if (msg[1], msg[0]) in expected_messages:
+                emitted.append(msg)
+            else:
+                omitted.append(msg)
+        return emitted, omitted
+
+    def _check_output_text(self, expected_messages, expected_output, actual_output):
         if not expected_messages:
             return
-        emitted, remaining = self._split_lines(expected_messages, expected_lines)
-        if emitted != received_lines:
+        emitted, remaining = self._split_lines(expected_messages, expected_output)
+        if emitted != actual_output:
 
-            remaining.extend(received_lines)
+            remaining.extend(actual_output)
             remaining.sort(key=lambda m: (m[1], m[0], m[3]))
             warnings.warn(
                 "Updated '{}' with the new content generated from '{}'".format(
