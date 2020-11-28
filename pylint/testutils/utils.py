@@ -3,7 +3,6 @@
 
 """functional/non regression tests for pylint"""
 import collections
-import configparser
 import contextlib
 import csv
 import functools
@@ -17,7 +16,7 @@ import tokenize
 from glob import glob
 from io import StringIO
 from os import close, remove, write
-from os.path import abspath, basename, dirname, exists, join, splitext
+from os.path import abspath, basename, dirname, join, splitext
 from typing import Tuple
 
 import astroid
@@ -25,6 +24,11 @@ import pytest
 
 from pylint import checkers, interfaces
 from pylint.lint import PyLinter
+from pylint.testutils.functional_test_file import (
+    FunctionalTestFile,
+    NoFileError,
+    parse_python_version,
+)
 from pylint.testutils.reporter_for_tests import (
     FunctionalTestReporter,
     GenericTestReporter,
@@ -228,10 +232,6 @@ def _create_file_backed_module(code):
         yield module
 
 
-class NoFileError(Exception):
-    pass
-
-
 class OutputLine(
     collections.namedtuple(
         "OutputLine", ["symbol", "lineno", "object", "msg", "confidence"]
@@ -273,71 +273,6 @@ _EXPECTED_RE = re.compile(
     r"(?:(?P<op>[><=]+) *(?P<version>[0-9.]+):)?"
     r"\s*\[(?P<msgs>%(msg)s(?:,\s*%(msg)s)*)]" % _MESSAGE
 )
-
-
-def parse_python_version(ver_str):
-    return tuple(int(digit) for digit in ver_str.split("."))
-
-
-class FunctionalTestFile:
-    """A single functional test case file with options."""
-
-    _CONVERTERS = {
-        "min_pyver": parse_python_version,
-        "max_pyver": parse_python_version,
-        "requires": lambda s: s.split(","),
-    }
-
-    def __init__(self, directory, filename):
-        self._directory = directory
-        self.base = filename.replace(".py", "")
-        self.options = {
-            "min_pyver": (2, 5),
-            "max_pyver": (4, 0),
-            "requires": [],
-            "except_implementations": [],
-            "exclude_platforms": [],
-        }
-        self._parse_options()
-
-    def __repr__(self):
-        return "FunctionalTest:{}".format(self.base)
-
-    def _parse_options(self):
-        cp = configparser.ConfigParser()
-        cp.add_section("testoptions")
-        try:
-            cp.read(self.option_file)
-        except NoFileError:
-            pass
-
-        for name, value in cp.items("testoptions"):
-            conv = self._CONVERTERS.get(name, lambda v: v)
-            self.options[name] = conv(value)
-
-    @property
-    def option_file(self):
-        return self._file_type(".rc")
-
-    @property
-    def module(self):
-        package = basename(self._directory)
-        return ".".join([package, self.base])
-
-    @property
-    def expected_output(self):
-        return self._file_type(".txt", check_exists=False)
-
-    @property
-    def source(self):
-        return self._file_type(".py")
-
-    def _file_type(self, ext, check_exists=True):
-        name = join(self._directory, self.base + ext)
-        if not check_exists or exists(name):
-            return name
-        raise NoFileError("Cannot find '{}'.".format(name))
-
 
 _OPERATORS = {">": operator.gt, "<": operator.lt, ">=": operator.ge, "<=": operator.le}
 
