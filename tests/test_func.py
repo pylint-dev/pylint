@@ -25,8 +25,6 @@ import pytest
 
 from pylint.testutils import _get_tests_info, linter
 
-SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]
-
 # Configure paths
 INPUT_DIR = join(dirname(abspath(__file__)), "input")
 MSG_DIR = join(dirname(abspath(__file__)), "messages")
