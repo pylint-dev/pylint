@@ -40,7 +40,7 @@ if dev_version is not None:
     version += "-dev" + str(dev_version)
 
 install_requires = [
-    "astroid>=2.4.0,<=2.5",
+    "astroid>=2.5.0,<=2.6",
     "isort>=4.2.5,<6",
     "mccabe>=0.6,<0.7",
     "toml>=0.7.1",
@@ -72,6 +72,7 @@ classifiers = [
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
