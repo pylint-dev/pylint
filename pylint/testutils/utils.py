@@ -7,16 +7,14 @@ import contextlib
 import csv
 import functools
 import itertools
-import operator
 import platform
-import re
 import sys
 import tempfile
 import tokenize
 from glob import glob
 from io import StringIO
 from os import close, remove, write
-from os.path import abspath, basename, dirname, join, splitext
+from os.path import basename, join, splitext
 from typing import Tuple
 
 import astroid
@@ -24,6 +22,12 @@ import pytest
 
 from pylint import checkers, interfaces
 from pylint.lint import PyLinter
+from pylint.testutils.constants import (
+    _EXPECTED_RE,
+    _OPERATORS,
+    SYS_VERS_STR,
+    UPDATE_OPTION,
+)
 from pylint.testutils.functional_test_file import (
     FunctionalTestFile,
     NoFileError,
@@ -34,11 +38,6 @@ from pylint.testutils.reporter_for_tests import (
     GenericTestReporter,
 )
 from pylint.utils import ASTWalker
-
-SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]
-TITLE_UNDERLINES = ["", "=", "-", "."]
-PREFIX = abspath(dirname(__file__))
-UPDATE_OPTION = "--update-functional-output"
 
 
 def _get_tests_info(input_dir, msg_dir, prefix, suffix):
@@ -259,22 +258,6 @@ class OutputLine(
             return self[:-1]
 
         return self
-
-
-# Common sub-expressions.
-_MESSAGE = {"msg": r"[a-z][a-z\-]+"}
-# Matches a #,
-#  - followed by a comparison operator and a Python version (optional),
-#  - followed by a line number with a +/- (optional),
-#  - followed by a list of bracketed message symbols.
-# Used to extract expected messages from testdata files.
-_EXPECTED_RE = re.compile(
-    r"\s*#\s*(?:(?P<line>[+-]?[0-9]+):)?"
-    r"(?:(?P<op>[><=]+) *(?P<version>[0-9.]+):)?"
-    r"\s*\[(?P<msgs>%(msg)s(?:,\s*%(msg)s)*)]" % _MESSAGE
-)
-
-_OPERATORS = {">": operator.gt, "<": operator.lt, ">=": operator.ge, "<=": operator.le}
 
 
 def parse_expected_output(stream):
