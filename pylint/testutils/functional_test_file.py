@@ -1,7 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""functional/non regression tests for pylint"""
 import configparser
 from os.path import basename, exists, join
 
