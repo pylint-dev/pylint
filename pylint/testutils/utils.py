@@ -3,7 +3,6 @@
 
 """functional/non regression tests for pylint"""
 import contextlib
-import functools
 import tokenize
 from io import StringIO
 
@@ -45,24 +44,6 @@ class UnittestLinter:
     @property
     def options_providers(self):
         return linter.options_providers
-
-
-def set_config(**kwargs):
-    """Decorator for setting config values on a checker."""
-
-    def _wrapper(fun):
-        @functools.wraps(fun)
-        def _forward(self):
-            for key, value in kwargs.items():
-                setattr(self.checker.config, key, value)
-            if isinstance(self, CheckerTestCase):
-                # reopen checker in case, it may be interested in configuration change
-                self.checker.open()
-            fun(self)
-
-        return _forward
-
-    return _wrapper
 
 
 class CheckerTestCase:
