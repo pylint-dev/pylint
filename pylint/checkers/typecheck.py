@@ -260,7 +260,7 @@ MSGS = {
     ),
     "I1101": (
         "%s %r has no %r member%s, but source is unavailable. Consider "
-        "adding this module to extension-pkg-whitelist if you want "
+        "adding this module to extension-pkg-allow-list if you want "
         "to perform analysis based on run-time introspection of living objects.",
         "c-extension-no-member",
         "Used when a variable is accessed for non-existent member of C "
