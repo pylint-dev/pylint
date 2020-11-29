@@ -72,8 +72,8 @@ def _inferred_value_is_dict(value):
     return isinstance(value, astroid.Instance) and "dict" in value.basenames
 
 
-def _infer_if_relevant_attr(node, whitelist):
-    return node.expr.infer() if node.attrname in whitelist else []
+def _infer_if_relevant_attr(node, relevant_attrs):
+    return node.expr.infer() if node.attrname in relevant_attrs else []
 
 
 def _is_builtin(node):
