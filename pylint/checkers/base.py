@@ -1421,7 +1421,7 @@ class BasicChecker(_BasicChecker):
         "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function"
     )
     def visit_call(self, node):
-        """visit a Call node -> check if this is not a blacklisted builtin
+        """visit a Call node -> check if this is not a disallowed builtin
         call and check for * or ** use
         """
         self._check_misplaced_format_function(node)
@@ -1725,9 +1725,9 @@ def _create_naming_options():
 class NameChecker(_BasicChecker):
     msgs = {
         "C0102": (
-            'Black listed name "%s"',
+            'Disallowed name "%s"',
             "blacklisted-name",
-            "Used when the name is listed in the black list (unauthorized names).",
+            "Used when the name matches bad-names or bad-names-rgxs- (unauthorized names).",
         ),
         "C0103": (
             '%s name "%s" doesn\'t conform to %s',
@@ -2025,12 +2025,12 @@ class NameChecker(_BasicChecker):
         self.add_message(warning, node=node, args=args, confidence=confidence)
         self.stats["badname_" + node_type] += 1
 
-    def _name_valid_due_to_whitelist(self, name: str) -> bool:
+    def _name_allowed_by_regex(self, name: str) -> bool:
         return name in self.config.good_names or any(
             pattern.match(name) for pattern in self._good_names_rgxs_compiled
         )
 
-    def _name_invalid_due_to_blacklist(self, name: str) -> bool:
+    def _name_disallowed_by_regex(self, name: str) -> bool:
         return name in self.config.bad_names or any(
             pattern.match(name) for pattern in self._bad_names_rgxs_compiled
         )
@@ -2056,9 +2056,9 @@ class NameChecker(_BasicChecker):
             clobbering, _ = utils.clobber_in_except(node)
             if clobbering:
                 return
-        if self._name_valid_due_to_whitelist(name=name):
+        if self._name_allowed_by_regex(name=name):
             return
-        if self._name_invalid_due_to_blacklist(name=name):
+        if self._name_disallowed_by_regex(name=name):
             self.stats["badname_" + node_type] += 1
             self.add_message("blacklisted-name", node=node, args=name)
             return

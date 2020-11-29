@@ -5069,7 +5069,7 @@ Release date: 2003-11-20
       __init__ files, and provides a new option ignore-interface-methods,
       useful when you're using zope Interface implementation in your project
 
-    * base checker checks for black listed builtins call (controlled by the
+    * base checker checks for disallowed builtins call (controlled by the
       bad-functions option) and for use of * and **
 
     * format checker checks for use of <> and "l" as long int marker
@@ -5106,7 +5106,7 @@ Release date: 2003-11-20
     * still fixes in format checker : don't check comment and docstring,
       check first line after an indent
 
-    * black and white list now apply to all identifiers, not only
+    * allowed/prohibited names now apply to all identifiers, not only
       variables,  so changed the configuration option from
       (good|bad)-variable-names to (good|bad)-names
 

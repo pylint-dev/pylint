@@ -16,5 +16,5 @@ class my_class:
         return self._my_secret_x * 2
 
 
-def blacklisted_2_snake_case():  # [blacklisted-name]
+def disallowed_2_snake_case():  # [blacklisted-name]
     pass

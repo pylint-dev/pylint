@@ -1,1 +1,1 @@
-blacklisted-name:3:0:baz:Black listed name "baz"
+blacklisted-name:3:0:baz:Disallowed name "baz"

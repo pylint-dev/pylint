@@ -27,8 +27,8 @@ class BadBuiltinChecker(BaseChecker):
         "W0141": (
             "Used builtin function %s",
             "bad-builtin",
-            "Used when a black listed builtin function is used (see the "
-            "bad-function option). Usual black listed functions are the ones "
+            "Used when a disallowed builtin function is used (see the "
+            "bad-function option). Usual disallowed functions are the ones "
             "like map, or filter , where Python offers now some cleaner "
             "alternative like list comprehension.",
         )
