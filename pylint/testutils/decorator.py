@@ -3,7 +3,7 @@
 
 import functools
 
-from pylint.testutils.utils import CheckerTestCase
+from pylint.testutils.checker_test_case import CheckerTestCase
 
 
 def set_config(**kwargs):
