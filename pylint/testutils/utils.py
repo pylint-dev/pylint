@@ -9,11 +9,9 @@ from glob import glob
 from io import StringIO
 from os.path import basename, join, splitext
 
-from pylint import checkers
-from pylint.lint import PyLinter
 from pylint.testutils.constants import SYS_VERS_STR
+from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import Message
-from pylint.testutils.reporter_for_tests import GenericTestReporter
 from pylint.utils import ASTWalker
 
 
@@ -148,14 +146,6 @@ class CheckerTestCase:
         walker = ASTWalker(linter)
         walker.add_checker(self.checker)
         walker.walk(node)
-
-
-# Init
-test_reporter = GenericTestReporter()
-linter = PyLinter()
-linter.set_reporter(test_reporter)
-linter.config.persistent = 0
-checkers.initialize(linter)
 
 
 def _tokenize_str(code):
