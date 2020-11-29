@@ -97,17 +97,17 @@ def tokenize_module(module):
         return list(tokenize.tokenize(readline))
 
 
-def _basename_in_blacklist_re(base_name, black_list_re):
-    """Determines if the basename is matched in a regex blacklist
+def _basename_in_ignore_list_re(base_name, ignore_list_re):
+    """Determines if the basename is matched in a regex ignorelist
 
     :param str base_name: The basename of the file
-    :param list black_list_re: A collection of regex patterns to match against.
-        Successful matches are blacklisted.
+    :param list ignore_list_re: A collection of regex patterns to match against.
+        Successful matches are ignored.
 
-    :returns: `True` if the basename is blacklisted, `False` otherwise.
+    :returns: `True` if the basename is ignored, `False` otherwise.
     :rtype: bool
     """
-    for file_pattern in black_list_re:
+    for file_pattern in ignore_list_re:
         if file_pattern.match(base_name):
             return True
     return False
@@ -136,7 +136,7 @@ def get_python_path(filepath):
     return None
 
 
-def expand_modules(files_or_modules, black_list, black_list_re):
+def expand_modules(files_or_modules, ignore_list, ignore_list_re):
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
     """
@@ -145,9 +145,9 @@ def expand_modules(files_or_modules, black_list, black_list_re):
     path = sys.path.copy()
 
     for something in files_or_modules:
-        if os.path.basename(something) in black_list:
+        if os.path.basename(something) in ignore_list:
             continue
-        if _basename_in_blacklist_re(os.path.basename(something), black_list_re):
+        if _basename_in_ignore_list_re(os.path.basename(something), ignore_list_re):
             continue
 
         module_path = get_python_path(something)
@@ -211,12 +211,12 @@ def expand_modules(files_or_modules, black_list, black_list_re):
         )
         if has_init or is_namespace or is_directory:
             for subfilepath in modutils.get_module_files(
-                os.path.dirname(filepath), black_list, list_all=is_namespace
+                os.path.dirname(filepath), ignore_list, list_all=is_namespace
             ):
                 if filepath == subfilepath:
                     continue
-                if _basename_in_blacklist_re(
-                    os.path.basename(subfilepath), black_list_re
+                if _basename_in_ignore_list_re(
+                    os.path.basename(subfilepath), ignore_list_re
                 ):
                     continue
 

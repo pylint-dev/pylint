@@ -47,9 +47,9 @@ In Python 3 porting mode, all checkers will be disabled and only messages emitte
 .IP "--verbose, -v"
 In verbose mode, extra non-checker-related info will be displayed.
 .IP "--ignore=<file>[,<file>...]"
-Add files or directories to the blacklist. They should be base names, not paths. [default: CVS]
+Files or directories to be skipped. They should be base names, not paths. [default: CVS]
 .IP "--ignore-patterns=<pattern>[,<pattern>...]"
-Add files or directories matching the regex patterns to the blacklist. The regex matches against base names, not paths. [default: none]
+Files or directories matching the regex patterns are skipped. The regex matches against base names, not paths. [default: none]
 .IP "--persistent=<y_or_n>"
 Pickle collected data for later comparisons. [default: yes]
 .IP "--load-plugins=<modules>"
