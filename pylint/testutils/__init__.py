@@ -42,11 +42,13 @@ __all__ = [
     "UPDATE_OPTION",
 ]
 
+from pylint.testutils.checker_test_case import CheckerTestCase
 from pylint.testutils.constants import UPDATE_OPTION
 from pylint.testutils.decorator import set_config
 from pylint.testutils.functional_test_file import FunctionalTestFile
 from pylint.testutils.get_test_info import _get_tests_info
+from pylint.testutils.global_test_linter import linter
 from pylint.testutils.lint_module_test import LintModuleTest
 from pylint.testutils.output_line import Message
 from pylint.testutils.reporter_for_tests import GenericTestReporter, MinimalTestReporter
-from pylint.testutils.utils import CheckerTestCase, _tokenize_str, linter
+from pylint.testutils.tokenize_str import _tokenize_str

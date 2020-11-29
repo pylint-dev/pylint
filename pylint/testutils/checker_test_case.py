@@ -1,49 +1,11 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""functional/non regression tests for pylint"""
 import contextlib
-import tokenize
-from io import StringIO
 
 from pylint.testutils.global_test_linter import linter
-from pylint.testutils.output_line import Message
+from pylint.testutils.unittest_linter import UnittestLinter
 from pylint.utils import ASTWalker
-
-
-class UnittestLinter:
-    """A fake linter class to capture checker messages."""
-
-    # pylint: disable=unused-argument, no-self-use
-
-    def __init__(self):
-        self._messages = []
-        self.stats = {}
-
-    def release_messages(self):
-        try:
-            return self._messages
-        finally:
-            self._messages = []
-
-    def add_message(
-        self, msg_id, line=None, node=None, args=None, confidence=None, col_offset=None
-    ):
-        # Do not test col_offset for now since changing Message breaks everything
-        self._messages.append(Message(msg_id, line, node, args, confidence))
-
-    @staticmethod
-    def is_message_enabled(*unused_args, **unused_kwargs):
-        return True
-
-    def add_stats(self, **kwargs):
-        for name, value in kwargs.items():
-            self.stats[name] = value
-        return self.stats
-
-    @property
-    def options_providers(self):
-        return linter.options_providers
 
 
 class CheckerTestCase:
@@ -86,7 +48,3 @@ class CheckerTestCase:
         walker = ASTWalker(linter)
         walker.add_checker(self.checker)
         walker.walk(node)
-
-
-def _tokenize_str(code):
-    return list(tokenize.generate_tokens(StringIO(code).readline))
