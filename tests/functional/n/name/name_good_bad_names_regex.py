@@ -2,7 +2,7 @@
 __version__ = "1.0"
 ignored_SOME_CONSTANT = 42
 
-explicit_bad_some_constant = 42  # [blacklisted-name]
+explicit_bad_some_constant = 42  # [disallowed-name]
 
 snake_case_bad_SOME_CONSTANT = 42  # [invalid-name]
 
@@ -16,5 +16,5 @@ class my_class:
         return self._my_secret_x * 2
 
 
-def disallowed_2_snake_case():  # [blacklisted-name]
+def disallowed_2_snake_case():  # [disallowed-name]
     pass

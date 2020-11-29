@@ -1724,16 +1724,21 @@ def _create_naming_options():
 
 class NameChecker(_BasicChecker):
     msgs = {
-        "C0102": (
-            'Disallowed name "%s"',
-            "blacklisted-name",
-            "Used when the name matches bad-names or bad-names-rgxs- (unauthorized names).",
-        ),
         "C0103": (
             '%s name "%s" doesn\'t conform to %s',
             "invalid-name",
             "Used when the name doesn't conform to naming rules "
             "associated to its type (constant, variable, class...).",
+        ),
+        "C0104": (
+            'Disallowed name "%s"',
+            "disallowed-name",
+            "Used when the name matches bad-names or bad-names-rgxs- (unauthorized names).",
+            {
+                "old_names": [
+                    ("C0102", "blacklisted-name"),
+                ]
+            },
         ),
         "C0144": (
             '%s name "%s" contains a non-ASCII unicode character',
@@ -1888,7 +1893,7 @@ class NameChecker(_BasicChecker):
 
         return regexps, hints
 
-    @utils.check_messages("blacklisted-name", "invalid-name", "non-ascii-name")
+    @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
     def visit_module(self, node):
         self._check_name("module", node.name.split(".")[-1], node)
         self._bad_names = {}
@@ -1914,7 +1919,7 @@ class NameChecker(_BasicChecker):
                 self._raise_name_warning(*args)
 
     @utils.check_messages(
-        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
     )
     def visit_classdef(self, node):
         self._check_assign_to_new_keyword_violation(node.name, node)
@@ -1924,7 +1929,7 @@ class NameChecker(_BasicChecker):
                 self._check_name("attr", attr, anodes[0])
 
     @utils.check_messages(
-        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
     )
     def visit_functiondef(self, node):
         # Do not emit any warnings if the method is just an implementation
@@ -1953,13 +1958,13 @@ class NameChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @utils.check_messages("blacklisted-name", "invalid-name", "non-ascii-name")
+    @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
     def visit_global(self, node):
         for name in node.names:
             self._check_name("const", name, node)
 
     @utils.check_messages(
-        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
     )
     def visit_assignname(self, node):
         """check module level assigned names"""
@@ -2060,7 +2065,7 @@ class NameChecker(_BasicChecker):
             return
         if self._name_disallowed_by_regex(name=name):
             self.stats["badname_" + node_type] += 1
-            self.add_message("blacklisted-name", node=node, args=name)
+            self.add_message("disallowed-name", node=node, args=name)
             return
         regexp = self._name_regexps[node_type]
         match = regexp.match(name)
