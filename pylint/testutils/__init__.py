@@ -44,13 +44,8 @@ __all__ = [
 
 from pylint.testutils.constants import UPDATE_OPTION
 from pylint.testutils.functional_test_file import FunctionalTestFile
+from pylint.testutils.get_test_info import _get_tests_info
 from pylint.testutils.lint_module_test import LintModuleTest
 from pylint.testutils.output_line import Message
 from pylint.testutils.reporter_for_tests import GenericTestReporter, MinimalTestReporter
-from pylint.testutils.utils import (
-    CheckerTestCase,
-    _get_tests_info,
-    _tokenize_str,
-    linter,
-    set_config,
-)
+from pylint.testutils.utils import CheckerTestCase, _tokenize_str, linter, set_config
