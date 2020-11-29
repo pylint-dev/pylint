@@ -4,14 +4,10 @@
 """functional/non regression tests for pylint"""
 import contextlib
 import functools
-import tempfile
 import tokenize
 from glob import glob
 from io import StringIO
-from os import close, remove, write
 from os.path import basename, join, splitext
-
-import astroid
 
 from pylint import checkers
 from pylint.lint import PyLinter
@@ -164,33 +160,3 @@ checkers.initialize(linter)
 
 def _tokenize_str(code):
     return list(tokenize.generate_tokens(StringIO(code).readline))
-
-
-@contextlib.contextmanager
-def _create_tempfile(content=None):
-    """Create a new temporary file.
-
-    If *content* parameter is given, then it will be written
-    in the temporary file, before passing it back.
-    This is a context manager and should be used with a *with* statement.
-    """
-    # Can't use tempfile.NamedTemporaryFile here
-    # because on Windows the file must be closed before writing to it,
-    # see https://bugs.python.org/issue14243
-    file_handle, tmp = tempfile.mkstemp()
-    if content:
-        write(file_handle, bytes(content, "ascii"))
-    try:
-        yield tmp
-    finally:
-        close(file_handle)
-        remove(tmp)
-
-
-@contextlib.contextmanager
-def _create_file_backed_module(code):
-    """Create an astroid module for the given code, backed by a real file."""
-    with _create_tempfile() as temp:
-        module = astroid.parse(code)
-        module.file = temp
-        yield module
