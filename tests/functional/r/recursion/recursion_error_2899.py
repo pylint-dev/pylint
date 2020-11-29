@@ -1,4 +1,4 @@
-# pylint: disable=global-statement,missing-docstring,blacklisted-name
+# pylint: disable=global-statement,missing-docstring,disallowed-name
 foo = "test"
 
 

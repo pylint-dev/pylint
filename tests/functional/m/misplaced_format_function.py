@@ -1,6 +1,6 @@
 """Test that format function is used only with string."""
 
-# pylint: disable=invalid-name, pointless-string-statement, line-too-long, no-member, blacklisted-name, undefined-variable, missing-docstring, too-few-public-methods
+# pylint: disable=invalid-name, pointless-string-statement, line-too-long, no-member, disallowed-name, undefined-variable, missing-docstring, too-few-public-methods
 
 print('value: {}').format(123)  # [misplaced-format-function]
 print("value: {}").format(123)  # [misplaced-format-function]

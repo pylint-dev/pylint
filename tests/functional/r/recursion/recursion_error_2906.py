@@ -1,5 +1,5 @@
 """Recursion error for https://github.com/PyCQA/pylint/issues/2906"""
-# pylint: disable=blacklisted-name,global-statement,invalid-name,missing-docstring
+# pylint: disable=disallowed-name,global-statement,invalid-name,missing-docstring
 lst = []
 
 

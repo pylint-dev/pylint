@@ -9,3 +9,6 @@ def toto(): #pylint: disable=C0102,R1711
 # +1: [missing-function-docstring]
 def test_enabled_by_id_msg(): #pylint: enable=C0111
     pass
+
+def baz(): #pylint: disable=blacklisted-name
+    return 1

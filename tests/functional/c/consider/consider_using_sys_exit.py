@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, blacklisted-name, redefined-builtin, unused-variable
+# pylint: disable=missing-docstring, invalid-name, disallowed-name, redefined-builtin, unused-variable
 import sys
 
 def foo():
