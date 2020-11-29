@@ -11,5 +11,5 @@ inlinevar-naming-style=snake_case
 class-naming-style=snake_case
 
 good-names-rgxs=ignored.*
-bad-names-rgxs=explicit.*,blacklisted.*
+bad-names-rgxs=explicit.*,disallowed.*
 include-naming-hint=yes
