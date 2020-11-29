@@ -6,6 +6,7 @@ import csv
 import itertools
 import platform
 import sys
+from io import StringIO
 from typing import Tuple
 
 import pytest
@@ -132,7 +133,10 @@ class LintModuleTest:
         return missing, unexpected
 
     def _open_expected_file(self):
-        return open(self._test_file.expected_output)
+        try:
+            return open(self._test_file.expected_output)
+        except FileNotFoundError:
+            return StringIO("")
 
     def _open_source_file(self):
         if self._test_file.base == "invalid_encoded_data":
