@@ -631,7 +631,7 @@ Other Changes
   which can redefine builtins, such as six.moves and future.builtins.
 
 * A new option was added, ``ignore-patterns``, which is used for building a
-  blacklist of directories and files matching the regex patterns, similar to the
+  ignore list of directories and files matching the regex patterns, similar to the
   ``ignore`` option.
 
 

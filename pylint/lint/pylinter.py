@@ -164,7 +164,7 @@ class PyLinter(
                     "metavar": "<file>[,<file>...]",
                     "dest": "black_list",
                     "default": ("CVS",),
-                    "help": "Add files or directories to the blacklist. "
+                    "help": "Files or directories to be skipped. "
                     "They should be base names, not paths.",
                 },
             ),
@@ -175,8 +175,8 @@ class PyLinter(
                     "metavar": "<pattern>[,<pattern>...]",
                     "dest": "black_list_re",
                     "default": (),
-                    "help": "Add files or directories matching the regex patterns to the"
-                    " blacklist. The regex matches against base names, not paths.",
+                    "help": "Files or directories matching the regex patterns are"
+                    " skipped. The regex matches against base names, not paths.",
                 },
             ),
             (
