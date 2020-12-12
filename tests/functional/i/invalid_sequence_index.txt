@@ -10,7 +10,6 @@ invalid-sequence-index:128:function19:Sequence index is not an int, slice, or in
 invalid-sequence-index:133:function20:Sequence index is not an int, slice, or instance with __index__
 invalid-sequence-index:144:function21:Sequence index is not an int, slice, or instance with __index__
 invalid-sequence-index:145:function21:Sequence index is not an int, slice, or instance with __index__
-invalid-sequence-index:159:function22:Sequence index is not an int, slice, or instance with __index__
 invalid-sequence-index:160:function22:Sequence index is not an int, slice, or instance with __index__
 invalid-sequence-index:162:function22:Sequence index is not an int, slice, or instance with __index__
 invalid-sequence-index:178:function23:Sequence index is not an int, slice, or instance with __index__
