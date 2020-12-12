@@ -2,7 +2,6 @@ unidiomatic-typecheck:5:simple_positives:Using type() instead of isinstance() fo
 unidiomatic-typecheck:6:simple_positives:Using type() instead of isinstance() for a typecheck.
 unidiomatic-typecheck:7:simple_positives:Using type() instead of isinstance() for a typecheck.
 unidiomatic-typecheck:8:simple_positives:Using type() instead of isinstance() for a typecheck.
-unidiomatic-typecheck:9:simple_positives:Using type() instead of isinstance() for a typecheck.
 unidiomatic-typecheck:12:simple_inference_positives:Using type() instead of isinstance() for a typecheck.
 unidiomatic-typecheck:13:simple_inference_positives:Using type() instead of isinstance() for a typecheck.
 unidiomatic-typecheck:14:simple_inference_positives:Using type() instead of isinstance() for a typecheck.
