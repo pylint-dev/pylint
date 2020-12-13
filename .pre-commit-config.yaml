@@ -14,7 +14,9 @@ repos:
     rev: v2.1.0
     hooks:
     -   id: trailing-whitespace
+        exclude: "tests/functional/t/trailing_whitespaces.py"
     -   id: end-of-file-fixer
+        exclude: "tests/functional/m/missing_final_newline.py|tests/functional/t/trailing_newlines.py"
 -   repo: https://github.com/PyCQA/isort
     rev: 5.5.2
     hooks:
@@ -32,3 +34,4 @@ repos:
         entry: pylint
         language: system
         types: [python]
+        exclude: *fixtures
