@@ -34,4 +34,4 @@ repos:
         entry: pylint
         language: system
         types: [python]
-        exclude: *fixtures
+        exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/
