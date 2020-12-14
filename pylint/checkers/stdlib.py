@@ -245,7 +245,6 @@ class StdlibChecker(BaseChecker):
                 "fractions.gcd",
                 "inspect.formatargspec",
                 "inspect.getcallargs",
-                "inspect.getfullargspec",
                 "platform.linux_distribution",
                 "platform.dist",
             },

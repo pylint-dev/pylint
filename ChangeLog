@@ -81,6 +81,7 @@ Release date: TBA
 
 * Improve the performance of the line length check.
 
+* Removed incorrect deprecation of ``inspect.getfullargspec``
 
 What's New in Pylint 2.6.0?
 ===========================
