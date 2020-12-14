@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# pylint: disable=import-self
 from pylint import run_pylint
 
 run_pylint()
