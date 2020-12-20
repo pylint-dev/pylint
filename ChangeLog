@@ -83,6 +83,10 @@ Release date: TBA
 
 * Removed incorrect deprecation of ``inspect.getfullargspec``
 
+* Fix ``signature-differs`` false positive for functions with variadics
+
+  Close #3737
+
 What's New in Pylint 2.6.0?
 ===========================
 
