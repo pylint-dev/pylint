@@ -50,6 +50,7 @@ import itertools
 import numbers
 import re
 import string
+import sys
 from functools import lru_cache, partial
 from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, Union
 
@@ -1264,6 +1265,9 @@ def get_node_last_lineno(node: astroid.node_classes.NodeNG) -> int:
 
 def is_postponed_evaluation_enabled(node: astroid.node_classes.NodeNG) -> bool:
     """Check if the postponed evaluation of annotations is enabled"""
+    if sys.version_info[:2] >= (3, 10):
+        return True
+
     module = node.root()
     return "annotations" in module.future_imports
 
