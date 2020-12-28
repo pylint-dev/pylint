@@ -19,6 +19,10 @@ Pylint's ChangeLog
 
 * Add missing checks for deprecated functions.
 
+* Postponed evaluation of annotations are now recognized by default if python version is above 3.10
+
+  Closes #3992
+
 
 What's New in Pylint 2.6.1?
 ===========================

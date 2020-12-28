@@ -213,6 +213,7 @@ SPECIAL_METHODS_PARAMS = {
     for name in methods  # type: ignore
 }
 PYMETHODS = set(SPECIAL_METHODS_PARAMS)
+PY310_PLUS = sys.version_info[:2] >= (3, 10)
 
 
 class NoSuchArgumentError(Exception):
@@ -1265,7 +1266,7 @@ def get_node_last_lineno(node: astroid.node_classes.NodeNG) -> int:
 
 def is_postponed_evaluation_enabled(node: astroid.node_classes.NodeNG) -> bool:
     """Check if the postponed evaluation of annotations is enabled"""
-    if sys.version_info[:2] >= (3, 10):
+    if PY310_PLUS:
         return True
 
     module = node.root()
