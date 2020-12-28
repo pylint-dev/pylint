@@ -58,7 +58,12 @@ class AsyncChecker(checkers.BaseChecker):
             if inferred is None or inferred is astroid.Uninferable:
                 continue
 
-            if isinstance(inferred, bases.AsyncGenerator):
+            if isinstance(inferred, astroid.AsyncFunctionDef):
+                # Check if we are dealing with a function decorated
+                # with contextlib.asynccontextmanager.
+                if decorated_with(inferred, self._async_generators):
+                    continue
+            elif isinstance(inferred, bases.AsyncGenerator):
                 # Check if we are dealing with a function decorated
                 # with contextlib.asynccontextmanager.
                 if decorated_with(inferred.parent, self._async_generators):
@@ -79,7 +84,6 @@ class AsyncChecker(checkers.BaseChecker):
                                 continue
                 else:
                     continue
-
             self.add_message(
                 "not-async-context-manager", node=node, args=(inferred.name,)
             )
