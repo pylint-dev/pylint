@@ -20,3 +20,13 @@ class Cdef(Abcd):
 
     def abcd(self, aaa, bbbb=None): # [signature-differs]
         return aaa, bbbb
+
+
+class Ghij(Abcd):
+    def __init__(self, aaa):
+        Abcd.__init__(self)
+        self.aaa = aaa
+
+    def abcd(self, *args, **kwargs):
+        """Test that a method with variadics does not trigger the warning"""
+        return super().abcd(*args, **kwargs)
