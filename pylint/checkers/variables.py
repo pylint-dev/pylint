@@ -2037,7 +2037,10 @@ class VariablesChecker(BaseChecker):
         if isinstance(klass._metaclass, astroid.Name):
             name = klass._metaclass.name
         elif isinstance(klass._metaclass, astroid.Attribute) and klass._metaclass.expr:
-            name = klass._metaclass.expr.name
+            attr = klass._metaclass.expr
+            while not isinstance(attr, astroid.Name):
+                attr = attr.expr
+            name = attr.name
         elif metaclass:
             name = metaclass.root().name
 
