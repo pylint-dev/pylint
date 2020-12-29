@@ -431,3 +431,7 @@ contributors:
 * Julien Palard: contributor
 
 * Raphael Gaschignard: contributor
+
+* Sorin Sbarnea: contributor
+
+* Batuhan Taskaya: contributor

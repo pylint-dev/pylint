@@ -58,7 +58,7 @@ URL="." node[shape="box"]
 
 @pytest.fixture
 def linter():
-    l = PyLinter(reporter=testutils.TestReporter())
+    l = PyLinter(reporter=testutils.GenericTestReporter())
     initialize(l)
     return l
 

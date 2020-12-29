@@ -8,13 +8,11 @@
 
 import os
 import pprint
-import shutil
-import tempfile
 
 import pytest
 
 from pylint.lint import Run
-from pylint.testutils import TestReporter as Reporter
+from pylint.testutils import GenericTestReporter as Reporter
 
 
 def _get_py_files(scanpath):

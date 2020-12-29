@@ -2,7 +2,9 @@ bad-reversed-sequence:43:test:The first reversed() argument is not a sequence
 bad-reversed-sequence:46:test:The first reversed() argument is not a sequence
 bad-reversed-sequence:47:test:The first reversed() argument is not a sequence
 bad-reversed-sequence:48:test:The first reversed() argument is not a sequence
+bad-reversed-sequence:50:test:The first reversed() argument is not a sequence
 bad-reversed-sequence:51:test:The first reversed() argument is not a sequence
 bad-reversed-sequence:52:test:The first reversed() argument is not a sequence
+bad-reversed-sequence:53:test:The first reversed() argument is not a sequence
 bad-reversed-sequence:54:test:The first reversed() argument is not a sequence
 bad-reversed-sequence:55:test:The first reversed() argument is not a sequence

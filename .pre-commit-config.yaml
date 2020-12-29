@@ -14,7 +14,9 @@ repos:
     rev: v2.1.0
     hooks:
     -   id: trailing-whitespace
+        exclude: "tests/functional/t/trailing_whitespaces.py"
     -   id: end-of-file-fixer
+        exclude: "tests/functional/m/missing_final_newline.py|tests/functional/t/trailing_newlines.py"
 -   repo: https://github.com/PyCQA/isort
     rev: 5.5.2
     hooks:
@@ -25,3 +27,11 @@ repos:
     - id: black
       args: [--safe, --quiet]
       exclude: *fixtures
+-   repo: local
+    hooks:
+    -   id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/

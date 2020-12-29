@@ -25,11 +25,10 @@ import pytest
 
 from pylint.testutils import _get_tests_info, linter
 
-SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]
-
 # Configure paths
 INPUT_DIR = join(dirname(abspath(__file__)), "input")
 MSG_DIR = join(dirname(abspath(__file__)), "messages")
+
 
 FILTER_RGX = None
 UPDATE = False
@@ -52,10 +51,6 @@ class LintTestUsingModule:
     depends = None
     output = None
     _TEST_TYPE = "module"
-
-    # def runTest(self):
-    #     # This is a hack to make ./test/test_func.py work under pytest.
-    #     pass
 
     def _test_functionality(self):
         tocheck = [self.package + "." + self.module]
@@ -124,12 +119,13 @@ def gen_tests(filter_rgx):
         base = module_file.replace(".py", "").split("_")[1]
         dependencies = _get_tests_info(INPUT_DIR, MSG_DIR, base, ".py")
         tests.append((module_file, messages_file, dependencies))
-
     if UPDATE:
         return tests
-
     assert len(tests) < 196, "Please do not add new test cases here."
     return tests
+
+
+TEST_WITH_EXPECTED_DEPRECATION = ["func_excess_escapes.py"]
 
 
 @pytest.mark.parametrize(
@@ -137,15 +133,28 @@ def gen_tests(filter_rgx):
     gen_tests(FILTER_RGX),
     ids=[o[0] for o in gen_tests(FILTER_RGX)],
 )
-def test_functionality(module_file, messages_file, dependencies):
+def test_functionality(module_file, messages_file, dependencies, recwarn):
+    __test_functionality(module_file, messages_file, dependencies)
+    warning = None
+    try:
+        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence
+        # so it's not shown during tests
+        warning = recwarn.pop()
+    except AssertionError:
+        pass
+    if warning is not None:
+        if module_file in TEST_WITH_EXPECTED_DEPRECATION and sys.version_info.minor > 5:
+            assert issubclass(warning.category, DeprecationWarning)
+            assert "invalid escape sequence" in str(warning.message)
 
-    LT = LintTestUpdate() if UPDATE else LintTestUsingModule()
 
-    LT.module = module_file.replace(".py", "")
-    LT.output = messages_file
-    LT.depends = dependencies or None
-    LT.INPUT_DIR = INPUT_DIR
-    LT._test_functionality()
+def __test_functionality(module_file, messages_file, dependencies):
+    lint_test = LintTestUpdate() if UPDATE else LintTestUsingModule()
+    lint_test.module = module_file.replace(".py", "")
+    lint_test.output = messages_file
+    lint_test.depends = dependencies or None
+    lint_test.INPUT_DIR = INPUT_DIR
+    lint_test._test_functionality()
 
 
 if __name__ == "__main__":

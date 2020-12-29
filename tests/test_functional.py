@@ -98,10 +98,14 @@ def get_tests():
 
 TESTS = get_tests()
 TESTS_NAMES = [t.base for t in TESTS]
+TEST_WITH_EXPECTED_DEPRECATION = [
+    "future_unicode_literals",
+    "anomalous_unicode_escape_py3",
+]
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
-def test_functional(test_file):
+def test_functional(test_file, recwarn):
     LintTest = (
         LintModuleOutputUpdate(test_file)
         if UPDATE.exists()
@@ -109,6 +113,20 @@ def test_functional(test_file):
     )
     LintTest.setUp()
     LintTest._runTest()
+    warning = None
+    try:
+        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence
+        # so it's not shown during tests
+        warning = recwarn.pop()
+    except AssertionError:
+        pass
+    if warning is not None:
+        if (
+            test_file.base in TEST_WITH_EXPECTED_DEPRECATION
+            and sys.version_info.minor > 5
+        ):
+            assert issubclass(warning.category, DeprecationWarning)
+            assert "invalid escape sequence" in str(warning.message)
 
 
 if __name__ == "__main__":
