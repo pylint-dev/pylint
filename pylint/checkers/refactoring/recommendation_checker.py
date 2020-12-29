@@ -67,6 +67,8 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if not self._is_builtin(node.iter.func, "range"):
             return
+        if not node.iter.args:
+            return
         is_constant_zero = (
             isinstance(node.iter.args[0], astroid.Const)
             and node.iter.args[0].value == 0

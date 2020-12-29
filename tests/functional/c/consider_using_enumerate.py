@@ -66,3 +66,8 @@ class Good(object):
         # Should not suggest enumerate on self
         for i in range(len(self)):
             yield self[i]
+
+
+def does_not_crash_on_range_without_args():
+    for elem in range():
+        print(elem)
