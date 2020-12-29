@@ -19,10 +19,22 @@ Pylint's ChangeLog
 
 * Add missing checks for deprecated functions.
 
+* Postponed evaluation of annotations are now recognized by default if python version is above 3.10
+
+  Closes #3992
+
 
 What's New in Pylint 2.6.1?
 ===========================
 Release date: TBA
+
+* Fix a crash in `undefined-variable` caused by chained attributes in metaclass
+
+  Close #3742
+
+* Fix false positive for `not-async-context-manager` when `contextlib.asynccontextmanager` is used
+
+  Close #3862
 
 * Fix linter multiprocessing pool shutdown (triggered warnings when runned in parallels with other pytest plugins)
 
@@ -86,6 +98,10 @@ Release date: TBA
 * Fix ``signature-differs`` false positive for functions with variadics
 
   Close #3737
+
+* Fix a crash in `consider-using-enumerate` when encountering `range()` without arguments
+
+  Close #3735
 
 What's New in Pylint 2.6.0?
 ===========================
