@@ -28,6 +28,10 @@ What's New in Pylint 2.6.1?
 ===========================
 Release date: TBA
 
+* Fix a crash in `undefined-variable` caused by chained attributes in metaclass
+
+  Close #3742
+
 * Fix false positive for `not-async-context-manager` when `contextlib.asynccontextmanager` is used
 
   Close #3862
