@@ -27,6 +27,7 @@ Pylint's ChangeLog
 
   Closes #3992
 
+* Fix column metadata for anomalous backslash lints
 
 What's New in Pylint 2.6.1?
 ===========================

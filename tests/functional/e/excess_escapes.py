@@ -25,7 +25,8 @@ LITERAL_NEWLINE = '\
 ESCAPE_UNICODE = "\\\\n"
 
 # Bad docstring
-"""Even in a docstring # [anomalous-backslash-in-string]
+# +3:[anomalous-backslash-in-string]
+"""Even in a docstring
 
 You shouldn't have ambiguous text like: C:\Program Files\alpha
 """

@@ -435,3 +435,5 @@ contributors:
 * Batuhan Taskaya: contributor
 
 * Frank Harrison (doublethefish): contributor
+
+* Matthew Suozzo
