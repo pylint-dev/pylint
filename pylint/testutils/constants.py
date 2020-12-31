@@ -5,11 +5,13 @@ import operator
 import re
 import sys
 from os.path import abspath, dirname
+from pathlib import Path
 
 SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]
 TITLE_UNDERLINES = ["", "=", "-", "."]
 PREFIX = abspath(dirname(__file__))
 UPDATE_OPTION = "--update-functional-output"
+UPDATE_FILE = Path("pylint-functional-test-update")
 # Common sub-expressions.
 _MESSAGE = {"msg": r"[a-z][a-z\-]+"}
 # Matches a #,
