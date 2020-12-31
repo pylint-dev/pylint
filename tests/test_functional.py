@@ -26,11 +26,11 @@ import io
 import os
 import sys
 import warnings
-from pathlib import Path
 
 import pytest
 
 from pylint import testutils
+from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
 from pylint.utils import HAS_ISORT_5
 
 
@@ -48,8 +48,6 @@ csv.register_dialect("test", test_dialect)
 
 # TODOs
 #  - implement exhaustivity tests
-
-UPDATE = Path("pylint-functional-test-update")
 
 
 class LintModuleOutputUpdate(testutils.LintModuleTest):
@@ -117,7 +115,7 @@ TEST_WITH_EXPECTED_DEPRECATION = [
 def test_functional(test_file, recwarn):
     LintTest = (
         LintModuleOutputUpdate(test_file)
-        if UPDATE.exists()
+        if UPDATE_FILE.exists()
         else testutils.LintModuleTest(test_file)
     )
     LintTest.setUp()
@@ -139,9 +137,9 @@ def test_functional(test_file, recwarn):
 
 
 if __name__ == "__main__":
-    if testutils.UPDATE_OPTION in sys.argv:
-        UPDATE.touch()
-        sys.argv.remove(testutils.UPDATE_OPTION)
+    if UPDATE_OPTION in sys.argv:
+        UPDATE_FILE.touch()
+        sys.argv.remove(UPDATE_OPTION)
     pytest.main(sys.argv)
-    if UPDATE.exists():
-        UPDATE.unlink()
+    if UPDATE_FILE.exists():
+        UPDATE_FILE.unlink()

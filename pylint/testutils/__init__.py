@@ -39,11 +39,12 @@ __all__ = [
     "MinimalTestReporter",
     "set_config",
     "GenericTestReporter",
+    "UPDATE_FILE",
     "UPDATE_OPTION",
 ]
 
 from pylint.testutils.checker_test_case import CheckerTestCase
-from pylint.testutils.constants import UPDATE_OPTION
+from pylint.testutils.constants import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.decorator import set_config
 from pylint.testutils.functional_test_file import FunctionalTestFile
 from pylint.testutils.get_test_info import _get_tests_info
