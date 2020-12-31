@@ -434,4 +434,6 @@ contributors:
 
 * Sorin Sbarnea: contributor
 
+* Gergely Kalmár: contributor
+
 * Batuhan Taskaya: contributor

@@ -1724,7 +1724,10 @@ a metaclass class method.",
             self.add_message(
                 "arguments-differ", args=(class_type, method1.name), node=method1
             )
-        elif len(method1.args.defaults) < len(refmethod.args.defaults):
+        elif (
+            len(method1.args.defaults) < len(refmethod.args.defaults)
+            and not method1.args.vararg
+        ):
             self.add_message(
                 "signature-differs", args=(class_type, method1.name), node=method1
             )
