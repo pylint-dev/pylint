@@ -158,18 +158,20 @@ def github_issue_1879():
             return 1
         return 2
 
-    def function_returning_generator(r):
-        for i in [r, 1, 2, 3]:
-            yield i
+    # def function_returning_generator(r):
+    #     for i in [r, 1, 2, 3]:
+    #         yield i
 
-    def function_returning_comprehension(r):
-        return [x+1 for x in [r, 1, 2, 3]]
+    # def function_returning_comprehension(r):
+    #     return [x+1 for x in [r, 1, 2, 3]]
 
-    def function_returning_function(r):
-        return function_returning_generator(r)
+    # def function_returning_function(r):
+    #     return function_returning_generator(r)
 
     assert len(function_returning_list(z))  # [len-as-condition]
     assert len(function_returning_int(z))
-    assert len(function_returning_generator(z))  # [len-as-condition]
-    assert len(function_returning_comprehension(z))  # [len-as-condition]
-    assert len(function_returning_function(z))  # [len-as-condition]
+    # This should raise a len-as-conditions once astroid can infer it
+    # See https://github.com/PyCQA/pylint/pull/3821#issuecomment-743771514
+    # assert len(function_returning_generator(z))
+    # assert len(function_returning_comprehension(z))
+    # assert len(function_returning_function(z))
