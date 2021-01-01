@@ -46,6 +46,4 @@ class Message(_MsgBase):
         The template format is the one of the format method :
         cf. https://docs.python.org/2/library/string.html#formatstrings
         """
-        # For some reason, _asdict on derived namedtuples does not work with
-        # Python 3.4. Needs some investigation.
-        return template.format(**dict(zip(self._fields, self)))
+        return template.format(**self._asdict())
