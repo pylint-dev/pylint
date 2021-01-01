@@ -56,8 +56,8 @@ def unused_import_from():
 
 
 def unused_import_in_function(value):
-    from six import PY2, text_type # [unused-import]
-    return value.encode("utf-8") if PY2 else value
+    from string import digits, hexdigits # [unused-import]
+    return value if value in digits else "Nope"
 
 
 def hello(arg):

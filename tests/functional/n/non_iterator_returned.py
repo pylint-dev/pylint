@@ -2,8 +2,6 @@
 
 # pylint: disable=too-few-public-methods, missing-docstring, no-self-use, useless-object-inheritance
 
-import six
-
 class FirstGoodIterator(object):
     """ yields in iterator. """
 
@@ -46,8 +44,7 @@ class IteratorMetaclass(type):
         return 2
 
 
-@six.add_metaclass(IteratorMetaclass)
-class IteratorClass(object):
+class IteratorClass(object, metaclass=IteratorMetaclass):
     """Iterable through the metaclass."""
 
 
