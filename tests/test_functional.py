@@ -109,6 +109,8 @@ if __name__ == "__main__":
     if UPDATE_OPTION in sys.argv:
         UPDATE_FILE.touch()
         sys.argv.remove(UPDATE_OPTION)
-    pytest.main(sys.argv)
-    if UPDATE_FILE.exists():
-        UPDATE_FILE.unlink()
+    try:
+        pytest.main(sys.argv)
+    finally:
+        if UPDATE_FILE.exists():
+            UPDATE_FILE.unlink()
