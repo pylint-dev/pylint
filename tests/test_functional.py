@@ -31,15 +31,6 @@ from pylint import testutils
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
 from pylint.utils import HAS_ISORT_5
 
-
-class test_dialect(csv.excel):
-    delimiter = ":"
-    lineterminator = "\n"
-
-
-csv.register_dialect("test", test_dialect)
-
-
 # Notes:
 # - for the purpose of this test, the confidence levels HIGH and UNDEFINED
 #   are treated as the same.
@@ -50,6 +41,12 @@ csv.register_dialect("test", test_dialect)
 
 class LintModuleOutputUpdate(testutils.LintModuleTest):
     """If message files should be updated instead of checked."""
+
+    class TestDialect(csv.excel):
+        delimiter = ":"
+        lineterminator = "\n"
+
+    csv.register_dialect("test", TestDialect)
 
     def _check_output_text(self, _, expected_output, actual_output):
         if expected_output == actual_output:
