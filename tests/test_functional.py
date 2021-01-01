@@ -113,13 +113,12 @@ TEST_WITH_EXPECTED_DEPRECATION = [
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
 def test_functional(test_file, recwarn):
-    LintTest = (
-        LintModuleOutputUpdate(test_file)
-        if UPDATE_FILE.exists()
-        else testutils.LintModuleTest(test_file)
-    )
-    LintTest.setUp()
-    LintTest._runTest()
+    if UPDATE_FILE.exists():
+        lint_test = LintModuleOutputUpdate(test_file)
+    else:
+        lint_test = testutils.LintModuleTest(test_file)
+    lint_test.setUp()
+    lint_test._runTest()
     warning = None
     try:
         # Catch <unknown>:x: DeprecationWarning: invalid escape sequence
