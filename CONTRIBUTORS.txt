@@ -439,3 +439,5 @@ contributors:
 * Logan Miller (komodo472): contributor
 
 * Matthew Suozzo: contributor
+
+* David Gilman: contributor

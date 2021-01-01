@@ -210,21 +210,16 @@ class TestTypeChecker(CheckerTestCase):
     def test_invalid_metaclass(self):
         module = astroid.parse(
             """
-        import six
-
         class InvalidAsMetaclass(object):
             pass
 
-        @six.add_metaclass(int)
-        class FirstInvalid(object):
+        class FirstInvalid(object, metaclass=int):
             pass
 
-        @six.add_metaclass(InvalidAsMetaclass)
-        class SecondInvalid(object):
+        class SecondInvalid(object, metaclass=InvalidAsMetaclass):
             pass
 
-        @six.add_metaclass(2)
-        class ThirdInvalid(object):
+        class ThirdInvalid(object, metaclass=2):
             pass
         """
         )
