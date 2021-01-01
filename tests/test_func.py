@@ -61,7 +61,15 @@ class LintTestUsingModule:
         self._test(tocheck)
 
     def _check_result(self, got):
-        assert self._get_expected().strip() + "\n" == got.strip() + "\n"
+        error_msg = (
+            "Wrong output for '{_file}':\n"
+            "You can update the expected output automatically with: '"
+            "python tests/test_func.py {update_option}'\n\n".format(
+                update_option=UPDATE_OPTION,
+                _file=self.output,
+            )
+        )
+        assert self._get_expected() == got, error_msg
 
     def _test(self, tocheck):
         if INFO_TEST_RGX.match(self.module):
@@ -92,14 +100,15 @@ class LintTestUsingModule:
 
 class LintTestUpdate(LintTestUsingModule):
     def _check_result(self, got):
-        if self._has_output():
-            try:
-                expected = self._get_expected()
-            except OSError:
-                expected = ""
-            if got != expected:
-                with open(self.output, "w") as fobj:
-                    fobj.write(got)
+        if not self._has_output():
+            return
+        try:
+            expected = self._get_expected()
+        except OSError:
+            expected = ""
+        if got != expected:
+            with open(self.output, "w") as f:
+                f.write(got)
 
 
 def gen_tests(filter_rgx):
