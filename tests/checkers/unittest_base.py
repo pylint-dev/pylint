@@ -22,6 +22,7 @@
 
 """Unittest for the base checker."""
 
+import os
 import re
 import sys
 import unittest
@@ -633,3 +634,16 @@ Basic checker Messages
             str(less_basic), expected_beginning + expected_middle + expected_end
         )
         self.assertEqual(repr(less_basic), repr(basic))
+
+
+class TestNoSix(unittest.TestCase):
+    @unittest.skipUnless(
+        "TOX_ENV_NAME" in os.environ, "only run six checks in clean virtualenv"
+    )
+    def test_no_six(self):
+        try:
+            has_six = True
+        except ImportError:
+            has_six = False
+
+        self.assertFalse(has_six, "pylint must be able to run without six")
