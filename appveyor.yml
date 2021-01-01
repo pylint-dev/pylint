@@ -4,14 +4,14 @@ cache:
   - 'C:\\tmp'
 environment:
   matrix:
-    - PYTHON: "C:\\Python35"
-      TOXENV: "py35"
-
     - PYTHON: "C:\\Python36"
       TOXENV: "py36"
 
     - PYTHON: "C:\\Python37"
       TOXENV: "py37"
+
+    - PYTHON: "C:\\Python38"
+      TOXENV: "py38"
 
 init:
   - ps: echo $env:TOXENV
