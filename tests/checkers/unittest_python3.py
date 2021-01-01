@@ -45,6 +45,29 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(testutils.Message(message, node=node)):
             self.checker.visit_name(node)
 
+    def test_bad_builtins(self):
+        builtins = [
+            "apply",
+            "buffer",
+            "cmp",
+            "coerce",
+            "execfile",
+            "file",
+            "input",
+            "intern",
+            "long",
+            "raw_input",
+            "round",
+            "reduce",
+            "StandardError",
+            "unichr",
+            "unicode",
+            "xrange",
+            "reload",
+        ]
+        for builtin in builtins:
+            self.check_bad_builtin(builtin)
+
     def as_iterable_in_for_loop_test(self, fxn):
         code = "for x in {}(): pass".format(fxn)
         module = astroid.parse(code)
