@@ -22,10 +22,8 @@
 """Functional full-module tests for PyLint."""
 
 import csv
-import io
 import os
 import sys
-import warnings
 
 import pytest
 
@@ -53,38 +51,13 @@ csv.register_dialect("test", test_dialect)
 class LintModuleOutputUpdate(testutils.LintModuleTest):
     """If message files should be updated instead of checked."""
 
-    def _open_expected_file(self):
-        try:
-            return super()._open_expected_file()
-        except OSError:
-            return io.StringIO()
-
-    @classmethod
-    def _split_lines(cls, expected_messages, lines):
-        emitted, omitted = [], []
-        for msg in lines:
-            if (msg[1], msg[0]) in expected_messages:
-                emitted.append(msg)
-            else:
-                omitted.append(msg)
-        return emitted, omitted
-
-    def _check_output_text(self, expected_messages, expected_output, actual_output):
-        if not expected_messages:
+    def _check_output_text(self, _, expected_output, actual_output):
+        if expected_output == actual_output:
             return
-        emitted, remaining = self._split_lines(expected_messages, expected_output)
-        if emitted != actual_output:
-            remaining.extend(actual_output)
-            remaining.sort(key=lambda m: (m[1], m[0], m[3]))
-            warnings.warn(
-                "Updated '{}' with the new content generated from '{}'".format(
-                    self._test_file.expected_output, self._test_file.base
-                )
-            )
-            with open(self._test_file.expected_output, "w") as fobj:
-                writer = csv.writer(fobj, dialect="test")
-                for line in remaining:
-                    writer.writerow(line.to_csv())
+        with open(self._test_file.expected_output, "w") as f:
+            writer = csv.writer(f, dialect="test")
+            for line in actual_output:
+                writer.writerow(line.to_csv())
 
 
 def get_tests():
