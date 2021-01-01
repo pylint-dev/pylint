@@ -168,6 +168,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         FILTER_RGX = sys.argv[1]
         del sys.argv[1]
-    pytest.main(sys.argv)
-    if UPDATE_FILE.exists():
-        UPDATE_FILE.unlink()
+    try:
+        pytest.main(sys.argv)
+    finally:
+        if UPDATE_FILE.exists():
+            UPDATE_FILE.unlink()
