@@ -1,6 +1,8 @@
 ------------------
 Pylint's ChangeLog
 ------------------
+* Python 3.6+ is now required.
+
 * Bug fix for empty-comment message line number.
 
   Closes #4009

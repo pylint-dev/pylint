@@ -9,6 +9,7 @@
 Summary -- Release highlights
 =============================
 
+* Python 3.6+ is now required.
 
 New checkers
 ============
