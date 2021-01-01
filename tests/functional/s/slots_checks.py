@@ -64,9 +64,6 @@ class PotentiallySecondGood(object):
     __slots__ = ('a', deque.__name__)
 
 
-import six
-
-
 class Metaclass(type):
 
     def __iter__(cls):
@@ -74,8 +71,7 @@ class Metaclass(type):
             yield str(value)
 
 
-@six.add_metaclass(Metaclass)
-class IterableClass(object):
+class IterableClass(object, metaclass=Metaclass):
     pass
 
 class PotentiallyThirdGood(object):

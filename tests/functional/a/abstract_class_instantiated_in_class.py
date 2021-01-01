@@ -4,11 +4,8 @@
 
 import abc
 
-import six
 
-
-@six.add_metaclass(abc.ABCMeta)
-class Ala(object):
+class Ala(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def bala(self):
