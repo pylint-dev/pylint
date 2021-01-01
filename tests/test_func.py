@@ -23,7 +23,7 @@ from os.path import abspath, dirname, join
 
 import pytest
 
-from pylint.testutils import _get_tests_info, linter
+from pylint.testutils import UPDATE_FILE, UPDATE_OPTION, _get_tests_info, linter
 
 # Configure paths
 INPUT_DIR = join(dirname(abspath(__file__)), "input")
@@ -31,7 +31,6 @@ MSG_DIR = join(dirname(abspath(__file__)), "messages")
 
 
 FILTER_RGX = None
-UPDATE = False
 INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
 
 # Classes
@@ -119,7 +118,7 @@ def gen_tests(filter_rgx):
         base = module_file.replace(".py", "").split("_")[1]
         dependencies = _get_tests_info(INPUT_DIR, MSG_DIR, base, ".py")
         tests.append((module_file, messages_file, dependencies))
-    if UPDATE:
+    if UPDATE_FILE.exists():
         return tests
     assert len(tests) < 196, "Please do not add new test cases here."
     return tests
@@ -149,7 +148,7 @@ def test_functionality(module_file, messages_file, dependencies, recwarn):
 
 
 def __test_functionality(module_file, messages_file, dependencies):
-    lint_test = LintTestUpdate() if UPDATE else LintTestUsingModule()
+    lint_test = LintTestUpdate() if UPDATE_FILE.exists() else LintTestUsingModule()
     lint_test.module = module_file.replace(".py", "")
     lint_test.output = messages_file
     lint_test.depends = dependencies or None
@@ -158,11 +157,12 @@ def __test_functionality(module_file, messages_file, dependencies):
 
 
 if __name__ == "__main__":
-    if "-u" in sys.argv:
-        UPDATE = True
-        sys.argv.remove("-u")
-
+    if UPDATE_OPTION in sys.argv:
+        UPDATE_FILE.touch()
+        sys.argv.remove(UPDATE_OPTION)
     if len(sys.argv) > 1:
         FILTER_RGX = sys.argv[1]
         del sys.argv[1]
     pytest.main(sys.argv)
+    if UPDATE_FILE.exists():
+        UPDATE_FILE.unlink()
