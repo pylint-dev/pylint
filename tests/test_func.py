@@ -49,7 +49,6 @@ class LintTestUsingModule:
     module = None
     depends = None
     output = None
-    _TEST_TYPE = "module"
 
     def _test_functionality(self):
         tocheck = [self.package + "." + self.module]
@@ -92,9 +91,6 @@ class LintTestUsingModule:
 
 
 class LintTestUpdate(LintTestUsingModule):
-
-    _TEST_TYPE = "update"
-
     def _check_result(self, got):
         if self._has_output():
             try:
