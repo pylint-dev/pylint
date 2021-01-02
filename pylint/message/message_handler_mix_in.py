@@ -55,14 +55,12 @@ class MessagesHandlerMixIn:
             pass
 
     def disable(self, msgid, scope="package", line=None, ignore_unknown=False):
-        """Don't output message of the given id"""
         self._set_msg_status(
             msgid, enable=False, scope=scope, line=line, ignore_unknown=ignore_unknown
         )
         self._register_by_id_managed_msg(msgid, line)
 
     def enable(self, msgid, scope="package", line=None, ignore_unknown=False):
-        """reenable message of the given id"""
         self._set_msg_status(
             msgid, enable=True, scope=scope, line=line, ignore_unknown=ignore_unknown
         )
@@ -72,7 +70,6 @@ class MessagesHandlerMixIn:
         self, msgid, enable, scope="package", line=None, ignore_unknown=False
     ):
         assert scope in ("package", "module")
-
         if msgid == "all":
             for _msgid in MSG_TYPES:
                 self._set_msg_status(_msgid, enable, scope, line, ignore_unknown)
