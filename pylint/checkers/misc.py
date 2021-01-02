@@ -38,7 +38,6 @@ class ByIdManagedMessagesChecker(BaseChecker):
     """Checks for messages that are enabled or disabled by id instead of symbol."""
 
     __implements__ = IRawChecker
-
     name = "miscellaneous"
     msgs = {
         "I0023": (
@@ -47,7 +46,6 @@ class ByIdManagedMessagesChecker(BaseChecker):
             "Used when a message is enabled or disabled by id.",
         )
     }
-
     options = ()
 
     def process_module(self, module):
