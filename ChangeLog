@@ -23,6 +23,8 @@ Release date: TBA
 ..
   Put bug fixes that will be cherry-picked to latest major version here
 
+* ``use-symbolic-message-instead`` now also works on legacy messages like ``C0111`` (``missing-docstring``).
+
 * Remove unwanted print to stdout from ``_emit_no_member``
 
 * Introduce a command-line option to specify pyreverse output directory

@@ -2,7 +2,7 @@
 
 Based on tests/functional/a/arguments.py
 """
-# pylint: disable=C0111,too-few-public-methods,super-init-not-called, useless-object-inheritance
+# pylint: disable=C0111,too-few-public-methods,W0231, useless-object-inheritance  # [use-symbolic-message-instead,use-symbolic-message-instead]
 
 
 class Class1Arg(object):
