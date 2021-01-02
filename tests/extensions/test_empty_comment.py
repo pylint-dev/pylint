@@ -28,7 +28,7 @@ def test_comment_base_case(linter):
     for msg in msgs:
         assert msg.symbol == "empty-comment"
         assert msg.msg == "Line with empty comment"
-    assert msgs[0].line == 1
-    assert msgs[1].line == 2
-    assert msgs[2].line == 4
-    assert msgs[3].line == 6
+    assert msgs[0].line == 2
+    assert msgs[1].line == 3
+    assert msgs[2].line == 5
+    assert msgs[3].line == 7
