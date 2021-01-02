@@ -1,6 +1,10 @@
 ------------------
 Pylint's ChangeLog
 ------------------
+* Bug fix for empty-comment message line number.
+
+  Closes #4009
+
 * Only emit `bad-reversed-sequence` on dictionaries if below py3.8
 
   Closes #3940
