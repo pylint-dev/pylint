@@ -1,2 +1,6 @@
-use-symbolic-message-instead:6:0::Id 'R1711' is used to disable 'useless-return' message emission
-missing-function-docstring:10:0:test_enabled_by_id_msg:Missing function or method docstring
+use-symbolic-message-instead:2:0::"'C0111' is cryptic: use '# pylint: disable=missing-docstring' instead"
+use-symbolic-message-instead:5:0::"'C0102' is cryptic: use '# pylint: disable=blacklisted-name' instead"
+use-symbolic-message-instead:9:0::"'C0102' is cryptic: use '# pylint: disable=blacklisted-name' instead"
+use-symbolic-message-instead:9:0::"'R1711' is cryptic: use '# pylint: disable=useless-return' instead"
+missing-function-docstring:13:0:test_enabled_by_id_msg:Missing function or method docstring
+use-symbolic-message-instead:13:0::"'C0111' is cryptic: use '# pylint: enable=missing-docstring' instead"

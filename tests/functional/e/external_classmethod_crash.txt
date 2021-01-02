@@ -1,2 +1,2 @@
-use-symbolic-message-instead:1:0::Id 'W0232' is used to disable 'no-init' message emission
-use-symbolic-message-instead:1:0::Id 'W0613' is used to disable 'unused-argument' message emission
+use-symbolic-message-instead:1:0::"'W0232' is cryptic: use '# pylint: disable=no-init' instead"
+use-symbolic-message-instead:1:0::"'W0613' is cryptic: use '# pylint: disable=unused-argument' instead"

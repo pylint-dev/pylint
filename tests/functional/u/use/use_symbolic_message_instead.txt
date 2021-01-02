@@ -1,0 +1,8 @@
+bad-option-value:3:0::Bad option value 'T1234'
+use-symbolic-message-instead:3:0::"'C0111' is cryptic: use '# pylint: disable=missing-docstring' instead"
+use-symbolic-message-instead:3:0::"'R0903' is cryptic: use '# pylint: disable=too-few-public-methods' instead"
+use-symbolic-message-instead:4:0::"'C0111' is cryptic: use '# pylint: enable=missing-docstring' instead"
+missing-function-docstring:6:0:myfunction:Missing function or method docstring
+use-symbolic-message-instead:9:0::"'C0111' is cryptic: use '# pylint: disable=missing-docstring' instead"
+use-symbolic-message-instead:10:0::"'R0903' is cryptic: use '# pylint: enable=too-few-public-methods' instead"
+use-symbolic-message-instead:11:0::"'R0903' is cryptic: use '# pylint: disable=too-few-public-methods' instead"
