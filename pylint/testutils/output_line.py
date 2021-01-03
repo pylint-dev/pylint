@@ -24,8 +24,8 @@ class Message(
 
 class MalformedOutputLineException(Exception):
     def __init__(self, row, exception):
-        example = "msg-symbolic-name:42:MyClass.my_function:The message"
-        other_example = "msg-symbolic-name:7::The message"
+        example = "msg-symbolic-name:42:27:MyClass.my_function:The message"
+        other_example = "msg-symbolic-name:7:42::The message"
         reconstructed_row = ":".join(row)
         msg = "Expected '{example}' or '{other_example}' but we got '{reconstructed_row}'".format(
             example=example,
@@ -39,7 +39,7 @@ class MalformedOutputLineException(Exception):
 
 class OutputLine(
     collections.namedtuple(
-        "OutputLine", ["symbol", "lineno", "object", "msg", "confidence"]
+        "OutputLine", ["symbol", "lineno", "column", "object", "msg", "confidence"]
     )
 ):
     @classmethod
@@ -47,6 +47,7 @@ class OutputLine(
         return cls(
             msg.symbol,
             msg.line,
+            str(msg.column),
             msg.obj or "",
             msg.msg.replace("\r\n", "\n"),
             msg.confidence.name
@@ -57,8 +58,8 @@ class OutputLine(
     @classmethod
     def from_csv(cls, row):
         try:
-            confidence = row[4] if len(row) == 5 else interfaces.HIGH.name
-            return cls(row[0], int(row[1]), row[2], row[3], confidence)
+            confidence = row[5] if len(row) == 6 else interfaces.HIGH.name
+            return cls(row[0], int(row[1]), str(row[2]), row[3], row[4], confidence)
         except Exception as e:
             raise MalformedOutputLineException(row, e) from e
 
