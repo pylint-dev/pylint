@@ -1,6 +1,6 @@
-arguments-differ:12:Child.test:Parameters differ from overridden 'test' method
-arguments-differ:23:ChildDefaults.test:Parameters differ from overridden 'test' method
-arguments-differ:41:ClassmethodChild.func:Parameters differ from overridden 'func' method
-arguments-differ:68:VarargsChild.has_kwargs:Parameters differ from overridden 'has_kwargs' method
-arguments-differ:71:VarargsChild.no_kwargs:Parameters differ from overridden 'no_kwargs' method
-arguments-differ:172:SecondChangesArgs.test:Parameters differ from overridden 'test' method
+arguments-differ:12:4:Child.test:Parameters differ from overridden 'test' method
+arguments-differ:23:4:ChildDefaults.test:Parameters differ from overridden 'test' method
+arguments-differ:41:4:ClassmethodChild.func:Parameters differ from overridden 'func' method
+arguments-differ:68:4:VarargsChild.has_kwargs:Parameters differ from overridden 'has_kwargs' method
+arguments-differ:71:4:VarargsChild.no_kwargs:Parameters differ from overridden 'no_kwargs' method
+arguments-differ:172:4:SecondChangesArgs.test:Parameters differ from overridden 'test' method

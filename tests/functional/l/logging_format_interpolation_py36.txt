@@ -1,1 +1,1 @@
-logging-fstring-interpolation:5::Use lazy % formatting in logging functions
+logging-fstring-interpolation:5:0::Use lazy % formatting in logging functions
