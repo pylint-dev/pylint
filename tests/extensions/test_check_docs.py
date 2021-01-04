@@ -35,7 +35,7 @@ class TestParamDocChecker(CheckerTestCase):
     CONFIG = {
         "accept_no_param_doc": False,
         "no_docstring_rgx": "",
-        "docstring_min_length": -1
+        "docstring_min_length": -1,
     }
 
     def test_missing_func_params_in_sphinx_docstring(self):

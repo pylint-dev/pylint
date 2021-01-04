@@ -20,6 +20,8 @@
 
 """Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings
 """
+import re
+
 import astroid
 
 from pylint.checkers import BaseChecker
@@ -27,7 +29,6 @@ from pylint.checkers import utils as checker_utils
 from pylint.extensions import _check_docs_utils as utils
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import get_global_option
-import re
 
 
 class DocstringParameterChecker(BaseChecker):
