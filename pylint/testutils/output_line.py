@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import collections
+import sys
 
 from pylint import interfaces
 
@@ -44,10 +45,11 @@ class OutputLine(
 ):
     @classmethod
     def from_msg(cls, msg):
+        column = cls.get_column(msg.column)
         return cls(
             msg.symbol,
             msg.line,
-            str(msg.column),
+            column,
             msg.obj or "",
             msg.msg.replace("\r\n", "\n"),
             msg.confidence.name
@@ -56,10 +58,17 @@ class OutputLine(
         )
 
     @classmethod
+    def get_column(cls, column):
+        if sys.version_info.major == 3 and sys.version_info.minor < 8:
+            return ""
+        return str(column)
+
+    @classmethod
     def from_csv(cls, row):
         try:
             confidence = row[5] if len(row) == 6 else interfaces.HIGH.name
-            return cls(row[0], int(row[1]), str(row[2]), row[3], row[4], confidence)
+            column = cls.get_column(row[2])
+            return cls(row[0], int(row[1]), column, row[3], row[4], confidence)
         except Exception as e:
             raise MalformedOutputLineException(row, e) from e
 
