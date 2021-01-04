@@ -24,6 +24,7 @@ import astroid
 import pytest
 
 from pylint.checkers import typecheck
+from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 try:
@@ -356,3 +357,139 @@ class TestTypeChecker(CheckerTestCase):
             Message("not-callable", node=call, args="get_num(10)")
         ):
             self.checker.visit_call(call)
+
+
+class TestTypeCheckerOnDecorators(CheckerTestCase):
+    "Tests for pylint.checkers.typecheck on decorated functions."
+    CHECKER_CLASS = typecheck.TypeChecker
+
+    def test_issue3882_class_decorators(self):
+        decorators = """
+        class Unsubscriptable:
+            def __init__(self, f):
+                self.f = f
+
+        class Subscriptable:
+            def __init__(self, f):
+                self.f = f
+
+            def __getitem__(self, item):
+                return item
+        """
+        for generic in "Optional", "List", "ClassVar", "Final", "Literal":
+            self.typing_objects_are_subscriptable(generic)
+
+        self.getitem_on_modules()
+        self.decorated_by_a_subscriptable_class(decorators)
+        self.decorated_by_an_unsubscriptable_class(decorators)
+
+        self.decorated_by_subscriptable_then_unsubscriptable_class(decorators)
+        self.decorated_by_unsubscriptable_then_subscriptable_class(decorators)
+
+    def getitem_on_modules(self):
+        """Mainly validate the code won't crash if we're not having a function."""
+        module = astroid.parse(
+            """
+        import collections
+        test = collections[int]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertAddsMessages(
+            Message(
+                "unsubscriptable-object",
+                node=subscript.value,
+                args="collections",
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_subscript(subscript)
+
+    def typing_objects_are_subscriptable(self, generic):
+        module = astroid.parse(
+            """
+        import typing
+        test = typing.{}[int]
+        """.format(
+                generic
+            )
+        )
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
+    def decorated_by_a_subscriptable_class(self, decorators):
+        module = astroid.parse(
+            decorators
+            + """
+        @Subscriptable
+        def decorated():
+            ...
+
+        test = decorated[None]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
+    def decorated_by_subscriptable_then_unsubscriptable_class(self, decorators):
+        module = astroid.parse(
+            decorators
+            + """
+        @Unsubscriptable
+        @Subscriptable
+        def decorated():
+            ...
+
+        test = decorated[None]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertAddsMessages(
+            Message(
+                "unsubscriptable-object",
+                node=subscript.value,
+                args="decorated",
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_subscript(subscript)
+
+    def decorated_by_unsubscriptable_then_subscriptable_class(self, decorators):
+        module = astroid.parse(
+            decorators
+            + """
+        @Subscriptable
+        @Unsubscriptable
+        def decorated():
+            ...
+
+        test = decorated[None]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
+    def decorated_by_an_unsubscriptable_class(self, decorators):
+        module = astroid.parse(
+            decorators
+            + """
+        @Unsubscriptable
+        def decorated():
+            ...
+
+        test = decorated[None]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertAddsMessages(
+            Message(
+                "unsubscriptable-object",
+                node=subscript.value,
+                args="decorated",
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_subscript(subscript)

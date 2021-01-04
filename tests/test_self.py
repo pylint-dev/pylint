@@ -46,7 +46,7 @@ from unittest import mock
 
 import pytest
 
-from pylint.constants import MAIN_CHECKER_NAME
+from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
 from pylint.lint import Run
 from pylint.reporters import JSONReporter
 from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextReporter
@@ -243,13 +243,19 @@ class TestRunTC:
         )
 
     def test_parallel_execution(self):
+        out = StringIO()
         self._runtest(
             [
                 "-j 2",
                 join(HERE, "functional", "a", "arguments.py"),
-                join(HERE, "functional", "a", "arguments.py"),
             ],
-            code=2,
+            out=out,
+            # We expect similarities to fail and an error
+            code=MSG_TYPES_STATUS["E"],
+        )
+        assert (
+            "Unexpected keyword argument 'fourth' in function call"
+            in out.getvalue().strip()
         )
 
     def test_parallel_execution_missing_arguments(self):

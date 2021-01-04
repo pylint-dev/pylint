@@ -13,3 +13,11 @@ len-as-condition:98:github_issue_1331_v3:Do not use `len(SEQUENCE)` without comp
 len-as-condition:101:github_issue_1331_v4:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
 len-as-condition:103::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
 len-as-condition:104::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:124:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:125:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:126:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:127:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:128:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:129:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:130:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+len-as-condition:171:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty

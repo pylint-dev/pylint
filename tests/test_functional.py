@@ -22,23 +22,14 @@
 """Functional full-module tests for PyLint."""
 
 import csv
-import io
 import os
 import sys
 
 import pytest
 
 from pylint import testutils
+from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
 from pylint.utils import HAS_ISORT_5
-
-
-class test_dialect(csv.excel):
-    delimiter = ":"
-    lineterminator = "\n"
-
-
-csv.register_dialect("test", test_dialect)
-
 
 # Notes:
 # - for the purpose of this test, the confidence levels HIGH and UNDEFINED
@@ -47,28 +38,23 @@ csv.register_dialect("test", test_dialect)
 # TODOs
 #  - implement exhaustivity tests
 
-# If message files should be updated instead of checked.
-UPDATE = False
-
 
 class LintModuleOutputUpdate(testutils.LintModuleTest):
-    def _open_expected_file(self):
-        try:
-            return super()._open_expected_file()
-        except OSError:
-            return io.StringIO()
+    """If message files should be updated instead of checked."""
 
-    def _check_output_text(self, expected_messages, expected_lines, received_lines):
-        if not expected_messages:
+    class TestDialect(csv.excel):
+        delimiter = ":"
+        lineterminator = "\n"
+
+    csv.register_dialect("test", TestDialect)
+
+    def _check_output_text(self, _, expected_output, actual_output):
+        if expected_output == actual_output:
             return
-        emitted, remaining = self._split_lines(expected_messages, expected_lines)
-        if emitted != received_lines:
-            remaining.extend(received_lines)
-            remaining.sort(key=lambda m: (m[1], m[0], m[3]))
-            with open(self._test_file.expected_output, "w") as fobj:
-                writer = csv.writer(fobj, dialect="test")
-                for line in remaining:
-                    writer.writerow(line.to_csv())
+        with open(self._test_file.expected_output, "w") as f:
+            writer = csv.writer(f, dialect="test")
+            for line in actual_output:
+                writer.writerow(line.to_csv())
 
 
 def get_tests():
@@ -89,21 +75,42 @@ def get_tests():
 
 TESTS = get_tests()
 TESTS_NAMES = [t.base for t in TESTS]
+TEST_WITH_EXPECTED_DEPRECATION = [
+    "future_unicode_literals",
+    "anomalous_unicode_escape_py3",
+]
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
-def test_functional(test_file):
-    LintTest = (
-        LintModuleOutputUpdate(test_file)
-        if UPDATE
-        else testutils.LintModuleTest(test_file)
-    )
-    LintTest.setUp()
-    LintTest._runTest()
+def test_functional(test_file, recwarn):
+    if UPDATE_FILE.exists():
+        lint_test = LintModuleOutputUpdate(test_file)
+    else:
+        lint_test = testutils.LintModuleTest(test_file)
+    lint_test.setUp()
+    lint_test._runTest()
+    warning = None
+    try:
+        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence
+        # so it's not shown during tests
+        warning = recwarn.pop()
+    except AssertionError:
+        pass
+    if warning is not None:
+        if (
+            test_file.base in TEST_WITH_EXPECTED_DEPRECATION
+            and sys.version_info.minor > 5
+        ):
+            assert issubclass(warning.category, DeprecationWarning)
+            assert "invalid escape sequence" in str(warning.message)
 
 
 if __name__ == "__main__":
-    if "-u" in sys.argv:
-        UPDATE = True
-        sys.argv.remove("-u")
-    pytest.main(sys.argv)
+    if UPDATE_OPTION in sys.argv:
+        UPDATE_FILE.touch()
+        sys.argv.remove(UPDATE_OPTION)
+    try:
+        pytest.main(sys.argv)
+    finally:
+        if UPDATE_FILE.exists():
+            UPDATE_FILE.unlink()

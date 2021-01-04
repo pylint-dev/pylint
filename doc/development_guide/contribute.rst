@@ -110,7 +110,10 @@ your patch gets accepted.
   (`What's New` section). For the release document we usually write some more details,
   and it is also a good place to offer examples on how the new change is supposed to work.
 
-- Add yourself to the `CONTRIBUTORS` file, if you are not already there.
+- Add a short entry in :file:`doc/whatsnew/VERSION.rst`.
+
+- Add yourself to the `CONTRIBUTORS` file, flag youself appropriately
+  (if in doubt, you're a ``contributor``).
 
 - Write a comprehensive commit message
 
@@ -159,6 +162,12 @@ During development, it's sometimes helpful to run all functional tests in your
 current environment in order to have faster feedback. Run from Pylint root directory with::
 
     python tests/test_functional.py
+
+You can use all the options you would use for pytest, for example `-k "test_functional[len_checks]"`.
+It is also possible to update the expected output instead of using it for comparison, by appending
+`--update-functional-output` to the command line::
+
+    python tests/test_functional.py --update-functional-output -k "test_functional[len_checks]"
 
 .. _`Closing issues via commit messages`: https://help.github.com/articles/closing-issues-via-commit-messages/
 .. _`About pull requests`: https://help.github.com/articles/using-pull-requests/

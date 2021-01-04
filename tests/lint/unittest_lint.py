@@ -242,7 +242,7 @@ def disable():
 
 @pytest.fixture(scope="module")
 def reporter():
-    return testutils.TestReporter
+    return testutils.GenericTestReporter
 
 
 @pytest.fixture
@@ -480,7 +480,7 @@ def test_disable_alot(linter):
 
 
 def test_addmessage(linter):
-    linter.set_reporter(testutils.TestReporter())
+    linter.set_reporter(testutils.GenericTestReporter())
     linter.open()
     linter.set_current_module("0123")
     linter.add_message("C0301", line=1, args=(1, 2))
@@ -492,7 +492,7 @@ def test_addmessage(linter):
 
 
 def test_addmessage_invalid(linter):
-    linter.set_reporter(testutils.TestReporter())
+    linter.set_reporter(testutils.GenericTestReporter())
     linter.open()
     linter.set_current_module("0123")
 
@@ -570,7 +570,7 @@ def test_init_hooks_called_before_load_plugins():
 
 
 def test_analyze_explicit_script(linter):
-    linter.set_reporter(testutils.TestReporter())
+    linter.set_reporter(testutils.GenericTestReporter())
     linter.check(os.path.join(DATA_DIR, "ascript"))
     assert ["C:  2: Line too long (175/100)"] == linter.reporter.messages
 
@@ -768,7 +768,7 @@ def test_custom_should_analyze_file():
     wrong_file = os.path.join(package_dir, "wrong.py")
 
     for jobs in [1, 2]:
-        reporter = testutils.TestReporter()
+        reporter = testutils.GenericTestReporter()
         linter = _CustomPyLinter()
         linter.config.jobs = jobs
         linter.config.persistent = 0
@@ -801,7 +801,7 @@ def test_multiprocessing(jobs):
         "wrong_import_position.py",
     ]
 
-    reporter = testutils.TestReporter()
+    reporter = testutils.GenericTestReporter()
     linter = PyLinter()
     linter.config.jobs = jobs
     linter.config.persistent = 0
@@ -822,7 +822,7 @@ def test_filename_with__init__(init_linter):
     # This tracks a regression where a file whose name ends in __init__.py,
     # such as flycheck__init__.py, would accidentally lead to linting the
     # entire containing directory.
-    reporter = testutils.TestReporter()
+    reporter = testutils.GenericTestReporter()
     linter = init_linter
     linter.open()
     linter.set_reporter(reporter)

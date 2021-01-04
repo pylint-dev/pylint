@@ -38,7 +38,7 @@ except AttributeError:
 
 @pytest.fixture(scope="module")
 def reporter():
-    return testutils.TestReporter
+    return testutils.GenericTestReporter
 
 
 @pytest.fixture(scope="module")

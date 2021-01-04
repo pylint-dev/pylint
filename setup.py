@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-#!/usr/bin/env python
-# pylint: disable=W0404,W0622,W0613
 # Copyright (c) 2006, 2009-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
@@ -26,15 +23,14 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""Generic Setup script, takes package info from __pkginfo__.py file.
-"""
+"""Generic Setup script, takes package info from __pkginfo__.py file."""
+
+# pylint: disable=import-outside-toplevel,arguments-differ,ungrouped-imports,exec-used
+
 import os
 import sys
 from distutils.command.build_py import build_py
 from os.path import exists, isdir, join
-
-__docformat__ = "restructuredtext en"
-
 
 try:
     from setuptools import setup
@@ -50,6 +46,7 @@ except ImportError:
     easy_install_lib = None
 
 
+__docformat__ = "restructuredtext en"
 base_dir = os.path.dirname(__file__)
 
 __pkginfo__ = {}

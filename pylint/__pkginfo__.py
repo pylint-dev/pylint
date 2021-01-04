@@ -40,7 +40,7 @@ if dev_version is not None:
     version += "-dev" + str(dev_version)
 
 install_requires = [
-    "astroid>=2.4.0,<=2.5",
+    "astroid>=2.4.0,<=2.6",
     "isort>=4.2.5,<6",
     "mccabe>=0.6,<0.7",
     "toml>=0.7.1",
@@ -72,6 +72,7 @@ classifiers = [
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
@@ -79,24 +80,6 @@ classifiers = [
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
 ]
-
-
-long_desc = """\
- Pylint is a Python source code analyzer which looks for programming
- errors, helps enforcing a coding standard and sniffs for some code
- smells (as defined in Martin Fowler's Refactoring book)
- .
- Pylint can be seen as another PyChecker since nearly all tests you
- can do with PyChecker can also be done with Pylint. However, Pylint
- offers some more features, like checking length of lines of code,
- checking if variable names are well-formed according to your coding
- standard, or checking if declared interfaces are truly implemented,
- and much more.
- .
- Additionally, it is possible to write plugins to add your own checks.
- .
- Pylint is shipped with "pyreverse" (UML diagram generator)
- and "symilar" (an independent similarities checker)."""
 
 scripts = [
     join("bin", filename) for filename in ("pylint", "symilar", "epylint", "pyreverse")

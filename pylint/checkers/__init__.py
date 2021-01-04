@@ -10,6 +10,7 @@
 # Copyright (c) 2018-2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019 Bruno P. Kinoshita <kinow@users.noreply.github.com>
+# Copyright (c) 2020 Frank Harrison <doublethefish@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -43,6 +44,7 @@ messages nor reports. XXX not true, emit a 07 report !
 """
 
 from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
+from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.utils import register_plugins
 
 
@@ -64,4 +66,10 @@ def initialize(linter):
     register_plugins(linter, __path__[0])
 
 
-__all__ = ["BaseChecker", "BaseTokenChecker", "initialize", "register_plugins"]
+__all__ = [
+    "BaseChecker",
+    "BaseTokenChecker",
+    "initialize",
+    "MapReduceMixin",
+    "register_plugins",
+]

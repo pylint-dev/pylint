@@ -23,16 +23,14 @@ from os.path import abspath, dirname, join
 
 import pytest
 
-from pylint.testutils import _get_tests_info, linter
-
-SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]
+from pylint.testutils import UPDATE_FILE, UPDATE_OPTION, _get_tests_info, linter
 
 # Configure paths
 INPUT_DIR = join(dirname(abspath(__file__)), "input")
 MSG_DIR = join(dirname(abspath(__file__)), "messages")
 
+
 FILTER_RGX = None
-UPDATE = False
 INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
 
 # Classes
@@ -51,11 +49,6 @@ class LintTestUsingModule:
     module = None
     depends = None
     output = None
-    _TEST_TYPE = "module"
-
-    # def runTest(self):
-    #     # This is a hack to make ./test/test_func.py work under pytest.
-    #     pass
 
     def _test_functionality(self):
         tocheck = [self.package + "." + self.module]
@@ -68,7 +61,15 @@ class LintTestUsingModule:
         self._test(tocheck)
 
     def _check_result(self, got):
-        assert self._get_expected().strip() + "\n" == got.strip() + "\n"
+        error_msg = (
+            "Wrong output for '{_file}':\n"
+            "You can update the expected output automatically with: '"
+            "python tests/test_func.py {update_option}'\n\n".format(
+                update_option=UPDATE_OPTION,
+                _file=self.output,
+            )
+        )
+        assert self._get_expected() == got, error_msg
 
     def _test(self, tocheck):
         if INFO_TEST_RGX.match(self.module):
@@ -98,18 +99,16 @@ class LintTestUsingModule:
 
 
 class LintTestUpdate(LintTestUsingModule):
-
-    _TEST_TYPE = "update"
-
     def _check_result(self, got):
-        if self._has_output():
-            try:
-                expected = self._get_expected()
-            except OSError:
-                expected = ""
-            if got != expected:
-                with open(self.output, "w") as fobj:
-                    fobj.write(got)
+        if not self._has_output():
+            return
+        try:
+            expected = self._get_expected()
+        except OSError:
+            expected = ""
+        if got != expected:
+            with open(self.output, "w") as f:
+                f.write(got)
 
 
 def gen_tests(filter_rgx):
@@ -124,12 +123,13 @@ def gen_tests(filter_rgx):
         base = module_file.replace(".py", "").split("_")[1]
         dependencies = _get_tests_info(INPUT_DIR, MSG_DIR, base, ".py")
         tests.append((module_file, messages_file, dependencies))
-
-    if UPDATE:
+    if UPDATE_FILE.exists():
         return tests
-
-    assert len(tests) < 196, "Please do not add new test cases here."
+    assert len(tests) < 53, "Please do not add new test cases here."
     return tests
+
+
+TEST_WITH_EXPECTED_DEPRECATION = ["func_excess_escapes.py"]
 
 
 @pytest.mark.parametrize(
@@ -137,23 +137,39 @@ def gen_tests(filter_rgx):
     gen_tests(FILTER_RGX),
     ids=[o[0] for o in gen_tests(FILTER_RGX)],
 )
-def test_functionality(module_file, messages_file, dependencies):
+def test_functionality(module_file, messages_file, dependencies, recwarn):
+    __test_functionality(module_file, messages_file, dependencies)
+    warning = None
+    try:
+        # Catch <unknown>:x: DeprecationWarning: invalid escape sequence
+        # so it's not shown during tests
+        warning = recwarn.pop()
+    except AssertionError:
+        pass
+    if warning is not None:
+        if module_file in TEST_WITH_EXPECTED_DEPRECATION and sys.version_info.minor > 5:
+            assert issubclass(warning.category, DeprecationWarning)
+            assert "invalid escape sequence" in str(warning.message)
 
-    LT = LintTestUpdate() if UPDATE else LintTestUsingModule()
 
-    LT.module = module_file.replace(".py", "")
-    LT.output = messages_file
-    LT.depends = dependencies or None
-    LT.INPUT_DIR = INPUT_DIR
-    LT._test_functionality()
+def __test_functionality(module_file, messages_file, dependencies):
+    lint_test = LintTestUpdate() if UPDATE_FILE.exists() else LintTestUsingModule()
+    lint_test.module = module_file.replace(".py", "")
+    lint_test.output = messages_file
+    lint_test.depends = dependencies or None
+    lint_test.INPUT_DIR = INPUT_DIR
+    lint_test._test_functionality()
 
 
 if __name__ == "__main__":
-    if "-u" in sys.argv:
-        UPDATE = True
-        sys.argv.remove("-u")
-
+    if UPDATE_OPTION in sys.argv:
+        UPDATE_FILE.touch()
+        sys.argv.remove(UPDATE_OPTION)
     if len(sys.argv) > 1:
         FILTER_RGX = sys.argv[1]
         del sys.argv[1]
-    pytest.main(sys.argv)
+    try:
+        pytest.main(sys.argv)
+    finally:
+        if UPDATE_FILE.exists():
+            UPDATE_FILE.unlink()

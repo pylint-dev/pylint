@@ -50,6 +50,7 @@ import itertools
 import numbers
 import re
 import string
+import sys
 from functools import lru_cache, partial
 from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, Union
 
@@ -74,7 +75,9 @@ ABC_METHODS = {
     "abc.abstractclassmethod",
     "abc.abstractstaticmethod",
 }
-TYPING_PROTOCOLS = frozenset({"typing.Protocol", "typing_extensions.Protocol"})
+TYPING_PROTOCOLS = frozenset(
+    {"typing.Protocol", "typing_extensions.Protocol", ".Protocol"}
+)
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
@@ -210,6 +213,7 @@ SPECIAL_METHODS_PARAMS = {
     for name in methods  # type: ignore
 }
 PYMETHODS = set(SPECIAL_METHODS_PARAMS)
+PY310_PLUS = sys.version_info[:2] >= (3, 10)
 
 
 class NoSuchArgumentError(Exception):
@@ -1262,6 +1266,9 @@ def get_node_last_lineno(node: astroid.node_classes.NodeNG) -> int:
 
 def is_postponed_evaluation_enabled(node: astroid.node_classes.NodeNG) -> bool:
     """Check if the postponed evaluation of annotations is enabled"""
+    if PY310_PLUS:
+        return True
+
     module = node.root()
     return "annotations" in module.future_imports
 
