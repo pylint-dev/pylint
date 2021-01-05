@@ -705,7 +705,7 @@ class StringConstantChecker(BaseTokenChecker):
             elif tok_type == tokenize.STRING:
                 # 'token' is the whole un-parsed token; we can look at the start
                 # of it to see whether it's a raw or unicode string etc.
-                self.process_string_token(token, start[0])
+                self.process_string_token(token, start[0], start[1])
                 # We figure the next token, ignoring comments & newlines:
                 j = i + 1
                 while j < len(tokens) and tokens[j].type in (
@@ -799,7 +799,7 @@ class StringConstantChecker(BaseTokenChecker):
                         "implicit-str-concat", line=elt.lineno, args=(iterable_type,)
                     )
 
-    def process_string_token(self, token, start_row):
+    def process_string_token(self, token, start_row, start_col):
         quote_char = None
         index = None
         for index, char in enumerate(token):
@@ -811,21 +811,30 @@ class StringConstantChecker(BaseTokenChecker):
 
         prefix = token[:index].lower()  # markers like u, b, r.
         after_prefix = token[index:]
-        if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char:
-            string_body = after_prefix[3:-3]
-        else:
-            string_body = after_prefix[1:-1]  # Chop off quotes
+        # Chop off quotes
+        quote_length = (
+            3 if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char else 1
+        )
+        string_body = after_prefix[quote_length:-quote_length]
         # No special checks on raw strings at the moment.
         if "r" not in prefix:
-            self.process_non_raw_string_token(prefix, string_body, start_row)
+            self.process_non_raw_string_token(
+                prefix,
+                string_body,
+                start_row,
+                start_col + len(prefix) + quote_length,
+            )
 
-    def process_non_raw_string_token(self, prefix, string_body, start_row):
+    def process_non_raw_string_token(
+        self, prefix, string_body, start_row, string_start_col
+    ):
         """check for bad escapes in a non-raw string.
 
         prefix: lowercase string of eg 'ur' string prefix markers.
         string_body: the un-parsed body of the string, not including the quote
         marks.
         start_row: integer line number in the source.
+        string_start_col: integer col number of the string start in the source.
         """
         # Walk through the string; if we see a backslash then escape the next
         # character, and skip over it.  If we see a non-escaped character,
@@ -844,6 +853,16 @@ class StringConstantChecker(BaseTokenChecker):
             # of the string would be a SyntaxError.
             next_char = string_body[index + 1]
             match = string_body[index : index + 2]
+            # The column offset will vary depending on whether the string token
+            # is broken across lines. Calculate relative to the nearest line
+            # break or relative to the start of the token's line.
+            last_newline = string_body.rfind("\n", 0, index)
+            if last_newline == -1:
+                line = start_row
+                col_offset = index + string_start_col
+            else:
+                line = start_row + string_body.count("\n", 0, index)
+                col_offset = index - last_newline - 1
             if next_char in self.UNICODE_ESCAPE_CHARACTERS:
                 if "u" in prefix:
                     pass
@@ -852,16 +871,16 @@ class StringConstantChecker(BaseTokenChecker):
                 else:
                     self.add_message(
                         "anomalous-unicode-escape-in-string",
-                        line=start_row,
+                        line=line,
                         args=(match,),
-                        col_offset=index,
+                        col_offset=col_offset,
                     )
             elif next_char not in self.ESCAPE_CHARACTERS:
                 self.add_message(
                     "anomalous-backslash-in-string",
-                    line=start_row,
+                    line=line,
                     args=(match,),
-                    col_offset=index,
+                    col_offset=col_offset,
                 )
             # Whether it was a valid escape or not, backslash followed by
             # another character can always be consumed whole: the second
