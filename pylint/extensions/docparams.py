@@ -20,6 +20,8 @@
 
 """Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings
 """
+import re
+
 import astroid
 
 from pylint.checkers import BaseChecker
@@ -205,6 +207,18 @@ class DocstringParameterChecker(BaseChecker):
         :type node: :class:`astroid.scoped_nodes.Function`
         """
         node_doc = utils.docstringify(node.doc, self.config.default_docstring_type)
+
+        # skip functions that match the 'no-docstring-rgx' config option
+        no_docstring_rgx = get_global_option(self, "no-docstring-rgx")
+        if no_docstring_rgx and re.match(no_docstring_rgx, node.name):
+            return
+
+        # skip functions smaller than 'docstring-min-length'
+        lines = checker_utils.get_node_last_lineno(node) - node.lineno
+        max_lines = get_global_option(self, "docstring-min-length")
+        if max_lines > -1 and lines < max_lines:
+            return
+
         self.check_functiondef_params(node, node_doc)
         self.check_functiondef_returns(node, node_doc)
         self.check_functiondef_yields(node, node_doc)

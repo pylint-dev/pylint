@@ -436,4 +436,6 @@ contributors:
 
 * Frank Harrison (doublethefish): contributor
 
-* Matthew Suozzo
+* Logan Miller (komodo472): contributor
+
+* Matthew Suozzo: contributor

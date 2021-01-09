@@ -32,7 +32,11 @@ class TestParamDocChecker(CheckerTestCase):
     """Tests for pylint_plugin.ParamDocChecker"""
 
     CHECKER_CLASS = DocstringParameterChecker
-    CONFIG = {"accept_no_param_doc": False}
+    CONFIG = {
+        "accept_no_param_doc": False,
+        "no_docstring_rgx": "",
+        "docstring_min_length": -1,
+    }
 
     def test_missing_func_params_in_sphinx_docstring(self):
         """Example of a function with missing Sphinx parameter documentation in
@@ -2295,4 +2299,38 @@ class TestParamDocChecker(CheckerTestCase):
             Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
             Message(msg_id="useless-type-doc", node=node, args=("_",)),
         ):
+            self.checker.visit_functiondef(node)
+
+    @set_config(no_docstring_rgx=r"^_(?!_).*$")
+    def test_skip_no_docstring_rgx(self):
+        """Example of a function that matches the default 'no-docstring-rgx' config option
+
+        No error message is emitted.
+        """
+        node = astroid.extract_node(
+            """
+        def _private_function_foo(x, y):
+            '''docstring ...
+
+            missing parameter documentation'''
+            pass
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @set_config(docstring_min_length=3)
+    def test_skip_docstring_min_length(self):
+        """Example of a function that is less than 'docstring-min-length' config option
+
+        No error message is emitted.
+        """
+        node = astroid.extract_node(
+            """
+        def function_foo(x, y):
+            '''function is too short and is missing parameter documentation'''
+            pass
+        """
+        )
+        with self.assertNoMessages():
             self.checker.visit_functiondef(node)
