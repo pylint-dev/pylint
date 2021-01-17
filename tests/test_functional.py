@@ -20,7 +20,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Functional full-module tests for PyLint."""
-
 import csv
 import os
 import sys
@@ -47,6 +46,11 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
         lineterminator = "\n"
 
     csv.register_dialect("test", TestDialect)
+
+    def _get_expected(self):
+        with self._open_source_file() as f:
+            expected_msgs = self.get_expected_messages(f)
+        return expected_msgs, []
 
     def _check_output_text(self, _, expected_output, actual_output):
         if expected_output == actual_output:
