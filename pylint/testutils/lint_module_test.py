@@ -42,34 +42,26 @@ class LintModuleTest:
 
     def setUp(self):
         if self._should_be_skipped_due_to_version():
-            pytest.skip(
-                "Test cannot run with Python %s." % (sys.version.split(" ")[0],)
-            )
+            pytest.skip("Test cannot run with Python %s." % sys.version.split(" ")[0])
         missing = []
-        for req in self._test_file.options["requires"]:
+        for requirement in self._test_file.options["requires"]:
             try:
-                __import__(req)
+                __import__(requirement)
             except ImportError:
-                missing.append(req)
+                missing.append(requirement)
         if missing:
-            pytest.skip("Requires %s to be present." % (",".join(missing),))
-        if self._test_file.options["except_implementations"]:
-            implementations = [
-                item.strip()
-                for item in self._test_file.options["except_implementations"].split(",")
-            ]
-            implementation = platform.python_implementation()
-            if implementation in implementations:
-                pytest.skip(
-                    "Test cannot run with Python implementation %r" % (implementation,)
-                )
-        if self._test_file.options["exclude_platforms"]:
-            platforms = [
-                item.strip()
-                for item in self._test_file.options["exclude_platforms"].split(",")
-            ]
+            pytest.skip("Requires %s to be present." % ",".join(missing))
+        except_implementations = self._test_file.options["except_implementations"]
+        if except_implementations:
+            implementations = [i.strip() for i in except_implementations.split(",")]
+            if platform.python_implementation() in implementations:
+                msg = "Test cannot run with Python implementation %r"
+                pytest.skip(msg % platform.python_implementation())
+        excluded_platforms = self._test_file.options["exclude_platforms"]
+        if excluded_platforms:
+            platforms = [p.strip() for p in excluded_platforms.split(",")]
             if sys.platform.lower() in platforms:
-                pytest.skip("Test cannot run on platform %r" % (sys.platform,))
+                pytest.skip("Test cannot run on platform %r" % sys.platform)
 
     def _should_be_skipped_due_to_version(self):
         return (
