@@ -138,16 +138,14 @@ class LintModuleTest:
         return open(self._test_file.source, encoding="utf8")
 
     def _get_expected(self):
-        with self._open_source_file() as fobj:
-            expected_msgs = self.get_expected_messages(fobj)
-
-        if expected_msgs:
-            with self._open_expected_file() as fobj:
-                expected_output_lines = [
-                    OutputLine.from_csv(row) for row in csv.reader(fobj, "test")
-                ]
-        else:
-            expected_output_lines = []
+        with self._open_source_file() as f:
+            expected_msgs = self.get_expected_messages(f)
+        if not expected_msgs:
+            return expected_msgs, []
+        with self._open_expected_file() as f:
+            expected_output_lines = [
+                OutputLine.from_csv(row) for row in csv.reader(f, "test")
+            ]
         return expected_msgs, expected_output_lines
 
     def _get_actual(self):
