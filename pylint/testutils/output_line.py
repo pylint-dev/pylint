@@ -5,6 +5,7 @@ import collections
 import sys
 
 from pylint import interfaces
+from pylint.testutils.constants import UPDATE_OPTION
 
 
 class Message(
@@ -27,15 +28,35 @@ class MalformedOutputLineException(Exception):
     def __init__(self, row, exception):
         example = "msg-symbolic-name:42:27:MyClass.my_function:The message"
         other_example = "msg-symbolic-name:7:42::The message"
-        reconstructed_row = ":".join(row)
-        msg = "Expected '{example}' or '{other_example}' but we got '{reconstructed_row}'".format(
+        expected = [
+            "symbol",
+            "line",
+            "column",
+            "MyClass.myFunction, (or '')",
+            "Message",
+            "confidence",
+        ]
+        reconstructed_row = ""
+        i = 0
+        for i, column in enumerate(row):
+            reconstructed_row += "\t{}='{}' ?\n".format(expected[i], column)
+        for missing in expected[i + 1 :]:
+            reconstructed_row += "\t{}= Nothing provided !\n".format(missing)
+        msg = """\
+{exception}
+
+Expected '{example}' or '{other_example}' but we got '{raw}':
+{reconstructed_row}
+
+Try updating it with: 'python tests/test_functional.py {update_option}'""".format(
+            exception=exception,
             example=example,
             other_example=other_example,
+            raw=":".join(row),
             reconstructed_row=reconstructed_row,
+            update_option=UPDATE_OPTION,
         )
-        Exception.__init__(
-            self, "{msg}: {exception}".format(msg=msg, exception=exception)
-        )
+        Exception.__init__(self, msg)
 
 
 class OutputLine(
