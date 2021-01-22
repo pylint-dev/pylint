@@ -60,6 +60,7 @@ import types
 from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
+from typing import Pattern, Tuple
 
 import astroid
 import astroid.arguments
@@ -855,17 +856,20 @@ accessed. Python regular expressions are accepted.",
     def _suggestion_mode(self):
         return get_global_option(self, "suggestion-mode", default=True)
 
-    def open(self):
-        # do this in open since config not fully initialized in __init__
+    @decorators.cachedproperty
+    def _compiled_generated_members(self) -> Tuple[Pattern, ...]:
+        # do this lazily since config not fully initialized in __init__
         # generated_members may contain regular expressions
         # (surrounded by quote `"` and followed by a comma `,`)
         # REQUEST,aq_parent,"[a-zA-Z]+_set{1,2}"' =>
         # ('REQUEST', 'aq_parent', '[a-zA-Z]+_set{1,2}')
-        if isinstance(self.config.generated_members, str):
-            gen = shlex.shlex(self.config.generated_members)
+        generated_members = self.config.generated_members
+        if isinstance(generated_members, str):
+            gen = shlex.shlex(generated_members)
             gen.whitespace += ","
             gen.wordchars += r"[]-+\.*?()|"
-            self.config.generated_members = tuple(tok.strip('"') for tok in gen)
+            generated_members = tuple(tok.strip('"') for tok in gen)
+        return tuple(re.compile(exp) for exp in generated_members)
 
     @check_messages("keyword-arg-before-vararg")
     def visit_functiondef(self, node):
@@ -919,6 +923,13 @@ accessed. Python regular expressions are accepted.",
 
         function/method, super call and metaclasses are ignored
         """
+        if any(
+            pattern.match(name)
+            for name in (node.attrname, node.as_string())
+            for pattern in self._compiled_generated_members
+        ):
+            return
+
         try:
             inferred = list(node.expr.infer())
         except exceptions.InferenceError:
@@ -948,23 +959,11 @@ accessed. Python regular expressions are accepted.",
             ):
                 continue
 
-            # ignore pattern added to generated-members
-            ignored = False
-            for pattern in self.config.generated_members:
-                # attribute is marked as generated, stop here
-                if re.match(pattern, node.attrname):
-                    ignored = True
-                    break
-                if re.match(pattern, node.as_string()):
-                    ignored = True
-                    break
-                if re.match(pattern, "%s.%s" % (owner.pytype(), node.attrname)):
-                    ignored = True
-                    break
-
-            # continue the outer loop if a pattern matched
-            if ignored:
-                continue
+            qualname = "{}.{}".format(owner.pytype(), node.attrname)
+            if any(
+                pattern.match(qualname) for pattern in self._compiled_generated_members
+            ):
+                return
 
             try:
                 if not [
