@@ -7,5 +7,5 @@ too-many-return-statements:26:0:complex_function:Too many return statements (10/
 dangerous-default-value:57:0:func:Dangerous default value [] as argument
 duplicate-argument-name:57:15:func:Duplicate argument name a in function definition
 duplicate-argument-name:57:18:func:Duplicate argument name a in function definition
-blacklisted-name:62:0:foo:"Black listed name ""foo"""
+blacklisted-name:62:0:foo:Black listed name "foo"
 empty-docstring:62:0:foo:Empty function docstring
