@@ -2,9 +2,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import collections
-import sys
 
 from pylint import interfaces
+from pylint.constants import PY38_PLUS
 from pylint.testutils.constants import UPDATE_OPTION
 
 
@@ -80,7 +80,7 @@ class OutputLine(
 
     @classmethod
     def get_column(cls, column):
-        if sys.version_info.major == 3 and sys.version_info.minor < 8:
+        if not PY38_PLUS:
             return ""
         return str(column)
 
