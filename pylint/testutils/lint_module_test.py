@@ -1,11 +1,11 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-import collections
 import csv
 import operator
 import platform
 import sys
+from collections import Counter
 from io import StringIO
 from typing import Tuple
 
@@ -85,7 +85,7 @@ class LintModuleTest:
         :returns: A dict mapping line,msg-symbol tuples to the count on this line.
         :rtype: dict
         """
-        messages = collections.Counter()
+        messages = Counter()
         for i, line in enumerate(stream):
             match = _EXPECTED_RE.search(line)
             if match is None:
@@ -141,7 +141,7 @@ class LintModuleTest:
         with self._open_source_file() as f:
             expected_msgs = self.get_expected_messages(f)
         if not expected_msgs:
-            return expected_msgs, []
+            return Counter(), []
         with self._open_expected_file() as f:
             expected_output_lines = [
                 OutputLine.from_csv(row) for row in csv.reader(f, "test")
@@ -151,7 +151,7 @@ class LintModuleTest:
     def _get_actual(self):
         messages = self._linter.reporter.messages
         messages.sort(key=lambda m: (m.line, m.symbol, m.msg))
-        received_msgs = collections.Counter()
+        received_msgs = Counter()
         received_output_lines = []
         for msg in messages:
             assert (
