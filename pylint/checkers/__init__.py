@@ -44,6 +44,7 @@ messages nor reports. XXX not true, emit a 07 report !
 """
 
 from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
+from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.utils import register_plugins
 
@@ -71,5 +72,6 @@ __all__ = [
     "BaseTokenChecker",
     "initialize",
     "MapReduceMixin",
+    "DeprecatedMixin",
     "register_plugins",
 ]

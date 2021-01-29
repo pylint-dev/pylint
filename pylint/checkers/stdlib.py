@@ -36,7 +36,7 @@ import astroid
 from astroid.bases import Instance
 from astroid.node_classes import Const
 
-from pylint.checkers import BaseChecker, utils
+from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
 
 OPEN_FILES = {"open", "file"}
@@ -80,7 +80,7 @@ def _check_mode_str(mode):
     return True
 
 
-class StdlibChecker(BaseChecker):
+class StdlibChecker(BaseChecker, DeprecatedMixin):
     __implements__ = (IAstroidChecker,)
     name = "stdlib"
 
@@ -336,7 +336,7 @@ class StdlibChecker(BaseChecker):
                         self._check_env_function(node, inferred)
                     elif name == SUBPROCESS_RUN:
                         self._check_for_check_kw_in_run(node)
-                self._check_deprecated_method(node, inferred)
+                self.check_deprecated_method(node, inferred)
         except astroid.InferenceError:
             return
 
@@ -357,37 +357,6 @@ class StdlibChecker(BaseChecker):
     def visit_boolop(self, node):
         for value in node.values:
             self._check_datetime(value)
-
-    def _check_deprecated_method(self, node, inferred):
-        py_vers = sys.version_info[0]
-
-        if isinstance(node.func, astroid.Attribute):
-            func_name = node.func.attrname
-        elif isinstance(node.func, astroid.Name):
-            func_name = node.func.name
-        else:
-            # Not interested in other nodes.
-            return
-
-        # Reject nodes which aren't of interest to us.
-        acceptable_nodes = (
-            astroid.BoundMethod,
-            astroid.UnboundMethod,
-            astroid.FunctionDef,
-        )
-        if not isinstance(inferred, acceptable_nodes):
-            return
-
-        qname = inferred.qname()
-        if any(name in self.deprecated[0] for name in (qname, func_name)):
-            self.add_message("deprecated-method", node=node, args=(func_name,))
-        else:
-            for since_vers, func_list in self.deprecated[py_vers].items():
-                if since_vers <= sys.version_info and any(
-                    name in func_list for name in (qname, func_name)
-                ):
-                    self.add_message("deprecated-method", node=node, args=(func_name,))
-                    break
 
     def _check_redundant_assert(self, node, infer):
         if (
@@ -480,6 +449,15 @@ class StdlibChecker(BaseChecker):
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
             self.add_message(message, node=node, args=(name, call_arg.pytype()))
+
+    def deprecated_methods(self):
+        py_vers = sys.version_info[0]
+        deprecated_methods = set()
+        deprecated_methods.update(self.deprecated[0])
+        for since_vers, func_list in self.deprecated[py_vers].items():
+            if since_vers <= sys.version_info:
+                deprecated_methods.update(func_list)
+        return deprecated_methods
 
 
 def register(linter):
