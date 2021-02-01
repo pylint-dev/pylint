@@ -5,6 +5,8 @@ Pylint's ChangeLog
 What's New in Pylint 2.7.0?
 ===========================
 
+* Add `nan-comparison` check for NaN comparisons
+
 * Python 3.6+ is now required.
 
 * Bug fix for empty-comment message line number.
