@@ -25,3 +25,7 @@ debian/pylint
 .eggs/
 .pytest_cache/
 .mypy_cache/
+venv*/
+.vscode/
+[Dd]esktop.ini
+.DS_Store
