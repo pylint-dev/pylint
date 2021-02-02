@@ -31,6 +31,10 @@ Pylint's ChangeLog
 
 * Drop support for Python 3.5
 
+* Add support for pep585 with postponed evaluation
+
+  Closes #3320
+
 What's New in Pylint 2.6.1?
 ===========================
 Release date: TBA

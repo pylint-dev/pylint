@@ -51,7 +51,18 @@ import numbers
 import re
 import string
 from functools import lru_cache, partial
-from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Match,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+)
 
 import _string
 import astroid
@@ -214,6 +225,49 @@ SPECIAL_METHODS_PARAMS = {
     for name in methods  # type: ignore
 }
 PYMETHODS = set(SPECIAL_METHODS_PARAMS)
+
+SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
+    (
+        "tuple",
+        "list",
+        "dict",
+        "set",
+        "frozenset",
+        "type",
+        "deque",  # collections
+        "defaultdict",
+        "OrderedDict",
+        "Counter",
+        "ChainMap",
+        "Awaitable",  # collections.abc
+        "Coroutine",
+        "AsyncIterable",
+        "AsyncIterator",
+        "AsyncGenerator",
+        "Iterable",
+        "Iterator",
+        "Generator",
+        "Reversible",
+        "Container",
+        "Collection",
+        "Callable",
+        "Set # typing.AbstractSet",
+        "MutableSet",
+        "Mapping",
+        "MutableMapping",
+        "Sequence",
+        "MutableSequence",
+        "ByteString",
+        "MappingView",
+        "KeysView",
+        "ItemsView",
+        "ValuesView",
+        "AbstractContextManager",  # contextlib
+        "AbstractAsyncContextManager",
+        "Pattern",  # re
+        "Match",
+    )
+)
 
 
 class NoSuchArgumentError(Exception):
@@ -1107,18 +1161,22 @@ def supports_membership_test(value: astroid.node_classes.NodeNG) -> bool:
     return supported or is_iterable(value)
 
 
-def supports_getitem(value: astroid.node_classes.NodeNG) -> bool:
+def supports_getitem(
+    value: astroid.node_classes.NodeNG, node: astroid.node_classes.NodeNG
+) -> bool:
     if isinstance(value, astroid.ClassDef):
         if _supports_protocol_method(value, CLASS_GETITEM_METHOD):
+            return True
+        if is_class_subscriptable_pep585_with_postponed_evaluation_enabled(value, node):
             return True
     return _supports_protocol(value, _supports_getitem_protocol)
 
 
-def supports_setitem(value: astroid.node_classes.NodeNG) -> bool:
+def supports_setitem(value: astroid.node_classes.NodeNG, *_: Any) -> bool:
     return _supports_protocol(value, _supports_setitem_protocol)
 
 
-def supports_delitem(value: astroid.node_classes.NodeNG) -> bool:
+def supports_delitem(value: astroid.node_classes.NodeNG, *_: Any) -> bool:
     return _supports_protocol(value, _supports_delitem_protocol)
 
 
@@ -1271,6 +1329,27 @@ def is_postponed_evaluation_enabled(node: astroid.node_classes.NodeNG) -> bool:
 
     module = node.root()
     return "annotations" in module.future_imports
+
+
+def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
+    value: astroid.ClassDef, node: astroid.node_classes.NodeNG
+) -> bool:
+    """Check if class is subscriptable with PEP 585 and
+    postponed evaluation enabled.
+    """
+    if not is_postponed_evaluation_enabled(node):
+        return False
+
+    if not isinstance(
+        node.parent, (astroid.AnnAssign, astroid.Arguments, astroid.FunctionDef)
+    ):
+        return False
+    if value.name in SUBSCRIPTABLE_CLASSES_PEP585:
+        return True
+    for name in value.basenames:
+        if name in SUBSCRIPTABLE_CLASSES_PEP585:
+            return True
+    return False
 
 
 def is_subclass_of(child: astroid.ClassDef, parent: astroid.ClassDef) -> bool:
