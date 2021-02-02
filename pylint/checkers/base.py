@@ -1972,10 +1972,15 @@ class NameChecker(_BasicChecker):
                     self._check_name("class", node.name, node)
                 # Don't emit if the name redefines an import
                 # in an ImportError except handler.
-                elif not _redefines_import(node) and isinstance(
-                    utils.safe_infer(assign_type.value), astroid.Const
-                ):
-                    self._check_name("const", node.name, node)
+                elif not _redefines_import(node):
+                    if isinstance(utils.safe_infer(assign_type.value), astroid.Const):
+                        # We can (potentially) emit invalid-name if we are at a constant.
+                        self._check_name("const", node.name, node)
+                    else:
+                        # If we're not at a constant, we can still potentially emit
+                        # blacklisted-name and non-ascii-name.
+                        self._check_non_ascii_name("const", node.name, node)
+                        self._check_name_listed("const", node.name, node)
             elif isinstance(assign_type, astroid.ExceptHandler):
                 self._check_name("variable", node.name, node)
         elif isinstance(frame, astroid.FunctionDef):
@@ -2028,15 +2033,35 @@ class NameChecker(_BasicChecker):
             pattern.match(name) for pattern in self._bad_names_rgxs_compiled
         )
 
-    def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
-        """check for a name using the type's regexp"""
+    def _check_name_listed(self, node_type, name, node):
+        """
+        emits blacklisted-name if the name is blacklisted.
+        returns True if the name is whitelisted or blacklisted, False otherwise.
+        """
 
+        if self._name_valid_due_to_whitelist(name=name):
+            return True
+
+        if self._name_invalid_due_to_blacklist(name=name):
+            self.stats["badname_" + node_type] += 1
+            self.add_message("blacklisted-name", node=node, args=name)
+            return True
+
+        return False
+
+    def _check_non_ascii_name(self, node_type, name, node, confidence=interfaces.HIGH):
         non_ascii_match = self._non_ascii_rgx_compiled.match(name)
 
         if non_ascii_match is not None:
             self._raise_name_warning(
                 node, node_type, name, confidence, warning="non-ascii-name"
             )
+
+
+    def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
+        """check for a name using the type's regexp"""
+
+        self._check_non_ascii_name(node_type, name, node, confidence)
 
         def _should_exempt_from_invalid_name(node):
             if node_type == "variable":
@@ -2049,12 +2074,10 @@ class NameChecker(_BasicChecker):
             clobbering, _ = utils.clobber_in_except(node)
             if clobbering:
                 return
-        if self._name_valid_due_to_whitelist(name=name):
+
+        if self._check_name_listed(node_type, name, node):
             return
-        if self._name_invalid_due_to_blacklist(name=name):
-            self.stats["badname_" + node_type] += 1
-            self.add_message("blacklisted-name", node=node, args=name)
-            return
+
         regexp = self._name_regexps[node_type]
         match = regexp.match(name)
 

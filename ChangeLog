@@ -1,6 +1,13 @@
 ------------------
 Pylint's ChangeLog
 ------------------
+
+* Fix regression where `blacklisted-name` was no longer emitted for non-constants.
+
+* Fix bug where `non-ascii-name` was not emitted for non-constants.
+
+  Closes #3701
+
 * Bug fix for empty-comment message line number.
 
   Closes #4009

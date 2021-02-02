@@ -1,2 +1,3 @@
 non-ascii-name:3:0::"Constant name ""áéíóú"" contains a non-ASCII unicode character"
-non-ascii-name:5:0:úóíéá:"Function name ""úóíéá"" contains a non-ASCII unicode character"
+non-ascii-name:4:0::"Constant name ""áéíóú"" contains a non-ASCII unicode character"
+non-ascii-name:6:0:úóíéá:"Function name ""úóíéá"" contains a non-ASCII unicode character"

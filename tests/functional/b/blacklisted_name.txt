@@ -1,1 +1,3 @@
-blacklisted-name:3:0:baz:Black listed name "baz"
+blacklisted-name:3:0:baz:"Black listed name ""baz"""
+blacklisted-name:6:0::"Black listed name ""foo"""
+blacklisted-name:7:0::"Black listed name ""foo"""
