@@ -39,6 +39,10 @@ Pylint's ChangeLog
 
   Closes #4065
 
+* Fix multiple false positives with assignment expressions
+
+  Closes #3347, #3953, #3865, #3275
+
 What's New in Pylint 2.6.1?
 ===========================
 Release date: TBA
