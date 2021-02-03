@@ -1407,6 +1407,36 @@ class VariablesChecker(BaseChecker):
                     # Single statement function, with the statement on the
                     # same line as the function definition
                     maybee0601 = False
+                elif (
+                    isinstance(defstmt, astroid.Assign)
+                    and isinstance(defstmt.value, astroid.IfExp)
+                    and frame is defframe
+                    and defframe.parent_of(node)
+                    and stmt is defstmt
+                ):
+                    # Single statement if, with assingment expression on same
+                    # line as assigment
+                    # x = b if (b := True) else False
+                    maybee0601 = False
+                elif (
+                    isinstance(  # pylint: disable=too-many-boolean-expressions
+                        defnode, astroid.NamedExpr
+                    )
+                    and frame is defframe
+                    and defframe.parent_of(stmt)
+                    and stmt is defstmt
+                    and (
+                        (
+                            defnode.lineno == node.lineno
+                            and defnode.col_offset < node.col_offset
+                        )
+                        or (defnode.lineno < node.lineno)
+                    )
+                ):
+                    # Expressions, with assignment expressions
+                    # Use only after assignment
+                    # b = (c := 2) and c
+                    maybee0601 = False
 
             # Look for type checking definitions inside a type checking guard.
             if isinstance(defstmt, (astroid.Import, astroid.ImportFrom)):
