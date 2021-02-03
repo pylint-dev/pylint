@@ -75,11 +75,13 @@ from pylint.checkers.utils import (
     decorated_with_property,
     has_known_bases,
     is_builtin_object,
+    is_classdef_type,
     is_comprehension,
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
     is_overload_stub,
+    is_postponed_evaluation_enabled,
     is_super,
     node_ignores_exception,
     safe_infer,
@@ -88,6 +90,7 @@ from pylint.checkers.utils import (
     supports_membership_test,
     supports_setitem,
 )
+from pylint.constants import PY310_PLUS
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
@@ -1628,6 +1631,38 @@ accessed. Python regular expressions are accepted.",
         for error in node.type_errors():
             # Let the error customize its output.
             self.add_message("invalid-unary-operand-type", args=str(error), node=node)
+
+    @check_messages("unsupported-binary-operation")
+    def visit_binop(self, node: astroid.BinOp):
+        # Test alternative Union syntax PEP 604 - int | None
+        msg = "unsupported operand type(s) for |"
+        if node.op == "|" and (
+            not is_postponed_evaluation_enabled(node)
+            and isinstance(
+                node.parent, (astroid.AnnAssign, astroid.Arguments, astroid.FunctionDef)
+            )
+            or not PY310_PLUS
+            and isinstance(
+                node.parent,
+                (
+                    astroid.Assign,
+                    astroid.Call,
+                    astroid.Keyword,
+                    astroid.Dict,
+                    astroid.Tuple,
+                    astroid.Set,
+                    astroid.List,
+                ),
+            )
+        ):
+            for n in (node.left, node.right):
+                n = helpers.object_type(n)
+                if isinstance(n, astroid.ClassDef):
+                    if is_classdef_type(n):
+                        self.add_message(
+                            "unsupported-binary-operation", args=msg, node=node
+                        )
+                        break
 
     @check_messages("unsupported-binary-operation")
     def _visit_binop(self, node):

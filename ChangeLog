@@ -35,6 +35,10 @@ Pylint's ChangeLog
 
   Closes #3320
 
+* Check alternative union syntax - PEP 604
+
+  Closes #4065
+
 What's New in Pylint 2.6.1?
 ===========================
 Release date: TBA
