@@ -1416,3 +1416,13 @@ def is_test_condition(
     if isinstance(parent, astroid.Comprehension):
         return node in parent.ifs
     return is_call_of_name(parent, "bool") and parent.parent_of(node)
+
+
+def is_classdef_type(node: astroid.ClassDef) -> bool:
+    """Test if ClassDef node is Type."""
+    if node.name == "type":
+        return True
+    for base in node.bases:
+        if isinstance(base, astroid.Name) and base.name == "type":
+            return True
+    return False
