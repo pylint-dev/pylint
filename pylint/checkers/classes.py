@@ -831,6 +831,11 @@ a metaclass class method.",
                 "%s.type" % (BUILTINS,)
             ):
                 continue
+            if (
+                isinstance(ancestor, astroid.FunctionDef)
+                and ancestor.name == "TypedDict"
+            ):
+                continue
 
             if not isinstance(ancestor, astroid.ClassDef) or _is_invalid_base_class(
                 ancestor

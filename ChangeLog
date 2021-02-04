@@ -43,6 +43,10 @@ Pylint's ChangeLog
 
   Closes #3347, #3953, #3865, #3275
 
+* Fix TypedDict inherit-non-class false-positive Python 3.9+
+
+  Closes #1927
+
 What's New in Pylint 2.6.1?
 ===========================
 Release date: TBA
