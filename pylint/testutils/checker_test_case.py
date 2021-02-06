@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import contextlib
+from typing import Dict
 
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.unittest_linter import UnittestLinter
@@ -12,7 +13,7 @@ class CheckerTestCase:
     """A base testcase class for unit testing individual checker classes."""
 
     CHECKER_CLASS = None
-    CONFIG = {}
+    CONFIG: Dict = {}
 
     def setup_method(self):
         self.linter = UnittestLinter()

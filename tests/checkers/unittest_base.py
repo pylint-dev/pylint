@@ -25,6 +25,7 @@
 import re
 import sys
 import unittest
+from typing import Dict, Type
 
 import astroid
 
@@ -33,7 +34,7 @@ from pylint.testutils import CheckerTestCase, Message, set_config
 
 
 class TestDocstring(CheckerTestCase):
-    CHECKER_CLASS = base.DocStringChecker
+    CHECKER_CLASS: Type = base.DocStringChecker
 
     def test_missing_docstring_module(self):
         module = astroid.parse("something")
@@ -135,8 +136,8 @@ class TestDocstring(CheckerTestCase):
 
 
 class TestNameChecker(CheckerTestCase):
-    CHECKER_CLASS = base.NameChecker
-    CONFIG = {"bad_names": set()}
+    CHECKER_CLASS: Type = base.NameChecker
+    CONFIG: Dict = {"bad_names": set()}
 
     @set_config(
         attr_rgx=re.compile("[A-Z]+"),
