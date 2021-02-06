@@ -7,7 +7,7 @@ import platform
 import sys
 from collections import Counter
 from io import StringIO
-from typing import Tuple
+from typing import Dict, Tuple
 
 import pytest
 
@@ -110,7 +110,9 @@ class LintModuleTest:
         return messages
 
     @staticmethod
-    def multiset_difference(expected_entries: set, actual_entries: set) -> Tuple[set]:
+    def multiset_difference(
+        expected_entries: Counter, actual_entries: Counter
+    ) -> Tuple[Counter, Dict[str, int]]:
         """Takes two multisets and compares them.
 
         A multiset is a dict with the cardinality of the key as the value."""
