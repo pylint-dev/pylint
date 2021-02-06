@@ -72,11 +72,6 @@ elif sys.platform == "win32":
 else:
     HOME = "HOME"
 
-try:
-    PYPY_VERSION_INFO = sys.pypy_version_info
-except AttributeError:
-    PYPY_VERSION_INFO = None
-
 
 @contextmanager
 def fake_home():
@@ -653,11 +648,6 @@ def test_pylint_home():
         del os.environ["PYLINTHOME"]
 
 
-@pytest.mark.skipif(
-    PYPY_VERSION_INFO,
-    reason="TOX runs this test from within the repo and finds "
-    "the project's pylintrc.",
-)
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc():
     with fake_home():
