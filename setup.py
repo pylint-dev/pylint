@@ -31,6 +31,7 @@ import os
 import sys
 from distutils.command.build_py import build_py
 from os.path import exists, isdir, join
+from typing import Any, Dict
 
 try:
     from setuptools import setup
@@ -49,7 +50,7 @@ except ImportError:
 __docformat__ = "restructuredtext en"
 base_dir = os.path.dirname(__file__)
 
-__pkginfo__ = {}
+__pkginfo__: Dict[str, Any] = {}
 with open(os.path.join(base_dir, "pylint", "__pkginfo__.py")) as pkginfo_fp:
     exec(pkginfo_fp.read(), __pkginfo__)
 scripts = __pkginfo__.get("scripts", [])
