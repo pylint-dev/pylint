@@ -189,7 +189,7 @@ class Docstring:
         re.X | re.S,
     )
 
-    supports_yields = None
+    supports_yields: bool = False
     """True if the docstring supports a "yield" section.
 
     False if the docstring uses the returns section to document generators.
