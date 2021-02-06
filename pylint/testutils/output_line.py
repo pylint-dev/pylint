@@ -21,7 +21,8 @@ class Message(
             return self[:-1] == other[:-1]
         return NotImplemented  # pragma: no cover
 
-    __hash__ = None
+    def __hash__(self):
+        return None
 
 
 class MalformedOutputLineException(Exception):
