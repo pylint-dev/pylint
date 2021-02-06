@@ -35,3 +35,15 @@ repos:
         language: system
         types: [python]
         exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.800
+    hooks:
+    -   id: mypy
+        name: mypy
+        entry: mypy
+        language: python
+        "types": [python]
+        args: ["--ignore-missing-imports", "--scripts-are-modules"]
+        require_serial: true
+        additional_dependencies: []
+        exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/|bin/
