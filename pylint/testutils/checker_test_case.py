@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import contextlib
-from typing import Dict
+from typing import Dict, Optional, Type
 
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.unittest_linter import UnittestLinter
@@ -12,7 +12,7 @@ from pylint.utils import ASTWalker
 class CheckerTestCase:
     """A base testcase class for unit testing individual checker classes."""
 
-    CHECKER_CLASS = None
+    CHECKER_CLASS: Optional[Type] = None
     CONFIG: Dict = {}
 
     def setup_method(self):
