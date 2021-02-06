@@ -30,11 +30,6 @@ from pylint import testutils
 REGR_DATA = join(dirname(abspath(__file__)), "regrtest_data")
 sys.path.insert(1, REGR_DATA)
 
-try:
-    PYPY_VERSION_INFO = sys.pypy_version_info
-except AttributeError:
-    PYPY_VERSION_INFO = None
-
 
 @pytest.fixture(scope="module")
 def reporter():
