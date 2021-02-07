@@ -107,9 +107,9 @@ Pylint is shipped with following additional commands:
 Testing
 -------
 
-We use tox_ for running the test suite. You should be able to install it with::
+We use tox_ and pytest-benchmark_ for running the test suite. You should be able to install it with::
 
-    pip install tox pytest
+    pip install tox pytest pytest-benchmark
 
 
 To run the test suite for a particular Python version, you can do::
@@ -155,6 +155,7 @@ For more detailed information, check the documentation.
 .. _here: https://pylint.pycqa.org/en/latest/user_guide/installation.html
 .. _tox: https://tox.readthedocs.io/en/latest/
 .. _pytest: https://docs.pytest.org/en/latest/
+.. _pytest-benchmark: https://pytest-benchmark.readthedocs.io/en/latest/index.html
 .. _pytest-cov: https://pypi.org/project/pytest-cov/
 .. _astroid: https://github.com/PyCQA/astroid
 
