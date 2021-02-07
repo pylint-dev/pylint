@@ -32,7 +32,7 @@ from pylint.interfaces import IAstroidChecker, ITokenChecker
 
 try:
     import enchant
-    from enchant.tokenize import (  # type: ignore
+    from enchant.tokenize import (
         Chunker,
         EmailFilter,
         Filter,
@@ -42,7 +42,19 @@ try:
     )
 except ImportError:
     enchant = None
-    # pylint: disable=no-init
+
+    class EmailFilter:  # type: ignore
+        ...
+
+    class URLFilter:  # type: ignore
+        ...
+
+    class WikiWordFilter:  # type: ignore
+        ...
+
+    def get_tokenizer(_):
+        ...
+
     class Filter:  # type: ignore
         def _skip(self, word):
             raise NotImplementedError
