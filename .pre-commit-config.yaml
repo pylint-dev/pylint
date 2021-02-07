@@ -21,6 +21,11 @@ repos:
     rev: 5.7.0
     hooks:
     -   id: isort
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.8.4
+    hooks:
+    -   id: flake8
+        exclude: *fixtures
 -   repo: https://github.com/ambv/black
     rev: 20.8b1
     hooks:
