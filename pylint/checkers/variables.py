@@ -1283,12 +1283,12 @@ class VariablesChecker(BaseChecker):
         while parent is not None:
             if parent is frame:
                 return False
-            if isinstance(parent, astroid.Lambda) and not child is parent.args:
+            if isinstance(parent, astroid.Lambda) and child is not parent.args:
                 # Body of lambda should not have access to class attributes.
                 return True
             if (
                 isinstance(parent, astroid.node_classes.Comprehension)
-                and not child is parent.iter
+                and child is not parent.iter
             ):
                 # Only iter of list/set/dict/generator comprehension should have access.
                 return True
