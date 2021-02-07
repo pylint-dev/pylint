@@ -1314,8 +1314,11 @@ class BasicChecker(_BasicChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_dangerous_default(self, node):
-        # check for dangerous default values as arguments
-        is_iterable = lambda n: isinstance(n, (astroid.List, astroid.Set, astroid.Dict))
+        """Check for dangerous default values as arguments."""
+
+        def is_iterable(internal_node):
+            return isinstance(internal_node, (astroid.List, astroid.Set, astroid.Dict))
+
         defaults = node.args.defaults or [] + node.args.kw_defaults or []
         for default in defaults:
             if not default:
