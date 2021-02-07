@@ -35,7 +35,7 @@ def _astroid_wrapper(func, modname):
         return func(modname)
     except exceptions.AstroidBuildingException as exc:
         print(exc)
-    except Exception as exc:  # pylint: disable=broad-except
+    except Exception:  # pylint: disable=broad-except
         traceback.print_exc()
     return None
 
