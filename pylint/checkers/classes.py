@@ -1431,12 +1431,10 @@ a metaclass class method.",
                     name = stmt.targets[0].name
                     if _is_attribute_property(name, klass):
                         return
-
+                licit_protected_member = not attrname.startswith("__")
                 if (
                     not self.config.check_protected_access_in_special_methods
-                    and
-                    # A licit use of protected member is inside a special method
-                    not attrname.startswith("__")
+                    and licit_protected_member
                     and self._is_called_inside_special_method(node)
                 ):
                     return
