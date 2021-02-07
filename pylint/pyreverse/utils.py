@@ -12,23 +12,16 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""
-generic classes/functions for pyreverse core/extensions
-"""
+"""Generic classes/functions for pyreverse core/extensions. """
 import os
 import re
 import sys
-
-########### pyreverse option utils ##############################
-
 
 RCFILE = ".pyreverserc"
 
 
 def get_default_options():
-    """
-    Read config file and return list of options
-    """
+    """Read config file and return list of options."""
     options = []
     home = os.environ.get("HOME", "")
     if home:
