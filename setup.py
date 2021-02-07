@@ -40,7 +40,9 @@ try:
 
     USE_SETUPTOOLS = 1
 except ImportError:
-    from distutils.command import install_lib  # pylint: disable=unused-import
+    from distutils.command import (  # noqa: F401; pylint: disable=unused-import
+        install_lib,
+    )
     from distutils.core import setup
 
     USE_SETUPTOOLS = 0
