@@ -29,6 +29,8 @@ Pylint's ChangeLog
 
 * Fix column metadata for anomalous backslash lints
 
+* Drop support for Python 3.5
+
 What's New in Pylint 2.6.1?
 ===========================
 Release date: TBA

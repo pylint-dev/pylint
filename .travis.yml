@@ -17,9 +17,7 @@ jobs:
   - python: 3.6
     env: TOXENV=spelling
   - stage: tests-cpython
-    python: 3.5
-    env: TOXENV=py35
-  - python: 3.6
+    python: 3.6
     env: TOXENV=py36
   - python: 3.7
     env: TOXENV=py37
