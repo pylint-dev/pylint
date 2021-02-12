@@ -4,9 +4,6 @@ cache:
   - 'C:\\tmp'
 environment:
   matrix:
-    - PYTHON: "C:\\Python35"
-      TOXENV: "py35"
-
     - PYTHON: "C:\\Python36"
       TOXENV: "py36"
 
