@@ -22,7 +22,6 @@
 
 """Unittest for the base checker."""
 
-import os
 import re
 import sys
 import unittest
