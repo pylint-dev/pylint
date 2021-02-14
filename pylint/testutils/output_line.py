@@ -21,9 +21,6 @@ class Message(
             return self[:-1] == other[:-1]
         return NotImplemented  # pragma: no cover
 
-    def __hash__(self):  # pylint:disable=invalid-hash-returned
-        return None
-
 
 class MalformedOutputLineException(Exception):
     def __init__(self, row, exception):
