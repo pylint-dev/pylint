@@ -1,0 +1,7 @@
+astroid @ git+git://github.com/PyCQA/astroid.git@master
+coveralls
+coverage<5.0
+pytest
+pytest-xdist
+pytest-benchmark
+pytest-profiling

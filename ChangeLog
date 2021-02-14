@@ -164,6 +164,8 @@ What's New in Pylint 2.7.0?
 
   Close #3555
 
+* Use Github Actions instead of Travis and AppVeyor
+
 What's New in Pylint 2.6.1?
 ===========================
 
