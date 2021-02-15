@@ -402,12 +402,10 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
 
     def typing_objects_are_subscriptable(self, generic):
         module = astroid.parse(
-            """
+            f"""
         import typing
-        test = typing.{}[int]
-        """.format(
-                generic
-            )
+        test = typing.{generic}[int]
+        """
         )
         subscript = module.body[-1].value
         with self.assertNoMessages():

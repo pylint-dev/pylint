@@ -62,12 +62,9 @@ class LintTestUsingModule:
 
     def _check_result(self, got):
         error_msg = (
-            "Wrong output for '{_file}':\n"
+            f"Wrong output for '{self.output}':\n"
             "You can update the expected output automatically with: '"
-            "python tests/test_func.py {update_option}'\n\n".format(
-                update_option=UPDATE_OPTION,
-                _file=self.output,
-            )
+            f"python tests/test_func.py {UPDATE_OPTION}'\n\n"
         )
         assert self._get_expected() == got, error_msg
 

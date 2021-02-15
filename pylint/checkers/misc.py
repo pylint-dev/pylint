@@ -55,14 +55,8 @@ class ByIdManagedMessagesChecker(BaseChecker):
         managed_msgs = MessagesHandlerMixIn.get_by_id_managed_msgs()
         for (mod_name, msg_id, msg_symbol, lineno, is_disabled) in managed_msgs:
             if mod_name == module.name:
-                if is_disabled:
-                    txt = "Id '{ident}' is used to disable '{symbol}' message emission".format(
-                        ident=msg_id, symbol=msg_symbol
-                    )
-                else:
-                    txt = "Id '{ident}' is used to enable '{symbol}' message emission".format(
-                        ident=msg_id, symbol=msg_symbol
-                    )
+                verb = "disable" if is_disabled else "enable"
+                txt = f"Id '{msg_id}' is used to {verb} '{msg_symbol}' message emission"
                 self.add_message("use-symbolic-message-instead", line=lineno, args=txt)
         MessagesHandlerMixIn.clear_by_id_managed_msgs()
 
@@ -127,12 +121,8 @@ class EncodingChecker(BaseChecker):
             pass
         except LookupError:
             if line.startswith("#") and "coding" in line and file_encoding in line:
-                self.add_message(
-                    "syntax-error",
-                    line=lineno,
-                    args='Cannot decode using encoding "{}",'
-                    " bad encoding".format(file_encoding),
-                )
+                msg = f"Cannot decode using encoding '{file_encoding}', bad encoding"
+                self.add_message("syntax-error", line=lineno, args=msg)
         return None
 
     def process_module(self, module):

@@ -154,7 +154,7 @@ def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
             if not current_module:
                 current_module = part
             else:
-                current_module += ".{}".format(part)
+                current_module += f".{part}"
             if current_module in ignored_modules:
                 return True
 
@@ -246,7 +246,7 @@ def _missing_member_hint(owner, attrname, distance_threshold, max_choices):
     else:
         names = "one of {} or {}".format(", ".join(names[:-1]), names[-1])
 
-    return "; maybe {}?".format(names)
+    return f"; maybe {names}?"
 
 
 MSGS = {

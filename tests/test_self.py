@@ -202,9 +202,9 @@ class TestRunTC:
         output = out.getvalue()
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
-        pattern = r"\[{}".format(MAIN_CHECKER_NAME.upper())
+        pattern = rf"\[{MAIN_CHECKER_NAME.upper()}"
         master = re.search(pattern, output)
-        assert master is not None, "{} not found in {}".format(pattern, output)
+        assert master is not None, f"{pattern} not found in {output}"
         out = StringIO(output[master.start() :])
         parser = configparser.RawConfigParser()
         parser.read_file(out)
@@ -283,14 +283,12 @@ class TestRunTC:
     def test_enable_all_works(self):
         module = join(HERE, "data", "clientmodule_test.py")
         expected = textwrap.dedent(
-            """
+            f"""
         ************* Module data.clientmodule_test
-        {0}:10:8: W0612: Unused variable 'local_variable' (unused-variable)
-        {0}:18:4: C0116: Missing function or method docstring (missing-function-docstring)
-        {0}:22:0: C0115: Missing class docstring (missing-class-docstring)
-        """.format(
-                module
-            )
+        {module}:10:8: W0612: Unused variable 'local_variable' (unused-variable)
+        {module}:18:4: C0116: Missing function or method docstring (missing-function-docstring)
+        {module}:22:0: C0115: Missing class docstring (missing-class-docstring)
+        """
         )
         self._test_output(
             [module, "--disable=all", "--enable=all", "-rn"], expected_output=expected
@@ -300,12 +298,10 @@ class TestRunTC:
         module1 = join(HERE, "regrtest_data", "import_something.py")
         module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
         expected_output = textwrap.dedent(
-            """
+            f"""
         ************* Module wrong_import_position
-        {}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
-        """.format(
-                module2
-            )
+        {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
+        """
         )
         args = [
             module2,
@@ -422,12 +418,10 @@ class TestRunTC:
     def test_error_mode_shows_no_score(self):
         module = join(HERE, "regrtest_data", "application_crash.py")
         expected_output = textwrap.dedent(
-            """
+            f"""
         ************* Module application_crash
-        {}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
-        """.format(
-                module
-            )
+        {module}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
+        """
         )
         self._test_output([module, "-E"], expected_output=expected_output)
 
@@ -482,14 +476,12 @@ class TestRunTC:
         path = join(HERE, "regrtest_data", "test_pylintrc_comments.py")
         config_path = join(HERE, "regrtest_data", "comments_pylintrc")
         expected = textwrap.dedent(
-            """
+            f"""
         ************* Module test_pylintrc_comments
-        {0}:2:0: W0311: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
-        {0}:1:0: C0114: Missing module docstring (missing-module-docstring)
-        {0}:1:0: C0116: Missing function or method docstring (missing-function-docstring)
-        """.format(
-                path
-            )
+        {path}:2:0: W0311: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
+        {path}:1:0: C0114: Missing module docstring (missing-module-docstring)
+        {path}:1:0: C0116: Missing function or method docstring (missing-function-docstring)
+        """
         )
         self._test_output(
             [path, "--rcfile=%s" % config_path, "-rn"], expected_output=expected
@@ -503,11 +495,9 @@ class TestRunTC:
     def test_getdefaultencoding_crashes_with_lc_ctype_utf8(self):
         module = join(HERE, "regrtest_data", "application_crash.py")
         expected_output = textwrap.dedent(
-            """
-        {}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
-        """.format(
-                module
-            )
+            f"""
+        {module}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
+        """
         )
         with _configure_lc_ctype("UTF-8"):
             self._test_output([module, "-E"], expected_output=expected_output)
@@ -540,10 +530,10 @@ class TestRunTC:
         ],
     )
     def test_stdin(self, input_path, module, expected_path):
-        expected_output = (
-            "************* Module {module}\n"
-            "{path}:1:0: W0611: Unused import os (unused-import)\n\n"
-        ).format(path=expected_path, module=module)
+        expected_output = f"""************* Module {module}
+{expected_path}:1:0: W0611: Unused import os (unused-import)
+
+"""
 
         with mock.patch(
             "pylint.lint.pylinter._read_stdin", return_value="import os\n"

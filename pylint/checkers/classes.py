@@ -402,7 +402,7 @@ def _is_attribute_property(name, klass):
         attributes = klass.getattr(name)
     except astroid.NotFoundError:
         return False
-    property_name = "{}.property".format(BUILTINS)
+    property_name = f"{BUILTINS}.property"
     for attr in attributes:
         if attr is astroid.Uninferable:
             continue

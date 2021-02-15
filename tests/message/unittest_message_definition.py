@@ -47,11 +47,11 @@ class FalseChecker(BaseChecker):
 class TestMessagesDefinition:
     @staticmethod
     def assert_with_fail_msg(msg, expected=True):
-        fail_msg = "With minversion='{}' and maxversion='{}',".format(
-            msg.minversion, msg.maxversion
+        fail_msg = (
+            f"With minversion='{msg.minversion}' and maxversion='{msg.maxversion}',"
+            f" and the python interpreter being {sys.version_info} "
+            "the message should{}be emitable"
         )
-        fail_msg += " and the python interpreter being {} ".format(sys.version_info)
-        fail_msg += "the message should{}be emitable"
         if expected:
             assert msg.may_be_emitted(), fail_msg.format(" ")
         else:

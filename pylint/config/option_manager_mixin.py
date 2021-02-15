@@ -258,7 +258,7 @@ class OptionsManagerMixIn:
         if config_file is not None:
             config_file = os.path.expanduser(config_file)
             if not os.path.exists(config_file):
-                raise OSError("The config file {:s} doesn't exist!".format(config_file))
+                raise OSError(f"The config file {config_file} doesn't exist!")
 
         use_config_file = config_file and os.path.exists(config_file)
         if use_config_file:  # pylint: disable=too-many-nested-blocks
@@ -295,12 +295,10 @@ class OptionsManagerMixIn:
                         sect = sect[len("pylint.") :]
                     if not sect.isupper() and values:
                         parser._sections[sect.upper()] = values
-
         if not verbose:
             return
-
         if use_config_file:
-            msg = "Using config file {}".format(os.path.abspath(config_file))
+            msg = f"Using config file {os.path.abspath(config_file)}"
         else:
             msg = "No config file found, using default configuration"
         print(msg, file=sys.stderr)

@@ -2399,7 +2399,7 @@ class ComparisonChecker(_BasicChecker):
         self.add_message(
             "singleton-comparison",
             node=root_node,
-            args=("'{}'".format(root_node.as_string()), suggestion),
+            args=(f"'{root_node.as_string()}'", suggestion),
         )
 
     def _check_literal_comparison(self, literal, node):

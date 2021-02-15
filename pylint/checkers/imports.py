@@ -963,7 +963,7 @@ class ImportsChecker(BaseChecker):
             return
 
         module_names = [
-            "{}.{}".format(node.modname, name[0])
+            f"{node.modname}.{name[0]}"
             if isinstance(node, astroid.ImportFrom)
             else name[0]
             for name in node.names

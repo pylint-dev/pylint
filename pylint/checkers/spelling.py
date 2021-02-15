@@ -347,7 +347,6 @@ class SpellingChecker(BaseTokenChecker):
                 # Present up to N suggestions.
                 suggestions = self.spelling_dict.suggest(word)
                 del suggestions[self.config.max_spelling_suggestions :]
-
                 line_segment = line[word_start_at:]
                 match = re.search(r"(\W|^)(%s)(\W|$)" % word, line_segment)
                 if match:
@@ -355,23 +354,13 @@ class SpellingChecker(BaseTokenChecker):
                     col = match.regs[2][0]
                 else:
                     col = line_segment.index(word)
-
                 col += word_start_at
-
                 if starts_with_comment:
                     col += 1
                 indicator = (" " * col) + ("^" * len(word))
-
-                self.add_message(
-                    msgid,
-                    line=line_num,
-                    args=(
-                        word,
-                        original_line,
-                        indicator,
-                        "'{}'".format("' or '".join(suggestions)),
-                    ),
-                )
+                all_suggestion = "' or '".join(suggestions)
+                args = (word, original_line, indicator, "'{}'".format(all_suggestion))
+                self.add_message(msgid, line=line_num, args=args)
 
     def process_tokens(self, tokens):
         if not self.initialized:

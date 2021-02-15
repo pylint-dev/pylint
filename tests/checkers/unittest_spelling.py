@@ -237,7 +237,7 @@ class TestSpellingChecker(CheckerTestCase):
             "affine3D",
         ):
             stmt = astroid.extract_node(
-                'class TestClass(object):\n   """{} comment"""\n   pass'.format(ccn)
+                f'class TestClass(object):\n   """{ccn} comment"""\n   pass'
             )
             self.checker.visit_classdef(stmt)
             assert self.linter.release_messages() == []
