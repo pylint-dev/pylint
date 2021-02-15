@@ -1111,7 +1111,7 @@ class Python3Checker(checkers.BaseChecker):
             if not inferred:
                 return
 
-            builtins_list = "{}.list".format(bases.BUILTINS)
+            builtins_list = f"{bases.BUILTINS}.list"
             if isinstance(inferred, astroid.List) or inferred.qname() == builtins_list:
                 kwargs = node.keywords
 
@@ -1120,7 +1120,7 @@ class Python3Checker(checkers.BaseChecker):
             if not inferred:
                 return
 
-            builtins_sorted = "{}.sorted".format(bases.BUILTINS)
+            builtins_sorted = f"{bases.BUILTINS}.sorted"
             if inferred.qname() == builtins_sorted:
                 kwargs = node.keywords
 
@@ -1181,7 +1181,7 @@ class Python3Checker(checkers.BaseChecker):
                         and node.func.attrname in DICT_METHODS
                     ):
                         if not _in_iterating_context(node):
-                            checker = "dict-{}-not-iterating".format(node.func.attrname)
+                            checker = f"dict-{node.func.attrname}-not-iterating"
                             self.add_message(checker, node=node)
             except astroid.InferenceError:
                 pass
@@ -1232,7 +1232,7 @@ class Python3Checker(checkers.BaseChecker):
             if _is_builtin(found_node):
                 if node.func.name in ("filter", "map", "range", "zip"):
                     if not _in_iterating_context(node):
-                        checker = "{}-builtin-not-iterating".format(node.func.name)
+                        checker = f"{node.func.name}-builtin-not-iterating"
                         self.add_message(checker, node=node)
                 elif node.func.name == "open" and node.keywords:
                     kwargs = node.keywords

@@ -158,7 +158,7 @@ class LintModuleTest:
         for msg in messages:
             assert (
                 msg.symbol != "fatal"
-            ), "Pylint analysis failed because of '{}'".format(msg.msg)
+            ), f"Pylint analysis failed because of '{msg.msg}'"
             received_msgs[msg.line, msg.symbol] += 1
             received_output_lines.append(OutputLine.from_msg(msg))
         return received_msgs, received_output_lines
@@ -191,22 +191,20 @@ class LintModuleTest:
         missing = set(expected_lines) - set(received_lines)
         unexpected = set(received_lines) - set(expected_lines)
         error_msg = (
-            "Wrong output for '{_file}.txt':\n"
+            f"Wrong output for '{self._test_file.base}.txt':\n"
             "You can update the expected output automatically with: '"
-            'python tests/test_functional.py {update_option} -k "test_functional[{_file}]"\'\n\n'.format(
-                update_option=UPDATE_OPTION,
-                _file=self._test_file.base,
-            )
+            f"python tests/test_functional.py {UPDATE_OPTION} -k "
+            f'""test_functional[{self._test_file.base}]"\'\n\n'
         )
         sort_by_line_number = operator.attrgetter("lineno")
         if missing:
             error_msg += "\n- Missing lines:\n"
             for line in sorted(missing, key=sort_by_line_number):
-                error_msg += "{}\n".format(line)
+                error_msg += f"{line}\n"
         if unexpected:
             error_msg += "\n- Unexpected lines:\n"
             for line in sorted(unexpected, key=sort_by_line_number):
-                error_msg += "{}\n".format(line)
+                error_msg += f"{line}\n"
         return error_msg
 
     def _check_output_text(self, _, expected_output, actual_output):

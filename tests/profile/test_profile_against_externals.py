@@ -42,11 +42,7 @@ def test_run(tmp_path, name, git_repo):
     """ Runs pylint against external sources """
     checkoutdir = tmp_path / name
     checkoutdir.mkdir()
-    os.system(
-        "git clone --depth=1 {git_repo} {checkoutdir}".format(
-            git_repo=git_repo, checkoutdir=str(checkoutdir)
-        )
-    )
+    os.system(f"git clone --depth=1 {git_repo} {checkoutdir}")
     filepaths = _get_py_files(scanpath=str(checkoutdir))
     print("Have %d files" % len(filepaths))
 

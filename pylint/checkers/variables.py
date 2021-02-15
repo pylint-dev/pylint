@@ -516,24 +516,15 @@ class NamesConsumer:
         self.node = node
 
     def __repr__(self):
-        msg = "\nto_consume : {:s}\n".format(
-            ", ".join(
-                [
-                    "{}->{}".format(key, val)
-                    for key, val in self._atomic.to_consume.items()
-                ]
-            )
-        )
-        msg += "consumed : {:s}\n".format(
-            ", ".join(
-                [
-                    "{}->{}".format(key, val)
-                    for key, val in self._atomic.consumed.items()
-                ]
-            )
-        )
-        msg += "scope_type : {:s}\n".format(self._atomic.scope_type)
-        return msg
+        to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
+        consumed = [f"{k}->{v}" for k, v in self._atomic.consumed.items()]
+        to_consumes = ", ".join(to_consumes)
+        consumed = ", ".join(consumed)
+        return f"""
+to_consume : {to_consumes}
+consumed : {consumed}
+scope_type : {self._atomic.scope_type}
+"""
 
     def __iter__(self):
         return iter(self._atomic)

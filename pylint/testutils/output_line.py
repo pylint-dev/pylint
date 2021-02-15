@@ -37,23 +37,17 @@ class MalformedOutputLineException(Exception):
         reconstructed_row = ""
         i = 0
         for i, column in enumerate(row):
-            reconstructed_row += "\t{}='{}' ?\n".format(expected[i], column)
+            reconstructed_row += f"\t{expected[i]}='{column}' ?\n"
         for missing in expected[i + 1 :]:
-            reconstructed_row += "\t{}= Nothing provided !\n".format(missing)
-        msg = """\
+            reconstructed_row += f"\t{missing}= Nothing provided !\n"
+        raw = ":".join(row)
+        msg = f"""\
 {exception}
 
 Expected '{example}' or '{other_example}' but we got '{raw}':
 {reconstructed_row}
 
-Try updating it with: 'python tests/test_functional.py {update_option}'""".format(
-            exception=exception,
-            example=example,
-            other_example=other_example,
-            raw=":".join(row),
-            reconstructed_row=reconstructed_row,
-            update_option=UPDATE_OPTION,
-        )
+Try updating it with: 'python tests/test_functional.py {UPDATE_OPTION}'"""
         Exception.__init__(self, msg)
 
 

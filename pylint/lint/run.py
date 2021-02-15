@@ -34,7 +34,7 @@ def cb_list_extensions(option, optname, value, parser):
     for filename in os.listdir(os.path.dirname(extensions.__file__)):
         if filename.endswith(".py") and not filename.startswith("_"):
             extension_name, _, _ = filename.partition(".")
-            print("pylint.extensions.{}".format(extension_name))
+            print(f"pylint.extensions.{extension_name}")
     sys.exit(0)
 
 

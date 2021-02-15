@@ -1416,20 +1416,18 @@ class TestParamDocChecker(CheckerTestCase):
     @pytest.mark.parametrize("complex_type", COMPLEX_TYPES)
     def test_finds_multiple_types_sphinx(self, complex_type):
         node = astroid.extract_node(
-            '''
+            f'''
         def my_func(named_arg):
             """The docstring
 
             :param named_arg: Returned
-            :type named_arg: {0}
+            :type named_arg: {complex_type}
 
             :returns: named_arg
-            :rtype: {0}
+            :rtype: {complex_type}
             """
             return named_arg
-        '''.format(
-                complex_type
-            )
+        '''
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
@@ -1437,20 +1435,18 @@ class TestParamDocChecker(CheckerTestCase):
     @pytest.mark.parametrize("complex_type", COMPLEX_TYPES)
     def test_finds_multiple_types_google(self, complex_type):
         node = astroid.extract_node(
-            '''
+            f'''
         def my_func(named_arg):
             """The docstring
 
             Args:
-                named_arg ({0}): Returned
+                named_arg ({complex_type}): Returned
 
             Returns:
-                {0}: named_arg
+                {complex_type}: named_arg
             """
             return named_arg
-        '''.format(
-                complex_type
-            )
+        '''
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
@@ -1458,24 +1454,22 @@ class TestParamDocChecker(CheckerTestCase):
     @pytest.mark.parametrize("complex_type", COMPLEX_TYPES)
     def test_finds_multiple_types_numpy(self, complex_type):
         node = astroid.extract_node(
-            '''
+            f'''
         def my_func(named_arg):
             """The docstring
 
             Args
             ----
-            named_arg : {0}
+            named_arg : {complex_type}
                 Returned
 
             Returns
             -------
-                {0}
+                {complex_type}
                     named_arg
             """
             return named_arg
-        '''.format(
-                complex_type
-            )
+        '''
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
@@ -1483,19 +1477,17 @@ class TestParamDocChecker(CheckerTestCase):
     @pytest.mark.parametrize("container_type", CONTAINER_TYPES)
     def test_finds_compact_container_types_sphinx(self, container_type):
         node = astroid.extract_node(
-            '''
+            f'''
         def my_func(named_arg):
             """The docstring
 
-            :param {0} named_arg: Returned
+            :param {container_type} named_arg: Returned
 
             :returns: named_arg
-            :rtype: {0}
+            :rtype: {container_type}
             """
             return named_arg
-        '''.format(
-                container_type
-            )
+        '''
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)

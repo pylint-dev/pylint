@@ -226,7 +226,7 @@ def get_access_path(key, parts):
     path = []
     for is_attribute, specifier in parts:
         if is_attribute:
-            path.append(".{}".format(specifier))
+            path.append(f".{specifier}")
         else:
             path.append("[{!r}]".format(specifier))
     return str(key) + "".join(path)

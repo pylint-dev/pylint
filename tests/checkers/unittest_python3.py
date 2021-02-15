@@ -69,115 +69,107 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.check_bad_builtin(builtin)
 
     def as_iterable_in_for_loop_test(self, fxn):
-        code = "for x in {}(): pass".format(fxn)
+        code = f"for x in {fxn}(): pass"
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_used_by_iterable_in_for_loop_test(self, fxn):
-        checker = "{}-builtin-not-iterating".format(fxn)
+        checker = f"{fxn}-builtin-not-iterating"
         node = astroid.extract_node(
-            """
+            f"""
         for x in (whatever(
-            {}() #@
+            {fxn}() #@
         )):
             pass
-        """.format(
-                fxn
-            )
+        """
         )
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
     def as_iterable_in_genexp_test(self, fxn):
-        code = "x = (x for x in {}())".format(fxn)
+        code = f"x = (x for x in {fxn}())"
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_iterable_in_starred_context(self, fxn):
-        code = "x = test(*{}())".format(fxn)
+        code = f"x = test(*{fxn}())"
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_iterable_in_listcomp_test(self, fxn):
-        code = "x = [x for x in {}(None, [1])]".format(fxn)
+        code = f"x = [x for x in {fxn}(None, [1])]"
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_iterable_in_yield_from(self, fxn):
-        code = "yield from {}()".format(fxn)
+        code = f"yield from {fxn}()"
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_used_in_variant_in_genexp_test(self, fxn):
-        checker = "{}-builtin-not-iterating".format(fxn)
+        checker = f"{fxn}-builtin-not-iterating"
         node = astroid.extract_node(
-            """
+            f"""
         list(
-            __({}(x))
+            __({fxn}(x))
             for x in [1]
         )
-        """.format(
-                fxn
-            )
+        """
         )
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
     def as_used_in_variant_in_listcomp_test(self, fxn):
-        checker = "{}-builtin-not-iterating".format(fxn)
+        checker = f"{fxn}-builtin-not-iterating"
         node = astroid.extract_node(
-            """
+            f"""
         [
-            __({}(None, x))
+            __({fxn}(None, x))
         for x in [[1]]]
-        """.format(
-                fxn
-            )
+        """
         )
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
     def as_argument_to_callable_constructor_test(self, fxn, callable_fn):
-        module = astroid.parse("x = {}({}())".format(callable_fn, fxn))
+        module = astroid.parse(f"x = {callable_fn}({fxn}())")
         with self.assertNoMessages():
             self.walk(module)
 
     def as_argument_to_materialized_filter(self, callable_fn):
-        module = astroid.parse("list(filter(None, {}()))".format(callable_fn))
+        module = astroid.parse(f"list(filter(None, {callable_fn}()))")
         with self.assertNoMessages():
             self.walk(module)
 
     def as_argument_to_random_fxn_test(self, fxn):
-        checker = "{}-builtin-not-iterating".format(fxn)
+        checker = f"{fxn}-builtin-not-iterating"
         node = astroid.extract_node(
-            """
+            f"""
         y(
-            {}() #@
+            {fxn}() #@
         )
-        """.format(
-                fxn
-            )
+        """
         )
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
     def as_argument_to_str_join_test(self, fxn):
-        code = "x = ''.join({}())".format(fxn)
+        code = f"x = ''.join({fxn}())"
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_argument_to_itertools_functions(self, fxn):
-        code = """
+        code = f"""
         from __future__ import absolute_import
         import itertools
         from itertools import product
@@ -185,32 +177,26 @@ class TestPython3Checker(testutils.CheckerTestCase):
             pass
         for i,j in itertools.product({fxn}(), repeat=2):
             pass
-        """.format(
-            fxn=fxn
-        )
+        """
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_iterable_in_unpacking(self, fxn):
         node = astroid.extract_node(
-            """
-        a, b = __({}())
-        """.format(
-                fxn
-            )
+            f"""
+        a, b = __({fxn}())
+        """
         )
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
     def as_assignment(self, fxn):
-        checker = "{}-builtin-not-iterating".format(fxn)
+        checker = f"{fxn}-builtin-not-iterating"
         node = astroid.extract_node(
-            """
-        a = __({}())
-        """.format(
-                fxn
-            )
+            f"""
+        a = __({fxn}())
+        """
         )
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
@@ -301,7 +287,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
                 with_value = code.format(dict_method)
                 node = astroid.extract_node(with_value)
 
-                checker = "dict-{}-not-iterating".format(method)
+                checker = f"dict-{method}-not-iterating"
                 message = testutils.Message(checker, node=node)
                 with self.assertAddsMessages(message):
                     self.checker.visit_call(node)
@@ -321,12 +307,10 @@ class TestPython3Checker(testutils.CheckerTestCase):
     def defined_method_test(self, method, warning):
         """Helper for verifying that a certain method is not defined."""
         node = astroid.extract_node(
-            """
+            f"""
             class Foo(object):
-                def __{}__(self, other):  #@
-                    pass""".format(
-                method
-            )
+                def __{method}__(self, other):  #@
+                    pass"""
         )
         message = testutils.Message(warning, node=node)
         with self.assertAddsMessages(message):

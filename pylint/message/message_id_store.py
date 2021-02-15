@@ -21,7 +21,7 @@ class MessageIdStore:
     def __repr__(self):
         result = "MessageIdStore: [\n"
         for msgid, symbol in self.__msgid_to_symbol.items():
-            result += "  - {msgid} ({symbol})\n".format(msgid=msgid, symbol=symbol)
+            result += f"  - {msgid} ({symbol})\n"
         result += "]"
         return result
 
@@ -80,7 +80,7 @@ class MessageIdStore:
         :raises InvalidMessageError:"""
         symbols = [symbol, other_symbol]
         symbols.sort()
-        error_message = "Message id '{msgid}' cannot have both ".format(msgid=msgid)
+        error_message = f"Message id '{msgid}' cannot have both "
         error_message += "'{other_symbol}' and '{symbol}' as symbolic name.".format(
             other_symbol=symbols[0], symbol=symbols[1]
         )
@@ -114,13 +114,6 @@ class MessageIdStore:
             msgid = self.__symbol_to_msgid.get(msgid_or_symbol)
             symbol = msgid_or_symbol
         if not msgid or not symbol:
-            error_msg = "No such message id or symbol '{msgid_or_symbol}'.".format(
-                msgid_or_symbol=msgid_or_symbol
-            )
+            error_msg = f"No such message id or symbol '{msgid_or_symbol}'."
             raise UnknownMessageError(error_msg)
-        # logging.debug(
-        #    "Return for {} and msgid {} is {}".format(
-        #        msgid_or_symbol, msgid, self.__old_names.get(msgid, [msgid])
-        #    )
-        # )
         return self.__old_names.get(msgid, [msgid])

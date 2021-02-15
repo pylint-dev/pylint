@@ -35,7 +35,7 @@ class FunctionalTestFile:
         self._parse_options()
 
     def __repr__(self):
-        return "FunctionalTest:{}".format(self.base)
+        return f"FunctionalTest:{self.base}"
 
     def _parse_options(self):
         cp = configparser.ConfigParser()
@@ -70,4 +70,4 @@ class FunctionalTestFile:
         name = join(self._directory, self.base + ext)
         if not check_exists or exists(name):
             return name
-        raise NoFileError("Cannot find '{}'.".format(name))
+        raise NoFileError(f"Cannot find '{name}'.")
