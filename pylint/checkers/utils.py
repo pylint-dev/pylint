@@ -1340,10 +1340,16 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
     if not is_postponed_evaluation_enabled(node):
         return False
 
-    if not isinstance(
-        node.parent, (astroid.AnnAssign, astroid.Arguments, astroid.FunctionDef)
-    ):
-        return False
+    parent_node = node.parent
+    while True:
+        # Check if any parent node matches condition
+        if isinstance(
+            parent_node, (astroid.AnnAssign, astroid.Arguments, astroid.FunctionDef)
+        ):
+            break
+        parent_node = parent_node.parent
+        if isinstance(parent_node, astroid.Module):
+            return False
     if value.name in SUBSCRIPTABLE_CLASSES_PEP585:
         return True
     for name in value.basenames:
