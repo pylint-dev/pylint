@@ -57,18 +57,6 @@ What's New in Pylint 2.7.0?
 
 * Fix issue with nested PEP 604 syntax
 
-* New check: ``consider-using-generator``
-
-  This check warns when a comprehension is used inside an `any` or `all` function,
-  since it is unnecessary and should be replaced by a generator instead.
-  Using a generator would be less code and way faster.
-
-  Close #3165
-
-What's New in Pylint 2.6.1?
-===========================
-Release date: TBA
-
 * Fix a crash in `undefined-variable` caused by chained attributes in metaclass
 
   Close #3742
@@ -171,6 +159,14 @@ Release date: TBA
 * Changed setup.py to work with [distlib](https://pypi.org/project/distlib)
 
   Close #3555
+
+* New check: ``consider-using-generator``
+
+  This check warns when a comprehension is used inside an `any` or `all` function,
+  since it is unnecessary and should be replaced by a generator instead.
+  Using a generator would be less code and way faster.
+
+  Close #3165
 
 What's New in Pylint 2.6.1?
 ===========================
