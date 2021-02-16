@@ -718,7 +718,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(node.func, astroid.Name)
             and node.func.name in checked_call
         ):
-            # any or all calls takes exactly one argument
+            # any or all calls take exactly one argument
             if len(node.args) == 1 and isinstance(node.args[0], astroid.ListComp):
                 inside_comp = node.args[0].as_string()[
                     1:-1
