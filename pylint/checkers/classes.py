@@ -1363,6 +1363,9 @@ a metaclass class method.",
                     inside_klass = False
                     break
                 curr_klass = get_outer_class(curr_klass)
+                if not curr_klass and c != parents_callee[-1]:
+                    inside_klass = False
+                    break
 
             # We are in a class, one remaining valid cases, Klass._attr inside
             # Klass
