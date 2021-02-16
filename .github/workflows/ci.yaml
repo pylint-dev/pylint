@@ -7,7 +7,7 @@ on:
   pull_request: ~
 
 env:
-  CACHE_VERSION: 100
+  CACHE_VERSION: 0
   DEFAULT_PYTHON: 3.6
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
@@ -322,15 +322,6 @@ jobs:
         run: |
           . venv/bin/activate
           coveralls --rcfile=${{ env.COVERAGERC_FILE }}
-      - uses: geekyeggo/delete-artifact@v1
-        if: always()
-        with:
-          failOnError: false
-          name: |
-            coverage-3.6
-            coverage-3.7
-            coverage-3.8
-            coverage-3.9
 
 
   pytest-windows:
