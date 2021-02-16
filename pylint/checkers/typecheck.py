@@ -1662,17 +1662,32 @@ accessed. Python regular expressions are accepted.",
                     astroid.Tuple,
                     astroid.Set,
                     astroid.List,
+                    astroid.BinOp,
                 ),
             )
         ):
-            for n in (node.left, node.right):
-                n = helpers.object_type(n)
-                if isinstance(n, astroid.ClassDef):
-                    if is_classdef_type(n):
-                        self.add_message(
-                            "unsupported-binary-operation", args=msg, node=node
-                        )
+            allowed_nested_syntax = False
+            if is_postponed_evaluation_enabled(node):
+                parent_node = node.parent
+                while True:
+                    if isinstance(
+                        parent_node,
+                        (astroid.AnnAssign, astroid.Arguments, astroid.FunctionDef),
+                    ):
+                        allowed_nested_syntax = True
                         break
+                    parent_node = parent_node.parent
+                    if isinstance(parent_node, astroid.Module):
+                        break
+            if allowed_nested_syntax is False:
+                for n in (node.left, node.right):
+                    n = helpers.object_type(n)
+                    if isinstance(n, astroid.ClassDef):
+                        if is_classdef_type(n):
+                            self.add_message(
+                                "unsupported-binary-operation", args=msg, node=node
+                            )
+                            break
 
     @check_messages("unsupported-binary-operation")
     def _visit_binop(self, node):
