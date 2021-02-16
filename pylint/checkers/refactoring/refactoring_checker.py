@@ -709,6 +709,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message(message_name, node=node)
 
     def _check_consider_using_generator(self, node):
+        # We only check 'any' and 'all' because for list, set, and tuple a generator performs worse
+        # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109
         checked_call = ["any", "all"]
         if (
             isinstance(node, astroid.Call)
