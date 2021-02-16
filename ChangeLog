@@ -1,6 +1,10 @@
 ------------------
 Pylint's ChangeLog
 ------------------
+
+What's New in Pylint 2.7.0?
+===========================
+
 * Python 3.6+ is now required.
 
 * Bug fix for empty-comment message line number.
@@ -52,10 +56,6 @@ Pylint's ChangeLog
 * Fix issue with nested PEP 585 syntax
 
 * Fix issue with nested PEP 604 syntax
-
-What's New in Pylint 2.6.1?
-===========================
-Release date: TBA
 
 * Fix a crash in `undefined-variable` caused by chained attributes in metaclass
 
@@ -148,6 +148,26 @@ Release date: TBA
 
   Close #2498
 
+* Add check for bool function to `len-as-condition`
+
+* Add `simplifiable-condition` check for extraneous constants in conditionals using and/or.
+
+* Add `condition-evals-to-constant` check for conditionals using and/or that evaluate to a constant.
+
+  Close #3407
+
+* Changed setup.py to work with [distlib](https://pypi.org/project/distlib)
+
+  Close #3555
+
+What's New in Pylint 2.6.1?
+===========================
+
+* Astroid version has been set as < 2.5
+
+  Close #4093
+
+
 What's New in Pylint 2.6.0?
 ===========================
 
@@ -197,17 +217,6 @@ Release date: 2020-08-20
 
   Close #3722
 
-* Add check for bool function to `len-as-condition`
-
-* Add `simplifiable-condition` check for extraneous constants in conditionals using and/or.
-
-* Add `condition-evals-to-constant` check for conditionals using and/or that evaluate to a constant.
-
-  Close #3407
-
-* Changed setup.py to work with [distlib](https://pypi.org/project/distlib)
-
-  Close #3555
 
 What's New in Pylint 2.5.4?
 ===========================

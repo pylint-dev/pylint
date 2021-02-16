@@ -5,44 +5,21 @@
 :Release: 2.6
 :Date: 2020-08-20
 
-
 Summary -- Release highlights
 =============================
 
-* Python 3.6+ is now required.
+* `bad-continuation` and `bad-whitespace` have been removed. `black` or another formatter can help you with this better than Pylint
+* Added support for isort 5
 
 New checkers
 ============
-
-* Add support to ``ignored-argument-names`` in DocstringParameterChecker and
-  adds `useless-param-doc` and `useless-type-doc` messages.
-
-* Add `empty-comment` check for empty comments.
 
 * Add `super-with-arguments` check for flagging instances of Python 2 style super calls.
 
 * Add `raise-missing-from` check for exceptions that should have a cause.
 
-* Add `simplifiable-condition` check for extraneous constants in conditionals using and/or.
-
-* Add `condition-evals-to-constant` check for conditionals using and/or that evaluate to a constant.
-
 Other Changes
 =============
-
-* Fix linter multiprocessing pool shutdown which triggered warnings when runned in parallels with other pytest plugins.
-
-* Enums are now required to be named in UPPER_CASE by ``invalid-name``.
-
-* Fix bug that lead to duplicate messages when using ``--jobs 2`` or more.
-
-* Adds option ``check-protected-access-in-special-methods`` in the ClassChecker to activate/deactivate
-  ``protected-access`` message emission for single underscore prefixed attribute in special methods.
-
-* ``inconsistent-return-statements`` message is now emitted if one of ``try/except`` statement
-  is not returning explicitly while the other do.
-
-* Fix false positive message ``useless-super-delegation`` when default keyword argument is a dictionnary.
 
 * `bad-continuation` and `bad-whitespace` have been removed. `black` or another formatter can help you with this better than Pylint
 
@@ -54,10 +31,4 @@ Other Changes
 
 * Add support for both isort 4 and isort 5. If you have pinned isort 4 in your projet requirements, nothing changes. If you use isort 5, though, note that the `known-standard-library` option is not interpreted the same in isort 4 and isort 5 (see `the migration guide in isort documentation`_ for further details). For compatibility's sake for most pylint users, the `known-standard-library` option in pylint now maps to `extra-standard-library` in isort 5. If you really want what `known-standard-library` now means in isort 5, you must disable the `wrong-import-order` check in pylint and run isort manually with a proper isort configuration file.
 
-* Fix vulnerable regular expressions in ``pyreverse``. The ambiguities of vulnerable regular expressions are removed, making the repaired regular expressions safer and faster matching.
-
 .. _the migration guide in isort documentation: https://timothycrosley.github.io/isort/docs/upgrade_guides/5.0.0/#known_standard_library
-
-* `len-as-conditions` is now triggered only for classes that are inheriting directly from list, dict, or set and not implementing the `__bool__` function, or from generators like range or list/dict/set comprehension. This should reduce the false positive for other classes, like pandas's DataFrame or numpy's Array.
-
-* Fixes duplicate code detection for --jobs=2+
