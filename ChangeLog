@@ -53,6 +53,14 @@ Pylint's ChangeLog
 
 * Fix issue with nested PEP 604 syntax
 
+* New check: ``consider-using-generator``
+
+  This check warns when a comprehension is used inside an `any` or `all` function,
+  since it is unnecessary and should be replaced by a generator instead.
+  Using a generator would be less code and way faster.
+
+  Close #3165
+
 What's New in Pylint 2.6.1?
 ===========================
 Release date: TBA
@@ -397,14 +405,6 @@ Release date: 2020-04-27
 * `not in` is considered iterating context for some of the Python 3 porting checkers.
 
 * A new check `inconsistent-quotes` was added.
-
-* New check: ``consider-using-generator``
-
-  This check warns when a comprehension is used inside an `any` or `all` function,
-  since it is unnecessary and should be replaced by a generator instead.
-  Using a generator would be less code and way faster.
-
-  Close #3165
 
 * Add a check for non string assignment to __name__ attribute.
 
