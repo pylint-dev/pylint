@@ -303,9 +303,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1726": (
             "Consider using generator %s(%s)",
             "consider-using-generator",
-            "Comprehension inside of any or all calls is unnecessary "
-            "and should be replaced by a generator",
-        )
+            "Comprehension inside of any or all calls is unnecessary. "
+            "A generator would be sufficient and faster.",
+        ),
     }
     options = (
         (
