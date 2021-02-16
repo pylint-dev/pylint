@@ -47,6 +47,8 @@ Pylint's ChangeLog
 
   Closes #1927
 
+* Fix issue with nested PEP 585 syntax
+
 What's New in Pylint 2.6.1?
 ===========================
 Release date: TBA

@@ -6,3 +6,10 @@ unsubscriptable-object:28:14::Value 'list' is unsubscriptable
 unsubscriptable-object:33:36::Value 'list' is unsubscriptable
 unsubscriptable-object:43:54::Value 'list' is unsubscriptable
 unsubscriptable-object:45:60::Value 'list' is unsubscriptable
+unsubscriptable-object:96:15::Value 'list' is unsubscriptable
+unsubscriptable-object:97:21::Value 'list' is unsubscriptable
+unsubscriptable-object:98:15::Value 'list' is unsubscriptable
+unsubscriptable-object:99:19::Value 'list' is unsubscriptable
+unsubscriptable-object:100:15::Value 'list' is unsubscriptable
+unsubscriptable-object:101:9::Value 'list' is unsubscriptable
+unsubscriptable-object:101:14::Value 'list' is unsubscriptable

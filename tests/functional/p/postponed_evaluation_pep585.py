@@ -3,13 +3,13 @@
 This check requires Python 3.7 or 3.8!
 Testing with 3.8 only, to support TypedDict.
 """
-# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class
+# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation
 from __future__ import annotations
 import collections
 import dataclasses
 import typing
-from typing import NamedTuple, TypedDict
 from dataclasses import dataclass
+from typing import Dict, NamedTuple, TypedDict, Union, Tuple
 
 
 AliasInvalid = list[int]  # [unsubscriptable-object]
@@ -75,12 +75,27 @@ class CustomDataClass4:
     my_var: list[int]
 
 
-# Allowed use cases
 var1: set[int]
 var2: collections.OrderedDict[str, int]
+var3: dict[str, list[int]]
+var4: Dict[str, list[int]]
+var5: dict[tuple[int, int], str]
+var6: Dict[tuple[int, int], str]
+var7: list[list[int]]
+var8: tuple[list[int]]
+var9: int | list[str | int]
+var10: Union[list[str], None]
+var11: Union[Union[list[int], int]]
 
 def func(arg: list[int]):
     pass
 
 def func2() -> list[int]:
     pass
+
+Alias2 = Union[list[str], None]  # [unsubscriptable-object]
+Alias3 = Union[Union[list[int], int]]  # [unsubscriptable-object]
+Alias4 = Tuple[list[int]]  # [unsubscriptable-object]
+Alias5 = Dict[str, list[int]]  # [unsubscriptable-object]
+Alias6 = int | list[int]  # [unsubscriptable-object]
+Alias7 = list[list[int]]  # [unsubscriptable-object,unsubscriptable-object]
