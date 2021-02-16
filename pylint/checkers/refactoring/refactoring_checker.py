@@ -300,7 +300,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when calling the super() builtin with the current class "
             "and instance. On Python 3 these arguments are the default and they can be omitted.",
         ),
-        "R1726": (
+        "R1728": (
             "Consider using a generator instead '%s(%s)'",
             "consider-using-generator",
             "Comprehension inside of any or all calls is unnecessary. "
@@ -720,9 +720,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             # any or all calls take exactly one argument
             if len(node.args) == 1 and isinstance(node.args[0], astroid.ListComp):
+                # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[
                     1:-1
-                ]  # remove square brackets '[]'
+                ]
                 call_name = node.func.name
                 self.add_message(
                     "consider-using-generator",
