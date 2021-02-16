@@ -301,7 +301,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "and instance. On Python 3 these arguments are the default and they can be omitted.",
         ),
         "R1726": (
-            "Consider using generator %s(%s)",
+            "Consider using a generator instead '%s(%s)'",
             "consider-using-generator",
             "Comprehension inside of any or all calls is unnecessary. "
             "A generator would be sufficient and faster.",
