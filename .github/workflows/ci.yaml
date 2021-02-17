@@ -37,7 +37,7 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "::set-output name=key::${{ env.CACHE_VERSION }}-${{
+          echo "::set-output name=key::base-venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('pylint/__pkg_info__.py', 'requirements_test.txt',
                       'requirements_test_pypy.txt', 'requirements_docs.txt') }}-${{
             steps.fetch-astroid-hash.outputs.hash }}"
@@ -47,13 +47,13 @@ jobs:
         with:
           path: venv
           key: >-
-            ${{ runner.os }}-base-venv-${{ steps.python.outputs.python-version }}-${{
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             steps.generate-python-key.outputs.key }}
           restore-keys: |
-            ${{ runner.os }}-base-venv-${{ steps.python.outputs.python-version }}-${{ env.CACHE_VERSION }}-${{
-            hashFiles('pylint/__pkg_info__.py', 'requirements_test.txt',
-                      'requirements_test_pypy.txt', 'requirements_docs.txt') }}-
-            ${{ runner.os }}-base-venv-${{ steps.python.outputs.python-version }}-${{ env.CACHE_VERSION }}-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-base-venv-${{ env.CACHE_VERSION }}-${{
+              hashFiles('pylint/__pkg_info__.py', 'requirements_test.txt',
+                        'requirements_test_pypy.txt', 'requirements_docs.txt') }}-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-base-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -101,8 +101,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: venv
-          key: >-
-            ${{ runner.os }}-base-venv-${{ steps.python.outputs.python-version }}-${{
+          key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-base.outputs.python-key }}
       - name: Fail job if Python cache restore failed
         if: steps.cache-venv.outputs.cache-hit != 'true'
@@ -143,8 +142,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: venv
-          key: >-
-            ${{ runner.os }}-base-venv-${{ steps.python.outputs.python-version }}-${{
+          key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-base.outputs.python-key }}
       - name: Fail job if Python cache restore failed
         if: steps.cache-venv.outputs.cache-hit != 'true'
@@ -173,8 +171,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: venv
-          key: >-
-            ${{ runner.os }}-base-venv-${{ steps.python.outputs.python-version }}-${{
+          key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-base.outputs.python-key }}
       - name: Fail job if Python cache restore failed
         if: steps.cache-venv.outputs.cache-hit != 'true'
@@ -214,7 +211,7 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "::set-output name=key::${{ env.CACHE_VERSION }}-${{
+          echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('pylint/__pkg_info__.py', 'requirements_test.txt',
                       'requirements_test_pypy.txt') }}-${{
             steps.fetch-astroid-hash.outputs.hash }}"
@@ -224,13 +221,13 @@ jobs:
         with:
           path: venv
           key: >-
-            ${{ runner.os }}-venv-${{ steps.python.outputs.python-version }}-${{
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             steps.generate-python-key.outputs.key }}
           restore-keys: |
-            ${{ runner.os }}-venv-${{ steps.python.outputs.python-version }}-${{ env.CACHE_VERSION }}-${{
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('pylint/__pkg_info__.py', 'requirements_test.txt',
                       'requirements_test_pypy.txt') }}-
-            ${{ runner.os }}-venv-${{ steps.python.outputs.python-version }}-${{ env.CACHE_VERSION }}-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -262,8 +259,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: venv
-          key: >-
-            ${{ runner.os }}-venv-${{ steps.python.outputs.python-version }}-${{
+          key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-tests-linux.outputs.python-key }}
       - name: Fail job if Python cache restore failed
         if: steps.cache-venv.outputs.cache-hit != 'true'
@@ -302,8 +298,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: venv
-          key: >-
-            ${{ runner.os }}-venv-${{ steps.python.outputs.python-version }}-${{
+          key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-tests-linux.outputs.python-key }}
       - name: Fail job if Python cache restore failed
         if: steps.cache-venv.outputs.cache-hit != 'true'
@@ -390,7 +385,7 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "::set-output name=key::${{ env.CACHE_VERSION }}-${{
+          echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('pylint/__pkg_info__.py', 'requirements_test_pypy.txt') }}-${{
             steps.fetch-astroid-hash.outputs.hash }}"
       - name: Restore Python virtual environment
@@ -399,12 +394,12 @@ jobs:
         with:
           path: venv
           key: >-
-            ${{ runner.os }}-venv-${{ steps.python.outputs.python-version }}-${{
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             steps.generate-python-key.outputs.key }}
           restore-keys: |
-            ${{ runner.os }}-venv-${{ steps.python.outputs.python-version }}-${{
-            env.CACHE_VERSION }}-${{ hashFiles('pylint/__pkg_info__.py', 'requirements_test_pypy.txt') }}-
-            ${{ runner.os }}-venv-${{ steps.python.outputs.python-version }}-${{ env.CACHE_VERSION }}-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-${{
+              hashFiles('pylint/__pkg_info__.py', 'requirements_test_pypy.txt') }}-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -436,8 +431,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: venv
-          key: >-
-            ${{ runner.os }}-venv-${{ steps.python.outputs.python-version }}-${{
+          key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-tests-pypy.outputs.python-key }}
       - name: Fail job if Python cache restore failed
         if: steps.cache-venv.outputs.cache-hit != 'true'
