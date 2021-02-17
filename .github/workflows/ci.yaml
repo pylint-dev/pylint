@@ -67,14 +67,15 @@ jobs:
       - name: Generate pre-commit restore key
         id: generate-pre-commit-key
         run: >-
-          echo "::set-output name=key::${{ runner.os }}-pre-commit-${{
-            env.CACHE_VERSION }}-${{ hashFiles('.pre-commit-config.yaml') }}"
+          echo "::set-output name=key::pre-commit-${{ env.CACHE_VERSION }}-${{
+            hashFiles('.pre-commit-config.yaml') }}"
       - name: Restore pre-commit environment
         id: cache-precommit
         uses: actions/cache@v2
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
-          key: ${{ steps.generate-pre-commit-key.outputs.key }}
+          key: >-
+            ${{ runner.os }}-${{ steps.generate-pre-commit-key.outputs.key }}
           restore-keys: |
             ${{ runner.os }}-pre-commit-${{ env.CACHE_VERSION }}-
       - name: Install pre-commit dependencies
@@ -113,7 +114,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
-          key: ${{ needs.prepare-base.outputs.pre-commit-key }}
+          key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
       - name: Fail job if pre-commit cache restore failed
         if: steps.cache-precommit.outputs.cache-hit != 'true'
         run: |
