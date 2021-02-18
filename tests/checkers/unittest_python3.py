@@ -182,6 +182,11 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    def as_argument_to_zip_test(self, fxn):
+        module = astroid.parse(f"list(zip({fxn}))")
+        with self.assertNoMessages():
+            self.walk(module)
+
     def as_iterable_in_unpacking(self, fxn):
         node = astroid.extract_node(
             f"""
@@ -218,6 +223,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
         self.as_iterable_in_yield_from(fxn)
         self.as_iterable_in_starred_context(fxn)
         self.as_argument_to_itertools_functions(fxn)
+        self.as_argument_to_zip_test(fxn)
 
         for func in (
             "iter",
