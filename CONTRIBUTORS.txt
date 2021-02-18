@@ -445,3 +445,5 @@ contributors:
 * Marc Mueller (cdce8p): contributor
 
 * David Gilman: contributor
+
+* Tiago Honorato: contributor
