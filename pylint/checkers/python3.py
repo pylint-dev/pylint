@@ -97,6 +97,7 @@ _ACCEPTS_ITERATOR = {
     "frozenset",
     "OrderedDict",
     "zip",
+    "map",
 }
 ATTRIBUTES_ACCEPTS_ITERATOR = {"join", "from_iterable"}
 _BUILTIN_METHOD_ACCEPTS_ITERATOR = {
