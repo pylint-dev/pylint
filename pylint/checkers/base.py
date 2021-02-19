@@ -1661,7 +1661,6 @@ KNOWN_NAME_TYPES = {
     "inlinevar",
 }
 
-
 HUMAN_READABLE_TYPES = {
     "module": "module",
     "const": "constant",
@@ -1724,7 +1723,6 @@ def _create_naming_options():
 
 
 class NameChecker(_BasicChecker):
-
     msgs = {
         "C0102": (
             'Black listed name "%s"',
@@ -2342,6 +2340,12 @@ class ComparisonChecker(_BasicChecker):
             "callable was made, which might suggest that some parenthesis were omitted, "
             "resulting in potential unwanted behaviour.",
         ),
+        "W0177": (
+            "Comparison %s should be %s",
+            "nan-comparison",
+            "Used when an expression is compared to NaN"
+            "values like numpy.NaN and float('nan')",
+        ),
     }
 
     def _check_singleton_comparison(
@@ -2400,6 +2404,52 @@ class ComparisonChecker(_BasicChecker):
             "singleton-comparison",
             node=root_node,
             args=(f"'{root_node.as_string()}'", suggestion),
+        )
+
+    def _check_nan_comparison(
+        self, left_value, right_value, root_node, checking_for_absence: bool = False
+    ):
+        def _is_float_nan(node):
+            try:
+                if isinstance(node, astroid.Call) and len(node.args) == 1:
+                    if (
+                        node.args[0].value.lower() == "nan"
+                        and node.inferred()[0].pytype() == "builtins.float"
+                    ):
+                        return True
+                return False
+            except AttributeError:
+                return False
+
+        def _is_numpy_nan(node):
+            if isinstance(node, astroid.Attribute) and node.attrname == "NaN":
+                if isinstance(node.expr, astroid.Name):
+                    return node.expr.name in ("numpy", "nmp", "np")
+            return False
+
+        def _is_nan(node) -> bool:
+            return _is_float_nan(node) or _is_numpy_nan(node)
+
+        nan_left = _is_nan(left_value)
+        if not nan_left and not _is_nan(right_value):
+            return
+
+        absence_text = ""
+        if checking_for_absence:
+            absence_text = "not "
+        if nan_left:
+            suggestion = "'{}math.isnan({})'".format(
+                absence_text, right_value.as_string()
+            )
+        else:
+            suggestion = "'{}math.isnan({})'".format(
+                absence_text, left_value.as_string()
+            )
+
+        self.add_message(
+            "nan-comparison",
+            node=root_node,
+            args=("'{}'".format(root_node.as_string()), suggestion),
         )
 
     def _check_literal_comparison(self, literal, node):
@@ -2494,6 +2544,11 @@ class ComparisonChecker(_BasicChecker):
         if operator in ("==", "!="):
             self._check_singleton_comparison(
                 left, right, node, checking_for_absence=operator == "!="
+            )
+
+        if operator in ("==", "!=", "is", "is not"):
+            self._check_nan_comparison(
+                left, right, node, checking_for_absence=operator in ("!=", "is not")
             )
         if operator in ("is", "is not"):
             self._check_literal_comparison(right, node)
