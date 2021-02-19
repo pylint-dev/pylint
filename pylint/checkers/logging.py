@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2009-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009, 2012, 2014 Google, Inc.
 # Copyright (c) 2012 Mike Bryant <leachim@leachim.info>
