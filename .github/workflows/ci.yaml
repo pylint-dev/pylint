@@ -317,7 +317,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           . venv/bin/activate
-          coveralls debug --rcfile=${{ env.COVERAGERC_FILE }} --service=github
+          coveralls --rcfile=${{ env.COVERAGERC_FILE }} --service=github
 
 
   pytest-windows:
