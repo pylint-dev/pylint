@@ -4,6 +4,7 @@
 """Checker mixin for deprecated functionality."""
 
 import abc
+from typing import Any
 
 import astroid
 
@@ -18,6 +19,14 @@ class DeprecatedMixin(metaclass=abc.ABCMeta):
     """A mixin implementing logic for checking deprecated symbols.
     A class imlementing mixin must define "deprecated-method" Message.
     """
+
+    msgs: Any = {
+        "W1505": (
+            "Using deprecated method %s()",
+            "deprecated-method",
+            "The method is marked as deprecated and will be removed in the future.",
+        ),
+    }
 
     @abc.abstractmethod
     def deprecated_methods(self):
