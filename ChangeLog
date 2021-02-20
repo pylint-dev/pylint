@@ -5,7 +5,15 @@ Pylint's ChangeLog
 What's New in Pylint 2.7.0?
 ===========================
 
+* Fix false positive for ``builtin-not-iterating`` when ``map`` receives iterable
+
+  Closes #4078
+
 * Python 3.6+ is now required.
+
+* Fix false positive for ``builtin-not-iterating`` when ``zip`` receives iterable
+
+* Add `nan-comparison` check for NaN comparisons
 
 * Bug fix for empty-comment message line number.
 
@@ -167,6 +175,9 @@ What's New in Pylint 2.7.0?
   Using a generator would be less code and way faster.
 
   Close #3165
+
+* Add Github Actions to replace Travis and AppVeyor in the future
+
 
 What's New in Pylint 2.6.1?
 ===========================

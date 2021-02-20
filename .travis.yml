@@ -1,55 +1,27 @@
 language: python
 stages:
-- prechecks
 - tests-cpython
-- tests-pypy
 jobs:
   include:
-  - stage: prechecks
-    python: 3.6
-    env: TOXENV=pylint
-  - python: 3.6
-    env: TOXENV=docs
-  - python: 3.6
-    env: TOXENV=formatting
-  - python: 3.6
-    env: TOXENV=mypy
-  - python: 3.6
-    env: TOXENV=spelling
   - stage: tests-cpython
     python: 3.6
     env: TOXENV=py36
-  - python: 3.7
-    env: TOXENV=py37
-  - python: 3.8
-    env: TOXENV=py38
-  - python: 3.9
-    env: TOXENV=py39
-  - stage: tests-pypy
-    python: pypy3
-    env: TOXENV=pypy
 before_install:
 - python --version
 - uname -a
 - lsb_release -a
-- sudo apt-get -qq update
-- sudo apt-get install -y enchant
 install:
 # Temporary escape hatch for setuptools 50.0:
 # See https://github.com/pypa/setuptools/blob/17cb9d6bf249cefe653d3bdb712582409035a7db/CHANGES.rst#v5000
 - export SETUPTOOLS_USE_DISTUTILS=stdlib
 - pip install -U setuptools
-- pip install tox coverage coveralls
+- pip install tox
 - virtualenv --version
 - easy_install --version
 - pip --version
 - tox --version
-- coverage --version
 script:
 - pip install .
-- tox -e coverage-erase,$TOXENV
-after_success:
-- tox -e coveralls
 after_failure:
 - more .tox/log/* | cat
 - more .tox/*/log/* | cat

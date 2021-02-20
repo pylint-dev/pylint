@@ -445,6 +445,43 @@ class TestComparison(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
 
+        node = astroid.extract_node("foo is float('nan')")
+        message = Message(
+            "nan-comparison",
+            node=node,
+            args=("'foo is float('nan')'", "'math.isnan(foo)'"),
+        )
+        with self.assertAddsMessages(message):
+            self.checker.visit_compare(node)
+
+        node = astroid.extract_node(
+            """
+                                import numpy
+                                foo != numpy.NaN
+                                """
+        )
+        message = Message(
+            "nan-comparison",
+            node=node,
+            args=("'foo != numpy.NaN'", "'not math.isnan(foo)'"),
+        )
+        with self.assertAddsMessages(message):
+            self.checker.visit_compare(node)
+
+        node = astroid.extract_node(
+            """
+                                import numpy as nmp
+                                foo is not nmp.NaN
+                                """
+        )
+        message = Message(
+            "nan-comparison",
+            node=node,
+            args=("'foo is not nmp.NaN'", "'not math.isnan(foo)'"),
+        )
+        with self.assertAddsMessages(message):
+            self.checker.visit_compare(node)
+
         node = astroid.extract_node("True == foo")
         messages = (
             Message("misplaced-comparison-constant", node=node, args=("foo == True",)),

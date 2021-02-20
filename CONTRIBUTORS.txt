@@ -448,3 +448,5 @@ contributors:
 
 * Ikraduya Edian: contributor
     - Added new check 'consider-using-generator'.
+
+* Tiago Honorato: contributor
