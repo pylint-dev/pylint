@@ -716,7 +716,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_consider_using_generator(self, node):
         # 'any' and 'all' definitely should use generator, while 'list' and 'tuple' need to be considered first
-        # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109
+        # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109
         checked_call = ["any", "all", "list", "tuple"]
         if (
             isinstance(node, astroid.Call)
@@ -728,9 +728,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # check whether the argument is list comprehension
             if len(node.args) == 1 and isinstance(node.args[0], astroid.ListComp):
                 # remove square brackets '[]'
-                inside_comp = node.args[0].as_string()[
-                    1:-1
-                ]
+                inside_comp = node.args[0].as_string()[1:-1]
                 call_name = node.func.name
                 if call_name in ["any", "all"]:
                     self.add_message(

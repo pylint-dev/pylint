@@ -447,6 +447,6 @@ contributors:
 * David Gilman: contributor
 
 * Ikraduya Edian: contributor
-    - Added new check 'consider-using-generator'.
+    - Added new checks 'consider-using-generator' and 'use-a-generator'.
 
 * Tiago Honorato: contributor
