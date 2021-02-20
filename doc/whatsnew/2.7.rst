@@ -26,6 +26,8 @@ New checkers
 
 * Add `condition-evals-to-constant` check for conditionals using and/or that evaluate to a constant.
 
+* Add `consider-using-generator` check for the use of list comprehension inside ``any`` or ``all`` function.
+
 Other Changes
 =============
 
