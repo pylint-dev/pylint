@@ -33,25 +33,17 @@ from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
 
 
-class DeprecationChecker(BaseChecker, DeprecatedMixin):
+class DeprecationChecker(DeprecatedMixin, BaseChecker):
     """Class implementing deprecation checker."""
+
+    # DeprecationMixin class is Mixin class implementing logic for searching deprecated methods and functions.
+    # The list of deprecated methods/functions is defined by implemeting class via deprecated_methods callback.
+    # DeprecatedMixin class is overriding attrigutes of BaseChecker hence must be specified *before* BaseChecker
+    # in list of base classes.
 
     __implements__ = (IAstroidChecker,)
     # The name defines a custom section of the config for this checker.
     name = "deprecated"
-    # This class variable declares the messages (ie the warnings and errors)
-    # that the checker can emit.
-    msgs = {
-        # Each message has a code, a message that the user will see,
-        # a unique symbol that identifies the message,
-        # and a detailed help message
-        # that will be included in the documentation.
-        "W1505": (
-            "Using deprecated method %s()",
-            "deprecated-method",
-            "The method is marked as deprecated and will be removed in the future.",
-        ),
-    }
 
     @utils.check_messages(
         "deprecated-method",

@@ -80,7 +80,7 @@ def _check_mode_str(mode):
     return True
 
 
-class StdlibChecker(BaseChecker, DeprecatedMixin):
+class StdlibChecker(DeprecatedMixin, BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = "stdlib"
 
