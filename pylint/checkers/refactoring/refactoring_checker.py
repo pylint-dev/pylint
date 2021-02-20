@@ -303,7 +303,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1728": (
             "Consider using a generator instead '%s(%s)'",
             "consider-using-generator",
-            "Comprehension inside of any or all calls is unnecessary. "
+            "If your container can be large using "
+            "a generator will bring better performance.",
+        ),
+        "R1729": (
+            "Use a generator instead '%s(%s)'",
+            "use-a-generator",
+            "Comprehension inside of 'any' or 'all' is unnecessary. "
             "A generator would be sufficient and faster.",
         ),
     }
@@ -709,27 +715,35 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message(message_name, node=node)
 
     def _check_consider_using_generator(self, node):
-        # We only check 'any' and 'all' because for list, set, and tuple a generator performs worse
+        # 'any' and 'all' definitely should use generator, while 'list' and 'tuple' need to be considered first
         # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109
-        checked_call = ["any", "all"]
+        checked_call = ["any", "all", "list", "tuple"]
         if (
             isinstance(node, astroid.Call)
             and node.func
             and isinstance(node.func, astroid.Name)
             and node.func.name in checked_call
         ):
-            # any or all calls take exactly one argument
+            # functions in checked_calls take exactly one argument
+            # check whether the argument is list comprehension
             if len(node.args) == 1 and isinstance(node.args[0], astroid.ListComp):
                 # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[
                     1:-1
                 ]
                 call_name = node.func.name
-                self.add_message(
-                    "consider-using-generator",
-                    node=node,
-                    args=(call_name, inside_comp),
-                )
+                if call_name in ["any", "all"]:
+                    self.add_message(
+                        "use-a-generator",
+                        node=node,
+                        args=(call_name, inside_comp),
+                    )
+                else:
+                    self.add_message(
+                        "consider-using-generator",
+                        node=node,
+                        args=(call_name, inside_comp),
+                    )
 
     @utils.check_messages(
         "stop-iteration-return",
