@@ -52,7 +52,7 @@ extras_require = {}
 extras_require[':sys_platform=="win32"'] = ["colorama"]
 extras_require["docs"] = ["sphinx==3.5.1", "python-docs-theme==2020.12"]
 
-license = "GPL"
+license = "GPL-2.0-or-later"
 description = "python code static checker"
 web = "https://github.com/PyCQA/pylint"
 mailinglist = "mailto:code-quality@python.org"
