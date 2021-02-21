@@ -182,6 +182,8 @@ What's New in Pylint 2.7.0?
 
 * Add Github Actions to replace Travis and AppVeyor in the future
 
+* Update Astroid version to `2.5`
+
 
 What's New in Pylint 2.6.1?
 ===========================
