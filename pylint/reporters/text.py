@@ -116,7 +116,7 @@ def colorize_ansi(msg, color=None, style=None):
     escape_code = _get_ansi_code(color, style)
     # If invalid (or unknown) color, don't wrap msg with ansi codes
     if escape_code:
-        return "%s%s%s" % (escape_code, msg, ANSI_RESET)
+        return f"{escape_code}{msg}{ANSI_RESET}"
     return msg
 
 

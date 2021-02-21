@@ -105,8 +105,8 @@ def test_dot_files(generated_file):
     expected = _file_lines(expected_file)
     generated = "\n".join(generated)
     expected = "\n".join(expected)
-    files = "\n *** expected : %s, generated : %s \n" % (expected_file, generated_file)
-    assert expected == generated, "%s%s" % (
+    files = f"\n *** expected : {expected_file}, generated : {generated_file} \n"
+    assert expected == generated, "{}{}".format(
         files,
         "\n".join(
             line for line in unified_diff(expected.splitlines(), generated.splitlines())
@@ -130,7 +130,7 @@ def test_dot_files(generated_file):
 def test_get_visibility(names, expected):
     for name in names:
         got = get_visibility(name)
-        assert got == expected, "got %s instead of %s for value %s" % (
+        assert got == expected, "got {} instead of {} for value {}".format(
             got,
             expected,
             name,

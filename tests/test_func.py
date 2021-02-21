@@ -38,7 +38,7 @@ INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
 
 def exception_str(self, ex):  # pylint: disable=unused-argument
     """function used to replace default __str__ method of exception instances"""
-    return "in %s\n:: %s" % (ex.file, ", ".join(ex.args))
+    return "in {}\n:: {}".format(ex.file, ", ".join(ex.args))
 
 
 class LintTestUsingModule:

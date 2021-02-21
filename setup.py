@@ -94,7 +94,7 @@ def get_packages(directory, prefix):
         if isdir(absfile):
             if exists(join(absfile, "__init__.py")):
                 if prefix:
-                    result.append("%s.%s" % (prefix, package))
+                    result.append(f"{prefix}.{package}")
                 else:
                     result.append(package)
                 result += get_packages(absfile, result[-1])
@@ -159,7 +159,7 @@ def install(**kwargs):
         setup_requires=pytest_runner,
         tests_require=["pytest", "pytest-benchmark"],
         project_urls=project_urls,
-        **kwargs
+        **kwargs,
     )
 
 

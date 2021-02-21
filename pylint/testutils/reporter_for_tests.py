@@ -37,7 +37,7 @@ class GenericTestReporter(BaseReporter):
             # 2to3 writes os.linesep instead of using
             # the previously used line separators
             msg = msg.replace("\r\n", "\n")
-        self.messages.append("%s:%3s%s: %s" % (sigle, line, obj, msg))
+        self.messages.append(f"{sigle}:{line:>3}{obj}: {msg}")
 
     def finalize(self):
         self.messages.sort()

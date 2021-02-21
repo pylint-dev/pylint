@@ -70,7 +70,7 @@ class LintModuleTest:
         )
 
     def __str__(self):
-        return "%s (%s.%s)" % (
+        return "{} ({}.{})".format(
             self._test_file.base,
             self.__class__.__module__,
             self.__class__.__name__,

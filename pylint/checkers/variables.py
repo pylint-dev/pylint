@@ -181,7 +181,7 @@ def _get_unpacking_extra_info(node, inferred):
         elif inferred.lineno:
             more = " defined at line %s" % inferred.lineno
     elif inferred.lineno:
-        more = " defined at line %s of %s" % (inferred.lineno, inferred_module)
+        more = f" defined at line {inferred.lineno} of {inferred_module}"
     return more
 
 
@@ -1636,20 +1636,20 @@ class VariablesChecker(BaseChecker):
             else:
                 if isinstance(stmt, astroid.Import):
                     if asname is not None:
-                        msg = "%s imported as %s" % (qname, asname)
+                        msg = f"{qname} imported as {asname}"
                     else:
                         msg = "import %s" % name
                     self.add_message("unused-import", args=msg, node=stmt)
                     return
                 if isinstance(stmt, astroid.ImportFrom):
                     if asname is not None:
-                        msg = "%s imported from %s as %s" % (
+                        msg = "{} imported from {} as {}".format(
                             qname,
                             stmt.modname,
                             asname,
                         )
                     else:
-                        msg = "%s imported from %s" % (name, stmt.modname)
+                        msg = f"{name} imported from {stmt.modname}"
                     self.add_message("unused-import", args=msg, node=stmt)
                     return
                 message_name = "unused-variable"
@@ -2002,7 +2002,7 @@ class VariablesChecker(BaseChecker):
                     if as_name is None:
                         msg = "import %s" % imported_name
                     else:
-                        msg = "%s imported as %s" % (imported_name, as_name)
+                        msg = f"{imported_name} imported as {as_name}"
                     if not _is_type_checking_import(stmt):
                         self.add_message("unused-import", args=msg, node=stmt)
                 elif isinstance(stmt, astroid.ImportFrom) and stmt.modname != FUTURE:
@@ -2024,7 +2024,7 @@ class VariablesChecker(BaseChecker):
                         self.add_message("unused-wildcard-import", args=name, node=stmt)
                     else:
                         if as_name is None:
-                            msg = "%s imported from %s" % (imported_name, stmt.modname)
+                            msg = f"{imported_name} imported from {stmt.modname}"
                         else:
                             fields = (imported_name, stmt.modname, as_name)
                             msg = "%s imported from %s as %s" % fields

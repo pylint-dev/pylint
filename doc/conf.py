@@ -55,7 +55,7 @@ master_doc = "index"
 # General information about the project.
 project = "Pylint"
 current_year = datetime.utcnow().year
-copyright = "2003-{year}, Logilab, PyCQA and contributors".format(year=current_year)
+copyright = f"2003-{current_year}, Logilab, PyCQA and contributors"
 
 # The full version, including alpha/beta/rc tags.
 release = version

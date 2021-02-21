@@ -1345,12 +1345,12 @@ class BasicChecker(_BasicChecker):
                     if is_iterable(default):
                         msg = value.pytype()
                     elif isinstance(default, astroid.Call):
-                        msg = "%s() (%s)" % (value.name, value.qname())
+                        msg = f"{value.name}() ({value.qname()})"
                     else:
-                        msg = "%s (%s)" % (default.as_string(), value.qname())
+                        msg = f"{default.as_string()} ({value.qname()})"
                 else:
                     # this argument is a name
-                    msg = "%s (%s)" % (
+                    msg = "{} ({})".format(
                         default.as_string(),
                         DEFAULT_ARGUMENT_SYMBOLS[value.qname()],
                     )
@@ -1695,7 +1695,7 @@ def _create_naming_options():
         name_type = name_type.replace("_", "-")
         name_options.append(
             (
-                "%s-naming-style" % (name_type,),
+                f"{name_type}-naming-style",
                 {
                     "default": default_style,
                     "type": "choice",
@@ -1708,7 +1708,7 @@ def _create_naming_options():
         )
         name_options.append(
             (
-                "%s-rgx" % (name_type,),
+                f"{name_type}-rgx",
                 {
                     "default": None,
                     "type": "regexp",
@@ -1852,7 +1852,7 @@ class NameChecker(_BasicChecker):
         )
         for group in self.config.name_group:
             for name_type in group.split(":"):
-                self._name_group[name_type] = "group_%s" % (group,)
+                self._name_group[name_type] = f"group_{group}"
 
         regexps, hints = self._create_naming_rules()
         self._name_regexps = regexps
@@ -1869,12 +1869,12 @@ class NameChecker(_BasicChecker):
         hints = {}
 
         for name_type in KNOWN_NAME_TYPES:
-            naming_style_option_name = "%s_naming_style" % (name_type,)
+            naming_style_option_name = f"{name_type}_naming_style"
             naming_style_name = getattr(self.config, naming_style_option_name)
 
             regexps[name_type] = NAMING_STYLES[naming_style_name].get_regex(name_type)
 
-            custom_regex_setting_name = "%s_rgx" % (name_type,)
+            custom_regex_setting_name = f"{name_type}_rgx"
             custom_regex = getattr(self.config, custom_regex_setting_name, None)
             if custom_regex is not None:
                 regexps[name_type] = custom_regex
@@ -2448,7 +2448,7 @@ class ComparisonChecker(_BasicChecker):
         self.add_message(
             "nan-comparison",
             node=root_node,
-            args=("'{}'".format(root_node.as_string()), suggestion),
+            args=(f"'{root_node.as_string()}'", suggestion),
         )
 
     def _check_literal_comparison(self, literal, node):
@@ -2469,7 +2469,7 @@ class ComparisonChecker(_BasicChecker):
         if isinstance(right, astroid.Const):
             return
         operator = REVERSED_COMPS.get(operator, operator)
-        suggestion = "%s %s %r" % (right.as_string(), operator, left.value)
+        suggestion = f"{right.as_string()} {operator} {left.value!r}"
         self.add_message("misplaced-comparison-constant", node=node, args=(suggestion,))
 
     def _check_logical_tautology(self, node):
@@ -2496,7 +2496,7 @@ class ComparisonChecker(_BasicChecker):
             right_operand = right_operand.name
 
         if left_operand == right_operand:
-            suggestion = "%s %s %s" % (left_operand, operator, right_operand)
+            suggestion = f"{left_operand} {operator} {right_operand}"
             self.add_message("comparison-with-itself", node=node, args=(suggestion,))
 
     def _check_callable_comparison(self, node):

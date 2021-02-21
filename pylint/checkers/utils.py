@@ -313,7 +313,7 @@ def clobber_in_except(
     (False, None) otherwise.
     """
     if isinstance(node, astroid.AssignAttr):
-        return True, (node.attrname, "object %r" % (node.expr.as_string(),))
+        return True, (node.attrname, f"object {node.expr.as_string()!r}")
     if isinstance(node, astroid.AssignName):
         name = node.name
         if is_builtin(name):

@@ -937,7 +937,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         values = list(collections.OrderedDict.fromkeys(values))
         values.remove(common_variable)
         values_string = ", ".join(values) if len(values) != 1 else values[0] + ","
-        suggestion = "%s %s (%s)" % (common_variable, comprehension, values_string)
+        suggestion = f"{common_variable} {comprehension} ({values_string})"
 
         self.add_message("consider-using-in", node=node, args=(suggestion,))
 

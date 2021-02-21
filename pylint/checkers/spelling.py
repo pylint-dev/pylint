@@ -66,7 +66,7 @@ if enchant is not None:
     br = enchant.Broker()
     dicts = br.list_dicts()
     dict_choices = [""] + [d[0] for d in dicts]
-    dicts = ["%s (%s)" % (d[0], d[1].name) for d in dicts]
+    dicts = ["{} ({})".format(d[0], d[1].name) for d in dicts]
     dicts = ", ".join(dicts)
     instr = ""
 else:
@@ -358,7 +358,7 @@ class SpellingChecker(BaseTokenChecker):
                     col += 1
                 indicator = (" " * col) + ("^" * len(word))
                 all_suggestion = "' or '".join(suggestions)
-                args = (word, original_line, indicator, "'{}'".format(all_suggestion))
+                args = (word, original_line, indicator, f"'{all_suggestion}'")
                 self.add_message(msgid, line=line_num, args=args)
 
     def process_tokens(self, tokens):

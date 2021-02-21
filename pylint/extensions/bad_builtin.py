@@ -56,7 +56,7 @@ class BadBuiltinChecker(BaseChecker):
                 if name in self.config.bad_functions:
                     hint = BUILTIN_HINTS.get(name)
                     if hint:
-                        args = "%r. %s" % (name, hint)
+                        args = f"{name!r}. {hint}"
                     else:
                         args = repr(name)
                     self.add_message("bad-builtin", node=node, args=args)

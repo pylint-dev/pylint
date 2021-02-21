@@ -107,7 +107,7 @@ class Similar:
             couples = sorted(couples)
             lineset = idx = None
             for lineset, idx in couples:
-                print("==%s:%s" % (lineset.name, idx))
+                print(f"=={lineset.name}:{idx}")
             if lineset:
                 for line in lineset._real_lines[idx : idx + num]:
                     print("  ", line.rstrip())
@@ -404,7 +404,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             msg = []
             lineset = idx = None
             for lineset, idx in couples:
-                msg.append("==%s:%s" % (lineset.name, idx))
+                msg.append(f"=={lineset.name}:{idx}")
             msg.sort()
 
             if lineset:

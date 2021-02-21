@@ -495,7 +495,7 @@ class ExceptionsChecker(checkers.BaseChecker):
     def visit_binop(self, node):
         if isinstance(node.parent, astroid.ExceptHandler):
             # except (V | A)
-            suggestion = "Did you mean '(%s, %s)' instead?" % (
+            suggestion = "Did you mean '({}, {})' instead?".format(
                 node.left.as_string(),
                 node.right.as_string(),
             )
@@ -505,7 +505,7 @@ class ExceptionsChecker(checkers.BaseChecker):
     def visit_compare(self, node):
         if isinstance(node.parent, astroid.ExceptHandler):
             # except (V < A)
-            suggestion = "Did you mean '(%s, %s)' instead?" % (
+            suggestion = "Did you mean '({}, {})' instead?".format(
                 node.left.as_string(),
                 ", ".join(operand.as_string() for _, operand in node.ops),
             )
@@ -568,7 +568,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
                     for previous_exc in exceptions_classes:
                         if previous_exc in exc_ancestors:
-                            msg = "%s is an ancestor class of %s" % (
+                            msg = "{} is an ancestor class of {}".format(
                                 previous_exc.name,
                                 exc.name,
                             )
