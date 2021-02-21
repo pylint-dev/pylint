@@ -7,7 +7,7 @@ on:
   pull_request: ~
 
 env:
-  CACHE_VERSION: 0
+  CACHE_VERSION: 1
   DEFAULT_PYTHON: 3.6
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
@@ -32,6 +32,11 @@ jobs:
         id: fetch-astroid-hash
         run: >-
           echo "::set-output name=hash::"$(python script/fetch_astroid_hash.py)
+      - name: Check astroid commit hash
+        if: steps.fetch-astroid-hash.outputs.hash == ''
+        run: |
+          echo "Error with astroid hash generation, check logs!"
+          exit 1
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
@@ -204,6 +209,11 @@ jobs:
         id: fetch-astroid-hash
         run: >-
           echo "::set-output name=hash::"$(python script/fetch_astroid_hash.py)
+      - name: Check astroid commit hash
+        if: steps.fetch-astroid-hash.outputs.hash == ''
+        run: |
+          echo "Error with astroid hash generation, check logs!"
+          exit 1
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
@@ -376,6 +386,11 @@ jobs:
         id: fetch-astroid-hash
         run: >-
           echo "::set-output name=hash::"$(python script/fetch_astroid_hash.py)
+      - name: Check astroid commit hash
+        if: steps.fetch-astroid-hash.outputs.hash == ''
+        run: |
+          echo "Error with astroid hash generation, check logs!"
+          exit 1
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
