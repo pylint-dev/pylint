@@ -31,7 +31,7 @@
 from os.path import join
 
 # For an official release, use dev_version = None
-numversion = (2, 6, 1)
+numversion = (2, 7, 0)
 dev_version = 1
 
 version = ".".join(str(num) for num in numversion)
@@ -39,7 +39,7 @@ if dev_version is not None:
     version += "-dev" + str(dev_version)
 
 install_requires = [
-    "astroid>=2.4.0,<=2.6",
+    "astroid==2.5.0",
     "isort>=4.2.5,<6",
     "mccabe>=0.6,<0.7",
     "toml>=0.7.1",

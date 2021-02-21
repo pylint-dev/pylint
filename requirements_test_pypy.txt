@@ -1,4 +1,4 @@
-astroid @ git+git://github.com/PyCQA/astroid.git@master
+astroid @ git+git://github.com/PyCQA/astroid.git@astroid-2.5
 coveralls
 coverage<5.0
 pytest
