@@ -31,9 +31,7 @@ jobs:
       - name: Fetch astroid commit hash
         id: fetch-astroid-hash
         run: >-
-          echo "::set-output name=hash::"$(
-            curl -s https://api.github.com/repos/PyCQA/astroid/branches/master |
-            grep -E '^    "sha": "(\S*)' | awk '{print substr($0, 13, 40)}')
+          echo "::set-output name=hash::"$(python script/fetch_astroid_hash.py)
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
@@ -205,9 +203,7 @@ jobs:
       - name: Fetch astroid commit hash
         id: fetch-astroid-hash
         run: >-
-          echo "::set-output name=hash::"$(
-            curl -s https://api.github.com/repos/PyCQA/astroid/branches/master |
-            grep -E '^    "sha": "(\S*)' | awk '{print substr($0, 13, 40)}')
+          echo "::set-output name=hash::"$(python script/fetch_astroid_hash.py)
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
@@ -379,9 +375,7 @@ jobs:
       - name: Fetch astroid commit hash
         id: fetch-astroid-hash
         run: >-
-          echo "::set-output name=hash::"$(
-            curl -s https://api.github.com/repos/PyCQA/astroid/branches/master |
-            grep -E '^    "sha": "(\S*)' | awk '{print substr($0, 13, 40)}')
+          echo "::set-output name=hash::"$(python script/fetch_astroid_hash.py)
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
