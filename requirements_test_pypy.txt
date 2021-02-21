@@ -1,7 +1,0 @@
-astroid==2.5.0
-coveralls
-coverage<5.0
-pytest
-pytest-xdist
-pytest-benchmark
-pytest-profiling
