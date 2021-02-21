@@ -94,7 +94,7 @@ def _get_import_name(importnode, modname):
 
 def _get_first_import(node, context, name, base, level, alias):
     """return the node where [base.]<name> is imported or None if not found"""
-    fullname = "%s.%s" % (base, name) if base else name
+    fullname = f"{base}.{name}" if base else name
 
     first = None
     found = False
@@ -110,7 +110,7 @@ def _get_first_import(node, context, name, base, level, alias):
         elif isinstance(first, astroid.ImportFrom):
             if level == first.level:
                 for imported_name, imported_alias in first.names:
-                    if fullname == "%s.%s" % (first.modname, imported_name):
+                    if fullname == f"{first.modname}.{imported_name}":
                         found = True
                         break
                     if (
@@ -161,10 +161,10 @@ def _repr_tree_defs(data, indent_str=None):
         else:
             files = "(%s)" % ",".join(sorted(files))
         if indent_str is None:
-            lines.append("%s %s" % (mod, files))
+            lines.append(f"{mod} {files}")
             sub_indent_str = "  "
         else:
-            lines.append(r"%s\-%s %s" % (indent_str, mod, files))
+            lines.append(fr"{indent_str}\-{mod} {files}")
             if i == len(nodes) - 1:
                 sub_indent_str = "%s  " % indent_str
             else:
@@ -197,7 +197,7 @@ def _make_graph(filename, dep_info, sect, gtype):
     report's section
     """
     _dependencies_graph(filename, dep_info)
-    sect.append(Paragraph("%simports graph has been written to %s" % (gtype, filename)))
+    sect.append(Paragraph(f"{gtype}imports graph has been written to {filename}"))
 
 
 # the import checker itself ###################################################
@@ -537,7 +537,7 @@ class ImportsChecker(BaseChecker):
             return
         for name, _ in node.names:
             if name != "*":
-                self._add_imported_module(node, "%s.%s" % (imported_module.name, name))
+                self._add_imported_module(node, f"{imported_module.name}.{name}")
             else:
                 self._add_imported_module(node, imported_module.name)
 

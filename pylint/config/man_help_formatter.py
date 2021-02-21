@@ -33,9 +33,9 @@ class _ManHelpFormatter(optparse.HelpFormatter):
             help_string = help_string.replace("[current:", "[default:")
         else:
             help_string = ""
-        return """.IP "%s"
-%s
-""" % (
+        return """.IP "{}"
+{}
+""".format(
             optstring,
             help_string,
         )
@@ -50,7 +50,7 @@ class _ManHelpFormatter(optparse.HelpFormatter):
         short_desc = self.format_short_description(pgm, pkginfo.description)
         if hasattr(pkginfo, "long_desc"):
             long_desc = self.format_long_description(pgm, pkginfo.long_desc)
-        return "%s\n%s\n%s\n%s" % (
+        return "{}\n{}\n{}\n{}".format(
             self.format_title(pgm, section),
             short_desc,
             self.format_synopsis(pgm),
@@ -60,14 +60,14 @@ class _ManHelpFormatter(optparse.HelpFormatter):
     @staticmethod
     def format_title(pgm, section):
         date = "%d-%02d-%02d" % time.localtime()[:3]
-        return '.TH %s %s "%s" %s' % (pgm, section, date, pgm)
+        return f'.TH {pgm} {section} "{date}" {pgm}'
 
     @staticmethod
     def format_short_description(pgm, short_desc):
         return """.SH NAME
-.B %s
-\\- %s
-""" % (
+.B {}
+\\- {}
+""".format(
             pgm,
             short_desc.strip(),
         )
@@ -93,9 +93,9 @@ class _ManHelpFormatter(optparse.HelpFormatter):
         if long_desc.lower().startswith(pgm):
             long_desc = long_desc[len(pgm) :]
         return """.SH DESCRIPTION
-.B %s
-%s
-""" % (
+.B {}
+{}
+""".format(
             pgm,
             long_desc.strip(),
         )
@@ -103,15 +103,15 @@ class _ManHelpFormatter(optparse.HelpFormatter):
     @staticmethod
     def format_tail(pkginfo):
         tail = """.SH SEE ALSO
-/usr/share/doc/pythonX.Y-%s/
+/usr/share/doc/pythonX.Y-{}/
 
 .SH BUGS
 Please report bugs on the project\'s mailing list:
-%s
+{}
 
 .SH AUTHOR
-%s <%s>
-""" % (
+{} <{}>
+""".format(
             getattr(pkginfo, "debian_name", "pylint"),
             pkginfo.mailinglist,
             pkginfo.author,

@@ -134,16 +134,16 @@ class DotBackend:
         """emit an edge from <name1> to <name2>.
         edge properties: see https://www.graphviz.org/doc/info/attrs.html
         """
-        attrs = ['%s="%s"' % (prop, value) for prop, value in props.items()]
+        attrs = [f'{prop}="{value}"' for prop, value in props.items()]
         n_from, n_to = normalize_node_id(name1), normalize_node_id(name2)
-        self.emit("%s -> %s [%s];" % (n_from, n_to, ", ".join(sorted(attrs))))
+        self.emit("{} -> {} [{}];".format(n_from, n_to, ", ".join(sorted(attrs))))
 
     def emit_node(self, name, **props):
         """emit a node with given properties.
         node properties: see https://www.graphviz.org/doc/info/attrs.html
         """
-        attrs = ['%s="%s"' % (prop, value) for prop, value in props.items()]
-        self.emit("%s [%s];" % (normalize_node_id(name), ", ".join(sorted(attrs))))
+        attrs = [f'{prop}="{value}"' for prop, value in props.items()]
+        self.emit("{} [{}];".format(normalize_node_id(name), ", ".join(sorted(attrs))))
 
 
 def normalize_node_id(nid):

@@ -31,7 +31,7 @@ class DiagramWriter:
         """write files for <project> according to <diadefs>"""
         for diagram in diadefs:
             basename = diagram.title.strip().replace(" ", "_")
-            file_name = "%s.%s" % (basename, self.config.output_format)
+            file_name = f"{basename}.{self.config.output_format}"
             self.set_printer(file_name, basename)
             if diagram.TYPE == "class":
                 self.write_classes(diagram)
@@ -73,7 +73,7 @@ class DiagramWriter:
                 rel.from_object.fig_id,
                 rel.to_object.fig_id,
                 label=rel.name,
-                **self.association_edges
+                **self.association_edges,
             )
 
     def set_printer(self, file_name, basename):
@@ -126,13 +126,13 @@ class DotWriter(DiagramWriter):
         if obj.shape == "interface":
             label = "«interface»\\n%s" % label
         if not self.config.only_classnames:
-            label = r"%s|%s\l|" % (label, r"\l".join(obj.attrs))
+            label = r"{}|{}\l|".format(label, r"\l".join(obj.attrs))
             for func in obj.methods:
                 if func.args.args:
                     args = [arg.name for arg in func.args.args if arg.name != "self"]
                 else:
                     args = []
-                label = r"%s%s(%s)\l" % (label, func.name, ", ".join(args))
+                label = r"{}{}({})\l".format(label, func.name, ", ".join(args))
             label = "{%s}" % label
         if is_exception(obj.node):
             return dict(fontcolor="red", label=label, shape="record")
@@ -197,13 +197,13 @@ class VCGWriter(DiagramWriter):
             # box width for UML like diagram
             maxlen = max(len(name) for name in [obj.title] + methods + attrs)
             line = "_" * (maxlen + 2)
-            label = r"%s\n\f%s" % (label, line)
+            label = fr"{label}\n\f{line}"
             for attr in attrs:
-                label = r"%s\n\f08%s" % (label, attr)
+                label = fr"{label}\n\f08{attr}"
             if attrs:
-                label = r"%s\n\f%s" % (label, line)
+                label = fr"{label}\n\f{line}"
             for func in methods:
-                label = r"%s\n\f10%s()" % (label, func)
+                label = fr"{label}\n\f10{func}()"
         return dict(label=label, shape=shape)
 
     def close_graph(self):

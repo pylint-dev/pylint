@@ -124,9 +124,9 @@ class TestRunTC:
             output = out.getvalue()
         else:
             output = None
-        msg = "expected output status %s, got %s" % (code, pylint_code)
+        msg = f"expected output status {code}, got {pylint_code}"
         if output is not None:
-            msg = "%s. Below pylint output: \n%s" % (msg, output)
+            msg = f"{msg}. Below pylint output: \n{output}"
         assert pylint_code == code, msg
 
     @staticmethod

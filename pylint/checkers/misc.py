@@ -107,7 +107,7 @@ class EncodingChecker(BaseChecker):
 
         notes = "|".join(map(re.escape, self.config.notes))
         if self.config.notes_rgx:
-            regex_string = r"#\s*(%s|%s)\b" % (notes, self.config.notes_rgx)
+            regex_string = fr"#\s*({notes}|{self.config.notes_rgx})\b"
         else:
             regex_string = r"#\s*(%s)\b" % (notes)
 

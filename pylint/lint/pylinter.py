@@ -657,12 +657,12 @@ class PyLinter(
 
     def list_messages_enabled(self):
         enabled = [
-            "  %s (%s)" % (message.symbol, message.msgid)
+            f"  {message.symbol} ({message.msgid})"
             for message in self.msgs_store.messages
             if self.is_message_enabled(message.msgid)
         ]
         disabled = [
-            "  %s (%s)" % (message.symbol, message.msgid)
+            f"  {message.symbol} ({message.msgid})"
             for message in self.msgs_store.messages
             if not self.is_message_enabled(message.msgid)
         ]
@@ -1158,7 +1158,7 @@ class PyLinter(
             msg = "Your code has been rated at %.2f/10" % note
             pnote = previous_stats.get("global_note")
             if pnote is not None:
-                msg += " (previous run: %.2f/10, %+.2f)" % (pnote, note - pnote)
+                msg += " (previous run: {:.2f}/10, {:+.2f})".format(pnote, note - pnote)
 
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)

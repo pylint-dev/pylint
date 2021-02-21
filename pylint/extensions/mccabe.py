@@ -58,7 +58,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
             self.graph = PathGraph(node)
             self.tail = node
             self.dispatch_list(node.body)
-            self.graphs["%s%s" % (self.classname, node.name)] = self.graph
+            self.graphs[f"{self.classname}{node.name}"] = self.graph
             self.reset()
 
     visitAsyncFunctionDef = visitFunctionDef
@@ -111,7 +111,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
             # global loop
             self.graph = PathGraph(node)
             self._subgraph_parse(node, node, extra_blocks)
-            self.graphs["%s%s" % (self.classname, name)] = self.graph
+            self.graphs[f"{self.classname}{name}"] = self.graph
             self.reset()
         else:
             self._append_node(node)

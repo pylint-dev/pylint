@@ -285,7 +285,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
         non_iterating_code = ["x = __({}())", "__({}())[0]"]
 
         for method in ("keys", "items", "values"):
-            dict_method = "{{}}.{}".format(method)
+            dict_method = f"{{}}.{method}"
 
             for code in iterating_code:
                 with_value = code.format(dict_method)

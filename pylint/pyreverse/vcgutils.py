@@ -174,7 +174,7 @@ class VCGPrinter:
 
     def node(self, title, **args):
         """draw a node"""
-        self._stream.write('%snode: {title:"%s"' % (self._indent, title))
+        self._stream.write(f'{self._indent}node: {{title:"{title}"')
         self._write_attributes(NODE_ATTRS, **args)
         self._stream.write("}\n")
 
@@ -202,11 +202,11 @@ possible attributes are %s"""
                 ) from e
 
             if not _type:
-                self._stream.write('%s%s:"%s"\n' % (self._indent, key, value))
+                self._stream.write(f'{self._indent}{key}:"{value}"\n')
             elif _type == 1:
-                self._stream.write("%s%s:%s\n" % (self._indent, key, int(value)))
+                self._stream.write("{}{}:{}\n".format(self._indent, key, int(value)))
             elif value in _type:
-                self._stream.write("%s%s:%s\n" % (self._indent, key, value))
+                self._stream.write(f"{self._indent}{key}:{value}\n")
             else:
                 raise Exception(
                     """value %s isn\'t correct for attribute %s

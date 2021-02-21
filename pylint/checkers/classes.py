@@ -827,7 +827,7 @@ a metaclass class method.",
             if not ancestor:
                 continue
             if isinstance(ancestor, astroid.Instance) and ancestor.is_subtype_of(
-                "%s.type" % (BUILTINS,)
+                f"{BUILTINS}.type"
             ):
                 continue
             if (
@@ -1604,7 +1604,7 @@ a metaclass class method.",
                 valid = repr(config[0])
             else:
                 valid = ", ".join(repr(v) for v in config[:-1])
-                valid = "%s or %r" % (valid, config[-1])
+                valid = "{} or {!r}".format(valid, config[-1])
             self.add_message(message, args=(method_name, valid), node=node)
 
     def _check_bases_classes(self, node):

@@ -52,7 +52,7 @@ def get_module_and_frameid(node):
 
 def get_rst_title(title, character):
     """Permit to get a title formatted as ReStructuredText test (underlined with a chosen character)."""
-    return "%s\n%s\n" % (title, character * len(title))
+    return "{}\n{}\n".format(title, character * len(title))
 
 
 def get_rst_section(section, options, doc=None):
@@ -258,9 +258,7 @@ def register_plugins(linter, directory):
                 # empty module name (usually emacs auto-save files)
                 continue
             except ImportError as exc:
-                print(
-                    "Problem importing module %s: %s" % (filename, exc), file=sys.stderr
-                )
+                print(f"Problem importing module {filename}: {exc}", file=sys.stderr)
             else:
                 if hasattr(module, "register"):
                     module.register(linter)
@@ -367,7 +365,7 @@ def _format_option_value(optdict, value):
     if isinstance(value, (list, tuple)):
         value = ",".join(_format_option_value(optdict, item) for item in value)
     elif isinstance(value, dict):
-        value = ",".join("%s:%s" % (k, v) for k, v in value.items())
+        value = ",".join(f"{k}:{v}" for k, v in value.items())
     elif hasattr(value, "match"):  # optdict.get('type') == 'regexp'
         # compiled regexp
         value = value.pattern
@@ -406,7 +404,7 @@ def _ini_format(stream, options):
                 value = separator.join(x + "," for x in str(value).split(","))
                 # remove trailing ',' from last element of the list
                 value = value[:-1]
-            print("%s=%s" % (optname, value), file=stream)
+            print(f"{optname}={value}", file=stream)
 
 
 class IsortDriver:

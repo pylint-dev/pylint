@@ -68,7 +68,7 @@ else:
 
 def _get_pdata_path(base_name, recurs):
     base_name = base_name.replace(os.sep, "_")
-    return os.path.join(PYLINT_HOME, "%s%s%s" % (base_name, recurs, ".stats"))
+    return os.path.join(PYLINT_HOME, "{}{}{}".format(base_name, recurs, ".stats"))
 
 
 def load_results(base):
@@ -91,7 +91,7 @@ def save_results(results, base):
         with open(data_file, "wb") as stream:
             pickle.dump(results, stream)
     except OSError as ex:
-        print("Unable to create file %s: %s" % (data_file, ex), file=sys.stderr)
+        print(f"Unable to create file {data_file}: {ex}", file=sys.stderr)
 
 
 def find_pylintrc():

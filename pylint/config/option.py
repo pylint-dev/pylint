@@ -89,7 +89,7 @@ def _call_validator(opttype, optdict, option, value):
             return VALIDATORS[opttype](value)
         except Exception as e:
             raise optparse.OptionValueError(
-                "%s value (%r) should be of type %s" % (option, value, opttype)
+                f"{option} value ({value!r}) should be of type {opttype}"
             ) from e
 
 

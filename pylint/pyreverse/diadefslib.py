@@ -42,7 +42,7 @@ class DiaDefGenerator:
         """get title for objects"""
         title = node.name
         if self.module_names:
-            title = "%s.%s" % (node.root().name, title)
+            title = f"{node.root().name}.{title}"
         return title
 
     def _set_option(self, option):
