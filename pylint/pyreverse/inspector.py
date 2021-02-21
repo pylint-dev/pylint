@@ -261,7 +261,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             if name[0] == "*":
                 continue
             # analyze dependencies
-            fullname = "{}.{}".format(basename, name[0])
+            fullname = f"{basename}.{name[0]}"
             if fullname.find(".") > -1:
                 try:
                     fullname = modutils.get_module_part(fullname, context_file)
@@ -319,11 +319,7 @@ class Project:
         return self.modules
 
     def __repr__(self):
-        return "<Project {!r} at {} ({} modules)>".format(
-            self.name,
-            id(self),
-            len(self.modules),
-        )
+        return f"<Project {self.name!r} at {id(self)} ({len(self.modules)} modules)>"
 
 
 def project_from_files(

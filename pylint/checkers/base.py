@@ -1331,7 +1331,6 @@ class BasicChecker(_BasicChecker):
                 isinstance(value, astroid.Instance)
                 and value.qname() in DEFAULT_ARGUMENT_SYMBOLS
             ):
-
                 if value is default:
                     msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
                 elif isinstance(value, astroid.Instance) or is_iterable(value):
@@ -1350,10 +1349,7 @@ class BasicChecker(_BasicChecker):
                         msg = f"{default.as_string()} ({value.qname()})"
                 else:
                     # this argument is a name
-                    msg = "{} ({})".format(
-                        default.as_string(),
-                        DEFAULT_ARGUMENT_SYMBOLS[value.qname()],
-                    )
+                    msg = f"{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})"
                 self.add_message("dangerous-default-value", node=node, args=(msg,))
 
     @utils.check_messages("unreachable", "lost-exception")
@@ -2437,14 +2433,9 @@ class ComparisonChecker(_BasicChecker):
         if checking_for_absence:
             absence_text = "not "
         if nan_left:
-            suggestion = "'{}math.isnan({})'".format(
-                absence_text, right_value.as_string()
-            )
+            suggestion = f"'{absence_text}math.isnan({right_value.as_string()})'"
         else:
-            suggestion = "'{}math.isnan({})'".format(
-                absence_text, left_value.as_string()
-            )
-
+            suggestion = f"'{absence_text}math.isnan({left_value.as_string()})'"
         self.add_message(
             "nan-comparison",
             node=root_node,

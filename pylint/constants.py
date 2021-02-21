@@ -44,8 +44,6 @@ class WarningScope:
     NODE = "node-based-msg"
 
 
-full_version = "pylint {}\nastroid {}\nPython {}".format(
-    pylint_version,
-    astroid_version,
-    sys.version,
-)
+full_version = f"""pylint {pylint_version}
+astroid {astroid_version}
+Python { sys.version}"""

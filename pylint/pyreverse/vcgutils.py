@@ -204,14 +204,13 @@ possible attributes are %s"""
             if not _type:
                 self._stream.write(f'{self._indent}{key}:"{value}"\n')
             elif _type == 1:
-                self._stream.write("{}{}:{}\n".format(self._indent, key, int(value)))
+                self._stream.write(f"{self._indent}{key}:{int(value)}\n")
             elif value in _type:
                 self._stream.write(f"{self._indent}{key}:{value}\n")
             else:
                 raise Exception(
-                    """value %s isn\'t correct for attribute %s
-correct values are %s"""
-                    % (value, key, _type)
+                    f"""value {value} isn't correct for attribute {key}
+correct values are {type}"""
                 )
 
     def _inc_indent(self):

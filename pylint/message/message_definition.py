@@ -39,17 +39,15 @@ class MessageDefinition:
     @staticmethod
     def check_msgid(msgid: str) -> None:
         if len(msgid) != 5:
-            raise InvalidMessageError("Invalid message id %r" % msgid)
+            raise InvalidMessageError(f"Invalid message id {msgid!r}")
         if msgid[0] not in MSG_TYPES:
-            raise InvalidMessageError(
-                "Bad message type {} in {!r}".format(msgid[0], msgid)
-            )
+            raise InvalidMessageError(f"Bad message type {msgid[0]} in {msgid!r}")
 
     def __repr__(self):
         return f"MessageDefinition:{self.symbol} ({self.msgid})"
 
     def __str__(self):
-        return "{}:\n{} {}".format(repr(self), self.msg, self.description)
+        return f"{repr(self)}:\n{self.msg} {self.description}"
 
     def may_be_emitted(self):
         """return True if message may be emitted using the current interpreter"""

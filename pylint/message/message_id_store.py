@@ -81,9 +81,7 @@ class MessageIdStore:
         symbols = [symbol, other_symbol]
         symbols.sort()
         error_message = f"Message id '{msgid}' cannot have both "
-        error_message += "'{other_symbol}' and '{symbol}' as symbolic name.".format(
-            other_symbol=symbols[0], symbol=symbols[1]
-        )
+        error_message += f"'{symbols[0]}' and '{symbols[1]}' as symbolic name."
         raise InvalidMessageError(error_message)
 
     @staticmethod
@@ -97,10 +95,10 @@ class MessageIdStore:
         msgids = [msgid, other_msgid]
         msgids.sort()
         error_message = (
-            "Message symbol '{symbol}' cannot be used for "
-            "'{other_msgid}' and '{msgid}' at the same time."
-            " If you're creating an 'old_names' use 'old-{symbol}' as the old symbol."
-        ).format(symbol=symbol, other_msgid=msgids[0], msgid=msgids[1])
+            f"Message symbol '{symbol}' cannot be used for "
+            f"'{msgids[0]}' and '{msgids[1]}' at the same time."
+            f" If you're creating an 'old_names' use 'old-{symbol}' as the old symbol."
+        )
         raise InvalidMessageError(error_message)
 
     def get_active_msgids(self, msgid_or_symbol: str) -> List[str]:

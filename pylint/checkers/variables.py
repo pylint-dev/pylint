@@ -1643,11 +1643,7 @@ class VariablesChecker(BaseChecker):
                     return
                 if isinstance(stmt, astroid.ImportFrom):
                     if asname is not None:
-                        msg = "{} imported from {} as {}".format(
-                            qname,
-                            stmt.modname,
-                            asname,
-                        )
+                        msg = f"{qname} imported from {stmt.modname} as {asname}"
                     else:
                         msg = f"{name} imported from {stmt.modname}"
                     self.add_message("unused-import", args=msg, node=stmt)

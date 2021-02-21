@@ -33,12 +33,9 @@ class _ManHelpFormatter(optparse.HelpFormatter):
             help_string = help_string.replace("[current:", "[default:")
         else:
             help_string = ""
-        return """.IP "{}"
-{}
-""".format(
-            optstring,
-            help_string,
-        )
+        return f""".IP "{optstring}"
+{help_string}
+"""
 
     def format_head(self, optparser, pkginfo, section=1):
         long_desc = ""
@@ -50,12 +47,10 @@ class _ManHelpFormatter(optparse.HelpFormatter):
         short_desc = self.format_short_description(pgm, pkginfo.description)
         if hasattr(pkginfo, "long_desc"):
             long_desc = self.format_long_description(pgm, pkginfo.long_desc)
-        return "{}\n{}\n{}\n{}".format(
-            self.format_title(pgm, section),
-            short_desc,
-            self.format_synopsis(pgm),
-            long_desc,
-        )
+        return f"""{self.format_title(pgm, section)}
+{short_desc}
+{self.format_synopsis(pgm)}
+{long_desc}"""
 
     @staticmethod
     def format_title(pgm, section):
@@ -64,27 +59,21 @@ class _ManHelpFormatter(optparse.HelpFormatter):
 
     @staticmethod
     def format_short_description(pgm, short_desc):
-        return """.SH NAME
-.B {}
-\\- {}
-""".format(
-            pgm,
-            short_desc.strip(),
-        )
+        return f""".SH NAME
+.B {pgm}
+\\- {short_desc.strip()}
+"""
 
     @staticmethod
     def format_synopsis(pgm):
-        return (
-            """.SH SYNOPSIS
-.B  %s
+        return f""".SH SYNOPSIS
+.B  {pgm}
 [
 .I OPTIONS
 ] [
 .I <arguments>
 ]
 """
-            % pgm
-        )
 
     @staticmethod
     def format_long_description(pgm, long_desc):
@@ -92,41 +81,28 @@ class _ManHelpFormatter(optparse.HelpFormatter):
         long_desc = long_desc.replace("\n.\n", "\n\n")
         if long_desc.lower().startswith(pgm):
             long_desc = long_desc[len(pgm) :]
-        return """.SH DESCRIPTION
-.B {}
-{}
-""".format(
-            pgm,
-            long_desc.strip(),
-        )
+        return f""".SH DESCRIPTION
+.B {pgm}
+{long_desc.strip()}
+"""
 
     @staticmethod
     def format_tail(pkginfo):
-        tail = """.SH SEE ALSO
-/usr/share/doc/pythonX.Y-{}/
+        tail = f""".SH SEE ALSO
+/usr/share/doc/pythonX.Y-{getattr(pkginfo, "debian_name", "pylint")}/
 
 .SH BUGS
 Please report bugs on the project\'s mailing list:
-{}
+{pkginfo.mailinglist}
 
 .SH AUTHOR
-{} <{}>
-""".format(
-            getattr(pkginfo, "debian_name", "pylint"),
-            pkginfo.mailinglist,
-            pkginfo.author,
-            pkginfo.author_email,
-        )
-
-        if hasattr(pkginfo, "copyright"):
-            tail += (
-                """
-.SH COPYRIGHT
-%s
+{pkginfo.author} <{pkginfo.author_email}>
 """
-                % pkginfo.copyright
-            )
-
+        if hasattr(pkginfo, "copyright"):
+            tail += f"""
+.SH COPYRIGHT
+{pkginfo.copyright}
+"""
         return tail
 
 

@@ -551,23 +551,17 @@ class TestNamePresets(unittest.TestCase):
         for name, name_type in always_pass_data:
             self._test_is_correct(naming_style, name, name_type)
 
-    def _test_is_correct(self, naming_style, name, name_type):
+    @staticmethod
+    def _test_is_correct(naming_style, name, name_type):
         rgx = naming_style.get_regex(name_type)
-        self.assertTrue(
-            rgx.match(name),
-            "{!r} does not match pattern {!r} (style: {}, type: {})".format(
-                name, rgx, naming_style, name_type
-            ),
-        )
+        fail = f"{name!r} does not match pattern {rgx!r} (style: {naming_style}, type: {name_type})"
+        assert rgx.match(name), fail
 
-    def _test_is_incorrect(self, naming_style, name, name_type):
+    @staticmethod
+    def _test_is_incorrect(naming_style, name, name_type):
         rgx = naming_style.get_regex(name_type)
-        self.assertFalse(
-            rgx.match(name),
-            "{!r} match pattern {!r} but shouldn't (style: {}, type: {})".format(
-                name, rgx, naming_style, name_type
-            ),
-        )
+        fail = f"{name!r} not match pattern {rgx!r} (style: {naming_style}, type: {name_type})"
+        assert not rgx.match(name), fail
 
     def test_snake_case(self):
         naming_style = base.SnakeCaseStyle
