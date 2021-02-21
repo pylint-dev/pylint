@@ -12,6 +12,7 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Add ``deprecated-argument`` check for deprecated arguments.
 
 Other Changes
 =============

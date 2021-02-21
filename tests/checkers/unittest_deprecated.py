@@ -1,6 +1,6 @@
 import astroid
 
-from pylint.checkers import BaseChecker, DeprecatedMixin, utils
+from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.interfaces import UNDEFINED, IAstroidChecker
 from pylint.testutils import CheckerTestCase, Message
 
@@ -9,29 +9,29 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = "deprecated"
 
-    msgs = {
-        "W1505": (
-            "Using deprecated method %s()",
-            "deprecated-method",
-            "The method is marked as deprecated and will be removed in "
-            "a future version of Python. Consider looking for an "
-            "alternative in the documentation.",
-        )
-    }
-
-    @utils.check_messages(
-        "deprecated-method",
-    )
-    def visit_call(self, node):
-        """Visit a Call node."""
-        try:
-            for inferred in node.func.infer():
-                self.check_deprecated_method(node, inferred)
-        except astroid.InferenceError:
-            return
-
     def deprecated_methods(self):
         return {"deprecated_func", ".Deprecated.deprecated_method"}
+
+    def deprecated_arguments(self, method):
+        if method == "myfunction1":
+            # def myfunction1(arg1, deprecated_arg1='spam')
+            return ((1, "deprecated_arg1"),)
+        if method == "myfunction2":
+            # def myfunction2(arg1, deprecated_arg1, arg2='foo', deprecated_arg2='spam'))
+            return ((1, "deprecated_arg1"), (3, "deprecated_arg2"))
+        if method == "myfunction3":
+            # def myfunction1(arg1, *, deprecated_arg1='spam')
+            return ((None, "deprecated_arg1"),)
+        if method == ".MyClass.mymethod1":
+            # def mymethod1(self, arg1, deprecated_arg1=None)
+            return ((1, "deprecated_arg1"),)
+        if method == ".MyClass.mymethod2":
+            # def mymethod2(self, arg1, deprecated_arg1='bar', arg2='foo', deprecated_arg2='spam'))
+            return ((1, "deprecated_arg1"), (3, "deprecated_arg2"))
+        if method == ".MyClass.mymethod3":
+            # def mymethod1(self, arg1, *, deprecated_arg1=None)
+            return ((None, "deprecated_arg1"),)
+        return ()
 
 
 class TestDeprecatedChecker(CheckerTestCase):
@@ -96,4 +96,262 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    def test_function_deprecated_arg(self):
+        # Tests raising error when calling function with deprecated argument
+        node = astroid.extract_node(
+            """
+        def myfunction1(arg1, deprecated_arg1='spam'):
+            pass
+
+        myfunction1(None, 'deprecated')
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg1", "myfunction1"),
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_call(node)
+
+    def test_function_deprecated_kwarg(self):
+        # Tests raising error when calling function with deprecated keyword argument
+        node = astroid.extract_node(
+            """
+        def myfunction1(arg1, deprecated_arg1='spam'):
+            pass
+
+        myfunction1(None, deprecated_arg1='deprecated')
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg1", "myfunction1"),
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_call(node)
+
+    def test_function_deprecated_not_used(self):
+        # Tests raising error when calling function without deprecated argument
+        node = astroid.extract_node(
+            """
+        def myfunction1(arg1, deprecated_arg1='spam'):
+            pass
+
+        myfunction1(None)
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    def test_function_deprecated_kwarg_only(self):
+        # Tests raising error when calling function with deprecated keyword only argument
+        node = astroid.extract_node(
+            """
+        def myfunction3(arg1, *, deprecated_arg1='spam'):
+            pass
+
+        myfunction3(None, deprecated_arg1='deprecated')
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg1", "myfunction3"),
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_call(node)
+
+    def test_method_deprecated_arg(self):
+        # Tests raising error when calling method with deprecated argument
+        node = astroid.extract_node(
+            """
+        class MyClass:
+            def mymethod1(self, arg1, deprecated_arg1):
+                pass
+
+        MyClass().mymethod1(None, 'deprecated')
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg1", "mymethod1"),
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_call(node)
+
+    def test_method_deprecated_kwarg(self):
+        # Tests raising error when calling method with deprecated keyword argument
+        node = astroid.extract_node(
+            """
+        class MyClass:
+            def mymethod1(self, arg1, deprecated_arg1):
+                pass
+
+        MyClass().mymethod1(None, deprecated_arg1='deprecated')
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg1", "mymethod1"),
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_call(node)
+
+    def test_method_deprecated_not_used(self):
+        # Tests raising error when calling method without deprecated argument
+        node = astroid.extract_node(
+            """
+        class MyClass:
+            def mymethod1(self, arg1, deprecated_arg1):
+                pass
+
+        MyClass().mymethod1(None)
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    def test_method_deprecated_kwarg_only(self):
+        # Tests raising error when calling method with deprecated keyword only argument
+        node = astroid.extract_node(
+            """
+        class MyClass:
+            def mymethod3(self, arg1, *, deprecated_arg1):
+                pass
+
+        MyClass().mymethod3(None, deprecated_arg1='deprecated')
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg1", "mymethod3"),
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_call(node)
+
+    def test_function_deprecated_arg_kwargs(self):
+        # Tests raising error when calling function with deprecated argument
+        # and keyword argument
+        node = astroid.extract_node(
+            """
+        def myfunction2(arg1, deprecated_arg1, arg2='foo', deprecated_arg2='spam'):
+            pass
+
+        myfunction2(None, 'deprecated', deprecated_arg2='deprecated')
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg1", "myfunction2"),
+                node=node,
+                confidence=UNDEFINED,
+            ),
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg2", "myfunction2"),
+                node=node,
+                confidence=UNDEFINED,
+            ),
+        ):
+            self.checker.visit_call(node)
+
+    def test_function_deprecated_kwarg_kwarg(self):
+        # Tests raising error when calling function with deprecated keyword arguments
+        node = astroid.extract_node(
+            """
+        def myfunction2(arg1, deprecated_arg1, arg2='foo', deprecated_arg2='spam'):
+            pass
+
+        myfunction2(None, deprecated_arg1='deprecated', deprecated_arg2='deprecated')
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg1", "myfunction2"),
+                node=node,
+                confidence=UNDEFINED,
+            ),
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg2", "myfunction2"),
+                node=node,
+                confidence=UNDEFINED,
+            ),
+        ):
+            self.checker.visit_call(node)
+
+    def test_method_deprecated_arg_kwargs(self):
+        # Tests raising error when calling method with deprecated argument
+        # and keyword argument
+        node = astroid.extract_node(
+            """
+        class MyClass:
+            def mymethod2(self, arg1, deprecated_arg1, arg2='foo', deprecated_arg2='spam'):
+                pass
+
+        MyClass().mymethod2(None, 'deprecated', deprecated_arg2='deprecated')
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg1", "mymethod2"),
+                node=node,
+                confidence=UNDEFINED,
+            ),
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg2", "mymethod2"),
+                node=node,
+                confidence=UNDEFINED,
+            ),
+        ):
+            self.checker.visit_call(node)
+
+    def test_method_deprecated_kwarg_kwarg(self):
+        # Tests raising error when calling method with deprecated keyword arguments
+        node = astroid.extract_node(
+            """
+        class MyClass:
+            def mymethod2(self, arg1, deprecated_arg1, arg2='foo', deprecated_arg2='spam'):
+                pass
+
+        MyClass().mymethod2(None, deprecated_arg1='deprecated', deprecated_arg2='deprecated')
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg1", "mymethod2"),
+                node=node,
+                confidence=UNDEFINED,
+            ),
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg2", "mymethod2"),
+                node=node,
+                confidence=UNDEFINED,
+            ),
+        ):
             self.checker.visit_call(node)
