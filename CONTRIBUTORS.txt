@@ -450,3 +450,5 @@ contributors:
     - Added new checks 'consider-using-generator' and 'use-a-generator'.
 
 * Tiago Honorato: contributor
+
+* Lefteris Karapetsas: contributor
