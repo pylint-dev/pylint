@@ -44,9 +44,8 @@ class TestSpellingChecker(CheckerTestCase):
     )
 
     def _get_msg_suggestions(self, word, count=4):
-        return "'{}'".format(
-            "' or '".join(self.checker.spelling_dict.suggest(word)[:count])
-        )
+        suggestions = "' or '".join(self.checker.spelling_dict.suggest(word)[:count])
+        return f"'{suggestions}'"
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)

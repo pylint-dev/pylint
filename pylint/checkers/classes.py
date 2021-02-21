@@ -1604,7 +1604,7 @@ a metaclass class method.",
                 valid = repr(config[0])
             else:
                 valid = ", ".join(repr(v) for v in config[:-1])
-                valid = "{} or {!r}".format(valid, config[-1])
+                valid = f"{valid} or {config[-1]!r}"
             self.add_message(message, args=(method_name, valid), node=node)
 
     def _check_bases_classes(self, node):

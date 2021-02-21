@@ -70,11 +70,7 @@ class LintModuleTest:
         )
 
     def __str__(self):
-        return "{} ({}.{})".format(
-            self._test_file.base,
-            self.__class__.__module__,
-            self.__class__.__name__,
-        )
+        return f"{self._test_file.base} ({self.__class__.__module__}.{self.__class__.__name__})"
 
     @staticmethod
     def get_expected_messages(stream):

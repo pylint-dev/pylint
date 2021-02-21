@@ -52,7 +52,7 @@ def get_module_and_frameid(node):
 
 def get_rst_title(title, character):
     """Permit to get a title formatted as ReStructuredText test (underlined with a chosen character)."""
-    return "{}\n{}\n".format(title, character * len(title))
+    return f"{title}\n{character * len(title)}\n"
 
 
 def get_rst_section(section, options, doc=None):

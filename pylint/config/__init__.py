@@ -68,7 +68,7 @@ else:
 
 def _get_pdata_path(base_name, recurs):
     base_name = base_name.replace(os.sep, "_")
-    return os.path.join(PYLINT_HOME, "{}{}{}".format(base_name, recurs, ".stats"))
+    return os.path.join(PYLINT_HOME, f"{base_name}{recurs}.stats")
 
 
 def load_results(base):
