@@ -54,7 +54,7 @@ from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextRepor
 from pylint.utils import utils
 
 HERE = abspath(dirname(__file__))
-CLEAN_PATH = re.escape(dirname(dirname(__file__)) + "/")
+CLEAN_PATH = re.escape(dirname(dirname(__file__)) + os.path.sep)
 
 
 @contextlib.contextmanager
@@ -144,7 +144,8 @@ class TestRunTC:
     @staticmethod
     def _clean_paths(output):
         """Normalize path to the tests directory."""
-        return re.sub(CLEAN_PATH, "", output.replace("\\", "/"), flags=re.MULTILINE)
+        output = re.sub(CLEAN_PATH, "", output, flags=re.MULTILINE)
+        return output.replace("\\", "/")
 
     def _test_output(self, args, expected_output):
         out = StringIO()
