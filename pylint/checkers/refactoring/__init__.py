@@ -2,7 +2,7 @@
 # Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017-2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2017 Hugo <hugovk@users.noreply.github.com>
@@ -20,11 +20,12 @@
 # Copyright (c) 2018 Konstantin <Github@pheanex.de>
 # Copyright (c) 2018 Matej Marušák <marusak.matej@gmail.com>
 # Copyright (c) 2018 Mr. Senko <atodorov@mrsenko.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Rémi Cardona <remi.cardona@polyconseil.fr>
 # Copyright (c) 2019 Robert Schweizer <robert_schweizer@gmx.de>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 PHeanEX <github@pheanex.de>
 # Copyright (c) 2019 Paul Renvoise <PaulRenvoise@users.noreply.github.com>
+# Copyright (c) 2020 ethan-leba <ethanleba5@gmail.com>
 # Copyright (c) 2020 lrjball <50599110+lrjball@users.noreply.github.com>
 # Copyright (c) 2020 Yang Yang <y4n9squared@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>

@@ -1,4 +1,6 @@
 """ Profiles basic -jX functionality """
+# Copyright (c) 2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
 

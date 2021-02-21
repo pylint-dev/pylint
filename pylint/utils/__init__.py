@@ -18,16 +18,16 @@
 # Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 xmo-odoo <xmo-odoo@users.noreply.github.com>
-# Copyright (c) 2017, 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2017 Pierre Sassoulas <pierre.sassoulas@cea.fr>
+# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017, 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Chris Lamb <chris@chris-lamb.co.uk>
 # Copyright (c) 2017 Thomas Hisch <t.hisch@gmail.com>
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
 # Copyright (c) 2017 Craig Citro <craigcitro@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018-2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2018 Pierre Sassoulas <pierre.sassoulas@wisebim.fr>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>

@@ -12,8 +12,8 @@
 # Copyright (c) 2016 Erik <erik.eriksson@yahoo.com>
 # Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017-2019 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 ahirnish <ahirnish@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
@@ -24,7 +24,7 @@
 # Copyright (c) 2018 Gary Tyler McLeod <mail@garytyler.com>
 # Copyright (c) 2018 Konstantin <Github@pheanex.de>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Janne Rönkkö <jannero@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>

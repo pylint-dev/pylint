@@ -7,8 +7,9 @@
 # Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 mar-chi-pan <mar.polatoglou@gmail.com>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>

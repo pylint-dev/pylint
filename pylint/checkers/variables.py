@@ -17,8 +17,8 @@
 # Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Grant Welch <gwelch925+github@gmail.com>
+# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017-2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Dan Garrette <dhgarrette@gmail.com>
 # Copyright (c) 2018-2019 Jim Robertson <jrobertson98atx@gmail.com>
 # Copyright (c) 2018 Mike Miller <mtmiller@users.noreply.github.com>
@@ -31,14 +31,15 @@
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
 # Copyright (c) 2018 mar-chi-pan <mar.polatoglou@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Ashley Whetter <ashleyw@activestate.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

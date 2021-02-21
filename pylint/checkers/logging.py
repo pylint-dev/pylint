@@ -13,8 +13,8 @@
 # Copyright (c) 2018 Yury Gribov <tetra2005@gmail.com>
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Mariatta Wijaya <mariatta@python.org>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Svet <svet@hyperscience.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

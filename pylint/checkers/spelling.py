@@ -3,7 +3,7 @@
 # Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016-2017 Pedro Algarvio <pedro@algarvio.me>
+# Copyright (c) 2016-2017, 2020 Pedro Algarvio <pedro@algarvio.me>
 # Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
@@ -11,9 +11,11 @@
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2019 agutole <toldo_carp@hotmail.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Ganden Schaffner <gschaffner@pm.me>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
