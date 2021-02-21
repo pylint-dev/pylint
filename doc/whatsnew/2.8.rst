@@ -1,0 +1,17 @@
+**************************
+ What's New in Pylint 2.8
+**************************
+
+:Release: 2.8
+:Date: undefined
+
+Summary -- Release highlights
+=============================
+
+
+New checkers
+============
+
+
+Other Changes
+=============
