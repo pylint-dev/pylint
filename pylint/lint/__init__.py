@@ -28,7 +28,7 @@
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
 # Copyright (c) 2017 Roman Ivanov <me@roivanov.com>
 # Copyright (c) 2017 Ned Batchelder <ned@nedbatchelder.com>
-# Copyright (c) 2018-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018-2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018 Matus Valo <matusvalo@users.noreply.github.com>
@@ -52,6 +52,7 @@
 # Copyright (c) 2019 Andres Perez Hortal <andresperezcba@gmail.com>
 # Copyright (c) 2019 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2019 Nicolas Dickreuter <dickreuter@gmail.com>
+# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
 # Copyright (c) 2020 anubh-v <anubhav@u.nus.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

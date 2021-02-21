@@ -7,8 +7,8 @@
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2017 Pierre Sassoulas <pierre.sassoulas@cea.fr>
+# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017, 2019 Thomas Hisch <t.hisch@gmail.com>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
 # Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
@@ -16,10 +16,12 @@
 # Copyright (c) 2018 Jason Owen <jason.a.owen@gmail.com>
 # Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
 # Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugues <hugues.bruant@affirm.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
+# Copyright (c) 2020 Matěj Grabovský <mgrabovs@redhat.com>
 # Copyright (c) 2020 Pieter Engelbrecht <pengelbrecht@rems2.com>
 # Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>

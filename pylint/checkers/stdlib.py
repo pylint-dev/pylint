@@ -15,14 +15,18 @@
 # Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
 # Copyright (c) 2018 Banjamin Freeman <befreeman@users.noreply.github.com>
 # Copyright (c) 2018 Ioana Tagirta <ioana.tagirta@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Julien Palard <julien@palard.fr>
 # Copyright (c) 2019 laike9m <laike9m@users.noreply.github.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Robert Schweizer <robert_schweizer@gmx.de>
 # Copyright (c) 2019 fadedDexofan <fadedDexofan@gmail.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Sorin Sbarnea <ssbarnea@redhat.com>
+# Copyright (c) 2020 Federico Bond <federicobond@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Matus Valo <matusvalo@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

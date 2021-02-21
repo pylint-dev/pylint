@@ -16,7 +16,7 @@
 # Copyright (c) 2016 Jürgen Hermann <jh@web.de>
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2016 Filipe Brandenburger <filbranden@google.com>
-# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
@@ -29,17 +29,19 @@
 # Copyright (c) 2018 Konstantin <Github@pheanex.de>
 # Copyright (c) 2018 Justin Li <justinnhli@users.noreply.github.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Andy Palmer <25123779+ninezerozeronine@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 mattlbeck <17108752+mattlbeck@users.noreply.github.com>
 # Copyright (c) 2019 Martin Vielsmaier <martin.vielsmaier@gmail.com>
 # Copyright (c) 2019 Santiago Castro <bryant@montevideo.com.uy>
 # Copyright (c) 2019 yory8 <39745367+yory8@users.noreply.github.com>
 # Copyright (c) 2019 Federico Bond <federicobond@gmail.com>
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
+# Copyright (c) 2020 Julien Palard <julien@palard.fr>
 # Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
