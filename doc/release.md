@@ -58,13 +58,16 @@ if it's an issue labelled as blocker.
 ### Files to update after releases
 
 #### Changelog
-Create a new section, with the name of the release ``X.Y.Z+1`` (or ``X.Y+1.0`` for
-major release) and the estimated date when it is going to be published. If
+
+* Create a new section, with the name of the release ``X.Y.Z+1`` on the ``X.Y`` branch.
+* If it's a major release, also create a new section for ``X.Y+1.0`` on the master branch
+
+You need to add the estimated date when it is going to be published. If
 no date can be known at that time, we should use ``Undefined``.
 
 #### Whatsnew
 
-Only for major release, create a new ``What's new in Pylint X.Y+1`` document
+If it's a major release, create a new ``What's new in Pylint X.Y+1`` document
 Take a look at the examples from ``doc/whatsnew``.
 
 ### Versions
