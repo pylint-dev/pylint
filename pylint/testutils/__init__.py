@@ -40,6 +40,7 @@ __all__ = [
     "GenericTestReporter",
     "UPDATE_FILE",
     "UPDATE_OPTION",
+    "UnittestLinter",
 ]
 
 from pylint.testutils.checker_test_case import CheckerTestCase
@@ -52,3 +53,4 @@ from pylint.testutils.lint_module_test import LintModuleTest
 from pylint.testutils.output_line import Message
 from pylint.testutils.reporter_for_tests import GenericTestReporter, MinimalTestReporter
 from pylint.testutils.tokenize_str import _tokenize_str
+from pylint.testutils.unittest_linter import UnittestLinter
