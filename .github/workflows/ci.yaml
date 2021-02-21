@@ -33,7 +33,7 @@ jobs:
         run: >-
           echo "::set-output name=key::base-venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('pylint/__pkg_info__.py', 'requirements_test.txt',
-                      'requirements_test_pypy.txt', 'requirements_docs.txt') }}"
+                      'requirements_test_min.txt', 'requirements_docs.txt') }}"
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v2.1.4
@@ -195,7 +195,7 @@ jobs:
         run: >-
           echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('pylint/__pkg_info__.py', 'requirements_test.txt',
-                      'requirements_test_pypy.txt') }}"
+                      'requirements_test_min.txt') }}"
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v2.1.4
@@ -246,7 +246,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          coverage run -m pytest --benchmark-disable tests/
+          pytest --benchmark-disable --cov --cov-report= tests/
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v2.2.2
         with:
@@ -366,7 +366,7 @@ jobs:
         id: generate-python-key
         run: >-
           echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('pylint/__pkg_info__.py', 'requirements_test_pypy.txt') }}"
+            hashFiles('pylint/__pkg_info__.py', 'requirements_test_min.txt') }}"
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v2.1.4
@@ -383,7 +383,7 @@ jobs:
           python -m venv venv
           . venv\\Scripts\\activate
           python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test_pypy.txt
+          pip install -U -r requirements_test_min.txt
           pip install -e .
 
   pytest-windows:
@@ -444,7 +444,7 @@ jobs:
         id: generate-python-key
         run: >-
           echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('pylint/__pkg_info__.py', 'requirements_test_pypy.txt') }}"
+            hashFiles('pylint/__pkg_info__.py', 'requirements_test_min.txt') }}"
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v2.1.4
@@ -461,7 +461,7 @@ jobs:
           python -m venv venv
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test_pypy.txt
+          pip install -U -r requirements_test_min.txt
           pip install -e .
 
   pytest-pypy:
