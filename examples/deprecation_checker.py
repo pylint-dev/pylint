@@ -37,8 +37,8 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
     """Class implementing deprecation checker."""
 
     # DeprecationMixin class is Mixin class implementing logic for searching deprecated methods and functions.
-    # The list of deprecated methods/functions is defined by implemeting class via deprecated_methods callback.
-    # DeprecatedMixin class is overriding attrigutes of BaseChecker hence must be specified *before* BaseChecker
+    # The list of deprecated methods/functions is defined by implementing class via deprecated_methods callback.
+    # DeprecatedMixin class is overriding attributes of BaseChecker hence must be specified *before* BaseChecker
     # in list of base classes.
 
     __implements__ = (IAstroidChecker,)

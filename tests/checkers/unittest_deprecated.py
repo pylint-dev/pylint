@@ -5,7 +5,7 @@ from pylint.interfaces import UNDEFINED, IAstroidChecker
 from pylint.testutils import CheckerTestCase, Message
 
 
-class _DeprecatedChecker(BaseChecker, DeprecatedMixin):
+class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = "deprecated"
 
