@@ -40,7 +40,7 @@ if dev_version is not None:
     version += "-dev" + str(dev_version)
 
 install_requires = [
-    "astroid==2.5.0",
+    "astroid>=2.5.0,<2.7",
     "isort>=4.2.5,<6",
     "mccabe>=0.6,<0.7",
     "toml>=0.7.1",
