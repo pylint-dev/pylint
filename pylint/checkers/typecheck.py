@@ -505,6 +505,17 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
                 return False
         except astroid.NotFoundError:
             return True
+    if (
+        owner.parent
+        and isinstance(owner.parent, astroid.ClassDef)
+        and owner.parent.name == "EnumMeta"
+        and owner_name == "__members__"
+        and node.attrname == "items"
+    ):
+        # Avoid false positive on Enum.__members__.items()
+        # See https://github.com/PyCQA/pylint/issues/4123
+        return False
+
     return True
 
 

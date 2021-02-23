@@ -217,3 +217,13 @@ class SomeClassUsingSlice:
         else:
             self.attribute = []
             self.attribute.append(1)
+
+from enum import Enum
+class Animal(Enum):
+    ANT = 1
+    BEE = 2
+    CAT = 3
+    DOG = 4
+# To test false positive no-member on Enum.__members__.items()
+for itm in Animal.__members__.items():
+    print(itm)
