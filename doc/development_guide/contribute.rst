@@ -188,11 +188,15 @@ Tips for Getting Started with Pylint Development
   so you will likely need to interact with :mod:`astroid`.
   A short example of how to use :func:`astroid.extract_node` is given
   :ref:`here <astroid_extract_node>`.
+  A useful API for the parsed Astroid Nodes can be found in Astroid documentation under `Nodes`.
 
 * When fixing a bug for a specific check, search the code for the warning
   message to find where the warning is raised,
   and therefore where the logic for that code exists.
 
+* Under Pylint source code root directory there is a script called `uplint.bat` that
+  re-installs Pylint's source code easily. It could be very handy to get the right version
+  when cloning the repo multiple times.
 
 Building the documentation
 ----------------------------
