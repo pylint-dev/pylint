@@ -248,7 +248,11 @@ def register_plugins(linter, directory):
         if (
             extension in PY_EXTS
             and base != "__init__"
-            or (not extension and os.path.isdir(os.path.join(directory, base)))
+            or (
+                not extension
+                and os.path.isdir(os.path.join(directory, base))
+                and not filename.startswith(".")
+            )
         ):
             try:
                 module = modutils.load_module_from_file(
