@@ -7,7 +7,7 @@
 # Copyright (c) 2016 glegoux <gilles.legoux@gmail.com>
 # Copyright (c) 2018 Rogalski, Lukasz <lukasz.rogalski@intel.com>
 # Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 
