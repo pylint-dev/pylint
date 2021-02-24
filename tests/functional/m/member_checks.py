@@ -227,3 +227,7 @@ class Animal(Enum):
 # To test false positive no-member on Enum.__members__.items()
 for itm in Animal.__members__.items():
     print(itm)
+for keyy in Animal.__members__.keys:
+    print(keyy)
+for vall in Animal.__members__.values:
+    print(vall)
