@@ -97,6 +97,24 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
+    def test_property_decorated_method(self):
+        node = astroid.parse(
+            """
+        import functools
+        class Test():
+            @property
+            def test_property(self):
+                return 5
+
+        class Child(Test):
+            @functools.cached_property
+            def test_property(self):
+                return super().test_property + 5
+        """
+        )
+        with self.assertNoMessages():
+            self.walk(node)
+
     def test_uninferable_attribute(self):
         """Make sure protect-access doesn't raise an exception Uninferable attributes"""
 

@@ -16,6 +16,10 @@ What's New in Pylint 2.7.2?
 What's New in Pylint 2.7.1?
 ===========================
 
+*Add more flexibility when checking whether method is decorated with property
+
+ Closes #4023
+
 * Expose `UnittestLinter` in pylint.testutils
 
 * Don't check directories starting with '.' when using register_plugins
