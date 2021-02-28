@@ -716,6 +716,24 @@ class TestRunTC:
                 cwd=str(tmpdir),
             )
 
+        # Appending a colon to PYTHONPATH should not break path stripping
+        # https://github.com/PyCQA/pylint/issues/3636
+        with tmpdir.as_cwd():
+            orig_pythonpath = os.environ.get("PYTHONPATH")
+            os.environ["PYTHONPATH"] = os.environ.get("PYTHONPATH", "") + ":"
+            subprocess.check_output(
+                [
+                    sys.executable,
+                    "-m",
+                    "pylint",
+                    "astroid.py",
+                    "--disable=import-error,unused-import",
+                ],
+                cwd=str(tmpdir),
+            )
+            if orig_pythonpath is not None:
+                os.environ["PYTHONPATH"] = orig_pythonpath
+
         # Linting this astroid file does not import it
         with tmpdir.as_cwd():
             subprocess.check_output(

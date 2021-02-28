@@ -13,7 +13,6 @@ import pylint
 # inadvertently import user code from modules having the same name as
 # stdlib or pylint's own modules.
 # CPython issue: https://bugs.python.org/issue33053
-if sys.path[0] == "" or sys.path[0] == os.getcwd():
-    sys.path.pop(0)
+sys.path = [p for p in sys.path if p not in ("", os.getcwd())]
 
 pylint.run_pylint()
