@@ -19,7 +19,7 @@
 # Copyright (c) 2016 Elias Dorneles <eliasdorneles@gmail.com>
 # Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
 # Copyright (c) 2016 Alex Jurkiewicz <alex@jurkiewi.cz>
-# Copyright (c) 2017 Pierre Sassoulas <pierre.sassoulas@cea.fr>
+# Copyright (c) 2017, 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2017, 2019-2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 danields <danields761@gmail.com>
 # Copyright (c) 2017 Jacques Kvam <jwkvam@gmail.com>
@@ -36,7 +36,6 @@
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Chris Lamb <chris@chris-lamb.co.uk>
 # Copyright (c) 2018 glmdgrielson <32415403+glmdgrielson@users.noreply.github.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Daniel Draper <Germandrummer92@users.noreply.github.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Niko Wenselowski <niko@nerdno.de>

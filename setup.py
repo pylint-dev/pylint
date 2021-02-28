@@ -1,5 +1,4 @@
 # Copyright (c) 2006, 2009-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2013 Benedikt Morbach <benedikt.morbach@googlemail.com>
 # Copyright (c) 2013 T.Rzepka <Tobias.Rzepka@gmail.com>
