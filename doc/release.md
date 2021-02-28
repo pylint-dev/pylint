@@ -15,8 +15,8 @@ So, you want to release the ``X.Y.Z`` version of pylint ?
 
 ```bash
 pip3 install copyrite
-copyrite --contribution-threshold 1 --change-threshold 3 --backend-type
-  git --aliases=.copyrite_aliases . --jobs=8
+copyrite --contribution-threshold 1 --change-threshold 3 --backend-type \
+git --aliases=.copyrite_aliases . --jobs=8
 # During the commit pre-commit and pyupgrade will remove the encode utf8
 # automatically
 ```
