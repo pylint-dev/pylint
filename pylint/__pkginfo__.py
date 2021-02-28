@@ -1,5 +1,4 @@
 # Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
 # Copyright (c) 2013-2014 Google, Inc.
 # Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>

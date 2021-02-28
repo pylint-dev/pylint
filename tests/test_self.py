@@ -6,7 +6,7 @@
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2017 Pierre Sassoulas <pierre.sassoulas@cea.fr>
+# Copyright (c) 2017, 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017, 2019 Thomas Hisch <t.hisch@gmail.com>
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
@@ -16,7 +16,6 @@
 # Copyright (c) 2018 Jason Owen <jason.a.owen@gmail.com>
 # Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
 # Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
-# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugues <hugues.bruant@affirm.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
@@ -25,6 +24,8 @@
 # Copyright (c) 2020 Pieter Engelbrecht <pengelbrecht@rems2.com>
 # Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Louis Sautier <sautier.louis@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

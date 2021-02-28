@@ -7,7 +7,7 @@
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019 Bruno P. Kinoshita <kinow@users.noreply.github.com>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>

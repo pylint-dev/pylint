@@ -1,6 +1,5 @@
 # Copyright (c) 2006-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2008 pyves@crater.logilab.fr <pyves@crater.logilab.fr>
-# Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
 # Copyright (c) 2013 Google, Inc.
 # Copyright (c) 2013 John McGehee <jmcgehee@altera.com>
 # Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>

@@ -1,5 +1,4 @@
-# Copyright (c) 2009 Charles Hebert <charles.hebert@logilab.fr>
-# Copyright (c) 2010-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>

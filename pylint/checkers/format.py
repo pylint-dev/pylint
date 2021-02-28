@@ -22,7 +22,6 @@
 # Copyright (c) 2017 James M. Allen <james.m.allen@gmail.com>
 # Copyright (c) 2017 vinnyrose <vinnyrose@users.noreply.github.com>
 # Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2018 Pierre Sassoulas <pierre.sassoulas@wisebim.fr>
 # Copyright (c) 2018, 2020 Bryce Guinta <bryce.guinta@protonmail.com>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>

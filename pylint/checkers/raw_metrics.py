@@ -13,12 +13,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-""" Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
- https://www.logilab.fr/ -- mailto:contact@logilab.fr
-
-Raw metrics checker
-"""
-
 import tokenize
 from typing import Any
 
