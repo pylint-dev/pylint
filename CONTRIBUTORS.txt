@@ -452,3 +452,5 @@ contributors:
 * Tiago Honorato: contributor
 
 * Lefteris Karapetsas: contributor
+
+* Louis Sautier: contributor
