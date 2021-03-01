@@ -9,7 +9,6 @@ Release date: TBA
 ..
   Put new features here
 
-* Workflow and packaging improvements
 
 What's New in Pylint 2.7.3?
 ===========================
@@ -17,6 +16,10 @@ Release date: TBA
 
 ..
   Put bug fixes that will be cherry-picked to latest major version here
+
+* Fix issue with Enums and `class-attribute-naming-style=snake_case`
+
+  Closes #4149
 
 
 What's New in Pylint 2.7.2?
@@ -29,6 +32,9 @@ Release date: 2021-02-28
 * Properly strip dangerous sys.path entries (not just the first one)
 
   Closes #3636
+
+* Workflow and packaging improvements
+
 
 What's New in Pylint 2.7.1?
 ===========================

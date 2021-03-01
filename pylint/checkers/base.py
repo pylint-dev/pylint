@@ -1986,7 +1986,8 @@ class NameChecker(_BasicChecker):
                     if ancestor.name == "Enum" and ancestor.root().name == "enum":
                         self._check_name("const", node.name, node)
                         break
-                self._check_name("class_attribute", node.name, node)
+                else:
+                    self._check_name("class_attribute", node.name, node)
 
     def _recursive_check_names(self, args, node):
         """check names in a possibly recursive list <arg>"""
