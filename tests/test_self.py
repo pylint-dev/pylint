@@ -42,12 +42,16 @@ import subprocess
 import sys
 import textwrap
 import warnings
+from copy import copy
 from io import StringIO
 from os.path import abspath, dirname, join
+from typing import Generator
 from unittest import mock
+from unittest.mock import patch
 
 import pytest
 
+from pylint import modify_sys_path
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
 from pylint.lint import Run
 from pylint.reporters import JSONReporter
@@ -698,6 +702,71 @@ class TestRunTC:
             ],
             code=0,
         )
+
+    @staticmethod
+    def test_modify_sys_path() -> None:
+        @contextlib.contextmanager
+        def test_sys_path() -> Generator[None, None, None]:
+            original_path = sys.path
+            try:
+                yield
+            finally:
+                sys.path = original_path
+
+        with test_sys_path(), patch("os.getcwd") as mock_getcwd:
+            cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
+            mock_getcwd.return_value = cwd
+
+            paths = [
+                cwd,
+                cwd,
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+            ]
+            sys.path = copy(paths)
+            modify_sys_path()
+            assert sys.path == paths[2:]
+
+            paths = [
+                cwd,
+                "/custom_pythonpath",
+                cwd,
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+            ]
+            sys.path = copy(paths)
+            modify_sys_path()
+            assert sys.path == [paths[1]] + paths[3:]
+
+            paths = [
+                "",
+                cwd,
+                "/custom_pythonpath",
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+            ]
+            sys.path = copy(paths)
+            modify_sys_path()
+            assert sys.path == paths[2:]
+
+            paths = [
+                "",
+                cwd,
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+                cwd,
+            ]
+            sys.path = copy(paths)
+            modify_sys_path()
+            assert sys.path == paths[2:]
 
     @staticmethod
     def test_do_not_import_files_from_local_directory(tmpdir):
