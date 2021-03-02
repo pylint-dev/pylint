@@ -447,6 +447,7 @@ min-similarity-lines={min_similarity_lines}
     return exit_code, stdout
 
 
+@pytest.mark.xfail
 @pytest.mark.parametrize("min_similarity_lines", [0, 1, 4, 1000])
 def test_configuration_is_passed_to_workers(tmp_path, min_similarity_lines):
     """Tests check_parallel passes the configuration to sub-workers
@@ -506,6 +507,7 @@ persistent=no
     return exit_code, stdout
 
 
+@pytest.mark.xfail
 @pytest.mark.parametrize("min_similarity_lines", [0, 1, 4, 1000])
 def test_configuration_is_passed_to_workers_cli(tmp_path, min_similarity_lines):
     exit_no_job, stdout_no_job = _simcheck_with_cli(
