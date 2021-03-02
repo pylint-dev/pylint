@@ -160,7 +160,7 @@ def check_parallel(linter, jobs, files, arguments=None):
         pool.join()
 
     _merge_mapreduce_data(linter, all_mapreduce_data)
-    linter.stats = _merge_stats(all_stats)
+    linter.stats = _merge_stats([linter.stats] + all_stats)
 
     # Insert stats data to local checkers.
     for checker in linter.get_checkers():
