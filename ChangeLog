@@ -22,9 +22,10 @@ Release date: TBA
 
   Closes #3826
 
-* Improved the Similarity checker performance.
+* Improved the Similarity checker performance. Fix issue with ``--min-similarity-lines`` used with ``--jobs``.
 
   Close #4120
+  Close #4118
 
 * The default for ``PYLINTHOME`` is now the standard ``XDG_CACHE_HOME``, and pylint now uses ``appdirs``.
 
