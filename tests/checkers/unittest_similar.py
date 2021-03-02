@@ -21,6 +21,7 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
+from test_config import run_with_config_file
 
 from pylint.checkers import similar
 from pylint.lint import PyLinter
@@ -33,6 +34,8 @@ SIMILAR3 = str(INPUT / "similar3")
 SIMILAR4 = str(INPUT / "similar4")
 MULTILINE = str(INPUT / "multiline-import")
 HIDE_CODE_WITH_IMPORTS = str(INPUT / "hide_code_with_imports.py")
+SIMILAR_A = INPUT / "similar_lines_a.py"
+SIMILAR_B = INPUT / "similar_lines_b.py"
 
 
 def test_ignore_comments():
@@ -248,9 +251,11 @@ def test_get_map_data():
     linter.register_checker(similar.SimilarChecker(linter))
 
     source_streams = (
-        str(INPUT / "similar_lines_a.py"),
-        str(INPUT / "similar_lines_b.py"),
+        SIMILAR_A,
+        SIMILAR_B,
     )
+    for fname in source_streams:
+        assert fname.exists(), f"File not found! {fname}"
     expected_linelists = (
         (
             "",
@@ -375,3 +380,92 @@ def test_get_map_data():
         # There doesn't seem to be a faster way of doing this, yet.
         lines = (line for idx, line in lineset_obj.enumerate_stripped())
         assert tuple(expected_lines) == tuple(lines)
+
+
+def _simcheck_with_config(num_jobs, min_similarity_lines, tmp_path):
+    """Runs similarity-checks for a given number of jobs and min_lines via rc-file
+
+    Does not error
+
+        A num_jobs value of None does not set any job config at all.
+        Uses the given pytest tmp_path to write the config file.
+    """
+
+    # First write the config file configuring the similarity config we want to use
+    config_file = tmp_path / "setup.cfg"
+    if num_jobs is None:
+        # We have differences between setting the config at all and not, allow
+        # None to singify no job config
+        jobs_config = ""
+    else:
+        jobs_config = f"""
+[pylint.messages control]
+jobs = {num_jobs}
+"""
+
+    config = f"""
+[MASTER]
+persistent=no
+
+{jobs_config}
+
+[SIMILARITIES]
+min-similarity-lines={min_similarity_lines}
+"""
+    config_file.write_text(config)
+
+    # Get the path to two files that have at least some similarities
+    source_streams = [
+        SIMILAR_A,
+        SIMILAR_B,
+    ]
+    for fname in source_streams:
+        assert fname.exists(), f"File not found! {fname}"
+
+    args = [
+        "--disable",
+        "all",  # disable all checks
+        "--enable",
+        "similarities",  # enable the only checks we care about
+        "--persistent=no",
+    ] + source_streams
+
+    runner, exit_code, stdout = run_with_config_file(config_file, args)
+    linter = runner.linter
+    expected_num_jobs = 1 if num_jobs is None else num_jobs
+    assert linter.config.jobs == expected_num_jobs
+
+    checkers = linter.get_checkers()
+    hitonce = False
+    for checker in checkers:
+        if isinstance(checker, similar.SimilarChecker):
+            assert checker.config.min_similarity_lines == min_similarity_lines
+            assert not hitonce
+            hitonce = True
+    assert hitonce
+
+    return exit_code, stdout
+
+
+@pytest.mark.parametrize("min_similarity_lines", [0, 1, 4, 1000])
+def test_configuration_is_passed_to_workers(tmp_path, min_similarity_lines):
+    """Tests check_parallel passes the configuration to sub-workers
+
+    Partially tests bug #4118 and #4173"""
+    exit_no_job, stdout_no_job = _simcheck_with_config(
+        None, min_similarity_lines, tmp_path
+    )
+    exit_single, stdout_single = _simcheck_with_config(
+        1, min_similarity_lines, tmp_path
+    )
+    exit_multi, stdout_multi = _simcheck_with_config(2, min_similarity_lines, tmp_path)
+
+    # Check that each run agrees on the specific similarity errors found
+    # Each run should be identical
+    assert stdout_no_job == stdout_single
+    assert stdout_single == stdout_multi
+
+    # Check exit-codes are the same i.e. each of the runs agree on error states.
+    # This should always be true if the output comparison checks above pass.
+    assert exit_no_job == exit_single
+    assert exit_single == exit_multi

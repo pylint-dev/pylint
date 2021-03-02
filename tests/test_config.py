@@ -1,23 +1,53 @@
 # pylint: disable=missing-module-docstring, missing-function-docstring, protected-access
 import unittest.mock
+from io import StringIO
+
+from test_self import _patch_streams
 
 import pylint.lint
+
+
+def run_with_config_file(config_file, args):
+    """Initialize and runs pylint with the given configuration filei and args.
+
+    Returns tuple of (runner, exit_code)
+    """
+    # prepend args with the rcfile loader
+    args = [
+        "--rcfile",
+        str(config_file).strip(),
+    ] + args
+    out = StringIO()
+    # If we used `pytest.raises(SystemExit)`, the `runner` variable
+    # would not be accessible outside the `with` block.
+    with unittest.mock.patch("sys.exit") as mocked_exit:
+        with _patch_streams(out):
+            runner = pylint.lint.Run(args)
+    exit_code = mocked_exit.call_args[0][0]
+    return runner, exit_code, out.getvalue()
+
+
+def check_null_runner_with_config_file(config_file, args):
+    """Initialize pylint with the given configuration file, but doesn't run checks
+
+    Do not actually run checks, that could be slow. Do not mock
+    `Pylinter.check`: it calls `Pylinter.initialize` which is
+    needed to properly set up messages inclusion/exclusion
+    in `_msg_states`, used by `is_message_enabled`.
+
+    Returns tuple of (runner, exit_code, stdout)
+    """
+    with unittest.mock.patch("pylint.lint.pylinter.check_parallel"):
+        return run_with_config_file(config_file, args)
 
 
 def check_configuration_file_reader(config_file):
     """Initialize pylint with the given configuration file and check that
     what we initialized the linter with what was expected.
+
+    Returns the runner
     """
-    args = ["--rcfile", str(config_file), __file__]
-    # If we used `pytest.raises(SystemExit)`, the `runner` variable
-    # would not be accessible outside the `with` block.
-    with unittest.mock.patch("sys.exit") as mocked_exit:
-        # Do not actually run checks, that could be slow. Do not mock
-        # `Pylinter.check`: it calls `Pylinter.initialize` which is
-        # needed to properly set up messages inclusion/exclusion
-        # in `_msg_states`, used by `is_message_enabled`.
-        with unittest.mock.patch("pylint.lint.pylinter.check_parallel"):
-            runner = pylint.lint.Run(args)
+    runner, exit_code, _ = check_null_runner_with_config_file(config_file, [])
 
     # "logging-not-lazy" and "logging-format-interpolation"
     expected_disabled = {"W1201", "W1202"}
@@ -26,7 +56,9 @@ def check_configuration_file_reader(config_file):
     assert runner.linter.config.jobs == 10
     assert runner.linter.config.reports
 
-    mocked_exit.assert_called_once_with(0)
+    # For the config tests we check that the config parsed properly
+    assert exit_code == 0
+
     return runner
 
 
