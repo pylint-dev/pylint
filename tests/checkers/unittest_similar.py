@@ -469,3 +469,57 @@ def test_configuration_is_passed_to_workers(tmp_path, min_similarity_lines):
     # This should always be true if the output comparison checks above pass.
     assert exit_no_job == exit_single
     assert exit_single == exit_multi
+
+
+def _simcheck_with_cli(num_jobs, min_similarity_lines, tmp_path):
+    """Tests check_parallel passes the cli options to sub-workers
+
+    Partially tests bug #4118 and #4173"""
+    config_file = tmp_path / "setup.cfg"
+
+    source_streams = [
+        SIMILAR_A,
+        SIMILAR_B,
+    ]
+    for fname in source_streams:
+        assert fname.exists(), f"File not found! {fname}"
+
+    config = """
+[MASTER]
+persistent=no
+"""
+    config_file.write_text(config)
+    args = [
+        "--disable",
+        "all",  # disable all checks
+        "--enable",
+        "similarities",  # enable the only checks we care about
+        "--persistent=no",
+        f"--min-similarity-lines={min_similarity_lines}",
+    ] + source_streams
+
+    if num_jobs is not None:
+        # We have differences between setting the config at all and not, allow
+        # None to singify no job config
+        args.insert(0, f"--jobs={num_jobs}")
+    _, exit_code, stdout = run_with_config_file(config_file, args)
+    return exit_code, stdout
+
+
+@pytest.mark.parametrize("min_similarity_lines", [0, 1, 4, 1000])
+def test_configuration_is_passed_to_workers_cli(tmp_path, min_similarity_lines):
+    exit_no_job, stdout_no_job = _simcheck_with_cli(
+        None, min_similarity_lines, tmp_path
+    )
+    exit_single, stdout_single = _simcheck_with_cli(1, min_similarity_lines, tmp_path)
+    exit_multi, stdout_multi = _simcheck_with_cli(2, min_similarity_lines, tmp_path)
+
+    # Check that each run agrees on the specific similarity errors found
+    # Each run should be identical
+    assert stdout_no_job == stdout_single
+    assert stdout_single == stdout_multi
+
+    # Check exit-codes are the same i.e. each of the runs agree on error states.
+    # This should always be true if the output comparison checks above pass.
+    assert exit_no_job == exit_single
+    assert exit_single == exit_multi
