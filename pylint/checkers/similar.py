@@ -427,7 +427,10 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         """Reduces and recombines data into a format that we can report on
 
         The partner function of get_map_data()"""
-        recombined = SimilarChecker(linter)
+        try:
+            recombined = linter._checkers["similarities"][0]
+        except:
+            recombined = SimilarChecker(linter)
         recombined.open()
         Similar.combine_mapreduce_data(recombined, linesets_collection=data)
         recombined.close()
