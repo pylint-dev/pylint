@@ -1000,6 +1000,8 @@ a metaclass class method.",
 
             # If a subclass defined the method then it's not our fault.
             for ancestor in klass.ancestors():
+                if node.name in ancestor.instance_attrs and is_attr_private(node.name):
+                    return
                 for obj in ancestor.lookup(node.name)[1]:
                     if isinstance(obj, astroid.FunctionDef):
                         return
