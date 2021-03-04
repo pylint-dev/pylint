@@ -205,25 +205,30 @@ class DocstringParameterChecker(BaseChecker):
     constructor_names = {"__init__", "__new__"}
     not_needed_param_in_docstring = {"self", "cls"}
 
+    def _skip_func_docstring(self, node):
+        """True either if the function `node` has a name matching the `no-docstring-rgx` pattern,
+        or a docstring shorter than `docstring-min-length`; False otherwise.
+        """
+        # skip functions that match the 'no-docstring-rgx' config option
+        no_docstring_rgx = get_global_option(self, "no-docstring-rgx")
+        if no_docstring_rgx and re.match(no_docstring_rgx, node.name):
+            return True
+
+        # skip functions smaller than 'docstring-min-length'
+        lines = checker_utils.get_node_last_lineno(node) - node.lineno
+        max_lines = get_global_option(self, "docstring-min-length")
+        return max_lines > -1 and lines < max_lines
+
     def visit_functiondef(self, node):
         """Called for function and method definitions (def).
 
         :param node: Node for a function or method definition in the AST
         :type node: :class:`astroid.scoped_nodes.Function`
         """
+        if self._skip_func_docstring(node):
+            return
+
         node_doc = utils.docstringify(node.doc, self.config.default_docstring_type)
-
-        # skip functions that match the 'no-docstring-rgx' config option
-        no_docstring_rgx = get_global_option(self, "no-docstring-rgx")
-        if no_docstring_rgx and re.match(no_docstring_rgx, node.name):
-            return
-
-        # skip functions smaller than 'docstring-min-length'
-        lines = checker_utils.get_node_last_lineno(node) - node.lineno
-        max_lines = get_global_option(self, "docstring-min-length")
-        if max_lines > -1 and lines < max_lines:
-            return
-
         self.check_functiondef_params(node, node_doc)
         self.check_functiondef_returns(node, node_doc)
         self.check_functiondef_yields(node, node_doc)
@@ -280,7 +285,7 @@ class DocstringParameterChecker(BaseChecker):
 
     def visit_raise(self, node):
         func_node = node.frame()
-        if not isinstance(func_node, astroid.FunctionDef):
+        if not isinstance(func_node, astroid.FunctionDef) or self._skip_func_docstring(func_node):
             return
 
         expected_excs = utils.possible_exc_types(node)
@@ -313,7 +318,7 @@ class DocstringParameterChecker(BaseChecker):
             return
 
         func_node = node.frame()
-        if not isinstance(func_node, astroid.FunctionDef):
+        if not isinstance(func_node, astroid.FunctionDef) or self._skip_func_docstring(func_node):
             return
 
         doc = utils.docstringify(func_node.doc, self.config.default_docstring_type)
@@ -333,7 +338,7 @@ class DocstringParameterChecker(BaseChecker):
 
     def visit_yield(self, node):
         func_node = node.frame()
-        if not isinstance(func_node, astroid.FunctionDef):
+        if not isinstance(func_node, astroid.FunctionDef) or self._skip_func_docstring(func_node):
             return
 
         doc = utils.docstringify(func_node.doc, self.config.default_docstring_type)
