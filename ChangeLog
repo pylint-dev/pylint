@@ -21,6 +21,9 @@ Release date: TBA
 
   Closes #4149
 
+* Add `allowed-redefined-builtins` option for fine tuning `redefined-builtin` check.
+
+  Close #3263
 
 What's New in Pylint 2.7.2?
 ===========================
@@ -34,7 +37,6 @@ Release date: 2021-02-28
   Closes #3636
 
 * Workflow and packaging improvements
-
 
 What's New in Pylint 2.7.1?
 ===========================
@@ -297,7 +299,6 @@ What's New in Pylint 2.5.4?
 * Fix a crash in parallel mode when the module's filepath is not set
 
   Close #3564
-
 
 What's New in Pylint 2.5.3?
 ===========================
