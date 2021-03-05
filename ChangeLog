@@ -17,11 +17,11 @@ Release date: TBA
 ..
   Put bug fixes that will be cherry-picked to latest major version here
 
-* Fix issue with Enums and `class-attribute-naming-style=snake_case`
+* Fix issue with Enums and ``class-attribute-naming-style=snake_case``
 
   Closes #4149
 
-* Add `allowed-redefined-builtins` option for fine tuning `redefined-builtin` check.
+* Add ``allowed-redefined-builtins`` option for fine tuning ``redefined-builtin`` check.
 
   Close #3263
 
@@ -34,7 +34,7 @@ What's New in Pylint 2.7.2?
 ===========================
 Release date: 2021-02-28
 
-* Fix False Positive on `Enum.__members__.items()`, `Enum.__members__.values`, and `Enum.__members__.keys`
+* Fix False Positive on ``Enum.__members__.items()``, ``Enum.__members__.values``, and ``Enum.__members__.keys``
   Closes #4123
 
 * Properly strip dangerous sys.path entries (not just the first one)
@@ -43,11 +43,12 @@ Release date: 2021-02-28
 
 * Workflow and packaging improvements
 
+
 What's New in Pylint 2.7.1?
 ===========================
 Release date: 2021-02-23
 
-* Expose `UnittestLinter` in pylint.testutils
+* Expose ``UnittestLinter`` in pylint.testutils
 
 * Don't check directories starting with '.' when using register_plugins
 
@@ -70,13 +71,13 @@ Release date: 2021-02-21
 
 * Fix false positive for ``builtin-not-iterating`` when ``zip`` receives iterable
 
-* Add `nan-comparison` check for NaN comparisons
+* Add ``nan-comparison`` check for NaN comparisons
 
 * Bug fix for empty-comment message line number.
 
   Closes #4009
 
-* Only emit `bad-reversed-sequence` on dictionaries if below py3.8
+* Only emit ``bad-reversed-sequence`` on dictionaries if below py3.8
 
   Closes #3940
 
@@ -122,11 +123,11 @@ Release date: 2021-02-21
 
 * Fix issue with nested PEP 604 syntax
 
-* Fix a crash in `undefined-variable` caused by chained attributes in metaclass
+* Fix a crash in ``undefined-variable`` caused by chained attributes in metaclass
 
   Close #3742
 
-* Fix false positive for `not-async-context-manager` when `contextlib.asynccontextmanager` is used
+* Fix false positive for ``not-async-context-manager`` when ``contextlib.asynccontextmanager`` is used
 
   Close #3862
 
@@ -134,7 +135,7 @@ Release date: 2021-02-21
 
   Closes #3779
 
-* Fix a false-positive emission of `no-self-use` and `unused-argument` for methods
+* Fix a false-positive emission of ``no-self-use`` and ``unused-argument`` for methods
   of generic structural types (`Protocol[T]`)
 
   Closes #3885
@@ -163,7 +164,7 @@ Release date: 2021-02-21
 
 * Fix a crash when a specified config file does not exist
 
-* Add support to ``ignored-argument-names`` in DocstringParameterChecker and adds `useless-param-doc` and `useless-type-doc` messages.
+* Add support to ``ignored-argument-names`` in DocstringParameterChecker and adds ``useless-param-doc`` and ``useless-type-doc`` messages.
 
   Close #3800
 
@@ -173,7 +174,7 @@ Release date: 2021-02-21
 
 * Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comman, etc.)
 
-* Improve lint message for `singleton-comparison` with bools
+* Improve lint message for ``singleton-comparison`` with bools
 
 * Fix spell-checker crash on indented docstring lines that look like # comments
 
@@ -197,11 +198,11 @@ Release date: 2021-02-21
 
   Close #3737
 
-* Fix a crash in `consider-using-enumerate` when encountering `range()` without arguments
+* Fix a crash in ``consider-using-enumerate`` when encountering ``range()`` without arguments
 
   Close #3735
 
-* `len-as-conditions` is now triggered only for classes that are inheriting directly from list, dict, or set and not implementing the `__bool__` function, or from generators like range or list/dict/set comprehension. This should reduce the false positives for other classes, like pandas's DataFrame or numpy's Array.
+* ``len-as-conditions`` is now triggered only for classes that are inheriting directly from list, dict, or set and not implementing the ``__bool__`` function, or from generators like range or list/dict/set comprehension. This should reduce the false positives for other classes, like pandas's DataFrame or numpy's Array.
 
   Close #1879
 
@@ -209,15 +210,15 @@ Release date: 2021-02-21
 
   Close #3314
 
-* `generated-members` now matches the qualified name of members
+* ``generated-members`` now matches the qualified name of members
 
   Close #2498
 
-* Add check for bool function to `len-as-condition`
+* Add check for bool function to ``len-as-condition``
 
-* Add `simplifiable-condition` check for extraneous constants in conditionals using and/or.
+* Add ``simplifiable-condition`` check for extraneous constants in conditionals using and/or.
 
-* Add `condition-evals-to-constant` check for conditionals using and/or that evaluate to a constant.
+* Add ``condition-evals-to-constant`` check for conditionals using and/or that evaluate to a constant.
 
   Close #3407
 
@@ -227,7 +228,7 @@ Release date: 2021-02-21
 
 * New check: ``consider-using-generator``
 
-  This check warns when a comprehension is used inside an `any` or `all` function,
+  This check warns when a comprehension is used inside an ``any`` or ``all`` function,
   since it is unnecessary and should be replaced by a generator instead.
   Using a generator would be less code and way faster.
 
@@ -257,7 +258,7 @@ Release date: 2020-08-20
 
   Close #246, #289, #638, #747, #1148, #1179, #1943, #2041, #2301, #2304, #2944, #3565
 
-* The no-space-check option has been removed. It's no longer possible to consider empty line like a `trailing-whitespace` by using clever options
+* The no-space-check option has been removed. It's no longer possible to consider empty line like a ``trailing-whitespace`` by using clever options
 
   Close #1368
 
@@ -269,7 +270,7 @@ Release date: 2020-08-20
 
   Close #2984 #3573
 
-* Add `super-with-arguments` check for flagging instances of Python 2 style super calls.
+* Add ``super-with-arguments`` check for flagging instances of Python 2 style super calls.
 
 * Add an faq detailing which messages to disable to avoid duplicates w/ other popular linters
 
@@ -277,19 +278,19 @@ Release date: 2020-08-20
 
   Close #3383
 
-* Fix `fail-under` not accepting floats
+* Fix ``fail-under`` not accepting floats
 
-* Fix a bug with `ignore-docstrings` ignoring all lines in a module
+* Fix a bug with ``ignore-docstrings`` ignoring all lines in a module
 
-* Fix `pre-commit` config that could lead to undetected duplicate lines of code
+* Fix ``pre-commit`` config that could lead to undetected duplicate lines of code
 
 * Fix a crash in parallel mode when the module's filepath is not set
 
   Close #3564
 
-* Add `raise-missing-from` check for exceptions that should have a cause.
+* Add ``raise-missing-from`` check for exceptions that should have a cause.
 
-* Support both isort 4 and isort 5. If you have pinned isort 4 in your projet requirements, nothing changes. If you use isort 5, though, note that the `known-standard-library` option is not interpreted the same in isort 4 and isort 5 (see the migration guide in isort documentation for further details). For compatibility's sake for most pylint users, the `known-standard-library` option in pylint now maps to `extra-standard-library` in isort 5. If you really want what `known-standard-library` now means in isort 5, you must disable the `wrong-import-order` check in pylint and run isort manually with a proper isort configuration file.
+* Support both isort 4 and isort 5. If you have pinned isort 4 in your projet requirements, nothing changes. If you use isort 5, though, note that the ``known-standard-library`` option is not interpreted the same in isort 4 and isort 5 (see the migration guide in isort documentation for further details). For compatibility's sake for most pylint users, the ``known-standard-library`` option in pylint now maps to ``extra-standard-library`` in isort 5. If you really want what ``known-standard-library`` now means in isort 5, you must disable the ``wrong-import-order`` check in pylint and run isort manually with a proper isort configuration file.
 
   Close #3722
 
@@ -297,13 +298,14 @@ Release date: 2020-08-20
 What's New in Pylint 2.5.4?
 ===========================
 
-* Fix a crash caused by not guarding against `InferenceError` when calling `infer_call_result`
+* Fix a crash caused by not guarding against ``InferenceError`` when calling ``infer_call_result``
 
   Close #3690
 
 * Fix a crash in parallel mode when the module's filepath is not set
 
   Close #3564
+
 
 What's New in Pylint 2.5.3?
 ===========================
@@ -314,11 +316,11 @@ Release date: 2020-06-8
 
   Close #3666
 
-* `property-with-parameters` properly handles abstract properties
+* ``property-with-parameters`` properly handles abstract properties
 
   Close #3600
 
-* `continue-in-finally` no longer emitted on Python 3.8 where it's now valid
+* ``continue-in-finally`` no longer emitted on Python 3.8 where it's now valid
 
   Close #3612
 
@@ -339,7 +341,7 @@ Release date: 2020-06-8
 
   Close #3547
 
-* Protect against `AttributeError` when checking `cell-var-from-loop`
+* Protect against ``AttributeError`` when checking ``cell-var-from-loop``
 
   Close #3646
 
@@ -359,11 +361,11 @@ What's New in Pylint 2.5.1?
 
 Release date: 2020-05-05
 
-* Fix a crash in `method-hidden` lookup for unknown base classes
+* Fix a crash in ``method-hidden`` lookup for unknown base classes
 
   Close #3527
 
-* Revert pylint.Run's `exit` parameter to ``do_exit``
+* Revert pylint.Run's ``exit`` parameter to ``do_exit``
 
   This has been inadvertently changed several releases ago to ``do_exit``.
 
@@ -377,9 +379,10 @@ Release date: 2020-05-05
 
   Close #3524
 
-* Allow linting directories without `__init__.py` which was a regression in 2.5.
+* Allow linting directories without ``__init__.py`` which was a regression in 2.5.
 
   Close #3528
+
 
 What's New in Pylint 2.5.0?
 ===========================
@@ -399,7 +402,7 @@ Release date: 2020-04-27
 
   Close #2769
 
-* Adjust the `invalid-name` rule to work with non-ASCII identifiers and add the `non-ascii-name` rule.
+* Adjust the ``invalid-name`` rule to work with non-ASCII identifiers and add the ``non-ascii-name`` rule.
 
   Close #2725
 
@@ -439,7 +442,7 @@ Release date: 2020-04-27
 
   Close #2695
 
-* Add a check for cases where the second argument to `isinstance` is not a type.
+* Add a check for cases where the second argument to ``isinstance`` is not a type.
 
   Close #3308
 
@@ -468,7 +471,7 @@ Release date: 2020-04-27
 
   Close #3386
 
-* Add `dummy-variables-rgx` option for `_redeclared-assigned-name` check.
+* Add ``dummy-variables-rgx`` option for ``_redeclared-assigned-name`` check.
 
   Close #3341
 
@@ -478,15 +481,15 @@ Release date: 2020-04-27
 
   Close #3284
 
-* `not in` is considered iterating context for some of the Python 3 porting checkers.
+* ``not in`` is considered iterating context for some of the Python 3 porting checkers.
 
-* A new check `inconsistent-quotes` was added.
+* A new check ``inconsistent-quotes`` was added.
 
 * Add a check for non string assignment to __name__ attribute.
 
   Close #583
 
-* `__pow__`, `__imatmul__`, `__trunc__`, `__floor__`, and `__ceil__` are recognized as special method names.
+* ``__pow__``, ``__imatmul__``, ``__trunc__``, ``__floor__``, and ``__ceil__`` are recognized as special method names.
 
   Close #3281
 
@@ -520,7 +523,7 @@ Release date: 2020-04-27
 
   Close #2242
 
-* Don't emit ``line-too-long`` for multilines when `disable=line-too-long` comment stands at their end
+* Don't emit ``line-too-long`` for multilines when ``disable=line-too-long`` comment stands at their end
 
   Close #2957
 
@@ -645,7 +648,7 @@ Release date: 2020-04-27
 
   Closes #3098
 
-* Fix overzealous `arguments-differ` when overridden function uses variadics
+* Fix overzealous ``arguments-differ`` when overridden function uses variadics
 
   No message is emitted if the overriding function provides positional or
   keyword variadics in its signature that can feasibly accept and pass on
@@ -656,10 +659,11 @@ Release date: 2020-04-27
 
 * Multiple types of string formatting are allowed in logging functions.
 
-  The `logging-fstring-interpolation` message has been brought back to allow
+  The ``logging-fstring-interpolation`` message has been brought back to allow
   multiple types of string formatting to be used.
 
   Close #3361
+
 
 What's New in Pylint 2.4.4?
 ===========================
@@ -695,11 +699,11 @@ Release date: 2019-10-18
 
   Close #3161
 
-* ``consider-using-sys-exit`` is no longer emitted when `exit` is imported in the local scope.
+* ``consider-using-sys-exit`` is no longer emitted when ``exit`` is imported in the local scope.
 
   Close #3147
 
-* `invalid-overridden-method` takes `abc.abstractproperty` in account
+* ``invalid-overridden-method`` takes ``abc.abstractproperty`` in account
 
   Close #3150
 
@@ -725,7 +729,7 @@ Release date: 2019-09-30
 
    Close #2930
 
-* ``consider-using-sys-exit`` is exempted when `exit()` is imported from `sys`
+* ``consider-using-sys-exit`` is exempted when ``exit()`` is imported from ``sys``
 
    Close #3145
 
@@ -756,8 +760,8 @@ Release date: 2019-09-25
 * Exempt type checking definitions inside the type check guard
 
   In a7f236528bb3758886b97285a56f3f9ce5b13a99 we added basic support
-  for emitting `used-before-assignment` if a variable was only defined
-  inside a type checking guard (using `TYPE_CHECKING` variable from `typing`)
+  for emitting ``used-before-assignment`` if a variable was only defined
+  inside a type checking guard (using ``TYPE_CHECKING`` variable from `typing`)
   Unfortunately that missed the case of using those type checking imports
   inside the guard itself, which triggered spurious used-before-assignment errors.
 
@@ -867,7 +871,7 @@ Release date: 2019-09-24
 
 * Excluded protocol classes from a couple of checks. Close #3002.
 
-* Add a check `unnecessary-comprehension` that detects unnecessary comprehensions.
+* Add a check ``unnecessary-comprehension`` that detects unnecessary comprehensions.
 
   This check is emitted when ``pylint`` finds list-, set- or dict-comprehensions,
   that are unnecessary and can be rewritten with the list-, set- or dict-constructors.
@@ -876,7 +880,7 @@ Release date: 2019-09-24
 
 * Excluded PEP 526 instance and class variables from ``no-member``. Close #2945
 
-* Excluded `attrs` from `too-few-public-methods` check. Close #2988.
+* Excluded ``attrs`` from ``too-few-public-methods`` check. Close #2988.
 
 * ``unused-import`` emitted for the right import names in function scopes.
 
@@ -908,9 +912,9 @@ Release date: 2019-09-24
 
 * Fix crash happening when parent of called object cannot be determined
 
-* Allow of in `GoogleDocstring.re_multiple_type`
+* Allow of in ``GoogleDocstring.re_multiple_type``
 
-* Added `subprocess-run-check` to handle subrocess.run without explicitly set `check` keyword.
+* Added ``subprocess-run-check`` to handle subrocess.run without explicitly set ``check`` keyword.
 
   Close #2848
 
@@ -918,7 +922,7 @@ Release date: 2019-09-24
 
   Close #2853
 
-* Handle more `unnecessary-lambda` cases when dealing with additional kwargs in wrapped calls
+* Handle more ``unnecessary-lambda`` cases when dealing with additional kwargs in wrapped calls
 
   Close #2845
 
@@ -934,7 +938,7 @@ Release date: 2019-09-24
 
   Close #2837
 
-* Ignore raw docstrings when running Similarities checker with `ignore-docstrings=yes` option
+* Ignore raw docstrings when running Similarities checker with ``ignore-docstrings=yes`` option
 
 * Fix crash when calling ``inherit_from_std_ex`` on a class which is its own ancestor
 
@@ -975,7 +979,7 @@ Release date: 2019-09-24
 
   Close #1187
 
-* Added a new check `class-variable-slots-conflict`
+* Added a new check ``class-variable-slots-conflict``
 
   This check is emitted when ``pylint`` finds a class variable that conflicts with a slot
   name, which would raise a ``ValueError`` at runtime.
@@ -990,7 +994,7 @@ Release date: 2019-09-24
 
 * Relicense logo material under the CC BY-SA 4.0 license.
 
-* Skip `if` expressions from f-strings for the `check_elif` checker
+* Skip ``if`` expressions from f-strings for the ``check_elif`` checker
 
   Close #2816
 
@@ -1004,8 +1008,8 @@ Release date: 2019-09-24
 
 * ``signature-mutators`` option was added
 
-   With this option, users can choose to ignore `too-many-function-args`, `unexpected-keyword-arg`,
-   and `no-value-for-parameter` for functions decorated with decorators that change
+   With this option, users can choose to ignore ``too-many-function-args``, ``unexpected-keyword-arg``,
+   and ``no-value-for-parameter`` for functions decorated with decorators that change
    the signature of a decorated function.
 
    Close #259
@@ -1015,13 +1019,13 @@ Release date: 2019-09-24
 
   Close #199
 
-* Fixed false `undefined-loop-variable` for a function defined in the loop,
+* Fixed false ``undefined-loop-variable`` for a function defined in the loop,
   that uses the variable defined in that loop.
 
   Close #202
 
-* Fixed `unused-argument` and `function-redefined` getting raised for
-  functions decorated with `typing.overload`.
+* Fixed ``unused-argument`` and ``function-redefined`` getting raised for
+  functions decorated with ``typing.overload``.
 
   Close #1581
 
@@ -1035,7 +1039,7 @@ Release date: 2019-09-24
 
 * Changed description of W0199 to use the term 2-item-tuple instead of 2-uple.
 
-* Allow a `.` as a prefix for Sphinx name resolution.
+* Allow a ``.`` as a prefix for Sphinx name resolution.
 
 * Checkers must now keep a 1 to 1 relationship between "msgid" (ie: C1234) and "symbol" (ie : human-readable-symbol)
 * In checkers, an old_names can now be used for multiple new messages and pylint is now a little faster
@@ -1049,14 +1053,15 @@ must rename the associated identification.
 
 * Added ``--list-msgs-enabled`` command to list all enabled and disabled messages given the current RC file and command line arguments.
 
+
 What's New in Pylint 2.3.0?
 ===========================
 
 Release date: 2019-02-27
 
-* Protect against `NonDeducibleTypeHierarchy` when calling semi-private `is_subtype`
+* Protect against ``NonDeducibleTypeHierarchy`` when calling semi-private ``is_subtype``
 
-  `astroid.helpers.is_subtype` raises `NonDeducibleTypeHierarchy` when it cannot infer
+  ``astroid.helpers.is_subtype`` raises ``NonDeducibleTypeHierarchy`` when it cannot infer
   the base classes of the given types, but that makes sense in its context given that
   the method is mostly used to inform the inference process about the hierarchy of classes.
   Doesn't make that much sense for ``pylint`` itself, which is why we're handling the
@@ -1135,7 +1140,7 @@ Release date: 2019-02-27
   for verification and updated pylint source files to eliminate newly
   exposed warnings.
 
-* Fix false positive with `not-async-context-manager` caused by not understanding `contextlib.asynccontextmanager`
+* Fix false positive with ``not-async-context-manager`` caused by not understanding ``contextlib.asynccontextmanager``
 
   Close #2440
 
@@ -1210,9 +1215,10 @@ What's New in Pylint 2.2.1?
 
 Release date: 2018-11-27
 
-* Fix a crash caused by `implicit-str-concat-in-sequence` and multi-bytes characters.
+* Fix a crash caused by ``implicit-str-concat-in-sequence`` and multi-bytes characters.
 
   Closes #2610
+
 
 What's New in Pylint 2.2?
 =========================
@@ -1261,7 +1267,7 @@ Release date: 2018-11-25
 
      Close #2513
 
-   * `try-except-raise` checker now handles multilevel inheritance hirerachy for exceptions correctly.
+   * ``try-except-raise`` checker now handles multilevel inheritance hirerachy for exceptions correctly.
 
      Close #2484
 
@@ -1333,7 +1339,7 @@ Release date: 2018-11-25
 
      Close #2411
 
-   * Ignore import x.y.z as z cases for checker `useless-import-alias`.
+   * Ignore import x.y.z as z cases for checker ``useless-import-alias``.
 
      Close #2309
 
@@ -1343,13 +1349,13 @@ Release date: 2018-11-25
 
    * Stop ``protected-access`` exception for missing class attributes
 
-   * Don't emit `assignment-from-no-return` for decorated function nodes
+   * Don't emit ``assignment-from-no-return`` for decorated function nodes
 
      Close #2385
 
-   * `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement.
+   * ``unnecessary-pass`` is now also emitted when a function or class contains only docstring and pass statement.
 
-      In Python, stubbed functions often have a body that contains just a single `pass` statement,
+      In Python, stubbed functions often have a body that contains just a single ``pass`` statement,
       indicating that the function doesn't do anything. However, a stubbed function can also have just a
       docstring, and function with a docstring and no body also does nothing.
 
@@ -1372,7 +1378,7 @@ Release date: 2018-11-25
 
    * Fix external/internal distinction being broken in the import graph
 
-   * Fix wildcard import check not skipping `__init__.py`
+   * Fix wildcard import check not skipping ``__init__.py``
 
      Close #2430
 
@@ -1386,6 +1392,7 @@ Release date: 2018-11-25
    * Add a new check 'implicit-str-concat-in-sequence' to spot string concatenation inside lists, sets & tuples.
 
    * ``literal-comparison`` is now emitted for 0 and 1 literals.
+
 
 What's New in Pylint 2.1.1?
 ===========================
@@ -1401,47 +1408,48 @@ Release date: 2018-08-07
 
    * ``simplifiable-if-statement`` not emitted when dealing with subscripts
 
+
 What's New in Pylint 2.1?
 =========================
 
 Release date: 2018-08-01
-   * `trailing-comma-tuple` gets emitted for ``yield`` statements as well.
+   * ``trailing-comma-tuple`` gets emitted for ``yield`` statements as well.
 
       Close #2363
 
-   * Get only the arguments of the scope function for `redefined-argument-from-local`
+   * Get only the arguments of the scope function for ``redefined-argument-from-local``
 
      Close #2364
 
-   * Add a check `misplaced-format-function` which is emitted if format function is used on
+   * Add a check ``misplaced-format-function`` which is emitted if format function is used on
      non str object.
 
      Close #2200
 
-   * `chain.from_iterable` no longer emits `dict-{}-not-iterating` when dealing with dict values and keys
+   * ``chain.from_iterable`` no longer emits `dict-{}-not-iterating` when dealing with dict values and keys
 
-   * Demote the `try-except-raise` message from an error to a warning (E0705 -> W0706)
+   * Demote the ``try-except-raise`` message from an error to a warning (E0705 -> W0706)
 
       Close #2323
 
-   * Correctly handle the new name of the Python implementation of the `abc` module.
+   * Correctly handle the new name of the Python implementation of the ``abc`` module.
 
      Close PyCQA/astroid#2288
 
-    * Modules with `__getattr__` are exempted by default from `no-member`
+    * Modules with ``__getattr__`` are exempted by default from ``no-member``
 
       There's no easy way to figure out if a module has a particular member when
-      the said module uses `__getattr__`, which is a new addition to Python 3.7.
+      the said module uses ``__getattr__``, which is a new addition to Python 3.7.
       Instead we assume the safe thing to do, in the same way we do for classes,
       and skip those modules from checking.
 
       Close #2331
 
-    * Fix a false positive `invalid name` message when method or attribute name is longer then 30 characters.
+    * Fix a false positive ``invalid name`` message when method or attribute name is longer then 30 characters.
 
       Close #2047
 
-    * Include the type of the next branch in `no-else-return`
+    * Include the type of the next branch in ``no-else-return``
 
       Close #2295
 
@@ -1454,10 +1462,10 @@ Release date: 2018-08-01
 
        Close #2278
 
-    * Don't emit `useless-return` when we have a single statement that is the return itself
+    * Don't emit ``useless-return`` when we have a single statement that is the return itself
 
       We still want to be explicit when a function is supposed to return
-      an optional value; even though `pass` could still work, it's not explicit
+      an optional value; even though ``pass`` could still work, it's not explicit
       enough and the function might look like it's missing an implementation.
       Close #2300
 
@@ -1465,11 +1473,11 @@ Release date: 2018-08-01
 
       Close #704
 
-    * Don't crash when `pylint` is unable to infer the value of an argument to `next()`
+    * Don't crash when ``pylint`` is unable to infer the value of an argument to ``next()``
 
       Close #2316
 
-    * Don't emit `not-an-iterable` when dealing with async iterators.
+    * Don't emit ``not-an-iterable`` when dealing with async iterators.
 
       But do emit it when using the usual iteration protocol against
       async iterators.
@@ -1485,11 +1493,11 @@ What's New in Pylint 2.0?
 =========================
 
 Release date: 2018-07-15
-    * `try-except-raise` should not be emitted if there are any parent exception class handlers.
+    * ``try-except-raise`` should not be emitted if there are any parent exception class handlers.
 
        Close #2284
 
-    * `trailing-comma-tuple` can be emitted for `return` statements as well.
+    * ``trailing-comma-tuple`` can be emitted for ``return`` statements as well.
 
        Close #2269
 
@@ -1498,7 +1506,7 @@ Release date: 2018-07-15
 
       Close #1782
 
-    * `ImportFrom` nodes correctly use the full name for the import sorting checks.
+    * ``ImportFrom`` nodes correctly use the full name for the import sorting checks.
 
       Close #2181
 
@@ -1506,41 +1514,41 @@ Release date: 2018-07-15
 
       Close #2187
 
-    * Add a check `consider-using-dict-comprehension` which is emitted if for dict initialization
+    * Add a check ``consider-using-dict-comprehension`` which is emitted if for dict initialization
       the old style with list comprehensions is used.
 
-    * Add a check `consider-using-set-comprehension` which is emitted if for set initialization
+    * Add a check ``consider-using-set-comprehension`` which is emitted if for set initialization
       the old style with list comprehensions is used.
 
-    * `logging-not-lazy` is emitted whenever pylint infers that a string is built with addition
+    * ``logging-not-lazy`` is emitted whenever pylint infers that a string is built with addition
 
       Close #2193
 
-    * Add a check `chained-comparison` which is emitted if a boolean operation can be simplified
+    * Add a check ``chained-comparison`` which is emitted if a boolean operation can be simplified
       by chaining some of its operations.
       e.g "a < b and b < c", can be simplified as "a < b < c".
 
       Close #2032
 
-    * Add a check `consider-using-in` for comparisons of a variable against
+    * Add a check ``consider-using-in`` for comparisons of a variable against
       multiple values with "==" and "or"s instead of checking if the variable
       is contained "in" a tuple of those values.
 
-    * `in` is considered iterating context for some of the Python 3 porting checkers
+    * ``in`` is considered iterating context for some of the Python 3 porting checkers
 
       Close #2186
 
-    * Add `--ignore-none` flag to control if pylint should warn about `no-member` where the owner is None
+    * Add ``--ignore-none`` flag to control if pylint should warn about ``no-member`` where the owner is None
 
-    * Fix a false positive related to `too-many-arguments` and bounded `__get__` methods
+    * Fix a false positive related to ``too-many-arguments`` and bounded ``__get__`` methods
 
       Close #2172
 
-    * `mcs` as the first parameter of metaclass's `__new__` method was replaced by `cls`
+    * ``mcs`` as the first parameter of metaclass's ``__new__`` method was replaced by ``cls``
 
       Close #2028
 
-    * `assignment-from-no-return` considers methods as well.
+    * ``assignment-from-no-return`` considers methods as well.
 
        Close #2081
 
@@ -1548,7 +1556,7 @@ Release date: 2018-07-15
 
       Close #1948
 
-    * Inferred classes at a function level no longer emit `invalid-name`
+    * Inferred classes at a function level no longer emit ``invalid-name``
       when they don't respect the variable regular expression
 
       Close #1049
@@ -1557,11 +1565,11 @@ Release date: 2018-07-15
 
       Close #2069
 
-    * Fix a bug with `missing-kwoa` and variadics parameters
+    * Fix a bug with ``missing-kwoa`` and variadics parameters
 
       Close #1111
 
-    * `simplifiable-if-statement` takes in account only when assigning to same targets
+    * ``simplifiable-if-statement`` takes in account only when assigning to same targets
 
        Close #1984
 
@@ -1576,11 +1584,11 @@ Release date: 2018-07-15
 
       Close #461
 
-    * Don't warn about `stop-iteration-return` when using `next()` over `itertools.count`
+    * Don't warn about ``stop-iteration-return`` when using ``next()`` over ``itertools.count``
 
       Close #2158
 
-    * Add a check `consider-using-get` for unidiomatic usage of value/default-retrieval
+    * Add a check ``consider-using-get`` for unidiomatic usage of value/default-retrieval
       for a key from a dictionary
 
       Close #2076
@@ -1590,13 +1598,13 @@ Release date: 2018-07-15
       We only use a handful of known objects (list, set and friends) to figure out if
       we should emit invalid-slice-index when the slice is used to subscript an object.
 
-    * Don't emit `unused-import` anymore for typing imports used in type comments.
+    * Don't emit ``unused-import`` anymore for typing imports used in type comments.
 
     * Add a new check 'useless-import-alias'.
 
       Close #2052
 
-    * Add `comparison-with-callable` to warn for comparison with bare callable, without calling it.
+    * Add ``comparison-with-callable`` to warn for comparison with bare callable, without calling it.
 
       Close #2082
 
@@ -1604,7 +1612,7 @@ Release date: 2018-07-15
       annotations exist on the function signature for a parameter and/or return type.
       Close #2083
 
-    * Add `--exit-zero` option for continuous integration scripts to more
+    * Add ``--exit-zero`` option for continuous integration scripts to more
       easily call Pylint in environments that abort when a program returns a
       non-zero (error) status code.
 
@@ -1614,7 +1622,7 @@ Release date: 2018-07-15
 
       Close #977
 
-    * New check `comparison-with-itself` to check comparison between same value.
+    * New check ``comparison-with-itself`` to check comparison between same value.
 
       Close #2051
 
@@ -1627,7 +1635,7 @@ Release date: 2018-07-15
 
       Close #1923
 
-    * Add `unhashable-dict-key` check.
+    * Add ``unhashable-dict-key`` check.
 
       Closes #586
 
@@ -1635,22 +1643,22 @@ Release date: 2018-07-15
 
       Close #1453
 
-    * Skip wildcard import check for `__init__.py`.
+    * Skip wildcard import check for ``__init__.py``.
 
       Close #2026
 
     * The Python 3 porting mode can now run with Python 3 as well.
 
-    * `too-few-public-methods` is not emitted for dataclasses.
+    * ``too-few-public-methods`` is not emitted for dataclasses.
 
        Close #1793
 
-    * New verbose mode option, enabled with `--verbose` command line flag, to
+    * New verbose mode option, enabled with ``--verbose`` command line flag, to
       display of extra non-checker-related output. It is disabled by default.
 
       Close #1863
 
-    * `undefined-loop-variable` takes in consideration non-empty iterred objects before emitting
+    * ``undefined-loop-variable`` takes in consideration non-empty iterred objects before emitting
 
       Close #2039
 
@@ -1658,11 +1666,11 @@ Release date: 2018-07-15
 
       Close #2030
 
-    * `singleton-comparison` accounts for negative checks
+    * ``singleton-comparison`` accounts for negative checks
 
       Close #2037
 
-    * Add a check `consider-using-in` for comparisons of a variable against
+    * Add a check ``consider-using-in`` for comparisons of a variable against
       multiple values with "==" and "or"s instead of checking if the variable
       is contained "in" a tuple of those values.
 
@@ -1672,7 +1680,7 @@ Release date: 2018-07-15
 
       Close #2005
 
-    * `logging-format-interpolation` also emits when f-strings are used instead of % syntax.
+    * ``logging-format-interpolation`` also emits when f-strings are used instead of % syntax.
 
       Close #1788
 
@@ -1680,18 +1688,18 @@ Release date: 2018-07-15
 
       Close #1924
 
-    * Add a new check, `possibly-unused-variable`.
+    * Add a new check, ``possibly-unused-variable``.
 
-      This is similar to `unused-variable`, the only difference is that it is
+      This is similar to ``unused-variable``, the only difference is that it is
       emitted when we detect a locals() call in the scope of the unused variable.
-      The `locals()` call could potentially use the said variable, by consuming
+      The ``locals()`` call could potentially use the said variable, by consuming
       all values that are present up to the point of the call. This new check
-      allows to disable this error when the user intentionally uses `locals()`
+      allows to disable this error when the user intentionally uses ``locals()``
       to consume everything.
 
       Close #1909.
 
-    * `no-else-return` accounts for multiple cases
+    * ``no-else-return`` accounts for multiple cases
 
        The check was a bit overrestrictive because we were checking for
        return nodes in the .orelse node. At that point though the if statement
@@ -1701,32 +1709,32 @@ Release date: 2018-07-15
 
        Close #1852
 
-    * Added two new checks, `invalid-envvar-value` and `invalid-envvar-default`.
+    * Added two new checks, ``invalid-envvar-value`` and ``invalid-envvar-default``.
 
       The former is trigger whenever pylint detects that environment variable manipulation
       functions uses a different type than strings, while the latter is emitted whenever
       the said functions are using a default variable of different type than expected.
 
-    * Add a check `consider-using-join` for concatenation of strings using str.join(sequence)
+    * Add a check ``consider-using-join`` for concatenation of strings using str.join(sequence)
 
       Close #1952
 
-    * Add a check `consider-swap-variables` for swapping variables with tuple unpacking
+    * Add a check ``consider-swap-variables`` for swapping variables with tuple unpacking
 
       Close #1922
 
-    * Add new checker `try-except-raise` that warns the user if an except handler block
+    * Add new checker ``try-except-raise`` that warns the user if an except handler block
       has a ``raise`` statement as its first operator. The warning is shown when there is
       a bare raise statement, effectively re-raising the exception that was caught or the
       type of the exception being raised is the same as the one being handled.
 
-    * Don't crash on invalid strings when checking for `logging-format-interpolation`
+    * Don't crash on invalid strings when checking for ``logging-format-interpolation``
 
       Close #1944
 
-    * Exempt `__doc__` from triggering a `redefined-builtin`
+    * Exempt ``__doc__`` from triggering a ``redefined-builtin``
 
-      `__doc__` can be used to specify a docstring for a module without
+      ``__doc__`` can be used to specify a docstring for a module without
       passing it as a first-statement string.
 
     * Fix false positive bad-whitespace from function arguments with default
@@ -1743,7 +1751,7 @@ Release date: 2018-07-15
 
       Close #1643
 
-    * Fixed a crash which occurred when `Uninferable` wasn't properly handled in `stop-iteration-return`
+    * Fixed a crash which occurred when ``Uninferable`` wasn't properly handled in ``stop-iteration-return``
 
       Close #1779
 
@@ -1842,7 +1850,7 @@ Release date: 2018-07-15
 
       Close #1978
 
-    * Fix `KeyError` raised when using docparams and NotImplementedError is documented.
+    * Fix ``KeyError`` raised when using docparams and NotImplementedError is documented.
 
       Close #2102
 
@@ -1872,19 +1880,20 @@ Release date: 2018-07-15
 
       Closes #1164
 
+
 What's New in Pylint 1.9?
 =========================
 
 Release date: 2018-05-15
 
-    * Added two new Python 3 porting checks, `exception-escape` and `comprehension-escape`
+    * Added two new Python 3 porting checks, ``exception-escape`` and ``comprehension-escape``
 
       These two are emitted whenever pylint detects that a variable defined in the
       said blocks is used outside of the given block. On Python 3 these values are deleted.
 
-    * Added a new `deprecated-sys-function`, emitted when accessing removed sys members.
+    * Added a new ``deprecated-sys-function``, emitted when accessing removed sys members.
 
-    * Added `xreadlines-attribute`, emitted when the `xreadlines()` attribute is accessed.
+    * Added ``xreadlines-attribute``, emitted when the ``xreadlines()`` attribute is accessed.
 
     * The Python 3 porting mode can now run with Python 3 as well.
 
@@ -1894,14 +1903,14 @@ Release date: 2018-05-15
 
       Closes #2044
 
-    * Special methods do not count towards `too-few-methods`,
+    * Special methods do not count towards ``too-few-methods``,
       and are considered part of the public API.
 
-    * Enum classes do not trigger `too-few-methods`
+    * Enum classes do not trigger ``too-few-methods``
 
       Close #605
 
-    * Added a new Python 2/3 check for accessing `operator.div`, which is removed in Python 3
+    * Added a new Python 2/3 check for accessing ``operator.div``, which is removed in Python 3
 
       Close #1936
 
@@ -1925,7 +1934,7 @@ Release date: 2017-12-15
 
     * Respect disable=... in config file when running with --py3k.
 
-    * New warning `shallow-copy-environ` added
+    * New warning ``shallow-copy-environ`` added
 
       Shallow copy of os.environ doesn't work as people may expect. os.environ
       is not a dict object but rather a proxy object, so any changes made
@@ -1940,7 +1949,7 @@ Release date: 2017-12-15
 
     * Do not display no-absolute-import warning multiple times per file.
 
-    * `trailing-comma-tuple` refactor check now extends to assignment with
+    * ``trailing-comma-tuple`` refactor check now extends to assignment with
        more than one element (such as lists)
 
       Close #1713
@@ -1949,7 +1958,7 @@ Release date: 2017-12-15
 
       Close #1420
 
-    * `abstract-class-instantiated` is now emitted for all inference paths.
+    * ``abstract-class-instantiated`` is now emitted for all inference paths.
 
        Close #1673
 
@@ -1968,7 +1977,7 @@ Release date: 2017-12-15
       is not provided in the function call assuming it will take default value
       provided in the definition.
 
-    * The `invalid-name` check contains the name of the template that caused the failure
+    * The ``invalid-name`` check contains the name of the template that caused the failure
 
       Close #1176
 
@@ -2102,6 +2111,7 @@ Release date: 2017-12-15
       message for lines that follow.
       Close #1742
 
+
 What's New in Pylint 1.7.1?
 ===========================
 
@@ -2135,7 +2145,7 @@ Release date: 2017-04-13
       results in partial inference. In that case, it might be useful to still emit
       no-member and other checks for the rest of the inferred objects.
 
-    * Added new message `assign-to-new-keyword` to warn about assigning to names which
+    * Added new message ``assign-to-new-keyword`` to warn about assigning to names which
       will become a keyword in future Python releases.
 
       Close #1351
@@ -2190,7 +2200,7 @@ Release date: 2017-04-13
       Now detects ``super(type(self), self)`` and ``super(self.__class__, self)``
       which can lead to recursion loop in derived classes.
 
-    * PyLinter.should_analyze_file has a new optional parameter, called `is_argument`
+    * PyLinter.should_analyze_file has a new optional parameter, called ``is_argument``
 
       Close #1079
 
@@ -2323,7 +2333,7 @@ Release date: 2017-04-13
       occurred when a class docstring uses the 'For the parameters, see'
       magic string but the class __init__ docstring does not, or vice versa.
 
-    * `redefined-outer-name` is now also emitted when a nested loop's target
+    * ``redefined-outer-name`` is now also emitted when a nested loop's target
       variable is the same as a target variable in an outer loop.
 
       Closes issue #911.
@@ -2414,7 +2424,7 @@ Release date: 2017-04-13
 
       Closes #738
 
-    * Protected access in form `type(self)._attribute` are now allowed.
+    * Protected access in form ``type(self)._attribute`` are now allowed.
 
       Fixes #1031
 
@@ -2423,16 +2433,16 @@ Release date: 2017-04-13
       Fixes #1269
 
     * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
-      warning on wildcard import when imported module defines `__all__` variable.
+      warning on wildcard import when imported module defines ``__all__`` variable.
 
       Fixes #831
 
-    * `too-many-format-args` and `too-few-format-args` are emitted correctly when
+    * ``too-many-format-args`` and ``too-few-format-args`` are emitted correctly when
       starred expression are used in RHS tuple.
 
       Fixes #957
 
-    * `cyclic-import` checker supports local disable clauses. When one
+    * ``cyclic-import`` checker supports local disable clauses. When one
       of cycle imports was done in scope where disable clause was active,
       cycle is not reported as violation.
 
@@ -2476,7 +2486,7 @@ What's New in Pylint 1.6.0?
 
 Release date: 2016-07-03
 
-    * Added a new extension, `pylint.extensions.mccabe`, for warning
+    * Added a new extension, ``pylint.extensions.mccabe``, for warning
       about complexity in code.
 
     * Deprecate support for --optimize-ast. Part of #975.
@@ -2498,7 +2508,7 @@ Release date: 2016-07-03
     * generated-members support qualified name through regular expressions.
 
       For instance, one can specify a regular expression as --generated-members=astroid.node_classes.*
-      for ignoring every no-member error that is accessed as in `astroid.node_classes.missing.object`.
+      for ignoring every no-member error that is accessed as in ``astroid.node_classes.missing.object``.
 
     * Add the ability to ignore files based on regex matching, with the new ``--ignore-patterns``
       option.
@@ -2532,7 +2542,7 @@ Release date: 2016-07-03
       in Python 3's configparser.
       Close #828
 
-    * A new error was added, 'invalid-length-returned', when the `__len__`
+    * A new error was added, 'invalid-length-returned', when the ``__len__``
       special method returned something else than a non-negative number.
 
       Close issue #557
@@ -2654,7 +2664,7 @@ Release date: 2016-01-11
 
       Closes issue #745.
 
-    * Suppress reporting 'unneeded-not' inside `__ne__` methods
+    * Suppress reporting 'unneeded-not' inside ``__ne__`` methods
 
       Closes issue #749.
 
@@ -2677,7 +2687,7 @@ Release date: 2015-12-21
     * Don't emit super-on-old-class on classes with unknown bases.
       Closes issue #721.
 
-    * Allow statements in `if` or `try` blocks containing imports.
+    * Allow statements in ``if`` or ``try`` blocks containing imports.
 
       Closes issue #714.
 
@@ -2827,7 +2837,7 @@ Release date: 2015-11-29
     * Don't warn about no-self-use for builtin properties.
 
     * Fix a false positive for bad-reversed-sequence, when a subclass
-      of a `dict` provides a __reversed__ method.
+      of a ``dict`` provides a __reversed__ method.
 
     * Change the default no-docstring-rgx so missing-docstring isn't
       emitted for private functions.
@@ -2934,7 +2944,7 @@ Release date: 2015-11-29
 
     * Take in consideration differences between arguments of various
       type of functions (classmethods, staticmethods, properties)
-      when checking for `arguments-differ`. Closes issue #548.
+      when checking for ``arguments-differ``. Closes issue #548.
 
     * astroid.inspector was moved to pylint.pyreverse, since it belongs
       there and it doesn't need to be in astroid.
@@ -2947,7 +2957,7 @@ Release date: 2015-11-29
     * Don't emit undefined-all-variables for nodes which can't be
       inferred (YES nodes).
 
-    * yield-outside-func is also emitted for `yield from`.
+    * yield-outside-func is also emitted for ``yield from``.
 
     * Add a new error, 'too-many-star-expressions', emitted when
       there are more than one starred expression (`*x`) in an assignment.
@@ -2960,7 +2970,7 @@ Release date: 2015-11-29
     * Detect a couple of objects which can't be base classes (bool,
       slice, range and memoryview, which weren't detected until now).
 
-    * Add a new error for the Python 3 porting checker, `import-star-module-level`,
+    * Add a new error for the Python 3 porting checker, ``import-star-module-level``,
       which is used when a star import is detected in another scope than the
       module level, which is an error on Python 3. Using this will emit a
       SyntaxWarning on Python 2.
@@ -2998,7 +3008,7 @@ Release date: 2015-11-29
     * Don't emit no-init if not all the bases from a class are known.
       Closes issue #604.
 
-    * --no-space-check option accepts `empty-line` as a possible option.
+    * --no-space-check option accepts ``empty-line`` as a possible option.
       Closes issue #541.
 
     * --generate-rcfile generates by default human readable symbols
@@ -3007,7 +3017,7 @@ Release date: 2015-11-29
     * Improved the not-in-loop checker to properly detect more cases.
 
     * Add a new error, 'continue-in-finally', which is emitted when
-      the `continue` keyword is found inside a `finally` clause, which
+      the ``continue`` keyword is found inside a ``finally`` clause, which
       is a SyntaxError.
 
     * The --zope flag is deprecated and it is slated for removal
@@ -3055,7 +3065,7 @@ Release date: 2015-11-29
       some point in the future.
       Closes issue #621.
 
-    * `reimported` is emitted for reimported objects on the same line.
+    * ``reimported`` is emitted for reimported objects on the same line.
 
       Closes issue #639.
 
@@ -3084,7 +3094,7 @@ Release date: 2015-11-29
     * Add a new checker for the async features added by PEP 492.
 
     * Add a new error, 'yield-inside-async-function', emitted on
-      Python 3.5 and upwards when the `yield` statement is found inside
+      Python 3.5 and upwards when the ``yield`` statement is found inside
       a new coroutine function (PEP 492).
 
     * Add a new error, 'not-async-context-manager', emitted when
@@ -3112,7 +3122,7 @@ Release date: 2015-11-29
       statements.
 
     * Add a new convention message, 'consider-using-enumerate', which is
-      emitted when code that uses `range` and `len` for iterating is encountered.
+      emitted when code that uses ``range`` and ``len`` for iterating is encountered.
       Closes issue #684.
 
     * Added two new refactoring messages, 'no-classmethod-decorator' and
@@ -3152,7 +3162,7 @@ Release date: 2015-03-11
 
     * Don't require a docstring for empty modules. Closes issue #261.
 
-    * Fix a false positive with `too-few-format-args` string warning,
+    * Fix a false positive with ``too-few-format-args`` string warning,
       emitted when the string format contained a normal positional
       argument ('{0}'), mixed with a positional argument which did
       an attribute access ('{0.__class__}').
@@ -3175,12 +3185,12 @@ Release date: 2015-03-11
 
     * Add support for editable installations.
 
-    * The HTML output accepts the `--msg-template` option. Patch by
+    * The HTML output accepts the ``--msg-template`` option. Patch by
       Dan Goldsmith.
 
     * Add 'map-builtin-not-iterating' (replacing 'implicit-map-evaluation'),
       'zip-builtin-not-iterating', 'range-builtin-not-iterating', and
-      'filter-builtin-not-iterating' which are emitted by `--py3k` when the
+      'filter-builtin-not-iterating' which are emitted by ``--py3k`` when the
       appropriate built-in is not used in an iterating context (semantics
       taken from 2to3).
 
@@ -3193,7 +3203,7 @@ Release date: 2015-03-11
       flag (--py3k and --jobs). Closes issue #467.
 
     * Add a new warning for the Python 3 porting checker, 'using-cmp-argument',
-      emitted when the `cmp` argument for the `list.sort` or `sorted builtin`
+      emitted when the ``cmp`` argument for the ``list.sort`` or ``sorted builtin``
       is encountered.
 
     * Make the --py3k flag commutative with the -E flag. Also, this patch
@@ -3257,7 +3267,7 @@ Release date: 2014-11-23
       By default, only C extensions from the stdlib will be loaded
       into the active Python interpreter for inspection, because they
       can run arbitrary code on import. The option
-      `--extension-pkg-whitelist` can be used to specify modules
+      ``--extension-pkg-whitelist`` can be used to specify modules
       or packages that are safe to load.
 
     * Change default max-line-length to 100 rather than 80
@@ -3465,11 +3475,11 @@ Release date: 2014-07-26
       Closes issue #233.
 
     * Return new astroid class nodes when the inferencer can detect that
-      that result of a function invocation on a type (like `type` or
+      that result of a function invocation on a type (like ``type`` or
       `abc.ABCMeta`) is requested. Closes #205.
 
     * Emit 'undefined-variable' for undefined names when using the
-      Python 3 `metaclass=` argument.
+      Python 3 ``metaclass=`` argument.
 
     * Checkers respect priority now. Close issue #229.
 
@@ -3532,7 +3542,7 @@ Release date: 2014-07-26
     * Don't emit 'unnecessary-lambda' if the body of the lambda call contains
       call chaining. Closes issue #243.
 
-    * Don't emit 'missing-docstring' when the actual docstring uses `.format`.
+    * Don't emit 'missing-docstring' when the actual docstring uses ``.format``.
       Closes issue #281.
 
 
@@ -3589,7 +3599,7 @@ Release date: 2014-04-18
       in disable or enable in the configuration. Patch by Cole Robinson.
       Fixes bitbucket issue #170.
 
-    * Add new warning 'eval-used', checking that the builtin function `eval`
+    * Add new warning 'eval-used', checking that the builtin function ``eval``
       was used.
 
     * Make it possible to show a naming hint for invalid name by setting
@@ -3625,7 +3635,7 @@ Release date: 2014-04-18
       without being a dict or a dict subclass) or an instance which implements
       __reversed__.
 
-    * Mark `file` as a bad function when using python2 (closes #8).
+    * Mark ``file`` as a bad function when using python2 (closes #8).
 
     * Add new warning 'bad-exception-context', checking
       that `raise ... from ...` uses a proper exception context
@@ -3638,7 +3648,7 @@ Release date: 2014-04-18
       variable contains a missing submodule (closes #126).
 
     * Add a new warning 'abstract-class-instantiated' for checking
-      that abstract classes created with `abc` module and
+      that abstract classes created with ``abc`` module and
       with abstract methods are instantied.
 
     * Do not warn about 'return-arg-in-generator' in Python 3.3+.
@@ -3650,7 +3660,7 @@ Release date: 2014-04-18
       Golemon
 
     * Add new warnings for checking proper class __slots__:
-      `invalid-slots-object` and `invalid-slots`.
+      ``invalid-slots-object`` and ``invalid-slots``.
 
     * Search for rc file in `~/.config/pylintrc` if `~/.pylintrc`
       doesn't exists (#121)
@@ -3709,7 +3719,7 @@ Release date: 2013-12-22
     * useless-else-on-loop not emitted if there is a break in the
       else clause of inner loop (#117).
 
-    * don't mark `input` as a bad function when using python3 (#110).
+    * don't mark ``input`` as a bad function when using python3 (#110).
 
     * badly-implemented-container caused several problems in its
       current implementation. Deactivate it until we have something
@@ -3736,7 +3746,7 @@ Release date: 2013-08-06
     * Add check for the use of 'exec' function
 
     * New --msg-template option to control output, deprecating "msvc" and
-      "parseable" output formats as well as killing `--include-ids` and `--symbols`
+      "parseable" output formats as well as killing ``--include-ids`` and ``--symbols``
       options
 
     * Do not emit [fixme] for every line if the config value 'notes'
@@ -4446,7 +4456,7 @@ Release date: 2007-02-28
 
     * new W0107 message for unnecessary pass statement
 
-    * new W0614 message to differentiate between unused `import X` and
+    * new W0614 message to differentiate between unused ``import X`` and
       unused `from X import *` (#3209, patch submitted by Daniel Drake)
 
     * included Daniel Drake's patch to have a different message E1003 instead of
