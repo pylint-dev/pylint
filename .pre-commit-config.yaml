@@ -46,6 +46,12 @@ repos:
         language: system
         types: [python]
         exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/
+    -   id: fix-documentation
+        name: Fix documentation
+        entry: python3 -m script.fix_documentation
+        language: system
+        types: [text]
+        files: ^(ChangeLog|doc/whatsnew/\d+\.\d+\.rst)
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.812
     hooks:
