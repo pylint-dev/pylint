@@ -37,6 +37,11 @@ Release date: TBA
 
   Closes #3167
 
+* Add ``--class-const-naming-style`` for Enum constants and class variables annotated
+  with ``typing.ClassVar``
+
+  Closes #4181
+
 
 What's New in Pylint 2.7.2?
 ===========================

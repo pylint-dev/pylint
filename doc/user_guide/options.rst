@@ -35,6 +35,8 @@ name is found in, and not the type of object assigned.
 +--------------------+---------------------------------------------------------------------------------------------------+
 | ``class-attribute``| Attributes defined in class bodies.                                                               |
 +--------------------+---------------------------------------------------------------------------------------------------+
+| ``class-const``    | Enum constants and class variables annotated with ``ClassVar``                                    |
++--------------------+---------------------------------------------------------------------------------------------------+
 | ``inlinevar``      | Loop variables in list comprehensions and generator expressions.                                  |
 +--------------------+---------------------------------------------------------------------------------------------------+
 
@@ -76,6 +78,8 @@ Following options are exposed:
 
 .. option:: --class-attribute-naming-style=<style>
 
+.. option:: --class-const-naming-style=<style>
+
 .. option:: --inlinevar-naming-style=<style>
 
 
@@ -109,6 +113,8 @@ expression will lead to an instance of ``invalid-name``.
 .. option:: --variable-rgx=<regex>
 
 .. option:: --class-attribute-rgx=<regex>
+
+.. option:: --class-const-rgx=<regex>
 
 .. option:: --inlinevar-rgx=<regex>
 
