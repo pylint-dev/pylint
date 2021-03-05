@@ -3420,10 +3420,10 @@ Release date: 2014-11-23
       first. Closes issue #321.
 
     * Warn in Python 2 when an import statement is found without a
-      corresponding `from __future__ import absolute_import`.
+      corresponding ``from __future__ import absolute_import``.
 
     * Warn in Python 2 when a non-floor division operation is found without
-      a corresponding `from __future__ import division`.
+      a corresponding ``from __future__ import division``.
 
     * Add a new option, 'exclude-protected', for excluding members
       from the protected-access warning. Closes issue #48.
@@ -3638,7 +3638,7 @@ Release date: 2014-04-18
     * Mark ``file`` as a bad function when using python2 (closes #8).
 
     * Add new warning 'bad-exception-context', checking
-      that `raise ... from ...` uses a proper exception context
+      that ``raise ... from ...`` uses a proper exception context
       (None or an exception).
 
     * Enhance the check for 'used-before-assignment' to look
