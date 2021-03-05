@@ -29,6 +29,10 @@ Release date: TBA
 
   Closes #4161
 
+* Exempt ``typing.TypedDict`` from ``too-few-public-methods`` check.
+
+  Closes #4180
+
 
 What's New in Pylint 2.7.2?
 ===========================

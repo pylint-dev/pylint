@@ -95,16 +95,17 @@ SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
 TYPING_NAMEDTUPLE = "typing.NamedTuple"
+TYPING_TYPEDDICT = "typing.TypedDict"
 
 
 def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
     """Check if a class is exempt from too-few-public-methods"""
 
-    # If it's a typing.Namedtuple or an Enum
+    # If it's a typing.Namedtuple, typing.TypedDict or an Enum
     for ancestor in node.ancestors():
         if ancestor.name == "Enum" and ancestor.root().name == "enum":
             return True
-        if ancestor.qname() == TYPING_NAMEDTUPLE:
+        if ancestor.qname() in (TYPING_NAMEDTUPLE, TYPING_TYPEDDICT):
             return True
 
     # Or if it's a dataclass

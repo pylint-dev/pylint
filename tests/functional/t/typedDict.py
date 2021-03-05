@@ -1,5 +1,5 @@
 """Test typing.TypedDict"""
-# pylint: disable=invalid-name,missing-class-docstring,too-few-public-methods
+# pylint: disable=invalid-name,missing-class-docstring
 import typing
 from typing import TypedDict
 
