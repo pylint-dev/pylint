@@ -474,12 +474,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
 
         # Exclude typed annotations, since these might actually exist
         # at some point during the runtime of the program.
-        attribute = owner.locals.get(node.attrname, [None])[0]
-        if (
-            attribute
-            and isinstance(attribute, astroid.AssignName)
-            and isinstance(attribute.parent, astroid.AnnAssign)
-        ):
+        if utils.is_attribute_typed_annotation(owner, node.attrname):
             return False
     if isinstance(owner, objects.Super):
         # Verify if we are dealing with an invalid Super object.
