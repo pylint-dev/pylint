@@ -17,6 +17,10 @@ Release date: TBA
 ..
   Put bug fixes that will be cherry-picked to latest major version here
 
+* Introduce a command-line option to specify pyreverse output directory
+
+  Closes #4159
+
 * Fix issue with Enums and ``class-attribute-naming-style=snake_case``
 
   Closes #4149

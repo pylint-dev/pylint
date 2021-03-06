@@ -456,3 +456,5 @@ contributors:
 * Louis Sautier: contributor
 
 * Alexander Kapshuna: contributor
+
+* Mark Byrne: contributor
