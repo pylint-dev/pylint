@@ -1,11 +1,13 @@
 """Small script to fix various issues with the documentation. Used by pre-commit."""
-# fmt: off
+
 import argparse
 import re
 import sys
 from typing import List, Union
 
-INVALID_CODE_BLOCK_PATTERN = r"(?<=\s`)([\w\-\.\(\)\=]+\s{0,1}[\w\-\.\(\)\=]*)(?=`[,\.]{0,1}\s|$)"
+INVALID_CODE_BLOCK_PATTERN = (
+    r"(?<=\s`)([\w\-\.\(\)\=]+\s{0,1}[\w\-\.\(\)\=]*)(?=`[,\.]{0,1}\s|$)"
+)
 
 FILE_CHANGELOG = "ChangeLog"
 CHANGELOG_WHATS_NEW_PREFIX = "What's New in Pylint"
@@ -23,25 +25,24 @@ def fix_inline_code_blocks(file_content: str) -> str:
 
 def changelog_insert_empty_lines(file_content: str) -> str:
     """Insert up to two empty lines before `What's New` entry in ChangeLog"""
-    lines = file_content.split('\n')
+    lines = file_content.split("\n")
     version_count = 0
     for i, line in enumerate(lines):
         if line.startswith(CHANGELOG_WHATS_NEW_PREFIX):
             version_count += 1
-            if (
-                version_count == 1 or i < 2
-                or lines[i - 1] == '' and lines[i - 2] == ''
-            ):
+            if version_count == 1 or i < 2 or lines[i - 1] == "" and lines[i - 2] == "":
                 continue
-            lines.insert(i, '')
-    return '\n'.join(lines)
+            lines.insert(i, "")
+    return "\n".join(lines)
 
 
 def main(argv: Union[List[str], None] = None) -> int:
     argv = argv or sys.argv[1:]
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "filenames", nargs="*", metavar="FILES",
+        "filenames",
+        nargs="*",
+        metavar="FILES",
         help="File names to modify",
     )
     args = parser.parse_args(argv)
