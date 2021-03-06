@@ -976,6 +976,14 @@ class VariablesChecker(BaseChecker):
             ):
                 continue
 
+            # Ignore inner class scope for keywords in class definition
+            if (
+                current_consumer.scope_type == "class"
+                and isinstance(node.parent, astroid.Keyword)
+                and isinstance(node.parent.parent, astroid.ClassDef)
+            ):
+                continue
+
             # if the name node is used as a function default argument's value or as
             # a decorator, then start from the parent frame of the function instead
             # of the function frame - and thus open an inner class scope
