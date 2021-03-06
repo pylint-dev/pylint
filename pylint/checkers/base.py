@@ -1988,16 +1988,10 @@ class NameChecker(_BasicChecker):
         elif isinstance(frame, astroid.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
                 for ancestor in frame.ancestors():
-                    if (  # pylint: disable=too-many-boolean-expressions
+                    if (
                         ancestor.name == "Enum"
                         and ancestor.root().name == "enum"
-                        or isinstance(node.parent, astroid.AnnAssign)
-                        and (
-                            isinstance(node.parent.annotation, astroid.Subscript)
-                            and node.parent.annotation.value.name == "ClassVar"
-                            or isinstance(node.parent.annotation, astroid.Name)
-                            and node.parent.annotation.name == "ClassVar"
-                        )
+                        or utils.is_class_var(node)
                     ):
                         self._check_name("class_const", node.name, node)
                         break
