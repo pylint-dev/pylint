@@ -77,6 +77,10 @@ Release date: TBA
 
 * Improve check if class is subscriptable PEP585
 
+* Fix false-positive for ``unused-import`` on class keyword arguments
+
+  Closes #3202
+
 
 What's New in Pylint 2.7.2?
 ===========================
