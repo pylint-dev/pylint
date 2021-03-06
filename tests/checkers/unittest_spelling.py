@@ -388,12 +388,10 @@ class TestSpellingChecker(CheckerTestCase):
     @set_config(spelling_dict=spell_dict)
     def test_docstring_lines_that_look_like_comments_1(self):
         stmt = astroid.extract_node(
-            # fmt: off
-            'def f():\n'
-            '    """\n'
-            '    # msitake\n'
-            '    """'
-            # fmt: on
+            '''def f():
+    """
+    # msitake
+    """'''
         )
         with self.assertAddsMessages(
             Message(
@@ -413,10 +411,8 @@ class TestSpellingChecker(CheckerTestCase):
     @set_config(spelling_dict=spell_dict)
     def test_docstring_lines_that_look_like_comments_2(self):
         stmt = astroid.extract_node(
-            # fmt: off
-            'def f():\n'
-            '    """# msitake"""'
-            # fmt: on
+            '''def f():
+    """# msitake"""'''
         )
         with self.assertAddsMessages(
             Message(
@@ -436,12 +432,10 @@ class TestSpellingChecker(CheckerTestCase):
     @set_config(spelling_dict=spell_dict)
     def test_docstring_lines_that_look_like_comments_3(self):
         stmt = astroid.extract_node(
-            # fmt: off
-            'def f():\n'
-            '    """\n'
-            '# msitake\n'
-            '    """'
-            # fmt: on
+            '''def f():
+    """
+# msitake
+    """'''
         )
         with self.assertAddsMessages(
             Message(
@@ -461,12 +455,10 @@ class TestSpellingChecker(CheckerTestCase):
     @set_config(spelling_dict=spell_dict)
     def test_docstring_lines_that_look_like_comments_4(self):
         stmt = astroid.extract_node(
-            # fmt: off
-            'def f():\n'
-            '    """\n'
-            '    # cat\n'
-            '    """'
-            # fmt: on
+            '''def f():
+    """
+    # cat
+    """'''
         )
         with self.assertAddsMessages():
             self.checker.visit_functiondef(stmt)
@@ -475,12 +467,10 @@ class TestSpellingChecker(CheckerTestCase):
     @set_config(spelling_dict=spell_dict)
     def test_docstring_lines_that_look_like_comments_5(self):
         stmt = astroid.extract_node(
-            # fmt: off
-            'def f():\n'
-            '    """\n'
-            '    msitake # cat\n'
-            '    """'
-            # fmt: on
+            '''def f():
+    """
+    msitake # cat
+    """'''
         )
         with self.assertAddsMessages(
             Message(
@@ -500,12 +490,10 @@ class TestSpellingChecker(CheckerTestCase):
     @set_config(spelling_dict=spell_dict)
     def test_docstring_lines_that_look_like_comments_6(self):
         stmt = astroid.extract_node(
-            # fmt: off
-            'def f():\n'
-            '    """\n'
-            '    cat # msitake\n'
-            '    """'
-            # fmt: on
+            '''def f():
+    """
+    cat # msitake
+    """'''
         )
         with self.assertAddsMessages(
             Message(
