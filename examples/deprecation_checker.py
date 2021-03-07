@@ -38,7 +38,7 @@ from module mymodule:
     ------------------------------------------------------------------
     Your code has been rated at 2.00/10 (previous run: 2.00/10, +0.00)
 """
-from typing import Set, Tuple
+from typing import Set, Tuple, Union
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.interfaces import IAstroidChecker
@@ -56,7 +56,7 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
     # The name defines a custom section of the config for this checker.
     name = "deprecated"
 
-    def deprecated_methods(self) -> Set:
+    def deprecated_methods(self) -> Set[str]:
         """Callback method called by DeprecatedMixin for every method/function found in the code.
 
         Returns:
@@ -64,7 +64,9 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
         """
         return {"mymodule.deprecated_function", "mymodule.MyClass.deprecated_method"}
 
-    def deprecated_arguments(self, method: str) -> Tuple:
+    def deprecated_arguments(
+        self, method: str
+    ) -> Tuple[Tuple[Union[int, None], str], ...]:
         """Callback returning the deprecated arguments of method/function.
 
         Returns:
