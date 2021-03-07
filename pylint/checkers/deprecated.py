@@ -2,7 +2,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Checker mixin for deprecated functionality."""
-from collections.abc import Iterable
 from itertools import chain
 from typing import Any, Container, Iterable, Tuple, Union
 
