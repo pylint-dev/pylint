@@ -21,7 +21,7 @@ from pylint.lint import PyLinter
 from pylint.reporters import JSONReporter
 from pylint.reporters.ureports.nodes import EvaluationSection
 
-expected_score_message = "Expected score message"
+expected_score_message = "Your code has been rated at 7.50/10"
 expected_result = [
     [
         ("column", 0),
@@ -35,6 +35,14 @@ expected_result = [
         ("type", "convention"),
     ]
 ]
+
+
+def test_simple_json_output_with_score():
+    report = get_linter_result(score=True)
+    assert len(report) == 2
+    report_result = [sorted(report[0].items(), key=lambda item: item[0])]
+    assert report_result == expected_result
+    assert report[1] == {"score": expected_score_message}
 
 
 def test_simple_json_output_no_score():
@@ -56,7 +64,10 @@ def get_linter_result(score):
     linter.add_message("line-too-long", line=1, args=(1, 2))
     # we call those methods because we didn't actually run the checkers
     if score:
-        reporter.display_reports(EvaluationSection(expected_score_message))
+        generated_msg = "-------------------------------------\r\n{}\r\n".format(
+            expected_score_message
+        )
+        reporter.display_reports(EvaluationSection(generated_msg))
     reporter.display_messages(None)
     report_result = json.loads(output.getvalue())
     return report_result

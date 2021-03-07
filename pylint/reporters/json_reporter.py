@@ -11,10 +11,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """JSON reporter"""
+import io
 import json
 
 from pylint.interfaces import IReporter
 from pylint.reporters.base_reporter import BaseReporter
+from pylint.reporters.ureports.text_writer import TextWriter
 
 
 class JSONReporter(BaseReporter):
@@ -43,7 +45,11 @@ class JSONReporter(BaseReporter):
         print(json.dumps(json_dumpable, indent=4), file=self.out)
 
     def display_reports(self, layout):
-        """Don't do anything in this reporter."""
+        output = io.StringIO()
+        TextWriter().format(layout, output)
+        score = output.getvalue().split("Your")[1]
+        score = score.split(r"/10")[0]
+        self.messages.append({"score": f"Your{score}/10"})
 
     def _display(self, layout):
         """Do nothing."""
