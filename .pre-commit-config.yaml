@@ -49,8 +49,9 @@ repos:
         entry: pylint
         language: system
         types: [python]
+        args: ["-rn", "-sn", "--rcfile=pylintrc", "--load-plugins=pylint.extensions.docparams"]
+        # disabled plugins: pylint.extensions.mccabe
         exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/
-        args: [--load-plugins=pylint.extensions.docparams, pylint.extensions.mccabe, -rn]
     -   id: fix-documentation
         name: Fix documentation
         entry: python3 -m script.fix_documentation
