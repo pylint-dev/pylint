@@ -35,9 +35,7 @@ class DiagramWriter:
             basename = diagram.title.strip().replace(" ", "_")
             file_name = f"{basename}.{self.config.output_format}"
             if os.path.exists(self.config.output_directory):
-                file_name = os.path.join(
-                    self.config.output_directory,
-                    file_name)
+                file_name = os.path.join(self.config.output_directory, file_name)
             self.set_printer(file_name, basename)
             if diagram.TYPE == "class":
                 self.write_classes(diagram)
