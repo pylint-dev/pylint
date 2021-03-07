@@ -31,12 +31,12 @@
 from os.path import join
 
 # For an official release, use dev_version = None
-numversion = (2, 8, 0)
-dev_version = 1
+numversion = (3, 0, 0)
+dev_version = 0
 
 version = ".".join(str(num) for num in numversion)
 if dev_version is not None:
-    version += "-dev" + str(dev_version)
+    version += f"a{dev_version}"
 
 install_requires = [
     "astroid>=2.5.2,<2.7",
