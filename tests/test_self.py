@@ -60,6 +60,9 @@ from pylint.utils import utils
 
 HERE = abspath(dirname(__file__))
 CLEAN_PATH = re.escape(dirname(dirname(__file__)) + os.path.sep)
+UNNECESSARY_LAMBDA = join(
+    HERE, "functional", "u", "unnecessary", "unnecessary_lambda.py"
+)
 
 
 @contextlib.contextmanager
@@ -285,17 +288,11 @@ class TestRunTC:
     def test_py3k_option(self):
         # Test that --py3k flag works.
         rc_code = 0
-        self._runtest(
-            [join(HERE, "functional", "u", "unnecessary_lambda.py"), "--py3k"],
-            code=rc_code,
-        )
+        self._runtest([UNNECESSARY_LAMBDA, "--py3k"], code=rc_code)
 
     def test_py3k_jobs_option(self):
         rc_code = 0
-        self._runtest(
-            [join(HERE, "functional", "u", "unnecessary_lambda.py"), "--py3k", "-j 2"],
-            code=rc_code,
-        )
+        self._runtest([UNNECESSARY_LAMBDA, "--py3k", "-j 2"], code=rc_code)
 
     def test_abbreviations_are_not_supported(self):
         expected = "no such option: --load-plugin"
