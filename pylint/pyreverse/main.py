@@ -157,6 +157,17 @@ this disables -f values",
             "help": "set the project name.",
         },
     ),
+    (
+        "output-directory",
+        {
+            "default": "",
+            "type": "string",
+            "short": "d",
+            "action": "store",
+            "metavar": "<output_directory>",
+            "help": "set the output directory path.",
+        },
+    ),
 )
 
 

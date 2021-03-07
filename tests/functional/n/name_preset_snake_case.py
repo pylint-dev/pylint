@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring,too-few-public-methods
 from enum import Enum
+from typing import ClassVar
 
 __version__ = "1.0"
 SOME_CONSTANT = 42  # [invalid-name]
@@ -28,3 +29,7 @@ def sayHello():  # [invalid-name]
 class FooEnum(Enum):  # [invalid-name]
     const_with_snake_case = 42
     another_const = 43
+
+
+class Bar:  # [invalid-name]
+    const_with_snake_case: ClassVar[int] = 42

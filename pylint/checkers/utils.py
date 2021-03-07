@@ -1435,3 +1435,37 @@ def is_classdef_type(node: astroid.ClassDef) -> bool:
         if isinstance(base, astroid.Name) and base.name == "type":
             return True
     return False
+
+
+def is_attribute_typed_annotation(
+    node: Union[astroid.ClassDef, astroid.Instance], attr_name: str
+) -> bool:
+    """Test if attribute is typed annotation in current node
+    or any base nodes.
+    """
+    attribute = node.locals.get(attr_name, [None])[0]
+    if (
+        attribute
+        and isinstance(attribute, astroid.AssignName)
+        and isinstance(attribute.parent, astroid.AnnAssign)
+    ):
+        return True
+    for base in node.bases:
+        inferred = safe_infer(base)
+        if (
+            inferred
+            and isinstance(inferred, astroid.ClassDef)
+            and is_attribute_typed_annotation(inferred, attr_name)
+        ):
+            return True
+    return False
+
+
+def is_class_var(node: astroid.AssignName) -> bool:
+    """Test if node has `ClassVar` annotation."""
+    return isinstance(node.parent, astroid.AnnAssign) and (
+        isinstance(node.parent.annotation, astroid.Subscript)
+        and node.parent.annotation.value.name == "ClassVar"
+        or isinstance(node.parent.annotation, astroid.Name)
+        and node.parent.annotation.name == "ClassVar"
+    )

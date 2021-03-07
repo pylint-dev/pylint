@@ -667,6 +667,15 @@ class VariablesChecker(BaseChecker):
                 "help": "Tells whether unused global variables should be treated as a violation.",
             },
         ),
+        (
+            "allowed-redefined-builtins",
+            {
+                "default": (),
+                "type": "csv",
+                "metavar": "<comma separated list>",
+                "help": "List of names allowed to shadow builtins",
+            },
+        ),
     )
 
     def __init__(self, linter=None):
@@ -829,8 +838,10 @@ class VariablesChecker(BaseChecker):
                         "redefined-outer-name", args=(name, line), node=stmt
                     )
 
-            elif utils.is_builtin(name) and not self._should_ignore_redefined_builtin(
-                stmt
+            elif (
+                utils.is_builtin(name)
+                and not self._allowed_redefined_builtin(name)
+                and not self._should_ignore_redefined_builtin(stmt)
             ):
                 # do not print Redefining builtin for additional builtins
                 self.add_message("redefined-builtin", args=name, node=stmt)
@@ -1751,6 +1762,9 @@ class VariablesChecker(BaseChecker):
         if not isinstance(stmt, astroid.ImportFrom):
             return False
         return stmt.modname in self.config.redefining_builtins_modules
+
+    def _allowed_redefined_builtin(self, name):
+        return name in self.config.allowed_redefined_builtins
 
     def _has_homonym_in_upper_function_scope(self, node, index):
         """

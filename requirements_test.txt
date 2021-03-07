@@ -1,9 +1,9 @@
 -r requirements_test_pre_commit.txt
 -r requirements_test_min.txt
-coveralls==3.0.0
-coverage==5.5
-pre-commit==2.10.1
-pyenchant==3.2.0
-pytest-cov==2.11.1
-pytest-profiling==1.7.0
-pytest-xdist==2.2.1
+coveralls~=3.0
+coverage~=5.5
+pre-commit~=2.10
+pyenchant~=3.2
+pytest-cov~=2.11
+pytest-profiling~=1.7
+pytest-xdist~=2.2

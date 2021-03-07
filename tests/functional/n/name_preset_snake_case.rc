@@ -7,6 +7,7 @@ module-naming-style=snake_case
 method-naming-style=snake_case
 variable-naming-style=snake_case
 class-attribute-naming-style=snake_case
+class-const-naming-style=snake_case
 inlinevar-naming-style=snake_case
 class-naming-style=snake_case
 

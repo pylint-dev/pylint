@@ -4,6 +4,7 @@ from __future__ import print_function
 import abc
 import collections
 from enum import Enum
+from typing import ClassVar
 
 GOOD_CONST_NAME = ''
 bad_const_name = 0  # [invalid-name]
@@ -147,3 +148,9 @@ class FooEnum(Enum):
     """A test case for enum names."""
     GOOD_ENUM_NAME = 1
     bad_enum_name = 2  # [invalid-name]
+
+class Bar:
+    """Class with class constants annotated with ClassVar."""
+    CLASS_CONST: ClassVar[int] = 42
+    CLASS_CONST2: ClassVar = "const"
+    variable: ClassVar[str] = "invalid name"  # [invalid-name]

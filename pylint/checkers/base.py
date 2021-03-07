@@ -104,6 +104,7 @@ class NamingStyle:
             "argument": cls.DEFAULT_NAME_RGX,
             "variable": cls.DEFAULT_NAME_RGX,
             "class_attribute": cls.CLASS_ATTRIBUTE_RGX,
+            "class_const": cls.CONST_NAME_RGX,
             "inlinevar": cls.COMP_VAR_RGX,
         }[name_type]
 
@@ -1654,6 +1655,7 @@ KNOWN_NAME_TYPES = {
     "argument",
     "variable",
     "class_attribute",
+    "class_const",
     "inlinevar",
 }
 
@@ -1667,6 +1669,7 @@ HUMAN_READABLE_TYPES = {
     "argument": "argument",
     "variable": "variable",
     "class_attribute": "class attribute",
+    "class_const": "class constant",
     "inlinevar": "inline iteration",
 }
 
@@ -1680,6 +1683,7 @@ DEFAULT_NAMING_STYLES = {
     "argument": "snake_case",
     "variable": "snake_case",
     "class_attribute": "any",
+    "class_const": "UPPER_CASE",
     "inlinevar": "any",
 }
 
@@ -1846,6 +1850,7 @@ class NameChecker(_BasicChecker):
             badname_inlinevar=0,
             badname_argument=0,
             badname_class_attribute=0,
+            badname_class_const=0,
         )
         for group in self.config.name_group:
             for name_type in group.split(":"):
@@ -1983,8 +1988,12 @@ class NameChecker(_BasicChecker):
         elif isinstance(frame, astroid.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
                 for ancestor in frame.ancestors():
-                    if ancestor.name == "Enum" and ancestor.root().name == "enum":
-                        self._check_name("const", node.name, node)
+                    if (
+                        ancestor.name == "Enum"
+                        and ancestor.root().name == "enum"
+                        or utils.is_class_var(node)
+                    ):
+                        self._check_name("class_const", node.name, node)
                         break
                 else:
                     self._check_name("class_attribute", node.name, node)

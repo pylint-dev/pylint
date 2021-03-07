@@ -42,6 +42,7 @@ _DEFAULTS = {
     "mode": "PUB_ONLY",
     "show_builtin": False,
     "only_classnames": False,
+    "output_directory": "",
 }
 
 

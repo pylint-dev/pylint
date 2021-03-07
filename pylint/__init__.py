@@ -8,6 +8,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
+import os
 import sys
 
 from pylint.__pkginfo__ import version as __version__
@@ -42,6 +43,28 @@ def run_symilar():
     from pylint.checkers.similar import Run as SimilarRun
 
     SimilarRun(sys.argv[1:])
+
+
+def modify_sys_path() -> None:
+    """Modify sys path for execution as Python module.
+
+    Strip out the current working directory from sys.path.
+    Having the working directory in `sys.path` means that `pylint` might
+    inadvertently import user code from modules having the same name as
+    stdlib or pylint's own modules.
+    CPython issue: https://bugs.python.org/issue33053
+
+    - Remove the first entry. This will always be either "" or the working directory
+    - Remove the working directory from the second and third entries. This can
+      occur if PYTHONPATH includes a ":" at the beginning or the end.
+      https://github.com/PyCQA/pylint/issues/3636
+    - Don't remove the working directory from the rest. It will be included
+      if pylint is installed in an editable configuration (as the last item).
+      https://github.com/PyCQA/pylint/issues/4161
+    """
+    sys.path = [
+        p for i, p in enumerate(sys.path) if i > 0 and not (i < 3 and p == os.getcwd())
+    ]
 
 
 __all__ = ["__version__"]

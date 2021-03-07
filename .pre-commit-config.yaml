@@ -38,6 +38,10 @@ repos:
     - id: black
       args: [--safe, --quiet]
       exclude: *fixtures
+-   repo: https://github.com/Pierre-Sassoulas/black-disable-checker/
+    rev: 0.0.1
+    hooks:
+    - id: black-disable-checker
 -   repo: local
     hooks:
     -   id: pylint
@@ -46,6 +50,13 @@ repos:
         language: system
         types: [python]
         exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/
+        args: [--load-plugins=pylint.extensions.docparams, pylint.extensions.mccabe, -rn]
+    -   id: fix-documentation
+        name: Fix documentation
+        entry: python3 -m script.fix_documentation
+        language: system
+        types: [text]
+        files: ^(ChangeLog|doc/whatsnew/\d+\.\d+\.rst)
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.812
     hooks:
