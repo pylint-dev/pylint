@@ -190,7 +190,7 @@ class LintModuleTest:
             f"Wrong output for '{self._test_file.base}.txt':\n"
             "You can update the expected output automatically with: '"
             f"python tests/test_functional.py {UPDATE_OPTION} -k "
-            f'""test_functional[{self._test_file.base}]"\'\n\n'
+            f'"test_functional[{self._test_file.base}]"\'\n\n'
         )
         sort_by_line_number = operator.attrgetter("lineno")
         if missing:
