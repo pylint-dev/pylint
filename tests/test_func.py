@@ -26,15 +26,12 @@ import pytest
 
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION, _get_tests_info, linter
 
-# Configure paths
 INPUT_DIR = join(dirname(abspath(__file__)), "input")
 MSG_DIR = join(dirname(abspath(__file__)), "messages")
 
 
 FILTER_RGX = None
 INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
-
-# Classes
 
 
 def exception_str(self, ex):  # pylint: disable=unused-argument

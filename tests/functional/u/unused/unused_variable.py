@@ -65,3 +65,42 @@ def hello(arg):
     if arg:
         return True
     raise Exception
+
+# pylint: disable=redefined-outer-name, wrong-import-position,misplaced-future
+from __future__ import print_function
+PATH = OS = collections = deque = None
+
+
+def function(matches):
+    """"yo"""
+    aaaa = 1  # [unused-variable]
+    index = -1
+    for match in matches:
+        index += 1
+        print(match)
+
+
+def visit_if(self, node):
+    """increments the branches counter"""
+    branches = 1
+    # don't double count If nodes coming from some 'elif'
+    if node.orelse and len(node.orelse) > 1:
+        branches += 1
+    self.inc_branch(branches)
+    self.stmts += branches
+
+
+def test_global():
+    """ Test various assignments of global
+    variables through imports.
+    """
+    global PATH, OS, collections, deque  # [global-statement]
+    from os import path as PATH
+    import os as OS
+    import collections
+    from collections import deque
+    # make sure that these triggers unused-variable
+    from sys import platform  # [unused-import]
+    from sys import version as VERSION  # [unused-import]
+    import this  # [unused-import]
+    import re as RE  # [unused-import]
