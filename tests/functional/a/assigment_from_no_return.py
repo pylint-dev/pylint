@@ -15,7 +15,7 @@ def func_no_return():
     """function without return"""
     print('dougloup')
 
-A = func_no_return()
+A = func_no_return()  # [assignment-from-no-return]
 
 
 def func_return_none():
@@ -23,14 +23,14 @@ def func_return_none():
     print('dougloup')
     return None
 
-A = func_return_none()
+A = func_return_none()  # [assignment-from-none]
 
 
 def func_implicit_return_none():
     """Function returning None from bare return statement."""
     return
 
-A = func_implicit_return_none()
+A = func_implicit_return_none()  # [assignment-from-none]
 
 
 def func_return_none_and_smth():
