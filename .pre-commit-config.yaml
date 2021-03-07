@@ -50,6 +50,7 @@ repos:
         language: system
         types: [python]
         exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/
+        args: [--load-plugins=pylint.extensions.docparams, pylint.extensions.mccabe]
     -   id: fix-documentation
         name: Fix documentation
         entry: python3 -m script.fix_documentation
