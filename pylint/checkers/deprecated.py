@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Checker mixin for deprecated functionality."""
-
+from collections.abc import Iterable
 from itertools import chain
 from typing import Any
 
@@ -39,20 +39,16 @@ class DeprecatedMixin:
         "deprecated-method",
         "deprecated-argument",
     )
-    def visit_call(self, node):
-        """Called when a :class:`.astroid.node_classes.Call` node is visited.
-
-        Args:
-            node (astroid.node_classes.Call): The node to check.
-        """
+    def visit_call(self, node: astroid.node_classes.Call) -> None:
+        """Called when a :class:`.astroid.node_classes.Call` node is visited."""
         try:
             for inferred in node.func.infer():
                 # Calling entry point for deprecation check logic.
                 self.check_deprecated_method(node, inferred)
         except astroid.InferenceError:
-            return
+            pass
 
-    def deprecated_methods(self):
+    def deprecated_methods(self) -> Iterable:
         """Callback returning the deprecated methods/functions.
 
         Returns:
@@ -61,7 +57,7 @@ class DeprecatedMixin:
         # pylint: disable=no-self-use
         return ()
 
-    def deprecated_arguments(self, method: str):
+    def deprecated_arguments(self, method: str) -> Iterable:
         """Callback returning the deprecated arguments of method/function.
 
         Args:
