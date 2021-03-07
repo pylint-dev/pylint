@@ -1,0 +1,24 @@
+**************************
+ What's New in Pylint 3.0
+**************************
+
+:Release: 3.0
+:Date: TBA
+
+
+Summary -- Release highlights
+=============================
+
+
+New checkers
+============
+
+
+Other Changes
+=============
+
+*  The score option for JSON export has been fixed
+
+  The default setting is to have a score, but it did not work before.
+  If a score appeared in your json, and you want to go back what you
+  had before, you must change the score option to "--score=n"
