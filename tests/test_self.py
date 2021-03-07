@@ -412,7 +412,7 @@ class TestRunTC:
         self._runtest([module], code=4, reporter=JSONReporter(out))
         output = json.loads(out.getvalue())
         assert isinstance(output, list)
-        assert len(output) == 1
+        assert len(output) == 2
         assert isinstance(output[0], dict)
         expected = {
             "symbol": "unused-variable",
@@ -423,10 +423,13 @@ class TestRunTC:
             "line": 4,
             "type": "warning",
         }
+
         message = output[0]
         for key, value in expected.items():
             assert key in message
             assert message[key] == value
+        expected = {"score": "Your code has been rated at 7.50/10"}
+        assert output[-1] == expected
 
     def test_information_category_disabled_by_default(self):
         expected = "Your code has been rated at 10.00/10"

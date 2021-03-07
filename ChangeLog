@@ -2,6 +2,16 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 3.0.0?
+===========================
+
+* Fix the score option not being honored when exporting to JSON
+
+  The default setting was to have a score, but it did not work. Now it will give a score at the end of the json:
+
+  Close #3504
+
+
 What's New in Pylint 2.8.0?
 ===========================
 Release date: Undefined
