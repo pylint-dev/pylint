@@ -1,4 +1,0 @@
-W:  8: Use lazy % formatting in logging functions
-W:  9: Use lazy % formatting in logging functions
-W: 11: Use lazy % formatting in logging functions
-W: 13: Use lazy % formatting in logging functions
