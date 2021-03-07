@@ -2,7 +2,7 @@
 
 __revision__ = None
 
-MSG = "hello %s" % MSG
+MSG = "hello %s" % MSG  # [used-before-assignment]
 
 MSG2 = ("hello %s" %
-        MSG2)
+        MSG2) # [used-before-assignment]
