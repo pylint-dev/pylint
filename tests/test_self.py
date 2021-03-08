@@ -918,3 +918,15 @@ class TestRunTC:
             HERE, "regrtest_data", "regression_missing_init_3564", "subdirectory/"
         )
         self._test_output([path, "-j2"], expected_output="No such file or directory")
+
+    def test_regression_lint_all(self):
+        self._test_output(
+            [join(HERE, "regrtest_data", "directory", "subdirectory"), "--lint-all=n"],
+            expected_output="No such file or directory",
+        )
+
+    def test_lint_all(self):
+        self._runtest(
+            [join(HERE, "regrtest_data", "directory", "subdirectory"), "--lint-all=y"],
+            code=0,
+        )

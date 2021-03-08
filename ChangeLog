@@ -9,6 +9,8 @@ Release date: TBA
 ..
   Put new features here
 
+* Add option to allow linting for all files in and under a directory
+
 * Introduce logic for checking deprecated attributes in DeprecationMixin.
 
 

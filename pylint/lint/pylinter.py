@@ -414,6 +414,15 @@ class PyLinter(
                     ),
                 },
             ),
+            (
+                "lint-all",
+                {
+                    "type": "yn",
+                    "metavar": "<yn>",
+                    "default": False,
+                    "help": ("Allow linting for all files in and under a directory."),
+                },
+            ),
         )
 
     option_groups = (
@@ -957,7 +966,10 @@ class PyLinter(
     def _expand_files(self, modules):
         """get modules and errors from a list of modules and handle errors"""
         result, errors = utils.expand_modules(
-            modules, self.config.black_list, self.config.black_list_re
+            modules,
+            self.config.black_list,
+            self.config.black_list_re,
+            self.config.lint_all,
         )
         for error in errors:
             message = modname = error["mod"]

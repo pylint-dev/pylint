@@ -16,3 +16,9 @@ New checkers
 
 Other Changes
 =============
+
+* Add option to allow linting for all files in and under a directory.
+
+  To expand linting beyond traditional and namespace packages, ``--lint-all`` was added
+  as a new flag to enable linting over all files in and under a directory. Unless activated,
+  it will not alter pylint current behavior to process only traditional and namespace packages.

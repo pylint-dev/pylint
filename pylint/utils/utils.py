@@ -136,7 +136,7 @@ def get_python_path(filepath):
     return None
 
 
-def expand_modules(files_or_modules, black_list, black_list_re):
+def expand_modules(files_or_modules, black_list, black_list_re, lint_all):
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
     """
@@ -194,7 +194,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
             is_namespace = modutils.is_namespace(spec)
             is_directory = modutils.is_directory(spec)
 
-        if not is_namespace:
+        if not is_namespace and (os.path.isfile(filepath) or not lint_all):
             result.append(
                 {
                     "path": filepath,
@@ -211,7 +211,9 @@ def expand_modules(files_or_modules, black_list, black_list_re):
         )
         if has_init or is_namespace or is_directory:
             for subfilepath in modutils.get_module_files(
-                os.path.dirname(filepath), black_list, list_all=is_namespace
+                os.path.dirname(filepath),
+                black_list,
+                is_namespace or lint_all,
             ):
                 if filepath == subfilepath:
                     continue
@@ -221,7 +223,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
                     continue
 
                 modpath = _modpath_from_file(
-                    subfilepath, is_namespace, path=additional_search_path
+                    subfilepath, is_namespace or lint_all, path=additional_search_path
                 )
                 submodname = ".".join(modpath)
                 result.append(
