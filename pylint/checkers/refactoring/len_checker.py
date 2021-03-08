@@ -73,7 +73,11 @@ class LenChecker(checkers.BaseChecker):
             # The node is a generator or comprehension as in len([x for x in ...])
             self.add_message("len-as-condition", node=node)
             return
-        instance = next(len_arg.infer())
+        try:
+            instance = next(len_arg.infer())
+        except astroid.InferenceError:
+            # Probably undefined-varible, abort check
+            return
         mother_classes = self.base_classes_of_node(instance)
         affected_by_pep8 = any(
             t in mother_classes for t in ["str", "tuple", "list", "set"]
