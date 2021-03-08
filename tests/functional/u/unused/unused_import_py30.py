@@ -1,11 +1,10 @@
-"""check unused import for metaclasses
-"""
+"""check unused import for metaclasses"""
 # pylint: disable=too-few-public-methods,wrong-import-position,ungrouped-imports
 __revision__ = 1
 import abc
 import sys
 from abc import ABCMeta
-from abc import ABCMeta as SomethingElse
+from abc import ABCMeta as SomethingElse  # [reimported]
 
 class Meta(metaclass=abc.ABCMeta):
     """ Test """
