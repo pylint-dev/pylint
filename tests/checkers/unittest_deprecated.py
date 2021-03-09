@@ -12,6 +12,9 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
     def deprecated_methods(self):
         return {"deprecated_func", ".Deprecated.deprecated_method"}
 
+    def deprecated_modules(self):
+        return {"deprecated_module"}
+
     def deprecated_arguments(self, method):
         if method == "myfunction1":
             # def myfunction1(arg1, deprecated_arg1='spam')
@@ -355,3 +358,37 @@ class TestDeprecatedChecker(CheckerTestCase):
             ),
         ):
             self.checker.visit_call(node)
+
+    def test_deprecated_module(self):
+        # Tests detecting deprecated module
+        node = astroid.extract_node(
+            """
+        import deprecated_module
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-module",
+                args="deprecated_module",
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_import(node)
+
+    def test_deprecated_module_from(self):
+        # Tests detecting deprecated module
+        node = astroid.extract_node(
+            """
+        from deprecated_module import myfunction
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-module",
+                args="deprecated_module",
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_importfrom(node)
