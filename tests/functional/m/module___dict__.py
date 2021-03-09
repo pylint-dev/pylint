@@ -2,7 +2,7 @@
 from __future__ import print_function
 __revision__ = None
 
-print(__dict__ is not None)
+print(__dict__ is not None)  # [used-before-assignment]
 
 __dict__ = {}
 
