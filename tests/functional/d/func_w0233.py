@@ -4,7 +4,7 @@
 """
 from __future__ import print_function
 from . import func_w0233
-import nonexistant
+import nonexistant  # [import-error]
 __revision__ = '$Id: func_w0233.py,v 1.2 2004-09-29 08:35:13 syt Exp $'
 
 class AAAA(object):
@@ -12,7 +12,7 @@ class AAAA(object):
 
     def __init__(self):
         print('init', self)
-        BBBBMixin.__init__(self)
+        BBBBMixin.__init__(self)  # [non-parent-init-called]
 
 class BBBBMixin(object):
     """ancestor 2"""
@@ -20,12 +20,12 @@ class BBBBMixin(object):
     def __init__(self):
         print('init', self)
 
-class CCC(BBBBMixin, func_w0233.AAAA, func_w0233.BBBB, nonexistant.AClass):
+class CCC(BBBBMixin, func_w0233.AAAA, func_w0233.BBBB, nonexistant.AClass):  # [no-member]
     """mix different things, some inferable some not"""
     def __init__(self):
         BBBBMixin.__init__(self)
         func_w0233.AAAA.__init__(self)
-        func_w0233.BBBB.__init__(self)
+        func_w0233.BBBB.__init__(self)  # [no-member]
         nonexistant.AClass.__init__(self)
 
 class DDDD(AAAA):
@@ -46,6 +46,6 @@ class Super2(dict):
     """ Using the same idiom as Super, but without calling
     the __init__ method.
     """
-    def __init__(self):
+    def __init__(self):  # [super-init-not-called]
         base = super()
-        base.__woohoo__()
+        base.__woohoo__()  # [no-member]

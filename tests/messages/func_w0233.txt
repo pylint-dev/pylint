@@ -1,6 +1,0 @@
-E:  7: Unable to import 'nonexistant'
-E: 23:CCC: Module 'input.func_w0233' has no 'BBBB' member
-E: 28:CCC.__init__: Module 'input.func_w0233' has no 'BBBB' member
-E: 51:Super2.__init__: Super of 'Super2' has no '__woohoo__' member
-W: 15:AAAA.__init__: __init__ method from a non direct base class 'BBBBMixin' is called
-W: 49:Super2.__init__: __init__ method from base class 'dict' is not called
