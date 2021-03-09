@@ -7,3 +7,4 @@ unused-import:9:0::Unused OrderedDict imported from collections
 unused-import:9:0::Unused deque imported from collections
 unused-import:10:0::Unused import re
 unused-import:13:0::Unused SomeOtherName imported from fake
+unused-import:45:0::Unused import os
