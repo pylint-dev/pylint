@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring,unused-import,import-error, wildcard-import,unused-wildcard-import,redefined-builtin,no-name-in-module,ungrouped-imports,wrong-import-order
 
-from time import sleep, sleep # [reimported]
-from lala import missing, missing # [reimported]
+from time import sleep, sleep  # [reimported]
+from lala import missing, missing  # [reimported]
 
 import missing1
 import missing1 # [reimported]
