@@ -37,3 +37,27 @@ def get_itertools_obj() -> 'itertools.count':
 
 def use_html_parser() -> 'html.parser.HTMLParser':
     return html.parser.HTMLParser
+
+# pylint: disable=misplaced-future
+
+from __future__ import print_function
+
+import os  # [unused-import]
+import sys
+
+class NonRegr(object):
+    """???"""
+    def __init__(self):
+        print('initialized')
+
+    def sys(self):
+        """should not get sys from there..."""
+        print(self, sys)
+
+    def dummy(self, truc):
+        """yo"""
+        return self, truc
+
+    def blop(self):
+        """yo"""
+        print(self, 'blip')
