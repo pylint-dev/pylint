@@ -47,9 +47,9 @@ In Python 3 porting mode, all checkers will be disabled and only messages emitte
 .IP "--verbose, -v"
 In verbose mode, extra non-checker-related info will be displayed.
 .IP "--ignore=<file>[,<file>...]"
-Add files or directories to the blacklist. They should be base names, not paths. [default: CVS]
+Files or directories to be skipped. They should be base names, not paths. [default: CVS]
 .IP "--ignore-patterns=<pattern>[,<pattern>...]"
-Add files or directories matching the regex patterns to the blacklist. The regex matches against base names, not paths. [default: none]
+Files or directories matching the regex patterns are skipped. The regex matches against base names, not paths. [default: none]
 .IP "--persistent=<y_or_n>"
 Pickle collected data for later comparisons. [default: yes]
 .IP "--load-plugins=<modules>"
@@ -60,8 +60,10 @@ Specify a score threshold to be exceeded before program exits with error. [defau
 Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use. [default: 1]
 .IP "--limit-inference-results=<number-of-results>"
 Control the amount of potential inferred values when inferring a single object. This can help the performance when dealing with large functions or complex, nested conditions.  [default: 100]
-.IP "--extension-pkg-whitelist=<pkg[,pkg]>"
+.IP "--extension-pkg-allow-list=<pkg[,pkg]>"
 A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into the active Python interpreter and may run arbitrary code. [default: none]
+.IP "--extension-pkg-whitelist=<pkg[,pkg]>"
+A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into the active Python interpreter and may run arbitrary code. (This is an alternative name to extension-pkg-allow-list for backward compatibility.) [default: none]
 .IP "--suggestion-mode=<yn>"
 When enabled, pylint would attempt to guess common misconfiguration and emit user-friendly hints instead of false-positive error messages. [default: yes]
 .IP "--exit-zero"

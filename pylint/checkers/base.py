@@ -104,6 +104,7 @@ class NamingStyle:
             "argument": cls.DEFAULT_NAME_RGX,
             "variable": cls.DEFAULT_NAME_RGX,
             "class_attribute": cls.CLASS_ATTRIBUTE_RGX,
+            "class_const": cls.CONST_NAME_RGX,
             "inlinevar": cls.COMP_VAR_RGX,
         }[name_type]
 
@@ -1420,7 +1421,7 @@ class BasicChecker(_BasicChecker):
         "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function"
     )
     def visit_call(self, node):
-        """visit a Call node -> check if this is not a blacklisted builtin
+        """visit a Call node -> check if this is not a disallowed builtin
         call and check for * or ** use
         """
         self._check_misplaced_format_function(node)
@@ -1654,6 +1655,7 @@ KNOWN_NAME_TYPES = {
     "argument",
     "variable",
     "class_attribute",
+    "class_const",
     "inlinevar",
 }
 
@@ -1667,6 +1669,7 @@ HUMAN_READABLE_TYPES = {
     "argument": "argument",
     "variable": "variable",
     "class_attribute": "class attribute",
+    "class_const": "class constant",
     "inlinevar": "inline iteration",
 }
 
@@ -1680,6 +1683,7 @@ DEFAULT_NAMING_STYLES = {
     "argument": "snake_case",
     "variable": "snake_case",
     "class_attribute": "any",
+    "class_const": "UPPER_CASE",
     "inlinevar": "any",
 }
 
@@ -1720,16 +1724,21 @@ def _create_naming_options():
 
 class NameChecker(_BasicChecker):
     msgs = {
-        "C0102": (
-            'Black listed name "%s"',
-            "blacklisted-name",
-            "Used when the name is listed in the black list (unauthorized names).",
-        ),
         "C0103": (
             '%s name "%s" doesn\'t conform to %s',
             "invalid-name",
             "Used when the name doesn't conform to naming rules "
             "associated to its type (constant, variable, class...).",
+        ),
+        "C0104": (
+            'Disallowed name "%s"',
+            "disallowed-name",
+            "Used when the name matches bad-names or bad-names-rgxs- (unauthorized names).",
+            {
+                "old_names": [
+                    ("C0102", "blacklisted-name"),
+                ]
+            },
         ),
         "C0144": (
             '%s name "%s" contains a non-ASCII unicode character',
@@ -1846,6 +1855,7 @@ class NameChecker(_BasicChecker):
             badname_inlinevar=0,
             badname_argument=0,
             badname_class_attribute=0,
+            badname_class_const=0,
         )
         for group in self.config.name_group:
             for name_type in group.split(":"):
@@ -1883,7 +1893,7 @@ class NameChecker(_BasicChecker):
 
         return regexps, hints
 
-    @utils.check_messages("blacklisted-name", "invalid-name", "non-ascii-name")
+    @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
     def visit_module(self, node):
         self._check_name("module", node.name.split(".")[-1], node)
         self._bad_names = {}
@@ -1909,7 +1919,7 @@ class NameChecker(_BasicChecker):
                 self._raise_name_warning(*args)
 
     @utils.check_messages(
-        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
     )
     def visit_classdef(self, node):
         self._check_assign_to_new_keyword_violation(node.name, node)
@@ -1919,7 +1929,7 @@ class NameChecker(_BasicChecker):
                 self._check_name("attr", attr, anodes[0])
 
     @utils.check_messages(
-        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
     )
     def visit_functiondef(self, node):
         # Do not emit any warnings if the method is just an implementation
@@ -1948,13 +1958,13 @@ class NameChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @utils.check_messages("blacklisted-name", "invalid-name", "non-ascii-name")
+    @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
     def visit_global(self, node):
         for name in node.names:
             self._check_name("const", name, node)
 
     @utils.check_messages(
-        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
     )
     def visit_assignname(self, node):
         """check module level assigned names"""
@@ -1983,8 +1993,12 @@ class NameChecker(_BasicChecker):
         elif isinstance(frame, astroid.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
                 for ancestor in frame.ancestors():
-                    if ancestor.name == "Enum" and ancestor.root().name == "enum":
-                        self._check_name("const", node.name, node)
+                    if (
+                        ancestor.name == "Enum"
+                        and ancestor.root().name == "enum"
+                        or utils.is_class_var(node)
+                    ):
+                        self._check_name("class_const", node.name, node)
                         break
                 else:
                     self._check_name("class_attribute", node.name, node)
@@ -2016,12 +2030,12 @@ class NameChecker(_BasicChecker):
         self.add_message(warning, node=node, args=args, confidence=confidence)
         self.stats["badname_" + node_type] += 1
 
-    def _name_valid_due_to_whitelist(self, name: str) -> bool:
+    def _name_allowed_by_regex(self, name: str) -> bool:
         return name in self.config.good_names or any(
             pattern.match(name) for pattern in self._good_names_rgxs_compiled
         )
 
-    def _name_invalid_due_to_blacklist(self, name: str) -> bool:
+    def _name_disallowed_by_regex(self, name: str) -> bool:
         return name in self.config.bad_names or any(
             pattern.match(name) for pattern in self._bad_names_rgxs_compiled
         )
@@ -2047,11 +2061,11 @@ class NameChecker(_BasicChecker):
             clobbering, _ = utils.clobber_in_except(node)
             if clobbering:
                 return
-        if self._name_valid_due_to_whitelist(name=name):
+        if self._name_allowed_by_regex(name=name):
             return
-        if self._name_invalid_due_to_blacklist(name=name):
+        if self._name_disallowed_by_regex(name=name):
             self.stats["badname_" + node_type] += 1
-            self.add_message("blacklisted-name", node=node, args=name)
+            self.add_message("disallowed-name", node=node, args=name)
             return
         regexp = self._name_regexps[node_type]
         match = regexp.match(name)

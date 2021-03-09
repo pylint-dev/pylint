@@ -631,7 +631,7 @@ Other Changes
   which can redefine builtins, such as six.moves and future.builtins.
 
 * A new option was added, ``ignore-patterns``, which is used for building a
-  blacklist of directories and files matching the regex patterns, similar to the
+  ignore list of directories and files matching the regex patterns, similar to the
   ``ignore`` option.
 
 
@@ -787,7 +787,7 @@ Other Changes
   ``--load-plugins=pylint.extensions.redefined_variable_type,pylint.extensions.bad_builtin``
 
   * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
-    warning on wildcard import when imported module defines `__all__` variable.
+    warning on wildcard import when imported module defines ``__all__`` variable.
 
 * ``differing-param-doc`` is now used for the differing part of the old ``missing-param-doc``,
   and ``differing-type-doc`` for the differing part of the old ``missing-type-doc``.
@@ -901,7 +901,7 @@ Bug fixes
 
      class MyError(Exception): pass
 
-  * `too-many-format-args` and `too-few-format-args` are emitted correctly
+  * ``too-many-format-args`` and ``too-few-format-args`` are emitted correctly
     (or not emitted at all, when exact count of elements in RHS cannot be
     inferred) when starred expressions are used in RHS tuple. For example,
     code block as shown below detects correctly that the used tuple has in
@@ -912,7 +912,7 @@ Bug fixes
     meat = ['spam', 'ham']
     print('%s%s%s' % ('eggs', *meat))
 
-* `cyclic-import` checker supports local disable clauses. When one
+* ``cyclic-import`` checker supports local disable clauses. When one
   of cycle imports was done in scope where disable clause was active,
   cycle is not reported as violation.
 

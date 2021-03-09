@@ -22,7 +22,7 @@ repos:
     -   id: trailing-whitespace
         exclude: "tests/functional/t/trailing_whitespaces.py"
     -   id: end-of-file-fixer
-        exclude: "tests/functional/m/missing_final_newline.py|tests/functional/t/trailing_newlines.py"
+        exclude: "tests/functional/m/missing/missing_final_newline.py|tests/functional/t/trailing_newlines.py"
 -   repo: https://github.com/PyCQA/isort
     rev: 5.7.0
     hooks:
@@ -38,6 +38,10 @@ repos:
     - id: black
       args: [--safe, --quiet]
       exclude: *fixtures
+-   repo: https://github.com/Pierre-Sassoulas/black-disable-checker/
+    rev: 0.0.1
+    hooks:
+    - id: black-disable-checker
 -   repo: local
     hooks:
     -   id: pylint
@@ -45,7 +49,15 @@ repos:
         entry: pylint
         language: system
         types: [python]
+        args: ["-rn", "-sn", "--rcfile=pylintrc", "--load-plugins=pylint.extensions.docparams"]
+        # disabled plugins: pylint.extensions.mccabe
         exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/
+    -   id: fix-documentation
+        name: Fix documentation
+        entry: python3 -m script.fix_documentation
+        language: system
+        types: [text]
+        files: ^(ChangeLog|doc/whatsnew/\d+\.\d+\.rst)
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.812
     hooks:

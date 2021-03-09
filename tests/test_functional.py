@@ -37,6 +37,10 @@ from pylint.utils import HAS_ISORT_5
 # TODOs
 #  - implement exhaustivity tests
 
+# 'Wet finger' number of files that are reasonable to display by an IDE
+# 'Wet finger' as in 'in my settings there are precisely this many'.
+REASONABLY_DISPLAYABLE_VERTICALLY = 48
+
 
 class LintModuleOutputUpdate(testutils.LintModuleTest):
     """If message files should be updated instead of checked."""
@@ -67,6 +71,11 @@ def get_tests():
     for dirpath, _, filenames in os.walk(input_dir):
         if dirpath.endswith("__pycache__"):
             continue
+
+        assert (
+            len(filenames) <= REASONABLY_DISPLAYABLE_VERTICALLY
+        ), f"{dirpath} contain too much functional tests files."
+
         for filename in filenames:
             if filename != "__init__.py" and filename.endswith(".py"):
                 # isort 5 has slightly different rules as isort 4. Testing

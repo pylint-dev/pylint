@@ -26,15 +26,12 @@ import pytest
 
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION, _get_tests_info, linter
 
-# Configure paths
 INPUT_DIR = join(dirname(abspath(__file__)), "input")
 MSG_DIR = join(dirname(abspath(__file__)), "messages")
 
 
 FILTER_RGX = None
 INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
-
-# Classes
 
 
 def exception_str(self, ex):  # pylint: disable=unused-argument
@@ -123,7 +120,7 @@ def gen_tests(filter_rgx):
         tests.append((module_file, messages_file, dependencies))
     if UPDATE_FILE.exists():
         return tests
-    assert len(tests) < 53, "Please do not add new test cases here."
+    assert len(tests) < 28, "Please do not add new test cases here."
     return tests
 
 

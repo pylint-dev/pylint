@@ -42,12 +42,16 @@ import subprocess
 import sys
 import textwrap
 import warnings
+from copy import copy
 from io import StringIO
 from os.path import abspath, dirname, join
+from typing import Generator
 from unittest import mock
+from unittest.mock import patch
 
 import pytest
 
+from pylint import modify_sys_path
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
 from pylint.lint import Run
 from pylint.reporters import JSONReporter
@@ -56,6 +60,9 @@ from pylint.utils import utils
 
 HERE = abspath(dirname(__file__))
 CLEAN_PATH = re.escape(dirname(dirname(__file__)) + os.path.sep)
+UNNECESSARY_LAMBDA = join(
+    HERE, "functional", "u", "unnecessary", "unnecessary_lambda.py"
+)
 
 
 @contextlib.contextmanager
@@ -261,23 +268,31 @@ class TestRunTC:
             in out.getvalue().strip()
         )
 
+    def test_parallel_execution_bug_2674(self):
+        """  Tests that disabling absolute imports works the same in -j1/j2 """
+        expected_ret_code = 0  # we are disabling the check, should pass
+        for jobs in (1, 2):
+            self._runtest(
+                [
+                    "--py3k",
+                    "--disable=no-absolute-import",
+                    "-j %d" % jobs,
+                    join(HERE, "input", "no_absolute_import.py"),
+                ],
+                code=expected_ret_code,
+            )
+
     def test_parallel_execution_missing_arguments(self):
         self._runtest(["-j 2", "not_here", "not_here_too"], code=1)
 
     def test_py3k_option(self):
         # Test that --py3k flag works.
         rc_code = 0
-        self._runtest(
-            [join(HERE, "functional", "u", "unnecessary_lambda.py"), "--py3k"],
-            code=rc_code,
-        )
+        self._runtest([UNNECESSARY_LAMBDA, "--py3k"], code=rc_code)
 
     def test_py3k_jobs_option(self):
         rc_code = 0
-        self._runtest(
-            [join(HERE, "functional", "u", "unnecessary_lambda.py"), "--py3k", "-j 2"],
-            code=rc_code,
-        )
+        self._runtest([UNNECESSARY_LAMBDA, "--py3k", "-j 2"], code=rc_code)
 
     def test_abbreviations_are_not_supported(self):
         expected = "no such option: --load-plugin"
@@ -700,6 +715,71 @@ class TestRunTC:
         )
 
     @staticmethod
+    def test_modify_sys_path() -> None:
+        @contextlib.contextmanager
+        def test_sys_path() -> Generator[None, None, None]:
+            original_path = sys.path
+            try:
+                yield
+            finally:
+                sys.path = original_path
+
+        with test_sys_path(), patch("os.getcwd") as mock_getcwd:
+            cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
+            mock_getcwd.return_value = cwd
+
+            paths = [
+                cwd,
+                cwd,
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+            ]
+            sys.path = copy(paths)
+            modify_sys_path()
+            assert sys.path == paths[2:]
+
+            paths = [
+                cwd,
+                "/custom_pythonpath",
+                cwd,
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+            ]
+            sys.path = copy(paths)
+            modify_sys_path()
+            assert sys.path == [paths[1]] + paths[3:]
+
+            paths = [
+                "",
+                cwd,
+                "/custom_pythonpath",
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+            ]
+            sys.path = copy(paths)
+            modify_sys_path()
+            assert sys.path == paths[2:]
+
+            paths = [
+                "",
+                cwd,
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+                cwd,
+            ]
+            sys.path = copy(paths)
+            modify_sys_path()
+            assert sys.path == paths[2:]
+
+    @staticmethod
     def test_do_not_import_files_from_local_directory(tmpdir):
         p_astroid = tmpdir / "astroid.py"
         p_astroid.write("'Docstring'\nimport completely_unknown\n")
@@ -717,24 +797,6 @@ class TestRunTC:
                 ],
                 cwd=str(tmpdir),
             )
-
-        # Appending a colon to PYTHONPATH should not break path stripping
-        # https://github.com/PyCQA/pylint/issues/3636
-        with tmpdir.as_cwd():
-            orig_pythonpath = os.environ.get("PYTHONPATH")
-            os.environ["PYTHONPATH"] = os.environ.get("PYTHONPATH", "") + ":"
-            subprocess.check_output(
-                [
-                    sys.executable,
-                    "-m",
-                    "pylint",
-                    "astroid.py",
-                    "--disable=import-error,unused-import",
-                ],
-                cwd=str(tmpdir),
-            )
-            if orig_pythonpath is not None:
-                os.environ["PYTHONPATH"] = orig_pythonpath
 
         # Linting this astroid file does not import it
         with tmpdir.as_cwd():
@@ -764,6 +826,31 @@ class TestRunTC:
                 ],
                 cwd=str(tmpdir),
             )
+
+    @staticmethod
+    def test_do_not_import_files_from_local_directory_with_pythonpath(tmpdir):
+        p_astroid = tmpdir / "astroid.py"
+        p_astroid.write("'Docstring'\nimport completely_unknown\n")
+        p_hmac = tmpdir / "hmac.py"
+        p_hmac.write("'Docstring'\nimport completely_unknown\n")
+
+        # Appending a colon to PYTHONPATH should not break path stripping
+        # https://github.com/PyCQA/pylint/issues/3636
+        with tmpdir.as_cwd():
+            orig_pythonpath = os.environ.get("PYTHONPATH")
+            os.environ["PYTHONPATH"] = os.environ.get("PYTHONPATH", "") + ":"
+            subprocess.check_output(
+                [
+                    sys.executable,
+                    "-m",
+                    "pylint",
+                    "astroid.py",
+                    "--disable=import-error,unused-import",
+                ],
+                cwd=str(tmpdir),
+            )
+            if orig_pythonpath is not None:
+                os.environ["PYTHONPATH"] = orig_pythonpath
 
     def test_allow_import_of_files_found_in_modules_during_parallel_check(self, tmpdir):
         test_directory = tmpdir / "test_directory"

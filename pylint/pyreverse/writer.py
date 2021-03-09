@@ -14,6 +14,8 @@
 
 """Utilities for creating VCG and Dot diagrams"""
 
+import os
+
 from pylint.graph import DotBackend
 from pylint.pyreverse.utils import is_exception
 from pylint.pyreverse.vcgutils import VCGPrinter
@@ -32,6 +34,8 @@ class DiagramWriter:
         for diagram in diadefs:
             basename = diagram.title.strip().replace(" ", "_")
             file_name = f"{basename}.{self.config.output_format}"
+            if os.path.exists(self.config.output_directory):
+                file_name = os.path.join(self.config.output_directory, file_name)
             self.set_printer(file_name, basename)
             if diagram.TYPE == "class":
                 self.write_classes(diagram)

@@ -15,7 +15,7 @@ New checkers
 
 * A new check ``isinstance-second-argument-not-valid-type`` was added.
 
-   This check is emitted whenever **pylint** finds a call to the `isinstance`
+   This check is emitted whenever **pylint** finds a call to the ``isinstance``
    function with a second argument that is not a type. Such code is likely
    unintended as it will cause a TypeError to be thrown at runtime error.
 
@@ -64,9 +64,9 @@ Other Changes
 
 * Add new ``good-names-rgx`` and ``bad-names-rgx`` to enable permitting or disallowing of names via regular expressions
 
-  To enable better handling of whitelisting/blacklisting names, we added two new config options: good-names-rgxs: a comma-
+  To enable better handling of permitted/disallowed names, we added two new config options: good-names-rgxs: a comma-
   separated list of regexes, that if a name matches will be exempt of naming-checking. bad-names-rgxs: a comma-
-  separated list of regexes, that if a name matches will be always marked as a blacklisted name.
+  separated list of regexes, that if a name matches will be always marked as a disallowed name.
 
 * Mutable ``collections.*`` are now flagged as dangerous defaults.
 
@@ -95,7 +95,7 @@ Other Changes
 
 * Multiple types of string formatting are allowed in logging functions.
 
-The `logging-fstring-interpolation` message has been brought back to allow
+The ``logging-fstring-interpolation`` message has been brought back to allow
 multiple types of string formatting to be used.
 The type of formatting to use is chosen through enabling and disabling messages
 rather than through the logging-format-style option.

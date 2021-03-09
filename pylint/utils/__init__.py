@@ -46,7 +46,7 @@ from pylint.utils.file_state import FileState
 from pylint.utils.utils import (
     HAS_ISORT_5,
     IsortDriver,
-    _basename_in_blacklist_re,
+    _basename_in_ignore_list_re,
     _check_csv,
     _format_option_value,
     _splitstrip,
@@ -69,7 +69,7 @@ __all__ = [
     "ASTWalker",
     "HAS_ISORT_5",
     "IsortDriver",
-    "_basename_in_blacklist_re",
+    "_basename_in_ignore_list_re",
     "_check_csv",
     "_format_option_value",
     "_splitstrip",

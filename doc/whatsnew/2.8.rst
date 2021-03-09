@@ -12,6 +12,11 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Add ``deprecated-argument`` check for deprecated arguments.
 
 Other Changes
 =============
+
+* Reduce usage of blacklist/whitelist terminology. Notably, ``extension-pkg-allow-list`` is an
+  alternative to ``extension-pkg-whitelist`` and the message ``blacklisted-name`` is now emitted as
+  ``disallowed-name``. The previous names are accepted to maintain backward compatibility.

@@ -8,28 +8,39 @@ from module mymodule:
     def deprecated_function():
         pass
 
+    def myfunction(arg0, arg1, deprecated_arg1=None, arg2='foo', arg3='bar', deprecated_arg2='spam'):
+        pass
+
     class MyClass:
         def deprecated_method(self):
             pass
 
+        def mymethod(self, arg0, arg1, deprecated1=None, arg2='foo', deprecated2='bar', arg3='spam'):
+            pass
+
     $ cat mymain.py
-    from mymodule import deprecated_function, MyClass
+    from mymodule import deprecated_function, myfunction, MyClass
 
     deprecated_function()
+    myfunction(0, 1, 'deprecated_arg1', deprecated_arg2=None)
     MyClass().deprecated_method()
+    MyClass().mymethod(0, 1, deprecated1=None, deprecated2=None)
 
     $ pylint --load-plugins=deprecation_checker mymain.py
     ************* Module mymain
     mymain.py:3:0: W1505: Using deprecated method deprecated_function() (deprecated-method)
-    mymain.py:4:0: W1505: Using deprecated method deprecated_method() (deprecated-method)
+    mymain.py:4:0: W1511: Using deprecated argument deprecated_arg1 of method myfunction() (deprecated-argument)
+    mymain.py:4:0: W1511: Using deprecated argument deprecated_arg2 of method myfunction() (deprecated-argument)
+    mymain.py:5:0: W1505: Using deprecated method deprecated_method() (deprecated-method)
+    mymain.py:6:0: W1511: Using deprecated argument deprecated1 of method mymethod() (deprecated-argument)
+    mymain.py:6:0: W1511: Using deprecated argument deprecated2 of method mymethod() (deprecated-argument)
 
     ------------------------------------------------------------------
-    Your code has been rated at 3.33/10 (previous run: 3.33/10, +0.00)
+    Your code has been rated at 2.00/10 (previous run: 2.00/10, +0.00)
 """
+from typing import Set, Tuple, Union
 
-import astroid
-
-from pylint.checkers import BaseChecker, DeprecatedMixin, utils
+from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.interfaces import IAstroidChecker
 
 
@@ -45,31 +56,38 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
     # The name defines a custom section of the config for this checker.
     name = "deprecated"
 
-    @utils.check_messages(
-        "deprecated-method",
-    )
-    def visit_call(self, node):
-        """Called when a :class:`.astroid.node_classes.Call` node is visited.
-
-        See :mod:`astroid` for the description of available nodes.
-
-        :param node: The node to check.
-        :type node: astroid.node_classes.Call
-        """
-        try:
-            for inferred in node.func.infer():
-                # Calling entry point for deprecation check logic.
-                self.check_deprecated_method(node, inferred)
-        except astroid.InferenceError:
-            return
-
-    def deprecated_methods(self):
+    def deprecated_methods(self) -> Set[str]:
         """Callback method called by DeprecatedMixin for every method/function found in the code.
 
         Returns:
             collections.abc.Container of deprecated function/method names.
         """
         return {"mymodule.deprecated_function", "mymodule.MyClass.deprecated_method"}
+
+    def deprecated_arguments(
+        self, method: str
+    ) -> Tuple[Tuple[Union[int, None], str], ...]:
+        """Callback returning the deprecated arguments of method/function.
+
+        Returns:
+            collections.abc.Iterable in form:
+                ((POSITION1, PARAM1), (POSITION2: PARAM2) ...)
+            where
+                * POSITIONX - position of deprecated argument PARAMX in function definition.
+                  If argument is keyword-only, POSITIONX should be None.
+                * PARAMX - name of the deprecated argument.
+        """
+        if method == "mymodule.myfunction":
+            # myfunction() has two deprecated arguments:
+            # * deprecated_arg1 defined at 2nd position and
+            # * deprecated_arg2 defined at 5th position.
+            return ((2, "deprecated_arg1"), (5, "deprecated_arg2"))
+        if method == "mymodule.MyClass.mymethod":
+            # mymethod() has two deprecated arguments:
+            # * deprecated1 defined at 2nd position and
+            # * deprecated2 defined at 4th position.
+            return ((2, "deprecated1"), (4, "deprecated2"))
+        return ()
 
 
 def register(linter):

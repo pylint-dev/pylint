@@ -1,6 +1,0 @@
-W:  9:function: Unused variable 'aaaa'
-W: 28:test_global: Using the global statement
-W: 34:test_global: Unused platform imported from sys
-W: 35:test_global: Unused version imported from sys as VERSION
-W: 36:test_global: Unused import this
-W: 37:test_global: Unused re imported as RE

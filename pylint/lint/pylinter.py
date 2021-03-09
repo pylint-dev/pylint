@@ -164,7 +164,7 @@ class PyLinter(
                     "metavar": "<file>[,<file>...]",
                     "dest": "black_list",
                     "default": ("CVS",),
-                    "help": "Add files or directories to the blacklist. "
+                    "help": "Files or directories to be skipped. "
                     "They should be base names, not paths.",
                 },
             ),
@@ -175,8 +175,8 @@ class PyLinter(
                     "metavar": "<pattern>[,<pattern>...]",
                     "dest": "black_list_re",
                     "default": (),
-                    "help": "Add files or directories matching the regex patterns to the"
-                    " blacklist. The regex matches against base names, not paths.",
+                    "help": "Files or directories matching the regex patterns are"
+                    " skipped. The regex matches against base names, not paths.",
                 },
             ),
             (
@@ -367,7 +367,7 @@ class PyLinter(
                 },
             ),
             (
-                "extension-pkg-whitelist",
+                "extension-pkg-allow-list",
                 {
                     "type": "csv",
                     "metavar": "<pkg[,pkg]>",
@@ -377,6 +377,21 @@ class PyLinter(
                         " from where C extensions may be loaded. Extensions are"
                         " loading into the active Python interpreter and may run"
                         " arbitrary code."
+                    ),
+                },
+            ),
+            (
+                "extension-pkg-whitelist",
+                {
+                    "type": "csv",
+                    "metavar": "<pkg[,pkg]>",
+                    "default": [],
+                    "help": (
+                        "A comma-separated list of package or module names"
+                        " from where C extensions may be loaded. Extensions are"
+                        " loading into the active Python interpreter and may run"
+                        " arbitrary code. (This is an alternative name to"
+                        " extension-pkg-allow-list for backward compatibility.)"
                     ),
                 },
             ),
@@ -1106,7 +1121,11 @@ class PyLinter(
         self.stats = {"by_module": {}, "by_msg": {}}
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.max_inferable_values = self.config.limit_inference_results
-        MANAGER.extension_package_whitelist.update(self.config.extension_pkg_whitelist)
+        MANAGER.extension_package_whitelist.update(self.config.extension_pkg_allow_list)
+        if self.config.extension_pkg_whitelist:
+            MANAGER.extension_package_whitelist.update(
+                self.config.extension_pkg_whitelist
+            )
         for msg_cat in MSG_TYPES.values():
             self.stats[msg_cat] = 0
 

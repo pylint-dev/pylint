@@ -1,0 +1,4 @@
+super-with-arguments:15:8:File.__init__:Consider using Python 3 style super() without arguments
+super-with-arguments:22:8:File.write:Consider using Python 3 style super() without arguments
+super-with-arguments:27:8:File.writelines:Consider using Python 3 style super() without arguments
+super-with-arguments:34:8:File.close:Consider using Python 3 style super() without arguments

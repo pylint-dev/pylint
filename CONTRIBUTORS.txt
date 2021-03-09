@@ -454,3 +454,9 @@ contributors:
 * Lefteris Karapetsas: contributor
 
 * Louis Sautier: contributor
+
+* Quentin Young: contributor
+
+* Alexander Kapshuna: contributor
+
+* Mark Byrne: contributor

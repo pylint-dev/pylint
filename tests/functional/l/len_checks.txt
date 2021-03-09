@@ -21,3 +21,5 @@ len-as-condition:128:11:github_issue_1879:Do not use `len(SEQUENCE)` without com
 len-as-condition:129:11:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
 len-as-condition:130:11:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
 len-as-condition:171:11:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty
+undefined-variable:183:11:github_issue_4215:Undefined variable 'undefined_var'
+undefined-variable:185:11:github_issue_4215:Undefined variable 'undefined_var2'

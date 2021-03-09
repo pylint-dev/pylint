@@ -968,7 +968,7 @@ class ImportsChecker(BaseChecker):
             for name in node.names
         ]
 
-        # Get the full names of all the imports that are not whitelisted.
+        # Get the full names of all the imports that are only allowed at the module level
         scoped_imports = [
             name for name in module_names if name not in self._allow_any_import_level
         ]

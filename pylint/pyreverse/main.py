@@ -141,9 +141,9 @@ this disables -f values",
         {
             "type": "csv",
             "metavar": "<file[,file...]>",
-            "dest": "black_list",
+            "dest": "ignore_list",
             "default": ("CVS",),
-            "help": "Add files or directories to the blacklist. They "
+            "help": "Files or directories to be skipped. They "
             "should be base names, not paths.",
         },
     ),
@@ -155,6 +155,17 @@ this disables -f values",
             "short": "p",
             "metavar": "<project name>",
             "help": "set the project name.",
+        },
+    ),
+    (
+        "output-directory",
+        {
+            "default": "",
+            "type": "string",
+            "short": "d",
+            "action": "store",
+            "metavar": "<output_directory>",
+            "help": "set the output directory path.",
         },
     ),
 )
@@ -199,7 +210,7 @@ class Run(ConfigurationMixIn):
             project = project_from_files(
                 args,
                 project_name=self.config.project,
-                black_list=self.config.black_list,
+                black_list=self.config.ignore_list,
             )
             linker = Linker(project, tag=True)
             handler = DiadefsHandler(self.config)
