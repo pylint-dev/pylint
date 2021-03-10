@@ -105,6 +105,7 @@ class DeprecatedMixin:
         qname = inferred.qname()
         if any(name in self.deprecated_methods() for name in (qname, func_name)):
             self.add_message("deprecated-method", node=node, args=(func_name,))
+            return
         num_of_args = len(node.args)
         kwargs = {kw.arg for kw in node.keywords} if node.keywords else {}
         for position, arg_name in chain(
