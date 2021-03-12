@@ -508,7 +508,6 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         and owner_name == "__members__"
         and node.attrname in ["items", "values", "keys"]
     ):
-        print(node.attrname)
         # Avoid false positive on Enum.__members__.{items(), values, keys}
         # See https://github.com/PyCQA/pylint/issues/4123
         return False
