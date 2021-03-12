@@ -15,6 +15,8 @@ Release date: TBA
   alternative to ``extension-pkg-whitelist`` and the message ``blacklisted-name`` is now emitted as
   ``disallowed-name``. The previous names are accepted to maintain backward compatibility.
 
+* Remove unwanted print to stdout from ``_emit_no_member``
+
 
 What's New in Pylint 2.7.3?
 ===========================
