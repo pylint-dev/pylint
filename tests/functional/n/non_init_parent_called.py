@@ -1,11 +1,11 @@
-# pylint: disable=R0903,W0212,W0406,no-absolute-import,wrong-import-order, useless-object-inheritance
+# pylint: disable=R0903,W0212,W0406,no-absolute-import,wrong-import-order, useless-object-inheritance,line-too-long
 
 """test for call to __init__ from a non ancestor class
 """
 from __future__ import print_function
-from . import func_w0233
+from . import non_init_parent_called
 import nonexistant  # [import-error]
-__revision__ = '$Id: func_w0233.py,v 1.2 2004-09-29 08:35:13 syt Exp $'
+__revision__ = '$Id: non_init_parent_called.py,v 1.2 2004-09-29 08:35:13 syt Exp $'
 
 class AAAA(object):
     """ancestor 1"""
@@ -20,12 +20,12 @@ class BBBBMixin(object):
     def __init__(self):
         print('init', self)
 
-class CCC(BBBBMixin, func_w0233.AAAA, func_w0233.BBBB, nonexistant.AClass):  # [no-member]
+class CCC(BBBBMixin, non_init_parent_called.AAAA, non_init_parent_called.BBBB, nonexistant.AClass):  # [no-member]
     """mix different things, some inferable some not"""
     def __init__(self):
         BBBBMixin.__init__(self)
-        func_w0233.AAAA.__init__(self)
-        func_w0233.BBBB.__init__(self)  # [no-member]
+        non_init_parent_called.AAAA.__init__(self)
+        non_init_parent_called.BBBB.__init__(self)  # [no-member]
         nonexistant.AClass.__init__(self)
 
 class DDDD(AAAA):
