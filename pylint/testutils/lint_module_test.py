@@ -32,7 +32,10 @@ class LintModuleTest:
         self._linter.set_reporter(_test_reporter)
         self._linter.config.persistent = 0
         checkers.initialize(self._linter)
-        self._linter.disable("I")
+        self._linter.disable("suppressed-message")
+        self._linter.disable("locally-disabled")
+        self._linter.disable("useless-suppression")
+        self._linter.disable("use-symbolic-message-instead")
         try:
             self._linter.read_config_file(test_file.option_file)
             self._linter.load_config_file()
