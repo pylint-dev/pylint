@@ -16,7 +16,7 @@ Release date: TBA
   ``disallowed-name``. The previous names are accepted to maintain backward compatibility.
 
 * Move deprecated checker to ``DeprecatedMixin``
-  
+
   Closes #4086
 
 
