@@ -5,5 +5,4 @@ unused-argument:54:13:function:Unused argument 'arg'
 unused-argument:61:21:AAAA.method:Unused argument 'arg':INFERENCE
 unused-argument:68:0:AAAA.selected:Unused argument 'args':INFERENCE
 unused-argument:68:0:AAAA.selected:Unused argument 'kwargs':INFERENCE
-use-symbolic-message-instead:79:0::"'E1103' is cryptic: use '# pylint: disable=maybe-no-member' instead"
 unused-argument:87:23:BBBB.__init__:Unused argument 'arg':INFERENCE
