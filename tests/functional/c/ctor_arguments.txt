@@ -1,5 +1,3 @@
-use-symbolic-message-instead:5:0::"'C0111' is cryptic: use '# pylint: disable=missing-docstring' instead"
-use-symbolic-message-instead:5:0::"'W0231' is cryptic: use '# pylint: disable=super-init-not-called' instead"
 no-value-for-parameter:35:0::No value for argument 'first_argument' in constructor call
 too-many-function-args:36:0::Too many positional arguments for constructor call
 no-value-for-parameter:38:0::No value for argument 'third_argument' in constructor call

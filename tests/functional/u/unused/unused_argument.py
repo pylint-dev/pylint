@@ -76,7 +76,7 @@ class AAAA(object):
                     description=[(etype,)]*size)
         def inner(row, col=0, etype=etype, req=self, rset=rset):
             """inner using all its argument"""
-            # pylint: disable = E1103  # [use-symbolic-message-instead]
+            # pylint: disable=maybe-no-member
             return req.vreg.etype_class(etype)(req, rset, row, col)
         # pylint: disable = attribute-defined-outside-init
         rset.get_entity = inner
