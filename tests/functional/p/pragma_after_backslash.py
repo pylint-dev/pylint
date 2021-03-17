@@ -1,5 +1,5 @@
 """Test that a pragma has an effect when separated by a backslash."""
-# pylint: disable=too-few-public-methods,use-symbolic-message-instead
+# pylint: disable=too-few-public-methods
 
 class Foo:
     """block-disable test"""
