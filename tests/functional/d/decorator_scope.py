@@ -1,4 +1,4 @@
-# -*- pylint: disable=W0232,too-few-public-methods, useless-object-inheritance  # [use-symbolic-message-instead]
+# -*- pylint: disable=no-init,too-few-public-methods, useless-object-inheritance
 """Test that decorators sees the class namespace - just like
 function default values does but function body doesn't.
 

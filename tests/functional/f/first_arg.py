@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, W0232, useless-object-inheritance  # [use-symbolic-message-instead]
+# pylint: disable=missing-docstring, no-init, useless-object-inheritance
 """check for methods first arguments
 """
 

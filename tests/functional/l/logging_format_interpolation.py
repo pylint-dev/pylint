@@ -1,4 +1,4 @@
-# pylint: disable=E1101, no-absolute-import, import-error,line-too-long  # [use-symbolic-message-instead]
+# pylint: disable=no-member, no-absolute-import, import-error,line-too-long
 # pylint: disable=invalid-name,missing-docstring,wrong-import-order,wrong-import-position
 try:
     import __builtin__ as builtins
