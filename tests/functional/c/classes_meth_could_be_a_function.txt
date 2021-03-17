@@ -1,3 +1,0 @@
-use-symbolic-message-instead:1:0::"'C0111' is cryptic: use '# pylint: disable=missing-docstring' instead"
-use-symbolic-message-instead:1:0::"'W0232' is cryptic: use '# pylint: disable=no-init' instead"
-use-symbolic-message-instead:21:0::"'R0201' is cryptic: use '# pylint: disable=no-self-use' instead"

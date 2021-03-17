@@ -51,13 +51,12 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
 
     csv.register_dialect("test", TestDialect)
 
-    def _get_expected(self):
-        with self._open_source_file() as f:
-            expected_msgs = self.get_expected_messages(f)
-        return expected_msgs, []
-
     def _check_output_text(self, _, expected_output, actual_output):
-        if expected_output == actual_output:
+        if expected_output and expected_output == actual_output:
+            return
+        if not expected_output:
+            if os.path.exists(self._test_file.expected_output):
+                os.remove(self._test_file.expected_output)
             return
         with open(self._test_file.expected_output, "w") as f:
             writer = csv.writer(f, dialect="test")

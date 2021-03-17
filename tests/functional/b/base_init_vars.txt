@@ -1,1 +1,0 @@
-use-symbolic-message-instead:1:0::"'R0201' is cryptic: use '# pylint: disable=no-self-use' instead"

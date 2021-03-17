@@ -1,3 +1,0 @@
-use-symbolic-message-instead:1:0::"'C0103' is cryptic: use '# pylint: disable=invalid-name' instead"
-use-symbolic-message-instead:1:0::"'R0904' is cryptic: use '# pylint: disable=too-many-public-methods' instead"
-use-symbolic-message-instead:1:0::"'W0201' is cryptic: use '# pylint: disable=attribute-defined-outside-init' instead"
