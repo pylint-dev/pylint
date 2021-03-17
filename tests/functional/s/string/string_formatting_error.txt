@@ -1,0 +1,11 @@
+too-few-format-args:10:10:pprint:Not enough arguments for format string
+too-many-format-args:11:10:pprint:Too many arguments for format string
+mixed-format-string:12:10:pprint:Mixing named and unnamed conversion specifiers in format string
+missing-format-string-key:13:10:pprint:Missing key 'PARG_2' in format string dictionary
+unused-format-string-key:14:10:pprint:Unused key 'PARG_3' in format string dictionary
+bad-format-string-key:15:10:pprint:Format string dictionary key should be a string, not 2
+missing-format-string-key:15:10:pprint:Missing key 'PARG_2' in format string dictionary
+format-needs-mapping:16:10:pprint:Expected mapping for format string, not Tuple
+format-needs-mapping:17:10:pprint:Expected mapping for format string, not List
+bad-format-character:18:10:pprint:Unsupported format character 'z' (0x7a) at index 2
+truncated-format-string:19:10:pprint:Format string ends in middle of conversion specifier

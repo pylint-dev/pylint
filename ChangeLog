@@ -15,12 +15,9 @@ Release date: TBA
   alternative to ``extension-pkg-whitelist`` and the message ``blacklisted-name`` is now emitted as
   ``disallowed-name``. The previous names are accepted to maintain backward compatibility.
 
-* Remove unwanted print to stdout from ``_emit_no_member``
-
 * Move deprecated checker to DeprecatedMixin
 
   Closes #4086
-
 
 What's New in Pylint 2.7.3?
 ===========================
@@ -28,6 +25,10 @@ Release date: TBA
 
 ..
   Put bug fixes that will be cherry-picked to latest major version here
+
+* ``use-symbolic-message-instead`` now also works on legacy messages like ``C0111`` (``missing-docstring``).
+
+* Remove unwanted print to stdout from ``_emit_no_member``
 
 * Introduce a command-line option to specify pyreverse output directory
 

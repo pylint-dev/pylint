@@ -1,10 +1,10 @@
 """Test PEP 604 - Alternative Union syntax"""
-# pylint: disable=missing-function-docstring,unused-argument,invalid-name,missing-class-docstring,inherit-non-class,too-few-public-methods
+# pylint: disable=missing-function-docstring,unused-argument,invalid-name,missing-class-docstring
+# pylint: disable=inherit-non-class,too-few-public-methods
 import dataclasses
 import typing
 from dataclasses import dataclass
 from typing import NamedTuple, TypedDict
-
 
 Alias = str | list[int]
 lst = [typing.Dict[str, int] | None,]

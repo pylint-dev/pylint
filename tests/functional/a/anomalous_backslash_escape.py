@@ -1,5 +1,5 @@
-# pylint:disable=W0105, W0511
 """Test for anomalous backslash escapes in strings"""
+
 
 BAD_ESCAPE = '\z'  # [anomalous-backslash-in-string]
 BAD_ESCAPE_NOT_FIRST = 'abc\z'  # [anomalous-backslash-in-string]
