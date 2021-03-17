@@ -1,1 +1,0 @@
-use-symbolic-message-instead:1:0::Id 'too-few-public-methods' is used to disable 'too-few-public-methods' message emission
