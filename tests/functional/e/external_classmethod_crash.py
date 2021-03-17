@@ -1,4 +1,4 @@
-# pylint: disable=W0232,too-few-public-methods,W0613, useless-object-inheritance  # [use-symbolic-message-instead,use-symbolic-message-instead]
+# pylint: disable=no-init,too-few-public-methods,unused-argument,useless-object-inheritance
 """tagging a function as a class method cause a crash when checking for
 signature overriding
 """

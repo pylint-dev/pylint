@@ -1,4 +1,3 @@
-use-symbolic-message-instead:1:0::Id 'W0232' is used to disable 'no-init' message emission
 bad-classmethod-argument:10:4:Obj.__new__:Class method __new__ should have 'cls' as first argument
 no-classmethod-decorator:16:4:Obj:Consider using a decorator instead of calling classmethod
 bad-classmethod-argument:18:4:Obj.class2:Class method class2 should have 'cls' as first argument

@@ -1,4 +1,4 @@
-# pylint: disable=C0111,too-few-public-methods,W0232, useless-object-inheritance  # [use-symbolic-message-instead]
+# pylint: disable=C0111,too-few-public-methods,no-init, useless-object-inheritance
 """
 #2479
 
