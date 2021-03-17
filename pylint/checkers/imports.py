@@ -49,7 +49,7 @@ import astroid
 from astroid import modutils
 from astroid.decorators import cached
 
-from pylint.checkers import BaseChecker
+from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
     check_messages,
     is_from_fallback_block,
@@ -292,7 +292,7 @@ DEFAULT_KNOWN_THIRD_PARTY = ("enchant",)
 DEFAULT_PREFERRED_MODULES = ()
 
 
-class ImportsChecker(BaseChecker):
+class ImportsChecker(DeprecatedMixin, BaseChecker):
     """checks for
     * external modules dependencies
     * relative / wildcard imports
@@ -306,13 +306,13 @@ class ImportsChecker(BaseChecker):
     name = "imports"
     msgs = MSGS
     priority = -2
-    deprecated_modules = ("optparse", "tkinter.tix")
+    default_deprecated_modules = ("optparse", "tkinter.tix")
 
     options = (
         (
             "deprecated-modules",
             {
-                "default": deprecated_modules,
+                "default": default_deprecated_modules,
                 "type": "csv",
                 "metavar": "<modules>",
                 "help": "Deprecated modules which should not be used,"
@@ -487,6 +487,10 @@ class ImportsChecker(BaseChecker):
             for cycle in get_cycles(graph, vertices=vertices):
                 self.add_message("cyclic-import", args=" -> ".join(cycle))
 
+    def deprecated_modules(self):
+        """Callback returning the deprecated modules."""
+        return self.config.deprecated_modules
+
     @check_messages(*MSGS)
     def visit_import(self, node):
         """triggered when an import statement is seen"""
@@ -499,7 +503,7 @@ class ImportsChecker(BaseChecker):
             self.add_message("multiple-imports", args=", ".join(names), node=node)
 
         for name in names:
-            self._check_deprecated_module(node, name)
+            self.check_deprecated_module(node, name)
             self._check_preferred_module(node, name)
             imported_module = self._get_imported_module(node, name)
             if isinstance(node.parent, astroid.Module):
@@ -521,7 +525,7 @@ class ImportsChecker(BaseChecker):
 
         self._check_import_as_rename(node)
         self._check_misplaced_future(node)
-        self._check_deprecated_module(node, basename)
+        self.check_deprecated_module(node, basename)
         self._check_preferred_module(node, basename)
         self._check_wildcard_imports(node, imported_module)
         self._check_same_line_imports(node)
@@ -831,12 +835,6 @@ class ImportsChecker(BaseChecker):
             self.import_graph[context_name].add(importedmodname)
             if not self.linter.is_message_enabled("cyclic-import", line=node.lineno):
                 self._excluded_edges[context_name].add(importedmodname)
-
-    def _check_deprecated_module(self, node, mod_path):
-        """check if the module is deprecated"""
-        for mod_name in self.config.deprecated_modules:
-            if mod_path == mod_name or mod_path.startswith(mod_name + "."):
-                self.add_message("deprecated-module", node=node, args=mod_path)
 
     def _check_preferred_module(self, node, mod_path):
         """check if the module has a preferred replacement"""
