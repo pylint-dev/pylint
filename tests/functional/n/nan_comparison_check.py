@@ -1,6 +1,6 @@
-# pylint: disable=missing-docstring, invalid-name, misplaced-comparison-constant,literal-comparison,comparison-with-itself, import-error
+# pylint: disable=missing-docstring, invalid-name, misplaced-comparison-constant
+# pylint: disable=literal-comparison,comparison-with-itself, import-error
 """Test detection of NaN value comparison."""
-
 import numpy
 x = 42
 a = x is numpy.NaN  # [nan-comparison]

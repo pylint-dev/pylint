@@ -47,7 +47,7 @@ def metadata_from_dict(key):
     """
     return {key: str(value) for key, value in key.items()}
 
-# pylint: disable=R0903, print-statement, misplaced-future,wrong-import-position
+# pylint: disable=too-few-public-methods, print-statement, misplaced-future,wrong-import-position
 from __future__ import print_function
 
 
@@ -78,7 +78,7 @@ class AAAA(object):
             """inner using all its argument"""
             # pylint: disable = E1103
             return req.vreg.etype_class(etype)(req, rset, row, col)
-        # pylint: disable = W0201
+        # pylint: disable = attribute-defined-outside-init
         rset.get_entity = inner
 
 class BBBB(object):

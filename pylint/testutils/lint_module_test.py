@@ -35,7 +35,6 @@ class LintModuleTest:
         self._linter.disable("suppressed-message")
         self._linter.disable("locally-disabled")
         self._linter.disable("useless-suppression")
-        self._linter.disable("use-symbolic-message-instead")
         try:
             self._linter.read_config_file(test_file.option_file)
             self._linter.load_config_file()

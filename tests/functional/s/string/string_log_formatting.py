@@ -1,4 +1,4 @@
-# pylint: disable=E1101, no-absolute-import
+# pylint: disable=no-absolute-import
 """Test checking of log format strings
 """
 

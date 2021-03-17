@@ -1,5 +1,5 @@
-# pylint: disable=R0903,W0212,W0406,no-absolute-import,wrong-import-order, useless-object-inheritance,line-too-long
-
+# pylint: disable=W0212,W0406  # [use-symbolic-message-instead,use-symbolic-message-instead]
+# pylint: disable=no-absolute-import,wrong-import-order, useless-object-inheritance,too-few-public-methods,line-too-long
 """test for call to __init__ from a non ancestor class
 """
 from __future__ import print_function

@@ -1,4 +1,4 @@
-# pylint: disable=R0903, useless-object-inheritance
+# pylint: disable=too-few-public-methods,useless-object-inheritance
 """Test case for the problem described below :
  - A class extends 'object'
  - This class defines its own __init__()

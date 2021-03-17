@@ -3,7 +3,7 @@
 def foo(): #pylint: disable=C0102
     return 1
 
-def toto(): #pylint: disable=C0102,R1711
+def toto(): #pylint: disable=C0102,R1711  # [use-symbolic-message-instead]
     return
 
 # +1: [missing-function-docstring]
