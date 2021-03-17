@@ -1,10 +1,9 @@
-#pylint: disable=C0103,R0904,R0903,W0201,no-absolute-import, useless-object-inheritance
-"""
-This module demonstrates a possible problem of pyLint with calling __init__ s
+# pylint: disable=invalid-name,too-many-public-methods,attribute-defined-outside-init
+# pylint: disable=no-absolute-import, useless-object-inheritance,too-few-public-methods
+"""This module demonstrates a possible problem of pyLint with calling __init__ s
 from inherited classes.
 Initializations done there are not considered, which results in Error E0203 for
-self.cookedq.
-"""
+self.cookedq."""
 
 from __future__ import print_function
 

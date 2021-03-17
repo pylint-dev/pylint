@@ -1,4 +1,4 @@
-# pylint: disable=R0903, metaclass-assignment, useless-object-inheritance
+# pylint: disable=too-few-public-methods, metaclass-assignment, useless-object-inheritance
 """test attribute access on metaclass"""
 
 

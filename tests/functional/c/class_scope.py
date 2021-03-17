@@ -1,4 +1,4 @@
-# pylint: disable=R0903,W0232, useless-object-inheritance
+# pylint: disable=too-few-public-methods,no-init, useless-object-inheritance
 """check for scope problems"""
 
 __revision__ = None

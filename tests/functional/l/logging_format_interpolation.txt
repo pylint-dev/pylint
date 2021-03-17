@@ -1,3 +1,4 @@
+use-symbolic-message-instead:1:0::Id 'E1101' is used to disable 'no-member' message emission
 logging-format-interpolation:16:22::Use lazy % formatting in logging functions
 logging-format-interpolation:17:43::Use lazy % formatting in logging functions
 logging-format-interpolation:18:22::Use lazy % formatting in logging functions

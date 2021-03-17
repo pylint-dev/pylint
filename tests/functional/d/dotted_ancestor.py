@@ -1,7 +1,7 @@
 """bla"""
 # pylint: disable=no-absolute-import
 
-from ..n import non_init_parent_called
+from ..n.non import non_init_parent_called
 
 __revision__ = 'yo'
 
