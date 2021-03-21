@@ -30,9 +30,6 @@ Release date: TBA
 * Fix false positive for ``method-hidden`` when using private attribute and method
 
   Closes #3936
-
-* Fix issue with Enums and ``class-attribute-naming-style=snake_case``
-
 * ``use-symbolic-message-instead`` now also works on legacy messages like ``C0111`` (``missing-docstring``).
 
 * Remove unwanted print to stdout from ``_emit_no_member``
