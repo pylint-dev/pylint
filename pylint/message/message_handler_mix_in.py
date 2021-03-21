@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import sys
+from typing import List, Tuple
 
 from pylint.constants import (
     _SCOPE_EXEMPT,
@@ -21,11 +22,9 @@ from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
 
 
 class MessagesHandlerMixIn:
-    """a mix-in class containing all the messages related methods for the main
-    lint class
-    """
+    """A mix-in class containing all the messages related methods for the main lint class."""
 
-    __by_id_managed_msgs = []  # type: ignore
+    __by_id_managed_msgs: List[Tuple[str, str, str, int, bool]] = []
 
     def __init__(self):
         self._msgs_state = {}
@@ -43,27 +42,16 @@ class MessagesHandlerMixIn:
     def get_by_id_managed_msgs(cls):
         return cls.__by_id_managed_msgs
 
-    def _register_by_id_managed_msg(self, msgid, line, is_disabled=True):
+    def _register_by_id_managed_msg(self, msgid_or_symbol: str, line, is_disabled=True):
         """If the msgid is a numeric one, then register it to inform the user
         it could furnish instead a symbolic msgid."""
-        try:
-            message_definitions = self.msgs_store.get_message_definitions(msgid)
-            for message_definition in message_definitions:
-                if msgid == message_definition.msgid:
-                    MessagesHandlerMixIn.__by_id_managed_msgs.append(
-                        (
-                            self.current_name,
-                            message_definition.msgid,
-                            message_definition.symbol,
-                            line,
-                            is_disabled,
-                        )
-                    )
-        except UnknownMessageError:
-            pass
+        if msgid_or_symbol[1:].isdigit():
+            symbol = self.msgs_store.message_id_store.get_symbol(msgid=msgid_or_symbol)  # type: ignore
+            managed = (self.current_name, msgid_or_symbol, symbol, line, is_disabled)  # type: ignore
+            MessagesHandlerMixIn.__by_id_managed_msgs.append(managed)
 
     def disable(self, msgid, scope="package", line=None, ignore_unknown=False):
-        """don't output message of the given id"""
+        """Don't output message of the given id"""
         self._set_msg_status(
             msgid, enable=False, scope=scope, line=line, ignore_unknown=ignore_unknown
         )
@@ -195,7 +183,7 @@ class MessagesHandlerMixIn:
         except KeyError:
             # Check if the message's line is after the maximum line existing in ast tree.
             # This line won't appear in the ast tree and won't be referred in
-            #  self.file_state._module_msgs_state
+            # self.file_state._module_msgs_state
             # This happens for example with a commented line at the end of a module.
             max_line_number = self.file_state.get_effective_max_line_number()
             if max_line_number and line > max_line_number:

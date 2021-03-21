@@ -120,7 +120,9 @@ def gen_tests(filter_rgx):
         tests.append((module_file, messages_file, dependencies))
     if UPDATE_FILE.exists():
         return tests
-    assert len(tests) < 28, "Please do not add new test cases here."
+    assert len(tests) < 12, "Please do not add new test cases here." + "\n".join(
+        str(k) for k in tests if not k[2]
+    )
     return tests
 
 

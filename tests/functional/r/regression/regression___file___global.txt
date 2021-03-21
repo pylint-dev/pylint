@@ -1,0 +1,2 @@
+global-statement:5:4:func:Using the global statement
+redefined-builtin:5:4:func:Redefining built-in '__file__'

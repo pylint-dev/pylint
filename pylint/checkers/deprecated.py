@@ -32,6 +32,11 @@ class DeprecatedMixin:
             "deprecated-argument",
             "The argument is marked as deprecated and will be removed in the future.",
         ),
+        "W0402": (
+            "Uses of a deprecated module %r",
+            "deprecated-module",
+            "A module marked as deprecated is imported.",
+        ),
     }
 
     @utils.check_messages(
@@ -46,6 +51,18 @@ class DeprecatedMixin:
                 self.check_deprecated_method(node, inferred)
         except astroid.InferenceError:
             pass
+
+    @utils.check_messages("deprecated-module")
+    def visit_import(self, node):
+        """triggered when an import statement is seen"""
+        for name in (name for name, _ in node.names):
+            self.check_deprecated_module(node, name)
+
+    @utils.check_messages("deprecated-module")
+    def visit_importfrom(self, node):
+        """triggered when a from statement is seen"""
+        basename = node.modname
+        self.check_deprecated_module(node, basename)
 
     def deprecated_methods(self) -> Container[str]:
         """Callback returning the deprecated methods/functions.
@@ -85,6 +102,22 @@ class DeprecatedMixin:
         # pylint: disable=unused-argument
         return ()
 
+    def deprecated_modules(self) -> Iterable:
+        """Callback returning the deprecated modules.
+
+        Returns:
+            collections.abc.Container of deprecated module names.
+        """
+        # pylint: disable=no-self-use
+        return ()
+
+    def check_deprecated_module(self, node, mod_path):
+        """Checks if the module is deprecated"""
+
+        for mod_name in self.deprecated_modules():
+            if mod_path == mod_name or mod_path.startswith(mod_name + "."):
+                self.add_message("deprecated-module", node=node, args=mod_path)
+
     def check_deprecated_method(self, node, inferred):
         """Executes the checker for the given node. This method should
         be called from the checker implementing this mixin.
@@ -105,6 +138,7 @@ class DeprecatedMixin:
         qname = inferred.qname()
         if any(name in self.deprecated_methods() for name in (qname, func_name)):
             self.add_message("deprecated-method", node=node, args=(func_name,))
+            return
         num_of_args = len(node.args)
         kwargs = {kw.arg for kw in node.keywords} if node.keywords else {}
         for position, arg_name in chain(

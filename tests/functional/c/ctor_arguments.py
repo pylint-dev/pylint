@@ -2,7 +2,7 @@
 
 Based on tests/functional/a/arguments.py
 """
-# pylint: disable=C0111,R0903,W0231, useless-object-inheritance
+# pylint: disable=missing-docstring,too-few-public-methods,super-init-not-called,useless-object-inheritance
 
 
 class Class1Arg(object):

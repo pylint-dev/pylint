@@ -1,5 +1,5 @@
-# pylint: disable=E1101, no-absolute-import, import-error,line-too-long, missing-docstring,wrong-import-order,wrong-import-position
-# pylint: disable=invalid-name
+# pylint: disable=no-member, no-absolute-import, import-error,line-too-long
+# pylint: disable=invalid-name,missing-docstring,wrong-import-order,wrong-import-position
 try:
     import __builtin__ as builtins
 except ImportError:
