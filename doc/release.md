@@ -50,6 +50,17 @@ The master branch will have all the new features for the ``X.Y+1`` version
 If you're doing a major release, you need to create the ``X.Y`` branch
 where we will cherry-pick bugs to release the ``X.Y.Z+1`` minor versions
 
+### Merge tags in master for minor releases
+
+Merge the tag ``X.Y.Z`` in the main branch by doing an history only merge. It's done in order to signal that this is
+an offical release tag, and for ``pre-commit autoupdate`` to works.
+
+```bash
+git checkout master
+git merge --no-edit --strategy=ours pylint-X.Y.Z
+git push
+```
+
 ### Milestone handling
 
 We move issue that were not done in the next milestone and block release only
