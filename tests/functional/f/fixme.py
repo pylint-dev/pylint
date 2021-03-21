@@ -20,7 +20,7 @@ def function():
     #todo: no space after hash
 
     # +1: [fixme]
-	# FIXME: this is broken
+    # FIXME: this is broken
     # +1: [fixme]
     # ./TODO: find with notes
 	# +1: [fixme]
