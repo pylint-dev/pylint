@@ -174,10 +174,9 @@ class EncodingChecker(BaseChecker):
             # emit warnings if necessary
             match = self._fixme_pattern.search("#" + comment_text.lower())
             if match:
-                note = match.group(1)
                 self.add_message(
                     "fixme",
-                    col_offset=comment.string.lower().index(note.lower()),
+                    col_offset=comment.start[1] + 1,
                     args=comment_text,
                     line=comment.start[0],
                 )
