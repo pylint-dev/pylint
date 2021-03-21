@@ -460,3 +460,5 @@ contributors:
 * Alexander Kapshuna: contributor
 
 * Mark Byrne: contributor
+
+* Konstantina Saketou: contributor
