@@ -187,3 +187,33 @@ class TestVariablesChecker(CheckerTestCase):
             Message("protected-access", node=attribute_in_fake_2, args="__private"),
         ):
             self.walk(node.root())
+
+    def test_private_attribute_hides_method(self):
+        node = astroid.extract_node(
+            """
+            class Parent:
+                def __init__(self):
+                    self.__private = None
+
+            class Child(Parent):
+                def __private(self): #@
+                    pass
+            """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_protected_attribute_hides_method(self):
+        node = astroid.extract_node(
+            """
+            class Parent:
+                def __init__(self):
+                    self._protected = None
+
+            class Child(Parent):
+                def _protected(self): #@
+                    pass
+            """
+        )
+        with self.assertAddsMessages(Message("method-hidden", node=node, args=("", 4))):
+            self.checker.visit_functiondef(node)
