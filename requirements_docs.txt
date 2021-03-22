@@ -1,2 +1,2 @@
-Sphinx==3.5.2
+Sphinx==3.5.3
 python-docs-theme==2020.12
