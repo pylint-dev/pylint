@@ -53,15 +53,17 @@ except ImportError:
     class WikiWordFilter:  # type: ignore
         ...
 
-    def get_tokenizer(_):
-        ...
-
     class Filter:  # type: ignore
         def _skip(self, word):
             raise NotImplementedError
 
     class Chunker:  # type: ignore
         pass
+
+    def get_tokenizer(
+        tag=None, chunkers=None, filters=None
+    ):  # pylint: disable=unused-argument
+        return Filter()
 
 
 if enchant is not None:
@@ -74,7 +76,7 @@ if enchant is not None:
 else:
     dicts = "none"
     dict_choices = [""]
-    instr = " To make it work, install the python-enchant package."
+    instr = " To make it work, install the 'python-enchant' package."
 
 
 class WordsWithDigigtsFilter(Filter):
