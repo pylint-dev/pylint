@@ -949,13 +949,15 @@ class Python3Checker(checkers.BaseChecker):
         self._branch_stack.append(Branch(node, self._is_py2_test(node)))
 
     def leave_if(self, node):
-        assert self._branch_stack.pop().node == node
+        new_node = self._branch_stack.pop().node
+        assert new_node == node
 
     def visit_ifexp(self, node):
         self._branch_stack.append(Branch(node, self._is_py2_test(node)))
 
     def leave_ifexp(self, node):
-        assert self._branch_stack.pop().node == node
+        new_node = self._branch_stack.pop()
+        assert new_node.node == node
 
     def visit_module(self, node):  # pylint: disable=unused-argument
         """Clear checker state after previous module."""
