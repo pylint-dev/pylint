@@ -59,6 +59,7 @@ from astroid.context import InferenceContext
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import is_postponed_evaluation_enabled
+from pylint.constants import PY39_PLUS
 from pylint.interfaces import HIGH, INFERENCE, INFERENCE_FAILURE, IAstroidChecker
 from pylint.utils import get_global_option
 
@@ -1410,7 +1411,15 @@ class VariablesChecker(BaseChecker):
                     # same line as the function definition
                     maybee0601 = False
                 elif (
-                    isinstance(defstmt, astroid.Assign)
+                    isinstance(
+                        defstmt,
+                        (
+                            astroid.Assign,
+                            astroid.AnnAssign,
+                            astroid.AugAssign,
+                            astroid.Expr,
+                        ),
+                    )
                     and isinstance(defstmt.value, astroid.IfExp)
                     and frame is defframe
                     and defframe.parent_of(node)
@@ -1433,6 +1442,18 @@ class VariablesChecker(BaseChecker):
                             and defnode.col_offset < node.col_offset
                         )
                         or (defnode.lineno < node.lineno)
+                        or (
+                            # Issue in the `ast` module until py39
+                            # Nodes in a multiline string have the same lineno
+                            # Could be false-positive without check
+                            not PY39_PLUS
+                            and defnode.lineno == node.lineno
+                            and isinstance(
+                                defstmt,
+                                (astroid.Assign, astroid.AnnAssign, astroid.AugAssign),
+                            )
+                            and isinstance(defstmt.value, astroid.JoinedStr)
+                        )
                     )
                 ):
                     # Expressions, with assignment expressions
