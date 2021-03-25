@@ -8,6 +8,9 @@ else:
     x = False
 
 x = b if (b := True) else False
+x2: bool = b2 if (b2 := True) else False
+x3 = 0
+x3 += b3 if (b3 := 4) else 6
 
 a = ["a   ", "b   ", "c   "]
 c = [text for el in a if (text := el.strip()) == "b"]
@@ -47,6 +50,24 @@ function = lambda: (
     i := h,
 )
 print(function())
+
+
+# https://github.com/PyCQA/pylint/issues/3763
+foo if (foo := 3 - 2) > 0 else 0  # [pointless-statement]
+
+
+# https://github.com/PyCQA/pylint/issues/4238
+l1 = f'The number {(count1 := 4)} ' \
+     f'is equal to {count1}'
+l2: str = (
+    f'The number {(count2 := 4)} '
+    f'is equal to {count2}'
+)
+l3 = "Hello "
+l3 += (
+    f'The number {(count3 := 4)} '
+    f'is equal to {count3}'
+)
 
 
 # check wrong usage
