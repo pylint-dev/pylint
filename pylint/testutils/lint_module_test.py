@@ -7,9 +7,10 @@ import platform
 import sys
 from collections import Counter
 from io import StringIO
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import pytest
+from _pytest.config import Config
 
 from pylint import checkers
 from pylint.lint import PyLinter
@@ -26,7 +27,7 @@ from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 class LintModuleTest:
     maxDiff = None
 
-    def __init__(self, test_file: FunctionalTestFile):
+    def __init__(self, test_file: FunctionalTestFile, config: Optional[Config] = None):
         _test_reporter = FunctionalTestReporter()
         self._linter = PyLinter()
         self._linter.set_reporter(_test_reporter)
@@ -41,6 +42,7 @@ class LintModuleTest:
         except NoFileError:
             pass
         self._test_file = test_file
+        self._config = config
 
     def setUp(self):
         if self._should_be_skipped_due_to_version():
@@ -187,8 +189,9 @@ class LintModuleTest:
             msg.append("\nUnexpected in testdata:")
             msg.extend(" %3d: %s" % msg for msg in sorted(unexpected))  # type: ignore
         error_msg = "\n".join(msg)
-        error_msg += "\n\nActual pylint output for this file:\n"
-        error_msg += "\n".join(str(o) for o in actual_output)
+        if self._config and self._config.getoption("verbose") > 0:
+            error_msg += "\n\nActual pylint output for this file:\n"
+            error_msg += "\n".join(str(o) for o in actual_output)
         return error_msg
 
     def error_msg_for_unequal_output(self, expected_lines, received_lines) -> str:
