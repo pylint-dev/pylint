@@ -1,5 +1,5 @@
 """Test PEP 585 works as expected, starting with Python 3.9"""
-# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation
+# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,wrong-import-position,ungrouped-imports
 import collections
 import dataclasses
 import typing
@@ -94,3 +94,19 @@ Alias4 = Tuple[list[int]]
 Alias5 = Dict[str, list[int]]
 Alias6 = int | list[int]
 Alias7 = list[list[int]]
+
+
+import collections.abc
+import contextlib
+import re
+
+class OrderedDict:
+    pass
+
+var12: OrderedDict[str, int]  # [unsubscriptable-object]
+var13: list[int]
+var14: collections.OrderedDict[str, int]
+var15: collections.Counter[int]
+var16: collections.abc.Iterable[int]
+var17: contextlib.AbstractContextManager[int]
+var18: re.Pattern[str]

@@ -3,7 +3,7 @@
 This check requires Python 3.7 or 3.8!
 Testing with 3.8 only, to support TypedDict.
 """
-# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation
+# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,wrong-import-position,ungrouped-imports
 from __future__ import annotations
 import collections
 import dataclasses
@@ -99,3 +99,19 @@ Alias4 = Tuple[list[int]]  # [unsubscriptable-object]
 Alias5 = Dict[str, list[int]]  # [unsubscriptable-object]
 Alias6 = int | list[int]  # [unsubscriptable-object]
 Alias7 = list[list[int]]  # [unsubscriptable-object,unsubscriptable-object]
+
+
+import collections.abc
+import contextlib
+import re
+
+class OrderedDict:
+    pass
+
+var12: OrderedDict[str, int]  # [unsubscriptable-object]
+var13: list[int]
+var14: collections.OrderedDict[str, int]
+var15: collections.Counter[int]
+var16: collections.abc.Iterable[int]
+var17: contextlib.AbstractContextManager[int]
+var18: re.Pattern[str]

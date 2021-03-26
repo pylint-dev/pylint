@@ -231,44 +231,44 @@ PYMETHODS = set(SPECIAL_METHODS_PARAMS)
 
 SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
     (
-        "tuple",
-        "list",
-        "dict",
-        "set",
-        "frozenset",
-        "type",
-        "deque",  # collections
-        "defaultdict",
-        "OrderedDict",
-        "Counter",
-        "ChainMap",
-        "Awaitable",  # collections.abc
-        "Coroutine",
-        "AsyncIterable",
-        "AsyncIterator",
-        "AsyncGenerator",
-        "Iterable",
-        "Iterator",
-        "Generator",
-        "Reversible",
-        "Container",
-        "Collection",
-        "Callable",
-        "Set # typing.AbstractSet",
-        "MutableSet",
-        "Mapping",
-        "MutableMapping",
-        "Sequence",
-        "MutableSequence",
-        "ByteString",
-        "MappingView",
-        "KeysView",
-        "ItemsView",
-        "ValuesView",
-        "AbstractContextManager",  # contextlib
-        "AbstractAsyncContextManager",
-        "Pattern",  # re
-        "Match",
+        "builtins.tuple",
+        "builtins.list",
+        "builtins.dict",
+        "builtins.set",
+        "builtins.frozenset",
+        "builtins.type",
+        "collections.deque",
+        "collections.defaultdict",
+        "collections.OrderedDict",
+        "collections.Counter",
+        "collections.ChainMap",
+        "_collections_abc.Awaitable",
+        "_collections_abc.Coroutine",
+        "_collections_abc.AsyncIterable",
+        "_collections_abc.AsyncIterator",
+        "_collections_abc.AsyncGenerator",
+        "_collections_abc.Iterable",
+        "_collections_abc.Iterator",
+        "_collections_abc.Generator",
+        "_collections_abc.Reversible",
+        "_collections_abc.Container",
+        "_collections_abc.Collection",
+        "_collections_abc.Callable",
+        "_collections_abc.Set # typing.AbstractSet",
+        "_collections_abc.MutableSet",
+        "_collections_abc.Mapping",
+        "_collections_abc.MutableMapping",
+        "_collections_abc.Sequence",
+        "_collections_abc.MutableSequence",
+        "_collections_abc.ByteString",
+        "_collections_abc.MappingView",
+        "_collections_abc.KeysView",
+        "_collections_abc.ItemsView",
+        "_collections_abc.ValuesView",
+        "contextlib.AbstractContextManager",
+        "contextlib.AbstractAsyncContextManager",
+        "re.Pattern",
+        "re.Match",
     )
 )
 
@@ -1353,11 +1353,8 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
         parent_node = parent_node.parent
         if isinstance(parent_node, astroid.Module):
             return False
-    if value.name in SUBSCRIPTABLE_CLASSES_PEP585:
+    if value.qname() in SUBSCRIPTABLE_CLASSES_PEP585:
         return True
-    for name in value.basenames:
-        if name in SUBSCRIPTABLE_CLASSES_PEP585:
-            return True
     return False
 
 
