@@ -94,11 +94,11 @@ TEST_WITH_EXPECTED_DEPRECATION = [
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
-def test_functional(test_file, recwarn):
+def test_functional(test_file, recwarn, pytestconfig):
     if UPDATE_FILE.exists():
-        lint_test = LintModuleOutputUpdate(test_file)
+        lint_test = LintModuleOutputUpdate(test_file, pytestconfig)
     else:
-        lint_test = testutils.LintModuleTest(test_file)
+        lint_test = testutils.LintModuleTest(test_file, pytestconfig)
     lint_test.setUp()
     lint_test._runTest()
     warning = None
