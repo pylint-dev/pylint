@@ -13,3 +13,4 @@ unsubscriptable-object:99:19::Value 'list' is unsubscriptable
 unsubscriptable-object:100:15::Value 'list' is unsubscriptable
 unsubscriptable-object:101:9::Value 'list' is unsubscriptable
 unsubscriptable-object:101:14::Value 'list' is unsubscriptable
+unsubscriptable-object:111:7::Value 'OrderedDict' is unsubscriptable
