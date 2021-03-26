@@ -101,6 +101,11 @@ BUILTINS = builtins.__name__
 STR_FORMAT = {"%s.str.format" % BUILTINS}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
 BUILTIN_TUPLE = "builtins.tuple"
+TYPE_ANNOTATION_NODES_TYPES = (
+    astroid.AnnAssign,
+    astroid.Arguments,
+    astroid.FunctionDef,
+)
 
 
 def _unflatten(iterable):
@@ -1652,50 +1657,58 @@ accessed. Python regular expressions are accepted.",
 
     @check_messages("unsupported-binary-operation")
     def visit_binop(self, node: astroid.BinOp):
-        # Test alternative Union syntax PEP 604 - int | None
-        msg = "unsupported operand type(s) for |"
-        if node.op == "|" and (
-            not is_postponed_evaluation_enabled(node)
-            and isinstance(
-                node.parent, (astroid.AnnAssign, astroid.Arguments, astroid.FunctionDef)
-            )
-            or not PY310_PLUS
-            and isinstance(
-                node.parent,
-                (
-                    astroid.Assign,
-                    astroid.Call,
-                    astroid.Keyword,
-                    astroid.Dict,
-                    astroid.Tuple,
-                    astroid.Set,
-                    astroid.List,
-                    astroid.BinOp,
-                ),
-            )
+        if node.op == "|":
+            self._detect_unsupported_alternative_union_syntax(node)
+
+    def _detect_unsupported_alternative_union_syntax(self, node: astroid.BinOp) -> None:
+        """Detect if unsupported alternative Union syntax (PEP 604) was used."""
+        if PY310_PLUS:  # 310+ supports the new syntax
+            return
+
+        if isinstance(
+            node.parent, TYPE_ANNOTATION_NODES_TYPES
+        ) and not is_postponed_evaluation_enabled(node):
+            # Use in type annotations only allowed if
+            # postponed evaluation is enabled.
+            self._check_unsupported_alternative_union_syntax(node)
+
+        if isinstance(
+            node.parent,
+            (
+                astroid.Assign,
+                astroid.Call,
+                astroid.Keyword,
+                astroid.Dict,
+                astroid.Tuple,
+                astroid.Set,
+                astroid.List,
+                astroid.BinOp,
+            ),
         ):
+            # Check other contexts the syntax might appear, but are invalid.
+            # Make sure to filter context if postponed evaluation is enabled
+            # and parent is allowed node type.
             allowed_nested_syntax = False
             if is_postponed_evaluation_enabled(node):
                 parent_node = node.parent
                 while True:
-                    if isinstance(
-                        parent_node,
-                        (astroid.AnnAssign, astroid.Arguments, astroid.FunctionDef),
-                    ):
+                    if isinstance(parent_node, TYPE_ANNOTATION_NODES_TYPES):
                         allowed_nested_syntax = True
                         break
                     parent_node = parent_node.parent
                     if isinstance(parent_node, astroid.Module):
                         break
-            if allowed_nested_syntax is False:
-                for n in (node.left, node.right):
-                    n = helpers.object_type(n)
-                    if isinstance(n, astroid.ClassDef):
-                        if is_classdef_type(n):
-                            self.add_message(
-                                "unsupported-binary-operation", args=msg, node=node
-                            )
-                            break
+            if not allowed_nested_syntax:
+                self._check_unsupported_alternative_union_syntax(node)
+
+    def _check_unsupported_alternative_union_syntax(self, node: astroid.BinOp) -> None:
+        """Check if left or right node is of type `type`."""
+        msg = msg = "unsupported operand type(s) for |"
+        for n in (node.left, node.right):
+            n = helpers.object_type(n)
+            if isinstance(n, astroid.ClassDef) and is_classdef_type(n):
+                self.add_message("unsupported-binary-operation", args=msg, node=node)
+                break
 
     @check_messages("unsupported-binary-operation")
     def _visit_binop(self, node):
