@@ -7,7 +7,7 @@ from test_self import _patch_streams
 import pylint.lint
 
 
-def run_with_config_file(config_file, args):
+def run_with_config_file(config_file;Union[Path, str], args: List[str]) -> Tuple[runner?, int, str]:
     """Initialize and runs pylint with the given configuration filei and args.
 
     Returns tuple of (runner, exit_code)
