@@ -44,10 +44,6 @@ import collections
 from itertools import chain, zip_longest
 
 import astroid
-from astroid import decorators, objects
-from astroid.bases import BUILTINS, Generator
-from astroid.exceptions import DuplicateBasesError, InconsistentMroError
-from astroid.scoped_nodes import function_to_method
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
@@ -403,7 +399,7 @@ def _is_attribute_property(name, klass):
         attributes = klass.getattr(name)
     except astroid.NotFoundError:
         return False
-    property_name = f"{BUILTINS}.property"
+    property_name = f"{astroid.bases.BUILTINS}.property"
     for attr in attributes:
         if attr is astroid.Uninferable:
             continue
@@ -774,11 +770,11 @@ a metaclass class method.",
         self._first_attrs = []
         self._meth_could_be_func = None
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _dummy_rgx(self):
         return get_global_option(self, "dummy-variables-rgx", default=None)
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _ignore_mixin(self):
         return get_global_option(self, "ignore-mixin-members", default=True)
 
@@ -811,9 +807,9 @@ a metaclass class method.",
         """Detect that a class has a consistent mro or duplicate bases."""
         try:
             node.mro()
-        except InconsistentMroError:
+        except astroid.InconsistentMroError:
             self.add_message("inconsistent-mro", args=node.name, node=node)
-        except DuplicateBasesError:
+        except astroid.DuplicateBasesError:
             self.add_message("duplicate-bases", args=node.name, node=node)
         except NotImplementedError:
             # Old style class, there's no mro so don't do anything.
@@ -829,7 +825,7 @@ a metaclass class method.",
             if not ancestor:
                 continue
             if isinstance(ancestor, astroid.Instance) and ancestor.is_subtype_of(
-                f"{BUILTINS}.type"
+                f"{astroid.bases.BUILTINS}.type"
             ):
                 continue
 
@@ -1056,7 +1052,7 @@ a metaclass class method.",
         except astroid.InferenceError:
             return
         else:
-            if not isinstance(super_call, objects.Super):
+            if not isinstance(super_call, astroid.objects.Super):
                 return
 
         # The name should be the same.
@@ -1673,7 +1669,7 @@ a metaclass class method.",
                         and klass._proxied.name == "super"
                     ):
                         return
-                    if isinstance(klass, objects.Super):
+                    if isinstance(klass, astroid.objects.Super):
                         return
                     try:
                         del not_called_yet[klass]
@@ -1704,8 +1700,8 @@ a metaclass class method.",
             return
 
         instance = cls.instantiate_class()
-        method1 = function_to_method(method1, instance)
-        refmethod = function_to_method(refmethod, instance)
+        method1 = astroid.scoped_nodes.function_to_method(method1, instance)
+        refmethod = astroid.scoped_nodes.function_to_method(refmethod, instance)
 
         # Don't care about functions with unknown argument (builtins).
         if method1.args.args is None or refmethod.args.args is None:
@@ -1900,7 +1896,7 @@ class SpecialMethodsChecker(BaseChecker):
             # by no-method-argument.
             return
 
-        if decorated_with(node, [BUILTINS + ".staticmethod"]):
+        if decorated_with(node, [astroid.bases.BUILTINS + ".staticmethod"]):
             # We expect to not take in consideration self.
             all_args = node.args.args
         else:
@@ -1991,8 +1987,8 @@ class SpecialMethodsChecker(BaseChecker):
         if node is astroid.Uninferable:
             # Just ignore Uninferable objects.
             return True
-        if isinstance(node, Generator):
-            # Generators can be itered.
+        if isinstance(node, astroid.bases.Generator):
+            # Generators can be iterated.
             return True
 
         if isinstance(node, astroid.Instance):

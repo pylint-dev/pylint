@@ -65,11 +65,6 @@ from functools import singledispatch
 from typing import Pattern, Tuple
 
 import astroid
-import astroid.arguments
-import astroid.context
-import astroid.nodes
-from astroid import bases, decorators, exceptions, helpers, modutils, objects
-from astroid.interpreter import dunder_lookup
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -469,7 +464,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
             # invoked at this point.
             try:
                 metaclass = owner.metaclass()
-            except exceptions.MroError:
+            except astroid.MroError:
                 return False
             if metaclass:
                 return metaclass.qname() == "enum.EnumMeta"
@@ -481,14 +476,14 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         # at some point during the runtime of the program.
         if utils.is_attribute_typed_annotation(owner, node.attrname):
             return False
-    if isinstance(owner, objects.Super):
+    if isinstance(owner, astroid.objects.Super):
         # Verify if we are dealing with an invalid Super object.
         # If it is invalid, then there's no point in checking that
         # it has the required attribute. Also, don't fail if the
         # MRO is invalid.
         try:
             owner.super_mro()
-        except (exceptions.MroError, exceptions.SuperError):
+        except (astroid.MroError, astroid.SuperError):
             return False
         if not all(map(has_known_bases, owner.type.mro())):
             return False
@@ -544,7 +539,7 @@ def _determine_callable(callable_obj):
         try:
             # Use the last definition of __new__.
             new = callable_obj.local_attr("__new__")[-1]
-        except exceptions.NotFoundError:
+        except astroid.NotFoundError:
             new = None
 
         from_object = new and new.parent.scope().name == "object"
@@ -554,7 +549,7 @@ def _determine_callable(callable_obj):
             try:
                 # Use the last definition of __init__.
                 callable_obj = callable_obj.local_attr("__init__")[-1]
-            except exceptions.NotFoundError as e:
+            except astroid.NotFoundError as e:
                 # do nothing, covered by no-init.
                 raise ValueError from e
         else:
@@ -703,7 +698,7 @@ def _infer_from_metaclass_constructor(cls, func):
 
 def _is_c_extension(module_node):
     return (
-        not modutils.is_standard_module(module_node.name)
+        not astroid.modutils.is_standard_module(module_node.name)
         and not module_node.fully_defined()
     )
 
@@ -865,11 +860,11 @@ accessed. Python regular expressions are accepted.",
         ),
     )
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _suggestion_mode(self):
         return get_global_option(self, "suggestion-mode", default=True)
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _compiled_generated_members(self) -> Tuple[Pattern, ...]:
         # do this lazily since config not fully initialized in __init__
         # generated_members may contain regular expressions
@@ -945,7 +940,7 @@ accessed. Python regular expressions are accepted.",
 
         try:
             inferred = list(node.expr.infer())
-        except exceptions.InferenceError:
+        except astroid.InferenceError:
             return
 
         # list of (node, nodename) which are missing the attribute
@@ -988,7 +983,7 @@ accessed. Python regular expressions are accepted.",
                     continue
             except AttributeError:
                 continue
-            except exceptions.NotFoundError:
+            except astroid.NotFoundError:
                 # This can't be moved before the actual .getattr call,
                 # because there can be more values inferred and we are
                 # stopping after the first one which has the attribute in question.
@@ -1159,7 +1154,7 @@ accessed. Python regular expressions are accepted.",
 
         try:
             attrs = klass._proxied.getattr(node.func.attrname)
-        except exceptions.NotFoundError:
+        except astroid.NotFoundError:
             return
 
         for attr in attrs:
@@ -1472,17 +1467,16 @@ accessed. Python regular expressions are accepted.",
         # type. This way we catch subclasses of sequence types but skip classes
         # that override __getitem__ and which may allow non-integer indices.
         try:
-            methods = dunder_lookup.lookup(parent_type, methodname)
+            methods = astroid.interpreter.dunder_lookup.lookup(parent_type, methodname)
             if methods is astroid.Uninferable:
                 return None
             itemmethod = methods[0]
         except (
-            exceptions.NotFoundError,
-            exceptions.AttributeInferenceError,
+            astroid.NotFoundError,
+            astroid.AttributeInferenceError,
             IndexError,
         ):
             return None
-
         if (
             not isinstance(itemmethod, astroid.FunctionDef)
             or itemmethod.root().name != BUILTINS
@@ -1511,7 +1505,7 @@ accessed. Python regular expressions are accepted.",
             try:
                 index_type.getattr("__index__")
                 return None
-            except exceptions.NotFoundError:
+            except astroid.NotFoundError:
                 pass
         elif isinstance(index_type, astroid.Slice):
             # A slice can be present
@@ -1555,7 +1549,7 @@ accessed. Python regular expressions are accepted.",
                 try:
                     index_type.getattr("__index__")
                     return
-                except exceptions.NotFoundError:
+                except astroid.NotFoundError:
                     pass
             invalid_slices += 1
 
@@ -1593,7 +1587,7 @@ accessed. Python regular expressions are accepted.",
             if inferred is None or inferred is astroid.Uninferable:
                 continue
 
-            if isinstance(inferred, bases.Generator):
+            if isinstance(inferred, astroid.bases.Generator):
                 # Check if we are dealing with a function decorated
                 # with contextlib.contextmanager.
                 if decorated_with(
@@ -1632,7 +1626,7 @@ accessed. Python regular expressions are accepted.",
                 try:
                     inferred.getattr("__enter__")
                     inferred.getattr("__exit__")
-                except exceptions.NotFoundError:
+                except astroid.NotFoundError:
                     if isinstance(inferred, astroid.Instance):
                         # If we do not know the bases of this class,
                         # just skip it.
@@ -1705,7 +1699,7 @@ accessed. Python regular expressions are accepted.",
         """Check if left or right node is of type `type`."""
         msg = msg = "unsupported operand type(s) for |"
         for n in (node.left, node.right):
-            n = helpers.object_type(n)
+            n = astroid.helpers.object_type(n)
             if isinstance(n, astroid.ClassDef) and is_classdef_type(n):
                 self.add_message("unsupported-binary-operation", args=msg, node=node)
                 break
@@ -1806,7 +1800,7 @@ accessed. Python regular expressions are accepted.",
             return
 
         if getattr(inferred, "decorators", None):
-            first_decorator = helpers.safe_infer(inferred.decorators.nodes[0])
+            first_decorator = astroid.helpers.safe_infer(inferred.decorators.nodes[0])
             if isinstance(first_decorator, astroid.ClassDef):
                 inferred = first_decorator.instantiate_class()
             else:

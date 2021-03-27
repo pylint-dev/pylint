@@ -25,7 +25,6 @@ import re
 from collections import defaultdict
 
 import astroid
-from astroid import BoolOp, If, decorators
 
 from pylint import utils
 from pylint.checkers import BaseChecker
@@ -137,7 +136,7 @@ def _count_boolean_expressions(bool_op):
     """
     nb_bool_expr = 0
     for bool_expr in bool_op.get_children():
-        if isinstance(bool_expr, BoolOp):
+        if isinstance(bool_expr, astroid.BoolOp):
             nb_bool_expr += _count_boolean_expressions(bool_expr)
         else:
             nb_bool_expr += 1
@@ -284,7 +283,7 @@ class MisdesignChecker(BaseChecker):
         for i in range(len(self._stmts)):
             self._stmts[i] += amount
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _ignored_argument_names(self):
         return utils.get_global_option(self, "ignored-argument-names", default=None)
 
@@ -460,7 +459,9 @@ class MisdesignChecker(BaseChecker):
         self._check_boolean_expressions(node)
         branches = 1
         # don't double count If nodes coming from some 'elif'
-        if node.orelse and (len(node.orelse) > 1 or not isinstance(node.orelse[0], If)):
+        if node.orelse and (
+            len(node.orelse) > 1 or not isinstance(node.orelse[0], astroid.If)
+        ):
             branches += 1
         self._inc_branch(node, branches)
         self._inc_all_stmts(branches)
@@ -471,7 +472,7 @@ class MisdesignChecker(BaseChecker):
         if the "if" node test is a BoolOp node
         """
         condition = node.test
-        if not isinstance(condition, BoolOp):
+        if not isinstance(condition, astroid.BoolOp):
             return
         nb_bool_expr = _count_boolean_expressions(condition)
         if nb_bool_expr > self.config.max_bool_expr:

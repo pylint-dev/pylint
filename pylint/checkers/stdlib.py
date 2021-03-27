@@ -36,8 +36,6 @@
 import sys
 
 import astroid
-from astroid.bases import Instance
-from astroid.node_classes import Const
 
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
@@ -382,7 +380,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             inferred = next(node.infer())
         except astroid.InferenceError:
             return
-        if isinstance(inferred, Instance) and inferred.qname() == "datetime.time":
+        if (
+            isinstance(inferred, astroid.Instance)
+            and inferred.qname() == "datetime.time"
+        ):
             self.add_message("boolean-datetime", node=node)
 
     def _check_open_mode(self, node):
@@ -442,7 +443,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             return
 
         name = infer.qname()
-        if isinstance(call_arg, Const):
+        if isinstance(call_arg, astroid.Const):
             emit = False
             if call_arg.value is None:
                 emit = not allow_none
