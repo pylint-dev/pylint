@@ -257,6 +257,11 @@ class LineSet:
     def __hash__(self):
         return id(self)
 
+    def __eq__(self, other):
+        if not isinstance(other, LineSet):
+            return False
+        return self.__dict__ == other.__dict__
+
     def enumerate_stripped(self, start_at=0):
         """return an iterator on stripped lines, starting from a given index
         if specified, else 0
