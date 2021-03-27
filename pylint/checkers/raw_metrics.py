@@ -87,7 +87,6 @@ JUNK = (tokenize.NL, tokenize.INDENT, tokenize.NEWLINE, tokenize.ENDMARKER)
 def get_type(tokens, start_index):
     """return the line type : docstring, comment, code, empty"""
     i = start_index
-    tok_type = tokens[i][0]
     start = tokens[i][2]
     pos = start
     line_type = None
