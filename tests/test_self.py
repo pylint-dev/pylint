@@ -45,7 +45,7 @@ import warnings
 from copy import copy
 from io import StringIO
 from os.path import abspath, dirname, join
-from typing import Generator
+from typing import Generator, Optional
 from unittest import mock
 from unittest.mock import patch
 
@@ -724,9 +724,33 @@ class TestRunTC:
             finally:
                 sys.path = original_path
 
+        @contextlib.contextmanager
+        def test_environ_pythonpath(
+            new_pythonpath: Optional[str],
+        ) -> Generator[None, None, None]:
+            if new_pythonpath:
+                os.environ["PYTHONPATH"] = new_pythonpath
+            try:
+                yield
+            finally:
+                if new_pythonpath:
+                    del os.environ["PYTHONPATH"]
+
         with test_sys_path(), patch("os.getcwd") as mock_getcwd:
             cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
             mock_getcwd.return_value = cwd
+
+            paths = [
+                cwd,
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(None):
+                modify_sys_path()
+            assert sys.path == paths[1:]
 
             paths = [
                 cwd,
@@ -737,8 +761,22 @@ class TestRunTC:
                 "/usr/local/lib/python3.9/site-packages",
             ]
             sys.path = copy(paths)
-            modify_sys_path()
-            assert sys.path == paths[2:]
+            with test_environ_pythonpath("."):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            paths = [
+                cwd,
+                "/custom_pythonpath",
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath("/custom_pythonpath"):
+                modify_sys_path()
+            assert sys.path == paths[1:]
 
             paths = [
                 cwd,
@@ -750,7 +788,8 @@ class TestRunTC:
                 "/usr/local/lib/python3.9/site-packages",
             ]
             sys.path = copy(paths)
-            modify_sys_path()
+            with test_environ_pythonpath("/custom_pythonpath:"):
+                modify_sys_path()
             assert sys.path == [paths[1]] + paths[3:]
 
             paths = [
@@ -763,8 +802,49 @@ class TestRunTC:
                 "/usr/local/lib/python3.9/site-packages",
             ]
             sys.path = copy(paths)
-            modify_sys_path()
+            with test_environ_pythonpath(":/custom_pythonpath"):
+                modify_sys_path()
             assert sys.path == paths[2:]
+
+            paths = [
+                cwd,
+                cwd,
+                "/custom_pythonpath",
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(":/custom_pythonpath:"):
+                modify_sys_path()
+            assert sys.path == paths[2:]
+
+            paths = [
+                cwd,
+                cwd,
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(":."):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(f":{cwd}"):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            sys.path = copy(paths)
+            with test_environ_pythonpath(".:"):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(f"{cwd}:"):
+                modify_sys_path()
+            assert sys.path == paths[1:]
 
             paths = [
                 "",
@@ -776,8 +856,9 @@ class TestRunTC:
                 cwd,
             ]
             sys.path = copy(paths)
-            modify_sys_path()
-            assert sys.path == paths[2:]
+            with test_environ_pythonpath(cwd):
+                modify_sys_path()
+            assert sys.path == paths[1:]
 
     @staticmethod
     def test_do_not_import_files_from_local_directory(tmpdir):
@@ -849,8 +930,10 @@ class TestRunTC:
                 ],
                 cwd=str(tmpdir),
             )
-            if orig_pythonpath is not None:
+            if orig_pythonpath:
                 os.environ["PYTHONPATH"] = orig_pythonpath
+            else:
+                del os.environ["PYTHONPATH"]
 
     def test_allow_import_of_files_found_in_modules_during_parallel_check(self, tmpdir):
         test_directory = tmpdir / "test_directory"
