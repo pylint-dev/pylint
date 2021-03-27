@@ -13,8 +13,6 @@ import warnings
 from io import TextIOWrapper
 
 import astroid
-from astroid import modutils
-from astroid.builder import AstroidBuilder
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
@@ -502,7 +500,7 @@ class PyLinter(
             if modname in self._dynamic_plugins:
                 continue
             self._dynamic_plugins.add(modname)
-            module = modutils.load_module_from_name(modname)
+            module = astroid.modutils.load_module_from_name(modname)
             module.register(self)
 
     def load_plugin_configuration(self):
@@ -513,7 +511,7 @@ class PyLinter(
         settings.
         """
         for modname in self._dynamic_plugins:
-            module = modutils.load_module_from_name(modname)
+            module = astroid.modutils.load_module_from_name(modname)
             if hasattr(module, "load_configuration"):
                 module.load_configuration(self)
 
@@ -531,7 +529,8 @@ class PyLinter(
 
     def _load_reporter_class(self):
         qname = self._reporter_name
-        module = modutils.load_module_from_name(modutils.get_module_part(qname))
+        module_part = astroid.modutils.get_module_part(qname)
+        module = astroid.modutils.load_module_from_name(module_part)
         class_name = qname.split(".")[-1]
         reporter_class = getattr(module, class_name)
         return reporter_class
@@ -953,7 +952,7 @@ class PyLinter(
             # Note that this function does not really perform an
             # __import__ but may raise an ImportError exception, which
             # we want to catch here.
-            modname = ".".join(modutils.modpath_from_file(filepath))
+            modname = ".".join(astroid.modutils.modpath_from_file(filepath))
         except ImportError:
             modname = os.path.splitext(os.path.basename(filepath))[0]
 
@@ -1043,7 +1042,9 @@ class PyLinter(
         try:
             if data is None:
                 return MANAGER.ast_from_file(filepath, modname, source=True)
-            return AstroidBuilder(MANAGER).string_build(data, modname, filepath)
+            return astroid.builder.AstroidBuilder(MANAGER).string_build(
+                data, modname, filepath
+            )
         except astroid.AstroidSyntaxError as ex:
             # pylint: disable=no-member
             self.add_message(

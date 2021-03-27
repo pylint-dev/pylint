@@ -36,7 +36,6 @@ import inspect
 import typing
 
 import astroid
-from astroid.node_classes import NodeNG
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -433,8 +432,8 @@ class ExceptionsChecker(checkers.BaseChecker):
     def _check_try_except_raise(self, node):
         def gather_exceptions_from_handler(
             handler,
-        ) -> typing.Optional[typing.List[NodeNG]]:
-            exceptions = []  # type: typing.List[NodeNG]
+        ) -> typing.Optional[typing.List[astroid.node_classes.NodeNG]]:
+            exceptions = []  # type: typing.List[astroid.node_classes.NodeNG]
             if handler.type:
                 exceptions_in_handler = utils.safe_infer(handler.type)
                 if isinstance(exceptions_in_handler, astroid.Tuple):

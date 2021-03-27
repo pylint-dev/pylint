@@ -3,7 +3,6 @@
 from typing import List
 
 import astroid
-from astroid import DictComp, GeneratorExp, ListComp, SetComp
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -68,7 +67,12 @@ class LenChecker(checkers.BaseChecker):
         if not utils.is_test_condition(node, parent):
             return
         len_arg = node.args[0]
-        generator_or_comprehension = (ListComp, SetComp, DictComp, GeneratorExp)
+        generator_or_comprehension = (
+            astroid.ListComp,
+            astroid.SetComp,
+            astroid.DictComp,
+            astroid.GeneratorExp,
+        )
         if isinstance(len_arg, generator_or_comprehension):
             # The node is a generator or comprehension as in len([x for x in ...])
             self.add_message("len-as-condition", node=node)
