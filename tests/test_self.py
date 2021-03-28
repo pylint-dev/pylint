@@ -45,7 +45,7 @@ import warnings
 from copy import copy
 from io import StringIO
 from os.path import abspath, dirname, join
-from typing import Generator
+from typing import Generator, Optional
 from unittest import mock
 from unittest.mock import patch
 
@@ -724,60 +724,130 @@ class TestRunTC:
             finally:
                 sys.path = original_path
 
+        @contextlib.contextmanager
+        def test_environ_pythonpath(
+            new_pythonpath: Optional[str],
+        ) -> Generator[None, None, None]:
+            original_pythonpath = os.environ.get("PYTHONPATH")
+            if new_pythonpath:
+                os.environ["PYTHONPATH"] = new_pythonpath
+            elif new_pythonpath is None and original_pythonpath is not None:
+                # If new_pythonpath is None, make sure to delete PYTHONPATH if present
+                del os.environ["PYTHONPATH"]
+            try:
+                yield
+            finally:
+                if original_pythonpath:
+                    os.environ["PYTHONPATH"] = original_pythonpath
+                elif new_pythonpath is not None:
+                    # Only delete PYTHONPATH if new_pythonpath wasn't None
+                    del os.environ["PYTHONPATH"]
+
         with test_sys_path(), patch("os.getcwd") as mock_getcwd:
             cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
             mock_getcwd.return_value = cwd
-
-            paths = [
-                cwd,
-                cwd,
+            default_paths = [
                 "/usr/local/lib/python39.zip",
                 "/usr/local/lib/python3.9",
                 "/usr/local/lib/python3.9/lib-dynload",
                 "/usr/local/lib/python3.9/site-packages",
             ]
+
+            paths = [
+                cwd,
+                *default_paths,
+            ]
             sys.path = copy(paths)
-            modify_sys_path()
-            assert sys.path == paths[2:]
+            with test_environ_pythonpath(None):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            paths = [
+                cwd,
+                cwd,
+                *default_paths,
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath("."):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            paths = [
+                cwd,
+                "/custom_pythonpath",
+                *default_paths,
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath("/custom_pythonpath"):
+                modify_sys_path()
+            assert sys.path == paths[1:]
 
             paths = [
                 cwd,
                 "/custom_pythonpath",
                 cwd,
-                "/usr/local/lib/python39.zip",
-                "/usr/local/lib/python3.9",
-                "/usr/local/lib/python3.9/lib-dynload",
-                "/usr/local/lib/python3.9/site-packages",
+                *default_paths,
             ]
             sys.path = copy(paths)
-            modify_sys_path()
+            with test_environ_pythonpath("/custom_pythonpath:"):
+                modify_sys_path()
             assert sys.path == [paths[1]] + paths[3:]
 
             paths = [
                 "",
                 cwd,
                 "/custom_pythonpath",
-                "/usr/local/lib/python39.zip",
-                "/usr/local/lib/python3.9",
-                "/usr/local/lib/python3.9/lib-dynload",
-                "/usr/local/lib/python3.9/site-packages",
+                *default_paths,
             ]
             sys.path = copy(paths)
-            modify_sys_path()
+            with test_environ_pythonpath(":/custom_pythonpath"):
+                modify_sys_path()
             assert sys.path == paths[2:]
+
+            paths = [
+                cwd,
+                cwd,
+                "/custom_pythonpath",
+                *default_paths,
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(":/custom_pythonpath:"):
+                modify_sys_path()
+            assert sys.path == paths[2:]
+
+            paths = [
+                cwd,
+                cwd,
+                *default_paths,
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(":."):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(f":{cwd}"):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            sys.path = copy(paths)
+            with test_environ_pythonpath(".:"):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(f"{cwd}:"):
+                modify_sys_path()
+            assert sys.path == paths[1:]
 
             paths = [
                 "",
                 cwd,
-                "/usr/local/lib/python39.zip",
-                "/usr/local/lib/python3.9",
-                "/usr/local/lib/python3.9/lib-dynload",
-                "/usr/local/lib/python3.9/site-packages",
+                *default_paths,
                 cwd,
             ]
             sys.path = copy(paths)
-            modify_sys_path()
-            assert sys.path == paths[2:]
+            with test_environ_pythonpath(cwd):
+                modify_sys_path()
+            assert sys.path == paths[1:]
 
     @staticmethod
     def test_do_not_import_files_from_local_directory(tmpdir):
@@ -838,7 +908,7 @@ class TestRunTC:
         # https://github.com/PyCQA/pylint/issues/3636
         with tmpdir.as_cwd():
             orig_pythonpath = os.environ.get("PYTHONPATH")
-            os.environ["PYTHONPATH"] = os.environ.get("PYTHONPATH", "") + ":"
+            os.environ["PYTHONPATH"] = f"{(orig_pythonpath or '').strip(':')}:"
             subprocess.check_output(
                 [
                     sys.executable,
@@ -849,8 +919,39 @@ class TestRunTC:
                 ],
                 cwd=str(tmpdir),
             )
-            if orig_pythonpath is not None:
+            if orig_pythonpath:
                 os.environ["PYTHONPATH"] = orig_pythonpath
+            else:
+                del os.environ["PYTHONPATH"]
+
+    @staticmethod
+    def test_import_plugin_from_local_directory_if_pythonpath_cwd(tmpdir):
+        p_plugin = tmpdir / "plugin.py"
+        p_plugin.write("# Some plugin content")
+
+        with tmpdir.as_cwd():
+            orig_pythonpath = os.environ.get("PYTHONPATH")
+            os.environ["PYTHONPATH"] = "."
+            process = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "pylint",
+                    "--load-plugins",
+                    "plugin",
+                ],
+                cwd=str(tmpdir),
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            assert (
+                "AttributeError: module 'plugin' has no attribute 'register'"
+                in process.stderr.decode()
+            )
+            if orig_pythonpath:
+                os.environ["PYTHONPATH"] = orig_pythonpath
+            else:
+                del os.environ["PYTHONPATH"]
 
     def test_allow_import_of_files_found_in_modules_during_parallel_check(self, tmpdir):
         test_directory = tmpdir / "test_directory"
