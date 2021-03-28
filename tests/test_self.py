@@ -731,12 +731,16 @@ class TestRunTC:
             original_pythonpath = os.environ.get("PYTHONPATH")
             if new_pythonpath:
                 os.environ["PYTHONPATH"] = new_pythonpath
+            elif new_pythonpath is None and original_pythonpath is not None:
+                # If new_pythonpath is None, make sure to delete PYTHONPATH if present
+                del os.environ["PYTHONPATH"]
             try:
                 yield
             finally:
                 if original_pythonpath:
                     os.environ["PYTHONPATH"] = original_pythonpath
-                elif new_pythonpath:
+                elif new_pythonpath is not None:
+                    # Only delete PYTHONPATH if new_pythonpath wasn't None
                     del os.environ["PYTHONPATH"]
 
         with test_sys_path(), patch("os.getcwd") as mock_getcwd:
@@ -904,7 +908,7 @@ class TestRunTC:
         # https://github.com/PyCQA/pylint/issues/3636
         with tmpdir.as_cwd():
             orig_pythonpath = os.environ.get("PYTHONPATH")
-            os.environ["PYTHONPATH"] = os.environ.get("PYTHONPATH", "") + ":"
+            os.environ["PYTHONPATH"] = f"{(orig_pythonpath or '').strip(':')}:"
             subprocess.check_output(
                 [
                     sys.executable,
