@@ -177,7 +177,7 @@ def _repr_tree_defs(data, indent_str=None):
 def _dependencies_graph(filename, dep_info):
     """write dependencies as a dot (graphviz) file"""
     done = {}
-    printer = DotBackend(filename[:-4], rankdir="LR")
+    printer = DotBackend(os.path.splitext(os.path.basename(filename))[0], rankdir="LR")
     printer.emit('URL="." node[shape="box"]')
     for modname, dependencies in sorted(dep_info.items()):
         done[modname] = 1
@@ -189,15 +189,15 @@ def _dependencies_graph(filename, dep_info):
     for depmodname, dependencies in sorted(dep_info.items()):
         for modname in dependencies:
             printer.emit_edge(modname, depmodname)
-    printer.generate(filename)
+    return printer.generate(filename)
 
 
 def _make_graph(filename, dep_info, sect, gtype):
     """generate a dependencies graph and add some information about it in the
     report's section
     """
-    _dependencies_graph(filename, dep_info)
-    sect.append(Paragraph(f"{gtype}imports graph has been written to {filename}"))
+    outputfile = _dependencies_graph(filename, dep_info)
+    sect.append(Paragraph(f"{gtype}imports graph has been written to {outputfile}"))
 
 
 # the import checker itself ###################################################
@@ -334,9 +334,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             {
                 "default": "",
                 "type": "string",
-                "metavar": "<file.dot>",
-                "help": "Create a graph of every (i.e. internal and"
-                " external) dependencies in the given file"
+                "metavar": "<file.gv>",
+                "help": "Output a graph (.gv or any supported image format) of"
+                " all (i.e. internal and external) dependencies to the given file"
                 " (report RP0402 must not be disabled).",
             },
         ),
@@ -345,9 +345,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             {
                 "default": "",
                 "type": "string",
-                "metavar": "<file.dot>",
-                "help": "Create a graph of external dependencies in the"
-                " given file (report RP0402 must not be disabled).",
+                "metavar": "<file.gv>",
+                "help": "Output a graph (.gv or any supported image format)"
+                " of external dependencies to the given file"
+                " (report RP0402 must not be disabled).",
             },
         ),
         (
@@ -355,9 +356,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             {
                 "default": "",
                 "type": "string",
-                "metavar": "<file.dot>",
-                "help": "Create a graph of internal dependencies in the"
-                " given file (report RP0402 must not be disabled).",
+                "metavar": "<file.gv>",
+                "help": "Output a graph (.gv or any supported image format)"
+                " of internal dependencies to the given file"
+                " (report RP0402 must not be disabled).",
             },
         ),
         (

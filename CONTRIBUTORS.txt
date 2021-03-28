@@ -462,3 +462,5 @@ contributors:
 * Mark Byrne: contributor
 
 * Konstantina Saketou: contributor
+
+* Andrew Howe: contributor
