@@ -728,24 +728,30 @@ class TestRunTC:
         def test_environ_pythonpath(
             new_pythonpath: Optional[str],
         ) -> Generator[None, None, None]:
+            original_pythonpath = os.environ.get("PYTHONPATH")
             if new_pythonpath:
                 os.environ["PYTHONPATH"] = new_pythonpath
             try:
                 yield
             finally:
-                if new_pythonpath:
+                if original_pythonpath:
+                    os.environ["PYTHONPATH"] = original_pythonpath
+                elif new_pythonpath:
                     del os.environ["PYTHONPATH"]
 
         with test_sys_path(), patch("os.getcwd") as mock_getcwd:
             cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
             mock_getcwd.return_value = cwd
-
-            paths = [
-                cwd,
+            default_paths = [
                 "/usr/local/lib/python39.zip",
                 "/usr/local/lib/python3.9",
                 "/usr/local/lib/python3.9/lib-dynload",
                 "/usr/local/lib/python3.9/site-packages",
+            ]
+
+            paths = [
+                cwd,
+                *default_paths,
             ]
             sys.path = copy(paths)
             with test_environ_pythonpath(None):
@@ -755,10 +761,7 @@ class TestRunTC:
             paths = [
                 cwd,
                 cwd,
-                "/usr/local/lib/python39.zip",
-                "/usr/local/lib/python3.9",
-                "/usr/local/lib/python3.9/lib-dynload",
-                "/usr/local/lib/python3.9/site-packages",
+                *default_paths,
             ]
             sys.path = copy(paths)
             with test_environ_pythonpath("."):
@@ -768,10 +771,7 @@ class TestRunTC:
             paths = [
                 cwd,
                 "/custom_pythonpath",
-                "/usr/local/lib/python39.zip",
-                "/usr/local/lib/python3.9",
-                "/usr/local/lib/python3.9/lib-dynload",
-                "/usr/local/lib/python3.9/site-packages",
+                *default_paths,
             ]
             sys.path = copy(paths)
             with test_environ_pythonpath("/custom_pythonpath"):
@@ -782,10 +782,7 @@ class TestRunTC:
                 cwd,
                 "/custom_pythonpath",
                 cwd,
-                "/usr/local/lib/python39.zip",
-                "/usr/local/lib/python3.9",
-                "/usr/local/lib/python3.9/lib-dynload",
-                "/usr/local/lib/python3.9/site-packages",
+                *default_paths,
             ]
             sys.path = copy(paths)
             with test_environ_pythonpath("/custom_pythonpath:"):
@@ -796,10 +793,7 @@ class TestRunTC:
                 "",
                 cwd,
                 "/custom_pythonpath",
-                "/usr/local/lib/python39.zip",
-                "/usr/local/lib/python3.9",
-                "/usr/local/lib/python3.9/lib-dynload",
-                "/usr/local/lib/python3.9/site-packages",
+                *default_paths,
             ]
             sys.path = copy(paths)
             with test_environ_pythonpath(":/custom_pythonpath"):
@@ -810,10 +804,7 @@ class TestRunTC:
                 cwd,
                 cwd,
                 "/custom_pythonpath",
-                "/usr/local/lib/python39.zip",
-                "/usr/local/lib/python3.9",
-                "/usr/local/lib/python3.9/lib-dynload",
-                "/usr/local/lib/python3.9/site-packages",
+                *default_paths,
             ]
             sys.path = copy(paths)
             with test_environ_pythonpath(":/custom_pythonpath:"):
@@ -823,10 +814,7 @@ class TestRunTC:
             paths = [
                 cwd,
                 cwd,
-                "/usr/local/lib/python39.zip",
-                "/usr/local/lib/python3.9",
-                "/usr/local/lib/python3.9/lib-dynload",
-                "/usr/local/lib/python3.9/site-packages",
+                *default_paths,
             ]
             sys.path = copy(paths)
             with test_environ_pythonpath(":."):
@@ -849,10 +837,7 @@ class TestRunTC:
             paths = [
                 "",
                 cwd,
-                "/usr/local/lib/python39.zip",
-                "/usr/local/lib/python3.9",
-                "/usr/local/lib/python3.9/lib-dynload",
-                "/usr/local/lib/python3.9/site-packages",
+                *default_paths,
                 cwd,
             ]
             sys.path = copy(paths)
@@ -929,6 +914,35 @@ class TestRunTC:
                     "--disable=import-error,unused-import",
                 ],
                 cwd=str(tmpdir),
+            )
+            if orig_pythonpath:
+                os.environ["PYTHONPATH"] = orig_pythonpath
+            else:
+                del os.environ["PYTHONPATH"]
+
+    @staticmethod
+    def test_import_plugin_from_local_directory_if_pythonpath_cwd(tmpdir):
+        p_plugin = tmpdir / "plugin.py"
+        p_plugin.write("# Some plugin content")
+
+        with tmpdir.as_cwd():
+            orig_pythonpath = os.environ.get("PYTHONPATH")
+            os.environ["PYTHONPATH"] = "."
+            process = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "pylint",
+                    "--load-plugins",
+                    "plugin",
+                ],
+                cwd=str(tmpdir),
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            assert (
+                "AttributeError: module 'plugin' has no attribute 'register'"
+                in process.stderr.decode()
             )
             if orig_pythonpath:
                 os.environ["PYTHONPATH"] = orig_pythonpath
