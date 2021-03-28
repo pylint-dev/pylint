@@ -931,7 +931,10 @@ class TestRunTC:
 
         with tmpdir.as_cwd():
             orig_pythonpath = os.environ.get("PYTHONPATH")
-            os.environ["PYTHONPATH"] = "."
+            if sys.platform == "win32":
+                os.environ["PYTHONPATH"] = "."
+            else:
+                os.environ["PYTHONPATH"] = f"{(orig_pythonpath or '').strip(':')}:."
             process = subprocess.run(
                 [
                     sys.executable,
