@@ -1697,7 +1697,7 @@ accessed. Python regular expressions are accepted.",
 
     def _check_unsupported_alternative_union_syntax(self, node: astroid.BinOp) -> None:
         """Check if left or right node is of type `type`."""
-        msg = msg = "unsupported operand type(s) for |"
+        msg = "unsupported operand type(s) for |"
         for n in (node.left, node.right):
             n = astroid.helpers.object_type(n)
             if isinstance(n, astroid.ClassDef) and is_classdef_type(n):
