@@ -63,8 +63,8 @@ URL="." node[shape="box"]
 
 
 @pytest.mark.parametrize("filename", ["graph.png", "graph"])
-def test_missing_graphvis(filename):
-    """Raises if graphvis is not installed, and defaults to png if no extension given"""
+def test_missing_graphviz(filename):
+    """Raises if graphviz is not installed, and defaults to png if no extension given"""
     with pytest.raises(RuntimeError, match=r"Cannot generate `graph\.png`.*"):
         imports._dependencies_graph(filename, {"a": ["b", "c"], "b": ["c"]})
 

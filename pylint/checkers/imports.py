@@ -44,6 +44,7 @@ import copy
 import os
 import sys
 from distutils import sysconfig
+from typing import Dict, List
 
 import astroid
 from astroid import modutils
@@ -58,7 +59,7 @@ from pylint.checkers.utils import (
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
-from pylint.reporters.ureports.nodes import Paragraph, VerbatimText
+from pylint.reporters.ureports.nodes import Paragraph, VerbatimText, VNode
 from pylint.utils import IsortDriver, get_global_option
 
 
@@ -174,7 +175,7 @@ def _repr_tree_defs(data, indent_str=None):
     return "\n".join(lines)
 
 
-def _dependencies_graph(filename, dep_info):
+def _dependencies_graph(filename: str, dep_info: Dict[str, List[str]]) -> str:
     """write dependencies as a dot (graphviz) file"""
     done = {}
     printer = DotBackend(os.path.splitext(os.path.basename(filename))[0], rankdir="LR")
@@ -192,7 +193,7 @@ def _dependencies_graph(filename, dep_info):
     return printer.generate(filename)
 
 
-def _make_graph(filename, dep_info, sect, gtype):
+def _make_graph(filename: str, dep_info: Dict[str, List[str]], sect: VNode, gtype: str):
     """generate a dependencies graph and add some information about it in the
     report's section
     """
