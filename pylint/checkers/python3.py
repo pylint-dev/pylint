@@ -28,6 +28,7 @@
 # Copyright (c) 2019 Gabriel R Sezefredo <gabriel@sezefredo.com.br>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 bluesheeptoken <louis.fruleux1@gmail.com>
+# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Federico Bond <federicobond@gmail.com>
 # Copyright (c) 2020 Athos Ribeiro <athoscr@fedoraproject.org>

@@ -42,6 +42,7 @@
 # Copyright (c) 2019 Nikita Sobolev <mail@sobolevn.me>
 # Copyright (c) 2019 Oisín Moran <OisinMoran@users.noreply.github.com>
 # Copyright (c) 2019 Fantix King <fantix@uchicago.edu>
+# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2020 ethan-leba <ethanleba5@gmail.com>
 # Copyright (c) 2020 へーさん <hira9603859504@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
@@ -51,6 +52,7 @@
 # Copyright (c) 2020 Gabriel R Sezefredo <g@briel.dev>
 # Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
