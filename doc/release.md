@@ -30,6 +30,9 @@ git --aliases=.copyrite_aliases . --jobs=8
    for example). Travis should deal with the release process once the tag is pushed
    with `git push origin --tags`
 
+4. Go to github, click on "Releases" then on the ``pylint-X.Y.Z`` tag, choose edit tag,
+   and copy past the changelog in the description.
+
 ## Manual Release
 
 Following the previous steps, for a manual release run the following commands:

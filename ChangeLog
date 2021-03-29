@@ -2,6 +2,24 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 2.8.0?
+===========================
+Release date: Undefined
+
+..
+  Put new features here and also in 'doc/whatsnew/2.8.rst'
+
+
+
+What's New in Pylint 2.7.4?
+===========================
+Release date: Undefined
+
+..
+  Put bug fixes that will be cherry-picked to latest major version here
+
+
+
 What's New in Pylint 2.7.3?
 ===========================
 Release date: 2021-03-29
