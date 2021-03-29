@@ -18,6 +18,7 @@
 """
 import codecs
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -28,7 +29,7 @@ def target_info_from_filename(filename):
     """Transforms /some/path/foo.png into ('/some/path', 'foo.png', 'png')."""
     basename = osp.basename(filename)
     storedir = osp.dirname(osp.abspath(filename))
-    target = filename.split(".")[-1]
+    target = osp.splitext(filename)[-1][1:]
     return storedir, basename, target
 
 
@@ -76,7 +77,7 @@ class DotBackend:
 
     source = property(get_source)
 
-    def generate(self, outputfile=None, mapfile=None):
+    def generate(self, outputfile: str = None, mapfile: str = None) -> str:
         """Generates a graph file.
 
         :param str outputfile: filename and path [defaults to graphname.png]
@@ -84,25 +85,36 @@ class DotBackend:
 
         :rtype: str
         :return: a path to the generated file
+        :raises RuntimeError: if the executable for rendering was not found
         """
+        graphviz_extensions = ("dot", "gv")
         name = self.graphname
-        if outputfile is not None:
-            _, _, target = target_info_from_filename(outputfile)
-            if target != "dot":
-                pdot, dot_sourcepath = tempfile.mkstemp(".dot", name)
-                os.close(pdot)
-            else:
-                dot_sourcepath = outputfile
-        else:
+        if outputfile is None:
             target = "png"
-            pdot, dot_sourcepath = tempfile.mkstemp(".dot", name)
+            pdot, dot_sourcepath = tempfile.mkstemp(".gv", name)
             ppng, outputfile = tempfile.mkstemp(".png", name)
             os.close(pdot)
             os.close(ppng)
-        pdot = codecs.open(dot_sourcepath, "w", encoding="utf8")
-        pdot.write(self.source)
-        pdot.close()
-        if target != "dot":
+        else:
+            _, _, target = target_info_from_filename(outputfile)
+            if not target:
+                target = "png"
+                outputfile = outputfile + "." + target
+            if target not in graphviz_extensions:
+                pdot, dot_sourcepath = tempfile.mkstemp(".gv", name)
+                os.close(pdot)
+            else:
+                dot_sourcepath = outputfile
+        pdot = codecs.open(dot_sourcepath, "w", encoding="utf8")  # type: ignore
+        pdot.write(self.source)  # type: ignore
+        pdot.close()  # type: ignore
+        if target not in graphviz_extensions:
+            if shutil.which(self.renderer) is None:
+                raise RuntimeError(
+                    f"Cannot generate `{outputfile}` because '{self.renderer}' "
+                    "executable not found. Install graphviz, or specify a `.gv` "
+                    "outputfile to produce the DOT source code."
+                )
             use_shell = sys.platform == "win32"
             if mapfile:
                 subprocess.call(

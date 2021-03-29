@@ -26,8 +26,8 @@ from pylint.lint import PyLinter
 
 
 @pytest.fixture
-def dest():
-    dest = "dependencies_graph.dot"
+def dest(request):
+    dest = request.param
     yield dest
     try:
         os.remove(dest)
@@ -36,13 +36,18 @@ def dest():
         pass
 
 
+POSSIBLE_DOT_FILENAMES = ["foo.dot", "foo.gv", "tests/regrtest_data/foo.dot"]
+
+
+@pytest.mark.parametrize("dest", POSSIBLE_DOT_FILENAMES, indirect=True)
 def test_dependencies_graph(dest):
+    """DOC files are correctly generated, and the graphname is the basename"""
     imports._dependencies_graph(dest, {"labas": ["hoho", "yep"], "hoho": ["yep"]})
     with open(dest) as stream:
         assert (
             stream.read().strip()
             == """
-digraph "dependencies_graph" {
+digraph "foo" {
 rankdir=LR
 charset="utf-8"
 URL="." node[shape="box"]
@@ -55,6 +60,13 @@ URL="." node[shape="box"]
 }
 """.strip()
         )
+
+
+@pytest.mark.parametrize("filename", ["graph.png", "graph"])
+def test_missing_graphviz(filename):
+    """Raises if graphviz is not installed, and defaults to png if no extension given"""
+    with pytest.raises(RuntimeError, match=r"Cannot generate `graph\.png`.*"):
+        imports._dependencies_graph(filename, {"a": ["b", "c"], "b": ["c"]})
 
 
 @pytest.fixture

@@ -80,6 +80,8 @@ Release date: TBA
 
 * Improve check if class is subscriptable PEP585
 
+* Fix documentation and filename handling of --import-graph
+
 * Fix false-positive for ``unused-import`` on class keyword arguments
 
   Closes #3202
