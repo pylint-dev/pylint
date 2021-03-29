@@ -8,6 +8,7 @@
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Benjamin Graham <benwilliamgraham@gmail.com>
+# Copyright (c) 2021 Andrew Howe <howeaj@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

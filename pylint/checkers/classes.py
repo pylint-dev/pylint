@@ -33,6 +33,7 @@
 # Copyright (c) 2019 Andrzej Klajnert <github@aklajnert.pl>
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
 # Copyright (c) 2020 GergelyKalmar <gergely.kalmar@logikal.jp>
+# Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
