@@ -17,7 +17,6 @@ import os
 
 import astroid
 import pytest
-from astroid import bases, nodes
 from unittest_pyreverse_writer import get_project
 
 from pylint.pyreverse import inspector
@@ -35,7 +34,7 @@ def test_class_implements(project):
     klass = project.get_module("data.clientmodule_test")["Ancestor"]
     assert hasattr(klass, "implements")
     assert len(klass.implements) == 1
-    assert isinstance(klass.implements[0], nodes.ClassDef)
+    assert isinstance(klass.implements[0], astroid.nodes.ClassDef)
     assert klass.implements[0].name == "Interface"
 
 
@@ -65,7 +64,9 @@ def test_instance_attrs_resolution(project):
     assert len(type_dict) == 2
     keys = sorted(type_dict.keys())
     assert keys == ["_id", "relation"]
-    assert isinstance(type_dict["relation"][0], bases.Instance), type_dict["relation"]
+    assert isinstance(type_dict["relation"][0], astroid.bases.Instance), type_dict[
+        "relation"
+    ]
     assert type_dict["relation"][0].name == "DoNothing"
     assert type_dict["_id"][0] is astroid.Uninferable
 

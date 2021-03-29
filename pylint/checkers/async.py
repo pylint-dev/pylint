@@ -11,7 +11,6 @@
 import sys
 
 import astroid
-from astroid import bases, exceptions
 
 from pylint import checkers, interfaces, utils
 from pylint.checkers import utils as checker_utils
@@ -64,7 +63,7 @@ class AsyncChecker(checkers.BaseChecker):
                 # with contextlib.asynccontextmanager.
                 if decorated_with(inferred, self._async_generators):
                     continue
-            elif isinstance(inferred, bases.AsyncGenerator):
+            elif isinstance(inferred, astroid.bases.AsyncGenerator):
                 # Check if we are dealing with a function decorated
                 # with contextlib.asynccontextmanager.
                 if decorated_with(inferred.parent, self._async_generators):
@@ -73,7 +72,7 @@ class AsyncChecker(checkers.BaseChecker):
                 try:
                     inferred.getattr("__aenter__")
                     inferred.getattr("__aexit__")
-                except exceptions.NotFoundError:
+                except astroid.exceptions.NotFoundError:
                     if isinstance(inferred, astroid.Instance):
                         # If we do not know the bases of this class,
                         # just skip it.

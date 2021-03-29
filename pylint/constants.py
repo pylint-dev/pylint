@@ -3,7 +3,7 @@
 
 import sys
 
-from astroid.__pkginfo__ import version as astroid_version
+import astroid
 
 from pylint.__pkginfo__ import version as pylint_version
 
@@ -46,5 +46,5 @@ class WarningScope:
 
 
 full_version = f"""pylint {pylint_version}
-astroid {astroid_version}
-Python { sys.version}"""
+astroid {astroid.__version__}
+Python {sys.version}"""

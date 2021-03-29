@@ -43,7 +43,6 @@ import tokenize
 from collections import namedtuple
 
 import astroid
-from astroid import bases
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -978,7 +977,9 @@ class Python3Checker(checkers.BaseChecker):
                 # classmethod 1 argument should cause a failure, if it is a
                 # staticmethod 0 arguments should cause a failure.
                 failing_arg_count = 1
-                if utils.decorated_with(node, [bases.BUILTINS + ".staticmethod"]):
+                if utils.decorated_with(
+                    node, [astroid.bases.BUILTINS + ".staticmethod"]
+                ):
                     failing_arg_count = 0
                 if len(node.args.args) == failing_arg_count:
                     self.add_message("next-method-defined", node=node)
@@ -1116,7 +1117,7 @@ class Python3Checker(checkers.BaseChecker):
             if not inferred:
                 return
 
-            builtins_list = f"{bases.BUILTINS}.list"
+            builtins_list = f"{astroid.bases.BUILTINS}.list"
             if isinstance(inferred, astroid.List) or inferred.qname() == builtins_list:
                 kwargs = node.keywords
 
@@ -1125,7 +1126,7 @@ class Python3Checker(checkers.BaseChecker):
             if not inferred:
                 return
 
-            builtins_sorted = f"{bases.BUILTINS}.sorted"
+            builtins_sorted = f"{astroid.bases.BUILTINS}.sorted"
             if inferred.qname() == builtins_sorted:
                 kwargs = node.keywords
 

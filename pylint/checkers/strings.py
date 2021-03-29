@@ -41,8 +41,6 @@ import typing
 from typing import Iterable
 
 import astroid
-from astroid.arguments import CallSite
-from astroid.node_classes import Const
 
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
@@ -467,7 +465,7 @@ class StringFormatChecker(BaseChecker):
         if not (isinstance(strnode, astroid.Const) and isinstance(strnode.value, str)):
             return
         try:
-            call_site = CallSite.from_call(node)
+            call_site = astroid.arguments.CallSite.from_call(node)
         except astroid.InferenceError:
             return
 
@@ -776,7 +774,9 @@ class StringConstantChecker(BaseTokenChecker):
 
     def check_for_concatenated_strings(self, elements, iterable_type):
         for elt in elements:
-            if not (isinstance(elt, Const) and elt.pytype() in _AST_NODE_STR_TYPES):
+            if not (
+                isinstance(elt, astroid.Const) and elt.pytype() in _AST_NODE_STR_TYPES
+            ):
                 continue
             if elt.col_offset < 0:
                 # This can happen in case of escaped newlines

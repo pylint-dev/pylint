@@ -9,7 +9,6 @@ from functools import reduce
 from typing import List
 
 import astroid
-from astroid import decorators
 
 from pylint import checkers, interfaces
 from pylint import utils as lint_utils
@@ -335,7 +334,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # do this in open since config not fully initialized in __init__
         self._never_returning_functions = set(self.config.never_returning_functions)
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _dummy_rgx(self):
         return lint_utils.get_global_option(self, "dummy-variables-rgx", default=None)
 

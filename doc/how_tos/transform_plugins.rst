@@ -67,7 +67,6 @@ Module, Class, Function etc. In our case we need to transform a class. It can be
 .. sourcecode:: python
 
   import astroid
-  from astroid import MANAGER
 
   def register(linter):
     # Needed for registering the plugin.
@@ -79,7 +78,7 @@ Module, Class, Function etc. In our case we need to transform a class. It can be
       for f in warnings.WarningMessage._WARNING_DETAILS:
         cls.locals[f] = [astroid.ClassDef(f, None)]
 
-  MANAGER.register_transform(astroid.ClassDef, transform)
+  astroid.MANAGER.register_transform(astroid.ClassDef, transform)
 
 Let's go through the plugin. First, we need to register a class transform, which
 is done via the ``register_transform`` function in ``MANAGER``. It takes the node

@@ -55,16 +55,22 @@ def modify_sys_path() -> None:
     CPython issue: https://bugs.python.org/issue33053
 
     - Remove the first entry. This will always be either "" or the working directory
-    - Remove the working directory from the second and third entries. This can
-      occur if PYTHONPATH includes a ":" at the beginning or the end.
+    - Remove the working directory from the second and third entries
+      if PYTHONPATH includes a ":" at the beginning or the end.
       https://github.com/PyCQA/pylint/issues/3636
+      Don't remove it if PYTHONPATH contains the cwd or '.' as the entry will
+      only be added once.
     - Don't remove the working directory from the rest. It will be included
       if pylint is installed in an editable configuration (as the last item).
       https://github.com/PyCQA/pylint/issues/4161
     """
-    sys.path = [
-        p for i, p in enumerate(sys.path) if i > 0 and not (i < 3 and p == os.getcwd())
-    ]
+    sys.path.pop(0)
+    env_pythonpath = os.environ.get("PYTHONPATH", "")
+    cwd = os.getcwd()
+    if env_pythonpath.startswith(":") and env_pythonpath not in (f":{cwd}", ":."):
+        sys.path.pop(0)
+    elif env_pythonpath.endswith(":") and env_pythonpath not in (f"{cwd}:", ".:"):
+        sys.path.pop(1)
 
 
 __all__ = ["__version__"]

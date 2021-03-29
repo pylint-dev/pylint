@@ -65,9 +65,6 @@ import sys
 from typing import Pattern
 
 import astroid
-import astroid.bases
-import astroid.scoped_nodes
-from astroid.arguments import CallSite
 
 from pylint import checkers, exceptions, interfaces
 from pylint import utils as lint_utils
@@ -1269,7 +1266,7 @@ class BasicChecker(_BasicChecker):
             # return something else (but we don't check that, yet).
             return
 
-        call_site = CallSite.from_call(call)
+        call_site = astroid.arguments.CallSite.from_call(call)
         ordinary_args = list(node.args.args)
         new_call_args = list(self._filter_vararg(node, call.args))
         if node.args.kwarg:

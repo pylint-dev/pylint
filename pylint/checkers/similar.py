@@ -24,7 +24,7 @@
 # pylint: disable=redefined-builtin
 """a similarities / code duplication command line tool and pylint checker
 """
-
+import functools
 import re
 import sys
 from collections import defaultdict
@@ -223,6 +223,7 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     return strippedlines
 
 
+@functools.total_ordering
 class LineSet:
     """Holds and indexes all the lines of a single source file"""
 
@@ -255,6 +256,11 @@ class LineSet:
 
     def __hash__(self):
         return id(self)
+
+    def __eq__(self, other):
+        if not isinstance(other, LineSet):
+            return False
+        return self.__dict__ == other.__dict__
 
     def enumerate_stripped(self, start_at=0):
         """return an iterator on stripped lines, starting from a given index

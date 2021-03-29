@@ -14,7 +14,7 @@
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
-
+import functools
 from inspect import cleandoc
 from typing import Any
 
@@ -26,6 +26,7 @@ from pylint.message.message_definition import MessageDefinition
 from pylint.utils import get_rst_section, get_rst_title
 
 
+@functools.total_ordering
 class BaseChecker(OptionsProviderMixIn):
 
     # checker name (you may reuse an existing one)

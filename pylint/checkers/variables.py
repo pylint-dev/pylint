@@ -54,8 +54,6 @@ import re
 from functools import lru_cache
 
 import astroid
-from astroid import decorators, modutils, objects
-from astroid.context import InferenceContext
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import is_postponed_evaluation_enabled
@@ -253,7 +251,7 @@ def _detect_global_scope(node, frame, defframe):
 
 
 def _infer_name_module(node, name):
-    context = InferenceContext()
+    context = astroid.context.InferenceContext()
     context.lookupname = name
     return node.infer(context, asname=False)
 
@@ -978,6 +976,14 @@ class VariablesChecker(BaseChecker):
             ):
                 continue
 
+            # Ignore inner class scope for keywords in class definition
+            if (
+                current_consumer.scope_type == "class"
+                and isinstance(node.parent, astroid.Keyword)
+                and isinstance(node.parent.parent, astroid.ClassDef)
+            ):
+                continue
+
             # if the name node is used as a function default argument's value or as
             # a decorator, then start from the parent frame of the function instead
             # of the function frame - and thus open an inner class scope
@@ -1243,15 +1249,15 @@ class VariablesChecker(BaseChecker):
             self._store_type_annotation_node(annotation)
 
     # Relying on other checker's options, which might not have been initialized yet.
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _analyse_fallback_blocks(self):
         return get_global_option(self, "analyse-fallback-blocks", default=False)
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _ignored_modules(self):
         return get_global_option(self, "ignored-modules", default=[])
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _allow_global_unused_variables(self):
         return get_global_option(self, "allow-global-unused-variables", default=True)
 
@@ -1608,7 +1614,7 @@ class VariablesChecker(BaseChecker):
                 astroid.Tuple,
                 astroid.Dict,
                 astroid.Set,
-                objects.FrozenSet,
+                astroid.objects.FrozenSet,
             )
             if not isinstance(inferred, sequences):
                 self.add_message("undefined-loop-variable", args=name, node=node)
@@ -1978,7 +1984,7 @@ class VariablesChecker(BaseChecker):
                     if os.path.basename(basename) == "__init__":
                         name = node.name + "." + elt_name
                         try:
-                            modutils.file_from_modpath(name.split("."))
+                            astroid.modutils.file_from_modpath(name.split("."))
                         except ImportError:
                             self.add_message(
                                 "undefined-all-variable", args=(elt_name,), node=elt

@@ -69,9 +69,6 @@ from typing import (
 
 import _string
 import astroid
-from astroid import bases as _bases
-from astroid import helpers, scoped_nodes
-from astroid.exceptions import _NonDeducibleTypeHierarchy
 
 from pylint.constants import PY310_PLUS
 
@@ -460,7 +457,11 @@ def is_func_decorator(node: astroid.node_classes.NodeNG) -> bool:
             return True
         if parent.is_statement or isinstance(
             parent,
-            (astroid.Lambda, scoped_nodes.ComprehensionScope, scoped_nodes.ListComp),
+            (
+                astroid.Lambda,
+                astroid.scoped_nodes.ComprehensionScope,
+                astroid.scoped_nodes.ListComp,
+            ),
         ):
             break
         parent = parent.parent
@@ -1137,7 +1138,7 @@ def _supports_protocol(
             return True
 
     if (
-        isinstance(value, _bases.Proxy)
+        isinstance(value, astroid.bases.Proxy)
         and isinstance(value._proxied, astroid.BaseInstance)
         and has_known_bases(value._proxied)
     ):
@@ -1370,9 +1371,9 @@ def is_subclass_of(child: astroid.ClassDef, parent: astroid.ClassDef) -> bool:
 
     for ancestor in child.ancestors():
         try:
-            if helpers.is_subtype(ancestor, parent):
+            if astroid.helpers.is_subtype(ancestor, parent):
                 return True
-        except _NonDeducibleTypeHierarchy:
+        except astroid.exceptions._NonDeducibleTypeHierarchy:
             continue
     return False
 
