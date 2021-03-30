@@ -1461,9 +1461,16 @@ def is_attribute_typed_annotation(
 
 def is_class_var(node: astroid.AssignName) -> bool:
     """Test if node has `ClassVar` annotation."""
-    return isinstance(node.parent, astroid.AnnAssign) and (
-        isinstance(node.parent.annotation, astroid.Subscript)
-        and node.parent.annotation.value.name == "ClassVar"
-        or isinstance(node.parent.annotation, astroid.Name)
-        and node.parent.annotation.name == "ClassVar"
-    )
+    if not isinstance(node.parent, astroid.AnnAssign):
+        return False
+    annotation = node.parent.annotation
+    if isinstance(annotation, astroid.Subscript):
+        annotation = annotation.value
+    if (
+        isinstance(annotation, astroid.Name)
+        and annotation.name == "ClassVar"
+        or isinstance(annotation, astroid.Attribute)
+        and annotation.attrname == "ClassVar"
+    ):
+        return True
+    return False

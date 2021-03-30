@@ -3,6 +3,7 @@
 from __future__ import print_function
 import abc
 import collections
+import typing
 from enum import Enum
 from typing import ClassVar
 
@@ -154,3 +155,5 @@ class Bar:
     CLASS_CONST: ClassVar[int] = 42
     CLASS_CONST2: ClassVar = "const"
     variable: ClassVar[str] = "invalid name"  # [invalid-name]
+    CLASS_CONST3: typing.ClassVar
+    variable2: typing.ClassVar[int]  # [invalid-name]

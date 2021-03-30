@@ -18,9 +18,14 @@ Release date: 2021-03-30
 ..
   Put bug fixes that will be cherry-picked to latest major version here
 
+
 * Fix a problem with disabled msgid not being ignored
 
   Closes #4265
+
+* Fix issue with annotated class constants
+
+  * Closes #4264
 
 
 What's New in Pylint 2.7.3?
