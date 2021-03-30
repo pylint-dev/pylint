@@ -18,6 +18,9 @@ Release date: Undefined
 ..
   Put bug fixes that will be cherry-picked to latest major version here
 
+* Fix issue with annotated class constants
+
+  * Closes #4264
 
 
 What's New in Pylint 2.7.3?
