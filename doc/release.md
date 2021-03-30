@@ -8,7 +8,8 @@ So, you want to release the ``X.Y.Z`` version of pylint ?
    0. Run the acceptance tests to see if everything is alright with this release.
       We don't run them on CI: ``pytest -m acceptance``
    1. Check if the dependencies of the package are correct
-   2. Update ``numversion`` in ``__pkginfo__``, ``dev_version`` should also be None when you tag.
+   2. Update ``numversion`` in ``__pkginfo__``, ``dev_version`` should be ``None`` when you tag,
+      except if it's an alpha release.
    3. Put the version numbers, and the release date into the changelog
    4. Put the release date into the ``What's new`` section.
    5. Generate the new copyright notices for this release:
@@ -55,8 +56,9 @@ where we will cherry-pick bugs to release the ``X.Y.Z+1`` minor versions
 
 ### Merge tags in master for minor releases
 
-Merge the tag ``X.Y.Z`` in the main branch by doing an history only merge. It's done in order to signal that this is
-an offical release tag, and for ``pre-commit autoupdate`` to works.
+Merge the tag ``X.Y.Z`` in the main branch by doing a history only merge. It's done
+in order to signal that this is an official release tag, and for ``pre-commit autoupdate``
+to works.
 
 ```bash
 git checkout master
@@ -86,5 +88,6 @@ Take a look at the examples from ``doc/whatsnew``.
 
 ### Versions
 
-Update ``numversion`` to ``X.Y+1.0`` in ``__pkginfo__`` for ``master`` and to ``X.Y.Z+1`` for the ``X.Y`` branch.
-``dev_version`` should also be back to an integer after the tag.
+Update ``numversion`` to ``X.Y+1.0`` in ``__pkginfo__`` for ``master`` and to
+``X.Y.Z+1`` for the ``X.Y`` branch. ``dev_version`` should also be back to an
+integer after the tag.

@@ -29,14 +29,18 @@
 
 
 from os.path import join
+from typing import Optional
 
-# For an official release, use dev_version = None
-numversion = (2, 7, 4)
-dev_version = None
+version = "2.8.0"
+# For an official release, use 'alpha_version = False' and 'dev_version = None'
+alpha_version: bool = False  # Release will be an alpha version if True (ex: '1.2.3a6')
+dev_version: Optional[int] = 1
 
-version = ".".join(str(num) for num in numversion)
 if dev_version is not None:
-    version += "-dev" + str(dev_version)
+    if alpha_version:
+        version += f"a{dev_version}"
+    else:
+        version += f"-dev{dev_version}"
 
 install_requires = [
     "astroid>=2.5.2,<2.7",
