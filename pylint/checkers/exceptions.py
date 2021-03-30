@@ -461,21 +461,16 @@ class ExceptionsChecker(checkers.BaseChecker):
                 # also break early if bare except is followed by bare except.
 
                 excs_in_current_handler = gather_exceptions_from_handler(handler)
-
                 if not excs_in_current_handler:
-                    bare_raise = False
                     break
                 if excs_in_bare_handler is None:
                     # It can be `None` when the inference failed
                     break
-
                 for exc_in_current_handler in excs_in_current_handler:
                     inferred_current = utils.safe_infer(exc_in_current_handler)
                     if any(
-                        utils.is_subclass_of(
-                            utils.safe_infer(exc_in_bare_handler), inferred_current
-                        )
-                        for exc_in_bare_handler in excs_in_bare_handler
+                        utils.is_subclass_of(utils.safe_infer(e), inferred_current)
+                        for e in excs_in_bare_handler
                     ):
                         bare_raise = False
                         break
