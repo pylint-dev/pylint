@@ -23,14 +23,13 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from os import path as osp
 
 
 def target_info_from_filename(filename):
     """Transforms /some/path/foo.png into ('/some/path', 'foo.png', 'png')."""
-    basename = osp.basename(filename)
-    storedir = osp.dirname(osp.abspath(filename))
-    target = osp.splitext(filename)[-1][1:]
+    basename = os.path.basename(filename)
+    storedir = os.path.dirname(os.path.abspath(filename))
+    target = os.path.splitext(filename)[-1][1:]
     return storedir, basename, target
 
 
