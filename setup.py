@@ -39,13 +39,9 @@ from typing import Any, Dict
 try:
     from setuptools import setup
     from setuptools.command import easy_install as easy_install_lib
-    from setuptools.command import install_lib  # pylint: disable=unused-import
 
     USE_SETUPTOOLS = 1
 except ImportError:
-    from distutils.command import (  # noqa: F401; pylint: disable=unused-import
-        install_lib,
-    )
     from distutils.core import setup
 
     USE_SETUPTOOLS = 0
