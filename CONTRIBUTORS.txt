@@ -464,3 +464,5 @@ contributors:
 * Konstantina Saketou: contributor
 
 * Andrew Howe: contributor
+
+* James Sinclair (irgeek): contributor

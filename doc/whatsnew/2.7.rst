@@ -56,3 +56,5 @@ Other Changes
 * Fixes duplicate code detection for --jobs=2+
 
 * New option ``allowed-redefined-builtins`` defines variable names allowed to shadow builtins.
+
+* Improved protected access checks to allow access inside class methods
