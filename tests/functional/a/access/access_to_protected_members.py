@@ -99,3 +99,115 @@ class Issue1802(object):
         if isinstance(other, self.__class__):
             return self._foo == other._foo  # [protected-access]
         return False
+
+
+class Issue1159OtherClass(object):
+    """Test for GitHub issue 1159"""
+
+    _foo = 0
+
+    def __init__(self):
+        self._bar = 0
+
+
+class Issue1159(object):
+    """Test for GitHub issue 1159"""
+
+    _foo = 0
+
+    def __init__(self):
+        self._bar = 0
+
+    @classmethod
+    def access_cls_attr(cls):
+        """
+        Access to protected class members inside class methods is OK.
+        """
+
+        _ = cls._foo
+
+    @classmethod
+    def assign_cls_attr(cls):
+        """
+        Assignment to protected class members inside class methods is OK.
+        """
+
+        cls._foo = 1
+
+    @classmethod
+    def access_inst_attr(cls):
+        """
+        Access to protected instance members inside class methods is OK.
+        """
+
+        instance = cls()
+        _ = instance._bar
+
+    @classmethod
+    def assign_inst_attr(cls):
+        """
+        Assignment to protected members inside class methods is OK.
+        """
+
+        instance = cls()
+        instance._bar = 1
+
+    @classmethod
+    def access_other_attr(cls):
+        """
+        Access to protected instance members of other classes is not OK.
+        """
+
+        instance = Issue1159OtherClass()
+        instance._bar = 3  # [protected-access]
+        _ = instance._foo  # [protected-access]
+
+
+class Issue1159Subclass(Issue1159):
+    """Test for GitHub issue 1159"""
+
+    @classmethod
+    def access_inst_attr(cls):
+        """
+        Access to protected instance members inside class methods is OK.
+        """
+
+        instance = cls()
+        _ = instance._bar
+
+    @classmethod
+    def assign_inst_attr(cls):
+        """
+        Assignment to protected instance members inside class methods is OK.
+        """
+
+        instance = cls()
+        instance._bar = 1
+
+    @classmethod
+    def access_missing_member(cls):
+        """
+        Access to unassigned members inside class methods is not OK.
+        """
+
+        instance = cls()
+        _ = instance._baz  # [no-member,protected-access]
+
+    @classmethod
+    def assign_missing_member(cls):
+        """
+        Defining attributes outside init is still not OK.
+        """
+
+        instance = cls()
+        instance._qux = 1  # [attribute-defined-outside-init]
+
+    @classmethod
+    def access_other_attr(cls):
+        """
+        Access to protected instance members of other classes is not OK.
+        """
+
+        instance = Issue1159OtherClass()
+        instance._bar = 3  # [protected-access]
+        _ = instance._foo  # [protected-access]
