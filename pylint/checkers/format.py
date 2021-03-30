@@ -51,7 +51,6 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
-from tokenize import TokenInfo
 from typing import List
 
 from astroid import nodes
@@ -353,8 +352,10 @@ class FormatChecker(BaseTokenChecker):
     def process_module(self, _module):
         pass
 
-    def _check_keyword_parentheses(self, tokens: List[TokenInfo], start: int) -> None:
-        """Check that there are not unnecessary parens after a keyword.
+    def _check_keyword_parentheses(
+        self, tokens: List[tokenize.TokenInfo], start: int
+    ) -> None:
+        """Check that there are not unnecessary parentheses after a keyword.
 
         Parens are unnecessary if there is exactly one balanced outer pair on a
         line, and it is followed by a colon, and contains no commas (i.e. is not a
