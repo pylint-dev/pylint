@@ -59,7 +59,6 @@ import os
 import shlex
 import sys
 from io import StringIO
-from os import path as osp
 from subprocess import PIPE, Popen
 
 
@@ -88,13 +87,15 @@ def lint(filename, options=()):
     the tree)
     """
     # traverse downwards until we are out of a python package
-    full_path = osp.abspath(filename)
-    parent_path = osp.dirname(full_path)
-    child_path = osp.basename(full_path)
+    full_path = os.path.abspath(filename)
+    parent_path = os.path.dirname(full_path)
+    child_path = os.path.basename(full_path)
 
-    while parent_path != "/" and osp.exists(osp.join(parent_path, "__init__.py")):
-        child_path = osp.join(osp.basename(parent_path), child_path)
-        parent_path = osp.dirname(parent_path)
+    while parent_path != "/" and os.path.exists(
+        os.path.join(parent_path, "__init__.py")
+    ):
+        child_path = os.path.join(os.path.basename(parent_path), child_path)
+        parent_path = os.path.dirname(parent_path)
 
     # Start pylint
     # Ensure we use the python and pylint associated with the running epylint
@@ -189,7 +190,7 @@ def Run():
     if len(sys.argv) == 1:
         print("Usage: %s <filename> [options]" % sys.argv[0])
         sys.exit(1)
-    elif not osp.exists(sys.argv[1]):
+    elif not os.path.exists(sys.argv[1]):
         print("%s does not exist" % sys.argv[1])
         sys.exit(1)
     else:
