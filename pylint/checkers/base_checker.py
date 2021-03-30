@@ -30,17 +30,17 @@ from pylint.utils import get_rst_section, get_rst_title
 class BaseChecker(OptionsProviderMixIn):
 
     # checker name (you may reuse an existing one)
-    name = None  # type: str
+    name: str = ""
     # options level (0 will be displaying in --help, 1 in --long-help)
     level = 1
     # ordered list of options to control the checker behaviour
-    options = ()  # type: Any
+    options: Any = ()
     # messages issued by this checker
-    msgs = {}  # type: Any
+    msgs: Any = {}
     # reports issued by this checker
-    reports = ()  # type: Any
+    reports: Any = ()
     # mark this checker as enabled or not.
-    enabled = True
+    enabled: bool = True
 
     def __init__(self, linter=None):
         """checker instances should have the linter as argument

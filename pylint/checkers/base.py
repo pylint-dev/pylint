@@ -80,16 +80,17 @@ from pylint.reporters.ureports import nodes as reporter_nodes
 
 
 class NamingStyle:
-    # It may seem counterintuitive that single naming style
-    # has multiple "accepted" forms of regular expressions,
-    # but we need to special-case stuff like dunder names
-    # in method names.
-    CLASS_NAME_RGX = None  # type: Pattern[str]
-    MOD_NAME_RGX = None  # type: Pattern[str]
-    CONST_NAME_RGX = None  # type: Pattern[str]
-    COMP_VAR_RGX = None  # type: Pattern[str]
-    DEFAULT_NAME_RGX = None  # type: Pattern[str]
-    CLASS_ATTRIBUTE_RGX = None  # type: Pattern[str]
+    """It may seem counterintuitive that single naming style has multiple "accepted"
+    forms of regular expressions, but we need to special-case stuff like dunder names
+    in method names."""
+
+    ANY: Pattern[str] = re.compile(".*")
+    CLASS_NAME_RGX: Pattern[str] = ANY
+    MOD_NAME_RGX: Pattern[str] = ANY
+    CONST_NAME_RGX: Pattern[str] = ANY
+    COMP_VAR_RGX: Pattern[str] = ANY
+    DEFAULT_NAME_RGX: Pattern[str] = ANY
+    CLASS_ATTRIBUTE_RGX: Pattern[str] = ANY
 
     @classmethod
     def get_regex(cls, name_type):
@@ -155,9 +156,7 @@ class UpperCaseStyle(NamingStyle):
 
 
 class AnyStyle(NamingStyle):
-    @classmethod
-    def get_regex(cls, name_type):
-        return re.compile(".*")
+    pass
 
 
 NAMING_STYLES = {

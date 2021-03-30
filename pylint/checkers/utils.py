@@ -867,7 +867,7 @@ def unimplemented_abstract_methods(
     """
     if is_abstract_cb is None:
         is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
-    visited = {}  # type: Dict[str, astroid.node_classes.NodeNG]
+    visited: Dict[str, astroid.node_classes.NodeNG] = {}
     try:
         mro = reversed(node.mro())
     except NotImplementedError:
