@@ -53,7 +53,7 @@ class RawMetricsChecker(BaseTokenChecker):
     # configuration options
     options = ()
     # messages
-    msgs = {}  # type: Any
+    msgs: Any = {}
     # reports
     reports = (("RP0701", "Raw metrics", report_raw_stats),)
 

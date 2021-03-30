@@ -18,7 +18,7 @@ class OptionsProviderMixIn:
     # those attributes should be overridden
     priority = -1
     name = "default"
-    options = ()  # type: Tuple[Tuple[str, Dict[str, Any]], ...]
+    options: Tuple[Tuple[str, Dict[str, Any]], ...] = ()
     level = 0
 
     def __init__(self):
