@@ -17,6 +17,7 @@
 # pylint: disable=redefined-outer-name
 
 import os
+import shutil
 from os.path import exists
 
 import pytest
@@ -64,6 +65,9 @@ URL="." node[shape="box"]
 
 
 @pytest.mark.parametrize("filename", ["graph.png", "graph"])
+@pytest.mark.skipif(
+    any(shutil.which(x) for x in ["dot", "gv"]), reason="dot or gv is installed"
+)
 def test_missing_graphviz(filename):
     """Raises if graphviz is not installed, and defaults to png if no extension given"""
     with pytest.raises(RuntimeError, match=r"Cannot generate `graph\.png`.*"):
