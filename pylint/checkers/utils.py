@@ -251,7 +251,7 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
         "_collections_abc.Container",
         "_collections_abc.Collection",
         "_collections_abc.Callable",
-        "_collections_abc.Set # typing.AbstractSet",
+        "_collections_abc.Set",
         "_collections_abc.MutableSet",
         "_collections_abc.Mapping",
         "_collections_abc.MutableMapping",
