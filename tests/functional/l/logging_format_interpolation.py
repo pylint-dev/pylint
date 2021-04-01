@@ -33,7 +33,5 @@ class Logger(renamed_logging.Logger):
     pass
 
 custom_logger = Logger('three')
-
-# Currently disabled until we get this in https://github.com/PyCQA/astroid/pull/637
-# custom_logger.info('testing {0}'.format('info'))
-# custom_logger.info('testing %s' % 'info')
+custom_logger.info('testing {0}'.format('info'))
+custom_logger.info('testing %s' % 'info')
