@@ -4,7 +4,7 @@
 import contextlib
 import sys
 
-from pylint.utils import utils
+from pylint.lint.expand_modules import get_python_path
 
 
 class ArgumentPreprocessingError(Exception):
@@ -51,7 +51,7 @@ def _patch_sys_path(args):
     changes = []
     seen = set()
     for arg in args:
-        path = utils.get_python_path(arg)
+        path = get_python_path(arg)
         if path not in seen:
             changes.append(path)
             seen.add(path)

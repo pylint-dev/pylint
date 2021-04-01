@@ -16,6 +16,7 @@ import astroid
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
+from pylint.lint.expand_modules import expand_modules
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
@@ -970,7 +971,7 @@ class PyLinter(
 
     def _expand_files(self, modules):
         """get modules and errors from a list of modules and handle errors"""
-        result, errors = utils.expand_modules(
+        result, errors = expand_modules(
             modules, self.config.black_list, self.config.black_list_re
         )
         for error in errors:

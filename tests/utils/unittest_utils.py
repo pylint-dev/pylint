@@ -18,21 +18,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import io
-import re
 
 from pylint.utils import utils
-
-
-def test__basename_in_ignore_list_re_match():
-    patterns = [re.compile(".*enchilada.*"), re.compile("unittest_.*")]
-    assert utils._basename_in_ignore_list_re("unittest_utils.py", patterns)
-    assert utils._basename_in_ignore_list_re("cheese_enchiladas.xml", patterns)
-
-
-def test__basename_in_ignore_list_re_nomatch():
-    patterns = [re.compile(".*enchilada.*"), re.compile("unittest_.*")]
-    assert not utils._basename_in_ignore_list_re("test_utils.py", patterns)
-    assert not utils._basename_in_ignore_list_re("enchilad.py", patterns)
 
 
 def test_decoding_stream_unknown_encoding():
