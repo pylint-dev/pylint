@@ -1426,6 +1426,14 @@ a metaclass class method.",
                     name = stmt.targets[0].name
                     if _is_attribute_property(name, klass):
                         return
+
+                if (
+                    self._is_classmethod(node.frame())
+                    and self._is_inferred_instance(node.expr, klass)
+                    and self._is_class_attribute(attrname, klass)
+                ):
+                    return
+
                 licit_protected_member = not attrname.startswith("__")
                 if (
                     not self.config.check_protected_access_in_special_methods
@@ -1455,6 +1463,44 @@ a metaclass class method.",
             and len(expr.args) == 1
             and self._is_mandatory_method_param(expr.args[0])
         )
+
+    @staticmethod
+    def _is_classmethod(func):
+        """Check if the given *func* node is a class method."""
+
+        return isinstance(func, astroid.FunctionDef) and (
+            func.type == "classmethod" or func.name == "__class_getitem__"
+        )
+
+    @staticmethod
+    def _is_inferred_instance(expr, klass):
+        """Check if the inferred value of the given *expr* is an instance of *klass*."""
+
+        inferred = safe_infer(expr)
+        if not isinstance(inferred, astroid.Instance):
+            return False
+
+        return inferred._proxied is klass
+
+    @staticmethod
+    def _is_class_attribute(name, klass):
+        """Check if the given attribute *name* is a class or instance member of the given *klass*.
+
+        Returns ``True`` if the name is a property in the given klass,
+        ``False`` otherwise.
+        """
+
+        try:
+            klass.getattr(name)
+            return True
+        except astroid.NotFoundError:
+            pass
+
+        try:
+            klass.instance_attr(name)
+            return True
+        except astroid.NotFoundError:
+            return False
 
     def visit_name(self, node):
         """check if the name handle an access to a class member

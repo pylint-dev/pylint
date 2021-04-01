@@ -17,6 +17,10 @@ Release date: Undefined
 ..
   Put bug fixes that will be cherry-picked to latest major version here
 
+* Improved protected access checks to allow access inside class methods
+
+  Closes #1159
+
 * Fix issue with PEP 585 syntax and the use of ``collections.abc.Set``
 
 * Fix issue that caused class variables annotated with ``typing.ClassVar`` to be
