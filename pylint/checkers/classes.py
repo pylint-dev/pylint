@@ -1103,9 +1103,7 @@ a metaclass class method.",
                 annotations = chain(
                     (arguments.posonlyargs_annotations or []), arguments.annotations
                 )
-                return [
-                    annotation.as_string() for annotation in filter(None, annotations)
-                ]
+                return [ann.as_string() for ann in annotations if ann is not None]
 
             called_annotations = form_annotations(function.args)
             overridden_annotations = form_annotations(meth_node.args)
