@@ -154,6 +154,6 @@ class Bar:
     """Class with class constants annotated with ClassVar."""
     CLASS_CONST: ClassVar[int] = 42
     CLASS_CONST2: ClassVar = "const"
-    variable: ClassVar[str] = "invalid name"  # [invalid-name]
+    variable: ClassVar[str] = "invalid name"
     CLASS_CONST3: typing.ClassVar
-    variable2: typing.ClassVar[int]  # [invalid-name]
+    variable2: typing.ClassVar[int]
