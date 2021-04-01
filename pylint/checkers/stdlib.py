@@ -50,6 +50,155 @@ SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
 OPEN_MODULE = "_io"
 
+DEPRECATED_ARGUMENTS = {
+    (3, 8, 0): {
+        "asyncio.tasks.sleep": ((None, "loop"),),
+        "asyncio.tasks.gather": ((None, "loop"),),
+        "asyncio.tasks.shield": ((None, "loop"),),
+        "asyncio.tasks.wait_for": ((None, "loop"),),
+        "asyncio.tasks.wait": ((None, "loop"),),
+        "asyncio.tasks.as_completed": ((None, "loop"),),
+        "asyncio.subprocess.create_subprocess_exec": ((None, "loop"),),
+        "asyncio.subprocess.create_subprocess_shell": ((4, "loop"),),
+        "gettext.translation": ((5, "codeset"),),
+        "gettext.install": ((2, "codeset"),),
+        "profile.Profile.runcall": ((None, "func"),),
+        "cProfile.Profile.runcall": ((None, "func"),),
+        "bdb.Bdb.runcall": ((None, "func"),),
+        "trace.Trace.runfunc": ((None, "func"),),
+        "curses.wrapper": ((None, "func"),),
+        "unittest.case.TestCase.addCleanup": ((None, "function"),),
+        "concurrent.futures.thread.ThreadPoolExecutor.submit": ((None, "fn"),),
+        "concurrent.futures.process.ProcessPoolExecutor.submit": ((None, "fn"),),
+        "contextlib._BaseExitStack.callback": ((None, "callback"),),
+        "contextlib.AsyncExitStack.push_async_callback": ((None, "callback"),),
+        "multiprocessing.managers.Server.create": ((None, "c"), (None, "typeid")),
+        "multiprocessing.managers.SharedMemoryServer.create": (
+            (None, "c"),
+            (None, "typeid"),
+        ),
+    },
+    (3, 9, 0): {"random.Random.shuffle": ((1, "random"),)},
+}
+
+
+DEPRECATED_METHODS = {
+    0: {
+        "cgi.parse_qs",
+        "cgi.parse_qsl",
+        "ctypes.c_buffer",
+        "distutils.command.register.register.check_metadata",
+        "distutils.command.sdist.sdist.check_metadata",
+        "tkinter.Misc.tk_menuBar",
+        "tkinter.Menu.tk_bindForTraversal",
+    },
+    2: {
+        (2, 6, 0): {
+            "commands.getstatus",
+            "os.popen2",
+            "os.popen3",
+            "os.popen4",
+            "macostools.touched",
+        },
+        (2, 7, 0): {
+            "unittest.case.TestCase.assertEquals",
+            "unittest.case.TestCase.assertNotEquals",
+            "unittest.case.TestCase.assertAlmostEquals",
+            "unittest.case.TestCase.assertNotAlmostEquals",
+            "unittest.case.TestCase.assert_",
+            "xml.etree.ElementTree.Element.getchildren",
+            "xml.etree.ElementTree.Element.getiterator",
+            "xml.etree.ElementTree.XMLParser.getiterator",
+            "xml.etree.ElementTree.XMLParser.doctype",
+        },
+    },
+    3: {
+        (3, 0, 0): {
+            "inspect.getargspec",
+            "failUnlessEqual",
+            "assertEquals",
+            "failIfEqual",
+            "assertNotEquals",
+            "failUnlessAlmostEqual",
+            "assertAlmostEquals",
+            "failIfAlmostEqual",
+            "assertNotAlmostEquals",
+            "failUnless",
+            "assert_",
+            "failUnlessRaises",
+            "failIf",
+            "assertRaisesRegexp",
+            "assertRegexpMatches",
+            "assertNotRegexpMatches",
+        },
+        (3, 1, 0): {
+            "base64.encodestring",
+            "base64.decodestring",
+            "ntpath.splitunc",
+            "os.path.splitunc",
+        },
+        (3, 2, 0): {
+            "cgi.escape",
+            "configparser.RawConfigParser.readfp",
+            "xml.etree.ElementTree.Element.getchildren",
+            "xml.etree.ElementTree.Element.getiterator",
+            "xml.etree.ElementTree.XMLParser.getiterator",
+            "xml.etree.ElementTree.XMLParser.doctype",
+        },
+        (3, 3, 0): {
+            "inspect.getmoduleinfo",
+            "logging.warn",
+            "logging.Logger.warn",
+            "logging.LoggerAdapter.warn",
+            "nntplib._NNTPBase.xpath",
+            "platform.popen",
+        },
+        (3, 4, 0): {
+            "importlib.find_loader",
+            "plistlib.readPlist",
+            "plistlib.writePlist",
+            "plistlib.readPlistFromBytes",
+            "plistlib.writePlistToBytes",
+        },
+        (3, 4, 4): {"asyncio.tasks.async"},
+        (3, 5, 0): {
+            "fractions.gcd",
+            "inspect.formatargspec",
+            "inspect.getcallargs",
+            "platform.linux_distribution",
+            "platform.dist",
+        },
+        (3, 6, 0): {"importlib._bootstrap_external.FileLoader.load_module"},
+        (3, 7, 0): {
+            "sys.set_coroutine_wrapper",
+            "sys.get_coroutine_wrapper",
+            "aifc.openfp",
+            "asyncio.Task.current_task",
+            "asyncio.Task.all_task",
+            "locale.format",
+            "ssl.wrap_socket",
+            "sunau.openfp",
+            "wave.openfp",
+        },
+        (3, 8, 0): {
+            "gettext.lgettext",
+            "gettext.ldgettext",
+            "gettext.lngettext",
+            "gettext.ldngettext",
+            "gettext.bind_textdomain_codeset",
+            "gettext.NullTranslations.output_charset",
+            "gettext.NullTranslations.set_output_charset",
+            "threading.Thread.isAlive",
+        },
+        (3, 9, 0): {
+            "binascii.b2a_hqx",
+            "binascii.a2b_hqx",
+            "binascii.rlecode_hqx",
+            "binascii.rledecode_hqx",
+        },
+    },
+}
+
 
 def _check_mode_str(mode):
     # check type
@@ -161,124 +310,24 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "`check` keyword to make clear what the error-handling behavior is."
             "https://docs.python.org/3/library/subprocess.html#subprocess.run",
         ),
+        "W1511": (
+            "Using deprecated argument %s of method %s()",
+            "deprecated-argument",
+            "The argument is marked as deprecated and will be removed in the future.",
+        ),
     }
 
-    deprecated = {
-        0: {
-            "cgi.parse_qs",
-            "cgi.parse_qsl",
-            "ctypes.c_buffer",
-            "distutils.command.register.register.check_metadata",
-            "distutils.command.sdist.sdist.check_metadata",
-            "tkinter.Misc.tk_menuBar",
-            "tkinter.Menu.tk_bindForTraversal",
-        },
-        2: {
-            (2, 6, 0): {
-                "commands.getstatus",
-                "os.popen2",
-                "os.popen3",
-                "os.popen4",
-                "macostools.touched",
-            },
-            (2, 7, 0): {
-                "unittest.case.TestCase.assertEquals",
-                "unittest.case.TestCase.assertNotEquals",
-                "unittest.case.TestCase.assertAlmostEquals",
-                "unittest.case.TestCase.assertNotAlmostEquals",
-                "unittest.case.TestCase.assert_",
-                "xml.etree.ElementTree.Element.getchildren",
-                "xml.etree.ElementTree.Element.getiterator",
-                "xml.etree.ElementTree.XMLParser.getiterator",
-                "xml.etree.ElementTree.XMLParser.doctype",
-            },
-        },
-        3: {
-            (3, 0, 0): {
-                "inspect.getargspec",
-                "failUnlessEqual",
-                "assertEquals",
-                "failIfEqual",
-                "assertNotEquals",
-                "failUnlessAlmostEqual",
-                "assertAlmostEquals",
-                "failIfAlmostEqual",
-                "assertNotAlmostEquals",
-                "failUnless",
-                "assert_",
-                "failUnlessRaises",
-                "failIf",
-                "assertRaisesRegexp",
-                "assertRegexpMatches",
-                "assertNotRegexpMatches",
-            },
-            (3, 1, 0): {
-                "base64.encodestring",
-                "base64.decodestring",
-                "ntpath.splitunc",
-                "os.path.splitunc",
-            },
-            (3, 2, 0): {
-                "cgi.escape",
-                "configparser.RawConfigParser.readfp",
-                "xml.etree.ElementTree.Element.getchildren",
-                "xml.etree.ElementTree.Element.getiterator",
-                "xml.etree.ElementTree.XMLParser.getiterator",
-                "xml.etree.ElementTree.XMLParser.doctype",
-            },
-            (3, 3, 0): {
-                "inspect.getmoduleinfo",
-                "logging.warn",
-                "logging.Logger.warn",
-                "logging.LoggerAdapter.warn",
-                "nntplib._NNTPBase.xpath",
-                "platform.popen",
-            },
-            (3, 4, 0): {
-                "importlib.find_loader",
-                "plistlib.readPlist",
-                "plistlib.writePlist",
-                "plistlib.readPlistFromBytes",
-                "plistlib.writePlistToBytes",
-            },
-            (3, 4, 4): {"asyncio.tasks.async"},
-            (3, 5, 0): {
-                "fractions.gcd",
-                "inspect.formatargspec",
-                "inspect.getcallargs",
-                "platform.linux_distribution",
-                "platform.dist",
-            },
-            (3, 6, 0): {"importlib._bootstrap_external.FileLoader.load_module"},
-            (3, 7, 0): {
-                "sys.set_coroutine_wrapper",
-                "sys.get_coroutine_wrapper",
-                "aifc.openfp",
-                "asyncio.Task.current_task",
-                "asyncio.Task.all_task",
-                "locale.format",
-                "ssl.wrap_socket",
-                "sunau.openfp",
-                "wave.openfp",
-            },
-            (3, 8, 0): {
-                "gettext.lgettext",
-                "gettext.ldgettext",
-                "gettext.lngettext",
-                "gettext.ldngettext",
-                "gettext.bind_textdomain_codeset",
-                "gettext.NullTranslations.output_charset",
-                "gettext.NullTranslations.set_output_charset",
-                "threading.Thread.isAlive",
-            },
-            (3, 9, 0): {
-                "binascii.b2a_hqx",
-                "binascii.a2b_hqx",
-                "binascii.rlecode_hqx",
-                "binascii.rledecode_hqx",
-            },
-        },
-    }
+    def __init__(self, linter=None):
+        BaseChecker.__init__(self, linter)
+        self._deprecated_methods = set()
+        self._deprecated_methods.update(DEPRECATED_METHODS[0])
+        for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
+            if since_vers <= sys.version_info:
+                self._deprecated_methods.update(func_list)
+        self._deprecated_attributes = dict()
+        for since_vers, func_list in DEPRECATED_ARGUMENTS.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_attributes.update(func_list)
 
     def _check_bad_thread_instantiation(self, node):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
@@ -306,6 +355,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "bad-open-mode",
         "redundant-unittest-assert",
         "deprecated-method",
+        "deprecated-argument",
         "bad-thread-instantiation",
         "shallow-copy-environ",
         "invalid-envvar-value",
@@ -455,13 +505,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             self.add_message(message, node=node, args=(name, call_arg.pytype()))
 
     def deprecated_methods(self):
-        py_vers = sys.version_info[0]
-        deprecated_methods = set()
-        deprecated_methods.update(self.deprecated[0])
-        for since_vers, func_list in self.deprecated[py_vers].items():
-            if since_vers <= sys.version_info:
-                deprecated_methods.update(func_list)
-        return deprecated_methods
+        return self._deprecated_methods
+
+    def deprecated_arguments(self, method: str):
+        return self._deprecated_attributes.get(method, ())
 
 
 def register(linter):

@@ -10,8 +10,7 @@ Release date: Undefined
   Put new features here and also in 'doc/whatsnew/2.8.rst'
 
 
-
-What's New in Pylint 2.7.4?
+What's New in Pylint 2.7.5?
 ===========================
 Release date: Undefined
 
@@ -22,7 +21,21 @@ Release date: Undefined
 
   Closes #1159
 
+* Fix issue with PEP 585 syntax and the use of ``collections.abc.Set``
 
+
+What's New in Pylint 2.7.4?
+===========================
+Release date: 2021-03-30
+
+
+* Fix a problem with disabled msgid not being ignored
+
+  Closes #4265
+
+* Fix issue with annotated class constants
+
+  * Closes #4264
 
 
 What's New in Pylint 2.7.3?

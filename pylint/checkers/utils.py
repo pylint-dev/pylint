@@ -251,7 +251,7 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
         "_collections_abc.Container",
         "_collections_abc.Collection",
         "_collections_abc.Callable",
-        "_collections_abc.Set # typing.AbstractSet",
+        "_collections_abc.Set",
         "_collections_abc.MutableSet",
         "_collections_abc.Mapping",
         "_collections_abc.MutableMapping",
@@ -867,7 +867,7 @@ def unimplemented_abstract_methods(
     """
     if is_abstract_cb is None:
         is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
-    visited = {}  # type: Dict[str, astroid.node_classes.NodeNG]
+    visited: Dict[str, astroid.node_classes.NodeNG] = {}
     try:
         mro = reversed(node.mro())
     except NotImplementedError:
@@ -1461,9 +1461,16 @@ def is_attribute_typed_annotation(
 
 def is_class_var(node: astroid.AssignName) -> bool:
     """Test if node has `ClassVar` annotation."""
-    return isinstance(node.parent, astroid.AnnAssign) and (
-        isinstance(node.parent.annotation, astroid.Subscript)
-        and node.parent.annotation.value.name == "ClassVar"
-        or isinstance(node.parent.annotation, astroid.Name)
-        and node.parent.annotation.name == "ClassVar"
-    )
+    if not isinstance(node.parent, astroid.AnnAssign):
+        return False
+    annotation = node.parent.annotation
+    if isinstance(annotation, astroid.Subscript):
+        annotation = annotation.value
+    if (
+        isinstance(annotation, astroid.Name)
+        and annotation.name == "ClassVar"
+        or isinstance(annotation, astroid.Attribute)
+        and annotation.attrname == "ClassVar"
+    ):
+        return True
+    return False
