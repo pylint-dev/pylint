@@ -457,8 +457,8 @@ class PyLinter(
         self.option_groups = option_groups + PyLinter.option_groups
         self._options_methods = {"enable": self.enable, "disable": self.disable}
         self._bw_options_methods = {
-            "disable-msg": self.disable,
-            "enable-msg": self.enable,
+            "disable-msg": self._options_methods["disable"],
+            "enable-msg": self._options_methods["enable"],
         }
         MessagesHandlerMixIn.__init__(self)
         reporters.ReportsHandlerMixIn.__init__(self)
