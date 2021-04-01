@@ -50,11 +50,11 @@ def expand_modules(files_or_modules, ignore_list, ignore_list_re):
     errors = []
     path = sys.path.copy()
     for something in files_or_modules:
-        if os.path.basename(something) in ignore_list:
+        basename = os.path.basename(something)
+        if basename in ignore_list or _basename_in_ignore_list_re(
+            basename, ignore_list_re
+        ):
             continue
-        if _basename_in_ignore_list_re(os.path.basename(something), ignore_list_re):
-            continue
-
         module_path = get_python_path(something)
         additional_search_path = [".", module_path] + path
         if os.path.exists(something):
@@ -64,7 +64,7 @@ def expand_modules(files_or_modules, ignore_list, ignore_list_re):
                     modutils.modpath_from_file(something, path=additional_search_path)
                 )
             except ImportError:
-                modname = os.path.splitext(os.path.basename(something))[0]
+                modname = os.path.splitext(basename)[0]
             if os.path.isdir(something):
                 filepath = os.path.join(something, "__init__.py")
             else:
