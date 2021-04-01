@@ -1,8 +1,10 @@
-"""test for Python 3 string formatting error
-"""
-# pylint: disable=too-few-public-methods, import-error, unused-argument, line-too-long, no-absolute-import, useless-object-inheritance
+"""Test for Python 3 string formatting error"""
+
+# pylint: disable=too-few-public-methods, import-error, unused-argument, line-too-long, no-absolute-import,
+# pylint: disable=useless-object-inheritance
 import os
 import sys
+import logging
 from missing import Missing
 
 
@@ -11,23 +13,28 @@ class Custom(object):
     def __getattr__(self, _):
         return self
 
+
 class Test(object):
     """ test format attribute access """
     custom = Custom()
     ids = [1, 2, 3, [4, 5, 6]]
+
 
 class Getitem(object):
     """ test custom getitem for lookup access """
     def __getitem__(self, index):
         return 42
 
+
 class ReturnYes(object):
     """ can't be properly infered """
     missing = Missing()
 
+
 def log(message, message_type="error"):
     """ Test """
     return message
+
 
 def print_good():
     """ Good format strings """
@@ -52,6 +59,9 @@ def print_good():
     "{0} {1}".format(*[1, 2])
     "{a} {b}".format(**{'a': 1, 'b': 2})
     "{a}".format(a=Missing())
+    logging.debug("%s", 42)
+    logging.debug("%s %s", 42, 43)
+
 
 def pprint_bad():
     """Test string format """
@@ -86,6 +96,9 @@ def pprint_bad():
     "{0} {a}".format(a=4) # [too-few-format-args]
     "{[0]} {}".format([4]) # [too-few-format-args]
     "{[0]} {}".format([4], 5, 6) # [too-many-format-args]
+    logging.debug("%s %s", 42) # [logging-too-few-args]
+    logging.debug("%s", 42, 43) # [logging-too-many-args]
+
 
 def good_issue288(*args, **kwargs):
     """ Test that using kwargs does not emit a false
@@ -93,6 +106,7 @@ def good_issue288(*args, **kwargs):
     """
     'Hello John Doe {0[0]}'.format(args)
     'Hello {0[name]}'.format(kwargs)
+
 
 def good_issue287():
     """ Test that the string format checker skips
@@ -105,6 +119,7 @@ def good_issue287():
     ret['comment'] = ret['comment'].format(name)
     return ret, name
 
+
 def nested_issue294():
     """ Test nested format fields. """
     '{0:>{1}}'.format(42, 24)
@@ -115,10 +130,12 @@ def nested_issue294():
     '{0:{a[1]}}'.format(1) # [missing-format-argument-key]
     '{0:{a.x}}'.format(1, a=2) # [missing-format-attribute]
 
+
 def issue310():
     """ Test a regression using duplicate manual position arguments. """
     '{0} {1} {0}'.format(1, 2)
     '{0} {1} {0}'.format(1) # [too-few-format-args]
+
 
 def issue322():
     """ Test a regression using mixed manual position arguments
@@ -127,6 +144,7 @@ def issue322():
     '{0}{1[FOO]}'.format(123, {'FOO': 456})
     '{0}{1[FOO]}'.format(123, {'FOO': 456}, 321) # [too-many-format-args]
     '{0}{1[FOO]}'.format(123) # [too-few-format-args]
+
 
 def issue338():
     """
@@ -144,6 +162,7 @@ def issue338():
             return "{0.foo}: {0.bar}".format(self)
     return Crash
 
+
 def issue351():
     """
     Check that the format method can be assigned to a variable, ie:
@@ -152,6 +171,7 @@ def issue351():
     fmt('arg1') # [too-few-format-args]
     fmt('arg1', 'arg2')
     fmt('arg1', 'arg2', 'arg3') # [too-many-format-args]
+
 
 def issue373():
     """
@@ -171,6 +191,7 @@ def issue373():
             return 'AAA{0[iface]}BBB{0[port]}'.format(self.opts)
 
     return SomeClass
+
 
 def issue_463():
     """
