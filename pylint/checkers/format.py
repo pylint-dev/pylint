@@ -526,7 +526,10 @@ class FormatChecker(BaseTokenChecker):
                 "too-many-lines"
             )[0]
             names = (message_definition.msgid, "too-many-lines")
-            line = next(filter(None, map(self.linter._pragma_lineno.get, names)), 1)
+            line = next(
+                filter(None, (self.linter._pragma_lineno.get(name) for name in names)),
+                1,
+            )
             self.add_message(
                 "too-many-lines",
                 args=(line_num, self.config.max_module_lines),

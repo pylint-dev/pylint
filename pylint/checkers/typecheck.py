@@ -244,7 +244,7 @@ def _missing_member_hint(owner, attrname, distance_threshold, max_choices):
         # No similar name.
         return ""
 
-    names = list(map(repr, names))
+    names = [repr(name) for name in names]
     if len(names) == 1:
         names = ", ".join(names)
     else:
@@ -487,7 +487,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
             owner.super_mro()
         except (astroid.MroError, astroid.SuperError):
             return False
-        if not all(map(has_known_bases, owner.type.mro())):
+        if not all(has_known_bases(base) for base in owner.type.mro()):
             return False
     if isinstance(owner, astroid.Module):
         try:

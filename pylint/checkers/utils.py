@@ -969,7 +969,7 @@ def _except_handlers_ignores_exception(
     handlers: astroid.ExceptHandler, exception
 ) -> bool:
     func = partial(error_of_type, error_type=(exception,))
-    return any(map(func, handlers))
+    return any(func(handler) for handler in handlers)
 
 
 def get_exception_handlers(
