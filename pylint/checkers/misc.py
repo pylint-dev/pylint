@@ -104,7 +104,7 @@ class EncodingChecker(BaseChecker):
     def open(self):
         super().open()
 
-        notes = "|".join(map(re.escape, self.config.notes))
+        notes = "|".join(re.escape(note) for note in self.config.notes)
         if self.config.notes_rgx:
             regex_string = fr"#\s*({notes}|{self.config.notes_rgx})\b"
         else:

@@ -2093,7 +2093,7 @@ class NameChecker(_BasicChecker):
     def _name_became_keyword_in_version(name, rules):
         for version, keywords in rules.items():
             if name in keywords and sys.version_info < version:
-                return ".".join(map(str, version))
+                return ".".join(str(v) for v in version)
         return None
 
 

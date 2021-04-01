@@ -273,7 +273,7 @@ def _has_different_parameters(original, overridden, dummy_parameter_regex):
             return True
 
         names = [param.name for param in params]
-        if any(map(dummy_parameter_regex.match, names)):
+        if any(dummy_parameter_regex.match(name) for name in names):
             continue
         if original_param.name != overridden_param.name:
             return True
