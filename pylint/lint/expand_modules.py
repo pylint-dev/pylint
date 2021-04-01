@@ -44,13 +44,11 @@ def _basename_in_ignore_list_re(base_name, ignore_list_re):
 
 
 def expand_modules(files_or_modules, ignore_list, ignore_list_re):
-    """take a list of files/modules/packages and return the list of tuple
-    (file, module name) which have to be actually checked
-    """
+    """Take a list of files/modules/packages and return the list of tuple
+    (file, module name) which have to be actually checked."""
     result = []
     errors = []
     path = sys.path.copy()
-
     for something in files_or_modules:
         if os.path.basename(something) in ignore_list:
             continue
@@ -85,10 +83,8 @@ def expand_modules(files_or_modules, ignore_list, ignore_list_re):
                 # removed once we move away from imp.find_module: https://bugs.python.org/issue10588
                 errors.append({"key": "fatal", "mod": modname, "ex": ex})
                 continue
-
         filepath = os.path.normpath(filepath)
         modparts = (modname or something).split(".")
-
         try:
             spec = modutils.file_info_from_modpath(
                 modparts, path=additional_search_path
@@ -100,7 +96,6 @@ def expand_modules(files_or_modules, ignore_list, ignore_list_re):
         else:
             is_namespace = modutils.is_namespace(spec)
             is_directory = modutils.is_directory(spec)
-
         if not is_namespace:
             result.append(
                 {
@@ -111,7 +106,6 @@ def expand_modules(files_or_modules, ignore_list, ignore_list_re):
                     "basename": modname,
                 }
             )
-
         has_init = (
             not (modname.endswith(".__init__") or modname == "__init__")
             and os.path.basename(filepath) == "__init__.py"
@@ -126,7 +120,6 @@ def expand_modules(files_or_modules, ignore_list, ignore_list_re):
                     os.path.basename(subfilepath), ignore_list_re
                 ):
                     continue
-
                 modpath = _modpath_from_file(
                     subfilepath, is_namespace, path=additional_search_path
                 )
