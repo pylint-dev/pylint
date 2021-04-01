@@ -3,8 +3,11 @@
 
 
 import re
+from pathlib import Path
 
-from pylint.lint.expand_modules import _basename_in_ignore_list_re
+import pytest
+
+from pylint.lint.expand_modules import _basename_in_ignore_list_re, expand_modules
 
 
 def test__basename_in_ignore_list_re_match():
@@ -17,3 +20,57 @@ def test__basename_in_ignore_list_re_nomatch():
     patterns = [re.compile(".*enchilada.*"), re.compile("unittest_.*")]
     assert not _basename_in_ignore_list_re("test_utils.py", patterns)
     assert not _basename_in_ignore_list_re("enchilad.py", patterns)
+
+
+TEST_DIRECTORY = str(Path(__file__).parent.parent)
+INIT_PATH = "%s/lint/__init__.py" % TEST_DIRECTORY
+EXPAND_MODULES = "%s/lint/unittest_expand_modules.py" % TEST_DIRECTORY
+this_file = {
+    "basename": "lint.unittest_expand_modules",
+    "basepath": EXPAND_MODULES,
+    "isarg": True,
+    "name": "lint.unittest_expand_modules",
+    "path": EXPAND_MODULES,
+}
+
+this_file_from_init = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.unittest_expand_modules",
+    "path": EXPAND_MODULES,
+}
+
+unittest_lint = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.unittest_lint",
+    "path": "%s/lint/unittest_lint.py" % TEST_DIRECTORY,
+}
+
+
+init_of_package = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": True,
+    "name": "lint",
+    "path": INIT_PATH,
+}
+
+
+@pytest.mark.parametrize(
+    "files_or_modules,expected",
+    [
+        ([__file__], [this_file]),
+        (
+            [Path(__file__).parent],
+            [init_of_package, this_file_from_init, unittest_lint],
+        ),
+    ],
+)
+def test_expand_modules(files_or_modules, expected):
+    ignore_list, ignore_list_re = [], []
+    modules, errors = expand_modules(files_or_modules, ignore_list, ignore_list_re)
+    assert modules == expected
+    assert not errors
