@@ -1459,8 +1459,12 @@ def is_attribute_typed_annotation(
     return False
 
 
-def is_class_var(node: astroid.AssignName) -> bool:
-    """Test if node has `ClassVar` annotation."""
+def is_assign_name_annotated_with(node: astroid.AssignName, typing_name: str) -> bool:
+    """Test if AssignName node has `typing_name` annotation.
+
+    Especially useful to check for `typing._SpecialForm` instances
+    like: `Union`, `Optional`, `Literal`, `ClassVar`, `Final`.
+    """
     if not isinstance(node.parent, astroid.AnnAssign):
         return False
     annotation = node.parent.annotation
@@ -1468,9 +1472,9 @@ def is_class_var(node: astroid.AssignName) -> bool:
         annotation = annotation.value
     if (
         isinstance(annotation, astroid.Name)
-        and annotation.name == "ClassVar"
+        and annotation.name == typing_name
         or isinstance(annotation, astroid.Attribute)
-        and annotation.attrname == "ClassVar"
+        and annotation.attrname == typing_name
     ):
         return True
     return False

@@ -1994,7 +1994,7 @@ class NameChecker(_BasicChecker):
                     if (
                         ancestor.name == "Enum"
                         and ancestor.root().name == "enum"
-                        or utils.is_class_var(node)
+                        or utils.is_assign_name_annotated_with(node, "Final")
                     ):
                         self._check_name("class_const", node.name, node)
                         break

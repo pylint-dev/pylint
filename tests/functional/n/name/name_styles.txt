@@ -15,5 +15,3 @@ invalid-name:110:4:FooClass.PROPERTY_NAME:"Attribute name ""PROPERTY_NAME"" does
 invalid-name:115:4:FooClass.ABSTRACT_PROPERTY_NAME:"Attribute name ""ABSTRACT_PROPERTY_NAME"" doesn't conform to snake_case naming style":INFERENCE
 invalid-name:120:4:FooClass.PROPERTY_NAME_SETTER:"Attribute name ""PROPERTY_NAME_SETTER"" doesn't conform to snake_case naming style":INFERENCE
 invalid-name:151:4:FooEnum:"Class constant name ""bad_enum_name"" doesn't conform to UPPER_CASE naming style"
-invalid-name:157:4:Bar:"Class constant name ""variable"" doesn't conform to UPPER_CASE naming style"
-invalid-name:159:4:Bar:"Class constant name ""variable2"" doesn't conform to UPPER_CASE naming style"
