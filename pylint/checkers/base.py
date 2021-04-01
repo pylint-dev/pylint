@@ -1983,6 +1983,10 @@ class NameChecker(_BasicChecker):
                     self._check_name("const", node.name, node)
             elif isinstance(assign_type, astroid.ExceptHandler):
                 self._check_name("variable", node.name, node)
+            elif isinstance(
+                assign_type, astroid.AnnAssign
+            ) and utils.is_assign_name_annotated_with(node, "Final"):
+                self._check_name("const", node.name, node)
         elif isinstance(frame, astroid.FunctionDef):
             # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
