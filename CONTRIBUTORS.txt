@@ -466,3 +466,5 @@ contributors:
 * Andrew Howe: contributor
 
 * James Sinclair (irgeek): contributor
+
+* Andreas Finkler: contributor
