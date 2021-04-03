@@ -22,9 +22,9 @@ def test__basename_in_ignore_list_re_nomatch():
     assert not _basename_in_ignore_list_re("enchilad.py", patterns)
 
 
-TEST_DIRECTORY = str(Path(__file__).parent.parent)
-INIT_PATH = "%s/lint/__init__.py" % TEST_DIRECTORY
-EXPAND_MODULES = "%s/lint/unittest_expand_modules.py" % TEST_DIRECTORY
+TEST_DIRECTORY = Path(__file__).parent.parent
+INIT_PATH = str(TEST_DIRECTORY / "lint/__init__.py")
+EXPAND_MODULES = str(TEST_DIRECTORY / "lint/unittest_expand_modules.py")
 this_file = {
     "basename": "lint.unittest_expand_modules",
     "basepath": EXPAND_MODULES,
@@ -46,7 +46,7 @@ unittest_lint = {
     "basepath": INIT_PATH,
     "isarg": False,
     "name": "lint.unittest_lint",
-    "path": "%s/lint/unittest_lint.py" % TEST_DIRECTORY,
+    "path": str(TEST_DIRECTORY / "lint/unittest_lint.py"),
 }
 
 
