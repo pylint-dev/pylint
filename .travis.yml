@@ -11,13 +11,9 @@ before_install:
 - uname -a
 - lsb_release -a
 install:
-# Temporary escape hatch for setuptools 50.0:
-# See https://github.com/pypa/setuptools/blob/17cb9d6bf249cefe653d3bdb712582409035a7db/CHANGES.rst#v5000
-- export SETUPTOOLS_USE_DISTUTILS=stdlib
 - pip install -U setuptools
 - pip install tox
 - virtualenv --version
-- easy_install --version
 - pip --version
 - tox --version
 script:
