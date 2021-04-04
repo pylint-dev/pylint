@@ -13,6 +13,9 @@ with open(HERE / "pylint/__pkginfo__.py", encoding="UTF-8") as f:
     exec(f.read(), __pkginfo__)  # pylint: disable=exec-used
 with open(HERE / "README.rst", encoding="UTF-8") as f:
     long_description = f.read()
+with open(HERE / "requirements_docs.txt", encoding="UTF-8") as f:
+    doc_extra_requires = f.read()
+
 
 setuptools.setup(
     name="pylint",
@@ -33,7 +36,7 @@ setuptools.setup(
     install_requires=__pkginfo__.get("install_requires", None),
     extras_require={
         ':sys_platform=="win32"': ["colorama"],
-        "docs": ["sphinx==3.5.1", "python-docs-theme==2020.12"],
+        "docs": doc_extra_requires,
     },
     entry_points={
         "console_scripts": [
