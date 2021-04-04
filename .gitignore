@@ -13,11 +13,6 @@ doc/technical_reference/extensions.rst
 doc/technical_reference/features.rst
 pyve
 build-stamp
-debian/files
-debian/pylint.*.log
-debian/pylint.*.debhelper
-debian/pylint.substvars
-debian/pylint
 .coverage
 .coverage.*
 .cache/

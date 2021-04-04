@@ -1,7 +1,6 @@
 include ChangeLog
 include CONTRIBUTORS.txt
 include COPYING
-include DEPENDS
 include README.rst
 include bin/*
 include examples/*.py examples/pylintrc examples/pylintrc_camelcase
