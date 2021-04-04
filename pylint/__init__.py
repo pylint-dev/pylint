@@ -12,7 +12,7 @@
 import os
 import sys
 
-from pylint.__pkginfo__ import version as __version__
+from pylint.__pkginfo__ import __version__
 
 # pylint: disable=import-outside-toplevel
 
