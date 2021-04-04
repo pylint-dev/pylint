@@ -2,10 +2,10 @@ include ChangeLog
 include CONTRIBUTORS.txt
 include COPYING
 include README.rst
-include examples/*.py examples/pylintrc examples/pylintrc_camelcase examples/pylintrc
 include elisp/startup elisp/*.el
 include pytest.ini
 recursive-include doc *.bat *.png *.py *.svg *.rst *.txt Makefile
 graft tests
 recursive-exclude tests *.pyc
 recursive-exclude script *
+recursive-exclude examples *
