@@ -8,3 +8,4 @@ include pytest.ini
 recursive-include doc *.bat *.png *.py *.svg *.rst *.txt Makefile
 graft tests
 recursive-exclude tests *.pyc
+recursive-exclude script *
