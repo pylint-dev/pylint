@@ -6,6 +6,10 @@ repos:
         exclude: "tests/functional/t/trailing_whitespaces.py"
     -   id: end-of-file-fixer
         exclude: "tests/functional/m/missing/missing_final_newline.py|tests/functional/t/trailing_newlines.py"
+-   repo: https://github.com/asottile/setup-cfg-fmt
+    rev: v1.17.0
+    hooks:
+    -   id: setup-cfg-fmt
 -   repo: https://github.com/myint/autoflake
     rev: v1.4
     hooks:
