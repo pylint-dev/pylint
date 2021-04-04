@@ -12,12 +12,8 @@ __pkginfo__: Dict[str, Any] = {}
 with open(HERE / "pylint/__pkginfo__.py", encoding="UTF-8") as f:
     exec(f.read(), __pkginfo__)  # pylint: disable=exec-used
 
-with open(HERE / "README.rst", encoding="UTF-8") as f:
-    long_description = f.read()
-
 with open(HERE / "requirements_docs.txt", encoding="UTF-8") as f:
     doc_extra_requires = f.readlines()
-
 
 with open(HERE / "requirements_test_min.txt", encoding="UTF-8") as f:
     test_requires = f.readlines()
@@ -34,7 +30,6 @@ for requirement_file in DEV_REQUIREMENTS_FILES:
 if __name__ == "__main__":
     setup(
         version=__pkginfo__["__version__"],
-        long_description=long_description,
         tests_require=test_requires,
         extras_require={
             ':sys_platform=="win32"': ["colorama"],
