@@ -8,7 +8,7 @@ So, you want to release the ``X.Y.Z`` version of pylint ?
    0. Run the acceptance tests to see if everything is alright with this release.
       We don't run them on CI: ``pytest -m acceptance``
    1. Check if the dependencies of the package are correct
-   2. Update ``numversion`` in ``__pkginfo__``, ``dev_version`` should be ``None`` when you tag,
+   2. Update ``__version__`` in ``pylint/__pkginfo__.py``, ``dev_version`` should be ``None`` when you tag,
       except if it's an alpha release.
    3. Put the version numbers, and the release date into the changelog
    4. Put the release date into the ``What's new`` section.
@@ -88,6 +88,6 @@ Take a look at the examples from ``doc/whatsnew``.
 
 ### Versions
 
-Update ``numversion`` to ``X.Y+1.0`` in ``__pkginfo__`` for ``master`` and to
+Update ``__version__`` to ``X.Y+1.0`` in ``pylint/__pkginfo__.py`` for ``master`` and to
 ``X.Y.Z+1`` for the ``X.Y`` branch. ``dev_version`` should also be back to an
 integer after the tag.

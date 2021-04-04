@@ -31,35 +31,61 @@ for requirement_file in DEV_REQUIREMENTS_FILES:
         ]
 
 
-setuptools.setup(
-    name="pylint",
-    version=__pkginfo__["version"],
-    license=__pkginfo__["license"],
-    description=__pkginfo__["description"],
-    long_description=long_description,
-    author=__pkginfo__["author"],
-    author_email=__pkginfo__["author_email"],
-    url=__pkginfo__["web"],
-    project_urls=__pkginfo__.get("project_urls", {}),
-    classifiers=__pkginfo__["classifiers"],
-    data_files=__pkginfo__.get("data_files", None),
-    ext_modules=__pkginfo__.get("ext_modules", None),
-    python_requires="~=3.6",
-    setup_requires=[],
-    tests_require=["pytest", "pytest-benchmark"],
-    install_requires=__pkginfo__.get("install_requires", None),
-    extras_require={
-        ':sys_platform=="win32"': ["colorama"],
-        "docs": doc_extra_requires,
-        "dev": dev_extra_requires,
-    },
-    entry_points={
-        "console_scripts": [
-            "pylint = pylint:run_pylint",
-            "epylint = pylint:run_epylint",
-            "pyreverse = pylint:run_pyreverse",
-            "symilar = pylint:run_symilar",
-        ]
-    },
-    packages=setuptools.find_packages(),
-)
+def install():
+    setuptools.setup(
+        name="pylint",
+        version=__pkginfo__["__version__"],
+        license="GPL-2.0-or-later",
+        description="python code static checker",
+        long_description=long_description,
+        author="Python Code Quality Authority",
+        author_email="code-quality@python.org",
+        url="https://github.com/PyCQA/pylint",
+        project_urls={"What's New": "https://pylint.pycqa.org/en/latest/whatsnew/"},
+        classifiers=[
+            "Development Status :: 6 - Mature",
+            "Environment :: Console",
+            "Intended Audience :: Developers",
+            "License :: OSI Approved :: GNU General Public License (GPL)",
+            "Operating System :: OS Independent",
+            "Programming Language :: Python",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3 :: Only",
+            "Programming Language :: Python :: Implementation :: CPython",
+            "Programming Language :: Python :: Implementation :: PyPy",
+            "Topic :: Software Development :: Debuggers",
+            "Topic :: Software Development :: Quality Assurance",
+            "Topic :: Software Development :: Testing",
+        ],
+        packages=setuptools.find_packages(),
+        python_requires="~=3.6",
+        setup_requires=[],
+        tests_require=test_requires,
+        install_requires=[
+            "astroid>=2.5.2,<2.7",
+            "isort>=4.2.5,<6",
+            "mccabe>=0.6,<0.7",
+            "toml>=0.7.1",
+        ],
+        extras_require={
+            ':sys_platform=="win32"': ["colorama"],
+            "docs": doc_extra_requires,
+            "dev": dev_extra_requires,
+        },
+        entry_points={
+            "console_scripts": [
+                "pylint = pylint:run_pylint",
+                "epylint = pylint:run_epylint",
+                "pyreverse = pylint:run_pyreverse",
+                "symilar = pylint:run_symilar",
+            ]
+        },
+    )
+
+
+if __name__ == "__main__":
+    install()

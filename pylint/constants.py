@@ -5,7 +5,7 @@ import sys
 
 import astroid
 
-from pylint.__pkginfo__ import version as pylint_version
+from pylint.__pkginfo__ import __version__
 
 PY38_PLUS = sys.version_info[:2] >= (3, 8)
 PY39_PLUS = sys.version_info[:2] >= (3, 9)
@@ -45,6 +45,6 @@ class WarningScope:
     NODE = "node-based-msg"
 
 
-full_version = f"""pylint {pylint_version}
+full_version = f"""pylint {__version__}
 astroid {astroid.__version__}
 Python {sys.version}"""
