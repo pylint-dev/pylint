@@ -211,7 +211,7 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "",
                 "type": "string",
                 "metavar": "<comma separated words>",
-                "help": "List of comma separated words that " "should not be checked.",
+                "help": "List of comma separated words that should not be checked.",
             },
         ),
         (
@@ -242,7 +242,7 @@ class SpellingChecker(BaseTokenChecker):
                 "default": 4,
                 "type": "int",
                 "metavar": "N",
-                "help": "Limits count of emitted suggestions for " "spelling mistakes.",
+                "help": "Limits count of emitted suggestions for spelling mistakes.",
             },
         ),
     )

@@ -212,7 +212,7 @@ class MisdesignChecker(BaseChecker):
                 "default": 50,
                 "type": "int",
                 "metavar": "<int>",
-                "help": "Maximum number of statements in function / method " "body.",
+                "help": "Maximum number of statements in function / method body.",
             },
         ),
         (

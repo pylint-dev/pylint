@@ -259,7 +259,7 @@ class FormatChecker(BaseTokenChecker):
                 "metavar": "<regexp>",
                 "default": r"^\s*(# )?<?https?://\S+>?$",
                 "help": (
-                    "Regexp for a line that is allowed to be longer than " "the limit."
+                    "Regexp for a line that is allowed to be longer than the limit."
                 ),
             },
         ),

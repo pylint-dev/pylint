@@ -344,7 +344,7 @@ group are mutually exclusive.",
         if linter.config.jobs > 1 or linter.config.jobs == 0:
             if multiprocessing is None:
                 print(
-                    "Multiprocessing library is missing, " "fallback to single process",
+                    "Multiprocessing library is missing, fallback to single process",
                     file=sys.stderr,
                 )
                 linter.set_option("jobs", 1)
