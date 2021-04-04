@@ -42,9 +42,7 @@ def test_template_option(linter):
     linter.set_current_module("0123")
     linter.add_message("C0301", line=1, args=(1, 2))
     linter.add_message("line-too-long", line=2, args=(3, 4))
-    assert (
-        output.getvalue() == "************* Module 0123\n" "C0301:001\n" "C0301:002\n"
-    )
+    assert output.getvalue() == "************* Module 0123\nC0301:001\nC0301:002\n"
 
 
 def test_parseable_output_deprecated():
