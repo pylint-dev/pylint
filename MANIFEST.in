@@ -1,5 +1,4 @@
 exclude ChangeLog # At least 'https://pylint.pycqa.org/en/latest/whatsnew/' is not downloaded for each install
-exclude pytest.ini
 recursive-exclude elisp *
 recursive-exclude doc *
 recursive-exclude tests *
