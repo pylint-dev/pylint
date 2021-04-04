@@ -4,7 +4,7 @@
 from pathlib import Path
 from typing import Any, Dict
 
-import setuptools
+from setuptools import find_packages, setup
 
 HERE = Path(__file__).parent
 
@@ -31,8 +31,8 @@ for requirement_file in DEV_REQUIREMENTS_FILES:
         ]
 
 
-def install():
-    setuptools.setup(
+if __name__ == "__main__":
+    setup(
         name="pylint",
         version=__pkginfo__["__version__"],
         license="GPL-2.0-or-later",
@@ -61,7 +61,7 @@ def install():
             "Topic :: Software Development :: Quality Assurance",
             "Topic :: Software Development :: Testing",
         ],
-        packages=setuptools.find_packages(),
+        packages=find_packages(),
         python_requires="~=3.6",
         setup_requires=[],
         tests_require=test_requires,
@@ -85,7 +85,3 @@ def install():
             ]
         },
     )
-
-
-if __name__ == "__main__":
-    install()
