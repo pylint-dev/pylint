@@ -12,6 +12,6 @@ if dev_version is not None:
     if alpha_version:
         __version__ += f"a{dev_version}"
     else:
-        __version__ += f"-dev{dev_version}"
+        __version__ += f".dev{dev_version}"
 
 mailing_list = ("mailto:code-quality@python.org",)
