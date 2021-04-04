@@ -24,11 +24,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-# pylint: disable=redefined-builtin,invalid-name
-"""pylint packaging information"""
-
-
-from os.path import join
 from typing import Optional
 
 version = "2.8.0"
@@ -48,21 +43,13 @@ install_requires = [
     "mccabe>=0.6,<0.7",
     "toml>=0.7.1",
 ]
-
-dependency_links = []  # type: ignore
-
-extras_require = {}
-extras_require[':sys_platform=="win32"'] = ["colorama"]
-extras_require["docs"] = ["sphinx==3.5.1", "python-docs-theme==2020.12"]
-
-license = "GPL-2.0-or-later"
+license = "GPL-2.0-or-later"  # pylint: disable=redefined-builtin
 description = "python code static checker"
 web = "https://github.com/PyCQA/pylint"
 mailinglist = "mailto:code-quality@python.org"
 project_urls = {"What's New": "https://pylint.pycqa.org/en/latest/whatsnew/"}
 author = "Python Code Quality Authority"
 author_email = "code-quality@python.org"
-
 classifiers = [
     "Development Status :: 6 - Mature",
     "Environment :: Console",
@@ -81,8 +68,4 @@ classifiers = [
     "Topic :: Software Development :: Debuggers",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
-]
-
-scripts = [
-    join("bin", filename) for filename in ("pylint", "symilar", "epylint", "pyreverse")
 ]
