@@ -1,4 +1,11 @@
 repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.4.0
+    hooks:
+    -   id: trailing-whitespace
+        exclude: "tests/functional/t/trailing_whitespaces.py"
+    -   id: end-of-file-fixer
+        exclude: "tests/functional/m/missing/missing_final_newline.py|tests/functional/t/trailing_newlines.py"
 -   repo: https://github.com/myint/autoflake
     rev: v1.4
     hooks:
@@ -11,27 +18,15 @@ repos:
             - --remove-duplicate-keys
             - --remove-unused-variables
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.10.0
+    rev: v2.11.0
     hooks:
     -   id: pyupgrade
         args: [--py36-plus]
         exclude: *fixtures
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
-    hooks:
-    -   id: trailing-whitespace
-        exclude: "tests/functional/t/trailing_whitespaces.py"
-    -   id: end-of-file-fixer
-        exclude: "tests/functional/m/missing/missing_final_newline.py|tests/functional/t/trailing_newlines.py"
 -   repo: https://github.com/PyCQA/isort
-    rev: 5.7.0
+    rev: 5.8.0
     hooks:
     -   id: isort
--   repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.0
-    hooks:
-    -   id: flake8
-        exclude: *fixtures
 -   repo: https://github.com/ambv/black
     rev: 20.8b1
     hooks:
@@ -39,9 +34,14 @@ repos:
       args: [--safe, --quiet]
       exclude: *fixtures
 -   repo: https://github.com/Pierre-Sassoulas/black-disable-checker/
-    rev: 0.0.1
+    rev: 1.0.0
     hooks:
     - id: black-disable-checker
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.0
+    hooks:
+    -   id: flake8
+        exclude: *fixtures
 -   repo: local
     hooks:
     -   id: pylint
