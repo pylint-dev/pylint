@@ -4,7 +4,7 @@ include COPYING
 include README.rst
 include elisp/startup elisp/*.el
 include pytest.ini
-recursive-include doc *.bat *.png *.py *.svg *.rst *.txt Makefile
+recursive-include doc *.bat *.png *.py *.svg *.rst *.txt Makefile .md
 graft tests
 recursive-exclude tests *.pyc .benchmark
 recursive-exclude script *
