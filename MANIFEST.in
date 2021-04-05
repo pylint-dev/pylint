@@ -1,6 +1,0 @@
-exclude ChangeLog # At least 'https://pylint.pycqa.org/en/latest/whatsnew/' is not downloaded for each install
-recursive-exclude elisp *
-recursive-exclude doc *
-recursive-exclude tests *
-recursive-exclude script *
-recursive-exclude examples *
