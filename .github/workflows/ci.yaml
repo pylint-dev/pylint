@@ -32,7 +32,7 @@ jobs:
         id: generate-python-key
         run: >-
           echo "::set-output name=key::base-venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('pylint/__pkg_info__.py', 'requirements_test.txt', 'setup.cfg', 'requirements_test_min.txt')
+            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
@@ -162,8 +162,8 @@ jobs:
         id: generate-python-key
         run: >-
           echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('pylint/__pkg_info__.py', 'requirements_test.txt',
-                      'setup.cfg', 'requirements_test_min.txt') }}"
+            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
+          }}"
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v2.1.4
@@ -334,7 +334,8 @@ jobs:
         id: generate-python-key
         run: >-
           echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('pylint/__pkg_info__.py', 'setup.cfg', 'requirements_test_min.txt') }}"
+            hashFiles('setup.cfg', 'requirements_test_min.txt')
+          }}"
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v2.1.4
@@ -412,7 +413,8 @@ jobs:
         id: generate-python-key
         run: >-
           echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('pylint/__pkg_info__.py', 'setup.cfg', 'requirements_test_min.txt') }}"
+            hashFiles('setup.cfg', 'requirements_test_min.txt')
+          }}"
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v2.1.4
