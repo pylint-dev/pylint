@@ -12,6 +12,8 @@ Release date: Undefined
 * Apply ``const-naming-style`` to module constants annotated with
   ``typing.Final``
 
+* The packaging is now done via setuptools exclusively. The 'doc' extra-require has been removed.
+
 
 What's New in Pylint 2.7.5?
 ===========================
