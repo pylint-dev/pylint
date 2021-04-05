@@ -32,6 +32,10 @@ Release date: Undefined
 
   Closes #4277
 
+* Continuous integration with read the doc has been added.
+
+  Closes #3850
+
 
 What's New in Pylint 2.7.4?
 ===========================
