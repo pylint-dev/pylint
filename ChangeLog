@@ -9,6 +9,10 @@ Release date: Undefined
 ..
   Put new features here and also in 'doc/whatsnew/2.8.rst'
 
+* Use a prescriptive message for ``unidiomatic-typecheck``
+
+  Closes #3891
+
 * Apply ``const-naming-style`` to module constants annotated with
   ``typing.Final``
 
