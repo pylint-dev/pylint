@@ -305,7 +305,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         (
             "never-returning-functions",
             {
-                "default": ("sys.exit",),
+                "default": ("sys.exit", "argparse.parse_error"),
                 "type": "csv",
                 "help": "Complete name of functions that never returns. When checking "
                 "for inconsistent-return-statements if a never returning function is "
