@@ -1411,11 +1411,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if rtype.name == "NoReturn" and rtype.root().name == "typing":
                     return True
                 if rtype.name == "_SpecialForm" and rtype.root().name == "typing":
-                    # Before python3.9, NoReturn is an instance of _SpecialForm class
+                    #  Before python3.9, NoReturn is an instance of _SpecialForm class
                     return (
-                        isinstance(node.returns, astroid.Attribute) and node.returns.attrname == "NoReturn"
-                        or isinstance(node.returns, astroid.Name) and node.returns.name == "NoReturn"
-                        )
+                        isinstance(node.returns, astroid.Attribute)
+                        and node.returns.attrname == "NoReturn"
+                        or isinstance(node.returns, astroid.Name)
+                        and node.returns.name == "NoReturn"
+                    )
             except astroid.InferenceError:
                 pass
         try:
