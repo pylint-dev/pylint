@@ -14,3 +14,4 @@ inconsistent-return-statements:262:8:bug_1794_inner_func_in_if_counter_example_3
 inconsistent-return-statements:267:0:bug_3468:Either all return statements in a function should return an expression, or none of them should.
 inconsistent-return-statements:277:0:bug_3468_variant:Either all return statements in a function should return an expression, or none of them should.
 inconsistent-return-statements:322:0:bug_pylint_3873_1:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:366:0:bug_pylint_4122_wrong:Either all return statements in a function should return an expression, or none of them should.
