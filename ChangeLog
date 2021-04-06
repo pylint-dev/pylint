@@ -22,6 +22,10 @@ Release date: Undefined
   only contain ``__version__`` (also accessible with ``pylint.__version__``), other meta-information are still
   accessible with ``import importlib;metadata.metadata('pylint')``.
 
+* Fix false-positive ``used-before-assignment`` in function returns.
+
+  Closes #4301
+
 
 What's New in Pylint 2.7.5?
 ===========================
