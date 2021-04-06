@@ -1457,7 +1457,12 @@ class VariablesChecker(BaseChecker):
                             and defnode.lineno == node.lineno
                             and isinstance(
                                 defstmt,
-                                (astroid.Assign, astroid.AnnAssign, astroid.AugAssign),
+                                (
+                                    astroid.Assign,
+                                    astroid.AnnAssign,
+                                    astroid.AugAssign,
+                                    astroid.Return,
+                                ),
                             )
                             and isinstance(defstmt.value, astroid.JoinedStr)
                         )
