@@ -652,9 +652,9 @@ class TestRunTC:
         self._runtest(
             [
                 "--fail-under",
-                "5",
+                "-10",
                 "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+                join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
             code=0,
         )
@@ -663,34 +663,25 @@ class TestRunTC:
                 "--fail-under",
                 "6",
                 "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+                join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
             code=0,
         )
         self._runtest(
             [
                 "--fail-under",
-                "5.5",
+                "7.5",
                 "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+                join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
             code=0,
         )
         self._runtest(
             [
                 "--fail-under",
-                "7",
+                "7.6",
                 "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_plus6.py"),
-            ],
-            code=16,
-        )
-        self._runtest(
-            [
-                "--fail-under",
-                "6.7",
-                "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+                join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
             code=16,
         )
@@ -698,20 +689,38 @@ class TestRunTC:
         self._runtest(
             [
                 "--fail-under",
-                "0",
+                "-11",
                 "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_minus6.py"),
+                join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
-            code=22,
+            code=0,
         )
         self._runtest(
             [
                 "--fail-under",
                 "-10",
                 "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+                join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
             code=0,
+        )
+        self._runtest(
+            [
+                "--fail-under",
+                "-9",
+                "--enable=all",
+                join(HERE, "regrtest_data", "fail_under_minus10.py"),
+            ],
+            code=22,
+        )
+        self._runtest(
+            [
+                "--fail-under",
+                "-5",
+                "--enable=all",
+                join(HERE, "regrtest_data", "fail_under_minus10.py"),
+            ],
+            code=22,
         )
 
     @staticmethod
