@@ -34,6 +34,8 @@ Release date: Undefined
 ..
   Put bug fixes that will be cherry-picked to latest major version here
 
+* Run will not fail if score exactly equals ``config.fail_under`.
+
 * Functions that never returns may declare ``NoReturn`` as type hints, so that
   ``inconsistent-return-statements`` is not emitted.
 

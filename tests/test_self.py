@@ -665,7 +665,7 @@ class TestRunTC:
                 "--enable=all",
                 join(HERE, "regrtest_data", "fail_under_plus6.py"),
             ],
-            code=0,
+            code=16,
         )
         self._runtest(
             [
