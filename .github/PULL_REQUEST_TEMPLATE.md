@@ -12,20 +12,22 @@ https://github.com/PyCQA/pylint/blob/master/doc/development_guide/contribute.rst
 
 - [ ] Add yourself to CONTRIBUTORS if you are a new contributor.
 - [ ] Add a ChangeLog entry describing what your PR does.
-- [ ] If it's a new feature or an important bug fix, add a What's New entry in `doc/whatsnew/<current release.rst>`.
+- [ ] If it's a new feature or an important bug fix, add a What's New entry in
+      `doc/whatsnew/<current release.rst>`.
 - [ ] Write a good description on what the PR does.
 
 ## Description
 
-
 ## Type of Changes
+
 <!-- Leave the corresponding lines for the applicable type of change: -->
-|   | Type |
-| ------------- | ------------- |
-| ✓  | :bug: Bug fix  |
-| ✓  | :sparkles: New feature |
-| ✓  | :hammer: Refactoring  |
-| ✓  | :scroll: Docs |
+
+|     | Type                   |
+| --- | ---------------------- |
+| ✓   | :bug: Bug fix          |
+| ✓   | :sparkles: New feature |
+| ✓   | :hammer: Refactoring   |
+| ✓   | :scroll: Docs          |
 
 ## Related Issue
 
