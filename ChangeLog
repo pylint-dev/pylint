@@ -4,10 +4,10 @@ Pylint's ChangeLog
 
 What's New in Pylint 2.8.0?
 ===========================
-Release date: Undefined
+Release date: 2021-04-11
 
 ..
-  Put new features here and also in 'doc/whatsnew/2.8.rst'
+  Put new features and bugfixes here and also in 'doc/whatsnew/2.8.rst'
 
 * New refactoring message ``consider-using-with``. This message is emitted if resource-allocating functions or methods of the
   standard library (like ``open()`` or ``threading.Lock.acquire()``) that can be used as a context manager are called without
@@ -34,9 +34,13 @@ Release date: Undefined
   ``typing.Final``
 
 * The packaging is now done via setuptools exclusively. ``doc``, ``tests``, ``man``, ``elisp`` and ``Changelog`` are
-  not packaged anymore - reducing the size of the package by 75%. Debian packaging is now  (officially) done in
-  https://salsa.debian.org/python-team/packages/pylint. The 'doc' extra-require has been removed. ``__pkginfo__`` now
-  only contain ``__version__`` (also accessible with ``pylint.__version__``), other meta-information are still
+  not packaged anymore - reducing the size of the package by 75%.
+
+* Debian packaging is now  (officially) done in https://salsa.debian.org/python-team/packages/pylint.
+
+* The 'doc' extra-require has been removed.
+
+* ``__pkginfo__`` now only contain ``__version__`` (also accessible with ``pylint.__version__``), other meta-information are still
   accessible with ``import importlib;metadata.metadata('pylint')``.
 
 * COPYING has been renamed to LICENSE for standardization.
@@ -61,14 +65,6 @@ Release date: Undefined
   and can suggest the use of the alternative union syntax where possible.
   (For example, 'typing.Dict' can be replaced by 'dict', and 'typing.Unions' by '|', etc.)
   Make sure to check the config options if you plan on using it!
-
-
-What's New in Pylint 2.7.5?
-===========================
-Release date: Undefined
-
-..
-  Put bug fixes that will be cherry-picked to latest major version here
 
 * Reactivates old counts in report mode.
 
