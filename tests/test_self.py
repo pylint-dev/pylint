@@ -399,8 +399,10 @@ class TestRunTC:
         for key, value in expected.items():
             assert key in message
             assert message[key] == value
-        assert "invalid syntax" in message["message"].lower()
-        assert "<unknown>" in message["message"].lower()
+        msg = message["message"].lower()
+        assert any(x in msg for x in ["expected ':'", "invalid syntax"])
+        assert "<unknown>" in msg
+        assert "line 1" in msg
 
     def test_json_report_when_file_is_missing(self):
         out = StringIO()
