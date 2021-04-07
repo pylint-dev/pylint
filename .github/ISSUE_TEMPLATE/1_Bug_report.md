@@ -1,7 +1,6 @@
 ---
 name: Bug report
 about: Report a bug in pylint
-
 ---
 
 <!--
@@ -36,6 +35,7 @@ module\
 -->
 
 ### Current behavior
+
 <!--
 Result of `pylint a.py`:
 ```
@@ -45,10 +45,10 @@ Result of `pylint a.py`:
 
 ### Expected behavior
 
-
 ### pylint --version output
 
 Result of `pylint --version` output:
+
 ```
 
 ```
