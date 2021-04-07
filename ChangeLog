@@ -57,6 +57,8 @@ Release date: Undefined
 
   Closes #3850
 
+* Don't show ``DuplicateBasesError`` for attribute access
+
 
 What's New in Pylint 2.7.4?
 ===========================
