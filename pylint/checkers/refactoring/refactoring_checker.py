@@ -1406,20 +1406,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             bool: True if the function never returns, False otherwise.
         """
         if isinstance(node, astroid.FunctionDef) and node.returns:
-            try:
-                rtype = next(node.returns.infer())
-                if rtype.name == "NoReturn" and rtype.root().name == "typing":
-                    return True
-                if rtype.name == "_SpecialForm" and rtype.root().name == "typing":
-                    #  Before python3.9, NoReturn is an instance of _SpecialForm class
-                    return (
-                        isinstance(node.returns, astroid.Attribute)
-                        and node.returns.attrname == "NoReturn"
-                        or isinstance(node.returns, astroid.Name)
-                        and node.returns.name == "NoReturn"
-                    )
-            except astroid.InferenceError:
-                pass
+            return (
+                isinstance(node.returns, astroid.Attribute)
+                and node.returns.attrname == "NoReturn"
+                or isinstance(node.returns, astroid.Name)
+                and node.returns.name == "NoReturn"
+            )
         try:
             return node.qname() in self._never_returning_functions
         except TypeError:
