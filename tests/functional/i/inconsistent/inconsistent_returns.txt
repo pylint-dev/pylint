@@ -15,3 +15,4 @@ inconsistent-return-statements:267:0:bug_3468:Either all return statements in a 
 inconsistent-return-statements:277:0:bug_3468_variant:Either all return statements in a function should return an expression, or none of them should.
 inconsistent-return-statements:322:0:bug_pylint_3873_1:Either all return statements in a function should return an expression, or none of them should.
 inconsistent-return-statements:366:0:bug_pylint_4122_wrong:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:401:0:bug_pylint_4019_wrong:Either all return statements in a function should return an expression, or none of them should.

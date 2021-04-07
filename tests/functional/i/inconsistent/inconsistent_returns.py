@@ -387,3 +387,21 @@ def bug_pylint_4122_bis(s):
         return n
     except ValueError:
         parser_error_name('parser error')
+
+
+def bug_pylint_4019(x):
+    """
+    assert False is equivalent to a return
+    """
+    if x == 1:
+        return 42
+    assert False
+
+
+def bug_pylint_4019_wrong(x):  # [inconsistent-return-statements]
+    """
+    assert True is not equivalent to a return
+    """
+    if x == 1:
+        return 42
+    assert True
