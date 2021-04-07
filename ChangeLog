@@ -16,7 +16,7 @@ Release date: Undefined
 * Apply ``const-naming-style`` to module constants annotated with
   ``typing.Final``
 
-* The packaging is now done via setuptools exclusively. ``doc``, ``test``, ``man``, ``elisp`` and ``Changelog`` are
+* The packaging is now done via setuptools exclusively. ``doc``, ``tests``, ``man``, ``elisp`` and ``Changelog`` are
   not packaged anymore - reducing the size of the package by 75%. Debian packaging is now  (officially) done in
   https://salsa.debian.org/python-team/packages/pylint. The 'doc' extra-require has been removed. ``__pkginfo__`` now
   only contain ``__version__`` (also accessible with ``pylint.__version__``), other meta-information are still

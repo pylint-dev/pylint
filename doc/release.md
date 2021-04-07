@@ -4,14 +4,14 @@ So, you want to release the `X.Y.Z` version of pylint ?
 
 ## Process
 
-1. Preparation 0. Run the acceptance tests to see if everything is alright with this
-   release. We don't run them on CI: `pytest -m acceptance`
-   1. Check if the dependencies of the package are correct
-   2. Update `__version__` in `pylint/__pkginfo__.py`, `dev_version` should be `None`
-      when you tag, except if it's an alpha release.
-   3. Put the version numbers, and the release date into the changelog
-   4. Put the release date into the `What's new` section.
-   5. Generate the new copyright notices for this release:
+1. Run the acceptance tests to see if everything is alright with this release. We don't
+   run them on CI: `pytest -m acceptance`
+2. Check if the dependencies of the package are correct
+3. Update `__version__` in `pylint/__pkginfo__.py`, `dev_version` should be `None` when
+   you tag, except if it's an alpha release.
+4. Put the version numbers, and the release date into the changelog
+5. Put the release date into the `What's new` section.
+6. Generate the new copyright notices for this release:
 
 ```bash
 pip3 install copyrite
@@ -21,17 +21,17 @@ git --aliases=.copyrite_aliases . --jobs=8
 # automatically
 ```
 
-6. Submit your changes in a merge request.
+7. Submit your changes in a merge request.
 
-7. Make sure the tests are passing on Travis/GithubActions:
+8. Make sure the tests are passing on Travis/GithubActions:
    https://travis-ci.org/PyCQA/pylint/
 
-8. Do the actual release by tagging the master with `pylint-X.Y.Z` (ie `pylint-1.6.12`
+9. Do the actual release by tagging the master with `pylint-X.Y.Z` (ie `pylint-1.6.12`
    for example). Travis should deal with the release process once the tag is pushed with
    `git push origin --tags`
 
-9. Go to github, click on "Releases" then on the `pylint-X.Y.Z` tag, choose edit tag,
-   and copy past the changelog in the description.
+10. Go to github, click on "Releases" then on the `pylint-X.Y.Z` tag, choose edit tag,
+    and copy past the changelog in the description.
 
 ## Manual Release
 
