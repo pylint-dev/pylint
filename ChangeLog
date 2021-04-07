@@ -26,7 +26,7 @@ Release date: Undefined
 ..
   Put bug fixes that will be cherry-picked to latest major version here
 
-* Functions that never returns may declare ``NoReturn`` as type hints, so that 
+* Functions that never returns may declare ``NoReturn`` as type hints, so that
   ``inconsistent-return-statements`` is not emitted.
 
   Closes #4122, #4188
