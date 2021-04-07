@@ -46,18 +46,11 @@ twine upload dist/*
 
 ## Post release
 
-### New branch to create for major releases
+### Merge tags in master for pre-commit
 
-The master branch will have all the new features for the `X.Y+1` version
-
-If you're doing a major release, you need to create the `X.Y` branch where we will
-cherry-pick bugs to release the `X.Y.Z+1` minor versions
-
-### Merge tags in master for minor releases
-
-Merge the tag `X.Y.Z` in the main branch by doing a history only merge. It's done in
-order to signal that this is an official release tag, and for `pre-commit autoupdate` to
-works.
+If the tag you just made is not part of the main branch, merge the tag `X.Y.Z` in the
+main branch by doing a history only merge. It's done in order to signal that this is an
+official release tag, and for `pre-commit autoupdate` to works.
 
 ```bash
 git checkout master
@@ -74,8 +67,8 @@ issue labelled as blocker.
 
 #### Changelog
 
-- Create a new section, with the name of the release `X.Y.Z+1` on the `X.Y` branch.
-- If it's a major release, also create a new section for `X.Y+1.0` on the master branch
+- Create a new section, with the name of the release `X.Y.Z+1` or `X.Y+1.0` on the
+  master branch.
 
 You need to add the estimated date when it is going to be published. If no date can be
 known at that time, we should use `Undefined`.
@@ -87,6 +80,5 @@ at the examples from `doc/whatsnew`.
 
 ### Versions
 
-Update `__version__` to `X.Y+1.0` in `pylint/__pkginfo__.py` for `master` and to
-`X.Y.Z+1` for the `X.Y` branch. `dev_version` should also be back to an integer after
-the tag.
+Update `__version__` to `X.Y+1.0` or `X.Y.Z+1` in `__pkginfo__`. `dev_version` should
+also be back to an integer after the tag.
