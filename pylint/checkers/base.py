@@ -2326,7 +2326,7 @@ class ComparisonChecker(_BasicChecker):
             "place it in the right hand side of the comparison.",
         ),
         "C0123": (
-            "Using type() instead of isinstance() for a typecheck.",
+            "Use isinstance() rather than type() for a typecheck.",
             "unidiomatic-typecheck",
             "The idiomatic way to perform an explicit typecheck in "
             "Python is to use isinstance(x, Y) rather than "

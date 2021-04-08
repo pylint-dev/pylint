@@ -305,7 +305,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         (
             "never-returning-functions",
             {
-                "default": ("sys.exit",),
+                "default": ("sys.exit", "argparse.parse_error"),
                 "type": "csv",
                 "help": "Complete name of functions that never returns. When checking "
                 "for inconsistent-return-statements if a never returning function is "
@@ -1405,6 +1405,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns:
             bool: True if the function never returns, False otherwise.
         """
+        if isinstance(node, astroid.FunctionDef) and node.returns:
+            return (
+                isinstance(node.returns, astroid.Attribute)
+                and node.returns.attrname == "NoReturn"
+                or isinstance(node.returns, astroid.Name)
+                and node.returns.name == "NoReturn"
+            )
         try:
             return node.qname() in self._never_returning_functions
         except TypeError:

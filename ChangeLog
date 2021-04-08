@@ -12,6 +12,10 @@ Release date: Undefined
 * Add new ``ConfusingConsecutiveElifChecker``. This checker emits a refactoring message (R5601 ``confusing-consecutive-elif``)
   if if/elif statements with different indentation levels follow directly one after the other.
 
+* Use a prescriptive message for ``unidiomatic-typecheck``
+
+  Closes #3891
+
 * Apply ``const-naming-style`` to module constants annotated with
   ``typing.Final``
 
@@ -21,6 +25,10 @@ Release date: Undefined
   only contain ``__version__`` (also accessible with ``pylint.__version__``), other meta-information are still
   accessible with ``import importlib;metadata.metadata('pylint')``.
 
+* Fix false-positive ``used-before-assignment`` in function returns.
+
+  Closes #4301
+
 
 What's New in Pylint 2.7.5?
 ===========================
@@ -28,6 +36,13 @@ Release date: Undefined
 
 ..
   Put bug fixes that will be cherry-picked to latest major version here
+
+* Run will not fail if score exactly equals ``config.fail_under`.
+
+* Functions that never returns may declare ``NoReturn`` as type hints, so that
+  ``inconsistent-return-statements`` is not emitted.
+
+  Closes #4122, #4188
 
 * Improved protected access checks to allow access inside class methods
 
