@@ -6,6 +6,7 @@
 import astroid
 
 from pylint.checkers import BaseChecker
+from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
 
 
@@ -26,6 +27,7 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
         )
     }
 
+    @check_messages("confusing-consecutive-elif")
     def visit_if(self, node):
         if node.has_elif_block() and self.__ends_with_if(node.body):
             self.add_message("confusing-consecutive-elif", node=node.orelse[0])
