@@ -24,8 +24,7 @@ from pylint.utils import diff_string
 
 
 def report_raw_stats(sect, stats, old_stats):
-    """calculate percentage of code / doc / comment / empty
-    """
+    """calculate percentage of code / doc / comment / empty"""
     total_lines = stats["total_lines"]
     if not total_lines:
         raise EmptyReportError()
