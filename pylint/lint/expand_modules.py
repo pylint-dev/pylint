@@ -26,7 +26,6 @@ def get_python_path(filepath: str) -> str:
         dirname = os.path.dirname(dirname)
         if old_dirname == dirname:
             return os.getcwd()
-    return None
 
 
 def _basename_in_ignore_list_re(base_name, ignore_list_re):
