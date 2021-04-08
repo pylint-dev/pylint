@@ -1386,7 +1386,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(node.test, astroid.Const)
             and not node.test.value
         ):
-            #  consider assert False as a return node
+            # consider assert False as a return node
             return True
         # recurses on the children of the node
         return any(self._is_node_return_ended(_child) for _child in node.get_children())

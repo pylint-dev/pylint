@@ -389,6 +389,7 @@ def bug_pylint_4122_bis(s):
         parser_error_name('parser error')
 
 
+# https://github.com/PyCQA/pylint/issues/4019
 def bug_pylint_4019(x):
     """
     assert False is equivalent to a return
