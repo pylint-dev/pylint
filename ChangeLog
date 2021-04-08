@@ -22,6 +22,10 @@ Release date: Undefined
   only contain ``__version__`` (also accessible with ``pylint.__version__``), other meta-information are still
   accessible with ``import importlib;metadata.metadata('pylint')``.
 
+* Fix false-positive ``used-before-assignment`` in function returns.
+
+  Closes #4301
+
 
 What's New in Pylint 2.7.5?
 ===========================
@@ -33,6 +37,8 @@ Release date: Undefined
 * During detection of ``inconsistent-return-statements`` consider that ``assert False`` is a return node.
 
   Closes #4019
+  
+* Run will not fail if score exactly equals ``config.fail_under`.
 
 * Functions that never returns may declare ``NoReturn`` as type hints, so that
   ``inconsistent-return-statements`` is not emitted.
