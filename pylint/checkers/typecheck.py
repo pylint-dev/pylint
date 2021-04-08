@@ -985,6 +985,8 @@ accessed. Python regular expressions are accepted.",
                     continue
             except AttributeError:
                 continue
+            except astroid.DuplicateBasesError:
+                continue
             except astroid.NotFoundError:
                 # This can't be moved before the actual .getattr call,
                 # because there can be more values inferred and we are
