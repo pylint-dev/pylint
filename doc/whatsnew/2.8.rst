@@ -14,6 +14,9 @@ New checkers
 
 * Add ``deprecated-argument`` check for deprecated arguments.
 
+* Add new ``ConfusingConsecutiveElifChecker``. This checker emits a refactoring message (R5601 ``confusing-consecutive-elif``)
+  if if/elif statements with different indentation levels follow directly one after the other.
+
 Other Changes
 =============
 
