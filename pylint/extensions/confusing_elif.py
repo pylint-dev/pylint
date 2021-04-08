@@ -52,4 +52,4 @@ def register(linter):
     :param linter: The linter to register the checker to.
     :type linter: pylint.lint.PyLinter
     """
-    linter.register_checker(ConfusingConsecutiveElifChecker)
+    linter.register_checker(ConfusingConsecutiveElifChecker(linter))
