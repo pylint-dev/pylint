@@ -20,10 +20,12 @@ from pylint.checkers import BaseTokenChecker
 from pylint.exceptions import EmptyReportError
 from pylint.interfaces import ITokenChecker
 from pylint.reporters.ureports.nodes import Table
+from pylint.utils import diff_string
 
 
-def report_raw_stats(sect, stats, _):
-    """calculate percentage of code / doc / comment / empty"""
+def report_raw_stats(sect, stats, old_stats):
+    """calculate percentage of code / doc / comment / empty
+    """
     total_lines = stats["total_lines"]
     if not total_lines:
         raise EmptyReportError()
@@ -33,7 +35,12 @@ def report_raw_stats(sect, stats, _):
         key = node_type + "_lines"
         total = stats[key]
         percent = float(total * 100) / total_lines
-        lines += (node_type, str(total), "%.2f" % percent, "NC", "NC")
+        old = old_stats.get(key, None)
+        if old is not None:
+            diff_str = diff_string(old, total)
+        else:
+            old, diff_str = "NC", "NC"
+        lines += (node_type, str(total), "%.2f" % percent, str(old), diff_str)
     sect.append(Table(children=lines, cols=5, rheaders=1))
 
 

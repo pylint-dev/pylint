@@ -48,10 +48,10 @@ messages nor reports. XXX not true, emit a 07 report !
 from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
 from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.checkers.mapreduce_checker import MapReduceMixin
-from pylint.utils import register_plugins
+from pylint.utils import diff_string, register_plugins
 
 
-def table_lines_from_stats(stats, _, columns):
+def table_lines_from_stats(stats, old_stats, columns):
     """get values listed in <columns> from <stats> and <old_stats>,
     and return a formated list of values, designed to be given to a
     ureport.Table object
@@ -60,7 +60,13 @@ def table_lines_from_stats(stats, _, columns):
     for m_type in columns:
         new = stats[m_type]
         new = "%.3f" % new if isinstance(new, float) else str(new)
-        lines += (m_type.replace("_", " "), new, "NC", "NC")
+        old = old_stats.get(m_type)
+        if old is not None:
+            diff_str = diff_string(old, new)
+            old = format(old)
+        else:
+            old, diff_str = "NC", "NC"
+        lines += (m_type.replace("_", " "), new, old, diff_str)
     return lines
 
 
