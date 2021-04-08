@@ -59,13 +59,13 @@ def table_lines_from_stats(stats, old_stats, columns):
     lines = []
     for m_type in columns:
         new = stats[m_type]
-        new = "%.3f" % new if isinstance(new, float) else str(new)
         old = old_stats.get(m_type)
         if old is not None:
             diff_str = diff_string(old, new)
-            old = format(old)
         else:
             old, diff_str = "NC", "NC"
+        new = "%.3f" % new if isinstance(new, float) else str(new)
+        old = "%.3f" % old if isinstance(old, float) else str(old)
         lines += (m_type.replace("_", " "), new, old, diff_str)
     return lines
 
