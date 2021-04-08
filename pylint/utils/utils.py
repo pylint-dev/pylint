@@ -36,11 +36,10 @@ def normalize_text(text, line_len=DEFAULT_LINE_LENGTH, indent=""):
 
 CMPS = ["=", "-", "+"]
 
-# py3k has no more cmp builtin
-if sys.version_info >= (3, 0):
 
-    def cmp(a, b):  # pylint: disable=redefined-builtin
-        return (a > b) - (a < b)
+# py3k has no more cmp builtin
+def cmp(a, b):  # pylint: disable=redefined-builtin
+    return (a > b) - (a < b)
 
 
 def diff_string(old, new):
@@ -48,7 +47,7 @@ def diff_string(old, new):
     difference
     """
     diff = abs(old - new)
-    diff_str = "%s%s" % (CMPS[cmp(old, new)], diff and ("%.2f" % diff) or "")
+    diff_str = "{}{}".format(CMPS[cmp(old, new)], diff and ("%.2f" % diff) or "")
     return diff_str
 
 
