@@ -3,10 +3,10 @@
 
 from typing import Optional
 
-__version__ = "2.8.0"
+__version__ = "3.0.0"
 # For an official release, use 'alpha_version = False' and 'dev_version = None'
-alpha_version: bool = False  # Release will be an alpha version if True (ex: '1.2.3a6')
-dev_version: Optional[int] = None
+alpha_version: bool = True  # Release will be an alpha version if True (ex: '1.2.3a6')
+dev_version: Optional[int] = 3
 
 if dev_version is not None:
     if alpha_version:
