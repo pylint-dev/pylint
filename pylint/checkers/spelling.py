@@ -102,10 +102,13 @@ class WordsWithUnderscores(Filter):
 
 
 class RegExFilter(Filter):
-    r"""Parent class for filters using regular expressions.
-    This filter skips any words the match the expression assigned to the class attribute ``_pattern``
+    """Parent class for filters using regular expressions.
+
+    This filter skips any words the match the expression
+    assigned to the class attribute ``_pattern``.
 
     """
+
     _pattern: Pattern[str]
 
     def _skip(self, word) -> bool:
@@ -269,6 +272,15 @@ class SpellingChecker(BaseTokenChecker):
                 "help": "Limits count of emitted suggestions for spelling mistakes.",
             },
         ),
+        (
+            "spelling-ignore-comment-directives",
+            {
+                "default": "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:",
+                "type": "string",
+                "metavar": "<comma separated words>",
+                "help": "List of comma separated words that should not be considered directives if they appear and the beginning of a comment and should not be checked.",
+            },
+        ),
     )
 
     def open(self):
@@ -287,6 +299,10 @@ class SpellingChecker(BaseTokenChecker):
         # "param" appears in docstring in param description and
         # "pylint" appears in comments in pylint pragmas.
         self.ignore_list.extend(["param", "pylint"])
+
+        self.ignore_comment_directive_list = [
+            w.strip() for w in self.config.spelling_ignore_comment_directives.split(",")
+        ]
 
         # Expand tilde to allow e.g. spelling-private-dict-file = ~/.pylintdict
         if self.config.spelling_private_dict_file:
@@ -332,16 +348,10 @@ class SpellingChecker(BaseTokenChecker):
             initial_space = 0
         if line.strip().startswith("#") and "docstring" not in msgid:
             line = line.strip()[1:]
-            # A ``Filter`` cannot determine if the directive is at the beginning of a line, nor determine if a colon is present or not (``pyenchant`` strips trailing colons). So implementing this here.
-            for iter_directive in (
-                "fmt: on",
-                "fmt: off",
-                "noqa:",
-                "noqa",
-                "nosec",
-                "isort:skip",
-                "mypy:",
-            ):
+            # A ``Filter`` cannot determine if the directive is at the beginning of a line,
+            #   nor determine if a colon is present or not (``pyenchant`` strips trailing colons).
+            #   So implementing this here.
+            for iter_directive in self.ignore_comment_directive_list:
                 if line.startswith(" " + iter_directive):
                     line = line[(len(iter_directive) + 1) :]
                     break
