@@ -380,6 +380,27 @@ class TestSpellingChecker(
             self.checker.process_tokens(_tokenize_str(full_comment))
 
     @skip_on_missing_package_or_dict
+    @set_config(
+        spelling_dict=spell_dict,
+        spelling_ignore_comment_directives="newdirective:,noqa",
+    )
+    def test_skip_directives_specified_in_pylintrc(self):
+        full_comment = "# newdirective: do this newdirective"
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-comment",
+                line=1,
+                args=(
+                    "newdirective",
+                    full_comment,
+                    "          ^^^^^^^^^^^^",
+                    self._get_msg_suggestions("newdirective"),
+                ),
+            )
+        ):
+            self.checker.process_tokens(_tokenize_str(full_comment))
+
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_handle_words_joined_by_forward_slash(self):
         stmt = astroid.extract_node(
