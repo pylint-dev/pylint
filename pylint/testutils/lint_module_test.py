@@ -22,6 +22,7 @@ from pylint.testutils.functional_test_file import (
 )
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
+from pylint.utils import utils
 
 
 class LintModuleTest:
@@ -38,6 +39,11 @@ class LintModuleTest:
         self._linter.disable("useless-suppression")
         try:
             self._linter.read_config_file(test_file.option_file)
+            if self._linter.cfgfile_parser.has_option("MASTER", "load-plugins"):
+                plugins = utils._splitstrip(
+                    self._linter.cfgfile_parser.get("MASTER", "load-plugins")
+                )
+                self._linter.load_plugin_modules(plugins)
             self._linter.load_config_file()
         except NoFileError:
             pass
