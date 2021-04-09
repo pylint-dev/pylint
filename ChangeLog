@@ -34,6 +34,11 @@ Release date: Undefined
 ..
   Put bug fixes that will be cherry-picked to latest major version here
 
+* Enable functional tests for optional checkers by evaluating ``load-plugins`` in the test option file.
+  (This only concerns tests of the Pylint codebase itself).
+
+  Closes #4331
+
 * During detection of ``inconsistent-return-statements`` consider that ``assert False`` is a return node.
 
   Closes #4019
