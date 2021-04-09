@@ -2,11 +2,13 @@
 Pylint's ChangeLog
 ------------------
 
-What's New in Pylint 3.0.0?
-===========================
+What's New in Pylint 3.0.0-a4?
+==============================
 
 ..
   Put breaking changes here and also in 'doc/whatsnew/3.0.rst'
+
+* This is 2.9.0 with the breaking changes of the future version 3.0.
 
 * Fix the score option not being honored when exporting to JSON
 
