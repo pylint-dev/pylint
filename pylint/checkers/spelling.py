@@ -317,7 +317,6 @@ class SpellingChecker(BaseTokenChecker):
                 WordsWithUnderscores,
                 CamelCasedWord,
                 SphinxDirectives,
-                # BlackDirectives
             ],
         )
         self.initialized = True
@@ -334,6 +333,7 @@ class SpellingChecker(BaseTokenChecker):
             initial_space = 0
         if line.strip().startswith("#") and "docstring" not in msgid:
             line = line.strip()[1:]
+            # A ``Filter`` cannot determine if the directive is at the beginning of a line, nor determine if a colon is present or not (``pyenchant`` strips trailing colons). So implementing this here.
             for iter_directive in (
                 "fmt: on",
                 "fmt: off",
