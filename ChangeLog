@@ -63,6 +63,14 @@ Release date: Undefined
 
 * Don't show ``DuplicateBasesError`` for attribute access
 
+* Allow code flanked in backticks to be skipped by spellchecker
+
+  Closes #4319
+
+* Allow Python tool directives (for black, flake8, zimports, isort, mypy, bandit, pycharm) at beginning of comments to be skipped by spellchecker
+
+  Closes #4320
+
 
 What's New in Pylint 2.7.4?
 ===========================
@@ -298,7 +306,7 @@ Release date: 2021-02-21
 
   Close #2738
 
-* Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comman, etc.)
+* Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comma, etc.)
 
 * Improve lint message for ``singleton-comparison`` with bools
 
