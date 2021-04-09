@@ -37,9 +37,9 @@ if enchant is not None:
         pass
 
 
-class TestSpellingChecker(
-    CheckerTestCase
-):  # pylint:disable=too-many-public-methods # This is a test case class, not sure why it would be relevant to have this pylint rule enforced for test case classes
+class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-methods
+    # This is a test case class, not sure why it would be relevant to have
+    #   this pylint rule enforced for test case classes.
     CHECKER_CLASS = spelling.SpellingChecker
 
     skip_on_missing_package_or_dict = pytest.mark.skipif(
@@ -325,8 +325,14 @@ class TestSpellingChecker(
             ("mypy", ":", "mypy directive"),
         ),
     )
-    def test_skip_tool_directives_at_beginning_of_comments_but_still_raise_error_if_directive_appears_later_in_comment(  # pylint:disable=unused-argument # Having the extra description parameter allows the description to show up in the pytest output as part of the test name when running parametrized tests
-        self, misspelled_portion_of_directive, second_portion_of_directive, description
+    def test_skip_tool_directives_at_beginning_of_comments_but_still_raise_error_if_directive_appears_later_in_comment(  # pylint:disable=unused-argument
+        # Having the extra description parameter allows the description
+        #   to show up in the pytest output as part of the test name
+        #   when running parametrized tests.
+        self,
+        misspelled_portion_of_directive,
+        second_portion_of_directive,
+        description,
     ):
         full_comment = f"# {misspelled_portion_of_directive}{second_portion_of_directive} {misspelled_portion_of_directive}"
         with self.assertAddsMessages(
