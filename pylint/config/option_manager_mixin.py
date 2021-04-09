@@ -237,7 +237,8 @@ class OptionsManagerMixIn:
 
     def read_config_file(self, config_file=None, verbose=None):
         """Read the configuration file but do not load it (i.e. dispatching
-        values to each options provider)"""
+        values to each options provider)
+        """
         help_level = 1
         while help_level <= self._maxlevel:
             opt = "-".join(["long"] * help_level) + "-help"
