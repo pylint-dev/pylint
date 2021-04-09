@@ -34,11 +34,6 @@ Release date: Undefined
 ..
   Put bug fixes that will be cherry-picked to latest major version here
 
-* Enable functional tests for optional checkers by evaluating ``load-plugins`` in the test option file.
-  (This only concerns tests of the Pylint codebase itself).
-
-  Closes #4331
-  
 * Reactivates old counts in report mode.
 
   Closes #3819
