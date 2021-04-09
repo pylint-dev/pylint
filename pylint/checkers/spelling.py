@@ -17,6 +17,7 @@
 # Copyright (c) 2020 Ganden Schaffner <gschaffner@pm.me>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2021 Eli Fine <ejfine@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -26,6 +27,7 @@
 import os
 import re
 import tokenize
+from typing import Pattern
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
@@ -79,7 +81,7 @@ else:
     instr = " To make it work, install the 'python-enchant' package."
 
 
-class WordsWithDigigtsFilter(Filter):
+class WordsWithDigitsFilter(Filter):
     """Skips words with digits."""
 
     def _skip(self, word):
@@ -99,7 +101,18 @@ class WordsWithUnderscores(Filter):
         return "_" in word
 
 
-class CamelCasedWord(Filter):
+class RegExFilter(Filter):
+    r"""Parent class for filters using regular expressions.
+    This filter skips any words the match the expression assigned to the class attribute `_pattern`
+
+    """
+    _pattern: Pattern[str]
+
+    def _skip(self, word) -> bool:
+        return bool(self._pattern.match(word))
+
+
+class CamelCasedWord(RegExFilter):
     r"""Filter skipping over camelCasedWords.
     This filter skips any words matching the following regular expression:
 
@@ -109,11 +122,8 @@ class CamelCasedWord(Filter):
     """
     _pattern = re.compile(r"^([a-z]+([\d]|[A-Z])(?:\w+)?)")
 
-    def _skip(self, word):
-        return bool(self._pattern.match(word))
 
-
-class SphinxDirectives(Filter):
+class SphinxDirectives(RegExFilter):
     r"""Filter skipping over Sphinx Directives.
     This filter skips any words matching the following regular expression:
 
@@ -124,11 +134,8 @@ class SphinxDirectives(Filter):
     # The final ` in the pattern is optional because enchant strips it out
     _pattern = re.compile(r"^(:([a-z]+)){1,2}:`([^`]+)(`)?")
 
-    def _skip(self, word):
-        return bool(self._pattern.match(word))
 
-
-class ForwardSlashChunkder(Chunker):
+class ForwardSlashChunker(Chunker):
     """
     This chunker allows splitting words like 'before/after' into 'before' and 'after'
     """
@@ -283,15 +290,16 @@ class SpellingChecker(BaseTokenChecker):
 
         self.tokenizer = get_tokenizer(
             dict_name,
-            chunkers=[ForwardSlashChunkder],
+            chunkers=[ForwardSlashChunker],
             filters=[
                 EmailFilter,
                 URLFilter,
                 WikiWordFilter,
-                WordsWithDigigtsFilter,
+                WordsWithDigitsFilter,
                 WordsWithUnderscores,
                 CamelCasedWord,
                 SphinxDirectives,
+                # BlackDirectives
             ],
         )
         self.initialized = True
@@ -308,6 +316,17 @@ class SpellingChecker(BaseTokenChecker):
             initial_space = 0
         if line.strip().startswith("#") and "docstring" not in msgid:
             line = line.strip()[1:]
+            for iter_directive in (
+                "fmt: on",
+                "fmt: off",
+                "noqa:",
+                "noqa",
+                "nosec",
+                "isort:skip",
+            ):
+                if line.startswith(" " + iter_directive):
+                    line = line[(len(iter_directive) + 1) :]
+                    break
             starts_with_comment = True
         else:
             starts_with_comment = False
