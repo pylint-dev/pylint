@@ -14,6 +14,7 @@ from _pytest.config import Config
 
 from pylint import checkers
 from pylint.lint import PyLinter
+from pylint.utils import utils
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
 from pylint.testutils.functional_test_file import (
     FunctionalTestFile,
@@ -38,6 +39,9 @@ class LintModuleTest:
         self._linter.disable("useless-suppression")
         try:
             self._linter.read_config_file(test_file.option_file)
+            if self._linter.cfgfile_parser.has_option("MASTER", "load-plugins"):  # ADDED
+                plugins = utils._splitstrip(self._linter.cfgfile_parser.get("MASTER", "load-plugins"))  # ADDED
+                self._linter.load_plugin_modules(plugins)  # ADDED
             self._linter.load_config_file()
         except NoFileError:
             pass
