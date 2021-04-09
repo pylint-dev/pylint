@@ -11,13 +11,15 @@ def set_config(**kwargs):
 
     def _wrapper(fun):
         @functools.wraps(fun)
-        def _forward(self):
+        def _forward(self, *args, **test_function_kwargs):
             for key, value in kwargs.items():
                 setattr(self.checker.config, key, value)
             if isinstance(self, CheckerTestCase):
                 # reopen checker in case, it may be interested in configuration change
                 self.checker.open()
-            fun(self)
+            fun(
+                self, *args, **test_function_kwargs
+            )  # Passing the args and kwargs back to the test function itself allows this decorator to be used on parametrized test cases
 
         return _forward
 
