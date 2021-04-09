@@ -103,7 +103,7 @@ class WordsWithUnderscores(Filter):
 
 class RegExFilter(Filter):
     r"""Parent class for filters using regular expressions.
-    This filter skips any words the match the expression assigned to the class attribute `_pattern`
+    This filter skips any words the match the expression assigned to the class attribute ``_pattern``
 
     """
     _pattern: Pattern[str]
@@ -174,6 +174,24 @@ class ForwardSlashChunker(Chunker):
                 raise StopIteration()
             self._text = pre_text + " " + post_text
         raise StopIteration()
+
+
+CODE_FLANKED_IN_BACKTICK_REGEX = re.compile(r"(\s|^)(`{1,2})([^`]+)(\2)([^`]|$)")
+
+
+def _strip_code_flanked_in_backticks(line: str) -> str:
+    """Alter line so code flanked in backticks is ignored.
+
+    Pyenchant automatically strips backticks when parsing tokens, so this cannot be done at the individual filter level.
+
+    """
+
+    def replace_code_but_leave_surrounding_characters(match_obj) -> str:
+        return match_obj.group(1) + match_obj.group(5)
+
+    return CODE_FLANKED_IN_BACKTICK_REGEX.sub(
+        replace_code_but_leave_surrounding_characters, line
+    )
 
 
 class SpellingChecker(BaseTokenChecker):
@@ -323,6 +341,7 @@ class SpellingChecker(BaseTokenChecker):
                 "noqa",
                 "nosec",
                 "isort:skip",
+                "mypy:",
             ):
                 if line.startswith(" " + iter_directive):
                     line = line[(len(iter_directive) + 1) :]
@@ -330,6 +349,9 @@ class SpellingChecker(BaseTokenChecker):
             starts_with_comment = True
         else:
             starts_with_comment = False
+
+        line = _strip_code_flanked_in_backticks(line)
+
         for word, word_start_at in self.tokenizer(line.strip()):
             word_start_at += initial_space
             lower_cased_word = word.casefold()
