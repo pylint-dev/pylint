@@ -50,15 +50,13 @@ def _get_config_paths(curdir: Union[Path, str]) -> List[str]:
 
 def find_default_config_files() -> Generator:
     """Find all possible config files."""
-    for path in _get_config_paths(os.path.abspath(".")):
-        yield (path)
+    yield from _get_config_paths(os.path.abspath("."))
 
     if os.path.isfile("__init__.py"):
         curdir = os.path.abspath(os.getcwd())
         while os.path.isfile(os.path.join(curdir, "__init__.py")):
             curdir = os.path.abspath(os.path.join(curdir, ".."))
-            for path in _get_config_paths(curdir):
-                yield (path)
+            yield from _get_config_paths(curdir)
 
     if "PYLINTRC" in os.environ and os.path.exists(os.environ["PYLINTRC"]):
         if os.path.isfile(os.environ["PYLINTRC"]):
@@ -66,11 +64,8 @@ def find_default_config_files() -> Generator:
 
     user_home = os.path.expanduser("~")
     if user_home not in ("~", "/root"):
-        for path in _get_config_paths(user_home):
-            yield path
-        for path in _get_config_paths(os.path.join(user_home, ".config")):
-            yield path
+        yield from _get_config_paths(user_home)
+        yield from _get_config_paths(os.path.join(user_home, ".config"))
 
     curdir = os.path.abspath("/etc")
-    for path in _get_config_paths(curdir):
-        yield path
+    yield from _get_config_paths(curdir)
