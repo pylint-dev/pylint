@@ -26,3 +26,5 @@ Other Changes
 
 * The 'doc' extra-require has been removed. ``pylint.version`` is now ``pylint.__version__`` and ``__pkginfo__`` does
   not contain the package metadata anymore.
+
+* Updated ``astroid`` to 2.5.3
