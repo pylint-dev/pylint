@@ -92,8 +92,8 @@ expression in special cases). For a full list of options, use ``--help``
 
 Specifying all the options suitable for your setup and coding
 standards can be tedious, so it is possible to use a configuration file to
-specify the default values.  You can specify a configuration file on the
-command line using the ``--rcfile`` option.  Otherwise, Pylint searches for a
+specify the default values. You can specify a configuration file on the
+command line using the ``--rcfile`` option. Otherwise, Pylint searches for a
 valid configuration file (defined below) in the following order and uses the
 first one it finds:
 
