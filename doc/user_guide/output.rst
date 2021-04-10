@@ -51,6 +51,8 @@ A few other examples:
 
     {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
+The ``--msg-template`` option can only be combined with text-based reporters (``--output-format`` either unspecified or one of: parseable, colorized or msvs).
+If both ``--output-format`` and ``--msg-template`` are specified, the ``--msg-template`` option will take precedence over the default line format defined by the reporter class.
 
 .. _Python new format syntax: https://docs.python.org/2/library/string.html#formatstrings
 

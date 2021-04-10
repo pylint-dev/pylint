@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
 # Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
@@ -11,9 +10,9 @@
 # Copyright (c) 2016 Roy Williams <rwilliams@lyft.com>
 # Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Erik <erik.eriksson@yahoo.com>
+# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017-2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 ahirnish <ahirnish@gmail.com>
 # Copyright (c) 2018-2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018 sbagan <pnlbagan@gmail.com>
@@ -23,15 +22,18 @@
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2018 gaurikholkar <f2013002@goa.bits-pilani.ac.in>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Hugues Bruant <hugues.bruant@affirm.com>
 # Copyright (c) 2019 Gabriel R Sezefredo <gabriel@sezefredo.com.br>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 bluesheeptoken <louis.fruleux1@gmail.com>
+# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Federico Bond <federicobond@gmail.com>
 # Copyright (c) 2020 Athos Ribeiro <athoscr@fedoraproject.org>
+# Copyright (c) 2021 Tiago Honorato <tiagohonorato1@gmail.com>
+# Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -42,7 +44,6 @@ import tokenize
 from collections import namedtuple
 
 import astroid
-from astroid import bases
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -71,8 +72,8 @@ def _inferred_value_is_dict(value):
     return isinstance(value, astroid.Instance) and "dict" in value.basenames
 
 
-def _infer_if_relevant_attr(node, whitelist):
-    return node.expr.infer() if node.attrname in whitelist else []
+def _infer_if_relevant_attr(node, relevant_attrs):
+    return node.expr.infer() if node.attrname in relevant_attrs else []
 
 
 def _is_builtin(node):
@@ -948,13 +949,15 @@ class Python3Checker(checkers.BaseChecker):
         self._branch_stack.append(Branch(node, self._is_py2_test(node)))
 
     def leave_if(self, node):
-        assert self._branch_stack.pop().node == node
+        new_node = self._branch_stack.pop().node
+        assert new_node == node
 
     def visit_ifexp(self, node):
         self._branch_stack.append(Branch(node, self._is_py2_test(node)))
 
     def leave_ifexp(self, node):
-        assert self._branch_stack.pop().node == node
+        new_node = self._branch_stack.pop()
+        assert new_node.node == node
 
     def visit_module(self, node):  # pylint: disable=unused-argument
         """Clear checker state after previous module."""
@@ -975,7 +978,9 @@ class Python3Checker(checkers.BaseChecker):
                 # classmethod 1 argument should cause a failure, if it is a
                 # staticmethod 0 arguments should cause a failure.
                 failing_arg_count = 1
-                if utils.decorated_with(node, [bases.BUILTINS + ".staticmethod"]):
+                if utils.decorated_with(
+                    node, [astroid.bases.BUILTINS + ".staticmethod"]
+                ):
                     failing_arg_count = 0
                 if len(node.args.args) == failing_arg_count:
                     self.add_message("next-method-defined", node=node)
@@ -1113,7 +1118,7 @@ class Python3Checker(checkers.BaseChecker):
             if not inferred:
                 return
 
-            builtins_list = f"{bases.BUILTINS}.list"
+            builtins_list = f"{astroid.bases.BUILTINS}.list"
             if isinstance(inferred, astroid.List) or inferred.qname() == builtins_list:
                 kwargs = node.keywords
 
@@ -1122,7 +1127,7 @@ class Python3Checker(checkers.BaseChecker):
             if not inferred:
                 return
 
-            builtins_sorted = f"{bases.BUILTINS}.sorted"
+            builtins_sorted = f"{astroid.bases.BUILTINS}.sorted"
             if inferred.qname() == builtins_sorted:
                 kwargs = node.keywords
 

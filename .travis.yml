@@ -1,30 +1,26 @@
 language: python
 stages:
-- tests-cpython
+  - tests-cpython
 jobs:
   include:
-  - stage: tests-cpython
-    python: 3.6
-    env: TOXENV=py36
+    - stage: tests-cpython
+      python: 3.6
+      env: TOXENV=py36
 before_install:
-- python --version
-- uname -a
-- lsb_release -a
+  - python --version
+  - uname -a
+  - lsb_release -a
 install:
-# Temporary escape hatch for setuptools 50.0:
-# See https://github.com/pypa/setuptools/blob/17cb9d6bf249cefe653d3bdb712582409035a7db/CHANGES.rst#v5000
-- export SETUPTOOLS_USE_DISTUTILS=stdlib
-- pip install -U setuptools
-- pip install tox
-- virtualenv --version
-- easy_install --version
-- pip --version
-- tox --version
+  - pip install -U setuptools
+  - pip install tox
+  - virtualenv --version
+  - pip --version
+  - tox --version
 script:
-- pip install .
+  - pip install .
 after_failure:
-- more .tox/log/* | cat
-- more .tox/*/log/* | cat
+  - more .tox/log/* | cat
+  - more .tox/*/log/* | cat
 notifications:
   email:
     on_success: always

@@ -450,3 +450,21 @@ contributors:
     - Added new checks 'consider-using-generator' and 'use-a-generator'.
 
 * Tiago Honorato: contributor
+
+* Lefteris Karapetsas: contributor
+
+* Louis Sautier: contributor
+
+* Quentin Young: contributor
+
+* Alexander Kapshuna: contributor
+
+* Mark Byrne: contributor
+
+* Konstantina Saketou: contributor
+
+* Andrew Howe: contributor
+
+* James Sinclair (irgeek): contributor
+
+* Andreas Finkler: contributor

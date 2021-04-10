@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
@@ -175,7 +176,7 @@ class VCGPrinter:
 
     def node(self, title, **args):
         """draw a node"""
-        self._stream.write('%snode: {title:"%s"' % (self._indent, title))
+        self._stream.write(f'{self._indent}node: {{title:"{title}"')
         self._write_attributes(NODE_ATTRS, **args)
         self._stream.write("}\n")
 
@@ -203,16 +204,15 @@ possible attributes are %s"""
                 ) from e
 
             if not _type:
-                self._stream.write('%s%s:"%s"\n' % (self._indent, key, value))
+                self._stream.write(f'{self._indent}{key}:"{value}"\n')
             elif _type == 1:
-                self._stream.write("%s%s:%s\n" % (self._indent, key, int(value)))
+                self._stream.write(f"{self._indent}{key}:{int(value)}\n")
             elif value in _type:
-                self._stream.write("%s%s:%s\n" % (self._indent, key, value))
+                self._stream.write(f"{self._indent}{key}:{value}\n")
             else:
                 raise Exception(
-                    """value %s isn\'t correct for attribute %s
-correct values are %s"""
-                    % (value, key, _type)
+                    f"""value {value} isn't correct for attribute {key}
+correct values are {type}"""
                 )
 
     def _inc_indent(self):

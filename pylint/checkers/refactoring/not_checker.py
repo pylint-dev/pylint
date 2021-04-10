@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -42,7 +40,7 @@ class NotChecker(checkers.BaseChecker):
     skipped_nodes = (astroid.Set,)
     # 'builtins' py3, '__builtin__' py2
     skipped_classnames = [
-        "%s.%s" % (builtins.__name__, qname) for qname in ("set", "frozenset")
+        f"{builtins.__name__}.{qname}" for qname in ("set", "frozenset")
     ]
 
     @utils.check_messages("unneeded-not")
@@ -79,7 +77,7 @@ class NotChecker(checkers.BaseChecker):
                     and _type.qname() in self.skipped_classnames
                 ):
                     return
-            suggestion = "%s %s %s" % (
+            suggestion = "{} {} {}".format(
                 left.as_string(),
                 self.reverse_op[operator],
                 right.as_string(),

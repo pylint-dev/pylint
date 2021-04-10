@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009 Vincent
 # Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
@@ -19,22 +18,21 @@
 # Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 xmo-odoo <xmo-odoo@users.noreply.github.com>
+# Copyright (c) 2017-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2017 Pierre Sassoulas <pierre.sassoulas@cea.fr>
 # Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Chris Lamb <chris@chris-lamb.co.uk>
 # Copyright (c) 2017 Thomas Hisch <t.hisch@gmail.com>
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
 # Copyright (c) 2017 Craig Citro <craigcitro@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018-2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2018 Pierre Sassoulas <pierre.sassoulas@wisebim.fr>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -49,14 +47,13 @@ from pylint.utils.file_state import FileState
 from pylint.utils.utils import (
     HAS_ISORT_5,
     IsortDriver,
-    _basename_in_blacklist_re,
     _check_csv,
     _format_option_value,
     _splitstrip,
     _unquote,
     decoding_stream,
     deprecated_option,
-    expand_modules,
+    diff_string,
     format_section,
     get_global_option,
     get_module_and_frameid,
@@ -72,14 +69,13 @@ __all__ = [
     "ASTWalker",
     "HAS_ISORT_5",
     "IsortDriver",
-    "_basename_in_blacklist_re",
     "_check_csv",
     "_format_option_value",
     "_splitstrip",
     "_unquote",
     "decoding_stream",
     "deprecated_option",
-    "expand_modules",
+    "diff_string",
     "FileState",
     "format_section",
     "get_global_option",

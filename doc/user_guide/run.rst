@@ -53,6 +53,15 @@ and get its standard output and error:
   from pylint import epylint as lint
   (pylint_stdout, pylint_stderr) = lint.py_run('module_name.py', return_std=True)
 
+It is also possible to include additional Pylint options in the first argument to ``py_run``:
+
+.. sourcecode:: python
+
+  from pylint import epylint as lint
+  (pylint_stdout, pylint_stderr) = lint.py_run('module_name.py --disable C0114', return_std=True)
+
+The options ``--msg-template="{path}:{line}: {category} ({msg_id}, {symbol}, {obj}) {msg}"`` and
+``--reports=n`` are set implicitly inside the ``epylint`` module.
 
 Command line options
 --------------------
@@ -119,8 +128,8 @@ configuration.
 
 Other useful global options include:
 
---ignore=<file[,file...]>  Add files or directories to the blacklist. They
-                           should be base names, not paths.
+--ignore=<file[,file...]>  Files or directories to be skipped. They should be
+                           base names, not paths.
 --output-format=<format>   Select output format (text, json, custom).
 --msg-template=<template>  Modify text output message template.
 --list-msgs                Generate pylint's messages.

@@ -199,7 +199,7 @@ pydocstyle_: missing-module-docstring, missing-class-docstring, missing-function
 
 pep8-naming_: invalid-name, bad-classmethod-argument, bad-mcs-classmethod-argument, no-self-argument
 
-isort: wrong-import-order
+isort_: wrong-import-order
 
 flake8-import-order_: wrong-import-order
 

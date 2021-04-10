@@ -9,8 +9,9 @@
 # Copyright (c) 2018-2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -116,7 +117,7 @@ def colorize_ansi(msg, color=None, style=None):
     escape_code = _get_ansi_code(color, style)
     # If invalid (or unknown) color, don't wrap msg with ansi codes
     if escape_code:
-        return "%s%s%s" % (escape_code, msg, ANSI_RESET)
+        return f"{escape_code}{msg}{ANSI_RESET}"
     return msg
 
 

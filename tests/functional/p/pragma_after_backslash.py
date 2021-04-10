@@ -7,4 +7,4 @@ class Foo:
     def meth3(self):
         """test one line disabling"""
         print(self.bla) \
-           # pylint: disable=E1101
+           # pylint: disable=no-member

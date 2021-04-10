@@ -39,15 +39,15 @@ class MessageDefinition:
     @staticmethod
     def check_msgid(msgid: str) -> None:
         if len(msgid) != 5:
-            raise InvalidMessageError("Invalid message id %r" % msgid)
+            raise InvalidMessageError(f"Invalid message id {msgid!r}")
         if msgid[0] not in MSG_TYPES:
-            raise InvalidMessageError("Bad message type %s in %r" % (msgid[0], msgid))
+            raise InvalidMessageError(f"Bad message type {msgid[0]} in {msgid!r}")
 
     def __repr__(self):
-        return "MessageDefinition:%s (%s)" % (self.symbol, self.msgid)
+        return f"MessageDefinition:{self.symbol} ({self.msgid})"
 
     def __str__(self):
-        return "%s:\n%s %s" % (repr(self), self.msg, self.description)
+        return f"{repr(self)}:\n{self.msg} {self.description}"
 
     def may_be_emitted(self):
         """return True if message may be emitted using the current interpreter"""
@@ -75,8 +75,8 @@ class MessageDefinition:
             else:
                 desc += " This message can't be emitted when using Python %s." % restr
         msg_help = normalize_text(" ".join(desc.split()), indent="  ")
-        message_id = "%s (%s)" % (self.symbol, self.msgid)
+        message_id = f"{self.symbol} ({self.msgid})"
         if title != "%s":
             title = title.splitlines()[0]
-            return ":%s: *%s*\n%s" % (message_id, title.rstrip(" "), msg_help)
-        return ":%s:\n%s" % (message_id, msg_help)
+            return ":{}: *{}*\n{}".format(message_id, title.rstrip(" "), msg_help)
+        return f":{message_id}:\n{msg_help}"

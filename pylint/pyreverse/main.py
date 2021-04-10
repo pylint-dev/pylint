@@ -5,8 +5,11 @@
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Alexander Pervakov <frost.nzcr4@jagmort.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Mark Byrne <mbyrnepr2@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -140,9 +143,9 @@ this disables -f values",
         {
             "type": "csv",
             "metavar": "<file[,file...]>",
-            "dest": "black_list",
+            "dest": "ignore_list",
             "default": ("CVS",),
-            "help": "Add files or directories to the blacklist. They "
+            "help": "Files or directories to be skipped. They "
             "should be base names, not paths.",
         },
     ),
@@ -154,6 +157,17 @@ this disables -f values",
             "short": "p",
             "metavar": "<project name>",
             "help": "set the project name.",
+        },
+    ),
+    (
+        "output-directory",
+        {
+            "default": "",
+            "type": "string",
+            "short": "d",
+            "action": "store",
+            "metavar": "<output_directory>",
+            "help": "set the output directory path.",
         },
     ),
 )
@@ -198,7 +212,7 @@ class Run(ConfigurationMixIn):
             project = project_from_files(
                 args,
                 project_name=self.config.project,
-                black_list=self.config.black_list,
+                black_list=self.config.ignore_list,
             )
             linker = Linker(project, tag=True)
             handler = DiadefsHandler(self.config)

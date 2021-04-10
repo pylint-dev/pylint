@@ -3,14 +3,16 @@
 **************************
 
 :Release: 2.7
-:Date: 2021-02-XX
+:Date: 2021-02-21
 
 Summary -- Release highlights
 =============================
 
+* Python 3.6+ is now required.
 * No more duplicate messages when using multiple jobs.
 * Handling of the new typing provided by mypy 0.8
-* Python 3.6+ is now required.
+* Reduced the number of false positives in general
+* Reduced the occurrence of genuinely large recursion that went above system limit (See #3836, for a fix for pandas)
 
 New checkers
 ============
@@ -54,3 +56,7 @@ Other Changes
 * Fixes duplicate code detection for --jobs=2+
 
 * Add handling of all format of conf file from all locations (for example ``pyproject.toml`` in home directory)
+
+* New option ``allowed-redefined-builtins`` defines variable names allowed to shadow builtins.
+
+* Improved protected access checks to allow access inside class methods

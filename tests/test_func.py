@@ -7,9 +7,10 @@
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2017 Michka Popoff <michkapopoff@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -25,7 +26,6 @@ import pytest
 
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION, _get_tests_info, linter
 
-# Configure paths
 INPUT_DIR = join(dirname(abspath(__file__)), "input")
 MSG_DIR = join(dirname(abspath(__file__)), "messages")
 
@@ -33,12 +33,10 @@ MSG_DIR = join(dirname(abspath(__file__)), "messages")
 FILTER_RGX = None
 INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
 
-# Classes
-
 
 def exception_str(self, ex):  # pylint: disable=unused-argument
     """function used to replace default __str__ method of exception instances"""
-    return "in %s\n:: %s" % (ex.file, ", ".join(ex.args))
+    return "in {}\n:: {}".format(ex.file, ", ".join(ex.args))
 
 
 class LintTestUsingModule:
@@ -122,7 +120,9 @@ def gen_tests(filter_rgx):
         tests.append((module_file, messages_file, dependencies))
     if UPDATE_FILE.exists():
         return tests
-    assert len(tests) < 53, "Please do not add new test cases here."
+    assert len(tests) < 12, "Please do not add new test cases here." + "\n".join(
+        str(k) for k in tests if not k[2]
+    )
     return tests
 
 

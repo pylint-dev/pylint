@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
@@ -12,12 +11,16 @@
 # Copyright (c) 2018 sbagan <pnlbagan@gmail.com>
 # Copyright (c) 2018 Aivar Annamaa <aivarannamaa@users.noreply.github.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Gabriel R Sezefredo <gabriel@sezefredo.com.br>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Federico Bond <federicobond@gmail.com>
 # Copyright (c) 2020 Athos Ribeiro <athoscr@fedoraproject.org>
+# Copyright (c) 2021 Tiago Honorato <tiagohonorato1@gmail.com>
+# Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
+# Copyright (c) 2021 David Gilman <davidgilman1@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -286,7 +289,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
         non_iterating_code = ["x = __({}())", "__({}())[0]"]
 
         for method in ("keys", "items", "values"):
-            dict_method = "{{}}.{}".format(method)
+            dict_method = f"{{}}.{method}"
 
             for code in iterating_code:
                 with_value = code.format(dict_method)

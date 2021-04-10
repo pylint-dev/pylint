@@ -1,2 +1,0 @@
-sphinx~=3.2
-python-docs-theme

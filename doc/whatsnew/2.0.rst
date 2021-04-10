@@ -230,7 +230,7 @@ Other Changes
   such as ``django``.
   You can also control this behaviour with ``pylint --limit-inference-results``
 
-  We also rewrote how `nodes_of_class` and `get_children` methods operate which
+  We also rewrote how ``nodes_of_class`` and ``get_children`` methods operate which
   should result in a performance boost for a couple of checks.
 
 * Fix a false positive ``inconsistent-return-statements`` message when exception is raised inside

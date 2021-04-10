@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2008, 2010, 2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
@@ -6,9 +5,11 @@
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Mark Byrne <mbyrnepr2@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -42,6 +43,7 @@ _DEFAULTS = {
     "mode": "PUB_ONLY",
     "show_builtin": False,
     "only_classnames": False,
+    "output_directory": "",
 }
 
 
@@ -106,13 +108,11 @@ def test_dot_files(generated_file):
     expected = _file_lines(expected_file)
     generated = "\n".join(generated)
     expected = "\n".join(expected)
-    files = "\n *** expected : %s, generated : %s \n" % (expected_file, generated_file)
-    assert expected == generated, "%s%s" % (
-        files,
-        "\n".join(
-            line for line in unified_diff(expected.splitlines(), generated.splitlines())
-        ),
+    files = f"\n *** expected : {expected_file}, generated : {generated_file} \n"
+    diff = "\n".join(
+        line for line in unified_diff(expected.splitlines(), generated.splitlines())
     )
+    assert expected == generated, f"{files}{diff}"
     os.remove(generated_file)
 
 
@@ -131,8 +131,4 @@ def test_dot_files(generated_file):
 def test_get_visibility(names, expected):
     for name in names:
         got = get_visibility(name)
-        assert got == expected, "got %s instead of %s for value %s" % (
-            got,
-            expected,
-            name,
-        )
+        assert got == expected, f"got {got} instead of {expected} for value {name}"

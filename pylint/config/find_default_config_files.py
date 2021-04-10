@@ -7,11 +7,17 @@ from pathlib import Path
 from typing import Generator, List, Union
 
 import toml
+from toml.decoder import TomlDecodeError
 
 
 def _toml_has_config(path):
     with open(path) as toml_handle:
-        content = toml.load(toml_handle)
+        try:
+            content = toml.load(toml_handle)
+        except TomlDecodeError as error:
+            print("Failed to load '{}': {}".format(path, str(error)))
+            return False
+
         try:
             content["tool"]["pylint"]
         except KeyError:

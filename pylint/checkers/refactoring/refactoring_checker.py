@@ -1,23 +1,3 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2016-2018 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
-# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
-# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2017 Hugo <hugovk@users.noreply.github.com>
-# Copyright (c) 2017 Łukasz Sznuk <ls@rdprojekt.pl>
-# Copyright (c) 2017 Alex Hearn <alex.d.hearn@gmail.com>
-# Copyright (c) 2017 Antonio Ossa <aaossa@uc.cl>
-# Copyright (c) 2018 Konstantin Manna <Konstantin@Manna.uno>
-# Copyright (c) 2018 Konstantin <Github@pheanex.de>
-# Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2018 Matej Marušák <marusak.matej@gmail.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
-# Copyright (c) 2018 Mr. Senko <atodorov@mrsenko.com>
-# Copyright (c) 2019 Ikraduya Edian <ikraduya@gmail.com>
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -29,7 +9,6 @@ from functools import reduce
 from typing import List
 
 import astroid
-from astroid import decorators
 
 from pylint import checkers, interfaces
 from pylint import utils as lint_utils
@@ -326,7 +305,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         (
             "never-returning-functions",
             {
-                "default": ("sys.exit",),
+                "default": ("sys.exit", "argparse.parse_error"),
                 "type": "csv",
                 "help": "Complete name of functions that never returns. When checking "
                 "for inconsistent-return-statements if a never returning function is "
@@ -355,7 +334,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # do this in open since config not fully initialized in __init__
         self._never_returning_functions = set(self.config.never_returning_functions)
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _dummy_rgx(self):
         return lint_utils.get_global_option(self, "dummy-variables-rgx", default=None)
 
@@ -957,7 +936,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         values = list(collections.OrderedDict.fromkeys(values))
         values.remove(common_variable)
         values_string = ", ".join(values) if len(values) != 1 else values[0] + ","
-        suggestion = "%s %s (%s)" % (common_variable, comprehension, values_string)
+        suggestion = f"{common_variable} {comprehension} ({values_string})"
 
         self.add_message("consider-using-in", node=node, args=(suggestion,))
 
@@ -1402,6 +1381,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return any(
                 self._is_node_return_ended(_child) for _child in all_but_handler
             ) and all(self._is_node_return_ended(_child) for _child in handlers)
+        if (
+            isinstance(node, astroid.Assert)
+            and isinstance(node.test, astroid.Const)
+            and not node.test.value
+        ):
+            # consider assert False as a return node
+            return True
         # recurses on the children of the node
         return any(self._is_node_return_ended(_child) for _child in node.get_children())
 
@@ -1426,6 +1412,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns:
             bool: True if the function never returns, False otherwise.
         """
+        if isinstance(node, astroid.FunctionDef) and node.returns:
+            return (
+                isinstance(node.returns, astroid.Attribute)
+                and node.returns.attrname == "NoReturn"
+                or isinstance(node.returns, astroid.Name)
+                and node.returns.name == "NoReturn"
+            )
         try:
             return node.qname() in self._never_returning_functions
         except TypeError:

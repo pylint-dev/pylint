@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013-2014 Google, Inc.
 # Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
@@ -16,14 +15,18 @@
 # Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
 # Copyright (c) 2018 Banjamin Freeman <befreeman@users.noreply.github.com>
 # Copyright (c) 2018 Ioana Tagirta <ioana.tagirta@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Julien Palard <julien@palard.fr>
 # Copyright (c) 2019 laike9m <laike9m@users.noreply.github.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Robert Schweizer <robert_schweizer@gmx.de>
 # Copyright (c) 2019 fadedDexofan <fadedDexofan@gmail.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Sorin Sbarnea <ssbarnea@redhat.com>
+# Copyright (c) 2020 Federico Bond <federicobond@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Matus Valo <matusvalo@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -33,10 +36,8 @@
 import sys
 
 import astroid
-from astroid.bases import Instance
-from astroid.node_classes import Const
 
-from pylint.checkers import BaseChecker, utils
+from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
 
 OPEN_FILES = {"open", "file"}
@@ -48,6 +49,155 @@ ENV_GETTERS = {"os.getenv"}
 SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
 OPEN_MODULE = "_io"
+
+DEPRECATED_ARGUMENTS = {
+    (3, 8, 0): {
+        "asyncio.tasks.sleep": ((None, "loop"),),
+        "asyncio.tasks.gather": ((None, "loop"),),
+        "asyncio.tasks.shield": ((None, "loop"),),
+        "asyncio.tasks.wait_for": ((None, "loop"),),
+        "asyncio.tasks.wait": ((None, "loop"),),
+        "asyncio.tasks.as_completed": ((None, "loop"),),
+        "asyncio.subprocess.create_subprocess_exec": ((None, "loop"),),
+        "asyncio.subprocess.create_subprocess_shell": ((4, "loop"),),
+        "gettext.translation": ((5, "codeset"),),
+        "gettext.install": ((2, "codeset"),),
+        "profile.Profile.runcall": ((None, "func"),),
+        "cProfile.Profile.runcall": ((None, "func"),),
+        "bdb.Bdb.runcall": ((None, "func"),),
+        "trace.Trace.runfunc": ((None, "func"),),
+        "curses.wrapper": ((None, "func"),),
+        "unittest.case.TestCase.addCleanup": ((None, "function"),),
+        "concurrent.futures.thread.ThreadPoolExecutor.submit": ((None, "fn"),),
+        "concurrent.futures.process.ProcessPoolExecutor.submit": ((None, "fn"),),
+        "contextlib._BaseExitStack.callback": ((None, "callback"),),
+        "contextlib.AsyncExitStack.push_async_callback": ((None, "callback"),),
+        "multiprocessing.managers.Server.create": ((None, "c"), (None, "typeid")),
+        "multiprocessing.managers.SharedMemoryServer.create": (
+            (None, "c"),
+            (None, "typeid"),
+        ),
+    },
+    (3, 9, 0): {"random.Random.shuffle": ((1, "random"),)},
+}
+
+
+DEPRECATED_METHODS = {
+    0: {
+        "cgi.parse_qs",
+        "cgi.parse_qsl",
+        "ctypes.c_buffer",
+        "distutils.command.register.register.check_metadata",
+        "distutils.command.sdist.sdist.check_metadata",
+        "tkinter.Misc.tk_menuBar",
+        "tkinter.Menu.tk_bindForTraversal",
+    },
+    2: {
+        (2, 6, 0): {
+            "commands.getstatus",
+            "os.popen2",
+            "os.popen3",
+            "os.popen4",
+            "macostools.touched",
+        },
+        (2, 7, 0): {
+            "unittest.case.TestCase.assertEquals",
+            "unittest.case.TestCase.assertNotEquals",
+            "unittest.case.TestCase.assertAlmostEquals",
+            "unittest.case.TestCase.assertNotAlmostEquals",
+            "unittest.case.TestCase.assert_",
+            "xml.etree.ElementTree.Element.getchildren",
+            "xml.etree.ElementTree.Element.getiterator",
+            "xml.etree.ElementTree.XMLParser.getiterator",
+            "xml.etree.ElementTree.XMLParser.doctype",
+        },
+    },
+    3: {
+        (3, 0, 0): {
+            "inspect.getargspec",
+            "failUnlessEqual",
+            "assertEquals",
+            "failIfEqual",
+            "assertNotEquals",
+            "failUnlessAlmostEqual",
+            "assertAlmostEquals",
+            "failIfAlmostEqual",
+            "assertNotAlmostEquals",
+            "failUnless",
+            "assert_",
+            "failUnlessRaises",
+            "failIf",
+            "assertRaisesRegexp",
+            "assertRegexpMatches",
+            "assertNotRegexpMatches",
+        },
+        (3, 1, 0): {
+            "base64.encodestring",
+            "base64.decodestring",
+            "ntpath.splitunc",
+            "os.path.splitunc",
+        },
+        (3, 2, 0): {
+            "cgi.escape",
+            "configparser.RawConfigParser.readfp",
+            "xml.etree.ElementTree.Element.getchildren",
+            "xml.etree.ElementTree.Element.getiterator",
+            "xml.etree.ElementTree.XMLParser.getiterator",
+            "xml.etree.ElementTree.XMLParser.doctype",
+        },
+        (3, 3, 0): {
+            "inspect.getmoduleinfo",
+            "logging.warn",
+            "logging.Logger.warn",
+            "logging.LoggerAdapter.warn",
+            "nntplib._NNTPBase.xpath",
+            "platform.popen",
+        },
+        (3, 4, 0): {
+            "importlib.find_loader",
+            "plistlib.readPlist",
+            "plistlib.writePlist",
+            "plistlib.readPlistFromBytes",
+            "plistlib.writePlistToBytes",
+        },
+        (3, 4, 4): {"asyncio.tasks.async"},
+        (3, 5, 0): {
+            "fractions.gcd",
+            "inspect.formatargspec",
+            "inspect.getcallargs",
+            "platform.linux_distribution",
+            "platform.dist",
+        },
+        (3, 6, 0): {"importlib._bootstrap_external.FileLoader.load_module"},
+        (3, 7, 0): {
+            "sys.set_coroutine_wrapper",
+            "sys.get_coroutine_wrapper",
+            "aifc.openfp",
+            "asyncio.Task.current_task",
+            "asyncio.Task.all_task",
+            "locale.format",
+            "ssl.wrap_socket",
+            "sunau.openfp",
+            "wave.openfp",
+        },
+        (3, 8, 0): {
+            "gettext.lgettext",
+            "gettext.ldgettext",
+            "gettext.lngettext",
+            "gettext.ldngettext",
+            "gettext.bind_textdomain_codeset",
+            "gettext.NullTranslations.output_charset",
+            "gettext.NullTranslations.set_output_charset",
+            "threading.Thread.isAlive",
+        },
+        (3, 9, 0): {
+            "binascii.b2a_hqx",
+            "binascii.a2b_hqx",
+            "binascii.rlecode_hqx",
+            "binascii.rledecode_hqx",
+        },
+    },
+}
 
 
 def _check_mode_str(mode):
@@ -80,7 +230,7 @@ def _check_mode_str(mode):
     return True
 
 
-class StdlibChecker(BaseChecker):
+class StdlibChecker(DeprecatedMixin, BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = "stdlib"
 
@@ -160,124 +310,24 @@ class StdlibChecker(BaseChecker):
             "`check` keyword to make clear what the error-handling behavior is."
             "https://docs.python.org/3/library/subprocess.html#subprocess.run",
         ),
+        "W1511": (
+            "Using deprecated argument %s of method %s()",
+            "deprecated-argument",
+            "The argument is marked as deprecated and will be removed in the future.",
+        ),
     }
 
-    deprecated = {
-        0: {
-            "cgi.parse_qs",
-            "cgi.parse_qsl",
-            "ctypes.c_buffer",
-            "distutils.command.register.register.check_metadata",
-            "distutils.command.sdist.sdist.check_metadata",
-            "tkinter.Misc.tk_menuBar",
-            "tkinter.Menu.tk_bindForTraversal",
-        },
-        2: {
-            (2, 6, 0): {
-                "commands.getstatus",
-                "os.popen2",
-                "os.popen3",
-                "os.popen4",
-                "macostools.touched",
-            },
-            (2, 7, 0): {
-                "unittest.case.TestCase.assertEquals",
-                "unittest.case.TestCase.assertNotEquals",
-                "unittest.case.TestCase.assertAlmostEquals",
-                "unittest.case.TestCase.assertNotAlmostEquals",
-                "unittest.case.TestCase.assert_",
-                "xml.etree.ElementTree.Element.getchildren",
-                "xml.etree.ElementTree.Element.getiterator",
-                "xml.etree.ElementTree.XMLParser.getiterator",
-                "xml.etree.ElementTree.XMLParser.doctype",
-            },
-        },
-        3: {
-            (3, 0, 0): {
-                "inspect.getargspec",
-                "failUnlessEqual",
-                "assertEquals",
-                "failIfEqual",
-                "assertNotEquals",
-                "failUnlessAlmostEqual",
-                "assertAlmostEquals",
-                "failIfAlmostEqual",
-                "assertNotAlmostEquals",
-                "failUnless",
-                "assert_",
-                "failUnlessRaises",
-                "failIf",
-                "assertRaisesRegexp",
-                "assertRegexpMatches",
-                "assertNotRegexpMatches",
-            },
-            (3, 1, 0): {
-                "base64.encodestring",
-                "base64.decodestring",
-                "ntpath.splitunc",
-                "os.path.splitunc",
-            },
-            (3, 2, 0): {
-                "cgi.escape",
-                "configparser.RawConfigParser.readfp",
-                "xml.etree.ElementTree.Element.getchildren",
-                "xml.etree.ElementTree.Element.getiterator",
-                "xml.etree.ElementTree.XMLParser.getiterator",
-                "xml.etree.ElementTree.XMLParser.doctype",
-            },
-            (3, 3, 0): {
-                "inspect.getmoduleinfo",
-                "logging.warn",
-                "logging.Logger.warn",
-                "logging.LoggerAdapter.warn",
-                "nntplib._NNTPBase.xpath",
-                "platform.popen",
-            },
-            (3, 4, 0): {
-                "importlib.find_loader",
-                "plistlib.readPlist",
-                "plistlib.writePlist",
-                "plistlib.readPlistFromBytes",
-                "plistlib.writePlistToBytes",
-            },
-            (3, 4, 4): {"asyncio.tasks.async"},
-            (3, 5, 0): {
-                "fractions.gcd",
-                "inspect.formatargspec",
-                "inspect.getcallargs",
-                "platform.linux_distribution",
-                "platform.dist",
-            },
-            (3, 6, 0): {"importlib._bootstrap_external.FileLoader.load_module"},
-            (3, 7, 0): {
-                "sys.set_coroutine_wrapper",
-                "sys.get_coroutine_wrapper",
-                "aifc.openfp",
-                "asyncio.Task.current_task",
-                "asyncio.Task.all_task",
-                "locale.format",
-                "ssl.wrap_socket",
-                "sunau.openfp",
-                "wave.openfp",
-            },
-            (3, 8, 0): {
-                "gettext.lgettext",
-                "gettext.ldgettext",
-                "gettext.lngettext",
-                "gettext.ldngettext",
-                "gettext.bind_textdomain_codeset",
-                "gettext.NullTranslations.output_charset",
-                "gettext.NullTranslations.set_output_charset",
-                "threading.Thread.isAlive",
-            },
-            (3, 9, 0): {
-                "binascii.b2a_hqx",
-                "binascii.a2b_hqx",
-                "binascii.rlecode_hqx",
-                "binascii.rledecode_hqx",
-            },
-        },
-    }
+    def __init__(self, linter=None):
+        BaseChecker.__init__(self, linter)
+        self._deprecated_methods = set()
+        self._deprecated_methods.update(DEPRECATED_METHODS[0])
+        for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
+            if since_vers <= sys.version_info:
+                self._deprecated_methods.update(func_list)
+        self._deprecated_attributes = dict()
+        for since_vers, func_list in DEPRECATED_ARGUMENTS.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_attributes.update(func_list)
 
     def _check_bad_thread_instantiation(self, node):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
@@ -305,6 +355,7 @@ class StdlibChecker(BaseChecker):
         "bad-open-mode",
         "redundant-unittest-assert",
         "deprecated-method",
+        "deprecated-argument",
         "bad-thread-instantiation",
         "shallow-copy-environ",
         "invalid-envvar-value",
@@ -336,7 +387,7 @@ class StdlibChecker(BaseChecker):
                         self._check_env_function(node, inferred)
                     elif name == SUBPROCESS_RUN:
                         self._check_for_check_kw_in_run(node)
-                self._check_deprecated_method(node, inferred)
+                self.check_deprecated_method(node, inferred)
         except astroid.InferenceError:
             return
 
@@ -357,37 +408,6 @@ class StdlibChecker(BaseChecker):
     def visit_boolop(self, node):
         for value in node.values:
             self._check_datetime(value)
-
-    def _check_deprecated_method(self, node, inferred):
-        py_vers = sys.version_info[0]
-
-        if isinstance(node.func, astroid.Attribute):
-            func_name = node.func.attrname
-        elif isinstance(node.func, astroid.Name):
-            func_name = node.func.name
-        else:
-            # Not interested in other nodes.
-            return
-
-        # Reject nodes which aren't of interest to us.
-        acceptable_nodes = (
-            astroid.BoundMethod,
-            astroid.UnboundMethod,
-            astroid.FunctionDef,
-        )
-        if not isinstance(inferred, acceptable_nodes):
-            return
-
-        qname = inferred.qname()
-        if any(name in self.deprecated[0] for name in (qname, func_name)):
-            self.add_message("deprecated-method", node=node, args=(func_name,))
-        else:
-            for since_vers, func_list in self.deprecated[py_vers].items():
-                if since_vers <= sys.version_info and any(
-                    name in func_list for name in (qname, func_name)
-                ):
-                    self.add_message("deprecated-method", node=node, args=(func_name,))
-                    break
 
     def _check_redundant_assert(self, node, infer):
         if (
@@ -410,7 +430,10 @@ class StdlibChecker(BaseChecker):
             inferred = next(node.infer())
         except astroid.InferenceError:
             return
-        if isinstance(inferred, Instance) and inferred.qname() == "datetime.time":
+        if (
+            isinstance(inferred, astroid.Instance)
+            and inferred.qname() == "datetime.time"
+        ):
             self.add_message("boolean-datetime", node=node)
 
     def _check_open_mode(self, node):
@@ -470,7 +493,7 @@ class StdlibChecker(BaseChecker):
             return
 
         name = infer.qname()
-        if isinstance(call_arg, Const):
+        if isinstance(call_arg, astroid.Const):
             emit = False
             if call_arg.value is None:
                 emit = not allow_none
@@ -480,6 +503,12 @@ class StdlibChecker(BaseChecker):
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
             self.add_message(message, node=node, args=(name, call_arg.pytype()))
+
+    def deprecated_methods(self):
+        return self._deprecated_methods
+
+    def deprecated_arguments(self, method: str):
+        return self._deprecated_attributes.get(method, ())
 
 
 def register(linter):

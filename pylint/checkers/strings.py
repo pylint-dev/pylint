@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2009 Charles Hebert <charles.hebert@logilab.fr>
-# Copyright (c) 2010-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
@@ -18,10 +16,12 @@
 # Copyright (c) 2018 Yury Gribov <tetra2005@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Wes Turner <westurner@google.com>
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Matthew Suozzo <msuozzo@google.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
 
@@ -37,12 +37,9 @@ import collections
 import numbers
 import re
 import tokenize
-import typing
-from typing import Iterable
+from typing import Counter, Iterable
 
 import astroid
-from astroid.arguments import CallSite
-from astroid.node_classes import Const
 
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
@@ -228,7 +225,7 @@ def get_access_path(key, parts):
         if is_attribute:
             path.append(f".{specifier}")
         else:
-            path.append("[{!r}]".format(specifier))
+            path.append(f"[{specifier!r}]")
     return str(key) + "".join(path)
 
 
@@ -467,7 +464,7 @@ class StringFormatChecker(BaseChecker):
         if not (isinstance(strnode, astroid.Const) and isinstance(strnode.value, str)):
             return
         try:
-            call_site = CallSite.from_call(node)
+            call_site = astroid.arguments.CallSite.from_call(node)
         except astroid.InferenceError:
             return
 
@@ -752,7 +749,7 @@ class StringConstantChecker(BaseTokenChecker):
         Args:
           tokens: The tokens to be checked against for consistent usage.
         """
-        string_delimiters = collections.Counter()  # type: typing.Counter[str]
+        string_delimiters: Counter[str] = collections.Counter()
 
         # First, figure out which quote character predominates in the module
         for tok_type, token, _, _, _ in tokens:
@@ -776,7 +773,9 @@ class StringConstantChecker(BaseTokenChecker):
 
     def check_for_concatenated_strings(self, elements, iterable_type):
         for elt in elements:
-            if not (isinstance(elt, Const) and elt.pytype() in _AST_NODE_STR_TYPES):
+            if not (
+                isinstance(elt, astroid.Const) and elt.pytype() in _AST_NODE_STR_TYPES
+            ):
                 continue
             if elt.col_offset < 0:
                 # This can happen in case of escaped newlines

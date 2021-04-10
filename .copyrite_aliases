@@ -9,6 +9,15 @@
   },
   {
     "mails": [
+      "pierre.sassoulas@gmail.com",
+      "pierre.sassoulas@cea.fr",
+      "pierre.sassoulas@wisebim.fr"
+    ],
+    "authoritative_mail": "pierre.sassoulas@gmail.com",
+    "name": "Pierre Sassoulas"
+  },
+  {
+    "mails": [
         "alexandre.fayolle@logilab.fr",
         "emile.anclin@logilab.fr",
         "david.douard@logilab.fr",
@@ -23,8 +32,9 @@
         "nicolas.chauvat@logilab.fr",
         "afayolle.ml@free.fr",
         "aurelien.campeas@logilab.fr",
+        "charles.hebert@logilab.fr",
+        "julien.jehannet@logilab.fr",
         "lmedioni@logilab.fr"
-
     ],
     "authoritative_mail": "contact@logilab.fr",
     "name": "LOGILAB S.A. (Paris, FRANCE)"

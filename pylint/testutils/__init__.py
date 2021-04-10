@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2013-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
@@ -16,12 +15,13 @@
 # Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Mr. Senko <atodorov@mrsenko.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2020 Guillaume Peillex <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Lefteris Karapetsas <lefteris@refu.co>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -41,6 +41,7 @@ __all__ = [
     "GenericTestReporter",
     "UPDATE_FILE",
     "UPDATE_OPTION",
+    "UnittestLinter",
 ]
 
 from pylint.testutils.checker_test_case import CheckerTestCase
@@ -53,3 +54,4 @@ from pylint.testutils.lint_module_test import LintModuleTest
 from pylint.testutils.output_line import Message
 from pylint.testutils.reporter_for_tests import GenericTestReporter, MinimalTestReporter
 from pylint.testutils.tokenize_str import _tokenize_str
+from pylint.testutils.unittest_linter import UnittestLinter

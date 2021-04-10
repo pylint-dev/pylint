@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006, 2009-2010, 2012-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012, 2014 Google, Inc.
 # Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
@@ -12,9 +11,11 @@
 # Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Michael Scott Cuthbert <cuthbert@mit.edu>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -25,7 +26,6 @@ import re
 from collections import defaultdict
 
 import astroid
-from astroid import BoolOp, If, decorators
 
 from pylint import utils
 from pylint.checkers import BaseChecker
@@ -95,16 +95,17 @@ SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
 TYPING_NAMEDTUPLE = "typing.NamedTuple"
+TYPING_TYPEDDICT = "typing.TypedDict"
 
 
 def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
     """Check if a class is exempt from too-few-public-methods"""
 
-    # If it's a typing.Namedtuple or an Enum
+    # If it's a typing.Namedtuple, typing.TypedDict or an Enum
     for ancestor in node.ancestors():
         if ancestor.name == "Enum" and ancestor.root().name == "enum":
             return True
-        if ancestor.qname() == TYPING_NAMEDTUPLE:
+        if ancestor.qname() in (TYPING_NAMEDTUPLE, TYPING_TYPEDDICT):
             return True
 
     # Or if it's a dataclass
@@ -136,7 +137,7 @@ def _count_boolean_expressions(bool_op):
     """
     nb_bool_expr = 0
     for bool_expr in bool_op.get_children():
-        if isinstance(bool_expr, BoolOp):
+        if isinstance(bool_expr, astroid.BoolOp):
             nb_bool_expr += _count_boolean_expressions(bool_expr)
         else:
             nb_bool_expr += 1
@@ -211,7 +212,7 @@ class MisdesignChecker(BaseChecker):
                 "default": 50,
                 "type": "int",
                 "metavar": "<int>",
-                "help": "Maximum number of statements in function / method " "body.",
+                "help": "Maximum number of statements in function / method body.",
             },
         ),
         (
@@ -283,7 +284,7 @@ class MisdesignChecker(BaseChecker):
         for i in range(len(self._stmts)):
             self._stmts[i] += amount
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _ignored_argument_names(self):
         return utils.get_global_option(self, "ignored-argument-names", default=None)
 
@@ -459,7 +460,9 @@ class MisdesignChecker(BaseChecker):
         self._check_boolean_expressions(node)
         branches = 1
         # don't double count If nodes coming from some 'elif'
-        if node.orelse and (len(node.orelse) > 1 or not isinstance(node.orelse[0], If)):
+        if node.orelse and (
+            len(node.orelse) > 1 or not isinstance(node.orelse[0], astroid.If)
+        ):
             branches += 1
         self._inc_branch(node, branches)
         self._inc_all_stmts(branches)
@@ -470,7 +473,7 @@ class MisdesignChecker(BaseChecker):
         if the "if" node test is a BoolOp node
         """
         condition = node.test
-        if not isinstance(condition, BoolOp):
+        if not isinstance(condition, astroid.BoolOp):
             return
         nb_bool_expr = _count_boolean_expressions(condition)
         if nb_bool_expr > self.config.max_bool_expr:

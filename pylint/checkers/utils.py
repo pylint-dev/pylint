@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2007, 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
@@ -16,7 +15,7 @@
 # Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016-2017 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Brian C. Lane <bcl@redhat.com>
-# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
 # Copyright (c) 2018 Alan Chan <achan961117@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
@@ -27,18 +26,22 @@
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Brian Shaginaw <brian.shaginaw@warbyparker.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Matthijs Blom <19817960+MatthijsBlom@users.noreply.github.com>
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Nathan Marrow <nmarrow@google.com>
 # Copyright (c) 2019 Svet <svet@hyperscience.com>
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
+# Copyright (c) 2020 Batuhan Taskaya <batuhanosmantaskaya@gmail.com>
+# Copyright (c) 2020 Luigi <luigi.cristofolini@q-ctrl.com>
+# Copyright (c) 2020 ethan-leba <ethanleba5@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
 # Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Slavfox <slavfoxman@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -66,9 +69,6 @@ from typing import (
 
 import _string
 import astroid
-from astroid import bases as _bases
-from astroid import helpers, scoped_nodes
-from astroid.exceptions import _NonDeducibleTypeHierarchy
 
 from pylint.constants import PY310_PLUS
 
@@ -228,44 +228,44 @@ PYMETHODS = set(SPECIAL_METHODS_PARAMS)
 
 SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
     (
-        "tuple",
-        "list",
-        "dict",
-        "set",
-        "frozenset",
-        "type",
-        "deque",  # collections
-        "defaultdict",
-        "OrderedDict",
-        "Counter",
-        "ChainMap",
-        "Awaitable",  # collections.abc
-        "Coroutine",
-        "AsyncIterable",
-        "AsyncIterator",
-        "AsyncGenerator",
-        "Iterable",
-        "Iterator",
-        "Generator",
-        "Reversible",
-        "Container",
-        "Collection",
-        "Callable",
-        "Set # typing.AbstractSet",
-        "MutableSet",
-        "Mapping",
-        "MutableMapping",
-        "Sequence",
-        "MutableSequence",
-        "ByteString",
-        "MappingView",
-        "KeysView",
-        "ItemsView",
-        "ValuesView",
-        "AbstractContextManager",  # contextlib
-        "AbstractAsyncContextManager",
-        "Pattern",  # re
-        "Match",
+        "builtins.tuple",
+        "builtins.list",
+        "builtins.dict",
+        "builtins.set",
+        "builtins.frozenset",
+        "builtins.type",
+        "collections.deque",
+        "collections.defaultdict",
+        "collections.OrderedDict",
+        "collections.Counter",
+        "collections.ChainMap",
+        "_collections_abc.Awaitable",
+        "_collections_abc.Coroutine",
+        "_collections_abc.AsyncIterable",
+        "_collections_abc.AsyncIterator",
+        "_collections_abc.AsyncGenerator",
+        "_collections_abc.Iterable",
+        "_collections_abc.Iterator",
+        "_collections_abc.Generator",
+        "_collections_abc.Reversible",
+        "_collections_abc.Container",
+        "_collections_abc.Collection",
+        "_collections_abc.Callable",
+        "_collections_abc.Set",
+        "_collections_abc.MutableSet",
+        "_collections_abc.Mapping",
+        "_collections_abc.MutableMapping",
+        "_collections_abc.Sequence",
+        "_collections_abc.MutableSequence",
+        "_collections_abc.ByteString",
+        "_collections_abc.MappingView",
+        "_collections_abc.KeysView",
+        "_collections_abc.ItemsView",
+        "_collections_abc.ValuesView",
+        "contextlib.AbstractContextManager",
+        "contextlib.AbstractAsyncContextManager",
+        "re.Pattern",
+        "re.Match",
     )
 )
 
@@ -314,7 +314,7 @@ def clobber_in_except(
     (False, None) otherwise.
     """
     if isinstance(node, astroid.AssignAttr):
-        return True, (node.attrname, "object %r" % (node.expr.as_string(),))
+        return True, (node.attrname, f"object {node.expr.as_string()!r}")
     if isinstance(node, astroid.AssignName):
         name = node.name
         if is_builtin(name):
@@ -457,7 +457,11 @@ def is_func_decorator(node: astroid.node_classes.NodeNG) -> bool:
             return True
         if parent.is_statement or isinstance(
             parent,
-            (astroid.Lambda, scoped_nodes.ComprehensionScope, scoped_nodes.ListComp),
+            (
+                astroid.Lambda,
+                astroid.scoped_nodes.ComprehensionScope,
+                astroid.scoped_nodes.ListComp,
+            ),
         ):
             break
         parent = parent.parent
@@ -863,7 +867,7 @@ def unimplemented_abstract_methods(
     """
     if is_abstract_cb is None:
         is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
-    visited = {}  # type: Dict[str, astroid.node_classes.NodeNG]
+    visited: Dict[str, astroid.node_classes.NodeNG] = {}
     try:
         mro = reversed(node.mro())
     except NotImplementedError:
@@ -965,7 +969,7 @@ def _except_handlers_ignores_exception(
     handlers: astroid.ExceptHandler, exception
 ) -> bool:
     func = partial(error_of_type, error_type=(exception,))
-    return any(map(func, handlers))
+    return any(func(handler) for handler in handlers)
 
 
 def get_exception_handlers(
@@ -1134,7 +1138,7 @@ def _supports_protocol(
             return True
 
     if (
-        isinstance(value, _bases.Proxy)
+        isinstance(value, astroid.bases.Proxy)
         and isinstance(value._proxied, astroid.BaseInstance)
         and has_known_bases(value._proxied)
     ):
@@ -1350,11 +1354,8 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
         parent_node = parent_node.parent
         if isinstance(parent_node, astroid.Module):
             return False
-    if value.name in SUBSCRIPTABLE_CLASSES_PEP585:
+    if value.qname() in SUBSCRIPTABLE_CLASSES_PEP585:
         return True
-    for name in value.basenames:
-        if name in SUBSCRIPTABLE_CLASSES_PEP585:
-            return True
     return False
 
 
@@ -1370,9 +1371,9 @@ def is_subclass_of(child: astroid.ClassDef, parent: astroid.ClassDef) -> bool:
 
     for ancestor in child.ancestors():
         try:
-            if helpers.is_subtype(ancestor, parent):
+            if astroid.helpers.is_subtype(ancestor, parent):
                 return True
-        except _NonDeducibleTypeHierarchy:
+        except astroid.exceptions._NonDeducibleTypeHierarchy:
             continue
     return False
 
@@ -1431,4 +1432,49 @@ def is_classdef_type(node: astroid.ClassDef) -> bool:
     for base in node.bases:
         if isinstance(base, astroid.Name) and base.name == "type":
             return True
+    return False
+
+
+def is_attribute_typed_annotation(
+    node: Union[astroid.ClassDef, astroid.Instance], attr_name: str
+) -> bool:
+    """Test if attribute is typed annotation in current node
+    or any base nodes.
+    """
+    attribute = node.locals.get(attr_name, [None])[0]
+    if (
+        attribute
+        and isinstance(attribute, astroid.AssignName)
+        and isinstance(attribute.parent, astroid.AnnAssign)
+    ):
+        return True
+    for base in node.bases:
+        inferred = safe_infer(base)
+        if (
+            inferred
+            and isinstance(inferred, astroid.ClassDef)
+            and is_attribute_typed_annotation(inferred, attr_name)
+        ):
+            return True
+    return False
+
+
+def is_assign_name_annotated_with(node: astroid.AssignName, typing_name: str) -> bool:
+    """Test if AssignName node has `typing_name` annotation.
+
+    Especially useful to check for `typing._SpecialForm` instances
+    like: `Union`, `Optional`, `Literal`, `ClassVar`, `Final`.
+    """
+    if not isinstance(node.parent, astroid.AnnAssign):
+        return False
+    annotation = node.parent.annotation
+    if isinstance(annotation, astroid.Subscript):
+        annotation = annotation.value
+    if (
+        isinstance(annotation, astroid.Name)
+        and annotation.name == typing_name
+        or isinstance(annotation, astroid.Attribute)
+        and annotation.attrname == typing_name
+    ):
+        return True
     return False

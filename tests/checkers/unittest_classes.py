@@ -5,9 +5,10 @@
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -187,3 +188,33 @@ class TestVariablesChecker(CheckerTestCase):
             Message("protected-access", node=attribute_in_fake_2, args="__private"),
         ):
             self.walk(node.root())
+
+    def test_private_attribute_hides_method(self):
+        node = astroid.extract_node(
+            """
+            class Parent:
+                def __init__(self):
+                    self.__private = None
+
+            class Child(Parent):
+                def __private(self): #@
+                    pass
+            """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_protected_attribute_hides_method(self):
+        node = astroid.extract_node(
+            """
+            class Parent:
+                def __init__(self):
+                    self._protected = None
+
+            class Child(Parent):
+                def _protected(self): #@
+                    pass
+            """
+        )
+        with self.assertAddsMessages(Message("method-hidden", node=node, args=("", 4))):
+            self.checker.visit_functiondef(node)

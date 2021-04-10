@@ -1,5 +1,6 @@
 """Test assignment expressions"""
-# pylint: disable=missing-docstring,unused-argument,unused-import,invalid-name,blacklisted-name,unused-variable
+# pylint: disable=missing-docstring,unused-argument,unused-import,invalid-name
+# pylint: disable=blacklisted-name,unused-variable,pointless-statement
 import re
 
 if (a := True):
@@ -8,9 +9,21 @@ else:
     x = False
 
 x = b if (b := True) else False
+x2: bool = b2 if (b2 := True) else False
+x3 = 0
+x3 += b3 if (b3 := 4) else 6
 
 a = ["a   ", "b   ", "c   "]
 c = [text for el in a if (text := el.strip()) == "b"]
+
+
+# check wrong usage
+assert err_a, (err_a := 2)  # [used-before-assignment]
+print(err_b and (err_b := 2))  # [used-before-assignment]
+values = (
+    err_c := err_d,  # [used-before-assignment]
+    err_d := 2,
+)
 
 
 # https://github.com/PyCQA/pylint/issues/3347
@@ -49,10 +62,25 @@ function = lambda: (
 print(function())
 
 
-# check wrong usage
-assert err_a, (err_a := 2)  # [used-before-assignment]
-print(err_b and (err_b := 2))  # [used-before-assignment]
-values = (
-    err_c := err_d,  # [used-before-assignment]
-    err_d := 2,
+# https://github.com/PyCQA/pylint/issues/3763
+foo if (foo := 3 - 2) > 0 else 0
+
+
+# https://github.com/PyCQA/pylint/issues/4238
+l1 = f'The number {(count1 := 4)} ' \
+     f'is equal to {count1}'
+l2: str = (
+    f'The number {(count2 := 4)} '
+    f'is equal to {count2}'
 )
+l3 = "Hello "
+l3 += (
+    f'The number {(count3 := 4)} '
+    f'is equal to {count3}'
+)
+
+
+# https://github.com/PyCQA/pylint/issues/4301
+def func2():
+    return f'The number {(count := 4)} ' \
+           f'is equal to {count}'

@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 from typing import List
 
 import astroid
-from astroid import DictComp, GeneratorExp, ListComp, SetComp
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -70,12 +67,21 @@ class LenChecker(checkers.BaseChecker):
         if not utils.is_test_condition(node, parent):
             return
         len_arg = node.args[0]
-        generator_or_comprehension = (ListComp, SetComp, DictComp, GeneratorExp)
+        generator_or_comprehension = (
+            astroid.ListComp,
+            astroid.SetComp,
+            astroid.DictComp,
+            astroid.GeneratorExp,
+        )
         if isinstance(len_arg, generator_or_comprehension):
             # The node is a generator or comprehension as in len([x for x in ...])
             self.add_message("len-as-condition", node=node)
             return
-        instance = next(len_arg.infer())
+        try:
+            instance = next(len_arg.infer())
+        except astroid.InferenceError:
+            # Probably undefined-varible, abort check
+            return
         mother_classes = self.base_classes_of_node(instance)
         affected_by_pep8 = any(
             t in mother_classes for t in ["str", "tuple", "list", "set"]

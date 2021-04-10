@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
 # Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2016-2017 Pedro Algarvio <pedro@algarvio.me>
+# Copyright (c) 2016-2017, 2020 Pedro Algarvio <pedro@algarvio.me>
 # Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
@@ -12,9 +11,11 @@
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2019 agutole <toldo_carp@hotmail.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Ganden Schaffner <gschaffner@pm.me>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -52,9 +53,6 @@ except ImportError:
     class WikiWordFilter:  # type: ignore
         ...
 
-    def get_tokenizer(_):
-        ...
-
     class Filter:  # type: ignore
         def _skip(self, word):
             raise NotImplementedError
@@ -62,18 +60,23 @@ except ImportError:
     class Chunker:  # type: ignore
         pass
 
+    def get_tokenizer(
+        tag=None, chunkers=None, filters=None
+    ):  # pylint: disable=unused-argument
+        return Filter()
+
 
 if enchant is not None:
     br = enchant.Broker()
     dicts = br.list_dicts()
     dict_choices = [""] + [d[0] for d in dicts]
-    dicts = ["%s (%s)" % (d[0], d[1].name) for d in dicts]
+    dicts = ["{} ({})".format(d[0], d[1].name) for d in dicts]
     dicts = ", ".join(dicts)
     instr = ""
 else:
     dicts = "none"
     dict_choices = [""]
-    instr = " To make it work, install the python-enchant package."
+    instr = " To make it work, install the 'python-enchant' package."
 
 
 class WordsWithDigigtsFilter(Filter):
@@ -208,7 +211,7 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "",
                 "type": "string",
                 "metavar": "<comma separated words>",
-                "help": "List of comma separated words that " "should not be checked.",
+                "help": "List of comma separated words that should not be checked.",
             },
         ),
         (
@@ -239,7 +242,7 @@ class SpellingChecker(BaseTokenChecker):
                 "default": 4,
                 "type": "int",
                 "metavar": "N",
-                "help": "Limits count of emitted suggestions for " "spelling mistakes.",
+                "help": "Limits count of emitted suggestions for spelling mistakes.",
             },
         ),
     )
@@ -359,7 +362,7 @@ class SpellingChecker(BaseTokenChecker):
                     col += 1
                 indicator = (" " * col) + ("^" * len(word))
                 all_suggestion = "' or '".join(suggestions)
-                args = (word, original_line, indicator, "'{}'".format(all_suggestion))
+                args = (word, original_line, indicator, f"'{all_suggestion}'")
                 self.add_message(msgid, line=line_num, args=args)
 
     def process_tokens(self, tokens):

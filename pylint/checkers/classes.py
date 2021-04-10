@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2016 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Maarten ter Huurne <maarten@treewalker.org>
 # Copyright (c) 2012-2014 Google, Inc.
@@ -16,7 +15,7 @@
 # Copyright (c) 2016 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2017, 2019 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017, 2019-2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018-2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018-2019 Ashley Whetter <ashley@awhetter.co.uk>
@@ -25,7 +24,7 @@
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Ben Green <benhgreen@icloud.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 mattlbeck <17108752+mattlbeck@users.noreply.github.com>
 # Copyright (c) 2019-2020 craig-sh <craig-sh@users.noreply.github.com>
 # Copyright (c) 2019 Janne Rönkkö <jannero@users.noreply.github.com>
@@ -33,6 +32,9 @@
 # Copyright (c) 2019 Grygorii Iermolenko <gyermolenko@gmail.com>
 # Copyright (c) 2019 Andrzej Klajnert <github@aklajnert.pl>
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
+# Copyright (c) 2020 GergelyKalmar <gergely.kalmar@logikal.jp>
+# Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -43,10 +45,6 @@ import collections
 from itertools import chain, zip_longest
 
 import astroid
-from astroid import decorators, objects
-from astroid.bases import BUILTINS, Generator
-from astroid.exceptions import DuplicateBasesError, InconsistentMroError
-from astroid.scoped_nodes import function_to_method
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
@@ -275,7 +273,7 @@ def _has_different_parameters(original, overridden, dummy_parameter_regex):
             return True
 
         names = [param.name for param in params]
-        if any(map(dummy_parameter_regex.match, names)):
+        if any(dummy_parameter_regex.match(name) for name in names):
             continue
         if original_param.name != overridden_param.name:
             return True
@@ -402,7 +400,7 @@ def _is_attribute_property(name, klass):
         attributes = klass.getattr(name)
     except astroid.NotFoundError:
         return False
-    property_name = f"{BUILTINS}.property"
+    property_name = f"{astroid.bases.BUILTINS}.property"
     for attr in attributes:
         if attr is astroid.Uninferable:
             continue
@@ -453,7 +451,6 @@ def _safe_infer_call_result(node, caller, context=None):
         return None  # there is some kind of ambiguity
     except StopIteration:
         return value
-    return None
 
 
 def _has_same_layout_slots(slots, assigned_value):
@@ -773,11 +770,11 @@ a metaclass class method.",
         self._first_attrs = []
         self._meth_could_be_func = None
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _dummy_rgx(self):
         return get_global_option(self, "dummy-variables-rgx", default=None)
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _ignore_mixin(self):
         return get_global_option(self, "ignore-mixin-members", default=True)
 
@@ -810,9 +807,9 @@ a metaclass class method.",
         """Detect that a class has a consistent mro or duplicate bases."""
         try:
             node.mro()
-        except InconsistentMroError:
+        except astroid.InconsistentMroError:
             self.add_message("inconsistent-mro", args=node.name, node=node)
-        except DuplicateBasesError:
+        except astroid.DuplicateBasesError:
             self.add_message("duplicate-bases", args=node.name, node=node)
         except NotImplementedError:
             # Old style class, there's no mro so don't do anything.
@@ -828,12 +825,7 @@ a metaclass class method.",
             if not ancestor:
                 continue
             if isinstance(ancestor, astroid.Instance) and ancestor.is_subtype_of(
-                "%s.type" % (BUILTINS,)
-            ):
-                continue
-            if (
-                isinstance(ancestor, astroid.FunctionDef)
-                and ancestor.name == "TypedDict"
+                f"{astroid.bases.BUILTINS}.type"
             ):
                 continue
 
@@ -1004,6 +996,8 @@ a metaclass class method.",
 
             # If a subclass defined the method then it's not our fault.
             for ancestor in klass.ancestors():
+                if node.name in ancestor.instance_attrs and is_attr_private(node.name):
+                    return
                 for obj in ancestor.lookup(node.name)[1]:
                     if isinstance(obj, astroid.FunctionDef):
                         return
@@ -1058,7 +1052,7 @@ a metaclass class method.",
         except astroid.InferenceError:
             return
         else:
-            if not isinstance(super_call, objects.Super):
+            if not isinstance(super_call, astroid.objects.Super):
                 return
 
         # The name should be the same.
@@ -1108,9 +1102,7 @@ a metaclass class method.",
                 annotations = chain(
                     (arguments.posonlyargs_annotations or []), arguments.annotations
                 )
-                return [
-                    annotation.as_string() for annotation in filter(None, annotations)
-                ]
+                return [ann.as_string() for ann in annotations if ann is not None]
 
             called_annotations = form_annotations(function.args)
             overridden_annotations = form_annotations(meth_node.args)
@@ -1431,6 +1423,14 @@ a metaclass class method.",
                     name = stmt.targets[0].name
                     if _is_attribute_property(name, klass):
                         return
+
+                if (
+                    self._is_classmethod(node.frame())
+                    and self._is_inferred_instance(node.expr, klass)
+                    and self._is_class_attribute(attrname, klass)
+                ):
+                    return
+
                 licit_protected_member = not attrname.startswith("__")
                 if (
                     not self.config.check_protected_access_in_special_methods
@@ -1460,6 +1460,44 @@ a metaclass class method.",
             and len(expr.args) == 1
             and self._is_mandatory_method_param(expr.args[0])
         )
+
+    @staticmethod
+    def _is_classmethod(func):
+        """Check if the given *func* node is a class method."""
+
+        return isinstance(func, astroid.FunctionDef) and (
+            func.type == "classmethod" or func.name == "__class_getitem__"
+        )
+
+    @staticmethod
+    def _is_inferred_instance(expr, klass):
+        """Check if the inferred value of the given *expr* is an instance of *klass*."""
+
+        inferred = safe_infer(expr)
+        if not isinstance(inferred, astroid.Instance):
+            return False
+
+        return inferred._proxied is klass
+
+    @staticmethod
+    def _is_class_attribute(name, klass):
+        """Check if the given attribute *name* is a class or instance member of the given *klass*.
+
+        Returns ``True`` if the name is a property in the given klass,
+        ``False`` otherwise.
+        """
+
+        try:
+            klass.getattr(name)
+            return True
+        except astroid.NotFoundError:
+            pass
+
+        try:
+            klass.instance_attr(name)
+            return True
+        except astroid.NotFoundError:
+            return False
 
     def visit_name(self, node):
         """check if the name handle an access to a class member
@@ -1605,7 +1643,7 @@ a metaclass class method.",
                 valid = repr(config[0])
             else:
                 valid = ", ".join(repr(v) for v in config[:-1])
-                valid = "%s or %r" % (valid, config[-1])
+                valid = f"{valid} or {config[-1]!r}"
             self.add_message(message, args=(method_name, valid), node=node)
 
     def _check_bases_classes(self, node):
@@ -1675,7 +1713,7 @@ a metaclass class method.",
                         and klass._proxied.name == "super"
                     ):
                         return
-                    if isinstance(klass, objects.Super):
+                    if isinstance(klass, astroid.objects.Super):
                         return
                     try:
                         del not_called_yet[klass]
@@ -1706,8 +1744,8 @@ a metaclass class method.",
             return
 
         instance = cls.instantiate_class()
-        method1 = function_to_method(method1, instance)
-        refmethod = function_to_method(refmethod, instance)
+        method1 = astroid.scoped_nodes.function_to_method(method1, instance)
+        refmethod = astroid.scoped_nodes.function_to_method(refmethod, instance)
 
         # Don't care about functions with unknown argument (builtins).
         if method1.args.args is None or refmethod.args.args is None:
@@ -1902,7 +1940,7 @@ class SpecialMethodsChecker(BaseChecker):
             # by no-method-argument.
             return
 
-        if decorated_with(node, [BUILTINS + ".staticmethod"]):
+        if decorated_with(node, [astroid.bases.BUILTINS + ".staticmethod"]):
             # We expect to not take in consideration self.
             all_args = node.args.args
         else:
@@ -1993,8 +2031,8 @@ class SpecialMethodsChecker(BaseChecker):
         if node is astroid.Uninferable:
             # Just ignore Uninferable objects.
             return True
-        if isinstance(node, Generator):
-            # Generators can be itered.
+        if isinstance(node, astroid.bases.Generator):
+            # Generators can be iterated.
             return True
 
         if isinstance(node, astroid.Instance):

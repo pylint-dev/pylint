@@ -7,9 +7,10 @@ import platform
 import sys
 from collections import Counter
 from io import StringIO
-from typing import Dict, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import pytest
+from _pytest.config import Config
 
 from pylint import checkers
 from pylint.lint import PyLinter
@@ -21,24 +22,33 @@ from pylint.testutils.functional_test_file import (
 )
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
+from pylint.utils import utils
 
 
 class LintModuleTest:
     maxDiff = None
 
-    def __init__(self, test_file: FunctionalTestFile):
+    def __init__(self, test_file: FunctionalTestFile, config: Optional[Config] = None):
         _test_reporter = FunctionalTestReporter()
         self._linter = PyLinter()
         self._linter.set_reporter(_test_reporter)
         self._linter.config.persistent = 0
         checkers.initialize(self._linter)
-        self._linter.disable("I")
+        self._linter.disable("suppressed-message")
+        self._linter.disable("locally-disabled")
+        self._linter.disable("useless-suppression")
         try:
             self._linter.read_config_file(test_file.option_file)
+            if self._linter.cfgfile_parser.has_option("MASTER", "load-plugins"):
+                plugins = utils._splitstrip(
+                    self._linter.cfgfile_parser.get("MASTER", "load-plugins")
+                )
+                self._linter.load_plugin_modules(plugins)
             self._linter.load_config_file()
         except NoFileError:
             pass
         self._test_file = test_file
+        self._config = config
 
     def setUp(self):
         if self._should_be_skipped_due_to_version():
@@ -70,11 +80,7 @@ class LintModuleTest:
         )
 
     def __str__(self):
-        return "%s (%s.%s)" % (
-            self._test_file.base,
-            self.__class__.__module__,
-            self.__class__.__name__,
-        )
+        return f"{self._test_file.base} ({self.__class__.__module__}.{self.__class__.__name__})"
 
     @staticmethod
     def get_expected_messages(stream):
@@ -170,10 +176,14 @@ class LintModuleTest:
         actual_messages, actual_output = self._get_actual()
         assert (
             expected_messages == actual_messages
-        ), self.error_msg_for_unequal_messages(actual_messages, expected_messages)
+        ), self.error_msg_for_unequal_messages(
+            actual_messages, expected_messages, actual_output
+        )
         self._check_output_text(expected_messages, expected_output, actual_output)
 
-    def error_msg_for_unequal_messages(self, actual_messages, expected_messages):
+    def error_msg_for_unequal_messages(
+        self, actual_messages, expected_messages, actual_output: List[OutputLine]
+    ):
         msg = ['Wrong results for file "%s":' % (self._test_file.base)]
         missing, unexpected = self.multiset_difference(
             expected_messages, actual_messages
@@ -183,8 +193,11 @@ class LintModuleTest:
             msg.extend(" %3d: %s" % msg for msg in sorted(missing))
         if unexpected:
             msg.append("\nUnexpected in testdata:")
-            msg.extend(" %3d: %s" % msg for msg in sorted(unexpected))
+            msg.extend(" %3d: %s" % msg for msg in sorted(unexpected))  # type: ignore
         error_msg = "\n".join(msg)
+        if self._config and self._config.getoption("verbose") > 0:
+            error_msg += "\n\nActual pylint output for this file:\n"
+            error_msg += "\n".join(str(o) for o in actual_output)
         return error_msg
 
     def error_msg_for_unequal_output(self, expected_lines, received_lines) -> str:
@@ -194,7 +207,7 @@ class LintModuleTest:
             f"Wrong output for '{self._test_file.base}.txt':\n"
             "You can update the expected output automatically with: '"
             f"python tests/test_functional.py {UPDATE_OPTION} -k "
-            f'""test_functional[{self._test_file.base}]"\'\n\n'
+            f'"test_functional[{self._test_file.base}]"\'\n\n'
         )
         sort_by_line_number = operator.attrgetter("lineno")
         if missing:

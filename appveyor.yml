@@ -1,4 +1,4 @@
-version: '{branch}-{build}'
+version: "{branch}-{build}"
 build: off
 
 test_script:

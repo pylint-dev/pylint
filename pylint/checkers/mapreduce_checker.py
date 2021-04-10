@@ -1,4 +1,5 @@
-# Copyright (c) 2020 Frank Harrison <doublethefish@gmail.com>
+# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

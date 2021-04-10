@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2007, 2010, 2013, 2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013 Google, Inc.
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
@@ -7,17 +6,12 @@
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
-
-""" Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
- https://www.logilab.fr/ -- mailto:contact@logilab.fr
-
-Raw metrics checker
-"""
 
 import tokenize
 from typing import Any
@@ -26,9 +20,10 @@ from pylint.checkers import BaseTokenChecker
 from pylint.exceptions import EmptyReportError
 from pylint.interfaces import ITokenChecker
 from pylint.reporters.ureports.nodes import Table
+from pylint.utils import diff_string
 
 
-def report_raw_stats(sect, stats, _):
+def report_raw_stats(sect, stats, old_stats):
     """calculate percentage of code / doc / comment / empty"""
     total_lines = stats["total_lines"]
     if not total_lines:
@@ -39,7 +34,12 @@ def report_raw_stats(sect, stats, _):
         key = node_type + "_lines"
         total = stats[key]
         percent = float(total * 100) / total_lines
-        lines += (node_type, str(total), "%.2f" % percent, "NC", "NC")
+        old = old_stats.get(key, None)
+        if old is not None:
+            diff_str = diff_string(old, total)
+        else:
+            old, diff_str = "NC", "NC"
+        lines += (node_type, str(total), "%.2f" % percent, str(old), diff_str)
     sect.append(Table(children=lines, cols=5, rheaders=1))
 
 
@@ -59,7 +59,7 @@ class RawMetricsChecker(BaseTokenChecker):
     # configuration options
     options = ()
     # messages
-    msgs = {}  # type: Any
+    msgs: Any = {}
     # reports
     reports = (("RP0701", "Raw metrics", report_raw_stats),)
 
@@ -93,7 +93,6 @@ JUNK = (tokenize.NL, tokenize.INDENT, tokenize.NEWLINE, tokenize.ENDMARKER)
 def get_type(tokens, start_index):
     """return the line type : docstring, comment, code, empty"""
     i = start_index
-    tok_type = tokens[i][0]
     start = tokens[i][2]
     pos = start
     line_type = None

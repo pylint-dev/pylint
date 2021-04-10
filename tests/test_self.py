@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
@@ -7,9 +6,9 @@
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
-# Copyright (c) 2017 Pierre Sassoulas <pierre.sassoulas@cea.fr>
+# Copyright (c) 2017, 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017, 2019 Thomas Hisch <t.hisch@gmail.com>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
 # Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
@@ -17,13 +16,16 @@
 # Copyright (c) 2018 Jason Owen <jason.a.owen@gmail.com>
 # Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
 # Copyright (c) 2018 Reverb C <reverbc@users.noreply.github.com>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugues <hugues.bruant@affirm.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
+# Copyright (c) 2020 Matěj Grabovský <mgrabovs@redhat.com>
 # Copyright (c) 2020 Pieter Engelbrecht <pengelbrecht@rems2.com>
 # Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Louis Sautier <sautier.louis@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -40,12 +42,16 @@ import subprocess
 import sys
 import textwrap
 import warnings
+from copy import copy
 from io import StringIO
 from os.path import abspath, dirname, join
+from typing import Generator, Optional
 from unittest import mock
+from unittest.mock import patch
 
 import pytest
 
+from pylint import modify_sys_path
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
 from pylint.lint import Run
 from pylint.reporters import JSONReporter
@@ -53,7 +59,10 @@ from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextRepor
 from pylint.utils import utils
 
 HERE = abspath(dirname(__file__))
-CLEAN_PATH = re.escape(dirname(dirname(__file__)) + "/")
+CLEAN_PATH = re.escape(dirname(dirname(__file__)) + os.path.sep)
+UNNECESSARY_LAMBDA = join(
+    HERE, "functional", "u", "unnecessary", "unnecessary_lambda.py"
+)
 
 
 @contextlib.contextmanager
@@ -125,9 +134,9 @@ class TestRunTC:
             output = out.getvalue()
         else:
             output = None
-        msg = "expected output status %s, got %s" % (code, pylint_code)
+        msg = f"expected output status {code}, got {pylint_code}"
         if output is not None:
-            msg = "%s. Below pylint output: \n%s" % (msg, output)
+            msg = f"{msg}. Below pylint output: \n{output}"
         assert pylint_code == code, msg
 
     @staticmethod
@@ -143,7 +152,8 @@ class TestRunTC:
     @staticmethod
     def _clean_paths(output):
         """Normalize path to the tests directory."""
-        return re.sub(CLEAN_PATH, "", output.replace("\\", "/"), flags=re.MULTILINE)
+        output = re.sub(CLEAN_PATH, "", output, flags=re.MULTILINE)
+        return output.replace("\\", "/")
 
     def _test_output(self, args, expected_output):
         out = StringIO()
@@ -258,23 +268,31 @@ class TestRunTC:
             in out.getvalue().strip()
         )
 
+    def test_parallel_execution_bug_2674(self):
+        """  Tests that disabling absolute imports works the same in -j1/j2 """
+        expected_ret_code = 0  # we are disabling the check, should pass
+        for jobs in (1, 2):
+            self._runtest(
+                [
+                    "--py3k",
+                    "--disable=no-absolute-import",
+                    "-j %d" % jobs,
+                    join(HERE, "input", "no_absolute_import.py"),
+                ],
+                code=expected_ret_code,
+            )
+
     def test_parallel_execution_missing_arguments(self):
         self._runtest(["-j 2", "not_here", "not_here_too"], code=1)
 
     def test_py3k_option(self):
         # Test that --py3k flag works.
         rc_code = 0
-        self._runtest(
-            [join(HERE, "functional", "u", "unnecessary_lambda.py"), "--py3k"],
-            code=rc_code,
-        )
+        self._runtest([UNNECESSARY_LAMBDA, "--py3k"], code=rc_code)
 
     def test_py3k_jobs_option(self):
         rc_code = 0
-        self._runtest(
-            [join(HERE, "functional", "u", "unnecessary_lambda.py"), "--py3k", "-j 2"],
-            code=rc_code,
-        )
+        self._runtest([UNNECESSARY_LAMBDA, "--py3k", "-j 2"], code=rc_code)
 
     def test_abbreviations_are_not_supported(self):
         expected = "no such option: --load-plugin"
@@ -634,9 +652,9 @@ class TestRunTC:
         self._runtest(
             [
                 "--fail-under",
-                "5",
+                "-10",
                 "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+                join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
             code=0,
         )
@@ -645,34 +663,25 @@ class TestRunTC:
                 "--fail-under",
                 "6",
                 "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+                join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
             code=0,
         )
         self._runtest(
             [
                 "--fail-under",
-                "5.5",
+                "7.5",
                 "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+                join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
             code=0,
         )
         self._runtest(
             [
                 "--fail-under",
-                "7",
+                "7.6",
                 "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_plus6.py"),
-            ],
-            code=16,
-        )
-        self._runtest(
-            [
-                "--fail-under",
-                "6.7",
-                "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+                join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
             code=16,
         )
@@ -680,21 +689,174 @@ class TestRunTC:
         self._runtest(
             [
                 "--fail-under",
-                "0",
+                "-11",
                 "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_minus6.py"),
+                join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
-            code=22,
+            code=0,
         )
         self._runtest(
             [
                 "--fail-under",
                 "-10",
                 "--enable=all",
-                join(HERE, "regrtest_data", "fail_under_plus6.py"),
+                join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
             code=0,
         )
+        self._runtest(
+            [
+                "--fail-under",
+                "-9",
+                "--enable=all",
+                join(HERE, "regrtest_data", "fail_under_minus10.py"),
+            ],
+            code=22,
+        )
+        self._runtest(
+            [
+                "--fail-under",
+                "-5",
+                "--enable=all",
+                join(HERE, "regrtest_data", "fail_under_minus10.py"),
+            ],
+            code=22,
+        )
+
+    @staticmethod
+    def test_modify_sys_path() -> None:
+        @contextlib.contextmanager
+        def test_sys_path() -> Generator[None, None, None]:
+            original_path = sys.path
+            try:
+                yield
+            finally:
+                sys.path = original_path
+
+        @contextlib.contextmanager
+        def test_environ_pythonpath(
+            new_pythonpath: Optional[str],
+        ) -> Generator[None, None, None]:
+            original_pythonpath = os.environ.get("PYTHONPATH")
+            if new_pythonpath:
+                os.environ["PYTHONPATH"] = new_pythonpath
+            elif new_pythonpath is None and original_pythonpath is not None:
+                # If new_pythonpath is None, make sure to delete PYTHONPATH if present
+                del os.environ["PYTHONPATH"]
+            try:
+                yield
+            finally:
+                if original_pythonpath:
+                    os.environ["PYTHONPATH"] = original_pythonpath
+                elif new_pythonpath is not None:
+                    # Only delete PYTHONPATH if new_pythonpath wasn't None
+                    del os.environ["PYTHONPATH"]
+
+        with test_sys_path(), patch("os.getcwd") as mock_getcwd:
+            cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
+            mock_getcwd.return_value = cwd
+            default_paths = [
+                "/usr/local/lib/python39.zip",
+                "/usr/local/lib/python3.9",
+                "/usr/local/lib/python3.9/lib-dynload",
+                "/usr/local/lib/python3.9/site-packages",
+            ]
+
+            paths = [
+                cwd,
+                *default_paths,
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(None):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            paths = [
+                cwd,
+                cwd,
+                *default_paths,
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath("."):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            paths = [
+                cwd,
+                "/custom_pythonpath",
+                *default_paths,
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath("/custom_pythonpath"):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            paths = [
+                cwd,
+                "/custom_pythonpath",
+                cwd,
+                *default_paths,
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath("/custom_pythonpath:"):
+                modify_sys_path()
+            assert sys.path == [paths[1]] + paths[3:]
+
+            paths = [
+                "",
+                cwd,
+                "/custom_pythonpath",
+                *default_paths,
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(":/custom_pythonpath"):
+                modify_sys_path()
+            assert sys.path == paths[2:]
+
+            paths = [
+                cwd,
+                cwd,
+                "/custom_pythonpath",
+                *default_paths,
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(":/custom_pythonpath:"):
+                modify_sys_path()
+            assert sys.path == paths[2:]
+
+            paths = [
+                cwd,
+                cwd,
+                *default_paths,
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(":."):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(f":{cwd}"):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            sys.path = copy(paths)
+            with test_environ_pythonpath(".:"):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(f"{cwd}:"):
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            paths = [
+                "",
+                cwd,
+                *default_paths,
+                cwd,
+            ]
+            sys.path = copy(paths)
+            with test_environ_pythonpath(cwd):
+                modify_sys_path()
+            assert sys.path == paths[1:]
 
     @staticmethod
     def test_do_not_import_files_from_local_directory(tmpdir):
@@ -743,6 +905,65 @@ class TestRunTC:
                 ],
                 cwd=str(tmpdir),
             )
+
+    @staticmethod
+    def test_do_not_import_files_from_local_directory_with_pythonpath(tmpdir):
+        p_astroid = tmpdir / "astroid.py"
+        p_astroid.write("'Docstring'\nimport completely_unknown\n")
+        p_hmac = tmpdir / "hmac.py"
+        p_hmac.write("'Docstring'\nimport completely_unknown\n")
+
+        # Appending a colon to PYTHONPATH should not break path stripping
+        # https://github.com/PyCQA/pylint/issues/3636
+        with tmpdir.as_cwd():
+            orig_pythonpath = os.environ.get("PYTHONPATH")
+            os.environ["PYTHONPATH"] = f"{(orig_pythonpath or '').strip(':')}:"
+            subprocess.check_output(
+                [
+                    sys.executable,
+                    "-m",
+                    "pylint",
+                    "astroid.py",
+                    "--disable=import-error,unused-import",
+                ],
+                cwd=str(tmpdir),
+            )
+            if orig_pythonpath:
+                os.environ["PYTHONPATH"] = orig_pythonpath
+            else:
+                del os.environ["PYTHONPATH"]
+
+    @staticmethod
+    def test_import_plugin_from_local_directory_if_pythonpath_cwd(tmpdir):
+        p_plugin = tmpdir / "plugin.py"
+        p_plugin.write("# Some plugin content")
+
+        with tmpdir.as_cwd():
+            orig_pythonpath = os.environ.get("PYTHONPATH")
+            if sys.platform == "win32":
+                os.environ["PYTHONPATH"] = "."
+            else:
+                os.environ["PYTHONPATH"] = f"{(orig_pythonpath or '').strip(':')}:."
+            process = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "pylint",
+                    "--load-plugins",
+                    "plugin",
+                ],
+                cwd=str(tmpdir),
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            assert (
+                "AttributeError: module 'plugin' has no attribute 'register'"
+                in process.stderr.decode()
+            )
+            if orig_pythonpath:
+                os.environ["PYTHONPATH"] = orig_pythonpath
+            else:
+                del os.environ["PYTHONPATH"]
 
     def test_allow_import_of_files_found_in_modules_during_parallel_check(self, tmpdir):
         test_directory = tmpdir / "test_directory"

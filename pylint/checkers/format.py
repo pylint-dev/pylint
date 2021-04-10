@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012-2015 Google, Inc.
 # Copyright (c) 2013 moxian <aleftmail@inbox.ru>
@@ -16,15 +15,14 @@
 # Copyright (c) 2016 Petr Pulc <petrpulc@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2017, 2019-2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2017, 2019 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Krzysztof Czapla <k.czapla68@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 James M. Allen <james.m.allen@gmail.com>
 # Copyright (c) 2017 vinnyrose <vinnyrose@users.noreply.github.com>
+# Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2018, 2020 Bryce Guinta <bryce.guinta@protonmail.com>
-# Copyright (c) 2018-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2018 Pierre Sassoulas <pierre.sassoulas@wisebim.fr>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
 # Copyright (c) 2018 Michael Hudson-Doyle <michael.hudson@canonical.com>
@@ -37,6 +35,7 @@
 # Copyright (c) 2018 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2020 Raphael Gaschignard <raphael@rtpg.co>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -52,7 +51,6 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
-from tokenize import TokenInfo
 from typing import List
 
 from astroid import nodes
@@ -261,7 +259,7 @@ class FormatChecker(BaseTokenChecker):
                 "metavar": "<regexp>",
                 "default": r"^\s*(# )?<?https?://\S+>?$",
                 "help": (
-                    "Regexp for a line that is allowed to be longer than " "the limit."
+                    "Regexp for a line that is allowed to be longer than the limit."
                 ),
             },
         ),
@@ -354,8 +352,10 @@ class FormatChecker(BaseTokenChecker):
     def process_module(self, _module):
         pass
 
-    def _check_keyword_parentheses(self, tokens: List[TokenInfo], start: int) -> None:
-        """Check that there are not unnecessary parens after a keyword.
+    def _check_keyword_parentheses(
+        self, tokens: List[tokenize.TokenInfo], start: int
+    ) -> None:
+        """Check that there are not unnecessary parentheses after a keyword.
 
         Parens are unnecessary if there is exactly one balanced outer pair on a
         line, and it is followed by a colon, and contains no commas (i.e. is not a
@@ -526,7 +526,10 @@ class FormatChecker(BaseTokenChecker):
                 "too-many-lines"
             )[0]
             names = (message_definition.msgid, "too-many-lines")
-            line = next(filter(None, map(self.linter._pragma_lineno.get, names)), 1)
+            line = next(
+                filter(None, (self.linter._pragma_lineno.get(name) for name in names)),
+                1,
+            )
             self.add_message(
                 "too-many-lines",
                 args=(line_num, self.config.max_module_lines),

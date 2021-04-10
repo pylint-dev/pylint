@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
@@ -18,8 +17,8 @@
 # Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Grant Welch <gwelch925+github@gmail.com>
+# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017-2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Dan Garrette <dhgarrette@gmail.com>
 # Copyright (c) 2018-2019 Jim Robertson <jrobertson98atx@gmail.com>
 # Copyright (c) 2018 Mike Miller <mtmiller@users.noreply.github.com>
@@ -32,14 +31,16 @@
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
 # Copyright (c) 2018 mar-chi-pan <mar.polatoglou@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Ashley Whetter <ashleyw@activestate.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Alexander Kapshuna <kapsh@kap.sh>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -54,11 +55,10 @@ import re
 from functools import lru_cache
 
 import astroid
-from astroid import decorators, modutils, objects
-from astroid.context import InferenceContext
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import is_postponed_evaluation_enabled
+from pylint.constants import PY39_PLUS
 from pylint.interfaces import HIGH, INFERENCE, INFERENCE_FAILURE, IAstroidChecker
 from pylint.utils import get_global_option
 
@@ -182,7 +182,7 @@ def _get_unpacking_extra_info(node, inferred):
         elif inferred.lineno:
             more = " defined at line %s" % inferred.lineno
     elif inferred.lineno:
-        more = " defined at line %s of %s" % (inferred.lineno, inferred_module)
+        more = f" defined at line {inferred.lineno} of {inferred_module}"
     return more
 
 
@@ -252,7 +252,7 @@ def _detect_global_scope(node, frame, defframe):
 
 
 def _infer_name_module(node, name):
-    context = InferenceContext()
+    context = astroid.context.InferenceContext()
     context.lookupname = name
     return node.infer(context, asname=False)
 
@@ -667,6 +667,15 @@ class VariablesChecker(BaseChecker):
                 "help": "Tells whether unused global variables should be treated as a violation.",
             },
         ),
+        (
+            "allowed-redefined-builtins",
+            {
+                "default": (),
+                "type": "csv",
+                "metavar": "<comma separated list>",
+                "help": "List of names allowed to shadow builtins",
+            },
+        ),
     )
 
     def __init__(self, linter=None):
@@ -829,8 +838,10 @@ class VariablesChecker(BaseChecker):
                         "redefined-outer-name", args=(name, line), node=stmt
                     )
 
-            elif utils.is_builtin(name) and not self._should_ignore_redefined_builtin(
-                stmt
+            elif (
+                utils.is_builtin(name)
+                and not self._allowed_redefined_builtin(name)
+                and not self._should_ignore_redefined_builtin(stmt)
             ):
                 # do not print Redefining builtin for additional builtins
                 self.add_message("redefined-builtin", args=name, node=stmt)
@@ -963,6 +974,14 @@ class VariablesChecker(BaseChecker):
             if current_consumer.scope_type == "class" and (
                 utils.is_ancestor_name(current_consumer.node, node)
                 or (i != start_index and self._ignore_class_scope(node))
+            ):
+                continue
+
+            # Ignore inner class scope for keywords in class definition
+            if (
+                current_consumer.scope_type == "class"
+                and isinstance(node.parent, astroid.Keyword)
+                and isinstance(node.parent.parent, astroid.ClassDef)
             ):
                 continue
 
@@ -1231,15 +1250,15 @@ class VariablesChecker(BaseChecker):
             self._store_type_annotation_node(annotation)
 
     # Relying on other checker's options, which might not have been initialized yet.
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _analyse_fallback_blocks(self):
         return get_global_option(self, "analyse-fallback-blocks", default=False)
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _ignored_modules(self):
         return get_global_option(self, "ignored-modules", default=[])
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _allow_global_unused_variables(self):
         return get_global_option(self, "allow-global-unused-variables", default=True)
 
@@ -1399,7 +1418,15 @@ class VariablesChecker(BaseChecker):
                     # same line as the function definition
                     maybee0601 = False
                 elif (
-                    isinstance(defstmt, astroid.Assign)
+                    isinstance(
+                        defstmt,
+                        (
+                            astroid.Assign,
+                            astroid.AnnAssign,
+                            astroid.AugAssign,
+                            astroid.Expr,
+                        ),
+                    )
                     and isinstance(defstmt.value, astroid.IfExp)
                     and frame is defframe
                     and defframe.parent_of(node)
@@ -1422,6 +1449,23 @@ class VariablesChecker(BaseChecker):
                             and defnode.col_offset < node.col_offset
                         )
                         or (defnode.lineno < node.lineno)
+                        or (
+                            # Issue in the `ast` module until py39
+                            # Nodes in a multiline string have the same lineno
+                            # Could be false-positive without check
+                            not PY39_PLUS
+                            and defnode.lineno == node.lineno
+                            and isinstance(
+                                defstmt,
+                                (
+                                    astroid.Assign,
+                                    astroid.AnnAssign,
+                                    astroid.AugAssign,
+                                    astroid.Return,
+                                ),
+                            )
+                            and isinstance(defstmt.value, astroid.JoinedStr)
+                        )
                     )
                 ):
                     # Expressions, with assignment expressions
@@ -1576,7 +1620,7 @@ class VariablesChecker(BaseChecker):
                 astroid.Tuple,
                 astroid.Dict,
                 astroid.Set,
-                objects.FrozenSet,
+                astroid.objects.FrozenSet,
             )
             if not isinstance(inferred, sequences):
                 self.add_message("undefined-loop-variable", args=name, node=node)
@@ -1637,20 +1681,16 @@ class VariablesChecker(BaseChecker):
             else:
                 if isinstance(stmt, astroid.Import):
                     if asname is not None:
-                        msg = "%s imported as %s" % (qname, asname)
+                        msg = f"{qname} imported as {asname}"
                     else:
                         msg = "import %s" % name
                     self.add_message("unused-import", args=msg, node=stmt)
                     return
                 if isinstance(stmt, astroid.ImportFrom):
                     if asname is not None:
-                        msg = "%s imported from %s as %s" % (
-                            qname,
-                            stmt.modname,
-                            asname,
-                        )
+                        msg = f"{qname} imported from {stmt.modname} as {asname}"
                     else:
-                        msg = "%s imported from %s" % (name, stmt.modname)
+                        msg = f"{name} imported from {stmt.modname}"
                     self.add_message("unused-import", args=msg, node=stmt)
                     return
                 message_name = "unused-variable"
@@ -1755,6 +1795,9 @@ class VariablesChecker(BaseChecker):
         if not isinstance(stmt, astroid.ImportFrom):
             return False
         return stmt.modname in self.config.redefining_builtins_modules
+
+    def _allowed_redefined_builtin(self, name):
+        return name in self.config.allowed_redefined_builtins
 
     def _has_homonym_in_upper_function_scope(self, node, index):
         """
@@ -1947,7 +1990,7 @@ class VariablesChecker(BaseChecker):
                     if os.path.basename(basename) == "__init__":
                         name = node.name + "." + elt_name
                         try:
-                            modutils.file_from_modpath(name.split("."))
+                            astroid.modutils.file_from_modpath(name.split("."))
                         except ImportError:
                             self.add_message(
                                 "undefined-all-variable", args=(elt_name,), node=elt
@@ -2003,7 +2046,7 @@ class VariablesChecker(BaseChecker):
                     if as_name is None:
                         msg = "import %s" % imported_name
                     else:
-                        msg = "%s imported as %s" % (imported_name, as_name)
+                        msg = f"{imported_name} imported as {as_name}"
                     if not _is_type_checking_import(stmt):
                         self.add_message("unused-import", args=msg, node=stmt)
                 elif isinstance(stmt, astroid.ImportFrom) and stmt.modname != FUTURE:
@@ -2025,7 +2068,7 @@ class VariablesChecker(BaseChecker):
                         self.add_message("unused-wildcard-import", args=name, node=stmt)
                     else:
                         if as_name is None:
-                            msg = "%s imported from %s" % (imported_name, stmt.modname)
+                            msg = f"{imported_name} imported from {stmt.modname}"
                         else:
                             fields = (imported_name, stmt.modname, as_name)
                             msg = "%s imported from %s as %s" % fields

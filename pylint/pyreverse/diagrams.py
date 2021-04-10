@@ -4,7 +4,8 @@
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -92,7 +93,7 @@ class ClassDiagram(Figure, FilterMixIn):
                 continue
             names = self.class_names(associated_nodes)
             if names:
-                node_name = "%s : %s" % (node_name, ", ".join(names))
+                node_name = "{} : {}".format(node_name, ", ".join(names))
             attrs.append(node_name)
         return sorted(attrs)
 
@@ -220,9 +221,9 @@ class PackageDiagram(ClassDiagram):
                 return mod
             # search for fullname of relative import modules
             package = node.root().name
-            if mod_name == "%s.%s" % (package, name):
+            if mod_name == f"{package}.{name}":
                 return mod
-            if mod_name == "%s.%s" % (package.rsplit(".", 1)[0], name):
+            if mod_name == "{}.{}".format(package.rsplit(".", 1)[0], name):
                 return mod
         raise KeyError(name)
 

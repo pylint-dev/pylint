@@ -45,12 +45,12 @@ New checkers
 
       a = ur'...'
 
-* Added a new `deprecated-sys-function` check, emitted when accessing removed `sys` members.
+* Added a new ``deprecated-sys-function`` check, emitted when accessing removed ``sys`` members.
 
-* Added `xreadlines-attribute` check, emitted when the `xreadlines()` attribute is accessed
+* Added ``xreadlines-attribute`` check, emitted when the ``xreadlines()`` attribute is accessed
   on a file object.
 
-* Added two new Python 3 porting checks, `exception-escape` and `comprehension-escape`
+* Added two new Python 3 porting checks, ``exception-escape`` and ``comprehension-escape``
 
   These two are emitted whenever pylint detects that a variable defined in the
   said blocks is used outside of the given block. On Python 3 these values are deleted.
@@ -70,8 +70,8 @@ New checkers
 Other Changes
 =============
 
-* `defaultdict` and subclasses of `dict` are now handled for `dict-iter-*` checks. That
-  means that the following code will now emit warnings for when `iteritems` and friends
+* ``defaultdict`` and subclasses of ``dict`` are now handled for `dict-iter-*` checks. That
+  means that the following code will now emit warnings for when ``iteritems`` and friends
   are accessed:
 
   .. code-block:: python
@@ -80,12 +80,12 @@ Other Changes
       ...
       some_dict.iterkeys()
 
-* Enum classes no longer trigger `too-few-methods`
+* Enum classes no longer trigger ``too-few-methods``
 
-* Special methods now count towards `too-few-methods`,
+* Special methods now count towards ``too-few-methods``,
   and are considered part of the public API.
   They are still not counted towards the number of methods for
-  `too-many-methods`.
+  ``too-many-methods``.
 
 * docparams allows abstract methods to document returns documentation even
   if the default implementation does not return something.

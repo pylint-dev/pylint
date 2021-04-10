@@ -10,11 +10,13 @@
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
 # Copyright (c) 2018 Scott Worley <scottworley@scottworley.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Taewon D. Kim <kimt33@mcmaster.ca>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
+# Copyright (c) 2020 Eli Fine <eli88fine@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
-# Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -22,7 +24,7 @@
 # pylint: disable=redefined-builtin
 """a similarities / code duplication command line tool and pylint checker
 """
-
+import functools
 import re
 import sys
 from collections import defaultdict
@@ -107,7 +109,7 @@ class Similar:
             couples = sorted(couples)
             lineset = idx = None
             for lineset, idx in couples:
-                print("==%s:%s" % (lineset.name, idx))
+                print(f"=={lineset.name}:{idx}")
             if lineset:
                 for line in lineset._real_lines[idx : idx + num]:
                     print("  ", line.rstrip())
@@ -221,6 +223,7 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     return strippedlines
 
 
+@functools.total_ordering
 class LineSet:
     """Holds and indexes all the lines of a single source file"""
 
@@ -253,6 +256,11 @@ class LineSet:
 
     def __hash__(self):
         return id(self)
+
+    def __eq__(self, other):
+        if not isinstance(other, LineSet):
+            return False
+        return self.__dict__ == other.__dict__
 
     def enumerate_stripped(self, start_at=0):
         """return an iterator on stripped lines, starting from a given index
@@ -404,7 +412,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             msg = []
             lineset = idx = None
             for lineset, idx in couples:
-                msg.append("==%s:%s" % (lineset.name, idx))
+                msg.append(f"=={lineset.name}:{idx}")
             msg.sort()
 
             if lineset:

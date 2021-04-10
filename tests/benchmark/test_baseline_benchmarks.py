@@ -1,4 +1,6 @@
 """ Profiles basic -jX functionality """
+# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
 
@@ -10,6 +12,7 @@
 import os
 import pprint
 import time
+from unittest.mock import patch
 
 import pytest
 
@@ -338,9 +341,11 @@ class TestEstablishBaselineBenchmarks:
         linter = PyLinter()
 
         # Register all checkers/extensions and enable them
-        register_plugins(
-            linter, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-        )
+        with patch("os.listdir", return_value=["pylint", "tests"]):
+            register_plugins(
+                linter,
+                os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")),
+            )
         linter.load_default_plugins()
         linter.enable("all")
 

@@ -4,8 +4,10 @@ How to Write a Checker
 ======================
 You can find some simple examples in the distribution
 (`custom.py <https://github.com/PyCQA/pylint/blob/master/examples/custom.py>`_
+,
+`custom_raw.py <https://github.com/PyCQA/pylint/blob/master/examples/custom_raw.py>`_
 and
-`custom_raw.py <https://github.com/PyCQA/pylint/blob/master/examples/custom_raw.py>`_).
+`deprecation_checker.py <https://github.com/PyCQA/pylint/blob/master/examples/deprecation_checker.py>`_).
 
 .. TODO Create custom_token.py
 

@@ -38,11 +38,14 @@ class CheckerTestCase:
         """
         yield
         got = self.linter.release_messages()
-        msg = "Expected messages did not match actual.\n" "Expected:\n%s\nGot:\n%s" % (
-            "\n".join(repr(m) for m in messages),
-            "\n".join(repr(m) for m in got),
+        no_msg = "No message."
+        expected = "\n".join(repr(m) for m in messages) or no_msg
+        got_str = "\n".join(repr(m) for m in got) or no_msg
+        msg = (
+            "Expected messages did not match actual.\n"
+            f"\nExpected:\n{expected}\n\nGot:\n{got_str}\n"
         )
-        assert list(messages) == got, msg
+        assert got == list(messages), msg
 
     def walk(self, node):
         """recursive walk on the given node"""

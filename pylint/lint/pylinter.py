@@ -13,11 +13,10 @@ import warnings
 from io import TextIOWrapper
 
 import astroid
-from astroid import modutils
-from astroid.builder import AstroidBuilder
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
+from pylint.lint.expand_modules import expand_modules
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
@@ -164,7 +163,7 @@ class PyLinter(
                     "metavar": "<file>[,<file>...]",
                     "dest": "black_list",
                     "default": ("CVS",),
-                    "help": "Add files or directories to the blacklist. "
+                    "help": "Files or directories to be skipped. "
                     "They should be base names, not paths.",
                 },
             ),
@@ -175,8 +174,8 @@ class PyLinter(
                     "metavar": "<pattern>[,<pattern>...]",
                     "dest": "black_list_re",
                     "default": (),
-                    "help": "Add files or directories matching the regex patterns to the"
-                    " blacklist. The regex matches against base names, not paths.",
+                    "help": "Files or directories matching the regex patterns are"
+                    " skipped. The regex matches against base names, not paths.",
                 },
             ),
             (
@@ -367,7 +366,7 @@ class PyLinter(
                 },
             ),
             (
-                "extension-pkg-whitelist",
+                "extension-pkg-allow-list",
                 {
                     "type": "csv",
                     "metavar": "<pkg[,pkg]>",
@@ -377,6 +376,21 @@ class PyLinter(
                         " from where C extensions may be loaded. Extensions are"
                         " loading into the active Python interpreter and may run"
                         " arbitrary code."
+                    ),
+                },
+            ),
+            (
+                "extension-pkg-whitelist",
+                {
+                    "type": "csv",
+                    "metavar": "<pkg[,pkg]>",
+                    "default": [],
+                    "help": (
+                        "A comma-separated list of package or module names"
+                        " from where C extensions may be loaded. Extensions are"
+                        " loading into the active Python interpreter and may run"
+                        " arbitrary code. (This is an alternative name to"
+                        " extension-pkg-allow-list for backward compatibility.)"
                     ),
                 },
             ),
@@ -422,9 +436,8 @@ class PyLinter(
     )
 
     def __init__(self, options=(), reporter=None, option_groups=(), pylintrc=None):
-        # some stuff has to be done before ancestors initialization...
-        #
-        # messages store / checkers / reporter / astroid manager
+        """Some stuff has to be done before ancestors initialization...
+        messages store / checkers / reporter / astroid manager"""
         self.msgs_store = MessageDefinitionStore()
         self.reporter = None
         self._reporter_name = None
@@ -443,8 +456,8 @@ class PyLinter(
         self.option_groups = option_groups + PyLinter.option_groups
         self._options_methods = {"enable": self.enable, "disable": self.disable}
         self._bw_options_methods = {
-            "disable-msg": self.disable,
-            "enable-msg": self.enable,
+            "disable-msg": self._options_methods["disable"],
+            "enable-msg": self._options_methods["enable"],
         }
         MessagesHandlerMixIn.__init__(self)
         reporters.ReportsHandlerMixIn.__init__(self)
@@ -487,7 +500,7 @@ class PyLinter(
             if modname in self._dynamic_plugins:
                 continue
             self._dynamic_plugins.add(modname)
-            module = modutils.load_module_from_name(modname)
+            module = astroid.modutils.load_module_from_name(modname)
             module.register(self)
 
     def load_plugin_configuration(self):
@@ -498,7 +511,7 @@ class PyLinter(
         settings.
         """
         for modname in self._dynamic_plugins:
-            module = modutils.load_module_from_name(modname)
+            module = astroid.modutils.load_module_from_name(modname)
             if hasattr(module, "load_configuration"):
                 module.load_configuration(self)
 
@@ -516,7 +529,8 @@ class PyLinter(
 
     def _load_reporter_class(self):
         qname = self._reporter_name
-        module = modutils.load_module_from_name(modutils.get_module_part(qname))
+        module_part = astroid.modutils.get_module_part(qname)
+        module = astroid.modutils.load_module_from_name(module_part)
         class_name = qname.split(".")[-1]
         reporter_class = getattr(module, class_name)
         return reporter_class
@@ -657,12 +671,12 @@ class PyLinter(
 
     def list_messages_enabled(self):
         enabled = [
-            "  %s (%s)" % (message.symbol, message.msgid)
+            f"  {message.symbol} ({message.msgid})"
             for message in self.msgs_store.messages
             if self.is_message_enabled(message.msgid)
         ]
         disabled = [
-            "  %s (%s)" % (message.symbol, message.msgid)
+            f"  {message.symbol} ({message.msgid})"
             for message in self.msgs_store.messages
             if not self.is_message_enabled(message.msgid)
         ]
@@ -675,13 +689,11 @@ class PyLinter(
         print("")
 
     # block level option handling #############################################
-    #
     # see func_block_disable_msg.py test case for expected behaviour
 
     def process_tokens(self, tokens):
-        """process tokens from the current module to search for module/block
-        level options
-        """
+        """Process tokens from the current module to search for module/block level
+        options."""
         control_pragmas = {"disable", "enable"}
         prev_line = None
         saw_newline = True
@@ -700,7 +712,6 @@ class PyLinter(
             match = OPTION_PO.search(content)
             if match is None:
                 continue
-
             try:
                 for pragma_repr in parse_pragma(match.group(2)):
                     if pragma_repr.action in ("disable-all", "skip-file"):
@@ -811,7 +822,7 @@ class PyLinter(
 
         :param str modname: The name of the module to be checked.
         :param str path: The full path to the source code of the module.
-        :param bool is_argument: Whetter the file is an argument to pylint or not.
+        :param bool is_argument: Whether the file is an argument to pylint or not.
                                  Files which respect this property are always
                                  checked, since the user requested it explicitly.
         :returns: True if the module should be checked.
@@ -938,7 +949,7 @@ class PyLinter(
             # Note that this function does not really perform an
             # __import__ but may raise an ImportError exception, which
             # we want to catch here.
-            modname = ".".join(modutils.modpath_from_file(filepath))
+            modname = ".".join(astroid.modutils.modpath_from_file(filepath))
         except ImportError:
             modname = os.path.splitext(os.path.basename(filepath))[0]
 
@@ -956,7 +967,7 @@ class PyLinter(
 
     def _expand_files(self, modules):
         """get modules and errors from a list of modules and handle errors"""
-        result, errors = utils.expand_modules(
+        result, errors = expand_modules(
             modules, self.config.black_list, self.config.black_list_re
         )
         for error in errors:
@@ -1028,7 +1039,9 @@ class PyLinter(
         try:
             if data is None:
                 return MANAGER.ast_from_file(filepath, modname, source=True)
-            return AstroidBuilder(MANAGER).string_build(data, modname, filepath)
+            return astroid.builder.AstroidBuilder(MANAGER).string_build(
+                data, modname, filepath
+            )
         except astroid.AstroidSyntaxError as ex:
             # pylint: disable=no-member
             self.add_message(
@@ -1106,7 +1119,11 @@ class PyLinter(
         self.stats = {"by_module": {}, "by_msg": {}}
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.max_inferable_values = self.config.limit_inference_results
-        MANAGER.extension_package_whitelist.update(self.config.extension_pkg_whitelist)
+        MANAGER.extension_package_whitelist.update(self.config.extension_pkg_allow_list)
+        if self.config.extension_pkg_whitelist:
+            MANAGER.extension_package_whitelist.update(
+                self.config.extension_pkg_whitelist
+            )
         for msg_cat in MSG_TYPES.values():
             self.stats[msg_cat] = 0
 
@@ -1158,7 +1175,7 @@ class PyLinter(
             msg = "Your code has been rated at %.2f/10" % note
             pnote = previous_stats.get("global_note")
             if pnote is not None:
-                msg += " (previous run: %.2f/10, %+.2f)" % (pnote, note - pnote)
+                msg += " (previous run: {:.2f}/10, {:+.2f})".format(pnote, note - pnote)
 
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)
