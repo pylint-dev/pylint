@@ -89,10 +89,10 @@ valid configuration file (defined below) in the following order and uses the
 first one it finds:
 
 #. In the current working directory
-#. If the current working directory is in a Python module, Pylint searches \
-   up the hierarchy of Python modules until it finds a valid configuration \
-   file.  This allows you to specify coding standards on a module-by-module \
-   basis.  Of course, a directory is judged to be a Python module if it \
+#. If the current working directory is in a Python package, Pylint searches \
+   up the hierarchy of Python packages until it finds a valid configuration \
+   file. This allows you to specify coding standards on a package-by-package \
+   basis. Of course, a directory is judged to be a Python package if it \
    contains an ``__init__.py`` file.
 #. The file named by environment variable ``PYLINTRC``
 #. In your home directory if it isn't ``/root``
