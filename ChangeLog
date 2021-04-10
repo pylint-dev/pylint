@@ -19,7 +19,7 @@ Release date: Undefined
 * Apply ``const-naming-style`` to module constants annotated with
   ``typing.Final``
 
-* The packaging is now done via setuptools exclusively. ``doc``, ``test``, ``man``, ``elisp`` and ``Changelog`` are
+* The packaging is now done via setuptools exclusively. ``doc``, ``tests``, ``man``, ``elisp`` and ``Changelog`` are
   not packaged anymore - reducing the size of the package by 75%. Debian packaging is now  (officially) done in
   https://salsa.debian.org/python-team/packages/pylint. The 'doc' extra-require has been removed. ``__pkginfo__`` now
   only contain ``__version__`` (also accessible with ``pylint.__version__``), other meta-information are still
@@ -36,6 +36,14 @@ Release date: Undefined
 
 ..
   Put bug fixes that will be cherry-picked to latest major version here
+
+* Reactivates old counts in report mode.
+
+  Closes #3819
+
+* During detection of ``inconsistent-return-statements`` consider that ``assert False`` is a return node.
+
+  Closes #4019
 
 * Run will not fail if score exactly equals ``config.fail_under`.
 
@@ -59,6 +67,16 @@ Release date: Undefined
 * Continuous integration with read the doc has been added.
 
   Closes #3850
+
+* Don't show ``DuplicateBasesError`` for attribute access
+
+* Allow code flanked in backticks to be skipped by spellchecker
+
+  Closes #4319
+
+* Allow Python tool directives (for black, flake8, zimports, isort, mypy, bandit, pycharm) at beginning of comments to be skipped by spellchecker
+
+  Closes #4320
 
 
 What's New in Pylint 2.7.4?
@@ -295,7 +313,7 @@ Release date: 2021-02-21
 
   Close #2738
 
-* Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comman, etc.)
+* Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comma, etc.)
 
 * Improve lint message for ``singleton-comparison`` with bools
 
