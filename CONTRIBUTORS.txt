@@ -468,3 +468,5 @@ contributors:
 * James Sinclair (irgeek): contributor
 
 * Andreas Finkler: contributor
+
+* Sebastian Müller: contributor

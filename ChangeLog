@@ -67,6 +67,10 @@ Release date: Undefined
 
 * Don't show ``DuplicateBasesError`` for attribute access
 
+* Fix crash when checking ``setup.cfg`` for pylint config when there are non-ascii characters in there
+
+  Closes #4328
+
 * Allow code flanked in backticks to be skipped by spellchecker
 
   Closes #4319

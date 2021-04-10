@@ -26,7 +26,7 @@ def _toml_has_config(path):
 
 def _cfg_has_config(path):
     parser = configparser.ConfigParser()
-    parser.read(path)
+    parser.read(path, encoding="utf-8")
     return any(section.startswith("pylint.") for section in parser.sections())
 
 
