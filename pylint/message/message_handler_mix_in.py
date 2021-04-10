@@ -45,14 +45,13 @@ class MessagesHandlerMixIn:
     def _register_by_id_managed_msg(self, msgid_or_symbol: str, line, is_disabled=True):
         """If the msgid is a numeric one, then register it to inform the user
         it could furnish instead a symbolic msgid."""
-        try:
-            if msgid_or_symbol[1:].isdigit():
+        if msgid_or_symbol[1:].isdigit():
+            try:
                 symbol = self.msgs_store.message_id_store.get_symbol(msgid=msgid_or_symbol)  # type: ignore
-                msgid = msgid_or_symbol
-                managed = (self.current_name, msgid, symbol, line, is_disabled)  # type: ignore
-                MessagesHandlerMixIn.__by_id_managed_msgs.append(managed)
-        except KeyError:
-            pass
+            except UnknownMessageError:
+                return
+            managed = (self.current_name, msgid_or_symbol, symbol, line, is_disabled)  # type: ignore
+            MessagesHandlerMixIn.__by_id_managed_msgs.append(managed)
 
     def disable(self, msgid, scope="package", line=None, ignore_unknown=False):
         self._set_msg_status(
