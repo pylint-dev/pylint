@@ -8,6 +8,7 @@ import astroid
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
+from pylint.lint import PyLinter
 
 
 class ConfusingConsecutiveElifChecker(BaseChecker):
@@ -28,18 +29,15 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
     }
 
     @check_messages("confusing-consecutive-elif")
-    def visit_if(self, node):
-        if node.has_elif_block() and self.__ends_with_if(node.body):
+    def visit_if(self, node: astroid.If):
+        body_ends_with_if = isinstance(
+            node.body[-1], astroid.If
+        ) and self._has_no_else_clause(node.body[-1])
+        if node.has_elif_block() and body_ends_with_if:
             self.add_message("confusing-consecutive-elif", node=node.orelse[0])
 
-    def __ends_with_if(self, body):
-        last_node = body[-1]
-        return isinstance(last_node, astroid.If) and self.__has_no_else_clause(
-            last_node
-        )
-
     @staticmethod
-    def __has_no_else_clause(node):
+    def _has_no_else_clause(node: astroid.If):
         orelse = node.orelse
         while orelse and isinstance(orelse[0], astroid.If):
             orelse = orelse[0].orelse
@@ -48,7 +46,7 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
         return False
 
 
-def register(linter):
+def register(linter: PyLinter):
     """This required method auto registers the checker.
 
     :param linter: The linter to register the checker to.
