@@ -151,7 +151,7 @@ class FooEnum(Enum):
     bad_enum_name = 2  # [invalid-name]
 
 class Bar:
-    """Class with class constants annotated with ClassVar."""
+    """Class with class variables annotated with ClassVar."""
     CLASS_CONST: ClassVar[int] = 42
     CLASS_CONST2: ClassVar = "const"
     variable: ClassVar[str] = "invalid name"
