@@ -1341,7 +1341,10 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
     """Check if class is subscriptable with PEP 585 and
     postponed evaluation enabled.
     """
-    if not is_postponed_evaluation_enabled(node):
+    if (
+        not is_postponed_evaluation_enabled(node)
+        or value.qname() not in SUBSCRIPTABLE_CLASSES_PEP585
+    ):
         return False
 
     parent_node = node.parent
@@ -1354,9 +1357,7 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
         parent_node = parent_node.parent
         if isinstance(parent_node, astroid.Module):
             return False
-    if value.qname() in SUBSCRIPTABLE_CLASSES_PEP585:
-        return True
-    return False
+    return True
 
 
 def is_subclass_of(child: astroid.ClassDef, parent: astroid.ClassDef) -> bool:
