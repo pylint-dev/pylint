@@ -85,8 +85,8 @@ Specifying all the options suitable for your setup and coding
 standards can be tedious, so it is possible to use a configuration file to
 specify the default values.  You can specify a configuration file on the
 command line using the ``--rcfile`` option.  Otherwise, Pylint searches for a
-configuration file valid configuration file (defined below) in the following
-order and uses the first one it finds:
+valid configuration file (defined below) in the following order and uses the
+first one it finds:
 
 #. In the current working directory
 #. If the current working directory is in a Python module, Pylint searches \
@@ -100,7 +100,7 @@ order and uses the first one it finds:
    isn't ``/root``
 #. In ``/etc/``
 
-A valid configuration file is one of the following:
+A valid configuration file is one of the following (in order of priority):
 
 #. ``pylintrc``
 #. ``.pylintrc``
