@@ -9,7 +9,7 @@ Release date: Undefined
 ..
   Put new features here and also in 'doc/whatsnew/2.8.rst'
 
-* Add new ``ConfusingConsecutiveElifChecker``. This checker emits a refactoring message (R5601 ``confusing-consecutive-elif``)
+* Add new ``ConfusingConsecutiveElifChecker``. This optional checker emits a refactoring message (R5601 ``confusing-consecutive-elif``)
   if if/elif statements with different indentation levels follow directly one after the other.
 
 * Use a prescriptive message for ``unidiomatic-typecheck``
