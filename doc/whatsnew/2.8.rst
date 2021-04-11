@@ -31,3 +31,5 @@ Other Changes
   not contain the package metadata anymore.
 
 * Updated ``astroid`` to 2.5.3
+
+* COPYING has been renamed to LICENSE for standardization.
