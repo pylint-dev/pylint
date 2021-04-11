@@ -56,7 +56,7 @@
 # Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """basic checker for Python code"""
 import builtins

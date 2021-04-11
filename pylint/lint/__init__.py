@@ -56,7 +56,7 @@
 # Copyright (c) 2020 anubh-v <anubhav@u.nus.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """ pylint [options] modules_or_packages
 

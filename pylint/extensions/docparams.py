@@ -18,7 +18,7 @@
 # Copyright (c) 2021 Logan Miller <14319179+komodo472@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings
 """
