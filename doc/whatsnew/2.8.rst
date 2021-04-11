@@ -23,6 +23,11 @@ New checkers
 
 * Add ``consider-using-min-max-builtin`` check for if statement which could be replaced by Python builtin min or max.
 
+* Add new extension ``TypingChecker``. This optional checker can detect the use of deprecated typing aliases
+  and can suggest the use of the alternative union syntax where possible.
+  Make sure to check the config options if you plan on using it!
+
+
 Other Changes
 =============
 
