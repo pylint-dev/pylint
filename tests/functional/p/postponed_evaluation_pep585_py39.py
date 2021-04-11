@@ -1,5 +1,5 @@
 """Test PEP 585 works as expected, starting with Python 3.9"""
-# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,wrong-import-position,ungrouped-imports
+# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,wrong-import-position,ungrouped-imports,unused-variable
 import collections
 import dataclasses
 import typing
@@ -110,3 +110,10 @@ var15: collections.Counter[int]
 var16: collections.abc.Iterable[int]
 var17: contextlib.AbstractContextManager[int]
 var18: re.Pattern[str]
+
+
+def func3():
+    AliasInvalid2 = list[int]
+    cast_variable2 = [1, 2, 3]
+    cast_variable2 = typing.cast(list[int], cast_variable2)
+    var19: list[int]

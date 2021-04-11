@@ -3,7 +3,7 @@
 This check requires Python 3.7 or Python 3.8!
 Testing with 3.8 only, to support TypedDict.
 """
-# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation
+# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,unused-variable
 import collections
 import dataclasses
 import typing
@@ -97,3 +97,10 @@ Alias3 = Union[Union[list[int], int]]  # [unsubscriptable-object]
 Alias5 = Dict[str, list[int]]  # [unsubscriptable-object]
 Alias6 = int | list[int]  # [unsubscriptable-object]
 Alias7 = list[list[int]]  # [unsubscriptable-object,unsubscriptable-object]
+
+
+def func3():
+    AliasInvalid2 = list[int]  # [unsubscriptable-object]
+    cast_variable2 = [1, 2, 3]
+    cast_variable2 = typing.cast(list[int], cast_variable2)  # [unsubscriptable-object]
+    var12: list[int]  # [unsubscriptable-object]
