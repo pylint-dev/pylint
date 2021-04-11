@@ -7,7 +7,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-"""Looks for  comparisons to empty string."""
+"""Looks for comparisons to zero."""
 
 import itertools
 
