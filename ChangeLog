@@ -12,6 +12,10 @@ Release date: Undefined
 * Add new extension ``ConfusingConsecutiveElifChecker``. This optional checker emits a refactoring message (R5601 ``confusing-consecutive-elif``)
   if if/elif statements with different indentation levels follow directly one after the other.
 
+* New option ``--output-file=<file>`` to output result to a file rather than printing to stdout.
+
+  Closes #1070
+
 * Use a prescriptive message for ``unidiomatic-typecheck``
 
   Closes #3891
@@ -51,7 +55,7 @@ Release date: Undefined
 
   Closes #4019
 
-* Run will not fail if score exactly equals ``config.fail_under`.
+* Run will not fail if score exactly equals ``config.fail_under``.
 
 * Functions that never returns may declare ``NoReturn`` as type hints, so that
   ``inconsistent-return-statements`` is not emitted.
