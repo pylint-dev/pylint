@@ -180,4 +180,6 @@ exit code  meaning                    stderr stream message
                                       - "<return of linter.help()>"
                                       - "Jobs number <#> should be greater \
                                         than 0"
+                                      - "<IOError message when trying to open \
+                                        output file>"
 =========  =========================  ==========================================
