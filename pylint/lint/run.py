@@ -374,7 +374,7 @@ group are mutually exclusive.",
                     linter.reporter.set_output(output)
                     linter.check(args)
                     score_value = linter.generate_reports()
-            except IOError as ex:
+            except OSError as ex:
                 print(ex, file=sys.stderr)
                 sys.exit(32)
         else:
