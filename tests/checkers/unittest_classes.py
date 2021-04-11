@@ -11,7 +11,7 @@
 # Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """Unit tests for the variables checker."""
 import astroid
