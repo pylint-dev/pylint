@@ -1357,7 +1357,9 @@ def is_node_in_type_annotation_context(node: astroid.node_classes.NodeNG) -> boo
     current_node, parent_node = node, node.parent
     while True:
         if (
-            isinstance(parent_node, (astroid.AnnAssign, astroid.Arguments))
+            isinstance(parent_node, astroid.AnnAssign)
+            or isinstance(parent_node, astroid.Arguments)
+            and current_node in parent_node.annotations
             or isinstance(parent_node, astroid.FunctionDef)
             and parent_node.returns == current_node
         ):

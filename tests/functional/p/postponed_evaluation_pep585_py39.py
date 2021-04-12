@@ -117,3 +117,9 @@ def func3():
     cast_variable2 = [1, 2, 3]
     cast_variable2 = typing.cast(list[int], cast_variable2)
     var19: list[int]
+
+def func4(var=list[int]):
+    pass
+
+def func5(arg1: list[int], arg2=set[int]):
+    pass

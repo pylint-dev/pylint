@@ -93,6 +93,8 @@ Release date: Undefined
 * Improve check for invalid PEP 585 syntax inside functions
   if postponed evaluation of type annotations is enabled
 
+* Improve check for invalid PEP 585 syntax as default function arguments
+
 
 What's New in Pylint 2.7.4?
 ===========================

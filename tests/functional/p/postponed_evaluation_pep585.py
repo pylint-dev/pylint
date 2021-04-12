@@ -122,3 +122,9 @@ def func3():
     cast_variable2 = [1, 2, 3]
     cast_variable2 = typing.cast(list[int], cast_variable2)  # [unsubscriptable-object]
     var19: list[int]
+
+def func4(arg=list[int]):  # [unsubscriptable-object]
+    pass
+
+def func5(arg1: list[int], arg2=set[int]):  # [unsubscriptable-object]
+    pass
