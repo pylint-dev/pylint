@@ -3,7 +3,7 @@
 This check requires Python 3.7 or 3.8!
 Testing with 3.8 only, to support TypedDict.
 """
-# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,wrong-import-position,ungrouped-imports
+# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,wrong-import-position,ungrouped-imports,unused-variable
 from __future__ import annotations
 import collections
 import dataclasses
@@ -115,3 +115,16 @@ var15: collections.Counter[int]
 var16: collections.abc.Iterable[int]
 var17: contextlib.AbstractContextManager[int]
 var18: re.Pattern[str]
+
+
+def func3():
+    AliasInvalid2 = list[int]  # [unsubscriptable-object]
+    cast_variable2 = [1, 2, 3]
+    cast_variable2 = typing.cast(list[int], cast_variable2)  # [unsubscriptable-object]
+    var19: list[int]
+
+def func4(arg=list[int]):  # [unsubscriptable-object]
+    pass
+
+def func5(arg1: list[int], arg2=set[int]):  # [unsubscriptable-object]
+    pass

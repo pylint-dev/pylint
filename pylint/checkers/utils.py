@@ -1341,23 +1341,34 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
     """Check if class is subscriptable with PEP 585 and
     postponed evaluation enabled.
     """
-    if (
-        not is_postponed_evaluation_enabled(node)
-        or value.qname() not in SUBSCRIPTABLE_CLASSES_PEP585
-    ):
-        return False
+    return (
+        is_postponed_evaluation_enabled(node)
+        and value.qname() in SUBSCRIPTABLE_CLASSES_PEP585
+        and is_node_in_type_annotation_context(node)
+    )
 
-    parent_node = node.parent
+
+def is_node_in_type_annotation_context(node: astroid.node_classes.NodeNG) -> bool:
+    """Check if node is in type annotation context.
+
+    Check for 'AnnAssign', function 'Arguments',
+    or part of function return type anntation.
+    """
+    # pylint: disable=too-many-boolean-expressions
+    current_node, parent_node = node, node.parent
     while True:
-        # Check if any parent node matches condition
-        if isinstance(
-            parent_node, (astroid.AnnAssign, astroid.Arguments, astroid.FunctionDef)
+        if (
+            isinstance(parent_node, astroid.AnnAssign)
+            and parent_node.annotation == current_node
+            or isinstance(parent_node, astroid.Arguments)
+            and current_node in parent_node.annotations
+            or isinstance(parent_node, astroid.FunctionDef)
+            and parent_node.returns == current_node
         ):
-            break
-        parent_node = parent_node.parent
+            return True
+        current_node, parent_node = parent_node, parent_node.parent
         if isinstance(parent_node, astroid.Module):
             return False
-    return True
 
 
 def is_subclass_of(child: astroid.ClassDef, parent: astroid.ClassDef) -> bool:
