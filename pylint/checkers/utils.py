@@ -1354,10 +1354,12 @@ def is_node_in_type_annotation_context(node: astroid.node_classes.NodeNG) -> boo
     Check for 'AnnAssign', function 'Arguments',
     or part of function return type anntation.
     """
+    # pylint: disable=too-many-boolean-expressions
     current_node, parent_node = node, node.parent
     while True:
         if (
             isinstance(parent_node, astroid.AnnAssign)
+            and parent_node.annotation == current_node
             or isinstance(parent_node, astroid.Arguments)
             and current_node in parent_node.annotations
             or isinstance(parent_node, astroid.FunctionDef)
