@@ -3,12 +3,12 @@
 This check requires Python 3.7 or Python 3.8!
 Testing with 3.8 only, to support TypedDict.
 """
-# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,unused-variable
+# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,unused-variable,line-too-long
 import collections
 import dataclasses
 import typing
 from dataclasses import dataclass
-from typing import Dict, NamedTuple, TypedDict, Union
+from typing import Any, Dict, NamedTuple, TypedDict, Union
 
 
 AliasInvalid = list[int]  # [unsubscriptable-object]
@@ -109,4 +109,8 @@ def func4(var=list[int]):  # [unsubscriptable-object]
     pass
 
 def func5(arg1: list[int], arg2=set[int]):  # [unsubscriptable-object,unsubscriptable-object]
+    pass
+
+def func6(arg1: list[int], /, *args: tuple[str], arg2: set[int], **kwargs: dict[str, Any]):
+    # -1:[unsubscriptable-object,unsubscriptable-object,unsubscriptable-object,unsubscriptable-object]
     pass
