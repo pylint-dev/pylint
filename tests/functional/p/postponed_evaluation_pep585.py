@@ -9,7 +9,7 @@ import collections
 import dataclasses
 import typing
 from dataclasses import dataclass
-from typing import Dict, NamedTuple, TypedDict, Union, Tuple
+from typing import Any, Dict, NamedTuple, TypedDict, Union, Tuple
 
 
 AliasInvalid = list[int]  # [unsubscriptable-object]
@@ -127,4 +127,7 @@ def func4(arg=list[int]):  # [unsubscriptable-object]
     pass
 
 def func5(arg1: list[int], arg2=set[int]):  # [unsubscriptable-object]
+    pass
+
+def func6(arg1: list[int], /, *args: tuple[str], arg2: set[int], **kwargs: dict[str, Any]):
     pass

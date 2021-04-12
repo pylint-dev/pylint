@@ -1361,7 +1361,14 @@ def is_node_in_type_annotation_context(node: astroid.node_classes.NodeNG) -> boo
             isinstance(parent_node, astroid.AnnAssign)
             and parent_node.annotation == current_node
             or isinstance(parent_node, astroid.Arguments)
-            and current_node in parent_node.annotations
+            and current_node
+            in (
+                *parent_node.annotations,
+                *parent_node.posonlyargs_annotations,
+                *parent_node.kwonlyargs_annotations,
+                parent_node.varargannotation,
+                parent_node.kwargannotation,
+            )
             or isinstance(parent_node, astroid.FunctionDef)
             and parent_node.returns == current_node
         ):
