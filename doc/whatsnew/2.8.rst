@@ -20,7 +20,7 @@ New checkers
 Other Changes
 =============
 
-* New option ``--output-file=<file>`` to output result to a file rather than printing to stdout.
+* New option ``--output=<file>`` to output result to a file rather than printing to stdout.
 
   Closes #1070
 

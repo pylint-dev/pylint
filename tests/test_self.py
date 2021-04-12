@@ -165,7 +165,7 @@ class TestRunTC:
 
     def _test_output_file(self, args, filename, expected_output):
         """
-        Run Pylint with the ``output-file`` option set (must be included in
+        Run Pylint with the ``output`` option set (must be included in
         the ``args`` passed to this method!) and check the file content afterwards.
         """
         out = StringIO()
@@ -175,7 +175,7 @@ class TestRunTC:
         expected_output = self._clean_paths(expected_output)
         assert (
             cmdline_output == ""
-        ), "Unexpected output to stdout/stderr while output-file option was set"
+        ), "Unexpected output to stdout/stderr while output option was set"
         assert expected_output.strip() in file_output.strip()
 
     def test_pkginfo(self):
@@ -1053,7 +1053,7 @@ class TestRunTC:
         output_file = tmpdir / "output.txt"
         expected = "Your code has been rated at 7.50/10"
         self._test_output_file(
-            [path, f"--output-file={output_file}"],
+            [path, f"--output={output_file}"],
             output_file,
             expected_output=expected,
         )
@@ -1061,7 +1061,7 @@ class TestRunTC:
     def test_output_file_invalid_path_exits_with_code_32(self):
         path = join(HERE, "regrtest_data", "unused_variable.py")
         output_file = "thisdirectorydoesnotexit/output.txt"
-        self._runtest([path, f"--output-file={output_file}"], code=32)
+        self._runtest([path, f"--output={output_file}"], code=32)
 
     @pytest.mark.parametrize(
         "output_format, expected_output",
@@ -1091,7 +1091,7 @@ class TestRunTC:
         path = join(HERE, "regrtest_data", "unused_variable.py")
         output_file = tmpdir / "output.txt"
         self._test_output_file(
-            [path, f"--output-file={output_file}", f"--output-format={output_format}"],
+            [path, f"--output={output_file}", f"--output-format={output_format}"],
             output_file,
             expected_output,
         )
@@ -1103,7 +1103,7 @@ class TestRunTC:
         # It is only important that it is being passed explicitly to ``Run``.
         myreporter = TextReporter()
         self._run_pylint(
-            [path, f"--output-file={output_file}"],
+            [path, f"--output={output_file}"],
             out=sys.stdout,
             reporter=myreporter,
         )
@@ -1115,14 +1115,14 @@ class TestRunTC:
         rcfile_contents = textwrap.dedent(
             f"""
         [MASTER]
-        output-file={output_file}
+        output={output_file}
         """
         )
         rcfile.write_text(rcfile_contents, encoding="utf-8")
         path = join(HERE, "regrtest_data", "unused_variable.py")
         expected = "Your code has been rated at 7.50/10"
         self._test_output_file(
-            [path, f"--output-file={output_file}", f"--rcfile={rcfile}"],
+            [path, f"--output={output_file}", f"--rcfile={rcfile}"],
             output_file,
             expected_output=expected,
         )

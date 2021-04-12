@@ -79,7 +79,7 @@ group are mutually exclusive.",
         do_exit=UNUSED_PARAM_SENTINEL,
     ):  # pylint: disable=redefined-builtin
         self._rcfile = None
-        self._output_file = None
+        self._output = None
         self._version_asked = False
         self._plugins = []
         self.verbose = None
@@ -93,7 +93,7 @@ group are mutually exclusive.",
                     "rcfile": (self.cb_set_rcfile, True),
                     "load-plugins": (self.cb_add_plugins, True),
                     "verbose": (self.cb_verbose_mode, False),
-                    "output-file": (self.cb_set_output_file, True),
+                    "output": (self.cb_set_output, True),
                 },
             )
         except ArgumentPreprocessingError as ex:
@@ -114,7 +114,7 @@ group are mutually exclusive.",
                     },
                 ),
                 (
-                    "output-file",
+                    "output",
                     {
                         "action": "callback",
                         "callback": Run._return_one,
@@ -368,9 +368,9 @@ group are mutually exclusive.",
         # load plugin specific configuration.
         linter.load_plugin_configuration()
 
-        if self._output_file:
+        if self._output:
             try:
-                with open(self._output_file, "w") as output:
+                with open(self._output, "w") as output:
                     linter.reporter.set_output(output)
                     linter.check(args)
                     score_value = linter.generate_reports()
@@ -404,9 +404,9 @@ group are mutually exclusive.",
         """callback for option preprocessing (i.e. before option parsing)"""
         self._rcfile = value
 
-    def cb_set_output_file(self, name, value):
+    def cb_set_output(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""
-        self._output_file = value
+        self._output = value
 
     def cb_add_plugins(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""
