@@ -13,7 +13,7 @@
 # Copyright (c) 2021 Andrew Howe <howeaj@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 # pylint: disable=redefined-outer-name
 
 import os

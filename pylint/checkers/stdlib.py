@@ -29,7 +29,7 @@
 # Copyright (c) 2021 Matus Valo <matusvalo@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """Checkers for various standard library functions."""
 

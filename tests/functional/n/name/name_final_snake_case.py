@@ -11,3 +11,6 @@ class Foo:
     CLASS_CONST3: typing.Final  # [invalid-name]
     variable2: typing.Final[int]
     CLASS_CONST4: Final[typing.ClassVar[str]] = "invalid name"  # [invalid-name]
+
+MODULE_CONST: Final = 1  # [invalid-name]
+module_var: typing.Final[str] = "const"

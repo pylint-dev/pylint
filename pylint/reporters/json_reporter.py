@@ -8,7 +8,7 @@
 # Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """JSON reporter"""
 import json

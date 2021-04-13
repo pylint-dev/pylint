@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import collections
 import copy
@@ -305,7 +305,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         (
             "never-returning-functions",
             {
-                "default": ("sys.exit",),
+                "default": ("sys.exit", "argparse.parse_error"),
                 "type": "csv",
                 "help": "Complete name of functions that never returns. When checking "
                 "for inconsistent-return-statements if a never returning function is "
@@ -1381,6 +1381,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return any(
                 self._is_node_return_ended(_child) for _child in all_but_handler
             ) and all(self._is_node_return_ended(_child) for _child in handlers)
+        if (
+            isinstance(node, astroid.Assert)
+            and isinstance(node.test, astroid.Const)
+            and not node.test.value
+        ):
+            # consider assert False as a return node
+            return True
         # recurses on the children of the node
         return any(self._is_node_return_ended(_child) for _child in node.get_children())
 
@@ -1405,6 +1412,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns:
             bool: True if the function never returns, False otherwise.
         """
+        if isinstance(node, astroid.FunctionDef) and node.returns:
+            return (
+                isinstance(node.returns, astroid.Attribute)
+                and node.returns.attrname == "NoReturn"
+                or isinstance(node.returns, astroid.Name)
+                and node.returns.name == "NoReturn"
+            )
         try:
             return node.qname() in self._never_returning_functions
         except TypeError:

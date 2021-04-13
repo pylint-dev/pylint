@@ -17,7 +17,8 @@ persistent=yes
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
 load-plugins=
-    pylint.extensions.check_elif
+    pylint.extensions.check_elif,
+    pylint.extensions.bad_builtin
 
 # Use multiple processes to speed up Pylint.
 jobs=1
@@ -158,7 +159,7 @@ no-space-check=trailing-comma,dict-separator
 # Maximum number of lines in a module
 max-module-lines=2000
 
-# String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
+# String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1
 # tab).
 indent-string='    '
 
@@ -170,9 +171,6 @@ expected-line-ending-format=
 
 
 [BASIC]
-
-# List of builtins function names that should not be used, separated by a comma
-bad-functions=map,filter,input
 
 # Good variable names which should always be accepted, separated by a comma
 good-names=i,j,k,ex,Run,_
@@ -374,3 +372,9 @@ int-import-graph=
 # Exceptions that will emit a warning when being caught. Defaults to
 # "Exception"
 overgeneral-exceptions=Exception
+
+
+[pylint.DEPRECATED_BUILTINS]
+
+# List of builtins function names that should not be used, separated by a comma
+bad-functions=map,input

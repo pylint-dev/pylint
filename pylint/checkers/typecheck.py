@@ -47,7 +47,7 @@
 # Copyright (c) 2021 Ikraduya Edian <ikraduya@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """try to find more bugs in the code using astroid inference capabilities
 """
@@ -244,7 +244,7 @@ def _missing_member_hint(owner, attrname, distance_threshold, max_choices):
         # No similar name.
         return ""
 
-    names = list(map(repr, names))
+    names = [repr(name) for name in names]
     if len(names) == 1:
         names = ", ".join(names)
     else:
@@ -487,7 +487,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
             owner.super_mro()
         except (astroid.MroError, astroid.SuperError):
             return False
-        if not all(map(has_known_bases, owner.type.mro())):
+        if not all(has_known_bases(base) for base in owner.type.mro()):
             return False
     if isinstance(owner, astroid.Module):
         try:
@@ -984,6 +984,8 @@ accessed. Python regular expressions are accepted.",
                     missingattr.add((owner, name))
                     continue
             except AttributeError:
+                continue
+            except astroid.DuplicateBasesError:
                 continue
             except astroid.NotFoundError:
                 # This can't be moved before the actual .getattr call,

@@ -19,7 +19,7 @@
 # Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 
 """Check source code is ascii only or has an encoding declaration (PEP 263)"""
@@ -104,7 +104,7 @@ class EncodingChecker(BaseChecker):
     def open(self):
         super().open()
 
-        notes = "|".join(map(re.escape, self.config.notes))
+        notes = "|".join(re.escape(note) for note in self.config.notes)
         if self.config.notes_rgx:
             regex_string = fr"#\s*({notes}|{self.config.notes_rgx})\b"
         else:

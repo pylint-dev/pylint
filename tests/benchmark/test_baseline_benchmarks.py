@@ -5,13 +5,14 @@
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 # pylint: disable=protected-access,missing-function-docstring,no-self-use
 
 import os
 import pprint
 import time
+from unittest.mock import patch
 
 import pytest
 
@@ -340,9 +341,11 @@ class TestEstablishBaselineBenchmarks:
         linter = PyLinter()
 
         # Register all checkers/extensions and enable them
-        register_plugins(
-            linter, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-        )
+        with patch("os.listdir", return_value=["pylint", "tests"]):
+            register_plugins(
+                linter,
+                os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")),
+            )
         linter.load_default_plugins()
         linter.enable("all")
 

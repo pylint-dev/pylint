@@ -11,7 +11,7 @@
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import tokenize
 from typing import Any
@@ -20,9 +20,10 @@ from pylint.checkers import BaseTokenChecker
 from pylint.exceptions import EmptyReportError
 from pylint.interfaces import ITokenChecker
 from pylint.reporters.ureports.nodes import Table
+from pylint.utils import diff_string
 
 
-def report_raw_stats(sect, stats, _):
+def report_raw_stats(sect, stats, old_stats):
     """calculate percentage of code / doc / comment / empty"""
     total_lines = stats["total_lines"]
     if not total_lines:
@@ -33,7 +34,12 @@ def report_raw_stats(sect, stats, _):
         key = node_type + "_lines"
         total = stats[key]
         percent = float(total * 100) / total_lines
-        lines += (node_type, str(total), "%.2f" % percent, "NC", "NC")
+        old = old_stats.get(key, None)
+        if old is not None:
+            diff_str = diff_string(old, total)
+        else:
+            old, diff_str = "NC", "NC"
+        lines += (node_type, str(total), "%.2f" % percent, str(old), diff_str)
     sect.append(Table(children=lines, cols=5, rheaders=1))
 
 

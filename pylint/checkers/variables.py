@@ -43,7 +43,7 @@
 # Copyright (c) 2021 Alexander Kapshuna <kapsh@kap.sh>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """variables checkers for Python code
 """
@@ -1457,7 +1457,12 @@ class VariablesChecker(BaseChecker):
                             and defnode.lineno == node.lineno
                             and isinstance(
                                 defstmt,
-                                (astroid.Assign, astroid.AnnAssign, astroid.AugAssign),
+                                (
+                                    astroid.Assign,
+                                    astroid.AnnAssign,
+                                    astroid.AugAssign,
+                                    astroid.Return,
+                                ),
                             )
                             and isinstance(defstmt.value, astroid.JoinedStr)
                         )

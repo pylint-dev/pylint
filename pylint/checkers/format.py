@@ -38,7 +38,7 @@
 # Copyright (c) 2020 Raphael Gaschignard <raphael@rtpg.co>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """Python code format's checker.
 
@@ -259,7 +259,7 @@ class FormatChecker(BaseTokenChecker):
                 "metavar": "<regexp>",
                 "default": r"^\s*(# )?<?https?://\S+>?$",
                 "help": (
-                    "Regexp for a line that is allowed to be longer than " "the limit."
+                    "Regexp for a line that is allowed to be longer than the limit."
                 ),
             },
         ),
@@ -526,7 +526,10 @@ class FormatChecker(BaseTokenChecker):
                 "too-many-lines"
             )[0]
             names = (message_definition.msgid, "too-many-lines")
-            line = next(filter(None, map(self.linter._pragma_lineno.get, names)), 1)
+            line = next(
+                filter(None, (self.linter._pragma_lineno.get(name) for name in names)),
+                1,
+            )
             self.add_message(
                 "too-many-lines",
                 args=(line_num, self.config.max_module_lines),

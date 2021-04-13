@@ -36,7 +36,7 @@
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """some various utilities and helper classes, most of them used in the
 main pylint class
@@ -47,14 +47,13 @@ from pylint.utils.file_state import FileState
 from pylint.utils.utils import (
     HAS_ISORT_5,
     IsortDriver,
-    _basename_in_ignore_list_re,
     _check_csv,
     _format_option_value,
     _splitstrip,
     _unquote,
     decoding_stream,
     deprecated_option,
-    expand_modules,
+    diff_string,
     format_section,
     get_global_option,
     get_module_and_frameid,
@@ -70,14 +69,13 @@ __all__ = [
     "ASTWalker",
     "HAS_ISORT_5",
     "IsortDriver",
-    "_basename_in_ignore_list_re",
     "_check_csv",
     "_format_option_value",
     "_splitstrip",
     "_unquote",
     "decoding_stream",
     "deprecated_option",
-    "expand_modules",
+    "diff_string",
     "FileState",
     "format_section",
     "get_global_option",

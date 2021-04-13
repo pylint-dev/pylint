@@ -7,12 +7,12 @@
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import os
 import sys
 
-from pylint.__pkginfo__ import version as __version__
+from pylint.__pkginfo__ import __version__
 
 # pylint: disable=import-outside-toplevel
 

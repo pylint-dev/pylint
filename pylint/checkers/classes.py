@@ -37,7 +37,7 @@
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """classes checker for Python code
 """
@@ -504,7 +504,6 @@ def _safe_infer_call_result(node, caller, context=None):
         return None  # there is some kind of ambiguity
     except StopIteration:
         return value
-    return None
 
 
 def _has_same_layout_slots(slots, assigned_value):
@@ -1162,9 +1161,7 @@ a metaclass class method.",
                 annotations = chain(
                     (arguments.posonlyargs_annotations or []), arguments.annotations
                 )
-                return [
-                    annotation.as_string() for annotation in filter(None, annotations)
-                ]
+                return [ann.as_string() for ann in annotations if ann is not None]
 
             called_annotations = form_annotations(function.args)
             overridden_annotations = form_annotations(meth_node.args)

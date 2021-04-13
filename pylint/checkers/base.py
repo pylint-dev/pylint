@@ -56,7 +56,7 @@
 # Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """basic checker for Python code"""
 import builtins
@@ -386,7 +386,7 @@ def _has_abstract_methods(node):
     return len(utils.unimplemented_abstract_methods(node)) > 0
 
 
-def report_by_type_stats(sect, stats, _):
+def report_by_type_stats(sect, stats, old_stats):
     """make a report of
 
     * percentage of different types documented
@@ -415,11 +415,16 @@ def report_by_type_stats(sect, stats, _):
     lines = ("type", "number", "old number", "difference", "%documented", "%badname")
     for node_type in ("module", "class", "method", "function"):
         new = stats[node_type]
+        old = old_stats.get(node_type, None)
+        if old is not None:
+            diff_str = lint_utils.diff_string(old, new)
+        else:
+            old, diff_str = "NC", "NC"
         lines += (
             node_type,
             str(new),
-            "NC",
-            "NC",
+            str(old),
+            diff_str,
             nice_stats[node_type].get("percent_documented", "0"),
             nice_stats[node_type].get("percent_badname", "0"),
         )
@@ -1983,6 +1988,10 @@ class NameChecker(_BasicChecker):
                     self._check_name("const", node.name, node)
             elif isinstance(assign_type, astroid.ExceptHandler):
                 self._check_name("variable", node.name, node)
+            elif isinstance(
+                assign_type, astroid.AnnAssign
+            ) and utils.is_assign_name_annotated_with(node, "Final"):
+                self._check_name("const", node.name, node)
         elif isinstance(frame, astroid.FunctionDef):
             # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
@@ -2093,7 +2102,7 @@ class NameChecker(_BasicChecker):
     def _name_became_keyword_in_version(name, rules):
         for version, keywords in rules.items():
             if name in keywords and sys.version_info < version:
-                return ".".join(map(str, version))
+                return ".".join(str(v) for v in version)
         return None
 
 
@@ -2322,7 +2331,7 @@ class ComparisonChecker(_BasicChecker):
             "place it in the right hand side of the comparison.",
         ),
         "C0123": (
-            "Using type() instead of isinstance() for a typecheck.",
+            "Use isinstance() rather than type() for a typecheck.",
             "unidiomatic-typecheck",
             "The idiomatic way to perform an explicit typecheck in "
             "Python is to use isinstance(x, Y) rather than "
