@@ -1,0 +1,3 @@
+arguments-renamed:14:4:Child.test:Parameters of overridden 'test' method have been renamed
+arguments-renamed:19:4:Child2.test:Parameters of overridden 'test' method have been renamed
+arguments-renamed:35:4:ChildDefaults.test1:Parameters of overridden 'test1' method have been renamed
