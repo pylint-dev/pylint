@@ -1,5 +1,5 @@
 """Test that we are emitting arguments-differ when the arguments are different."""
-# pylint: disable=missing-docstring, too-few-public-methods, unused-argument,useless-super-delegation, useless-object-inheritance
+# pylint: disable= arguments-renamed, missing-docstring, too-few-public-methods, unused-argument,useless-super-delegation, useless-object-inheritance
 
 class Parent(object):
 
@@ -27,7 +27,7 @@ class ChildDefaults(ParentDefaults):
 class Classmethod(object):
 
     @classmethod
-    def func(cls, data):
+    def func(cls, data: int):
         return data
 
     @classmethod
@@ -56,19 +56,19 @@ class Builtins(dict):
 
 class Varargs(object):
 
-    def has_kwargs(self, arg, **kwargs):
+    def has_kwargs(self, arg: str, **kwargs):
         pass
 
-    def no_kwargs(self, args):
+    def no_kwargs(self, arg: int):
         pass
 
 
 class VarargsChild(Varargs):
 
-    def has_kwargs(self, arg): # [arguments-differ]
+    def has_kwargs(self, arg: str): # [arguments-differ]
         "Not okay to lose capabilities."
 
-    def no_kwargs(self, arg, **kwargs): # [arguments-differ]
+    def no_kwargs(self, arg: int, **kwargs): # [arguments-differ]
         "Not okay to add extra capabilities."
 
 
@@ -189,13 +189,13 @@ class PositionalChild(Positional):
 
 class Mixed(object):
 
-    def mixed(self, first, second, *, third, fourth):
+    def mixed(self, first: int, second: int, *, third: int, fourth: int):
         pass
 
 
 class MixedChild1(Mixed):
 
-    def mixed(self, first, *args, **kwargs):
+    def mixed(self, first: int, *args, **kwargs):
         """
         Acceptable use of vararg in subclass because it does not violate LSP.
         """
@@ -204,7 +204,7 @@ class MixedChild1(Mixed):
 
 class MixedChild2(Mixed):
 
-    def mixed(self, first, *args, third, **kwargs):
+    def mixed(self, first: int, *args, third: int, **kwargs):
         """
         Acceptable use of vararg in subclass because it does not violate LSP.
         """
@@ -225,11 +225,16 @@ class OverridesSpecialMethod(HasSpecialMethod):
 
 class ParentClass(object):
 
-    def meth(self, arg, arg1):
+    def meth(self, arg: int, arg1: str):
         raise NotImplementedError
 
 
 class ChildClass(ParentClass):
 
-    def meth(self, _arg, dummy):
+    def meth(self, _arg: int, dummy: str):
+        pass
+
+class ChildClass2(ParentClass):
+
+    def meth(self, arg: bool, arg1: str): # [arguments-differ]
         pass
