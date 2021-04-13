@@ -265,27 +265,60 @@ def _has_different_parameters_default_value(original, overridden):
     return False
 
 
-def _has_different_parameters(original, overridden, dummy_parameter_regex):
+def _has_different_parameter_names_only(original, overridden):
+    """Check if the original and the overridden parameters have different names 
+    but the same type.If they do, raise arguments-renamed. In any other case
+    return False.
+
+    Args:
+        original (astroid.FunctionDef): original function's definition.
+        overridden (astroid.FunctionDef): overridden function's definition.
+
+    Returns:
+        True or False: whether it is arguments-renamed or not.
+    """
+    if len(original.args.args) != len(overridden.args.args):
+        return False
+
+    zipped_names = list(zip_longest(original.args.args, overridden.args.args))
+    zipped_types = zip_longest(original.args.annotations, overridden.args.annotations)
+    counter = 0
+    for original_type, overridden_type in zipped_types:
+        if str(original_type) == str(overridden_type): #type has not changed
+            if str(zipped_names[counter][0]) != str(zipped_names[counter][1]): #name has changed
+                return True
+        counter +=1
+    return False
+
+def _has_different_parameters(original, overridden):
+    """Check if the original and the overridden parameters have 
+    the same type, without checking the name.
+
+    Args:
+        original (list): original function's kwonlyargs or args .
+        overridden (list): overridden function's kwonlyargs or args
+
+    Returns:
+        True or False: whether any argument type has changed or not.
+    """
+    counter = 0
     zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
         params = (original_param, overridden_param)
         if not all(params):
+            return True        
+        if original_param.parent.annotations[counter] != overridden_param.parent.annotations[counter]:
             return True
-
-        names = [param.name for param in params]
-        if any(map(dummy_parameter_regex.match, names)):
-            continue
-        if original_param.name != overridden_param.name:
-            return True
+        counter +=1
     return False
 
 
-def _different_parameters(original, overridden, dummy_parameter_regex):
+def _different_parameters(original, overridden):
     """Determine if the two methods have different parameters
 
     They are considered to have different parameters if:
 
-       * they have different positional parameters, including different names
+       * they have different positional parameters
 
        * one of the methods is having variadics, while the other is not
 
@@ -314,11 +347,31 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
             v for v in original.args.kwonlyargs if v.name in overidden_names
         ]
 
+    # If the original function has kwargs or kwonlyargs, check if also the
+    # overridden function has them. Do the same based on the overridden function's 
+    # arguments.
+    if original.args.kwonlyargs or original.args.kwarg:
+        if not overridden.args.kwarg and not overridden.args.kwonlyargs:
+            return True
+    if overridden.args.kwonlyargs or overridden.args.kwarg:
+        if not original.args.kwarg and not original.args.kwonlyargs:
+            return True
+
+    # If the original function has vararg, check if the overridden's arguments
+    # satisfy its functionality (with vararg or more args). If 
+    # the overridden has vararg, check the original's arguments.
+    if original.args.vararg:
+        if not overridden.args.vararg and len(original.args.args)>=len(overridden.args.args):
+            return True
+    if overridden.args.vararg:
+        if not original.args.vararg and len(original.args.args)<=len(overridden.args.args):
+            return True
+
     different_positional = _has_different_parameters(
-        original_parameters, overridden_parameters, dummy_parameter_regex
+        original_parameters, overridden_parameters
     )
     different_kwonly = _has_different_parameters(
-        original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex
+        original_kwonlyargs, overridden.args.kwonlyargs
     )
     if original.name in PYMETHODS:
         # Ignore the difference for special methods. If the parameter
@@ -551,8 +604,8 @@ MSGS = {
     "W0221": (
         "Parameters differ from %s %r method",
         "arguments-differ",
-        "Used when a method has a different number of arguments than in "
-        "the implemented interface or in an overridden method.",
+        "Used when a method has a different number of arguments or argument " 
+        "types than in the implemented interface or in an overridden method.",
     ),
     "W0222": (
         "Signature differs from %s %r method",
@@ -596,6 +649,12 @@ MSGS = {
         "Used when we detect that a method was overridden in a way "
         "that does not match its base class "
         "which could result in potential bugs at runtime.",
+    ),
+    "W0237": (
+        "Parameters of %s %r method have been renamed",
+        "arguments-renamed",
+        "Used when a method has different argument names of the" 
+        "same type than in the implemented interface or in an overridden method.",
     ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
@@ -1762,8 +1821,14 @@ a metaclass class method.",
         if is_property_setter(method1):
             return
 
-        if _different_parameters(
-            refmethod, method1, dummy_parameter_regex=self._dummy_rgx
+        if _has_different_parameter_names_only(
+            refmethod, method1
+        ):
+            self.add_message(
+                "arguments-renamed", args=(class_type, method1.name), node=method1
+            )
+        elif _different_parameters(
+            refmethod, method1
         ):
             self.add_message(
                 "arguments-differ", args=(class_type, method1.name), node=method1
