@@ -58,3 +58,6 @@ Other Changes
 * New option ``allowed-redefined-builtins`` defines variable names allowed to shadow builtins.
 
 * Improved protected access checks to allow access inside class methods
+
+* Add ``arguments-renamed`` check to separate functionality of ``arguments-differ``. ``arguments-renamed`` 
+  triggered when arg name has changed and type is the same.
