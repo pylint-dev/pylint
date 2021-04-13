@@ -95,6 +95,11 @@ Release date: Undefined
 
 * Improve check for invalid PEP 585 syntax as default function arguments
 
+* Add a new error message called arguments-renamed in order to separate the functionality of arguments-differ
+  in two errors.
+
+  Closes #3536
+
 
 What's New in Pylint 2.7.4?
 ===========================
