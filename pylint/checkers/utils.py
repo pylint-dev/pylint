@@ -1219,14 +1219,8 @@ def safe_infer(
             inferred_type = _get_python_type_of_node(inferred)
             if inferred_type not in inferred_types:
                 return None  # If there is ambiguity on the inferred node.
-            if (
-                isinstance(inferred, nodes.FunctionDef)
-                and inferred.args.args is not None
-                and isinstance(value, nodes.FunctionDef)
-                and value.args.args is not None
-                and len(inferred.args.args) != len(value.args.args)
-            ):
-                return None  # Different number of arguments indicates ambiguity
+            # For multiple inferences of the same type, select the last one
+            value = inferred
     except astroid.InferenceError:
         return None  # There is some kind of ambiguity
     except StopIteration:
