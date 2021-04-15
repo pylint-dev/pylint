@@ -35,7 +35,7 @@ Release date: Undefined
 
   Closes #2822, #4206, #4284
 
-* Add `consider-using-min-max-builtin` check for if statement which could be replaced by Python builtin min or max
+* Add ``consider-using-min-max-builtin`` check for if statement which could be replaced by Python builtin min or max
 
   Closes #3406
 

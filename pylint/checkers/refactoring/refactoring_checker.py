@@ -622,8 +622,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_using_min_max_builtin(node)
 
     def _check_consider_using_min_max_builtin(self, node):
-        """Check if the given if node can be refactored as an min/max python builtin.
-        """
+        """Check if the given if node can be refactored as an min/max python builtin."""
         if self._is_actual_elif(node) or node.orelse:
             # Not interested in if statements with multiple branches.
             return
@@ -633,11 +632,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         body = node.body[0]
         # Check if condition can be reduced.
-        if not hasattr(body, 'targets') or len(body.targets) != 1:
+        if not hasattr(body, "targets") or len(body.targets) != 1:
             return
 
         target = body.targets[0]
-        if not(
+        if not (
             isinstance(node.test, astroid.Compare)
             and not isinstance(target, astroid.Subscript)
             and not isinstance(node.test.left, astroid.Subscript)
@@ -646,16 +645,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         # Check that the assignation is on the same variable.
-        if hasattr(node.test.left, 'name'):
+        if hasattr(node.test.left, "name"):
             left_operand = node.test.left.name
-        elif hasattr(node.test.left, 'attrname'):
+        elif hasattr(node.test.left, "attrname"):
             left_operand = node.test.left.attrname
         else:
             return
 
-        if hasattr(target, 'name'):
+        if hasattr(target, "name"):
             target_assignation = target.name
-        elif hasattr(target, 'attrname'):
+        elif hasattr(target, "attrname"):
             target_assignation = target.attrname
         else:
             return
@@ -685,11 +684,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         if operator in ("<", "<="):
-            reduced_to = "{target} = max({target}, {item})".format(target=target_assignation, item=body_value)
-            self.add_message("consider-using-max-builtin", node=node, args=(reduced_to,))
+            reduced_to = "{target} = max({target}, {item})".format(
+                target=target_assignation, item=body_value
+            )
+            self.add_message(
+                "consider-using-max-builtin", node=node, args=(reduced_to,)
+            )
         elif operator in (">", ">="):
-            reduced_to = "{target} = min({target}, {item})".format(target=target_assignation, item=body_value)
-            self.add_message("consider-using-min-builtin", node=node, args=(reduced_to,))
+            reduced_to = "{target} = min({target}, {item})".format(
+                target=target_assignation, item=body_value
+            )
+            self.add_message(
+                "consider-using-min-builtin", node=node, args=(reduced_to,)
+            )
 
     @utils.check_messages("simplifiable-if-expression")
     def visit_ifexp(self, node):
