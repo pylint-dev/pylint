@@ -646,7 +646,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         # Check that the assignation is on the same variable.
-        # TODO: retrieve full class name
         if hasattr(node.test.left, 'name'):
             left_operand = node.test.left.name
         elif hasattr(node.test.left, 'attrname'):
