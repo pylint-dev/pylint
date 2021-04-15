@@ -288,6 +288,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             'Consider using "%s" instead of unnecessary if block',
             "consider-using-max-builtin",
             "Using the max builtin improves readability",
+        ),
         "R1728": (
             "Consider using a generator instead '%s(%s)'",
             "consider-using-generator",
@@ -646,7 +647,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         # Check that the assignation is on the same variable.
         # TODO: retrieve full class name
-        #import ipdb; ipdb.set_trace()
         if hasattr(node.test.left, 'name'):
             left_operand = node.test.left.name
         elif hasattr(node.test.left, 'attrname'):
