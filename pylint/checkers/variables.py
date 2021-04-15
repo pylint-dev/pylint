@@ -1648,10 +1648,12 @@ class VariablesChecker(BaseChecker):
         argnames = list(
             itertools.chain(node.argnames(), [arg.name for arg in node.args.kwonlyargs])
         )
+
         # Care about functions with unknown argument (builtins)
         if name in argnames:
             self._check_unused_arguments(name, node, stmt, argnames)
         else:
+
             if stmt.parent and isinstance(
                 stmt.parent, (astroid.Assign, astroid.AnnAssign)
             ):
@@ -1689,6 +1691,11 @@ class VariablesChecker(BaseChecker):
                     self.add_message("unused-import", args=msg, node=stmt)
                     return
                 message_name = "unused-variable"
+
+            #changed code
+            if isinstance(stmt, astroid.FunctionDef) and stmt.decorators:
+                return
+
 
             # Don't check function stubs created only for type information
             if utils.is_overload_stub(node):
