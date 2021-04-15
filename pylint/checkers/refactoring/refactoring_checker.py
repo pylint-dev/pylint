@@ -279,16 +279,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when calling the super() builtin with the current class "
             "and instance. On Python 3 these arguments are the default and they can be omitted.",
         ),
-        "R1726": (
-            'Consider using "%s" instead of unnecessary if block',
-            "consider-using-min-builtin",
-            "Using the min builtin improves readability",
-        ),
-        "R1727": (
-            'Consider using "%s" instead of unnecessary if block',
-            "consider-using-max-builtin",
-            "Using the max builtin improves readability",
-        ),
         "R1728": (
             "Consider using a generator instead '%s(%s)'",
             "consider-using-generator",
@@ -300,6 +290,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "use-a-generator",
             "Comprehension inside of 'any' or 'all' is unnecessary. "
             "A generator would be sufficient and faster.",
+        ),
+        "R1730": (
+            'Consider using "%s" instead of unnecessary if block',
+            "consider-using-min-builtin",
+            "Using the min builtin improves readability",
+        ),
+        "R1731": (
+            'Consider using "%s" instead of unnecessary if block',
+            "consider-using-max-builtin",
+            "Using the max builtin improves readability",
         ),
     }
     options = (
