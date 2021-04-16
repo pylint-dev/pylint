@@ -1,0 +1,56 @@
+unsubscriptable-object:20:0::Value 'tuple' is unsubscriptable
+unsubscriptable-object:21:0::Value 'type' is unsubscriptable
+unsubscriptable-object:22:0::Value 'collections.abc.Callable' is unsubscriptable
+unsubscriptable-object:25:0::Value 'dict' is unsubscriptable
+unsubscriptable-object:26:0::Value 'list' is unsubscriptable
+unsubscriptable-object:27:0::Value 'set' is unsubscriptable
+unsubscriptable-object:28:0::Value 'frozenset' is unsubscriptable
+unsubscriptable-object:31:0::Value 'collections.defaultdict' is unsubscriptable
+unsubscriptable-object:32:0::Value 'collections.OrderedDict' is unsubscriptable
+unsubscriptable-object:33:0::Value 'collections.ChainMap' is unsubscriptable
+unsubscriptable-object:34:0::Value 'collections.Counter' is unsubscriptable
+unsubscriptable-object:35:0::Value 'collections.deque' is unsubscriptable
+unsubscriptable-object:38:0::Value 'collections.abc.Set' is unsubscriptable
+unsubscriptable-object:39:0::Value 'collections.abc.Collection' is unsubscriptable
+unsubscriptable-object:40:0::Value 'collections.abc.Container' is unsubscriptable
+unsubscriptable-object:41:0::Value 'collections.abc.ItemsView' is unsubscriptable
+unsubscriptable-object:42:0::Value 'collections.abc.KeysView' is unsubscriptable
+unsubscriptable-object:43:0::Value 'collections.abc.Mapping' is unsubscriptable
+unsubscriptable-object:44:0::Value 'collections.abc.MappingView' is unsubscriptable
+unsubscriptable-object:45:0::Value 'collections.abc.MutableMapping' is unsubscriptable
+unsubscriptable-object:46:0::Value 'collections.abc.MutableSequence' is unsubscriptable
+unsubscriptable-object:47:0::Value 'collections.abc.MutableSet' is unsubscriptable
+unsubscriptable-object:48:0::Value 'collections.abc.Sequence' is unsubscriptable
+unsubscriptable-object:49:0::Value 'collections.abc.ValuesView' is unsubscriptable
+unsubscriptable-object:51:0::Value 'collections.abc.Iterable' is unsubscriptable
+unsubscriptable-object:52:0::Value 'collections.abc.Iterator' is unsubscriptable
+unsubscriptable-object:53:0::Value 'collections.abc.Generator' is unsubscriptable
+unsubscriptable-object:54:0::Value 'collections.abc.Reversible' is unsubscriptable
+unsubscriptable-object:56:0::Value 'collections.abc.Coroutine' is unsubscriptable
+unsubscriptable-object:56:26::Value 'list' is unsubscriptable
+unsubscriptable-object:57:0::Value 'collections.abc.AsyncGenerator' is unsubscriptable
+unsubscriptable-object:58:0::Value 'collections.abc.AsyncIterable' is unsubscriptable
+unsubscriptable-object:59:0::Value 'collections.abc.AsyncIterator' is unsubscriptable
+unsubscriptable-object:60:0::Value 'collections.abc.Awaitable' is unsubscriptable
+unsubscriptable-object:63:0::Value 'contextlib.AbstractContextManager' is unsubscriptable
+unsubscriptable-object:64:0::Value 'contextlib.AbstractAsyncContextManager' is unsubscriptable
+unsubscriptable-object:67:0::Value 're.Pattern' is unsubscriptable
+unsubscriptable-object:68:0::Value 're.Match' is unsubscriptable
+unsubscriptable-object:74:0::Value 'collections.abc.Hashable' is unsubscriptable
+unsubscriptable-object:75:0::Value 'collections.abc.Sized' is unsubscriptable
+unsubscriptable-object:78:0::Value 'collections.abc.ByteString' is unsubscriptable
+abstract-method:82:0:DerivedHashable:Method '__hash__' is abstract in class 'Hashable' but is not overridden
+unsubscriptable-object:85:22:DerivedIterable:Value 'collections.abc.Iterable' is unsubscriptable
+unsubscriptable-object:88:24:DerivedCollection:Value 'collections.abc.Collection' is unsubscriptable
+unsubscriptable-object:93:18:DerivedList:Value 'list' is unsubscriptable
+unsubscriptable-object:96:17:DerivedSet:Value 'set' is unsubscriptable
+unsubscriptable-object:99:25:DerivedOrderedDict:Value 'collections.OrderedDict' is unsubscriptable
+unsubscriptable-object:102:31:DerivedListIterable:Value 'collections.abc.Iterable' is unsubscriptable
+unsubscriptable-object:102:26:DerivedListIterable:Value 'list' is unsubscriptable
+abstract-method:107:0:DerivedMultiple:Method '__hash__' is abstract in class 'Hashable' but is not overridden
+abstract-method:107:0:DerivedMultiple:Method '__len__' is abstract in class 'Sized' but is not overridden
+abstract-method:112:0:CustomAbstractCls2:Method '__len__' is abstract in class 'Sized' but is not overridden
+unsubscriptable-object:112:48:CustomAbstractCls2:Value 'collections.abc.Iterable' is unsubscriptable
+abstract-method:114:0:CustomImplementation:Method '__len__' is abstract in class 'Sized' but is not overridden
+unsubscriptable-object:175:19::Value 'collections.abc.Hashable' is unsubscriptable
+unsubscriptable-object:176:16::Value 'collections.abc.Sized' is unsubscriptable

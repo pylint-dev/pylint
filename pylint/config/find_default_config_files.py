@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import configparser
 import os
@@ -26,7 +26,7 @@ def _toml_has_config(path):
 
 def _cfg_has_config(path):
     parser = configparser.ConfigParser()
-    parser.read(path)
+    parser.read(path, encoding="utf-8")
     return any(section.startswith("pylint.") for section in parser.sections())
 
 

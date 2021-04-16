@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 from typing import List
 
@@ -26,10 +26,18 @@ class MessageIdStore:
         return result
 
     def get_symbol(self, msgid: str) -> str:
-        return self.__msgid_to_symbol[msgid]
+        try:
+            return self.__msgid_to_symbol[msgid]
+        except KeyError as e:
+            msg = f"'{msgid}' is not stored in the message store."
+            raise UnknownMessageError(msg) from e
 
     def get_msgid(self, symbol: str) -> str:
-        return self.__symbol_to_msgid[symbol]
+        try:
+            return self.__symbol_to_msgid[symbol]
+        except KeyError as e:
+            msg = f"'{symbol}' is not stored in the message store."
+            raise UnknownMessageError(msg) from e
 
     def register_message_definition(self, message_definition):
         self.check_msgid_and_symbol(message_definition.msgid, message_definition.symbol)

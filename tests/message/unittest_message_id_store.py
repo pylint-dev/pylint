@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import pytest
 
@@ -55,9 +55,9 @@ def test_add_msgid_and_symbol(empty_msgid_store):
     assert empty_msgid_store.get_symbol("E1235") == "new-sckiil"
     assert empty_msgid_store.get_msgid("old-sckiil") == "C1235"
     assert empty_msgid_store.get_msgid("new-sckiil") == "E1235"
-    with pytest.raises(KeyError):
+    with pytest.raises(UnknownMessageError):
         empty_msgid_store.get_symbol("C1234")
-    with pytest.raises(KeyError):
+    with pytest.raises(UnknownMessageError):
         empty_msgid_store.get_msgid("not-exist")
 
 
