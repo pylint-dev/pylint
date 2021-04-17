@@ -135,9 +135,7 @@ class LintModuleTest:
     # pylint: disable=consider-using-with
     def _open_expected_file(self):
         try:
-            return open(
-                self._test_file.expected_output
-            )
+            return open(self._test_file.expected_output)
         except FileNotFoundError:
             return StringIO("")
 
