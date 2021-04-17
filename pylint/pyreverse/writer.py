@@ -167,7 +167,7 @@ class VCGWriter(DiagramWriter):
 
     def set_printer(self, file_name, basename):
         """initialize VCGWriter for a UML graph"""
-        self.graph_file = open(file_name, "w+")
+        self.graph_file = open(file_name, "w+")  # pylint: disable=consider-using-with
         self.printer = VCGPrinter(self.graph_file)
         self.printer.open_graph(
             title=basename,

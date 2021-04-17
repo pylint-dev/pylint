@@ -314,7 +314,9 @@ class SpellingChecker(BaseTokenChecker):
             self.spelling_dict = enchant.DictWithPWL(
                 dict_name, self.config.spelling_private_dict_file
             )
-            self.private_dict_file = open(self.config.spelling_private_dict_file, "a")
+            self.private_dict_file = open(
+                self.config.spelling_private_dict_file, "a"
+            )  # pylint: disable=consider-using-with
         else:
             self.spelling_dict = enchant.Dict(dict_name)
 

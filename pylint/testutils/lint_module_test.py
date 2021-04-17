@@ -134,10 +134,13 @@ class LintModuleTest:
 
     def _open_expected_file(self):
         try:
-            return open(self._test_file.expected_output)
+            return open(
+                self._test_file.expected_output
+            )  # pylint: disable=consider-using-with
         except FileNotFoundError:
             return StringIO("")
 
+    # pylint: disable=consider-using-with
     def _open_source_file(self):
         if self._test_file.base == "invalid_encoded_data":
             return open(self._test_file.source)
