@@ -297,7 +297,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Using the min builtin instead of a conditional improves readability and conciseness.",
         ),
         "R1731": (
-            'Consider using "%s" instead of unnecessary if block',
+            "Consider using '%s' instead of unnecessary if block",
             "consider-using-max-builtin",
             "Using the max builtin instead of a conditional improves readability and conciseness.",
         ),
