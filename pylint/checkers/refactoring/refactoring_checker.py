@@ -1147,7 +1147,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     )
     def visit_assign(self, node):
         self._check_swap_variables(node)
-        self._check_conisder_using_with_instead_assign(node)
+        self._check_consider_using_with_instead_assign(node)
         if self._is_and_or_ternary(node.value):
             cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
         else:
@@ -1178,7 +1178,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     visit_return = visit_assign
 
-    def _check_conisder_using_with_instead_assign(self, node: astroid.Assign):
+    def _check_consider_using_with_instead_assign(self, node: astroid.Assign):
         assigned = node.value
         if isinstance(assigned, astroid.Call):
             inferred = utils.safe_infer(assigned.func)
