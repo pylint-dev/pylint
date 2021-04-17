@@ -621,7 +621,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_get(node)
         self._check_consider_using_min_max_builtin(node)
 
-    def _check_consider_using_min_max_builtin(self, node):
+    def _check_consider_using_min_max_builtin(self, node: astroid.If):
         """Check if the given if node can be refactored as an min/max python builtin."""
         if self._is_actual_elif(node) or node.orelse:
             # Not interested in if statements with multiple branches.
