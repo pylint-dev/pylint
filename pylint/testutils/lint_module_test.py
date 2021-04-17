@@ -132,11 +132,12 @@ class LintModuleTest:
                     unexpected[key] = -value
         return missing, unexpected
 
+    # pylint: disable=consider-using-with
     def _open_expected_file(self):
         try:
             return open(
                 self._test_file.expected_output
-            )  # pylint: disable=consider-using-with
+            )
         except FileNotFoundError:
             return StringIO("")
 
