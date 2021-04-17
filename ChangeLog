@@ -13,7 +13,7 @@ Release date: Undefined
   standard library (like ``open()`` or ``threading.Lock.acquire()``) that can be used as a context manager are called without
   a ``with`` block.
 
-  Closes #3414
+  Closes #3413
 
 * Add new extension ``ConfusingConsecutiveElifChecker``. This optional checker emits a refactoring message (R5601 ``confusing-consecutive-elif``)
   if if/elif statements with different indentation levels follow directly one after the other.
