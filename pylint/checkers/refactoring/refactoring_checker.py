@@ -292,14 +292,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "A generator would be sufficient and faster.",
         ),
         "R1730": (
-            'Consider using "%s" instead of unnecessary if block',
+            "Consider using '%s' instead of unnecessary if block",
             "consider-using-min-builtin",
-            "Using the min builtin improves readability",
+            "Using the min builtin instead of a conditional improves readability and conciseness.",
         ),
         "R1731": (
             'Consider using "%s" instead of unnecessary if block',
             "consider-using-max-builtin",
-            "Using the max builtin improves readability",
+            "Using the max builtin instead of a conditional improves readability and conciseness.",
         ),
     }
     options = (
