@@ -323,7 +323,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1730": (
             "Consider using 'with' for resource-allocating operations",
             "consider-using-with",
-            "Emitted if a callable that can be used as a context manager is used without a 'with' statement. "
+            "Emitted if a resource-allocating assignment or call may be replaced by a 'with' block. "
             "By using 'with' the release of the allocated resources is ensured even in the case of an exception.",
         ),
     }
