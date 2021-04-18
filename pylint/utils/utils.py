@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 
 try:
@@ -32,6 +32,23 @@ def normalize_text(text, line_len=DEFAULT_LINE_LENGTH, indent=""):
             text, width=line_len, initial_indent=indent, subsequent_indent=indent
         )
     )
+
+
+CMPS = ["=", "-", "+"]
+
+
+# py3k has no more cmp builtin
+def cmp(a, b):  # pylint: disable=redefined-builtin
+    return (a > b) - (a < b)
+
+
+def diff_string(old, new):
+    """given an old and new int value, return a string representing the
+    difference
+    """
+    diff = abs(old - new)
+    diff_str = "{}{}".format(CMPS[cmp(old, new)], diff and ("%.2f" % diff) or "")
+    return diff_str
 
 
 def get_module_and_frameid(node):

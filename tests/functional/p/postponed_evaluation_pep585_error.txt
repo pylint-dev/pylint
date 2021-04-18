@@ -37,3 +37,13 @@ unsubscriptable-object:97:19::Value 'list' is unsubscriptable
 unsubscriptable-object:98:15::Value 'list' is unsubscriptable
 unsubscriptable-object:99:9::Value 'list' is unsubscriptable
 unsubscriptable-object:99:14::Value 'list' is unsubscriptable
+unsubscriptable-object:103:20:func3:Value 'list' is unsubscriptable
+unsubscriptable-object:105:33:func3:Value 'list' is unsubscriptable
+unsubscriptable-object:106:11:func3:Value 'list' is unsubscriptable
+unsubscriptable-object:108:14:func4:Value 'list' is unsubscriptable
+unsubscriptable-object:111:16:func5:Value 'list' is unsubscriptable
+unsubscriptable-object:111:32:func5:Value 'set' is unsubscriptable
+unsubscriptable-object:114:75:func6:Value 'dict' is unsubscriptable
+unsubscriptable-object:114:16:func6:Value 'list' is unsubscriptable
+unsubscriptable-object:114:55:func6:Value 'set' is unsubscriptable
+unsubscriptable-object:114:37:func6:Value 'tuple' is unsubscriptable

@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import os
 import sys
@@ -369,7 +369,7 @@ group are mutually exclusive.",
             if linter.config.exit_zero:
                 sys.exit(0)
             else:
-                if score_value and score_value > linter.config.fail_under:
+                if score_value and score_value >= linter.config.fail_under:
                     sys.exit(0)
                 sys.exit(self.linter.msg_status)
 

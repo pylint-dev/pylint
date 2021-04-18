@@ -38,7 +38,7 @@
 # Copyright (c) 2020 Raphael Gaschignard <raphael@rtpg.co>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """Python code format's checker.
 

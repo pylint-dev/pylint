@@ -47,7 +47,7 @@
 # Copyright (c) 2021 Ikraduya Edian <ikraduya@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """try to find more bugs in the code using astroid inference capabilities
 """
@@ -984,6 +984,8 @@ accessed. Python regular expressions are accepted.",
                     missingattr.add((owner, name))
                     continue
             except AttributeError:
+                continue
+            except astroid.DuplicateBasesError:
                 continue
             except astroid.NotFoundError:
                 # This can't be moved before the actual .getattr call,

@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import collections
 import contextlib
@@ -436,9 +436,8 @@ class PyLinter(
     )
 
     def __init__(self, options=(), reporter=None, option_groups=(), pylintrc=None):
-        # some stuff has to be done before ancestors initialization...
-        #
-        # messages store / checkers / reporter / astroid manager
+        """Some stuff has to be done before ancestors initialization...
+        messages store / checkers / reporter / astroid manager"""
         self.msgs_store = MessageDefinitionStore()
         self.reporter = None
         self._reporter_name = None
@@ -457,8 +456,8 @@ class PyLinter(
         self.option_groups = option_groups + PyLinter.option_groups
         self._options_methods = {"enable": self.enable, "disable": self.disable}
         self._bw_options_methods = {
-            "disable-msg": self.disable,
-            "enable-msg": self.enable,
+            "disable-msg": self._options_methods["disable"],
+            "enable-msg": self._options_methods["enable"],
         }
         MessagesHandlerMixIn.__init__(self)
         reporters.ReportsHandlerMixIn.__init__(self)
@@ -690,13 +689,11 @@ class PyLinter(
         print("")
 
     # block level option handling #############################################
-    #
     # see func_block_disable_msg.py test case for expected behaviour
 
     def process_tokens(self, tokens):
-        """process tokens from the current module to search for module/block
-        level options
-        """
+        """Process tokens from the current module to search for module/block level
+        options."""
         control_pragmas = {"disable", "enable"}
         prev_line = None
         saw_newline = True
@@ -715,7 +712,6 @@ class PyLinter(
             match = OPTION_PO.search(content)
             if match is None:
                 continue
-
             try:
                 for pragma_repr in parse_pragma(match.group(2)):
                     if pragma_repr.action in ("disable-all", "skip-file"):
@@ -826,7 +822,7 @@ class PyLinter(
 
         :param str modname: The name of the module to be checked.
         :param str path: The full path to the source code of the module.
-        :param bool is_argument: Whetter the file is an argument to pylint or not.
+        :param bool is_argument: Whether the file is an argument to pylint or not.
                                  Files which respect this property are always
                                  checked, since the user requested it explicitly.
         :returns: True if the module should be checked.

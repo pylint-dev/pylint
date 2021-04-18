@@ -9,8 +9,12 @@ Release date: Undefined
 ..
   Put new features here and also in 'doc/whatsnew/2.8.rst'
 
-* resolve false positives on unused variables in decorator functions
+* Resolve false positives on unused variables in decorator functions
+
   Closes #4252
+
+* Add new extension ``ConfusingConsecutiveElifChecker``. This optional checker emits a refactoring message (R5601 ``confusing-consecutive-elif``)
+  if if/elif statements with different indentation levels follow directly one after the other.
 
 * Use a prescriptive message for ``unidiomatic-typecheck``
 
@@ -19,11 +23,25 @@ Release date: Undefined
 * Apply ``const-naming-style`` to module constants annotated with
   ``typing.Final``
 
-* The packaging is now done via setuptools exclusively. ``doc``, ``test``, ``man``, ``elisp`` and ``Changelog`` are
+* The packaging is now done via setuptools exclusively. ``doc``, ``tests``, ``man``, ``elisp`` and ``Changelog`` are
   not packaged anymore - reducing the size of the package by 75%. Debian packaging is now  (officially) done in
   https://salsa.debian.org/python-team/packages/pylint. The 'doc' extra-require has been removed. ``__pkginfo__`` now
   only contain ``__version__`` (also accessible with ``pylint.__version__``), other meta-information are still
   accessible with ``import importlib;metadata.metadata('pylint')``.
+
+* COPYING has been renamed to LICENSE for standardization.
+
+* Fix false-positive ``used-before-assignment`` in function returns.
+
+  Closes #4301
+
+* Updated ``astroid`` to 2.5.3
+
+  Closes #2822, #4206, #4284
+
+* Add ``consider-using-min-max-builtin`` check for if statement which could be replaced by Python builtin min or max
+
+  Closes #3406
 
 
 What's New in Pylint 2.7.5?
@@ -32,6 +50,21 @@ Release date: Undefined
 
 ..
   Put bug fixes that will be cherry-picked to latest major version here
+
+* Reactivates old counts in report mode.
+
+  Closes #3819
+
+* During detection of ``inconsistent-return-statements`` consider that ``assert False`` is a return node.
+
+  Closes #4019
+
+* Run will not fail if score exactly equals ``config.fail_under`.
+
+* Functions that never returns may declare ``NoReturn`` as type hints, so that
+  ``inconsistent-return-statements`` is not emitted.
+
+  Closes #4122, #4188
 
 * Improved protected access checks to allow access inside class methods
 
@@ -48,6 +81,27 @@ Release date: Undefined
 * Continuous integration with read the doc has been added.
 
   Closes #3850
+
+* Don't show ``DuplicateBasesError`` for attribute access
+
+* Fix crash when checking ``setup.cfg`` for pylint config when there are non-ascii characters in there
+
+  Closes #4328
+
+* Allow code flanked in backticks to be skipped by spellchecker
+
+  Closes #4319
+
+* Allow Python tool directives (for black, flake8, zimports, isort, mypy, bandit, pycharm) at beginning of comments to be skipped by spellchecker
+
+  Closes #4320
+
+* Fix issue that caused emacs pylint to fail when used with tramp
+
+* Improve check for invalid PEP 585 syntax inside functions
+  if postponed evaluation of type annotations is enabled
+
+* Improve check for invalid PEP 585 syntax as default function arguments
 
 
 What's New in Pylint 2.7.4?
@@ -284,7 +338,7 @@ Release date: 2021-02-21
 
   Close #2738
 
-* Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comman, etc.)
+* Fix ``duplicate-code`` false positive when lines only contain whitespace and non-alphanumeric characters (e.g. parentheses, bracket, comma, etc.)
 
 * Improve lint message for ``singleton-comparison`` with bools
 

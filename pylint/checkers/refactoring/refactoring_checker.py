@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import collections
 import copy
@@ -291,6 +291,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Comprehension inside of 'any' or 'all' is unnecessary. "
             "A generator would be sufficient and faster.",
         ),
+        "R1730": (
+            "Consider using '%s' instead of unnecessary if block",
+            "consider-using-min-builtin",
+            "Using the min builtin instead of a conditional improves readability and conciseness.",
+        ),
+        "R1731": (
+            "Consider using '%s' instead of unnecessary if block",
+            "consider-using-max-builtin",
+            "Using the max builtin instead of a conditional improves readability and conciseness.",
+        ),
     }
     options = (
         (
@@ -305,7 +315,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         (
             "never-returning-functions",
             {
-                "default": ("sys.exit",),
+                "default": ("sys.exit", "argparse.parse_error"),
                 "type": "csv",
                 "help": "Complete name of functions that never returns. When checking "
                 "for inconsistent-return-statements if a never returning function is "
@@ -609,6 +619,84 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_superfluous_else_break(node)
         self._check_superfluous_else_continue(node)
         self._check_consider_get(node)
+        self._check_consider_using_min_max_builtin(node)
+
+    def _check_consider_using_min_max_builtin(self, node: astroid.If):
+        """Check if the given if node can be refactored as an min/max python builtin."""
+        if self._is_actual_elif(node) or node.orelse:
+            # Not interested in if statements with multiple branches.
+            return
+
+        if len(node.body) != 1:
+            return
+
+        body = node.body[0]
+        # Check if condition can be reduced.
+        if not hasattr(body, "targets") or len(body.targets) != 1:
+            return
+
+        target = body.targets[0]
+        if not (
+            isinstance(node.test, astroid.Compare)
+            and not isinstance(target, astroid.Subscript)
+            and not isinstance(node.test.left, astroid.Subscript)
+            and isinstance(body, astroid.Assign)
+        ):
+            return
+
+        # Check that the assignation is on the same variable.
+        if hasattr(node.test.left, "name"):
+            left_operand = node.test.left.name
+        elif hasattr(node.test.left, "attrname"):
+            left_operand = node.test.left.attrname
+        else:
+            return
+
+        if hasattr(target, "name"):
+            target_assignation = target.name
+        elif hasattr(target, "attrname"):
+            target_assignation = target.attrname
+        else:
+            return
+
+        if not (left_operand == target_assignation):
+            return
+
+        if len(node.test.ops) > 1:
+            return
+
+        if not isinstance(body.value, (astroid.Name, astroid.Const)):
+            return
+
+        operator, right_statement = node.test.ops[0]
+        if isinstance(body.value, astroid.Name):
+            body_value = body.value.name
+        else:
+            body_value = body.value.value
+
+        if isinstance(right_statement, astroid.Name):
+            right_statement_value = right_statement.name
+        else:
+            right_statement_value = right_statement.value
+
+        # Verify the right part of the statement is the same.
+        if right_statement_value != body_value:
+            return
+
+        if operator in ("<", "<="):
+            reduced_to = "{target} = max({target}, {item})".format(
+                target=target_assignation, item=body_value
+            )
+            self.add_message(
+                "consider-using-max-builtin", node=node, args=(reduced_to,)
+            )
+        elif operator in (">", ">="):
+            reduced_to = "{target} = min({target}, {item})".format(
+                target=target_assignation, item=body_value
+            )
+            self.add_message(
+                "consider-using-min-builtin", node=node, args=(reduced_to,)
+            )
 
     @utils.check_messages("simplifiable-if-expression")
     def visit_ifexp(self, node):
@@ -1381,6 +1469,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return any(
                 self._is_node_return_ended(_child) for _child in all_but_handler
             ) and all(self._is_node_return_ended(_child) for _child in handlers)
+        if (
+            isinstance(node, astroid.Assert)
+            and isinstance(node.test, astroid.Const)
+            and not node.test.value
+        ):
+            # consider assert False as a return node
+            return True
         # recurses on the children of the node
         return any(self._is_node_return_ended(_child) for _child in node.get_children())
 
@@ -1405,6 +1500,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns:
             bool: True if the function never returns, False otherwise.
         """
+        if isinstance(node, astroid.FunctionDef) and node.returns:
+            return (
+                isinstance(node.returns, astroid.Attribute)
+                and node.returns.attrname == "NoReturn"
+                or isinstance(node.returns, astroid.Name)
+                and node.returns.name == "NoReturn"
+            )
         try:
             return node.qname() in self._never_returning_functions
         except TypeError:
