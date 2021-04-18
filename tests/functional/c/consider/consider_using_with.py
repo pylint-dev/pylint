@@ -10,16 +10,6 @@ import zipfile
 from concurrent import futures
 
 
-def test_open():
-    fh = open("test.txt")  # [consider-using-with]
-    fh.close()
-
-
-def test_open_ok():
-    with open("test.txt") as fh:
-        fh.read()
-
-
 def test_codecs_open():
     fh = codecs.open("test.txt", "utf8")  # [consider-using-with]
     fh.close()
