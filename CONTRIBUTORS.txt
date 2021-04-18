@@ -468,3 +468,5 @@ contributors:
 * James Sinclair (irgeek): contributor
 
 * Andreas Finkler: contributor
+
+* Aidan Haase, Elizabeth Bott: contributor

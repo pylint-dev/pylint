@@ -9,6 +9,9 @@ Release date: Undefined
 ..
   Put new features here and also in 'doc/whatsnew/2.8.rst'
 
+* resolve false positives on unused variables in decorator functions
+  Closes #4252
+
 * Use a prescriptive message for ``unidiomatic-typecheck``
 
   Closes #3891
