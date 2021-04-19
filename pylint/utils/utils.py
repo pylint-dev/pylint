@@ -245,7 +245,9 @@ def _comment(string):
 
 def _format_option_value(optdict, value):
     """return the user input's value from a 'compiled' value"""
-    if isinstance(value, (list, tuple)):
+    if optdict.get("type", None) == "py_version":
+        value = ".".join(str(item) for item in value)
+    elif isinstance(value, (list, tuple)):
         value = ",".join(_format_option_value(optdict, item) for item in value)
     elif isinstance(value, dict):
         value = ",".join(f"{k}:{v}" for k, v in value.items())

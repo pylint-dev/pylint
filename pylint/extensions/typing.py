@@ -111,7 +111,7 @@ class TypingChecker(BaseChecker):
                 "metavar": "<py_version>",
                 "help": (
                     "Min Python version to use for typing related checks, "
-                    "e.g. '3.7'. This should be equal to the min supported Python "
+                    "e.g. ``3.7``. This should be equal to the min supported Python "
                     "version of the project."
                 ),
             },
@@ -123,7 +123,7 @@ class TypingChecker(BaseChecker):
                 "type": "yn",
                 "metavar": "<y_or_n>",
                 "help": (
-                    "Set to 'no' if the app / libary does NOT need to "
+                    "Set to ``no`` if the app / libary does NOT need to "
                     "support runtime introspection of type "
                     "annotations. Only applies to Python version "
                     "3.7 - 3.9"
