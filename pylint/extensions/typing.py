@@ -285,7 +285,9 @@ class TypingChecker(BaseChecker):
                     node=msg.node,
                     args=(msg.qname, msg.alias, msg_future_import),
                 )
-            self._alias_name_collisions.clear()  # Important!
+        # Clear all module cache variables
+        self._alias_name_collisions.clear()
+        self._consider_using_alias_msgs.clear()
 
 
 def register(linter: PyLinter):
