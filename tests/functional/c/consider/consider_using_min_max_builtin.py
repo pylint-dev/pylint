@@ -101,3 +101,7 @@ else:
 var = 1
 if var == -1:
     var = None
+
+var2 = 1
+if var2 in [1, 2]:
+    var2 = None
