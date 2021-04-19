@@ -1695,6 +1695,9 @@ class VariablesChecker(BaseChecker):
                     return
                 message_name = "unused-variable"
 
+            if isinstance(stmt, astroid.FunctionDef) and stmt.decorators:
+                return
+
             # Don't check function stubs created only for type information
             if utils.is_overload_stub(node):
                 return

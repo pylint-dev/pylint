@@ -469,6 +469,8 @@ contributors:
 
 * Andreas Finkler: contributor
 
+* Aidan Haase, Elizabeth Bott: contributor
+
 * Sebastian Müller: contributor
 
 * Ramiro Leal-Cavazos (ramiro050): Fixed bug preventing pylint from working with emacs tramp

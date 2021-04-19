@@ -711,8 +711,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         if isinstance(right_statement, astroid.Name):
             right_statement_value = right_statement.name
-        else:
+        elif isinstance(right_statement, astroid.Const):
             right_statement_value = right_statement.value
+        else:
+            return
 
         # Verify the right part of the statement is the same.
         if right_statement_value != body_value:
