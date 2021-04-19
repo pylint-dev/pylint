@@ -43,6 +43,7 @@
 """
 import collections
 from itertools import chain, zip_longest
+from typing import List
 
 import astroid
 
@@ -265,17 +266,11 @@ def _has_different_parameters_default_value(original, overridden):
     return False
 
 
-def _has_different_parameter_names_only(original, overridden):
+def _has_different_parameter_names_only(original: astroid.FunctionDef, overridden: 
+        astroid.FunctionDef) -> bool:
     """Check if the original and the overridden parameters have different names 
     but the same type.If they do, raise arguments-renamed. In any other case
     return False.
-
-    Args:
-        original (astroid.FunctionDef): original function's definition.
-        overridden (astroid.FunctionDef): overridden function's definition.
-
-    Returns:
-        True or False: whether it is arguments-renamed or not.
     """
     if len(original.args.args) != len(overridden.args.args):
         return False
@@ -290,16 +285,10 @@ def _has_different_parameter_names_only(original, overridden):
         counter +=1
     return False
 
-def _has_different_parameters(original, overridden):
+def _has_different_parameters(original: List[astroid.AssignName], overridden: 
+        List[astroid.AssignName]) -> bool:
     """Check if the original and the overridden parameters have 
     the same type, without checking the name.
-
-    Args:
-        original (list): original function's kwonlyargs or args .
-        overridden (list): overridden function's kwonlyargs or args
-
-    Returns:
-        True or False: whether any argument type has changed or not.
     """
     counter = 0
     zipped = zip_longest(original, overridden)
