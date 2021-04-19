@@ -95,3 +95,9 @@ if value > 10:
     value = 10
 else:
     value = 3
+
+
+# https://github.com/PyCQA/pylint/issues/4379
+var = 1
+if var == -1:
+    var = None
