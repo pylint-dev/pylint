@@ -1,4 +1,4 @@
 -e .
 astroid==2.5.3  # Pinned to a specific version for tests
 pytest~=6.2
-pytest-benchmark~=3.2
+pytest-benchmark~=3.4
