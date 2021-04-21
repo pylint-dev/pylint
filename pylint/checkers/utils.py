@@ -70,8 +70,6 @@ from typing import (
 import _string
 import astroid
 
-from pylint.constants import PY310_PLUS
-
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = (
     astroid.ListComp,
@@ -1328,9 +1326,6 @@ def get_node_last_lineno(node: astroid.node_classes.NodeNG) -> int:
 
 def is_postponed_evaluation_enabled(node: astroid.node_classes.NodeNG) -> bool:
     """Check if the postponed evaluation of annotations is enabled"""
-    if PY310_PLUS:
-        return True
-
     module = node.root()
     return "annotations" in module.future_imports
 
