@@ -125,6 +125,7 @@ class Similar:
             )
         )
 
+    @profile
     def _find_common(self, lineset1, lineset2):
         """find similarities in the two given linesets"""
         lines1 = lineset1.enumerate_stripped
@@ -159,9 +160,17 @@ class Similar:
         """iterate on similarities among all files, by making a cartesian
         product
         """
-        for idx, lineset in enumerate(self.linesets[:-1]):
-            for lineset2 in self.linesets[idx + 1 :]:
-                yield from self._find_common(lineset, lineset2)
+        import time
+        from pathlib import Path
+        nb = len(self.linesets)
+        logfile = Path("/tmp/similar_log.stats")
+        with logfile.open('w') as ofile:
+            for idx, lineset in enumerate(self.linesets[:-1]):
+                for lineset2 in self.linesets[idx + 1 :]:
+                    start = time.perf_counter()
+                    yield from self._find_common(lineset, lineset2)
+                    end = time.perf_counter()
+                    ofile.write(f"{lineset.name} vs {lineset2.name} : {end - start} seconds\n")
 
     def get_map_data(self):
         """Returns the data we can use for a map/reduce process
@@ -437,6 +446,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         recombined = SimilarChecker(linter)
         recombined.open()
         Similar.combine_mapreduce_data(recombined, linesets_collection=data)
+        breakpoint()
         recombined.close()
 
 
