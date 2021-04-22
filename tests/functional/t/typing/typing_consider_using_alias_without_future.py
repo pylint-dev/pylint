@@ -28,6 +28,7 @@ var14: collections.defaultdict[str, str]
 Alias1 = Set[int]
 Alias2 = Dict[int, List[int]]
 Alias3 = Union[int, typing.List[str]]
+Alias4 = List  # [consider-using-alias]
 
 def func1(arg1: List[int], /, *args: List[int], arg2: set[int], **kwargs: Dict[str, int]) -> typing.Tuple[int]:
     # -1:[consider-using-alias,consider-using-alias,consider-using-alias,consider-using-alias]

@@ -73,6 +73,7 @@ class DeprecatedTypingAliasMsg(NamedTuple):
     node: Union[astroid.Name, astroid.Attribute]
     qname: str
     alias: str
+    parent_subscript: bool
 
 
 class TypingChecker(BaseChecker):
@@ -257,12 +258,19 @@ class TypingChecker(BaseChecker):
             return
 
         # For PY37+, check for type annotation context first
-        if not is_node_in_type_annotation_context(node):
+        if not is_node_in_type_annotation_context(node) and isinstance(
+            node.parent, astroid.Subscript
+        ):
             if alias.name_collision is True:
                 self._alias_name_collisions.add(inferred.qname())
             return
         self._consider_using_alias_msgs.append(
-            DeprecatedTypingAliasMsg(node, inferred.qname(), alias.name)
+            DeprecatedTypingAliasMsg(
+                node,
+                inferred.qname(),
+                alias.name,
+                isinstance(node.parent, astroid.Subscript),
+            )
         )
 
     @check_messages("consider-using-alias")
@@ -283,7 +291,11 @@ class TypingChecker(BaseChecker):
                 self.add_message(
                     "consider-using-alias",
                     node=msg.node,
-                    args=(msg.qname, msg.alias, msg_future_import),
+                    args=(
+                        msg.qname,
+                        msg.alias,
+                        msg_future_import if msg.parent_subscript else "",
+                    ),
                 )
         # Clear all module cache variables
         self._alias_name_collisions.clear()

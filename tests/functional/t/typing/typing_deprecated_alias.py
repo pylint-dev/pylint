@@ -28,6 +28,7 @@ var14: collections.defaultdict[str, str]
 Alias1 = Set[int]  # [deprecated-typing-alias]
 Alias2 = Dict[int, List[int]]  # [deprecated-typing-alias,deprecated-typing-alias]
 Alias3 = Union[int, typing.List[str]]  # [deprecated-typing-alias]
+Alias4 = List  # [deprecated-typing-alias]
 
 def func1(arg1: List[int], /, *args: List[int], arg2: set[int], **kwargs: Dict[str, int]) -> typing.Tuple[int]:
     # -1:[deprecated-typing-alias,deprecated-typing-alias,deprecated-typing-alias,deprecated-typing-alias]
