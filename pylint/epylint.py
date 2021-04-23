@@ -111,23 +111,24 @@ def lint(filename, options=()):
         ]
         + list(options)
     )
-    process = Popen(
+
+    with Popen(
         cmd, stdout=PIPE, cwd=parent_path, env=_get_env(), universal_newlines=True
-    )
+    ) as process:
 
-    for line in process.stdout:
-        # remove pylintrc warning
-        if line.startswith("No config file found"):
-            continue
+        for line in process.stdout:
+            # remove pylintrc warning
+            if line.startswith("No config file found"):
+                continue
 
-        # modify the file name thats output to reverse the path traversal we made
-        parts = line.split(":")
-        if parts and parts[0] == child_path:
-            line = ":".join([filename] + parts[1:])
-        print(line, end=" ")
+            # modify the file name thats output to reverse the path traversal we made
+            parts = line.split(":")
+            if parts and parts[0] == child_path:
+                line = ":".join([filename] + parts[1:])
+            print(line, end=" ")
 
-    process.wait()
-    return process.returncode
+        process.wait()
+        return process.returncode
 
 
 def py_run(command_options="", return_std=False, stdout=None, stderr=None):
@@ -171,19 +172,19 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
         else:
             stderr = sys.stderr
     # Call pylint in a subprocess
-    process = Popen(
+    with Popen(
         cli,
         shell=False,
         stdout=stdout,
         stderr=stderr,
         env=_get_env(),
         universal_newlines=True,
-    )
-    proc_stdout, proc_stderr = process.communicate()
-    # Return standard output and error
-    if return_std:
-        return StringIO(proc_stdout), StringIO(proc_stderr)
-    return None
+    ) as process:
+        proc_stdout, proc_stderr = process.communicate()
+        # Return standard output and error
+        if return_std:
+            return StringIO(proc_stdout), StringIO(proc_stderr)
+        return None
 
 
 def Run():

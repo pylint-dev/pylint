@@ -17,6 +17,35 @@ from pylint.checkers.utils import node_frame_class
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
+CALLS_THAT_COULD_BE_REPLACED_BY_WITH = frozenset(
+    (
+        "threading.lock.acquire",
+        "threading._RLock.acquire",
+        "threading.Semaphore.acquire",
+        "multiprocessing.managers.BaseManager.start",
+        "multiprocessing.managers.SyncManager.start",
+    )
+)
+CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
+    (
+        "_io.open",  # regular 'open()' call
+        "codecs.open",
+        "urllib.request.urlopen",
+        "tempfile.NamedTemporaryFile",
+        "tempfile.SpooledTemporaryFile",
+        "tempfile.TemporaryDirectory",
+        "zipfile.ZipFile",
+        "zipfile.PyZipFile",
+        "zipfile.ZipFile.open",
+        "zipfile.PyZipFile.open",
+        "tarfile.TarFile",
+        "tarfile.TarFile.open",
+        "multiprocessing.context.BaseContext.Pool",
+        "concurrent.futures.thread.ThreadPoolExecutor",
+        "concurrent.futures.process.ProcessPoolExecutor",
+        "subprocess.Popen",
+    )
+)
 
 
 def _if_statement_is_always_returning(if_node, returning_node_class) -> bool:
@@ -300,6 +329,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Consider using '%s' instead of unnecessary if block",
             "consider-using-max-builtin",
             "Using the max builtin instead of a conditional improves readability and conciseness.",
+        ),
+        "R1732": (
+            "Consider using 'with' for resource-allocating operations",
+            "consider-using-with",
+            "Emitted if a resource-allocating assignment or call may be replaced by a 'with' block. "
+            "By using 'with' the release of the allocated resources is ensured even in the case of an exception.",
         ),
     }
     options = (
@@ -819,6 +854,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-using-sys-exit",
         "super-with-arguments",
         "consider-using-generator",
+        "consider-using-with",
     )
     def visit_call(self, node):
         self._check_raising_stopiteration_in_generator_next_call(node)
@@ -826,6 +862,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_quit_exit_call(node)
         self._check_super_with_arguments(node)
         self._check_consider_using_generator(node)
+        self._check_consider_using_with_instead_call(node)
 
     @staticmethod
     def _has_exit_in_scope(scope):
@@ -1196,9 +1233,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "simplify-boolean-expression",
         "consider-using-ternary",
         "consider-swap-variables",
+        "consider-using-with",
     )
     def visit_assign(self, node):
         self._check_swap_variables(node)
+        self._check_consider_using_with_instead_assign(node)
         if self._is_and_or_ternary(node.value):
             cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
         else:
@@ -1228,6 +1267,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message(message, node=node, args=(suggestion,))
 
     visit_return = visit_assign
+
+    def _check_consider_using_with_instead_assign(self, node: astroid.Assign):
+        assigned = node.value
+        if isinstance(assigned, astroid.Call):
+            inferred = utils.safe_infer(assigned.func)
+            if inferred and inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS:
+                self.add_message("consider-using-with", node=node)
+
+    def _check_consider_using_with_instead_call(self, node: astroid.Call):
+        inferred = utils.safe_infer(node.func)
+        if inferred and inferred.qname() in CALLS_THAT_COULD_BE_REPLACED_BY_WITH:
+            self.add_message("consider-using-with", node=node)
 
     def _check_consider_using_join(self, aug_assign):
         """

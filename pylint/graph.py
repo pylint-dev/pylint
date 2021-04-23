@@ -105,9 +105,8 @@ class DotBackend:
                 os.close(pdot)
             else:
                 dot_sourcepath = outputfile
-        pdot = codecs.open(dot_sourcepath, "w", encoding="utf8")  # type: ignore
-        pdot.write(self.source)  # type: ignore
-        pdot.close()  # type: ignore
+        with codecs.open(dot_sourcepath, "w", encoding="utf8") as pdot:  # type: ignore
+            pdot.write(self.source)  # type: ignore
         if target not in graphviz_extensions:
             if shutil.which(self.renderer) is None:
                 raise RuntimeError(

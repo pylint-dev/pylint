@@ -9,6 +9,12 @@ Release date: Undefined
 ..
   Put new features here and also in 'doc/whatsnew/2.8.rst'
 
+* New refactoring message ``consider-using-with``. This message is emitted if resource-allocating functions or methods of the
+  standard library (like ``open()`` or ``threading.Lock.acquire()``) that can be used as a context manager are called without
+  a ``with`` block.
+
+  Closes #3413
+
 * Resolve false positives on unused variables in decorator functions
 
   Closes #4252

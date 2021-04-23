@@ -122,7 +122,9 @@ def check_parallel(linter, jobs, files, arguments=None):
     # is identical to the linter object here. This is required so that
     # a custom PyLinter object can be used.
     initializer = functools.partial(_worker_initialize, arguments=arguments)
-    pool = multiprocessing.Pool(jobs, initializer=initializer, initargs=[linter])
+    pool = multiprocessing.Pool(  # pylint: disable=consider-using-with
+        jobs, initializer=initializer, initargs=[linter]
+    )
     # ..and now when the workers have inherited the linter, the actual reporter
     # can be set back here on the parent process so that results get stored into
     # correct reporter
