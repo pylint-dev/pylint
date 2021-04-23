@@ -79,6 +79,7 @@ group are mutually exclusive.",
         do_exit=UNUSED_PARAM_SENTINEL,
     ):  # pylint: disable=redefined-builtin
         self._rcfile = None
+        self._output = None
         self._version_asked = False
         self._plugins = []
         self.verbose = None
@@ -92,6 +93,7 @@ group are mutually exclusive.",
                     "rcfile": (self.cb_set_rcfile, True),
                     "load-plugins": (self.cb_add_plugins, True),
                     "verbose": (self.cb_verbose_mode, False),
+                    "output": (self.cb_set_output, True),
                 },
             )
         except ArgumentPreprocessingError as ex:
@@ -109,6 +111,17 @@ group are mutually exclusive.",
                         "type": "string",
                         "metavar": "<file>",
                         "help": "Specify a configuration file to load.",
+                    },
+                ),
+                (
+                    "output",
+                    {
+                        "action": "callback",
+                        "callback": Run._return_one,
+                        "group": "Commands",
+                        "type": "string",
+                        "metavar": "<file>",
+                        "help": "Specify an output file.",
                     },
                 ),
                 (
@@ -355,8 +368,18 @@ group are mutually exclusive.",
         # load plugin specific configuration.
         linter.load_plugin_configuration()
 
-        linter.check(args)
-        score_value = linter.generate_reports()
+        if self._output:
+            try:
+                with open(self._output, "w") as output:
+                    linter.reporter.set_output(output)
+                    linter.check(args)
+                    score_value = linter.generate_reports()
+            except OSError as ex:
+                print(ex, file=sys.stderr)
+                sys.exit(32)
+        else:
+            linter.check(args)
+            score_value = linter.generate_reports()
 
         if do_exit is not UNUSED_PARAM_SENTINEL:
             warnings.warn(
@@ -380,6 +403,10 @@ group are mutually exclusive.",
     def cb_set_rcfile(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""
         self._rcfile = value
+
+    def cb_set_output(self, name, value):
+        """callback for option preprocessing (i.e. before option parsing)"""
+        self._output = value
 
     def cb_add_plugins(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""
