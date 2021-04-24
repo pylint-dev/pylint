@@ -133,22 +133,22 @@ class TypingChecker(BaseChecker):
         ),
     )
 
-    def __init__(self, linter):
+    def __init__(self, linter: PyLinter) -> None:
         """Initialize checker instance."""
         super().__init__(linter=linter)
         self._alias_name_collisions: Set[str] = set()
         self._consider_using_alias_msgs: List[DeprecatedTypingAliasMsg] = []
 
     @lru_cache()
-    def _py37_plus(self):
+    def _py37_plus(self) -> bool:
         return self.config.py_version >= (3, 7)
 
     @lru_cache()
-    def _py39_plus(self):
+    def _py39_plus(self) -> bool:
         return self.config.py_version >= (3, 9)
 
     @lru_cache()
-    def _py310_plus(self):
+    def _py310_plus(self) -> bool:
         return self.config.py_version >= (3, 10)
 
     def _msg_postponed_eval_hint(self, node) -> str:
@@ -162,19 +162,9 @@ class TypingChecker(BaseChecker):
         "consider-using-alias",
         "consider-alternative-union-syntax",
     )
-    def visit_name(self, node: astroid.Name):
-        if (
-            self._py39_plus()
-            or self._py37_plus()
-            and self.config.runtime_typing is False
-        ) and node.name in ALIAS_NAMES:
-            self._check_for_typing_alias(node)
-        if (
-            self._py310_plus()
-            or self._py37_plus()
-            and self.config.runtime_typing is False
-        ) and node.name in UNION_NAMES:
-            self._check_for_alternative_union_syntax(node, node.name)
+    def visit_name(self, node: astroid.Name) -> None:
+        self._check_for_typing_alias(node)
+        self._check_for_alternative_union_syntax(node)
 
     @check_messages(
         "deprecated-typing-alias",
@@ -182,23 +172,12 @@ class TypingChecker(BaseChecker):
         "consider-alternative-union-syntax",
     )
     def visit_attribute(self, node: astroid.Attribute):
-        if (
-            self._py39_plus()
-            or self._py37_plus()
-            and self.config.runtime_typing is False
-        ) and node.attrname in ALIAS_NAMES:
-            self._check_for_typing_alias(node)
-        if (
-            self._py310_plus()
-            or self._py37_plus()
-            and self.config.runtime_typing is False
-        ) and node.attrname in UNION_NAMES:
-            self._check_for_alternative_union_syntax(node, node.attrname)
+        self._check_for_typing_alias(node)
+        self._check_for_alternative_union_syntax(node)
 
     def _check_for_alternative_union_syntax(
         self,
         node: Union[astroid.Name, astroid.Attribute],
-        name: str,
     ) -> None:
         """Check if alternative union syntax could be used.
 
@@ -207,6 +186,18 @@ class TypingChecker(BaseChecker):
         - OR: Python 3.7+ with postponed evaluation in
               a type annotation context
         """
+        name = node.name if isinstance(node, astroid.Name) else node.attrname
+
+        if (
+            not (
+                self._py310_plus()
+                or self._py37_plus()
+                and self.config.runtime_typing is False
+            )
+            or name not in UNION_NAMES
+        ):
+            return
+
         inferred = safe_infer(node)
         if not (
             isinstance(inferred, astroid.FunctionDef)
@@ -242,6 +233,18 @@ class TypingChecker(BaseChecker):
             any name collisions, only ever used in a type annotation
             context, and can safely be replaced.
         """
+        name = node.name if isinstance(node, astroid.Name) else node.attrname
+
+        if (
+            not (
+                self._py39_plus()
+                or self._py37_plus()
+                and self.config.runtime_typing is False
+            )
+            or name not in ALIAS_NAMES
+        ):
+            return
+
         inferred = safe_infer(node)
         if not isinstance(inferred, astroid.ClassDef):
             return
@@ -274,7 +277,7 @@ class TypingChecker(BaseChecker):
         )
 
     @check_messages("consider-using-alias")
-    def leave_module(self, node: astroid.Module):
+    def leave_module(self, node: astroid.Module) -> None:
         """After parsing of module is complete, add messages for
         'consider-using-alias' check. Make sure results are safe
         to recommend / collision free.
@@ -302,5 +305,5 @@ class TypingChecker(BaseChecker):
         self._consider_using_alias_msgs.clear()
 
 
-def register(linter: PyLinter):
+def register(linter: PyLinter) -> None:
     linter.register_checker(TypingChecker(linter))

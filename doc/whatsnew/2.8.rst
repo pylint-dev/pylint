@@ -25,6 +25,7 @@ New checkers
 
 * Add new extension ``TypingChecker``. This optional checker can detect the use of deprecated typing aliases
   and can suggest the use of the alternative union syntax where possible.
+  (For example, 'typing.Dict' can be replaced by 'dict', and 'typing.Unions' by '|', etc.)
   Make sure to check the config options if you plan on using it!
 
 
