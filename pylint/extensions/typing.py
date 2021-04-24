@@ -151,6 +151,28 @@ class TypingChecker(BaseChecker):
     def _py310_plus(self) -> bool:
         return self.config.py_version >= (3, 10)
 
+    @lru_cache()
+    def _should_check_typing_alias(self) -> bool:
+        """The use of type aliases (PEP 585) requires Python 3.9
+        or Python 3.7+ with postponed evaluation.
+        """
+        return (
+            self._py39_plus()
+            or self._py37_plus()
+            and self.config.runtime_typing is False
+        )
+
+    @lru_cache()
+    def _should_check_alternative_union_syntax(self) -> bool:
+        """The use of alternative union syntax (PEP 604) requires Python 3.10
+        or Python 3.7+ with postponed evaluation.
+        """
+        return (
+            self._py310_plus()
+            or self._py37_plus()
+            and self.config.runtime_typing is False
+        )
+
     def _msg_postponed_eval_hint(self, node) -> str:
         """Message hint if postponed evaluation isn't enabled."""
         if self._py310_plus() or "annotations" in node.root().future_imports:
@@ -163,8 +185,10 @@ class TypingChecker(BaseChecker):
         "consider-alternative-union-syntax",
     )
     def visit_name(self, node: astroid.Name) -> None:
-        self._check_for_typing_alias(node)
-        self._check_for_alternative_union_syntax(node)
+        if self._should_check_typing_alias() and node.name in ALIAS_NAMES:
+            self._check_for_typing_alias(node)
+        if self._should_check_alternative_union_syntax() and node.name in UNION_NAMES:
+            self._check_for_alternative_union_syntax(node, node.name)
 
     @check_messages(
         "deprecated-typing-alias",
@@ -172,12 +196,18 @@ class TypingChecker(BaseChecker):
         "consider-alternative-union-syntax",
     )
     def visit_attribute(self, node: astroid.Attribute):
-        self._check_for_typing_alias(node)
-        self._check_for_alternative_union_syntax(node)
+        if self._should_check_typing_alias() and node.attrname in ALIAS_NAMES:
+            self._check_for_typing_alias(node)
+        if (
+            self._should_check_alternative_union_syntax()
+            and node.attrname in UNION_NAMES
+        ):
+            self._check_for_alternative_union_syntax(node, node.attrname)
 
     def _check_for_alternative_union_syntax(
         self,
         node: Union[astroid.Name, astroid.Attribute],
+        name: str,
     ) -> None:
         """Check if alternative union syntax could be used.
 
@@ -186,18 +216,6 @@ class TypingChecker(BaseChecker):
         - OR: Python 3.7+ with postponed evaluation in
               a type annotation context
         """
-        name = node.name if isinstance(node, astroid.Name) else node.attrname
-
-        if (
-            not (
-                self._py310_plus()
-                or self._py37_plus()
-                and self.config.runtime_typing is False
-            )
-            or name not in UNION_NAMES
-        ):
-            return
-
         inferred = safe_infer(node)
         if not (
             isinstance(inferred, astroid.FunctionDef)
@@ -233,18 +251,6 @@ class TypingChecker(BaseChecker):
             any name collisions, only ever used in a type annotation
             context, and can safely be replaced.
         """
-        name = node.name if isinstance(node, astroid.Name) else node.attrname
-
-        if (
-            not (
-                self._py39_plus()
-                or self._py37_plus()
-                and self.config.runtime_typing is False
-            )
-            or name not in ALIAS_NAMES
-        ):
-            return
-
         inferred = safe_infer(node)
         if not isinstance(inferred, astroid.ClassDef):
             return
