@@ -57,6 +57,11 @@ Release date: Undefined
 
 * Update ``astroid`` to 2.5.4
 
+* Add new extension ``TypingChecker``. This optional checker can detect the use of deprecated typing aliases
+  and can suggest the use of the alternative union syntax where possible.
+  (For example, 'typing.Dict' can be replaced by 'dict', and 'typing.Unions' by '|', etc.)
+  Make sure to check the config options if you plan on using it!
+
 
 What's New in Pylint 2.7.5?
 ===========================
