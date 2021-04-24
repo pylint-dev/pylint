@@ -9,6 +9,8 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* Added ``--fail-on`` option to return non-zero exit codes regardless of ``--fail-under`` value.
+
 
 What's New in Pylint 2.8.0?
 ===========================

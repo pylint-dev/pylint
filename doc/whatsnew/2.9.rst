@@ -14,3 +14,5 @@ New checkers
 
 Other Changes
 =============
+
+* New option ``--fail-on=<msg ids>`` to return non-zero exit codes regardless of ``fail-under`` value.
