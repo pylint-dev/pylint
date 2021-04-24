@@ -3,7 +3,7 @@
 **************************
 
 :Release: 2.8
-:Date: undefined
+:Date: 2021-04-24
 
 Summary -- Release highlights
 =============================

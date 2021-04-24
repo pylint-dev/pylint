@@ -14,7 +14,7 @@
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Taewon D. Kim <kimt33@mcmaster.ca>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
-# Copyright (c) 2020 Eli Fine <eli88fine@gmail.com>
+# Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
 

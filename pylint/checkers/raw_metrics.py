@@ -7,7 +7,7 @@
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

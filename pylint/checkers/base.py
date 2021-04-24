@@ -20,7 +20,7 @@
 # Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
 # Copyright (c) 2016 Alex Jurkiewicz <alex@jurkiewi.cz>
 # Copyright (c) 2017, 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2017, 2019-2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017, 2019-2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 danields <danields761@gmail.com>
 # Copyright (c) 2017 Jacques Kvam <jwkvam@gmail.com>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
@@ -52,6 +52,7 @@
 # Copyright (c) 2020 Gabriel R Sezefredo <g@briel.dev>
 # Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
 
