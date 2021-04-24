@@ -2,8 +2,13 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 2.8.1?
+===========================
+Release date: TBA
+
 ..
-  Put new features and bugfixes here and also in 'doc/whatsnew/2.8.rst'
+  Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
+
 
 What's New in Pylint 2.8.0?
 ===========================
