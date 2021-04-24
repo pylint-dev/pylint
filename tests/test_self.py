@@ -24,6 +24,8 @@
 # Copyright (c) 2020 Pieter Engelbrecht <pengelbrecht@rems2.com>
 # Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
+# Copyright (c) 2021 chohner <mail@chohner.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Louis Sautier <sautier.louis@gmail.com>
 

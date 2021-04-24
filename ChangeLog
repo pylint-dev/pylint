@@ -7,7 +7,7 @@ Pylint's ChangeLog
 
 What's New in Pylint 2.8.0?
 ===========================
-Release date: 2021-04-25
+Release date: 2021-04-24
 
 * New refactoring message ``consider-using-with``. This message is emitted if resource-allocating functions or methods of the
   standard library (like ``open()`` or ``threading.Lock.acquire()``) that can be used as a context manager are called without

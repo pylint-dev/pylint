@@ -39,6 +39,7 @@
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Ashley Whetter <ashleyw@activestate.com>
+# Copyright (c) 2021 haasea <44787650+haasea@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Alexander Kapshuna <kapsh@kap.sh>
 

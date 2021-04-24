@@ -10,6 +10,7 @@
 # Copyright (c) 2019 agutole <toldo_carp@hotmail.com>
 # Copyright (c) 2020 Ganden Schaffner <gschaffner@pm.me>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Eli Fine <ejfine@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
