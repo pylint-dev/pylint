@@ -9,6 +9,11 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* Add numversion back (temporarily) in ``__pkginfo__`` because it broke Pylama and revert the unnecessary
+  ``pylint.version`` breaking change.
+
+  Closes #4399
+
 
 What's New in Pylint 2.8.0?
 ===========================
@@ -46,7 +51,7 @@ Release date: 2021-04-24
 * The 'doc' extra-require has been removed.
 
 * ``__pkginfo__`` now only contain ``__version__`` (also accessible with ``pylint.__version__``), other meta-information are still
-  accessible with ``import importlib;metadata.metadata('pylint')``.
+  accessible with ``from importlib import metadata;metadata.metadata('pylint')``.
 
 * COPYING has been renamed to LICENSE for standardization.
 
