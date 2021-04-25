@@ -13,3 +13,7 @@ if dev_version is not None:
         __version__ += f"a{dev_version}"
     else:
         __version__ += f".dev{dev_version}"
+
+
+# Kept for compatibility reason, see https://github.com/PyCQA/pylint/issues/4399
+numversion = __version__.split(".")
