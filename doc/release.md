@@ -23,12 +23,12 @@ git --aliases=.copyrite_aliases . --jobs=8
 6. Make sure the tests are passing on Travis/GithubActions:
    https://travis-ci.org/PyCQA/pylint/
 
-7. Do the actual release by tagging the master with `pylint-X.Y.Z` (ie `pylint-1.6.12`
-   or `pylint-4.0.0a1` for example). Travis should deal with the release process once
-   the tag is pushed with `git push origin --tags`
+7. Do the actual release by tagging the master with `vX.Y.Z` (ie `v1.6.12` or `v2.5.3a1`
+   for example). Travis should deal with the release process once the tag is pushed with
+   `git push origin --tags`
 
-8. Go to github, click on "Releases" then on the `pylint-X.Y.Z` tag, choose edit tag,
-   and copy past the changelog in the description.
+8. Go to github, click on "Releases" then on the `vX.Y.Z` tag, choose edit tag, and copy
+   past the changelog in the description.
 
 ## Manual Release
 
@@ -45,13 +45,13 @@ twine upload dist/*
 
 ### Merge tags in master for pre-commit
 
-If the tag you just made is not part of the main branch, merge the tag `X.Y.Z` in the
+If the tag you just made is not part of the main branch, merge the tag `vX.Y.Z` in the
 main branch by doing a history only merge. It's done in order to signal that this is an
 official release tag, and for `pre-commit autoupdate` to works.
 
 ```bash
 git checkout master
-git merge --no-edit --strategy=ours pylint-X.Y.Z
+git merge --no-edit --strategy=ours vX.Y.Z
 git push
 ```
 
