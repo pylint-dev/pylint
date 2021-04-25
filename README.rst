@@ -20,7 +20,7 @@ README for Pylint - https://pylint.pycqa.org/
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
 
-.. |tideliftlogo| image:: https://github.com/PyCQA/pylint/blob/master/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
+.. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/master/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
    :width: 75
    :height: 60
    :alt: Tidelift
