@@ -287,7 +287,7 @@ class TestRunTC:
         )
 
     def test_parallel_execution_bug_2674(self):
-        """  Tests that disabling absolute imports works the same in -j1/j2 """
+        """Tests that disabling absolute imports works the same in -j1/j2"""
         expected_ret_code = 0  # we are disabling the check, should pass
         for jobs in (1, 2):
             self._runtest(

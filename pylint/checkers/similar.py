@@ -425,7 +425,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         stats["percent_duplicated_lines"] = total and duplicated * 100.0 / total
 
     def get_map_data(self):
-        """ Passthru override """
+        """Passthru override"""
         return Similar.get_map_data(self)
 
     @classmethod
@@ -440,7 +440,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(SimilarChecker(linter))
 
 

@@ -82,7 +82,7 @@ class SleepingCheckerLong(BaseChecker):
 
 
 class NoWorkChecker(BaseChecker):
-    """ A checker that sleeps, the wall-clock time should change as we add threads """
+    """A checker that sleeps, the wall-clock time should change as we add threads"""
 
     __implements__ = (pylint.interfaces.IRawChecker,)
 
@@ -159,7 +159,7 @@ class TestEstablishBaselineBenchmarks:
         )
 
     def test_baseline_benchmark_check_parallel_j10(self, benchmark):
-        """ Should demonstrate times very close to `test_baseline_benchmark_j10` """
+        """Should demonstrate times very close to `test_baseline_benchmark_j10`"""
         linter = PyLinter(reporter=Reporter())
 
         # Create file per worker, using all workers

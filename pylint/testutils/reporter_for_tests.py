@@ -24,7 +24,7 @@ class GenericTestReporter(BaseReporter):
         self.messages = []
 
     def handle_message(self, msg):
-        """manage message of different type and in the context of path """
+        """manage message of different type and in the context of path"""
         obj = msg.obj
         line = msg.line
         msg_id = msg.msg_id

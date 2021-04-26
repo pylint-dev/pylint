@@ -71,7 +71,7 @@ def table_lines_from_stats(stats, old_stats, columns):
 
 
 def initialize(linter):
-    """initialize linter with checkers in this package """
+    """initialize linter with checkers in this package"""
     register_plugins(linter, __path__[0])
 
 

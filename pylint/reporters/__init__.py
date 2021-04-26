@@ -29,7 +29,7 @@ from pylint.reporters.reports_handler_mix_in import ReportsHandlerMixIn
 
 
 def initialize(linter):
-    """initialize linter with reporters in this package """
+    """initialize linter with reporters in this package"""
     utils.register_plugins(linter, __path__[0])
 
 

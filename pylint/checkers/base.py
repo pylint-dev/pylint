@@ -1502,7 +1502,7 @@ class BasicChecker(_BasicChecker):
             _parent = _node.parent
 
     def _check_reversed(self, node):
-        """ check that the argument to `reversed` is a sequence """
+        """check that the argument to `reversed` is a sequence"""
         try:
             argument = utils.safe_infer(utils.get_argument_from_call(node, position=0))
         except utils.NoSuchArgumentError:
