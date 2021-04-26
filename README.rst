@@ -162,10 +162,5 @@ pylint is, with a few exceptions listed below, `GPLv2 <https://github.com/PyCQA/
 
 The icon files are licensed under the `CC BY-SA 4.0 <https://creativecommons.org/licenses/by-sa/4.0/>`_ license:
 
-.. image:: https://raw.githubusercontent.com/PyCQA/pylint/master/doc/logo.png
-  :alt: PNG logo
-  :target: https://raw.githubusercontent.com/PyCQA/pylint/master/doc/logo.png
-
-.. image:: https://raw.githubusercontent.com/PyCQA/pylint/master/doc/logo.svg
-  :alt: SVG logo
-  :target: https://raw.githubusercontent.com/PyCQA/pylint/master/doc/logo.svg
+- `doc/logo.png <https://raw.githubusercontent.com/PyCQA/pylint/master/doc/logo.png>`_
+- `doc/logo.svg <https://raw.githubusercontent.com/PyCQA/pylint/master/doc/logo.svg>`_
