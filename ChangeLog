@@ -13,6 +13,8 @@ Release date: TBA
 
   Closes #4405
 
+* scm_setuptools has been added to the packaging.
+
 
 What's New in Pylint 2.8.1?
 ===========================
