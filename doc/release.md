@@ -7,7 +7,7 @@ So, you want to release the `X.Y.Z` version of pylint ?
 1. Run the acceptance tests to see if everything is alright with this release. We don't
    run them on CI: `pytest -m acceptance`
 2. Check if the dependencies of the package are correct
-3. Put the release date into the changelog and `What's new` section.
+3. Put the release date into `Changelog` (and `What's new` if it's a major).
 4. Generate the new copyright notices for this release:
 
 ```bash

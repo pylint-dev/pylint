@@ -52,8 +52,8 @@
 # Copyright (c) 2020 Gabriel R Sezefredo <g@briel.dev>
 # Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
-# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
