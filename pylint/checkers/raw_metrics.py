@@ -117,5 +117,5 @@ def get_type(tokens, start_index):
 
 
 def register(linter):
-    """ required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(RawMetricsChecker(linter))

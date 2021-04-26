@@ -347,7 +347,7 @@ class OptionsManagerMixIn:
             return args
 
     def add_help_section(self, title, description, level=0):
-        """add a dummy option section for help purpose """
+        """add a dummy option section for help purpose"""
         group = optparse.OptionGroup(
             self.cmdline_parser, title=title.capitalize(), description=description
         )
@@ -356,7 +356,7 @@ class OptionsManagerMixIn:
         self.cmdline_parser.add_option_group(group)
 
     def help(self, level=0):
-        """return the usage string for available options """
+        """return the usage string for available options"""
         self.cmdline_parser.formatter.output_level = level
         with _patch_optparse():
             return self.cmdline_parser.format_help()

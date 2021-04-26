@@ -36,7 +36,7 @@ class TestVariablesChecker(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
 
     def test_bitbucket_issue_78(self):
-        """ Issue 78 report a false positive for unused-module """
+        """Issue 78 report a false positive for unused-module"""
         module = astroid.parse(
             """
         from sys import path
@@ -205,7 +205,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
     @set_config(callbacks=("callback_", "_callback"))
     def test_custom_callback_string(self):
-        """ Test the --calbacks option works. """
+        """Test the --calbacks option works."""
         node = astroid.extract_node(
             """
         def callback_one(abc):

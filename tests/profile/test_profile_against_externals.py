@@ -40,7 +40,7 @@ def _get_py_files(scanpath):
     "name,git_repo", [("numpy", "https://github.com/numpy/numpy.git")]
 )
 def test_run(tmp_path, name, git_repo):
-    """ Runs pylint against external sources """
+    """Runs pylint against external sources"""
     checkoutdir = tmp_path / name
     checkoutdir.mkdir()
     os.system(f"git clone --depth=1 {git_repo} {checkoutdir}")

@@ -2081,7 +2081,7 @@ class VariablesChecker(BaseChecker):
         del self._to_consume
 
     def _check_metaclasses(self, node):
-        """ Update consumption analysis for metaclasses. """
+        """Update consumption analysis for metaclasses."""
         consumed = []  # [(scope_locals, consumed_key)]
 
         for child_node in node.get_children():

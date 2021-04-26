@@ -1256,7 +1256,7 @@ class Python3Checker(checkers.BaseChecker):
 
     @utils.check_messages("indexing-exception")
     def visit_subscript(self, node):
-        """ Look for indexing exceptions. """
+        """Look for indexing exceptions."""
         try:
             for inferred in node.value.infer():
                 if not isinstance(inferred, astroid.Instance):

@@ -441,7 +441,7 @@ class StringFormatChecker(BaseChecker):
             )
 
     def _check_new_format(self, node, func):
-        """Check the new string formatting. """
+        """Check the new string formatting."""
         # Skip format nodes which don't have an explicit string on the
         # left side of the format operation.
         # We do this because our inference engine can't properly handle
@@ -888,7 +888,7 @@ class StringConstantChecker(BaseTokenChecker):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(StringFormatChecker(linter))
     linter.register_checker(StringConstantChecker(linter))
 
