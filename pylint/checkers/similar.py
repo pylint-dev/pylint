@@ -125,7 +125,6 @@ class Similar:
             )
         )
 
-    @profile
     def _find_common(self, lineset1, lineset2):
         """find similarities in the two given linesets"""
         lines1 = lineset1.enumerate_stripped
