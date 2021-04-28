@@ -9,6 +9,10 @@ Release date: 2021-04-26
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* numversion tuple contains integers again to fix multiple pylint's plugins that relied on it
+
+  Closes #4420
+
 * Fix false-positive ``too-many-ancestors`` when inheriting from builtin classes,
   especially from the ``collections.abc`` module
 
