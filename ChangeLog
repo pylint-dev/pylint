@@ -2,12 +2,23 @@
 Pylint's ChangeLog
 ------------------
 
-What's New in Pylint 2.8.2?
+What's New in Pylint 2.8.3?
 ===========================
 Release date: 2021-04-26
 
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
+
+* Fix false-positive ``too-many-ancestors`` when inheriting from builtin classes,
+  especially from the ``collections.abc`` module
+
+  Closes #4166
+  Closes #4415
+
+
+What's New in Pylint 2.8.2?
+===========================
+Release date: 2021-04-26
 
 * Keep ``__pkginfo__.numversion`` a tuple to avoid breaking pylint-django.
 
@@ -21,9 +32,6 @@ Release date: 2021-04-26
 What's New in Pylint 2.8.1?
 ===========================
 Release date: 2021-04-25
-
-..
-  Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
 * Add numversion back (temporarily) in ``__pkginfo__`` because it broke Pylama and revert the unnecessary
   ``pylint.version`` breaking change.
