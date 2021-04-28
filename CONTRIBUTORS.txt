@@ -478,3 +478,5 @@ contributors:
 * manderj: contributor
 
 * qwiddle: contributor
+
+* Jiajunsu (victor): contributor

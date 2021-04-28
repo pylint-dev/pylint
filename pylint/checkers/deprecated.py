@@ -37,11 +37,17 @@ class DeprecatedMixin:
             "deprecated-module",
             "A module marked as deprecated is imported.",
         ),
+        "W1512": (
+            "Using deprecated class %s of module %s",
+            "deprecated-class",
+            "The class is marked as deprecated and will be removed in the future.",
+        ),
     }
 
     @utils.check_messages(
         "deprecated-method",
         "deprecated-argument",
+        "deprecated-class",
     )
     def visit_call(self, node: astroid.Call) -> None:
         """Called when a :class:`.astroid.node_classes.Call` node is visited."""
@@ -50,19 +56,27 @@ class DeprecatedMixin:
                 # Calling entry point for deprecation check logic.
                 self.check_deprecated_method(node, inferred)
         except astroid.InferenceError:
-            pass
+            self.check_deprecated_class(node)
 
-    @utils.check_messages("deprecated-module")
+    @utils.check_messages(
+        "deprecated-module",
+        "deprecated-class",
+    )
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         for name in (name for name, _ in node.names):
             self.check_deprecated_module(node, name)
+            self.check_deprecated_class(node, name)
 
-    @utils.check_messages("deprecated-module")
+    @utils.check_messages(
+        "deprecated-module",
+        "deprecated-class",
+    )
     def visit_importfrom(self, node):
         """triggered when a from statement is seen"""
         basename = node.modname
         self.check_deprecated_module(node, basename)
+        self.check_deprecated_class(node, basename)
 
     def deprecated_methods(self) -> Container[str]:
         """Callback returning the deprecated methods/functions.
@@ -111,6 +125,19 @@ class DeprecatedMixin:
         # pylint: disable=no-self-use
         return ()
 
+    def deprecated_classes(self, module: str) -> Iterable:
+        """Callback returning the deprecated classes of module.
+
+        Args:
+            module (str): name of module checked for deprecated classes
+
+        Returns:
+            collections.abc.Container of deprecated class names.
+        """
+        # pylint: disable=no-self-use
+        # pylint: disable=unused-argument
+        return ()
+
     def check_deprecated_module(self, node, mod_path):
         """Checks if the module is deprecated"""
 
@@ -153,4 +180,39 @@ class DeprecatedMixin:
                 # function was called with deprecated argument as positional argument
                 self.add_message(
                     "deprecated-argument", node=node, args=(arg_name, func_name)
+                )
+
+    def check_deprecated_class(self, node, mod_path=""):
+        """Checks if the class is deprecated"""
+
+        # Called from visit_import
+        if isinstance(node, astroid.Import):
+            if "." not in mod_path:
+                # import module without class, skip
+                return
+            mod_name, class_name = mod_path.split(".", 1)
+            if class_name in self.deprecated_classes(mod_name):
+                self.add_message(
+                    "deprecated-class", node=node, args=(class_name, mod_name)
+                )
+            return
+
+        # Called from visit_importfrom
+        if isinstance(node, astroid.ImportFrom):
+            for class_name, _ in node.names:
+                if class_name in self.deprecated_classes(mod_path):
+                    self.add_message(
+                        "deprecated-class", node=node, args=(class_name, mod_path)
+                    )
+            return
+
+        # Called from visit_call
+        if isinstance(node.func, astroid.Attribute) and isinstance(
+            node.func.expr, astroid.Name
+        ):
+            mod_name = node.func.expr.name
+            class_name = node.func.attrname
+            if class_name in self.deprecated_classes(mod_name):
+                self.add_message(
+                    "deprecated-class", node=node, args=(class_name, mod_name)
                 )

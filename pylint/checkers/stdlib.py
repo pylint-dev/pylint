@@ -201,6 +201,39 @@ DEPRECATED_METHODS = {
 }
 
 
+DEPRECATED_CLASSES = {
+    (3, 3, 0): {
+        "collections": {
+            "Awaitable",
+            "Coroutine",
+            "AsyncIterable",
+            "AsyncIterator",
+            "AsyncGenerator",
+            "Hashable",
+            "Iterable",
+            "Iterator",
+            "Generator",
+            "Reversible",
+            "Sized",
+            "Container",
+            "Callable",
+            "Collection",
+            "Set",
+            "MutableSet",
+            "Mapping",
+            "MutableMapping",
+            "MappingView",
+            "KeysView",
+            "ItemsView",
+            "ValuesView",
+            "Sequence",
+            "MutableSequence",
+            "ByteString",
+        },
+    }
+}
+
+
 def _check_mode_str(mode):
     # check type
     if not isinstance(mode, str):
@@ -316,6 +349,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "deprecated-argument",
             "The argument is marked as deprecated and will be removed in the future.",
         ),
+        "W1512": (
+            "Using deprecated class %s of module %s",
+            "deprecated-class",
+            "The class is marked as deprecated and will be removed in the future.",
+        ),
     }
 
     def __init__(self, linter=None):
@@ -329,6 +367,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, func_list in DEPRECATED_ARGUMENTS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_attributes.update(func_list)
+        self._deprecated_classes = dict()
+        for since_vers, class_list in DEPRECATED_CLASSES.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_classes.update(class_list)
 
     def _check_bad_thread_instantiation(self, node):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
@@ -363,6 +405,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "invalid-envvar-default",
         "subprocess-popen-preexec-fn",
         "subprocess-run-check",
+        "deprecated-class",
     )
     def visit_call(self, node):
         """Visit a Call node."""
@@ -390,7 +433,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                         self._check_for_check_kw_in_run(node)
                 self.check_deprecated_method(node, inferred)
         except astroid.InferenceError:
-            return
+            self.check_deprecated_class(node)
 
     @utils.check_messages("boolean-datetime")
     def visit_unaryop(self, node):
@@ -510,6 +553,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
     def deprecated_arguments(self, method: str):
         return self._deprecated_attributes.get(method, ())
+
+    def deprecated_classes(self, module: str):
+        return self._deprecated_classes.get(module, ())
 
 
 def register(linter):
