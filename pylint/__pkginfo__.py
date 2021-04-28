@@ -28,7 +28,12 @@ def get_numversion_from_version(v: str) -> Tuple:
                     num += c
                 else:
                     break
-            version.append(int(num))
+            try:
+                version.append(int(num))
+            except ValueError:
+                version.append(0)
+    while len(version) != 3:
+        version.append(0)
     return tuple(version)
 
 
