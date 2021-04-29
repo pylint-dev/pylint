@@ -267,40 +267,56 @@ def _has_different_parameters_default_value(original, overridden):
     return False
 
 
-def _has_different_parameters(original: List[astroid.AssignName], overridden: List[astroid.AssignName], 
-    dummy_parameter_regex: Pattern, counter: int):
+def _has_different_parameters(
+    original: List[astroid.AssignName],
+    overridden: List[astroid.AssignName],
+    dummy_parameter_regex: Pattern,
+    counter: int,
+):
     result = []
     zipped = zip_longest(original, overridden)
-    for original_param, overridden_param in zipped:        
-        params = (original_param, overridden_param)        
+    for original_param, overridden_param in zipped:
+        params = (original_param, overridden_param)
         if not all(params):
             return ["Number of parameters has changed in"]
 
         # check for the arguments' type
         original_type = original_param.parent.annotations[counter]
-        if original_type is not None: 
+        if original_type is not None:
             original_type = str(original_param.parent.annotations[counter].name)
 
             overridden_type = overridden_param.parent.annotations[counter]
-            if overridden_type is not None: 
+            if overridden_type is not None:
                 overridden_type = str(overridden_param.parent.annotations[counter].name)
                 if original_type != overridden_type:
-                    result.append("Parameter '"+ str(original_param.name) + "' was of type '"+ original_type +
-                        "' and is now of type '"+ overridden_type + "' in")
+                    result.append(
+                        "Parameter '"
+                        + str(original_param.name)
+                        + "' was of type '"
+                        + original_type
+                        + "' and is now of type '"
+                        + overridden_type
+                        + "' in"
+                    )
             counter += 1
 
-        #check for the arguments' name
+        # check for the arguments' name
         names = [param.name for param in params]
         if any(dummy_parameter_regex.match(name) for name in names):
             continue
         if original_param.name != overridden_param.name:
-            result.append("Parameter '"+ str(original_param.name) +"' has been renamed in")
+            result.append(
+                "Parameter '" + str(original_param.name) + "' has been renamed in"
+            )
 
     return result
 
 
-def _different_parameters(original: List[astroid.FunctionDef], overridden: 
-    List[astroid.FunctionDef], dummy_parameter_regex: Pattern):
+def _different_parameters(
+    original: List[astroid.FunctionDef],
+    overridden: List[astroid.FunctionDef],
+    dummy_parameter_regex: Pattern,
+):
     """Determine if the two methods have different parameters
 
     They are considered to have different parameters if:
@@ -1796,11 +1812,19 @@ a metaclass class method.",
         if is_property_setter(method1):
             return
 
-        arg_differ_output = _different_parameters(refmethod, method1, dummy_parameter_regex=self._dummy_rgx)
+        arg_differ_output = _different_parameters(
+            refmethod, method1, dummy_parameter_regex=self._dummy_rgx
+        )
         if len(arg_differ_output) > 0:
             for msg in arg_differ_output:
                 self.add_message(
-                    "arguments-differ", args=(msg, class_type, str(method1.parent.name) + "." + str(method1.name)), node=method1
+                    "arguments-differ",
+                    args=(
+                        msg,
+                        class_type,
+                        str(method1.parent.name) + "." + str(method1.name),
+                    ),
+                    node=method1,
                 )
         elif (
             len(method1.args.defaults) < len(refmethod.args.defaults)
