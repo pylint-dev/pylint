@@ -20,7 +20,7 @@ README for Pylint - https://pylint.pycqa.org/
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
 
-.. |tideliftlogo| image:: https://github.com/PyCQA/pylint/blob/master/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
+.. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/master/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
    :width: 75
    :height: 60
    :alt: Tidelift
@@ -162,5 +162,5 @@ pylint is, with a few exceptions listed below, `GPLv2 <https://github.com/PyCQA/
 
 The icon files are licensed under the `CC BY-SA 4.0 <https://creativecommons.org/licenses/by-sa/4.0/>`_ license:
 
-- `doc/logo.png <https://github.com/PyCQA/pylint/blob/master/doc/logo.png>`_
-- `doc/logo.svg <https://github.com/PyCQA/pylint/blob/master/doc/logo.svg>`_
+- `doc/logo.png <https://raw.githubusercontent.com/PyCQA/pylint/master/doc/logo.png>`_
+- `doc/logo.svg <https://raw.githubusercontent.com/PyCQA/pylint/master/doc/logo.svg>`_

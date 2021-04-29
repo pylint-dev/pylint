@@ -2181,6 +2181,6 @@ def _ancestors_to_call(klass_node, method="__init__"):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(ClassChecker(linter))
     linter.register_checker(SpecialMethodsChecker(linter))

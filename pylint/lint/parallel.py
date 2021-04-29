@@ -89,7 +89,7 @@ def _worker_check_single_file(file_item):
 
 
 def _merge_mapreduce_data(linter, all_mapreduce_data):
-    """ Merges map/reduce data across workers, invoking relevant APIs on checkers """
+    """Merges map/reduce data across workers, invoking relevant APIs on checkers"""
     # First collate the data, preparing it so we can send it to the checkers for
     # validation. The intent here is to collect all the mapreduce data for all checker-
     # runs across processes - that will then be passed to a static method on the

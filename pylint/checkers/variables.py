@@ -39,8 +39,8 @@
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Ashley Whetter <ashleyw@activestate.com>
-# Copyright (c) 2021 haasea <44787650+haasea@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 haasea <44787650+haasea@users.noreply.github.com>
 # Copyright (c) 2021 Alexander Kapshuna <kapsh@kap.sh>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -2081,7 +2081,7 @@ class VariablesChecker(BaseChecker):
         del self._to_consume
 
     def _check_metaclasses(self, node):
-        """ Update consumption analysis for metaclasses. """
+        """Update consumption analysis for metaclasses."""
         consumed = []  # [(scope_locals, consumed_key)]
 
         for child_node in node.get_children():

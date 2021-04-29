@@ -24,9 +24,9 @@
 # Copyright (c) 2020 Pieter Engelbrecht <pengelbrecht@rems2.com>
 # Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 chohner <mail@chohner.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Louis Sautier <sautier.louis@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -287,7 +287,7 @@ class TestRunTC:
         )
 
     def test_parallel_execution_bug_2674(self):
-        """  Tests that disabling absolute imports works the same in -j1/j2 """
+        """Tests that disabling absolute imports works the same in -j1/j2"""
         expected_ret_code = 0  # we are disabling the check, should pass
         for jobs in (1, 2):
             self._runtest(

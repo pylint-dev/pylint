@@ -28,7 +28,7 @@ repos:
     hooks:
       - id: isort
   - repo: https://github.com/ambv/black
-    rev: 20.8b1
+    rev: 21.4b0
     hooks:
       - id: black
         args: [--safe, --quiet]
