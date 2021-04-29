@@ -18,9 +18,9 @@ Release date: 2021-04-26
 * Pylint's tags are now the standard form ``vX.Y.Z`` and not ``pylint-X.Y.Z`` anymore.
 
 * New warning message ``deprecated-class``. This message is emitted if import or call deprecated class of the
-__standard library (like ``collections.Iterable`` that will be removed in Python 3.10).
+standard library (like ``collections.Iterable`` that will be removed in Python 3.10).
 
-__Closes #4388
+Closes #4388
 
 
 What's New in Pylint 2.8.1?

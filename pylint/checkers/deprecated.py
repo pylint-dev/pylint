@@ -56,7 +56,7 @@ class DeprecatedMixin:
                 # Calling entry point for deprecation check logic.
                 self.check_deprecated_method(node, inferred)
         except astroid.InferenceError:
-            self.check_deprecated_class(node)
+            self.check_deprecated_class_in_call(node)
 
     @utils.check_messages(
         "deprecated-module",
@@ -66,7 +66,10 @@ class DeprecatedMixin:
         """triggered when an import statement is seen"""
         for name in (name for name, _ in node.names):
             self.check_deprecated_module(node, name)
-            self.check_deprecated_class(node, name)
+            if "." in name:
+                # Checking deprecation for import module with class
+                mod_name, class_name = name.split(".", 1)
+                self.check_deprecated_class(node, mod_name, (class_name,))
 
     @utils.check_messages(
         "deprecated-module",
@@ -76,7 +79,8 @@ class DeprecatedMixin:
         """triggered when a from statement is seen"""
         basename = node.modname
         self.check_deprecated_module(node, basename)
-        self.check_deprecated_class(node, basename)
+        class_names = (name for name, _ in node.names)
+        self.check_deprecated_class(node, basename, class_names)
 
     def deprecated_methods(self) -> Container[str]:
         """Callback returning the deprecated methods/functions.
@@ -182,37 +186,20 @@ class DeprecatedMixin:
                     "deprecated-argument", node=node, args=(arg_name, func_name)
                 )
 
-    def check_deprecated_class(self, node, mod_path=""):
+    def check_deprecated_class(self, node, mod_name, class_names):
         """Checks if the class is deprecated"""
 
-        # Called from visit_import
-        if isinstance(node, astroid.Import):
-            if "." not in mod_path:
-                # import module without class, skip
-                return
-            mod_name, class_name = mod_path.split(".", 1)
+        for class_name in class_names:
             if class_name in self.deprecated_classes(mod_name):
                 self.add_message(
                     "deprecated-class", node=node, args=(class_name, mod_name)
                 )
-            return
 
-        # Called from visit_importfrom
-        if isinstance(node, astroid.ImportFrom):
-            for class_name, _ in node.names:
-                if class_name in self.deprecated_classes(mod_path):
-                    self.add_message(
-                        "deprecated-class", node=node, args=(class_name, mod_path)
-                    )
-            return
-
-        # Called from visit_call
+    def check_deprecated_class_in_call(self, node):
+        """Check if call the deprecated class"""
         if isinstance(node.func, astroid.Attribute) and isinstance(
             node.func.expr, astroid.Name
         ):
             mod_name = node.func.expr.name
             class_name = node.func.attrname
-            if class_name in self.deprecated_classes(mod_name):
-                self.add_message(
-                    "deprecated-class", node=node, args=(class_name, mod_name)
-                )
+            self.check_deprecated_class(node, mod_name, (class_name,))

@@ -433,7 +433,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                         self._check_for_check_kw_in_run(node)
                 self.check_deprecated_method(node, inferred)
         except astroid.InferenceError:
-            self.check_deprecated_class(node)
+            self.check_deprecated_class_in_call(node)
 
     @utils.check_messages("boolean-datetime")
     def visit_unaryop(self, node):
