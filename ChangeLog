@@ -14,6 +14,7 @@ Release date: TBA
 
   Closes #4399
 
+* Customize output messages for ``arguments-differ`` error message based on the different error cases.
 
 What's New in Pylint 2.8.0?
 ===========================

@@ -14,3 +14,5 @@ New checkers
 
 Other Changes
 =============
+
+* The output messages for ``arguments-differ`` error message have been customized based on the different error cases.
