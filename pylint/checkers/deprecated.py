@@ -196,7 +196,7 @@ class DeprecatedMixin:
                 )
 
     def check_deprecated_class_in_call(self, node):
-        """Check if call the deprecated class"""
+        """Checks if call the deprecated class"""
         if isinstance(node.func, astroid.Attribute) and isinstance(
             node.func.expr, astroid.Name
         ):
