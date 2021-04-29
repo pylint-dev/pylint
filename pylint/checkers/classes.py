@@ -44,6 +44,7 @@
 """
 import collections
 from itertools import chain, zip_longest
+from typing import List, Pattern
 
 import astroid
 
@@ -266,22 +267,40 @@ def _has_different_parameters_default_value(original, overridden):
     return False
 
 
-def _has_different_parameters(original, overridden, dummy_parameter_regex):
+def _has_different_parameters(original: List[astroid.AssignName], overridden: List[astroid.AssignName], 
+    dummy_parameter_regex: Pattern, counter: int):
+    result = []
     zipped = zip_longest(original, overridden)
-    for original_param, overridden_param in zipped:
-        params = (original_param, overridden_param)
+    for original_param, overridden_param in zipped:        
+        params = (original_param, overridden_param)        
         if not all(params):
-            return True
+            return ["Number of parameters has changed in"]
 
+        # check for the arguments' type
+        original_type = original_param.parent.annotations[counter]
+        if original_type is not None: 
+            original_type = str(original_param.parent.annotations[counter].name)
+
+            overridden_type = overridden_param.parent.annotations[counter]
+            if overridden_type is not None: 
+                overridden_type = str(overridden_param.parent.annotations[counter].name)
+                if original_type != overridden_type:
+                    result.append("Parameter '"+ str(original_param.name) + "' was of type '"+ original_type +
+                        "' and is now of type '"+ overridden_type + "' in")
+            counter += 1
+
+        #check for the arguments' name
         names = [param.name for param in params]
         if any(dummy_parameter_regex.match(name) for name in names):
             continue
         if original_param.name != overridden_param.name:
-            return True
-    return False
+            result.append("Parameter '"+ str(original_param.name) +"' has been renamed in")
+
+    return result
 
 
-def _different_parameters(original, overridden, dummy_parameter_regex):
+def _different_parameters(original: List[astroid.FunctionDef], overridden: 
+    List[astroid.FunctionDef], dummy_parameter_regex: Pattern):
     """Determine if the two methods have different parameters
 
     They are considered to have different parameters if:
@@ -293,6 +312,7 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
        * they have different keyword only parameters.
 
     """
+    output_messages = []
     original_parameters = _positional_parameters(original)
     overridden_parameters = _positional_parameters(overridden)
 
@@ -315,12 +335,25 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
             v for v in original.args.kwonlyargs if v.name in overidden_names
         ]
 
+    arguments = list(original.args.args)
+    # variable 'count' helps to check if the type of an argument has changed
+    # at the _has_different_parameters method
+    if any(arg.name == "self" for arg in arguments) and len(arguments) > 1:
+        count = 1
+    else:
+        count = 0
+
     different_positional = _has_different_parameters(
-        original_parameters, overridden_parameters, dummy_parameter_regex
+        original_parameters, overridden_parameters, dummy_parameter_regex, count
     )
     different_kwonly = _has_different_parameters(
-        original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex
+        original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex, count
     )
+    if len(different_kwonly) > 0:
+        output_messages += different_kwonly
+    if len(different_positional) > 0:
+        output_messages += different_positional
+
     if original.name in PYMETHODS:
         # Ignore the difference for special methods. If the parameter
         # numbers are different, then that is going to be caught by
@@ -334,7 +367,10 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
     kwarg_lost = original.args.kwarg and not overridden.args.kwarg
     vararg_lost = original.args.vararg and not overridden.args.vararg
 
-    return any((different_positional, kwarg_lost, vararg_lost, different_kwonly))
+    if kwarg_lost or vararg_lost:
+        output_messages += ["Variadics removed in"]
+
+    return output_messages
 
 
 def _is_invalid_base_class(cls):
@@ -549,7 +585,7 @@ MSGS = {
         "be written as a function.",
     ),
     "W0221": (
-        "Parameters differ from %s %r method",
+        "%s %s %r method",
         "arguments-differ",
         "Used when a method has a different number of arguments than in "
         "the implemented interface or in an overridden method.",
@@ -1760,12 +1796,12 @@ a metaclass class method.",
         if is_property_setter(method1):
             return
 
-        if _different_parameters(
-            refmethod, method1, dummy_parameter_regex=self._dummy_rgx
-        ):
-            self.add_message(
-                "arguments-differ", args=(class_type, method1.name), node=method1
-            )
+        arg_differ_output = _different_parameters(refmethod, method1, dummy_parameter_regex=self._dummy_rgx)
+        if len(arg_differ_output) > 0:
+            for msg in arg_differ_output:
+                self.add_message(
+                    "arguments-differ", args=(msg, class_type, str(method1.parent.name) + "." + str(method1.name)), node=method1
+                )
         elif (
             len(method1.args.defaults) < len(refmethod.args.defaults)
             and not method1.args.vararg
