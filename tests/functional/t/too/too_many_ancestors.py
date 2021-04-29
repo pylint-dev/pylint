@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance
+# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance, arguments-differ
 from collections.abc import MutableSequence
 
 class Aaaa(object):
