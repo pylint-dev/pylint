@@ -1,6 +1,8 @@
-arguments-differ:12:4:Child.test:Parameters differ from overridden 'test' method
-arguments-differ:23:4:ChildDefaults.test:Parameters differ from overridden 'test' method
-arguments-differ:41:4:ClassmethodChild.func:Parameters differ from overridden 'func' method
-arguments-differ:68:4:VarargsChild.has_kwargs:Parameters differ from overridden 'has_kwargs' method
-arguments-differ:71:4:VarargsChild.no_kwargs:Parameters differ from overridden 'no_kwargs' method
-arguments-differ:172:4:SecondChangesArgs.test:Parameters differ from overridden 'test' method
+arguments-differ:12:4:Child.test:Parameter 'arg' was of type 'bool' and is now of type 'int' in overridden 'Child.test' method
+arguments-differ:23:4:ChildDefaults.test:Number of parameters has changed in overridden 'ChildDefaults.test' method
+arguments-differ:41:4:ClassmethodChild.func:Number of parameters has changed in overridden 'ClassmethodChild.func' method
+arguments-differ:68:4:VarargsChild.has_kwargs:Parameter 'arg' was of type 'bool' and is now of type 'int' in overridden 'VarargsChild.has_kwargs' method
+arguments-differ:68:4:VarargsChild.has_kwargs:Variadics removed in overridden 'VarargsChild.has_kwargs' method
+arguments-differ:71:4:VarargsChild.no_kwargs:Parameter 'args' has been renamed in overridden 'VarargsChild.no_kwargs' method
+arguments-differ:172:4:SecondChangesArgs.test:Number of parameters has changed in overridden 'SecondChangesArgs.test' method
+arguments-differ:222:4:OverridesSpecialMethod.__getitem__:Parameter 'key' has been renamed in overridden 'OverridesSpecialMethod.__getitem__' method
