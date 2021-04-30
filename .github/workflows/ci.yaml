@@ -110,7 +110,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          pre-commit run --all-files
+          pre-commit run pylint --all-files
 
   spelling:
     name: Run spelling checks
