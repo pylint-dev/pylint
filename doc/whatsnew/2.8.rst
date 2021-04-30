@@ -39,6 +39,7 @@ New checkers
   (For example, 'typing.Dict' can be replaced by 'dict', and 'typing.Unions' by '|', etc.)
   Make sure to check the config options if you plan on using it!
 
+* Add ``deprecated-class`` check for deprecated classes.
 
 Other Changes
 =============
