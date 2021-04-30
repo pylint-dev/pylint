@@ -206,7 +206,7 @@ DEPRECATED_METHODS = {
         (3, 10, 0): {
             "_sqlite3.enable_shared_cache",
             "pathlib.Path.link_to",
-        }
+        },
     },
 }
 
