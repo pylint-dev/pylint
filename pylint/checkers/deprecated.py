@@ -52,11 +52,12 @@ class DeprecatedMixin:
     def visit_call(self, node: astroid.Call) -> None:
         """Called when a :class:`.astroid.node_classes.Call` node is visited."""
         try:
+            self.check_deprecated_class_in_call(node)
             for inferred in node.func.infer():
                 # Calling entry point for deprecation check logic.
                 self.check_deprecated_method(node, inferred)
         except astroid.InferenceError:
-            self.check_deprecated_class_in_call(node)
+            pass
 
     @utils.check_messages(
         "deprecated-module",
@@ -197,6 +198,7 @@ class DeprecatedMixin:
 
     def check_deprecated_class_in_call(self, node):
         """Checks if call the deprecated class"""
+
         if isinstance(node.func, astroid.Attribute) and isinstance(
             node.func.expr, astroid.Name
         ):
