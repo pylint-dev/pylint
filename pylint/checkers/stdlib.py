@@ -64,10 +64,7 @@ DEPRECATED_ARGUMENTS = {
         "gettext.translation": ((5, "codeset"),),
         "gettext.install": ((2, "codeset"),),
         "functools.partialmethod": ((None, "func"),),
-        "weakref.finalize": (
-            (None, "func"),
-            (None, "obj")
-        ),
+        "weakref.finalize": ((None, "func"), (None, "obj")),
         "profile.Profile.runcall": ((None, "func"),),
         "cProfile.Profile.runcall": ((None, "func"),),
         "bdb.Bdb.runcall": ((None, "func"),),
@@ -83,7 +80,6 @@ DEPRECATED_ARGUMENTS = {
             (None, "c"),
             (None, "typeid"),
         ),
-
     },
     (3, 9, 0): {"random.Random.shuffle": ((1, "random"),)},
 }
