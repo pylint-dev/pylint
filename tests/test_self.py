@@ -742,7 +742,7 @@ class TestRunTC:
         )
 
     def test_fail_on(self):
-        """ Run same test cases as --fail-under, but run with/without a detected issue code """
+        """Run same test cases as --fail-under, but run with/without a detected issue code"""
         test_cases = [
             # missing-function-docstring (C0116) is issue in both files
             # --fail-under should be irrelevant as missing-function-docstring is hit
