@@ -622,7 +622,7 @@ class PyLinter(
             self.disable(checker.name)
 
     def enable_fail_on_messages(self):
-        fail_on_msgs= self.config.fail_on
+        fail_on_msgs = self.config.fail_on
         if not vals:
             return
         all_cats = ["C", "R", "W", "E"]
