@@ -17,6 +17,7 @@
 # Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
@@ -425,7 +426,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         stats["percent_duplicated_lines"] = total and duplicated * 100.0 / total
 
     def get_map_data(self):
-        """ Passthru override """
+        """Passthru override"""
         return Similar.get_map_data(self)
 
     @classmethod
@@ -440,7 +441,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(SimilarChecker(linter))
 
 

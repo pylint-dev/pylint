@@ -74,4 +74,5 @@ def modify_sys_path() -> None:
         sys.path.pop(1)
 
 
-__all__ = ["__version__"]
+version = __version__
+__all__ = ["__version__", "version"]

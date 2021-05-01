@@ -32,6 +32,7 @@
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Federico Bond <federicobond@gmail.com>
 # Copyright (c) 2020 Athos Ribeiro <athoscr@fedoraproject.org>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Tiago Honorato <tiagohonorato1@gmail.com>
 # Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -1256,7 +1257,7 @@ class Python3Checker(checkers.BaseChecker):
 
     @utils.check_messages("indexing-exception")
     def visit_subscript(self, node):
-        """ Look for indexing exceptions. """
+        """Look for indexing exceptions."""
         try:
             for inferred in node.value.infer():
                 if not isinstance(inferred, astroid.Instance):

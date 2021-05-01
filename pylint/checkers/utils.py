@@ -776,7 +776,7 @@ def error_of_type(handler: astroid.ExceptHandler, error_type) -> bool:
 
 
 def decorated_with_property(node: astroid.FunctionDef) -> bool:
-    """Detect if the given function node is decorated with a property. """
+    """Detect if the given function node is decorated with a property."""
     if not node.decorators:
         return False
     for decorator in node.decorators.nodes:

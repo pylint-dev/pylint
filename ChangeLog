@@ -2,14 +2,54 @@
 Pylint's ChangeLog
 ------------------
 
-What's New in Pylint 2.8.1?
+
+
+What's New in Pylint 2.8.3?
 ===========================
-Release date: TBA
+Release date: 2021-04-26
 
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
 * Added ``--fail-on`` option to return non-zero exit codes regardless of ``--fail-under`` value.
+
+* numversion tuple contains integers again to fix multiple pylint's plugins that relied on it
+
+  Closes #4420
+
+* Fix false-positive ``too-many-ancestors`` when inheriting from builtin classes,
+  especially from the ``collections.abc`` module
+
+  Closes #4166
+  Closes #4415
+
+
+What's New in Pylint 2.8.2?
+===========================
+Release date: 2021-04-26
+
+* Keep ``__pkginfo__.numversion`` a tuple to avoid breaking pylint-django.
+
+  Closes #4405
+
+* scm_setuptools has been added to the packaging.
+
+* Pylint's tags are now the standard form ``vX.Y.Z`` and not ``pylint-X.Y.Z`` anymore.
+
+* New warning message ``deprecated-class``. This message is emitted if import or call deprecated class of the
+standard library (like ``collections.Iterable`` that will be removed in Python 3.10).
+
+Closes #4388
+
+
+What's New in Pylint 2.8.1?
+===========================
+Release date: 2021-04-25
+
+* Add numversion back (temporarily) in ``__pkginfo__`` because it broke Pylama and revert the unnecessary
+  ``pylint.version`` breaking change.
+
+  Closes #4399
 
 
 What's New in Pylint 2.8.0?
@@ -48,7 +88,7 @@ Release date: 2021-04-24
 * The 'doc' extra-require has been removed.
 
 * ``__pkginfo__`` now only contain ``__version__`` (also accessible with ``pylint.__version__``), other meta-information are still
-  accessible with ``import importlib;metadata.metadata('pylint')``.
+  accessible with ``from importlib import metadata;metadata.metadata('pylint')``.
 
 * COPYING has been renamed to LICENSE for standardization.
 

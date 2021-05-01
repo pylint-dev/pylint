@@ -17,6 +17,7 @@
 # Copyright (c) 2020 Ganden Schaffner <gschaffner@pm.me>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 Eli Fine <ejfine@gmail.com>
 
@@ -467,5 +468,5 @@ class SpellingChecker(BaseTokenChecker):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(SpellingChecker(linter))

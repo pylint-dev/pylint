@@ -72,5 +72,6 @@ init_of_package = {
 def test_expand_modules(files_or_modules, expected):
     ignore_list, ignore_list_re = [], []
     modules, errors = expand_modules(files_or_modules, ignore_list, ignore_list_re)
+    modules.sort(key=lambda d: d["name"])
     assert modules == expected
     assert not errors

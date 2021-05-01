@@ -9,6 +9,7 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
@@ -117,5 +118,5 @@ def get_type(tokens, start_index):
 
 
 def register(linter):
-    """ required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(RawMetricsChecker(linter))
