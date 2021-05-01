@@ -622,14 +622,14 @@ class PyLinter(
             self.disable(checker.name)
 
     def enable_fail_on_messages(self):
-        vals = self.config.fail_on
+        fail_on_msgs= self.config.fail_on
         if not vals:
             return
         all_cats = ["C", "R", "W", "E"]
 
         fail_on_cats = set()
         fail_on_msgs = set()
-        for val in vals:
+        for fail_on_msg in fail_on_msgs:
             # If value is a cateogry, add category, else add message
             if val in all_cats:
                 fail_on_cats.add(val)
@@ -639,8 +639,7 @@ class PyLinter(
         # For every message in every checker, if cat or msg flagged, enable check
         for all_checkers in self._checkers.values():
             for checker in all_checkers:
-                msgs = checker.messages
-                for msg in msgs:
+                for msg in checker.messages:
                     if msg.msgid in fail_on_msgs or msg.symbol in fail_on_msgs:
                         # message id/symbol matched, enable and flag it
                         self.enable(msg.msgid)
