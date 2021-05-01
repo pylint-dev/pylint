@@ -63,6 +63,8 @@ DEPRECATED_ARGUMENTS = {
         "asyncio.subprocess.create_subprocess_shell": ((4, "loop"),),
         "gettext.translation": ((5, "codeset"),),
         "gettext.install": ((2, "codeset"),),
+        "functools.partialmethod": ((None, "func"),),
+        "weakref.finalize": ((None, "func"), (None, "obj")),
         "profile.Profile.runcall": ((None, "func"),),
         "cProfile.Profile.runcall": ((None, "func"),),
         "bdb.Bdb.runcall": ((None, "func"),),

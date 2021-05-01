@@ -34,6 +34,9 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
         if method == ".MyClass.mymethod3":
             # def mymethod1(self, arg1, *, deprecated_arg1=None)
             return ((None, "deprecated_arg1"),)
+        if method == ".MyClass":
+            # def __init__(self, deprecated_arg=None)
+            return ((0, "deprecated_arg"),)
         return ()
 
 
@@ -356,6 +359,27 @@ class TestDeprecatedChecker(CheckerTestCase):
                 node=node,
                 confidence=UNDEFINED,
             ),
+        ):
+            self.checker.visit_call(node)
+
+    def test_class_deprecated_arguments(self):
+
+        node = astroid.extract_node(
+            """
+        class MyClass:
+            def __init__(self, deprecated_arg=None):
+                pass
+
+        MyClass(5)
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg", "MyClass"),
+                node=node,
+                confidence=UNDEFINED,
+            )
         ):
             self.checker.visit_call(node)
 
