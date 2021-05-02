@@ -625,13 +625,12 @@ class PyLinter(
         fail_on_msgs = self.config.fail_on
         if not vals:
             return
-        all_cats = ["C", "R", "W", "E"]
 
         fail_on_cats = set()
         fail_on_msgs = set()
         for fail_on_msg in fail_on_msgs:
             # If value is a cateogry, add category, else add message
-            if val in all_cats:
+            if val in MSG_TYPES:
                 fail_on_cats.add(val)
             else:
                 fail_on_msgs.add(val)
