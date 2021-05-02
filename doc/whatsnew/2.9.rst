@@ -19,3 +19,5 @@ Other Changes
 
 * Fix false-positive ``too-many-ancestors`` when inheriting from builtin classes,
   especially from the ``collections.abc`` module
+
+* New option ``--fail-on=<msg ids>`` to return non-zero exit codes regardless of ``fail-under`` value.
