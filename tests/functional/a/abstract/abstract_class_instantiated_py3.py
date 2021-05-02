@@ -58,7 +58,7 @@ class Container(Structure):
 
 class Sizable(Structure):
     def __len__(self):
-        pass
+        return 42
 
 class Hashable(Structure):
     __hash__ = 42
