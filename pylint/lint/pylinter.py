@@ -622,13 +622,18 @@ class PyLinter(
             self.disable(checker.name)
 
     def enable_fail_on_messages(self):
-        fail_on_msgs = self.config.fail_on
-        if not vals:
+        """enable 'fail on' msgs
+
+        Convert values in config.fail_on (which might be msg category, msg id,
+        or symbol) to specific msgs, then enable and flag them for later.
+        """
+        fail_on_vals = self.config.fail_on
+        if not fail_on_vals:
             return
 
         fail_on_cats = set()
         fail_on_msgs = set()
-        for fail_on_msg in fail_on_msgs:
+        for val in fail_on_vals:
             # If value is a cateogry, add category, else add message
             if val in MSG_TYPES:
                 fail_on_cats.add(val)
