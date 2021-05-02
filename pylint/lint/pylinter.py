@@ -649,8 +649,7 @@ class PyLinter(
                         self.fail_on_symbols.append(msg.symbol)
 
     def any_fail_on_issues(self):
-        issue_symbols = list(self.stats["by_msg"])
-        return any(x in self.fail_on_symbols for x in issue_symbols)
+        return any(x in self.fail_on_symbols for x in self.stats["by_msg"])
 
     def disable_noerror_messages(self):
         for msgcat, msgids in self.msgs_store._msgs_by_category.items():
