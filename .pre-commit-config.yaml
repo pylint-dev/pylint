@@ -21,7 +21,7 @@ repos:
           - --remove-duplicate-keys
           - --remove-unused-variables
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.11.0
+    rev: v2.14.0
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
@@ -30,18 +30,18 @@ repos:
     rev: 5.8.0
     hooks:
       - id: isort
-  - repo: https://github.com/ambv/black
-    rev: 21.4b0
+  - repo: https://github.com/psf/black
+    rev: 21.4b2
     hooks:
       - id: black
         args: [--safe, --quiet]
         exclude: *fixtures
   - repo: https://github.com/Pierre-Sassoulas/black-disable-checker/
-    rev: 1.0.0
+    rev: 1.0.1
     hooks:
       - id: black-disable-checker
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.0
+  - repo: https://github.com/PyCQA/flake8
+    rev: 3.9.1
     hooks:
       - id: flake8
         exclude: *fixtures
