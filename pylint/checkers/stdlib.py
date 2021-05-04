@@ -52,6 +52,11 @@ SUBPROCESS_RUN = "subprocess.run"
 OPEN_MODULE = "_io"
 
 DEPRECATED_ARGUMENTS = {
+    (0, 0, 0): {
+        "int": ((None, "x"),),
+        "bool": ((None, "x"),),
+        "float": ((None, "x"),),
+    },
     (3, 8, 0): {
         "asyncio.tasks.sleep": ((None, "loop"),),
         "asyncio.tasks.gather": ((None, "loop"),),
@@ -63,6 +68,8 @@ DEPRECATED_ARGUMENTS = {
         "asyncio.subprocess.create_subprocess_shell": ((4, "loop"),),
         "gettext.translation": ((5, "codeset"),),
         "gettext.install": ((2, "codeset"),),
+        "functools.partialmethod": ((None, "func"),),
+        "weakref.finalize": ((None, "func"), (None, "obj")),
         "profile.Profile.runcall": ((None, "func"),),
         "cProfile.Profile.runcall": ((None, "func"),),
         "bdb.Bdb.runcall": ((None, "func"),),
@@ -137,6 +144,7 @@ DEPRECATED_METHODS = {
             "base64.decodestring",
             "ntpath.splitunc",
             "os.path.splitunc",
+            "os.stat_float_times",
         },
         (3, 2, 0): {
             "cgi.escape",
@@ -197,12 +205,23 @@ DEPRECATED_METHODS = {
             "binascii.rlecode_hqx",
             "binascii.rledecode_hqx",
         },
+        (3, 10, 0): {
+            "_sqlite3.enable_shared_cache",
+            "pathlib.Path.link_to",
+        },
     },
 }
 
 
 DEPRECATED_CLASSES = {
     (3, 3, 0): {
+        "importlib.abc": {
+            "Finder",
+        },
+        "pkgutil": {
+            "ImpImporter",
+            "ImpLoader",
+        },
         "collections": {
             "Awaitable",
             "Coroutine",
@@ -230,7 +249,12 @@ DEPRECATED_CLASSES = {
             "MutableSequence",
             "ByteString",
         },
-    }
+    },
+    (3, 9, 0): {
+        "smtpd": {
+            "MailmanProxy",
+        }
+    },
 }
 
 

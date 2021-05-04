@@ -13,6 +13,7 @@ ACCEPTABLE_NODES = (
     astroid.BoundMethod,
     astroid.UnboundMethod,
     astroid.FunctionDef,
+    astroid.ClassDef,
 )
 
 

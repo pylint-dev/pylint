@@ -13,7 +13,7 @@ def _toml_has_config(path):
         try:
             content = toml.load(toml_handle)
         except TomlDecodeError as error:
-            print("Failed to load '{}': {}".format(path, str(error)))
+            print(f"Failed to load '{path}': {error}")
             return False
 
         try:
