@@ -272,13 +272,13 @@ def _has_different_parameters(
     overridden: List[astroid.AssignName],
     dummy_parameter_regex: Pattern,
     counter: int,
-):
+) -> List[str]:
     result = []
     zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
         params = (original_param, overridden_param)
         if not all(params):
-            return ["Number of parameters has changed in"]
+            return ["Number of parameters "]
 
         # check for the arguments' type
         original_type = original_param.parent.annotations[counter]
@@ -306,7 +306,7 @@ def _has_different_parameters(
             continue
         if original_param.name != overridden_param.name:
             result.append(
-                "Parameter '" + str(original_param.name) + "' has been renamed in"
+                f"Parameter '{original_param.name}' has been renamed to '{overridden_param.name}' in"
             )
 
     return result
@@ -316,7 +316,7 @@ def _different_parameters(
     original: List[astroid.FunctionDef],
     overridden: List[astroid.FunctionDef],
     dummy_parameter_regex: Pattern,
-):
+) -> List[str]:
     """Determine if the two methods have different parameters
 
     They are considered to have different parameters if:
@@ -365,10 +365,16 @@ def _different_parameters(
     different_kwonly = _has_different_parameters(
         original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex, count
     )
-    if len(different_kwonly) > 0:
-        output_messages += different_kwonly
-    if len(different_positional) > 0:
-        output_messages += different_positional
+    if different_kwonly and different_positional:
+        if "Number " in different_positional[0] and "Number " in different_kwonly[0]:
+            output_messages.append("Number of parameters ")
+            output_messages += different_positional[1:]
+            output_messages += different_kwonly[1:]
+    else:
+        if different_positional:
+            output_messages += different_positional
+        if different_kwonly:
+            output_messages += different_kwonly
 
     if original.name in PYMETHODS:
         # Ignore the difference for special methods. If the parameter
@@ -1817,15 +1823,42 @@ a metaclass class method.",
         )
         if len(arg_differ_output) > 0:
             for msg in arg_differ_output:
-                self.add_message(
-                    "arguments-differ",
-                    args=(
-                        msg,
-                        class_type,
-                        str(method1.parent.name) + "." + str(method1.name),
-                    ),
-                    node=method1,
-                )
+                if "Number" in msg:
+                    total_args_method1 = len(method1.args.args)
+                    if method1.args.vararg:
+                        total_args_method1 += 1
+                    if method1.args.kwarg:
+                        total_args_method1 += 1
+                    if method1.args.kwonlyargs:
+                        total_args_method1 += len(method1.args.kwonlyargs)
+                    total_args_refmethod = len(refmethod.args.args)
+                    if refmethod.args.vararg:
+                        total_args_refmethod += 1
+                    if refmethod.args.kwarg:
+                        total_args_refmethod += 1
+                    if refmethod.args.kwonlyargs:
+                        total_args_refmethod += len(refmethod.args.kwonlyargs)
+                    self.add_message(
+                        "arguments-differ",
+                        args=(
+                            msg
+                            + f"was {total_args_refmethod} in '{refmethod.parent.name}.{refmethod.name}' and "
+                            f"is now {total_args_method1} in",
+                            class_type,
+                            str(method1.parent.name) + "." + str(method1.name),
+                        ),
+                        node=method1,
+                    )
+                else:
+                    self.add_message(
+                        "arguments-differ",
+                        args=(
+                            msg,
+                            class_type,
+                            str(method1.parent.name) + "." + str(method1.name),
+                        ),
+                        node=method1,
+                    )
         elif (
             len(method1.args.defaults) < len(refmethod.args.defaults)
             and not method1.args.vararg
