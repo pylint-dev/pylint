@@ -51,7 +51,7 @@ Release date: 2021-04-25
 
   Closes #4399
 
-* The warning for ``arguments-differ`` now signals explicitly the difference it detected 
+* The warning for ``arguments-differ`` now signals explicitly the difference it detected
   by naming the argument or arguments that changed and the type of change that occured.
 
 
