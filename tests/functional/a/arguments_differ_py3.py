@@ -28,10 +28,10 @@ class Foo(AbstractFoo):
     def kwonly_2(self, *, first: str): # [arguments-differ]
         "Only one positional parameter instead of two positional only parameters."
 
-    def kwonly_3(self, **kwargs):
+    def kwonly_3(self, first, second): # [arguments-differ]
         "Two positional params."
 
-    def kwonly_4(self, *args): # [arguments-differ]
+    def kwonly_4(self, first, second): # [arguments-differ]
         "Two positional params."
 
     def kwonly_5(self, *, first: bool): # [arguments-differ]

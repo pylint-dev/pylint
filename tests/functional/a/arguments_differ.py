@@ -3,7 +3,7 @@
 
 class Parent(object):
 
-    def test(self, arg: bool):
+    def test(self):
         pass
 
 
