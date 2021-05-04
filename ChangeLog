@@ -53,6 +53,7 @@ Release date: 2021-04-25
 
 * Customize output messages for ``arguments-differ`` error message based on the different error cases.
 
+
 What's New in Pylint 2.8.0?
 ===========================
 Release date: 2021-04-24
