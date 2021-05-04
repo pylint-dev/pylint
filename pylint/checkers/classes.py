@@ -290,14 +290,8 @@ def _has_different_parameters(
                 overridden_type = str(overridden_param.parent.annotations[counter].name)
                 if original_type != overridden_type:
                     result.append(
-                        "Parameter '"
-                        + str(original_param.name)
-                        + "' was of type '"
-                        + original_type
-                        + "' and is now of type '"
-                        + overridden_type
-                        + "' in"
-                    )
+                        f"Parameter '{original_param.name}' was of type '{original_type}' and is now" + 
+                        f" of type '{overridden_type}' in")
             counter += 1
 
         # check for the arguments' name
