@@ -51,7 +51,8 @@ Release date: 2021-04-25
 
   Closes #4399
 
-* Customize output messages for ``arguments-differ`` error message based on the different error cases.
+* The warning for ``arguments-differ`` now signals explicitly the difference it detected 
+  by naming the argument or arguments that changed and the type of change that occured.
 
 
 What's New in Pylint 2.8.0?
