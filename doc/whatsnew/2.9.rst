@@ -20,4 +20,6 @@ Other Changes
 * Fix false-positive ``too-many-ancestors`` when inheriting from builtin classes,
   especially from the ``collections.abc`` module
 
+* The output messages for ``arguments-differ`` error message have been customized based on the different error cases.
+
 * New option ``--fail-on=<msg ids>`` to return non-zero exit codes regardless of ``fail-under`` value.

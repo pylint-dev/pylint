@@ -9,7 +9,7 @@ class Parent(object):
 
 class Child(Parent):
 
-    def test(self, arg): # [arguments-differ]
+    def test(self, arg: int): #[arguments-differ]
         pass
 
 
@@ -27,7 +27,7 @@ class ChildDefaults(ParentDefaults):
 class Classmethod(object):
 
     @classmethod
-    def func(cls, data):
+    def func(cls, data: str):
         return data
 
     @classmethod
@@ -56,20 +56,20 @@ class Builtins(dict):
 
 class Varargs(object):
 
-    def has_kwargs(self, arg, **kwargs):
+    def has_kwargs(self, arg: bool, **kwargs):
         pass
 
-    def no_kwargs(self, args):
+    def no_kwargs(self, args: bool):
         pass
 
 
 class VarargsChild(Varargs):
 
-    def has_kwargs(self, arg): # [arguments-differ]
-        "Not okay to lose capabilities."
+    def has_kwargs(self, arg: int): #[arguments-differ, arguments-differ]
+        "Not okay to lose capabilities. Also, type has changed."
 
-    def no_kwargs(self, arg, **kwargs): # [arguments-differ]
-        "Not okay to add extra capabilities."
+    def no_kwargs(self, arg: bool, **kwargs): # [arguments-differ]
+        "Addition of kwargs does not violate LSP, but first argument's name has changed."
 
 
 class Super(object):
@@ -111,14 +111,14 @@ class Sub(Super):
 class Staticmethod(object):
 
     @staticmethod
-    def func(data):
+    def func(data: int):
         return data
 
 
 class StaticmethodChild(Staticmethod):
 
     @classmethod
-    def func(cls, data):
+    def func(cls, data: str):
         return data
 
 
@@ -169,7 +169,7 @@ class FirstHasArgs(object):
 
 class SecondChangesArgs(FirstHasArgs):
 
-    def test(self, first, second, *args): # [arguments-differ]
+    def test(self, first: int, second: int, *args): # [arguments-differ]
         pass
 
 
@@ -213,23 +213,26 @@ class MixedChild2(Mixed):
 
 class HasSpecialMethod(object):
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: int):
         return key
 
 
 class OverridesSpecialMethod(HasSpecialMethod):
 
-    def __getitem__(self, cheie):
+    def __getitem__(self, cheie: int):
+        # no error here, method overrides special method
         return cheie + 1
 
 
 class ParentClass(object):
 
-    def meth(self, arg, arg1):
+    def meth(self, arg: str, arg1: str):
         raise NotImplementedError
 
 
 class ChildClass(ParentClass):
 
-    def meth(self, _arg, dummy):
+    def meth(self, _arg: str, dummy: str):
+        # no error here, "dummy" and "_" are being ignored if
+        # spotted in a variable name (declared in dummy_parameter_regex)
         pass
