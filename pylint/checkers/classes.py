@@ -308,8 +308,8 @@ def _has_different_parameters(
 
 
 def _different_parameters(
-    original: List[astroid.FunctionDef],
-    overridden: List[astroid.FunctionDef],
+    original: astroid.FunctionDef,
+    overridden: astroid.FunctionDef,
     dummy_parameter_regex: Pattern,
 ) -> List[str]:
     """Determine if the two methods have different parameters
@@ -377,7 +377,7 @@ def _different_parameters(
         # unexpected-special-method-signature.
         # If the names are different, it doesn't matter, since they can't
         # be used as keyword arguments anyway.
-        different_positional = different_kwonly = False
+        different_positional =  different_kwonly = False
 
     # Arguments will only violate LSP if there are variadics in the original
     # that are then removed from the overridden
