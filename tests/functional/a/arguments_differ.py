@@ -219,7 +219,8 @@ class HasSpecialMethod(object):
 
 class OverridesSpecialMethod(HasSpecialMethod):
 
-    def __getitem__(self, cheie: int): #[arguments-differ]
+    def __getitem__(self, cheie: int):
+        # no error here, method overrides special method
         return cheie + 1
 
 

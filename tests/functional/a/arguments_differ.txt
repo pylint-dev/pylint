@@ -5,4 +5,3 @@ arguments-differ:68:4:VarargsChild.has_kwargs:Parameter 'arg' was of type 'bool'
 arguments-differ:68:4:VarargsChild.has_kwargs:Variadics removed in overridden 'VarargsChild.has_kwargs' method
 arguments-differ:71:4:VarargsChild.no_kwargs:Parameter 'args' has been renamed to 'arg' in overridden 'VarargsChild.no_kwargs' method
 arguments-differ:172:4:SecondChangesArgs.test:Number of parameters was 2 in 'FirstHasArgs.test' and is now 4 in overridden 'SecondChangesArgs.test' method
-arguments-differ:222:4:OverridesSpecialMethod.__getitem__:Parameter 'key' has been renamed to 'cheie' in overridden 'OverridesSpecialMethod.__getitem__' method

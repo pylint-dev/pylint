@@ -283,15 +283,12 @@ def _has_different_parameters(
         # check for the arguments' type
         original_type = original_param.parent.annotations[counter]
         if original_type is not None:
-            original_type = str(original_param.parent.annotations[counter].name)
-
             overridden_type = overridden_param.parent.annotations[counter]
             if overridden_type is not None:
-                overridden_type = str(overridden_param.parent.annotations[counter].name)
-                if original_type != overridden_type:
+                if original_type.name != overridden_type.name:
                     result.append(
-                        f"Parameter '{original_param.name}' was of type '{original_type}' and is now"
-                        + f" of type '{overridden_type}' in"
+                        f"Parameter '{original_param.name}' was of type '{original_type.name}' and is now"
+                        + f" of type '{overridden_type.name}' in"
                     )
             counter += 1
 
@@ -377,7 +374,7 @@ def _different_parameters(
         # unexpected-special-method-signature.
         # If the names are different, it doesn't matter, since they can't
         # be used as keyword arguments anyway.
-        different_positional =  different_kwonly = False
+        output_messages.clear()
 
     # Arguments will only violate LSP if there are variadics in the original
     # that are then removed from the overridden
