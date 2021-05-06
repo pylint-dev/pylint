@@ -430,7 +430,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         with self.assertAddsMessages(
             Message(
                 msg_id="deprecated-class",
-                args=('DeprecatedClass', 'deprecated'),
+                args=("DeprecatedClass", "deprecated"),
                 node=node,
                 confidence=UNDEFINED,
             )
@@ -447,7 +447,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         with self.assertAddsMessages(
             Message(
                 msg_id="deprecated-class",
-                args=('DeprecatedClass', 'deprecated'),
+                args=("DeprecatedClass", "deprecated"),
                 node=node,
                 confidence=UNDEFINED,
             )
@@ -465,7 +465,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         with self.assertAddsMessages(
             Message(
                 msg_id="deprecated-class",
-                args=('DeprecatedClass', 'deprecated'),
+                args=("DeprecatedClass", "deprecated"),
                 node=node,
                 confidence=UNDEFINED,
             )
