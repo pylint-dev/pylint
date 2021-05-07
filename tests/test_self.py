@@ -1077,20 +1077,24 @@ class TestRunTC:
                 code=0,
             )
 
-    def test_can_list_directories_without_dunder_init(self, tmpdir):
+    @staticmethod
+    def test_can_list_directories_without_dunder_init(tmpdir):
         test_directory = tmpdir / "test_directory"
         test_directory.mkdir()
         spam_module = test_directory / "spam.py"
         spam_module.write("'Empty'")
 
-        with tmpdir.as_cwd():
-            self._runtest(
-                [
-                    "--disable=missing-docstring, missing-final-newline",
-                    "test_directory",
-                ],
-                code=0,
-            )
+        subprocess.check_output(
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                "--disable=missing-docstring, missing-final-newline",
+                "test_directory",
+            ],
+            cwd=str(tmpdir),
+            stderr=subprocess.PIPE,
+        )
 
     def test_jobs_score(self):
         path = join(HERE, "regrtest_data", "unused_variable.py")
