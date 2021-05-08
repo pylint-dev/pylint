@@ -7,7 +7,7 @@ import configparser
 import contextlib
 import copy
 import functools
-import optparse
+import optparse  # pylint: disable=deprecated-module
 import os
 import sys
 
