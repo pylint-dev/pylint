@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import copy
-import optparse   # pylint: disable=deprecated-module
+import optparse  # pylint: disable=deprecated-module
 import re
 
 from pylint import utils
