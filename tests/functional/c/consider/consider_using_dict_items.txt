@@ -1,2 +1,3 @@
 consider-using-dict-items:7:4:bad:Consider iterating with .items()
 consider-using-dict-items:10:4:bad:Consider iterating with .items()
+consider-using-dict-items:22:4:another_bad:Consider iterating with .items()

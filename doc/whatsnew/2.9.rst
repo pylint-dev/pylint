@@ -12,7 +12,7 @@ Summary -- Release highlights
 New checkers
 ============
 
-* ``consider-using-dict-items``, emitted when iterating over dictionary keys and then
+* ``consider-using-dict-items``: Emitted when iterating over dictionary keys and then
   indexing the same dictionary with the key within loop body.
 
 Other Changes

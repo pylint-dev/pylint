@@ -1,6 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
+from typing import cast
+
 import astroid
 
 from pylint import checkers, interfaces
@@ -29,8 +31,8 @@ class RecommendationChecker(checkers.BaseChecker):
         "C0206": (
             "Consider iterating with .items()",
             "consider-using-dict-items",
-            "Emitted when the keys of a dictionary are iterated and the items of the "
-            "dictionary is accessed by indexing with the key in each iteration. "
+            "Emitted when iterating over the keys of a dictionary and accessing the "
+            "value by index lookup."
             "Both the key and value can be accessed by iterating using the .items() "
             "method of the dictionary instead.",
         ),
@@ -62,11 +64,11 @@ class RecommendationChecker(checkers.BaseChecker):
             self.add_message("consider-iterating-dictionary", node=node)
 
     @utils.check_messages("consider-using-enumerate", "consider-using-dict-items")
-    def visit_for(self, node):
+    def visit_for(self, node: astroid.For) -> None:
         self._check_consider_using_enumerate(node)
         self._check_consider_using_dict_items(node)
 
-    def _check_consider_using_enumerate(self, node):
+    def _check_consider_using_enumerate(self, node: astroid.For) -> None:
         """Emit a convention whenever range and len are used for indexing."""
         # Verify that we have a `range([start], len(...), [stop])` call and
         # that the object which is iterated is used as a subscript in the
@@ -132,8 +134,8 @@ class RecommendationChecker(checkers.BaseChecker):
                 self.add_message("consider-using-enumerate", node=node)
                 return
 
-    def _check_consider_using_dict_items(self, node):
-        """Emit a convention whenever range and len are used for indexing."""
+    def _check_consider_using_dict_items(self, node: astroid.For) -> None:
+        """Emit a convention when dict key used to index dict."""
         # Verify that we have a .keys() call and
         # that the object which is iterated is used as a subscript in the
         # body of the for.
@@ -143,24 +145,21 @@ class RecommendationChecker(checkers.BaseChecker):
             if not isinstance(node.iter, astroid.Name):
                 return
             inferred = utils.safe_infer(node.iter)
-            if not isinstance(inferred, astroid.Dict) and not isinstance(
-                inferred, astroid.DictComp
-            ):
+            if not isinstance(inferred, (astroid.Dict, astroid.DictComp)):
                 return
             iterating_object_name = node.iter.as_string()
 
         else:
             # Is it a proper keys call?
-            if isinstance(node.iter.func, astroid.Name):
-                return
-            if node.iter.func.attrname != "keys":
-                return
-            inferred = utils.safe_infer(node.iter.func)
-            if not isinstance(inferred, astroid.BoundMethod) or not isinstance(
-                inferred.bound, astroid.Dict
+            if not (
+                isinstance(node.iter.func, astroid.Attribute)
+                and node.iter.func.attrname != "keys"
             ):
                 return
-            iterating_object_name = node.iter.as_string().split(".")[0]
+            inferred = utils.safe_infer(node.iter.func)
+            if not isinstance(inferred, (astroid.BoundMethod, astroid.Dict)):
+                return
+            iterating_object_name = node.iter.as_string().partition(".")[0]
 
         # Verify that the body of the for loop uses a subscript
         # with the object that was iterated. This uses some heuristics
@@ -168,23 +167,25 @@ class RecommendationChecker(checkers.BaseChecker):
         # for body.
         for child in node.body:
             for subscript in child.nodes_of_class(astroid.Subscript):
+                subscript = cast(astroid.Subscript, subscript)
                 if not isinstance(subscript.value, astroid.Name):
                     continue
 
                 value = subscript.slice
                 if isinstance(value, astroid.Index):
                     value = value.value
-                if not isinstance(value, astroid.Name):
+                if (
+                    not isinstance(value, astroid.Name)
+                    or value.name != node.target.name
+                    or iterating_object_name != subscript.value.name
+                ):
                     continue
-                if value.name != node.target.name:
-                    continue
-                if iterating_object_name != subscript.value.name:
-                    continue
-                if subscript.value.scope() != node.scope():
-                    # Ignore this subscript if it's not in the same
-                    # scope. This means that in the body of the for
-                    # loop, another scope was created, where the same
-                    # name for the iterating object was used.
+                last_definition_lineno = value.lookup(value.name)[1][-1].lineno
+                if last_definition_lineno > node.lineno:
+                    # Ignore this subscript if it has been redefined after
+                    # the for loop. This checks for the line number using .lookup()
+                    # to get the line number where the iterating object was last
+                    # defined and compare that to the for loop's line number
                     continue
                 self.add_message("consider-using-dict-items", node=node)
                 return
