@@ -1221,7 +1221,7 @@ class PyLinter(
             msg = "Your code has been rated at %.2f/10" % note
             pnote = previous_stats.get("global_note")
             if pnote is not None:
-                msg += " (previous run: {:.2f}/10, {:+.2f})".format(pnote, note - pnote)
+                msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
 
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)

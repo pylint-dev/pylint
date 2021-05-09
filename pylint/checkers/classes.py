@@ -44,6 +44,7 @@
 """
 import collections
 from itertools import chain, zip_longest
+from typing import List, Pattern
 
 import astroid
 
@@ -266,22 +267,48 @@ def _has_different_parameters_default_value(original, overridden):
     return False
 
 
-def _has_different_parameters(original, overridden, dummy_parameter_regex):
+def _has_different_parameters(
+    original: List[astroid.AssignName],
+    overridden: List[astroid.AssignName],
+    dummy_parameter_regex: Pattern,
+    counter: int,
+) -> List[str]:
+    result = []
     zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
         params = (original_param, overridden_param)
         if not all(params):
-            return True
+            return ["Number of parameters "]
 
+        # check for the arguments' type
+        original_type = original_param.parent.annotations[counter]
+        if original_type is not None:
+            overridden_type = overridden_param.parent.annotations[counter]
+            if overridden_type is not None:
+                if original_type.name != overridden_type.name:
+                    result.append(
+                        f"Parameter '{original_param.name}' was of type '{original_type.name}' and is now"
+                        + f" of type '{overridden_type.name}' in"
+                    )
+            counter += 1
+
+        # check for the arguments' name
         names = [param.name for param in params]
         if any(dummy_parameter_regex.match(name) for name in names):
             continue
         if original_param.name != overridden_param.name:
-            return True
-    return False
+            result.append(
+                f"Parameter '{original_param.name}' has been renamed to '{overridden_param.name}' in"
+            )
+
+    return result
 
 
-def _different_parameters(original, overridden, dummy_parameter_regex):
+def _different_parameters(
+    original: astroid.FunctionDef,
+    overridden: astroid.FunctionDef,
+    dummy_parameter_regex: Pattern,
+) -> List[str]:
     """Determine if the two methods have different parameters
 
     They are considered to have different parameters if:
@@ -293,6 +320,7 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
        * they have different keyword only parameters.
 
     """
+    output_messages = []
     original_parameters = _positional_parameters(original)
     overridden_parameters = _positional_parameters(overridden)
 
@@ -315,26 +343,48 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
             v for v in original.args.kwonlyargs if v.name in overidden_names
         ]
 
+    arguments = list(original.args.args)
+    # variable 'count' helps to check if the type of an argument has changed
+    # at the _has_different_parameters method
+    if any(arg.name == "self" for arg in arguments) and len(arguments) > 1:
+        count = 1
+    else:
+        count = 0
+
     different_positional = _has_different_parameters(
-        original_parameters, overridden_parameters, dummy_parameter_regex
+        original_parameters, overridden_parameters, dummy_parameter_regex, count
     )
     different_kwonly = _has_different_parameters(
-        original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex
+        original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex, count
     )
+    if different_kwonly and different_positional:
+        if "Number " in different_positional[0] and "Number " in different_kwonly[0]:
+            output_messages.append("Number of parameters ")
+            output_messages += different_positional[1:]
+            output_messages += different_kwonly[1:]
+    else:
+        if different_positional:
+            output_messages += different_positional
+        if different_kwonly:
+            output_messages += different_kwonly
+
     if original.name in PYMETHODS:
         # Ignore the difference for special methods. If the parameter
         # numbers are different, then that is going to be caught by
         # unexpected-special-method-signature.
         # If the names are different, it doesn't matter, since they can't
         # be used as keyword arguments anyway.
-        different_positional = different_kwonly = False
+        output_messages.clear()
 
     # Arguments will only violate LSP if there are variadics in the original
     # that are then removed from the overridden
     kwarg_lost = original.args.kwarg and not overridden.args.kwarg
     vararg_lost = original.args.vararg and not overridden.args.vararg
 
-    return any((different_positional, kwarg_lost, vararg_lost, different_kwonly))
+    if kwarg_lost or vararg_lost:
+        output_messages += ["Variadics removed in"]
+
+    return output_messages
 
 
 def _is_invalid_base_class(cls):
@@ -549,7 +599,7 @@ MSGS = {
         "be written as a function.",
     ),
     "W0221": (
-        "Parameters differ from %s %r method",
+        "%s %s %r method",
         "arguments-differ",
         "Used when a method has a different number of arguments than in "
         "the implemented interface or in an overridden method.",
@@ -1760,12 +1810,47 @@ a metaclass class method.",
         if is_property_setter(method1):
             return
 
-        if _different_parameters(
+        arg_differ_output = _different_parameters(
             refmethod, method1, dummy_parameter_regex=self._dummy_rgx
-        ):
-            self.add_message(
-                "arguments-differ", args=(class_type, method1.name), node=method1
-            )
+        )
+        if len(arg_differ_output) > 0:
+            for msg in arg_differ_output:
+                if "Number" in msg:
+                    total_args_method1 = len(method1.args.args)
+                    if method1.args.vararg:
+                        total_args_method1 += 1
+                    if method1.args.kwarg:
+                        total_args_method1 += 1
+                    if method1.args.kwonlyargs:
+                        total_args_method1 += len(method1.args.kwonlyargs)
+                    total_args_refmethod = len(refmethod.args.args)
+                    if refmethod.args.vararg:
+                        total_args_refmethod += 1
+                    if refmethod.args.kwarg:
+                        total_args_refmethod += 1
+                    if refmethod.args.kwonlyargs:
+                        total_args_refmethod += len(refmethod.args.kwonlyargs)
+                    self.add_message(
+                        "arguments-differ",
+                        args=(
+                            msg
+                            + f"was {total_args_refmethod} in '{refmethod.parent.name}.{refmethod.name}' and "
+                            f"is now {total_args_method1} in",
+                            class_type,
+                            str(method1.parent.name) + "." + str(method1.name),
+                        ),
+                        node=method1,
+                    )
+                else:
+                    self.add_message(
+                        "arguments-differ",
+                        args=(
+                            msg,
+                            class_type,
+                            str(method1.parent.name) + "." + str(method1.name),
+                        ),
+                        node=method1,
+                    )
         elif (
             len(method1.args.defaults) < len(refmethod.args.defaults)
             and not method1.args.vararg

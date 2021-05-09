@@ -52,7 +52,7 @@ SUBPROCESS_RUN = "subprocess.run"
 OPEN_MODULE = "_io"
 
 DEPRECATED_ARGUMENTS = {
-    (3, 7, 0): {
+    (0, 0, 0): {
         "int": ((None, "x"),),
         "bool": ((None, "x"),),
         "float": ((None, "x"),),
