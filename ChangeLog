@@ -11,6 +11,10 @@ Release date: 2021-04-26
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* Suppress ``consider-using-with`` inside context managers.
+
+  Closes #4430
+
 * Added ``--fail-on`` option to return non-zero exit codes regardless of ``--fail-under`` value.
 
 * numversion tuple contains integers again to fix multiple pylint's plugins that relied on it
