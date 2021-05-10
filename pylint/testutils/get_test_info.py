@@ -25,18 +25,18 @@ def _get_tests_info(input_dir, msg_dir, prefix, suffix):
         # filter input files :
         pyrestr = fbase.rsplit("_py", 1)[-1]  # like _26 or 26
         if pyrestr.isdigit():  # '24', '25'...
-            if SYS_VERS_STR < pyrestr:
+            if pyrestr.isdigit() and int(SYS_VERS_STR) < int(pyrestr):
                 continue
         if pyrestr.startswith("_") and pyrestr[1:].isdigit():
             # skip test for higher python versions
-            if SYS_VERS_STR >= pyrestr[1:]:
+            if pyrestr[1:].isdigit() and int(SYS_VERS_STR) >= int(pyrestr[1:]):
                 continue
         messages = glob(join(msg_dir, fbase + "*.txt"))
         # the last one will be without ext, i.e. for all or upper versions:
         if messages:
             for outfile in sorted(messages, reverse=True):
                 py_rest = outfile.rsplit("_py", 1)[-1][:-4]
-                if py_rest.isdigit() and SYS_VERS_STR >= py_rest:
+                if py_rest.isdigit() and int(SYS_VERS_STR) >= int(py_rest):
                     break
         else:
             # This will provide an error message indicating the missing filename.
