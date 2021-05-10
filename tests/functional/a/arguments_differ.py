@@ -9,7 +9,7 @@ class Parent(object):
 
 class Child(Parent):
 
-    def test(self, arg: int): #[arguments-differ]
+    def test(self, arg):  # [arguments-differ]
         pass
 
 
@@ -20,14 +20,14 @@ class ParentDefaults(object):
 
 class ChildDefaults(ParentDefaults):
 
-    def test(self, arg=None): # [arguments-differ]
+    def test(self, arg=None):  # [arguments-differ]
         pass
 
 
 class Classmethod(object):
 
     @classmethod
-    def func(cls, data: str):
+    def func(cls, data):
         return data
 
     @classmethod
@@ -38,7 +38,7 @@ class Classmethod(object):
 class ClassmethodChild(Classmethod):
 
     @staticmethod
-    def func(): # [arguments-differ]
+    def func():  # [arguments-differ]
         pass
 
     @classmethod
@@ -56,19 +56,19 @@ class Builtins(dict):
 
 class Varargs(object):
 
-    def has_kwargs(self, arg: bool, **kwargs):
+    def has_kwargs(self, arg, **kwargs):
         pass
 
-    def no_kwargs(self, args: bool):
+    def no_kwargs(self, args):
         pass
 
 
 class VarargsChild(Varargs):
 
-    def has_kwargs(self, arg: int): #[arguments-differ, arguments-differ]
+    def has_kwargs(self, arg):  # [arguments-differ]
         "Not okay to lose capabilities. Also, type has changed."
 
-    def no_kwargs(self, arg: bool, **kwargs): # [arguments-differ]
+    def no_kwargs(self, arg, **kwargs):  # [arguments-differ]
         "Addition of kwargs does not violate LSP, but first argument's name has changed."
 
 
@@ -111,14 +111,14 @@ class Sub(Super):
 class Staticmethod(object):
 
     @staticmethod
-    def func(data: int):
+    def func(data):
         return data
 
 
 class StaticmethodChild(Staticmethod):
 
     @classmethod
-    def func(cls, data: str):
+    def func(cls, data):
         return data
 
 
@@ -169,7 +169,7 @@ class FirstHasArgs(object):
 
 class SecondChangesArgs(FirstHasArgs):
 
-    def test(self, first: int, second: int, *args): # [arguments-differ]
+    def test(self, first, second, *args):  # [arguments-differ]
         pass
 
 
@@ -213,26 +213,60 @@ class MixedChild2(Mixed):
 
 class HasSpecialMethod(object):
 
-    def __getitem__(self, key: int):
+    def __getitem__(self, key):
         return key
 
 
 class OverridesSpecialMethod(HasSpecialMethod):
 
-    def __getitem__(self, cheie: int):
+    def __getitem__(self, cheie):
         # no error here, method overrides special method
         return cheie + 1
 
 
 class ParentClass(object):
 
-    def meth(self, arg: str, arg1: str):
+    def meth(self, arg, arg1):
         raise NotImplementedError
 
 
 class ChildClass(ParentClass):
 
-    def meth(self, _arg: str, dummy: str):
+    def meth(self, _arg, dummy):
         # no error here, "dummy" and "_" are being ignored if
         # spotted in a variable name (declared in dummy_parameter_regex)
+        pass
+
+
+# https://github.com/PyCQA/pylint/issues/4443
+# Some valid overwrites with type annotations
+
+import typing  # pylint: disable=wrong-import-position
+from typing import Dict  # pylint: disable=wrong-import-position
+
+class ParentT1:
+    def func(self, user_input: Dict[str, int]) -> None:
+        pass
+
+class ChildT1(ParentT1):
+    def func(self, user_input: Dict[str, int]) -> None:
+        pass
+
+class ParentT2:
+    async def func(self, user_input: typing.List) -> None:
+        pass
+
+class ChildT2(ParentT2):
+    async def func(self, user_input: typing.List) -> None:
+        pass
+
+class FooT1:
+    pass
+
+class ParentT3:
+    def func(self, user_input: FooT1) -> None:
+        pass
+
+class ChildT3(ParentT3):
+    def func(self, user_input: FooT1) -> None:
         pass

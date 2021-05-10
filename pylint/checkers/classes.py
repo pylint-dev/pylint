@@ -271,7 +271,6 @@ def _has_different_parameters(
     original: List[astroid.AssignName],
     overridden: List[astroid.AssignName],
     dummy_parameter_regex: Pattern,
-    counter: int,
 ) -> List[str]:
     result = []
     zipped = zip_longest(original, overridden)
@@ -280,25 +279,14 @@ def _has_different_parameters(
         if not all(params):
             return ["Number of parameters "]
 
-        # check for the arguments' type
-        original_type = original_param.parent.annotations[counter]
-        if original_type is not None:
-            overridden_type = overridden_param.parent.annotations[counter]
-            if overridden_type is not None:
-                if original_type.name != overridden_type.name:
-                    result.append(
-                        f"Parameter '{original_param.name}' was of type '{original_type.name}' and is now"
-                        + f" of type '{overridden_type.name}' in"
-                    )
-            counter += 1
-
         # check for the arguments' name
         names = [param.name for param in params]
         if any(dummy_parameter_regex.match(name) for name in names):
             continue
         if original_param.name != overridden_param.name:
             result.append(
-                f"Parameter '{original_param.name}' has been renamed to '{overridden_param.name}' in"
+                f"Parameter '{original_param.name}' has been renamed "
+                f"to '{overridden_param.name}' in"
             )
 
     return result
@@ -343,19 +331,11 @@ def _different_parameters(
             v for v in original.args.kwonlyargs if v.name in overidden_names
         ]
 
-    arguments = list(original.args.args)
-    # variable 'count' helps to check if the type of an argument has changed
-    # at the _has_different_parameters method
-    if any(arg.name == "self" for arg in arguments) and len(arguments) > 1:
-        count = 1
-    else:
-        count = 0
-
     different_positional = _has_different_parameters(
-        original_parameters, overridden_parameters, dummy_parameter_regex, count
+        original_parameters, overridden_parameters, dummy_parameter_regex
     )
     different_kwonly = _has_different_parameters(
-        original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex, count
+        original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex
     )
     if different_kwonly and different_positional:
         if "Number " in different_positional[0] and "Number " in different_kwonly[0]:
