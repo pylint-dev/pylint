@@ -1,6 +1,6 @@
 """Emit a message for iteration through dict keys and subscripting dict with key."""
 
-# pylint: disable=missing-docstring,unsubscriptable-object
+# pylint: disable=missing-docstring,unsubscriptable-object,too-few-public-methods
 
 def bad():
     a_dict = {1:1, 2:2, 3:3}
@@ -28,3 +28,36 @@ def another_good():
         k = 2
         k = 3
         print(out_of_scope_dict[k])
+
+
+b_dict = {}
+for k2 in b_dict:  # Should not emit warning, key access necessary
+    b_dict[k2] = 2
+
+for k3 in b_dict:  # [consider-using-dict-items]
+    val = b_dict[k3]
+
+for k4 in b_dict.keys():  # [consider-iterating-dictionary,consider-using-dict-items]
+    val = b_dict[k4]
+
+class Foo:
+    c_dict = {}
+
+for k5 in Foo.c_dict:  # [consider-using-dict-items]
+    val = Foo.c_dict[k5]
+
+for k6 in b_dict:  # [consider-using-dict-items]
+    val = b_dict[k6]
+    b_dict[k6] = 2
+
+c_dict={}
+
+val = [(k7, b_dict[k7]) for k7 in b_dict]  # [consider-using-dict-items]
+val = any(True for k8 in b_dict if b_dict[k8])  # [consider-using-dict-items]
+val = {k9: b_dict[k9] for k9 in b_dict}  # [consider-using-dict-items]
+val = [(k7, b_dict[k7]) for k7 in Foo.c_dict]
+val = any(True for k8 in Foo.c_dict if b_dict[k8])
+val = [(k7, c_dict[k7]) for k7 in Foo.c_dict]
+val = any(True for k8 in Foo.c_dict if c_dict[k8])
+val = [(k7, Foo.c_dict[k7]) for k7 in Foo.c_dict] # [consider-using-dict-items]
+val = any(True for k8 in Foo.c_dict if Foo.c_dict[k8]) # [consider-using-dict-items]

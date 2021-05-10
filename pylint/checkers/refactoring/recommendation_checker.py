@@ -1,12 +1,38 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
-from typing import cast
+from typing import Optional, Union, cast
 
 import astroid
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
+
+
+def _check_if_dict_keys_used(
+    node: Union[astroid.For, astroid.Comprehension]
+) -> Optional[str]:
+    if not isinstance(node.iter, astroid.Call):
+        # Is it a dictionary?
+        if not isinstance(node.iter, (astroid.Name, astroid.Attribute)):
+            return None
+        inferred = utils.safe_infer(node.iter)
+        if not isinstance(inferred, (astroid.Dict, astroid.DictComp)):
+            return None
+        iterating_object_name = node.iter.as_string()
+
+    else:
+        # Is it a proper keys call?
+        if (
+            isinstance(node.iter.func, astroid.Name)
+            or node.iter.func.attrname != "keys"
+        ):
+            return None
+        inferred = utils.safe_infer(node.iter.func)
+        if not isinstance(inferred, (astroid.BoundMethod, astroid.Dict)):
+            return None
+        iterating_object_name = node.iter.as_string().partition(".")[0]
+    return iterating_object_name
 
 
 class RecommendationChecker(checkers.BaseChecker):
@@ -140,26 +166,9 @@ class RecommendationChecker(checkers.BaseChecker):
         # that the object which is iterated is used as a subscript in the
         # body of the for.
 
-        if not isinstance(node.iter, astroid.Call):
-            # Is it a dictionary?
-            if not isinstance(node.iter, astroid.Name):
-                return
-            inferred = utils.safe_infer(node.iter)
-            if not isinstance(inferred, (astroid.Dict, astroid.DictComp)):
-                return
-            iterating_object_name = node.iter.as_string()
-
-        else:
-            # Is it a proper keys call?
-            if not (
-                isinstance(node.iter.func, astroid.Attribute)
-                and node.iter.func.attrname != "keys"
-            ):
-                return
-            inferred = utils.safe_infer(node.iter.func)
-            if not isinstance(inferred, (astroid.BoundMethod, astroid.Dict)):
-                return
-            iterating_object_name = node.iter.as_string().partition(".")[0]
+        iterating_object_name = _check_if_dict_keys_used(node)
+        if iterating_object_name is None:
+            return
 
         # Verify that the body of the for loop uses a subscript
         # with the object that was iterated. This uses some heuristics
@@ -168,7 +177,8 @@ class RecommendationChecker(checkers.BaseChecker):
         for child in node.body:
             for subscript in child.nodes_of_class(astroid.Subscript):
                 subscript = cast(astroid.Subscript, subscript)
-                if not isinstance(subscript.value, astroid.Name):
+
+                if not isinstance(subscript.value, (astroid.Name, astroid.Attribute)):
                     continue
 
                 value = subscript.slice
@@ -177,8 +187,9 @@ class RecommendationChecker(checkers.BaseChecker):
                 if (
                     not isinstance(value, astroid.Name)
                     or value.name != node.target.name
-                    or iterating_object_name != subscript.value.name
+                    or iterating_object_name != subscript.value.as_string()
                 ):
+
                     continue
                 last_definition_lineno = value.lookup(value.name)[1][-1].lineno
                 if last_definition_lineno > node.lineno:
@@ -186,6 +197,40 @@ class RecommendationChecker(checkers.BaseChecker):
                     # the for loop. This checks for the line number using .lookup()
                     # to get the line number where the iterating object was last
                     # defined and compare that to the for loop's line number
+                    continue
+                if (
+                    isinstance(subscript.parent, astroid.Assign)
+                    and subscript in subscript.parent.targets
+                ):
+                    # Ignore this subscript if it is the target of an assignment
+                    continue
+
+                self.add_message("consider-using-dict-items", node=node)
+                return
+
+    @utils.check_messages("consider-using-dict-items")
+    def visit_comprehension(self, node: astroid.Comprehension) -> None:
+        iterating_object_name = _check_if_dict_keys_used(node)
+        if iterating_object_name is None:
+            return
+
+        children = list(node.parent.get_children())
+        if node.ifs:
+            children += node.ifs
+        for child in children:
+            for subscript in child.nodes_of_class(astroid.Subscript):
+                subscript = cast(astroid.Subscript, subscript)
+                if not isinstance(subscript.value, (astroid.Name, astroid.Attribute)):
+                    continue
+
+                value = subscript.slice
+                if isinstance(value, astroid.Index):
+                    value = value.value
+                if (
+                    not isinstance(value, astroid.Name)
+                    or value.name != node.target.name
+                    or iterating_object_name != subscript.value.as_string()
+                ):
                     continue
                 self.add_message("consider-using-dict-items", node=node)
                 return
