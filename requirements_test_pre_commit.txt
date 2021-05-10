@@ -1,6 +1,6 @@
 autoflake==1.4
 black==21.4b2
-flake8==3.9.0
+flake8==3.9.2
 isort==5.8.0
 mypy==0.812
 pyupgrade==2.14.0
