@@ -469,7 +469,8 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
             except astroid.MroError:
                 return False
             if metaclass:
-                return metaclass.qname() == "enum.EnumMeta"
+                # Renamed in Python 3.10 to `EnumType`
+                return metaclass.qname() in ("enum.EnumMeta", "enum.EnumType")
             return False
         if not has_known_bases(owner):
             return False
