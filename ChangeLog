@@ -28,6 +28,9 @@ Release date: TBA
   Closes #4166
   Closes #4415
 
+* Stdlib deprecated modules check is moved to stdlib checker. New deprecated
+modules are added.
+
 
 What's New in Pylint 2.8.2?
 ===========================

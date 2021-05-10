@@ -51,6 +51,17 @@ SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
 OPEN_MODULE = "_io"
 
+
+DEPRECATED_MODULES = {
+    (0, 0, 0): {"tkinter.tix", "fpectl"},
+    (3, 2, 0): {"optparse"},
+    (3, 4, 0): {"imp"},
+    (3, 5, 0): {"formatter"},
+    (3, 6, 0): {"asynchat", "asyncore"},
+    (3, 7, 0): {"macpath"},
+    (3, 9, 0): {"lib2to3", "parser", "symbol", "binhex"},
+}
+
 DEPRECATED_ARGUMENTS = {
     (0, 0, 0): {
         "int": ((None, "x"),),
@@ -395,6 +406,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, class_list in DEPRECATED_CLASSES.items():
             if since_vers <= sys.version_info:
                 self._deprecated_classes.update(class_list)
+        self._deprecated_modules = set()
+        for since_vers, mod_list in DEPRECATED_MODULES.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_modules.update(mod_list)
 
     def _check_bad_thread_instantiation(self, node):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
@@ -572,6 +587,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
             self.add_message(message, node=node, args=(name, call_arg.pytype()))
+
+    def deprecated_modules(self):
+        """Callback returning the deprecated modules."""
+        return self._deprecated_modules
 
     def deprecated_methods(self):
         return self._deprecated_methods
