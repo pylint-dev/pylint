@@ -3,5 +3,5 @@ black==21.4b2
 flake8==3.9.0
 isort==5.8.0
 mypy==0.812
-pyupgrade==2.14.0
+pyupgrade==2.15.0
 black-disable-checker==1.0.1
