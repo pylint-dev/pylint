@@ -2,14 +2,15 @@
 Pylint's ChangeLog
 ------------------
 
-
-
-What's New in Pylint 2.8.3?
+What's New in Pylint 2.9.0?
 ===========================
-Release date: 2021-04-26
+Release date: TBA
 
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
+
+* The warning for ``arguments-differ`` now signals explicitly the difference it detected
+  by naming the argument or arguments that changed and the type of change that occurred.
 
 * Suppress ``consider-using-with`` inside context managers.
 
@@ -54,9 +55,6 @@ Release date: 2021-04-25
   ``pylint.version`` breaking change.
 
   Closes #4399
-
-* The warning for ``arguments-differ`` now signals explicitly the difference it detected
-  by naming the argument or arguments that changed and the type of change that occured.
 
 
 What's New in Pylint 2.8.0?
