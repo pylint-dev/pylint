@@ -54,6 +54,15 @@ class Foo:
 for k5 in Foo.c_dict:  # [consider-using-dict-items]
     val = Foo.c_dict[k5]
 
+c_dict = {}
+
+# Should NOT emit warning whey key used to access a different dict
+for k5 in Foo.c_dict:  # This is fine
+    val = b_dict[k5]
+
+for k5 in Foo.c_dict:  # This is fine
+    val = c_dict[k5]
+
 # Should emit warning within a list/dict comprehension
 val = {k9: b_dict[k9] for k9 in b_dict}  # [consider-using-dict-items]
 val = [(k7, b_dict[k7]) for k7 in b_dict]  # [consider-using-dict-items]
@@ -70,6 +79,5 @@ val = [(k7, b_dict[k7]) for k7 in Foo.c_dict]
 val = any(True for k8 in Foo.c_dict if b_dict[k8])
 
 # Should NOT emit warning, essentially same check as above
-c_dict = {}
 val = [(k7, c_dict[k7]) for k7 in Foo.c_dict]
 val = any(True for k8 in Foo.c_dict if c_dict[k8])
