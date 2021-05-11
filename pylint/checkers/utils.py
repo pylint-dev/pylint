@@ -1498,13 +1498,13 @@ def get_iterating_dictionary_name(
     node: Union[astroid.For, astroid.Comprehension]
 ) -> Optional[str]:
     """Get the name of the dictionary which keys are being iterated over on
-    a ``astroid.For`` or ``astroid.Comprehension`` node.
+    a `astroid.For` or `astroid.Comprehension` node.
 
     If the iterating object is not either the keys method of a dictionary
-    or a dictionary itself, this returns None
+    or a dictionary itself, this returns None.
     """
+    # Is it a proper keys call?
     if isinstance(node.iter, astroid.Call):
-        # Is it a proper keys call?
         if (
             isinstance(node.iter.func, astroid.Name)
             or node.iter.func.attrname != "keys"

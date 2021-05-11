@@ -1,6 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
-
 from typing import cast
 
 import astroid
@@ -163,7 +162,6 @@ class RecommendationChecker(checkers.BaseChecker):
                     or value.name != node.target.name
                     or iterating_object_name != subscript.value.as_string()
                 ):
-
                     continue
                 last_definition_lineno = value.lookup(value.name)[1][-1].lineno
                 if last_definition_lineno > node.lineno:
