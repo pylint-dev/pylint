@@ -33,6 +33,10 @@ modules are added.
 
 * Fix raising false-positive ``no-member`` on abstract properties
 
+* Created new error message called ``arguments-renamed`` which identifies any changes at the parameter
+  names of overridden functions.
+
+  Closes #3536
 
 What's New in Pylint 2.8.2?
 ===========================
