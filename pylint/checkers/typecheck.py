@@ -1439,8 +1439,8 @@ accessed. Python regular expressions are accepted.",
                         args=(display_name, callable_name),
                     )
 
-        for name in kwparams:
-            defval, assigned = kwparams[name]
+        for name, val in kwparams.items():
+            defval, assigned = val
             if (
                 defval is None
                 and not assigned
