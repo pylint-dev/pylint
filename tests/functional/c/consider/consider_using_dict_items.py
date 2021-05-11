@@ -83,4 +83,4 @@ val = [(k7, c_dict[k7]) for k7 in Foo.c_dict]
 val = any(True for k8 in Foo.c_dict if c_dict[k8])
 
 # Should emit warning, using .keys() of Foo.c_dict
-val = any(True for k8 in Foo.c_dict.keys() if Foo.c_dict[k8]) # [consider-iterating-dictionary,consider-using-dict-items]
+val = any(True for k8 in Foo.c_dict.keys() if Foo.c_dict[k8])  # [consider-iterating-dictionary,consider-using-dict-items]

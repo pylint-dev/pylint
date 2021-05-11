@@ -153,6 +153,7 @@ class RecommendationChecker(checkers.BaseChecker):
 
                 if not isinstance(subscript.value, (astroid.Name, astroid.Attribute)):
                     continue
+
                 value = subscript.slice
                 if isinstance(value, astroid.Index):
                     value = value.value
@@ -186,14 +187,17 @@ class RecommendationChecker(checkers.BaseChecker):
         iterating_object_name = utils.get_iterating_dictionary_name(node)
         if iterating_object_name is None:
             return
+
         children = list(node.parent.get_children())
         if node.ifs:
             children.extend(node.ifs)
         for child in children:
             for subscript in child.nodes_of_class(astroid.Subscript):
                 subscript = cast(astroid.Subscript, subscript)
+
                 if not isinstance(subscript.value, (astroid.Name, astroid.Attribute)):
                     continue
+
                 value = subscript.slice
                 if isinstance(value, astroid.Index):
                     value = value.value
