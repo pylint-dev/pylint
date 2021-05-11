@@ -135,7 +135,7 @@ class RecommendationChecker(checkers.BaseChecker):
                 return
 
     def _check_consider_using_dict_items(self, node: astroid.For) -> None:
-        """Emit a convention when dict key used to index dict."""
+        """Add message when accessing dict values by index lookup."""
         # Verify that we have a .keys() call and
         # that the object which is iterated is used as a subscript in the
         # body of the for.
@@ -173,8 +173,10 @@ class RecommendationChecker(checkers.BaseChecker):
                     # defined and compare that to the for loop's line number
                     continue
                 if (
-                    isinstance(subscript.parent, astroid.Assign)
+                    isinstance(subscript.parent, (astroid.Assign))
                     and subscript in subscript.parent.targets
+                    or isinstance(subscript.parent, (astroid.AugAssign))
+                    and subscript == subscript.parent.target
                 ):
                     # Ignore this subscript if it is the target of an assignment
                     continue
@@ -190,7 +192,7 @@ class RecommendationChecker(checkers.BaseChecker):
 
         children = list(node.parent.get_children())
         if node.ifs:
-            children += node.ifs
+            children.extend(node.ifs)
         for child in children:
             for subscript in child.nodes_of_class(astroid.Subscript):
                 subscript = cast(astroid.Subscript, subscript)

@@ -34,6 +34,9 @@ b_dict = {}
 for k2 in b_dict:  # Should not emit warning, key access necessary
     b_dict[k2] = 2
 
+for k2 in b_dict:  # Should not emit warning, key access necessary (augassign)
+    b_dict[k2] += 2
+
 # Warning should be emitted in this case
 for k6 in b_dict:  # [consider-using-dict-items]
     val = b_dict[k6]
