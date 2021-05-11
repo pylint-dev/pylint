@@ -482,3 +482,5 @@ contributors:
 * das-intensity: contributor
 
 * Jiajunsu (victor): contributor
+
+* Andrew Haigh (nelfin): contributor
