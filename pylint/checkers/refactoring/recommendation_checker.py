@@ -171,9 +171,9 @@ class RecommendationChecker(checkers.BaseChecker):
                     # defined and compare that to the for loop's line number
                     continue
                 if (
-                    isinstance(subscript.parent, (astroid.Assign))
+                    isinstance(subscript.parent, astroid.Assign)
                     and subscript in subscript.parent.targets
-                    or isinstance(subscript.parent, (astroid.AugAssign))
+                    or isinstance(subscript.parent, astroid.AugAssign)
                     and subscript == subscript.parent.target
                 ):
                     # Ignore this subscript if it is the target of an assignment
@@ -207,5 +207,6 @@ class RecommendationChecker(checkers.BaseChecker):
                     or iterating_object_name != subscript.value.as_string()
                 ):
                     continue
+
                 self.add_message("consider-using-dict-items", node=node)
                 return
