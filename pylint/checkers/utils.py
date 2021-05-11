@@ -1504,12 +1504,11 @@ def get_iterating_dictionary_name(
     or a dictionary itself, this returns None.
     """
     # Is it a proper keys call?
-    if isinstance(node.iter, astroid.Call):
-        if (
-            isinstance(node.iter.func, astroid.Name)
-            or node.iter.func.attrname != "keys"
-        ):
-            return None
+    if (
+        isinstance(node.iter, astroid.Call)
+        and isinstance(node.iter.func, astroid.Attribute)
+        and node.iter.func.attrname == "keys"
+    ):
         inferred = safe_infer(node.iter.func)
         if not isinstance(inferred, (astroid.BoundMethod, astroid.Dict)):
             return None
