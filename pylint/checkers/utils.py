@@ -1492,3 +1492,33 @@ def is_assign_name_annotated_with(node: astroid.AssignName, typing_name: str) ->
     ):
         return True
     return False
+
+
+def get_iterating_dictionary_name(
+    node: Union[astroid.For, astroid.Comprehension]
+) -> Optional[str]:
+    """Get the name of the dictionary which keys are being iterated over on
+    a ``astroid.For`` or ``astroid.Comprehension`` node.
+
+    If the iterating object is not either the keys method of a dictionary
+    or a dictionary itself, this returns None
+    """
+    if isinstance(node.iter, astroid.Call):
+        # Is it a proper keys call?
+        if (
+            isinstance(node.iter.func, astroid.Name)
+            or node.iter.func.attrname != "keys"
+        ):
+            return None
+        inferred = safe_infer(node.iter.func)
+        if not isinstance(inferred, (astroid.BoundMethod, astroid.Dict)):
+            return None
+        return node.iter.as_string().partition(".")[0]
+
+    # Is it a dictionary?
+    if not isinstance(node.iter, (astroid.Name, astroid.Attribute)):
+        return None
+    inferred = safe_infer(node.iter)
+    if not isinstance(inferred, (astroid.Dict, astroid.DictComp)):
+        return None
+    return node.iter.as_string()

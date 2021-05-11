@@ -1,38 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
-from typing import Optional, Union, cast
+from typing import cast
 
 import astroid
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
-
-
-def _check_if_dict_keys_used(
-    node: Union[astroid.For, astroid.Comprehension]
-) -> Optional[str]:
-    if not isinstance(node.iter, astroid.Call):
-        # Is it a dictionary?
-        if not isinstance(node.iter, (astroid.Name, astroid.Attribute)):
-            return None
-        inferred = utils.safe_infer(node.iter)
-        if not isinstance(inferred, (astroid.Dict, astroid.DictComp)):
-            return None
-        iterating_object_name = node.iter.as_string()
-
-    else:
-        # Is it a proper keys call?
-        if (
-            isinstance(node.iter.func, astroid.Name)
-            or node.iter.func.attrname != "keys"
-        ):
-            return None
-        inferred = utils.safe_infer(node.iter.func)
-        if not isinstance(inferred, (astroid.BoundMethod, astroid.Dict)):
-            return None
-        iterating_object_name = node.iter.as_string().partition(".")[0]
-    return iterating_object_name
 
 
 class RecommendationChecker(checkers.BaseChecker):
@@ -166,7 +140,7 @@ class RecommendationChecker(checkers.BaseChecker):
         # that the object which is iterated is used as a subscript in the
         # body of the for.
 
-        iterating_object_name = _check_if_dict_keys_used(node)
+        iterating_object_name = utils.get_iterating_dictionary_name(node)
         if iterating_object_name is None:
             return
 
@@ -210,7 +184,7 @@ class RecommendationChecker(checkers.BaseChecker):
 
     @utils.check_messages("consider-using-dict-items")
     def visit_comprehension(self, node: astroid.Comprehension) -> None:
-        iterating_object_name = _check_if_dict_keys_used(node)
+        iterating_object_name = utils.get_iterating_dictionary_name(node)
         if iterating_object_name is None:
             return
 
