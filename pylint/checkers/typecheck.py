@@ -458,7 +458,9 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         return False
     if owner_name and ignored_mixins and owner_name[-5:].lower() == "mixin":
         return False
-    if isinstance(owner, astroid.FunctionDef) and owner.decorators:
+    if isinstance(owner, astroid.FunctionDef) and (
+        owner.decorators or owner.is_abstract()
+    ):
         return False
     if isinstance(owner, (astroid.Instance, astroid.ClassDef)):
         if owner.has_dynamic_getattr():
