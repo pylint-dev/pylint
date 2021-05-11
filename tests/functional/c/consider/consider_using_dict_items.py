@@ -34,6 +34,11 @@ b_dict = {}
 for k2 in b_dict:  # Should not emit warning, key access necessary
     b_dict[k2] = 2
 
+# Warning should be emitted in this case
+for k6 in b_dict:  # [consider-using-dict-items]
+    val = b_dict[k6]
+    b_dict[k6] = 2
+
 for k3 in b_dict:  # [consider-using-dict-items]
     val = b_dict[k3]
 
@@ -43,21 +48,26 @@ for k4 in b_dict.keys():  # [consider-iterating-dictionary,consider-using-dict-i
 class Foo:
     c_dict = {}
 
+# Should emit warning when iterating over a dict attribute of a class
 for k5 in Foo.c_dict:  # [consider-using-dict-items]
     val = Foo.c_dict[k5]
 
-for k6 in b_dict:  # [consider-using-dict-items]
-    val = b_dict[k6]
-    b_dict[k6] = 2
-
-c_dict={}
-
-val = [(k7, b_dict[k7]) for k7 in b_dict]  # [consider-using-dict-items]
-val = any(True for k8 in b_dict if b_dict[k8])  # [consider-using-dict-items]
+# Should emit warning within a list/dict comprehension
 val = {k9: b_dict[k9] for k9 in b_dict}  # [consider-using-dict-items]
-val = [(k7, b_dict[k7]) for k7 in Foo.c_dict]
-val = any(True for k8 in Foo.c_dict if b_dict[k8])
-val = [(k7, c_dict[k7]) for k7 in Foo.c_dict]
-val = any(True for k8 in Foo.c_dict if c_dict[k8])
+val = [(k7, b_dict[k7]) for k7 in b_dict]  # [consider-using-dict-items]
+
+# Should emit warning even when using dict attribute of a class within comprehension
 val = [(k7, Foo.c_dict[k7]) for k7 in Foo.c_dict] # [consider-using-dict-items]
 val = any(True for k8 in Foo.c_dict if Foo.c_dict[k8]) # [consider-using-dict-items]
+
+# Should emit warning when dict access done in ``if`` portion of comprehension
+val = any(True for k8 in b_dict if b_dict[k8])  # [consider-using-dict-items]
+
+# Should NOT emit warning whey key used to access a different dict
+val = [(k7, b_dict[k7]) for k7 in Foo.c_dict]
+val = any(True for k8 in Foo.c_dict if b_dict[k8])
+
+# Should NOT emit warning, essentially same check as above
+c_dict={}
+val = [(k7, c_dict[k7]) for k7 in Foo.c_dict]
+val = any(True for k8 in Foo.c_dict if c_dict[k8])
