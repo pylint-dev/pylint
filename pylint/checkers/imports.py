@@ -135,6 +135,19 @@ def _ignore_import_failure(node, modname, ignored_modules):
         if submodule in ignored_modules:
             return True
 
+    # ignore import failure if guarded by `sys.version_info` test
+    if isinstance(node.parent, astroid.If) and isinstance(
+        node.parent.test, astroid.Compare
+    ):
+        value = node.parent.test.left
+        if isinstance(value, astroid.Subscript):
+            value = value.value
+        if (
+            isinstance(value, astroid.Attribute)
+            and value.as_string() == "sys.version_info"
+        ):
+            return True
+
     return node_ignores_exception(node, ImportError)
 
 
