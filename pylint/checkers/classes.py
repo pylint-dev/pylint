@@ -342,6 +342,9 @@ def _different_parameters(
             output_messages.append("Number of parameters ")
             output_messages += different_positional[1:]
             output_messages += different_kwonly[1:]
+        else:
+            output_messages += different_positional
+            output_messages += different_kwonly
     else:
         if different_positional:
             output_messages += different_positional
@@ -626,6 +629,12 @@ MSGS = {
         "Used when we detect that a method was overridden in a way "
         "that does not match its base class "
         "which could result in potential bugs at runtime.",
+    ),
+    "W0237": (
+        "%s %s %r method",
+        "arguments-renamed",
+        "Used when a method parameter has a different name than in "
+        "the implemented interface or in an overridden method.",
     ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
@@ -1816,6 +1825,16 @@ a metaclass class method.",
                             msg
                             + f"was {total_args_refmethod} in '{refmethod.parent.name}.{refmethod.name}' and "
                             f"is now {total_args_method1} in",
+                            class_type,
+                            str(method1.parent.name) + "." + str(method1.name),
+                        ),
+                        node=method1,
+                    )
+                elif "renamed" in msg:
+                    self.add_message(
+                        "arguments-renamed",
+                        args=(
+                            msg,
                             class_type,
                             str(method1.parent.name) + "." + str(method1.name),
                         ),
