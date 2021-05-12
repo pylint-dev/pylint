@@ -35,6 +35,14 @@ class RecommendationChecker(checkers.BaseChecker):
             "Both the key and value can be accessed by iterating using the .items() "
             "method of the dictionary instead.",
         ),
+        "C0207": (
+            "Consider using str.partition()",
+            "consider-using-str-partition",
+            "Emitted when accessing only the first or last element of a str.split(sep). "
+            "The first and last element can be accessed by using str.partition(sep)[0] "
+            "or str.rpartition(sep)[-1] instead, which is less computationally "
+            "expensive.",
+        ),
     }
 
     @staticmethod
@@ -210,3 +218,67 @@ class RecommendationChecker(checkers.BaseChecker):
 
                 self.add_message("consider-using-dict-items", node=node)
                 return
+
+    @utils.check_messages("consider-using-str-partition")
+    def visit_subscript(self, node: astroid.Subscript) -> None:
+        """Add message when accessing first or last elements of a str.split()."""
+        assignment = None
+        subscripted_object = node.value
+        if isinstance(subscripted_object, astroid.Name):
+            # Check assignment of this subscripted object
+            assignment_lookup_results = node.value.lookup(node.value.name)
+            if (
+                len(assignment_lookup_results) == 0
+                or len(assignment_lookup_results[-1]) == 0
+            ):
+                return
+            assign_name = assignment_lookup_results[-1][-1]
+            if not isinstance(assign_name, astroid.AssignName):
+                return
+            assignment = assign_name.parent
+            if not isinstance(assignment, astroid.Assign):
+                return
+            # Set subscripted_object to the assignment RHS
+            subscripted_object = assignment.value
+
+        if isinstance(subscripted_object, astroid.Call):
+            # Check if call is .split() or .rsplit()
+            if isinstance(
+                subscripted_object.func, astroid.Attribute
+            ) and subscripted_object.func.attrname in ["split", "rsplit"]:
+                inferred = utils.safe_infer(subscripted_object.func)
+                if not isinstance(inferred, astroid.BoundMethod):
+                    return
+
+                # Check if subscript is 1 or -1
+                value = node.slice
+                if isinstance(value, astroid.Index):
+                    value = value.value
+
+                if isinstance(value, (astroid.UnaryOp, astroid.Const)):
+                    const = utils.safe_infer(value)
+                    const = cast(astroid.Const, const)
+                    if const.value in [-1, 0]:
+                        self.add_message("consider-using-str-partition", node=node)
+
+                # Check if subscript is len(split) - 1
+                if (
+                    isinstance(value, astroid.BinOp)
+                    and value.left.func.name == "len"
+                    and value.op == "-"
+                    and value.right.value == 1
+                    and assignment is not None
+                ):
+                    # Ensure that the len() is from builtins, not user re-defined
+                    inferred_fn = utils.safe_infer(value.left.func)
+                    if not (
+                        isinstance(inferred_fn, astroid.FunctionDef)
+                        and isinstance(inferred_fn.parent, astroid.Module)
+                        and inferred_fn.parent.name == "builtins"
+                    ):
+                        return
+
+                    # Further check for argument within len(), and compare that to object being split
+                    arg_within_len = value.left.args[0].name
+                    if arg_within_len == node.value.name:
+                        self.add_message("consider-using-str-partition", node=node)

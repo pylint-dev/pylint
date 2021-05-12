@@ -15,6 +15,9 @@ New checkers
 * ``consider-using-dict-items``: Emitted when iterating over dictionary keys and then
   indexing the same dictionary with the key within loop body.
 
+* ``consider-using-str-partition``: Emitted when accessing only the first or last element
+  of a str.split().
+
 Other Changes
 =============
 
