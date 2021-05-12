@@ -259,16 +259,26 @@ class RecommendationChecker(checkers.BaseChecker):
                 if isinstance(value, (astroid.UnaryOp, astroid.Const)):
                     const = utils.safe_infer(value)
                     const = cast(astroid.Const, const)
-                    p = re.compile(r"r*split")
+                    p = re.compile(
+                        r"tilpsr*\."
+                    )  # Match and replace in reverse to ensure last occurance replaced
                     if const.value == -1:
-                        help_text = p.sub("rpartition", subscripted_object.as_string())
+                        help_text = p.sub(
+                            ".rpartition"[::-1],
+                            subscripted_object.as_string()[::-1],
+                            count=1,
+                        )[::-1]
                         self.add_message(
                             "consider-using-str-partition",
                             node=node,
                             args=(help_text, -1),
                         )
                     elif const.value == 0:
-                        help_text = p.sub("partition", subscripted_object.as_string())
+                        help_text = p.sub(
+                            ".partition"[::-1],
+                            subscripted_object.as_string()[::-1],
+                            count=1,
+                        )[::-1]
                         self.add_message(
                             "consider-using-str-partition",
                             node=node,
@@ -294,8 +304,14 @@ class RecommendationChecker(checkers.BaseChecker):
                     # Further check for argument within len(), and compare that to object being split
                     arg_within_len = value.left.args[0].name
                     if arg_within_len == node.value.name:
-                        p = re.compile(r"r*split")
-                        help_text = p.sub("rpartition", subscripted_object.as_string())
+                        p = re.compile(
+                            r"tilpsr*\."
+                        )  # Match and replace in reverse to ensure last occurance replaced
+                        help_text = p.sub(
+                            ".rpartition"[::-1],
+                            subscripted_object.as_string()[::-1],
+                            count=1,
+                        )[::-1]
                         self.add_message(
                             "consider-using-str-partition",
                             node=node,

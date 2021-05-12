@@ -3,6 +3,9 @@
 from collections.abc import Iterable
 from typing import Any
 
+get_first = '1,2,3'.split(',')[0]  # [consider-using-str-partition]
+get_last = '1,2,3'[::-1].split(',')[0]  # [consider-using-str-partition]
+
 SEQ = '1,2,3'
 get_first = SEQ.split(',')[0]  # [consider-using-str-partition]
 get_last = SEQ.split(',')[-1]  # [consider-using-str-partition]
@@ -67,6 +70,15 @@ for s in list_of_strs:
     print(s.split(" ")[0])  # [consider-using-str-partition]
     print(s.split(" ")[-1])  # [consider-using-str-partition]
     print(s.split(" ")[-2])
+
+# Test warning messages (matching and replacing .split / .rsplit)
+class Bar():
+    split = '1,2,3'
+
+print(Bar.split.split(",")[0])  # [consider-using-str-partition] (Error message should show Bar.split.partition)
+print(Bar.split.split(",")[-1])  # [consider-using-str-partition] (Error message should show Bar.split.rpartition)
+print(Bar.split.rsplit(",")[0])  # [consider-using-str-partition] (Error message should show Bar.split.partition)
+print(Bar.split.rsplit(",")[-1])  # [consider-using-str-partition] (Error message should show Bar.split.rpartition)
 
 # Test with user-defined len function
 def len(x: Iterable[Any]) -> str:
