@@ -40,6 +40,10 @@ modules are added.
 
 * Don't emit ``import-error`` if import guarded behind ``if sys.version_info >= (x, x)``
 
+* Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage
+
+  Closes #4412
+
 
 What's New in Pylint 2.8.2?
 ===========================
