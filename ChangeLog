@@ -44,8 +44,9 @@ modules are added.
 
   Closes #4412
   
-* New checker ``consider-using-str-partition``. Emitted when only accessing the first or last
-  element of a str.split().
+* New checker ``consider-using-str-partition``. Emitted either when only accessing the first or last
+  element of a ``str.split()`` or ``str.rsplit()``, or when a ``str.split()`` or ``str.rsplit()`` is
+  used with a ``max_split`` argument value of 1.
 
   Closes #4440
 

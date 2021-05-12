@@ -16,7 +16,8 @@ New checkers
   indexing the same dictionary with the key within loop body.
 
 * ``consider-using-str-partition``: Emitted when accessing only the first or last element
-  of a str.split().
+  of a ``str.split()`` or ``str.rsplit()``, or when a ``str.split()`` or ``str.rsplit()`` is
+  used with a ``max_split`` argument value of 1.
 
 Other Changes
 =============
