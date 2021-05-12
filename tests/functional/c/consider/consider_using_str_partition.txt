@@ -19,3 +19,5 @@ consider-using-str-partition:53:11::Consider using Foo.class_str.rpartition(',')
 consider-using-str-partition:54:11::Consider using Foo.class_str.rpartition(',')[-1] instead
 consider-using-str-partition:58:12::Consider using bar.get_string().partition(',')[0] instead
 consider-using-str-partition:59:11::Consider using bar.get_string().rpartition(',')[-1] instead
+consider-using-str-partition:67:10::Consider using s.partition(' ')[0] instead
+consider-using-str-partition:68:10::Consider using s.rpartition(' ')[-1] instead

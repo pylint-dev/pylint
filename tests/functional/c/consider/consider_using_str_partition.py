@@ -61,6 +61,13 @@ get_last = bar.get_string().split(',')[-1]  # [consider-using-str-partition]
 get_mid = bar.get_string().split(',')[1]
 get_mid = bar.get_string().split(',')[-2]
 
+# Test with iterating over strings
+list_of_strs = ["a", "b", "c", "d", "e", "f"]
+for s in list_of_strs:
+    print(s.split(" ")[0])  # [consider-using-str-partition]
+    print(s.split(" ")[-1])  # [consider-using-str-partition]
+    print(s.split(" ")[-2])
+
 # Test with user-defined len function
 def len(x: Iterable[Any]) -> str:
     return f"Hello, world! {x[2]}"
