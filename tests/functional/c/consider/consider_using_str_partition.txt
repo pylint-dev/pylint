@@ -1,21 +1,21 @@
-consider-using-str-partition:7:12::Consider using str.partition()
-consider-using-str-partition:8:11::Consider using str.partition()
-consider-using-str-partition:9:12::Consider using str.partition()
-consider-using-str-partition:10:11::Consider using str.partition()
-consider-using-str-partition:17:12::Consider using str.partition()
-consider-using-str-partition:18:11::Consider using str.partition()
-consider-using-str-partition:19:11::Consider using str.partition()
-consider-using-str-partition:22:12::Consider using str.partition()
-consider-using-str-partition:23:11::Consider using str.partition()
-consider-using-str-partition:24:11::Consider using str.partition()
-consider-using-str-partition:26:6::Consider using str.partition()
-consider-using-str-partition:26:17::Consider using str.partition()
-consider-using-str-partition:43:12::Consider using str.partition()
-consider-using-str-partition:44:11::Consider using str.partition()
-consider-using-str-partition:45:12::Consider using str.partition()
-consider-using-str-partition:46:11::Consider using str.partition()
-consider-using-str-partition:52:12::Consider using str.partition()
-consider-using-str-partition:53:11::Consider using str.partition()
-consider-using-str-partition:54:11::Consider using str.partition()
-consider-using-str-partition:58:12::Consider using str.partition()
-consider-using-str-partition:59:11::Consider using str.partition()
+consider-using-str-partition:7:12::Consider using SEQ.partition(',')[0] instead
+consider-using-str-partition:8:11::Consider using SEQ.rpartition(',')[-1] instead
+consider-using-str-partition:9:12::Consider using SEQ.partition(',')[0] instead
+consider-using-str-partition:10:11::Consider using SEQ.rpartition(',')[-1] instead
+consider-using-str-partition:17:12::Consider using SEQ.partition(',')[0] instead
+consider-using-str-partition:18:11::Consider using SEQ.rpartition(',')[-1] instead
+consider-using-str-partition:19:11::Consider using SEQ.rpartition(',')[-1] instead
+consider-using-str-partition:22:12::Consider using SEQ.partition(',')[0] instead
+consider-using-str-partition:23:11::Consider using SEQ.rpartition(',')[-1] instead
+consider-using-str-partition:24:11::Consider using SEQ.rpartition(',')[-1] instead
+consider-using-str-partition:26:6::Consider using SEQ.partition(',')[0] instead
+consider-using-str-partition:26:17::Consider using SEQ.rpartition(',')[-1] instead
+consider-using-str-partition:43:12::Consider using Foo.class_str.partition(',')[0] instead
+consider-using-str-partition:44:11::Consider using Foo.class_str.rpartition(',')[-1] instead
+consider-using-str-partition:45:12::Consider using Foo.class_str.partition(',')[0] instead
+consider-using-str-partition:46:11::Consider using Foo.class_str.rpartition(',')[-1] instead
+consider-using-str-partition:52:12::Consider using Foo.class_str.partition(',')[0] instead
+consider-using-str-partition:53:11::Consider using Foo.class_str.rpartition(',')[-1] instead
+consider-using-str-partition:54:11::Consider using Foo.class_str.rpartition(',')[-1] instead
+consider-using-str-partition:58:12::Consider using bar.get_string().partition(',')[0] instead
+consider-using-str-partition:59:11::Consider using bar.get_string().rpartition(',')[-1] instead

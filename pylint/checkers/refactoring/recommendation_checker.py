@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+import re
 from typing import cast
 
 import astroid
@@ -36,7 +37,7 @@ class RecommendationChecker(checkers.BaseChecker):
             "method of the dictionary instead.",
         ),
         "C0207": (
-            "Consider using str.partition()",
+            "Consider using %s[%d] instead",
             "consider-using-str-partition",
             "Emitted when accessing only the first or last element of a str.split(sep). "
             "The first and last element can be accessed by using str.partition(sep)[0] "
@@ -258,9 +259,21 @@ class RecommendationChecker(checkers.BaseChecker):
                 if isinstance(value, (astroid.UnaryOp, astroid.Const)):
                     const = utils.safe_infer(value)
                     const = cast(astroid.Const, const)
-                    if const.value in [-1, 0]:
-                        self.add_message("consider-using-str-partition", node=node)
-
+                    p = re.compile(r"r*split")
+                    if const.value == -1:
+                        help_text = p.sub("rpartition", subscripted_object.as_string())
+                        self.add_message(
+                            "consider-using-str-partition",
+                            node=node,
+                            args=(help_text, -1),
+                        )
+                    elif const.value == 0:
+                        help_text = p.sub("partition", subscripted_object.as_string())
+                        self.add_message(
+                            "consider-using-str-partition",
+                            node=node,
+                            args=(help_text, 0),
+                        )
                 # Check if subscript is len(split) - 1
                 if (
                     isinstance(value, astroid.BinOp)
@@ -281,4 +294,10 @@ class RecommendationChecker(checkers.BaseChecker):
                     # Further check for argument within len(), and compare that to object being split
                     arg_within_len = value.left.args[0].name
                     if arg_within_len == node.value.name:
-                        self.add_message("consider-using-str-partition", node=node)
+                        p = re.compile(r"r*split")
+                        help_text = p.sub("rpartition", subscripted_object.as_string())
+                        self.add_message(
+                            "consider-using-str-partition",
+                            node=node,
+                            args=(help_text, -1),
+                        )
