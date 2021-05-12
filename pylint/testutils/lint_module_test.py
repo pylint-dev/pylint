@@ -52,7 +52,9 @@ class LintModuleTest:
 
     def setUp(self):
         if self._should_be_skipped_due_to_version():
-            pytest.skip("Test cannot run with Python %s." % sys.version.split(" ")[0])
+            pytest.skip(
+                "Test cannot run with Python %s." % sys.version.partition(" ")[0]
+            )
         missing = []
         for requirement in self._test_file.options["requires"]:
             try:
