@@ -118,11 +118,12 @@ class RecommendationChecker(checkers.BaseChecker):
             if isinstance(node.parent, astroid.Subscript):
                 subscript_node = node.parent
                 # Check if subscripted with -1/0
-                if not isinstance(
-                    subscript_node.slice, (astroid.Const, astroid.UnaryOp)
-                ):
+                value = subscript_node.slice
+                if isinstance(value, astroid.Index):
+                    value = value.value
+                if not isinstance(value, (astroid.Const, astroid.UnaryOp)):
                     return
-                subscript_value = utils.safe_infer(subscript_node.slice)
+                subscript_value = utils.safe_infer(value)
                 subscript_value = cast(astroid.Const, subscript_value)
                 subscript_value = subscript_value.value
                 if subscript_value in (-1, 0):
@@ -169,11 +170,14 @@ class RecommendationChecker(checkers.BaseChecker):
                     if not isinstance(search_node.parent, astroid.Subscript):
                         continue
                     subscript_node = search_node.parent
-                    if not isinstance(
-                        subscript_node.slice, (astroid.Const, astroid.UnaryOp)
-                    ):
+
+                    value = subscript_node.slice
+                    if isinstance(value, astroid.Index):
+                        value = value.value
+                    if not isinstance(value, (astroid.Const, astroid.UnaryOp)):
                         return
-                    subscript_value = utils.safe_infer(subscript_node.slice)
+
+                    subscript_value = utils.safe_infer(value)
                     subscript_value = cast(astroid.Const, subscript_value)
                     subscript_value = subscript_value.value
                     if subscript_value not in (-1, 0):
