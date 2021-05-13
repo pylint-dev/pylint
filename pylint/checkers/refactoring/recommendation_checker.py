@@ -118,14 +118,12 @@ class RecommendationChecker(checkers.BaseChecker):
             if isinstance(node.parent, astroid.Subscript):
                 subscript_node = node.parent
                 # Check if subscripted with -1/0
-                value = subscript_node.slice
-                if isinstance(value, astroid.Index):
-                    value = value.value
-                if not isinstance(value, (astroid.Const, astroid.UnaryOp)):
+                try:
+                    subscript_value = utils.get_subscript_const_value(
+                        subscript_node
+                    ).value
+                except ValueError:
                     return
-                subscript_value = utils.safe_infer(value)
-                subscript_value = cast(astroid.Const, subscript_value)
-                subscript_value = subscript_value.value
                 if subscript_value in (-1, 0):
                     new_fn = "rpartition" if subscript_value == -1 else "partition"
                     new_fn = new_fn[::-1]
@@ -170,17 +168,14 @@ class RecommendationChecker(checkers.BaseChecker):
                     if not isinstance(search_node.parent, astroid.Subscript):
                         continue
                     subscript_node = search_node.parent
-
-                    value = subscript_node.slice
-                    if isinstance(value, astroid.Index):
-                        value = value.value
-                    if not isinstance(value, (astroid.Const, astroid.UnaryOp)):
-                        return
-
-                    subscript_value = utils.safe_infer(value)
-                    subscript_value = cast(astroid.Const, subscript_value)
-                    subscript_value = subscript_value.value
-                    if subscript_value not in (-1, 0):
+                    inferrable = True
+                    try:
+                        subscript_value = utils.get_subscript_const_value(
+                            subscript_node
+                        ).value
+                    except ValueError:  # Can't infer subscript value
+                        inferrable = False
+                    if not inferrable or subscript_value not in (-1, 0):
                         return
                     subscript_usage.add(subscript_value)
             if not subscript_usage:  # Not used

@@ -1522,3 +1522,19 @@ def get_iterating_dictionary_name(
         return node.iter.as_string()
 
     return None
+
+
+def get_subscript_const_value(node: astroid.Subscript) -> astroid.Const:
+    """
+    Returns the value (subscript.slice) of a Subscript node,
+    also supports python <3.9 windows where node.slice might be an Index
+    node
+    """
+    value = node.slice
+    if isinstance(value, astroid.Index):
+        value = value.value
+    inferred = safe_infer(value)
+    if not isinstance(inferred, astroid.Const):
+        raise ValueError("Subscript.slice cannot be inferred as an astroid.Const")
+
+    return inferred
