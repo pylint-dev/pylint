@@ -43,7 +43,7 @@ modules are added.
 * Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage
 
   Closes #4412
-  
+
 * New checker ``consider-using-str-partition``. Emitted either when only accessing the first or last
   element of a ``str.split()`` or ``str.rsplit()``, or when a ``str.split()`` or ``str.rsplit()`` is
   used with a ``max_split`` argument value of 1.
