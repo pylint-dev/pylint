@@ -1,6 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
-import re
 from typing import cast
 
 import astroid
@@ -37,12 +36,14 @@ class RecommendationChecker(checkers.BaseChecker):
             "method of the dictionary instead.",
         ),
         "C0207": (
-            "Consider using %s[%d] instead",
+            "Consider using %s instead",
             "consider-using-str-partition",
             "Emitted when accessing only the first or last element of a str.split(sep). "
+            "Or when a str.split(sep,maxsplit=1) is used. "
             "The first and last element can be accessed by using str.partition(sep)[0] "
             "or str.rpartition(sep)[-1] instead, which is less computationally "
-            "expensive.",
+            "expensive and works the same as str.split() or str.rsplit() with a maxsplit "
+            "of 1",
         ),
     }
 
@@ -53,8 +54,14 @@ class RecommendationChecker(checkers.BaseChecker):
             return False
         return utils.is_builtin_object(inferred) and inferred.name == function
 
-    @utils.check_messages("consider-iterating-dictionary")
-    def visit_call(self, node):
+    @utils.check_messages(
+        "consider-iterating-dictionary", "consider-using-str-partition"
+    )
+    def visit_call(self, node: astroid.Call) -> None:
+        self._check_consider_iterating_dictionary(node)
+        self._check_consider_using_str_partition(node)
+
+    def _check_consider_iterating_dictionary(self, node: astroid.Call) -> None:
         if not isinstance(node.func, astroid.Attribute):
             return
         if node.func.attrname != "keys":
@@ -70,6 +77,127 @@ class RecommendationChecker(checkers.BaseChecker):
 
         if isinstance(node.parent, (astroid.For, astroid.Comprehension)):
             self.add_message("consider-iterating-dictionary", node=node)
+
+    def _check_consider_using_str_partition(self, node: astroid.Call) -> None:
+        """Add message when accessing first or last elements of a str.split() or str.rsplit(),
+        or when split/rsplit with max_split=1 is used"""
+
+        # Check if call is split() or rsplit()
+        if isinstance(node.func, astroid.Attribute) and node.func.attrname in (
+            "split",
+            "rsplit",
+        ):
+            inferred_func = utils.safe_infer(node.func)
+            fn_name = node.func.attrname
+            node_name = node.as_string()
+
+            if not isinstance(inferred_func, astroid.BoundMethod):
+                return
+
+            try:
+                seperator = utils.get_argument_from_call(node, 0, "sep").value
+            except utils.NoSuchArgumentError:
+                return
+            # Check if maxsplit is set, and if it's == 1 (this can be replaced by partition)
+            try:
+                maxsplit = utils.get_argument_from_call(node, 1, "maxsplit").value
+                if maxsplit == 1:
+                    self.add_message(
+                        "consider-using-str-partition",
+                        node=node,
+                        args=(
+                            f"{node.func.expr.as_string()}.{node.func.attrname.replace('split','partition')}('{seperator}')"
+                        ),
+                    )
+                return
+
+            except utils.NoSuchArgumentError:
+                pass
+
+            # Check if it's immediately subscripted
+            if isinstance(node.parent, astroid.Subscript):
+                subscript_node = node.parent
+                # Check if subscripted with -1/0
+                if not isinstance(
+                    subscript_node.slice, (astroid.Const, astroid.UnaryOp)
+                ):
+                    return
+                subscript_value = utils.safe_infer(subscript_node.slice)
+                subscript_value = cast(astroid.Const, subscript_value)
+                subscript_value = subscript_value.value
+                if subscript_value in (-1, 0):
+                    new_fn = "rpartition" if subscript_value == -1 else "partition"
+                    new_fn = new_fn[::-1]
+                    node_name = node_name[::-1]
+                    fn_name = fn_name[::-1]
+                    new_name = node_name.replace(fn_name, new_fn, 1)[::-1]
+                    self.add_message(
+                        "consider-using-str-partition", node=node, args=(new_name,)
+                    )
+                    return
+            # Check where name it's assigned to, then check all usage of name
+            assign_target = None
+            if isinstance(node.parent, astroid.Tuple):
+                assign_node = node.parent.parent
+                if not isinstance(assign_node, astroid.Assign):
+                    return
+                idx = node.parent.elts.index(node)
+                if not isinstance(assign_node.targets[0], astroid.Tuple):
+                    return
+                assign_target = assign_node.targets[0].elts[idx]
+            elif isinstance(node.parent, astroid.Assign):
+                assign_target = node.parent.targets[0]
+
+            if assign_target is None or not isinstance(
+                assign_target, astroid.AssignName
+            ):
+                return
+
+            # Go to outer-most scope (module), then search the child for usage
+            module_node = node
+            while not isinstance(module_node, astroid.Module):
+                module_node = module_node.parent
+
+            subscript_usage = set()
+            for child in module_node.body:
+                for search_node in child.nodes_of_class(astroid.Name):
+                    search_node = cast(astroid.Name, search_node)
+
+                    last_definition = search_node.lookup(search_node.name)[1][-1]
+                    if last_definition is not assign_target:
+                        continue
+                    if not isinstance(search_node.parent, astroid.Subscript):
+                        continue
+                    subscript_node = search_node.parent
+                    if not isinstance(
+                        subscript_node.slice, (astroid.Const, astroid.UnaryOp)
+                    ):
+                        return
+                    subscript_value = utils.safe_infer(subscript_node.slice)
+                    subscript_value = cast(astroid.Const, subscript_value)
+                    subscript_value = subscript_value.value
+                    if subscript_value not in (-1, 0):
+                        return
+                    subscript_usage.add(subscript_value)
+            if not subscript_usage:  # Not used
+                return
+            # Construct help text
+            help_text = ""
+            node_name = node_name[::-1]
+            fn_name = fn_name[::-1]
+            if 0 in subscript_usage:
+                new_fn = "partition"[::-1]
+                new_name = node_name.replace(fn_name, new_fn, 1)[::-1]
+                help_text += f"{new_name} to extract the first element of a .split()"
+
+            if -1 in subscript_usage:
+                new_fn = "rpartition"[::-1]
+                new_name = node_name.replace(fn_name, new_fn, 1)[::-1]
+                help_text += " and " if help_text != "" else ""
+                help_text += f"{new_name} to extract the last element of a .split()"
+            self.add_message(
+                "consider-using-str-partition", node=node, args=(help_text,)
+            )
 
     @utils.check_messages("consider-using-enumerate", "consider-using-dict-items")
     def visit_for(self, node: astroid.For) -> None:
@@ -219,101 +347,3 @@ class RecommendationChecker(checkers.BaseChecker):
 
                 self.add_message("consider-using-dict-items", node=node)
                 return
-
-    @utils.check_messages("consider-using-str-partition")
-    def visit_subscript(self, node: astroid.Subscript) -> None:
-        """Add message when accessing first or last elements of a str.split()."""
-        assignment = None
-        subscripted_object = node.value
-        if isinstance(subscripted_object, astroid.Name):
-            # Check assignment of this subscripted object
-            assignment_lookup_results = node.value.lookup(node.value.name)
-            if (
-                len(assignment_lookup_results) == 0
-                or len(assignment_lookup_results[-1]) == 0
-            ):
-                return
-            assign_name = assignment_lookup_results[-1][-1]
-            if not isinstance(assign_name, astroid.AssignName):
-                return
-            assignment = assign_name.parent
-            if not isinstance(assignment, astroid.Assign):
-                return
-            # Set subscripted_object to the assignment RHS
-            subscripted_object = assignment.value
-
-        if isinstance(subscripted_object, astroid.Call):
-            # Check if call is .split() or .rsplit()
-            if isinstance(
-                subscripted_object.func, astroid.Attribute
-            ) and subscripted_object.func.attrname in ["split", "rsplit"]:
-                inferred = utils.safe_infer(subscripted_object.func)
-                if not isinstance(inferred, astroid.BoundMethod):
-                    return
-
-                # Check if subscript is 1 or -1
-                value = node.slice
-                if isinstance(value, astroid.Index):
-                    value = value.value
-
-                if isinstance(value, (astroid.UnaryOp, astroid.Const)):
-                    const = utils.safe_infer(value)
-                    const = cast(astroid.Const, const)
-                    p = re.compile(
-                        r"tilpsr*\."
-                    )  # Match and replace in reverse to ensure last occurance replaced
-                    if const.value == -1:
-                        help_text = p.sub(
-                            ".rpartition"[::-1],
-                            subscripted_object.as_string()[::-1],
-                            count=1,
-                        )[::-1]
-                        self.add_message(
-                            "consider-using-str-partition",
-                            node=node,
-                            args=(help_text, -1),
-                        )
-                    elif const.value == 0:
-                        help_text = p.sub(
-                            ".partition"[::-1],
-                            subscripted_object.as_string()[::-1],
-                            count=1,
-                        )[::-1]
-                        self.add_message(
-                            "consider-using-str-partition",
-                            node=node,
-                            args=(help_text, 0),
-                        )
-                # Check if subscript is len(split) - 1
-                if (
-                    isinstance(value, astroid.BinOp)
-                    and value.left.func.name == "len"
-                    and value.op == "-"
-                    and value.right.value == 1
-                    and assignment is not None
-                ):
-                    # Ensure that the len() is from builtins, not user re-defined
-                    inferred_fn = utils.safe_infer(value.left.func)
-                    if not (
-                        isinstance(inferred_fn, astroid.FunctionDef)
-                        and isinstance(inferred_fn.parent, astroid.Module)
-                        and inferred_fn.parent.name == "builtins"
-                    ):
-                        return
-
-                    # Further check for argument within len(), and compare that to object being split
-                    arg_within_len = value.left.args[0].name
-                    if arg_within_len == node.value.name:
-                        p = re.compile(
-                            r"tilpsr*\."
-                        )  # Match and replace in reverse to ensure last occurance replaced
-                        help_text = p.sub(
-                            ".rpartition"[::-1],
-                            subscripted_object.as_string()[::-1],
-                            count=1,
-                        )[::-1]
-                        self.add_message(
-                            "consider-using-str-partition",
-                            node=node,
-                            args=(help_text, -1),
-                        )
