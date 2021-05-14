@@ -1,18 +1,6 @@
 """Emit a message for iteration through dict keys and subscripting dict with key."""
 # pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,invalid-name,redefined-builtin
 
-
-# Test varying maxsplit argument
-bad_split = '1,2,3'.split(sep=',',maxsplit=1)  # [consider-using-str-partition]
-bad_split = '1,2,3'[::-1].split(',',1)  # [consider-using-str-partition]
-
-good_split = '1,2,3'[::-1].split(',',2)
-good_split = '1,2,3'[::-1].split(',')
-
-good_split = '1,2,3'[::-1].split(',',2)[0]  #This is fine, we ignore cases where maxsplit > 1
-good_split = '1,2,3'[::-1].split(',',2)[-1]  #This is fine, we ignore cases where maxsplit > 1
-
-
 # Test subscripting .split()
 get_first = '1,2,3'.split(',')[0]  # [consider-using-str-partition]
 get_last = '1,2,3'[::-1].split(',')[0]  # [consider-using-str-partition]
@@ -27,32 +15,24 @@ get_mid = SEQ.split(',')[1]  # This is okay
 get_mid = SEQ.split(',')[-2]  # This is okay
 
 
-# Test with storing splits as an object
-split1 = SEQ.split(',')  # [consider-using-str-partition]
-get_first = split1[0]
-get_last = split1[-1]
+# Test varying maxsplit argument
+## str.split() tests
+bad_split = '1,2,3'.split(sep=',', maxsplit=1)[1]  # [consider-using-str-partition]
 
-split2 = SEQ.rsplit(',')  # [consider-using-str-partition]
-get_first = split2[0]
-get_last = split2[-1]
+good_split = '1,2,3'.split(sep=',', maxsplit=1)[-1]  # This is fine
+good_split = '1,2,3'.split(sep=',', maxsplit=1)[0]  # This is fine
+good_split = '1,2,3'.split(sep=',', maxsplit=2)[-1]  # This is fine, we ignore cases where maxsplit > 1
+good_split = '1,2,3'.split(sep=',', maxsplit=2)[0]  # This is fine, we ignore cases where maxsplit > 1
+good_split = '1,2,3'.split(sep=',', maxsplit=2)[1]  # This is fine, we ignore cases where maxsplit > 1
 
-split3 = SEQ.rsplit(',')  # This is fine, split3 indexed with [1]
-get_first = split3[0]
-get_middle = split3[1]
-get_last = split3[-1]
+## str.rsplit() tests
+bad_split = '1,2,3'.rsplit(sep=',', maxsplit=1)[1]  # [consider-using-str-partition]
 
-split1, split2 = SEQ.split(','), SEQ.rsplit(',')  # [consider-using-str-partition, consider-using-str-partition]
-get_first = split1[0]
-get_last = split1[-1]
-get_first = split2[0]
-get_last = split2[-1]
-
-split1, split2 = SEQ.split(','), SEQ.rsplit(',')  # This is fine, both splits are utilized
-get_first = split1[0]
-get_last = split1[-1]
-get_first = split2[0]
-get_last = split2[-1]
-split1[1] = split2[1]
+good_split = '1,2,3'.rsplit(sep=',', maxsplit=1)[-1]  # This is fine
+good_split = '1,2,3'.rsplit(sep=',', maxsplit=1)[0]  # This is fine
+good_split = '1,2,3'.rsplit(sep=',', maxsplit=2)[-1]  # This is fine, we ignore cases where maxsplit > 1
+good_split = '1,2,3'.rsplit(sep=',', maxsplit=2)[0]  # This is fine, we ignore cases where maxsplit > 1
+good_split = '1,2,3'.rsplit(sep=',', maxsplit=2)[1]  # This is fine, we ignore cases where maxsplit > 1
 
 
 # Tests on class attributes
@@ -72,10 +52,6 @@ get_last = Foo.class_str.rsplit(',')[-1]  # [consider-using-str-partition]
 
 get_mid = Foo.class_str.split(',')[1]
 get_mid = Foo.class_str.split(',')[-2]
-
-split2 = Foo.class_str.split(',')  # [consider-using-str-partition]
-get_first = split2[0]
-get_last = split2[-1]
 
 
 # Test with accessors

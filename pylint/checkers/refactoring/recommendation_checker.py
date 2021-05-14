@@ -93,26 +93,19 @@ class RecommendationChecker(checkers.BaseChecker):
 
             if not isinstance(inferred_func, astroid.BoundMethod):
                 return
-
             try:
                 seperator = utils.get_argument_from_call(node, 0, "sep").value
             except utils.NoSuchArgumentError:
                 return
-            # Check if maxsplit is set, and if it's == 1 (this can be replaced by partition)
+
+            # Check if maxsplit is set, and ignore checking if maxsplit is > 1
             try:
                 maxsplit = utils.get_argument_from_call(node, 1, "maxsplit").value
-                if maxsplit == 1:
-                    self.add_message(
-                        "consider-using-str-partition",
-                        node=node,
-                        args=(
-                            f"{node.func.expr.as_string()}.{node.func.attrname.replace('split','partition')}('{seperator}')"
-                        ),
-                    )
-                return
+                if maxsplit > 1:
+                    return
 
             except utils.NoSuchArgumentError:
-                pass
+                maxsplit = 0
 
             # Check if it's immediately subscripted
             if isinstance(node.parent, astroid.Subscript):
@@ -124,79 +117,24 @@ class RecommendationChecker(checkers.BaseChecker):
                     ).value
                 except ValueError:
                     return
-                if subscript_value in (-1, 0):
+
+                if maxsplit == 1 and subscript_value == 1:
+                    new_func = node.func.attrname.replace("split", "partition")
+                    new_name = f"{node.as_string().rpartition('.')[0]}.{new_func}({seperator})[-1]"
+                    self.add_message(
+                        "consider-using-str-partition", node=node, args=(new_name,)
+                    )
+
+                if maxsplit == 0 and subscript_value in (-1, 0):
                     new_fn = "rpartition" if subscript_value == -1 else "partition"
                     new_fn = new_fn[::-1]
                     node_name = node_name[::-1]
                     fn_name = fn_name[::-1]
-                    new_name = node_name.replace(fn_name, new_fn, 1)[::-1]
+                    new_name = f"{node_name.replace(fn_name, new_fn, 1)[::-1]}[{subscript_value}]"
                     self.add_message(
                         "consider-using-str-partition", node=node, args=(new_name,)
                     )
                     return
-            # Check where name it's assigned to, then check all usage of name
-            assign_target = None
-            if isinstance(node.parent, astroid.Tuple):
-                assign_node = node.parent.parent
-                if not isinstance(assign_node, astroid.Assign):
-                    return
-                idx = node.parent.elts.index(node)
-                if not isinstance(assign_node.targets[0], astroid.Tuple):
-                    return
-                assign_target = assign_node.targets[0].elts[idx]
-            elif isinstance(node.parent, astroid.Assign):
-                assign_target = node.parent.targets[0]
-
-            if assign_target is None or not isinstance(
-                assign_target, astroid.AssignName
-            ):
-                return
-
-            # Go to outer-most scope (module), then search the child for usage
-            module_node = node
-            while not isinstance(module_node, astroid.Module):
-                module_node = module_node.parent
-
-            subscript_usage = set()
-            for child in module_node.body:
-                for search_node in child.nodes_of_class(astroid.Name):
-                    search_node = cast(astroid.Name, search_node)
-
-                    last_definition = search_node.lookup(search_node.name)[1][-1]
-                    if last_definition is not assign_target:
-                        continue
-                    if not isinstance(search_node.parent, astroid.Subscript):
-                        continue
-                    subscript_node = search_node.parent
-                    inferrable = True
-                    try:
-                        subscript_value = utils.get_subscript_const_value(
-                            subscript_node
-                        ).value
-                    except ValueError:  # Can't infer subscript value
-                        inferrable = False
-                    if not inferrable or subscript_value not in (-1, 0):
-                        return
-                    subscript_usage.add(subscript_value)
-            if not subscript_usage:  # Not used
-                return
-            # Construct help text
-            help_text = ""
-            node_name = node_name[::-1]
-            fn_name = fn_name[::-1]
-            if 0 in subscript_usage:
-                new_fn = "partition"[::-1]
-                new_name = node_name.replace(fn_name, new_fn, 1)[::-1]
-                help_text += f"{new_name} to extract the first element of a .split()"
-
-            if -1 in subscript_usage:
-                new_fn = "rpartition"[::-1]
-                new_name = node_name.replace(fn_name, new_fn, 1)[::-1]
-                help_text += " and " if help_text != "" else ""
-                help_text += f"{new_name} to extract the last element of a .split()"
-            self.add_message(
-                "consider-using-str-partition", node=node, args=(help_text,)
-            )
 
     @utils.check_messages("consider-using-enumerate", "consider-using-dict-items")
     def visit_for(self, node: astroid.For) -> None:
