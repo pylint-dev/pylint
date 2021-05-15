@@ -38,13 +38,16 @@ import collections
 import numbers
 import re
 import tokenize
-from typing import Counter, Iterable
+from typing import TYPE_CHECKING, Iterable
 
 import astroid
 
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+
+if TYPE_CHECKING:
+    from typing import Counter  # typing.Counter added in Python 3.6.1
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
 # Prefixes for both strings and bytes literals per
@@ -750,7 +753,8 @@ class StringConstantChecker(BaseTokenChecker):
         Args:
           tokens: The tokens to be checked against for consistent usage.
         """
-        string_delimiters: Counter[str] = collections.Counter()
+        # typing.Counter added in Python 3.6.1 so this type hint must be a comment
+        string_delimiters = collections.Counter()  # type: Counter[str]
 
         # First, figure out which quote character predominates in the module
         for tok_type, token, _, _, _ in tokens:

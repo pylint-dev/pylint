@@ -38,6 +38,17 @@ modules are added.
 
   Closes #3536
 
+* New checker ``consider-using-dict-items``. Emitted  when iterating over dictionary keys and then
+  indexing the same dictionary with the key within loop body.
+
+  Closes #3389
+
+* Don't emit ``import-error`` if import guarded behind ``if sys.version_info >= (x, x)``
+
+* Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage
+
+  Closes #4412
+
 
 What's New in Pylint 2.8.2?
 ===========================
