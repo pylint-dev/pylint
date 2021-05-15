@@ -9,7 +9,7 @@ class Parent(object):
 
 class Child(Parent):
 
-    def test(self, arg): # [arguments-differ]
+    def test(self, arg):  # [arguments-differ]
         pass
 
 
@@ -20,7 +20,7 @@ class ParentDefaults(object):
 
 class ChildDefaults(ParentDefaults):
 
-    def test(self, arg=None): # [arguments-differ]
+    def test(self, arg=None):  # [arguments-differ]
         pass
 
 
@@ -38,7 +38,7 @@ class Classmethod(object):
 class ClassmethodChild(Classmethod):
 
     @staticmethod
-    def func(): # [arguments-differ]
+    def func():  # [arguments-differ]
         pass
 
     @classmethod
@@ -65,11 +65,11 @@ class Varargs(object):
 
 class VarargsChild(Varargs):
 
-    def has_kwargs(self, arg): # [arguments-differ]
-        "Not okay to lose capabilities."
+    def has_kwargs(self, arg):  # [arguments-differ]
+        "Not okay to lose capabilities. Also, type has changed."
 
-    def no_kwargs(self, arg, **kwargs): # [arguments-differ]
-        "Not okay to add extra capabilities."
+    def no_kwargs(self, arg, **kwargs):  # [arguments-differ]
+        "Addition of kwargs does not violate LSP, but first argument's name has changed."
 
 
 class Super(object):
@@ -169,7 +169,7 @@ class FirstHasArgs(object):
 
 class SecondChangesArgs(FirstHasArgs):
 
-    def test(self, first, second, *args): # [arguments-differ]
+    def test(self, first, second, *args):  # [arguments-differ]
         pass
 
 
@@ -220,6 +220,7 @@ class HasSpecialMethod(object):
 class OverridesSpecialMethod(HasSpecialMethod):
 
     def __getitem__(self, cheie):
+        # no error here, method overrides special method
         return cheie + 1
 
 
@@ -232,4 +233,40 @@ class ParentClass(object):
 class ChildClass(ParentClass):
 
     def meth(self, _arg, dummy):
+        # no error here, "dummy" and "_" are being ignored if
+        # spotted in a variable name (declared in dummy_parameter_regex)
+        pass
+
+
+# https://github.com/PyCQA/pylint/issues/4443
+# Some valid overwrites with type annotations
+
+import typing  # pylint: disable=wrong-import-position
+from typing import Dict  # pylint: disable=wrong-import-position
+
+class ParentT1:
+    def func(self, user_input: Dict[str, int]) -> None:
+        pass
+
+class ChildT1(ParentT1):
+    def func(self, user_input: Dict[str, int]) -> None:
+        pass
+
+class ParentT2:
+    async def func(self, user_input: typing.List) -> None:
+        pass
+
+class ChildT2(ParentT2):
+    async def func(self, user_input: typing.List) -> None:
+        pass
+
+class FooT1:
+    pass
+
+class ParentT3:
+    def func(self, user_input: FooT1) -> None:
+        pass
+
+class ChildT3(ParentT3):
+    def func(self, user_input: FooT1) -> None:
         pass

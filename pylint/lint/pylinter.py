@@ -265,6 +265,17 @@ class PyLinter(
                 },
             ),
             (
+                "fail-on",
+                {
+                    "default": "",
+                    "type": "csv",
+                    "metavar": "<msg ids>",
+                    "help": "Return non-zero exit code if any of these messages/categories are detected,"
+                    " even if score is above --fail-under value. Syntax same as enable."
+                    " Messages specified are enabled, while categories only check already-enabled messages.",
+                },
+            ),
+            (
                 "confidence",
                 {
                     "type": "multiple_choice",
@@ -450,6 +461,7 @@ class PyLinter(
         self.current_name = None
         self.current_file = None
         self.stats = None
+        self.fail_on_symbols = []
         # init options
         self._external_opts = options
         self.options = options + PyLinter.make_options()
@@ -608,6 +620,40 @@ class PyLinter(
         # Register the checker, but disable all of its messages.
         if not getattr(checker, "enabled", True):
             self.disable(checker.name)
+
+    def enable_fail_on_messages(self):
+        """enable 'fail on' msgs
+
+        Convert values in config.fail_on (which might be msg category, msg id,
+        or symbol) to specific msgs, then enable and flag them for later.
+        """
+        fail_on_vals = self.config.fail_on
+        if not fail_on_vals:
+            return
+
+        fail_on_cats = set()
+        fail_on_msgs = set()
+        for val in fail_on_vals:
+            # If value is a cateogry, add category, else add message
+            if val in MSG_TYPES:
+                fail_on_cats.add(val)
+            else:
+                fail_on_msgs.add(val)
+
+        # For every message in every checker, if cat or msg flagged, enable check
+        for all_checkers in self._checkers.values():
+            for checker in all_checkers:
+                for msg in checker.messages:
+                    if msg.msgid in fail_on_msgs or msg.symbol in fail_on_msgs:
+                        # message id/symbol matched, enable and flag it
+                        self.enable(msg.msgid)
+                        self.fail_on_symbols.append(msg.symbol)
+                    elif msg.msgid[0] in fail_on_cats:
+                        # message starts with a cateogry value, flag (but do not enable) it
+                        self.fail_on_symbols.append(msg.symbol)
+
+    def any_fail_on_issues(self):
+        return any(x in self.fail_on_symbols for x in self.stats["by_msg"])
 
     def disable_noerror_messages(self):
         for msgcat, msgids in self.msgs_store._msgs_by_category.items():
@@ -1175,7 +1221,7 @@ class PyLinter(
             msg = "Your code has been rated at %.2f/10" % note
             pnote = previous_stats.get("global_note")
             if pnote is not None:
-                msg += " (previous run: {:.2f}/10, {:+.2f})".format(pnote, note - pnote)
+                msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
 
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)

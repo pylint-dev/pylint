@@ -51,7 +51,23 @@ SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
 OPEN_MODULE = "_io"
 
+
+DEPRECATED_MODULES = {
+    (0, 0, 0): {"tkinter.tix", "fpectl"},
+    (3, 2, 0): {"optparse"},
+    (3, 4, 0): {"imp"},
+    (3, 5, 0): {"formatter"},
+    (3, 6, 0): {"asynchat", "asyncore"},
+    (3, 7, 0): {"macpath"},
+    (3, 9, 0): {"lib2to3", "parser", "symbol", "binhex"},
+}
+
 DEPRECATED_ARGUMENTS = {
+    (0, 0, 0): {
+        "int": ((None, "x"),),
+        "bool": ((None, "x"),),
+        "float": ((None, "x"),),
+    },
     (3, 8, 0): {
         "asyncio.tasks.sleep": ((None, "loop"),),
         "asyncio.tasks.gather": ((None, "loop"),),
@@ -63,6 +79,8 @@ DEPRECATED_ARGUMENTS = {
         "asyncio.subprocess.create_subprocess_shell": ((4, "loop"),),
         "gettext.translation": ((5, "codeset"),),
         "gettext.install": ((2, "codeset"),),
+        "functools.partialmethod": ((None, "func"),),
+        "weakref.finalize": ((None, "func"), (None, "obj")),
         "profile.Profile.runcall": ((None, "func"),),
         "cProfile.Profile.runcall": ((None, "func"),),
         "bdb.Bdb.runcall": ((None, "func"),),
@@ -137,6 +155,7 @@ DEPRECATED_METHODS = {
             "base64.decodestring",
             "ntpath.splitunc",
             "os.path.splitunc",
+            "os.stat_float_times",
         },
         (3, 2, 0): {
             "cgi.escape",
@@ -197,6 +216,55 @@ DEPRECATED_METHODS = {
             "binascii.rlecode_hqx",
             "binascii.rledecode_hqx",
         },
+        (3, 10, 0): {
+            "_sqlite3.enable_shared_cache",
+            "pathlib.Path.link_to",
+        },
+    },
+}
+
+
+DEPRECATED_CLASSES = {
+    (3, 3, 0): {
+        "importlib.abc": {
+            "Finder",
+        },
+        "pkgutil": {
+            "ImpImporter",
+            "ImpLoader",
+        },
+        "collections": {
+            "Awaitable",
+            "Coroutine",
+            "AsyncIterable",
+            "AsyncIterator",
+            "AsyncGenerator",
+            "Hashable",
+            "Iterable",
+            "Iterator",
+            "Generator",
+            "Reversible",
+            "Sized",
+            "Container",
+            "Callable",
+            "Collection",
+            "Set",
+            "MutableSet",
+            "Mapping",
+            "MutableMapping",
+            "MappingView",
+            "KeysView",
+            "ItemsView",
+            "ValuesView",
+            "Sequence",
+            "MutableSequence",
+            "ByteString",
+        },
+    },
+    (3, 9, 0): {
+        "smtpd": {
+            "MailmanProxy",
+        }
     },
 }
 
@@ -316,6 +384,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "deprecated-argument",
             "The argument is marked as deprecated and will be removed in the future.",
         ),
+        "W1512": (
+            "Using deprecated class %s of module %s",
+            "deprecated-class",
+            "The class is marked as deprecated and will be removed in the future.",
+        ),
     }
 
     def __init__(self, linter=None):
@@ -329,6 +402,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, func_list in DEPRECATED_ARGUMENTS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_attributes.update(func_list)
+        self._deprecated_classes = dict()
+        for since_vers, class_list in DEPRECATED_CLASSES.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_classes.update(class_list)
+        self._deprecated_modules = set()
+        for since_vers, mod_list in DEPRECATED_MODULES.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_modules.update(mod_list)
 
     def _check_bad_thread_instantiation(self, node):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
@@ -363,10 +444,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "invalid-envvar-default",
         "subprocess-popen-preexec-fn",
         "subprocess-run-check",
+        "deprecated-class",
     )
     def visit_call(self, node):
         """Visit a Call node."""
         try:
+            self.check_deprecated_class_in_call(node)
             for inferred in node.func.infer():
                 if inferred is astroid.Uninferable:
                     continue
@@ -505,11 +588,18 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         else:
             self.add_message(message, node=node, args=(name, call_arg.pytype()))
 
+    def deprecated_modules(self):
+        """Callback returning the deprecated modules."""
+        return self._deprecated_modules
+
     def deprecated_methods(self):
         return self._deprecated_methods
 
     def deprecated_arguments(self, method: str):
         return self._deprecated_attributes.get(method, ())
+
+    def deprecated_classes(self, module: str):
+        return self._deprecated_classes.get(module, ())
 
 
 def register(linter):

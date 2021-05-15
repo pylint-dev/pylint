@@ -2,12 +2,52 @@
 Pylint's ChangeLog
 ------------------
 
-What's New in Pylint 2.8.2?
+What's New in Pylint 2.9.0?
 ===========================
-Release date: 2021-04-26
+Release date: TBA
 
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
+
+* The warning for ``arguments-differ`` now signals explicitly the difference it detected
+  by naming the argument or arguments that changed and the type of change that occurred.
+
+* Suppress ``consider-using-with`` inside context managers.
+
+  Closes #4430
+
+* Added ``--fail-on`` option to return non-zero exit codes regardless of ``--fail-under`` value.
+
+* numversion tuple contains integers again to fix multiple pylint's plugins that relied on it
+
+  Closes #4420
+
+* Fix false-positive ``too-many-ancestors`` when inheriting from builtin classes,
+  especially from the ``collections.abc`` module
+
+  Closes #4166
+  Closes #4415
+
+* Stdlib deprecated modules check is moved to stdlib checker. New deprecated
+modules are added.
+
+* Fix raising false-positive ``no-member`` on abstract properties
+
+* New checker ``consider-using-dict-items``. Emitted  when iterating over dictionary keys and then
+  indexing the same dictionary with the key within loop body.
+
+  Closes #3389
+
+* Don't emit ``import-error`` if import guarded behind ``if sys.version_info >= (x, x)``
+
+* Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage
+
+  Closes #4412
+
+
+What's New in Pylint 2.8.2?
+===========================
+Release date: 2021-04-26
 
 * Keep ``__pkginfo__.numversion`` a tuple to avoid breaking pylint-django.
 
@@ -17,13 +57,15 @@ Release date: 2021-04-26
 
 * Pylint's tags are now the standard form ``vX.Y.Z`` and not ``pylint-X.Y.Z`` anymore.
 
+* New warning message ``deprecated-class``. This message is emitted if import or call deprecated class of the
+standard library (like ``collections.Iterable`` that will be removed in Python 3.10).
+
+Closes #4388
+
 
 What's New in Pylint 2.8.1?
 ===========================
 Release date: 2021-04-25
-
-..
-  Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
 * Add numversion back (temporarily) in ``__pkginfo__`` because it broke Pylama and revert the unnecessary
   ``pylint.version`` breaking change.

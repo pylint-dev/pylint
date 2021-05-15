@@ -103,6 +103,17 @@ def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
     return False
 
 
+def _is_inside_context_manager(node):
+    frame = node.frame()
+    if not isinstance(
+        frame, (astroid.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod)
+    ):
+        return False
+    return frame.name == "__enter__" or utils.decorated_with(
+        frame, "contextlib.contextmanager"
+    )
+
+
 class RefactoringChecker(checkers.BaseTokenChecker):
     """Looks for code which can be refactored
 
@@ -1272,12 +1283,20 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         assigned = node.value
         if isinstance(assigned, astroid.Call):
             inferred = utils.safe_infer(assigned.func)
-            if inferred and inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS:
+            if (
+                inferred
+                and inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS
+                and not _is_inside_context_manager(node)
+            ):
                 self.add_message("consider-using-with", node=node)
 
     def _check_consider_using_with_instead_call(self, node: astroid.Call):
         inferred = utils.safe_infer(node.func)
-        if inferred and inferred.qname() in CALLS_THAT_COULD_BE_REPLACED_BY_WITH:
+        if (
+            inferred
+            and inferred.qname() in CALLS_THAT_COULD_BE_REPLACED_BY_WITH
+            and not _is_inside_context_manager(node)
+        ):
             self.add_message("consider-using-with", node=node)
 
     def _check_consider_using_join(self, aug_assign):

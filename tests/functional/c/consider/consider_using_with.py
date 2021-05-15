@@ -1,5 +1,6 @@
 # pylint: disable=missing-function-docstring, missing-module-docstring, invalid-name, import-outside-toplevel
 import codecs
+import contextlib
 import multiprocessing
 import subprocess
 import tarfile
@@ -81,14 +82,6 @@ def test_lock_acquisition():
     with rlock:  # must not trigger
         pass
 
-    # Not working currently
-    # condition = threading.Condition()
-    # condition.acquire()
-    # condition.release()
-
-    # with condition:  # must not trigger
-    #     pass
-
     sema = threading.Semaphore()
     sema.acquire()  # [consider-using-with]
     sema.release()
@@ -102,6 +95,31 @@ def test_lock_acquisition():
 
     with bounded_sema:  # must not trigger
         pass
+
+
+@contextlib.contextmanager
+def test_lock_acquisition_in_context_manager1():
+    """
+    The message must not be triggered if the resource allocation is done inside a context manager.
+    """
+    lock = threading.Lock()
+    lock.acquire()  # must not trigger
+    yield
+    lock.release()
+
+
+class MyLockContext:
+    """
+    The message must not be triggered if the resource allocation is done inside a context manager.
+    """
+    def __init__(self):
+        self.lock = threading.Lock()
+
+    def __enter__(self):
+        self.lock.acquire()  # must not trigger
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.lock.release()
 
 
 def test_multiprocessing():

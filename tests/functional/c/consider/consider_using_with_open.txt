@@ -1,1 +1,2 @@
-consider-using-with:11:4:test_open:Consider using 'with' for resource-allocating operations
+consider-using-with:12:0::Consider using 'with' for resource-allocating operations
+consider-using-with:16:4:test_open:Consider using 'with' for resource-allocating operations

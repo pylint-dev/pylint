@@ -368,6 +368,9 @@ group are mutually exclusive.",
         # load plugin specific configuration.
         linter.load_plugin_configuration()
 
+        # Now that plugins are loaded, get list of all fail_on messages, and enable them
+        linter.enable_fail_on_messages()
+
         if self._output:
             try:
                 with open(self._output, "w") as output:
@@ -392,7 +395,12 @@ group are mutually exclusive.",
             if linter.config.exit_zero:
                 sys.exit(0)
             else:
-                if score_value and score_value >= linter.config.fail_under:
+                if (
+                    score_value
+                    and score_value >= linter.config.fail_under
+                    # detected messages flagged by --fail-on prevent non-zero exit code
+                    and not linter.any_fail_on_issues()
+                ):
                     sys.exit(0)
                 sys.exit(self.linter.msg_status)
 

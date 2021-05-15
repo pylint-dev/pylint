@@ -478,3 +478,11 @@ contributors:
 * manderj: contributor
 
 * qwiddle: contributor
+
+* das-intensity: contributor
+
+* Jiajunsu (victor): contributor
+
+* Andrew Haigh (nelfin): contributor
+
+* Pang Yu Shao (yushao2): contributor

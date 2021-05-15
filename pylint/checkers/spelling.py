@@ -74,7 +74,7 @@ if enchant is not None:
     br = enchant.Broker()
     dicts = br.list_dicts()
     dict_choices = [""] + [d[0] for d in dicts]
-    dicts = ["{} ({})".format(d[0], d[1].name) for d in dicts]
+    dicts = [f"{d[0]} ({d[1].name})" for d in dicts]
     dicts = ", ".join(dicts)
     instr = ""
 else:

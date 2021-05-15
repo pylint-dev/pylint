@@ -15,6 +15,9 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
     def deprecated_modules(self):
         return {"deprecated_module"}
 
+    def deprecated_classes(self, module):
+        return ["DeprecatedClass"] if module == "deprecated" else []
+
     def deprecated_arguments(self, method):
         if method == "myfunction1":
             # def myfunction1(arg1, deprecated_arg1='spam')
@@ -34,6 +37,9 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
         if method == ".MyClass.mymethod3":
             # def mymethod1(self, arg1, *, deprecated_arg1=None)
             return ((None, "deprecated_arg1"),)
+        if method == ".MyClass":
+            # def __init__(self, deprecated_arg=None)
+            return ((0, "deprecated_arg"),)
         return ()
 
 
@@ -359,6 +365,27 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
+    def test_class_deprecated_arguments(self):
+
+        node = astroid.extract_node(
+            """
+        class MyClass:
+            def __init__(self, deprecated_arg=None):
+                pass
+
+        MyClass(5)
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-argument",
+                args=("deprecated_arg", "MyClass"),
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_call(node)
+
     def test_deprecated_module(self):
         # Tests detecting deprecated module
         node = astroid.extract_node(
@@ -392,3 +419,55 @@ class TestDeprecatedChecker(CheckerTestCase):
             )
         ):
             self.checker.visit_importfrom(node)
+
+    def test_deprecated_class_import_from(self):
+        # Tests detecting deprecated class via import from
+        node = astroid.extract_node(
+            """
+        from .deprecated import DeprecatedClass
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-class",
+                args=("DeprecatedClass", "deprecated"),
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_importfrom(node)
+
+    def test_deprecated_class_import(self):
+        # Tests detecting deprecated class via import
+        node = astroid.extract_node(
+            """
+        import deprecated.DeprecatedClass
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-class",
+                args=("DeprecatedClass", "deprecated"),
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_import(node)
+
+    def test_deprecated_class_call(self):
+        # Tests detecting deprecated class via call
+        node = astroid.extract_node(
+            """
+        import deprecated
+        deprecated.DeprecatedClass()
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-class",
+                args=("DeprecatedClass", "deprecated"),
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_call(node)

@@ -20,6 +20,10 @@ README for Pylint - https://pylint.pycqa.org/
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
 
+.. image:: https://results.pre-commit.ci/badge/github/PyCQA/pylint/master.svg
+   :target: https://results.pre-commit.ci/latest/github/PyCQA/pylint/master
+   :alt: pre-commit.ci status
+
 .. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/master/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
    :width: 75
    :height: 60
