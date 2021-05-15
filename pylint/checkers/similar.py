@@ -110,8 +110,36 @@ HashToIndex_T = Dict[LinesChunk, List[Index]]
 # Links index in the lineset's stripped lines to the real lines in the file
 IndexToLines_T = Dict[Index, SuccessiveLinesLimits]  
 
-# Indices in both linesets that mark the beginning of successive lines
-LineSetStartCouple = NamedTuple("LineSetStartCouple", (('fst_lineset_index', Index), ('snd_lineset_index', Index)))
+class LineSetStartCouple:
+    """
+    Indices in both linesets that mark the beginning of successive lines
+    """
+    def __init__(self, fst_lineset_index: Index, snd_lineset_index: Index):
+        self._fst_lineset_index = fst_lineset_index
+        self._snd_lineset_index = snd_lineset_index
+
+    def __repr__(self) -> str:
+        return f"<LineSetStartCouple <{self._fst_lineset_index};{self._snd_lineset_index}>>"
+
+    def __add__(self, value: Index):
+        return LineSetStartCouple(Index(self._fst_lineset_index + value), Index(self._snd_lineset_index + value))
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, LineSetStartCouple):
+            raise NotImplemented
+        return self._fst_lineset_index == other._fst_lineset_index and self._snd_lineset_index == other._snd_lineset_index
+
+    def __hash__(self) -> int:
+        return hash(self._fst_lineset_index) + hash(self._snd_lineset_index)
+
+    @property
+    def fst_lineset_index(self) -> Index:
+        return self._fst_lineset_index
+
+    @property
+    def snd_lineset_index(self) -> Index:
+        return self._snd_lineset_index
+        
 
 # Couples of SuccesiveLinesLimits, one for first file, another for the second file 
 CplSuccessiveLinesLimits = NamedTuple("CplSuccessiveLinesLimits", (("first_file", SuccessiveLinesLimits), ("second_file", SuccessiveLinesLimits)))
@@ -178,12 +206,12 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
     all_couples_keys : List[LineSetStartCouple] = list(all_couples.keys())
     for couple in all_couples_keys:
         to_remove = []
-        test = LineSetStartCouple(Index(couple[0] + 1), Index(couple[1] + 1))
+        test = couple + Index(1)
         while test in all_couples:
             all_couples[couple].first_file.end = all_couples[test].first_file.end
             all_couples[couple].second_file.end = all_couples[test].second_file.end
             to_remove.append(test)
-            test = LineSetStartCouple(Index(test[0] + 1), Index(test[1] + 1))
+            test += 1 
 
         for target in to_remove:
             try:
