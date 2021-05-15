@@ -333,9 +333,14 @@ class Similar:
         self.linesets = [line for lineset in linesets_collection for line in lineset]
 
 
-def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
-    """return lines with leading/trailing whitespace and any ignored code
-    features removed
+def stripped_lines(lines: Iterable[str], ignore_comments: bool, ignore_docstrings: bool, ignore_imports: bool) -> List[LineSpecifs]:
+    """
+    Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed
+
+    :param lines: a collection of lines
+    :param ignore_comments: if true, any comment in the lines collection is removed from the result
+    :param ignore_docstrings: if true, any line that is a docstring is removed from the result
+    :param ignore_imports: if true, any line that is an import is removed from the result
     """
     if ignore_imports:
         tree = astroid.parse("".join(lines))
