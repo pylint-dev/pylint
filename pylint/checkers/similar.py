@@ -308,32 +308,6 @@ class Similar:
             if check_sim(lineset1, start_line_1, lineset2, start_line_2, nb_common_lines_1, min_common):
                 yield nb_common_lines_1, lineset1, start_line_1, lineset2, start_line_2
 
-        # find = lineset2.find
-        # index1 = 0
-        # min_lines = self.min_lines
-        # while index1 < len(lineset1):
-        #     skip = 1
-        #     num = 0
-        #     for index2 in find(lineset1[index1]):
-        #         num_lines_with_content = 0
-        #         for num, ((_, line1), (_, line2)) in enumerate(
-        #             zip(lines1(index1), lines2(index2))
-        #         ):
-        #             if line1 != line2:
-        #                 if num_lines_with_content > min_lines:
-        #                     yield num, lineset1, index1, lineset2, index2
-        #                 skip = max(skip, num)
-        #                 break
-        #             if re.match(REGEX_FOR_LINES_WITH_CONTENT, line1):
-        #                 num_lines_with_content += 1
-        #         else:
-        #             # we may have reached the end
-        #             num += 1
-        #             if num_lines_with_content > min_lines:
-        #                 yield num, lineset1, index1, lineset2, index2
-        #             skip = max(skip, num)
-        #     index1 += skip
-
     def _iter_sims(self):
         """iterate on similarities among all files, by making a cartesian
         product
