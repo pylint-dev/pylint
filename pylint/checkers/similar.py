@@ -25,6 +25,7 @@
 # pylint: disable=redefined-builtin
 """a similarities / code duplication command line tool and pylint checker
 """
+import copy
 import functools
 from os import posix_fadvise
 import re
@@ -291,7 +292,7 @@ class Similar:
             for indices_in_linesets in itertools.product(hash_to_index_1[c_hash], hash_to_index_2[c_hash]):
                 index_1 = indices_in_linesets[0]
                 index_2 = indices_in_linesets[1]
-                all_couples[LineSetStartCouple(index_1, index_2)] = CplSuccessiveLinesLimits(index_to_lines_1[index_1], index_to_lines_2[index_2])
+                all_couples[LineSetStartCouple(index_1, index_2)] = CplSuccessiveLinesLimits(copy.copy(index_to_lines_1[index_1]), copy.copy(index_to_lines_2[index_2]))
 
         remove_successives(all_couples)
         for common_lines in all_couples.values():
