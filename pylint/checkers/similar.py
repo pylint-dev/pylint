@@ -650,8 +650,8 @@ def Run(argv=None):
     sim.run()
     sys.exit(0)
 
+
 def check_sim(ls_1: LineSet, stline_1: int, ls_2: LineSet, stline_2: int, nb_lines: int, min_lines_nb: int):
-    # import pdb; pdb.set_trace()
     check_cmn_lines_nb = 0
     for idx in range(nb_lines):
         line_1 = ls_1._real_lines[stline_1 + idx]
@@ -660,8 +660,6 @@ def check_sim(ls_1: LineSet, stline_1: int, ls_2: LineSet, stline_2: int, nb_lin
             REGEX_FOR_LINES_WITH_CONTENT.match(line_2) and
             line_1 == line_2): 
                 check_cmn_lines_nb += 1
-            # else:
-            #     raise ValueError(f"{line_1} is different from {line_2}!")
     if check_cmn_lines_nb > min_lines_nb:
         return True
     return False
