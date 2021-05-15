@@ -449,7 +449,6 @@ class LineSet:
         self._stripped_lines = stripped_lines(
             lines, ignore_comments, ignore_docstrings, ignore_imports
         )
-        self._index = self._mk_index()
 
     def __str__(self):
         return "<Lineset for %s>" % self.name
@@ -470,33 +469,6 @@ class LineSet:
         if not isinstance(other, LineSet):
             return False
         return self.__dict__ == other.__dict__
-
-    def enumerate_stripped(self, start_at=0):
-        """return an iterator on stripped lines, starting from a given index
-        if specified, else 0
-        """
-        idx = start_at
-        if start_at:
-            lines = self._stripped_lines[start_at:]
-        else:
-            lines = self._stripped_lines
-        for line in lines:
-            # if line:
-            yield idx, line
-            idx += 1
-
-    def find(self, stripped_line):
-        """return positions of the given stripped line in this set"""
-        return self._index.get(stripped_line, ())
-
-    def _mk_index(self):
-        """create the index for this set"""
-        index = defaultdict(list)
-        for line_no, line in enumerate(self._stripped_lines):
-            if line:
-                index[line].append(line_no)
-        return index
-
 
 MSGS = {
     "R0801": (
