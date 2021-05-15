@@ -50,6 +50,8 @@ REGEX_FOR_LINES_WITH_CONTENT = re.compile(r".*\w+")
 Index = NewType('Index', int)
 LineNumber = NewType('LineNumber', int)
 
+LineSpecifs = NamedTuple("LineSpecifs", (('text', str), ('linenumber', int), ('linetype', Optional[str])))
+
 class LinesChunk:
     """
     The LinesChunk object computes and stores the hash of some consecutive stripped lines of a lineset.
@@ -135,7 +137,7 @@ def from_file_to_dict(lineset, min_common_lines: int =4) -> Tuple[HashToIndex_T,
     index2lines = dict()
     # Comments, docstring and other specific patterns maybe excluded -> call to _stripped_lines
     # to get only what is desired
-    lines = list(x[0] for x in lineset._stripped_lines)
+    lines = list((x.text, x.linetype) for x in lineset._stripped_lines)
     # Need different iterators on same lines but each one is shifted 1 from the precedent
     shifted_lines = [iter(lines[i:]) for i in range(min_common_lines)]
 
@@ -353,6 +355,7 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     docstring = None
     for lineno, line in enumerate(lines, start=1):
         line = line.strip()
+        ltype = None
         if ignore_docstrings:
             if not docstring:
                 if line.startswith('"""') or line.startswith("'''"):
@@ -365,18 +368,17 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
                 if line.endswith(docstring):
                     docstring = None
                 line = ""
+                ltype = 'doc'
         if ignore_imports:
             current_line_is_import = line_begins_import.get(
                 lineno, current_line_is_import
             )
             if current_line_is_import:
                 line = ""
+                ltype = 'import'
         if ignore_comments:
             line = line.split("#", 1)[0].strip()
-        # if not re.match(REGEX_FOR_LINES_WITH_CONTENT, line):
-        if not line:
-            continue
-        strippedlines.append((line, lineno - 1))
+        strippedlines.append(LineSpecifs(line, lineno - 1, ltype))
     return strippedlines
 
 
