@@ -350,7 +350,7 @@ class Similar:
 
             nb_common_lines_1 = end_line_1 - start_line_1
             nb_common_lines_2 = end_line_2 - start_line_2
-            # assert(nb_common_lines_1 == nb_common_lines_2)
+            assert(nb_common_lines_1 == nb_common_lines_2)
 
             if check_sim(lineset1, start_line_1, lineset2, start_line_2, nb_common_lines_1, min_common):
                 yield nb_common_lines_1, lineset1, start_line_1, lineset2, start_line_2
