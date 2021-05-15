@@ -85,7 +85,9 @@ class LinesChunk:
 # Couple of line numbers
 class SuccessiveLinesLimits:
     """
-    A class to handle the numbering of begin and end of successive lines
+    A class to handle the numbering of begin and end of successive lines.
+    
+    :note: Only the end line number can be updated.
     """
     def __init__(self, start: LineNumber, end: LineNumber):
         self._start: LineNumber = start
@@ -102,6 +104,9 @@ class SuccessiveLinesLimits:
     @end.setter
     def end(self, value: LineNumber):
         self._end = value
+
+    def __repr__(self) -> str:
+        return f"<SuccessiveLinesLimits <{self._start};{self._end}>>"
 
 # Links LinesChunk object to the starting indices (in lineset's stripped lines)
 # of the different chunk of lines that are used to compute the hash
