@@ -307,7 +307,7 @@ class Similar:
             for lineset, idx in couples:
                 print(f"=={lineset.name}:{idx}")
             if lineset:
-                for line in lineset._real_lines[idx : idx + num]:
+                for line in lineset.real_lines[idx : idx + num]:
                     print("  ", line.rstrip())
             nb_lignes_dupliquees += num * (len(couples) - 1)
         nb_total_lignes = sum([len(lineset) for lineset in self.linesets])
@@ -474,6 +474,10 @@ class LineSet:
     def stripped_lines(self):
         return self._stripped_lines
 
+    @property
+    def real_lines(self):
+        return self._real_lines
+
 MSGS = {
     "R0801": (
         "Similar lines in %s files\n%s",
@@ -601,7 +605,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             msg.sort()
 
             if lineset:
-                for line in lineset._real_lines[idx : idx + num]:
+                for line in lineset.real_lines[idx : idx + num]:
                     msg.append(line.rstrip())
 
             self.add_message("R0801", args=(len(couples), "\n".join(msg)))
@@ -682,8 +686,8 @@ def Run(argv=None):
 def check_sim(ls_1: LineSet, stline_1: int, ls_2: LineSet, stline_2: int, nb_lines: int, min_lines_nb: int):
     check_cmn_lines_nb = 0
     for idx in range(nb_lines):
-        line_1 = ls_1._real_lines[stline_1 + idx]
-        line_2 = ls_2._real_lines[stline_2 + idx]
+        line_1 = ls_1.real_lines[stline_1 + idx]
+        line_2 = ls_2.real_lines[stline_2 + idx]
         if (REGEX_FOR_LINES_WITH_CONTENT.match(line_1) and
             REGEX_FOR_LINES_WITH_CONTENT.match(line_2) and
             line_1 == line_2): 
