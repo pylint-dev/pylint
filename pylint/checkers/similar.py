@@ -180,18 +180,18 @@ def from_file_to_dict(lineset, min_common_lines: int =4) -> Tuple[HashToIndex_T,
     """
     hash2index = defaultdict(list)
     index2lines = dict()
-    # Comments, docstring and other specific patterns maybe excluded -> call to _stripped_lines
+    # Comments, docstring and other specific patterns maybe excluded -> call to stripped_lines
     # to get only what is desired
-    lines = list((x.text, x.linetype) for x in lineset._stripped_lines)
+    lines = list((x.text, x.linetype) for x in lineset.stripped_lines)
     # Need different iterators on same lines but each one is shifted 1 from the precedent
     shifted_lines = [iter(lines[i:]) for i in range(min_common_lines)]
 
     for index_i, *succ_lines in enumerate(zip(*shifted_lines)):
-        start_linenumber = lineset._stripped_lines[index_i][1]
+        start_linenumber = lineset.stripped_lines[index_i][1]
         try:
-            end_linenumber = lineset._stripped_lines[index_i + min_common_lines][1]
+            end_linenumber = lineset.stripped_lines[index_i + min_common_lines][1]
         except IndexError:
-            end_linenumber = lineset._stripped_lines[-1][1] + 1
+            end_linenumber = lineset.stripped_lines[-1][1] + 1
 
         index = Index(index_i)
         index2lines[index] = SuccessiveLinesLimits(LineNumber(start_linenumber), LineNumber(end_linenumber))
@@ -469,6 +469,10 @@ class LineSet:
         if not isinstance(other, LineSet):
             return False
         return self.__dict__ == other.__dict__
+
+    @property
+    def stripped_lines(self):
+        return self._stripped_lines
 
 MSGS = {
     "R0801": (

@@ -373,5 +373,5 @@ def test_get_map_data():
     ):
         assert source_fname == lineset_obj.name
         # There doesn't seem to be a faster way of doing this, yet.
-        lines = (line for idx, line in lineset_obj.enumerate_stripped())
+        lines = (line[0] for line in lineset_obj.stripped_lines)
         assert tuple(expected_lines) == tuple(lines)
