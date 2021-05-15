@@ -486,3 +486,6 @@ contributors:
 * Andrew Haigh (nelfin): contributor
 
 * Pang Yu Shao (yushao2): contributor
+
+* Aditya Gupta (adityagupta1089) : contributor
+  - Added ignore_signatures to duplicate checker

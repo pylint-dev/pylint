@@ -30,7 +30,7 @@ import re
 import sys
 from collections import defaultdict
 from getopt import getopt
-from itertools import groupby
+from itertools import chain, groupby
 
 import astroid
 
@@ -51,11 +51,13 @@ class Similar:
         ignore_comments=False,
         ignore_docstrings=False,
         ignore_imports=False,
+        ignore_signatures=False,
     ):
         self.min_lines = min_lines
         self.ignore_comments = ignore_comments
         self.ignore_docstrings = ignore_docstrings
         self.ignore_imports = ignore_imports
+        self.ignore_signatures = ignore_signatures
         self.linesets = []
 
     def append_stream(self, streamid, stream, encoding=None):
@@ -72,6 +74,7 @@ class Similar:
                     self.ignore_comments,
                     self.ignore_docstrings,
                     self.ignore_imports,
+                    self.ignore_signatures,
                 )
             )
         except UnicodeDecodeError:
@@ -178,12 +181,15 @@ class Similar:
         self.linesets = [line for lineset in linesets_collection for line in lineset]
 
 
-def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
+def stripped_lines(
+    lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
+):
     """return lines with leading/trailing whitespace and any ignored code
     features removed
     """
-    if ignore_imports:
+    if ignore_imports or ignore_signatures:
         tree = astroid.parse("".join(lines))
+    if ignore_imports:
         node_is_import_by_lineno = (
             (node.lineno, isinstance(node, (astroid.Import, astroid.ImportFrom)))
             for node in tree.body
@@ -195,6 +201,16 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
             )
         }
         current_line_is_import = False
+    if ignore_signatures:
+        functions = filter(
+            lambda node: isinstance(
+                node, (astroid.FunctionDef, astroid.AsyncFunctionDef)
+            ),
+            tree.body,
+        )
+        signature_lines = set(
+            chain(*(range(func.fromlineno, func.body[0].lineno) for func in functions))
+        )
 
     strippedlines = []
     docstring = None
@@ -220,6 +236,8 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
                 line = ""
         if ignore_comments:
             line = line.split("#", 1)[0].strip()
+        if ignore_signatures and lineno in signature_lines:
+            line = ""
         strippedlines.append(line)
     return strippedlines
 
@@ -235,11 +253,12 @@ class LineSet:
         ignore_comments=False,
         ignore_docstrings=False,
         ignore_imports=False,
+        ignore_signatures=False,
     ):
         self.name = name
         self._real_lines = lines
         self._stripped_lines = stripped_lines(
-            lines, ignore_comments, ignore_docstrings, ignore_imports
+            lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
         )
         self._index = self._mk_index()
 
@@ -361,6 +380,15 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
                 "help": "Ignore imports when computing similarities.",
             },
         ),
+        (
+            "ignore-signatures",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Ignore function signatures when computing similarities.",
+            },
+        ),
     )
     # reports
     reports = (("RP0801", "Duplication", report_similarities),)  # type: ignore
@@ -386,6 +414,8 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             self.ignore_docstrings = self.config.ignore_docstrings
         elif optname == "ignore-imports":
             self.ignore_imports = self.config.ignore_imports
+        elif optname == "ignore-signatures":
+            self.ignore_signatures = self.config.ignore_signatures
 
     def open(self):
         """init the checkers: reset linesets and statistics information"""
@@ -451,7 +481,7 @@ def usage(status=0):
     print()
     print(
         "Usage: symilar [-d|--duplicates min_duplicated_lines] \
-[-i|--ignore-comments] [--ignore-docstrings] [--ignore-imports] file1..."
+[-i|--ignore-comments] [--ignore-docstrings] [--ignore-imports] [--ignore-signatures] file1..."
     )
     sys.exit(status)
 
@@ -468,11 +498,13 @@ def Run(argv=None):
         "ignore-comments",
         "ignore-imports",
         "ignore-docstrings",
+        "ignore-signatures",
     )
     min_lines = 4
     ignore_comments = False
     ignore_docstrings = False
     ignore_imports = False
+    ignore_signatures = False
     opts, args = getopt(argv, s_opts, l_opts)
     for opt, val in opts:
         if opt in ("-d", "--duplicates"):
@@ -485,9 +517,13 @@ def Run(argv=None):
             ignore_docstrings = True
         elif opt in ("--ignore-imports",):
             ignore_imports = True
+        elif opt in ("--ignore-signatures",):
+            ignore_signatures = True
     if not args:
         usage(1)
-    sim = Similar(min_lines, ignore_comments, ignore_docstrings, ignore_imports)
+    sim = Similar(
+        min_lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
+    )
     for filename in args:
         with open(filename) as stream:
             sim.append_stream(filename, stream)

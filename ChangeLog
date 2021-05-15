@@ -44,6 +44,10 @@ modules are added.
 
   Closes #4412
 
+* Add ignore_signatures to duplicate code checker
+
+  Closes #3619
+
 
 What's New in Pylint 2.8.2?
 ===========================
