@@ -36,7 +36,7 @@ from itertools import groupby
 from pathlib import Path
 import itertools
 import operator
-from typing import Dict, Iterable, Any, Tuple, FrozenSet, List, NamedTuple, NewType
+import random
 
 import astroid  # type: ignore
 
@@ -65,7 +65,12 @@ class LinesChunk:
     def __init__(self, fileid: str, num_line: int, *lines: Iterable[str]):
         self._fileid : str  = fileid
         self._index : Index = Index(num_line)
-        self._hash : int = sum(hash(x) for x in lines)
+        self._hash : int = 0
+        for lin, ltyp in lines:
+            if lin or ltyp == "doc":
+                self._hash += hash(lin)
+            else:
+                self._hash += hash(int(random.random() * 100000))
 
     def __eq__(self, o: object) -> bool:
         if not isinstance(o, LinesChunk):
