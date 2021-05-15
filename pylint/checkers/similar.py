@@ -24,6 +24,12 @@
 
 # pylint: disable=redefined-builtin
 """a similarities / code duplication command line tool and pylint checker
+
+The algorithm is based on comparing the hash value of n successive lines of a file. 
+First the file is read and any lines that doesn't fullfill requirement is ignored (comments, docstrings...)
+Those stripped lines are stored in the LineSet class which gives access to them. 
+The position of a given line in the stripped lines is called an Index. The position of the same line in the original file
+is called a LineNumber. Correspondance between Index and LineNumber 
 """
 import copy
 import functools
@@ -37,6 +43,7 @@ from pathlib import Path
 import itertools
 import operator
 import random
+from typing import Dict, Iterable, Any, Tuple, FrozenSet, List, NamedTuple, NewType, Generator, Optional
 
 import astroid  # type: ignore
 
