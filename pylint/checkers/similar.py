@@ -151,7 +151,7 @@ CplIndexToCplLines_T = Dict[LineSetStartCouple, CplSuccessiveLinesLimits]
 
 def from_file_to_dict(lineset, min_common_lines: int =4) -> Tuple[HashToIndex_T, IndexToLines_T]:
     """
-    Return two dicts. The first links the hash of successive strpped lines of a lineset
+    Return two dicts. The first links the hash of successive stripped lines of a lineset
     to the indices of the starting lines.
     The second dict, links the index of the starting line in the linset's stripped lines to the 
     couple [start, end] lines number in the corresponding file.
