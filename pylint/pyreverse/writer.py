@@ -134,11 +134,20 @@ class DotWriter(DiagramWriter):
         if not self.config.only_classnames:
             label = r"{}|{}\l|".format(label, r"\l".join(obj.attrs))
             for func in obj.methods:
+                return_type = f": {func.returns.name}" if func.returns else ""
+
                 if func.args.args:
                     args = [arg.name for arg in func.args.args if arg.name != "self"]
                 else:
                     args = []
-                label = r"{}{}({})\l".format(label, func.name, ", ".join(args))
+
+                annotations = [a.name if a else None for a in func.args.annotations[1:]]
+                args = ", ".join(
+                    f"{arg}: {ann}" if ann else f"{arg}"
+                    for arg, ann in zip(args, annotations)
+                )
+
+                label = fr"{label}{func.name}({args}){return_type}\l"
             label = "{%s}" % label
         if is_exception(obj.node):
             return dict(fontcolor="red", label=label, shape="record")

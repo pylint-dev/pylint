@@ -218,7 +218,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                     self.visit_module(frame)
 
             current = frame.locals_type[node.name]
-            values = set(node.infer())
+            ann = getattr(node.parent, "annotation", None)
+            values = {ann} if ann else set(node.infer())
             frame.locals_type[node.name] = list(set(current) | values)
         except astroid.InferenceError:
             pass
@@ -229,8 +230,17 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
         handle instance_attrs_type
         """
+        ann = None
+        if isinstance(node.parent.value, astroid.Name):
+            try:
+                idx = list(node.parent.parent.locals).index(node.parent.value.name)
+                ann = node.parent.parent.args.annotations[idx]
+            except (IndexError, ValueError):
+                pass
+        elif hasattr(node.parent, "annotation"):
+            ann = node.parent.annotation
         try:
-            values = set(node.infer())
+            values = {ann} if ann else set(node.infer())
             current = set(parent.instance_attrs_type[node.attrname])
             parent.instance_attrs_type[node.attrname] = list(current | values)
         except astroid.InferenceError:

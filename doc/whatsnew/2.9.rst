@@ -40,6 +40,8 @@ New checkers
 Other Changes
 =============
 
+* Add type annotations to pyreverse dot files
+
 * Pylint's tags are now the standard form ``vX.Y.Z`` and not ``pylint-X.Y.Z`` anymore.
 
 * Fix false-positive ``too-many-ancestors`` when inheriting from builtin classes,
