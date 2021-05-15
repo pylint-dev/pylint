@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring,invalid-name
+# https://github.com/PyCQA/pylint/issues/3535
 
 import enum
 
