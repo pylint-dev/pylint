@@ -873,7 +873,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_quit_exit_call(node)
         self._check_super_with_arguments(node)
         self._check_consider_using_generator(node)
-        self._check_consider_using_with_instead_call(node)
+        self._check_consider_using_with(node)
 
     @staticmethod
     def _has_exit_in_scope(scope):
@@ -1244,11 +1244,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "simplify-boolean-expression",
         "consider-using-ternary",
         "consider-swap-variables",
-        "consider-using-with",
     )
     def visit_assign(self, node):
         self._check_swap_variables(node)
-        self._check_consider_using_with_instead_assign(node)
         if self._is_and_or_ternary(node.value):
             cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
         else:
@@ -1279,24 +1277,20 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     visit_return = visit_assign
 
-    def _check_consider_using_with_instead_assign(self, node: astroid.Assign):
-        assigned = node.value
-        if isinstance(assigned, astroid.Call):
-            inferred = utils.safe_infer(assigned.func)
-            if (
-                inferred
-                and inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS
-                and not _is_inside_context_manager(node)
-            ):
-                self.add_message("consider-using-with", node=node)
-
-    def _check_consider_using_with_instead_call(self, node: astroid.Call):
+    def _check_consider_using_with(self, node: astroid.Call):
         inferred = utils.safe_infer(node.func)
-        if (
-            inferred
-            and inferred.qname() in CALLS_THAT_COULD_BE_REPLACED_BY_WITH
-            and not _is_inside_context_manager(node)
-        ):
+        if not inferred:
+            return
+        could_be_used_in_with = (
+            # things like ``lock.acquire()``
+            inferred.qname() in CALLS_THAT_COULD_BE_REPLACED_BY_WITH
+            or (
+                # things like ``open("foo")`` which are not already inside a ``with`` statement
+                inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS
+                and not isinstance(node.parent, astroid.With)
+            )
+        )
+        if could_be_used_in_with and not _is_inside_context_manager(node):
             self.add_message("consider-using-with", node=node)
 
     def _check_consider_using_join(self, aug_assign):
