@@ -30,7 +30,9 @@ import re
 import sys
 from collections import defaultdict
 from getopt import getopt
+from io import TextIOWrapper
 from itertools import chain, groupby
+from typing import List
 
 import astroid
 
@@ -47,20 +49,22 @@ class Similar:
 
     def __init__(
         self,
-        min_lines=4,
-        ignore_comments=False,
-        ignore_docstrings=False,
-        ignore_imports=False,
-        ignore_signatures=False,
-    ):
+        min_lines: int = 4,
+        ignore_comments: bool = False,
+        ignore_docstrings: bool = False,
+        ignore_imports: bool = False,
+        ignore_signatures: bool = False,
+    ) -> None:
         self.min_lines = min_lines
         self.ignore_comments = ignore_comments
         self.ignore_docstrings = ignore_docstrings
         self.ignore_imports = ignore_imports
         self.ignore_signatures = ignore_signatures
-        self.linesets = []
+        self.linesets: List["LineSet"] = []
 
-    def append_stream(self, streamid, stream, encoding=None):
+    def append_stream(
+        self, streamid: str, stream: TextIOWrapper, encoding=None
+    ) -> None:
         """append a file to search for similarities"""
         if encoding is None:
             readlines = stream.readlines
