@@ -15,7 +15,7 @@ New checkers
 * ``consider-using-dict-items``: Emitted when iterating over dictionary keys and then
   indexing the same dictionary with the key within loop body.
 
-* An `ignore_signatures` option has been added to the similarity checker. It will permits  to reduce false positives when multiple functions have the same parameters.
+* An ``ignore_signatures`` option has been added to the similarity checker. It will permits  to reduce false positives when multiple functions have the same parameters.
 
 Other Changes
 =============

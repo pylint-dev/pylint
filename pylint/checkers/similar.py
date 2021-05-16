@@ -182,7 +182,11 @@ class Similar:
 
 
 def stripped_lines(
-    lines, ignore_comments: bool, ignore_docstrings: bool, ignore_imports: bool, ignore_signatures: bool
+    lines,
+    ignore_comments: bool,
+    ignore_docstrings: bool,
+    ignore_imports: bool,
+    ignore_signatures: bool,
 ):
     """return lines with leading/trailing whitespace and any ignored code
     features removed
@@ -203,7 +207,9 @@ def stripped_lines(
         current_line_is_import = False
     if ignore_signatures:
         functions = [
-            n for n in tree.body if  isinstance(n, (astroid.FunctionDef, astroid.AsyncFunctionDef))
+            n
+            for n in tree.body
+            if isinstance(n, (astroid.FunctionDef, astroid.AsyncFunctionDef))
         ]
         signature_lines = set(
             chain(*(range(func.fromlineno, func.body[0].lineno) for func in functions))
