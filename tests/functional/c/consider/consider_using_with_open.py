@@ -39,3 +39,13 @@ def test_open_in_with_contextlib():
     file_handle = open("foo.txt", "w")  # must not trigger
     yield file_handle
     file_handle.close()
+
+
+def test_open_outside_assignment():
+    open("foo").read()  # [consider-using-with]
+    content = open("foo").read()  # [consider-using-with]
+
+
+def test_open_inside_with_block():
+    with open("foo") as fh:
+        open("bar")  # [consider-using-with]

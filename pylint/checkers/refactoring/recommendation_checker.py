@@ -1,5 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+from typing import cast
 
 import astroid
 
@@ -25,6 +26,14 @@ class RecommendationChecker(checkers.BaseChecker):
             "Emitted when the keys of a dictionary are iterated through the .keys() "
             "method. It is enough to just iterate through the dictionary itself, as "
             'in "for key in dictionary".',
+        ),
+        "C0206": (
+            "Consider iterating with .items()",
+            "consider-using-dict-items",
+            "Emitted when iterating over the keys of a dictionary and accessing the "
+            "value by index lookup."
+            "Both the key and value can be accessed by iterating using the .items() "
+            "method of the dictionary instead.",
         ),
     }
 
@@ -53,8 +62,12 @@ class RecommendationChecker(checkers.BaseChecker):
         if isinstance(node.parent, (astroid.For, astroid.Comprehension)):
             self.add_message("consider-iterating-dictionary", node=node)
 
-    @utils.check_messages("consider-using-enumerate")
-    def visit_for(self, node):
+    @utils.check_messages("consider-using-enumerate", "consider-using-dict-items")
+    def visit_for(self, node: astroid.For) -> None:
+        self._check_consider_using_enumerate(node)
+        self._check_consider_using_dict_items(node)
+
+    def _check_consider_using_enumerate(self, node: astroid.For) -> None:
         """Emit a convention whenever range and len are used for indexing."""
         # Verify that we have a `range([start], len(...), [stop])` call and
         # that the object which is iterated is used as a subscript in the
@@ -118,4 +131,82 @@ class RecommendationChecker(checkers.BaseChecker):
                     # name for the iterating object was used.
                     continue
                 self.add_message("consider-using-enumerate", node=node)
+                return
+
+    def _check_consider_using_dict_items(self, node: astroid.For) -> None:
+        """Add message when accessing dict values by index lookup."""
+        # Verify that we have a .keys() call and
+        # that the object which is iterated is used as a subscript in the
+        # body of the for.
+
+        iterating_object_name = utils.get_iterating_dictionary_name(node)
+        if iterating_object_name is None:
+            return
+
+        # Verify that the body of the for loop uses a subscript
+        # with the object that was iterated. This uses some heuristics
+        # in order to make sure that the same object is used in the
+        # for body.
+        for child in node.body:
+            for subscript in child.nodes_of_class(astroid.Subscript):
+                subscript = cast(astroid.Subscript, subscript)
+
+                if not isinstance(subscript.value, (astroid.Name, astroid.Attribute)):
+                    continue
+
+                value = subscript.slice
+                if isinstance(value, astroid.Index):
+                    value = value.value
+                if (
+                    not isinstance(value, astroid.Name)
+                    or value.name != node.target.name
+                    or iterating_object_name != subscript.value.as_string()
+                ):
+                    continue
+                last_definition_lineno = value.lookup(value.name)[1][-1].lineno
+                if last_definition_lineno > node.lineno:
+                    # Ignore this subscript if it has been redefined after
+                    # the for loop. This checks for the line number using .lookup()
+                    # to get the line number where the iterating object was last
+                    # defined and compare that to the for loop's line number
+                    continue
+                if (
+                    isinstance(subscript.parent, astroid.Assign)
+                    and subscript in subscript.parent.targets
+                    or isinstance(subscript.parent, astroid.AugAssign)
+                    and subscript == subscript.parent.target
+                ):
+                    # Ignore this subscript if it is the target of an assignment
+                    continue
+
+                self.add_message("consider-using-dict-items", node=node)
+                return
+
+    @utils.check_messages("consider-using-dict-items")
+    def visit_comprehension(self, node: astroid.Comprehension) -> None:
+        iterating_object_name = utils.get_iterating_dictionary_name(node)
+        if iterating_object_name is None:
+            return
+
+        children = list(node.parent.get_children())
+        if node.ifs:
+            children.extend(node.ifs)
+        for child in children:
+            for subscript in child.nodes_of_class(astroid.Subscript):
+                subscript = cast(astroid.Subscript, subscript)
+
+                if not isinstance(subscript.value, (astroid.Name, astroid.Attribute)):
+                    continue
+
+                value = subscript.slice
+                if isinstance(value, astroid.Index):
+                    value = value.value
+                if (
+                    not isinstance(value, astroid.Name)
+                    or value.name != node.target.name
+                    or iterating_object_name != subscript.value.as_string()
+                ):
+                    continue
+
+                self.add_message("consider-using-dict-items", node=node)
                 return

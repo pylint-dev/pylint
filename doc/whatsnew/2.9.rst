@@ -12,6 +12,9 @@ Summary -- Release highlights
 New checkers
 ============
 
+* ``consider-using-dict-items``: Emitted when iterating over dictionary keys and then
+  indexing the same dictionary with the key within loop body.
+
 Other Changes
 =============
 
@@ -26,3 +29,5 @@ Other Changes
 
 * A new error called ``arguments-renamed`` has been created, which identifies any changes at the parameter names
   of overridden functions. It aims to separate the functionality of ``arguments-differ``.
+
+* Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage

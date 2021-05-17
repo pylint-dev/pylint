@@ -26,3 +26,12 @@ except ImportError:
 
 # pylint: disable=no-name-in-module
 from functional.s.syntax_error import toto # [syntax-error]
+
+# Don't emit import-error if guarded behind `sys.version_info`
+import sys
+
+if sys.version_info >= (3, 9):
+    import zoneinfo
+
+if sys.version_info[:2] >= (3, 9):
+    import zoneinfo
