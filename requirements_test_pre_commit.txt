@@ -3,5 +3,5 @@ black==21.5b1;python_full_version>="3.6.2"
 flake8==3.9.2
 isort==5.8.0
 mypy==0.812
-pyupgrade==2.15.0;python_full_version>="3.6.1"
+pyupgrade==2.16.0;python_full_version>="3.6.1"
 black-disable-checker==1.0.1
