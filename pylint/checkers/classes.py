@@ -1820,30 +1820,28 @@ a metaclass class method.",
                     if refmethod.args.kwonlyargs:
                         total_args_refmethod += len(refmethod.args.kwonlyargs)
                     error_type = "arguments-differ"
-                    msg_args=(
+                    msg_args = (
                         msg
                         + f"was {total_args_refmethod} in '{refmethod.parent.name}.{refmethod.name}' and "
                         f"is now {total_args_method1} in",
                         class_type,
-                        f"{method1.parent.name}.{method1.name}"
+                        f"{method1.parent.name}.{method1.name}",
                     )
                 elif "renamed" in msg:
                     error_type = "arguments-renamed"
-                    msg_args=(
+                    msg_args = (
                         msg,
                         class_type,
-                        f"{method1.parent.name}.{method1.name}"
+                        f"{method1.parent.name}.{method1.name}",
                     )
                 else:
                     error_type = "arguments-differ"
-                    msg_args=(
+                    msg_args = (
                         msg,
                         class_type,
-                        f"{method1.parent.name}.{method1.name}"
+                        f"{method1.parent.name}.{method1.name}",
                     )
-                self.add_message(
-                    error_type, args=msg_args, node=method1
-                )
+                self.add_message(error_type, args=msg_args, node=method1)
         elif (
             len(method1.args.defaults) < len(refmethod.args.defaults)
             and not method1.args.vararg
