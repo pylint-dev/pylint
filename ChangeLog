@@ -35,6 +35,11 @@ modules are added.
 
 * Fix raising false-positive ``no-member`` on abstract properties
 
+* Created new error message called ``arguments-renamed`` which identifies any changes at the parameter
+  names of overridden functions.
+
+  Closes #3536
+
 * New checker ``consider-using-dict-items``. Emitted  when iterating over dictionary keys and then
   indexing the same dictionary with the key within loop body.
 
