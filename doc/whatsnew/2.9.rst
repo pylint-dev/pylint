@@ -15,9 +15,13 @@ New checkers
 * ``consider-using-dict-items``: Emitted when iterating over dictionary keys and then
   indexing the same dictionary with the key within loop body.
 
+
 * ``consider-using-str-partition``: Emitted when accessing only the first or last element
   of a ``str.split()`` or ``str.rsplit()``, or when a ``str.split()`` or ``str.rsplit()`` is
   used with a ``max_split`` argument value of 1.
+
+* An ``ignore_signatures`` option has been added to the similarity checker. It will permits  to reduce false positives when multiple functions have the same parameters.
+
 
 Other Changes
 =============
@@ -30,5 +34,8 @@ Other Changes
 * The output messages for ``arguments-differ`` error message have been customized based on the different error cases.
 
 * New option ``--fail-on=<msg ids>`` to return non-zero exit codes regardless of ``fail-under`` value.
+
+* A new error called ``arguments-renamed`` has been created, which identifies any changes at the parameter names
+  of overridden functions. It aims to separate the functionality of ``arguments-differ``.
 
 * Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage

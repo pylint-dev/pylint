@@ -31,6 +31,8 @@ SIMILAR1 = str(INPUT / "similar1")
 SIMILAR2 = str(INPUT / "similar2")
 SIMILAR3 = str(INPUT / "similar3")
 SIMILAR4 = str(INPUT / "similar4")
+SIMILAR5 = str(INPUT / "similar5")
+SIMILAR6 = str(INPUT / "similar6")
 MULTILINE = str(INPUT / "multiline-import")
 HIDE_CODE_WITH_IMPORTS = str(INPUT / "hide_code_with_imports.py")
 
@@ -149,6 +151,45 @@ def test_ignore_multiline_imports():
         output.getvalue().strip()
         == """
 TOTAL lines=16 duplicates=0 percent=0.00
+""".strip()
+    )
+
+
+def test_ignore_signatures_fail():
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        similar.Run([SIMILAR5, SIMILAR6])
+    assert ex.value.code == 0
+    assert (
+        output.getvalue().strip()
+        == (
+            """
+7 similar lines in 2 files
+==%s:1
+==%s:8
+       arg1: int = 3,
+       arg2: Class1 = val1,
+       arg3: Class2 = func3(val2),
+       arg4: int = 4,
+       arg5: int = 5
+   ) -> Ret1:
+       pass
+TOTAL lines=23 duplicates=7 percent=30.43
+"""
+            % (SIMILAR5, SIMILAR6)
+        ).strip()
+    )
+
+
+def test_ignore_signatures_pass():
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        similar.Run(["--ignore-signatures", SIMILAR5, SIMILAR6])
+    assert ex.value.code == 0
+    assert (
+        output.getvalue().strip()
+        == """
+TOTAL lines=23 duplicates=0 percent=0.00
 """.strip()
     )
 

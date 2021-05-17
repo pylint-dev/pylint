@@ -29,7 +29,8 @@ def get_default_options():
     if home:
         rcfile = os.path.join(home, RCFILE)
         try:
-            options = open(rcfile).read().split()
+            with open(rcfile) as file_handle:
+                options = file_handle.read().split()
         except OSError:
             pass  # ignore if no config file found
     return options

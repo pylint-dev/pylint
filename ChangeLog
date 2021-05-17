@@ -9,6 +9,8 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* Fix false negative for ``consider-using-with`` if calls like ``open()`` were used outside of assignment expressions.
+
 * The warning for ``arguments-differ`` now signals explicitly the difference it detected
   by naming the argument or arguments that changed and the type of change that occurred.
 
@@ -33,6 +35,11 @@ modules are added.
 
 * Fix raising false-positive ``no-member`` on abstract properties
 
+* Created new error message called ``arguments-renamed`` which identifies any changes at the parameter
+  names of overridden functions.
+
+  Closes #3536
+
 * New checker ``consider-using-dict-items``. Emitted  when iterating over dictionary keys and then
   indexing the same dictionary with the key within loop body.
 
@@ -49,6 +56,10 @@ modules are added.
   used with a ``max_split`` argument value of 1.
 
   Closes #4440
+
+* Add ignore_signatures to duplicate code checker
+
+  Closes #3619
 
 
 What's New in Pylint 2.8.2?
