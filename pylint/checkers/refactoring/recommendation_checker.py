@@ -38,12 +38,9 @@ class RecommendationChecker(checkers.BaseChecker):
         "C0207": (
             "Consider using %s instead",
             "consider-using-str-partition",
-            "Emitted when accessing only the first or last element of a str.split(sep). "
-            "Or when a str.split(sep,maxsplit=1) is used. "
-            "The first and last element can be accessed by using str.partition(sep)[0] "
-            "or str.rpartition(sep)[-1] instead, which is less computationally "
-            "expensive and works the same as str.split() or str.rsplit() with a maxsplit "
-            "of 1",
+            "Emitted when accessing only the first or last element of str.split(). "
+            "The first and last element can be accessed by using str.partition()[0] "
+            "or str.rpartition()[-1] instead.",
         ),
     }
 
@@ -83,16 +80,16 @@ class RecommendationChecker(checkers.BaseChecker):
         or when split/rsplit with max_split=1 is used"""
 
         # Check if call is split() or rsplit()
-        if isinstance(node.func, astroid.Attribute) and node.func.attrname in (
-            "split",
-            "rsplit",
+        if (
+            isinstance(node.func, astroid.Attribute)
+            and node.func.attrname
+            in (
+                "split",
+                "rsplit",
+            )
+            and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
         ):
-            inferred_func = utils.safe_infer(node.func)
-            fn_name = node.func.attrname
-            node_name = node.as_string()
 
-            if not isinstance(inferred_func, astroid.BoundMethod):
-                return
             try:
                 seperator = utils.get_argument_from_call(node, 0, "sep").value
             except utils.NoSuchArgumentError:
@@ -103,29 +100,27 @@ class RecommendationChecker(checkers.BaseChecker):
                 maxsplit = utils.get_argument_from_call(node, 1, "maxsplit").value
                 if maxsplit > 1:
                     return
-
             except utils.NoSuchArgumentError:
                 maxsplit = 0
 
             # Check if it's immediately subscripted
             if isinstance(node.parent, astroid.Subscript):
-                subscript_node = node.parent
                 # Check if subscripted with -1/0
                 try:
-                    subscript_value = utils.get_subscript_const_value(
-                        subscript_node
-                    ).value
-                except ValueError:
+                    subscript_value = utils.get_subscript_const_value(node.parent).value
+                except utils.InferredTypeError:
                     return
 
                 if maxsplit == 1 and subscript_value == 1:
                     new_func = node.func.attrname.replace("split", "partition")
-                    new_name = f"{node.as_string().rpartition('.')[0]}.{new_func}({seperator})[-1]"
+                    new_name = f"{node.as_string().rpartition('.')[0]}.{new_func}({seperator})[2]"
                     self.add_message(
                         "consider-using-str-partition", node=node, args=(new_name,)
                     )
 
                 if maxsplit == 0 and subscript_value in (-1, 0):
+                    fn_name = node.func.attrname
+                    node_name = node.as_string()
                     new_fn = "rpartition" if subscript_value == -1 else "partition"
                     new_fn = new_fn[::-1]
                     node_name = node_name[::-1]
