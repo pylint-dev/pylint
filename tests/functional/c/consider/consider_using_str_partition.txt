@@ -4,8 +4,8 @@ consider-using-str-partition:9:12::Consider using SEQ.partition(',')[0] instead
 consider-using-str-partition:10:11::Consider using SEQ.rpartition(',')[-1] instead
 consider-using-str-partition:11:12::Consider using SEQ.partition(',')[0] instead
 consider-using-str-partition:12:11::Consider using SEQ.rpartition(',')[-1] instead
-consider-using-str-partition:20:12::Consider using '1,2,3'.partition(,)[-1] instead
-consider-using-str-partition:29:12::Consider using '1,2,3'.rpartition(,)[-1] instead
+consider-using-str-partition:20:12::Consider using '1,2,3'.partition(,)[2] instead
+consider-using-str-partition:29:12::Consider using '1,2,3'.rpartition(,)[2] instead
 consider-using-str-partition:48:12::Consider using Foo.class_str.partition(',')[0] instead
 consider-using-str-partition:49:11::Consider using Foo.class_str.rpartition(',')[-1] instead
 consider-using-str-partition:50:12::Consider using Foo.class_str.partition(',')[0] instead
