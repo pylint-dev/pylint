@@ -114,11 +114,8 @@ class RecommendationChecker(checkers.BaseChecker):
                 if maxsplit == 1 and subscript_value == 1:
                     new_func = node.func.attrname.replace("split", "partition")
                     new_name = f"{node.as_string().rpartition('.')[0]}.{new_func}({seperator})[2]"
-                    self.add_message(
-                        "consider-using-str-partition", node=node, args=(new_name,)
-                    )
 
-                if maxsplit == 0 and subscript_value in (-1, 0):
+                elif maxsplit == 0 and subscript_value in (-1, 0):
                     fn_name = node.func.attrname
                     node_name = node.as_string()
                     new_fn = "rpartition" if subscript_value == -1 else "partition"
@@ -126,10 +123,13 @@ class RecommendationChecker(checkers.BaseChecker):
                     node_name = node_name[::-1]
                     fn_name = fn_name[::-1]
                     new_name = f"{node_name.replace(fn_name, new_fn, 1)[::-1]}[{subscript_value}]"
-                    self.add_message(
-                        "consider-using-str-partition", node=node, args=(new_name,)
-                    )
+
+                else:
                     return
+
+                self.add_message(
+                    "consider-using-str-partition", node=node, args=(new_name,)
+                )
 
     @utils.check_messages("consider-using-enumerate", "consider-using-dict-items")
     def visit_for(self, node: astroid.For) -> None:
