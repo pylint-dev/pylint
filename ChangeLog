@@ -51,7 +51,7 @@ modules are added.
 
   Closes #4412
 
-* New checker ``consider-using-str-partition``. Emitted either when only accessing the first or last
+* New checker ``consider-using-str-partition``. Emitted either when accessing only the first or last
   element of ``str.split()``.
 
   Closes #4440

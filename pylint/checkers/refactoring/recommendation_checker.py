@@ -82,14 +82,9 @@ class RecommendationChecker(checkers.BaseChecker):
         # Check if call is split() or rsplit()
         if (
             isinstance(node.func, astroid.Attribute)
-            and node.func.attrname
-            in (
-                "split",
-                "rsplit",
-            )
+            and node.func.attrname in ("split", "rsplit")
             and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
         ):
-
             try:
                 seperator = utils.get_argument_from_call(node, 0, "sep").value
             except utils.NoSuchArgumentError:
@@ -117,12 +112,8 @@ class RecommendationChecker(checkers.BaseChecker):
 
                 elif maxsplit == 0 and subscript_value in (-1, 0):
                     fn_name = node.func.attrname
-                    node_name = node.as_string()
                     new_fn = "rpartition" if subscript_value == -1 else "partition"
-                    new_fn = new_fn[::-1]
-                    node_name = node_name[::-1]
-                    fn_name = fn_name[::-1]
-                    new_name = f"{node_name.replace(fn_name, new_fn, 1)[::-1]}[{subscript_value}]"
+                    new_name = f"{new_fn.join(node.as_string().rsplit(fn_name, maxsplit=1))}[{subscript_value}]"
 
                 else:
                     return
