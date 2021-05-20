@@ -37,10 +37,11 @@ class RecommendationChecker(checkers.BaseChecker):
         ),
         "C0207": (
             "Consider using %s instead",
-            "consider-using-str-partition",
+            "consider-using-maxsplit-arg",
             "Emitted when accessing only the first or last element of str.split(). "
-            "The first and last element can be accessed by using str.partition()[0] "
-            "or str.rpartition()[-1] instead.",
+            "The first and last element can be accessed by using "
+            "str.split(sep,maxsplit=1)[0] or str.rpartition(sep,maxsplit=1)[-1] "
+            "instead.",
         ),
     }
 
@@ -52,11 +53,11 @@ class RecommendationChecker(checkers.BaseChecker):
         return utils.is_builtin_object(inferred) and inferred.name == function
 
     @utils.check_messages(
-        "consider-iterating-dictionary", "consider-using-str-partition"
+        "consider-iterating-dictionary", "consider-using-maxsplit-arg"
     )
     def visit_call(self, node: astroid.Call) -> None:
         self._check_consider_iterating_dictionary(node)
-        self._check_consider_using_str_partition(node)
+        self._check_consider_using_maxsplit_arg(node)
 
     def _check_consider_iterating_dictionary(self, node: astroid.Call) -> None:
         if not isinstance(node.func, astroid.Attribute):
@@ -75,7 +76,7 @@ class RecommendationChecker(checkers.BaseChecker):
         if isinstance(node.parent, (astroid.For, astroid.Comprehension)):
             self.add_message("consider-iterating-dictionary", node=node)
 
-    def _check_consider_using_str_partition(self, node: astroid.Call) -> None:
+    def _check_consider_using_maxsplit_arg(self, node: astroid.Call) -> None:
         """Add message when accessing first or last elements of a str.split() or str.rsplit(),
         or when split/rsplit with max_split=1 is used"""
 
@@ -86,14 +87,14 @@ class RecommendationChecker(checkers.BaseChecker):
             and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
         ):
             try:
-                seperator = utils.get_argument_from_call(node, 0, "sep").value
+                sep = utils.get_argument_from_call(node, 0, "sep").value
             except utils.NoSuchArgumentError:
                 return
 
             # Check if maxsplit is set, and ignore checking if maxsplit is > 1
             try:
                 maxsplit = utils.get_argument_from_call(node, 1, "maxsplit").value
-                if maxsplit > 1:
+                if maxsplit > 0:
                     return
             except utils.NoSuchArgumentError:
                 maxsplit = 0
@@ -106,21 +107,16 @@ class RecommendationChecker(checkers.BaseChecker):
                 except utils.InferredTypeError:
                     return
 
-                if maxsplit == 1 and subscript_value == 1:
-                    new_func = node.func.attrname.replace("split", "partition")
-                    new_name = f"{node.as_string().rpartition('.')[0]}.{new_func}({seperator})[2]"
-
-                elif maxsplit == 0 and subscript_value in (-1, 0):
+                if subscript_value in (-1, 0):
                     fn_name = node.func.attrname
-                    new_fn = "rpartition" if subscript_value == -1 else "partition"
-                    new_name = f"{new_fn.join(node.as_string().rsplit(fn_name, maxsplit=1))}[{subscript_value}]"
-
-                else:
-                    return
-
-                self.add_message(
-                    "consider-using-str-partition", node=node, args=(new_name,)
-                )
+                    new_fn = "rsplit" if subscript_value == -1 else "split"
+                    new_name = (
+                        f"{node.as_string().rsplit(fn_name, maxsplit=1)[0]}{new_fn}"
+                        f"(sep='{sep}',maxsplit=1)[{subscript_value}]"
+                    )
+                    self.add_message(
+                        "consider-using-maxsplit-arg", node=node, args=(new_name,)
+                    )
 
     @utils.check_messages("consider-using-enumerate", "consider-using-dict-items")
     def visit_for(self, node: astroid.For) -> None:
