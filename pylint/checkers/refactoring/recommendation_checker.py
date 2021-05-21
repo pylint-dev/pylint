@@ -40,7 +40,7 @@ class RecommendationChecker(checkers.BaseChecker):
             "consider-using-maxsplit-arg",
             "Emitted when accessing only the first or last element of str.split(). "
             "The first and last element can be accessed by using "
-            "str.split(sep,maxsplit=1)[0] or str.rpartition(sep,maxsplit=1)[-1] "
+            "str.split(sep,maxsplit=1)[0] or str.rsplit(sep,maxsplit=1)[-1] "
             "instead.",
         ),
     }
@@ -77,8 +77,7 @@ class RecommendationChecker(checkers.BaseChecker):
             self.add_message("consider-iterating-dictionary", node=node)
 
     def _check_consider_using_maxsplit_arg(self, node: astroid.Call) -> None:
-        """Add message when accessing first or last elements of a str.split() or str.rsplit(),
-        or when split/rsplit with max_split=1 is used"""
+        """Add message when accessing first or last elements of a str.split() or str.rsplit()."""
 
         # Check if call is split() or rsplit()
         if (
@@ -91,17 +90,14 @@ class RecommendationChecker(checkers.BaseChecker):
             except utils.NoSuchArgumentError:
                 return
 
-            # Check if maxsplit is set, and ignore checking if maxsplit is > 1
             try:
-                maxsplit = utils.get_argument_from_call(node, 1, "maxsplit").value
-                if maxsplit > 0:
-                    return
+                # Ignore if maxsplit arg has been set
+                _ = utils.get_argument_from_call(node, 1, "maxsplit").value
+                return
             except utils.NoSuchArgumentError:
-                maxsplit = 0
+                pass
 
-            # Check if it's immediately subscripted
             if isinstance(node.parent, astroid.Subscript):
-                # Check if subscripted with -1/0
                 try:
                     subscript_value = utils.get_subscript_const_value(node.parent).value
                 except utils.InferredTypeError:
