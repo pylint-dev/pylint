@@ -1,18 +1,18 @@
-consider-using-maxsplit-arg:5:12::Consider using '1,2,3'.split(sep=',',maxsplit=1)[0] instead
-consider-using-maxsplit-arg:6:11::"Consider using '1,2,3'[::-1].split(sep=',',maxsplit=1)[0] instead"
-consider-using-maxsplit-arg:9:12::Consider using SEQ.split(sep=',',maxsplit=1)[0] instead
-consider-using-maxsplit-arg:10:11::Consider using SEQ.rsplit(sep=',',maxsplit=1)[-1] instead
-consider-using-maxsplit-arg:11:12::Consider using SEQ.split(sep=',',maxsplit=1)[0] instead
-consider-using-maxsplit-arg:12:11::Consider using SEQ.rsplit(sep=',',maxsplit=1)[-1] instead
-consider-using-maxsplit-arg:44:12::Consider using Foo.class_str.split(sep=',',maxsplit=1)[0] instead
-consider-using-maxsplit-arg:45:11::Consider using Foo.class_str.rsplit(sep=',',maxsplit=1)[-1] instead
-consider-using-maxsplit-arg:46:12::Consider using Foo.class_str.split(sep=',',maxsplit=1)[0] instead
-consider-using-maxsplit-arg:47:11::Consider using Foo.class_str.rsplit(sep=',',maxsplit=1)[-1] instead
-consider-using-maxsplit-arg:55:12::Consider using bar.get_string().split(sep=',',maxsplit=1)[0] instead
-consider-using-maxsplit-arg:56:11::Consider using bar.get_string().rsplit(sep=',',maxsplit=1)[-1] instead
-consider-using-maxsplit-arg:65:10::Consider using s.split(sep=' ',maxsplit=1)[0] instead
-consider-using-maxsplit-arg:66:10::Consider using s.rsplit(sep=' ',maxsplit=1)[-1] instead
-consider-using-maxsplit-arg:74:6::Consider using Bar.split.split(sep=',',maxsplit=1)[0] instead
-consider-using-maxsplit-arg:75:6::Consider using Bar.split.rsplit(sep=',',maxsplit=1)[-1] instead
-consider-using-maxsplit-arg:76:6::Consider using Bar.split.split(sep=',',maxsplit=1)[0] instead
-consider-using-maxsplit-arg:77:6::Consider using Bar.split.rsplit(sep=',',maxsplit=1)[-1] instead
+consider-using-maxsplit-arg:5:12::Consider using '1,2,3'.split(',', maxsplit=1)[0] instead
+consider-using-maxsplit-arg:6:11::"Consider using '1,2,3'[::-1].split(',', maxsplit=1)[0] instead"
+consider-using-maxsplit-arg:9:12::Consider using SEQ.split(',', maxsplit=1)[0] instead
+consider-using-maxsplit-arg:10:11::Consider using SEQ.rsplit(',', maxsplit=1)[-1] instead
+consider-using-maxsplit-arg:11:12::Consider using SEQ.split(',', maxsplit=1)[0] instead
+consider-using-maxsplit-arg:12:11::Consider using SEQ.rsplit(',', maxsplit=1)[-1] instead
+consider-using-maxsplit-arg:44:12::Consider using Foo.class_str.split(',', maxsplit=1)[0] instead
+consider-using-maxsplit-arg:45:11::Consider using Foo.class_str.rsplit(',', maxsplit=1)[-1] instead
+consider-using-maxsplit-arg:46:12::Consider using Foo.class_str.split(',', maxsplit=1)[0] instead
+consider-using-maxsplit-arg:47:11::Consider using Foo.class_str.rsplit(',', maxsplit=1)[-1] instead
+consider-using-maxsplit-arg:55:12::Consider using bar.get_string().split(',', maxsplit=1)[0] instead
+consider-using-maxsplit-arg:56:11::Consider using bar.get_string().rsplit(',', maxsplit=1)[-1] instead
+consider-using-maxsplit-arg:65:10::Consider using s.split(' ', maxsplit=1)[0] instead
+consider-using-maxsplit-arg:66:10::Consider using s.rsplit(' ', maxsplit=1)[-1] instead
+consider-using-maxsplit-arg:74:6::Consider using Bar.split.split(',', maxsplit=1)[0] instead
+consider-using-maxsplit-arg:75:6::Consider using Bar.split.rsplit(',', maxsplit=1)[-1] instead
+consider-using-maxsplit-arg:76:6::Consider using Bar.split.split(',', maxsplit=1)[0] instead
+consider-using-maxsplit-arg:77:6::Consider using Bar.split.rsplit(',', maxsplit=1)[-1] instead
