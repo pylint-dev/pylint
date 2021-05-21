@@ -16,7 +16,7 @@ New checkers
   indexing the same dictionary with the key within loop body.
 
 
-* ``consider-using-maxsplit-arg``: Emitted either when accessing only the first or last
+* ``use-maxsplit-arg``: Emitted either when accessing only the first or last
   element of ``str.split()``.
 
 * An ``ignore_signatures`` option has been added to the similarity checker. It will permits  to reduce false positives when multiple functions have the same parameters.
