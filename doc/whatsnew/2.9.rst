@@ -33,3 +33,6 @@ Other Changes
   of overridden functions. It aims to separate the functionality of ``arguments-differ``.
 
 * Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage
+
+* Fix raising false-positive ``no-member`` on instances' methods where class can be inferred
+  to be derived from Named Tuples

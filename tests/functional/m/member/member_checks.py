@@ -231,3 +231,17 @@ for keyy in Animal.__members__.keys():  # pylint: disable=consider-iterating-dic
     print(keyy)
 for vall in Animal.__members__.values():
     print(vall)
+
+# To test false positive no-member after _replace() described in issue #4377
+# pylint: disable=invalid-name
+from urllib import parse
+parsed_url = parse.urlparse("http://www.this-is-weird.com")
+sorted_query = parse.urlencode(
+    sorted(parse.parse_qsl(parsed_url.query),
+    key=lambda param: param[0])
+)
+new_parsed_url = parse.ParseResult._replace(parsed_url, query=sorted_query)
+new_url = new_parsed_url.geturl()  # This should not trigger a warning
+
+new_parsed_url = parsed_url._replace(query=sorted_query)
+new_url = new_parsed_url.geturl()

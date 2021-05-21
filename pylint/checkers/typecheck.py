@@ -517,6 +517,24 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         # See https://github.com/PyCQA/pylint/issues/4123
         return False
 
+    if (
+        isinstance(node.parent, astroid.Call)
+        and isinstance(owner, astroid.Instance)
+        and isinstance(owner.parent, astroid.Module)
+        and isinstance(getattr(owner, "_proxied", None), astroid.ClassDef)
+        and any(
+            (
+                isinstance(b, astroid.Name)
+                and b.name == "tuple"
+                and utils.is_builtin_object(utils.safe_infer(b))
+            )
+            for b in owner._proxied.bases
+        )
+    ):
+        # Avoid false positive on function calls on instances of named tuples
+        # See https://github.com/PyCQA/pylint/issues/4377
+        return False
+
     return True
 
 

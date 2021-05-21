@@ -55,6 +55,11 @@ modules are added.
 
   Closes #3619
 
+* Fix raising false-positive ``no-member`` on instances' methods where class can be inferred
+  to be derived from Named Tuples
+
+  Closes #4377
+
 
 What's New in Pylint 2.8.2?
 ===========================
