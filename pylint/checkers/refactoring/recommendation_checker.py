@@ -31,7 +31,7 @@ class RecommendationChecker(checkers.BaseChecker):
             "Consider iterating with .items()",
             "consider-using-dict-items",
             "Emitted when iterating over the keys of a dictionary and accessing the "
-            "value by index lookup."
+            "value by index lookup. "
             "Both the key and value can be accessed by iterating using the .items() "
             "method of the dictionary instead.",
         ),
@@ -188,10 +188,7 @@ class RecommendationChecker(checkers.BaseChecker):
         if iterating_object_name is None:
             return
 
-        children = list(node.parent.get_children())
-        if node.ifs:
-            children.extend(node.ifs)
-        for child in children:
+        for child in node.parent.get_children():
             for subscript in child.nodes_of_class(astroid.Subscript):
                 subscript = cast(astroid.Subscript, subscript)
 
