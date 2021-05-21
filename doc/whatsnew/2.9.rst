@@ -15,7 +15,6 @@ New checkers
 * ``consider-using-dict-items``: Emitted when iterating over dictionary keys and then
   indexing the same dictionary with the key within loop body.
 
-
 * ``use-maxsplit-arg``: Emitted either when accessing only the first or last
   element of ``str.split()``.
 

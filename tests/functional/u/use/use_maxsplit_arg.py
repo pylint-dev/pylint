@@ -11,24 +11,25 @@ get_last = SEQ.split(',')[-1]  # [use-maxsplit-arg]
 get_first = SEQ.rsplit(',')[0]  # [use-maxsplit-arg]
 get_last = SEQ.rsplit(',')[-1]  # [use-maxsplit-arg]
 
-get_mid = SEQ.split(',')[1]  # This is okay
-get_mid = SEQ.split(',')[-2]  # This is okay
+# Don't suggest maxsplit=1 if not accessing the first or last element
+get_mid = SEQ.split(',')[1]
+get_mid = SEQ.split(',')[-2]
 
 
 # Test varying maxsplit argument -- all these will be okay
-## str.split() tests
-good_split = '1,2,3'.split(sep=',', maxsplit=1)[-1]  # This is fine
-good_split = '1,2,3'.split(sep=',', maxsplit=1)[0]  # This is fine
-good_split = '1,2,3'.split(sep=',', maxsplit=2)[-1]  # This is fine
-good_split = '1,2,3'.split(sep=',', maxsplit=2)[0]  # This is fine
-good_split = '1,2,3'.split(sep=',', maxsplit=2)[1]  # This is fine
+# ## str.split() tests
+good_split = '1,2,3'.split(sep=',', maxsplit=1)[-1]
+good_split = '1,2,3'.split(sep=',', maxsplit=1)[0]
+good_split = '1,2,3'.split(sep=',', maxsplit=2)[-1]
+good_split = '1,2,3'.split(sep=',', maxsplit=2)[0]
+good_split = '1,2,3'.split(sep=',', maxsplit=2)[1]
 
-## str.rsplit() tests
-good_split = '1,2,3'.rsplit(sep=',', maxsplit=1)[-1]  # This is fine
-good_split = '1,2,3'.rsplit(sep=',', maxsplit=1)[0]  # This is fine
-good_split = '1,2,3'.rsplit(sep=',', maxsplit=2)[-1]  # This is fine
-good_split = '1,2,3'.rsplit(sep=',', maxsplit=2)[0]  # This is fine
-good_split = '1,2,3'.rsplit(sep=',', maxsplit=2)[1]  # This is fine
+# ## str.rsplit() tests
+good_split = '1,2,3'.rsplit(sep=',', maxsplit=1)[-1]
+good_split = '1,2,3'.rsplit(sep=',', maxsplit=1)[0]
+good_split = '1,2,3'.rsplit(sep=',', maxsplit=2)[-1]
+good_split = '1,2,3'.rsplit(sep=',', maxsplit=2)[0]
+good_split = '1,2,3'.rsplit(sep=',', maxsplit=2)[1]
 
 
 # Tests on class attributes
@@ -71,7 +72,7 @@ for s in list_of_strs:
 class Bar():
     split = '1,2,3'
 
-# Error message should show Bar.split.split(',', maxsplit=1) or Bar.split.rsplit(',', maxsplit=1) :
+# Error message should show Bar.split.split(',', maxsplit=1) or Bar.split.rsplit(',', maxsplit=1)
 print(Bar.split.split(",")[0])  # [use-maxsplit-arg]
 print(Bar.split.split(",")[-1])  # [use-maxsplit-arg]
 print(Bar.split.rsplit(",")[0])  # [use-maxsplit-arg]
