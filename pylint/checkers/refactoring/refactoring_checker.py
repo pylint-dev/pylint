@@ -6,7 +6,7 @@ import copy
 import itertools
 import tokenize
 from functools import reduce
-from typing import List
+from typing import List, cast
 
 import astroid
 
@@ -347,6 +347,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted if a resource-allocating assignment or call may be replaced by a 'with' block. "
             "By using 'with' the release of the allocated resources is ensured even in the case of an exception.",
         ),
+        "R1733": (
+            "Unnecessary dictionary indexing, use '%s' instead",
+            "unnecessary-dict-indexing",
+            "Emitted when iterating over the items (key-item pairs) of a dictionary and accessing the "
+            "value by index lookup. "
+            "The value can be accessed directly instead of performing index lookup.",
+        ),
     }
     options = (
         (
@@ -534,9 +541,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     args=(name_node.name,),
                 )
 
-    @utils.check_messages("redefined-argument-from-local", "too-many-nested-blocks")
+    @utils.check_messages(
+        "redefined-argument-from-local",
+        "too-many-nested-blocks",
+        "unnecessary-dict-indexing",
+    )
     def visit_for(self, node):
         self._check_nested_blocks(node)
+        self._check_unnecessary_dict_indexing(node)
 
         for name in node.target.nodes_of_class(astroid.AssignName):
             self._check_redefined_argument_from_local(name)
@@ -1330,9 +1342,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_augassign(self, node):
         self._check_consider_using_join(node)
 
-    @utils.check_messages("unnecessary-comprehension")
+    @utils.check_messages("unnecessary-comprehension", "unnecessary-dict-indexing")
     def visit_comprehension(self, node):
         self._check_unnecessary_comprehension(node)
+        self._check_unnecessary_dict_indexing_comprehension(node)
 
     def _check_unnecessary_comprehension(self, node):
         if (
@@ -1601,3 +1614,105 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # return None"
             elif isinstance(last.value, astroid.Const) and (last.value.value is None):
                 self.add_message("useless-return", node=node)
+
+    def _check_unnecessary_dict_indexing(self, node: astroid.For) -> None:
+        """Add message when accessing dict values by index lookup."""
+        # Verify that we have a .items() call and
+        # that the object which is iterated is used as a subscript in the
+        # body of the for.
+        # Is it a proper items call?
+        if (
+            isinstance(node.iter, astroid.Call)
+            and isinstance(node.iter.func, astroid.Attribute)
+            and node.iter.func.attrname == "items"
+        ):
+            inferred = utils.safe_infer(node.iter.func)
+            if not isinstance(inferred, astroid.BoundMethod):
+                return
+            iterating_object_name = node.iter.as_string().rpartition(".items")[0]
+            dict_key, dict_val = node.target.elts
+
+            # Verify that the body of the for loop uses a subscript
+            # with the object that was iterated. This uses some heuristics
+            # in order to make sure that the same object is used in the
+            # for body.
+            for child in node.body:
+                for subscript in child.nodes_of_class(astroid.Subscript):
+                    subscript = cast(astroid.Subscript, subscript)
+
+                    if not isinstance(
+                        subscript.value, (astroid.Name, astroid.Attribute)
+                    ):
+                        continue
+
+                    value = subscript.slice
+                    if isinstance(value, astroid.Index):
+                        value = value.value
+                    if (
+                        not isinstance(value, astroid.Name)
+                        or value.name != dict_key.name
+                        or iterating_object_name != subscript.value.as_string()
+                    ):
+                        continue
+                    last_definition_lineno = value.lookup(value.name)[1][-1].lineno
+                    if last_definition_lineno > node.lineno:
+                        # Ignore this subscript if it has been redefined after
+                        # the for loop. This checks for the line number using .lookup()
+                        # to get the line number where the iterating object was last
+                        # defined and compare that to the for loop's line number
+                        continue
+                    if (
+                        isinstance(subscript.parent, astroid.Assign)
+                        and subscript in subscript.parent.targets
+                        or isinstance(subscript.parent, astroid.AugAssign)
+                        and subscript == subscript.parent.target
+                    ):
+                        # Ignore this subscript if it is the target of an assignment
+                        continue
+
+                    self.add_message(
+                        "unnecessary-dict-indexing",
+                        node=subscript,
+                        args=(dict_val.as_string()),
+                    )
+
+    def _check_unnecessary_dict_indexing_comprehension(
+        self, node: astroid.Comprehension
+    ) -> None:
+        if (
+            isinstance(node.iter, astroid.Call)
+            and isinstance(node.iter.func, astroid.Attribute)
+            and node.iter.func.attrname == "items"
+        ):
+            inferred = utils.safe_infer(node.iter.func)
+            if not isinstance(inferred, astroid.BoundMethod):
+                return
+            iterating_object_name = node.iter.as_string().rpartition(".items")[0]
+            dict_key, dict_val = node.target.elts
+
+            children = list(node.parent.get_children())
+
+            for child in children:
+                for subscript in child.nodes_of_class(astroid.Subscript):
+                    subscript = cast(astroid.Subscript, subscript)
+
+                    if not isinstance(
+                        subscript.value, (astroid.Name, astroid.Attribute)
+                    ):
+                        continue
+
+                    value = subscript.slice
+                    if isinstance(value, astroid.Index):
+                        value = value.value
+                    if (
+                        not isinstance(value, astroid.Name)
+                        or value.name != dict_key.name
+                        or iterating_object_name != subscript.value.as_string()
+                    ):
+                        continue
+
+                    self.add_message(
+                        "unnecessary-dict-indexing",
+                        node=subscript,
+                        args=(dict_val.as_string()),
+                    )

@@ -62,6 +62,9 @@ modules are added.
 
 * Fix documentation errors in "Block disables" paragraph of User Guide.
 
+* New checker * ``unnecessary-dict-indexing``. Emitted when iterating over dictionary items (key-value pairs) and
+  then indexing the same dictionary with the key within loop body.
+
 
 What's New in Pylint 2.8.2?
 ===========================
