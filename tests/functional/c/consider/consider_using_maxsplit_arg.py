@@ -71,7 +71,8 @@ for s in list_of_strs:
 class Bar():
     split = '1,2,3'
 
-print(Bar.split.split(",")[0])  # [consider-using-maxsplit-arg] (Error message should show Bar.split.partition)
-print(Bar.split.split(",")[-1])  # [consider-using-maxsplit-arg] (Error message should show Bar.split.rpartition)
-print(Bar.split.rsplit(",")[0])  # [consider-using-maxsplit-arg] (Error message should show Bar.split.partition)
-print(Bar.split.rsplit(",")[-1])  # [consider-using-maxsplit-arg] (Error message should show Bar.split.rpartition)
+# Error message should show Bar.split.split(',', maxsplit=1) or Bar.split.rsplit(',', maxsplit=1) :
+print(Bar.split.split(",")[0])  # [consider-using-maxsplit-arg]
+print(Bar.split.split(",")[-1])  # [consider-using-maxsplit-arg]
+print(Bar.split.rsplit(",")[0])  # [consider-using-maxsplit-arg]
+print(Bar.split.rsplit(",")[-1])  # [consider-using-maxsplit-arg]
