@@ -45,3 +45,12 @@ for k,v in Foo.c_dict.items():
 [v for k,v in Foo.c_dict.items() if k]  # This is fine, no indexing
 [Foo.c_dict[k] for k,v in Foo.c_dict.items() if k]  # [unnecessary-dict-indexing]
 [Foo.c_dict[k] for k,v in Foo.c_dict.items() if Foo.c_dict[k]]  # [unnecessary-dict-indexing, unnecessary-dict-indexing]
+
+# Test assigning d.items() to a single variable
+d = {1: "a", 2: "b"}
+for item in d.items():
+    print(item[0])
+    print(d[item[0]])  # [unnecessary-dict-indexing]
+
+[item[0] for item in d.items()]
+[d[item[0]] for item in d.items()]  # [unnecessary-dict-indexing]

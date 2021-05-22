@@ -1630,7 +1630,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if not isinstance(inferred, astroid.BoundMethod):
                 return
             iterating_object_name = node.iter.as_string().rpartition(".items")[0]
-            dict_key, dict_val = node.target.elts
 
             # Verify that the body of the for loop uses a subscript
             # with the object that was iterated. This uses some heuristics
@@ -1648,19 +1647,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     value = subscript.slice
                     if isinstance(value, astroid.Index):
                         value = value.value
-                    if (
-                        not isinstance(value, astroid.Name)
-                        or value.name != dict_key.name
-                        or iterating_object_name != subscript.value.as_string()
-                    ):
-                        continue
-                    last_definition_lineno = value.lookup(value.name)[1][-1].lineno
-                    if last_definition_lineno > node.lineno:
-                        # Ignore this subscript if it has been redefined after
-                        # the for loop. This checks for the line number using .lookup()
-                        # to get the line number where the iterating object was last
-                        # defined and compare that to the for loop's line number
-                        continue
+
                     if (
                         isinstance(subscript.parent, astroid.Assign)
                         and subscript in subscript.parent.targets
@@ -1670,11 +1657,57 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         # Ignore this subscript if it is the target of an assignment
                         continue
 
-                    self.add_message(
-                        "unnecessary-dict-indexing",
-                        node=subscript,
-                        args=(dict_val.as_string()),
-                    )
+                    # Case where .items is assigned to k,v (i.e., for k, v in d.items())
+                    if isinstance(value, astroid.Name):
+                        if (
+                            not isinstance(node.target, astroid.Tuple)
+                            or value.name != node.target.elts[0].name
+                            or iterating_object_name != subscript.value.as_string()
+                        ):
+                            continue
+
+                        last_definition_lineno = value.lookup(value.name)[1][-1].lineno
+                        if last_definition_lineno > node.lineno:
+                            # Ignore this subscript if it has been redefined after
+                            # the for loop. This checks for the line number using .lookup()
+                            # to get the line number where the iterating object was last
+                            # defined and compare that to the for loop's line number
+                            continue
+
+                        self.add_message(
+                            "unnecessary-dict-indexing",
+                            node=subscript,
+                            args=(node.target.elts[1].as_string()),
+                        )
+
+                    # Case where .items is assigned to single var (i.e., for item in d.items())
+                    elif isinstance(value, astroid.Subscript):
+                        # Note: We don't have to check for reassignment for this case as
+                        # tuples are immutable
+                        if (
+                            not isinstance(node.target, astroid.AssignName)
+                            or node.target.name != value.value.name
+                            or iterating_object_name != subscript.value.as_string()
+                        ):
+                            continue
+                        # check if subscripted by 0 (key)
+                        subscript_val = value.slice
+                        if isinstance(subscript_val, astroid.Index):
+                            subscript_val = subscript_val.value
+                        inferred = utils.safe_infer(subscript_val)
+                        if not isinstance(inferred, astroid.Const):
+                            continue
+                        inferred = cast(astroid.Const, inferred)
+                        if inferred.value != 0:
+                            continue
+                        self.add_message(
+                            "unnecessary-dict-indexing",
+                            node=subscript,
+                            args=("1".join(value.as_string().rsplit("0", maxsplit=1)),),
+                        )
+
+                    else:
+                        continue
 
     def _check_unnecessary_dict_indexing_comprehension(
         self, node: astroid.Comprehension
@@ -1688,7 +1721,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if not isinstance(inferred, astroid.BoundMethod):
                 return
             iterating_object_name = node.iter.as_string().rpartition(".items")[0]
-            dict_key, dict_val = node.target.elts
 
             children = list(node.parent.get_children())
 
@@ -1702,17 +1734,47 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         continue
 
                     value = subscript.slice
+
                     if isinstance(value, astroid.Index):
                         value = value.value
-                    if (
-                        not isinstance(value, astroid.Name)
-                        or value.name != dict_key.name
-                        or iterating_object_name != subscript.value.as_string()
-                    ):
-                        continue
 
-                    self.add_message(
-                        "unnecessary-dict-indexing",
-                        node=subscript,
-                        args=(dict_val.as_string()),
-                    )
+                    # Case where .items is assigned to k,v (i.e., for k, v in d.items())
+                    if isinstance(value, astroid.Name):
+                        if (
+                            not isinstance(node.target, astroid.Tuple)
+                            or value.name != node.target.elts[0].name
+                            or iterating_object_name != subscript.value.as_string()
+                        ):
+                            continue
+                        self.add_message(
+                            "unnecessary-dict-indexing",
+                            node=subscript,
+                            args=(node.target.elts[1].as_string()),
+                        )
+
+                    # Case where .items is assigned to single var (i.e., for item in d.items())
+                    elif isinstance(value, astroid.Subscript):
+                        if (
+                            not isinstance(node.target, astroid.AssignName)
+                            or node.target.name != value.value.name
+                            or iterating_object_name != subscript.value.as_string()
+                        ):
+                            continue
+                        # check if subscripted by 0 (key)
+                        subscript_val = value.slice
+                        if isinstance(subscript_val, astroid.Index):
+                            subscript_val = subscript_val.value
+                        inferred = utils.safe_infer(subscript_val)
+                        if not isinstance(inferred, astroid.Const):
+                            continue
+                        inferred = cast(astroid.Const, inferred)
+                        if inferred.value != 0:
+                            continue
+                        self.add_message(
+                            "unnecessary-dict-indexing",
+                            node=subscript,
+                            args=("1".join(value.as_string().rsplit("0", maxsplit=1)),),
+                        )
+
+                    else:
+                        continue

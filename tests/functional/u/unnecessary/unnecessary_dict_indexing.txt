@@ -18,3 +18,5 @@ unnecessary-dict-indexing:44:36::Unnecessary dictionary indexing, use 'v' instea
 unnecessary-dict-indexing:46:1::Unnecessary dictionary indexing, use 'v' instead
 unnecessary-dict-indexing:47:1::Unnecessary dictionary indexing, use 'v' instead
 unnecessary-dict-indexing:47:48::Unnecessary dictionary indexing, use 'v' instead
+unnecessary-dict-indexing:53:10::Unnecessary dictionary indexing, use 'item[1]' instead
+unnecessary-dict-indexing:56:1::Unnecessary dictionary indexing, use 'item[1]' instead
