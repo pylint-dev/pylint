@@ -84,7 +84,7 @@ class RecommendationChecker(checkers.BaseChecker):
             and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
         ):
             try:
-                sep = utils.get_argument_from_call(node, 0, "sep").value
+                utils.get_argument_from_call(node, 0, "sep").value
             except utils.NoSuchArgumentError:
                 return
 
@@ -105,8 +105,8 @@ class RecommendationChecker(checkers.BaseChecker):
                     fn_name = node.func.attrname
                     new_fn = "rsplit" if subscript_value == -1 else "split"
                     new_name = (
-                        f"{node.as_string().rsplit(fn_name, maxsplit=1)[0]}{new_fn}"
-                        f"('{sep}', maxsplit=1)[{subscript_value}]"
+                        new_fn.join(node.as_string().rsplit(fn_name, maxsplit=1))[:-1]
+                        + f", maxsplit=1)[{subscript_value}]"
                     )
                     self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
 

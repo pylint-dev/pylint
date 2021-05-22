@@ -77,3 +77,6 @@ print(Bar.split.split(",")[0])  # [use-maxsplit-arg]
 print(Bar.split.split(",")[-1])  # [use-maxsplit-arg]
 print(Bar.split.rsplit(",")[0])  # [use-maxsplit-arg]
 print(Bar.split.rsplit(",")[-1])  # [use-maxsplit-arg]
+
+
+a = "1,2,3".split('\n')[0]  # [use-maxsplit-arg]
