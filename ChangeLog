@@ -51,6 +51,11 @@ modules are added.
 
   Closes #4412
 
+* New checker ``use-maxsplit-arg``. Emitted either when accessing only the first or last
+  element of ``str.split()``.
+
+  Closes #4440
+
 * Add ignore_signatures to duplicate code checker
 
   Closes #3619
