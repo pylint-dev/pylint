@@ -105,8 +105,9 @@ class RecommendationChecker(checkers.BaseChecker):
                     fn_name = node.func.attrname
                     new_fn = "rsplit" if subscript_value == -1 else "split"
                     new_name = (
-                        new_fn.join(node.as_string().rsplit(fn_name, maxsplit=1))[:-1]
-                        + f", maxsplit=1)[{subscript_value}]"
+                        node.func.as_string().rsplit(fn_name, maxsplit=1)[0]
+                        + new_fn
+                        + f"({node.args[0].as_string()}, maxsplit=1)[{subscript_value}]"
                     )
                     self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
 
