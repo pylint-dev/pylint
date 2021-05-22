@@ -84,13 +84,13 @@ class RecommendationChecker(checkers.BaseChecker):
             and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
         ):
             try:
-                utils.get_argument_from_call(node, 0, "sep").value
+                utils.get_argument_from_call(node, 0, "sep")
             except utils.NoSuchArgumentError:
                 return
 
             try:
                 # Ignore if maxsplit arg has been set
-                _ = utils.get_argument_from_call(node, 1, "maxsplit").value
+                utils.get_argument_from_call(node, 1, "maxsplit")
                 return
             except utils.NoSuchArgumentError:
                 pass
