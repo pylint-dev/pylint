@@ -20,3 +20,4 @@ unnecessary-dict-index-lookup:47:1::Unnecessary dictionary indexing, use 'v' ins
 unnecessary-dict-index-lookup:47:48::Unnecessary dictionary indexing, use 'v' instead
 unnecessary-dict-index-lookup:53:10::Unnecessary dictionary indexing, use 'item[1]' instead
 unnecessary-dict-index-lookup:56:1::Unnecessary dictionary indexing, use 'item[1]' instead
+unnecessary-dict-index-lookup:61:10::Unnecessary dictionary indexing, use 'item[1]' instead

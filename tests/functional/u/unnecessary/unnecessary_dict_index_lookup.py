@@ -54,3 +54,10 @@ for item in d.items():
 
 [item[0] for item in d.items()]
 [d[item[0]] for item in d.items()]  # [unnecessary-dict-index-lookup]
+
+# Reassigning single var
+for item in d.items():
+    print(item[0])
+    print(d[item[0]])  # [unnecessary-dict-index-lookup]
+    item = d
+    print(d[item[0]])  # This is fine, no warning thrown as it is reassigned
