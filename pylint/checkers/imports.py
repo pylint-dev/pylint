@@ -48,7 +48,7 @@ import copy
 import os
 import sys
 from distutils import sysconfig
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import astroid
 
@@ -299,6 +299,14 @@ MSGS = {
         "import-outside-toplevel",
         "Used when an import statement is used anywhere other than the module "
         "toplevel. Move this import to the top of the file.",
+    ),
+    "C0416": (
+        "Use 'from %s import %s' instead",
+        "use-from-import",
+        "Emitted when an lower-level module/member of a package is imported and "
+        "aliaised with the same name. "
+        "e.g ``import pandas.DataFrame as DataFrame`` instead of "
+        "``from pandas import DataFrame``",
     ),
 }
 
@@ -865,22 +873,29 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 args=(self.preferred_modules[mod_path], mod_path),
             )
 
-    def _check_import_as_rename(self, node):
+    def _check_import_as_rename(
+        self, node: Union[astroid.Import, astroid.ImportFrom]
+    ) -> None:
         names = node.names
         for name in names:
             if not all(name):
                 return
 
             real_name = name[0]
-            splitted_packages = real_name.rsplit(".")
+            splitted_packages = real_name.rsplit(".", 1)
             real_name = splitted_packages[-1]
             imported_name = name[1]
-            # consider only following cases
-            # import x as x
-            # and ignore following
-            # import x.y.z as z
-            if real_name == imported_name and len(splitted_packages) == 1:
+            if real_name != imported_name:
+                continue
+
+            if len(splitted_packages) == 1:
                 self.add_message("useless-import-alias", node=node)
+            elif len(splitted_packages) == 2:
+                self.add_message(
+                    "use-from-import",
+                    node=node,
+                    args=(splitted_packages[0], imported_name),
+                )
 
     def _check_reimport(self, node, basename=None, level=None):
         """check if the import is necessary (i.e. not already done)"""
