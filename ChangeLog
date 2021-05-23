@@ -60,6 +60,8 @@ modules are added.
 
   Closes #3619
 
+* Fix documentation errors in "Block disables" paragraph of User Guide.
+
 
 What's New in Pylint 2.8.2?
 ===========================
