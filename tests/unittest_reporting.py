@@ -77,38 +77,150 @@ def test_parseable_output_regression():
 def test_multi_format_output(tmp_path):
     text = StringIO()
     json = tmp_path / "somefile.json"
+    source_file = tmp_path / "somemodule.py"
+    source_file.write_text('NOT_EMPTY = "This module is not empty"\n')
     formats = ",".join(["json:" + str(json), "text"])
 
     with redirect_stdout(text):
         linter = PyLinter()
+        linter.set_option("persistent", False)
         linter.set_option("output-format", formats)
+        linter.set_option("reports", True)
+        linter.set_option("score", True)
         linter.load_default_plugins()
+
+        assert linter.reporter.linter is linter
+        with pytest.raises(NotImplementedError):
+            linter.reporter.set_output(text)
+
         linter.open()
-        linter.set_current_module("0123")
+        linter.check_single_file("somemodule", source_file, "somemodule")
         linter.add_message("line-too-long", line=1, args=(1, 2))
         linter.generate_reports()
-        linter.reporter.close_output_files()
+        linter.reporter.writeln("direct output")
+        del linter.reporter  # Ensure the output files are flushed and closed
 
     with open(json) as f:
         assert (
             f.read() == "[\n"
             "    {\n"
             '        "type": "convention",\n'
-            '        "module": "0123",\n'
+            '        "module": "somemodule",\n'
             '        "obj": "",\n'
             '        "line": 1,\n'
             '        "column": 0,\n'
-            '        "path": "0123",\n'
+            f'        "path": "{source_file}",\n'
+            '        "symbol": "missing-module-docstring",\n'
+            '        "message": "Missing module docstring",\n'
+            '        "message-id": "C0114"\n'
+            "    },\n"
+            "    {\n"
+            '        "type": "convention",\n'
+            '        "module": "somemodule",\n'
+            '        "obj": "",\n'
+            '        "line": 1,\n'
+            '        "column": 0,\n'
+            f'        "path": "{source_file}",\n'
             '        "symbol": "line-too-long",\n'
             '        "message": "Line too long (1/2)",\n'
             '        "message-id": "C0301"\n'
             "    }\n"
             "]\n"
+            "direct output\n"
         )
 
     assert (
-        text.getvalue() == "************* Module 0123\n"
-        "0123:1:0: C0301: Line too long (1/2) (line-too-long)\n"
+        text.getvalue() == "************* Module somemodule\n"
+        f"{source_file}:1:0: C0114: Missing module docstring (missing-module-docstring)\n"
+        f"{source_file}:1:0: C0301: Line too long (1/2) (line-too-long)\n"
+        "\n"
+        "\n"
+        "Report\n"
+        "======\n"
+        "1 statements analysed.\n"
+        "\n"
+        "Statistics by type\n"
+        "------------------\n"
+        "\n"
+        "+---------+-------+-----------+-----------+------------+---------+\n"
+        "|type     |number |old number |difference |%documented |%badname |\n"
+        "+=========+=======+===========+===========+============+=========+\n"
+        "|module   |1      |NC         |NC         |0.00        |0.00     |\n"
+        "+---------+-------+-----------+-----------+------------+---------+\n"
+        "|class    |0      |NC         |NC         |0           |0        |\n"
+        "+---------+-------+-----------+-----------+------------+---------+\n"
+        "|method   |0      |NC         |NC         |0           |0        |\n"
+        "+---------+-------+-----------+-----------+------------+---------+\n"
+        "|function |0      |NC         |NC         |0           |0        |\n"
+        "+---------+-------+-----------+-----------+------------+---------+\n"
+        "\n"
+        "\n"
+        "\n"
+        "Raw metrics\n"
+        "-----------\n"
+        "\n"
+        "+----------+-------+------+---------+-----------+\n"
+        "|type      |number |%     |previous |difference |\n"
+        "+==========+=======+======+=========+===========+\n"
+        "|code      |2      |66.67 |NC       |NC         |\n"
+        "+----------+-------+------+---------+-----------+\n"
+        "|docstring |0      |0.00  |NC       |NC         |\n"
+        "+----------+-------+------+---------+-----------+\n"
+        "|comment   |0      |0.00  |NC       |NC         |\n"
+        "+----------+-------+------+---------+-----------+\n"
+        "|empty     |1      |33.33 |NC       |NC         |\n"
+        "+----------+-------+------+---------+-----------+\n"
+        "\n"
+        "\n"
+        "\n"
+        "Duplication\n"
+        "-----------\n"
+        "\n"
+        "+-------------------------+------+---------+-----------+\n"
+        "|                         |now   |previous |difference |\n"
+        "+=========================+======+=========+===========+\n"
+        "|nb duplicated lines      |0     |NC       |NC         |\n"
+        "+-------------------------+------+---------+-----------+\n"
+        "|percent duplicated lines |0.000 |NC       |NC         |\n"
+        "+-------------------------+------+---------+-----------+\n"
+        "\n"
+        "\n"
+        "\n"
+        "Messages by category\n"
+        "--------------------\n"
+        "\n"
+        "+-----------+-------+---------+-----------+\n"
+        "|type       |number |previous |difference |\n"
+        "+===========+=======+=========+===========+\n"
+        "|convention |2      |NC       |NC         |\n"
+        "+-----------+-------+---------+-----------+\n"
+        "|refactor   |0      |NC       |NC         |\n"
+        "+-----------+-------+---------+-----------+\n"
+        "|warning    |0      |NC       |NC         |\n"
+        "+-----------+-------+---------+-----------+\n"
+        "|error      |0      |NC       |NC         |\n"
+        "+-----------+-------+---------+-----------+\n"
+        "\n"
+        "\n"
+        "\n"
+        "Messages\n"
+        "--------\n"
+        "\n"
+        "+-------------------------+------------+\n"
+        "|message id               |occurrences |\n"
+        "+=========================+============+\n"
+        "|missing-module-docstring |1           |\n"
+        "+-------------------------+------------+\n"
+        "|line-too-long            |1           |\n"
+        "+-------------------------+------------+\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "-------------------------------------\n"
+        "Your code has been rated at -10.00/10\n"
+        "\n"
+        "direct output\n"
     )
 
 
