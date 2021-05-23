@@ -72,6 +72,11 @@ modules are added.
 
   Closes #2309
 
+* Allow comma-separated list in ``output-format`` and separate output files for
+  each specified format.
+
+  Closes #1798
+
 
 What's New in Pylint 2.8.2?
 ===========================

@@ -41,3 +41,6 @@ Other Changes
   of overridden functions. It aims to separate the functionality of ``arguments-differ``.
 
 * Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage
+
+* Allow comma-separated list in ``output-format`` and separate output files for
+  each specified format.
