@@ -350,9 +350,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1733": (
             "Unnecessary dictionary indexing, use '%s' instead",
             "unnecessary-dict-indexing",
-            "Emitted when iterating over the items (key-item pairs) of a dictionary and accessing the "
+            "Emitted when iterating over the dictionary items (key-item pairs) and accessing the "
             "value by index lookup. "
-            "The value can be accessed directly instead of performing index lookup.",
+            "The value can be accessed directly instead.",
         ),
     }
     options = (
