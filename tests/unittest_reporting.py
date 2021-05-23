@@ -14,11 +14,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 # pylint: disable=redefined-outer-name
 
-import os
 import warnings
 from contextlib import redirect_stdout
 from io import StringIO
-from tempfile import mktemp
 
 import pytest
 
@@ -76,48 +74,37 @@ def test_parseable_output_regression():
     )
 
 
-def test_multi_format_output():
+def test_multi_format_output(tmp_path):
     text = StringIO()
-    json = mktemp()
-    formats = ",".join(
-        [
-            "json:" + json,
-            "text",
-        ]
-    )
+    json = tmp_path / "somefile.json"
+    formats = ",".join(["json:" + str(json), "text"])
 
-    try:
-        with redirect_stdout(text):
-            linter = PyLinter()
-            linter.set_option("output-format", formats)
-            linter.load_default_plugins()
-            linter.open()
-            linter.set_current_module("0123")
-            linter.add_message("line-too-long", line=1, args=(1, 2))
-            linter.generate_reports()
-            linter.reporter.close_output_files()
+    with redirect_stdout(text):
+        linter = PyLinter()
+        linter.set_option("output-format", formats)
+        linter.load_default_plugins()
+        linter.open()
+        linter.set_current_module("0123")
+        linter.add_message("line-too-long", line=1, args=(1, 2))
+        linter.generate_reports()
+        linter.reporter.close_output_files()
 
-        with open(json) as f:
-            assert (
-                f.read() == "[\n"
-                "    {\n"
-                '        "type": "convention",\n'
-                '        "module": "0123",\n'
-                '        "obj": "",\n'
-                '        "line": 1,\n'
-                '        "column": 0,\n'
-                '        "path": "0123",\n'
-                '        "symbol": "line-too-long",\n'
-                '        "message": "Line too long (1/2)",\n'
-                '        "message-id": "C0301"\n'
-                "    }\n"
-                "]\n"
-            )
-    finally:
-        try:
-            os.remove(json)
-        except OSError:
-            pass
+    with open(json) as f:
+        assert (
+            f.read() == "[\n"
+            "    {\n"
+            '        "type": "convention",\n'
+            '        "module": "0123",\n'
+            '        "obj": "",\n'
+            '        "line": 1,\n'
+            '        "column": 0,\n'
+            '        "path": "0123",\n'
+            '        "symbol": "line-too-long",\n'
+            '        "message": "Line too long (1/2)",\n'
+            '        "message-id": "C0301"\n'
+            "    }\n"
+            "]\n"
+        )
 
     assert (
         text.getvalue() == "************* Module 0123\n"
