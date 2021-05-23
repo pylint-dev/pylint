@@ -540,7 +540,7 @@ class PyLinter(
         output_files = []
         with contextlib.ExitStack() as stack:
             for reporter_name in self._reporter_names.split(","):
-                reporter_name, *reporter_output = reporter_name.split(":")
+                reporter_name, *reporter_output = reporter_name.split(":", 1)
 
                 reporter = self._load_reporter_by_name(reporter_name)
                 sub_reporters.append(reporter)
