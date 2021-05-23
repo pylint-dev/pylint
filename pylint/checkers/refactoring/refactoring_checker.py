@@ -348,7 +348,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "By using 'with' the release of the allocated resources is ensured even in the case of an exception.",
         ),
         "R1733": (
-            "Unnecessary dictionary indexing, use '%s' instead",
+            "Unnecessary dictionary index lookup, use '%s' instead",
             "unnecessary-dict-index-lookup",
             "Emitted when iterating over the dictionary items (key-item pairs) and accessing the "
             "value by index lookup. "
