@@ -59,5 +59,5 @@ for item in d.items():
 for item in d.items():
     print(item[0])
     print(d[item[0]])  # [unnecessary-dict-index-lookup]
-    item = d
-    print(d[item[0]])  # This is fine, no warning thrown as it is reassigned
+    item = (2, "b")
+    print(d[item[0]])  # This is fine, no warning thrown as key has been reassigned
