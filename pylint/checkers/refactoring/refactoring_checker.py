@@ -1629,7 +1629,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             inferred = utils.safe_infer(node.iter.func)
             if not isinstance(inferred, astroid.BoundMethod):
                 return
-            iterating_object_name = node.iter.as_string().rpartition(".items")[0]
+            iterating_object_name = node.iter.func.expr.as_string()
 
             # Verify that the body of the for loop uses a subscript
             # with the object that was iterated. This uses some heuristics
@@ -1695,10 +1695,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         if isinstance(subscript_val, astroid.Index):
                             subscript_val = subscript_val.value
                         inferred = utils.safe_infer(subscript_val)
-                        if not isinstance(inferred, astroid.Const):
-                            continue
-                        inferred = cast(astroid.Const, inferred)
-                        if inferred.value != 0:
+                        if (
+                            not isinstance(inferred, astroid.Const)
+                            or inferred.value != 0
+                        ):
                             continue
                         self.add_message(
                             "unnecessary-dict-index-lookup",
@@ -1720,7 +1720,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             inferred = utils.safe_infer(node.iter.func)
             if not isinstance(inferred, astroid.BoundMethod):
                 return
-            iterating_object_name = node.iter.as_string().rpartition(".items")[0]
+            iterating_object_name = node.iter.func.expr.as_string()
 
             children = list(node.parent.get_children())
 
@@ -1765,10 +1765,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         if isinstance(subscript_val, astroid.Index):
                             subscript_val = subscript_val.value
                         inferred = utils.safe_infer(subscript_val)
-                        if not isinstance(inferred, astroid.Const):
-                            continue
-                        inferred = cast(astroid.Const, inferred)
-                        if inferred.value != 0:
+                        if (
+                            not isinstance(inferred, astroid.Const)
+                            or inferred.value != 0
+                        ):
                             continue
                         self.add_message(
                             "unnecessary-dict-index-lookup",
