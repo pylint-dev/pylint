@@ -67,7 +67,7 @@ modules are added.
 
   Closes #4470
 
-* New checker``consider-using-from-import``. Emitted when a module/member of a package is imported and aliased
+* New checker``consider-using-from-import``. Emitted when a submodule/member of a package is imported and aliased
   with the same name.
 
   Closes #2309

@@ -239,9 +239,9 @@ MSGS = {
     "R0402": (
         "Use 'from %s import %s' instead",
         "consider-using-from-import",
-        "Emitted when a module/member of a package is imported and "
+        "Emitted when a submodule/member of a package is imported and "
         "aliased with the same name. "
-        "e.g ``import pandas.DataFrame as DataFrame`` instead of "
+        "E.g., instead of ``import pandas.DataFrame as DataFrame`` use "
         "``from pandas import DataFrame``",
     ),
     "W0401": (
@@ -893,7 +893,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self.add_message(
                     "consider-using-from-import",
                     node=node,
-                    args=(splitted_packages[0], aliased_name),
+                    args=(splitted_packages[0], import_name),
                 )
 
     def _check_reimport(self, node, basename=None, level=None):
