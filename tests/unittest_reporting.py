@@ -17,6 +17,7 @@
 import warnings
 from contextlib import redirect_stdout
 from io import StringIO
+from json import dumps
 
 import pytest
 
@@ -79,6 +80,7 @@ def test_multi_format_output(tmp_path):
     json = tmp_path / "somefile.json"
     source_file = tmp_path / "somemodule.py"
     source_file.write_text('NOT_EMPTY = "This module is not empty"\n')
+    escaped_source_file = dumps(str(source_file))
     formats = ",".join(["json:" + str(json), "text"])
 
     with redirect_stdout(text):
@@ -112,7 +114,7 @@ def test_multi_format_output(tmp_path):
             '        "obj": "",\n'
             '        "line": 1,\n'
             '        "column": 0,\n'
-            f'        "path": "{source_file}",\n'
+            f'        "path": {escaped_source_file},\n'
             '        "symbol": "missing-module-docstring",\n'
             '        "message": "Missing module docstring",\n'
             '        "message-id": "C0114"\n'
@@ -123,7 +125,7 @@ def test_multi_format_output(tmp_path):
             '        "obj": "",\n'
             '        "line": 1,\n'
             '        "column": 0,\n'
-            f'        "path": "{source_file}",\n'
+            f'        "path": {escaped_source_file},\n'
             '        "symbol": "line-too-long",\n'
             '        "message": "Line too long (1/2)",\n'
             '        "message-id": "C0301"\n'
