@@ -94,7 +94,7 @@ class NopReporter(BaseReporter):
 
 
 def test_multi_format_output(tmp_path):
-    text = StringIO()
+    text = StringIO(newline=None)
     json = tmp_path / "somefile.json"
 
     source_file = tmp_path / "somemodule.py"
