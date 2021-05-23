@@ -1,10 +1,10 @@
 unnecessary-dict-index-lookup:7:10::Unnecessary dictionary index lookup, use 'v' instead
 unnecessary-dict-index-lookup:11:10::Unnecessary dictionary index lookup, use 'v' instead
-unnecessary-dict-index-lookup:17:34::Unnecessary dictionary index lookup, use 'v' instead
+unnecessary-dict-index-lookup:17:36::Unnecessary dictionary index lookup, use 'v' instead
 unnecessary-dict-index-lookup:19:1::Unnecessary dictionary index lookup, use 'v' instead
 unnecessary-dict-index-lookup:20:1::Unnecessary dictionary index lookup, use 'v' instead
-unnecessary-dict-index-lookup:20:42::Unnecessary dictionary index lookup, use 'v' instead
-unnecessary-dict-index-lookup:22:32::Unnecessary dictionary index lookup, use 'v' instead
+unnecessary-dict-index-lookup:20:44::Unnecessary dictionary index lookup, use 'v' instead
+unnecessary-dict-index-lookup:22:33::Unnecessary dictionary index lookup, use 'v' instead
 unnecessary-dict-index-lookup:24:1::Unnecessary dictionary index lookup, use 'v' instead
 unnecessary-dict-index-lookup:25:1::Unnecessary dictionary index lookup, use 'v' instead
 unnecessary-dict-index-lookup:25:40::Unnecessary dictionary index lookup, use 'v' instead

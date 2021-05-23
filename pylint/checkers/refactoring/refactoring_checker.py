@@ -6,7 +6,7 @@ import copy
 import itertools
 import tokenize
 from functools import reduce
-from typing import List, Union, cast
+from typing import List, Tuple, Union, cast
 
 import astroid
 
@@ -548,7 +548,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     )
     def visit_for(self, node):
         self._check_nested_blocks(node)
-        self._check_unnecessary_dict_indexing(node)
+        self._check_unnecessary_dict_index_lookup(node)
 
         for name in node.target.nodes_of_class(astroid.AssignName):
             self._check_redefined_argument_from_local(name)
@@ -1345,7 +1345,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     @utils.check_messages("unnecessary-comprehension", "unnecessary-dict-index-lookup")
     def visit_comprehension(self, node):
         self._check_unnecessary_comprehension(node)
-        self._check_unnecessary_dict_indexing(node)
+        self._check_unnecessary_dict_index_lookup(node)
 
     def _check_unnecessary_comprehension(self, node):
         if (
@@ -1615,7 +1615,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             elif isinstance(last.value, astroid.Const) and (last.value.value is None):
                 self.add_message("useless-return", node=node)
 
-    def _check_unnecessary_dict_indexing(
+    def _check_unnecessary_dict_index_lookup(
         self, node: Union[astroid.For, astroid.Comprehension]
     ) -> None:
         """Add message when accessing dict values by index lookup."""
@@ -1638,7 +1638,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # in order to make sure that the same object is used in the
             # for body.
 
-            children = (
+            children: Tuple[astroid.node_classes.NodeNG] = (
                 node.body
                 if isinstance(node, astroid.For)
                 else node.parent.get_children()
@@ -1656,9 +1656,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     if isinstance(value, astroid.Index):
                         value = value.value
 
-                    if (
-                        isinstance(node, astroid.For)
-                        and isinstance(subscript.parent, astroid.Assign)
+                    if isinstance(node, astroid.For) and (
+                        isinstance(subscript.parent, astroid.Assign)
                         and subscript in subscript.parent.targets
                         or isinstance(subscript.parent, astroid.AugAssign)
                         and subscript == subscript.parent.target
@@ -1693,8 +1692,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
                     # Case where .items is assigned to single var (i.e., for item in d.items())
                     elif isinstance(value, astroid.Subscript):
-                        # Note: We don't have to check for reassignment for this case as
-                        # tuples are immutable
                         if (
                             not isinstance(node.target, astroid.AssignName)
                             or node.target.name != value.value.name
@@ -1728,6 +1725,3 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             node=subscript,
                             args=("1".join(value.as_string().rsplit("0", maxsplit=1)),),
                         )
-
-                    else:
-                        continue

@@ -14,13 +14,13 @@ for k,v in a_dict.items():
 
 
 # Tests on comprehensions
-{v:1 for k,v in a_dict.items() if a_dict[k]}  # [unnecessary-dict-index-lookup]
-{v:1 for k,v in a_dict.items() if k}  # This is fine, no indexing
-{a_dict[k]:1 for k,v in a_dict.items() if k}  # [unnecessary-dict-index-lookup]
-{a_dict[k]:1 for k,v in a_dict.items() if a_dict[k]}  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
+{v: 1 for k, v in a_dict.items() if a_dict[k]}  # [unnecessary-dict-index-lookup]
+{v: 1 for k, v in a_dict.items() if k}  # This is fine, no indexing
+{a_dict[k]: 1 for k, v in a_dict.items() if k}  # [unnecessary-dict-index-lookup]
+{a_dict[k]: 1 for k, v in a_dict.items() if a_dict[k]}  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
 
-[v for k,v in a_dict.items() if a_dict[k]]  # [unnecessary-dict-index-lookup]
-[v for k,v in a_dict.items() if k]  # This is fine, no indexing
+[v for k, v in a_dict.items() if a_dict[k]]  # [unnecessary-dict-index-lookup]
+[v for k, v in a_dict.items() if k]  # This is fine, no indexing
 [a_dict[k] for k,v in a_dict.items() if k]  # [unnecessary-dict-index-lookup]
 [a_dict[k] for k,v in a_dict.items() if a_dict[k]]  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
 
@@ -29,7 +29,7 @@ for k,v in a_dict.items():
 class Foo:
     c_dict = {}
 
-for k,v in Foo.c_dict.items():
+for k, v in Foo.c_dict.items():
     print(b_dict[k])  # Should not emit warning, accessing other dictionary
     print(Foo.c_dict[k])  # [unnecessary-dict-index-lookup]
     Foo.c_dict[k] += Foo.c_dict[k]  # [unnecessary-dict-index-lookup]
