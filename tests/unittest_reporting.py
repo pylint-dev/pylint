@@ -98,7 +98,10 @@ def test_multi_format_output(tmp_path):
         linter.add_message("line-too-long", line=1, args=(1, 2))
         linter.generate_reports()
         linter.reporter.writeln("direct output")
-        del linter.reporter  # Ensure the output files are flushed and closed
+
+        # Ensure the output files are flushed and closed
+        linter.reporter.close_output_files()
+        del linter.reporter
 
     with open(json) as f:
         assert (
