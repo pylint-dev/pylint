@@ -489,3 +489,5 @@ contributors:
 
 * Aditya Gupta (adityagupta1089) : contributor
   - Added ignore_signatures to duplicate checker
+
+* Jacob Walls: contributor

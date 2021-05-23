@@ -31,9 +31,17 @@ class RecommendationChecker(checkers.BaseChecker):
             "Consider iterating with .items()",
             "consider-using-dict-items",
             "Emitted when iterating over the keys of a dictionary and accessing the "
-            "value by index lookup."
+            "value by index lookup. "
             "Both the key and value can be accessed by iterating using the .items() "
             "method of the dictionary instead.",
+        ),
+        "C0207": (
+            "Use %s instead",
+            "use-maxsplit-arg",
+            "Emitted when accessing only the first or last element of str.split(). "
+            "The first and last element can be accessed by using "
+            "str.split(sep, maxsplit=1)[0] or str.rsplit(sep, maxsplit=1)[-1] "
+            "instead.",
         ),
     }
 
@@ -44,8 +52,12 @@ class RecommendationChecker(checkers.BaseChecker):
             return False
         return utils.is_builtin_object(inferred) and inferred.name == function
 
-    @utils.check_messages("consider-iterating-dictionary")
-    def visit_call(self, node):
+    @utils.check_messages("consider-iterating-dictionary", "use-maxsplit-arg")
+    def visit_call(self, node: astroid.Call) -> None:
+        self._check_consider_iterating_dictionary(node)
+        self._check_use_maxsplit_arg(node)
+
+    def _check_consider_iterating_dictionary(self, node: astroid.Call) -> None:
         if not isinstance(node.func, astroid.Attribute):
             return
         if node.func.attrname != "keys":
@@ -61,6 +73,43 @@ class RecommendationChecker(checkers.BaseChecker):
 
         if isinstance(node.parent, (astroid.For, astroid.Comprehension)):
             self.add_message("consider-iterating-dictionary", node=node)
+
+    def _check_use_maxsplit_arg(self, node: astroid.Call) -> None:
+        """Add message when accessing first or last elements of a str.split() or str.rsplit()."""
+
+        # Check if call is split() or rsplit()
+        if (
+            isinstance(node.func, astroid.Attribute)
+            and node.func.attrname in ("split", "rsplit")
+            and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
+        ):
+            try:
+                utils.get_argument_from_call(node, 0, "sep")
+            except utils.NoSuchArgumentError:
+                return
+
+            try:
+                # Ignore if maxsplit arg has been set
+                utils.get_argument_from_call(node, 1, "maxsplit")
+                return
+            except utils.NoSuchArgumentError:
+                pass
+
+            if isinstance(node.parent, astroid.Subscript):
+                try:
+                    subscript_value = utils.get_subscript_const_value(node.parent).value
+                except utils.InferredTypeError:
+                    return
+
+                if subscript_value in (-1, 0):
+                    fn_name = node.func.attrname
+                    new_fn = "rsplit" if subscript_value == -1 else "split"
+                    new_name = (
+                        node.func.as_string().rsplit(fn_name, maxsplit=1)[0]
+                        + new_fn
+                        + f"({node.args[0].as_string()}, maxsplit=1)[{subscript_value}]"
+                    )
+                    self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
 
     @utils.check_messages("consider-using-enumerate", "consider-using-dict-items")
     def visit_for(self, node: astroid.For) -> None:
@@ -188,10 +237,7 @@ class RecommendationChecker(checkers.BaseChecker):
         if iterating_object_name is None:
             return
 
-        children = list(node.parent.get_children())
-        if node.ifs:
-            children.extend(node.ifs)
-        for child in children:
+        for child in node.parent.get_children():
             for subscript in child.nodes_of_class(astroid.Subscript):
                 subscript = cast(astroid.Subscript, subscript)
 

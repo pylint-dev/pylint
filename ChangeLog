@@ -51,6 +51,11 @@ modules are added.
 
   Closes #4412
 
+* New checker ``use-maxsplit-arg``. Emitted either when accessing only the first or last
+  element of ``str.split()``.
+
+  Closes #4440
+
 * Add ignore_signatures to duplicate code checker
 
   Closes #3619
@@ -59,6 +64,8 @@ modules are added.
   to be derived from Named Tuples
 
   Closes #4377
+
+* Fix documentation errors in "Block disables" paragraph of User Guide.
 
 
 What's New in Pylint 2.8.2?
