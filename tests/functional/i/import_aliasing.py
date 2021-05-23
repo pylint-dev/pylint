@@ -1,13 +1,13 @@
 # pylint: disable=unused-import, missing-docstring, invalid-name, reimported, import-error, wrong-import-order, no-name-in-module, relative-beyond-top-level
 # Functional tests for import aliasing
 # 1. useless-import-alias
-# 2. use-from-import
+# 2. consider-use-from-import
 
 from collections import OrderedDict as OrderedDict # [useless-import-alias]
 from collections import OrderedDict as o_dict
-import os.path as path  # [use-from-import]
+import os.path as path  # [consider-use-from-import]
 import os.path as p
-import foo.bar.foobar as foobar  # [use-from-import]
+import foo.bar.foobar as foobar  # [consider-use-from-import]
 import os
 import os as OS
 from sys import version

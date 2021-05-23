@@ -236,6 +236,14 @@ MSGS = {
         "cyclic-import",
         "Used when a cyclic import between two or more modules is detected.",
     ),
+    "R0402": (
+        "Use 'from %s import %s' instead",
+        "consider-use-from-import",
+        "Emitted when a module/member of a package is imported and "
+        "aliased with the same name. "
+        "e.g ``import pandas.DataFrame as DataFrame`` instead of "
+        "``from pandas import DataFrame``",
+    ),
     "W0401": (
         "Wildcard import %s",
         "wildcard-import",
@@ -299,14 +307,6 @@ MSGS = {
         "import-outside-toplevel",
         "Used when an import statement is used anywhere other than the module "
         "toplevel. Move this import to the top of the file.",
-    ),
-    "C0416": (
-        "Use 'from %s import %s' instead",
-        "use-from-import",
-        "Emitted when an lower-level module/member of a package is imported and "
-        "aliaised with the same name. "
-        "e.g ``import pandas.DataFrame as DataFrame`` instead of "
-        "``from pandas import DataFrame``",
     ),
 }
 
@@ -881,20 +881,19 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if not all(name):
                 return
 
-            real_name = name[0]
-            splitted_packages = real_name.rsplit(".", 1)
-            real_name = splitted_packages[-1]
-            imported_name = name[1]
-            if real_name != imported_name:
+            splitted_packages = name[0].rsplit(".", maxsplit=1)
+            import_name = splitted_packages[-1]
+            aliased_name = name[1]
+            if import_name != aliased_name:
                 continue
 
             if len(splitted_packages) == 1:
                 self.add_message("useless-import-alias", node=node)
             elif len(splitted_packages) == 2:
                 self.add_message(
-                    "use-from-import",
+                    "consider-use-from-import",
                     node=node,
-                    args=(splitted_packages[0], imported_name),
+                    args=(splitted_packages[0], aliased_name),
                 )
 
     def _check_reimport(self, node, basename=None, level=None):
