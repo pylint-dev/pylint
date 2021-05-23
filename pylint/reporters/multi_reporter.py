@@ -48,12 +48,6 @@ class MultiReporter:
     def path_strip_prefix(self) -> str:
         return self._path_strip_prefix
 
-    @path_strip_prefix.setter
-    def path_strip_prefix(self, value: str) -> None:
-        self._path_strip_prefix = value
-        for rep in self._sub_reporters:
-            rep.path_strip_prefix = value
-
     @property
     def linter(self) -> Optional[PyLinter]:
         return self._linter
@@ -72,6 +66,9 @@ class MultiReporter:
     # pylint: disable=no-self-use
     def set_output(self, output: Optional[AnyFile] = None) -> None:
         """set output stream"""
+        # MultiReporter doesn't have it's own output. This method is only
+        # provided for API parity with BaseReporter and should not be called
+        # with non-None values for 'output'.
         if output is not None:
             raise NotImplementedError("MultiReporter does not support direct output.")
 
