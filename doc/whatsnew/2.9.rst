@@ -23,6 +23,8 @@ New checkers
 * ``unnecessary-dict-index-lookup``: Emitted when iterating over dictionary items
   (key-value pairs) and accessing the value by index lookup.
 
+* ``consider-using-from-import``: Emitted when a submodule/member of a package is imported and aliased with the same name.
+
 Other Changes
 =============
 
