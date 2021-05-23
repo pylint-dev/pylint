@@ -3,7 +3,7 @@
 a_dict = dict()
 b_dict = dict()
 
-for k,v in a_dict.items():
+for k, v in a_dict.items():
     print(a_dict[k])  # [unnecessary-dict-index-lookup]
     print(b_dict[k])  # Should not emit warning, accessing other dictionary
     a_dict[k] = 123  # Should not emit warning, key access necessary
@@ -21,8 +21,8 @@ for k,v in a_dict.items():
 
 [v for k, v in a_dict.items() if a_dict[k]]  # [unnecessary-dict-index-lookup]
 [v for k, v in a_dict.items() if k]  # This is fine, no indexing
-[a_dict[k] for k,v in a_dict.items() if k]  # [unnecessary-dict-index-lookup]
-[a_dict[k] for k,v in a_dict.items() if a_dict[k]]  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
+[a_dict[k] for k, v in a_dict.items() if k]  # [unnecessary-dict-index-lookup]
+[a_dict[k] for k, v in a_dict.items() if a_dict[k]]  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
 
 
 # Tests on dict attribute of a class
@@ -36,15 +36,15 @@ for k, v in Foo.c_dict.items():
     Foo.c_dict[k] += v  # key access necessary
 
 # Tests on comprehensions
-{v:1 for k,v in Foo.c_dict.items() if Foo.c_dict[k]}  # [unnecessary-dict-index-lookup]
-{v:1 for k,v in Foo.c_dict.items() if k}  # This is fine, no indexing
-{Foo.c_dict[k]:1 for k,v in Foo.c_dict.items() if k}  # [unnecessary-dict-index-lookup]
-{Foo.c_dict[k]:1 for k,v in Foo.c_dict.items() if Foo.c_dict[k]}  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
+{v: 1 for k, v in Foo.c_dict.items() if Foo.c_dict[k]}  # [unnecessary-dict-index-lookup]
+{v: 1 for k, v in Foo.c_dict.items() if k}  # This is fine, no indexing
+{Foo.c_dict[k]: 1 for k, v in Foo.c_dict.items() if k}  # [unnecessary-dict-index-lookup]
+{Foo.c_dict[k]: 1 for k, v in Foo.c_dict.items() if Foo.c_dict[k]}  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
 
-[v for k,v in Foo.c_dict.items() if Foo.c_dict[k]]  # [unnecessary-dict-index-lookup]
-[v for k,v in Foo.c_dict.items() if k]  # This is fine, no indexing
-[Foo.c_dict[k] for k,v in Foo.c_dict.items() if k]  # [unnecessary-dict-index-lookup]
-[Foo.c_dict[k] for k,v in Foo.c_dict.items() if Foo.c_dict[k]]  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
+[v for k, v in Foo.c_dict.items() if Foo.c_dict[k]]  # [unnecessary-dict-index-lookup]
+[v for k, v in Foo.c_dict.items() if k]  # This is fine, no indexing
+[Foo.c_dict[k] for k, v in Foo.c_dict.items() if k]  # [unnecessary-dict-index-lookup]
+[Foo.c_dict[k] for k, v in Foo.c_dict.items() if Foo.c_dict[k]]  # [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
 
 # Test assigning d.items() to a single variable
 d = {1: "a", 2: "b"}

@@ -6,7 +6,7 @@ import copy
 import itertools
 import tokenize
 from functools import reduce
-from typing import List, Tuple, Union, cast
+from typing import List, Union, cast
 
 import astroid
 
@@ -1638,7 +1638,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # in order to make sure that the same object is used in the
             # for body.
 
-            children: Tuple[astroid.node_classes.NodeNG] = (
+            children = (
                 node.body
                 if isinstance(node, astroid.For)
                 else node.parent.get_children()
