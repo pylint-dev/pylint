@@ -43,13 +43,12 @@ def _read_stdin():
     return sys.stdin.read()
 
 
-def _load_reporter_by_class(reporter_class):
+def _load_reporter_by_class(reporter_class: str) -> type:
     qname = reporter_class
     module_part = astroid.modutils.get_module_part(qname)
     module = astroid.modutils.load_module_from_name(module_part)
     class_name = qname.split(".")[-1]
-    reporter_class = getattr(module, class_name)
-    return reporter_class
+    return getattr(module, class_name)
 
 
 # Python Linter class #########################################################
@@ -536,7 +535,7 @@ class PyLinter(
             if hasattr(module, "load_configuration"):
                 module.load_configuration(self)
 
-    def _load_reporters(self):
+    def _load_reporters(self) -> None:
         sub_reporters = []
         output_files = []
         with contextlib.ExitStack() as stack:
@@ -568,7 +567,7 @@ class PyLinter(
         else:
             self.set_reporter(sub_reporters[0])
 
-    def _load_reporter_by_name(self, reporter_name):
+    def _load_reporter_by_name(self, reporter_name: str) -> reporters.BaseReporter:
         name = reporter_name.lower()
         if name in self._reporters:
             return self._reporters[name]()
