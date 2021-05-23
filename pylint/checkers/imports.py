@@ -238,7 +238,7 @@ MSGS = {
     ),
     "R0402": (
         "Use 'from %s import %s' instead",
-        "consider-use-from-import",
+        "consider-using-from-import",
         "Emitted when a module/member of a package is imported and "
         "aliased with the same name. "
         "e.g ``import pandas.DataFrame as DataFrame`` instead of "
@@ -891,7 +891,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self.add_message("useless-import-alias", node=node)
             elif len(splitted_packages) == 2:
                 self.add_message(
-                    "consider-use-from-import",
+                    "consider-using-from-import",
                     node=node,
                     args=(splitted_packages[0], aliased_name),
                 )
