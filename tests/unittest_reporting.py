@@ -22,7 +22,9 @@ from json import dumps
 import pytest
 
 from pylint import checkers
+from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
+from pylint.reporters import BaseReporter
 from pylint.reporters.text import ParseableTextReporter, TextReporter
 
 
@@ -75,13 +77,32 @@ def test_parseable_output_regression():
     )
 
 
+class NopReporter(BaseReporter):
+    __implements__ = IReporter
+    name = "nop-reporter"
+    extension = ""
+
+    def __init__(self, output=None):
+        super().__init__(output)
+        print("A NopReporter was initialized.", file=self.out)
+
+    def writeln(self, string=""):
+        pass
+
+    def _display(self, layout):
+        pass
+
+
 def test_multi_format_output(tmp_path):
     text = StringIO()
     json = tmp_path / "somefile.json"
+
     source_file = tmp_path / "somemodule.py"
     source_file.write_text('NOT_EMPTY = "This module is not empty"\n')
     escaped_source_file = dumps(str(source_file))
-    formats = ",".join(["json:" + str(json), "text"])
+
+    nop_format = NopReporter.__module__ + "." + NopReporter.__name__
+    formats = ",".join(["json:" + str(json), "text", nop_format])
 
     with redirect_stdout(text):
         linter = PyLinter()
@@ -135,7 +156,8 @@ def test_multi_format_output(tmp_path):
         )
 
     assert (
-        text.getvalue() == "************* Module somemodule\n"
+        text.getvalue() == "A NopReporter was initialized.\n"
+        "************* Module somemodule\n"
         f"{source_file}:1:0: C0114: Missing module docstring (missing-module-docstring)\n"
         f"{source_file}:1:0: C0301: Line too long (1/2) (line-too-long)\n"
         "\n"
