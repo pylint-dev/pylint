@@ -20,7 +20,7 @@ New checkers
 
 * An ``ignore_signatures`` option has been added to the similarity checker. It will permits  to reduce false positives when multiple functions have the same parameters.
 
-* ``unnecessary-dict-indexing``: Emitted when iterating over dictionary items (key-value pairs) and
+* ``unnecessary-dict-index-lookup``: Emitted when iterating over dictionary items (key-value pairs) and
   then indexing the same dictionary with the key within loop body.
 
 Other Changes

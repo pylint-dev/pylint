@@ -349,7 +349,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ),
         "R1733": (
             "Unnecessary dictionary indexing, use '%s' instead",
-            "unnecessary-dict-indexing",
+            "unnecessary-dict-index-lookup",
             "Emitted when iterating over the dictionary items (key-item pairs) and accessing the "
             "value by index lookup. "
             "The value can be accessed directly instead.",
@@ -544,7 +544,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     @utils.check_messages(
         "redefined-argument-from-local",
         "too-many-nested-blocks",
-        "unnecessary-dict-indexing",
+        "unnecessary-dict-index-lookup",
     )
     def visit_for(self, node):
         self._check_nested_blocks(node)
@@ -1342,7 +1342,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_augassign(self, node):
         self._check_consider_using_join(node)
 
-    @utils.check_messages("unnecessary-comprehension", "unnecessary-dict-indexing")
+    @utils.check_messages("unnecessary-comprehension", "unnecessary-dict-index-lookup")
     def visit_comprehension(self, node):
         self._check_unnecessary_comprehension(node)
         self._check_unnecessary_dict_indexing_comprehension(node)
@@ -1675,7 +1675,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             continue
 
                         self.add_message(
-                            "unnecessary-dict-indexing",
+                            "unnecessary-dict-index-lookup",
                             node=subscript,
                             args=(node.target.elts[1].as_string()),
                         )
@@ -1701,7 +1701,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         if inferred.value != 0:
                             continue
                         self.add_message(
-                            "unnecessary-dict-indexing",
+                            "unnecessary-dict-index-lookup",
                             node=subscript,
                             args=("1".join(value.as_string().rsplit("0", maxsplit=1)),),
                         )
@@ -1747,7 +1747,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         ):
                             continue
                         self.add_message(
-                            "unnecessary-dict-indexing",
+                            "unnecessary-dict-index-lookup",
                             node=subscript,
                             args=(node.target.elts[1].as_string()),
                         )
@@ -1771,7 +1771,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         if inferred.value != 0:
                             continue
                         self.add_message(
-                            "unnecessary-dict-indexing",
+                            "unnecessary-dict-index-lookup",
                             node=subscript,
                             args=("1".join(value.as_string().rsplit("0", maxsplit=1)),),
                         )

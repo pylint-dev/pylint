@@ -62,7 +62,7 @@ modules are added.
 
 * Fix documentation errors in "Block disables" paragraph of User Guide.
 
-* New checker ``unnecessary-dict-indexing``. Emitted when iterating over dictionary items (key-value pairs) and
+* New checker ``unnecessary-dict-index-lookup``. Emitted when iterating over dictionary items (key-value pairs) and
   accessing the value by index lookup.
 
   Closes #4470
