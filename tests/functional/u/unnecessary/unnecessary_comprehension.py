@@ -1,4 +1,4 @@
-# pylint: disable=undefined-variable, pointless-statement, missing-docstring, line-too-long
+# pylint: disable=undefined-variable, pointless-statement, missing-docstring, line-too-long, expression-not-assigned
 # For name-reference see https://docs.python.org/3/reference/expressions.html#displays-for-lists-sets-and-dictionaries
 
 # List comprehensions
@@ -12,6 +12,9 @@
 [y for x in iterable for y in x]  # exclude nested comprehensions
 [2 * x for x in iterable]  # exclude useful comprehensions
 [(x, y, 1) for x, y in iterable]  # exclude useful comprehensions
+# Test case for issue #4499
+a_dict = dict()
+[(k, v) for k, v in a_dict.items()]  # [unnecessary-comprehension]
 
 # Set comprehensions
 {x for x in iterable}  # [unnecessary-comprehension]

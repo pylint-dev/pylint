@@ -80,6 +80,10 @@ modules are added.
 * Make ``using-constant-test`` detect constant tests consisting of list literals like ``[]`` and
   ``[1, 2, 3]``.
 
+* Improved error message of ``unnecessary-comprehension`` checker by providing code suggestion.
+
+  Closes #4499
+
 
 What's New in Pylint 2.8.2?
 ===========================

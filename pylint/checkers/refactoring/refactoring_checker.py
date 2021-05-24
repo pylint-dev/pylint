@@ -284,7 +284,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "raise statement.",
         ),
         "R1721": (
-            "Unnecessary use of a comprehension",
+            "Unnecessary use of a comprehension, use %s instead.",
             "unnecessary-comprehension",
             "Instead of using an identity comprehension, "
             "consider using the list, dict or set constructor. "
@@ -1343,11 +1343,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_using_join(node)
 
     @utils.check_messages("unnecessary-comprehension", "unnecessary-dict-index-lookup")
-    def visit_comprehension(self, node):
+    def visit_comprehension(self, node: astroid.Comprehension) -> None:
         self._check_unnecessary_comprehension(node)
         self._check_unnecessary_dict_index_lookup(node)
 
-    def _check_unnecessary_comprehension(self, node):
+    def _check_unnecessary_comprehension(self, node: astroid.Comprehension) -> None:
         if (
             isinstance(node.parent, astroid.GeneratorExp)
             or len(node.ifs) != 0
@@ -1393,7 +1393,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
         if expr_list == target_list != []:
-            self.add_message("unnecessary-comprehension", node=node)
+            if isinstance(node.parent, astroid.DictComp):
+                func = "dict"
+            elif isinstance(node.parent, astroid.ListComp):
+                func = "list"
+            else:
+                func = "set"
+
+            self.add_message(
+                "unnecessary-comprehension",
+                node=node,
+                args=(f"{func}({node.iter.as_string()})",),
+            )
 
     @staticmethod
     def _is_and_or_ternary(node):
