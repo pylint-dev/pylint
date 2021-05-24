@@ -43,6 +43,14 @@ def _read_stdin():
     return sys.stdin.read()
 
 
+def _load_reporter_by_class(reporter_class: str) -> type:
+    qname = reporter_class
+    module_part = astroid.modutils.get_module_part(qname)
+    module = astroid.modutils.load_module_from_name(module_part)
+    class_name = qname.split(".")[-1]
+    return getattr(module, class_name)
+
+
 # Python Linter class #########################################################
 
 MSGS = {
@@ -451,7 +459,7 @@ class PyLinter(
         messages store / checkers / reporter / astroid manager"""
         self.msgs_store = MessageDefinitionStore()
         self.reporter = None
-        self._reporter_name = None
+        self._reporter_names = None
         self._reporters = {}
         self._checkers = collections.defaultdict(list)
         self._pragma_lineno = {}
@@ -502,7 +510,7 @@ class PyLinter(
         # Make sure to load the default reporter, because
         # the option has been set before the plugins had been loaded.
         if not self.reporter:
-            self._load_reporter()
+            self._load_reporters()
 
     def load_plugin_modules(self, modnames):
         """take a list of module names which are pylint plugins and load
@@ -527,25 +535,49 @@ class PyLinter(
             if hasattr(module, "load_configuration"):
                 module.load_configuration(self)
 
-    def _load_reporter(self):
-        name = self._reporter_name.lower()
-        if name in self._reporters:
-            self.set_reporter(self._reporters[name]())
-        else:
-            try:
-                reporter_class = self._load_reporter_class()
-            except (ImportError, AttributeError) as e:
-                raise exceptions.InvalidReporterError(name) from e
-            else:
-                self.set_reporter(reporter_class())
+    def _load_reporters(self) -> None:
+        sub_reporters = []
+        output_files = []
+        with contextlib.ExitStack() as stack:
+            for reporter_name in self._reporter_names.split(","):
+                reporter_name, *reporter_output = reporter_name.split(":", 1)
 
-    def _load_reporter_class(self):
-        qname = self._reporter_name
-        module_part = astroid.modutils.get_module_part(qname)
-        module = astroid.modutils.load_module_from_name(module_part)
-        class_name = qname.split(".")[-1]
-        reporter_class = getattr(module, class_name)
-        return reporter_class
+                reporter = self._load_reporter_by_name(reporter_name)
+                sub_reporters.append(reporter)
+
+                if reporter_output:
+                    (reporter_output,) = reporter_output
+
+                    # pylint: disable=consider-using-with
+                    output_file = stack.enter_context(open(reporter_output, "w"))
+
+                    reporter.set_output(output_file)
+                    output_files.append(output_file)
+
+            # Extend the lifetime of all opened output files
+            close_output_files = stack.pop_all().close
+
+        if len(sub_reporters) > 1 or output_files:
+            self.set_reporter(
+                reporters.MultiReporter(
+                    sub_reporters,
+                    close_output_files,
+                )
+            )
+        else:
+            self.set_reporter(sub_reporters[0])
+
+    def _load_reporter_by_name(self, reporter_name: str) -> reporters.BaseReporter:
+        name = reporter_name.lower()
+        if name in self._reporters:
+            return self._reporters[name]()
+
+        try:
+            reporter_class = _load_reporter_by_class(reporter_name)
+        except (ImportError, AttributeError) as e:
+            raise exceptions.InvalidReporterError(name) from e
+        else:
+            return reporter_class()
 
     def set_reporter(self, reporter):
         """set the reporter used to display messages and reports"""
@@ -575,11 +607,11 @@ class PyLinter(
                     meth(value)
                 return  # no need to call set_option, disable/enable methods do it
         elif optname == "output-format":
-            self._reporter_name = value
+            self._reporter_names = value
             # If the reporters are already available, load
             # the reporter class.
             if self._reporters:
-                self._load_reporter()
+                self._load_reporters()
 
         try:
             checkers.BaseTokenChecker.set_option(self, optname, value, action, optdict)
