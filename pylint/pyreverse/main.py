@@ -139,6 +139,26 @@ this disables -f values",
         ),
     ),
     (
+        "colorized",
+        dict(
+            dest="colorized",
+            action="store_true",
+            default=False,
+            help="Use colored output. Classes/modules of the same package get the same color.",
+        ),
+    ),
+    (
+        "max-color-depth",
+        dict(
+            dest="max_color_depth",
+            action="store",
+            default=2,
+            metavar="<depth>",
+            type="int",
+            help="Use separate colors up to package depth of <depth>",
+        ),
+    ),
+    (
         "ignore",
         {
             "type": "csv",

@@ -55,7 +55,7 @@ class DiagramWriter:
                 label=self.get_title(obj),
                 shape="box",
                 color=self.get_color(obj),
-                style="filled",
+                style=self.get_style(),
             )
             obj.fig_id = i
         # package dependencies
@@ -95,6 +95,10 @@ class DiagramWriter:
 
     def get_title(self, obj):
         """get project title"""
+        raise NotImplementedError
+
+    def get_style(self):
+        """get style"""
         raise NotImplementedError
 
     def get_color(self, obj):
@@ -156,9 +160,22 @@ class DotWriter(DiagramWriter):
         """get project title"""
         return obj.title
 
+    def get_style(self):
+        """get style of object"""
+        if not self.config.colorized:
+            return "solid"
+        return "filled"
+
     def get_color(self, obj):
         """get shape color"""
-        base_name = ".".join(obj.title.split(".", 2)[:2])
+        if not self.config.colorized:
+            return "black"
+        depth = self.config.max_color_depth
+        if obj.node.package:
+            package = obj.title
+        else:
+            package = obj.title.rsplit(".", maxsplit=1)[0]
+        base_name = ".".join(package.split(".", depth)[:depth])
         if base_name not in self.used_colors:
             self.used_colors[base_name] = next(self.available_colors)
         return self.used_colors[base_name]
@@ -223,6 +240,10 @@ class VCGWriter(DiagramWriter):
     def get_title(self, obj):
         """get project title in vcg format"""
         return r"\fb%s\fn" % obj.title
+
+    def get_style(self):
+        """get style of object"""
+        return None
 
     def get_color(self, obj):
         """get color for object"""
