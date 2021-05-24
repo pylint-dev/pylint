@@ -43,4 +43,4 @@ Other Changes
 * Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage
 
 * Allow comma-separated list in ``output-format`` and separate output files for
-  each specified format.
+  each specified format.  Each output file can be defined after a semicolon for example : ``--output-format=json:myfile.json,colorized``
