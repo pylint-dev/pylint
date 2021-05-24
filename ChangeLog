@@ -77,6 +77,9 @@ modules are added.
 
   Closes #1798
 
+* Make ``using-constant-test`` detect constant tests consisting of list literals like ``[]`` and
+  ``[1, 2, 3]``.
+
 
 What's New in Pylint 2.8.2?
 ===========================
