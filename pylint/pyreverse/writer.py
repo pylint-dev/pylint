@@ -16,6 +16,7 @@
 
 """Utilities for creating VCG and Dot diagrams"""
 
+import itertools
 import os
 
 from pylint.graph import DotBackend
@@ -49,7 +50,13 @@ class DiagramWriter:
         """write a package diagram"""
         # sorted to get predictable (hence testable) results
         for i, obj in enumerate(sorted(diagram.modules(), key=lambda x: x.title)):
-            self.printer.emit_node(i, label=self.get_title(obj), shape="box")
+            self.printer.emit_node(
+                i,
+                label=self.get_title(obj),
+                shape="box",
+                color=self.get_color(obj),
+                style="filled",
+            )
             obj.fig_id = i
         # package dependencies
         for rel in diagram.get_relationships("depends"):
@@ -90,6 +97,10 @@ class DiagramWriter:
         """get project title"""
         raise NotImplementedError
 
+    def get_color(self, obj):
+        """get shape color"""
+        raise NotImplementedError
+
     def get_values(self, obj):
         """get label and shape for classes."""
         raise NotImplementedError
@@ -111,6 +122,28 @@ class DotWriter(DiagramWriter):
                 fontcolor="green", arrowtail="none", arrowhead="diamond", style="solid"
             ),
         ]
+        self.available_colors = itertools.cycle(
+            [
+                "aliceblue",
+                "antiquewhite",
+                "aquamarine",
+                "burlywood",
+                "cadetblue",
+                "chartreuse",
+                "chocolate",
+                "coral",
+                "cornflowerblue",
+                "cyan",
+                "darkgoldenrod",
+                "darkseagreen",
+                "dodgerblue",
+                "forestgreen",
+                "gold",
+                "hotpink",
+                "mediumspringgreen",
+            ]
+        )
+        self.used_colors = {}
         DiagramWriter.__init__(self, config, styles)
 
     def set_printer(self, file_name, basename):
@@ -122,6 +155,13 @@ class DotWriter(DiagramWriter):
     def get_title(self, obj):
         """get project title"""
         return obj.title
+
+    def get_color(self, obj):
+        """get shape color"""
+        base_name = ".".join(obj.title.split(".", 2)[:2])
+        if base_name not in self.used_colors:
+            self.used_colors[base_name] = next(self.available_colors)
+        return self.used_colors[base_name]
 
     def get_values(self, obj):
         """get label and shape for classes.
@@ -183,6 +223,10 @@ class VCGWriter(DiagramWriter):
     def get_title(self, obj):
         """get project title in vcg format"""
         return r"\fb%s\fn" % obj.title
+
+    def get_color(self, obj):
+        """get color for object"""
+        return None
 
     def get_values(self, obj):
         """get label and shape for classes.
