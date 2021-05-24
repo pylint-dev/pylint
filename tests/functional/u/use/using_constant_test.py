@@ -62,6 +62,12 @@ if (1, 2, 3): # [using-constant-test]
 if (): # [using-constant-test]
     pass
 
+if [1, 2, 3]: # [using-constant-test]
+    pass
+
+if []: # [using-constant-test]
+    pass
+
 # Generator
 generator = function()
 if generator: # [using-constant-test]
@@ -119,6 +125,9 @@ if dict():
     pass
 
 if tuple():
+    pass
+
+if list():
     pass
 
 if [1, 2, 3][:1]:

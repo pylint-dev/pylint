@@ -44,3 +44,6 @@ Other Changes
 
 * Allow comma-separated list in ``output-format`` and separate output files for
   each specified format.  Each output file can be defined after a semicolon for example : ``--output-format=json:myfile.json,colorized``
+
+* The ``using-constant-test`` checker now detects constant tests consisting of list literals
+  like ``[]`` and ``[1, 2, 3]``.
