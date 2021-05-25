@@ -475,7 +475,6 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-
     def test_deprecated_decorator(self):
         # Tests detecting deprecated decorator
         node = astroid.extract_node(

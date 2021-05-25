@@ -102,7 +102,11 @@ DEPRECATED_ARGUMENTS = {
 
 DEPRECATED_DECORATORS = {
     (3, 8, 0): {"asyncio.coroutine"},
-    (3, 3, 0): {'abc.abstractclassmethod', 'abc.abstractstaticmethod', 'abc.abstractproperty'}
+    (3, 3, 0): {
+        "abc.abstractclassmethod",
+        "abc.abstractstaticmethod",
+        "abc.abstractproperty",
+    },
 }
 
 
@@ -400,7 +404,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "The decorator is marked as deprecated and will be removed in the future.",
         ),
     }
-
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)

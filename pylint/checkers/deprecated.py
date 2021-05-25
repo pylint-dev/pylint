@@ -28,7 +28,6 @@ class DeprecatedMixin:
             "deprecated-method",
             "The method is marked as deprecated and will be removed in the future.",
         ),
-
         "W1511": (
             "Using deprecated argument %s of method %s()",
             "deprecated-argument",
