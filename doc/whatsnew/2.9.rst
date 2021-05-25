@@ -12,6 +12,8 @@ Summary -- Release highlights
 New checkers
 ============
 
+* ``deprecated-decorator``: Emitted when deprecated decorator is used.
+
 * ``consider-using-dict-items``: Emitted when iterating over dictionary keys and then
   indexing the same dictionary with the key within loop body.
 

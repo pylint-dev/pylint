@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* Added ``deprecated-decorator``: Emitted when deprecated decorator is used.
+
+  Closes #4429
+
 * Fix false negative for ``consider-using-with`` if calls like ``open()`` were used outside of assignment expressions.
 
 * The warning for ``arguments-differ`` now signals explicitly the difference it detected
