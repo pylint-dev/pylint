@@ -54,3 +54,15 @@ class HasUnusedInClass():
 
     def __test_recursive(self):  # [unused-private-member]
         self.__test_recursive()
+
+# False positive: Singleton Pattern
+class MyCls:
+    __class_var = None
+
+    @classmethod
+    def set_class_var(cls, var):
+        cls.__class_var = var  # should not emit a message, used in get_class_var()
+
+    @classmethod
+    def get_class_var(cls):
+        return cls.__class_var
