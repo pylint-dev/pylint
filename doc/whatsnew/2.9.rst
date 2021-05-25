@@ -20,6 +20,12 @@ New checkers
 
 * An ``ignore_signatures`` option has been added to the similarity checker. It will permits  to reduce false positives when multiple functions have the same parameters.
 
+* ``unnecessary-dict-index-lookup``: Emitted when iterating over dictionary items
+  (key-value pairs) and accessing the value by index lookup.
+
+* ``consider-using-from-import``: Emitted when a submodule/member of a package is imported and aliased with the same name.
+
+* New checker ``unused-private-member``. Emitted when a private member (i.e., starts with ``__``) of a class is defined but not used.
 
 Other Changes
 =============
@@ -40,3 +46,9 @@ Other Changes
 
 * Fix raising false-positive ``no-member`` on instances' methods where class can be inferred
   to be derived from Named Tuples
+
+* Allow comma-separated list in ``output-format`` and separate output files for
+  each specified format.  Each output file can be defined after a semicolon for example : ``--output-format=json:myfile.json,colorized``
+
+* The ``using-constant-test`` checker now detects constant tests consisting of list literals
+  like ``[]`` and ``[1, 2, 3]``.

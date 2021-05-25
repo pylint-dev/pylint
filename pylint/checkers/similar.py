@@ -122,7 +122,7 @@ class Similar:
                 for line in lineset._real_lines[idx : idx + num]:
                     print("  ", line.rstrip())
             nb_lignes_dupliquees += num * (len(couples) - 1)
-        nb_total_lignes = sum([len(lineset) for lineset in self.linesets])
+        nb_total_lignes = sum(len(lineset) for lineset in self.linesets)
         print(
             "TOTAL lines=%s duplicates=%s percent=%.2f"
             % (

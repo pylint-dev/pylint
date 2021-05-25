@@ -67,6 +67,33 @@ modules are added.
 
 * Fix documentation errors in "Block disables" paragraph of User Guide.
 
+* New checker ``unnecessary-dict-index-lookup``. Emitted when iterating over dictionary items
+  (key-value pairs) and accessing the value by index lookup.
+
+  Closes #4470
+
+* New checker``consider-using-from-import``. Emitted when a submodule/member of a package is imported and aliased
+  with the same name.
+
+  Closes #2309
+
+* Allow comma-separated list in ``output-format`` and separate output files for
+  each specified format.
+
+  Closes #1798
+
+* Make ``using-constant-test`` detect constant tests consisting of list literals like ``[]`` and
+  ``[1, 2, 3]``.
+
+* Improved error message of ``unnecessary-comprehension`` checker by providing code suggestion.
+
+  Closes #4499
+
+* New checker ``unused-private-member``. Emitted when a private member (i.e., starts with ``__``) of a class
+  is defined but not used.
+
+  Closes #4483
+
 
 What's New in Pylint 2.8.2?
 ===========================
