@@ -174,7 +174,7 @@ class DotWriter(DiagramWriter):
         if obj.node.package:
             package = obj.title
         else:
-            package = obj.title.rsplit(".", maxsplit=1)[0]
+            package, _ = obj.title.rsplit(".", maxsplit=1)
         base_name = ".".join(package.split(".", depth)[:depth])
         if base_name not in self.used_colors:
             self.used_colors[base_name] = next(self.available_colors)
@@ -247,7 +247,7 @@ class VCGWriter(DiagramWriter):
 
     def get_color(self, obj):
         """get color for object"""
-        return None
+        return "black"
 
     def get_values(self, obj):
         """get label and shape for classes.
