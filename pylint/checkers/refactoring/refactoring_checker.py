@@ -6,7 +6,7 @@ import copy
 import itertools
 import tokenize
 from functools import reduce
-from typing import List, Union, cast
+from typing import List, Optional, Tuple, Union, cast
 
 import astroid
 
@@ -1393,17 +1393,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
         if expr_list == target_list != []:
-            args = None
+            args: Optional[Tuple[str]] = None
+            inferred = utils.safe_infer(node.iter)
             if isinstance(node.parent, astroid.DictComp) and isinstance(
-                utils.safe_infer(node.iter), astroid.objects.DictItems
+                inferred, astroid.objects.DictItems
             ):
                 args = (f"{node.iter.func.expr.as_string()}",)
-            if (
+            elif (
                 isinstance(node.parent, astroid.ListComp)
-                and isinstance(utils.safe_infer(node.iter), astroid.List)
+                and isinstance(inferred, astroid.List)
             ) or (
                 isinstance(node.parent, astroid.SetComp)
-                and isinstance(utils.safe_infer(node.iter), astroid.Set)
+                and isinstance(inferred, astroid.Set)
             ):
                 args = (f"{node.iter.as_string()}",)
             if args:
