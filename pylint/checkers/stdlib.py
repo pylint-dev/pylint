@@ -100,6 +100,11 @@ DEPRECATED_ARGUMENTS = {
     (3, 9, 0): {"random.Random.shuffle": ((1, "random"),)},
 }
 
+DEPRECATED_DECORATORS = {
+    (3, 8, 0): {"asyncio.coroutine"},
+    (3, 3, 0): {'abc.abstractclassmethod', 'abc.abstractstaticmethod', 'abc.abstractproperty'}
+}
+
 
 DEPRECATED_METHODS = {
     0: {
@@ -389,7 +394,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "deprecated-class",
             "The class is marked as deprecated and will be removed in the future.",
         ),
+        "W1513": (
+            "Using deprecated decorator %s()",
+            "deprecated-decorator",
+            "The decorator is marked as deprecated and will be removed in the future.",
+        ),
     }
+
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -410,6 +421,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, mod_list in DEPRECATED_MODULES.items():
             if since_vers <= sys.version_info:
                 self._deprecated_modules.update(mod_list)
+        self._deprecated_decorators = set()
+        for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_decorators.update(decorator_list)
 
     def _check_bad_thread_instantiation(self, node):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
@@ -600,6 +615,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
     def deprecated_classes(self, module: str):
         return self._deprecated_classes.get(module, ())
+
+    def deprecated_decorators(self):
+        return self._deprecated_decorators
 
 
 def register(linter):

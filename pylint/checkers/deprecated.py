@@ -28,6 +28,7 @@ class DeprecatedMixin:
             "deprecated-method",
             "The method is marked as deprecated and will be removed in the future.",
         ),
+
         "W1511": (
             "Using deprecated argument %s of method %s()",
             "deprecated-argument",
@@ -42,6 +43,11 @@ class DeprecatedMixin:
             "Using deprecated class %s of module %s",
             "deprecated-class",
             "The class is marked as deprecated and will be removed in the future.",
+        ),
+        "W1513": (
+            "Using deprecated decorator %s()",
+            "deprecated-decorator",
+            "The decorator is marked as deprecated and will be removed in the future.",
         ),
     }
 
@@ -72,6 +78,27 @@ class DeprecatedMixin:
                 # Checking deprecation for import module with class
                 mod_name, class_name = name.split(".", 1)
                 self.check_deprecated_class(node, mod_name, (class_name,))
+
+    def deprecated_decorators(self) -> Container[str]:
+        """Callback returning the deprecated decorators.
+
+        Returns:
+            collections.abc.Container of deprecated decorator names.
+        """
+        # pylint: disable=no-self-use
+        return ()
+
+    @utils.check_messages(
+        "deprecated-decorator",
+    )
+    def visit_decorators(self, node):
+        """Triggered when a decorator statement is seen"""
+        if isinstance(next(node.get_children()), astroid.Call):
+            qname = next(node.get_children()).func.inferred()[0].qname()
+        else:
+            qname = next(next(node.get_children()).infer()).qname()
+        if qname in self.deprecated_decorators():
+            self.add_message("deprecated-decorator", node=node, args=qname)
 
     @utils.check_messages(
         "deprecated-module",
