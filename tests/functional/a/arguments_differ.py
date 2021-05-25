@@ -1,5 +1,5 @@
 """Test that we are emitting arguments-differ when the arguments are different."""
-# pylint: disable=missing-docstring, too-few-public-methods, unused-argument,useless-super-delegation, useless-object-inheritance
+# pylint: disable=missing-docstring, too-few-public-methods, unused-argument,useless-super-delegation, useless-object-inheritance, unused-private-member
 
 class Parent(object):
 
