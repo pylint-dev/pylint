@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods, metaclass-assignment, useless-object-inheritance
+# pylint: disable=too-few-public-methods, metaclass-assignment, useless-object-inheritance, unused-protected-member
 """test attribute access on metaclass"""
 
 

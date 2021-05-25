@@ -1,5 +1,5 @@
 # [missing-module-docstring]
-# pylint: disable=too-few-public-methods, useless-object-inheritance
+# pylint: disable=too-few-public-methods, useless-object-inheritance, unused-protected-member
 
 def public_documented():
     """It has a docstring."""

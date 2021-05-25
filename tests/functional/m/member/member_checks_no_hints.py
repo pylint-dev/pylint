@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, too-few-public-methods, pointless-statement, useless-object-inheritance
+# pylint: disable=missing-docstring, too-few-public-methods, pointless-statement, useless-object-inheritance, unused-protected-member
 
 
 class Parent(object):

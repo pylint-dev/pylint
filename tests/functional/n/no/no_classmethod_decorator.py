@@ -2,7 +2,7 @@
 scope and if classmethod's argument is a member of the class
 """
 
-# pylint: disable=too-few-public-methods, using-constant-test, no-self-argument, useless-object-inheritance
+# pylint: disable=too-few-public-methods, using-constant-test, no-self-argument, useless-object-inheritance, unused-protected-member
 
 class MyClass(object):
     """Some class"""

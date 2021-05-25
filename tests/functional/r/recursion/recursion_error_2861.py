@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,redefined-builtin,unsubscriptable-object
-# pylint: disable=invalid-name,too-few-public-methods,attribute-defined-outside-init
+# pylint: disable=invalid-name,too-few-public-methods,attribute-defined-outside-init, unused-protected-member
 class Repository:
     def _transfer(self, bytes=-1):
         self._bytesTransfered = 0
