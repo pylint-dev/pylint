@@ -79,7 +79,7 @@ modules are added.
 
 * Make ``using-constant-test`` detect constant tests consisting of list literals like ``[]`` and
   ``[1, 2, 3]``.
-  
+
 * New checker ``unused-protected-member``. Emitted when a protected member (i.e., starts with ``_``) of a class
   is defined but not used.
 
