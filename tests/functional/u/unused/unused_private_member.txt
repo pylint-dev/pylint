@@ -1,0 +1,6 @@
+unused-private-member:4:4:HasUnusedInClass:"Unused private member of class HasUnusedInClass: __my_secret"
+unused-private-member:8:4:HasUnusedInClass.__private_class_method_unused:"Unused private member of class HasUnusedInClass: __private_class_method_unused(cls)"
+unused-private-member:16:4:HasUnusedInClass.__private_static_method_unused:"Unused private member of class HasUnusedInClass: __private_static_method_unused()"
+unused-private-member:24:8:HasUnusedInClass.__init__:"Unused private member of class HasUnusedInClass: __instance_secret"
+unused-private-member:30:4:HasUnusedInClass.__test:"Unused private member of class HasUnusedInClass: __test(self, x, y, z)"
+unused-private-member:49:4:HasUnusedInClass.__test_recursive:"Unused private member of class HasUnusedInClass: __test_recursive(self)"
