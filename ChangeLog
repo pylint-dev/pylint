@@ -80,6 +80,10 @@ modules are added.
 * Make ``using-constant-test`` detect constant tests consisting of list literals like ``[]`` and
   ``[1, 2, 3]``.
 
+* Improved error message of ``unnecessary-comprehension`` checker by providing code suggestion.
+
+  Closes #4499
+
 * New checker ``unused-private-member``. Emitted when a private member (i.e., starts with ``__``) of a class
   is defined but not used.
 
