@@ -61,7 +61,22 @@ class TestVariablesChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message("protected-access", node=node.body[-1].value, args="_teta")
+            Message(
+                "unused-protected-member",
+                node=node.body[0],
+                args=("Protected", "_meta"),
+            ),
+            Message(
+                "unused-protected-member",
+                node=node.body[0],
+                args=("Protected", "_manager"),
+            ),
+            Message(
+                "unused-protected-member",
+                node=node.body[0],
+                args=("Protected", "_teta"),
+            ),
+            Message("protected-access", node=node.body[-1].value, args="_teta"),
         ):
             self.walk(node.root())
 
@@ -152,6 +167,11 @@ class TestVariablesChecker(CheckerTestCase):
             Message("protected-access", node=attribute_in_eq, args="_protected"),
             Message("protected-access", node=attribute_in_fake_1, args="_protected"),
             Message("protected-access", node=attribute_in_fake_2, args="__private"),
+            Message(
+                "unused-protected-member",
+                node=classdef,
+                args=("Protected", "_fake_special_(self, other)"),
+            ),
         ):
             self.walk(node.root())
 
@@ -186,6 +206,11 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertAddsMessages(
             Message("protected-access", node=attribute_in_fake_1, args="_protected"),
             Message("protected-access", node=attribute_in_fake_2, args="__private"),
+            Message(
+                "unused-protected-member",
+                node=classdef,
+                args=("Protected", "_fake_special_(self, other)"),
+            ),
         ):
             self.walk(node.root())
 

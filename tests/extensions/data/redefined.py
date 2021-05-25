@@ -1,6 +1,6 @@
 """Checks variable types aren't redefined within a method or a function"""
 
-# pylint: disable=too-few-public-methods,missing-docstring,unused-variable,invalid-name, useless-object-inheritance
+# pylint: disable=too-few-public-methods,missing-docstring,unused-variable,invalid-name, useless-object-inheritance, unused-protected-member
 
 _OK = True
 
