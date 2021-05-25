@@ -44,14 +44,34 @@ _DEFAULTS = {
     "show_builtin": False,
     "only_classnames": False,
     "output_directory": "",
+    "colorized": False,
+    "max_color_depth": 2,
+}
+
+_COLORIZED = {
+    "all_ancestors": None,
+    "show_associated": None,
+    "module_names": None,
+    "output_format": "dot",
+    "diadefs_file": None,
+    "quiet": 0,
+    "show_ancestors": None,
+    "classes": (),
+    "all_associated": None,
+    "mode": "PUB_ONLY",
+    "show_builtin": False,
+    "only_classnames": False,
+    "output_directory": "",
+    "colorized": True,
+    "max_color_depth": 2,
 }
 
 
 class Config:
     """config object for tests"""
 
-    def __init__(self):
-        for attr, value in _DEFAULTS.items():
+    def __init__(self, config):
+        for attr, value in config.items():
             setattr(self, attr, value)
 
 
@@ -79,41 +99,51 @@ def get_project(module, name="No Name"):
 
 
 DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
+COLORIZED_DOT_FILES = ["packages_colorized.dot", "classes_colorized.dot"]
 
 
-@pytest.fixture(scope="module")
-def setup():
-    project = get_project(os.path.join(os.path.dirname(__file__), "data"))
+def _create_files(config, name="No Name"):
+    project = get_project(os.path.join(os.path.dirname(__file__), "data"), name)
     linker = Linker(project)
-    CONFIG = Config()
-    handler = DiadefsHandler(CONFIG)
+    handler = DiadefsHandler(config)
     dd = DefaultDiadefGenerator(linker, handler).visit(project)
     for diagram in dd:
         diagram.extract_relationships()
-    writer = DotWriter(CONFIG)
+    writer = DotWriter(config)
     writer.write(dd)
+
+
+@pytest.fixture(scope="module")
+def cleanup():
     yield
-    for fname in DOT_FILES:
+    for fname in DOT_FILES + COLORIZED_DOT_FILES:
         try:
             os.remove(fname)
         except FileNotFoundError:
             continue
 
 
-@pytest.mark.usefixtures("setup")
-@pytest.mark.parametrize("generated_file", DOT_FILES)
-def test_dot_files(generated_file):
-    expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)
-    generated = _file_lines(generated_file)
-    expected = _file_lines(expected_file)
-    generated = "\n".join(generated)
-    expected = "\n".join(expected)
-    files = f"\n *** expected : {expected_file}, generated : {generated_file} \n"
-    diff = "\n".join(
-        line for line in unified_diff(expected.splitlines(), generated.splitlines())
-    )
-    assert expected == generated, f"{files}{diff}"
-    os.remove(generated_file)
+@pytest.mark.usefixtures("cleanup")
+@pytest.mark.parametrize(
+    "config, name, generated_files",
+    [
+        (Config(_DEFAULTS), "No Name", DOT_FILES),
+        (Config(_COLORIZED), "colorized", COLORIZED_DOT_FILES),
+    ],
+)
+def test_dot_files(config, name, generated_files):
+    _create_files(config, name)
+    for generated_file in generated_files:
+        expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)
+        generated = _file_lines(generated_file)
+        expected = _file_lines(expected_file)
+        generated = "\n".join(generated)
+        expected = "\n".join(expected)
+        files = f"\n *** expected : {expected_file}, generated : {generated_file} \n"
+        diff = "\n".join(
+            line for line in unified_diff(expected.splitlines(), generated.splitlines())
+        )
+        assert expected == generated, f"{files}{diff}"
 
 
 @pytest.mark.parametrize(

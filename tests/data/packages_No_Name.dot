@@ -1,8 +1,8 @@
 digraph "packages_No_Name" {
 charset="utf-8"
 rankdir=BT
-"0" [color="aliceblue", label="data", shape="box", style="filled"];
-"1" [color="antiquewhite", label="data.clientmodule_test", shape="box", style="filled"];
-"2" [color="aquamarine", label="data.suppliermodule_test", shape="box", style="filled"];
+"0" [color="black", label="data", shape="box", style="solid"];
+"1" [color="black", label="data.clientmodule_test", shape="box", style="solid"];
+"2" [color="black", label="data.suppliermodule_test", shape="box", style="solid"];
 "1" -> "2" [arrowhead="open", arrowtail="none"];
 }
