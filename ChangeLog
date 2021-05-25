@@ -89,6 +89,10 @@ modules are added.
 
   Closes #4483
 
+* New checker ``invalid-class-object``. Emitted when a non-class is assigned to a ``__class__`` attribute.
+
+  Closes #585
+
 
 What's New in Pylint 2.8.2?
 ===========================

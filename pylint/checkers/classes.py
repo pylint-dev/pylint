@@ -677,6 +677,12 @@ MSGS = {
         "class-variable-slots-conflict",
         "Used when a value in __slots__ conflicts with a class variable, property or method.",
     ),
+    "E0243": (
+        "Invalid __class__ object",
+        "invalid-class-object",
+        "Used when an invalid object is assigned to a __class__ property. "
+        "Only a class is permitted.",
+    ),
     "R0202": (
         "Consider using a decorator instead of calling classmethod",
         "no-classmethod-decorator",
@@ -1379,12 +1385,20 @@ a metaclass class method.",
 
         self._check_protected_attribute_access(node)
 
-    def visit_assignattr(self, node):
+    def visit_assignattr(self, node: astroid.AssignAttr) -> None:
         if isinstance(
             node.assign_type(), astroid.AugAssign
         ) and self._uses_mandatory_method_param(node):
             self._accessed.set_accessed(node)
         self._check_in_slots(node)
+        self._check_invalid_class_object(node)
+
+    def _check_invalid_class_object(self, node: astroid.AssignAttr) -> None:
+        if not node.attrname == "__class__":
+            return
+        inferred = safe_infer(node.parent.value)
+        if not isinstance(inferred, astroid.ClassDef):
+            self.add_message("invalid-class-object", node=node)
 
     def _check_in_slots(self, node):
         """Check that the given AssignAttr node
