@@ -81,7 +81,7 @@ class OptionsManagerMixIn:
     def register_options_provider(self, provider, own_group=True):
         """register an options provider"""
         assert provider.priority <= 0, "provider's priority can't be >= 0"
-        for i in range(len(self.options_providers)):
+        for i, _ in enumerate(self.options_providers):
             if provider.priority > self.options_providers[i].priority:
                 self.options_providers.insert(i, provider)
                 break
