@@ -1397,8 +1397,10 @@ a metaclass class method.",
         if not node.attrname == "__class__":
             return
         inferred = safe_infer(node.parent.value)
-        if not isinstance(inferred, astroid.ClassDef):
-            self.add_message("invalid-class-object", node=node)
+        if isinstance(inferred, astroid.ClassDef) or inferred is astroid.Uninferable:
+            # If is uninferrable, we allow it to prevent false positives
+            return
+        self.add_message("invalid-class-object", node=node)
 
     def _check_in_slots(self, node):
         """Check that the given AssignAttr node
