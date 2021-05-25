@@ -25,6 +25,8 @@ New checkers
 
 * ``consider-using-from-import``: Emitted when a submodule/member of a package is imported and aliased with the same name.
 
+* New checker ``unused-protected-member``. Emitted when a protected member (i.e., starts with ``_``) of a class is defined but not used.
+
 Other Changes
 =============
 

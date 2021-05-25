@@ -1,0 +1,4 @@
+unused-protected-member:3:0:HasUnusedInClass:"Unused protected member of class HasUnusedInClass: _instance_secret"
+unused-protected-member:3:0:HasUnusedInClass:"Unused protected member of class HasUnusedInClass: _my_secret"
+unused-protected-member:3:0:HasUnusedInClass:"Unused protected member of class HasUnusedInClass: _test(self, x, y, z)"
+unused-protected-member:3:0:HasUnusedInClass:"Unused protected member of class HasUnusedInClass: _test_recursive(self)"

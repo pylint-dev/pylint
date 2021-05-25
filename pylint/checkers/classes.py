@@ -636,6 +636,11 @@ MSGS = {
         "Used when a method parameter has a different name than in "
         "the implemented interface or in an overridden method.",
     ),
+    "W0238": (
+        "Unused protected member of class %s: %s",
+        "unused-protected-member",
+        "Emitted when a protected member of a class is defined but not used.",
+    ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
         "invalid-slots-object",
@@ -879,11 +884,76 @@ a metaclass class method.",
                     "useless-object-inheritance", args=node.name, node=node
                 )
 
-    def leave_classdef(self, cnode):
+    @check_messages("unused-protected-member", "attribute-defined-outside-init")
+    def leave_classdef(self, node: astroid.ClassDef) -> None:
         """close a class node:
         check that instance attributes are defined in __init__ and check
         access to existent members
         """
+        self._check_unused_protected_members(node)
+        self._check_attribute_defined_outside_init(node)
+
+    def _check_unused_protected_members(self, node: astroid.ClassDef) -> None:
+        # Check for unused protected functions
+        for function_def in node.nodes_of_class(astroid.FunctionDef):
+            found = False
+            if not is_attr_protected(function_def.name):
+                continue
+            for attribute in node.nodes_of_class(astroid.Attribute):
+                if (
+                    attribute.attrname != function_def.name
+                    or attribute.scope() == function_def  # We ignore recursive calls
+                ):
+                    continue
+                found = True
+                break
+
+            if not found:
+                self.add_message(
+                    "unused-protected-member",
+                    node=node,
+                    args=(
+                        node.name,
+                        f"{function_def.name}({function_def.args.as_string()})",
+                    ),
+                )
+        # Check for unused protected variables
+        for assign_name in node.nodes_of_class(astroid.AssignName):
+            found = False
+            if isinstance(assign_name.parent, astroid.Arguments):
+                continue  # Ignore function arguments
+            if not is_attr_protected(assign_name.name):
+                continue
+            for name in node.nodes_of_class(astroid.Name):
+                if name.name != assign_name.name:
+                    continue
+                found = True
+                break
+
+            if not found:
+                self.add_message(
+                    "unused-protected-member",
+                    node=node,
+                    args=(node.name, assign_name.name),
+                )
+        # Check for unused protected attributes
+        for assign_attr in node.nodes_of_class(astroid.AssignAttr):
+            found = False
+            if not is_attr_protected(assign_attr.attrname):
+                continue
+            for attribute in node.nodes_of_class(astroid.Attribute):
+                if attribute.attrname != assign_attr.attrname:
+                    continue
+                found = True
+                break
+            if not found:
+                self.add_message(
+                    "unused-protected-member",
+                    node=node,
+                    args=(node.name, assign_attr.attrname),
+                )
+
+    def _check_attribute_defined_outside_init(self, cnode: astroid.ClassDef) -> None:
         # check access to existent members on non metaclass classes
         if self._ignore_mixin and cnode.name[-5:].lower() == "mixin":
             # We are in a mixin class. No need to try to figure out if
