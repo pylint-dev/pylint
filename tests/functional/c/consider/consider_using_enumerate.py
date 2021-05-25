@@ -71,3 +71,14 @@ class Good(object):
 def does_not_crash_on_range_without_args():
     for elem in range():
         print(elem)
+
+# False negative described in #3657
+class MyClass(object):
+    def __init__(self):
+        self.my_list = []
+
+my_obj = MyClass()
+def my_function(instance: MyClass):
+    for i in range(len(instance.my_list)):  # [consider-using-enumerate]
+        var = instance.my_list[i]
+        print(var)
