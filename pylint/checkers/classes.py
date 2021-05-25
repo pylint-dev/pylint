@@ -949,7 +949,7 @@ a metaclass class method.",
             for attribute in node.nodes_of_class(astroid.Attribute):
                 if (
                     attribute.attrname == assign_attr.attrname
-                    and attribute.expr.name == "self"
+                    and attribute.expr.name == assign_attr.expr.name
                 ):
                     found = True
                     break
