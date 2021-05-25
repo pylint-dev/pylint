@@ -1393,12 +1393,37 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
         if expr_list == target_list != []:
+            if isinstance(node.parent, astroid.DictComp) and isinstance(
+                utils.safe_infer(node.iter), astroid.objects.DictItems
+            ):
+                self.add_message(
+                    "unnecessary-comprehension",
+                    node=node,
+                    args=(f"{node.iter.func.expr.as_string()}",),
+                )
+                return
+            if (
+                isinstance(node.parent, astroid.ListComp)
+                and isinstance(utils.safe_infer(node.iter), astroid.List)
+            ) or (
+                isinstance(node.parent, astroid.SetComp)
+                and isinstance(utils.safe_infer(node.iter), astroid.Set)
+            ):
+                self.add_message(
+                    "unnecessary-comprehension",
+                    node=node,
+                    args=(f"{node.iter.as_string()}",),
+                )
+                return
+
             if isinstance(node.parent, astroid.DictComp):
                 func = "dict"
             elif isinstance(node.parent, astroid.ListComp):
                 func = "list"
-            else:
+            elif isinstance(node.parent, astroid.SetComp):
                 func = "set"
+            else:
+                return
 
             self.add_message(
                 "unnecessary-comprehension",
