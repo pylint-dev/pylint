@@ -1,4 +1,8 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, line-too-long, unused-argument
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, line-too-long, unused-argument, protected-access
+
+class AnotherClass():
+    def __test(self):  # [unused-private-member]
+        pass
 
 class HasUnusedInClass():
     __my_secret = "I have no secrets"  # [unused-private-member]
@@ -35,6 +39,8 @@ class HasUnusedInClass():
 
     def __my_print(self, string):
         print(self.__another_secret + string)
+        another_obj = AnotherClass()
+        another_obj.__test()  # this class's test should still be unused
 
     def hey(self):  # Will not trigger as it does not begin with __
         self.__my_print("!")

@@ -894,7 +894,7 @@ a metaclass class method.",
         self._check_attribute_defined_outside_init(node)
 
     def _check_unused_private_members(self, node: astroid.ClassDef) -> None:
-        # Check for unused protected functions
+        # Check for unused private functions
         for function_def in node.nodes_of_class(astroid.FunctionDef):
             found = False
             if not is_attr_private(function_def.name):
@@ -903,6 +903,7 @@ a metaclass class method.",
                 if (
                     attribute.attrname == function_def.name
                     and attribute.scope() != function_def  # We ignore recursive calls
+                    and attribute.expr.name in ("self", node.name)
                 ):
                     found = True
                     break
@@ -916,7 +917,7 @@ a metaclass class method.",
                     ),
                 )
 
-        # Check for unused protected variables
+        # Check for unused private variables
         for assign_name in node.nodes_of_class(astroid.AssignName):
             found = False
             if isinstance(assign_name.parent, astroid.Arguments):
@@ -929,7 +930,7 @@ a metaclass class method.",
                 ) or (
                     isinstance(child, astroid.Attribute)
                     and child.attrname == assign_name.name
-                    and child.expr.name == "cls"
+                    and child.expr.name in ("cls", node.name)
                 ):
                     found = True
                     break
@@ -940,13 +941,16 @@ a metaclass class method.",
                     args=(node.name, assign_name.name),
                 )
 
-        # Check for unused protected attributes
+        # Check for unused private attributes
         for assign_attr in node.nodes_of_class(astroid.AssignAttr):
             found = False
             if not is_attr_private(assign_attr.attrname):
                 continue
             for attribute in node.nodes_of_class(astroid.Attribute):
-                if attribute.attrname == assign_attr.attrname:
+                if (
+                    attribute.attrname == assign_attr.attrname
+                    and attribute.expr.name == "self"
+                ):
                     found = True
                     break
             if not found:
