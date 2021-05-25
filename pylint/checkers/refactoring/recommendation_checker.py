@@ -148,7 +148,11 @@ class RecommendationChecker(checkers.BaseChecker):
         if not len_args or len(len_args) != 1:
             return
         iterating_object = len_args[0]
-        if not isinstance(iterating_object, (astroid.Name, astroid.Attribute)):
+        if isinstance(iterating_object, astroid.Name):
+            expected_subscript_val_type = astroid.Name
+        elif isinstance(iterating_object, astroid.Attribute):
+            expected_subscript_val_type = astroid.Attribute
+        else:
             return
         # If we're defining __iter__ on self, enumerate won't work
         scope = node.scope()
@@ -165,7 +169,7 @@ class RecommendationChecker(checkers.BaseChecker):
         # for body.
         for child in node.body:
             for subscript in child.nodes_of_class(astroid.Subscript):
-                if not isinstance(subscript.value, (astroid.Name, astroid.Attribute)):
+                if not isinstance(subscript.value, expected_subscript_val_type):
                     continue
 
                 value = subscript.slice
