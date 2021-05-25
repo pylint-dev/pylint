@@ -1,7 +1,7 @@
-unused-private-member:4:4:AnotherClass.__test:"Unused private member of class AnotherClass: __test(self)"
-unused-private-member:8:4:HasUnusedInClass:"Unused private member of class HasUnusedInClass: __my_secret"
-unused-private-member:12:4:HasUnusedInClass.__private_class_method_unused:"Unused private member of class HasUnusedInClass: __private_class_method_unused(cls)"
-unused-private-member:20:4:HasUnusedInClass.__private_static_method_unused:"Unused private member of class HasUnusedInClass: __private_static_method_unused()"
-unused-private-member:28:8:HasUnusedInClass.__init__:"Unused private member of class HasUnusedInClass: __instance_secret"
-unused-private-member:34:4:HasUnusedInClass.__test:"Unused private member of class HasUnusedInClass: __test(self, x, y, z)"
-unused-private-member:55:4:HasUnusedInClass.__test_recursive:"Unused private member of class HasUnusedInClass: __test_recursive(self)"
+unused-private-member:4:4:AnotherClass.__test:Unused private member `AnotherClass.__test(self)`
+unused-private-member:8:4:HasUnusedInClass:Unused private member `HasUnusedInClass.__my_secret`
+unused-private-member:12:4:HasUnusedInClass.__private_class_method_unused:Unused private member `HasUnusedInClass.__private_class_method_unused(cls)`
+unused-private-member:20:4:HasUnusedInClass.__private_static_method_unused:Unused private member `HasUnusedInClass.__private_static_method_unused()`
+unused-private-member:28:8:HasUnusedInClass.__init__:Unused private member `HasUnusedInClass.__instance_secret`
+unused-private-member:34:4:HasUnusedInClass.__test:Unused private member `HasUnusedInClass.__test(self, x, y, z)`
+unused-private-member:55:4:HasUnusedInClass.__test_recursive:Unused private member `HasUnusedInClass.__test_recursive(self)`

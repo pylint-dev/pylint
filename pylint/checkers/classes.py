@@ -637,7 +637,7 @@ MSGS = {
         "the implemented interface or in an overridden method.",
     ),
     "W0238": (
-        "Unused private member of class %s: %s",
+        "Unused private member `%s.%s`",
         "unused-private-member",
         "Emitted when a private member of a class is defined but not used.",
     ),
