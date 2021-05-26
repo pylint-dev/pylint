@@ -89,6 +89,10 @@ modules are added.
 
   Closes #4483
 
+* Fix false negative of ``consider-using-enumerate`` when iterating over an attribute.
+
+  Closes #3657
+
 * New checker ``invalid-class-object``. Emitted when a non-class is assigned to a ``__class__`` attribute.
 
   Closes #585

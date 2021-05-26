@@ -25,7 +25,7 @@ New checkers
 
 * ``consider-using-from-import``: Emitted when a submodule/member of a package is imported and aliased with the same name.
 
-* New checker ``unused-private-member``. Emitted when a private member (i.e., starts with ``__``) of a class is defined but not used.
+* New checker ``unused-private-member``: Emitted when a private member (i.e., starts with ``__``) of a class is defined but not used.
 
 * New checker ``invalid-class-object``: Emitted when a non-class is assigned to a ``__class__`` attribute.
 
