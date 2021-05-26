@@ -111,7 +111,8 @@ class FooClass(object):
         """Ignored."""
         pass
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def ABSTRACT_PROPERTY_NAME(self):  # [invalid-name]
         """Ignored."""
         pass

@@ -72,6 +72,7 @@ class PropertySetter(Property):
 
 class AbstractProperty:
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def prop(self):
         return
