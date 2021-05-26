@@ -37,6 +37,8 @@ New checkers
 * ``invalid-all-format``: Emitted when ``__all__`` has an invalid format,
   i.e. isn't a ``tuple`` or ``list``.
 
+* New checker ``await-outside-async``: Emitted when await is used outside an async function.
+
 Other Changes
 =============
 
