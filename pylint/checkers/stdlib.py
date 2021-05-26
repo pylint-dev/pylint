@@ -619,7 +619,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def deprecated_classes(self, module: str):
         return self._deprecated_classes.get(module, ())
 
-    def deprecated_decorators(self):
+    def deprecated_decorators(self) -> Iterable:
         return self._deprecated_decorators
 
 
