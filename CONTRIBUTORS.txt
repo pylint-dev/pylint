@@ -497,3 +497,5 @@ contributors:
 * David Liu (david-yz-liu): contributor
 
 * Bernard Nauwelaerts: contributor
+
+* Fabian Damken: contributor
