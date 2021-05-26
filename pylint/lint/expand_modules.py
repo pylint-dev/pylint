@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import List, Tuple, Pattern
+from typing import List, Pattern, Tuple
 
 from astroid import modutils
 
