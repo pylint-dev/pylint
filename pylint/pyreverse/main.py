@@ -10,6 +10,7 @@
 # Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2021 Mark Byrne <mbyrnepr2@gmail.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
@@ -123,8 +124,7 @@ OPTIONS = (
             short="k",
             action="store_true",
             default=False,
-            help="don't show attributes and methods in the class boxes; \
-this disables -f values",
+            help="don't show attributes and methods in the class boxes; this disables -f values",
         ),
     ),
     (
@@ -160,35 +160,34 @@ this disables -f values",
     ),
     (
         "ignore",
-        {
-            "type": "csv",
-            "metavar": "<file[,file...]>",
-            "dest": "ignore_list",
-            "default": ("CVS",),
-            "help": "Files or directories to be skipped. They "
-            "should be base names, not paths.",
-        },
+        dict(
+            type="csv",
+            metavar="<file[,file...]>",
+            dest="ignore_list",
+            default=("CVS",),
+            help="Files or directories to be skipped. They should be base names, not paths.",
+        ),
     ),
     (
         "project",
-        {
-            "default": "",
-            "type": "string",
-            "short": "p",
-            "metavar": "<project name>",
-            "help": "set the project name.",
-        },
+        dict(
+            default="",
+            type="string",
+            short="p",
+            metavar="<project name>",
+            help="set the project name.",
+        ),
     ),
     (
         "output-directory",
-        {
-            "default": "",
-            "type": "string",
-            "short": "d",
-            "action": "store",
-            "metavar": "<output_directory>",
-            "help": "set the output directory path.",
-        },
+        dict(
+            default="",
+            type="string",
+            short="d",
+            action="store",
+            metavar="<output_directory>",
+            help="set the output directory path.",
+        ),
     ),
 )
 
