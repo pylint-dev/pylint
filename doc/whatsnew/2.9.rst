@@ -27,6 +27,8 @@ New checkers
 
 * New checker ``unused-private-member``: Emitted when a private member (i.e., starts with ``__``) of a class is defined but not used.
 
+* New checker ``invalid-class-object``: Emitted when a non-class is assigned to a ``__class__`` attribute.
+
 Other Changes
 =============
 
