@@ -1,4 +1,5 @@
 """ file suppliermodule.py """
+from collections import UserDict
 
 class Interface:
     def get_value(self):
@@ -8,3 +9,5 @@ class Interface:
         raise NotImplementedError
 
 class DoNothing: pass
+
+class MyDict(UserDict): pass

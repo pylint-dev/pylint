@@ -2,11 +2,26 @@ digraph "classes_colorized" {
 charset="utf-8"
 rankdir=BT
 "0" [color="aliceblue", fontcolor="black", label="{Ancestor|attr : str\lcls_member\l|get_value()\lset_value(value)\l}", shape="record", style="filled"];
-"1" [color="aliceblue", fontcolor="black", label="{DoNothing|\l|}", shape="record", style="filled"];
-"2" [color="aliceblue", fontcolor="black", label="{Interface|\l|get_value()\lset_value(value)\l}", shape="record", style="filled"];
-"3" [color="aliceblue", fontcolor="black", label="{Specialization|TYPE : str\lrelation\ltop : str\l|}", shape="record", style="filled"];
-"3" -> "0" [arrowhead="empty", arrowtail="none"];
-"0" -> "2" [arrowhead="empty", arrowtail="node", style="dashed"];
-"1" -> "0" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="cls_member", style="solid"];
-"1" -> "3" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="relation", style="solid"];
+"1" [color="grey", fontcolor="black", label="{Collection|\l|}", shape="record", style="filled"];
+"2" [color="grey", fontcolor="black", label="{Container|\l|}", shape="record", style="filled"];
+"3" [color="aliceblue", fontcolor="black", label="{DoNothing|\l|}", shape="record", style="filled"];
+"4" [color="aliceblue", fontcolor="black", label="{Interface|\l|get_value()\lset_value(value)\l}", shape="record", style="filled"];
+"5" [color="grey", fontcolor="black", label="{Iterable|\l|}", shape="record", style="filled"];
+"6" [color="grey", fontcolor="black", label="{Mapping|\l|get(key, default)\litems()\lkeys()\lvalues()\l}", shape="record", style="filled"];
+"7" [color="grey", fontcolor="black", label="{MutableMapping|\l|clear()\lpop(key, default)\lpopitem()\lsetdefault(key, default)\lupdate()\l}", shape="record", style="filled"];
+"8" [color="aliceblue", fontcolor="black", label="{MyDict|\l|}", shape="record", style="filled"];
+"9" [color="grey", fontcolor="black", label="{Sized|\l|}", shape="record", style="filled"];
+"10" [color="aliceblue", fontcolor="black", label="{Specialization|TYPE : str\lrelation\ltop : str\l|}", shape="record", style="filled"];
+"11" [color="grey", fontcolor="black", label="{UserDict|data : dict\l|copy()\lfromkeys(cls, iterable, value)\l}", shape="record", style="filled"];
+"1" -> "2" [arrowhead="empty", arrowtail="none"];
+"1" -> "5" [arrowhead="empty", arrowtail="none"];
+"1" -> "9" [arrowhead="empty", arrowtail="none"];
+"6" -> "1" [arrowhead="empty", arrowtail="none"];
+"7" -> "6" [arrowhead="empty", arrowtail="none"];
+"8" -> "11" [arrowhead="empty", arrowtail="none"];
+"10" -> "0" [arrowhead="empty", arrowtail="none"];
+"11" -> "7" [arrowhead="empty", arrowtail="none"];
+"0" -> "4" [arrowhead="empty", arrowtail="node", style="dashed"];
+"3" -> "0" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="cls_member", style="solid"];
+"3" -> "10" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="relation", style="solid"];
 }

@@ -15,7 +15,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """
-unit test for visitors.diadefs and extensions.diadefslib modules
+unit test for pyreverse writer classes
 """
 
 
@@ -49,7 +49,7 @@ _DEFAULTS = {
 }
 
 _COLORIZED = {
-    "all_ancestors": None,
+    "all_ancestors": True,
     "show_associated": None,
     "module_names": None,
     "output_format": "dot",
