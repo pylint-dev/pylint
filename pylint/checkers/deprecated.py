@@ -90,7 +90,7 @@ class DeprecatedMixin:
     @utils.check_messages(
         "deprecated-decorator"
     )
-    def visit_decorators(self, node):
+    def visit_decorators(self, node: astroid.Decorator) -> None:
         """Triggered when a decorator statement is seen"""
         if isinstance(next(node.get_children()), astroid.Call):
             qname = next(node.get_children()).func.inferred()[0].qname()
