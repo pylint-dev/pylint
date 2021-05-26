@@ -35,6 +35,7 @@
 """Checkers for various standard library functions."""
 
 import sys
+from collections.abc import Iterable
 
 import astroid
 
