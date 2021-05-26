@@ -148,11 +148,19 @@ class RecommendationChecker(checkers.BaseChecker):
         if not len_args or len(len_args) != 1:
             return
         iterating_object = len_args[0]
-        if not isinstance(iterating_object, astroid.Name):
+        if isinstance(iterating_object, astroid.Name):
+            expected_subscript_val_type = astroid.Name
+        elif isinstance(iterating_object, astroid.Attribute):
+            expected_subscript_val_type = astroid.Attribute
+        else:
             return
         # If we're defining __iter__ on self, enumerate won't work
         scope = node.scope()
-        if iterating_object.name == "self" and scope.name == "__iter__":
+        if (
+            isinstance(iterating_object, astroid.Name)
+            and iterating_object.name == "self"
+            and scope.name == "__iter__"
+        ):
             return
 
         # Verify that the body of the for loop uses a subscript
@@ -161,7 +169,8 @@ class RecommendationChecker(checkers.BaseChecker):
         # for body.
         for child in node.body:
             for subscript in child.nodes_of_class(astroid.Subscript):
-                if not isinstance(subscript.value, astroid.Name):
+                subscript = cast(astroid.Subscript, subscript)
+                if not isinstance(subscript.value, expected_subscript_val_type):
                     continue
 
                 value = subscript.slice
@@ -169,18 +178,20 @@ class RecommendationChecker(checkers.BaseChecker):
                     value = value.value
                 if not isinstance(value, astroid.Name):
                     continue
-                if value.name != node.target.name:
-                    continue
-                if iterating_object.name != subscript.value.name:
-                    continue
                 if subscript.value.scope() != node.scope():
                     # Ignore this subscript if it's not in the same
                     # scope. This means that in the body of the for
                     # loop, another scope was created, where the same
                     # name for the iterating object was used.
                     continue
-                self.add_message("consider-using-enumerate", node=node)
-                return
+                if value.name == node.target.name and (
+                    isinstance(subscript.value, astroid.Name)
+                    and iterating_object.name == subscript.value.name
+                    or isinstance(subscript.value, astroid.Attribute)
+                    and iterating_object.attrname == subscript.value.attrname
+                ):
+                    self.add_message("consider-using-enumerate", node=node)
+                    return
 
     def _check_consider_using_dict_items(self, node: astroid.For) -> None:
         """Add message when accessing dict values by index lookup."""
