@@ -169,6 +169,7 @@ class RecommendationChecker(checkers.BaseChecker):
         # for body.
         for child in node.body:
             for subscript in child.nodes_of_class(astroid.Subscript):
+                subscript = cast(astroid.Subscript, subscript)
                 if not isinstance(subscript.value, expected_subscript_val_type):
                     continue
 
