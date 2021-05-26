@@ -53,7 +53,7 @@ We can extend hello-world plugin to ignore some specific names using
     name_checker.config.good_names += ('Hello', 'World')
 
     # We ignore bin directory
-    linter.config.ignore_list += ('bin',)
+    linter.config.black_list += ('bin',)
 
 Depending if we need a **transform plugin** or a **checker**, this might not
 be enough. For the former, this is enough to declare the module as a plugin,

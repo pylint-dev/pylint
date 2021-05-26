@@ -323,7 +323,7 @@ class Project:
 
 
 def project_from_files(
-    files, func_wrapper=_astroid_wrapper, project_name="no name", ignore_list=("CVS",)
+    files, func_wrapper=_astroid_wrapper, project_name="no name", black_list=("CVS",)
 ):
     """return a Project from a list of files or modules"""
     # build the project representation
@@ -346,7 +346,7 @@ def project_from_files(
         if ast.package and something.find("__init__") == -1:
             # recurse on others packages / modules if this is a package
             for fpath in astroid.modutils.get_module_files(
-                os.path.dirname(ast.file), ignore_list
+                os.path.dirname(ast.file), black_list
             ):
                 ast = func_wrapper(astroid_manager.ast_from_file, fpath)
                 if ast is None or ast.name == base_name:

@@ -3,4 +3,4 @@ def register(linter):
 
 
 def load_configuration(linter):
-    linter.config.ignore_list += ('bin',)
+    linter.config.black_list += ('bin',)
