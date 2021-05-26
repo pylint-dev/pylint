@@ -21,7 +21,7 @@ from pathlib import Path
 
 import astroid
 import pytest
-from unittest_pyreverse_writer import Config, get_project
+from unittest_pyreverse_writer import _DEFAULTS, Config, get_project
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
@@ -49,7 +49,7 @@ def _process_relations(relations):
 
 @pytest.fixture
 def HANDLER():
-    return DiadefsHandler(Config())
+    return DiadefsHandler(Config(_DEFAULTS))
 
 
 @pytest.fixture(scope="module")
@@ -60,7 +60,7 @@ def PROJECT():
 def test_option_values(HANDLER, PROJECT):
     """test for ancestor, associated and module options"""
     df_h = DiaDefGenerator(Linker(PROJECT), HANDLER)
-    cl_config = Config()
+    cl_config = Config(_DEFAULTS)
     cl_config.classes = ["Specialization"]
     cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
     assert df_h._get_levels() == (0, 0)
@@ -74,9 +74,9 @@ def test_option_values(HANDLER, PROJECT):
         hndl._set_default_options()
         assert hndl._get_levels() == (-1, -1)
         assert hndl.module_names
-    handler = DiadefsHandler(Config())
+    handler = DiadefsHandler(Config(_DEFAULTS))
     df_h = DiaDefGenerator(Linker(PROJECT), handler)
-    cl_config = Config()
+    cl_config = Config(_DEFAULTS)
     cl_config.classes = ["Specialization"]
     cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
     for hndl in [df_h, cl_h]:
@@ -114,7 +114,7 @@ class TestDefaultDiadefGenerator:
         # XXX should be catching pyreverse environnement problem but doesn't
         # pyreverse doesn't extracts the relations but this test ok
         project = get_project("data")
-        handler = DiadefsHandler(Config())
+        handler = DiadefsHandler(Config(_DEFAULTS))
         diadefs = handler.get_diadefs(project, Linker(project, tag=True))
         cd = diadefs[1]
         relations = _process_relations(cd.relationships)
