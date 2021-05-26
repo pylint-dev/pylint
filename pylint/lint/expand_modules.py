@@ -1,5 +1,7 @@
 import os
+import re
 import sys
+from typing import List, Tuple
 
 from astroid import modutils
 
@@ -28,23 +30,20 @@ def get_python_path(filepath: str) -> str:
             return os.getcwd()
 
 
-def _is_in_ignore_list_re(element, ignore_list_re):
-    """Determines if the element is matched in a regex ignore-list
-
-    :param str element: The element to be checked.
-    :param list ignore_list_re: A collection of regex patterns to match against.
-        Successful matches are ignored.
-
-    :returns: `True` if the basename is ignored, `False` otherwise.
-    :rtype: bool
-    """
+def _is_in_ignore_list_re(element: str, ignore_list_re: List[re.Pattern]) -> bool:
+    """determines if the element is matched in a regex ignore-list"""
     for file_pattern in ignore_list_re:
         if file_pattern.match(element):
             return True
     return False
 
 
-def expand_modules(files_or_modules, ignore_list, ignore_list_re, ignore_list_paths_re):
+def expand_modules(
+    files_or_modules: List[str],
+    ignore_list: List[str],
+    ignore_list_re: List[re.Pattern],
+    ignore_list_paths_re: List[re.Pattern],
+) -> Tuple[List[dict], List[dict]]:
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
     """

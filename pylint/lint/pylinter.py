@@ -169,7 +169,7 @@ class PyLinter(
                 {
                     "type": "csv",
                     "metavar": "<file>[,<file>...]",
-                    "dest": "black_list",
+                    "dest": "ignore_list",
                     "default": ("CVS",),
                     "help": "Files or directories to be skipped. "
                     "They should be base names, not paths.",
@@ -180,7 +180,7 @@ class PyLinter(
                 {
                     "type": "regexp_csv",
                     "metavar": "<pattern>[,<pattern>...]",
-                    "dest": "black_list_re",
+                    "dest": "ignore_list_re",
                     "default": (),
                     "help": "Files or directories matching the regex patterns are"
                     " skipped. The regex matches against base names, not paths.",
@@ -191,7 +191,7 @@ class PyLinter(
                 {
                     "type": "regexp_csv",
                     "metavar": "<pattern>[,<pattern>...]",
-                    "dest": "black_list_paths_re",
+                    "dest": "ignore_list_paths_re",
                     "default": (),
                     "help": "Add files or directories matching the regex patterns to the"
                     " ignore-list. The regex matches against paths.",
@@ -1058,9 +1058,9 @@ class PyLinter(
         """get modules and errors from a list of modules and handle errors"""
         result, errors = expand_modules(
             modules,
-            self.config.black_list,
-            self.config.black_list_re,
-            self.config.black_list_paths_re,
+            self.config.ignore_list,
+            self.config.ignore_list_re,
+            self.config.ignore_list_paths_re,
         )
         for error in errors:
             message = modname = error["mod"]

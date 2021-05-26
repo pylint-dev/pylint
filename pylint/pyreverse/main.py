@@ -212,7 +212,7 @@ class Run(ConfigurationMixIn):
             project = project_from_files(
                 args,
                 project_name=self.config.project,
-                black_list=self.config.ignore_list,
+                ignore_list=self.config.ignore_list,
             )
             linker = Linker(project, tag=True)
             handler = DiadefsHandler(self.config)
