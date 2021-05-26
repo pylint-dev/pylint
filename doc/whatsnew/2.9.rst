@@ -52,4 +52,4 @@ Other Changes
 * The ``using-constant-test`` checker now detects constant tests consisting of list literals
   like ``[]`` and ``[1, 2, 3]``.
 
-* `ignore-paths` configuration directive has been added. Defined regex patterns are matched against file path.
+* ``ignore-paths`` configuration directive has been added. Defined regex patterns are matched against file path.
