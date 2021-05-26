@@ -87,9 +87,7 @@ class DeprecatedMixin:
         # pylint: disable=no-self-use
         return ()
 
-    @utils.check_messages(
-        "deprecated-decorator"
-    )
+    @utils.check_messages("deprecated-decorator")
     def visit_decorators(self, node: astroid.Decorator) -> None:
         """Triggered when a decorator statement is seen"""
         if isinstance(next(node.get_children()), astroid.Call):
