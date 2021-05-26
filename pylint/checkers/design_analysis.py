@@ -33,7 +33,7 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
 
-MSGS = {
+MSGS = {  # pylint: disable=consider-using-namedtuple
     "R0901": (
         "Too many ancestors (%s/%s)",
         "too-many-ancestors",

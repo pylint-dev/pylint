@@ -82,7 +82,7 @@ SINGLE_QUOTED_REGEX = re.compile("(%s)?'''" % "|".join(_PREFIXES))
 DOUBLE_QUOTED_REGEX = re.compile('(%s)?"""' % "|".join(_PREFIXES))
 QUOTE_DELIMITER_REGEX = re.compile("(%s)?(\"|')" % "|".join(_PREFIXES), re.DOTALL)
 
-MSGS = {
+MSGS = {  # pylint: disable=consider-using-namedtuple
     "E1300": (
         "Unsupported format character %r (%#02x) at index %d",
         "bad-format-character",
