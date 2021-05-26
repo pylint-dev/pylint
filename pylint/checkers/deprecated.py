@@ -8,6 +8,7 @@ from typing import Any, Container, Iterable, Tuple, Union
 import astroid
 
 from pylint.checkers import utils
+from pylint.checkers.utils import safe_infer
 
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,
@@ -78,7 +79,7 @@ class DeprecatedMixin:
                 mod_name, class_name = name.split(".", 1)
                 self.check_deprecated_class(node, mod_name, (class_name,))
 
-    def deprecated_decorators(self) -> Container[str]:
+    def deprecated_decorators(self) -> Iterable:
         """Callback returning the deprecated decorators.
 
         Returns:
@@ -90,10 +91,12 @@ class DeprecatedMixin:
     @utils.check_messages("deprecated-decorator")
     def visit_decorators(self, node: astroid.Decorators) -> None:
         """Triggered when a decorator statement is seen"""
-        if isinstance(next(node.get_children()), astroid.Call):
-            qname = next(node.get_children()).func.inferred()[0].qname()
+        child = list(node.get_children())[0]
+        if isinstance(child, astroid.Call):
+            inf = safe_infer(child.func)
         else:
-            qname = next(next(node.get_children()).infer()).qname()
+            inf = safe_infer(child)
+        qname = inf.qname() if inf else None
         if qname in self.deprecated_decorators():
             self.add_message("deprecated-decorator", node=node, args=qname)
 
