@@ -88,7 +88,7 @@ class DeprecatedMixin:
         return ()
 
     @utils.check_messages(
-        "deprecated-decorator",
+        "deprecated-decorator"
     )
     def visit_decorators(self, node):
         """Triggered when a decorator statement is seen"""
