@@ -194,7 +194,7 @@ class PyLinter(
                     "dest": "black_list_paths_re",
                     "default": (),
                     "help": "Add files or directories matching the regex patterns to the"
-                    " blacklist. The regex matches against paths.",
+                    " ignore-list. The regex matches against paths.",
                 },
             ),
             (

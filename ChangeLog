@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* Added ``ignore-paths`` behaviour. Defined regex patterns are matched against full file path.
+
+  Close #2541
+
 * Fix false negative for ``consider-using-with`` if calls like ``open()`` were used outside of assignment expressions.
 
 * The warning for ``arguments-differ`` now signals explicitly the difference it detected
@@ -551,10 +555,6 @@ What's New in Pylint 2.6.0?
 ===========================
 
 Release date: 2020-08-20
-
-* Added ``ignore-paths`` behaviour. Defined regex patterns are matched against full file path.
-
-  Close #2541
 
 * Fix various scope-related bugs in ``undefined-variable`` checker
 

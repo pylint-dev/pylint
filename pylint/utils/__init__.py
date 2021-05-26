@@ -49,7 +49,6 @@ from pylint.utils.utils import (
     IsortDriver,
     _check_csv,
     _format_option_value,
-    _is_in_blacklist_re,
     _splitstrip,
     _unquote,
     decoding_stream,

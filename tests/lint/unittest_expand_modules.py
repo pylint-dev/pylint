@@ -7,19 +7,21 @@ from pathlib import Path
 
 import pytest
 
-from pylint.lint.expand_modules import _basename_in_ignore_list_re, expand_modules
+from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
 
 
-def test__basename_in_ignore_list_re_match():
-    patterns = [re.compile(".*enchilada.*"), re.compile("unittest_.*")]
-    assert _basename_in_ignore_list_re("unittest_utils.py", patterns)
-    assert _basename_in_ignore_list_re("cheese_enchiladas.xml", patterns)
+def test__is_in_ignore_list_re_match():
+    patterns = [re.compile(".*enchilada.*"), re.compile("unittest_.*"), re.compile(".*tests/.*")]
+    assert _is_in_ignore_list_re("unittest_utils.py", patterns)
+    assert _is_in_ignore_list_re("cheese_enchiladas.xml", patterns)
+    assert _is_in_ignore_list_re("src/tests/whatever.xml", patterns)
 
 
-def test__basename_in_ignore_list_re_nomatch():
-    patterns = [re.compile(".*enchilada.*"), re.compile("unittest_.*")]
-    assert not _basename_in_ignore_list_re("test_utils.py", patterns)
-    assert not _basename_in_ignore_list_re("enchilad.py", patterns)
+def test__is_in_ignore_list_re_nomatch():
+    patterns = [re.compile(".*enchilada.*"), re.compile("unittest_.*"), re.compile(".*tests/.*")]
+    assert not _is_in_ignore_list_re("test_utils.py", patterns)
+    assert not _is_in_ignore_list_re("enchilad.py", patterns)
+    assert not _is_in_ignore_list_re("src/tests.py", patterns)
 
 
 TEST_DIRECTORY = Path(__file__).parent.parent
@@ -70,8 +72,8 @@ init_of_package = {
     ],
 )
 def test_expand_modules(files_or_modules, expected):
-    ignore_list, ignore_list_re = [], []
-    modules, errors = expand_modules(files_or_modules, ignore_list, ignore_list_re)
+    ignore_list, ignore_list_re, ignore_list_paths_re = [], [], []
+    modules, errors = expand_modules(files_or_modules, ignore_list, ignore_list_re, ignore_list_paths_re)
     modules.sort(key=lambda d: d["name"])
     assert modules == expected
     assert not errors
