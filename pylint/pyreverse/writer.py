@@ -19,6 +19,9 @@
 import itertools
 import os
 
+import astroid
+from astroid import modutils
+
 from pylint.graph import DotBackend
 from pylint.pyreverse.utils import is_exception
 from pylint.pyreverse.vcgutils import VCGPrinter
@@ -170,11 +173,16 @@ class DotWriter(DiagramWriter):
         """get shape color"""
         if not self.config.colorized:
             return "black"
+        qualified_name = obj.node.qname()
+        if modutils.is_standard_module(qualified_name.split(".", maxsplit=1)[0]):
+            return "grey"
         depth = self.config.max_color_depth
-        if obj.node.package:
-            package = obj.title
+        if isinstance(obj.node, astroid.ClassDef):
+            package = qualified_name.rsplit(".", maxsplit=2)[0]
+        elif obj.node.package:
+            package = qualified_name
         else:
-            package, _ = obj.title.rsplit(".", maxsplit=1)
+            package = qualified_name.rsplit(".", maxsplit=1)[0]
         base_name = ".".join(package.split(".", depth)[:depth])
         if base_name not in self.used_colors:
             self.used_colors[base_name] = next(self.available_colors)
@@ -197,9 +205,14 @@ class DotWriter(DiagramWriter):
                     args = []
                 label = r"{}{}({})\l".format(label, func.name, ", ".join(args))
             label = "{%s}" % label
-        if is_exception(obj.node):
-            return dict(fontcolor="red", label=label, shape="record")
-        return dict(label=label, shape="record")
+        values = dict(
+            label=label,
+            shape="record",
+            fontcolor="red" if is_exception(obj.node) else "black",
+            style=self.get_style(),
+            color=self.get_color(obj),
+        )
+        return values
 
     def close_graph(self):
         """print the dot graph into <file_name>"""
