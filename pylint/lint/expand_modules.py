@@ -52,13 +52,8 @@ def expand_modules(
 
     for something in files_or_modules:
         basename = os.path.basename(something)
-        if basename in ignore_list:
+        if basename in ignore_list or _is_in_ignore_list_re(os.path.basename(something), ignore_list_re) or  _is_in_ignore_list_re(something, ignore_list_paths_re):
             continue
-        if _is_in_ignore_list_re(os.path.basename(something), ignore_list_re):
-            continue
-        if _is_in_ignore_list_re(something, ignore_list_paths_re):
-            continue
-
         module_path = get_python_path(something)
         additional_search_path = [".", module_path] + path
         if os.path.exists(something):
