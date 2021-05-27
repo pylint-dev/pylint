@@ -8,7 +8,7 @@ on:
   pull_request: ~
 
 env:
-  CACHE_VERSION: 1
+  CACHE_VERSION: 2
   DEFAULT_PYTHON: 3.6
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v2.2.2
@@ -153,6 +155,8 @@ jobs:
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v2.2.2
@@ -327,6 +331,8 @@ jobs:
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v2.2.2
@@ -405,6 +411,8 @@ jobs:
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v2.2.2

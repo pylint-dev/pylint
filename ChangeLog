@@ -13,6 +13,10 @@ Release date: TBA
 
   Closes #4429
 
+* Added ``ignore-paths`` behaviour. Defined regex patterns are matched against full file path.
+
+  Close #2541
+
 * Fix false negative for ``consider-using-with`` if calls like ``open()`` were used outside of assignment expressions.
 
 * The warning for ``arguments-differ`` now signals explicitly the difference it detected
@@ -83,6 +87,23 @@ modules are added.
 
 * Make ``using-constant-test`` detect constant tests consisting of list literals like ``[]`` and
   ``[1, 2, 3]``.
+
+* Improved error message of ``unnecessary-comprehension`` checker by providing code suggestion.
+
+  Closes #4499
+
+* New checker ``unused-private-member``. Emitted when a private member (i.e., starts with ``__``) of a class
+  is defined but not used.
+
+  Closes #4483
+
+* Fix false negative of ``consider-using-enumerate`` when iterating over an attribute.
+
+  Closes #3657
+
+* New checker ``invalid-class-object``. Emitted when a non-class is assigned to a ``__class__`` attribute.
+
+  Closes #585
 
 
 What's New in Pylint 2.8.2?
