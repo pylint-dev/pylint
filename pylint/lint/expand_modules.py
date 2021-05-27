@@ -115,9 +115,7 @@ def expand_modules(
             ):
                 if filepath == subfilepath:
                     continue
-                if _is_in_ignore_list_re(os.path.basename(subfilepath), ignore_list_re):
-                    continue
-                if _is_in_ignore_list_re(subfilepath, ignore_list_paths_re):
+                if _is_in_ignore_list_re(os.path.basename(subfilepath), ignore_list_re or _is_in_ignore_list_re(subfilepath, ignore_list_paths_re):
                     continue
 
                 modpath = _modpath_from_file(
