@@ -89,7 +89,7 @@ class DeprecatedMixin:
         return ()
 
     @utils.check_messages("deprecated-decorator")
-    def visit_decorators(self, node: astroid.Decorators) -> None:
+    def visit_decorators(self, node):
         """Triggered when a decorator statement is seen"""
         children = list(node.get_children())
         if not children:
