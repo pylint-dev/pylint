@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* Added ``deprecated-decorator``: Emitted when deprecated decorator is used.
+
+  Closes #4429
+
 * Added ``ignore-paths`` behaviour. Defined regex patterns are matched against full file path.
 
   Close #2541
