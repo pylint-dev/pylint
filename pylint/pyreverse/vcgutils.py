@@ -82,9 +82,7 @@ ATTRS_VAL = {
 }
 
 # attributes that may be passed into the function but are not relevant vor the VCGPrinter (e.g. attributes only relevant for DOT files)
-IGNORED_ATTRS = {
-    "style",
-}
+IGNORED_ATTRS = {"style", "color"}
 
 # meaning of possible values:
 #   O    -> string

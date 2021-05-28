@@ -1,0 +1,41 @@
+graph:{
+  title:"classes_vcg"
+  layoutalgorithm:dfs
+  late_edge_labels:yes
+  port_sharing:no
+  manhattan_edges:yes
+  node: {title:"0"  label:"\fbAncestor\fn\n\f____________\n\f08attr : str\n\f08cls_member\n\f____________\n\f10get_value()\n\f10set_value()"
+  shape:box
+}
+  node: {title:"1"  label:"\fbDoNothing\fn\n\f___________"
+  shape:box
+}
+  node: {title:"2"  label:"\fbInterface\fn\n\f___________\n\f10get_value()\n\f10set_value()"
+  shape:box
+}
+  node: {title:"3"  label:"\fbMyDict\fn\n\f________"
+  shape:box
+}
+  node: {title:"4"  label:"\fbSpecialization\fn\n\f________________\n\f08TYPE : str\n\f08relation\n\f08top : str\n\f________________"
+  shape:box
+}
+  edge: {sourcename:"4" targetname:"0"  arrowstyle:solid
+  backarrowstyle:none
+  backarrowsize:10
+}
+  edge: {sourcename:"0" targetname:"2"  arrowstyle:solid
+  backarrowstyle:none
+  linestyle:dotted
+  backarrowsize:10
+}
+  edge: {sourcename:"1" targetname:"0"  label:"cls_member"
+  arrowstyle:solid
+  backarrowstyle:none
+  textcolor:green
+}
+  edge: {sourcename:"1" targetname:"4"  label:"relation"
+  arrowstyle:solid
+  backarrowstyle:none
+  textcolor:green
+}
+}

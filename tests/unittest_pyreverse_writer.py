@@ -28,13 +28,31 @@ import pytest
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.utils import get_visibility
-from pylint.pyreverse.writer import DotWriter
+from pylint.pyreverse.writer import DotWriter, VCGWriter
 
 _DEFAULTS = {
     "all_ancestors": None,
     "show_associated": None,
     "module_names": None,
     "output_format": "dot",
+    "diadefs_file": None,
+    "quiet": 0,
+    "show_ancestors": None,
+    "classes": (),
+    "all_associated": None,
+    "mode": "PUB_ONLY",
+    "show_builtin": False,
+    "only_classnames": False,
+    "output_directory": "",
+    "colorized": False,
+    "max_color_depth": 2,
+}
+
+_VCG_OUTPUT = {
+    "all_ancestors": None,
+    "show_associated": None,
+    "module_names": None,
+    "output_format": "vcg",
     "diadefs_file": None,
     "quiet": 0,
     "show_ancestors": None,
@@ -100,6 +118,7 @@ def get_project(module, name="No Name"):
 
 DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
 COLORIZED_DOT_FILES = ["packages_colorized.dot", "classes_colorized.dot"]
+VCG_FILES = ["packages_vcg.vcg", "classes_vcg.vcg"]
 
 
 def _create_files(config, name="No Name"):
@@ -109,14 +128,17 @@ def _create_files(config, name="No Name"):
     dd = DefaultDiadefGenerator(linker, handler).visit(project)
     for diagram in dd:
         diagram.extract_relationships()
-    writer = DotWriter(config)
+    if config.output_format == "vcg":
+        writer = VCGWriter(config)
+    else:
+        writer = DotWriter(config)
     writer.write(dd)
 
 
 @pytest.fixture(scope="module")
 def cleanup():
     yield
-    for fname in DOT_FILES + COLORIZED_DOT_FILES:
+    for fname in DOT_FILES + COLORIZED_DOT_FILES + VCG_FILES:
         try:
             os.remove(fname)
         except FileNotFoundError:
@@ -129,6 +151,7 @@ def cleanup():
     [
         (Config(_DEFAULTS), "No Name", DOT_FILES),
         (Config(_COLORIZED), "colorized", COLORIZED_DOT_FILES),
+        (Config(_VCG_OUTPUT), "vcg", VCG_FILES),
     ],
 )
 def test_dot_files(config, name, generated_files):
