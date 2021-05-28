@@ -55,6 +55,10 @@ modules are added.
 
   Closes #3619
 
+* Fix false negative on ``unused-variable`` for catched exception when used in the inner context.
+
+  Closes #4391
+
 
 What's New in Pylint 2.8.2?
 ===========================

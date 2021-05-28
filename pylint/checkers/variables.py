@@ -865,6 +865,14 @@ class VariablesChecker(BaseChecker):
         ):
             return
 
+        # if try/except block identified in function, check for unused variables
+        for element in node.body:
+            if isinstance(element, astroid.TryExcept):
+                if element.handlers:
+                    h = element.handlers[0]
+                    if isinstance(h, astroid.ExceptHandler) and h.name:
+                        self.check_except_block_unused_var(h, not_consumed)
+
         # Don't check arguments of function which are only raising an exception.
         if utils.is_error(node):
             return
@@ -877,7 +885,7 @@ class VariablesChecker(BaseChecker):
         global_names = _flattened_scope_names(node.nodes_of_class(astroid.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(astroid.Nonlocal))
         for name, stmts in not_consumed.items():
-            self._check_is_unused(name, node, stmts[0], global_names, nonlocal_names)
+            self._check_is_unused(name, node, stmts, global_names, nonlocal_names)
 
     visit_asyncfunctiondef = visit_functiondef
     leave_asyncfunctiondef = leave_functiondef
@@ -889,6 +897,34 @@ class VariablesChecker(BaseChecker):
         "global-at-module-level",
         "redefined-builtin",
     )
+    def check_except_block_unused_var(
+        self, block, not_consumed
+    ):  # check content of except block
+        for x in block.body:
+            if isinstance(x, astroid.Raise):  # raise statement
+                if x.cause and block.name.name != x.cause.name:
+                    not_consumed[block.name.name] = x
+            elif isinstance(x, astroid.Expr) and isinstance(
+                x.value, astroid.Call
+            ):  # print statement
+                if isinstance(x.value.args[0], astroid.Const):
+                    not_consumed[block.name.name] = [block]
+                elif isinstance(x.value.args[0], astroid.JoinedStr):
+                    for y in x.value.args[0].values:
+                        if (
+                            isinstance(y, astroid.FormattedValue)
+                            and block.name.name != y.value.name
+                        ):
+                            not_consumed[block.name.name] = [block]
+            elif isinstance(x, astroid.TryExcept):  # try/except block
+                if x.handlers and x.handlers[0].name:
+                    if x.handlers[0].name.name == block.name.name:
+                        if block.name.name not in not_consumed.keys():
+                            not_consumed[block.name.name] = [block]
+                            self.check_except_block_unused_var(
+                                x.handlers[0], not_consumed
+                            )
+
     def visit_global(self, node):
         """check names imported exists in the global scope"""
         frame = node.frame()
@@ -1631,79 +1667,82 @@ class VariablesChecker(BaseChecker):
             if not elements:
                 self.add_message("undefined-loop-variable", args=name, node=node)
 
-    def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):
-        # pylint: disable=too-many-branches
-        # Ignore some special names specified by user configuration.
-        if self._is_name_ignored(stmt, name):
-            return
-        # Ignore names that were added dynamically to the Function scope
-        if (
-            isinstance(node, astroid.FunctionDef)
-            and name == "__class__"
-            and len(node.locals["__class__"]) == 1
-            and isinstance(node.locals["__class__"][0], astroid.ClassDef)
-        ):
-            return
-
-        # Ignore names imported by the global statement.
-        if isinstance(stmt, (astroid.Global, astroid.Import, astroid.ImportFrom)):
-            # Detect imports, assigned to global statements.
-            if global_names and _import_name_is_global(stmt, global_names):
+    def _check_is_unused(self, name, node, stmts, global_names, nonlocal_names):
+        for stmt in stmts:
+            # pylint: disable=too-many-branches
+            # Ignore some special names specified by user configuration.
+            if self._is_name_ignored(stmt, name):
                 return
-
-        argnames = list(
-            itertools.chain(node.argnames(), [arg.name for arg in node.args.kwonlyargs])
-        )
-        # Care about functions with unknown argument (builtins)
-        if name in argnames:
-            self._check_unused_arguments(name, node, stmt, argnames)
-        else:
-            if stmt.parent and isinstance(
-                stmt.parent, (astroid.Assign, astroid.AnnAssign)
+            # Ignore names that were added dynamically to the Function scope
+            if (
+                isinstance(node, astroid.FunctionDef)
+                and name == "__class__"
+                and len(node.locals["__class__"]) == 1
+                and isinstance(node.locals["__class__"][0], astroid.ClassDef)
             ):
-                if name in nonlocal_names:
+                return
+
+            # Ignore names imported by the global statement.
+            if isinstance(stmt, (astroid.Global, astroid.Import, astroid.ImportFrom)):
+                # Detect imports, assigned to global statements.
+                if global_names and _import_name_is_global(stmt, global_names):
                     return
 
-            qname = asname = None
-            if isinstance(stmt, (astroid.Import, astroid.ImportFrom)):
-                # Need the complete name, which we don't have in .locals.
-                if len(stmt.names) > 1:
-                    import_names = next(
-                        (names for names in stmt.names if name in names), None
-                    )
-                else:
-                    import_names = stmt.names[0]
-                if import_names:
-                    qname, asname = import_names
-                    name = asname or qname
-
-            if _has_locals_call_after_node(stmt, node.scope()):
-                message_name = "possibly-unused-variable"
+            argnames = list(
+                itertools.chain(
+                    node.argnames(), [arg.name for arg in node.args.kwonlyargs]
+                )
+            )
+            # Care about functions with unknown argument (builtins)
+            if name in argnames:
+                self._check_unused_arguments(name, node, stmt, argnames)
             else:
-                if isinstance(stmt, astroid.Import):
-                    if asname is not None:
-                        msg = f"{qname} imported as {asname}"
+                if stmt.parent and isinstance(
+                    stmt.parent, (astroid.Assign, astroid.AnnAssign)
+                ):
+                    if name in nonlocal_names:
+                        return
+
+                qname = asname = None
+                if isinstance(stmt, (astroid.Import, astroid.ImportFrom)):
+                    # Need the complete name, which we don't have in .locals.
+                    if len(stmt.names) > 1:
+                        import_names = next(
+                            (names for names in stmt.names if name in names), None
+                        )
                     else:
-                        msg = "import %s" % name
-                    self.add_message("unused-import", args=msg, node=stmt)
+                        import_names = stmt.names[0]
+                    if import_names:
+                        qname, asname = import_names
+                        name = asname or qname
+
+                if _has_locals_call_after_node(stmt, node.scope()):
+                    message_name = "possibly-unused-variable"
+                else:
+                    if isinstance(stmt, astroid.Import):
+                        if asname is not None:
+                            msg = f"{qname} imported as {asname}"
+                        else:
+                            msg = "import %s" % name
+                        self.add_message("unused-import", args=msg, node=stmt)
+                        return
+                    if isinstance(stmt, astroid.ImportFrom):
+                        if asname is not None:
+                            msg = f"{qname} imported from {stmt.modname} as {asname}"
+                        else:
+                            msg = f"{name} imported from {stmt.modname}"
+                        self.add_message("unused-import", args=msg, node=stmt)
+                        return
+                    message_name = "unused-variable"
+
+                if isinstance(stmt, astroid.FunctionDef) and stmt.decorators:
                     return
-                if isinstance(stmt, astroid.ImportFrom):
-                    if asname is not None:
-                        msg = f"{qname} imported from {stmt.modname} as {asname}"
-                    else:
-                        msg = f"{name} imported from {stmt.modname}"
-                    self.add_message("unused-import", args=msg, node=stmt)
+
+                # Don't check function stubs created only for type information
+                if utils.is_overload_stub(node):
                     return
-                message_name = "unused-variable"
 
-            if isinstance(stmt, astroid.FunctionDef) and stmt.decorators:
-                return
-
-            # Don't check function stubs created only for type information
-            if utils.is_overload_stub(node):
-                return
-
-            self.add_message(message_name, args=name, node=stmt)
+                self.add_message(message_name, args=name, node=stmt)
 
     def _is_name_ignored(self, stmt, name):
         authorized_rgx = self.config.dummy_variables_rgx

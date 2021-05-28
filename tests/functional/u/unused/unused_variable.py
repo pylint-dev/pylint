@@ -104,3 +104,50 @@ def test_global():
     from sys import version as VERSION  # [unused-import]
     import this  # [unused-import]
     import re as RE  # [unused-import]
+
+def function2():
+    unused = 1  # [unused-variable]
+    try:
+        1 / 0
+    except ZeroDivisionError as error:  # [unused-variable]
+        try:
+            1 / 0
+        except ZeroDivisionError as error:
+            raise Exception("") from error
+
+def func():
+    try:
+        1 / 0
+    except ZeroDivisionError as error:
+        try:
+            1 / 0
+        except error:
+            print("error")
+
+def func2():
+    try:
+        1 / 0
+    except ZeroDivisionError as error:
+        try:
+            1 / 0
+        except:
+            raise Exception("") from error
+
+def func3():
+    try:
+        1 / 0
+    except ZeroDivisionError as error:
+        print(f"{error}")
+        try:
+            1 / 2
+        except TypeError as error: #[unused-variable]
+            print("warning")
+
+def func4():
+    try:
+        1 / 0
+    except ZeroDivisionError as error:  # [unused-variable]
+        try:
+            1 / 0
+        except ZeroDivisionError as error: # [unused-variable]
+            print("error")
