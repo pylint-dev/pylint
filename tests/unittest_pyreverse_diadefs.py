@@ -141,7 +141,6 @@ def test_known_values1(HANDLER, PROJECT):
         (True, "Ancestor"),
         (True, "DoNothing"),
         (True, "Interface"),
-        (True, "MyDict"),
         (True, "Specialization"),
     ]
 

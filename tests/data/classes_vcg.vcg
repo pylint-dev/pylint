@@ -13,13 +13,10 @@ graph:{
   node: {title:"2"  label:"\fbInterface\fn\n\f___________\n\f10get_value()\n\f10set_value()"
   shape:box
 }
-  node: {title:"3"  label:"\fbMyDict\fn\n\f________"
+  node: {title:"3"  label:"\fbSpecialization\fn\n\f________________\n\f08TYPE : str\n\f08relation\n\f08top : str\n\f________________"
   shape:box
 }
-  node: {title:"4"  label:"\fbSpecialization\fn\n\f________________\n\f08TYPE : str\n\f08relation\n\f08top : str\n\f________________"
-  shape:box
-}
-  edge: {sourcename:"4" targetname:"0"  arrowstyle:solid
+  edge: {sourcename:"3" targetname:"0"  arrowstyle:solid
   backarrowstyle:none
   backarrowsize:10
 }
@@ -33,7 +30,7 @@ graph:{
   backarrowstyle:none
   textcolor:green
 }
-  edge: {sourcename:"1" targetname:"4"  label:"relation"
+  edge: {sourcename:"1" targetname:"3"  label:"relation"
   arrowstyle:solid
   backarrowstyle:none
   textcolor:green
