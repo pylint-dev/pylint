@@ -342,6 +342,9 @@ def _different_parameters(
             output_messages.append("Number of parameters ")
             output_messages += different_positional[1:]
             output_messages += different_kwonly[1:]
+        else:
+            output_messages += different_positional
+            output_messages += different_kwonly
     else:
         if different_positional:
             output_messages += different_positional
@@ -627,6 +630,17 @@ MSGS = {
         "that does not match its base class "
         "which could result in potential bugs at runtime.",
     ),
+    "W0237": (
+        "%s %s %r method",
+        "arguments-renamed",
+        "Used when a method parameter has a different name than in "
+        "the implemented interface or in an overridden method.",
+    ),
+    "W0238": (
+        "Unused private member `%s.%s`",
+        "unused-private-member",
+        "Emitted when a private member of a class is defined but not used.",
+    ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
         "invalid-slots-object",
@@ -662,6 +676,12 @@ MSGS = {
         "Value %r in slots conflicts with class variable",
         "class-variable-slots-conflict",
         "Used when a value in __slots__ conflicts with a class variable, property or method.",
+    ),
+    "E0243": (
+        "Invalid __class__ object",
+        "invalid-class-object",
+        "Used when an invalid object is assigned to a __class__ property. "
+        "Only a class is permitted.",
     ),
     "R0202": (
         "Consider using a decorator instead of calling classmethod",
@@ -870,11 +890,83 @@ a metaclass class method.",
                     "useless-object-inheritance", args=node.name, node=node
                 )
 
-    def leave_classdef(self, cnode):
+    @check_messages("unused-private-member", "attribute-defined-outside-init")
+    def leave_classdef(self, node: astroid.ClassDef) -> None:
         """close a class node:
         check that instance attributes are defined in __init__ and check
         access to existent members
         """
+        self._check_unused_private_members(node)
+        self._check_attribute_defined_outside_init(node)
+
+    def _check_unused_private_members(self, node: astroid.ClassDef) -> None:
+        # Check for unused private functions
+        for function_def in node.nodes_of_class(astroid.FunctionDef):
+            found = False
+            if not is_attr_private(function_def.name):
+                continue
+            for attribute in node.nodes_of_class(astroid.Attribute):
+                if (
+                    attribute.attrname == function_def.name
+                    and attribute.scope() != function_def  # We ignore recursive calls
+                    and attribute.expr.name in ("self", node.name)
+                ):
+                    found = True
+                    break
+            if not found:
+                self.add_message(
+                    "unused-private-member",
+                    node=function_def,
+                    args=(
+                        node.name,
+                        f"{function_def.name}({function_def.args.as_string()})",
+                    ),
+                )
+
+        # Check for unused private variables
+        for assign_name in node.nodes_of_class(astroid.AssignName):
+            found = False
+            if isinstance(assign_name.parent, astroid.Arguments):
+                continue  # Ignore function arguments
+            if not is_attr_private(assign_name.name):
+                continue
+            for child in node.nodes_of_class((astroid.Name, astroid.Attribute)):
+                if (
+                    isinstance(child, astroid.Name) and child.name == assign_name.name
+                ) or (
+                    isinstance(child, astroid.Attribute)
+                    and child.attrname == assign_name.name
+                    and child.expr.name in ("cls", node.name)
+                ):
+                    found = True
+                    break
+            if not found:
+                self.add_message(
+                    "unused-private-member",
+                    node=assign_name,
+                    args=(node.name, assign_name.name),
+                )
+
+        # Check for unused private attributes
+        for assign_attr in node.nodes_of_class(astroid.AssignAttr):
+            found = False
+            if not is_attr_private(assign_attr.attrname):
+                continue
+            for attribute in node.nodes_of_class(astroid.Attribute):
+                if (
+                    attribute.attrname == assign_attr.attrname
+                    and attribute.expr.name == assign_attr.expr.name
+                ):
+                    found = True
+                    break
+            if not found:
+                self.add_message(
+                    "unused-private-member",
+                    node=assign_attr,
+                    args=(node.name, assign_attr.attrname),
+                )
+
+    def _check_attribute_defined_outside_init(self, cnode: astroid.ClassDef) -> None:
         # check access to existent members on non metaclass classes
         if self._ignore_mixin and cnode.name[-5:].lower() == "mixin":
             # We are in a mixin class. No need to try to figure out if
@@ -1293,12 +1385,23 @@ a metaclass class method.",
 
         self._check_protected_attribute_access(node)
 
-    def visit_assignattr(self, node):
+    @check_messages("assigning-non-slot", "invalid-class-object")
+    def visit_assignattr(self, node: astroid.AssignAttr) -> None:
         if isinstance(
             node.assign_type(), astroid.AugAssign
         ) and self._uses_mandatory_method_param(node):
             self._accessed.set_accessed(node)
         self._check_in_slots(node)
+        self._check_invalid_class_object(node)
+
+    def _check_invalid_class_object(self, node: astroid.AssignAttr) -> None:
+        if not node.attrname == "__class__":
+            return
+        inferred = safe_infer(node.parent.value)
+        if isinstance(inferred, astroid.ClassDef) or inferred is astroid.Uninferable:
+            # If is uninferrable, we allow it to prevent false positives
+            return
+        self.add_message("invalid-class-object", node=node)
 
     def _check_in_slots(self, node):
         """Check that the given AssignAttr node
@@ -1810,27 +1913,29 @@ a metaclass class method.",
                         total_args_refmethod += 1
                     if refmethod.args.kwonlyargs:
                         total_args_refmethod += len(refmethod.args.kwonlyargs)
-                    self.add_message(
-                        "arguments-differ",
-                        args=(
-                            msg
-                            + f"was {total_args_refmethod} in '{refmethod.parent.name}.{refmethod.name}' and "
-                            f"is now {total_args_method1} in",
-                            class_type,
-                            str(method1.parent.name) + "." + str(method1.name),
-                        ),
-                        node=method1,
+                    error_type = "arguments-differ"
+                    msg_args = (
+                        msg
+                        + f"was {total_args_refmethod} in '{refmethod.parent.name}.{refmethod.name}' and "
+                        f"is now {total_args_method1} in",
+                        class_type,
+                        f"{method1.parent.name}.{method1.name}",
+                    )
+                elif "renamed" in msg:
+                    error_type = "arguments-renamed"
+                    msg_args = (
+                        msg,
+                        class_type,
+                        f"{method1.parent.name}.{method1.name}",
                     )
                 else:
-                    self.add_message(
-                        "arguments-differ",
-                        args=(
-                            msg,
-                            class_type,
-                            str(method1.parent.name) + "." + str(method1.name),
-                        ),
-                        node=method1,
+                    error_type = "arguments-differ"
+                    msg_args = (
+                        msg,
+                        class_type,
+                        f"{method1.parent.name}.{method1.name}",
                     )
+                self.add_message(error_type, args=msg_args, node=method1)
         elif (
             len(method1.args.defaults) < len(refmethod.args.defaults)
             and not method1.args.vararg

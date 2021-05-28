@@ -12,8 +12,24 @@ Summary -- Release highlights
 New checkers
 ============
 
+* ``deprecated-decorator``: Emitted when deprecated decorator is used.
+
 * ``consider-using-dict-items``: Emitted when iterating over dictionary keys and then
   indexing the same dictionary with the key within loop body.
+
+* ``use-maxsplit-arg``: Emitted either when accessing only the first or last
+  element of ``str.split()``.
+
+* An ``ignore_signatures`` option has been added to the similarity checker. It will permits  to reduce false positives when multiple functions have the same parameters.
+
+* ``unnecessary-dict-index-lookup``: Emitted when iterating over dictionary items
+  (key-value pairs) and accessing the value by index lookup.
+
+* ``consider-using-from-import``: Emitted when a submodule/member of a package is imported and aliased with the same name.
+
+* New checker ``unused-private-member``: Emitted when a private member (i.e., starts with ``__``) of a class is defined but not used.
+
+* New checker ``invalid-class-object``: Emitted when a non-class is assigned to a ``__class__`` attribute.
 
 Other Changes
 =============
@@ -27,4 +43,15 @@ Other Changes
 
 * New option ``--fail-on=<msg ids>`` to return non-zero exit codes regardless of ``fail-under`` value.
 
+* A new error called ``arguments-renamed`` has been created, which identifies any changes at the parameter names
+  of overridden functions. It aims to separate the functionality of ``arguments-differ``.
+
 * Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage
+
+* Allow comma-separated list in ``output-format`` and separate output files for
+  each specified format.  Each output file can be defined after a semicolon for example : ``--output-format=json:myfile.json,colorized``
+
+* The ``using-constant-test`` checker now detects constant tests consisting of list literals
+  like ``[]`` and ``[1, 2, 3]``.
+
+* ``ignore-paths`` configuration directive has been added. Defined regex patterns are matched against file path.

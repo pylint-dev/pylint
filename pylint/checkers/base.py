@@ -1118,7 +1118,7 @@ class BasicChecker(_BasicChecker):
             astroid.BoundMethod,
             astroid.Module,
         )
-        structs = (astroid.Dict, astroid.Tuple, astroid.Set)
+        structs = (astroid.Dict, astroid.Tuple, astroid.Set, astroid.List)
 
         # These nodes are excepted, since they are not constant
         # values, requiring a computation to happen.
