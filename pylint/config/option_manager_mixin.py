@@ -281,7 +281,7 @@ class OptionsManagerMixIn:
                         for option, value in values.items():
                             if isinstance(value, bool):
                                 values[option] = "yes" if value else "no"
-                            elif isinstance(value, int):
+                            elif isinstance(value, (int, float)):
                                 values[option] = str(value)
                             elif isinstance(value, list):
                                 values[option] = ",".join(value)

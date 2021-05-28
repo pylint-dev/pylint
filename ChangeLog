@@ -105,6 +105,9 @@ modules are added.
 
   Closes #585
 
+* Added handling of floating point values when parsing configuration from pyproject.toml
+
+  Closes #4518
 
 What's New in Pylint 2.8.2?
 ===========================
