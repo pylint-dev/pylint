@@ -384,7 +384,6 @@ class Similar:
         self.linesets = [line for lineset in linesets_collection for line in lineset]
 
 
-<<<<<<< HEAD
 def stripped_lines(lines: Iterable[str], ignore_comments: bool, ignore_docstrings: bool, ignore_imports: bool, ignore_signatures: bool) -> List[LineSpecifs]:
     """
     Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed
