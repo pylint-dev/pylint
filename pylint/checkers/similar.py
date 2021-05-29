@@ -167,7 +167,7 @@ CplSuccessiveLinesLimits = NamedTuple("CplSuccessiveLinesLimits", (("first_file"
 CplIndexToCplLines_T = Dict[LineSetStartCouple, CplSuccessiveLinesLimits] 
 
 
-def from_file_to_dict(lineset, min_common_lines: int =4) -> Tuple[HashToIndex_T, IndexToLines_T]:
+def hash_lineset(lineset, min_common_lines: int =4) -> Tuple[HashToIndex_T, IndexToLines_T]:
     """
     Return two dicts. The first links the hash of successive stripped lines of a lineset
     to the indices of the starting lines.
@@ -329,8 +329,8 @@ class Similar:
     def _find_common(self, lineset1, lineset2):
         """find similarities in the two given linesets"""
         min_common = 4
-        hash_to_index_1, index_to_lines_1 = from_file_to_dict(lineset1, min_common)
-        hash_to_index_2, index_to_lines_2 = from_file_to_dict(lineset2, min_common)
+        hash_to_index_1, index_to_lines_1 = hash_lineset(lineset1, min_common)
+        hash_to_index_2, index_to_lines_2 = hash_lineset(lineset2, min_common)
 
         hash_1 : FrozenSet[LinesChunk] = set(hash_to_index_1.keys())
         hash_2 : FrozenSet[LinesChunk] = set(hash_to_index_2.keys())
