@@ -26,6 +26,7 @@ from pylint import utils
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.collecting_reporter import CollectingReporter
 from pylint.reporters.json_reporter import JSONReporter
+from pylint.reporters.multi_reporter import MultiReporter
 from pylint.reporters.reports_handler_mix_in import ReportsHandlerMixIn
 
 
@@ -34,4 +35,10 @@ def initialize(linter):
     utils.register_plugins(linter, __path__[0])
 
 
-__all__ = ["BaseReporter", "ReportsHandlerMixIn", "JSONReporter", "CollectingReporter"]
+__all__ = [
+    "BaseReporter",
+    "ReportsHandlerMixIn",
+    "JSONReporter",
+    "CollectingReporter",
+    "MultiReporter",
+]

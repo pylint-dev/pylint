@@ -48,7 +48,7 @@ import copy
 import os
 import sys
 from distutils import sysconfig
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import astroid
 
@@ -235,6 +235,14 @@ MSGS = {
         "Cyclic import (%s)",
         "cyclic-import",
         "Used when a cyclic import between two or more modules is detected.",
+    ),
+    "R0402": (
+        "Use 'from %s import %s' instead",
+        "consider-using-from-import",
+        "Emitted when a submodule/member of a package is imported and "
+        "aliased with the same name. "
+        "E.g., instead of ``import pandas.DataFrame as DataFrame`` use "
+        "``from pandas import DataFrame``",
     ),
     "W0401": (
         "Wildcard import %s",
@@ -865,22 +873,28 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 args=(self.preferred_modules[mod_path], mod_path),
             )
 
-    def _check_import_as_rename(self, node):
+    def _check_import_as_rename(
+        self, node: Union[astroid.Import, astroid.ImportFrom]
+    ) -> None:
         names = node.names
         for name in names:
             if not all(name):
                 return
 
-            real_name = name[0]
-            splitted_packages = real_name.rsplit(".")
-            real_name = splitted_packages[-1]
-            imported_name = name[1]
-            # consider only following cases
-            # import x as x
-            # and ignore following
-            # import x.y.z as z
-            if real_name == imported_name and len(splitted_packages) == 1:
+            splitted_packages = name[0].rsplit(".", maxsplit=1)
+            import_name = splitted_packages[-1]
+            aliased_name = name[1]
+            if import_name != aliased_name:
+                continue
+
+            if len(splitted_packages) == 1:
                 self.add_message("useless-import-alias", node=node)
+            elif len(splitted_packages) == 2:
+                self.add_message(
+                    "consider-using-from-import",
+                    node=node,
+                    args=(splitted_packages[0], import_name),
+                )
 
     def _check_reimport(self, node, basename=None, level=None):
         """check if the import is necessary (i.e. not already done)"""

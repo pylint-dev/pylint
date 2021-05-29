@@ -8,6 +8,7 @@ from typing import Any, Container, Iterable, Tuple, Union
 import astroid
 
 from pylint.checkers import utils
+from pylint.checkers.utils import safe_infer
 
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,
@@ -43,6 +44,11 @@ class DeprecatedMixin:
             "deprecated-class",
             "The class is marked as deprecated and will be removed in the future.",
         ),
+        "W1513": (
+            "Using deprecated decorator %s()",
+            "deprecated-decorator",
+            "The decorator is marked as deprecated and will be removed in the future.",
+        ),
     }
 
     @utils.check_messages(
@@ -72,6 +78,29 @@ class DeprecatedMixin:
                 # Checking deprecation for import module with class
                 mod_name, class_name = name.split(".", 1)
                 self.check_deprecated_class(node, mod_name, (class_name,))
+
+    def deprecated_decorators(self) -> Iterable:
+        """Callback returning the deprecated decorators.
+
+        Returns:
+            collections.abc.Container of deprecated decorator names.
+        """
+        # pylint: disable=no-self-use
+        return ()
+
+    @utils.check_messages("deprecated-decorator")
+    def visit_decorators(self, node):
+        """Triggered when a decorator statement is seen"""
+        children = list(node.get_children())
+        if not children:
+            return
+        if isinstance(children[0], astroid.Call):
+            inf = safe_infer(children[0].func)
+        else:
+            inf = safe_infer(children[0])
+        qname = inf.qname() if inf else None
+        if qname in self.deprecated_decorators():
+            self.add_message("deprecated-decorator", node=node, args=qname)
 
     @utils.check_messages(
         "deprecated-module",
