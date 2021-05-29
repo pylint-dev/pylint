@@ -53,7 +53,7 @@ class Sub1(Super):
 
     def __len__(self):
         """no i can not be a function"""
-        print(42)
+        return 42
 
     def __cmp__(self, other):
         """no i can not be a function"""
