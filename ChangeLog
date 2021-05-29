@@ -119,6 +119,11 @@ modules are added.
 
   Closes PyCQA/astroid#942
 
+* Fix ``assigning-non-slot`` false-positive with base that inherits from ``typing.Generic``
+
+  Closes #4509
+  Closes PyCQA/astroid#999
+
 
 What's New in Pylint 2.8.2?
 ===========================
