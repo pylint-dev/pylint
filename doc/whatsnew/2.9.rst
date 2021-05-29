@@ -55,3 +55,5 @@ Other Changes
   like ``[]`` and ``[1, 2, 3]``.
 
 * ``ignore-paths`` configuration directive has been added. Defined regex patterns are matched against file path.
+
+* ``pyreverse`` now supports automatic coloring of package and class diagrams for .dot files by passing the ``--colorized`` option.
