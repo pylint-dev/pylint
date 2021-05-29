@@ -53,13 +53,7 @@ class DiagramWriter:
         """write a package diagram"""
         # sorted to get predictable (hence testable) results
         for i, obj in enumerate(sorted(diagram.modules(), key=lambda x: x.title)):
-            self.printer.emit_node(
-                i,
-                label=self.get_title(obj),
-                shape="box",
-                color=self.get_color(obj),
-                style=self.get_style(),
-            )
+            self.printer.emit_node(i, **self.get_package_properties(obj))
             obj.fig_id = i
         # package dependencies
         for rel in diagram.get_relationships("depends"):
@@ -71,7 +65,7 @@ class DiagramWriter:
         """write a class diagram"""
         # sorted to get predictable (hence testable) results
         for i, obj in enumerate(sorted(diagram.objects, key=lambda x: x.title)):
-            self.printer.emit_node(i, **self.get_values(obj))
+            self.printer.emit_node(i, **self.get_class_properties(obj))
             obj.fig_id = i
         # inheritance links
         for rel in diagram.get_relationships("specialization"):
@@ -100,15 +94,11 @@ class DiagramWriter:
         """get project title"""
         raise NotImplementedError
 
-    def get_style(self):
-        """get style"""
+    def get_package_properties(self, obj):
+        """get label and shape for packages."""
         raise NotImplementedError
 
-    def get_color(self, obj):
-        """get shape color"""
-        raise NotImplementedError
-
-    def get_values(self, obj):
+    def get_class_properties(self, obj):
         """get label and shape for classes."""
         raise NotImplementedError
 
@@ -188,7 +178,16 @@ class DotWriter(DiagramWriter):
             self.used_colors[base_name] = next(self.available_colors)
         return self.used_colors[base_name]
 
-    def get_values(self, obj):
+    def get_package_properties(self, obj):
+        """get label and shape for packages."""
+        return dict(
+            label=self.get_title(obj),
+            shape="box",
+            color=self.get_color(obj),
+            style=self.get_style(),
+        )
+
+    def get_class_properties(self, obj):
         """get label and shape for classes.
 
         The label contains all attributes and methods
@@ -254,15 +253,14 @@ class VCGWriter(DiagramWriter):
         """get project title in vcg format"""
         return r"\fb%s\fn" % obj.title
 
-    def get_style(self):
-        """get style of object"""
-        return None
+    def get_package_properties(self, obj):
+        """get label and shape for packages."""
+        return dict(
+            label=self.get_title(obj),
+            shape="box",
+        )
 
-    def get_color(self, obj):
-        """get color for object"""
-        return "black"
-
-    def get_values(self, obj):
+    def get_class_properties(self, obj):
         """get label and shape for classes.
 
         The label contains all attributes and methods

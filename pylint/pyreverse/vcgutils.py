@@ -81,9 +81,6 @@ ATTRS_VAL = {
     "linestyles": ("continuous", "dashed", "dotted", "invisible"),
 }
 
-# attributes that may be passed into the function but are not relevant vor the VCGPrinter (e.g. attributes only relevant for DOT files)
-IGNORED_ATTRS = {"style", "color"}
-
 # meaning of possible values:
 #   O    -> string
 #   1    -> int
@@ -197,8 +194,6 @@ class VCGPrinter:
     def _write_attributes(self, attributes_dict, **args):
         """write graph, node or edge attributes"""
         for key, value in args.items():
-            if key in IGNORED_ATTRS:
-                continue
             try:
                 _type = attributes_dict[key]
             except KeyError as e:
