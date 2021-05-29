@@ -112,6 +112,9 @@ modules are added.
 * ``invalid-length-returned``, now also works when nothing at all is returned
   following an upgrade in astroid.
 
+* ``logging-format-interpolation`` and ``logging-not-lazy``, now works on logger
+  class created from renamed logging import following an upgrade in astroid.
+
 
 What's New in Pylint 2.8.2?
 ===========================
