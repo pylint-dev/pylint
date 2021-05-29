@@ -69,8 +69,8 @@ class TextWriter(BaseWriter):
         format_strings = " ".join(["%%-%ss"] * len(cols_width))
         format_strings = format_strings % tuple(cols_width)
         format_strings = format_strings.split(" ")
-        table_linesep = "\n+" + "+".join(["-" * w for w in cols_width]) + "+\n"
-        headsep = "\n+" + "+".join(["=" * w for w in cols_width]) + "+\n"
+        table_linesep = "\n+" + "+".join("-" * w for w in cols_width) + "+\n"
+        headsep = "\n+" + "+".join("=" * w for w in cols_width) + "+\n"
 
         self.write(table_linesep)
         for index, line in enumerate(table_content):

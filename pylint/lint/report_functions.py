@@ -22,11 +22,9 @@ def report_messages_stats(sect, stats, _):
         # don't print this report when we didn't detected any errors
         raise exceptions.EmptyReportError()
     in_order = sorted(
-        [
-            (value, msg_id)
-            for msg_id, value in stats["by_msg"].items()
-            if not msg_id.startswith("I")
-        ]
+        (value, msg_id)
+        for msg_id, value in stats["by_msg"].items()
+        if not msg_id.startswith("I")
     )
     in_order.reverse()
     lines = ("message id", "occurrences")

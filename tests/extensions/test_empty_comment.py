@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-import pylint.extensions.empty_comment as empty_comment
+from pylint.extensions import empty_comment
 
 
 @pytest.fixture(scope="module")

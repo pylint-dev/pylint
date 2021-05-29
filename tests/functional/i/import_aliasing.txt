@@ -1,0 +1,9 @@
+useless-import-alias:6:0::Import alias does not rename original package
+consider-using-from-import:8:0::Use 'from os import path' instead
+consider-using-from-import:10:0::Use 'from foo.bar import foobar' instead
+useless-import-alias:14:0::Import alias does not rename original package
+useless-import-alias:17:0::Import alias does not rename original package
+useless-import-alias:18:0::Import alias does not rename original package
+useless-import-alias:20:0::Import alias does not rename original package
+useless-import-alias:21:0::Import alias does not rename original package
+useless-import-alias:23:0::Import alias does not rename original package

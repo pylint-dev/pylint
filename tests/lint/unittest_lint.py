@@ -154,7 +154,8 @@ def create_files(paths, chroot="."):
         if not isdir(dirpath):
             os.makedirs(dirpath)
     for filepath in files:
-        open(filepath, "w").close()
+        with open(filepath, "w"):
+            pass
 
 
 @pytest.fixture
