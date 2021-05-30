@@ -39,8 +39,10 @@ class PlantUmlPrinter:
         type_: PumlItem,
         label: str,
         body: Optional[str] = "",
+        color: Optional[str] = None,
     ):
-        self.emit(f'{type_.value} "{label}" as {id_} {{\n{body}\n}}')
+        color = " #" + color if color else ""
+        self.emit(f'{type_.value} "{label}" as {id_}{color} {{\n{body}\n}}')
 
     def emit_edge(
         self,

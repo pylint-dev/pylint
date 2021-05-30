@@ -108,18 +108,11 @@ class DiagramWriter:
         raise NotImplementedError
 
 
-class DotWriter(DiagramWriter):
-    """write dot graphs from a diagram definition and a project"""
+class ColorMixin:
+    """provide methods to apply colors to objects"""
 
-    def __init__(self, config):
-        styles = [
-            dict(arrowtail="none", arrowhead="open"),
-            dict(arrowtail="none", arrowhead="empty"),
-            dict(arrowtail="node", arrowhead="empty", style="dashed"),
-            dict(
-                fontcolor="green", arrowtail="none", arrowhead="diamond", style="solid"
-            ),
-        ]
+    def __init__(self, depth):
+        self.depth = depth
         self.available_colors = itertools.cycle(
             [
                 "aliceblue",
@@ -142,7 +135,38 @@ class DotWriter(DiagramWriter):
             ]
         )
         self.used_colors = {}
+
+    def get_color(self, obj):
+        """get shape color"""
+        qualified_name = obj.node.qname()
+        if modutils.is_standard_module(qualified_name.split(".", maxsplit=1)[0]):
+            return "grey"
+        if isinstance(obj.node, astroid.ClassDef):
+            package = qualified_name.rsplit(".", maxsplit=2)[0]
+        elif obj.node.package:
+            package = qualified_name
+        else:
+            package = qualified_name.rsplit(".", maxsplit=1)[0]
+        base_name = ".".join(package.split(".", self.depth)[: self.depth])
+        if base_name not in self.used_colors:
+            self.used_colors[base_name] = next(self.available_colors)
+        return self.used_colors[base_name]
+
+
+class DotWriter(DiagramWriter, ColorMixin):
+    """write dot graphs from a diagram definition and a project"""
+
+    def __init__(self, config):
+        styles = [
+            dict(arrowtail="none", arrowhead="open"),
+            dict(arrowtail="none", arrowhead="empty"),
+            dict(arrowtail="node", arrowhead="empty", style="dashed"),
+            dict(
+                fontcolor="green", arrowtail="none", arrowhead="diamond", style="solid"
+            ),
+        ]
         DiagramWriter.__init__(self, config, styles)
+        ColorMixin.__init__(self, self.config.max_color_depth)
 
     def set_printer(self, file_name, basename):
         """initialize DotWriter and add options for layout."""
@@ -160,31 +184,12 @@ class DotWriter(DiagramWriter):
             return "solid"
         return "filled"
 
-    def get_color(self, obj):
-        """get shape color"""
-        if not self.config.colorized:
-            return "black"
-        qualified_name = obj.node.qname()
-        if modutils.is_standard_module(qualified_name.split(".", maxsplit=1)[0]):
-            return "grey"
-        depth = self.config.max_color_depth
-        if isinstance(obj.node, astroid.ClassDef):
-            package = qualified_name.rsplit(".", maxsplit=2)[0]
-        elif obj.node.package:
-            package = qualified_name
-        else:
-            package = qualified_name.rsplit(".", maxsplit=1)[0]
-        base_name = ".".join(package.split(".", depth)[:depth])
-        if base_name not in self.used_colors:
-            self.used_colors[base_name] = next(self.available_colors)
-        return self.used_colors[base_name]
-
     def get_package_properties(self, obj):
         """get label and shape for packages."""
         return dict(
             label=self.get_title(obj),
             shape="box",
-            color=self.get_color(obj),
+            color=self.get_color(obj) if self.config.colorized else "black",
             style=self.get_style(),
         )
 
@@ -210,7 +215,7 @@ class DotWriter(DiagramWriter):
             shape="record",
             fontcolor="red" if is_exception(obj.node) else "black",
             style=self.get_style(),
-            color=self.get_color(obj),
+            color=self.get_color(obj) if self.config.colorized else "black",
         )
         return values
 
@@ -295,7 +300,7 @@ class VCGWriter(DiagramWriter):
         self.graph_file.close()
 
 
-class PlantUmlWriter(DiagramWriter):
+class PlantUmlWriter(DiagramWriter, ColorMixin):
     """write PlantUML graphs from a diagram definition and a project"""
 
     def __init__(self, config):
@@ -307,6 +312,7 @@ class PlantUmlWriter(DiagramWriter):
         ]
         self.file_name = None
         DiagramWriter.__init__(self, config, styles)
+        ColorMixin.__init__(self, self.config.max_color_depth)
 
     def set_printer(self, file_name, basename):
         """set printer"""
@@ -322,6 +328,7 @@ class PlantUmlWriter(DiagramWriter):
         return dict(
             type_=PumlItem.PACKAGE,
             label=obj.title,
+            color=self.get_color(obj) if self.config.colorized else None,
         )
 
     def get_class_properties(self, obj):
@@ -340,6 +347,7 @@ class PlantUmlWriter(DiagramWriter):
             type_=PumlItem.CLASS,
             label=obj.title,
             body=body,
+            color=self.get_color(obj) if self.config.colorized else None,
         )
 
     def close_graph(self):
