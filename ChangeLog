@@ -115,6 +115,10 @@ modules are added.
 * ``logging-format-interpolation`` and ``logging-not-lazy``, now works on logger
   class created from renamed logging import following an upgrade in astroid.
 
+* Fix false-positive ``no-member`` with generic base class
+
+  Closes PyCQA/astroid#942
+
 
 What's New in Pylint 2.8.2?
 ===========================
