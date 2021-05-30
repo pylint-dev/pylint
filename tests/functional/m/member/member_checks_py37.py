@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring
-import collections
+import collections.abc
 import asyncio
 
-isinstance([], collections.Iterable)
+isinstance([], collections.abc.Iterable)
 
 
 async def gen():

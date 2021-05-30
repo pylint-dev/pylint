@@ -8,6 +8,7 @@
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Benjamin Graham <benwilliamgraham@gmail.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 Andrew Howe <howeaj@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -105,9 +106,8 @@ class DotBackend:
                 os.close(pdot)
             else:
                 dot_sourcepath = outputfile
-        pdot = codecs.open(dot_sourcepath, "w", encoding="utf8")  # type: ignore
-        pdot.write(self.source)  # type: ignore
-        pdot.close()  # type: ignore
+        with codecs.open(dot_sourcepath, "w", encoding="utf8") as pdot:  # type: ignore
+            pdot.write(self.source)  # type: ignore
         if target not in graphviz_extensions:
             if shutil.which(self.renderer) is None:
                 raise RuntimeError(

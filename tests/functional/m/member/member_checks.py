@@ -1,4 +1,4 @@
-# pylint: disable=print-statement,missing-docstring,no-self-use,too-few-public-methods,bare-except,broad-except, useless-object-inheritance
+# pylint: disable=print-statement,missing-docstring,no-self-use,too-few-public-methods,bare-except,broad-except, useless-object-inheritance, unused-private-member
 # pylint: disable=using-constant-test,expression-not-assigned, assigning-non-slot, unused-variable,pointless-statement, wrong-import-order, wrong-import-position,import-outside-toplevel
 from __future__ import print_function
 class Provider(object):
@@ -227,7 +227,7 @@ class Animal(Enum):
 # To test false positive no-member on Enum.__members__.items()
 for itm in Animal.__members__.items():
     print(itm)
-for keyy in Animal.__members__.keys:
+for keyy in Animal.__members__.keys():  # pylint: disable=consider-iterating-dictionary
     print(keyy)
-for vall in Animal.__members__.values:
+for vall in Animal.__members__.values():
     print(vall)

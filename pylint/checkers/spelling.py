@@ -17,6 +17,8 @@
 # Copyright (c) 2020 Ganden Schaffner <gschaffner@pm.me>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 Eli Fine <ejfine@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -72,7 +74,7 @@ if enchant is not None:
     br = enchant.Broker()
     dicts = br.list_dicts()
     dict_choices = [""] + [d[0] for d in dicts]
-    dicts = ["{} ({})".format(d[0], d[1].name) for d in dicts]
+    dicts = [f"{d[0]} ({d[1].name})" for d in dicts]
     dicts = ", ".join(dicts)
     instr = ""
 else:
@@ -314,7 +316,9 @@ class SpellingChecker(BaseTokenChecker):
             self.spelling_dict = enchant.DictWithPWL(
                 dict_name, self.config.spelling_private_dict_file
             )
-            self.private_dict_file = open(self.config.spelling_private_dict_file, "a")
+            self.private_dict_file = open(  # pylint: disable=consider-using-with
+                self.config.spelling_private_dict_file, "a"
+            )
         else:
             self.spelling_dict = enchant.Dict(dict_name)
 
@@ -464,5 +468,5 @@ class SpellingChecker(BaseTokenChecker):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(SpellingChecker(linter))

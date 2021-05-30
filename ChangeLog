@@ -2,15 +2,168 @@
 Pylint's ChangeLog
 ------------------
 
-What's New in Pylint 2.8.0?
+What's New in Pylint 2.9.0?
 ===========================
-Release date: Undefined
+Release date: TBA
 
 ..
-  Put new features here and also in 'doc/whatsnew/2.8.rst'
+  Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
+
+* Added ``deprecated-decorator``: Emitted when deprecated decorator is used.
+
+  Closes #4429
+
+* Added ``ignore-paths`` behaviour. Defined regex patterns are matched against full file path.
+
+  Close #2541
+
+* Fix false negative for ``consider-using-with`` if calls like ``open()`` were used outside of assignment expressions.
+
+* The warning for ``arguments-differ`` now signals explicitly the difference it detected
+  by naming the argument or arguments that changed and the type of change that occurred.
+
+* Suppress ``consider-using-with`` inside context managers.
+
+  Closes #4430
+
+* Added ``--fail-on`` option to return non-zero exit codes regardless of ``--fail-under`` value.
+
+* numversion tuple contains integers again to fix multiple pylint's plugins that relied on it
+
+  Closes #4420
+
+* Fix false-positive ``too-many-ancestors`` when inheriting from builtin classes,
+  especially from the ``collections.abc`` module
+
+  Closes #4166
+  Closes #4415
+
+* Stdlib deprecated modules check is moved to stdlib checker. New deprecated
+modules are added.
+
+* Fix raising false-positive ``no-member`` on abstract properties
+
+* Created new error message called ``arguments-renamed`` which identifies any changes at the parameter
+  names of overridden functions.
+
+  Closes #3536
+
+* New checker ``consider-using-dict-items``. Emitted  when iterating over dictionary keys and then
+  indexing the same dictionary with the key within loop body.
+
+  Closes #3389
+
+* Don't emit ``import-error`` if import guarded behind ``if sys.version_info >= (x, x)``
+
+* Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage
+
+  Closes #4412
+
+* New checker ``use-maxsplit-arg``. Emitted either when accessing only the first or last
+  element of ``str.split()``.
+
+  Closes #4440
+
+* Add ignore_signatures to duplicate code checker
+
+  Closes #3619
+
+* Fix documentation errors in "Block disables" paragraph of User Guide.
+
+* New checker ``unnecessary-dict-index-lookup``. Emitted when iterating over dictionary items
+  (key-value pairs) and accessing the value by index lookup.
+
+  Closes #4470
+
+* New checker``consider-using-from-import``. Emitted when a submodule/member of a package is imported and aliased
+  with the same name.
+
+  Closes #2309
+
+* Allow comma-separated list in ``output-format`` and separate output files for
+  each specified format.
+
+  Closes #1798
+
+* Make ``using-constant-test`` detect constant tests consisting of list literals like ``[]`` and
+  ``[1, 2, 3]``.
+
+* Improved error message of ``unnecessary-comprehension`` checker by providing code suggestion.
+
+  Closes #4499
+
+* New checker ``unused-private-member``. Emitted when a private member (i.e., starts with ``__``) of a class
+  is defined but not used.
+
+  Closes #4483
+
+* Fix false negative of ``consider-using-enumerate`` when iterating over an attribute.
+
+  Closes #3657
+
+* New checker ``invalid-class-object``. Emitted when a non-class is assigned to a ``__class__`` attribute.
+
+  Closes #585
+
+* Added handling of floating point values when parsing configuration from pyproject.toml
+
+  Closes #4518
+
+* ``invalid-length-returned``, now also works when nothing at all is returned
+  following an upgrade in astroid.
+
+* ``logging-format-interpolation`` and ``logging-not-lazy``, now works on logger
+  class created from renamed logging import following an upgrade in astroid.
+
+
+What's New in Pylint 2.8.2?
+===========================
+Release date: 2021-04-26
+
+* Keep ``__pkginfo__.numversion`` a tuple to avoid breaking pylint-django.
+
+  Closes #4405
+
+* scm_setuptools has been added to the packaging.
+
+* Pylint's tags are now the standard form ``vX.Y.Z`` and not ``pylint-X.Y.Z`` anymore.
+
+* New warning message ``deprecated-class``. This message is emitted if import or call deprecated class of the
+standard library (like ``collections.Iterable`` that will be removed in Python 3.10).
+
+Closes #4388
+
+
+What's New in Pylint 2.8.1?
+===========================
+Release date: 2021-04-25
+
+* Add numversion back (temporarily) in ``__pkginfo__`` because it broke Pylama and revert the unnecessary
+  ``pylint.version`` breaking change.
+
+  Closes #4399
+
+
+What's New in Pylint 2.8.0?
+===========================
+Release date: 2021-04-24
+
+* New refactoring message ``consider-using-with``. This message is emitted if resource-allocating functions or methods of the
+  standard library (like ``open()`` or ``threading.Lock.acquire()``) that can be used as a context manager are called without
+  a ``with`` block.
+
+  Closes #3413
+
+* Resolve false positives on unused variables in decorator functions
+
+  Closes #4252
 
 * Add new extension ``ConfusingConsecutiveElifChecker``. This optional checker emits a refactoring message (R5601 ``confusing-consecutive-elif``)
   if if/elif statements with different indentation levels follow directly one after the other.
+
+* New option ``--output=<file>`` to output result to a file rather than printing to stdout.
+
+  Closes #1070
 
 * Use a prescriptive message for ``unidiomatic-typecheck``
 
@@ -20,10 +173,14 @@ Release date: Undefined
   ``typing.Final``
 
 * The packaging is now done via setuptools exclusively. ``doc``, ``tests``, ``man``, ``elisp`` and ``Changelog`` are
-  not packaged anymore - reducing the size of the package by 75%. Debian packaging is now  (officially) done in
-  https://salsa.debian.org/python-team/packages/pylint. The 'doc' extra-require has been removed. ``__pkginfo__`` now
-  only contain ``__version__`` (also accessible with ``pylint.__version__``), other meta-information are still
-  accessible with ``import importlib;metadata.metadata('pylint')``.
+  not packaged anymore - reducing the size of the package by 75%.
+
+* Debian packaging is now  (officially) done in https://salsa.debian.org/python-team/packages/pylint.
+
+* The 'doc' extra-require has been removed.
+
+* ``__pkginfo__`` now only contain ``__version__`` (also accessible with ``pylint.__version__``), other meta-information are still
+  accessible with ``from importlib import metadata;metadata.metadata('pylint')``.
 
 * COPYING has been renamed to LICENSE for standardization.
 
@@ -35,13 +192,18 @@ Release date: Undefined
 
   Closes #2822, #4206, #4284
 
+* Add ``consider-using-min-max-builtin`` check for if statement which could be replaced by Python builtin min or max
 
-What's New in Pylint 2.7.5?
-===========================
-Release date: Undefined
+  Closes #3406
 
-..
-  Put bug fixes that will be cherry-picked to latest major version here
+* Don't auto-enable postponed evaluation of type annotations with Python 3.10
+
+* Update ``astroid`` to 2.5.4
+
+* Add new extension ``TypingChecker``. This optional checker can detect the use of deprecated typing aliases
+  and can suggest the use of the alternative union syntax where possible.
+  (For example, 'typing.Dict' can be replaced by 'dict', and 'typing.Unions' by '|', etc.)
+  Make sure to check the config options if you plan on using it!
 
 * Reactivates old counts in report mode.
 
@@ -51,7 +213,7 @@ Release date: Undefined
 
   Closes #4019
 
-* Run will not fail if score exactly equals ``config.fail_under`.
+* Run will not fail if score exactly equals ``config.fail_under``.
 
 * Functions that never returns may declare ``NoReturn`` as type hints, so that
   ``inconsistent-return-statements`` is not emitted.

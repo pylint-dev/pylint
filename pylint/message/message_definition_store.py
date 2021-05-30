@@ -58,7 +58,7 @@ class MessageDefinitionStore:
         ]
 
     def get_msg_display_string(self, msgid_or_symbol: str):
-        """Generates a user-consumable representation of a message. """
+        """Generates a user-consumable representation of a message."""
         message_definitions = self.get_message_definitions(msgid_or_symbol)
         if len(message_definitions) == 1:
             return repr(message_definitions[0].symbol)
@@ -79,7 +79,7 @@ class MessageDefinitionStore:
                 continue
 
     def list_messages(self):
-        """Output full messages list documentation in ReST format. """
+        """Output full messages list documentation in ReST format."""
         messages = sorted(self._messages_definitions.values(), key=lambda m: m.msgid)
         for message in messages:
             if not message.may_be_emitted():

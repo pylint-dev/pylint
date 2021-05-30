@@ -3,6 +3,7 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
@@ -82,7 +83,7 @@ class SleepingCheckerLong(BaseChecker):
 
 
 class NoWorkChecker(BaseChecker):
-    """ A checker that sleeps, the wall-clock time should change as we add threads """
+    """A checker that sleeps, the wall-clock time should change as we add threads"""
 
     __implements__ = (pylint.interfaces.IRawChecker,)
 
@@ -159,7 +160,7 @@ class TestEstablishBaselineBenchmarks:
         )
 
     def test_baseline_benchmark_check_parallel_j10(self, benchmark):
-        """ Should demonstrate times very close to `test_baseline_benchmark_j10` """
+        """Should demonstrate times very close to `test_baseline_benchmark_j10`"""
         linter = PyLinter(reporter=Reporter())
 
         # Create file per worker, using all workers

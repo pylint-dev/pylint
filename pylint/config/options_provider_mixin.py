@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 
-import optparse
+import optparse  # pylint: disable=deprecated-module
 from typing import Any, Dict, Tuple
 
 from pylint.config.option import _validate

@@ -26,6 +26,7 @@ import re
 from collections import defaultdict
 
 import astroid
+from astroid import nodes
 
 from pylint import utils
 from pylint.checkers import BaseChecker
@@ -96,6 +97,87 @@ DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
 TYPING_NAMEDTUPLE = "typing.NamedTuple"
 TYPING_TYPEDDICT = "typing.TypedDict"
+
+# Set of stdlib classes to ignore when calculating number of ancestors
+STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
+    (
+        "builtins.object",
+        "builtins.tuple",
+        "builtins.dict",
+        "builtins.list",
+        "builtins.set",
+        "bulitins.frozenset",
+        "collections.ChainMap",
+        "collections.Counter",
+        "collections.OrderedDict",
+        "collections.UserDict",
+        "collections.UserList",
+        "collections.UserString",
+        "collections.defaultdict",
+        "collections.deque",
+        "collections.namedtuple",
+        "_collections_abc.Awaitable",
+        "_collections_abc.Coroutine",
+        "_collections_abc.AsyncIterable",
+        "_collections_abc.AsyncIterator",
+        "_collections_abc.AsyncGenerator",
+        "_collections_abc.Hashable",
+        "_collections_abc.Iterable",
+        "_collections_abc.Iterator",
+        "_collections_abc.Generator",
+        "_collections_abc.Reversible",
+        "_collections_abc.Sized",
+        "_collections_abc.Container",
+        "_collections_abc.Collection",
+        "_collections_abc.Set",
+        "_collections_abc.MutableSet",
+        "_collections_abc.Mapping",
+        "_collections_abc.MutableMapping",
+        "_collections_abc.MappingView",
+        "_collections_abc.KeysView",
+        "_collections_abc.ItemsView",
+        "_collections_abc.ValuesView",
+        "_collections_abc.Sequence",
+        "_collections_abc.MutableSequence",
+        "_collections_abc.ByteString",
+        "typing.Tuple",
+        "typing.List",
+        "typing.Dict",
+        "typing.Set",
+        "typing.FrozenSet",
+        "typing.Deque",
+        "typing.DefaultDict",
+        "typing.OrderedDict",
+        "typing.Counter",
+        "typing.ChainMap",
+        "typing.Awaitable",
+        "typing.Coroutine",
+        "typing.AsyncIterable",
+        "typing.AsyncIterator",
+        "typing.AsyncGenerator",
+        "typing.Iterable",
+        "typing.Iterator",
+        "typing.Generator",
+        "typing.Reversible",
+        "typing.Container",
+        "typing.Collection",
+        "typing.AbstractSet",
+        "typing.MutableSet",
+        "typing.Mapping",
+        "typing.MutableMapping",
+        "typing.Sequence",
+        "typing.MutableSequence",
+        "typing.ByteString",
+        "typing.MappingView",
+        "typing.KeysView",
+        "typing.ItemsView",
+        "typing.ValuesView",
+        "typing.ContextManager",
+        "typing.AsyncContextManger",
+        "typing.Hashable",
+        "typing.Sized",
+    )
+)
 
 
 def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
@@ -281,7 +363,7 @@ class MisdesignChecker(BaseChecker):
         self._stmts = []
 
     def _inc_all_stmts(self, amount):
-        for i in range(len(self._stmts)):
+        for i, _ in enumerate(self._stmts):
             self._stmts[i] += amount
 
     @astroid.decorators.cachedproperty
@@ -294,9 +376,13 @@ class MisdesignChecker(BaseChecker):
         "too-few-public-methods",
         "too-many-public-methods",
     )
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef):
         """check size of inheritance hierarchy and number of instance attributes"""
-        nb_parents = len(list(node.ancestors()))
+        nb_parents = sum(
+            1
+            for ancestor in node.ancestors()
+            if ancestor.qname() not in STDLIB_CLASSES_IGNORE_ANCESTOR
+        )
         if nb_parents > self.config.max_parents:
             self.add_message(
                 "too-many-ancestors",
@@ -498,5 +584,5 @@ class MisdesignChecker(BaseChecker):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(MisdesignChecker(linter))

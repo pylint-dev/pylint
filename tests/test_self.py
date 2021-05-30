@@ -25,6 +25,8 @@
 # Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
+# Copyright (c) 2021 chohner <mail@chohner.com>
 # Copyright (c) 2021 Louis Sautier <sautier.louis@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -45,6 +47,7 @@ import warnings
 from copy import copy
 from io import StringIO
 from os.path import abspath, dirname, join
+from pathlib import Path
 from typing import Generator, Optional
 from unittest import mock
 from unittest.mock import patch
@@ -162,6 +165,21 @@ class TestRunTC:
         expected_output = self._clean_paths(expected_output)
         assert expected_output.strip() in actual_output.strip()
 
+    def _test_output_file(self, args, filename, expected_output):
+        """
+        Run Pylint with the ``output`` option set (must be included in
+        the ``args`` passed to this method!) and check the file content afterwards.
+        """
+        out = StringIO()
+        self._run_pylint(args, out=out)
+        cmdline_output = out.getvalue()
+        file_output = self._clean_paths(Path(filename).read_text(encoding="utf-8"))
+        expected_output = self._clean_paths(expected_output)
+        assert (
+            cmdline_output == ""
+        ), "Unexpected output to stdout/stderr while output option was set"
+        assert expected_output.strip() in file_output.strip()
+
     def test_pkginfo(self):
         """Make pylint check itself."""
         self._runtest(["pylint.__pkginfo__"], reporter=TextReporter(StringIO()), code=0)
@@ -269,7 +287,7 @@ class TestRunTC:
         )
 
     def test_parallel_execution_bug_2674(self):
-        """  Tests that disabling absolute imports works the same in -j1/j2 """
+        """Tests that disabling absolute imports works the same in -j1/j2"""
         expected_ret_code = 0  # we are disabling the check, should pass
         for jobs in (1, 2):
             self._runtest(
@@ -381,8 +399,10 @@ class TestRunTC:
         for key, value in expected.items():
             assert key in message
             assert message[key] == value
-        assert "invalid syntax" in message["message"].lower()
-        assert "<unknown>" in message["message"].lower()
+        msg = message["message"].lower()
+        assert any(x in msg for x in ["expected ':'", "invalid syntax"])
+        assert "<unknown>" in msg
+        assert "line 1" in msg
 
     def test_json_report_when_file_is_missing(self):
         out = StringIO()
@@ -723,6 +743,69 @@ class TestRunTC:
             code=22,
         )
 
+    @pytest.mark.parametrize(
+        "fu_score,fo_msgs,fname,out",
+        [
+            # Essentially same test cases as --fail-under, but run with/without a detected issue code
+            # missing-function-docstring (C0116) is issue in both files
+            # --fail-under should be irrelevant as missing-function-docstring is hit
+            (-10, "missing-function-docstring", "fail_under_plus7_5.py", 16),
+            (6, "missing-function-docstring", "fail_under_plus7_5.py", 16),
+            (7.5, "missing-function-docstring", "fail_under_plus7_5.py", 16),
+            (7.6, "missing-function-docstring", "fail_under_plus7_5.py", 16),
+            (-11, "missing-function-docstring", "fail_under_minus10.py", 22),
+            (-10, "missing-function-docstring", "fail_under_minus10.py", 22),
+            (-9, "missing-function-docstring", "fail_under_minus10.py", 22),
+            (-5, "missing-function-docstring", "fail_under_minus10.py", 22),
+            # --fail-under should guide whether error code as missing-function-docstring is not hit
+            (-10, "broad-except", "fail_under_plus7_5.py", 0),
+            (6, "broad-except", "fail_under_plus7_5.py", 0),
+            (7.5, "broad-except", "fail_under_plus7_5.py", 0),
+            (7.6, "broad-except", "fail_under_plus7_5.py", 16),
+            (-11, "broad-except", "fail_under_minus10.py", 0),
+            (-10, "broad-except", "fail_under_minus10.py", 0),
+            (-9, "broad-except", "fail_under_minus10.py", 22),
+            (-5, "broad-except", "fail_under_minus10.py", 22),
+            # Enable by message id
+            (-10, "C0116", "fail_under_plus7_5.py", 16),
+            # Enable by category
+            (-10, "C", "fail_under_plus7_5.py", 16),
+            (-10, "fake1,C,fake2", "fail_under_plus7_5.py", 16),
+            # Ensure entire category not enabled by any msg id
+            (-10, "C0115", "fail_under_plus7_5.py", 0),
+        ],
+    )
+    def test_fail_on(self, fu_score, fo_msgs, fname, out):
+        self._runtest(
+            [
+                "--fail-under",
+                f"{fu_score:f}",
+                f"--fail-on={fo_msgs}",
+                "--enable=all",
+                join(HERE, "regrtest_data", fname),
+            ],
+            code=out,
+        )
+
+    @pytest.mark.parametrize(
+        "opts,out",
+        [
+            # Special case to ensure that disabled items from category aren't enabled
+            (["--disable=C0116", "--fail-on=C"], 0),
+            # Ensure order does not matter
+            (["--fail-on=C", "--disable=C0116"], 0),
+            # Ensure --fail-on takes precedence over --disable
+            (["--disable=C0116", "--fail-on=C0116"], 16),
+            # Ensure order does not matter
+            (["--fail-on=C0116", "--disable=C0116"], 16),
+        ],
+    )
+    def test_fail_on_edge_case(self, opts, out):
+        self._runtest(
+            opts + [join(HERE, "regrtest_data", "fail_under_plus7_5.py")],
+            code=out,
+        )
+
     @staticmethod
     def test_modify_sys_path() -> None:
         @contextlib.contextmanager
@@ -996,20 +1079,24 @@ class TestRunTC:
                 code=0,
             )
 
-    def test_can_list_directories_without_dunder_init(self, tmpdir):
+    @staticmethod
+    def test_can_list_directories_without_dunder_init(tmpdir):
         test_directory = tmpdir / "test_directory"
         test_directory.mkdir()
         spam_module = test_directory / "spam.py"
         spam_module.write("'Empty'")
 
-        with tmpdir.as_cwd():
-            self._runtest(
-                [
-                    "--disable=missing-docstring, missing-final-newline",
-                    "test_directory",
-                ],
-                code=0,
-            )
+        subprocess.check_output(
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                "--disable=missing-docstring, missing-final-newline",
+                "test_directory",
+            ],
+            cwd=str(tmpdir),
+            stderr=subprocess.PIPE,
+        )
 
     def test_jobs_score(self):
         path = join(HERE, "regrtest_data", "unused_variable.py")
@@ -1031,3 +1118,82 @@ class TestRunTC:
             HERE, "regrtest_data", "regression_missing_init_3564", "subdirectory/"
         )
         self._test_output([path, "-j2"], expected_output="No such file or directory")
+
+    def test_output_file_valid_path(self, tmpdir):
+        path = join(HERE, "regrtest_data", "unused_variable.py")
+        output_file = tmpdir / "output.txt"
+        expected = "Your code has been rated at 7.50/10"
+        self._test_output_file(
+            [path, f"--output={output_file}"],
+            output_file,
+            expected_output=expected,
+        )
+
+    def test_output_file_invalid_path_exits_with_code_32(self):
+        path = join(HERE, "regrtest_data", "unused_variable.py")
+        output_file = "thisdirectorydoesnotexit/output.txt"
+        self._runtest([path, f"--output={output_file}"], code=32)
+
+    @pytest.mark.parametrize(
+        "output_format, expected_output",
+        [
+            (
+                "text",
+                "tests/regrtest_data/unused_variable.py:4:4: W0612: Unused variable 'variable' (unused-variable)",
+            ),
+            (
+                "parseable",
+                "tests/regrtest_data/unused_variable.py:4: [W0612(unused-variable), test] Unused variable 'variable'",
+            ),
+            (
+                "msvs",
+                "tests/regrtest_data/unused_variable.py(4): [W0612(unused-variable)test] Unused variable 'variable'",
+            ),
+            (
+                "colorized",
+                "tests/regrtest_data/unused_variable.py:4:4: W0612: [35mUnused variable 'variable'[0m ([35munused-variable[0m)",
+            ),
+            ("json", '"message": "Unused variable \'variable\'",'),
+        ],
+    )
+    def test_output_file_can_be_combined_with_output_format_option(
+        self, tmpdir, output_format, expected_output
+    ):
+        path = join(HERE, "regrtest_data", "unused_variable.py")
+        output_file = tmpdir / "output.txt"
+        self._test_output_file(
+            [path, f"--output={output_file}", f"--output-format={output_format}"],
+            output_file,
+            expected_output,
+        )
+
+    def test_output_file_can_be_combined_with_custom_reporter(self, tmpdir):
+        path = join(HERE, "regrtest_data", "unused_variable.py")
+        output_file = tmpdir / "output.txt"
+        # It does not really have to be a truly custom reporter.
+        # It is only important that it is being passed explicitly to ``Run``.
+        myreporter = TextReporter()
+        self._run_pylint(
+            [path, f"--output={output_file}"],
+            out=sys.stdout,
+            reporter=myreporter,
+        )
+        assert output_file.exists()
+
+    def test_output_file_specified_in_rcfile(self, tmpdir):
+        output_file = tmpdir / "output.txt"
+        rcfile = tmpdir / "pylintrc"
+        rcfile_contents = textwrap.dedent(
+            f"""
+        [MASTER]
+        output={output_file}
+        """
+        )
+        rcfile.write_text(rcfile_contents, encoding="utf-8")
+        path = join(HERE, "regrtest_data", "unused_variable.py")
+        expected = "Your code has been rated at 7.50/10"
+        self._test_output_file(
+            [path, f"--output={output_file}", f"--rcfile={rcfile}"],
+            output_file,
+            expected_output=expected,
+        )

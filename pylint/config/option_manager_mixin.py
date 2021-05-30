@@ -7,7 +7,7 @@ import configparser
 import contextlib
 import copy
 import functools
-import optparse
+import optparse  # pylint: disable=deprecated-module
 import os
 import sys
 
@@ -81,8 +81,8 @@ class OptionsManagerMixIn:
     def register_options_provider(self, provider, own_group=True):
         """register an options provider"""
         assert provider.priority <= 0, "provider's priority can't be >= 0"
-        for i in range(len(self.options_providers)):
-            if provider.priority > self.options_providers[i].priority:
+        for i, options_provider in enumerate(self.options_providers):
+            if provider.priority > options_provider.priority:
                 self.options_providers.insert(i, provider)
                 break
         else:
@@ -281,7 +281,7 @@ class OptionsManagerMixIn:
                         for option, value in values.items():
                             if isinstance(value, bool):
                                 values[option] = "yes" if value else "no"
-                            elif isinstance(value, int):
+                            elif isinstance(value, (int, float)):
                                 values[option] = str(value)
                             elif isinstance(value, list):
                                 values[option] = ",".join(value)
@@ -347,7 +347,7 @@ class OptionsManagerMixIn:
             return args
 
     def add_help_section(self, title, description, level=0):
-        """add a dummy option section for help purpose """
+        """add a dummy option section for help purpose"""
         group = optparse.OptionGroup(
             self.cmdline_parser, title=title.capitalize(), description=description
         )
@@ -356,7 +356,7 @@ class OptionsManagerMixIn:
         self.cmdline_parser.add_option_group(group)
 
     def help(self, level=0):
-        """return the usage string for available options """
+        """return the usage string for available options"""
         self.cmdline_parser.formatter.output_level = level
         with _patch_optparse():
             return self.cmdline_parser.format_help()

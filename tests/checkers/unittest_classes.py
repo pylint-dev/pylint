@@ -148,10 +148,22 @@ class TestVariablesChecker(CheckerTestCase):
         attribute_in_fake_1 = list(assign_attribute_in_fake_1.assigned_stmts())[-1]
         assign_attribute_in_fake_2 = classdef.instance_attr("__private")[-1]
         attribute_in_fake_2 = list(assign_attribute_in_fake_2.assigned_stmts())[-1]
+        unused_private_attr_1 = classdef.instance_attr("__private")[0]
+        unused_private_attr_2 = classdef.instance_attr("__private")[1]
         with self.assertAddsMessages(
             Message("protected-access", node=attribute_in_eq, args="_protected"),
             Message("protected-access", node=attribute_in_fake_1, args="_protected"),
             Message("protected-access", node=attribute_in_fake_2, args="__private"),
+            Message(
+                "unused-private-member",
+                node=unused_private_attr_1,
+                args=("Protected", "__private"),
+            ),
+            Message(
+                "unused-private-member",
+                node=unused_private_attr_2,
+                args=("Protected", "__private"),
+            ),
         ):
             self.walk(node.root())
 
@@ -183,9 +195,21 @@ class TestVariablesChecker(CheckerTestCase):
         attribute_in_fake_1 = list(assign_attribute_in_fake_1.assigned_stmts())[-1]
         assign_attribute_in_fake_2 = classdef.instance_attr("__private")[-1]
         attribute_in_fake_2 = list(assign_attribute_in_fake_2.assigned_stmts())[-1]
+        unused_private_attr_1 = classdef.instance_attr("__private")[0]
+        unused_private_attr_2 = classdef.instance_attr("__private")[1]
         with self.assertAddsMessages(
             Message("protected-access", node=attribute_in_fake_1, args="_protected"),
             Message("protected-access", node=attribute_in_fake_2, args="__private"),
+            Message(
+                "unused-private-member",
+                node=unused_private_attr_1,
+                args=("Protected", "__private"),
+            ),
+            Message(
+                "unused-private-member",
+                node=unused_private_attr_2,
+                args=("Protected", "__private"),
+            ),
         ):
             self.walk(node.root())
 

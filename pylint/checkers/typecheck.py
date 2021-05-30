@@ -458,7 +458,9 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         return False
     if owner_name and ignored_mixins and owner_name[-5:].lower() == "mixin":
         return False
-    if isinstance(owner, astroid.FunctionDef) and owner.decorators:
+    if isinstance(owner, astroid.FunctionDef) and (
+        owner.decorators or owner.is_abstract()
+    ):
         return False
     if isinstance(owner, (astroid.Instance, astroid.ClassDef)):
         if owner.has_dynamic_getattr():
@@ -469,7 +471,8 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
             except astroid.MroError:
                 return False
             if metaclass:
-                return metaclass.qname() == "enum.EnumMeta"
+                # Renamed in Python 3.10 to `EnumType`
+                return metaclass.qname() in ("enum.EnumMeta", "enum.EnumType")
             return False
         if not has_known_bases(owner):
             return False
@@ -1436,8 +1439,8 @@ accessed. Python regular expressions are accepted.",
                         args=(display_name, callable_name),
                     )
 
-        for name in kwparams:
-            defval, assigned = kwparams[name]
+        for name, val in kwparams.items():
+            defval, assigned = val
             if (
                 defval is None
                 and not assigned
@@ -1950,6 +1953,6 @@ class IterableChecker(BaseChecker):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(TypeChecker(linter))
     linter.register_checker(IterableChecker(linter))

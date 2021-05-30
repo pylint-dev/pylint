@@ -24,6 +24,7 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -37,13 +38,16 @@ import collections
 import numbers
 import re
 import tokenize
-from typing import Counter, Iterable
+from typing import TYPE_CHECKING, Iterable
 
 import astroid
 
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+
+if TYPE_CHECKING:
+    from typing import Counter  # typing.Counter added in Python 3.6.1
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
 # Prefixes for both strings and bytes literals per
@@ -441,7 +445,7 @@ class StringFormatChecker(BaseChecker):
             )
 
     def _check_new_format(self, node, func):
-        """Check the new string formatting. """
+        """Check the new string formatting."""
         # Skip format nodes which don't have an explicit string on the
         # left side of the format operation.
         # We do this because our inference engine can't properly handle
@@ -749,7 +753,8 @@ class StringConstantChecker(BaseTokenChecker):
         Args:
           tokens: The tokens to be checked against for consistent usage.
         """
-        string_delimiters: Counter[str] = collections.Counter()
+        # typing.Counter added in Python 3.6.1 so this type hint must be a comment
+        string_delimiters = collections.Counter()  # type: Counter[str]
 
         # First, figure out which quote character predominates in the module
         for tok_type, token, _, _, _ in tokens:
@@ -888,7 +893,7 @@ class StringConstantChecker(BaseTokenChecker):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(StringFormatChecker(linter))
     linter.register_checker(StringConstantChecker(linter))
 

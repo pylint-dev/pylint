@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import List, Pattern, Tuple
 
 from astroid import modutils
 
@@ -28,32 +29,33 @@ def get_python_path(filepath: str) -> str:
             return os.getcwd()
 
 
-def _basename_in_ignore_list_re(base_name, ignore_list_re):
-    """Determines if the basename is matched in a regex ignorelist
-
-    :param str base_name: The basename of the file
-    :param list ignore_list_re: A collection of regex patterns to match against.
-        Successful matches are ignored.
-
-    :returns: `True` if the basename is ignored, `False` otherwise.
-    :rtype: bool
-    """
+def _is_in_ignore_list_re(element: str, ignore_list_re: List[Pattern]) -> bool:
+    """determines if the element is matched in a regex ignore-list"""
     for file_pattern in ignore_list_re:
-        if file_pattern.match(base_name):
+        if file_pattern.match(element):
             return True
     return False
 
 
-def expand_modules(files_or_modules, ignore_list, ignore_list_re):
-    """Take a list of files/modules/packages and return the list of tuple
-    (file, module name) which have to be actually checked."""
+def expand_modules(
+    files_or_modules: List[str],
+    ignore_list: List[str],
+    ignore_list_re: List[Pattern],
+    ignore_list_paths_re: List[Pattern],
+) -> Tuple[List[dict], List[dict]]:
+    """take a list of files/modules/packages and return the list of tuple
+    (file, module name) which have to be actually checked
+    """
     result = []
     errors = []
     path = sys.path.copy()
+
     for something in files_or_modules:
         basename = os.path.basename(something)
-        if basename in ignore_list or _basename_in_ignore_list_re(
-            basename, ignore_list_re
+        if (
+            basename in ignore_list
+            or _is_in_ignore_list_re(os.path.basename(something), ignore_list_re)
+            or _is_in_ignore_list_re(something, ignore_list_paths_re)
         ):
             continue
         module_path = get_python_path(something)
@@ -117,10 +119,11 @@ def expand_modules(files_or_modules, ignore_list, ignore_list_re):
             ):
                 if filepath == subfilepath:
                     continue
-                if _basename_in_ignore_list_re(
+                if _is_in_ignore_list_re(
                     os.path.basename(subfilepath), ignore_list_re
-                ):
+                ) or _is_in_ignore_list_re(subfilepath, ignore_list_paths_re):
                     continue
+
                 modpath = _modpath_from_file(
                     subfilepath, is_namespace, path=additional_search_path
                 )

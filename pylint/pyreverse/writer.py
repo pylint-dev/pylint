@@ -8,6 +8,7 @@
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Kylian <development@goudcode.nl>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 Mark Byrne <mbyrnepr2@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -167,7 +168,7 @@ class VCGWriter(DiagramWriter):
 
     def set_printer(self, file_name, basename):
         """initialize VCGWriter for a UML graph"""
-        self.graph_file = open(file_name, "w+")
+        self.graph_file = open(file_name, "w+")  # pylint: disable=consider-using-with
         self.printer = VCGPrinter(self.graph_file)
         self.printer.open_graph(
             title=basename,

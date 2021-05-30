@@ -1,4 +1,5 @@
 """Warnings for using open() with an invalid mode string."""
+# pylint: disable=consider-using-with
 
 NAME = "foo.bar"
 open(NAME, "wb")

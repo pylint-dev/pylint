@@ -33,8 +33,9 @@
 # Copyright (c) 2019 Andrzej Klajnert <github@aklajnert.pl>
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
 # Copyright (c) 2020 GergelyKalmar <gergely.kalmar@logikal.jp>
-# Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 James Sinclair <james@nurfherder.com>
+# Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
@@ -43,6 +44,7 @@
 """
 import collections
 from itertools import chain, zip_longest
+from typing import List, Pattern
 
 import astroid
 
@@ -265,22 +267,36 @@ def _has_different_parameters_default_value(original, overridden):
     return False
 
 
-def _has_different_parameters(original, overridden, dummy_parameter_regex):
+def _has_different_parameters(
+    original: List[astroid.AssignName],
+    overridden: List[astroid.AssignName],
+    dummy_parameter_regex: Pattern,
+) -> List[str]:
+    result = []
     zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
         params = (original_param, overridden_param)
         if not all(params):
-            return True
+            return ["Number of parameters "]
 
+        # check for the arguments' name
         names = [param.name for param in params]
         if any(dummy_parameter_regex.match(name) for name in names):
             continue
         if original_param.name != overridden_param.name:
-            return True
-    return False
+            result.append(
+                f"Parameter '{original_param.name}' has been renamed "
+                f"to '{overridden_param.name}' in"
+            )
+
+    return result
 
 
-def _different_parameters(original, overridden, dummy_parameter_regex):
+def _different_parameters(
+    original: astroid.FunctionDef,
+    overridden: astroid.FunctionDef,
+    dummy_parameter_regex: Pattern,
+) -> List[str]:
     """Determine if the two methods have different parameters
 
     They are considered to have different parameters if:
@@ -292,6 +308,7 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
        * they have different keyword only parameters.
 
     """
+    output_messages = []
     original_parameters = _positional_parameters(original)
     overridden_parameters = _positional_parameters(overridden)
 
@@ -320,20 +337,37 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
     different_kwonly = _has_different_parameters(
         original_kwonlyargs, overridden.args.kwonlyargs, dummy_parameter_regex
     )
+    if different_kwonly and different_positional:
+        if "Number " in different_positional[0] and "Number " in different_kwonly[0]:
+            output_messages.append("Number of parameters ")
+            output_messages += different_positional[1:]
+            output_messages += different_kwonly[1:]
+        else:
+            output_messages += different_positional
+            output_messages += different_kwonly
+    else:
+        if different_positional:
+            output_messages += different_positional
+        if different_kwonly:
+            output_messages += different_kwonly
+
     if original.name in PYMETHODS:
         # Ignore the difference for special methods. If the parameter
         # numbers are different, then that is going to be caught by
         # unexpected-special-method-signature.
         # If the names are different, it doesn't matter, since they can't
         # be used as keyword arguments anyway.
-        different_positional = different_kwonly = False
+        output_messages.clear()
 
     # Arguments will only violate LSP if there are variadics in the original
     # that are then removed from the overridden
     kwarg_lost = original.args.kwarg and not overridden.args.kwarg
     vararg_lost = original.args.vararg and not overridden.args.vararg
 
-    return any((different_positional, kwarg_lost, vararg_lost, different_kwonly))
+    if kwarg_lost or vararg_lost:
+        output_messages += ["Variadics removed in"]
+
+    return output_messages
 
 
 def _is_invalid_base_class(cls):
@@ -548,7 +582,7 @@ MSGS = {
         "be written as a function.",
     ),
     "W0221": (
-        "Parameters differ from %s %r method",
+        "%s %s %r method",
         "arguments-differ",
         "Used when a method has a different number of arguments than in "
         "the implemented interface or in an overridden method.",
@@ -596,6 +630,17 @@ MSGS = {
         "that does not match its base class "
         "which could result in potential bugs at runtime.",
     ),
+    "W0237": (
+        "%s %s %r method",
+        "arguments-renamed",
+        "Used when a method parameter has a different name than in "
+        "the implemented interface or in an overridden method.",
+    ),
+    "W0238": (
+        "Unused private member `%s.%s`",
+        "unused-private-member",
+        "Emitted when a private member of a class is defined but not used.",
+    ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
         "invalid-slots-object",
@@ -631,6 +676,12 @@ MSGS = {
         "Value %r in slots conflicts with class variable",
         "class-variable-slots-conflict",
         "Used when a value in __slots__ conflicts with a class variable, property or method.",
+    ),
+    "E0243": (
+        "Invalid __class__ object",
+        "invalid-class-object",
+        "Used when an invalid object is assigned to a __class__ property. "
+        "Only a class is permitted.",
     ),
     "R0202": (
         "Consider using a decorator instead of calling classmethod",
@@ -839,11 +890,83 @@ a metaclass class method.",
                     "useless-object-inheritance", args=node.name, node=node
                 )
 
-    def leave_classdef(self, cnode):
+    @check_messages("unused-private-member", "attribute-defined-outside-init")
+    def leave_classdef(self, node: astroid.ClassDef) -> None:
         """close a class node:
         check that instance attributes are defined in __init__ and check
         access to existent members
         """
+        self._check_unused_private_members(node)
+        self._check_attribute_defined_outside_init(node)
+
+    def _check_unused_private_members(self, node: astroid.ClassDef) -> None:
+        # Check for unused private functions
+        for function_def in node.nodes_of_class(astroid.FunctionDef):
+            found = False
+            if not is_attr_private(function_def.name):
+                continue
+            for attribute in node.nodes_of_class(astroid.Attribute):
+                if (
+                    attribute.attrname == function_def.name
+                    and attribute.scope() != function_def  # We ignore recursive calls
+                    and attribute.expr.name in ("self", node.name)
+                ):
+                    found = True
+                    break
+            if not found:
+                self.add_message(
+                    "unused-private-member",
+                    node=function_def,
+                    args=(
+                        node.name,
+                        f"{function_def.name}({function_def.args.as_string()})",
+                    ),
+                )
+
+        # Check for unused private variables
+        for assign_name in node.nodes_of_class(astroid.AssignName):
+            found = False
+            if isinstance(assign_name.parent, astroid.Arguments):
+                continue  # Ignore function arguments
+            if not is_attr_private(assign_name.name):
+                continue
+            for child in node.nodes_of_class((astroid.Name, astroid.Attribute)):
+                if (
+                    isinstance(child, astroid.Name) and child.name == assign_name.name
+                ) or (
+                    isinstance(child, astroid.Attribute)
+                    and child.attrname == assign_name.name
+                    and child.expr.name in ("cls", node.name)
+                ):
+                    found = True
+                    break
+            if not found:
+                self.add_message(
+                    "unused-private-member",
+                    node=assign_name,
+                    args=(node.name, assign_name.name),
+                )
+
+        # Check for unused private attributes
+        for assign_attr in node.nodes_of_class(astroid.AssignAttr):
+            found = False
+            if not is_attr_private(assign_attr.attrname):
+                continue
+            for attribute in node.nodes_of_class(astroid.Attribute):
+                if (
+                    attribute.attrname == assign_attr.attrname
+                    and attribute.expr.name == assign_attr.expr.name
+                ):
+                    found = True
+                    break
+            if not found:
+                self.add_message(
+                    "unused-private-member",
+                    node=assign_attr,
+                    args=(node.name, assign_attr.attrname),
+                )
+
+    def _check_attribute_defined_outside_init(self, cnode: astroid.ClassDef) -> None:
         # check access to existent members on non metaclass classes
         if self._ignore_mixin and cnode.name[-5:].lower() == "mixin":
             # We are in a mixin class. No need to try to figure out if
@@ -1262,12 +1385,23 @@ a metaclass class method.",
 
         self._check_protected_attribute_access(node)
 
-    def visit_assignattr(self, node):
+    @check_messages("assigning-non-slot", "invalid-class-object")
+    def visit_assignattr(self, node: astroid.AssignAttr) -> None:
         if isinstance(
             node.assign_type(), astroid.AugAssign
         ) and self._uses_mandatory_method_param(node):
             self._accessed.set_accessed(node)
         self._check_in_slots(node)
+        self._check_invalid_class_object(node)
+
+    def _check_invalid_class_object(self, node: astroid.AssignAttr) -> None:
+        if not node.attrname == "__class__":
+            return
+        inferred = safe_infer(node.parent.value)
+        if isinstance(inferred, astroid.ClassDef) or inferred is astroid.Uninferable:
+            # If is uninferrable, we allow it to prevent false positives
+            return
+        self.add_message("invalid-class-object", node=node)
 
     def _check_in_slots(self, node):
         """Check that the given AssignAttr node
@@ -1759,12 +1893,49 @@ a metaclass class method.",
         if is_property_setter(method1):
             return
 
-        if _different_parameters(
+        arg_differ_output = _different_parameters(
             refmethod, method1, dummy_parameter_regex=self._dummy_rgx
-        ):
-            self.add_message(
-                "arguments-differ", args=(class_type, method1.name), node=method1
-            )
+        )
+        if len(arg_differ_output) > 0:
+            for msg in arg_differ_output:
+                if "Number" in msg:
+                    total_args_method1 = len(method1.args.args)
+                    if method1.args.vararg:
+                        total_args_method1 += 1
+                    if method1.args.kwarg:
+                        total_args_method1 += 1
+                    if method1.args.kwonlyargs:
+                        total_args_method1 += len(method1.args.kwonlyargs)
+                    total_args_refmethod = len(refmethod.args.args)
+                    if refmethod.args.vararg:
+                        total_args_refmethod += 1
+                    if refmethod.args.kwarg:
+                        total_args_refmethod += 1
+                    if refmethod.args.kwonlyargs:
+                        total_args_refmethod += len(refmethod.args.kwonlyargs)
+                    error_type = "arguments-differ"
+                    msg_args = (
+                        msg
+                        + f"was {total_args_refmethod} in '{refmethod.parent.name}.{refmethod.name}' and "
+                        f"is now {total_args_method1} in",
+                        class_type,
+                        f"{method1.parent.name}.{method1.name}",
+                    )
+                elif "renamed" in msg:
+                    error_type = "arguments-renamed"
+                    msg_args = (
+                        msg,
+                        class_type,
+                        f"{method1.parent.name}.{method1.name}",
+                    )
+                else:
+                    error_type = "arguments-differ"
+                    msg_args = (
+                        msg,
+                        class_type,
+                        f"{method1.parent.name}.{method1.name}",
+                    )
+                self.add_message(error_type, args=msg_args, node=method1)
         elif (
             len(method1.args.defaults) < len(refmethod.args.defaults)
             and not method1.args.vararg
@@ -2144,6 +2315,6 @@ def _ancestors_to_call(klass_node, method="__init__"):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(ClassChecker(linter))
     linter.register_checker(SpecialMethodsChecker(linter))

@@ -1,7 +1,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
-import optparse
+import optparse  # pylint: disable=deprecated-module
 import sys
 import time
 
@@ -28,7 +28,7 @@ class _ManHelpFormatter(optparse.HelpFormatter):
             optstring = self.format_option_strings(option)
         if option.help:
             help_text = self.expand_default(option)
-            help_string = " ".join([line.strip() for line in help_text.splitlines()])
+            help_string = " ".join(line.strip() for line in help_text.splitlines())
             help_string = help_string.replace("\\", "\\\\")
             help_string = help_string.replace("[current:", "[default:")
         else:

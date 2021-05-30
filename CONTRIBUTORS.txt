@@ -469,6 +469,35 @@ contributors:
 
 * Andreas Finkler: contributor
 
+* Aidan Haase, Elizabeth Bott: contributor
+
 * Sebastian Müller: contributor
 
 * Ramiro Leal-Cavazos (ramiro050): Fixed bug preventing pylint from working with emacs tramp
+
+* manderj: contributor
+
+* qwiddle: contributor
+
+* das-intensity: contributor
+
+* Jiajunsu (victor): contributor
+
+* Andrew Haigh (nelfin): contributor
+
+* Pang Yu Shao (yushao2): contributor
+
+* Aditya Gupta (adityagupta1089) : contributor
+  - Added ignore_signatures to duplicate checker
+
+* Jacob Walls: contributor
+
+* ruro: contributor
+
+* David Liu (david-yz-liu): contributor
+
+* Bernard Nauwelaerts: contributor
+
+* Fabian Damken: contributor
+
+* Markus Siebenhaar: contributor

@@ -70,8 +70,6 @@ from typing import (
 import _string
 import astroid
 
-from pylint.constants import PY310_PLUS
-
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = (
     astroid.ListComp,
@@ -271,6 +269,10 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
 
 
 class NoSuchArgumentError(Exception):
+    pass
+
+
+class InferredTypeError(Exception):
     pass
 
 
@@ -778,7 +780,7 @@ def error_of_type(handler: astroid.ExceptHandler, error_type) -> bool:
 
 
 def decorated_with_property(node: astroid.FunctionDef) -> bool:
-    """Detect if the given function node is decorated with a property. """
+    """Detect if the given function node is decorated with a property."""
     if not node.decorators:
         return False
     for decorator in node.decorators.nodes:
@@ -1328,9 +1330,6 @@ def get_node_last_lineno(node: astroid.node_classes.NodeNG) -> int:
 
 def is_postponed_evaluation_enabled(node: astroid.node_classes.NodeNG) -> bool:
     """Check if the postponed evaluation of annotations is enabled"""
-    if PY310_PLUS:
-        return True
-
     module = node.root()
     return "annotations" in module.future_imports
 
@@ -1497,3 +1496,55 @@ def is_assign_name_annotated_with(node: astroid.AssignName, typing_name: str) ->
     ):
         return True
     return False
+
+
+def get_iterating_dictionary_name(
+    node: Union[astroid.For, astroid.Comprehension]
+) -> Optional[str]:
+    """Get the name of the dictionary which keys are being iterated over on
+    a `astroid.For` or `astroid.Comprehension` node.
+
+    If the iterating object is not either the keys method of a dictionary
+    or a dictionary itself, this returns None.
+    """
+    # Is it a proper keys call?
+    if (
+        isinstance(node.iter, astroid.Call)
+        and isinstance(node.iter.func, astroid.Attribute)
+        and node.iter.func.attrname == "keys"
+    ):
+        inferred = safe_infer(node.iter.func)
+        if not isinstance(inferred, astroid.BoundMethod):
+            return None
+        return node.iter.as_string().rpartition(".keys")[0]
+
+    # Is it a dictionary?
+    if isinstance(node.iter, (astroid.Name, astroid.Attribute)):
+        inferred = safe_infer(node.iter)
+        if not isinstance(inferred, astroid.Dict):
+            return None
+        return node.iter.as_string()
+
+    return None
+
+
+def get_subscript_const_value(node: astroid.Subscript) -> astroid.Const:
+    """
+    Returns the value (subscript.slice) of a Subscript node,
+    also supports python <3.9 windows where node.slice might be an Index
+    node
+
+    :param node: Subscript Node to extract value from
+    :returns: Const Node containing subscript value
+    :raises InferredTypeError: if the subscript node cannot be inferred as a Const
+    """
+    value = node.slice
+    if isinstance(value, astroid.Index):
+        value = value.value
+    inferred = safe_infer(value)
+    if not isinstance(inferred, astroid.Const):
+        raise InferredTypeError(
+            "Subscript.slice cannot be inferred as an astroid.Const"
+        )
+
+    return inferred

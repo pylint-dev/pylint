@@ -33,7 +33,7 @@ astroid:
 Discord server
 --------------
 
-https://discord.gg/kFebW799
+https://discord.gg/Egy6P8AMB5
 
 Mailing lists
 -------------

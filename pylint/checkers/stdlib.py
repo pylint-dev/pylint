@@ -26,7 +26,8 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Matus Valo <matusvalo@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
@@ -34,6 +35,7 @@
 """Checkers for various standard library functions."""
 
 import sys
+from collections.abc import Iterable
 
 import astroid
 
@@ -50,7 +52,23 @@ SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
 OPEN_MODULE = "_io"
 
+
+DEPRECATED_MODULES = {
+    (0, 0, 0): {"tkinter.tix", "fpectl"},
+    (3, 2, 0): {"optparse"},
+    (3, 4, 0): {"imp"},
+    (3, 5, 0): {"formatter"},
+    (3, 6, 0): {"asynchat", "asyncore"},
+    (3, 7, 0): {"macpath"},
+    (3, 9, 0): {"lib2to3", "parser", "symbol", "binhex"},
+}
+
 DEPRECATED_ARGUMENTS = {
+    (0, 0, 0): {
+        "int": ((None, "x"),),
+        "bool": ((None, "x"),),
+        "float": ((None, "x"),),
+    },
     (3, 8, 0): {
         "asyncio.tasks.sleep": ((None, "loop"),),
         "asyncio.tasks.gather": ((None, "loop"),),
@@ -62,6 +80,8 @@ DEPRECATED_ARGUMENTS = {
         "asyncio.subprocess.create_subprocess_shell": ((4, "loop"),),
         "gettext.translation": ((5, "codeset"),),
         "gettext.install": ((2, "codeset"),),
+        "functools.partialmethod": ((None, "func"),),
+        "weakref.finalize": ((None, "func"), (None, "obj")),
         "profile.Profile.runcall": ((None, "func"),),
         "cProfile.Profile.runcall": ((None, "func"),),
         "bdb.Bdb.runcall": ((None, "func"),),
@@ -79,6 +99,15 @@ DEPRECATED_ARGUMENTS = {
         ),
     },
     (3, 9, 0): {"random.Random.shuffle": ((1, "random"),)},
+}
+
+DEPRECATED_DECORATORS = {
+    (3, 8, 0): {"asyncio.coroutine"},
+    (3, 3, 0): {
+        "abc.abstractclassmethod",
+        "abc.abstractstaticmethod",
+        "abc.abstractproperty",
+    },
 }
 
 
@@ -136,6 +165,7 @@ DEPRECATED_METHODS = {
             "base64.decodestring",
             "ntpath.splitunc",
             "os.path.splitunc",
+            "os.stat_float_times",
         },
         (3, 2, 0): {
             "cgi.escape",
@@ -196,6 +226,55 @@ DEPRECATED_METHODS = {
             "binascii.rlecode_hqx",
             "binascii.rledecode_hqx",
         },
+        (3, 10, 0): {
+            "_sqlite3.enable_shared_cache",
+            "pathlib.Path.link_to",
+        },
+    },
+}
+
+
+DEPRECATED_CLASSES = {
+    (3, 3, 0): {
+        "importlib.abc": {
+            "Finder",
+        },
+        "pkgutil": {
+            "ImpImporter",
+            "ImpLoader",
+        },
+        "collections": {
+            "Awaitable",
+            "Coroutine",
+            "AsyncIterable",
+            "AsyncIterator",
+            "AsyncGenerator",
+            "Hashable",
+            "Iterable",
+            "Iterator",
+            "Generator",
+            "Reversible",
+            "Sized",
+            "Container",
+            "Callable",
+            "Collection",
+            "Set",
+            "MutableSet",
+            "Mapping",
+            "MutableMapping",
+            "MappingView",
+            "KeysView",
+            "ItemsView",
+            "ValuesView",
+            "Sequence",
+            "MutableSequence",
+            "ByteString",
+        },
+    },
+    (3, 9, 0): {
+        "smtpd": {
+            "MailmanProxy",
+        }
     },
 }
 
@@ -315,6 +394,16 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "deprecated-argument",
             "The argument is marked as deprecated and will be removed in the future.",
         ),
+        "W1512": (
+            "Using deprecated class %s of module %s",
+            "deprecated-class",
+            "The class is marked as deprecated and will be removed in the future.",
+        ),
+        "W1513": (
+            "Using deprecated decorator %s()",
+            "deprecated-decorator",
+            "The decorator is marked as deprecated and will be removed in the future.",
+        ),
     }
 
     def __init__(self, linter=None):
@@ -328,6 +417,18 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, func_list in DEPRECATED_ARGUMENTS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_attributes.update(func_list)
+        self._deprecated_classes = dict()
+        for since_vers, class_list in DEPRECATED_CLASSES.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_classes.update(class_list)
+        self._deprecated_modules = set()
+        for since_vers, mod_list in DEPRECATED_MODULES.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_modules.update(mod_list)
+        self._deprecated_decorators = set()
+        for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_decorators.update(decorator_list)
 
     def _check_bad_thread_instantiation(self, node):
         if not node.kwargs and not node.keywords and len(node.args) <= 1:
@@ -362,10 +463,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "invalid-envvar-default",
         "subprocess-popen-preexec-fn",
         "subprocess-run-check",
+        "deprecated-class",
     )
     def visit_call(self, node):
         """Visit a Call node."""
         try:
+            self.check_deprecated_class_in_call(node)
             for inferred in node.func.infer():
                 if inferred is astroid.Uninferable:
                     continue
@@ -504,13 +607,23 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         else:
             self.add_message(message, node=node, args=(name, call_arg.pytype()))
 
+    def deprecated_modules(self):
+        """Callback returning the deprecated modules."""
+        return self._deprecated_modules
+
     def deprecated_methods(self):
         return self._deprecated_methods
 
     def deprecated_arguments(self, method: str):
         return self._deprecated_attributes.get(method, ())
 
+    def deprecated_classes(self, module: str):
+        return self._deprecated_classes.get(module, ())
+
+    def deprecated_decorators(self) -> Iterable:
+        return self._deprecated_decorators
+
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(StdlibChecker(linter))

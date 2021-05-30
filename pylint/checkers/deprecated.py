@@ -8,11 +8,13 @@ from typing import Any, Container, Iterable, Tuple, Union
 import astroid
 
 from pylint.checkers import utils
+from pylint.checkers.utils import safe_infer
 
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,
     astroid.UnboundMethod,
     astroid.FunctionDef,
+    astroid.ClassDef,
 )
 
 
@@ -37,32 +39,79 @@ class DeprecatedMixin:
             "deprecated-module",
             "A module marked as deprecated is imported.",
         ),
+        "W1512": (
+            "Using deprecated class %s of module %s",
+            "deprecated-class",
+            "The class is marked as deprecated and will be removed in the future.",
+        ),
+        "W1513": (
+            "Using deprecated decorator %s()",
+            "deprecated-decorator",
+            "The decorator is marked as deprecated and will be removed in the future.",
+        ),
     }
 
     @utils.check_messages(
         "deprecated-method",
         "deprecated-argument",
+        "deprecated-class",
     )
     def visit_call(self, node: astroid.Call) -> None:
         """Called when a :class:`.astroid.node_classes.Call` node is visited."""
         try:
+            self.check_deprecated_class_in_call(node)
             for inferred in node.func.infer():
                 # Calling entry point for deprecation check logic.
                 self.check_deprecated_method(node, inferred)
         except astroid.InferenceError:
             pass
 
-    @utils.check_messages("deprecated-module")
+    @utils.check_messages(
+        "deprecated-module",
+        "deprecated-class",
+    )
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         for name in (name for name, _ in node.names):
             self.check_deprecated_module(node, name)
+            if "." in name:
+                # Checking deprecation for import module with class
+                mod_name, class_name = name.split(".", 1)
+                self.check_deprecated_class(node, mod_name, (class_name,))
 
-    @utils.check_messages("deprecated-module")
+    def deprecated_decorators(self) -> Iterable:
+        """Callback returning the deprecated decorators.
+
+        Returns:
+            collections.abc.Container of deprecated decorator names.
+        """
+        # pylint: disable=no-self-use
+        return ()
+
+    @utils.check_messages("deprecated-decorator")
+    def visit_decorators(self, node):
+        """Triggered when a decorator statement is seen"""
+        children = list(node.get_children())
+        if not children:
+            return
+        if isinstance(children[0], astroid.Call):
+            inf = safe_infer(children[0].func)
+        else:
+            inf = safe_infer(children[0])
+        qname = inf.qname() if inf else None
+        if qname in self.deprecated_decorators():
+            self.add_message("deprecated-decorator", node=node, args=qname)
+
+    @utils.check_messages(
+        "deprecated-module",
+        "deprecated-class",
+    )
     def visit_importfrom(self, node):
         """triggered when a from statement is seen"""
         basename = node.modname
         self.check_deprecated_module(node, basename)
+        class_names = (name for name, _ in node.names)
+        self.check_deprecated_class(node, basename, class_names)
 
     def deprecated_methods(self) -> Container[str]:
         """Callback returning the deprecated methods/functions.
@@ -111,6 +160,19 @@ class DeprecatedMixin:
         # pylint: disable=no-self-use
         return ()
 
+    def deprecated_classes(self, module: str) -> Iterable:
+        """Callback returning the deprecated classes of module.
+
+        Args:
+            module (str): name of module checked for deprecated classes
+
+        Returns:
+            collections.abc.Container of deprecated class names.
+        """
+        # pylint: disable=no-self-use
+        # pylint: disable=unused-argument
+        return ()
+
     def check_deprecated_module(self, node, mod_path):
         """Checks if the module is deprecated"""
 
@@ -154,3 +216,22 @@ class DeprecatedMixin:
                 self.add_message(
                     "deprecated-argument", node=node, args=(arg_name, func_name)
                 )
+
+    def check_deprecated_class(self, node, mod_name, class_names):
+        """Checks if the class is deprecated"""
+
+        for class_name in class_names:
+            if class_name in self.deprecated_classes(mod_name):
+                self.add_message(
+                    "deprecated-class", node=node, args=(class_name, mod_name)
+                )
+
+    def check_deprecated_class_in_call(self, node):
+        """Checks if call the deprecated class"""
+
+        if isinstance(node.func, astroid.Attribute) and isinstance(
+            node.func.expr, astroid.Name
+        ):
+            mod_name = node.func.expr.name
+            class_name = node.func.attrname
+            self.check_deprecated_class(node, mod_name, (class_name,))

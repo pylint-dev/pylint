@@ -3,7 +3,7 @@
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -74,4 +74,5 @@ def modify_sys_path() -> None:
         sys.path.pop(1)
 
 
-__all__ = ["__version__"]
+version = __version__
+__all__ = ["__version__", "version"]

@@ -53,6 +53,13 @@ class ThirdBadLen(object):
         return lambda: 3
 
 
+class NonRegression(object):
+    """ __len__ returns nothing """
+
+    def __len__(self):  # [invalid-length-returned]
+        print(3.0)
+
+
 class AmbigousLen(object):
     """ Uninferable return value """
     __len__ = lambda self: Missing

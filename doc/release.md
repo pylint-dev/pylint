@@ -7,11 +7,8 @@ So, you want to release the `X.Y.Z` version of pylint ?
 1. Run the acceptance tests to see if everything is alright with this release. We don't
    run them on CI: `pytest -m acceptance`
 2. Check if the dependencies of the package are correct
-3. Update `__version__` in `pylint/__pkginfo__.py`, `dev_version` should be `None` when
-   you tag, except if it's an alpha release.
-4. Put the version numbers, and the release date into the changelog
-5. Put the release date into the `What's new` section.
-6. Generate the new copyright notices for this release:
+3. Put the release date into `Changelog` (and `What's new` if it's a major).
+4. Generate the new copyright notices for this release:
 
 ```bash
 pip3 install copyrite
@@ -21,17 +18,17 @@ git --aliases=.copyrite_aliases . --jobs=8
 # automatically
 ```
 
-7. Submit your changes in a merge request.
+5. Submit your changes in a merge request.
 
-8. Make sure the tests are passing on Travis/GithubActions:
+6. Make sure the tests are passing on Travis/GithubActions:
    https://travis-ci.org/PyCQA/pylint/
 
-9. Do the actual release by tagging the master with `pylint-X.Y.Z` (ie `pylint-1.6.12`
+7. Do the actual release by tagging the master with `vX.Y.Z` (ie `v1.6.12` or `v2.5.3a1`
    for example). Travis should deal with the release process once the tag is pushed with
    `git push origin --tags`
 
-10. Go to github, click on "Releases" then on the `pylint-X.Y.Z` tag, choose edit tag,
-    and copy past the changelog in the description.
+8. Go to github, click on "Releases" then on the `vX.Y.Z` tag, choose edit tag, and copy
+   past the changelog in the description.
 
 ## Manual Release
 
@@ -46,22 +43,15 @@ twine upload dist/*
 
 ## Post release
 
-### New branch to create for major releases
+### Merge tags in master for pre-commit
 
-The master branch will have all the new features for the `X.Y+1` version
-
-If you're doing a major release, you need to create the `X.Y` branch where we will
-cherry-pick bugs to release the `X.Y.Z+1` minor versions
-
-### Merge tags in master for minor releases
-
-Merge the tag `X.Y.Z` in the main branch by doing a history only merge. It's done in
-order to signal that this is an official release tag, and for `pre-commit autoupdate` to
-works.
+If the tag you just made is not part of the main branch, merge the tag `vX.Y.Z` in the
+main branch by doing a history only merge. It's done in order to signal that this is an
+official release tag, and for `pre-commit autoupdate` to works.
 
 ```bash
 git checkout master
-git merge --no-edit --strategy=ours pylint-X.Y.Z
+git merge --no-edit --strategy=ours vX.Y.Z
 git push
 ```
 
@@ -74,8 +64,8 @@ issue labelled as blocker.
 
 #### Changelog
 
-- Create a new section, with the name of the release `X.Y.Z+1` on the `X.Y` branch.
-- If it's a major release, also create a new section for `X.Y+1.0` on the master branch
+- Create a new section, with the name of the release `X.Y.Z+1` or `X.Y+1.0` on the
+  master branch.
 
 You need to add the estimated date when it is going to be published. If no date can be
 known at that time, we should use `Undefined`.
@@ -84,9 +74,3 @@ known at that time, we should use `Undefined`.
 
 If it's a major release, create a new `What's new in Pylint X.Y+1` document Take a look
 at the examples from `doc/whatsnew`.
-
-### Versions
-
-Update `__version__` to `X.Y+1.0` in `pylint/__pkginfo__.py` for `master` and to
-`X.Y.Z+1` for the `X.Y` branch. `dev_version` should also be back to an integer after
-the tag.

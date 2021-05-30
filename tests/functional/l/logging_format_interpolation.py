@@ -33,5 +33,5 @@ class Logger(renamed_logging.Logger):
     pass
 
 custom_logger = Logger('three')
-custom_logger.info('testing {0}'.format('info'))
-custom_logger.info('testing %s' % 'info')
+custom_logger.info('testing {0}'.format('info'))  # [logging-format-interpolation]
+custom_logger.info('testing %s' % 'info')  # [logging-not-lazy]
