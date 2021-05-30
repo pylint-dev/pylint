@@ -347,6 +347,7 @@ class PlantUmlWriter(DiagramWriter, ColorMixin):
             type_=PumlItem.CLASS,
             label=obj.title,
             body=body,
+            stereotype="interface" if obj.shape == "interface" else None,
             color=self.get_color(obj) if self.config.colorized else None,
         )
 
