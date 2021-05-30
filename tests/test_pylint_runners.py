@@ -8,6 +8,17 @@ import pytest
 from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
 
 
+@pytest.fixture(scope="module")
+def cleanup():
+    yield
+    for fname in ["classes.dot"]:
+        try:
+            os.remove(fname)
+        except FileNotFoundError:
+            continue
+
+
+@pytest.mark.usefixtures("cleanup")
 @pytest.mark.parametrize(
     "runner", [run_pylint, run_epylint, run_pyreverse, run_symilar]
 )
