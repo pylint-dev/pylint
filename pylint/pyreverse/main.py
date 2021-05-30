@@ -241,6 +241,8 @@ class Run(ConfigurationMixIn):
 
         if self.config.output_format == "vcg":
             writer.VCGWriter(self.config).write(diadefs)
+        elif self.config.output_format == "puml":
+            writer.PlantUmlWriter(self.config).write(diadefs)
         else:
             writer.DotWriter(self.config).write(diadefs)
         return 0

@@ -23,6 +23,7 @@ import astroid
 from astroid import modutils
 
 from pylint.graph import DotBackend
+from pylint.pyreverse.pumlutils import PlantUmlPrinter, PumlArrow, PumlItem
 from pylint.pyreverse.utils import is_exception
 from pylint.pyreverse.vcgutils import VCGPrinter
 
@@ -292,3 +293,55 @@ class VCGWriter(DiagramWriter):
         """close graph and file"""
         self.printer.close_graph()
         self.graph_file.close()
+
+
+class PlantUmlWriter(DiagramWriter):
+    """write PlantUML graphs from a diagram definition and a project"""
+
+    def __init__(self, config):
+        styles = [
+            dict(type_=PumlArrow.USES),  # package edges
+            dict(type_=PumlArrow.INHERITS),  # inheritance edges
+            dict(type_=PumlArrow.IMPLEMENTS),  # implementation edges
+            dict(type_=PumlArrow.ASSOCIATION),  # association edges
+        ]
+        self.file_name = None
+        DiagramWriter.__init__(self, config, styles)
+
+    def set_printer(self, file_name, basename):
+        """set printer"""
+        self.file_name = file_name
+        self.printer = PlantUmlPrinter(basename)
+
+    def get_title(self, obj):
+        """get project title"""
+        return obj.title
+
+    def get_package_properties(self, obj):
+        """get label and shape for packages."""
+        return dict(
+            type_=PumlItem.PACKAGE,
+            label=obj.title,
+        )
+
+    def get_class_properties(self, obj):
+        """get label and shape for classes."""
+        body = ""
+        if not self.config.only_classnames:
+            items = obj.attrs[:]
+            for func in obj.methods:
+                if func.args.args:
+                    args = [arg.name for arg in func.args.args if arg.name != "self"]
+                else:
+                    args = []
+                items.append(f'{func.name}({", ".join(args)})')
+            body = "\n".join(items)
+        return dict(
+            type_=PumlItem.CLASS,
+            label=obj.title,
+            body=body,
+        )
+
+    def close_graph(self):
+        """finalize the graph"""
+        self.printer.generate(self.file_name)

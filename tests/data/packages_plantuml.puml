@@ -1,0 +1,12 @@
+@startuml packages_plantuml
+package "data" as 0 {
+
+}
+package "data.clientmodule_test" as 1 {
+
+}
+package "data.suppliermodule_test" as 2 {
+
+}
+1 --> 2
+@enduml

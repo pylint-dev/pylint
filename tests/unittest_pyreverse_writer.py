@@ -28,7 +28,7 @@ import pytest
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.utils import get_visibility
-from pylint.pyreverse.writer import DotWriter, VCGWriter
+from pylint.pyreverse.writer import DotWriter, PlantUmlWriter, VCGWriter
 
 _DEFAULTS = {
     "all_ancestors": None,
@@ -53,6 +53,24 @@ _VCG_OUTPUT = {
     "show_associated": None,
     "module_names": None,
     "output_format": "vcg",
+    "diadefs_file": None,
+    "quiet": 0,
+    "show_ancestors": None,
+    "classes": (),
+    "all_associated": None,
+    "mode": "PUB_ONLY",
+    "show_builtin": False,
+    "only_classnames": False,
+    "output_directory": "",
+    "colorized": False,
+    "max_color_depth": 2,
+}
+
+_PUML_OUTPUT = {
+    "all_ancestors": None,
+    "show_associated": None,
+    "module_names": None,
+    "output_format": "puml",
     "diadefs_file": None,
     "quiet": 0,
     "show_ancestors": None,
@@ -119,6 +137,7 @@ def get_project(module, name="No Name"):
 DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
 COLORIZED_DOT_FILES = ["packages_colorized.dot", "classes_colorized.dot"]
 VCG_FILES = ["packages_vcg.vcg", "classes_vcg.vcg"]
+PUML_FILES = ["packages_plantuml.puml", "classes_plantuml.puml"]
 
 
 def _create_files(config, name="No Name"):
@@ -130,6 +149,8 @@ def _create_files(config, name="No Name"):
         diagram.extract_relationships()
     if config.output_format == "vcg":
         writer = VCGWriter(config)
+    elif config.output_format == "puml":
+        writer = PlantUmlWriter(config)
     else:
         writer = DotWriter(config)
     writer.write(dd)
@@ -138,7 +159,7 @@ def _create_files(config, name="No Name"):
 @pytest.fixture(scope="module")
 def cleanup():
     yield
-    for fname in DOT_FILES + COLORIZED_DOT_FILES + VCG_FILES:
+    for fname in DOT_FILES + COLORIZED_DOT_FILES + VCG_FILES + PUML_FILES:
         try:
             os.remove(fname)
         except FileNotFoundError:
@@ -152,6 +173,7 @@ def cleanup():
         (Config(_DEFAULTS), "No Name", DOT_FILES),
         (Config(_COLORIZED), "colorized", COLORIZED_DOT_FILES),
         (Config(_VCG_OUTPUT), "vcg", VCG_FILES),
+        (Config(_PUML_OUTPUT), "plantuml", PUML_FILES),
     ],
 )
 def test_dot_files(config, name, generated_files):
