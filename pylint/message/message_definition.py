@@ -66,9 +66,9 @@ class MessageDefinition:
         if self.minversion or self.maxversion:
             restr = []
             if self.minversion:
-                restr.append("< %s" % ".".join([str(n) for n in self.minversion]))
+                restr.append("< %s" % ".".join(str(n) for n in self.minversion))
             if self.maxversion:
-                restr.append(">= %s" % ".".join([str(n) for n in self.maxversion]))
+                restr.append(">= %s" % ".".join(str(n) for n in self.maxversion))
             restr = " or ".join(restr)
             if checkerref:
                 desc += " It can't be emitted when using Python %s." % restr

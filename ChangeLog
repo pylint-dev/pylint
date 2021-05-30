@@ -9,6 +9,16 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* Added ``deprecated-decorator``: Emitted when deprecated decorator is used.
+
+  Closes #4429
+
+* Added ``ignore-paths`` behaviour. Defined regex patterns are matched against full file path.
+
+  Close #2541
+
+* Fix false negative for ``consider-using-with`` if calls like ``open()`` were used outside of assignment expressions.
+
 * The warning for ``arguments-differ`` now signals explicitly the difference it detected
   by naming the argument or arguments that changed and the type of change that occurred.
 
@@ -33,6 +43,11 @@ modules are added.
 
 * Fix raising false-positive ``no-member`` on abstract properties
 
+* Created new error message called ``arguments-renamed`` which identifies any changes at the parameter
+  names of overridden functions.
+
+  Closes #3536
+
 * New checker ``consider-using-dict-items``. Emitted  when iterating over dictionary keys and then
   indexing the same dictionary with the key within loop body.
 
@@ -43,6 +58,66 @@ modules are added.
 * Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage
 
   Closes #4412
+
+* New checker ``use-maxsplit-arg``. Emitted either when accessing only the first or last
+  element of ``str.split()``.
+
+  Closes #4440
+
+* Add ignore_signatures to duplicate code checker
+
+  Closes #3619
+
+* Fix documentation errors in "Block disables" paragraph of User Guide.
+
+* New checker ``unnecessary-dict-index-lookup``. Emitted when iterating over dictionary items
+  (key-value pairs) and accessing the value by index lookup.
+
+  Closes #4470
+
+* New checker``consider-using-from-import``. Emitted when a submodule/member of a package is imported and aliased
+  with the same name.
+
+  Closes #2309
+
+* Allow comma-separated list in ``output-format`` and separate output files for
+  each specified format.
+
+  Closes #1798
+
+* Make ``using-constant-test`` detect constant tests consisting of list literals like ``[]`` and
+  ``[1, 2, 3]``.
+
+* Improved error message of ``unnecessary-comprehension`` checker by providing code suggestion.
+
+  Closes #4499
+
+* New checker ``unused-private-member``. Emitted when a private member (i.e., starts with ``__``) of a class
+  is defined but not used.
+
+  Closes #4483
+
+* Fix false negative of ``consider-using-enumerate`` when iterating over an attribute.
+
+  Closes #3657
+
+* New checker ``invalid-class-object``. Emitted when a non-class is assigned to a ``__class__`` attribute.
+
+  Closes #585
+
+* Added handling of floating point values when parsing configuration from pyproject.toml
+
+  Closes #4518
+
+* ``invalid-length-returned``, now also works when nothing at all is returned
+  following an upgrade in astroid.
+
+* ``logging-format-interpolation`` and ``logging-not-lazy``, now works on logger
+  class created from renamed logging import following an upgrade in astroid.
+
+* Fix false-positive ``no-member`` with generic base class
+
+  Closes PyCQA/astroid#942
 
 
 What's New in Pylint 2.8.2?
