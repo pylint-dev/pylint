@@ -40,7 +40,7 @@ class Message(_MsgBase):
             *location
         )
 
-    def format(self, template):
+    def format(self, template: str) -> str:
         """Format the message according to the given template.
 
         The template format is the one of the format method :
