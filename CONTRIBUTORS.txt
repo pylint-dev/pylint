@@ -491,3 +491,13 @@ contributors:
   - Added ignore_signatures to duplicate checker
 
 * Jacob Walls: contributor
+
+* ruro: contributor
+
+* David Liu (david-yz-liu): contributor
+
+* Bernard Nauwelaerts: contributor
+
+* Fabian Damken: contributor
+
+* Markus Siebenhaar: contributor

@@ -363,7 +363,7 @@ class MisdesignChecker(BaseChecker):
         self._stmts = []
 
     def _inc_all_stmts(self, amount):
-        for i in range(len(self._stmts)):
+        for i, _ in enumerate(self._stmts):
             self._stmts[i] += amount
 
     @astroid.decorators.cachedproperty

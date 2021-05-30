@@ -42,6 +42,9 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
             return ((0, "deprecated_arg"),)
         return ()
 
+    def deprecated_decorators(self):
+        return {".deprecated_decorator"}
+
 
 class TestDeprecatedChecker(CheckerTestCase):
     CHECKER_CLASS = _DeprecatedChecker
@@ -471,3 +474,53 @@ class TestDeprecatedChecker(CheckerTestCase):
             )
         ):
             self.checker.visit_call(node)
+
+    def test_deprecated_decorator(self):
+        # Tests detecting deprecated decorator
+        node = astroid.extract_node(
+            """
+        def deprecated_decorator(f):
+            def wrapper():
+                return f()
+            return wrapper
+
+        @deprecated_decorator #@
+        def function():
+            pass
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-decorator",
+                args=".deprecated_decorator",
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_decorators(node)
+
+    def test_deprecated_decorator_with_arguments(self):
+        # Tests detecting deprecated decorator with arguments
+        node = astroid.extract_node(
+            """
+        def deprecated_decorator(arg1, arg2):
+            def wrapper(f):
+                def wrapped():
+                    return f()
+                return wrapped
+            return wrapper
+
+        @deprecated_decorator(2, 3) #@
+        def function():
+            pass
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-decorator",
+                args=".deprecated_decorator",
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_decorators(node)

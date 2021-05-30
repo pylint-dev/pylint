@@ -12,6 +12,8 @@ Summary -- Release highlights
 New checkers
 ============
 
+* ``deprecated-decorator``: Emitted when deprecated decorator is used.
+
 * ``consider-using-dict-items``: Emitted when iterating over dictionary keys and then
   indexing the same dictionary with the key within loop body.
 
@@ -24,6 +26,10 @@ New checkers
   (key-value pairs) and accessing the value by index lookup.
 
 * ``consider-using-from-import``: Emitted when a submodule/member of a package is imported and aliased with the same name.
+
+* New checker ``unused-private-member``: Emitted when a private member (i.e., starts with ``__``) of a class is defined but not used.
+
+* New checker ``invalid-class-object``: Emitted when a non-class is assigned to a ``__class__`` attribute.
 
 Other Changes
 =============
@@ -41,3 +47,13 @@ Other Changes
   of overridden functions. It aims to separate the functionality of ``arguments-differ``.
 
 * Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage
+
+* Allow comma-separated list in ``output-format`` and separate output files for
+  each specified format.  Each output file can be defined after a semicolon for example : ``--output-format=json:myfile.json,colorized``
+
+* The ``using-constant-test`` checker now detects constant tests consisting of list literals
+  like ``[]`` and ``[1, 2, 3]``.
+
+* ``ignore-paths`` configuration directive has been added. Defined regex patterns are matched against file path.
+
+* Added handling of floating point values when parsing configuration from pyproject.toml

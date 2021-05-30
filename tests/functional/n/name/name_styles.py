@@ -1,5 +1,5 @@
 """Test for the invalid-name warning."""
-# pylint: disable=no-absolute-import, useless-object-inheritance, unnecessary-pass, unnecessary-comprehension
+# pylint: disable=no-absolute-import, useless-object-inheritance, unnecessary-pass, unnecessary-comprehension, unused-private-member
 from __future__ import print_function
 import abc
 import collections
@@ -111,7 +111,8 @@ class FooClass(object):
         """Ignored."""
         pass
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def ABSTRACT_PROPERTY_NAME(self):  # [invalid-name]
         """Ignored."""
         pass
