@@ -1417,6 +1417,13 @@ a metaclass class method.",
         if "__slots__" not in klass.locals or not klass.newstyle:
             return
 
+        # If 'typing.Generic' is a base of bases of klass, the cached version
+        # of 'slots()' might have been evaluated incorrectly, thus deleted cache entry.
+        if any(base.qname() == "typing.Generic" for base in klass.mro()):
+            cache = getattr(klass, "__cache", None)
+            if cache and cache.get(klass.slots) is not None:
+                del cache[klass.slots]
+
         slots = klass.slots()
         if slots is None:
             return
