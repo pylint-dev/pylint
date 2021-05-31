@@ -31,6 +31,8 @@ New checkers
 
 * New checker ``invalid-class-object``: Emitted when a non-class is assigned to a ``__class__`` attribute.
 
+* ``consider-using-namedtuple``: Emitted when dictionary values can be replaced by namedtuples.
+
 Other Changes
 =============
 

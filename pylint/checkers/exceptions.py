@@ -79,7 +79,7 @@ def _is_raising(body: typing.List) -> bool:
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
 BUILTINS_NAME = builtins.__name__
 
-MSGS = {
+MSGS = {  # pylint: disable=consider-using-namedtuple
     "E0701": (
         "Bad except clauses order (%s)",
         "bad-except-order",
