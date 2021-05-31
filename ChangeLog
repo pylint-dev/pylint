@@ -124,6 +124,7 @@ modules are added.
   Closes #4509
   Closes PyCQA/astroid#999
 
+<<<<<<< HEAD
 * New checker ``consider-using-namedtuple-or-dataclass``. Emitted when dictionary values
   can be replaced by namedtuples or dataclass instances.
 
@@ -132,6 +133,10 @@ modules are added.
 
 * Fix false positive ``unused-variable`` and ``undefined-variable`` with
   Pattern Matching in Python 3.10
+=======
+* New checker ``consider-using-namedtuple``. Emitted when dictionary values can be replaced
+  by namedtuples.
+>>>>>>> [pre-commit.ci] auto fixes from pre-commit.com hooks
 
 * New checker ``await-outside-async``. Emitted when await is used outside an async function.
 
