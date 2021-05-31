@@ -20,13 +20,16 @@ class PumlArrow(Enum):
 
 
 class PlantUmlPrinter:
-    def __init__(self, title: str):
+    def __init__(self, title: str, use_automatic_namespace=False):
         self.title: str = title
+        self.use_automatic_namespace = use_automatic_namespace
         self.lines: List[str] = []
         self._begin()
 
     def _begin(self):
         self.emit("@startuml " + self.title)
+        if not self.use_automatic_namespace:
+            self.emit("set namespaceSeparator none")
 
     def emit(self, line: str):
         if not line.endswith("\n"):

@@ -1,23 +1,25 @@
 @startuml classes_plantuml
-class "Ancestor" as 0 {
-    attr : str
-    cls_member
-    get_value()
-    set_value(value)
+set namespaceSeparator none
+class "Ancestor" as data.clientmodule_test.Ancestor {
+attr : str
+cls_member
+get_value()
+set_value(value)
 }
-class "DoNothing" as 1 {
+class "DoNothing" as data.suppliermodule_test.DoNothing {
+
 }
-class "Interface" as 2 {
-    get_value()
-    set_value(value)
+class "Interface" as data.suppliermodule_test.Interface {
+get_value()
+set_value(value)
 }
-class "Specialization" as 3 {
-    TYPE : str
-    relation
-    top : str
+class "Specialization" as data.clientmodule_test.Specialization {
+TYPE : str
+relation
+top : str
 }
-3 --|> 0
-0 ..|> 2
-1 --* 0 : cls_member
-1 --* 3 : relation
+data.clientmodule_test.Specialization --|> data.clientmodule_test.Ancestor
+data.clientmodule_test.Ancestor ..|> data.suppliermodule_test.Interface
+data.suppliermodule_test.DoNothing --* data.clientmodule_test.Ancestor : cls_member
+data.suppliermodule_test.DoNothing --* data.clientmodule_test.Specialization : relation
 @enduml

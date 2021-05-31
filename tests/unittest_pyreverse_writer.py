@@ -198,7 +198,7 @@ def cleanup():
         (Config(_COLORIZED_PUML_OUTPUT), "puml_colorized", COLORIZED_PUML_FILES),
     ],
 )
-def test_dot_files(config, name, generated_files):
+def test_generated_files(config, name, generated_files):
     _create_files(config, name)
     for generated_file in generated_files:
         expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)

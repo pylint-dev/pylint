@@ -4,33 +4,33 @@ graph:{
   late_edge_labels:yes
   port_sharing:no
   manhattan_edges:yes
-  node: {title:"0"  label:"\fbAncestor\fn\n\f____________\n\f08attr : str\n\f08cls_member\n\f____________\n\f10get_value()\n\f10set_value()"
+  node: {title:"data.clientmodule_test.Ancestor"  label:"\fbAncestor\fn\n\f____________\n\f08attr : str\n\f08cls_member\n\f____________\n\f10get_value()\n\f10set_value()"
   shape:box
 }
-  node: {title:"1"  label:"\fbDoNothing\fn\n\f___________"
+  node: {title:"data.suppliermodule_test.DoNothing"  label:"\fbDoNothing\fn\n\f___________"
   shape:box
 }
-  node: {title:"2"  label:"\fbInterface\fn\n\f___________\n\f10get_value()\n\f10set_value()"
+  node: {title:"data.suppliermodule_test.Interface"  label:"\fbInterface\fn\n\f___________\n\f10get_value()\n\f10set_value()"
   shape:box
 }
-  node: {title:"3"  label:"\fbSpecialization\fn\n\f________________\n\f08TYPE : str\n\f08relation\n\f08top : str\n\f________________"
+  node: {title:"data.clientmodule_test.Specialization"  label:"\fbSpecialization\fn\n\f________________\n\f08TYPE : str\n\f08relation\n\f08top : str\n\f________________"
   shape:box
 }
-  edge: {sourcename:"3" targetname:"0"  arrowstyle:solid
+  edge: {sourcename:"data.clientmodule_test.Specialization" targetname:"data.clientmodule_test.Ancestor"  arrowstyle:solid
   backarrowstyle:none
   backarrowsize:10
 }
-  edge: {sourcename:"0" targetname:"2"  arrowstyle:solid
+  edge: {sourcename:"data.clientmodule_test.Ancestor" targetname:"data.suppliermodule_test.Interface"  arrowstyle:solid
   backarrowstyle:none
   linestyle:dotted
   backarrowsize:10
 }
-  edge: {sourcename:"1" targetname:"0"  label:"cls_member"
+  edge: {sourcename:"data.suppliermodule_test.DoNothing" targetname:"data.clientmodule_test.Ancestor"  label:"cls_member"
   arrowstyle:solid
   backarrowstyle:none
   textcolor:green
 }
-  edge: {sourcename:"1" targetname:"3"  label:"relation"
+  edge: {sourcename:"data.suppliermodule_test.DoNothing" targetname:"data.clientmodule_test.Specialization"  label:"relation"
   arrowstyle:solid
   backarrowstyle:none
   textcolor:green

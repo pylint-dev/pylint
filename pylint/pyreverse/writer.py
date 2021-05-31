@@ -53,9 +53,9 @@ class DiagramWriter:
     def write_packages(self, diagram):
         """write a package diagram"""
         # sorted to get predictable (hence testable) results
-        for i, obj in enumerate(sorted(diagram.modules(), key=lambda x: x.title)):
-            self.printer.emit_node(i, **self.get_package_properties(obj))
-            obj.fig_id = i
+        for obj in sorted(diagram.modules(), key=lambda x: x.title):
+            obj.fig_id = obj.node.qname()
+            self.printer.emit_node(obj.fig_id, **self.get_package_properties(obj))
         # package dependencies
         for rel in diagram.get_relationships("depends"):
             self.printer.emit_edge(
@@ -65,9 +65,9 @@ class DiagramWriter:
     def write_classes(self, diagram):
         """write a class diagram"""
         # sorted to get predictable (hence testable) results
-        for i, obj in enumerate(sorted(diagram.objects, key=lambda x: x.title)):
-            self.printer.emit_node(i, **self.get_class_properties(obj))
-            obj.fig_id = i
+        for obj in sorted(diagram.objects, key=lambda x: x.title):
+            obj.fig_id = obj.node.qname()
+            self.printer.emit_node(obj.fig_id, **self.get_class_properties(obj))
         # inheritance links
         for rel in diagram.get_relationships("specialization"):
             self.printer.emit_edge(
