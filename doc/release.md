@@ -6,7 +6,8 @@ So, you want to release the `X.Y.Z` version of pylint ?
 
 1. Run the acceptance tests to see if everything is alright with this release. We don't
    run them on CI: `pytest -m acceptance`
-2. Check if the dependencies of the package are correct
+2. Check if the dependencies of the package are correct, make sure astroid is pinned to
+   the latest version.
 3. Put the release date into `Changelog` (and `What's new` if it's a major).
 4. Generate the new copyright notices for this release:
 
@@ -61,6 +62,11 @@ We move issue that were not done in the next milestone and block release only if
 issue labelled as blocker.
 
 ### Files to update after releases
+
+#### setup.cfg
+
+- Unpin the version of astroid, so it's possible to install a dev version during
+  development
 
 #### Changelog
 
