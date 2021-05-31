@@ -37,7 +37,9 @@ class MessageDefinitionStore:
 
     def register_message(self, message: MessageDefinition) -> None:
         """Register a MessageDefinition with consistency in mind."""
-        self.message_id_store.register_message_definition(message)
+        self.message_id_store.register_message_definition(
+            message.msgid, message.symbol, message.old_names
+        )
         self._messages_definitions[message.msgid] = message
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
 

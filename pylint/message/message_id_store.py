@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 
@@ -38,14 +38,14 @@ class MessageIdStore:
             msg = f"'{symbol}' is not stored in the message store."
             raise UnknownMessageError(msg) from e
 
-    def register_message_definition(self, message_definition):
-        self.check_msgid_and_symbol(message_definition.msgid, message_definition.symbol)
-        self.add_msgid_and_symbol(message_definition.msgid, message_definition.symbol)
-        for old_msgid, old_symbol in message_definition.old_names:
+    def register_message_definition(
+        self, msgid: str, symbol: str, old_names: List[Tuple[str, str]]
+    ):
+        self.check_msgid_and_symbol(msgid, symbol)
+        self.add_msgid_and_symbol(msgid, symbol)
+        for old_msgid, old_symbol in old_names:
             self.check_msgid_and_symbol(old_msgid, old_symbol)
-            self.add_legacy_msgid_and_symbol(
-                old_msgid, old_symbol, message_definition.msgid
-            )
+            self.add_legacy_msgid_and_symbol(old_msgid, old_symbol, msgid)
 
     def add_msgid_and_symbol(self, msgid: str, symbol: str) -> None:
         """Add valid message id.
