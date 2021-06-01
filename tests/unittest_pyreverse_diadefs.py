@@ -67,7 +67,7 @@ def test_option_values(HANDLER, PROJECT):
     assert not df_h.module_names
     assert cl_h._get_levels() == (-1, -1)
     assert cl_h.module_names
-    for hndl in [df_h, cl_h]:
+    for hndl in (df_h, cl_h):
         hndl.config.all_ancestors = True
         hndl.config.all_associated = True
         hndl.config.module_names = True
@@ -79,7 +79,7 @@ def test_option_values(HANDLER, PROJECT):
     cl_config = Config()
     cl_config.classes = ["Specialization"]
     cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
-    for hndl in [df_h, cl_h]:
+    for hndl in (df_h, cl_h):
         hndl.config.show_ancestors = 2
         hndl.config.show_associated = 1
         hndl.config.module_names = False

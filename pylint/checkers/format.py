@@ -443,7 +443,7 @@ class FormatChecker(BaseTokenChecker):
 
     def _prepare_token_dispatcher(self):
         dispatch = {}
-        for tokens, handler in [(_KEYWORD_TOKENS, self._check_keyword_parentheses)]:
+        for tokens, handler in ((_KEYWORD_TOKENS, self._check_keyword_parentheses),):
             for token in tokens:
                 dispatch[token] = handler
         return dispatch

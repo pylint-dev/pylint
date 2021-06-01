@@ -400,7 +400,7 @@ class TestRunTC:
             assert key in message
             assert message[key] == value
         msg = message["message"].lower()
-        assert any(x in msg for x in ["expected ':'", "invalid syntax"])
+        assert any(x in msg for x in ("expected ':'", "invalid syntax"))
         assert "<unknown>" in msg
         assert "line 1" in msg
 

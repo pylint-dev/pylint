@@ -84,7 +84,7 @@ class LenChecker(checkers.BaseChecker):
             return
         mother_classes = self.base_classes_of_node(instance)
         affected_by_pep8 = any(
-            t in mother_classes for t in ["str", "tuple", "list", "set"]
+            t in mother_classes for t in ("str", "tuple", "list", "set")
         )
         if "range" in mother_classes or (
             affected_by_pep8 and not self.instance_has_bool(instance)
