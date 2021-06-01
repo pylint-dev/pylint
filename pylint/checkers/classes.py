@@ -2291,10 +2291,10 @@ class SpecialMethodsChecker(BaseChecker):
         if len(inferred.elts) != 2:
             found_error = True
         else:
-            for arg, check in [
+            for arg, check in (
                 (inferred.elts[0], self._is_tuple),
                 (inferred.elts[1], self._is_dict),
-            ]:
+            ):
 
                 if isinstance(arg, astroid.Call):
                     arg = safe_infer(arg)

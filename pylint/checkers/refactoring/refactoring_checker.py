@@ -617,10 +617,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _type_and_name_are_equal(node_a, node_b):
-        for _type in [astroid.Name, astroid.AssignName]:
-            if all(isinstance(_node, _type) for _node in [node_a, node_b]):
+        for _type in (astroid.Name, astroid.AssignName):
+            if all(isinstance(_node, _type) for _node in (node_a, node_b)):
                 return node_a.name == node_b.name
-        if all(isinstance(_node, astroid.Const) for _node in [node_a, node_b]):
+        if all(isinstance(_node, astroid.Const) for _node in (node_a, node_b)):
             return node_a.value == node_b.value
         return False
 

@@ -908,13 +908,13 @@ class Python3Checker(checkers.BaseChecker):
 
     _python_2_tests = frozenset(
         astroid.extract_node(x).repr_tree()
-        for x in [
+        for x in (
             "sys.version_info[0] == 2",
             "sys.version_info[0] < 3",
             "sys.version_info == (2, 7)",
             "sys.version_info <= (2, 7)",
             "sys.version_info < (3, 0)",
-        ]
+        )
     )
 
     def __init__(self, *args, **kwargs):
