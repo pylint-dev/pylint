@@ -360,6 +360,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "consider-using-namedtuple-or-dataclass",
             "Emitted when dictionary values can be replaced by namedtuples or dataclass instances.",
         ),
+        "R1735": (
+            "Consider iterating over in-place tuple instead",
+            "consider-using-tuple-iterator",
+            "Emitted when iterating over an in-place defined list or set that can be replaced by a tuple.",
+        ),
     }
     options = (
         (
@@ -551,10 +556,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "redefined-argument-from-local",
         "too-many-nested-blocks",
         "unnecessary-dict-index-lookup",
+        "consider-using-tuple-iterator",
     )
     def visit_for(self, node):
         self._check_nested_blocks(node)
         self._check_unnecessary_dict_index_lookup(node)
+        self._check_consider_tuple_iterator(node)
 
         for name in node.target.nodes_of_class(astroid.AssignName):
             self._check_redefined_argument_from_local(name)
@@ -1348,10 +1355,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_augassign(self, node):
         self._check_consider_using_join(node)
 
-    @utils.check_messages("unnecessary-comprehension", "unnecessary-dict-index-lookup")
+    @utils.check_messages(
+        "unnecessary-comprehension",
+        "unnecessary-dict-index-lookup",
+        "consider-using-tuple-iterator",
+    )
     def visit_comprehension(self, node: astroid.Comprehension) -> None:
         self._check_unnecessary_comprehension(node)
         self._check_unnecessary_dict_index_lookup(node)
+        self._check_consider_tuple_iterator(node)
 
     def _check_unnecessary_comprehension(self, node: astroid.Comprehension) -> None:
         if (
@@ -1762,6 +1774,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             node=subscript,
                             args=("1".join(value.as_string().rsplit("0", maxsplit=1)),),
                         )
+
+    def _check_consider_tuple_iterator(
+        self, node: Union[astroid.For, astroid.Comprehension]
+    ) -> None:
+        """Check if inplace defined iterator can be replaced by a tuple."""
+        if isinstance(node.iter, (astroid.List, astroid.Set)) and not any(
+            isinstance(item, astroid.Starred) for item in node.iter.elts
+        ):
+            self.add_message("consider-using-tuple-iterator", node=node.iter)
 
     @utils.check_messages("consider-using-namedtuple-or-dataclass")
     def visit_dict(self, node: astroid.Dict) -> None:
