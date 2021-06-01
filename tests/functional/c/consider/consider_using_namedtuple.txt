@@ -1,5 +1,0 @@
-consider-using-namedtuple:11:12::Consider using namedtuple for dictionary values
-consider-using-namedtuple:15:12::Consider using namedtuple for dictionary values
-consider-using-namedtuple:34:23:func:Consider using namedtuple for dictionary values
-consider-using-namedtuple:41:12::Consider using namedtuple for dictionary values
-consider-using-namedtuple:53:12::Consider using namedtuple for dictionary values

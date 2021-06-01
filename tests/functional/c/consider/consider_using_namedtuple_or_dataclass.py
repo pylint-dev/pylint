@@ -8,11 +8,11 @@ KEY_3 = "key_3"
 
 
 # Subdicts have at least 1 common key
-MAPPING_1 = {  # [consider-using-namedtuple]
+MAPPING_1 = {  # [consider-using-namedtuple-or-dataclass]
     "entry_1": {"key_1": 0, "key_2": 1, "key_diff_1": 2},
     "entry_2": {"key_1": 0, "key_2": 1, "key_diff_2": 3},
 }
-MAPPING_2 = {  # [consider-using-namedtuple]
+MAPPING_2 = {  # [consider-using-namedtuple-or-dataclass]
     "entry_1": {KEY_3: None, Foo.BAR: None},
     "entry_2": {KEY_3: None, Foo.BAR: None},
 }
@@ -31,14 +31,14 @@ def func():
         "entry_2": {"key_1": 0, "key_2": 1},
     }
 
-    mapping_5: Final = {  # [consider-using-namedtuple]
+    mapping_5: Final = {  # [consider-using-namedtuple-or-dataclass]
         "entry_1": {"key_1": 0, "key_2": 1},
         "entry_2": {"key_1": 0, "key_2": 1},
     }
 
 
 # lists must have the same length
-MAPPING_6 = {  # [consider-using-namedtuple]
+MAPPING_6 = {  # [consider-using-namedtuple-or-dataclass]
     "entry_1": [1, "a", set()],
     "entry_2": [2, "b", set()],
 }
@@ -50,7 +50,7 @@ MAPPING_8 = {
     "entry_1": [1],
     "entry_2": [2, "b"],
 }
-MAPPING_9 = {  # [consider-using-namedtuple]
+MAPPING_9 = {  # [consider-using-namedtuple-or-dataclass]
     "entry_1": (1, "a"),
     "entry_2": (2, "b"),
 }
