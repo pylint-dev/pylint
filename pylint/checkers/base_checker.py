@@ -16,12 +16,13 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 import functools
 from inspect import cleandoc
-from typing import Any
+from typing import Any, Tuple, Union
 
 from pylint.config import OptionsProviderMixIn
 from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import UNDEFINED, IRawChecker, ITokenChecker, implements
+from pylint.message.message import MsgDef
 from pylint.message.message_definition import MessageDefinition
 from pylint.utils import get_rst_section, get_rst_title
 
@@ -129,11 +130,23 @@ class BaseChecker(OptionsProviderMixIn):
             checker_id = message.msgid[1:3]
             existing_ids.append(message.msgid)
 
-    def create_message_definition_from_tuple(self, msgid, msg_tuple):
+    def create_message_definition_from_tuple(
+        self, msgid: str, msg_tuple: Union[Tuple, MsgDef]
+    ) -> MessageDefinition:
         if implements(self, (IRawChecker, ITokenChecker)):
             default_scope = WarningScope.LINE
         else:
             default_scope = WarningScope.NODE
+        if isinstance(msg_tuple, MsgDef):
+            msg_tuple.options.setdefault("scope", default_scope)
+            return MessageDefinition(
+                self,
+                msgid,
+                msg_tuple.msg,
+                msg_tuple.desc,
+                msg_tuple.symbol,
+                **msg_tuple.options,
+            )
         options = {}
         if len(msg_tuple) > 3:
             (msg, symbol, descr, options) = msg_tuple

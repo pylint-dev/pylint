@@ -1,8 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
-
-
 import collections
+from dataclasses import dataclass, field
+from typing import Any, Dict
 
 from pylint.constants import MSG_TYPES
 
@@ -47,3 +47,13 @@ class Message(_MsgBase):
         cf. https://docs.python.org/2/library/string.html#formatstrings
         """
         return template.format(**self._asdict())
+
+
+@dataclass(order=True)
+class MsgDef:
+    """Dataclass for message definition."""
+
+    msg: str = field(compare=False)
+    symbol: str
+    desc: str = field(compare=False)
+    options: Dict[str, Any] = field(default_factory=dict, compare=False)

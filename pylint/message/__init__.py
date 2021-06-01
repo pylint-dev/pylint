@@ -38,7 +38,7 @@
 
 """All the classes related to Message handling."""
 
-from pylint.message.message import Message
+from pylint.message.message import Message, MsgDef
 from pylint.message.message_definition import MessageDefinition
 from pylint.message.message_definition_store import MessageDefinitionStore
 from pylint.message.message_handler_mix_in import MessagesHandlerMixIn
@@ -50,4 +50,5 @@ __all__ = [
     "MessageDefinitionStore",
     "MessagesHandlerMixIn",
     "MessageIdStore",
+    "MsgDef",
 ]
