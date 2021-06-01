@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,redefined-builtin
+# pylint: disable=missing-docstring,redefined-builtin,consider-using-tuple-iterator
 
 def do_stuff(some_random_list):
     for var in some_random_list:
