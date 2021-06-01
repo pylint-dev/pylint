@@ -36,7 +36,7 @@ try:  # [max-try-statements]
     while False:
         print("This verifies that content inside of a while loop is counted too.")
 
-    for item in []:
+    for item in ():
         print("This verifies that content inside of a for loop is counted too.")
 
 

@@ -212,7 +212,7 @@ class LambdaClass:
 class LambdaClass2:
     myattr = 1
     # Different base_scope scope but still applies
-    mylambda2 = lambda: [LambdaClass2.myattr for _ in [1, 2]]
+    mylambda2 = lambda: [LambdaClass2.myattr for _ in (1, 2)]
 
 class LambdaClass3:
     myattr = 1
@@ -291,6 +291,6 @@ class DunderClass:
 
 def undefined_annotation(a:x): # [undefined-variable]
     if x == 2: # [used-before-assignment]
-        for x in [1, 2]:
+        for x in (1, 2):
             pass
     return a

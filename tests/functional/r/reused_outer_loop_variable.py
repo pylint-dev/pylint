@@ -18,7 +18,7 @@ for i in range(10):
         print(i, i_again)
 
 # With nested tuple unpacks
-for (a, (b, c)) in [(1, (2, 3))]:
+for (a, (b, c)) in ((1, (2, 3)),):
     for i, a in range(10): #[redefined-outer-name]
         print(i, a, b, c)
 

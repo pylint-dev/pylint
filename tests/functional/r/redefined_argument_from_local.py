@@ -21,24 +21,24 @@ def test_not_redefined_in_with(name):
 
 
 def test_redefined_in_for(name):
-    for name in []: # [redefined-argument-from-local]
+    for name in (): # [redefined-argument-from-local]
         pass
-    for (name, is_) in []: # [redefined-argument-from-local]
+    for (name, is_) in (): # [redefined-argument-from-local]
         pass
-    for (is_, (name, _)) in []: # [redefined-argument-from-local]
+    for (is_, (name, _)) in (): # [redefined-argument-from-local]
         pass
-    for _ in []:
+    for _ in ():
         pass
 
 
 def test_not_redefined_in_for(name):
-    for name_1 in []:
+    for name_1 in ():
         pass
 
     # This one can be okay if you are interested in the last value
     # of the iteration
     other = None
-    for other in []:
+    for other in ():
         pass
 
 

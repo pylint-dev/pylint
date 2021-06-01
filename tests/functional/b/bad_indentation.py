@@ -12,7 +12,7 @@ def titii():
      1  # and this. # [bad-indentation]
 
 def tataa(kdict):
-    for key in ['1', '2', '3']:
+    for key in ('1', '2', '3'):
         key = key.lower()
 
         if key in kdict:
