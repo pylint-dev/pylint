@@ -13,6 +13,7 @@ from pylint.checkers.utils import (
 )
 from pylint.interfaces import IAstroidChecker
 from pylint.lint import PyLinter
+from pylint.message import MsgDef
 
 
 class TypingAlias(NamedTuple):
@@ -84,23 +85,27 @@ class TypingChecker(BaseChecker):
     name = "typing"
     priority = -1
     msgs = {
-        "W6001": (
-            "'%s' is deprecated, use '%s' instead",
-            "deprecated-typing-alias",
-            "Emitted when a deprecated typing alias is used.",
+        "W6001": MsgDef(
+            msg="'%s' is deprecated, use '%s' instead",
+            symbol="deprecated-typing-alias",
+            desc="Emitted when a deprecated typing alias is used.",
         ),
-        "R6002": (
-            "'%s' will be deprecated with PY39, consider using '%s' instead%s",
-            "consider-using-alias",
-            "Only emitted if 'runtime-typing=no' and a deprecated "
-            "typing alias is used in a type annotation context in "
-            "Python 3.7 or 3.8.",
+        "R6002": MsgDef(
+            msg="'%s' will be deprecated with PY39, consider using '%s' instead%s",
+            symbol="consider-using-alias",
+            desc=(
+                "Only emitted if 'runtime-typing=no' and a deprecated "
+                "typing alias is used in a type annotation context in "
+                "Python 3.7 or 3.8."
+            ),
         ),
-        "R6003": (
-            "Consider using alternative Union syntax instead of '%s'%s",
-            "consider-alternative-union-syntax",
-            "Emitted when 'typing.Union' or 'typing.Optional' is used "
-            "instead of the alternative Union syntax 'int | None'.",
+        "R6003": MsgDef(
+            msg="Consider using alternative Union syntax instead of '%s'%s",
+            symbol="consider-alternative-union-syntax",
+            desc=(
+                "Emitted when 'typing.Union' or 'typing.Optional' is used "
+                "instead of the alternative Union syntax 'int | None'."
+            ),
         ),
     }
     options = (

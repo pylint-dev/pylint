@@ -72,6 +72,7 @@ from pylint.checkers.utils import (
     unimplemented_abstract_methods,
 )
 from pylint.interfaces import IAstroidChecker
+from pylint.message import MsgDef
 from pylint.utils import get_global_option
 
 NEXT_METHOD = "__next__"
@@ -499,216 +500,262 @@ def _has_same_layout_slots(slots, assigned_value):
     return False
 
 
-MSGS = {  # pylint: disable=consider-using-namedtuple
-    "F0202": (
-        "Unable to check methods signature (%s / %s)",
-        "method-check-failed",
-        "Used when Pylint has been unable to check methods signature "
-        "compatibility for an unexpected reason. Please report this kind "
-        "if you don't make sense of it.",
+MSGS = {
+    "F0202": MsgDef(
+        msg="Unable to check methods signature (%s / %s)",
+        symbol="method-check-failed",
+        desc=(
+            "Used when Pylint has been unable to check methods signature "
+            "compatibility for an unexpected reason. Please report this kind "
+            "if you don't make sense of it."
+        ),
     ),
-    "E0202": (
-        "An attribute defined in %s line %s hides this method",
-        "method-hidden",
-        "Used when a class defines a method which is hidden by an "
-        "instance attribute from an ancestor class or set by some "
-        "client code.",
+    "E0202": MsgDef(
+        msg="An attribute defined in %s line %s hides this method",
+        symbol="method-hidden",
+        desc=(
+            "Used when a class defines a method which is hidden by an "
+            "instance attribute from an ancestor class or set by some "
+            "client code."
+        ),
     ),
-    "E0203": (
-        "Access to member %r before its definition line %s",
-        "access-member-before-definition",
-        "Used when an instance member is accessed before it's actually assigned.",
+    "E0203": MsgDef(
+        msg="Access to member %r before its definition line %s",
+        symbol="access-member-before-definition",
+        desc="Used when an instance member is accessed before it's actually assigned.",
     ),
-    "W0201": (
-        "Attribute %r defined outside __init__",
-        "attribute-defined-outside-init",
-        "Used when an instance attribute is defined outside the __init__ method.",
+    "W0201": MsgDef(
+        msg="Attribute %r defined outside __init__",
+        symbol="attribute-defined-outside-init",
+        desc=(
+            "Used when an instance attribute is defined outside the __init__ method."
+        ),
     ),
-    "W0212": (
-        "Access to a protected member %s of a client class",  # E0214
-        "protected-access",
-        "Used when a protected member (i.e. class member with a name "
-        "beginning with an underscore) is access outside the class or a "
-        "descendant of the class where it's defined.",
+    "W0212": MsgDef(
+        msg="Access to a protected member %s of a client class",  # E0214
+        symbol="protected-access",
+        desc=(
+            "Used when a protected member (i.e. class member with a name "
+            "beginning with an underscore) is access outside the class or a "
+            "descendant of the class where it's defined."
+        ),
     ),
-    "E0211": (
-        "Method has no argument",
-        "no-method-argument",
-        "Used when a method which should have the bound instance as "
-        "first argument has no argument defined.",
+    "E0211": MsgDef(
+        msg="Method has no argument",
+        symbol="no-method-argument",
+        desc=(
+            "Used when a method which should have the bound instance as "
+            "first argument has no argument defined."
+        ),
     ),
-    "E0213": (
-        'Method should have "self" as first argument',
-        "no-self-argument",
-        'Used when a method has an attribute different the "self" as '
-        "first argument. This is considered as an error since this is "
-        "a so common convention that you shouldn't break it!",
+    "E0213": MsgDef(
+        msg='Method should have "self" as first argument',
+        symbol="no-self-argument",
+        desc=(
+            'Used when a method has an attribute different the "self" as '
+            "first argument. This is considered as an error since this is "
+            "a so common convention that you shouldn't break it!"
+        ),
     ),
-    "C0202": (
-        "Class method %s should have %s as first argument",
-        "bad-classmethod-argument",
-        "Used when a class method has a first argument named differently "
-        "than the value specified in valid-classmethod-first-arg option "
-        '(default to "cls"), recommended to easily differentiate them '
-        "from regular instance methods.",
+    "C0202": MsgDef(
+        msg="Class method %s should have %s as first argument",
+        symbol="bad-classmethod-argument",
+        desc=(
+            "Used when a class method has a first argument named differently "
+            "than the value specified in valid-classmethod-first-arg option "
+            '(default to "cls"), recommended to easily differentiate them '
+            "from regular instance methods."
+        ),
     ),
-    "C0203": (
-        "Metaclass method %s should have %s as first argument",
-        "bad-mcs-method-argument",
-        "Used when a metaclass method has a first argument named "
-        "differently than the value specified in valid-classmethod-first"
-        '-arg option (default to "cls"), recommended to easily '
-        "differentiate them from regular instance methods.",
+    "C0203": MsgDef(
+        msg="Metaclass method %s should have %s as first argument",
+        symbol="bad-mcs-method-argument",
+        desc=(
+            "Used when a metaclass method has a first argument named "
+            "differently than the value specified in valid-classmethod-first"
+            '-arg option (default to "cls"), recommended to easily '
+            "differentiate them from regular instance methods."
+        ),
     ),
-    "C0204": (
-        "Metaclass class method %s should have %s as first argument",
-        "bad-mcs-classmethod-argument",
-        "Used when a metaclass class method has a first argument named "
-        "differently than the value specified in valid-metaclass-"
-        'classmethod-first-arg option (default to "mcs"), recommended to '
-        "easily differentiate them from regular instance methods.",
+    "C0204": MsgDef(
+        msg="Metaclass class method %s should have %s as first argument",
+        symbol="bad-mcs-classmethod-argument",
+        desc=(
+            "Used when a metaclass class method has a first argument named "
+            "differently than the value specified in valid-metaclass-"
+            'classmethod-first-arg option (default to "mcs"), recommended to '
+            "easily differentiate them from regular instance methods."
+        ),
     ),
-    "W0211": (
-        "Static method with %r as first argument",
-        "bad-staticmethod-argument",
-        'Used when a static method has "self" or a value specified in '
-        "valid-classmethod-first-arg option or "
-        "valid-metaclass-classmethod-first-arg option as first argument.",
+    "W0211": MsgDef(
+        msg="Static method with %r as first argument",
+        symbol="bad-staticmethod-argument",
+        desc=(
+            'Used when a static method has "self" or a value specified in '
+            "valid-classmethod-first-arg option or "
+            "valid-metaclass-classmethod-first-arg option as first argument."
+        ),
     ),
-    "R0201": (
-        "Method could be a function",
-        "no-self-use",
-        "Used when a method doesn't use its bound instance, and so could "
-        "be written as a function.",
+    "R0201": MsgDef(
+        msg="Method could be a function",
+        symbol="no-self-use",
+        desc=(
+            "Used when a method doesn't use its bound instance, and so could "
+            "be written as a function."
+        ),
     ),
-    "W0221": (
-        "%s %s %r method",
-        "arguments-differ",
-        "Used when a method has a different number of arguments than in "
-        "the implemented interface or in an overridden method.",
+    "W0221": MsgDef(
+        msg="%s %s %r method",
+        symbol="arguments-differ",
+        desc=(
+            "Used when a method has a different number of arguments than in "
+            "the implemented interface or in an overridden method."
+        ),
     ),
-    "W0222": (
-        "Signature differs from %s %r method",
-        "signature-differs",
-        "Used when a method signature is different than in the "
-        "implemented interface or in an overridden method.",
+    "W0222": MsgDef(
+        msg="Signature differs from %s %r method",
+        symbol="signature-differs",
+        desc=(
+            "Used when a method signature is different than in the "
+            "implemented interface or in an overridden method."
+        ),
     ),
-    "W0223": (
-        "Method %r is abstract in class %r but is not overridden",
-        "abstract-method",
-        "Used when an abstract method (i.e. raise NotImplementedError) is "
-        "not overridden in concrete class.",
+    "W0223": MsgDef(
+        msg="Method %r is abstract in class %r but is not overridden",
+        symbol="abstract-method",
+        desc=(
+            "Used when an abstract method (i.e. raise NotImplementedError) is "
+            "not overridden in concrete class."
+        ),
     ),
-    "W0231": (
-        "__init__ method from base class %r is not called",
-        "super-init-not-called",
-        "Used when an ancestor class method has an __init__ method "
-        "which is not called by a derived class.",
+    "W0231": MsgDef(
+        msg="__init__ method from base class %r is not called",
+        symbol="super-init-not-called",
+        desc=(
+            "Used when an ancestor class method has an __init__ method "
+            "which is not called by a derived class."
+        ),
     ),
-    "W0232": (
-        "Class has no __init__ method",
-        "no-init",
-        "Used when a class has no __init__ method, neither its parent classes.",
+    "W0232": MsgDef(
+        msg="Class has no __init__ method",
+        symbol="no-init",
+        desc="Used when a class has no __init__ method, neither its parent classes.",
     ),
-    "W0233": (
-        "__init__ method from a non direct base class %r is called",
-        "non-parent-init-called",
-        "Used when an __init__ method is called on a class which is not "
-        "in the direct ancestors for the analysed class.",
+    "W0233": MsgDef(
+        msg="__init__ method from a non direct base class %r is called",
+        symbol="non-parent-init-called",
+        desc=(
+            "Used when an __init__ method is called on a class which is not "
+            "in the direct ancestors for the analysed class."
+        ),
     ),
-    "W0235": (
-        "Useless super delegation in method %r",
-        "useless-super-delegation",
-        "Used whenever we can detect that an overridden method is useless, "
-        "relying on super() delegation to do the same thing as another method "
-        "from the MRO.",
+    "W0235": MsgDef(
+        msg="Useless super delegation in method %r",
+        symbol="useless-super-delegation",
+        desc=(
+            "Used whenever we can detect that an overridden method is useless, "
+            "relying on super() delegation to do the same thing as another method "
+            "from the MRO."
+        ),
     ),
-    "W0236": (
-        "Method %r was expected to be %r, found it instead as %r",
-        "invalid-overridden-method",
-        "Used when we detect that a method was overridden in a way "
-        "that does not match its base class "
-        "which could result in potential bugs at runtime.",
+    "W0236": MsgDef(
+        msg="Method %r was expected to be %r, found it instead as %r",
+        symbol="invalid-overridden-method",
+        desc=(
+            "Used when we detect that a method was overridden in a way "
+            "that does not match its base class "
+            "which could result in potential bugs at runtime."
+        ),
     ),
-    "W0237": (
-        "%s %s %r method",
-        "arguments-renamed",
-        "Used when a method parameter has a different name than in "
-        "the implemented interface or in an overridden method.",
+    "W0237": MsgDef(
+        msg="%s %s %r method",
+        symbol="arguments-renamed",
+        desc=(
+            "Used when a method parameter has a different name than in "
+            "the implemented interface or in an overridden method."
+        ),
     ),
-    "W0238": (
-        "Unused private member `%s.%s`",
-        "unused-private-member",
-        "Emitted when a private member of a class is defined but not used.",
+    "W0238": MsgDef(
+        msg="Unused private member `%s.%s`",
+        symbol="unused-private-member",
+        desc="Emitted when a private member of a class is defined but not used.",
     ),
-    "E0236": (
-        "Invalid object %r in __slots__, must contain only non empty strings",
-        "invalid-slots-object",
-        "Used when an invalid (non-string) object occurs in __slots__.",
+    "E0236": MsgDef(
+        msg="Invalid object %r in __slots__, must contain only non empty strings",
+        symbol="invalid-slots-object",
+        desc="Used when an invalid (non-string) object occurs in __slots__.",
     ),
-    "E0237": (
-        "Assigning to attribute %r not defined in class slots",
-        "assigning-non-slot",
-        "Used when assigning to an attribute not defined in the class slots.",
+    "E0237": MsgDef(
+        msg="Assigning to attribute %r not defined in class slots",
+        symbol="assigning-non-slot",
+        desc="Used when assigning to an attribute not defined in the class slots.",
     ),
-    "E0238": (
-        "Invalid __slots__ object",
-        "invalid-slots",
-        "Used when an invalid __slots__ is found in class. "
-        "Only a string, an iterable or a sequence is permitted.",
+    "E0238": MsgDef(
+        msg="Invalid __slots__ object",
+        symbol="invalid-slots",
+        desc=(
+            "Used when an invalid __slots__ is found in class. "
+            "Only a string, an iterable or a sequence is permitted."
+        ),
     ),
-    "E0239": (
-        "Inheriting %r, which is not a class.",
-        "inherit-non-class",
-        "Used when a class inherits from something which is not a class.",
+    "E0239": MsgDef(
+        msg="Inheriting %r, which is not a class.",
+        symbol="inherit-non-class",
+        desc="Used when a class inherits from something which is not a class.",
     ),
-    "E0240": (
-        "Inconsistent method resolution order for class %r",
-        "inconsistent-mro",
-        "Used when a class has an inconsistent method resolution order.",
+    "E0240": MsgDef(
+        msg="Inconsistent method resolution order for class %r",
+        symbol="inconsistent-mro",
+        desc="Used when a class has an inconsistent method resolution order.",
     ),
-    "E0241": (
-        "Duplicate bases for class %r",
-        "duplicate-bases",
-        "Used when a class has duplicate bases.",
+    "E0241": MsgDef(
+        msg="Duplicate bases for class %r",
+        symbol="duplicate-bases",
+        desc="Used when a class has duplicate bases.",
     ),
-    "E0242": (
-        "Value %r in slots conflicts with class variable",
-        "class-variable-slots-conflict",
-        "Used when a value in __slots__ conflicts with a class variable, property or method.",
+    "E0242": MsgDef(
+        msg="Value %r in slots conflicts with class variable",
+        symbol="class-variable-slots-conflict",
+        desc="Used when a value in __slots__ conflicts with a class variable, property or method.",
     ),
-    "E0243": (
-        "Invalid __class__ object",
-        "invalid-class-object",
-        "Used when an invalid object is assigned to a __class__ property. "
-        "Only a class is permitted.",
+    "E0243": MsgDef(
+        msg="Invalid __class__ object",
+        symbol="invalid-class-object",
+        desc=(
+            "Used when an invalid object is assigned to a __class__ property. "
+            "Only a class is permitted."
+        ),
     ),
-    "R0202": (
-        "Consider using a decorator instead of calling classmethod",
-        "no-classmethod-decorator",
-        "Used when a class method is defined without using the decorator syntax.",
+    "R0202": MsgDef(
+        msg="Consider using a decorator instead of calling classmethod",
+        symbol="no-classmethod-decorator",
+        desc="Used when a class method is defined without using the decorator syntax.",
     ),
-    "R0203": (
-        "Consider using a decorator instead of calling staticmethod",
-        "no-staticmethod-decorator",
-        "Used when a static method is defined without using the decorator syntax.",
+    "R0203": MsgDef(
+        msg="Consider using a decorator instead of calling staticmethod",
+        symbol="no-staticmethod-decorator",
+        desc="Used when a static method is defined without using the decorator syntax.",
     ),
-    "C0205": (
-        "Class __slots__ should be a non-string iterable",
-        "single-string-used-for-slots",
-        "Used when a class __slots__ is a simple string, rather than an iterable.",
+    "C0205": MsgDef(
+        msg="Class __slots__ should be a non-string iterable",
+        symbol="single-string-used-for-slots",
+        desc="Used when a class __slots__ is a simple string, rather than an iterable.",
     ),
-    "R0205": (
-        "Class %r inherits from object, can be safely removed from bases in python3",
-        "useless-object-inheritance",
-        "Used when a class inherit from object, which under python3 is implicit, "
-        "hence can be safely removed from bases.",
+    "R0205": MsgDef(
+        msg="Class %r inherits from object, can be safely removed from bases in python3",
+        symbol="useless-object-inheritance",
+        desc=(
+            "Used when a class inherit from object, which under python3 is implicit, "
+            "hence can be safely removed from bases."
+        ),
     ),
-    "R0206": (
-        "Cannot have defined parameters for properties",
-        "property-with-parameters",
-        "Used when we detect that a property also has parameters, which are useless, "
-        "given that properties cannot be called with additional arguments.",
+    "R0206": MsgDef(
+        msg="Cannot have defined parameters for properties",
+        symbol="property-with-parameters",
+        desc=(
+            "Used when we detect that a property also has parameters, which are useless, "
+            "given that properties cannot be called with additional arguments."
+        ),
     ),
 }
 
@@ -1978,85 +2025,99 @@ class SpecialMethodsChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = "classes"
     msgs = {
-        "E0301": (
-            "__iter__ returns non-iterator",
-            "non-iterator-returned",
-            "Used when an __iter__ method returns something which is not an "
-            "iterable (i.e. has no `%s` method)" % NEXT_METHOD,
-            {
+        "E0301": MsgDef(
+            msg="__iter__ returns non-iterator",
+            symbol="non-iterator-returned",
+            desc=(
+                "Used when an __iter__ method returns something which is not an "
+                "iterable (i.e. has no `%s` method)" % NEXT_METHOD
+            ),
+            options={
                 "old_names": [
                     ("W0234", "old-non-iterator-returned-1"),
                     ("E0234", "old-non-iterator-returned-2"),
                 ]
             },
         ),
-        "E0302": (
-            "The special method %r expects %s param(s), %d %s given",
-            "unexpected-special-method-signature",
-            "Emitted when a special method was defined with an "
-            "invalid number of parameters. If it has too few or "
-            "too many, it might not work at all.",
-            {"old_names": [("E0235", "bad-context-manager")]},
+        "E0302": MsgDef(
+            msg="The special method %r expects %s param(s), %d %s given",
+            symbol="unexpected-special-method-signature",
+            desc=(
+                "Emitted when a special method was defined with an "
+                "invalid number of parameters. If it has too few or "
+                "too many, it might not work at all."
+            ),
+            options={"old_names": [("E0235", "bad-context-manager")]},
         ),
-        "E0303": (
-            "__len__ does not return non-negative integer",
-            "invalid-length-returned",
-            "Used when a __len__ method returns something which is not a "
-            "non-negative integer",
+        "E0303": MsgDef(
+            msg="__len__ does not return non-negative integer",
+            symbol="invalid-length-returned",
+            desc=(
+                "Used when a __len__ method returns something which is not a "
+                "non-negative integer"
+            ),
         ),
-        "E0304": (
-            "__bool__ does not return bool",
-            "invalid-bool-returned",
-            "Used when a __bool__ method returns something which is not a bool",
+        "E0304": MsgDef(
+            msg="__bool__ does not return bool",
+            symbol="invalid-bool-returned",
+            desc="Used when a __bool__ method returns something which is not a bool",
         ),
-        "E0305": (
-            "__index__ does not return int",
-            "invalid-index-returned",
-            "Used when an __index__ method returns something which is not "
-            "an integer",
+        "E0305": MsgDef(
+            msg="__index__ does not return int",
+            symbol="invalid-index-returned",
+            desc=(
+                "Used when an __index__ method returns something which is not "
+                "an integer"
+            ),
         ),
-        "E0306": (
-            "__repr__ does not return str",
-            "invalid-repr-returned",
-            "Used when a __repr__ method returns something which is not a string",
+        "E0306": MsgDef(
+            msg="__repr__ does not return str",
+            symbol="invalid-repr-returned",
+            desc="Used when a __repr__ method returns something which is not a string",
         ),
-        "E0307": (
-            "__str__ does not return str",
-            "invalid-str-returned",
-            "Used when a __str__ method returns something which is not a string",
+        "E0307": MsgDef(
+            msg="__str__ does not return str",
+            symbol="invalid-str-returned",
+            desc="Used when a __str__ method returns something which is not a string",
         ),
-        "E0308": (
-            "__bytes__ does not return bytes",
-            "invalid-bytes-returned",
-            "Used when a __bytes__ method returns something which is not bytes",
+        "E0308": MsgDef(
+            msg="__bytes__ does not return bytes",
+            symbol="invalid-bytes-returned",
+            desc="Used when a __bytes__ method returns something which is not bytes",
         ),
-        "E0309": (
-            "__hash__ does not return int",
-            "invalid-hash-returned",
-            "Used when a __hash__ method returns something which is not an integer",
+        "E0309": MsgDef(
+            msg="__hash__ does not return int",
+            symbol="invalid-hash-returned",
+            desc="Used when a __hash__ method returns something which is not an integer",
         ),
-        "E0310": (
-            "__length_hint__ does not return non-negative integer",
-            "invalid-length-hint-returned",
-            "Used when a __length_hint__ method returns something which is not a "
-            "non-negative integer",
+        "E0310": MsgDef(
+            msg="__length_hint__ does not return non-negative integer",
+            symbol="invalid-length-hint-returned",
+            desc=(
+                "Used when a __length_hint__ method returns something which is not a "
+                "non-negative integer"
+            ),
         ),
-        "E0311": (
-            "__format__ does not return str",
-            "invalid-format-returned",
-            "Used when a __format__ method returns something which is not a string",
+        "E0311": MsgDef(
+            msg="__format__ does not return str",
+            symbol="invalid-format-returned",
+            desc="Used when a __format__ method returns something which is not a string",
         ),
-        "E0312": (
-            "__getnewargs__ does not return a tuple",
-            "invalid-getnewargs-returned",
-            "Used when a __getnewargs__ method returns something which is not "
-            "a tuple",
+        "E0312": MsgDef(
+            msg="__getnewargs__ does not return a tuple",
+            symbol="invalid-getnewargs-returned",
+            desc=(
+                "Used when a __getnewargs__ method returns something which is not "
+                "a tuple"
+            ),
         ),
-        "E0313": (
-            "__getnewargs_ex__ does not return a tuple containing (tuple, dict)",
-            "invalid-getnewargs-ex-returned",
-            "Used when a __getnewargs_ex__ method returns something which is not "
-            "of the form tuple(tuple, dict)",
+        "E0313": MsgDef(
+            msg="__getnewargs_ex__ does not return a tuple containing (tuple, dict)",
+            symbol="invalid-getnewargs-ex-returned",
+            desc=(
+                "Used when a __getnewargs_ex__ method returns something which is not "
+                "of the form tuple(tuple, dict)"
+            ),
         ),
     }
     priority = -2
