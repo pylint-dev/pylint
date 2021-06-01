@@ -1,0 +1,4 @@
+consider-using-tuple-iterator:9:9::Consider iterating over in-place tuple instead
+consider-using-tuple-iterator:14:12::Consider iterating over in-place tuple instead
+consider-using-tuple-iterator:15:12::Consider iterating over in-place tuple instead
+consider-using-tuple-iterator:19:12::Consider iterating over in-place tuple instead
