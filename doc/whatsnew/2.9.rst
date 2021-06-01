@@ -33,6 +33,9 @@ New checkers
 
 * ``consider-using-namedtuple``: Emitted when dictionary values can be replaced by namedtuples.
 
+* ``invalid-all-format``: Emitted when ``__all__`` has an invalid format,
+  i.e. isn't a ``tuple`` or ``list``.
+
 Other Changes
 =============
 
