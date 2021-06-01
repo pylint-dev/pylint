@@ -124,8 +124,8 @@ modules are added.
   Closes #4509
   Closes PyCQA/astroid#999
 
-* New checker ``consider-using-namedtuple``. Emitted when dictionary values can be replaced
-  by namedtuples.
+* New checker ``consider-using-namedtuple-or-dataclass``. Emitted when dictionary values
+  can be replaced by namedtuples or dataclass instances.
 
 
 What's New in Pylint 2.8.3?
