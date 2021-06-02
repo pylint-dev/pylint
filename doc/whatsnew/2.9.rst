@@ -39,7 +39,8 @@ New checkers
 
 * New checker ``await-outside-async``: Emitted when await is used outside an async function.
 
-* ``consider-using-tuple-iterator``: Emitted when iterating over an in-place define list or set that can be replaced by a tuple.
+* ``consider-using-tuple``: Emitted when an in-place defined list or set can be replaced by a tuple.
+
 
 Other Changes
 =============

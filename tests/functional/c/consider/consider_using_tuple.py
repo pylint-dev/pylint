@@ -6,17 +6,17 @@ for x in var:
     pass
 for x in (1, 2, 3):
     pass
-for x in [1, 2, 3]:  # [consider-using-tuple-iterator]
+for x in [1, 2, 3]:  # [consider-using-tuple]
     pass
 
 (x for x in var)
 (x for x in (1, 2, 3))
-(x for x in [1, 2, 3])  # [consider-using-tuple-iterator]
-(x for x in {1, 2, 3})  # [consider-using-tuple-iterator]
+(x for x in [1, 2, 3])  # [consider-using-tuple]
+(x for x in {1, 2, 3})  # [consider-using-tuple]
 
 [x for x in var]
 [x for x in (1, 2, 3)]
-[x for x in [1, 2, 3]]  # [consider-using-tuple-iterator]
+[x for x in [1, 2, 3]]  # [consider-using-tuple]
 
 
 # list/set can't be replaced if tuple unpacking is used
