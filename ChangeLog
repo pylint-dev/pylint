@@ -139,8 +139,8 @@ modules are added.
 
   Closes #4545
 
-* New checker ``consider-using-tuple-iterator``. Emitted when iterating over
-  an in-place define list or set that can be replace by a tuple.
+* New checker ``consider-using-tuple``. Emitted when an in-place defined
+  list or set can be replaced by a tuple.
 
 
 What's New in Pylint 2.8.3?
