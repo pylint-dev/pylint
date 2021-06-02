@@ -106,13 +106,12 @@ def test_global():
     import re as RE  # [unused-import]
 
 # test cases that include exceptions
-# TODO fix bug for not identifying unused variables in nested exceptions
-# see issue #4391
 def function2():
     unused = 1  # [unused-variable]
     try:
         1 / 0
     except ZeroDivisionError as error:
+    # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
         try:
             1 / 0
         except ZeroDivisionError as error:
@@ -122,6 +121,7 @@ def func():
     try:
         1 / 0
     except ZeroDivisionError as error:
+    # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
         try:
             1 / 0
         except error:
@@ -131,6 +131,7 @@ def func2():
     try:
         1 / 0
     except ZeroDivisionError as error:
+    # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
         try:
             1 / 0
         except:
