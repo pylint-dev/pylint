@@ -132,6 +132,7 @@ modules are added.
 
 * Add test cases for nested exceptions in ``unused-variable`` error message.
 
+
 What's New in Pylint 2.8.3?
 ===========================
 Release date: 2021-05-31
