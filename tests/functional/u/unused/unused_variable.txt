@@ -18,3 +18,5 @@ unused-import:103:4:test_global:Unused platform imported from sys
 unused-import:104:4:test_global:Unused version imported from sys as VERSION
 unused-import:105:4:test_global:Unused import this
 unused-import:106:4:test_global:Unused re imported as RE
+unused-variable:112:4:function2:Unused variable 'unused'
+unused-variable:152:4:func4:Unused variable 'error'

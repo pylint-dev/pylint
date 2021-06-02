@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, useless-object-inheritance,import-outside-toplevel
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, useless-object-inheritance,import-outside-toplevel, fixme
 
 def test_regression_737():
     import xml # [unused-import]
@@ -104,3 +104,53 @@ def test_global():
     from sys import version as VERSION  # [unused-import]
     import this  # [unused-import]
     import re as RE  # [unused-import]
+
+# test cases that include exceptions
+# TODO fix bug for not identifying unused variables in nested exceptions
+# see issue #4391
+def function2():
+    unused = 1  # [unused-variable]
+    try:
+        1 / 0
+    except ZeroDivisionError as error:
+        try:
+            1 / 0
+        except ZeroDivisionError as error:
+            raise Exception("") from error
+
+def func():
+    try:
+        1 / 0
+    except ZeroDivisionError as error:
+        try:
+            1 / 0
+        except error:
+            print("error")
+
+def func2():
+    try:
+        1 / 0
+    except ZeroDivisionError as error:
+        try:
+            1 / 0
+        except:
+            raise Exception("") from error
+
+def func3():
+    try:
+        1 / 0
+    except ZeroDivisionError as error:
+        print(f"{error}")
+        try:
+            1 / 2
+        except TypeError as error:
+            print("warning")
+
+def func4():
+    try:
+        1 / 0
+    except ZeroDivisionError as error:  # [unused-variable]
+        try:
+            1 / 0
+        except ZeroDivisionError as error:
+            print("error")
