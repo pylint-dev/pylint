@@ -130,6 +130,7 @@ modules are added.
 * New checker ``invalid-all-format``. Emitted when ``__all__`` has an invalid format,
   i.e. isn't a ``tuple`` or ``list``.
 
+* Add test cases for nested exceptions in ``unused-variable`` error message.
 
 What's New in Pylint 2.8.3?
 ===========================
