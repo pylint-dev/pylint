@@ -356,9 +356,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "The value can be accessed directly instead.",
         ),
         "R1734": (
-            "Consider using namedtuple for dictionary values",
-            "consider-using-namedtuple",
-            "Emitted when dictionary values can be replaced by namedtuples.",
+            "Consider using namedtuple or dataclass for dictionary values",
+            "consider-using-namedtuple-or-dataclass",
+            "Emitted when dictionary values can be replaced by namedtuples or dataclass instances.",
         ),
     }
     options = (
@@ -1763,7 +1763,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             args=("1".join(value.as_string().rsplit("0", maxsplit=1)),),
                         )
 
-    @utils.check_messages("consider-using-namedtuple")
+    @utils.check_messages("consider-using-namedtuple-or-dataclass")
     def visit_dict(self, node: astroid.Dict) -> None:
         self._check_dict_consider_namedtuple(node)
 
@@ -1812,7 +1812,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if not keys_intersection:
                 return
 
-            self.add_message("consider-using-namedtuple", node=node)
+            self.add_message("consider-using-namedtuple-or-dataclass", node=node)
             return
 
         # All dict_values are itself either list or tuple nodes
@@ -1833,5 +1833,5 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if all(isinstance(entry, astroid.Dict) for entry in dict_value.elts):
                     return
 
-            self.add_message("consider-using-namedtuple", node=node)
+            self.add_message("consider-using-namedtuple-or-dataclass", node=node)
             return

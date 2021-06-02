@@ -499,7 +499,7 @@ def _has_same_layout_slots(slots, assigned_value):
     return False
 
 
-MSGS = {  # pylint: disable=consider-using-namedtuple
+MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "F0202": (
         "Unable to check methods signature (%s / %s)",
         "method-check-failed",
