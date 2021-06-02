@@ -145,6 +145,7 @@ def func3():
         try:
             1 / 2
         except TypeError as error:
+        # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
             print("warning")
 
 def func4():
@@ -154,4 +155,5 @@ def func4():
         try:
             1 / 0
         except ZeroDivisionError as error:
+        # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
             print("error")
