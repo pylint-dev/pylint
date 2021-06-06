@@ -25,14 +25,14 @@ graph:{
   linestyle:dotted
   backarrowsize:10
 }
-  edge: {sourcename:"data.suppliermodule_test.DoNothing" targetname:"data.clientmodule_test.Ancestor"  label:"cls_member"
-  arrowstyle:solid
+  edge: {sourcename:"data.suppliermodule_test.DoNothing" targetname:"data.clientmodule_test.Ancestor"  arrowstyle:solid
   backarrowstyle:none
   textcolor:green
+  label:"cls_member"
 }
-  edge: {sourcename:"data.suppliermodule_test.DoNothing" targetname:"data.clientmodule_test.Specialization"  label:"relation"
-  arrowstyle:solid
+  edge: {sourcename:"data.suppliermodule_test.DoNothing" targetname:"data.clientmodule_test.Specialization"  arrowstyle:solid
   backarrowstyle:none
   textcolor:green
+  label:"relation"
 }
 }

@@ -1,6 +1,6 @@
 digraph "packages_colorized" {
-charset="utf-8"
 rankdir=BT
+charset="utf-8"
 "data" [color="aliceblue", label="data", shape="box", style="filled"];
 "data.clientmodule_test" [color="aliceblue", label="data.clientmodule_test", shape="box", style="filled"];
 "data.suppliermodule_test" [color="aliceblue", label="data.suppliermodule_test", shape="box", style="filled"];

@@ -37,6 +37,7 @@
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andrew Howe <howeaj@users.noreply.github.com>
 # Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
@@ -59,8 +60,8 @@ from pylint.checkers.utils import (
     node_ignores_exception,
 )
 from pylint.exceptions import EmptyReportError
-from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
+from pylint.pyreverse.printer import DotPrinter, EdgeType, Layout, NodeType
 from pylint.reporters.ureports.nodes import Paragraph, VerbatimText, VNode
 from pylint.utils import IsortDriver, get_global_option
 
@@ -190,30 +191,75 @@ def _repr_tree_defs(data, indent_str=None):
     return "\n".join(lines)
 
 
-def _dependencies_graph(filename: str, dep_info: Dict[str, List[str]]) -> str:
+def _dependencies_graph(filename: str, dep_info: Dict[str, List[str]]) -> None:
     """write dependencies as a dot (graphviz) file"""
     done = {}
-    printer = DotBackend(os.path.splitext(os.path.basename(filename))[0], rankdir="LR")
+    printer = DotPrinter(
+        os.path.splitext(os.path.basename(filename))[0], layout=Layout.LEFT_TO_RIGHT
+    )
     printer.emit('URL="." node[shape="box"]')
     for modname, dependencies in sorted(dep_info.items()):
         done[modname] = 1
-        printer.emit_node(modname)
+        printer.emit_node(modname, type_=NodeType.PACKAGE)
         for depmodname in dependencies:
             if depmodname not in done:
                 done[depmodname] = 1
-                printer.emit_node(depmodname)
+                printer.emit_node(depmodname, type_=NodeType.PACKAGE)
     for depmodname, dependencies in sorted(dep_info.items()):
         for modname in dependencies:
-            printer.emit_edge(modname, depmodname)
-    return printer.generate(filename)
+            printer.emit_edge(modname, depmodname, type_=EdgeType.USES)
+    printer.generate(filename)
 
 
 def _make_graph(filename: str, dep_info: Dict[str, List[str]], sect: VNode, gtype: str):
     """generate a dependencies graph and add some information about it in the
     report's section
     """
-    outputfile = _dependencies_graph(filename, dep_info)
-    sect.append(Paragraph(f"{gtype}imports graph has been written to {outputfile}"))
+    _dependencies_graph(filename, dep_info)
+    sect.append(Paragraph(f"{gtype}imports graph has been written to {filename}"))
+
+
+def get_cycles(graph_dict, vertices=None):
+    """given a dictionary representing an ordered graph (i.e. key are vertices
+    and values is a list of destination vertices representing edges), return a
+    list of detected cycles
+    """
+    if not graph_dict:
+        return ()
+    result = []
+    if vertices is None:
+        vertices = graph_dict.keys()
+    for vertice in vertices:
+        _get_cycles(graph_dict, [], set(), result, vertice)
+    return result
+
+
+def _get_cycles(graph_dict, path, visited, result, vertice):
+    """recursive function doing the real work for get_cycles"""
+    if vertice in path:
+        cycle = [vertice]
+        for node in path[::-1]:
+            if node == vertice:
+                break
+            cycle.insert(0, node)
+        # make a canonical representation
+        start_from = min(cycle)
+        index = cycle.index(start_from)
+        cycle = cycle[index:] + cycle[0:index]
+        # append it to result if not already in
+        if cycle not in result:
+            result.append(cycle)
+        return
+    path.append(vertice)
+    try:
+        for node in graph_dict[vertice]:
+            # don't check already visited nodes again
+            if node not in visited:
+                _get_cycles(graph_dict, path, visited, result, node)
+                visited.add(node)
+    except KeyError:
+        pass
+    path.pop()
 
 
 # the import checker itself ###################################################

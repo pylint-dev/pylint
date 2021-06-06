@@ -1,6 +1,6 @@
 digraph "packages_No_Name" {
-charset="utf-8"
 rankdir=BT
+charset="utf-8"
 "data" [color="black", label="data", shape="box", style="solid"];
 "data.clientmodule_test" [color="black", label="data.clientmodule_test", shape="box", style="solid"];
 "data.suppliermodule_test" [color="black", label="data.suppliermodule_test", shape="box", style="solid"];

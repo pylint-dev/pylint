@@ -200,7 +200,7 @@ def _check_graphviz_available(output_format):
         print(
             "The output format '%s' is currently not available.\n"
             "Please install 'Graphviz' to have other output formats "
-            "than 'dot' or 'vcg'." % output_format
+            "than 'dot', 'vcg' or 'puml'." % output_format
         )
         sys.exit(32)
 
