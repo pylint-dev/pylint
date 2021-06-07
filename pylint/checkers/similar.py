@@ -56,7 +56,10 @@ from pylint.utils import decoding_stream
 
 REGEX_FOR_LINES_WITH_CONTENT = re.compile(r".*\w+")
 
+# Index defines a location in a LineSet stripped lines collection
 Index = NewType('Index', int)
+
+# LineNumber defines a location in a LinesSet real lines collection (the whole file lines)
 LineNumber = NewType('LineNumber', int)
 
 class LineType(Enum):
@@ -118,7 +121,7 @@ class LinesChunk:
         return (f"LinesChunk object for file {self._fileid}, starting at line {self._index} \n"
                 f"Hash is {self._hash}")
 
-# Couple of line numbers
+
 class SuccessiveLinesLimits:
     """
     A class to handle the numbering of begin and end of successive lines.
@@ -173,13 +176,13 @@ class LineSetStartCouple:
     @property
     def snd_lineset_index(self) -> Index:
         return self._snd_lineset_index
-        
+
 
 def hash_lineset(lineset: 'LineSet', min_common_lines: int =4) -> Tuple[HashToIndex_T, IndexToLines_T]:
     """
-    Return two dicts. The first links the hash of successive stripped lines of a lineset
+    Return two dicts. The first associates the hash of successive stripped lines of a lineset
     to the indices of the starting lines.
-    The second dict, links the index of the starting line in the linset's stripped lines to the 
+    The second dict, associates the index of the starting line in the linset's stripped lines to the 
     couple [start, end] lines number in the corresponding file.
 
     :param lineset: lineset object (i.e the lines in a file)
@@ -216,6 +219,8 @@ def hash_lineset(lineset: 'LineSet', min_common_lines: int =4) -> Tuple[HashToIn
 def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
     """
     Removes all successive entries in the dictionary in argument 
+    
+    :param all_couples: collection that has to be cleaned up from successives entries
 
     For example consider the following dict:
 
@@ -488,7 +493,11 @@ def stripped_lines(lines: Iterable[str], ignore_comments: bool, ignore_docstring
 
 @functools.total_ordering
 class LineSet:
-    """Holds and indexes all the lines of a single source file"""
+    """
+    Holds and indexes all the lines of a single source file.
+    Allows for correspondance between real lines of the source file and stripped ones, which
+    are the real ones from which undesired patterns have been removed.
+    """
 
     def __init__(
         self,
