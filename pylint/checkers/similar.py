@@ -238,6 +238,32 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
                 pass
 
 
+def check_sim(ls_1: "LineSet", stline_1: LineNumber, ls_2: "LineSet", stline_2: LineNumber, nb_lines: int, min_lines_nb: int):
+    """
+    Return True if both linesets real lines collection (defined by a starting index and a number of lines) have a minimum of 
+    successive lines that are identical.
+    Empty lines or lines that do not have at least a word are not taken into account.
+
+    :param ls_1: first lineset
+    :param stline_1: first lineset starting index
+    :param ls_2: second lineset
+    :param stline_2: second lineset starting index
+    :param nb_lines: number of lines that defines both chunks
+    :param min_lines_nb: minimum common lines
+    """
+    check_cmn_lines_nb = 0
+    for idx in range(nb_lines):
+        line_1 = ls_1.real_lines[stline_1 + idx]
+        line_2 = ls_2.real_lines[stline_2 + idx]
+        if (REGEX_FOR_LINES_WITH_CONTENT.match(line_1) and
+            REGEX_FOR_LINES_WITH_CONTENT.match(line_2) and
+            line_1 == line_2): 
+                check_cmn_lines_nb += 1
+    if check_cmn_lines_nb > min_lines_nb:
+        return True
+    return False
+
+
 class Similar:
     """finds copy-pasted lines of code in a project"""
 
@@ -718,20 +744,6 @@ def Run(argv=None):
             sim.append_stream(filename, stream)
     sim.run()
     sys.exit(0)
-
-
-def check_sim(ls_1: LineSet, stline_1: int, ls_2: LineSet, stline_2: int, nb_lines: int, min_lines_nb: int):
-    check_cmn_lines_nb = 0
-    for idx in range(nb_lines):
-        line_1 = ls_1.real_lines[stline_1 + idx]
-        line_2 = ls_2.real_lines[stline_2 + idx]
-        if (REGEX_FOR_LINES_WITH_CONTENT.match(line_1) and
-            REGEX_FOR_LINES_WITH_CONTENT.match(line_2) and
-            line_1 == line_2): 
-                check_cmn_lines_nb += 1
-    if check_cmn_lines_nb > min_lines_nb:
-        return True
-    return False
 
 
 if __name__ == "__main__":
