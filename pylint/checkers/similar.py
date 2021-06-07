@@ -32,6 +32,7 @@ The position of a given line in the stripped lines is called an Index. The posit
 is called a LineNumber. Correspondance between Index and LineNumber 
 """
 import copy
+from enum import Enum
 import functools
 from os import posix_fadvise
 import re
@@ -57,6 +58,12 @@ REGEX_FOR_LINES_WITH_CONTENT = re.compile(r".*\w+")
 
 Index = NewType('Index', int)
 LineNumber = NewType('LineNumber', int)
+
+class LineType(Enum):
+    DOC = 1
+    IMPORT = 2
+    COMMENT = 3
+    SIGNATURE = 4
 
 # LineSpecifs holds characteristics of a line in a file
 LineSpecifs = NamedTuple("LineSpecifs", (('text', str), ('linenumber', LineNumber), ('linetype', LineType)))
@@ -91,7 +98,7 @@ class LinesChunk:
         self._index : Index = Index(num_line)
         self._hash : int = 0
         for lin, ltyp in lines:
-            if lin or ltyp == "doc":
+            if lin or ltyp == LineType.DOC:
                 self._hash += hash(lin)
             else:
                 self._hash += hash(int(random.random() * 100000))
@@ -449,7 +456,6 @@ def stripped_lines(lines: Iterable[str], ignore_comments: bool, ignore_docstring
     docstring = None
     for lineno, line in enumerate(lines, start=1):
         line = line.strip()
-        ltype = None
         if ignore_docstrings:
             if not docstring:
                 if line.startswith('"""') or line.startswith("'''"):
@@ -462,19 +468,21 @@ def stripped_lines(lines: Iterable[str], ignore_comments: bool, ignore_docstring
                 if line.endswith(docstring):
                     docstring = None
                 line = ""
-                ltype = 'doc'
+                ltype = LineType.DOC
         if ignore_imports:
             current_line_is_import = line_begins_import.get(
                 lineno, current_line_is_import
             )
             if current_line_is_import:
                 line = ""
-                ltype = 'import'
+                ltype = LineType.IMPORT
         if ignore_comments:
             line = line.split("#", 1)[0].strip()
+            ltype = LineType.COMMENT
         if ignore_signatures and lineno in signature_lines:
             line = ""
-        strippedlines.append(LineSpecifs(line, lineno - 1, ltype))
+            ltype = LineType.SIGNATURE
+        strippedlines.append(LineSpecifs(line, LineNumber(lineno - 1), ltype))
     return strippedlines
 
 
