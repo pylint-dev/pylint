@@ -130,6 +130,9 @@ modules are added.
 * New checker ``invalid-all-format``. Emitted when ``__all__`` has an invalid format,
   i.e. isn't a ``tuple`` or ``list``.
 
+* Fix false positive ``unused-variable`` and ``undefined-variable`` with
+  Pattern Matching in Python 3.10
+
 
 What's New in Pylint 2.8.3?
 ===========================
