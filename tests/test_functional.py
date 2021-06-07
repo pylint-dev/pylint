@@ -96,12 +96,13 @@ TEST_WITH_EXPECTED_DEPRECATION = [
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
 def test_functional(test_file, recwarn, pytestconfig):
+    __tracebackhide__ = True  # pylint: disable=unused-variable
     if UPDATE_FILE.exists():
         lint_test = LintModuleOutputUpdate(test_file, pytestconfig)
     else:
         lint_test = testutils.LintModuleTest(test_file, pytestconfig)
     lint_test.setUp()
-    lint_test._runTest()
+    lint_test.runTest()
     warning = None
     try:
         # Catch <unknown>:x: DeprecationWarning: invalid escape sequence
