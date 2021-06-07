@@ -58,7 +58,23 @@ REGEX_FOR_LINES_WITH_CONTENT = re.compile(r".*\w+")
 Index = NewType('Index', int)
 LineNumber = NewType('LineNumber', int)
 
-LineSpecifs = NamedTuple("LineSpecifs", (('text', str), ('linenumber', int), ('linetype', Optional[str])))
+# LineSpecifs holds characteristics of a line in a file
+LineSpecifs = NamedTuple("LineSpecifs", (('text', str), ('linenumber', LineNumber), ('linetype', LineType)))
+
+# Links LinesChunk object to the starting indices (in lineset's stripped lines)
+# of the different chunk of lines that are used to compute the hash
+HashToIndex_T = Dict["LinesChunk", List[Index]]
+
+# Links index in the lineset's stripped lines to the real lines in the file
+IndexToLines_T = Dict[Index, "SuccessiveLinesLimits"]  
+
+# Couples of SuccesiveLinesLimits, one for first file, another for the second file 
+CplSuccessiveLinesLimits = NamedTuple("CplSuccessiveLinesLimits", (("first_file", "SuccessiveLinesLimits"), ("second_file", "SuccessiveLinesLimits")))
+
+# Links the indices ot the starting line in both lineset's stripped lines to 
+# the start and end lines in both files
+CplIndexToCplLines_T = Dict["LineSetStartCouple", CplSuccessiveLinesLimits] 
+
 
 class LinesChunk:
     """
@@ -121,13 +137,6 @@ class SuccessiveLinesLimits:
     def __repr__(self) -> str:
         return f"<SuccessiveLinesLimits <{self._start};{self._end}>>"
 
-# Links LinesChunk object to the starting indices (in lineset's stripped lines)
-# of the different chunk of lines that are used to compute the hash
-HashToIndex_T = Dict[LinesChunk, List[Index]]
-
-# Links index in the lineset's stripped lines to the real lines in the file
-IndexToLines_T = Dict[Index, SuccessiveLinesLimits]  
-
 class LineSetStartCouple:
     """
     Indices in both linesets that mark the beginning of successive lines
@@ -159,15 +168,7 @@ class LineSetStartCouple:
         return self._snd_lineset_index
         
 
-# Couples of SuccesiveLinesLimits, one for first file, another for the second file 
-CplSuccessiveLinesLimits = NamedTuple("CplSuccessiveLinesLimits", (("first_file", SuccessiveLinesLimits), ("second_file", SuccessiveLinesLimits)))
-
-# Links the indices ot the starting line in both lineset's stripped lines to 
-# the start and end lines in both files
-CplIndexToCplLines_T = Dict[LineSetStartCouple, CplSuccessiveLinesLimits] 
-
-
-def hash_lineset(lineset, min_common_lines: int =4) -> Tuple[HashToIndex_T, IndexToLines_T]:
+def hash_lineset(lineset: 'LineSet', min_common_lines: int =4) -> Tuple[HashToIndex_T, IndexToLines_T]:
     """
     Return two dicts. The first links the hash of successive stripped lines of a lineset
     to the indices of the starting lines.
