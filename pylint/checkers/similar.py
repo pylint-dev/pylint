@@ -288,11 +288,11 @@ class Similar:
         ignore_imports: bool = False,
         ignore_signatures: bool = False,
     ) -> None:
-        self.min_lines = min_lines
-        self.ignore_comments = ignore_comments
-        self.ignore_docstrings = ignore_docstrings
-        self.ignore_imports = ignore_imports
-        self.ignore_signatures = ignore_signatures
+        self.min_lines: int = min_lines
+        self.ignore_comments: bool = ignore_comments
+        self.ignore_docstrings: bool = ignore_docstrings
+        self.ignore_imports: bool = ignore_imports
+        self.ignore_signatures: bool = ignore_signatures
         self.linesets: List["LineSet"] = []
 
     def append_stream(
@@ -365,14 +365,18 @@ class Similar:
             )
         )
 
-    def _find_common(self, lineset1, lineset2):
+    def _find_common(self, lineset1: "LineSet", lineset2: "LineSet") -> Generator[Tuple[int, "LineSet", LineNumber, "LineSet", LineNumber], None, None]:
         """find similarities in the two given linesets"""
         min_common = 4
+        hash_to_index_1 : HashToIndex_T
+        hash_to_index_2 : HashToIndex_T
+        index_to_lines_1 : IndexToLines_T
+        index_to_lines_2 : IndexToLines_T
         hash_to_index_1, index_to_lines_1 = hash_lineset(lineset1, min_common)
         hash_to_index_2, index_to_lines_2 = hash_lineset(lineset2, min_common)
 
-        hash_1 : FrozenSet[LinesChunk] = set(hash_to_index_1.keys())
-        hash_2 : FrozenSet[LinesChunk] = set(hash_to_index_2.keys())
+        hash_1 : FrozenSet[LinesChunk] = frozenset(hash_to_index_1.keys())
+        hash_2 : FrozenSet[LinesChunk] = frozenset(hash_to_index_2.keys())
 
         common_hashes : Iterable[LinesChunk] = sorted(list(hash_1 & hash_2), key=lambda m: hash_to_index_1[m][0])
 
