@@ -135,6 +135,10 @@ modules are added.
 
 * New checker ``await-outside-async``. Emitted when await is used outside an async function.
 
+* Clarify documentation for ``typing`` extension.
+
+  Closes #4545
+
 
 What's New in Pylint 2.8.3?
 ===========================
