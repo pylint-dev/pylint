@@ -124,10 +124,10 @@ class TypingChecker(BaseChecker):
                 "type": "yn",
                 "metavar": "<y_or_n>",
                 "help": (
-                    "Set to ``no`` if the app / libary does NOT need to "
-                    "support runtime introspection of type "
-                    "annotations. Only applies to Python version "
-                    "3.7 - 3.9"
+                    "Set to ``no`` if the app / library does NOT need to "
+                    "support runtime introspection of type annotations. "
+                    "Only change it if you understand what that means. "
+                    "Applies to Python version 3.7 - 3.9"
                 ),
             },
         ),
