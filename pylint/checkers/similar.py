@@ -390,8 +390,8 @@ class Similar:
         hash_to_index_2 : HashToIndex_T
         index_to_lines_1 : IndexToLines_T
         index_to_lines_2 : IndexToLines_T
-        hash_to_index_1, index_to_lines_1 = hash_lineset(lineset1, min_common)
-        hash_to_index_2, index_to_lines_2 = hash_lineset(lineset2, min_common)
+        hash_to_index_1, index_to_lines_1 = hash_lineset(lineset1, self.min_lines)
+        hash_to_index_2, index_to_lines_2 = hash_lineset(lineset2, self.min_lines)
 
         hash_1 : FrozenSet[LinesChunk] = frozenset(hash_to_index_1.keys())
         hash_2 : FrozenSet[LinesChunk] = frozenset(hash_to_index_2.keys())
@@ -420,7 +420,7 @@ class Similar:
             nb_common_lines_2 = end_line_2 - start_line_2
             assert(nb_common_lines_1 == nb_common_lines_2)
 
-            if check_sim(lineset1, start_line_1, lineset2, start_line_2, nb_common_lines_1, min_common):
+            if check_sim(lineset1, start_line_1, lineset2, start_line_2, nb_common_lines_1, self.min_lines):
                 yield nb_common_lines_1, lineset1, start_line_1, lineset2, start_line_2
 
     def _iter_sims(self):
