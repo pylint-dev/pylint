@@ -61,12 +61,19 @@ Index = NewType('Index', int)
 
 # LineNumber defines a location in a LinesSet real lines collection (the whole file lines)
 LineNumber = NewType('LineNumber', int)
-
 class LineType(Enum):
-    DOC = 1
-    IMPORT = 2
-    COMMENT = 3
-    SIGNATURE = 4
+    """
+    Specifies the considered type of a line of the source file.
+
+    For example if the option ignore_docstring is True then lines corresponding
+    to a docstring are marked with DOC otherwise those same lines are considered as
+    common source lines and so marked with SRC.
+    """
+    SRC = 1
+    DOC = 2
+    IMPORT = 3
+    COMMENT = 4
+    SIGNATURE = 5
 
 # LineSpecifs holds characteristics of a line in a file
 LineSpecifs = NamedTuple("LineSpecifs", (('text', str), ('linenumber', LineNumber), ('linetype', LineType)))
@@ -465,6 +472,7 @@ def stripped_lines(lines: Iterable[str], ignore_comments: bool, ignore_docstring
     docstring = None
     for lineno, line in enumerate(lines, start=1):
         line = line.strip()
+        ltype = LineType.SRC
         if ignore_docstrings:
             if not docstring:
                 if line.startswith('"""') or line.startswith("'''"):
