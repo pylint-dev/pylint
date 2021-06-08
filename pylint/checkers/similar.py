@@ -226,7 +226,11 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
     """
     Removes all successive entries in the dictionary in argument 
     
-    :param all_couples: collection that has to be cleaned up from successives entries
+    :param all_couples: collection that has to be cleaned up from successives entries.
+                        The keys are couples of indices that mark the beginning of common entries
+                        in both linesets. The values have two parts. The first one is the couple
+                        of starting and ending line numbers of common successives lines in the first file.
+                        The second part is the same for the second file. 
 
     For example consider the following dict:
 
