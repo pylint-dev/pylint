@@ -26,10 +26,16 @@
 """a similarities / code duplication command line tool and pylint checker
 
 The algorithm is based on comparing the hash value of n successive lines of a file. 
-First the file is read and any lines that doesn't fullfill requirement is ignored (comments, docstrings...)
+First the files are read and any line that doesn't fullfill requirement is replaced by an empty line (comments, docstrings...)
 Those stripped lines are stored in the LineSet class which gives access to them. 
-The position of a given line in the stripped lines is called an Index. The position of the same line in the original file
-is called a LineNumber. Correspondance between Index and LineNumber 
+Then each index of the stripped lines collection is associated with the hash of n successive entries of the stripped lines starting at the current index
+(n is the minimum common lines option).
+The common hashes between both linesets are then looked for. If there are matches, then the match indices in both linesets are stored and associated
+with the corresponding couples (start line number/end line number) in both files.
+This association is then postprocessed to handle the case of successive matches. For example if the minium common lines setting is set to four, then
+the hashes are computed with four lines. If one of match indices couple (12, 34) is the successor of another one (11, 33) then it means that there are
+in fact five lines wich are common.
+Once postprocessed the values of association table are the result looked for, i.e start and end lines numbers of common lines in both files.
 """
 import copy
 from enum import Enum
