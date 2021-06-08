@@ -494,9 +494,11 @@ def stripped_lines(lines: Iterable[str], ignore_comments: bool, ignore_docstring
                 if line.startswith('"""') or line.startswith("'''"):
                     docstring = line[:3]
                     line = line[3:]
+                    ltype = LineType.DOC
                 elif line.startswith('r"""') or line.startswith("r'''"):
                     docstring = line[1:4]
                     line = line[4:]
+                    ltype = LineType.DOC
             if docstring:
                 if line.endswith(docstring):
                     docstring = None
