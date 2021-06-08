@@ -30,7 +30,7 @@ from pylint import checkers, interfaces
 from pylint.checkers import utils
 from pylint.checkers.utils import check_messages
 
-MSGS = {
+MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "W1201": (
         "Use %s formatting in logging functions",
         "logging-not-lazy",

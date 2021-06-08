@@ -35,7 +35,11 @@ def test_get_message_ids_not_existing(empty_msgid_store):
 def test_register_message_definitions(empty_msgid_store, message_definitions):
     number_of_msgid = len(message_definitions)
     for message_definition in message_definitions:
-        empty_msgid_store.register_message_definition(message_definition)
+        empty_msgid_store.register_message_definition(
+            message_definition.msgid,
+            message_definition.symbol,
+            message_definition.old_names,
+        )
         if message_definition.old_names:
             number_of_msgid += len(message_definition.old_names)
     assert len(empty_msgid_store) == number_of_msgid

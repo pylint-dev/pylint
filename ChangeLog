@@ -109,6 +109,37 @@ modules are added.
 
   Closes #4518
 
+* ``invalid-length-returned``, now also works when nothing at all is returned
+  following an upgrade in astroid.
+
+* ``logging-format-interpolation`` and ``logging-not-lazy``, now works on logger
+  class created from renamed logging import following an upgrade in astroid.
+
+* Fix false-positive ``no-member`` with generic base class
+
+  Closes PyCQA/astroid#942
+
+* Fix ``assigning-non-slot`` false-positive with base that inherits from ``typing.Generic``
+
+  Closes #4509
+  Closes PyCQA/astroid#999
+
+* New checker ``consider-using-namedtuple-or-dataclass``. Emitted when dictionary values
+  can be replaced by namedtuples or dataclass instances.
+
+* New checker ``invalid-all-format``. Emitted when ``__all__`` has an invalid format,
+  i.e. isn't a ``tuple`` or ``list``.
+
+* Fix false positive ``unused-variable`` and ``undefined-variable`` with
+  Pattern Matching in Python 3.10
+
+
+What's New in Pylint 2.8.3?
+===========================
+Release date: 2021-05-31
+
+* Astroid has been pinned to 2.5.6 for the 2.8 branch see #4527.
+
 
 What's New in Pylint 2.8.2?
 ===========================

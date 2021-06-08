@@ -391,6 +391,11 @@ MSGS = {
         "invalid-all-object",
         "Used when an invalid (non-string) object occurs in __all__.",
     ),
+    "E0605": (
+        "Invalid format for __all__, must be tuple or list",
+        "invalid-all-format",
+        "Used when __all__ has an invalid format.",
+    ),
     "E0611": (
         "No name %r in module %r",
         "no-name-in-module",
@@ -737,6 +742,7 @@ class VariablesChecker(BaseChecker):
         "redefined-builtin",
         "undefined-all-variable",
         "invalid-all-object",
+        "invalid-all-format",
         "unused-variable",
     )
     def leave_module(self, node):
@@ -1960,6 +1966,10 @@ class VariablesChecker(BaseChecker):
     def _check_all(self, node, not_consumed):
         assigned = next(node.igetattr("__all__"))
         if assigned is astroid.Uninferable:
+            return
+
+        if not isinstance(assigned, (astroid.Tuple, astroid.List)):
+            self.add_message("invalid-all-format", node=assigned)
             return
 
         for elt in getattr(assigned, "elts", ()):

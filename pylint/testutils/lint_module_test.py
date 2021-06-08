@@ -76,6 +76,9 @@ class LintModuleTest:
             if sys.platform.lower() in platforms:
                 pytest.skip("Test cannot run on platform %r" % sys.platform)
 
+    def runTest(self):
+        self._runTest()
+
     def _should_be_skipped_due_to_version(self):
         return (
             sys.version_info < self._test_file.options["min_pyver"]
@@ -175,6 +178,7 @@ class LintModuleTest:
         return received_msgs, received_output_lines
 
     def _runTest(self):
+        __tracebackhide__ = True  # pylint: disable=unused-variable
         modules_to_check = [self._test_file.source]
         self._linter.check(modules_to_check)
         expected_messages, expected_output = self._get_expected()
