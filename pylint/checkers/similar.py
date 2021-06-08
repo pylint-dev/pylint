@@ -189,7 +189,7 @@ def hash_lineset(lineset: 'LineSet', min_common_lines: int =4) -> Tuple[HashToIn
     """
     Return two dicts. The first associates the hash of successive stripped lines of a lineset
     to the indices of the starting lines.
-    The second dict, associates the index of the starting line in the linset's stripped lines to the 
+    The second dict, associates the index of the starting line in the lineset's stripped lines to the 
     couple [start, end] lines number in the corresponding file.
 
     :param lineset: lineset object (i.e the lines in a file)
@@ -215,7 +215,6 @@ def hash_lineset(lineset: 'LineSet', min_common_lines: int =4) -> Tuple[HashToIn
         index = Index(index_i)
         index2lines[index] = SuccessiveLinesLimits(LineNumber(start_linenumber), LineNumber(end_linenumber))
 
-        # print(f"{index_i}::{start_linenumber}->{end_linenumber} : {succ_lines}", file=sys.stderr)
         successive_lines = tuple(*succ_lines)
         l_c = LinesChunk(lineset.name, index, *successive_lines)
         hash2index[l_c].append(index)
@@ -231,15 +230,19 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
 
     For example consider the following dict:
 
-    >>> all_couples = {
-        (11, 34): ([5, 9], [27, 31]),
-        (23, 79): ([15, 19], [45, 49]),
-        (12, 35): ([6, 10], [28, 32])
-        }
+    >>> all_couples
+    {(11, 34): ([5, 9], [27, 31]),
+     (23, 79): ([15, 19], [45, 49]),
+     (12, 35): ([6, 10], [28, 32])}
     
     There are two successives keys (11, 34) and (12, 35).
     It means there are two consecutive similar chunks of lines in both files.
-    Thus remove last entry and update the last line number in the first entry
+    Thus remove last entry and update the last line numbers in the first entry
+
+    >>> remove_successives(all_couples)
+    >>> all_couples
+    {(11, 34): ([5, 10], [27, 32]),
+     (23, 79): ([15, 19], [45, 49])}
     """
     all_couples_keys : List[LineSetStartCouple] = list(all_couples.keys())
     for couple in all_couples_keys:
@@ -260,7 +263,7 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
 
 def check_sim(ls_1: "LineSet", stline_1: LineNumber, ls_2: "LineSet", stline_2: LineNumber, nb_lines: int, min_lines_nb: int):
     """
-    Return True if both linesets real lines collection (defined by a starting index and a number of lines) have a minimum of 
+    Return True if both linesets real lines collection (defined by a starting line number and a number of lines) have a minimum of 
     successive lines that are identical.
     Empty lines or lines that do not have at least a word are not taken into account.
 
@@ -373,8 +376,16 @@ class Similar:
         )
 
     def _find_common(self, lineset1: "LineSet", lineset2: "LineSet") -> Generator[Tuple[int, "LineSet", LineNumber, "LineSet", LineNumber], None, None]:
-        """find similarities in the two given linesets"""
-        min_common = 4
+        """
+        Find similarities in the two given linesets. 
+
+        This the core of the algorithm.
+        The idea is to compute the hashes of a minimal number of successive lines of each lineset and then compare the hashes.
+        Every match of such comparison is stored in a dict that links the couple of starting indices in both linesets to 
+        the couple of corresponding starting and ending lines in both files.
+        Last regroups all successive couples in a bigger one. It allows to take into account common chunk of lines that have more
+        than the minimal number of successive lines required.
+        """
         hash_to_index_1 : HashToIndex_T
         hash_to_index_2 : HashToIndex_T
         index_to_lines_1 : IndexToLines_T
@@ -398,6 +409,7 @@ class Similar:
                 all_couples[LineSetStartCouple(index_1, index_2)] = CplSuccessiveLinesLimits(copy.copy(index_to_lines_1[index_1]), copy.copy(index_to_lines_2[index_2]))
 
         remove_successives(all_couples)
+
         for common_lines in all_couples.values():
             file_1_lines = common_lines.first_file
             file_2_lines = common_lines.second_file
