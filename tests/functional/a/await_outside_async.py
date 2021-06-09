@@ -20,7 +20,7 @@ async def func(i):
 async def okay_function():
     var = [await func(i) for i in range(5)]  # This should be okay
 
-
+# Test nested async/ normal functions
 async def func2():
     def inner_func():
         await asyncio.sleep(1)  # [await-outside-async]
@@ -28,3 +28,11 @@ async def func2():
     inner_func()
 
 asyncio.run(func2())
+
+def outer_func():
+    async def inner_func():
+        await asyncio.sleep(1)
+
+    asyncio.run(inner_func())
+
+outer_func()
