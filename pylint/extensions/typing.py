@@ -124,10 +124,13 @@ class TypingChecker(BaseChecker):
                 "type": "yn",
                 "metavar": "<y_or_n>",
                 "help": (
-                    "Set to ``no`` if the app / library does NOT need to "
+                    "Set to ``no`` if the app / library does **NOT** need to "
                     "support runtime introspection of type annotations. "
-                    "Only change it if you understand what that means. "
-                    "Applies to Python version 3.7 - 3.9"
+                    "If you use type annotations **exclusively** for type checking "
+                    "of an application, you're probably fine. For libraries, "
+                    "evaluate if some users what to access the type hints "
+                    "at runtime first, e.g., through ``typing.get_type_hints``. "
+                    "Applies to Python versions 3.7 - 3.9"
                 ),
             },
         ),
