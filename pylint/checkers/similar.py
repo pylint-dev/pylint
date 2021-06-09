@@ -114,7 +114,9 @@ class LinesChunk:
         self._index : Index = Index(num_line)
         self._hash : int = 0
         for lin, ltyp in lines:
-            if lin or ltyp == LineType.DOC:
+            # Empty lines that were docstings or comments before being stripped
+            # will be considered as equal
+            if lin or ltyp in (LineType.DOC, LineType.COMMENT):
                 self._hash += hash(lin)
             else:
                 self._hash += hash(int(random.random() * 100000))
