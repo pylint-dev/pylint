@@ -40,18 +40,16 @@ Once postprocessed the values of association table are the result looked for, i.
 import copy
 from enum import Enum
 import functools
-from os import posix_fadvise
 import re
 import sys
 from collections import defaultdict
 from getopt import getopt
 from io import TextIOWrapper
 from itertools import chain, groupby
-from pathlib import Path
 import itertools
 import operator
 import random
-from typing import Dict, Iterable, Any, Tuple, FrozenSet, List, NamedTuple, NewType, Generator, Optional
+from typing import Dict, Iterable, Tuple, FrozenSet, List, NamedTuple, NewType, Generator
 
 import astroid  # type: ignore
 
@@ -178,7 +176,7 @@ class LineSetStartCouple:
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, LineSetStartCouple):
-            raise NotImplemented
+            raise NotImplementedError
         return self._fst_lineset_index == other._fst_lineset_index and self._snd_lineset_index == other._snd_lineset_index
 
     def __hash__(self) -> int:
@@ -273,7 +271,7 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
                 pass
 
 
-def check_sim(ls_1: "LineSet", stline_1: LineNumber, ls_2: "LineSet", stline_2: LineNumber, nb_lines: int, min_lines_nb: int):
+def check_sim(ls_1: "LineSet", stline_1: LineNumber, ls_2: "LineSet", stline_2: LineNumber, nb_lines: int, min_lines_nb: int) -> bool:
     """
     Return True if both linesets real lines collection (defined by a starting line number and a number of lines) have a minimum of 
     successive lines that are identical.
@@ -285,6 +283,7 @@ def check_sim(ls_1: "LineSet", stline_1: LineNumber, ls_2: "LineSet", stline_2: 
     :param stline_2: second lineset starting index
     :param nb_lines: number of lines that defines both chunks
     :param min_lines_nb: minimum common lines
+    :return: True if both linesets real lines collection have a minimum of successive lines that are identical. False otherwise.
     """
     check_cmn_lines_nb = 0
     for idx in range(nb_lines):
@@ -466,7 +465,8 @@ def stripped_lines(lines: Iterable[str], ignore_comments: bool, ignore_docstring
     :param ignore_comments: if true, any comment in the lines collection is removed from the result
     :param ignore_docstrings: if true, any line that is a docstring is removed from the result
     :param ignore_imports: if true, any line that is an import is removed from the result
-    :param ignore_signatures: if true, any line that is part of a function signature is removed from the result 
+    :param ignore_signatures: if true, any line that is part of a function signature is removed from the result
+    :return: the collection of line/line number/line type tuples
     """
     if ignore_imports or ignore_signatures:
         tree = astroid.parse("".join(lines))
