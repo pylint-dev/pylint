@@ -1961,8 +1961,12 @@ class IterableChecker(BaseChecker):
         self._check_await_outside_coroutine(node)
 
     def _check_await_outside_coroutine(self, node: astroid.Await) -> None:
-        if not isinstance(node.scope(), astroid.AsyncFunctionDef):
-            self.add_message("await-outside-async", node=node)
+        node_scope = node.scope()
+        while not isinstance(node_scope, astroid.Module):
+            if isinstance(node_scope, astroid.AsyncFunctionDef):
+                return
+            node_scope = node_scope.parent.scope()
+        self.add_message("await-outside-async", node=node)
 
 
 def register(linter):

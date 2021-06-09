@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, unused-variable
 import asyncio
 
 async def nested():
@@ -13,3 +13,9 @@ asyncio.run(main())
 
 def not_async():
     print(await nested())  # [await-outside-async]
+
+async def func(i):
+    return i**2
+
+async def okay_function():
+    var = [await func(i) for i in range(5)]  # This should be okay
