@@ -39,7 +39,9 @@ New checkers
 
 * New checker ``await-outside-async``: Emitted when await is used outside an async function.
 
-* ``consider-using-tuple``: Emitted when an in-place defined list or set can be replaced by a tuple.
+* Add new extension ``CodeStyleChecker``. It includes checkers that can improve code
+  consistency. As such they don't necessarily provide a performance benefit
+  and are often times opinionated.
 
 
 Other Changes
