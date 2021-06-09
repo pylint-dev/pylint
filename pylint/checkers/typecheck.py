@@ -397,6 +397,11 @@ MSGS = {
         "dict-iter-missing-items",
         "Emitted when trying to iterate through a dict without calling .items()",
     ),
+    "E1142": (
+        "'await' should be used within an async function",
+        "await-outside-async",
+        "Emitted when await is used outside an async function.",
+    ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
         "in the definition of %s function",
@@ -1950,6 +1955,20 @@ class IterableChecker(BaseChecker):
     def visit_generatorexp(self, node):
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
+
+    @check_messages("await-outside-async")
+    def visit_await(self, node: astroid.Await) -> None:
+        self._check_await_outside_coroutine(node)
+
+    def _check_await_outside_coroutine(self, node: astroid.Await) -> None:
+        node_scope = node.scope()
+        while not isinstance(node_scope, astroid.Module):
+            if isinstance(node_scope, astroid.AsyncFunctionDef):
+                return
+            if isinstance(node_scope, astroid.FunctionDef):
+                break
+            node_scope = node_scope.parent.scope()
+        self.add_message("await-outside-async", node=node)
 
 
 def register(linter):

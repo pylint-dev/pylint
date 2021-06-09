@@ -133,6 +133,8 @@ modules are added.
 * Fix false positive ``unused-variable`` and ``undefined-variable`` with
   Pattern Matching in Python 3.10
 
+* New checker ``await-outside-async``. Emitted when await is used outside an async function.
+
 
 What's New in Pylint 2.8.3?
 ===========================
