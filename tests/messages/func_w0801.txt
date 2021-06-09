@@ -1,6 +1,9 @@
 R:  1: Similar lines in 2 files
-==input.func_w0801:3
-==input.w0801_same:3
+==input.func_w0801:0
+==input.w0801_same:0
+"""test code similarities
+by defaut docstring are not considered
+"""
 __revision__ = 'id'
 A = 2
 B = 3
