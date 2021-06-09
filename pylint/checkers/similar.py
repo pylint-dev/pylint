@@ -805,12 +805,16 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         """Passthru override"""
         return Similar.get_map_data(self)
 
-    @classmethod
-    def reduce_map_data(cls, linter, data):
+    def reduce_map_data(self, linter, data):
         """Reduces and recombines data into a format that we can report on
 
         The partner function of get_map_data()"""
         recombined = SimilarChecker(linter)
+        recombined.min_lines = self.min_lines
+        recombined.ignore_comments = self.ignore_comments
+        recombined.ignore_docstrings = self.ignore_docstrings
+        recombined.ignore_imports = self.ignore_imports
+        recombined.ignore_signatures = self.ignore_signatures
         recombined.open()
         Similar.combine_mapreduce_data(recombined, linesets_collection=data)
         recombined.close()
