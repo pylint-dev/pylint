@@ -5,7 +5,7 @@ x = 24
 
 def used_before_assignment_1(a):
     if x == a:  # [used-before-assignment]
-        for x in (1, 2):  # [redefined-outer-name]
+        for x in [1, 2]:  # [redefined-outer-name]
             pass
 
 

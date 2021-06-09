@@ -7,7 +7,7 @@ class Cls:
 
     def method(self):
         records = []
-        for _ in ():
+        for _ in []:
             records += []
         records = records[:self.count]
         records.sort()

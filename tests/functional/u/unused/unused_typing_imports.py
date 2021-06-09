@@ -33,7 +33,7 @@ def func2(*, arg: Optional[Iterable]=None):
 
 
 SOME_VALUE = [1] # type: List[Any]
-for VALUE in ([1], [2], [3]):  # type: Tuple[Any]
+for VALUE in [[1], [2], [3]]:  # type: Tuple[Any]
     print(VALUE)
 
 
