@@ -25,9 +25,9 @@
 # pylint: disable=redefined-builtin
 """a similarities / code duplication command line tool and pylint checker
 
-The algorithm is based on comparing the hash value of n successive lines of a file. 
+The algorithm is based on comparing the hash value of n successive lines of a file.
 First the files are read and any line that doesn't fullfill requirement is replaced by an empty line (comments, docstrings...)
-Those stripped lines are stored in the LineSet class which gives access to them. 
+Those stripped lines are stored in the LineSet class which gives access to them.
 Then each index of the stripped lines collection is associated with the hash of n successive entries of the stripped lines starting at the current index
 (n is the minimum common lines option).
 The common hashes between both linesets are then looked for. If there are matches, then the match indices in both linesets are stored and associated
@@ -38,18 +38,27 @@ in fact five lines wich are common.
 Once postprocessed the values of association table are the result looked for, i.e start and end lines numbers of common lines in both files.
 """
 import copy
-from enum import Enum
 import functools
-import re
-import sys
-from collections import defaultdict
-from getopt import getopt
-from io import TextIOWrapper
-from itertools import chain, groupby
 import itertools
 import operator
 import random
-from typing import Dict, Iterable, Tuple, FrozenSet, List, NamedTuple, NewType, Generator
+import re
+import sys
+from collections import defaultdict
+from enum import Enum
+from getopt import getopt
+from io import TextIOWrapper
+from itertools import chain, groupby
+from typing import (
+    Dict,
+    FrozenSet,
+    Generator,
+    Iterable,
+    List,
+    NamedTuple,
+    NewType,
+    Tuple,
+)
 
 import astroid  # type: ignore
 
@@ -60,11 +69,13 @@ from pylint.utils import decoding_stream
 
 REGEX_FOR_LINES_WITH_CONTENT = re.compile(r".*\w+")
 
-# Index defines a location in a LineSet stripped lines collection
-Index = NewType('Index', int)
+# Index defines a location in a LineSet stripped lines collection
+Index = NewType("Index", int)
 
-# LineNumber defines a location in a LinesSet real lines collection (the whole file lines)
-LineNumber = NewType('LineNumber', int)
+# LineNumber defines a location in a LinesSet real lines collection (the whole file lines)
+LineNumber = NewType("LineNumber", int)
+
+
 class LineType(Enum):
     """
     Specifies the considered type of a line of the source file.
@@ -73,47 +84,58 @@ class LineType(Enum):
     to a docstring are marked with DOC otherwise those same lines are considered as
     common source lines and so marked with SRC.
     """
+
     SRC = 1
     DOC = 2
     IMPORT = 3
     COMMENT = 4
     SIGNATURE = 5
 
-# LineSpecifs holds characteristics of a line in a file
-LineSpecifs = NamedTuple("LineSpecifs", (('text', str), ('linenumber', LineNumber), ('linetype', LineType)))
+
+# LineSpecifs holds characteristics of a line in a file
+class LineSpecifs(NamedTuple):
+    text: str
+    linenumber: LineNumber
+    linetype: LineType
+
 
 # Links LinesChunk object to the starting indices (in lineset's stripped lines)
 # of the different chunk of lines that are used to compute the hash
 HashToIndex_T = Dict["LinesChunk", List[Index]]
 
-# Links index in the lineset's stripped lines to the real lines in the file
-IndexToLines_T = Dict[Index, "SuccessiveLinesLimits"]  
+# Links index in the lineset's stripped lines to the real lines in the file
+IndexToLines_T = Dict[Index, "SuccessiveLinesLimits"]
 
-# Couples of SuccesiveLinesLimits, one for first file, another for the second file 
-CplSuccessiveLinesLimits = NamedTuple("CplSuccessiveLinesLimits", (("first_file", "SuccessiveLinesLimits"), ("second_file", "SuccessiveLinesLimits")))
 
-# Links the indices ot the starting line in both lineset's stripped lines to 
-# the start and end lines in both files
-CplIndexToCplLines_T = Dict["LineSetStartCouple", CplSuccessiveLinesLimits] 
+# Couples of SuccesiveLinesLimits, one for first file, another for the second file
+class CplSuccessiveLinesLimits(NamedTuple):
+    first_file: "SuccessiveLinesLimits"
+    second_file: "SuccessiveLinesLimits"
+
+
+# Links the indices ot the starting line in both lineset's stripped lines to
+# the start and end lines in both files
+CplIndexToCplLines_T = Dict["LineSetStartCouple", CplSuccessiveLinesLimits]
 
 
 class LinesChunk:
     """
     The LinesChunk object computes and stores the hash of some consecutive stripped lines of a lineset.
     """
+
     __slots__ = (
-        '_fileid',  # The name of the file from which the LinesChunk object is generated
-        '_index',  # The index in the stripped lines that is the starting of consecutive lines
-        '_hash'  # The hash of some consecutive lines
-        )
+        "_fileid",  # The name of the file from which the LinesChunk object is generated
+        "_index",  # The index in the stripped lines that is the starting of consecutive lines
+        "_hash",  # The hash of some consecutive lines
+    )
 
     def __init__(self, fileid: str, num_line: int, *lines: Iterable[str]):
-        self._fileid : str  = fileid
-        self._index : Index = Index(num_line)
-        self._hash : int = 0
+        self._fileid: str = fileid
+        self._index: Index = Index(num_line)
+        self._hash: int = 0
         for lin, ltyp in lines:
-            # Empty lines that were docstings or comments before being stripped
-            # will be considered as equal
+            # Empty lines that were docstings or comments before being stripped
+            # will be considered as equal
             if lin or ltyp in (LineType.DOC, LineType.COMMENT):
                 self._hash += hash(lin)
             else:
@@ -128,19 +150,24 @@ class LinesChunk:
         return self._hash
 
     def __repr__(self) -> str:
-        return f"<LinesChunk object for file {self._fileid} ({self._index}, {self._hash})>"
+        return (
+            f"<LinesChunk object for file {self._fileid} ({self._index}, {self._hash})>"
+        )
 
     def __str__(self) -> str:
-        return (f"LinesChunk object for file {self._fileid}, starting at line {self._index} \n"
-                f"Hash is {self._hash}")
+        return (
+            f"LinesChunk object for file {self._fileid}, starting at line {self._index} \n"
+            f"Hash is {self._hash}"
+        )
 
 
 class SuccessiveLinesLimits:
     """
     A class to handle the numbering of begin and end of successive lines.
-    
+
     :note: Only the end line number can be updated.
     """
+
     def __init__(self, start: LineNumber, end: LineNumber):
         self._start: LineNumber = start
         self._end: LineNumber = end
@@ -160,10 +187,12 @@ class SuccessiveLinesLimits:
     def __repr__(self) -> str:
         return f"<SuccessiveLinesLimits <{self._start};{self._end}>>"
 
+
 class LineSetStartCouple:
     """
     Indices in both linesets that mark the beginning of successive lines
     """
+
     def __init__(self, fst_lineset_index: Index, snd_lineset_index: Index):
         self._fst_lineset_index = fst_lineset_index
         self._snd_lineset_index = snd_lineset_index
@@ -172,12 +201,18 @@ class LineSetStartCouple:
         return f"<LineSetStartCouple <{self._fst_lineset_index};{self._snd_lineset_index}>>"
 
     def __add__(self, value: Index):
-        return LineSetStartCouple(Index(self._fst_lineset_index + value), Index(self._snd_lineset_index + value))
+        return LineSetStartCouple(
+            Index(self._fst_lineset_index + value),
+            Index(self._snd_lineset_index + value),
+        )
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, LineSetStartCouple):
             raise NotImplementedError
-        return self._fst_lineset_index == other._fst_lineset_index and self._snd_lineset_index == other._snd_lineset_index
+        return (
+            self._fst_lineset_index == other._fst_lineset_index
+            and self._snd_lineset_index == other._snd_lineset_index
+        )
 
     def __hash__(self) -> int:
         return hash(self._fst_lineset_index) + hash(self._snd_lineset_index)
@@ -191,11 +226,13 @@ class LineSetStartCouple:
         return self._snd_lineset_index
 
 
-def hash_lineset(lineset: 'LineSet', min_common_lines: int =4) -> Tuple[HashToIndex_T, IndexToLines_T]:
+def hash_lineset(
+    lineset: "LineSet", min_common_lines: int = 4
+) -> Tuple[HashToIndex_T, IndexToLines_T]:
     """
     Return two dicts. The first associates the hash of successive stripped lines of a lineset
     to the indices of the starting lines.
-    The second dict, associates the index of the starting line in the lineset's stripped lines to the 
+    The second dict, associates the index of the starting line in the lineset's stripped lines to the
     couple [start, end] lines number in the corresponding file.
 
     :param lineset: lineset object (i.e the lines in a file)
@@ -205,8 +242,8 @@ def hash_lineset(lineset: 'LineSet', min_common_lines: int =4) -> Tuple[HashToIn
     """
     hash2index = defaultdict(list)
     index2lines = dict()
-    # Comments, docstring and other specific patterns maybe excluded -> call to stripped_lines
-    # to get only what is desired
+    # Comments, docstring and other specific patterns maybe excluded -> call to stripped_lines
+    # to get only what is desired
     lines = list((x.text, x.linetype) for x in lineset.stripped_lines)
     # Need different iterators on same lines but each one is shifted 1 from the precedent
     shifted_lines = [iter(lines[i:]) for i in range(min_common_lines)]
@@ -219,7 +256,9 @@ def hash_lineset(lineset: 'LineSet', min_common_lines: int =4) -> Tuple[HashToIn
             end_linenumber = lineset.stripped_lines[-1][1] + 1
 
         index = Index(index_i)
-        index2lines[index] = SuccessiveLinesLimits(LineNumber(start_linenumber), LineNumber(end_linenumber))
+        index2lines[index] = SuccessiveLinesLimits(
+            LineNumber(start_linenumber), LineNumber(end_linenumber)
+        )
 
         successive_lines = tuple(*succ_lines)
         l_c = LinesChunk(lineset.name, index, *successive_lines)
@@ -230,13 +269,13 @@ def hash_lineset(lineset: 'LineSet', min_common_lines: int =4) -> Tuple[HashToIn
 
 def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
     """
-    Removes all successive entries in the dictionary in argument 
-    
+    Removes all successive entries in the dictionary in argument
+
     :param all_couples: collection that has to be cleaned up from successives entries.
                         The keys are couples of indices that mark the beginning of common entries
                         in both linesets. The values have two parts. The first one is the couple
                         of starting and ending line numbers of common successives lines in the first file.
-                        The second part is the same for the second file. 
+                        The second part is the same for the second file.
 
     For example consider the following dict:
 
@@ -244,7 +283,7 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
     {(11, 34): ([5, 9], [27, 31]),
      (23, 79): ([15, 19], [45, 49]),
      (12, 35): ([6, 10], [28, 32])}
-    
+
     There are two successives keys (11, 34) and (12, 35).
     It means there are two consecutive similar chunks of lines in both files.
     Thus remove last entry and update the last line numbers in the first entry
@@ -254,7 +293,7 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
     {(11, 34): ([5, 10], [27, 32]),
      (23, 79): ([15, 19], [45, 49])}
     """
-    all_couples_keys : List[LineSetStartCouple] = list(all_couples.keys())
+    all_couples_keys: List[LineSetStartCouple] = list(all_couples.keys())
     for couple in all_couples_keys:
         to_remove = []
         test = couple + Index(1)
@@ -262,7 +301,7 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
             all_couples[couple].first_file.end = all_couples[test].first_file.end
             all_couples[couple].second_file.end = all_couples[test].second_file.end
             to_remove.append(test)
-            test += 1 
+            test += 1
 
         for target in to_remove:
             try:
@@ -271,9 +310,16 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
                 pass
 
 
-def check_sim(ls_1: "LineSet", stline_1: LineNumber, ls_2: "LineSet", stline_2: LineNumber, nb_lines: int, min_lines_nb: int) -> bool:
+def check_sim(
+    ls_1: "LineSet",
+    stline_1: LineNumber,
+    ls_2: "LineSet",
+    stline_2: LineNumber,
+    nb_lines: int,
+    min_lines_nb: int,
+) -> bool:
     """
-    Return True if both linesets real lines collection (defined by a starting line number and a number of lines) have a minimum of 
+    Return True if both linesets real lines collection (defined by a starting line number and a number of lines) have a minimum of
     successive lines that are identical.
     Empty lines or lines that do not have at least a word are not taken into account.
 
@@ -289,10 +335,12 @@ def check_sim(ls_1: "LineSet", stline_1: LineNumber, ls_2: "LineSet", stline_2: 
     for idx in range(nb_lines):
         line_1 = ls_1.real_lines[stline_1 + idx]
         line_2 = ls_2.real_lines[stline_2 + idx]
-        if (REGEX_FOR_LINES_WITH_CONTENT.match(line_1) and
-            REGEX_FOR_LINES_WITH_CONTENT.match(line_2) and
-            line_1 == line_2): 
-                check_cmn_lines_nb += 1
+        if (
+            REGEX_FOR_LINES_WITH_CONTENT.match(line_1)
+            and REGEX_FOR_LINES_WITH_CONTENT.match(line_2)
+            and line_1 == line_2
+        ):
+            check_cmn_lines_nb += 1
     if check_cmn_lines_nb > min_lines_nb:
         return True
     return False
@@ -386,38 +434,51 @@ class Similar:
             )
         )
 
-    def _find_common(self, lineset1: "LineSet", lineset2: "LineSet") -> Generator[Tuple[int, "LineSet", LineNumber, "LineSet", LineNumber], None, None]:
+    def _find_common(
+        self, lineset1: "LineSet", lineset2: "LineSet"
+    ) -> Generator[
+        Tuple[int, "LineSet", LineNumber, "LineSet", LineNumber], None, None
+    ]:
         """
-        Find similarities in the two given linesets. 
+        Find similarities in the two given linesets.
 
         This the core of the algorithm.
         The idea is to compute the hashes of a minimal number of successive lines of each lineset and then compare the hashes.
-        Every match of such comparison is stored in a dict that links the couple of starting indices in both linesets to 
+        Every match of such comparison is stored in a dict that links the couple of starting indices in both linesets to
         the couple of corresponding starting and ending lines in both files.
         Last regroups all successive couples in a bigger one. It allows to take into account common chunk of lines that have more
         than the minimal number of successive lines required.
         """
-        hash_to_index_1 : HashToIndex_T
-        hash_to_index_2 : HashToIndex_T
-        index_to_lines_1 : IndexToLines_T
-        index_to_lines_2 : IndexToLines_T
+        hash_to_index_1: HashToIndex_T
+        hash_to_index_2: HashToIndex_T
+        index_to_lines_1: IndexToLines_T
+        index_to_lines_2: IndexToLines_T
         hash_to_index_1, index_to_lines_1 = hash_lineset(lineset1, self.min_lines)
         hash_to_index_2, index_to_lines_2 = hash_lineset(lineset2, self.min_lines)
 
-        hash_1 : FrozenSet[LinesChunk] = frozenset(hash_to_index_1.keys())
-        hash_2 : FrozenSet[LinesChunk] = frozenset(hash_to_index_2.keys())
+        hash_1: FrozenSet[LinesChunk] = frozenset(hash_to_index_1.keys())
+        hash_2: FrozenSet[LinesChunk] = frozenset(hash_to_index_2.keys())
 
-        common_hashes : Iterable[LinesChunk] = sorted(list(hash_1 & hash_2), key=lambda m: hash_to_index_1[m][0])
+        common_hashes: Iterable[LinesChunk] = sorted(
+            list(hash_1 & hash_2), key=lambda m: hash_to_index_1[m][0]
+        )
 
-        # all_couples is a dict that links the couple of indices in both linesets that mark the beginning of 
-        # successive common lines, to the corresponding starting and ending number lines in both files
-        all_couples : CplIndexToCplLines_T = {}
+        # all_couples is a dict that links the couple of indices in both linesets that mark the beginning of
+        # successive common lines, to the corresponding starting and ending number lines in both files
+        all_couples: CplIndexToCplLines_T = {}
 
-        for c_hash in sorted(common_hashes, key=operator.attrgetter('_index')):
-            for indices_in_linesets in itertools.product(hash_to_index_1[c_hash], hash_to_index_2[c_hash]):
+        for c_hash in sorted(common_hashes, key=operator.attrgetter("_index")):
+            for indices_in_linesets in itertools.product(
+                hash_to_index_1[c_hash], hash_to_index_2[c_hash]
+            ):
                 index_1 = indices_in_linesets[0]
                 index_2 = indices_in_linesets[1]
-                all_couples[LineSetStartCouple(index_1, index_2)] = CplSuccessiveLinesLimits(copy.copy(index_to_lines_1[index_1]), copy.copy(index_to_lines_2[index_2]))
+                all_couples[
+                    LineSetStartCouple(index_1, index_2)
+                ] = CplSuccessiveLinesLimits(
+                    copy.copy(index_to_lines_1[index_1]),
+                    copy.copy(index_to_lines_2[index_2]),
+                )
 
         remove_successives(all_couples)
 
@@ -429,9 +490,16 @@ class Similar:
 
             nb_common_lines_1 = end_line_1 - start_line_1
             nb_common_lines_2 = end_line_2 - start_line_2
-            assert(nb_common_lines_1 == nb_common_lines_2)
+            assert nb_common_lines_1 == nb_common_lines_2
 
-            if check_sim(lineset1, start_line_1, lineset2, start_line_2, nb_common_lines_1, self.min_lines):
+            if check_sim(
+                lineset1,
+                start_line_1,
+                lineset2,
+                start_line_2,
+                nb_common_lines_1,
+                self.min_lines,
+            ):
                 yield nb_common_lines_1, lineset1, start_line_1, lineset2, start_line_2
 
     def _iter_sims(self):
@@ -457,7 +525,13 @@ class Similar:
         self.linesets = [line for lineset in linesets_collection for line in lineset]
 
 
-def stripped_lines(lines: Iterable[str], ignore_comments: bool, ignore_docstrings: bool, ignore_imports: bool, ignore_signatures: bool) -> List[LineSpecifs]:
+def stripped_lines(
+    lines: Iterable[str],
+    ignore_comments: bool,
+    ignore_docstrings: bool,
+    ignore_imports: bool,
+    ignore_signatures: bool,
+) -> List[LineSpecifs]:
     """
     Return tuples of line/line number/line type with leading/trailing whitespace and any ignored code features removed
 
@@ -579,6 +653,7 @@ class LineSet:
     @property
     def real_lines(self):
         return self._real_lines
+
 
 MSGS = {
     "R0801": (
