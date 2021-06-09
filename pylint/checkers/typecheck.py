@@ -1965,6 +1965,8 @@ class IterableChecker(BaseChecker):
         while not isinstance(node_scope, astroid.Module):
             if isinstance(node_scope, astroid.AsyncFunctionDef):
                 return
+            if isinstance(node_scope, astroid.FunctionDef):
+                break
             node_scope = node_scope.parent.scope()
         self.add_message("await-outside-async", node=node)
 
