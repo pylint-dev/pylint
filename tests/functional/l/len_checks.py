@@ -124,8 +124,8 @@ def github_issue_1879():
     assert len(ClassWithoutBool())  # [len-as-condition]
     assert len(ChildClassWithoutBool())  # [len-as-condition]
     assert len(range(0))  # [len-as-condition]
-    assert len([t + 1 for t in ()])  # [len-as-condition]
-    assert len(u + 1 for u in ())  # [len-as-condition]
+    assert len([t + 1 for t in []])  # [len-as-condition]
+    assert len(u + 1 for u in [])  # [len-as-condition]
     assert len({"1":(v + 1) for v in {}})  # [len-as-condition]
     assert len(set((w + 1) for w in set()))  # [len-as-condition]
 
