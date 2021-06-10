@@ -31,9 +31,6 @@ New checkers
 
 * New checker ``invalid-class-object``: Emitted when a non-class is assigned to a ``__class__`` attribute.
 
-* ``consider-using-namedtuple-or-dataclass``: Emitted when dictionary values
-  can be replaced by namedtuples or dataclass instances.
-
 * ``invalid-all-format``: Emitted when ``__all__`` has an invalid format,
   i.e. isn't a ``tuple`` or ``list``.
 

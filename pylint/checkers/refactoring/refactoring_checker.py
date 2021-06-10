@@ -6,15 +6,14 @@ import copy
 import itertools
 import tokenize
 from functools import reduce
-from typing import List, Optional, Set, Tuple, Type, Union, cast
+from typing import List, Optional, Tuple, Union, cast
 
 import astroid
-from astroid.node_classes import NodeNG
 
 from pylint import checkers, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
-from pylint.checkers.utils import node_frame_class, safe_infer
+from pylint.checkers.utils import node_frame_class
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
@@ -354,11 +353,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when iterating over the dictionary items (key-item pairs) and accessing the "
             "value by index lookup. "
             "The value can be accessed directly instead.",
-        ),
-        "R1734": (
-            "Consider using namedtuple or dataclass for dictionary values",
-            "consider-using-namedtuple-or-dataclass",
-            "Emitted when dictionary values can be replaced by namedtuples or dataclass instances.",
         ),
     }
     options = (
@@ -1762,76 +1756,3 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             node=subscript,
                             args=("1".join(value.as_string().rsplit("0", maxsplit=1)),),
                         )
-
-    @utils.check_messages("consider-using-namedtuple-or-dataclass")
-    def visit_dict(self, node: astroid.Dict) -> None:
-        self._check_dict_consider_namedtuple(node)
-
-    def _check_dict_consider_namedtuple(self, node: astroid.Dict) -> None:
-        """Check if dictionary values can be replaced by Namedtuple."""
-        if not (
-            isinstance(node.parent, (astroid.Assign, astroid.AnnAssign))
-            and isinstance(node.parent.parent, astroid.Module)
-            or isinstance(node.parent, astroid.AnnAssign)
-            and utils.is_assign_name_annotated_with(node.parent.target, "Final")
-        ):
-            # If dict is not part of an 'Assign' or 'AnnAssign' node in
-            # a module context OR 'AnnAssign' with 'Final' annotation, skip check.
-            return
-
-        # All dict_values are itself dict nodes
-        if len(node.items) > 1 and all(
-            isinstance(dict_value, astroid.Dict) for _, dict_value in node.items
-        ):
-            KeyTupleT = Tuple[Type[NodeNG], str]
-
-            # Makes sure all keys are 'Const' string nodes
-            keys_checked: Set[KeyTupleT] = set()
-            for _, dict_value in node.items:
-                for key, _ in dict_value.items:
-                    key_tuple = (type(key), key.as_string())
-                    if key_tuple in keys_checked:
-                        continue
-                    inferred = safe_infer(key)
-                    if not (
-                        isinstance(inferred, astroid.Const)
-                        and inferred.pytype() == "builtins.str"
-                    ):
-                        return
-                    keys_checked.add(key_tuple)
-
-            # Makes sure all subdicts have at least 1 common key
-            key_tuples: List[Tuple[KeyTupleT, ...]] = []
-            for _, dict_value in node.items:
-                key_tuples.append(
-                    tuple((type(key), key.as_string()) for key, _ in dict_value.items)
-                )
-            keys_intersection: Set[KeyTupleT] = set(key_tuples[0])
-            for sub_key_tuples in key_tuples[1:]:
-                keys_intersection.intersection_update(sub_key_tuples)
-            if not keys_intersection:
-                return
-
-            self.add_message("consider-using-namedtuple-or-dataclass", node=node)
-            return
-
-        # All dict_values are itself either list or tuple nodes
-        if len(node.items) > 1 and all(
-            isinstance(dict_value, (astroid.List, astroid.Tuple))
-            for _, dict_value in node.items
-        ):
-            # Make sure all sublists have the same length > 0
-            list_length = len(node.items[0][1].elts)
-            if list_length == 0:
-                return
-            for _, dict_value in node.items[1:]:
-                if len(dict_value.elts) != list_length:
-                    return
-
-            # Make sure at least one list entry isn't a dict
-            for _, dict_value in node.items:
-                if all(isinstance(entry, astroid.Dict) for entry in dict_value.elts):
-                    return
-
-            self.add_message("consider-using-namedtuple-or-dataclass", node=node)
-            return
