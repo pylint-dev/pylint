@@ -709,7 +709,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
                 "default": True,
                 "type": "yn",
                 "metavar": "<y or n>",
-                "help": "Comments are considered identical for similarity computing, i.e even different comments are considered equals",
+                "help": "Comments are removed from the similarity computation",
             },
         ),
         (
@@ -718,7 +718,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
                 "default": True,
                 "type": "yn",
                 "metavar": "<y or n>",
-                "help": "Docstrings are considered identical for similarity computing, i.e even different docstrings are considered equals",
+                "help": "Docstrings are removed from the similarity computation",
             },
         ),
         (
@@ -727,7 +727,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
                 "default": False,
                 "type": "yn",
                 "metavar": "<y or n>",
-                "help": "Imports are considered different for similarity computing, i.e even identical comments are considered differents",
+                "help": "Imports are removed from the similarity computation",
             },
         ),
         (
@@ -736,7 +736,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
                 "default": False,
                 "type": "yn",
                 "metavar": "<y or n>",
-                "help": "Function signatures are considered different for similarity computing, i.e even identical function signatures are considered differents",
+                "help": "Signatures are removed from the similarity computation",
             },
         ),
     )
