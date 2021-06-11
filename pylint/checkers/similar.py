@@ -380,15 +380,15 @@ class Similar:
     def _compute_sims(self):
         """compute similarities in appended files"""
         no_duplicates = defaultdict(list)
-        for num, lineset1, idx1, lineset2, idx2 in self._iter_sims():
+        for num, lineset1, start_line_1, end_line_1, lineset2, start_line_2, end_line_2 in self._iter_sims():
             duplicate = no_duplicates[num]
             for couples in duplicate:
-                if (lineset1, idx1) in couples or (lineset2, idx2) in couples:
-                    couples.add((lineset1, idx1))
-                    couples.add((lineset2, idx2))
+                if (lineset1, start_line_1, end_line_1) in couples or (lineset2, start_line_2, end_line_2) in couples:
+                    couples.add((lineset1, start_line_1, end_line_1))
+                    couples.add((lineset2, start_line_2, end_line_2))
                     break
             else:
-                duplicate.append({(lineset1, idx1), (lineset2, idx2)})
+                duplicate.append({(lineset1, start_line_1, end_line_1), (lineset2, start_line_2, end_line_2)})
         sims = []
         for num, ensembles in no_duplicates.items():
             for couples in ensembles:
@@ -405,10 +405,10 @@ class Similar:
             print(num, "similar lines in", len(couples), "files")
             couples = sorted(couples)
             lineset = idx = None
-            for lineset, idx in couples:
-                print(f"=={lineset.name}:{idx}")
+            for lineset, start_line, end_line in couples:
+                print(f"=={lineset.name}:{start_line}")
             if lineset:
-                for line in lineset.real_lines[idx : idx + num]:
+                for line in lineset.real_lines[start_line : end_line]:
                     print("  ", line.rstrip())
             nb_lignes_dupliquees += num * (len(couples) - 1)
         nb_total_lignes = sum(len(lineset) for lineset in self.linesets)
@@ -762,12 +762,12 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         for num, couples in self._compute_sims():
             msg = []
             lineset = idx = None
-            for lineset, idx in couples:
-                msg.append(f"=={lineset.name}:{idx}")
+            for lineset, start_line, end_line in couples:
+                msg.append(f"=={lineset.name}:{start_line}")
             msg.sort()
 
             if lineset:
-                for line in lineset.real_lines[idx : idx + num]:
+                for line in lineset.real_lines[start_line : end_line]:
                     msg.append(line.rstrip())
 
             self.add_message("R0801", args=(len(couples), "\n".join(msg)))
