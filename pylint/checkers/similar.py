@@ -76,27 +76,10 @@ Index = NewType("Index", int)
 LineNumber = NewType("LineNumber", int)
 
 
-class LineType(Enum):
-    """
-    Specifies the considered type of a line of the source file.
-
-    For example if the option ignore_docstring is True then lines corresponding
-    to a docstring are marked with DOC otherwise those same lines are considered as
-    common source lines and so marked with SRC.
-    """
-
-    SRC = 1
-    DOC = 2
-    IMPORT = 3
-    COMMENT = 4
-    SIGNATURE = 5
-
-
 # LineSpecifs holds characteristics of a line in a file
 class LineSpecifs(NamedTuple):
     text: str
     linenumber: LineNumber
-    linetype: LineType
 
 
 # Links LinesChunk object to the starting indices (in lineset's stripped lines)
@@ -133,12 +116,11 @@ class LinesChunk:
         self._fileid: str = fileid
         self._index: Index = Index(num_line)
         self._hash: int = 0
-        for lin, ltyp in lines:
-            # Empty lines that were docstings or comments before being stripped
-            # will be considered as equal
-            if lin or ltyp in (LineType.DOC, LineType.COMMENT):
+        for lin in lines:
+            if lin:
                 self._hash += hash(lin)
             else:
+                # Avoid matching empty lines
                 self._hash += hash(int(random.random() * 100000))
 
     def __eq__(self, o: object) -> bool:
@@ -244,7 +226,7 @@ def hash_lineset(
     index2lines = dict()
     # Comments, docstring and other specific patterns maybe excluded -> call to stripped_lines
     # to get only what is desired
-    lines = list((x.text, x.linetype) for x in lineset.stripped_lines)
+    lines = list(x.text for x in lineset.stripped_lines)
     # Need different iterators on same lines but each one is shifted 1 from the precedent
     shifted_lines = [iter(lines[i:]) for i in range(min_common_lines)]
 
@@ -570,36 +552,30 @@ def stripped_lines(
     docstring = None
     for lineno, line in enumerate(lines, start=1):
         line = line.strip()
-        ltype = LineType.SRC
         if ignore_docstrings:
             if not docstring:
                 if line.startswith('"""') or line.startswith("'''"):
                     docstring = line[:3]
                     line = line[3:]
-                    ltype = LineType.DOC
                 elif line.startswith('r"""') or line.startswith("r'''"):
                     docstring = line[1:4]
                     line = line[4:]
-                    ltype = LineType.DOC
             if docstring:
                 if line.endswith(docstring):
                     docstring = None
                 line = ""
-                ltype = LineType.DOC
         if ignore_imports:
             current_line_is_import = line_begins_import.get(
                 lineno, current_line_is_import
             )
             if current_line_is_import:
                 line = ""
-                ltype = LineType.IMPORT
         if ignore_comments:
             line = line.split("#", 1)[0].strip()
-            ltype = LineType.COMMENT
         if ignore_signatures and lineno in signature_lines:
             line = ""
-            ltype = LineType.SIGNATURE
-        strippedlines.append(LineSpecifs(line, LineNumber(lineno - 1), ltype))
+        if line:
+            strippedlines.append(LineSpecifs(line, LineNumber(lineno - 1)))
     return strippedlines
 
 
