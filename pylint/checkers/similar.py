@@ -305,7 +305,7 @@ def filter_noncode_lines(
     ls_2: "LineSet",
     stindex_2: Index,
     common_lines_nb: int,
-) -> bool:
+) -> int:
     """
     Return the effective number of common lines between lineset1 and lineset2 filtered from non code lines, that is to say the number of
     common successive stripped lines except those that do not contain code (for example a ligne with only an
@@ -447,7 +447,11 @@ class Similar:
     def _find_common(
         self, lineset1: "LineSet", lineset2: "LineSet"
     ) -> Generator[
-        Tuple[int, "LineSet", LineNumber, "LineSet", LineNumber], None, None
+        Tuple[
+            int, "LineSet", LineNumber, LineNumber, "LineSet", LineNumber, LineNumber
+        ],
+        None,
+        None,
     ]:
         """
         Find similarities in the two given linesets.
@@ -506,7 +510,7 @@ class Similar:
                 )
                 > self.min_lines
             ):
-                yield nb_common_lines, lineset1, file_1_lines.start_line_1, file_1_lines.end_line_1, lineset2, file_2_lines.start_line_2, file_2_lines.end_line_2
+                yield nb_common_lines, lineset1, file_1_lines.start, file_1_lines.end, lineset2, file_2_lines.start, file_2_lines.end
 
     def _iter_sims(self):
         """iterate on similarities among all files, by making a cartesian
