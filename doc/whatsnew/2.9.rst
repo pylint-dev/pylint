@@ -43,6 +43,8 @@ New checkers
   consistency. As such they don't necessarily provide a performance benefit
   and are often times opinionated.
 
+  * ``consider-using-tuple``: Emitted when an in-place defined list or set can be replaced by a tuple.
+
 
 Other Changes
 =============
