@@ -90,8 +90,12 @@ HashToIndex_T = Dict["LinesChunk", List[Index]]
 IndexToLines_T = Dict[Index, "SuccessiveLinesLimits"]
 
 
-# Couples of SuccesiveLinesLimits, one for first file, another for the second file
 class CplSuccessiveLinesLimits:
+    """
+    This class holds a couple of SuccessiveLinesLimits objects, one for each file compared,
+    and a counter on the number of common lines between both stripped lines collections extracted
+    from both files
+    """
     def __init__(self, first_file, second_file, effective_cmn_lines_nb):
         self.first_file: "SuccessiveLinesLimits" = first_file
         self.second_file: "SuccessiveLinesLimits" = second_file
