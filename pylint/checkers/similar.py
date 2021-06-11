@@ -45,7 +45,6 @@ import random
 import re
 import sys
 from collections import defaultdict
-from enum import Enum
 from getopt import getopt
 from io import TextIOWrapper
 from itertools import chain, groupby
@@ -404,7 +403,7 @@ class Similar:
             print()
             print(num, "similar lines in", len(couples), "files")
             couples = sorted(couples)
-            lineset = idx = None
+            lineset = start_line = end_line = None
             for lineset, start_line, end_line in couples:
                 print(f"=={lineset.name}:{start_line}")
             if lineset:
@@ -473,14 +472,12 @@ class Similar:
         for cml_stripped_l, cmn_l in all_couples.items():
             file_1_lines = cmn_l.first_file
             file_2_lines = cmn_l.second_file
-            start_line_1, end_line_1 = file_1_lines.start, file_1_lines.end
             start_index_1 = cml_stripped_l.fst_lineset_index
-            start_line_2, end_line_2  = file_2_lines.start, file_2_lines.end
             start_index_2 = cml_stripped_l.snd_lineset_index
             nb_common_lines = cmn_l.effective_cmn_lines_nb
 
             if filter_noncode_lines(lineset1, start_index_1, lineset2, start_index_2, nb_common_lines) > self.min_lines:
-                yield nb_common_lines, lineset1, start_line_1, end_line_1, lineset2, start_line_2, end_line_2
+                yield nb_common_lines, lineset1, file_1_lines.start_line_1, file_1_lines.end_line_1, lineset2, file_2_lines.start_line_2, file_2_lines.end_line_2
 
     def _iter_sims(self):
         """iterate on similarities among all files, by making a cartesian
@@ -761,7 +758,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         stats = self.stats
         for num, couples in self._compute_sims():
             msg = []
-            lineset = idx = None
+            lineset = start_line = end_line = None
             for lineset, start_line, end_line in couples:
                 msg.append(f"=={lineset.name}:{start_line}")
             msg.sort()
