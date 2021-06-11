@@ -91,9 +91,11 @@ IndexToLines_T = Dict[Index, "SuccessiveLinesLimits"]
 
 
 # Couples of SuccesiveLinesLimits, one for first file, another for the second file
-class CplSuccessiveLinesLimits(NamedTuple):
-    first_file: "SuccessiveLinesLimits"
-    second_file: "SuccessiveLinesLimits"
+class CplSuccessiveLinesLimits:
+    def __init__(self, first_file, second_file, effective_cmn_lines_nb):
+        self.first_file: "SuccessiveLinesLimits" = first_file
+        self.second_file: "SuccessiveLinesLimits" = second_file
+        self.effective_cmn_lines_nb: int = effective_cmn_lines_nb
 
 
 # Links the indices ot the starting line in both lineset's stripped lines to
