@@ -46,7 +46,7 @@ def test_ignore_comments():
         output.getvalue().strip()
         == (
             """
-11 similar lines in 2 files
+10 similar lines in 2 files
 ==%s:0
 ==%s:0
    import one
@@ -60,7 +60,7 @@ def test_ignore_comments():
    eight
    nine
    ''' ten
-TOTAL lines=62 duplicates=11 percent=17.74
+TOTAL lines=62 duplicates=10 percent=16.13
 """
             % (SIMILAR1, SIMILAR2)
         ).strip()
@@ -76,7 +76,7 @@ def test_ignore_docsrings():
         output.getvalue().strip()
         == (
             """
-8 similar lines in 2 files
+5 similar lines in 2 files
 ==%s:7
 ==%s:7
    seven
@@ -96,7 +96,7 @@ def test_ignore_docsrings():
    three
    four
    five
-TOTAL lines=62 duplicates=13 percent=20.97
+TOTAL lines=62 duplicates=10 percent=16.13
 """
             % ((SIMILAR1, SIMILAR2) * 2)
         ).strip()
