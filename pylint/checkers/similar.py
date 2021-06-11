@@ -95,6 +95,7 @@ class CplSuccessiveLinesLimits:
     and a counter on the number of common lines between both stripped lines collections extracted
     from both files
     """
+
     def __init__(self, first_file, second_file, effective_cmn_lines_nb):
         self.first_file: "SuccessiveLinesLimits" = first_file
         self.second_file: "SuccessiveLinesLimits" = second_file
@@ -306,7 +307,7 @@ def filter_noncode_lines(
     common_lines_nb: int,
 ) -> bool:
     """
-    Return the effective number of common lines between lineset1 and lineset2 filtered from non code lines, that is to say the number of 
+    Return the effective number of common lines between lineset1 and lineset2 filtered from non code lines, that is to say the number of
     common successive stripped lines except those that do not contain code (for example a ligne with only an
     ending parathensis)
 
@@ -319,8 +320,14 @@ def filter_noncode_lines(
     """
     check_cmn_lines_nb = 0
 
-    stripped_l1 = [lspecif.text for lspecif in ls_1.stripped_lines[stindex_1: stindex_1 + common_lines_nb]]
-    stripped_l2 = [lspecif.text for lspecif in ls_2.stripped_lines[stindex_2: stindex_2 + common_lines_nb]]
+    stripped_l1 = [
+        lspecif.text
+        for lspecif in ls_1.stripped_lines[stindex_1 : stindex_1 + common_lines_nb]
+    ]
+    stripped_l2 = [
+        lspecif.text
+        for lspecif in ls_2.stripped_lines[stindex_2 : stindex_2 + common_lines_nb]
+    ]
 
     for sline_1, sline_2 in zip(stripped_l1, stripped_l2):
         if (
@@ -379,15 +386,32 @@ class Similar:
     def _compute_sims(self):
         """compute similarities in appended files"""
         no_duplicates = defaultdict(list)
-        for num, lineset1, start_line_1, end_line_1, lineset2, start_line_2, end_line_2 in self._iter_sims():
+        for (
+            num,
+            lineset1,
+            start_line_1,
+            end_line_1,
+            lineset2,
+            start_line_2,
+            end_line_2,
+        ) in self._iter_sims():
             duplicate = no_duplicates[num]
             for couples in duplicate:
-                if (lineset1, start_line_1, end_line_1) in couples or (lineset2, start_line_2, end_line_2) in couples:
+                if (lineset1, start_line_1, end_line_1) in couples or (
+                    lineset2,
+                    start_line_2,
+                    end_line_2,
+                ) in couples:
                     couples.add((lineset1, start_line_1, end_line_1))
                     couples.add((lineset2, start_line_2, end_line_2))
                     break
             else:
-                duplicate.append({(lineset1, start_line_1, end_line_1), (lineset2, start_line_2, end_line_2)})
+                duplicate.append(
+                    {
+                        (lineset1, start_line_1, end_line_1),
+                        (lineset2, start_line_2, end_line_2),
+                    }
+                )
         sims = []
         for num, ensembles in no_duplicates.items():
             for couples in ensembles:
@@ -407,7 +431,7 @@ class Similar:
             for lineset, start_line, end_line in couples:
                 print(f"=={lineset.name}:{start_line}")
             if lineset:
-                for line in lineset.real_lines[start_line : end_line]:
+                for line in lineset.real_lines[start_line:end_line]:
                     print("  ", line.rstrip())
             nb_lignes_dupliquees += num * (len(couples) - 1)
         nb_total_lignes = sum(len(lineset) for lineset in self.linesets)
@@ -464,7 +488,7 @@ class Similar:
                 ] = CplSuccessiveLinesLimits(
                     copy.copy(index_to_lines_1[index_1]),
                     copy.copy(index_to_lines_2[index_2]),
-                    effective_cmn_lines_nb = self.min_lines
+                    effective_cmn_lines_nb=self.min_lines,
                 )
 
         remove_successives(all_couples)
@@ -476,7 +500,12 @@ class Similar:
             start_index_2 = cml_stripped_l.snd_lineset_index
             nb_common_lines = cmn_l.effective_cmn_lines_nb
 
-            if filter_noncode_lines(lineset1, start_index_1, lineset2, start_index_2, nb_common_lines) > self.min_lines:
+            if (
+                filter_noncode_lines(
+                    lineset1, start_index_1, lineset2, start_index_2, nb_common_lines
+                )
+                > self.min_lines
+            ):
                 yield nb_common_lines, lineset1, file_1_lines.start_line_1, file_1_lines.end_line_1, lineset2, file_2_lines.start_line_2, file_2_lines.end_line_2
 
     def _iter_sims(self):
@@ -764,7 +793,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             msg.sort()
 
             if lineset:
-                for line in lineset.real_lines[start_line : end_line]:
+                for line in lineset.real_lines[start_line:end_line]:
                     msg.append(line.rstrip())
 
             self.add_message("R0801", args=(len(couples), "\n".join(msg)))
