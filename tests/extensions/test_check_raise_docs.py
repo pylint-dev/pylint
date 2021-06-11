@@ -202,7 +202,7 @@ class TestDocstringCheckerRaise(CheckerTestCase):
             import re
             raise re.error('hi') #@
         '''
-        for prefix in ["~", "!"]:
+        for prefix in ("~", "!"):
             raise_node = astroid.extract_node(code_snippet.format(prefix=prefix))
             with self.assertNoMessages():
                 self.checker.visit_raise(raise_node)
@@ -643,7 +643,7 @@ class TestDocstringCheckerRaise(CheckerTestCase):
             import re
             raise re.error('hi') #@
         '''
-        for prefix in ["~", "!"]:
+        for prefix in ("~", "!"):
             raise_node = astroid.extract_node(code_snippet.format(prefix=prefix))
             with self.assertNoMessages():
                 self.checker.visit_raise(raise_node)
@@ -763,7 +763,7 @@ class TestDocstringCheckerRaise(CheckerTestCase):
             import re
             raise re.error('hi') #@
         '''
-        for prefix in ["~", "!"]:
+        for prefix in ("~", "!"):
             raise_node = astroid.extract_node(code_snippet.format(prefix=prefix))
             with self.assertNoMessages():
                 self.checker.visit_raise(raise_node)

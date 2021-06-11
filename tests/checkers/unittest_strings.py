@@ -69,14 +69,14 @@ class TestStringChecker(CheckerTestCase):
                 node = astroid.extract_node(code)
                 self.checker.visit_binop(node)
 
-        for code, arg_type, format_type in [
+        for code, arg_type, format_type in (
             ("'%d' % '1'", "builtins.str", "d"),
             ("'%(key)d' % {'key' : '1'}", "builtins.str", "d"),
             ("'%x' % 1.1", "builtins.float", "x"),
             ("'%(key)x' % {'key' : 1.1}", "builtins.float", "x"),
             ("'%d' % []", "builtins.list", "d"),
             ("'%(key)d' % {'key' : []}", "builtins.list", "d"),
-        ]:
+        ):
             node = astroid.extract_node(code)
             with self.assertAddsMessages(
                 Message(

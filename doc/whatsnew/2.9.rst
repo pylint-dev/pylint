@@ -37,6 +37,13 @@ New checkers
 * ``invalid-all-format``: Emitted when ``__all__`` has an invalid format,
   i.e. isn't a ``tuple`` or ``list``.
 
+* New checker ``await-outside-async``: Emitted when await is used outside an async function.
+
+* Add new extension ``CodeStyleChecker``. It includes checkers that can improve code
+  consistency. As such they don't necessarily provide a performance benefit
+  and are often times opinionated.
+
+
 Other Changes
 =============
 

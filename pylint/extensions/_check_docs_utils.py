@@ -168,12 +168,12 @@ def possible_exc_types(node):
 
 
 def docstringify(docstring, default_type="default"):
-    for docstring_type in [
+    for docstring_type in (
         SphinxDocstring,
         EpytextDocstring,
         GoogleDocstring,
         NumpyDocstring,
-    ]:
+    ):
         instance = docstring_type(docstring)
         if instance.is_valid():
             return instance
