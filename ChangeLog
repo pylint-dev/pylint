@@ -140,6 +140,9 @@ modules are added.
   consistency. As such they don't necessarily provide a performance benefit
   and are often times opinionated.
 
+  * New checker ``consider-using-namedtuple-or-dataclass``. Emitted when dictionary values
+    can be replaced by namedtuples or dataclass instances.
+
 
 What's New in Pylint 2.8.3?
 ===========================

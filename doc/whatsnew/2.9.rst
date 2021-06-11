@@ -40,6 +40,9 @@ New checkers
   consistency. As such they don't necessarily provide a performance benefit
   and are often times opinionated.
 
+  * ``consider-using-namedtuple-or-dataclass``: Emitted when dictionary values
+    can be replaced by namedtuples or dataclass instances.
+
 
 Other Changes
 =============
