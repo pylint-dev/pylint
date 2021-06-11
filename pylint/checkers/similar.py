@@ -288,6 +288,7 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
         while test in all_couples:
             all_couples[couple].first_file.end = all_couples[test].first_file.end
             all_couples[couple].second_file.end = all_couples[test].second_file.end
+            all_couples[couple].effective_cmn_lines_nb += 1
             to_remove.append(test)
             test += 1
 
@@ -298,40 +299,38 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
                 pass
 
 
-def check_sim(
+def filter_noncode_lines(
     ls_1: "LineSet",
-    stline_1: LineNumber,
+    stindex_1: Index,
     ls_2: "LineSet",
-    stline_2: LineNumber,
-    nb_lines: int,
-    min_lines_nb: int,
+    stindex_2: Index,
+    common_lines_nb: int,
 ) -> bool:
     """
-    Return True if both linesets real lines collection (defined by a starting line number and a number of lines) have a minimum of
-    successive lines that are identical.
-    Empty lines or lines that do not have at least a word are not taken into account.
+    Return the effective number of common lines between lineset1 and lineset2 filtered from non code lines, that is to say the number of 
+    common successive stripped lines except those that do not contain code (for example a ligne with only an
+    ending parathensis)
 
     :param ls_1: first lineset
-    :param stline_1: first lineset starting index
+    :param stindex_1: first lineset starting index
     :param ls_2: second lineset
-    :param stline_2: second lineset starting index
-    :param nb_lines: number of lines that defines both chunks
-    :param min_lines_nb: minimum common lines
-    :return: True if both linesets real lines collection have a minimum of successive lines that are identical. False otherwise.
+    :param stindex_2: second lineset starting index
+    :param common_lines_nb: number of common successive stripped lines before being filtered from non code lines
+    :return: the number of common successives stripped lines that contain code
     """
     check_cmn_lines_nb = 0
-    for idx in range(nb_lines):
-        line_1 = ls_1.real_lines[stline_1 + idx]
-        line_2 = ls_2.real_lines[stline_2 + idx]
+
+    stripped_l1 = [lspecif.text for lspecif in ls_1.stripped_lines[stindex_1: stindex_1 + common_lines_nb]]
+    stripped_l2 = [lspecif.text for lspecif in ls_2.stripped_lines[stindex_2: stindex_2 + common_lines_nb]]
+
+    for sline_1, sline_2 in zip(stripped_l1, stripped_l2):
         if (
-            REGEX_FOR_LINES_WITH_CONTENT.match(line_1)
-            and REGEX_FOR_LINES_WITH_CONTENT.match(line_2)
-            and line_1 == line_2
+            REGEX_FOR_LINES_WITH_CONTENT.match(sline_1)
+            and REGEX_FOR_LINES_WITH_CONTENT.match(sline_2)
+            and sline_1 == sline_2
         ):
             check_cmn_lines_nb += 1
-    if check_cmn_lines_nb > min_lines_nb:
-        return True
-    return False
+    return check_cmn_lines_nb
 
 
 class Similar:
@@ -466,29 +465,22 @@ class Similar:
                 ] = CplSuccessiveLinesLimits(
                     copy.copy(index_to_lines_1[index_1]),
                     copy.copy(index_to_lines_2[index_2]),
+                    effective_cmn_lines_nb = self.min_lines
                 )
 
         remove_successives(all_couples)
 
-        for common_lines in all_couples.values():
-            file_1_lines = common_lines.first_file
-            file_2_lines = common_lines.second_file
+        for cml_stripped_l, cmn_l in all_couples.items():
+            file_1_lines = cmn_l.first_file
+            file_2_lines = cmn_l.second_file
             start_line_1, end_line_1 = file_1_lines.start, file_1_lines.end
-            start_line_2, end_line_2 = file_2_lines.start, file_2_lines.end
+            start_index_1 = cml_stripped_l.fst_lineset_index
+            start_line_2, end_line_2  = file_2_lines.start, file_2_lines.end
+            start_index_2 = cml_stripped_l.snd_lineset_index
+            nb_common_lines = cmn_l.effective_cmn_lines_nb
 
-            nb_common_lines_1 = end_line_1 - start_line_1
-            nb_common_lines_2 = end_line_2 - start_line_2
-            assert nb_common_lines_1 == nb_common_lines_2
-
-            if check_sim(
-                lineset1,
-                start_line_1,
-                lineset2,
-                start_line_2,
-                nb_common_lines_1,
-                self.min_lines,
-            ):
-                yield nb_common_lines_1, lineset1, start_line_1, lineset2, start_line_2
+            if filter_noncode_lines(lineset1, start_index_1, lineset2, start_index_2, nb_common_lines) > self.min_lines:
+                yield nb_common_lines, lineset1, start_line_1, end_line_1, lineset2, start_line_2, end_line_2
 
     def _iter_sims(self):
         """iterate on similarities among all files, by making a cartesian
