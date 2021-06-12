@@ -12,6 +12,8 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Performance of the Similarity checker have been improved.
+
 * ``deprecated-decorator``: Emitted when deprecated decorator is used.
 
 * ``consider-using-dict-items``: Emitted when iterating over dictionary keys and then
