@@ -47,8 +47,8 @@ def test_ignore_comments():
         == (
             """
 10 similar lines in 2 files
-==%s:0
-==%s:0
+==%s:[0:11]
+==%s:[0:11]
    import one
    from two import two
    three
@@ -67,7 +67,7 @@ TOTAL lines=62 duplicates=10 percent=16.13
     )
 
 
-def test_ignore_docsrings():
+def test_ignore_docstrings():
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-docstrings", SIMILAR1, SIMILAR2])
@@ -77,8 +77,8 @@ def test_ignore_docsrings():
         == (
             """
 5 similar lines in 2 files
-==%s:7
-==%s:7
+==%s:[7:15]
+==%s:[7:15]
    seven
    eight
    nine
@@ -89,8 +89,8 @@ def test_ignore_docsrings():
    fourteen
 
 5 similar lines in 2 files
-==%s:0
-==%s:0
+==%s:[0:5]
+==%s:[0:5]
    import one
    from two import two
    three
@@ -126,8 +126,8 @@ def test_multiline_imports():
         == (
             """
 8 similar lines in 2 files
-==%s:0
-==%s:0
+==%s:[0:8]
+==%s:[0:8]
    from foo import (
      bar,
      baz,
@@ -166,8 +166,8 @@ def test_ignore_signatures_fail():
         == (
             """
 7 similar lines in 2 files
-==%s:1
-==%s:8
+==%s:[1:8]
+==%s:[8:15]
        arg1: int = 3,
        arg2: Class1 = val1,
        arg3: Class2 = func3(val2),
@@ -213,8 +213,8 @@ def test_ignore_nothing():
         == (
             """
 5 similar lines in 2 files
-==%s:0
-==%s:0
+==%s:[0:5]
+==%s:[0:5]
    import one
    from two import two
    three
@@ -237,8 +237,8 @@ def test_lines_without_meaningful_content_do_not_trigger_similarity():
         == (
             """
 14 similar lines in 2 files
-==%s:11
-==%s:11
+==%s:[11:25]
+==%s:[11:25]
    b = (
        (
            [
