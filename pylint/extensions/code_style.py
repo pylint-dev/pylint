@@ -14,6 +14,15 @@ class CodeStyleChecker(BaseChecker):
 
     As such they don't necessarily provide a performance benefit and
     are often times opinionated.
+
+    Before adding another checker here, consider this:
+    1. Does the checker provide a clear benefit,
+       i.e. detect a common issue or improve performance
+       => it should probably be part of the core checker classes
+    2. Is it something that would improve code consistency,
+       maybe because it's slightly better with regards to performance
+       and therefore preferred => this is the right place
+    3. Everything else should go into another extension
     """
 
     __implements__ = (IAstroidChecker,)
