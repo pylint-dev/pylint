@@ -429,7 +429,7 @@ class Similar:
             couples = sorted(couples)
             lineset = start_line = end_line = None
             for lineset, start_line, end_line in couples:
-                print(f"=={lineset.name}:{start_line}")
+                print(f"=={lineset.name}:[{start_line}:{end_line}]")
             if lineset:
                 for line in lineset.real_lines[start_line:end_line]:
                     print("  ", line.rstrip())
@@ -793,7 +793,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             msg = []
             lineset = start_line = end_line = None
             for lineset, start_line, end_line in couples:
-                msg.append(f"=={lineset.name}:{start_line}")
+                msg.append(f"=={lineset.name}:[{start_line}:{end_line}]")
             msg.sort()
 
             if lineset:
