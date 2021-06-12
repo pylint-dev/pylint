@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* Improved the Similarity checker performance.
+
+  Close #4120
+
 * Added ``deprecated-decorator``: Emitted when deprecated decorator is used.
 
   Closes #4429
