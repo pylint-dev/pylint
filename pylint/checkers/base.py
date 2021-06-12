@@ -1205,9 +1205,7 @@ class BasicChecker(_BasicChecker):
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
         if (
-            isinstance(
-                expr, (astroid.Yield, astroid.Await, astroid.Ellipsis, astroid.Call)
-            )
+            isinstance(expr, (astroid.Yield, astroid.Await, astroid.Call))
             or (
                 isinstance(node.parent, astroid.TryExcept)
                 and node.parent.body == [node]
