@@ -632,10 +632,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return False
 
         # The subscript's slice needs to be the same as the test variable.
-        # Python 3.9 we no longer have the `Index` node.
         slice_value = stmt.value.slice
-        if isinstance(slice_value, astroid.Index):
-            slice_value = slice_value.value
         if not (
             self._type_and_name_are_equal(stmt.value.value, node.test.ops[0][1])
             and self._type_and_name_are_equal(slice_value, node.test.left)
@@ -1684,8 +1681,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         continue
 
                     value = subscript.slice
-                    if isinstance(value, astroid.Index):
-                        value = value.value
 
                     if isinstance(node, astroid.For) and (
                         isinstance(subscript.parent, astroid.Assign)
@@ -1742,10 +1737,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             continue
 
                         # check if subscripted by 0 (key)
-                        subscript_val = value.slice
-                        if isinstance(subscript_val, astroid.Index):
-                            subscript_val = subscript_val.value
-                        inferred = utils.safe_infer(subscript_val)
+                        inferred = utils.safe_infer(value.slice)
                         if (
                             not isinstance(inferred, astroid.Const)
                             or inferred.value != 0
