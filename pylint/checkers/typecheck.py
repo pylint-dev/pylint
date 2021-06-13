@@ -1775,8 +1775,8 @@ accessed. Python regular expressions are accepted.",
 
         if isinstance(node.value, astroid.Dict):
             # Assert dict key is hashable
-            if isinstance(node.slice, (astroid.Index, astroid.Slice)):
-                # In Python 3.9 the Index, Slice and ExtSlice nodes are no longer in use
+            if isinstance(node.slice, astroid.Index):
+                # In Python 3.9 the Index node is no longer in use
                 inferred = safe_infer(node.slice.value)
             else:
                 inferred = safe_infer(node.slice)
