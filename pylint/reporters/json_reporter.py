@@ -12,7 +12,6 @@
 
 """JSON reporter"""
 import json
-import sys
 
 from pylint.interfaces import IReporter
 from pylint.reporters.base_reporter import BaseReporter
@@ -24,10 +23,6 @@ class JSONReporter(BaseReporter):
     __implements__ = IReporter
     name = "json"
     extension = "json"
-
-    def __init__(self, output=None):
-        BaseReporter.__init__(self, output or sys.stdout)
-        self.messages = []
 
     def handle_message(self, msg):
         """Manage message of different type and in the context of path."""
