@@ -89,6 +89,4 @@ class OutputLine(
             raise MalformedOutputLineException(row, e) from e
 
     def to_csv(self):
-        if self.confidence == interfaces.HIGH.name:
-            return self[:-1]
-        return self
+        return tuple(self)

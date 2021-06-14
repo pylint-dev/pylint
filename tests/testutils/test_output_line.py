@@ -5,27 +5,30 @@
 
 import pytest
 
-from pylint.interfaces import HIGH
+from pylint.interfaces import HIGH, INFERENCE
 from pylint.message import Message
 from pylint.testutils.output_line import MalformedOutputLineException, OutputLine
 
 
 @pytest.fixture()
 def message():
-    return Message(
-        symbol="missing-docstring",
-        msg_id="C0123",
-        location=[
-            "abspath",
-            "path",
-            "module",
-            "obj",
-            "line",
-            "column",
-        ],
-        msg="msg",
-        confidence=HIGH,
-    )
+    def inner(confidence=HIGH):
+        return Message(
+            symbol="missing-docstring",
+            msg_id="C0123",
+            location=[
+                "abspath",
+                "path",
+                "module",
+                "obj",
+                "line",
+                "column",
+            ],
+            msg="msg",
+            confidence=confidence,
+        )
+
+    return inner
 
 
 def test_output_line():
@@ -41,15 +44,16 @@ def test_output_line():
 
 
 def test_output_line_from_message(message):
-    output_line = OutputLine.from_msg(message)
+    output_line = OutputLine.from_msg(message())
     assert output_line.symbol == "missing-docstring"
     assert output_line.msg == "msg"
 
 
-def test_output_line_to_csv(message):
-    output_line = OutputLine.from_msg(message)
+@pytest.mark.parametrize("confidence", [HIGH, INFERENCE])
+def test_output_line_to_csv(confidence, message):
+    output_line = OutputLine.from_msg(message(confidence))
     csv = output_line.to_csv()
-    assert csv == ("missing-docstring", "line", "column", "obj", "msg")
+    assert csv == ("missing-docstring", "line", "column", "obj", "msg", confidence.name)
 
 
 def test_output_line_from_csv_error():
