@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import collections
+from typing import Any, NamedTuple
 
 from pylint import interfaces
 from pylint.constants import PY38_PLUS
@@ -54,11 +55,14 @@ Try updating it with: 'python tests/test_functional.py {UPDATE_OPTION}'"""
         Exception.__init__(self, msg)
 
 
-class OutputLine(
-    collections.namedtuple(
-        "OutputLine", ["symbol", "lineno", "column", "object", "msg", "confidence"]
-    )
-):
+class OutputLine(NamedTuple):
+    symbol: str
+    lineno: int
+    column: int
+    object: Any
+    msg: str
+    confidence: str
+
     @classmethod
     def from_msg(cls, msg):
         column = cls.get_column(msg.column)
