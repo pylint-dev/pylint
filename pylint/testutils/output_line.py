@@ -36,10 +36,13 @@ class MalformedOutputLineException(Exception):
         ]
         reconstructed_row = ""
         i = 0
-        for i, column in enumerate(row):
-            reconstructed_row += f"\t{expected[i]}='{column}' ?\n"
-        for missing in expected[i + 1 :]:
-            reconstructed_row += f"\t{missing}= Nothing provided !\n"
+        try:
+            for i, column in enumerate(row):
+                reconstructed_row += f"\t{expected[i]}='{column}' ?\n"
+            for missing in expected[i + 1 :]:
+                reconstructed_row += f"\t{missing}= Nothing provided !\n"
+        except IndexError:
+            pass
         raw = ":".join(row)
         msg = f"""\
 {exception}
@@ -73,7 +76,7 @@ class OutputLine(
     @classmethod
     def get_column(cls, column):
         if not PY38_PLUS:
-            return ""
+            return ""  # pragma: no cover
         return str(column)
 
     @classmethod
