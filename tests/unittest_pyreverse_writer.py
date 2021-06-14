@@ -23,11 +23,12 @@ import codecs
 import os
 from difflib import unified_diff
 
+import astroid
 import pytest
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
-from pylint.pyreverse.utils import get_visibility
+from pylint.pyreverse.utils import get_annotation, get_visibility
 from pylint.pyreverse.writer import DotWriter
 
 _DEFAULTS = {
@@ -132,3 +133,46 @@ def test_get_visibility(names, expected):
     for name in names:
         got = get_visibility(name)
         assert got == expected, f"got {got} instead of {expected} for value {name}"
+
+
+@pytest.mark.parametrize(
+    "assign, label",
+    [
+        ("a: str = None", "Optional[str]"),
+        ("a: str = 'mystr'", "str"),
+        ("a: Optional[str] = 'str'", "Optional[str]"),
+        ("a: Optional[str] = None", "Optional[str]"),
+    ],
+)
+def test_get_annotation_annassign(assign, label):
+    """AnnAssign"""
+    node = astroid.extract_node(assign)
+    got = get_annotation(node.value).name
+    assert isinstance(node, astroid.AnnAssign)
+    assert got == label, f"got {got} instead of {label} for value {node}"
+
+
+@pytest.mark.parametrize(
+    "init_method, label",
+    [
+        ("def __init__(self, x: str):                   self.x = x", "str"),
+        ("def __init__(self, x: str = 'str'):           self.x = x", "str"),
+        ("def __init__(self, x: str = None):            self.x = x", "Optional[str]"),
+        ("def __init__(self, x: Optional[str]):         self.x = x", "Optional[str]"),
+        ("def __init__(self, x: Optional[str] = None):  self.x = x", "Optional[str]"),
+        ("def __init__(self, x: Optional[str] = 'str'): self.x = x", "Optional[str]"),
+    ],
+)
+def test_get_annotation_assignattr(init_method, label):
+    """AssignAttr"""
+    assign = rf"""
+        class A:
+            {init_method}
+    """
+    node = astroid.extract_node(assign)
+    instance_attrs = node.instance_attrs
+    for _, assign_attrs in instance_attrs.items():
+        for assign_attr in assign_attrs:
+            got = get_annotation(assign_attr).name
+            assert isinstance(assign_attr, astroid.AssignAttr)
+            assert got == label, f"got {got} instead of {label} for value {node}"
