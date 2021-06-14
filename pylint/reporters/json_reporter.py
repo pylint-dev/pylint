@@ -24,9 +24,9 @@ class JSONReporter(BaseReporter):
     name = "json"
     extension = "json"
 
-    def handle_message(self, msg):
-        """Manage message of different type and in the context of path."""
-        self.messages.append(
+    def display_messages(self, layout):
+        """Launch layouts display"""
+        json_dumpable = [
             {
                 "type": msg.category,
                 "module": msg.module,
@@ -38,11 +38,9 @@ class JSONReporter(BaseReporter):
                 "message": msg.msg or "",
                 "message-id": msg.msg_id,
             }
-        )
-
-    def display_messages(self, layout):
-        """Launch layouts display"""
-        print(json.dumps(self.messages, indent=4), file=self.out)
+            for msg in self.messages
+        ]
+        print(json.dumps(json_dumpable, indent=4), file=self.out)
 
     def display_reports(self, layout):
         """Don't do anything in this reporter."""
