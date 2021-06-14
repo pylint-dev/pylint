@@ -2050,9 +2050,7 @@ class NameChecker(_BasicChecker):
 
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
-
         non_ascii_match = self._non_ascii_rgx_compiled.match(name)
-
         if non_ascii_match is not None:
             self._raise_name_warning(
                 node, node_type, name, confidence, warning="non-ascii-name"
