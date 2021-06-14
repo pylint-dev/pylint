@@ -110,6 +110,11 @@ modules are added.
 
   Closes #585
 
+* Fix a crash when a plugin from the configuration could not be loaded and raise an error
+  'bad-plugin-value' instead
+
+Closes #4555
+
 * Added handling of floating point values when parsing configuration from pyproject.toml
 
   Closes #4518
