@@ -5,6 +5,7 @@
 
 import pytest
 
+from pylint.constants import PY38_PLUS
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.message import Message
 from pylint.testutils.output_line import MalformedOutputLineException, OutputLine
@@ -53,7 +54,15 @@ def test_output_line_from_message(message):
 def test_output_line_to_csv(confidence, message):
     output_line = OutputLine.from_msg(message(confidence))
     csv = output_line.to_csv()
-    assert csv == ("missing-docstring", "line", "column", "obj", "msg", confidence.name)
+    expected_column = "column" if PY38_PLUS else ""
+    assert csv == (
+        "missing-docstring",
+        "line",
+        expected_column,
+        "obj",
+        "msg",
+        confidence.name,
+    )
 
 
 def test_output_line_from_csv_error():
@@ -70,9 +79,9 @@ def test_output_line_from_csv_error():
 
 
 @pytest.mark.parametrize(
-    "confidence,expected", [[None, "HIGH"], ["INFERENCE", "INFERENCE"]]
+    "confidence,expected_confidence", [[None, "HIGH"], ["INFERENCE", "INFERENCE"]]
 )
-def test_output_line_from_csv(confidence, expected):
+def test_output_line_from_csv(confidence, expected_confidence):
     proper_csv = (
         "missing-docstring",
         "1",
@@ -83,11 +92,12 @@ def test_output_line_from_csv(confidence, expected):
     if confidence is not None:
         proper_csv += (confidence,)
     output_line = OutputLine.from_csv(proper_csv)
+    expected_column = "2" if PY38_PLUS else ""
     assert output_line == OutputLine(
         symbol="missing-docstring",
         lineno=1,
-        column="2",
+        column=expected_column,
         object="obj",
         msg="msg",
-        confidence=expected,
+        confidence=expected_confidence,
     )
