@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import collections
+from typing import Any, NamedTuple
 
 from pylint import interfaces
 from pylint.constants import PY38_PLUS
@@ -36,10 +37,13 @@ class MalformedOutputLineException(Exception):
         ]
         reconstructed_row = ""
         i = 0
-        for i, column in enumerate(row):
-            reconstructed_row += f"\t{expected[i]}='{column}' ?\n"
-        for missing in expected[i + 1 :]:
-            reconstructed_row += f"\t{missing}= Nothing provided !\n"
+        try:
+            for i, column in enumerate(row):
+                reconstructed_row += f"\t{expected[i]}='{column}' ?\n"
+            for missing in expected[i + 1 :]:
+                reconstructed_row += f"\t{missing}= Nothing provided !\n"
+        except IndexError:
+            pass
         raw = ":".join(row)
         msg = f"""\
 {exception}
@@ -51,11 +55,14 @@ Try updating it with: 'python tests/test_functional.py {UPDATE_OPTION}'"""
         Exception.__init__(self, msg)
 
 
-class OutputLine(
-    collections.namedtuple(
-        "OutputLine", ["symbol", "lineno", "column", "object", "msg", "confidence"]
-    )
-):
+class OutputLine(NamedTuple):
+    symbol: str
+    lineno: int
+    column: int
+    object: Any
+    msg: str
+    confidence: str
+
     @classmethod
     def from_msg(cls, msg):
         column = cls.get_column(msg.column)
@@ -73,7 +80,7 @@ class OutputLine(
     @classmethod
     def get_column(cls, column):
         if not PY38_PLUS:
-            return ""
+            return ""  # pragma: no cover
         return str(column)
 
     @classmethod
@@ -86,6 +93,4 @@ class OutputLine(
             raise MalformedOutputLineException(row, e) from e
 
     def to_csv(self):
-        if self.confidence == interfaces.HIGH.name:
-            return self[:-1]
-        return self
+        return tuple(self)

@@ -9,6 +9,8 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* Appveyor is no longer used in the continuous integration
+
 * Added ``deprecated-decorator``: Emitted when deprecated decorator is used.
 
   Closes #4429
@@ -146,6 +148,7 @@ modules are added.
   * New checker ``consider-using-namedtuple-or-dataclass``. Emitted when dictionary values
     can be replaced by namedtuples or dataclass instances.
 
+* Fix error that occurred when using ``slice`` as subscript for dict.
 
 
 What's New in Pylint 2.8.3?

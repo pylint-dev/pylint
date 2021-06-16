@@ -91,7 +91,7 @@ class IAstroidChecker(IChecker):
 class IReporter(Interface):
     """reporter collect messages and display results encapsulated in a layout"""
 
-    def handle_message(self, msg):
+    def handle_message(self, msg) -> None:
         """Handle the given message object."""
 
     def display_reports(self, layout):
