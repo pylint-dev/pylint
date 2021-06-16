@@ -21,9 +21,6 @@ from pylint.reporters import BaseReporter
 
 
 class CompareToZeroTestReporter(BaseReporter):
-    def handle_message(self, msg):
-        self.messages.append(msg)
-
     def on_set_current_module(self, module, filepath):
         self.messages = []
 

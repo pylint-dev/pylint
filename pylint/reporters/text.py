@@ -27,6 +27,7 @@ import warnings
 
 from pylint import utils
 from pylint.interfaces import IReporter
+from pylint.message import Message
 from pylint.reporters import BaseReporter
 from pylint.reporters.ureports.text_writer import TextWriter
 
@@ -141,7 +142,7 @@ class TextReporter(BaseReporter):
         """Convenience method to write a formatted message with class default template"""
         self.writeln(msg.format(self._template))
 
-    def handle_message(self, msg):
+    def handle_message(self, msg: Message) -> None:
         """manage message of different type and in the context of path"""
         if msg.module not in self._modules:
             if msg.module:
@@ -217,7 +218,7 @@ class ColorizedTextReporter(TextReporter):
         except KeyError:
             return None, None
 
-    def handle_message(self, msg):
+    def handle_message(self, msg: Message) -> None:
         """manage message of different types, and colorize output
         using ansi escape codes
         """

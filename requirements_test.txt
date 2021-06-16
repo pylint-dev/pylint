@@ -7,3 +7,6 @@ pyenchant~=3.2
 pytest-cov~=2.12
 pytest-profiling~=1.7
 pytest-xdist~=2.2
+# Type packages for mypy
+types-pkg_resources==0.1.2
+types-toml==0.1.2
