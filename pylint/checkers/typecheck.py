@@ -1775,11 +1775,7 @@ accessed. Python regular expressions are accepted.",
 
         if isinstance(node.value, astroid.Dict):
             # Assert dict key is hashable
-            if isinstance(node.slice, astroid.Index):
-                # In Python 3.9 the Index node is no longer in use
-                inferred = safe_infer(node.slice.value)
-            else:
-                inferred = safe_infer(node.slice)
+            inferred = safe_infer(node.slice)
             if inferred not in (None, astroid.Uninferable):
                 try:
                     hash_fn = next(inferred.igetattr("__hash__"))
