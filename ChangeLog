@@ -150,6 +150,12 @@ modules are added.
 
 * Fix error that occurred when using ``slice`` as subscript for dict.
 
+* Reduce false-positives around inference of ``.value`` and ``.name``
+  properties on ``Enum`` subclasses, following an upgrade in astroid
+
+  Closes #1932
+  Closes #2062
+
 
 What's New in Pylint 2.8.3?
 ===========================
