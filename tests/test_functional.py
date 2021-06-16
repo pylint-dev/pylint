@@ -55,7 +55,7 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
     def _check_output_text(self, _, expected_output, actual_output):
         if expected_output and expected_output == actual_output:
             return
-        if not expected_output:
+        if not expected_output and not actual_output:
             if os.path.exists(self._test_file.expected_output):
                 os.remove(self._test_file.expected_output)
             return
