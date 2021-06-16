@@ -947,6 +947,12 @@ class VariablesChecker(BaseChecker):
     def visit_delname(self, node):
         self.visit_name(node)
 
+    @utils.check_messages(
+        "cell-var-from-loop",
+        "undefined-loop-variable",
+        "undefined-variable",
+        "used-before-assignment",
+    )
     def visit_name(self, node):
         """Check that a name is defined in the current scope"""
         stmt = node.statement()
@@ -957,15 +963,17 @@ class VariablesChecker(BaseChecker):
 
         name = node.name
         frame = stmt.scope()
-        start_index = len(self._to_consume) - 1
-
-        undefined_variable_is_enabled = self.linter.is_message_enabled(
-            "undefined-variable"
-        )
-        used_before_assignment_is_enabled = self.linter.is_message_enabled(
-            "used-before-assignment"
-        )
-
+        # if the name node is used as a function default argument's value or as
+        # a decorator, then start from the parent frame of the function instead
+        # of the function frame - and thus open an inner class scope
+        if (
+            utils.is_default_argument(node)
+            or utils.is_func_decorator(node)
+            or utils.is_ancestor_name(frame, node)
+        ):
+            start_index = len(self._to_consume) - 2
+        else:
+            start_index = len(self._to_consume) - 1
         # iterates through parent scopes, from the inner to the outer
         base_scope_type = self._to_consume[start_index].scope_type
         # pylint: disable=too-many-nested-blocks; refactoring this block is a pain.
@@ -1027,9 +1035,7 @@ class VariablesChecker(BaseChecker):
             # checks for use before assignment
             defnode = utils.assign_parent(current_consumer.to_consume[name][0])
 
-            if (
-                undefined_variable_is_enabled or used_before_assignment_is_enabled
-            ) and defnode is not None:
+            if defnode is not None:
                 self._check_late_binding_closure(node, defnode)
                 defstmt = defnode.statement()
                 defframe = defstmt.frame()
@@ -1164,7 +1170,7 @@ class VariablesChecker(BaseChecker):
         else:
             # we have not found the name, if it isn't a builtin, that's an
             # undefined name !
-            if undefined_variable_is_enabled and not (
+            if not (
                 name in astroid.Module.scope_attrs
                 or utils.is_builtin(name)
                 or name in self.config.additional_builtins
@@ -1767,9 +1773,6 @@ class VariablesChecker(BaseChecker):
         self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
 
     def _check_late_binding_closure(self, node, assignment_node):
-        if not self.linter.is_message_enabled("cell-var-from-loop"):
-            return
-
         def _is_direct_lambda_call():
             return (
                 isinstance(node_scope.parent, astroid.Call)
