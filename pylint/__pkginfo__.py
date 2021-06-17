@@ -2,12 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 from typing import Tuple
 
-from pkg_resources import DistributionNotFound, get_distribution
-
-try:
-    __version__ = get_distribution("pylint").version
-except DistributionNotFound:
-    __version__ = "2.8.2+"
+__version__ = "2.9.0-dev0"
 
 
 def get_numversion_from_version(v: str) -> Tuple:
