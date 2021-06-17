@@ -43,6 +43,8 @@
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
+# Copyright (c) 2021 Andrew Haigh <nelfin@gmail.com>
 # Copyright (c) 2021 Jens H. Nielsen <Jens.Nielsen@microsoft.com>
 # Copyright (c) 2021 Ikraduya Edian <ikraduya@gmail.com>
 
