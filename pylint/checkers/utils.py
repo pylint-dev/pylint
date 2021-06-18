@@ -70,6 +70,7 @@ from typing import (
 
 import _string
 import astroid
+from astroid.bases import _is_property
 
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = (
@@ -782,15 +783,7 @@ def error_of_type(handler: astroid.ExceptHandler, error_type) -> bool:
 
 def decorated_with_property(node: astroid.FunctionDef) -> bool:
     """Detect if the given function node is decorated with a property."""
-    if not node.decorators:
-        return False
-    for decorator in node.decorators.nodes:
-        try:
-            if _is_property_decorator(decorator):
-                return True
-        except astroid.InferenceError:
-            pass
-    return False
+    return _is_property(node)
 
 
 def _is_property_kind(node, *kinds):
@@ -816,20 +809,6 @@ def is_property_deleter(node: astroid.FunctionDef) -> bool:
 def is_property_setter_or_deleter(node: astroid.FunctionDef) -> bool:
     """Check if the given node is either a property setter or a deleter"""
     return _is_property_kind(node, "setter", "deleter")
-
-
-def _is_property_decorator(decorator: astroid.Name) -> bool:
-    for inferred in decorator.infer():
-        if isinstance(inferred, astroid.ClassDef):
-            if inferred.root().name == BUILTINS_NAME and inferred.name == "property":
-                return True
-            for ancestor in inferred.ancestors():
-                if (
-                    ancestor.name == "property"
-                    and ancestor.root().name == BUILTINS_NAME
-                ):
-                    return True
-    return False
 
 
 def decorated_with(
