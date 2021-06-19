@@ -821,7 +821,7 @@ def is_property_setter_or_deleter(node: astroid.FunctionDef) -> bool:
 def _is_property_decorator(decorator: astroid.Name) -> bool:
     for inferred in decorator.infer():
         if isinstance(inferred, astroid.ClassDef):
-            if inferred.root().name == BUILTINS_NAME and inferred.name == "property":
+            if inferred.qname() in ("builtins.property", "functools.cached_property"):
                 return True
             for ancestor in inferred.ancestors():
                 if (
