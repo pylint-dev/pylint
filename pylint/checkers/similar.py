@@ -51,6 +51,7 @@ from getopt import getopt
 from io import TextIOWrapper
 from itertools import chain, groupby
 from typing import (
+    Any,
     Dict,
     FrozenSet,
     Generator,
@@ -67,6 +68,8 @@ from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.utils import decoding_stream
+
+DEFAULT_MIN_SIMILARITY_LINE = 4
 
 REGEX_FOR_LINES_WITH_CONTENT = re.compile(r".*\w+")
 
@@ -131,7 +134,7 @@ class LinesChunk:
                 # Avoid matching empty lines
                 self._hash += hash(int(random.random() * 100000))
 
-    def __eq__(self, o: object) -> bool:
+    def __eq__(self, o: Any) -> bool:
         if not isinstance(o, LinesChunk):
             return NotImplemented
         return self._hash == o._hash
@@ -178,46 +181,36 @@ class SuccessiveLinesLimits:
         return f"<SuccessiveLinesLimits <{self._start};{self._end}>>"
 
 
-class LineSetStartCouple:
+class LineSetStartCouple(NamedTuple):
     """
     Indices in both linesets that mark the beginning of successive lines
     """
-
-    def __init__(self, fst_lineset_index: Index, snd_lineset_index: Index):
-        self._fst_lineset_index = fst_lineset_index
-        self._snd_lineset_index = snd_lineset_index
+    fst_lineset_index : Index
+    snd_lineset_index : Index
 
     def __repr__(self) -> str:
-        return f"<LineSetStartCouple <{self._fst_lineset_index};{self._snd_lineset_index}>>"
-
-    def __add__(self, value: Index):
-        return LineSetStartCouple(
-            Index(self._fst_lineset_index + value),
-            Index(self._snd_lineset_index + value),
-        )
+        return f"<LineSetStartCouple <{self.fst_lineset_index};{self.snd_lineset_index}>>"
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, LineSetStartCouple):
             raise NotImplementedError
         return (
-            self._fst_lineset_index == other._fst_lineset_index
-            and self._snd_lineset_index == other._snd_lineset_index
+            self.fst_lineset_index == other.fst_lineset_index
+            and self.snd_lineset_index == other.snd_lineset_index
         )
 
     def __hash__(self) -> int:
-        return hash(self._fst_lineset_index) + hash(self._snd_lineset_index)
+        return hash(self.fst_lineset_index) + hash(self.snd_lineset_index)
 
-    @property
-    def fst_lineset_index(self) -> Index:
-        return self._fst_lineset_index
-
-    @property
-    def snd_lineset_index(self) -> Index:
-        return self._snd_lineset_index
+    def increment(self, value: Index) -> "LineSetStartCouple":
+        return LineSetStartCouple(
+            Index(self.fst_lineset_index + value),
+            Index(self.snd_lineset_index + value),
+        )
 
 
 def hash_lineset(
-    lineset: "LineSet", min_common_lines: int = 4
+    lineset: "LineSet", min_common_lines: int = DEFAULT_MIN_SIMILARITY_LINE
 ) -> Tuple[HashToIndex_T, IndexToLines_T]:
     """
     Return two dicts. The first associates the hash of successive stripped lines of a lineset
@@ -286,13 +279,13 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
     all_couples_keys: List[LineSetStartCouple] = list(all_couples.keys())
     for couple in all_couples_keys:
         to_remove = []
-        test = couple + Index(1)
+        test = couple.increment(Index(1))
         while test in all_couples:
             all_couples[couple].first_file.end = all_couples[test].first_file.end
             all_couples[couple].second_file.end = all_couples[test].second_file.end
             all_couples[couple].effective_cmn_lines_nb += 1
             to_remove.append(test)
-            test += 1
+            test = test.increment(Index(1))
 
         for target in to_remove:
             try:
@@ -320,25 +313,17 @@ def filter_noncode_lines(
     :param common_lines_nb: number of common successive stripped lines before being filtered from non code lines
     :return: the number of common successives stripped lines that contain code
     """
-    check_cmn_lines_nb = 0
-
     stripped_l1 = [
         lspecif.text
         for lspecif in ls_1.stripped_lines[stindex_1 : stindex_1 + common_lines_nb]
+        if REGEX_FOR_LINES_WITH_CONTENT.match(lspecif.text)
     ]
     stripped_l2 = [
         lspecif.text
         for lspecif in ls_2.stripped_lines[stindex_2 : stindex_2 + common_lines_nb]
+        if REGEX_FOR_LINES_WITH_CONTENT.match(lspecif.text)
     ]
-
-    for sline_1, sline_2 in zip(stripped_l1, stripped_l2):
-        if (
-            REGEX_FOR_LINES_WITH_CONTENT.match(sline_1)
-            and REGEX_FOR_LINES_WITH_CONTENT.match(sline_2)
-            and sline_1 == sline_2
-        ):
-            check_cmn_lines_nb += 1
-    return check_cmn_lines_nb
+    return sum(sline_1 == sline_2 for sline_1, sline_2 in zip(stripped_l1, stripped_l2))
 
 
 class Similar:
@@ -346,17 +331,17 @@ class Similar:
 
     def __init__(
         self,
-        min_lines: int = 4,
+        min_lines: int = DEFAULT_MIN_SIMILARITY_LINE,
         ignore_comments: bool = False,
         ignore_docstrings: bool = False,
         ignore_imports: bool = False,
         ignore_signatures: bool = False,
     ) -> None:
-        self.min_lines: int = min_lines
-        self.ignore_comments: bool = ignore_comments
-        self.ignore_docstrings: bool = ignore_docstrings
-        self.ignore_imports: bool = ignore_imports
-        self.ignore_signatures: bool = ignore_signatures
+        self.min_lines = min_lines
+        self.ignore_comments = ignore_comments
+        self.ignore_docstrings = ignore_docstrings
+        self.ignore_imports = ignore_imports
+        self.ignore_signatures = ignore_signatures
         self.linesets: List["LineSet"] = []
 
     def append_stream(
@@ -699,7 +684,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         (
             "min-similarity-lines",  # type: ignore
             {
-                "default": 4,
+                "default": DEFAULT_MIN_SIMILARITY_LINE,
                 "type": "int",
                 "metavar": "<int>",
                 "help": "Minimum lines number of a similarity.",
@@ -748,7 +733,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
         Similar.__init__(
-            self, min_lines=4, ignore_comments=True, ignore_docstrings=True
+            self, min_lines=DEFAULT_MIN_SIMILARITY_LINE, ignore_comments=True, ignore_docstrings=True
         )
         self.stats = None
 
@@ -856,7 +841,7 @@ def Run(argv=None):
         "ignore-docstrings",
         "ignore-signatures",
     )
-    min_lines = 4
+    min_lines = DEFAULT_MIN_SIMILARITY_LINE
     ignore_comments = False
     ignore_docstrings = False
     ignore_imports = False
