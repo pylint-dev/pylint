@@ -185,11 +185,14 @@ class LineSetStartCouple(NamedTuple):
     """
     Indices in both linesets that mark the beginning of successive lines
     """
-    fst_lineset_index : Index
-    snd_lineset_index : Index
+
+    fst_lineset_index: Index
+    snd_lineset_index: Index
 
     def __repr__(self) -> str:
-        return f"<LineSetStartCouple <{self.fst_lineset_index};{self.snd_lineset_index}>>"
+        return (
+            f"<LineSetStartCouple <{self.fst_lineset_index};{self.snd_lineset_index}>>"
+        )
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, LineSetStartCouple):
@@ -733,7 +736,10 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
         Similar.__init__(
-            self, min_lines=DEFAULT_MIN_SIMILARITY_LINE, ignore_comments=True, ignore_docstrings=True
+            self,
+            min_lines=DEFAULT_MIN_SIMILARITY_LINE,
+            ignore_comments=True,
+            ignore_docstrings=True,
         )
         self.stats = None
 
