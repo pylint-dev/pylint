@@ -56,7 +56,7 @@ def test_ignore_comments():
    four
    five
    six
-   # A full line comment
+   # A full line comment
    seven
    eight
    nine
