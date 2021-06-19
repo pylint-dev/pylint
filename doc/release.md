@@ -4,43 +4,15 @@ So, you want to release the `X.Y.Z` version of pylint ?
 
 ## Process
 
-1. Run the acceptance tests to see if everything is alright with this release. We don't
-   run them on CI: `pytest -m acceptance`
-2. Check if the dependencies of the package are correct, make sure astroid is pinned to
+1. Check if the dependencies of the package are correct, make sure astroid is pinned to
    the latest version.
-3. Put the release date into `Changelog` (and `What's new` if it's a major).
-4. Generate the new copyright notices for this release:
-
-```bash
-pip3 install copyrite
-copyrite --contribution-threshold 1 --change-threshold 3 --backend-type \
-git --aliases=.copyrite_aliases . --jobs=8
-# During the commit pre-commit and pyupgrade will remove the encode utf8
-# automatically
-```
-
-5. Submit your changes in a merge request.
-
-6. Make sure the tests are passing on Travis/GithubActions:
-   https://travis-ci.org/PyCQA/pylint/
-
-7. Do the actual release by tagging the master with `vX.Y.Z` (ie `v1.6.12` or `v2.5.3a1`
-   for example). Travis should deal with the release process once the tag is pushed with
-   `git push origin --tags`
-
-8. Go to github, click on "Releases" then on the `vX.Y.Z` tag, choose edit tag, and copy
-   past the changelog in the description.
-
-## Manual Release
-
-Following the previous steps, for a manual release run the following commands:
-
-```bash
-git clean -fdx && find . -name '*.pyc' -delete
-python setup.py sdist --formats=gztar bdist_wheel
-twine upload dist/*
-# don't forget to tag it as well
-```
+2. Put the release date into`What's new` if it's a minor version.
+3. Install the release dependencies `pip3 install pre-commit tbump`
+4. Bump the version and release by using `tbump X.Y.Z --no-push`.
+5. Check the result.
+6. Push the tag.
+7. Go to GitHub, click on "Releases" then on the `vX.Y.Z` tag, choose edit tag, and copy
+   past the changelog in the description. This will trigger the release to pypi.
 
 ## Post release
 
@@ -61,22 +33,29 @@ git push
 We move issue that were not done in the next milestone and block release only if it's an
 issue labelled as blocker.
 
-### Files to update after releases
+### Back to a dev version
 
-#### setup.cfg
+1. Unpin the version of astroid, so it's possible to install a dev version during
+   development
+2. Move back to a dev version for pylint with `tbump`:
 
-- Unpin the version of astroid, so it's possible to install a dev version during
-  development
+```bash
+tbump X.Y.Z-dev0 --no-tag --no-push # You can interrupt during copyrite
+```
+
+Check the result and then upgrade the master branch
 
 #### Changelog
 
-- Create a new section, with the name of the release `X.Y.Z+1` or `X.Y+1.0` on the
-  master branch.
+If it was a minor release add a `X.Y+1.0` title following the template:
 
-You need to add the estimated date when it is going to be published. If no date can be
-known at that time, we should use `Undefined`.
+```text
+What's New in pylint x.y.z?
+============================
+Release Date: TBA
+```
 
 #### Whatsnew
 
-If it's a major release, create a new `What's new in Pylint X.Y+1` document Take a look
+If it's a minor release, create a new `What's new in Pylint X.Y+1` document Take a look
 at the examples from `doc/whatsnew`.

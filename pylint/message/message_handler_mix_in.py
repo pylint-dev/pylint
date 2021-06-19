@@ -274,6 +274,17 @@ class MessagesHandlerMixIn:
         # update stats
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
+        if self.stats is None:
+            # pylint: disable=fixme
+            # TODO self.stats should make sense,
+            # class should make sense as soon as instantiated
+            # This is not true for Linter and Reporter at least
+            # pylint: enable=fixme
+            self.stats = {
+                msg_cat: 0,
+                "by_module": {self.current_name: {msg_cat: 0}},
+                "by_msg": {},
+            }
         self.stats[msg_cat] += 1
         self.stats["by_module"][self.current_name][msg_cat] += 1
         try:
@@ -291,7 +302,10 @@ class MessagesHandlerMixIn:
         else:
             module, obj = get_module_and_frameid(node)
             abspath = node.root().file
-        path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
+        if abspath is not None:
+            path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
+        else:
+            path = "configuration"
         # add the message
         self.reporter.handle_message(
             Message(

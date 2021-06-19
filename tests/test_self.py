@@ -25,6 +25,7 @@
 # Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Dr. Nick <das-intensity@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 chohner <mail@chohner.com>
 # Copyright (c) 2021 Louis Sautier <sautier.louis@gmail.com>
@@ -57,6 +58,7 @@ import pytest
 from pylint import modify_sys_path
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
 from pylint.lint import Run
+from pylint.message import Message
 from pylint.reporters import JSONReporter
 from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextReporter
 from pylint.utils import utils
@@ -104,7 +106,7 @@ class MultiReporter(BaseReporter):
         for rep in self._reporters:
             rep.on_set_current_module(*args, **kwargs)
 
-    def handle_message(self, msg):
+    def handle_message(self, msg: Message) -> None:
         for rep in self._reporters:
             rep.handle_message(msg)
 

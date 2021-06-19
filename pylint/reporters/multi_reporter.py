@@ -6,6 +6,7 @@ import os
 from typing import IO, Any, AnyStr, Callable, List, Mapping, Optional, Union
 
 from pylint.interfaces import IReporter
+from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.ureports.nodes import BaseLayout
 
@@ -58,7 +59,7 @@ class MultiReporter:
         for rep in self._sub_reporters:
             rep.linter = value
 
-    def handle_message(self, msg: str) -> None:
+    def handle_message(self, msg: Message) -> None:
         """Handle a new message triggered on the current file."""
         for rep in self._sub_reporters:
             rep.handle_message(msg)

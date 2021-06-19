@@ -13,6 +13,11 @@ Release date: TBA
 
   Close #4120
 
+* ``setuptools_scm`` has been removed and replaced by ``tbump`` in order to not
+  have hidden runtime dependencies to setuptools
+
+* Appveyor is no longer used in the continuous integration
+
 * Added ``deprecated-decorator``: Emitted when deprecated decorator is used.
 
   Closes #4429
@@ -109,6 +114,11 @@ modules are added.
 
   Closes #585
 
+* Fix a crash when a plugin from the configuration could not be loaded and raise an error
+  'bad-plugin-value' instead
+
+Closes #4555
+
 * Added handling of floating point values when parsing configuration from pyproject.toml
 
   Closes #4518
@@ -150,6 +160,13 @@ modules are added.
   * New checker ``consider-using-namedtuple-or-dataclass``. Emitted when dictionary values
     can be replaced by namedtuples or dataclass instances.
 
+* Fix error that occurred when using ``slice`` as subscript for dict.
+
+* Reduce false-positives around inference of ``.value`` and ``.name``
+  properties on ``Enum`` subclasses, following an upgrade in astroid
+
+  Closes #1932
+  Closes #2062
 
 
 What's New in Pylint 2.8.3?

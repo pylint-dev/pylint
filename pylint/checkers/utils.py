@@ -42,6 +42,7 @@
 # Copyright (c) 2020 Slavfox <slavfoxman@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
@@ -1530,18 +1531,13 @@ def get_iterating_dictionary_name(
 
 def get_subscript_const_value(node: astroid.Subscript) -> astroid.Const:
     """
-    Returns the value (subscript.slice) of a Subscript node,
-    also supports python <3.9 windows where node.slice might be an Index
-    node
+    Returns the value 'subscript.slice' of a Subscript node.
 
     :param node: Subscript Node to extract value from
     :returns: Const Node containing subscript value
     :raises InferredTypeError: if the subscript node cannot be inferred as a Const
     """
-    value = node.slice
-    if isinstance(value, astroid.Index):
-        value = value.value
-    inferred = safe_infer(value)
+    inferred = safe_infer(node.slice)
     if not isinstance(inferred, astroid.Const):
         raise InferredTypeError(
             "Subscript.slice cannot be inferred as an astroid.Const"
