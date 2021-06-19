@@ -164,7 +164,8 @@ Closes #4555
   Closes #1932
   Closes #2062
 
-* Better recognize property decorators. This fixes an issue when using ``cached_property`` to override ``property``.
+* Fix issue with ``cached_property`` that caused ``invalid-overridden-method`` error
+  when overriding a ``property``.
 
   Closes #4023
 
