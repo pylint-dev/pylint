@@ -18,7 +18,8 @@ persistent=yes
 # usually to register additional checkers.
 load-plugins=
     pylint.extensions.check_elif,
-    pylint.extensions.bad_builtin
+    pylint.extensions.bad_builtin,
+    pylint.extensions.code_style,
 
 # Use multiple processes to speed up Pylint.
 jobs=1

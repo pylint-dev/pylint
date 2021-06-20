@@ -10,6 +10,8 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
@@ -67,7 +69,7 @@ def test_option_values(HANDLER, PROJECT):
     assert not df_h.module_names
     assert cl_h._get_levels() == (-1, -1)
     assert cl_h.module_names
-    for hndl in [df_h, cl_h]:
+    for hndl in (df_h, cl_h):
         hndl.config.all_ancestors = True
         hndl.config.all_associated = True
         hndl.config.module_names = True
@@ -79,7 +81,7 @@ def test_option_values(HANDLER, PROJECT):
     cl_config = Config()
     cl_config.classes = ["Specialization"]
     cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
-    for hndl in [df_h, cl_h]:
+    for hndl in (df_h, cl_h):
         hndl.config.show_ancestors = 2
         hndl.config.show_associated = 1
         hndl.config.module_names = False

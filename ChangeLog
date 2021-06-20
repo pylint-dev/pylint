@@ -13,6 +13,11 @@ Release date: TBA
 
   Closes #1548
 
+* ``setuptools_scm`` has been removed and replaced by ``tbump`` in order to not
+  have hidden runtime dependencies to setuptools
+
+* Appveyor is no longer used in the continuous integration
+
 * Added ``deprecated-decorator``: Emitted when deprecated decorator is used.
 
   Closes #4429
@@ -109,6 +114,11 @@ modules are added.
 
   Closes #585
 
+* Fix a crash when a plugin from the configuration could not be loaded and raise an error
+  'bad-plugin-value' instead
+
+Closes #4555
+
 * Added handling of floating point values when parsing configuration from pyproject.toml
 
   Closes #4518
@@ -128,11 +138,40 @@ modules are added.
   Closes #4509
   Closes PyCQA/astroid#999
 
-* New checker ``consider-using-namedtuple-or-dataclass``. Emitted when dictionary values
-  can be replaced by namedtuples or dataclass instances.
-
 * New checker ``invalid-all-format``. Emitted when ``__all__`` has an invalid format,
   i.e. isn't a ``tuple`` or ``list``.
+
+* Fix false positive ``unused-variable`` and ``undefined-variable`` with
+  Pattern Matching in Python 3.10
+
+* New checker ``await-outside-async``. Emitted when await is used outside an async function.
+
+* Clarify documentation for ``typing`` extension.
+
+  Closes #4545
+
+* Add new extension ``CodeStyleChecker``. It includes checkers that can improve code
+  consistency. As such they don't necessarily provide a performance benefit
+  and are often times opinionated.
+
+  * New checker ``consider-using-tuple``. Emitted when an in-place defined
+    list or set can be replaced by a tuple.
+
+  * New checker ``consider-using-namedtuple-or-dataclass``. Emitted when dictionary values
+    can be replaced by namedtuples or dataclass instances.
+
+* Fix error that occurred when using ``slice`` as subscript for dict.
+
+* Reduce false-positives around inference of ``.value`` and ``.name``
+  properties on ``Enum`` subclasses, following an upgrade in astroid
+
+  Closes #1932
+  Closes #2062
+
+* Fix issue with ``cached_property`` that caused ``invalid-overridden-method`` error
+  when overriding a ``property``.
+
+  Closes #4023
 
 
 What's New in Pylint 2.8.3?

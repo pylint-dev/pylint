@@ -174,8 +174,6 @@ class RecommendationChecker(checkers.BaseChecker):
                     continue
 
                 value = subscript.slice
-                if isinstance(value, astroid.Index):
-                    value = value.value
                 if not isinstance(value, astroid.Name):
                     continue
                 if subscript.value.scope() != node.scope():
@@ -215,8 +213,6 @@ class RecommendationChecker(checkers.BaseChecker):
                     continue
 
                 value = subscript.slice
-                if isinstance(value, astroid.Index):
-                    value = value.value
                 if (
                     not isinstance(value, astroid.Name)
                     or value.name != node.target.name
@@ -256,8 +252,6 @@ class RecommendationChecker(checkers.BaseChecker):
                     continue
 
                 value = subscript.slice
-                if isinstance(value, astroid.Index):
-                    value = value.value
                 if (
                     not isinstance(value, astroid.Name)
                     or value.name != node.target.name

@@ -443,7 +443,7 @@ class FormatChecker(BaseTokenChecker):
 
     def _prepare_token_dispatcher(self):
         dispatch = {}
-        for tokens, handler in [(_KEYWORD_TOKENS, self._check_keyword_parentheses)]:
+        for tokens, handler in ((_KEYWORD_TOKENS, self._check_keyword_parentheses),):
             for token in tokens:
                 dispatch[token] = handler
         return dispatch
@@ -632,9 +632,10 @@ class FormatChecker(BaseTokenChecker):
             return
 
         # Function overloads that use ``Ellipsis`` are exempted.
-        if isinstance(node, nodes.Expr) and (
-            isinstance(node.value, nodes.Ellipsis)
-            or (isinstance(node.value, nodes.Const) and node.value.value is Ellipsis)
+        if (
+            isinstance(node, nodes.Expr)
+            and isinstance(node.value, nodes.Const)
+            and node.value.value is Ellipsis
         ):
             frame = node.frame()
             if is_overload_stub(frame) or is_protocol_class(node_frame_class(frame)):

@@ -20,9 +20,6 @@ from pylint.reporters import BaseReporter
 
 
 class BroadTryClauseTestReporter(BaseReporter):
-    def handle_message(self, msg):
-        self.messages.append(msg)
-
     def on_set_current_module(self, module, filepath):
         self.messages = []
 

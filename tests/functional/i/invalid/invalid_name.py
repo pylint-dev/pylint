@@ -42,3 +42,28 @@ def _generate_cmdline_tests():
 # We should emit for the loop variable.
 for i in range(10):
     Foocapfor = 2  # [invalid-name]
+
+
+def dummy_decorator(aaabc, bbbcd):
+    """Some"""
+    def real_decorator(fff):
+        """pieces of"""
+        def wrapper(*args, **kwargs):
+            """docstring"""
+            print(aaabc, bbbcd)
+            fff(*args, **kwargs)
+        return wrapper
+    return real_decorator
+
+
+@dummy_decorator(1, [
+    0  # Fixing #119 should make this go away
+# C0103 always points here - line 61  # [invalid-name]
+
+
+])
+def a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad():  # Should be line 65
+    """Docstring"""
+    print('LOL')
+
+a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad()

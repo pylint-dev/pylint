@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, invalid-name
 
 from __future__ import print_function
 
@@ -123,3 +123,11 @@ def long_function_with_inline_def(fake): # [too-many-statements]
     fake += 1
     fake += 1
     fake += 1
+
+
+def exmaple_function():  # [too-many-statements]
+    a = 1
+    b = 2
+    c = 3
+    d = a * b + c
+    print(d)
