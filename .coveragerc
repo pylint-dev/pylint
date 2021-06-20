@@ -7,3 +7,13 @@ include =
     pylint/*
 omit =
     */test/*
+exclude_lines =
+    # Re-enable default pragma
+    pragma: no cover
+
+    # Debug-only code
+    def __repr__
+
+    # Type checking code not executed during pytest runs
+    if TYPE_CHECKING:
+    @overload

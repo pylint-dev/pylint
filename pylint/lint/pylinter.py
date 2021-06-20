@@ -128,6 +128,11 @@ MSGS = {
         "bad-option-value",
         "Used when a bad value for an inline option is encountered.",
     ),
+    "E0013": (
+        "Plugin '%s' is impossible to load, is it installed ? ('%s')",
+        "bad-plugin-value",
+        "Used when a bad value is used in 'load-plugins'.",
+    ),
 }
 
 
@@ -531,8 +536,11 @@ class PyLinter(
             if modname in self._dynamic_plugins:
                 continue
             self._dynamic_plugins.add(modname)
-            module = astroid.modutils.load_module_from_name(modname)
-            module.register(self)
+            try:
+                module = astroid.modutils.load_module_from_name(modname)
+                module.register(self)
+            except ModuleNotFoundError:
+                pass
 
     def load_plugin_configuration(self):
         """Call the configuration hook for plugins
@@ -542,9 +550,12 @@ class PyLinter(
         settings.
         """
         for modname in self._dynamic_plugins:
-            module = astroid.modutils.load_module_from_name(modname)
-            if hasattr(module, "load_configuration"):
-                module.load_configuration(self)
+            try:
+                module = astroid.modutils.load_module_from_name(modname)
+                if hasattr(module, "load_configuration"):
+                    module.load_configuration(self)
+            except ModuleNotFoundError as e:
+                self.add_message("bad-plugin-value", args=(modname, e), line=0)
 
     def _load_reporters(self) -> None:
         sub_reporters = []

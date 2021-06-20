@@ -33,6 +33,7 @@
 # Copyright (c) 2020 Federico Bond <federicobond@gmail.com>
 # Copyright (c) 2020 Athos Ribeiro <athoscr@fedoraproject.org>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 Tiago Honorato <tiagohonorato1@gmail.com>
 # Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -908,13 +909,13 @@ class Python3Checker(checkers.BaseChecker):
 
     _python_2_tests = frozenset(
         astroid.extract_node(x).repr_tree()
-        for x in [
+        for x in (
             "sys.version_info[0] == 2",
             "sys.version_info[0] < 3",
             "sys.version_info == (2, 7)",
             "sys.version_info <= (2, 7)",
             "sys.version_info < (3, 0)",
-        ]
+        )
     )
 
     def __init__(self, *args, **kwargs):
