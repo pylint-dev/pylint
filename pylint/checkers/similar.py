@@ -62,7 +62,7 @@ from typing import (
     Tuple,
 )
 
-import astroid  # type: ignore
+import astroid
 
 from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
@@ -82,8 +82,8 @@ LineNumber = NewType("LineNumber", int)
 
 # LineSpecifs holds characteristics of a line in a file
 class LineSpecifs(NamedTuple):
+    line_number: LineNumber
     text: str
-    linenumber: LineNumber
 
 
 # Links LinesChunk object to the starting indices (in lineset's stripped lines)
@@ -100,11 +100,12 @@ class CplSuccessiveLinesLimits:
     and a counter on the number of common lines between both stripped lines collections extracted
     from both files
     """
+    __slots__ = ("first_file", "second_file", "effective_cmn_lines_nb")
 
-    def __init__(self, first_file, second_file, effective_cmn_lines_nb):
-        self.first_file: "SuccessiveLinesLimits" = first_file
-        self.second_file: "SuccessiveLinesLimits" = second_file
-        self.effective_cmn_lines_nb: int = effective_cmn_lines_nb
+    def __init__(self, first_file: "SuccessiveLinesLimits", second_file: "SuccessiveLinesLimits", effective_cmn_lines_nb: int) -> None:
+        self.first_file = first_file
+        self.second_file = second_file
+        self.effective_cmn_lines_nb = effective_cmn_lines_nb
 
 
 # Links the indices ot the starting line in both lineset's stripped lines to
@@ -118,15 +119,21 @@ class LinesChunk:
     """
 
     __slots__ = (
-        "_fileid",  # The name of the file from which the LinesChunk object is generated
-        "_index",  # The index in the stripped lines that is the starting of consecutive lines
-        "_hash",  # The hash of some consecutive lines
+        "_fileid",
+        "_index",
+        "_hash",
     )
 
     def __init__(self, fileid: str, num_line: int, *lines: Iterable[str]):
         self._fileid: str = fileid
+        """The name of the file from which the LinesChunk object is generated """
+
         self._index: Index = Index(num_line)
+        """The index in the stripped lines that is the starting of consecutive lines"""
+
         self._hash: int = 0
+        """The hash of some consecutive lines"""
+
         for lin in lines:
             if lin:
                 self._hash += hash(lin)
@@ -235,11 +242,11 @@ def hash_lineset(
     shifted_lines = [iter(lines[i:]) for i in range(min_common_lines)]
 
     for index_i, *succ_lines in enumerate(zip(*shifted_lines)):
-        start_linenumber = lineset.stripped_lines[index_i][1]
+        start_linenumber = lineset.stripped_lines[index_i].line_number
         try:
-            end_linenumber = lineset.stripped_lines[index_i + min_common_lines][1]
+            end_linenumber = lineset.stripped_lines[index_i + min_common_lines].line_number
         except IndexError:
-            end_linenumber = lineset.stripped_lines[-1][1] + 1
+            end_linenumber = lineset.stripped_lines[-1].line_number + 1
 
         index = Index(index_i)
         index2lines[index] = SuccessiveLinesLimits(
@@ -593,7 +600,7 @@ def stripped_lines(
         if ignore_signatures and lineno in signature_lines:
             line = ""
         if line:
-            strippedlines.append(LineSpecifs(line, LineNumber(lineno - 1)))
+            strippedlines.append(LineSpecifs(text=line, line_number=LineNumber(lineno - 1)))
     return strippedlines
 
 
