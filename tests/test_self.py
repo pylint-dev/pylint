@@ -317,13 +317,13 @@ class TestRunTC:
         self._test_output([".", "--load-plugin"], expected_output=expected)
 
     def test_enable_all_works(self):
-        module = join(HERE, "data", "clientmodule_test.py")
+        module = join(HERE, "pyreverse", "data", "clientmodule_test.py")
         expected = textwrap.dedent(
             f"""
         ************* Module data.clientmodule_test
-        {module}:10:8: W0612: Unused variable 'local_variable' (unused-variable)
-        {module}:18:4: C0116: Missing function or method docstring (missing-function-docstring)
-        {module}:22:0: C0115: Missing class docstring (missing-class-docstring)
+        {module}:12:8: W0612: Unused variable 'local_variable' (unused-variable)
+        {module}:20:4: C0116: Missing function or method docstring (missing-function-docstring)
+        {module}:25:0: C0115: Missing class docstring (missing-class-docstring)
         """
         )
         self._test_output(

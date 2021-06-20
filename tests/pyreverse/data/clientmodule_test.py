@@ -9,6 +9,7 @@ class Ancestor:
     cls_member = DoNothing()
 
     def __init__(self, value):
+        local_variable = 0
         self.attr = "this method shouldn't have a docstring"
         self.__value = value
 
