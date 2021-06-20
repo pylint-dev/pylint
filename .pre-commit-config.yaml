@@ -78,7 +78,7 @@ repos:
         args: ["--ignore-missing-imports", "--scripts-are-modules"]
         require_serial: true
         additional_dependencies: []
-        exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/|bin/
+        exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|conftest.py|doc/|bin/
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.3.0
     hooks:

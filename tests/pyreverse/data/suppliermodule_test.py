@@ -1,5 +1,6 @@
 """ file suppliermodule.py """
 
+
 class Interface:
     def get_value(self):
         raise NotImplementedError
@@ -7,4 +8,6 @@ class Interface:
     def set_value(self, value):
         raise NotImplementedError
 
-class DoNothing: pass
+
+class DoNothing:
+    pass

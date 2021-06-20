@@ -17,9 +17,9 @@ import os
 
 import astroid
 import pytest
-from unittest_pyreverse_writer import get_project
 
 from pylint.pyreverse import inspector
+from pylint.testutils.pyreverse import get_project
 
 
 @pytest.fixture
@@ -120,7 +120,7 @@ def test_interfaces():
 
 
 def test_from_directory(project):
-    expected = os.path.join("tests", "data", "__init__.py")
+    expected = os.path.join("tests", "pyreverse", "data", "__init__.py")
     assert project.name == "data"
     assert project.path.endswith(expected)
 
