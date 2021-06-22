@@ -13,6 +13,8 @@ Release date: TBA
 
   Closes #1548
 
+* astroid has been upgraded to 2.6.0
+
 * ``setuptools_scm`` has been removed and replaced by ``tbump`` in order to not
   have hidden runtime dependencies to setuptools
 
