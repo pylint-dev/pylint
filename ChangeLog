@@ -171,6 +171,11 @@ Closes #4555
 
   Closes #4023
 
+* Fix ``unused-import`` false positive for imported modules referenced in
+  attribute lookups in type comments.
+
+  Closes #4603
+
 
 What's New in Pylint 2.8.3?
 ===========================

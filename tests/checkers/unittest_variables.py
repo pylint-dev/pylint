@@ -21,11 +21,14 @@
 import os
 import re
 import sys
+import unittest
+import platform
 from pathlib import Path
 
 import astroid
 
 from pylint.checkers import variables
+from pylint.constants import IS_PYPY
 from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, Message, linter, set_config
 
@@ -188,6 +191,23 @@ class TestVariablesChecker(CheckerTestCase):
                 pass
         """
         )
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @unittest.skipIf(IS_PYPY, "PyPy does not parse type comments")
+    def test_attribute_in_type_comment(self):
+        """Ensure attribute lookups in type comments are accounted for.
+
+        https://github.com/PyCQA/pylint/issues/4603
+        """
+        module = astroid.parse(
+            """
+        import foo
+        from foo import Bar, Boo
+        a = ... # type: foo.Bar
+        b = ... # type: foo.Bar[Boo]
+        c = ... # type: Bar.Boo
+        """)
         with self.assertNoMessages():
             self.walk(module)
 
