@@ -9,6 +9,8 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* astroid has been upgraded to 2.6.0
+
 * ``setuptools_scm`` has been removed and replaced by ``tbump`` in order to not
   have hidden runtime dependencies to setuptools
 
