@@ -810,8 +810,9 @@ def decorated_with(
             decorator_node = decorator_node.func
         try:
             if any(
-                i is not None and i.qname() in qnames or i.name in qnames
+                i.name in qnames or i.qname() in qnames
                 for i in decorator_node.infer()
+                if i is not None and i != astroid.Uninferable
             ):
                 return True
         except astroid.InferenceError:
