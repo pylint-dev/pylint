@@ -14,6 +14,11 @@ Release date: TBA
 * ``setuptools_scm`` has been removed and replaced by ``tbump`` in order to not
   have hidden runtime dependencies to setuptools
 
+* Fix a crash when a test function is decorated with ``@pytest.fixture`` and astroid can't
+  infer the name of the decorator when using ``open`` without ``with``.
+
+  Closes #4612
+
 * Appveyor is no longer used in the continuous integration
 
 * Added ``deprecated-decorator``: Emitted when deprecated decorator is used.
