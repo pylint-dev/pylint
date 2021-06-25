@@ -72,3 +72,6 @@ Other Changes
 * ``ignore-paths`` configuration directive has been added. Defined regex patterns are matched against file path.
 
 * Added handling of floating point values when parsing configuration from pyproject.toml
+
+* Fix false positive ``useless-type-doc`` on ignored argument using ``pylint.extensions.docparams`` when a function
+  was typed using pep484 but not inside the docstring.

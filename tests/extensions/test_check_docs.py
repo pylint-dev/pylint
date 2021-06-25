@@ -2236,8 +2236,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
             Message(msg_id="useless-type-doc", node=node, args=("_",)),
+            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -2260,8 +2260,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
             Message(msg_id="useless-type-doc", node=node, args=("_",)),
+            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -2290,8 +2290,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
             Message(msg_id="useless-type-doc", node=node, args=("_",)),
+            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
         ):
             self.checker.visit_functiondef(node)
 
