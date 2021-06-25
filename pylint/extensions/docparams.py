@@ -23,12 +23,14 @@
 """Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings
 """
 import re
+from typing import Optional
 
 import astroid
 
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
 from pylint.extensions import _check_docs_utils as utils
+from pylint.extensions._check_docs_utils import Docstring
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import get_global_option
 
@@ -460,7 +462,11 @@ class DocstringParameterChecker(BaseChecker):
             )
 
     def check_arguments_in_docstring(
-        self, doc, arguments_node, warning_node, accept_no_param_doc=None
+        self,
+        doc: Docstring,
+        arguments_node: astroid.Arguments,
+        warning_node: astroid.NodeNG,
+        accept_no_param_doc: Optional[bool] = None,
     ):
         """Check that all parameters in a function, method or class constructor
         on the one hand and the parameters mentioned in the parameter
@@ -541,10 +547,12 @@ class DocstringParameterChecker(BaseChecker):
             )
 
         for index, arg_name in enumerate(arguments_node.args):
-            if arguments_node.annotations[index]:
+            if arguments_node.annotations[index] and doc.arg_is_documented(arg_name):
                 params_with_type.add(arg_name.name)
         for index, arg_name in enumerate(arguments_node.kwonlyargs):
-            if arguments_node.kwonlyargs_annotations[index]:
+            if arguments_node.kwonlyargs_annotations[index] and doc.arg_is_documented(
+                arg_name
+            ):
                 params_with_type.add(arg_name.name)
 
         if not tolerate_missing_params:
