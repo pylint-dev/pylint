@@ -25,6 +25,7 @@ import re
 from typing import List
 
 import astroid
+from astroid import AssignName
 
 from pylint.checkers import utils
 
@@ -205,6 +206,9 @@ class Docstring:
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}:'''{self.doc}'''>"
+
+    def arg_is_documented(self, arg_name: AssignName) -> bool:
+        return arg_name.name in self.doc
 
     def is_valid(self):
         return False
