@@ -203,6 +203,9 @@ class Docstring:
         doc = doc or ""
         self.doc = doc.expandtabs()
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__}:'''{self.doc}'''>"
+
     def is_valid(self):
         return False
 
