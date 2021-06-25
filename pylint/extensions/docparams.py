@@ -531,7 +531,6 @@ class DocstringParameterChecker(BaseChecker):
             expected_argument_names.add(arguments_node.kwarg)
             not_needed_type_in_docstring.add(arguments_node.kwarg)
         params_with_doc, params_with_type = doc.match_param_docs()
-
         # Tolerate no parameter documentation at all.
         if not params_with_doc and not params_with_type and accept_no_param_doc:
             tolerate_missing_params = True
@@ -546,13 +545,20 @@ class DocstringParameterChecker(BaseChecker):
                 warning_node,
             )
 
+        # This is before the update of param_with_type because this must check only
+        # the type documented in a docstring, not the one using pep484
+        # See #4117 and #4593
+        self._compare_ignored_args(
+            params_with_type,
+            "useless-type-doc",
+            expected_but_ignored_argument_names,
+            warning_node,
+        )
         for index, arg_name in enumerate(arguments_node.args):
-            if arguments_node.annotations[index] and doc.arg_is_documented(arg_name):
+            if arguments_node.annotations[index]:
                 params_with_type.add(arg_name.name)
         for index, arg_name in enumerate(arguments_node.kwonlyargs):
-            if arguments_node.kwonlyargs_annotations[index] and doc.arg_is_documented(
-                arg_name
-            ):
+            if arguments_node.kwonlyargs_annotations[index]:
                 params_with_type.add(arg_name.name)
 
         if not tolerate_missing_params:
@@ -581,12 +587,6 @@ class DocstringParameterChecker(BaseChecker):
         self._compare_ignored_args(
             params_with_doc,
             "useless-param-doc",
-            expected_but_ignored_argument_names,
-            warning_node,
-        )
-        self._compare_ignored_args(
-            params_with_type,
-            "useless-type-doc",
             expected_but_ignored_argument_names,
             warning_node,
         )

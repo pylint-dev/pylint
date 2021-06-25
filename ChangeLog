@@ -11,6 +11,12 @@ Release date: TBA
 
 * astroid has been upgraded to 2.6.0
 
+* Fix false positive ``useless-type-doc`` on ignored argument using ``pylint.extensions.docparams``
+  when a function was typed using pep484 but not inside the docstring.
+
+  Closes #4117
+  Closes #4593
+
 * ``setuptools_scm`` has been removed and replaced by ``tbump`` in order to not
   have hidden runtime dependencies to setuptools
 
