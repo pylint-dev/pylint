@@ -124,7 +124,7 @@ class LinesChunk:
         "_hash",
     )
 
-    def __init__(self, fileid: str, num_line: int, *lines: Iterable[str]):
+    def __init__(self, fileid: str, num_line: int, *lines: Iterable[str]) -> None:
         self._fileid: str = fileid
         """The name of the file from which the LinesChunk object is generated """
 
@@ -168,7 +168,7 @@ class SuccessiveLinesLimits:
     :note: Only the end line number can be updated.
     """
 
-    def __init__(self, start: LineNumber, end: LineNumber):
+    def __init__(self, start: LineNumber, end: LineNumber) -> None:
         self._start: LineNumber = start
         self._end: LineNumber = end
 
@@ -181,7 +181,7 @@ class SuccessiveLinesLimits:
         return self._end
 
     @end.setter
-    def end(self, value: LineNumber):
+    def end(self, value: LineNumber) -> None:
         self._end = value
 
     def __repr__(self) -> str:
@@ -234,10 +234,10 @@ def hash_lineset(
              index to the start and end lines in the file
     """
     hash2index = defaultdict(list)
-    index2lines = dict()
+    index2lines = {}
     # Comments, docstring and other specific patterns maybe excluded -> call to stripped_lines
     # to get only what is desired
-    lines = list(x.text for x in lineset.stripped_lines)
+    lines = tuple(x.text for x in lineset.stripped_lines)
     # Need different iterators on same lines but each one is shifted 1 from the precedent
     shifted_lines = [iter(lines[i:]) for i in range(min_common_lines)]
 
@@ -250,7 +250,8 @@ def hash_lineset(
 
         index = Index(index_i)
         index2lines[index] = SuccessiveLinesLimits(
-            LineNumber(start_linenumber), LineNumber(end_linenumber)
+            start=LineNumber(start_linenumber),
+            end=LineNumber(end_linenumber)
         )
 
         successive_lines = tuple(*succ_lines)
@@ -620,7 +621,7 @@ class LineSet:
         ignore_docstrings=False,
         ignore_imports=False,
         ignore_signatures=False,
-    ):
+    ) -> None:
         self.name = name
         self._real_lines = lines
         self._stripped_lines = stripped_lines(
@@ -740,7 +741,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     # reports
     reports = (("RP0801", "Duplication", report_similarities),)  # type: ignore
 
-    def __init__(self, linter=None):
+    def __init__(self, linter=None) -> None:
         BaseChecker.__init__(self, linter)
         Similar.__init__(
             self,
