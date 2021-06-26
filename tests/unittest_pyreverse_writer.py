@@ -22,13 +22,14 @@ unit test for visitors.diadefs and extensions.diadefslib modules
 import codecs
 import os
 from difflib import unified_diff
+from unittest.mock import patch
 
 import astroid
 import pytest
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
-from pylint.pyreverse.utils import get_annotation, get_visibility
+from pylint.pyreverse.utils import get_annotation, get_visibility, infer_node
 from pylint.pyreverse.writer import DotWriter
 
 _DEFAULTS = {
@@ -176,3 +177,29 @@ def test_get_annotation_assignattr(init_method, label):
             got = get_annotation(assign_attr).name
             assert isinstance(assign_attr, astroid.AssignAttr)
             assert got == label, f"got {got} instead of {label} for value {node}"
+
+
+@patch("pylint.pyreverse.utils.get_annotation")
+@patch("astroid.node_classes.NodeNG.infer", side_effect=astroid.InferenceError)
+def test_infer_node_1(mock_infer, mock_get_annotation):
+    """Return set() when astroid.InferenceError is raised and an annotation has
+    not been returned
+    """
+    mock_get_annotation.return_value = None
+    node = astroid.extract_node("a: str = 'mystr'")
+    mock_infer.return_value = "x"
+    assert infer_node(node) == set()
+    assert mock_infer.called
+
+
+@patch("pylint.pyreverse.utils.get_annotation")
+@patch("astroid.node_classes.NodeNG.infer")
+def test_infer_node_2(mock_infer, mock_get_annotation):
+    """Return set(node.infer()) when InferenceError is not raised and an
+    annotation has not been returned
+    """
+    mock_get_annotation.return_value = None
+    node = astroid.extract_node("a: str = 'mystr'")
+    mock_infer.return_value = "x"
+    assert infer_node(node) == set("x")
+    assert mock_infer.called

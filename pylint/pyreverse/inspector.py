@@ -205,24 +205,19 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             # the name has been defined as 'global' in the frame and belongs
             # there.
             frame = node.root()
-        try:
-            if not hasattr(frame, "locals_type"):
-                # If the frame doesn't have a locals_type yet,
-                # it means it wasn't yet visited. Visit it now
-                # to add what's missing from it.
-                if isinstance(frame, astroid.ClassDef):
-                    self.visit_classdef(frame)
-                elif isinstance(frame, astroid.FunctionDef):
-                    self.visit_functiondef(frame)
-                else:
-                    self.visit_module(frame)
+        if not hasattr(frame, "locals_type"):
+            # If the frame doesn't have a locals_type yet,
+            # it means it wasn't yet visited. Visit it now
+            # to add what's missing from it.
+            if isinstance(frame, astroid.ClassDef):
+                self.visit_classdef(frame)
+            elif isinstance(frame, astroid.FunctionDef):
+                self.visit_functiondef(frame)
+            else:
+                self.visit_module(frame)
 
-            current = frame.locals_type[node.name]
-            ann = utils.get_annotation(node)
-            values = {ann} if ann else set(node.infer())
-            frame.locals_type[node.name] = list(set(current) | values)
-        except astroid.InferenceError:
-            pass
+        current = frame.locals_type[node.name]
+        frame.locals_type[node.name] = list(set(current) | utils.infer_node(node))
 
     @staticmethod
     def handle_assignattr_type(node, parent):
@@ -230,13 +225,10 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
         handle instance_attrs_type
         """
-        ann = utils.get_annotation(node)
-        try:
-            values = {ann} if ann else set(node.infer())
-            current = set(parent.instance_attrs_type[node.attrname])
-            parent.instance_attrs_type[node.attrname] = list(current | values)
-        except astroid.InferenceError:
-            pass
+        current = set(parent.instance_attrs_type[node.attrname])
+        parent.instance_attrs_type[node.attrname] = list(
+            current | utils.infer_node(node)
+        )
 
     def visit_import(self, node):
         """visit an astroid.Import node

@@ -228,7 +228,7 @@ def get_annotation_label(ann: Union[astroid.Name, astroid.Subscript]) -> str:
 
 
 def get_annotation(
-    node: Union[astroid.AnnAssign, astroid.AssignAttr]
+    node: Union[astroid.AssignAttr, astroid.AssignName]
 ) -> Optional[Union[astroid.Name, astroid.Subscript]]:
     """return the annotation for `node`"""
     ann = None
@@ -244,7 +244,11 @@ def get_annotation(
     else:
         return ann
 
-    default, *_ = node.infer()
+    try:
+        default, *_ = node.infer()
+    except astroid.InferenceError:
+        default = ""
+
     label = get_annotation_label(ann)
     if ann:
         label = (
@@ -256,3 +260,16 @@ def get_annotation(
     if label:
         ann.name = label
     return ann
+
+
+def infer_node(node: Union[astroid.AssignAttr, astroid.AssignName]) -> set:
+    """Return a set containing the node annotation if it exists
+    otherwise return a set of the inferred types using the NodeNG.infer method"""
+
+    ann = get_annotation(node)
+    if ann:
+        return {ann}
+    try:
+        return set(node.infer())
+    except astroid.InferenceError:
+        return set()
