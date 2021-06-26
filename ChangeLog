@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* Add type annotations to pyreverse dot files
+
+  Closes #1548
+
 * astroid has been upgraded to 2.6.0
 
 * Fix false positive ``useless-type-doc`` on ignored argument using ``pylint.extensions.docparams``
