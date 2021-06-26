@@ -203,7 +203,6 @@ def _dependencies_graph(filename: str, dep_info: Dict[str, List[str]]) -> None:
     printer = get_printer_for_filetype(filename)(
         os.path.splitext(os.path.basename(filename))[0], layout=Layout.LEFT_TO_RIGHT
     )
-    printer.emit('URL="." node[shape="box"]')
     for modname, dependencies in sorted(dep_info.items()):
         done[modname] = 1
         printer.emit_node(modname, type_=NodeType.PACKAGE)
