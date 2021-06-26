@@ -34,6 +34,8 @@
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
 # Copyright (c) 2020 GergelyKalmar <gergely.kalmar@logikal.jp>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
+# Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
 # Copyright (c) 2021 James Sinclair <james@nurfherder.com>
 # Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 
@@ -499,7 +501,7 @@ def _has_same_layout_slots(slots, assigned_value):
     return False
 
 
-MSGS = {
+MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "F0202": (
         "Unable to check methods signature (%s / %s)",
         "method-check-failed",
@@ -1417,6 +1419,13 @@ a metaclass class method.",
         if "__slots__" not in klass.locals or not klass.newstyle:
             return
 
+        # If 'typing.Generic' is a base of bases of klass, the cached version
+        # of 'slots()' might have been evaluated incorrectly, thus deleted cache entry.
+        if any(base.qname() == "typing.Generic" for base in klass.mro()):
+            cache = getattr(klass, "__cache", None)
+            if cache and cache.get(klass.slots) is not None:
+                del cache[klass.slots]
+
         slots = klass.slots()
         if slots is None:
             return
@@ -2284,10 +2293,10 @@ class SpecialMethodsChecker(BaseChecker):
         if len(inferred.elts) != 2:
             found_error = True
         else:
-            for arg, check in [
+            for arg, check in (
                 (inferred.elts[0], self._is_tuple),
                 (inferred.elts[1], self._is_dict),
-            ]:
+            ):
 
                 if isinstance(arg, astroid.Call):
                     arg = safe_infer(arg)

@@ -10,6 +10,7 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andrew Howe <howeaj@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -66,7 +67,7 @@ URL="." node[shape="box"]
 
 @pytest.mark.parametrize("filename", ["graph.png", "graph"])
 @pytest.mark.skipif(
-    any(shutil.which(x) for x in ["dot", "gv"]), reason="dot or gv is installed"
+    any(shutil.which(x) for x in ("dot", "gv")), reason="dot or gv is installed"
 )
 def test_missing_graphviz(filename):
     """Raises if graphviz is not installed, and defaults to png if no extension given"""

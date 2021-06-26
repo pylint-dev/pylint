@@ -391,6 +391,11 @@ MSGS = {
         "invalid-all-object",
         "Used when an invalid (non-string) object occurs in __all__.",
     ),
+    "E0605": (
+        "Invalid format for __all__, must be tuple or list",
+        "invalid-all-format",
+        "Used when __all__ has an invalid format.",
+    ),
     "E0611": (
         "No name %r in module %r",
         "no-name-in-module",
@@ -451,11 +456,6 @@ MSGS = {
         "Redefining built-in %r",
         "redefined-builtin",
         "Used when a variable or function override a built-in.",
-    ),
-    "W0623": (
-        "Redefining name %r from %s in exception handler",
-        "redefine-in-handler",
-        "Used when an exception handler assigns the exception to an existing name",
     ),
     "W0631": (
         "Using possibly undefined loop variable %r",
@@ -726,7 +726,7 @@ class VariablesChecker(BaseChecker):
         self._postponed_evaluation_enabled = is_postponed_evaluation_enabled(node)
 
         for name, stmts in node.locals.items():
-            if utils.is_builtin(name) and not utils.is_inside_except(stmts[0]):
+            if utils.is_builtin(name):
                 if self._should_ignore_redefined_builtin(stmts[0]) or name == "__doc__":
                     continue
                 self.add_message("redefined-builtin", args=name, node=stmts[0])
@@ -737,6 +737,7 @@ class VariablesChecker(BaseChecker):
         "redefined-builtin",
         "undefined-all-variable",
         "invalid-all-object",
+        "invalid-all-format",
         "unused-variable",
     )
     def leave_module(self, node):
@@ -813,8 +814,6 @@ class VariablesChecker(BaseChecker):
             return
         globs = node.root().globals
         for name, stmt in node.items():
-            if utils.is_inside_except(stmt):
-                continue
             if name in globs and not isinstance(stmt, astroid.Global):
                 definition = globs[name][0]
                 if (
@@ -1960,6 +1959,10 @@ class VariablesChecker(BaseChecker):
     def _check_all(self, node, not_consumed):
         assigned = next(node.igetattr("__all__"))
         if assigned is astroid.Uninferable:
+            return
+
+        if not isinstance(assigned, (astroid.Tuple, astroid.List)):
+            self.add_message("invalid-all-format", node=assigned)
             return
 
         for elt in getattr(assigned, "elts", ()):

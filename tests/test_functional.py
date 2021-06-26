@@ -55,7 +55,7 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
     def _check_output_text(self, _, expected_output, actual_output):
         if expected_output and expected_output == actual_output:
             return
-        if not expected_output:
+        if not expected_output and not actual_output:
             if os.path.exists(self._test_file.expected_output):
                 os.remove(self._test_file.expected_output)
             return
@@ -96,12 +96,13 @@ TEST_WITH_EXPECTED_DEPRECATION = [
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
 def test_functional(test_file, recwarn, pytestconfig):
+    __tracebackhide__ = True  # pylint: disable=unused-variable
     if UPDATE_FILE.exists():
         lint_test = LintModuleOutputUpdate(test_file, pytestconfig)
     else:
         lint_test = testutils.LintModuleTest(test_file, pytestconfig)
     lint_test.setUp()
-    lint_test._runTest()
+    lint_test.runTest()
     warning = None
     try:
         # Catch <unknown>:x: DeprecationWarning: invalid escape sequence

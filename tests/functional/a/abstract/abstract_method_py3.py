@@ -75,7 +75,7 @@ class Container(Structure):
 # +1: [abstract-method, abstract-method, abstract-method]
 class Sizable(Structure):
     def __len__(self):
-        pass
+        return 42
 
 
 # +1: [abstract-method, abstract-method, abstract-method]

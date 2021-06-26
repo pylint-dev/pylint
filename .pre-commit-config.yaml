@@ -21,17 +21,17 @@ repos:
           - --remove-duplicate-keys
           - --remove-unused-variables
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.18.2
+    rev: v2.19.4
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
         exclude: *fixtures
   - repo: https://github.com/PyCQA/isort
-    rev: 5.8.0
+    rev: 5.9.1
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
-    rev: 21.5b1
+    rev: 21.6b0
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -68,19 +68,19 @@ repos:
         types: [text]
         files: ^(ChangeLog|doc/whatsnew/\d+\.\d+\.rst)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.812
+    rev: v0.902
     hooks:
       - id: mypy
         name: mypy
         entry: mypy
         language: python
         types: [python]
-        args: ["--ignore-missing-imports", "--scripts-are-modules"]
+        args: []
         require_serial: true
-        additional_dependencies: []
-        exclude: tests/functional/|tests/input|tests(/.*)*/data|tests/regrtest_data/|tests(/.*)+/conftest.py|doc/|bin/
+        additional_dependencies: ["types-pkg_resources==0.1.3", "types-toml==0.1.3"]
+        exclude: tests/functional/|tests/input|tests(/.*)*/data|tests/regrtest_data/|tests/data/|tests(/.*)+/conftest.py|doc/|bin/
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.3.0
+    rev: v2.3.1
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]

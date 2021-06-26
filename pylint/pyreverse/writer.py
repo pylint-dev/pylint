@@ -38,7 +38,7 @@ from pylint.pyreverse.printer import (
     PlantUmlPrinter,
     VCGPrinter,
 )
-from pylint.pyreverse.utils import is_exception
+from pylint.pyreverse.utils import get_annotation_label, is_exception
 
 
 class DiagramWriter:
@@ -218,11 +218,31 @@ class DotWriter(DiagramWriter, ColorMixin):
         if not self.config.only_classnames:
             label = r"{}|{}\l|".format(label, r"\l".join(obj.attrs))
             for func in obj.methods:
+                return_type = (
+                    f": {get_annotation_label(func.returns)}" if func.returns else ""
+                )
+
                 if func.args.args:
-                    args = [arg.name for arg in func.args.args if arg.name != "self"]
+                    argument_list = [
+                        arg for arg in func.args.args if arg.name != "self"
+                    ]
                 else:
-                    args = []
-                label = r"{}{}({})\l".format(label, func.name, ", ".join(args))
+                    argument_list = []
+
+                annotations = dict(zip(argument_list, func.args.annotations[1:]))
+                for arg in argument_list:
+                    annotation_label = ""
+                    ann = annotations.get(arg)
+                    if ann:
+                        annotation_label = get_annotation_label(ann)
+                    annotations[arg] = annotation_label
+
+                args = ", ".join(
+                    f"{arg.name}: {ann}" if ann else f"{arg.name}"
+                    for arg, ann in annotations.items()
+                )
+
+                label = fr"{label}{func.name}({args}){return_type}\l"
             label = "{%s}" % label
         properties = NodeProperties(
             label=label,

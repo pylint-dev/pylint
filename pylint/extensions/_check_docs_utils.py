@@ -13,6 +13,7 @@
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Danny Hermes <daniel.j.hermes@gmail.com>
 # Copyright (c) 2019 Zeb Nicholls <zebedee.nicholls@climate-energy-college.org>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -168,12 +169,12 @@ def possible_exc_types(node):
 
 
 def docstringify(docstring, default_type="default"):
-    for docstring_type in [
+    for docstring_type in (
         SphinxDocstring,
         EpytextDocstring,
         GoogleDocstring,
         NumpyDocstring,
-    ]:
+    ):
         instance = docstring_type(docstring)
         if instance.is_valid():
             return instance
@@ -201,6 +202,9 @@ class Docstring:
     def __init__(self, doc):
         doc = doc or ""
         self.doc = doc.expandtabs()
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__}:'''{self.doc}'''>"
 
     def is_valid(self):
         return False

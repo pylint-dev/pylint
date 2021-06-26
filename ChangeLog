@@ -9,9 +9,27 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
-* Added ``--colorized`` option to ``pyreverse`` to visualize modules/packages of the same parent package.
+* Add type annotations to pyreverse dot files
 
-  Closes #4488
+  Closes #1548
+
+* astroid has been upgraded to 2.6.0
+
+* Fix false positive ``useless-type-doc`` on ignored argument using ``pylint.extensions.docparams``
+  when a function was typed using pep484 but not inside the docstring.
+
+  Closes #4117
+  Closes #4593
+
+* ``setuptools_scm`` has been removed and replaced by ``tbump`` in order to not
+  have hidden runtime dependencies to setuptools
+
+* Fix a crash when a test function is decorated with ``@pytest.fixture`` and astroid can't
+  infer the name of the decorator when using ``open`` without ``with``.
+
+  Closes #4612
+
+* Appveyor is no longer used in the continuous integration
 
 * Added ``deprecated-decorator``: Emitted when deprecated decorator is used.
 
@@ -109,9 +127,71 @@ modules are added.
 
   Closes #585
 
+* Fix a crash when a plugin from the configuration could not be loaded and raise an error
+  'bad-plugin-value' instead
+
+Closes #4555
+
 * Added handling of floating point values when parsing configuration from pyproject.toml
 
   Closes #4518
+
+* ``invalid-length-returned``, now also works when nothing at all is returned
+  following an upgrade in astroid.
+
+* ``logging-format-interpolation`` and ``logging-not-lazy``, now works on logger
+  class created from renamed logging import following an upgrade in astroid.
+
+* Fix false-positive ``no-member`` with generic base class
+
+  Closes PyCQA/astroid#942
+
+* Fix ``assigning-non-slot`` false-positive with base that inherits from ``typing.Generic``
+
+  Closes #4509
+  Closes PyCQA/astroid#999
+
+* New checker ``invalid-all-format``. Emitted when ``__all__`` has an invalid format,
+  i.e. isn't a ``tuple`` or ``list``.
+
+* Fix false positive ``unused-variable`` and ``undefined-variable`` with
+  Pattern Matching in Python 3.10
+
+* New checker ``await-outside-async``. Emitted when await is used outside an async function.
+
+* Clarify documentation for ``typing`` extension.
+
+  Closes #4545
+
+* Add new extension ``CodeStyleChecker``. It includes checkers that can improve code
+  consistency. As such they don't necessarily provide a performance benefit
+  and are often times opinionated.
+
+  * New checker ``consider-using-tuple``. Emitted when an in-place defined
+    list or set can be replaced by a tuple.
+
+  * New checker ``consider-using-namedtuple-or-dataclass``. Emitted when dictionary values
+    can be replaced by namedtuples or dataclass instances.
+
+* Fix error that occurred when using ``slice`` as subscript for dict.
+
+* Reduce false-positives around inference of ``.value`` and ``.name``
+  properties on ``Enum`` subclasses, following an upgrade in astroid
+
+  Closes #1932
+  Closes #2062
+
+* Fix issue with ``cached_property`` that caused ``invalid-overridden-method`` error
+  when overriding a ``property``.
+
+  Closes #4023
+
+
+What's New in Pylint 2.8.3?
+===========================
+Release date: 2021-05-31
+
+* Astroid has been pinned to 2.5.6 for the 2.8 branch see #4527.
 
 
 What's New in Pylint 2.8.2?

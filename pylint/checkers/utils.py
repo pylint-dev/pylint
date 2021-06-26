@@ -42,6 +42,7 @@
 # Copyright (c) 2020 Slavfox <slavfoxman@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
@@ -276,15 +277,6 @@ class InferredTypeError(Exception):
     pass
 
 
-def is_inside_except(node):
-    """Returns true if node is inside the name of an except handler."""
-    current = node
-    while current and not isinstance(current.parent, astroid.ExceptHandler):
-        current = current.parent
-
-    return current and current is current.parent.name
-
-
 def is_inside_lambda(node: astroid.node_classes.NodeNG) -> bool:
     """Return true if given node is inside lambda"""
     parent = node.parent
@@ -304,31 +296,6 @@ def get_all_elements(
             yield from get_all_elements(child)
     else:
         yield node
-
-
-def clobber_in_except(
-    node: astroid.node_classes.NodeNG,
-) -> Tuple[bool, Optional[Tuple[str, str]]]:
-    """Checks if an assignment node in an except handler clobbers an existing
-    variable.
-
-    Returns (True, args for W0623) if assignment clobbers an existing variable,
-    (False, None) otherwise.
-    """
-    if isinstance(node, astroid.AssignAttr):
-        return True, (node.attrname, f"object {node.expr.as_string()!r}")
-    if isinstance(node, astroid.AssignName):
-        name = node.name
-        if is_builtin(name):
-            return True, (name, "builtins")
-
-        stmts = node.lookup(name)[1]
-        if stmts and not isinstance(
-            stmts[0].assign_type(),
-            (astroid.Assign, astroid.AugAssign, astroid.ExceptHandler),
-        ):
-            return True, (name, "outer scope (line %s)" % stmts[0].fromlineno)
-    return False, None
 
 
 def is_super(node: astroid.node_classes.NodeNG) -> bool:
@@ -820,7 +787,7 @@ def is_property_setter_or_deleter(node: astroid.FunctionDef) -> bool:
 def _is_property_decorator(decorator: astroid.Name) -> bool:
     for inferred in decorator.infer():
         if isinstance(inferred, astroid.ClassDef):
-            if inferred.root().name == BUILTINS_NAME and inferred.name == "property":
+            if inferred.qname() in ("builtins.property", "functools.cached_property"):
                 return True
             for ancestor in inferred.ancestors():
                 if (
@@ -843,8 +810,9 @@ def decorated_with(
             decorator_node = decorator_node.func
         try:
             if any(
-                i is not None and i.qname() in qnames or i.name in qnames
+                i.name in qnames or i.qname() in qnames
                 for i in decorator_node.infer()
+                if i is not None and i != astroid.Uninferable
             ):
                 return True
         except astroid.InferenceError:
@@ -1530,18 +1498,13 @@ def get_iterating_dictionary_name(
 
 def get_subscript_const_value(node: astroid.Subscript) -> astroid.Const:
     """
-    Returns the value (subscript.slice) of a Subscript node,
-    also supports python <3.9 windows where node.slice might be an Index
-    node
+    Returns the value 'subscript.slice' of a Subscript node.
 
     :param node: Subscript Node to extract value from
     :returns: Const Node containing subscript value
     :raises InferredTypeError: if the subscript node cannot be inferred as a Const
     """
-    value = node.slice
-    if isinstance(value, astroid.Index):
-        value = value.value
-    inferred = safe_infer(value)
+    inferred = safe_infer(node.slice)
     if not isinstance(inferred, astroid.Const):
         raise InferredTypeError(
             "Subscript.slice cannot be inferred as an astroid.Const"

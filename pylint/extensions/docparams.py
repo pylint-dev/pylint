@@ -23,12 +23,14 @@
 """Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings
 """
 import re
+from typing import Optional
 
 import astroid
 
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
 from pylint.extensions import _check_docs_utils as utils
+from pylint.extensions._check_docs_utils import Docstring
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import get_global_option
 
@@ -460,7 +462,11 @@ class DocstringParameterChecker(BaseChecker):
             )
 
     def check_arguments_in_docstring(
-        self, doc, arguments_node, warning_node, accept_no_param_doc=None
+        self,
+        doc: Docstring,
+        arguments_node: astroid.Arguments,
+        warning_node: astroid.NodeNG,
+        accept_no_param_doc: Optional[bool] = None,
     ):
         """Check that all parameters in a function, method or class constructor
         on the one hand and the parameters mentioned in the parameter
@@ -525,7 +531,6 @@ class DocstringParameterChecker(BaseChecker):
             expected_argument_names.add(arguments_node.kwarg)
             not_needed_type_in_docstring.add(arguments_node.kwarg)
         params_with_doc, params_with_type = doc.match_param_docs()
-
         # Tolerate no parameter documentation at all.
         if not params_with_doc and not params_with_type and accept_no_param_doc:
             tolerate_missing_params = True
@@ -540,6 +545,15 @@ class DocstringParameterChecker(BaseChecker):
                 warning_node,
             )
 
+        # This is before the update of param_with_type because this must check only
+        # the type documented in a docstring, not the one using pep484
+        # See #4117 and #4593
+        self._compare_ignored_args(
+            params_with_type,
+            "useless-type-doc",
+            expected_but_ignored_argument_names,
+            warning_node,
+        )
         for index, arg_name in enumerate(arguments_node.args):
             if arguments_node.annotations[index]:
                 params_with_type.add(arg_name.name)
@@ -573,12 +587,6 @@ class DocstringParameterChecker(BaseChecker):
         self._compare_ignored_args(
             params_with_doc,
             "useless-param-doc",
-            expected_but_ignored_argument_names,
-            warning_node,
-        )
-        self._compare_ignored_args(
-            params_with_type,
-            "useless-type-doc",
             expected_but_ignored_argument_names,
             warning_node,
         )
