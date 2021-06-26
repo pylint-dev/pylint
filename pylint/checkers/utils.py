@@ -277,15 +277,6 @@ class InferredTypeError(Exception):
     pass
 
 
-def is_inside_except(node):
-    """Returns true if node is inside the name of an except handler."""
-    current = node
-    while current and not isinstance(current.parent, astroid.ExceptHandler):
-        current = current.parent
-
-    return current and current is current.parent.name
-
-
 def is_inside_lambda(node: astroid.node_classes.NodeNG) -> bool:
     """Return true if given node is inside lambda"""
     parent = node.parent
@@ -305,31 +296,6 @@ def get_all_elements(
             yield from get_all_elements(child)
     else:
         yield node
-
-
-def clobber_in_except(
-    node: astroid.node_classes.NodeNG,
-) -> Tuple[bool, Optional[Tuple[str, str]]]:
-    """Checks if an assignment node in an except handler clobbers an existing
-    variable.
-
-    Returns (True, args for W0623) if assignment clobbers an existing variable,
-    (False, None) otherwise.
-    """
-    if isinstance(node, astroid.AssignAttr):
-        return True, (node.attrname, f"object {node.expr.as_string()!r}")
-    if isinstance(node, astroid.AssignName):
-        name = node.name
-        if is_builtin(name):
-            return True, (name, "builtins")
-
-        stmts = node.lookup(name)[1]
-        if stmts and not isinstance(
-            stmts[0].assign_type(),
-            (astroid.Assign, astroid.AugAssign, astroid.ExceptHandler),
-        ):
-            return True, (name, "outer scope (line %s)" % stmts[0].fromlineno)
-    return False, None
 
 
 def is_super(node: astroid.node_classes.NodeNG) -> bool:
@@ -821,7 +787,7 @@ def is_property_setter_or_deleter(node: astroid.FunctionDef) -> bool:
 def _is_property_decorator(decorator: astroid.Name) -> bool:
     for inferred in decorator.infer():
         if isinstance(inferred, astroid.ClassDef):
-            if inferred.root().name == BUILTINS_NAME and inferred.name == "property":
+            if inferred.qname() in ("builtins.property", "functools.cached_property"):
                 return True
             for ancestor in inferred.ancestors():
                 if (
@@ -844,8 +810,9 @@ def decorated_with(
             decorator_node = decorator_node.func
         try:
             if any(
-                i is not None and i.qname() in qnames or i.name in qnames
+                i.name in qnames or i.qname() in qnames
                 for i in decorator_node.infer()
+                if i is not None and i != astroid.Uninferable
             ):
                 return True
         except astroid.InferenceError:
