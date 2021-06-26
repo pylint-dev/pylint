@@ -26,6 +26,8 @@ from typing import (
     Type,
 )
 
+from pylint.pyreverse.utils import get_file_extension
+
 
 class NodeType(Enum):
     CLASS = "class"
@@ -528,7 +530,7 @@ class DotPrinter(Printer):
             os.close(pdot)
             os.close(ppng)
         else:
-            _, _, target = target_info_from_filename(outputfile)
+            target = get_file_extension(outputfile)
             if not target:
                 target = "png"
                 outputfile = outputfile + "." + target
@@ -561,19 +563,10 @@ class DotPrinter(Printer):
 
 def get_printer_for_filetype(filename_or_extension: str) -> Type[Printer]:
     """Factory function to get a suitable Printer class based on a files extension."""
-    _, _, extension = target_info_from_filename(filename_or_extension)
+    extension = get_file_extension(filename_or_extension)
     printer_mapping = {
         "dot": DotPrinter,
         "vcg": VCGPrinter,
         "puml": PlantUmlPrinter,
     }
-    # will probably fail if just the extension is passed into!
-    return printer_mapping.get(extension, default=DotPrinter)
-
-
-def target_info_from_filename(filename):
-    """Transforms /some/path/foo.png into ('/some/path', 'foo.png', 'png')."""
-    basename = os.path.basename(filename)
-    storedir = os.path.dirname(os.path.abspath(filename))
-    target = os.path.splitext(filename)[-1][1:]
-    return storedir, basename, target
+    return printer_mapping.get(extension, DotPrinter)

@@ -62,7 +62,12 @@ from pylint.checkers.utils import (
 )
 from pylint.exceptions import EmptyReportError
 from pylint.interfaces import IAstroidChecker
-from pylint.pyreverse.printer import DotPrinter, EdgeType, Layout, NodeType
+from pylint.pyreverse.printer import (
+    EdgeType,
+    Layout,
+    NodeType,
+    get_printer_for_filetype,
+)
 from pylint.reporters.ureports.nodes import Paragraph, VerbatimText, VNode
 from pylint.utils import IsortDriver, get_global_option
 
@@ -195,7 +200,7 @@ def _repr_tree_defs(data, indent_str=None):
 def _dependencies_graph(filename: str, dep_info: Dict[str, List[str]]) -> None:
     """write dependencies as a dot (graphviz) file"""
     done = {}
-    printer = DotPrinter(
+    printer = get_printer_for_filetype(filename)(
         os.path.splitext(os.path.basename(filename))[0], layout=Layout.LEFT_TO_RIGHT
     )
     printer.emit('URL="." node[shape="box"]')

@@ -18,6 +18,7 @@
 
 import itertools
 import os
+from typing import Type
 
 import astroid
 from astroid import modutils
@@ -38,7 +39,11 @@ from pylint.pyreverse.printer import (
     PlantUmlPrinter,
     VCGPrinter,
 )
-from pylint.pyreverse.utils import get_annotation_label, is_exception
+from pylint.pyreverse.utils import (
+    get_annotation_label,
+    get_file_extension,
+    is_exception,
+)
 
 
 class DiagramWriter:
@@ -348,3 +353,13 @@ class PlantUmlWriter(DiagramWriter, ColorMixin):
     def save(self) -> None:
         """write to disk"""
         self.printer.generate(self.file_name)
+
+
+def get_writer_for_filetype(filename_or_extension: str) -> Type[DiagramWriter]:
+    extension = get_file_extension(filename_or_extension)
+    printer_mapping = {
+        "dot": DotWriter,
+        "vcg": VCGWriter,
+        "puml": PlantUmlWriter,
+    }
+    return printer_mapping.get(extension, DotWriter)

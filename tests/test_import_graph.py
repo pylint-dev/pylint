@@ -19,6 +19,7 @@
 
 import os
 import shutil
+from itertools import product
 from os.path import exists
 
 import pytest
@@ -85,26 +86,29 @@ def linter():
 @pytest.fixture
 def remove_files():
     yield
-    for fname in ("import.dot", "ext_import.dot", "int_import.dot"):
+    names = ("import", "ext_import", "int_import")
+    extensions = ("dot", "vcg", "puml")
+    for name, extension in product(names, extensions):
         try:
-            os.remove(fname)
+            os.remove(f"{name}.{extension}")
         except FileNotFoundError:
             pass
 
 
 @pytest.mark.usefixtures("remove_files")
-def test_checker_dep_graphs(linter):
+@pytest.mark.parametrize("extension", ["dot", "vcg", "puml"])
+def test_checker_dep_graphs(linter, extension):
     linter.global_set_option("persistent", False)
     linter.global_set_option("reports", True)
     linter.global_set_option("enable", "imports")
-    linter.global_set_option("import-graph", "import.dot")
-    linter.global_set_option("ext-import-graph", "ext_import.dot")
-    linter.global_set_option("int-import-graph", "int_import.dot")
-    linter.global_set_option("int-import-graph", "int_import.dot")
+    linter.global_set_option("import-graph", "import." + extension)
+    linter.global_set_option("ext-import-graph", "ext_import." + extension)
+    linter.global_set_option("int-import-graph", "int_import." + extension)
+    linter.global_set_option("int-import-graph", "int_import." + extension)
     # ignore this file causing spurious MemoryError w/ some python version (>=2.3?)
     linter.global_set_option("ignore", ("func_unknown_encoding.py",))
     linter.check("input")
     linter.generate_reports()
-    assert exists("import.dot")
-    assert exists("ext_import.dot")
-    assert exists("int_import.dot")
+    assert exists("import." + extension)
+    assert exists("ext_import." + extension)
+    assert exists("int_import." + extension)
