@@ -14,7 +14,17 @@ import subprocess
 import sys
 import tempfile
 from enum import Enum
-from typing import Any, Dict, FrozenSet, List, Mapping, Optional, Tuple, Type
+from typing import (
+    Any,
+    Dict,
+    FrozenSet,
+    List,
+    Mapping,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Type,
+)
 
 
 class NodeType(Enum):
@@ -35,6 +45,13 @@ class Layout(Enum):
     RIGHT_TO_LEFT = "RL"
     TOP_TO_BOTTOM = "TB"
     BOTTOM_TO_TOP = "BT"
+
+
+class NodeProperties(NamedTuple):
+    label: str
+    color: Optional[str] = None
+    fontcolor: Optional[str] = None
+    body: Optional[str] = None
 
 
 class Printer:
@@ -67,10 +84,7 @@ class Printer:
         self,
         name: str,
         type_: NodeType,
-        label: Optional[str] = None,
-        body: Optional[str] = None,
-        color: Optional[str] = None,
-        fontcolor: Optional[str] = None,
+        properties: Optional[NodeProperties] = None,
     ) -> None:
         """Create a new node. Nodes can be classes, packages, participants etc."""
         raise NotImplementedError
@@ -130,20 +144,18 @@ class PlantUmlPrinter(Printer):
         self,
         name: str,
         type_: NodeType,
-        label: Optional[str] = None,
-        body: Optional[str] = None,
-        color: Optional[str] = None,
-        fontcolor: Optional[str] = None,
+        properties: Optional[NodeProperties] = None,
     ) -> None:
         """Create a new node. Nodes can be classes, packages, participants etc."""
+        if properties is None:
+            properties = NodeProperties(label=name)
         stereotype = " << interface >>" if type_ is NodeType.INTERFACE else ""
         nodetype = self.NODES[type_]
-        color = f" #{color}" if color else ""
-        body = body if body else ""
-        if label is None:
-            label = name
-        if fontcolor:
-            label = f"<color:{fontcolor}>{label}</color>"
+        color = f" #{properties.color}" if properties.color else ""
+        body = properties.body if properties.body else ""
+        label = properties.label if properties.label is not None else name
+        if properties.fontcolor:
+            label = f"<color:{properties.fontcolor}>{label}</color>"
         self.emit(f'{nodetype} "{label}" as {name}{stereotype}{color} {{\n{body}\n}}')
 
     def emit_edge(
@@ -360,15 +372,13 @@ class VCGPrinter(Printer):
         self,
         name: str,
         type_: NodeType,
-        label: Optional[str] = None,
-        body: Optional[str] = None,
-        color: Optional[str] = None,
-        fontcolor: Optional[str] = None,
+        properties: Optional[NodeProperties] = None,
     ) -> None:
         """Create a new node. Nodes can be classes, packages, participants etc."""
+        if properties is None:
+            properties = NodeProperties(label=name)
         self.emit(f'{self._indent}node: {{title:"{name}"', force_newline=False)
-        if label is None:
-            label = name
+        label = properties.label if properties.label is not None else name
         self._write_attributes(
             self.NODE_ATTRS,
             label=label,
@@ -472,20 +482,23 @@ class DotPrinter(Printer):
         self,
         name: str,
         type_: NodeType,
-        label: Optional[str] = None,
-        body: Optional[str] = None,
-        color: Optional[str] = "black",
-        fontcolor: Optional[str] = None,
+        properties: Optional[NodeProperties] = None,
     ) -> None:
         """Create a new node. Nodes can be classes, packages, participants etc."""
+        if properties is None:
+            properties = NodeProperties(label=name)
         shape = self.SHAPES[type_]
+        color = properties.color if properties.color is not None else "black"
+        label = properties.label
         if label:
             if type_ is NodeType.INTERFACE:
                 label = "<<interface>>\\n" + label
             label_part = f', label="{label}"'
         else:
             label_part = ""
-        fontcolor_part = f', fontcolor="{fontcolor}"' if fontcolor else ""
+        fontcolor_part = (
+            f', fontcolor="{properties.fontcolor}"' if properties.fontcolor else ""
+        )
         self.emit(
             f'"{name}" [color="{color}"{fontcolor_part}{label_part}, shape="{shape}", style="{self.node_style}"];'
         )

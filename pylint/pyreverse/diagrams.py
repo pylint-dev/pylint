@@ -43,6 +43,19 @@ class DiagramEntity(Figure):
         self.node = node
 
 
+class PackageEntity(DiagramEntity):
+    """A diagram object representing a package"""
+
+
+class ClassEntity(DiagramEntity):
+    """A diagram object representing a class"""
+
+    def __init__(self, title, node):
+        super().__init__(title=title, node=node)
+        self.attrs = None
+        self.methods = None
+
+
 class ClassDiagram(Figure, FilterMixIn):
     """main class diagram handling"""
 
@@ -111,7 +124,7 @@ class ClassDiagram(Figure, FilterMixIn):
     def add_object(self, title, node):
         """create a diagram object"""
         assert node not in self._nodes
-        ent = DiagramEntity(title, node)
+        ent = ClassEntity(title, node)
         self._nodes[node] = ent
         self.objects.append(ent)
 
@@ -226,6 +239,13 @@ class PackageDiagram(ClassDiagram):
             if mod_name == "{}.{}".format(package.rsplit(".", 1)[0], name):
                 return mod
         raise KeyError(name)
+
+    def add_object(self, title, node):
+        """create a diagram object"""
+        assert node not in self._nodes
+        ent = PackageEntity(title, node)
+        self._nodes[node] = ent
+        self.objects.append(ent)
 
     def add_from_depend(self, node, from_module):
         """add dependencies created by from-imports"""

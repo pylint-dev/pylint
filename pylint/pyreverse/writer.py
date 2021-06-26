@@ -22,10 +22,18 @@ import os
 import astroid
 from astroid import modutils
 
+from pylint.pyreverse.diagrams import (
+    ClassDiagram,
+    ClassEntity,
+    DiagramEntity,
+    PackageDiagram,
+    PackageEntity,
+)
 from pylint.pyreverse.printer import (
     DotPrinter,
     EdgeType,
     Layout,
+    NodeProperties,
     NodeType,
     PlantUmlPrinter,
     VCGPrinter,
@@ -54,13 +62,15 @@ class DiagramWriter:
                 self.write_packages(diagram)
             self.save()
 
-    def write_packages(self, diagram):
+    def write_packages(self, diagram: PackageDiagram) -> None:
         """write a package diagram"""
         # sorted to get predictable (hence testable) results
         for obj in sorted(diagram.modules(), key=lambda x: x.title):
             obj.fig_id = obj.node.qname()
             self.printer.emit_node(
-                obj.fig_id, type_=NodeType.PACKAGE, **self.get_package_properties(obj)
+                obj.fig_id,
+                type_=NodeType.PACKAGE,
+                properties=self.get_package_properties(obj),
             )
         # package dependencies
         for rel in diagram.get_relationships("depends"):
@@ -70,14 +80,14 @@ class DiagramWriter:
                 type_=EdgeType.USES,
             )
 
-    def write_classes(self, diagram):
+    def write_classes(self, diagram: ClassDiagram) -> None:
         """write a class diagram"""
         # sorted to get predictable (hence testable) results
         for obj in sorted(diagram.objects, key=lambda x: x.title):
             obj.fig_id = obj.node.qname()
             type_ = NodeType.INTERFACE if obj.shape == "interface" else NodeType.CLASS
             self.printer.emit_node(
-                obj.fig_id, type_=type_, **self.get_class_properties(obj)
+                obj.fig_id, type_=type_, properties=self.get_class_properties(obj)
             )
         # inheritance links
         for rel in diagram.get_relationships("specialization"):
@@ -102,23 +112,23 @@ class DiagramWriter:
                 type_=EdgeType.ASSOCIATION,
             )
 
-    def set_printer(self, file_name, basename):
+    def set_printer(self, file_name: str, basename: str) -> None:
         """set printer"""
         raise NotImplementedError
 
-    def get_title(self, obj):
+    def get_title(self, obj: DiagramEntity) -> str:
         """get project title"""
         raise NotImplementedError
 
-    def get_package_properties(self, obj):
+    def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
         """get label and shape for packages."""
         raise NotImplementedError
 
-    def get_class_properties(self, obj):
+    def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
         """get label and shape for classes."""
         raise NotImplementedError
 
-    def save(self):
+    def save(self) -> None:
         """write to disk"""
         raise NotImplementedError
 
@@ -151,7 +161,7 @@ class ColorMixin:
         )
         self.used_colors = {}
 
-    def get_color(self, obj):
+    def get_color(self, obj: DiagramEntity) -> str:
         """get shape color"""
         qualified_name = obj.node.qname()
         if modutils.is_standard_module(qualified_name.split(".", maxsplit=1)[0]):
@@ -175,31 +185,31 @@ class DotWriter(DiagramWriter, ColorMixin):
         DiagramWriter.__init__(self, config)
         ColorMixin.__init__(self, self.config.max_color_depth)
 
-    def set_printer(self, file_name, basename):
+    def set_printer(self, file_name: str, basename: str) -> None:
         """initialize DotWriter and add options for layout."""
         self.printer = DotPrinter(
             basename, layout=Layout.BOTTOM_TO_TOP, colorized=self.config.colorized
         )
         self.file_name = file_name
 
-    def get_title(self, obj):
+    def get_title(self, obj: DiagramEntity) -> str:
         """get project title"""
         return obj.title
 
-    def get_style(self):
+    def get_style(self) -> str:
         """get style of object"""
         if not self.config.colorized:
             return "solid"
         return "filled"
 
-    def get_package_properties(self, obj):
+    def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
         """get label and shape for packages."""
-        return dict(
+        return NodeProperties(
             label=self.get_title(obj),
             color=self.get_color(obj) if self.config.colorized else "black",
         )
 
-    def get_class_properties(self, obj):
+    def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
         """get label and shape for classes.
 
         The label contains all attributes and methods
@@ -214,14 +224,14 @@ class DotWriter(DiagramWriter, ColorMixin):
                     args = []
                 label = r"{}{}({})\l".format(label, func.name, ", ".join(args))
             label = "{%s}" % label
-        values = dict(
+        properties = NodeProperties(
             label=label,
             fontcolor="red" if is_exception(obj.node) else "black",
             color=self.get_color(obj) if self.config.colorized else "black",
         )
-        return values
+        return properties
 
-    def save(self):
+    def save(self) -> None:
         """write to disk"""
         self.printer.generate(self.file_name)
 
@@ -229,22 +239,22 @@ class DotWriter(DiagramWriter, ColorMixin):
 class VCGWriter(DiagramWriter):
     """write vcg graphs from a diagram definition and a project"""
 
-    def set_printer(self, file_name, basename):
+    def set_printer(self, file_name: str, basename: str) -> None:
         """initialize VCGWriter for a UML graph"""
         self.file_name = file_name
         self.printer = VCGPrinter(basename)
 
-    def get_title(self, obj):
+    def get_title(self, obj: DiagramEntity) -> str:
         """get project title in vcg format"""
         return r"\fb%s\fn" % obj.title
 
-    def get_package_properties(self, obj):
+    def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
         """get label and shape for packages."""
-        return dict(
+        return NodeProperties(
             label=self.get_title(obj),
         )
 
-    def get_class_properties(self, obj):
+    def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
         """get label and shape for classes.
 
         The label contains all attributes and methods
@@ -266,9 +276,9 @@ class VCGWriter(DiagramWriter):
                 label = fr"{label}\n\f{line}"
             for func in methods:
                 label = fr"{label}\n\f10{func}()"
-        return dict(label=label)
+        return NodeProperties(label=label)
 
-    def save(self):
+    def save(self) -> None:
         """write to disk"""
         self.printer.generate(self.file_name)
 
@@ -281,23 +291,23 @@ class PlantUmlWriter(DiagramWriter, ColorMixin):
         DiagramWriter.__init__(self, config)
         ColorMixin.__init__(self, self.config.max_color_depth)
 
-    def set_printer(self, file_name, basename):
+    def set_printer(self, file_name: str, basename: str) -> None:
         """set printer"""
         self.file_name = file_name
         self.printer = PlantUmlPrinter(basename)
 
-    def get_title(self, obj):
+    def get_title(self, obj: DiagramEntity) -> str:
         """get project title"""
         return obj.title
 
-    def get_package_properties(self, obj):
+    def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
         """get label and shape for packages."""
-        return dict(
+        return NodeProperties(
             label=obj.title,
             color=self.get_color(obj) if self.config.colorized else None,
         )
 
-    def get_class_properties(self, obj):
+    def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
         """get label and shape for classes."""
         body = ""
         if not self.config.only_classnames:
@@ -309,12 +319,12 @@ class PlantUmlWriter(DiagramWriter, ColorMixin):
                     args = []
                 items.append(f'{func.name}({", ".join(args)})')
             body = "\n".join(items)
-        return dict(
+        return NodeProperties(
             label=obj.title,
             body=body,
             color=self.get_color(obj) if self.config.colorized else None,
         )
 
-    def save(self):
+    def save(self) -> None:
         """write to disk"""
         self.printer.generate(self.file_name)

@@ -53,9 +53,9 @@ digraph "foo" {
 rankdir=LR
 charset="utf-8"
 URL="." node[shape="box"]
-"hoho" [color="black", shape="box", style="solid"];
-"yep" [color="black", shape="box", style="solid"];
-"labas" [color="black", shape="box", style="solid"];
+"hoho" [color="black", label="hoho", shape="box", style="solid"];
+"yep" [color="black", label="yep", shape="box", style="solid"];
+"labas" [color="black", label="labas", shape="box", style="solid"];
 "yep" -> "hoho" [arrowhead="open", arrowtail="none"];
 "hoho" -> "labas" [arrowhead="open", arrowtail="none"];
 "yep" -> "labas" [arrowhead="open", arrowtail="none"];
