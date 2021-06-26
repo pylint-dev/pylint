@@ -9,6 +9,14 @@ Release date: TBA
 ..
   Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
 
+* Add PlantUML as possible output format for ``pyreverse`` and the ``--import-graph`` option
+
+  Closes #4498
+
+* Added ``--colorized`` option to ``pyreverse`` to visualize modules/packages of the same parent package.
+
+  Closes #4488
+
 * Add type annotations to pyreverse dot files
 
   Closes #1548

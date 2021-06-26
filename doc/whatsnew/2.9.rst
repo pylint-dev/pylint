@@ -49,6 +49,10 @@ New checkers
 Other Changes
 =============
 
+* Add support for PlantUML output to pyreverse
+
+* Add colorized output for pyreverse
+
 * Add type annotations to pyreverse dot files
 
 * Pylint's tags are now the standard form ``vX.Y.Z`` and not ``pylint-X.Y.Z`` anymore.
