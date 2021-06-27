@@ -25,10 +25,10 @@ import subprocess
 import sys
 
 from pylint.config import ConfigurationMixIn
-from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.utils import insert_default_options
+from pylint.pyreverse.writer import get_writer_for_filetype
 
 OPTIONS = (
     (
@@ -239,12 +239,8 @@ class Run(ConfigurationMixIn):
         finally:
             sys.path.pop(0)
 
-        if self.config.output_format == "vcg":
-            writer.VCGWriter(self.config).write(diadefs)
-        elif self.config.output_format == "puml":
-            writer.PlantUmlWriter(self.config).write(diadefs)
-        else:
-            writer.DotWriter(self.config).write(diadefs)
+        writer = get_writer_for_filetype(self.config.output_format)
+        writer(self.config).write(diadefs)
         return 0
 
 
