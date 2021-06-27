@@ -71,7 +71,7 @@ charset="utf-8"
 )
 def test_missing_graphviz(filename):
     """Raises if graphviz is not installed, and defaults to png if no extension given"""
-    with pytest.raises(RuntimeError, match=r"Cannot generate `graph\.png`.*"):
+    with pytest.raises(RuntimeError, match=fr"Cannot generate `{filename}`.*"):
         imports._dependencies_graph(filename, {"a": ["b", "c"], "b": ["c"]})
 
 
