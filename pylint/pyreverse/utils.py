@@ -281,7 +281,7 @@ def get_file_extension(filename_or_extension: str) -> str:
     or return the string as it is assuming it already is just the file extension itself.
     """
     basename = os.path.basename(filename_or_extension)
-    if basename.find("."):
+    if basename.find(".") > 0:
         return os.path.splitext(basename)[-1][1:]
     # no real filename, so we assume the input string is just the name of the extension
     return filename_or_extension
