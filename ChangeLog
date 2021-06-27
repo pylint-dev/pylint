@@ -20,6 +20,8 @@ Release date: TBA
 
 * astroid has been upgraded to 2.6.0
 
+* Added various deprecated functions/methods for python 3.10, 3.7, 3.6 and 3.3
+
 * Fix false positive ``useless-type-doc`` on ignored argument using ``pylint.extensions.docparams``
   when a function was typed using pep484 but not inside the docstring.
 
