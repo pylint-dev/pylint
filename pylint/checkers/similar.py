@@ -28,7 +28,7 @@
 """a similarities / code duplication command line tool and pylint checker
 
 The algorithm is based on comparing the hash value of n successive lines of a file.
-First the files are read and any line that doesn't fullfill requirement is replaced by an empty line (comments, docstrings...)
+First the files are read and any line that doesn't fullfill requirement are removed (comments, docstrings...)
 Those stripped lines are stored in the LineSet class which gives access to them.
 Then each index of the stripped lines collection is associated with the hash of n successive entries of the stripped lines starting at the current index
 (n is the minimum common lines option).
@@ -59,6 +59,7 @@ from typing import (
     List,
     NamedTuple,
     NewType,
+    Set,
     Tuple,
 )
 
@@ -131,15 +132,8 @@ class LinesChunk:
         self._index: Index = Index(num_line)
         """The index in the stripped lines that is the starting of consecutive lines"""
 
-        self._hash: int = 0
+        self._hash: int = sum(hash(lin) for lin in lines)
         """The hash of some consecutive lines"""
-
-        for lin in lines:
-            if lin:
-                self._hash += hash(lin)
-            else:
-                # Avoid matching empty lines
-                self._hash += hash(int(random.random() * 100000))
 
     def __eq__(self, o: Any) -> bool:
         if not isinstance(o, LinesChunk):
@@ -167,6 +161,7 @@ class SuccessiveLinesLimits:
 
     :note: Only the end line number can be updated.
     """
+    __slots__ = ("_start", "_end")
 
     def __init__(self, start: LineNumber, end: LineNumber) -> None:
         self._start: LineNumber = start
@@ -203,7 +198,7 @@ class LineSetStartCouple(NamedTuple):
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, LineSetStartCouple):
-            raise NotImplementedError
+            raise NotImplemented
         return (
             self.fst_lineset_index == other.fst_lineset_index
             and self.snd_lineset_index == other.snd_lineset_index
@@ -217,6 +212,9 @@ class LineSetStartCouple(NamedTuple):
             Index(self.fst_lineset_index + value),
             Index(self.snd_lineset_index + value),
         )
+
+
+LinesChunkLimits = Tuple["LineSet", LineNumber, LineNumber]
 
 
 def hash_lineset(
@@ -254,8 +252,7 @@ def hash_lineset(
             end=LineNumber(end_linenumber)
         )
 
-        successive_lines = tuple(*succ_lines)
-        l_c = LinesChunk(lineset.name, index, *successive_lines)
+        l_c = LinesChunk(lineset.name, index, *succ_lines)
         hash2index[l_c].append(index)
 
     return hash2index, index2lines
@@ -287,8 +284,8 @@ def remove_successives(all_couples: CplIndexToCplLines_T) -> None:
     {(11, 34): ([5, 10], [27, 32]),
      (23, 79): ([15, 19], [45, 49])}
     """
-    all_couples_keys: List[LineSetStartCouple] = list(all_couples.keys())
-    for couple in all_couples_keys:
+    couple: LineSetStartCouple
+    for couple in tuple(all_couples.keys()):
         to_remove = []
         test = couple.increment(Index(1))
         while test in all_couples:
@@ -337,6 +334,17 @@ def filter_noncode_lines(
     return sum(sline_1 == sline_2 for sline_1, sline_2 in zip(stripped_l1, stripped_l2))
 
 
+CommonalitiesT = NamedTuple("CommonalitiesT", (
+    ("cmn_lines_nb", int),  # Number of common lines chunk between two files
+    ("fst_lset", "LineSet"),  # LineSet representing the first file
+    ("fst_file_start", LineNumber),  # Starting line, in the first file, of common lines chunk
+    ("fst_file_end", LineNumber),  # Ending line, in the first file, of common lines chunk
+    ("snd_lset", "LineSet"),  # LineSet representing the second file
+    ("snd_file_start", LineNumber),  # Starting line, in the second file, of common lines chunk
+    ("snd_file_end", LineNumber))  # Ending line, in the second file, of common lines chunk
+)
+
+
 class Similar:
     """finds copy-pasted lines of code in a project"""
 
@@ -381,27 +389,27 @@ class Similar:
         """start looking for similarities and display results on stdout"""
         self._display_sims(self._compute_sims())
 
-    def _compute_sims(self):
+    def _compute_sims(self) -> List[Tuple[int, Set[LinesChunkLimits]]]:
         """compute similarities in appended files"""
-        no_duplicates = defaultdict(list)
-        for (
-            num,
-            lineset1,
-            start_line_1,
-            end_line_1,
-            lineset2,
-            start_line_2,
-            end_line_2,
-        ) in self._iter_sims():
+        no_duplicates : Dict[int, List[Set[LinesChunkLimits]]] = defaultdict(list)
+
+        for commonalities in self._iter_sims():
+            num = commonalities.cmn_lines_nb
+            lineset1 = commonalities.fst_lset
+            start_line_1 = commonalities.fst_file_start
+            end_line_1 = commonalities.fst_file_end
+            lineset2 = commonalities.snd_lset
+            start_line_2 = commonalities.snd_file_start
+            end_line_2 = commonalities.snd_file_end
+
             duplicate = no_duplicates[num]
+            couples : Set[LinesChunkLimits]
             for couples in duplicate:
                 if (lineset1, start_line_1, end_line_1) in couples or (
                     lineset2,
                     start_line_2,
                     end_line_2,
                 ) in couples:
-                    couples.add((lineset1, start_line_1, end_line_1))
-                    couples.add((lineset2, start_line_2, end_line_2))
                     break
             else:
                 duplicate.append(
@@ -410,10 +418,12 @@ class Similar:
                         (lineset2, start_line_2, end_line_2),
                     }
                 )
-        sims = []
+        sims: List[Tuple[int, Set[LinesChunkLimits]]] = []
+        ensembles : List[Set[LinesChunkLimits]]
         for num, ensembles in no_duplicates.items():
-            for couples in ensembles:
-                sims.append((num, couples))
+            cpls: Set[LinesChunkLimits]
+            for cpls in ensembles:
+                sims.append((num, cpls))
         sims.sort()
         sims.reverse()
         return sims
@@ -444,13 +454,7 @@ class Similar:
 
     def _find_common(
         self, lineset1: "LineSet", lineset2: "LineSet"
-    ) -> Generator[
-        Tuple[
-            int, "LineSet", LineNumber, LineNumber, "LineSet", LineNumber, LineNumber
-        ],
-        None,
-        None,
-    ]:
+    ) -> Generator[CommonalitiesT, None, None]:
         """
         Find similarities in the two given linesets.
 
@@ -472,7 +476,7 @@ class Similar:
         hash_2: FrozenSet[LinesChunk] = frozenset(hash_to_index_2.keys())
 
         common_hashes: Iterable[LinesChunk] = sorted(
-            list(hash_1 & hash_2), key=lambda m: hash_to_index_1[m][0]
+            hash_1 & hash_2, key=lambda m: hash_to_index_1[m][0]
         )
 
         # all_couples is a dict that links the couple of indices in both linesets that mark the beginning of
@@ -508,9 +512,15 @@ class Similar:
                 )
                 > self.min_lines
             ):
-                yield nb_common_lines, lineset1, file_1_lines.start, file_1_lines.end, lineset2, file_2_lines.start, file_2_lines.end
+                yield CommonalitiesT(cmn_lines_nb=nb_common_lines,
+                                     fst_lset=lineset1,
+                                     fst_file_start=file_1_lines.start,
+                                     fst_file_end=file_1_lines.end,
+                                     snd_lset=lineset2,
+                                     snd_file_start=file_2_lines.start,
+                                     snd_file_end=file_2_lines.end)
 
-    def _iter_sims(self):
+    def _iter_sims(self) -> Generator[CommonalitiesT, None, None]:
         """iterate on similarities among all files, by making a cartesian
         product
         """
