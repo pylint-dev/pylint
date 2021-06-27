@@ -13,6 +13,11 @@ Release date: TBA
 
   Closes #1548
 
+* Fix missing support for detecting deprecated aliases to existing
+  functions/methods.
+
+  Closes #4618
+
 * astroid has been upgraded to 2.6.0
 
 * Fix false positive ``useless-type-doc`` on ignored argument using ``pylint.extensions.docparams``
