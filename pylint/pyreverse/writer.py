@@ -201,12 +201,6 @@ class DotWriter(DiagramWriter, ColorMixin):
         """get project title"""
         return obj.title
 
-    def get_style(self) -> str:
-        """get style of object"""
-        if not self.config.colorized:
-            return "solid"
-        return "filled"
-
     def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
         """get label and shape for packages."""
         return NodeProperties(
