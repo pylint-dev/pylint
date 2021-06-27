@@ -77,3 +77,6 @@ Other Changes
 
 * Fix false positive ``useless-type-doc`` on ignored argument using ``pylint.extensions.docparams`` when a function
   was typed using pep484 but not inside the docstring.
+
+* Fix missing support for detecting deprecated aliases to existing functions/methods.
+  functions/methods.
