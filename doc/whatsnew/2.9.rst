@@ -80,3 +80,5 @@ Other Changes
 
 * Fix missing support for detecting deprecated aliases to existing functions/methods.
   functions/methods.
+
+* Added various deprecated functions/methods for python 3.10, 3.7, 3.6 and 3.3
