@@ -22,7 +22,6 @@ import os
 import re
 import sys
 import unittest
-import platform
 from pathlib import Path
 
 import astroid
@@ -207,7 +206,8 @@ class TestVariablesChecker(CheckerTestCase):
         a = ... # type: foo.Bar
         b = ... # type: foo.Bar[Boo]
         c = ... # type: Bar.Boo
-        """)
+        """
+        )
         with self.assertNoMessages():
             self.walk(module)
 
