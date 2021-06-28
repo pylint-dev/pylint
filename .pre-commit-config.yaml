@@ -80,7 +80,7 @@ repos:
         additional_dependencies: ["types-pkg_resources==0.1.3", "types-toml==0.1.3"]
         exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/|bin/
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.3.1
+    rev: v2.3.2
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
