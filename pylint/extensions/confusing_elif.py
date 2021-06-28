@@ -17,7 +17,7 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
 
     __implements__ = IAstroidChecker
 
-    name = "confusing-elif-checker"
+    name = "confusing_elif"
     priority = -1
     msgs = {
         "R5601": (
