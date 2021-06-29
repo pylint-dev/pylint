@@ -1,0 +1,18 @@
+***************************
+ What's New in Pylint 2.10
+***************************
+
+:Release: 2.10
+:Date: TBA
+
+Summary -- Release highlights
+=============================
+
+
+New checkers
+============
+
+
+
+Other Changes
+=============
