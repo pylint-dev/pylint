@@ -97,7 +97,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         node = astroid.extract_node(
             """
         class Deprecated:
-            def _deprecated_method():
+            def _deprecated_method(self):
                 pass
 
             deprecated_method = _deprecated_method
