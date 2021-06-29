@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 from typing import Tuple
 
-__version__ = "2.9.0-dev1"
+__version__ = "2.9.0"
 
 
 def get_numversion_from_version(v: str) -> Tuple:
