@@ -15,14 +15,14 @@ So, you want to release the `X.Y.Z` version of pylint ?
 
 ## Post release
 
-### Merge tags in master for pre-commit
+### Merge tags in main for pre-commit
 
 If the tag you just made is not part of the main branch, merge the tag `vX.Y.Z` in the
 main branch by doing a history only merge. It's done in order to signal that this is an
 official release tag, and for `pre-commit autoupdate` to works.
 
 ```bash
-git checkout master
+git checkout main
 git merge --no-edit --strategy=ours vX.Y.Z
 git push
 ```
@@ -42,7 +42,7 @@ issue labelled as blocker.
 tbump X.Y.Z-dev0 --no-tag --no-push # You can interrupt during copyrite
 ```
 
-Check the result and then upgrade the master branch
+Check the result and then upgrade the main branch
 
 #### Whatsnew
 
