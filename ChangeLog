@@ -2,12 +2,28 @@
 Pylint's ChangeLog
 ------------------
 
-What's New in Pylint 2.9.0?
+What's New in Pylint 2.10.0?
+============================
+Release date: TBA
+
+..
+  Put new features here and also in 'doc/whatsnew/2.10.rst'
+
+
+What's New in Pylint 2.9.1?
 ===========================
 Release date: TBA
 
 ..
-  Put new features and bugfixes here and also in 'doc/whatsnew/2.9.rst'
+  Put bug fixes that should not wait for a new minor version here
+
+
+
+What's New in Pylint 2.9.0?
+===========================
+Release date: 2021-06-29
+
+* Python 3.10 is now supported.
 
 * Add type annotations to pyreverse dot files
 
@@ -18,7 +34,7 @@ Release date: TBA
 
   Closes #4618
 
-* astroid has been upgraded to 2.6.0
+* astroid has been upgraded to 2.6.1
 
 * Added various deprecated functions/methods for python 3.10, 3.7, 3.6 and 3.3
 
@@ -35,8 +51,6 @@ Release date: TBA
   infer the name of the decorator when using ``open`` without ``with``.
 
   Closes #4612
-
-* Appveyor is no longer used in the continuous integration
 
 * Added ``deprecated-decorator``: Emitted when deprecated decorator is used.
 
@@ -137,7 +151,7 @@ Release date: TBA
 * Fix a crash when a plugin from the configuration could not be loaded and raise an error
   'bad-plugin-value' instead
 
-Closes #4555
+  Closes #4555
 
 * Added handling of floating point values when parsing configuration from pyproject.toml
 
@@ -174,11 +188,11 @@ Closes #4555
   consistency. As such they don't necessarily provide a performance benefit
   and are often times opinionated.
 
-  * New checker ``consider-using-tuple``. Emitted when an in-place defined
-    list or set can be replaced by a tuple.
+* New checker ``consider-using-tuple``. Emitted when an in-place defined
+  list or set can be replaced by a tuple.
 
-  * New checker ``consider-using-namedtuple-or-dataclass``. Emitted when dictionary values
-    can be replaced by namedtuples or dataclass instances.
+* New checker ``consider-using-namedtuple-or-dataclass``. Emitted when dictionary values
+  can be replaced by namedtuples or dataclass instances.
 
 * Fix error that occurred when using ``slice`` as subscript for dict.
 
