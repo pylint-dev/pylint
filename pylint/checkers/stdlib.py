@@ -202,9 +202,7 @@ DEPRECATED_METHODS = {
         },
         (3, 6, 0): {
             "importlib._bootstrap_external.FileLoader.load_module",
-            "ssl.RAND_pseudo_bytes",
-            "ssl.SSLSocket.read",
-            "SSLSocket.write",
+            "_ssl.RAND_pseudo_bytes",
         },
         (3, 7, 0): {
             "sys.set_coroutine_wrapper",
@@ -241,8 +239,6 @@ DEPRECATED_METHODS = {
             "zipimport.zipimporter.load_module",
             "zipimport.zipimporter.find_module",
             "zipimport.zipimporter.find_loader",
-            "sqlite3.enable_shared_cache",
-            "pathlib.Path.link_to",
             "threading.currentThread",
             "threading.activeCount",
             "threading.Condition.notifyAll",
@@ -252,7 +248,6 @@ DEPRECATED_METHODS = {
             "threading.Thread.isDaemon",
             "threading.Thread.setDaemon",
             "cgi.log",
-            "SSLSocket.selected_npn_protocol",
         },
     },
 }
