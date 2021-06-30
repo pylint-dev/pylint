@@ -91,6 +91,31 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
+    def test_deprecated_method_alias(self):
+        # Tests detecting deprecated method defined as alias
+        # to existing method
+        node = astroid.extract_node(
+            """
+        class Deprecated:
+            def _deprecated_method(self):
+                pass
+
+            deprecated_method = _deprecated_method
+
+        d = Deprecated()
+        d.deprecated_method()
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-method",
+                args=("deprecated_method",),
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_call(node)
+
     def test_no_message(self):
         # Tests not raising error when no deprecated functions/methods are present.
         node = astroid.extract_node(

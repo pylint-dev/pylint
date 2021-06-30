@@ -503,3 +503,5 @@ contributors:
 * Markus Siebenhaar: contributor
 
 * Lorena Buciu (lorena-b): contributor
+
+* Sergei Lebedev (superbobry): contributor
