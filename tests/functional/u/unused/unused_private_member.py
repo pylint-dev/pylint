@@ -73,7 +73,17 @@ class Bla:
 
     def __init__(self):
         type(self).__a()
+        self.__b()
+        Bla.__c()
 
     @classmethod
     def __a(cls):
+        pass
+
+    @classmethod
+    def __b(cls):
+        pass
+
+    @classmethod
+    def __c(cls):
         pass
