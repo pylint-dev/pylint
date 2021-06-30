@@ -61,7 +61,7 @@ Release date: TBA
   Closes #4415
 
 * Stdlib deprecated modules check is moved to stdlib checker. New deprecated
-modules are added.
+  modules are added.
 
 * Fix raising false-positive ``no-member`` on abstract properties
 
@@ -207,7 +207,7 @@ Release date: 2021-04-26
 * Pylint's tags are now the standard form ``vX.Y.Z`` and not ``pylint-X.Y.Z`` anymore.
 
 * New warning message ``deprecated-class``. This message is emitted if import or call deprecated class of the
-standard library (like ``collections.Iterable`` that will be removed in Python 3.10).
+  standard library (like ``collections.Iterable`` that will be removed in Python 3.10).
 
 Closes #4388
 
@@ -620,7 +620,7 @@ Release date: 2021-02-21
 
   Close #3407
 
-* Changed setup.py to work with [distlib](https://pypi.org/project/distlib)
+* Changed setup.py to work with `distlib <https://pypi.org/project/distlib>`_
 
   Close #3555
 
