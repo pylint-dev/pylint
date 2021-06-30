@@ -909,14 +909,10 @@ a metaclass class method.",
                 continue
             for attribute in node.nodes_of_class(astroid.Attribute):
                 attribute = cast(astroid.Attribute, attribute)
-                if attribute.expr is None:
-                    # attribute.expr is an Optional[NodeNG] it can be None
-                    continue
                 if (
                     attribute.attrname != function_def.name
-                    or attribute.scope() == function_def
+                    or attribute.scope() == function_def  # We ignore recursive calls
                 ):
-                    # We ignore recursive calls
                     continue
                 if isinstance(attribute.expr, astroid.Name) and attribute.expr.name in (
                     "self",
