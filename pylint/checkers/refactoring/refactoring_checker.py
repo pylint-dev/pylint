@@ -1689,14 +1689,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         and subscript == subscript.parent.target
                     ):
                         # Ignore this subscript if it is the target of an assignment
-                        if subscript.as_string() == subscript.parent.value.as_string():
-                            # Fire error as d[k] += d[k] has an unnecessary index lookup
-                            self.add_message(
-                                "unnecessary-dict-index-lookup",
-                                node=subscript,
-                                args=(node.target.elts[1].as_string()),
-                            )
-                        return  # Early termination; after reassignment dict index lookup will be necessary
+                        # Early termination; after reassignment dict index lookup will be necessary
+                        return
 
                     # Case where .items is assigned to k,v (i.e., for k, v in d.items())
                     if isinstance(value, astroid.Name):

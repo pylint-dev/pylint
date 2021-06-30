@@ -233,7 +233,8 @@ class RecommendationChecker(checkers.BaseChecker):
                     and subscript == subscript.parent.target
                 ):
                     # Ignore this subscript if it is the target of an assignment
-                    return  # Early termination as dict index lookup is necessary
+                    # Early termination as dict index lookup is necessary
+                    return
 
                 self.add_message("consider-using-dict-items", node=node)
                 return
