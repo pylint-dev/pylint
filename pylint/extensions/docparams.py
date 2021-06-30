@@ -219,7 +219,7 @@ class DocstringParameterChecker(BaseChecker):
         max_lines = get_global_option(self, "docstring-min-length")
         return max_lines > -1 and lines < max_lines
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: astroid.scoped_nodes.Function) -> None:
         """Called for function and method definitions (def).
 
         :param node: Node for a function or method definition in the AST
