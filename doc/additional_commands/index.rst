@@ -1,6 +1,6 @@
 
-Additional tools
-================
+Additional Commands
+===================
 
 Pylint ships with some additional tools that can be executed from the command line once Pylint itself is installed.
 
