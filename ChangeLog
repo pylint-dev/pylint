@@ -27,6 +27,11 @@ Release date: TBA
 
   Closes #4644
 
+* Fix false-positive of ``unnecessary-dict-index-lookup`` and ``consider-using-dict-items``
+  for reassigned dict index lookups
+
+  Closes #4630
+
 
 What's New in Pylint 2.9.1?
 ===========================
