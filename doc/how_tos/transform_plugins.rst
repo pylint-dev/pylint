@@ -20,7 +20,7 @@ Example
 
 Let us run Pylint on a module from the Python source: `warnings.py`_ and see what happens:
 
-.. sourcecode:: bash
+.. sourcecode:: shell
 
   amitdev$ pylint -E Lib/warnings.py
   E:297,36: Instance of 'WarningMessage' has no 'message' member (no-member)
