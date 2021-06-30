@@ -66,3 +66,14 @@ class MyCls:
     @classmethod
     def get_class_var(cls):
         return cls.__class_var
+
+
+class Bla:
+    """Regression test for issue 4638"""
+
+    def __init__(self):
+        type(self).__a()
+
+    @classmethod
+    def __a(cls):
+        pass
