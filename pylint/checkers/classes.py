@@ -905,7 +905,6 @@ a metaclass class method.",
         # Check for unused private functions
         for function_def in node.nodes_of_class(astroid.FunctionDef):
             function_def = cast(astroid.FunctionDef, function_def)
-            found = False
             if not is_attr_private(function_def.name):
                 continue
             for attribute in node.nodes_of_class(astroid.Attribute):
@@ -915,16 +914,13 @@ a metaclass class method.",
                     and attribute.scope() != function_def  # We ignore recursive calls
                     and attribute.expr.name in ("self", node.name)
                 ):
-                    found = True
                     break
-            if not found:
+            else:
+                function_repr = f"{function_def.name}({function_def.args.as_string()})"
                 self.add_message(
                     "unused-private-member",
                     node=function_def,
-                    args=(
-                        node.name,
-                        f"{function_def.name}({function_def.args.as_string()})",
-                    ),
+                    args=(node.name, function_repr),
                 )
 
         # Check for unused private variables
