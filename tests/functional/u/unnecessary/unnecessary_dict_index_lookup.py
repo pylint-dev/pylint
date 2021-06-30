@@ -8,9 +8,11 @@ for k, v in a_dict.items():
     print(b_dict[k])  # Should not emit warning, accessing other dictionary
     a_dict[k] = 123  # Should not emit warning, key access necessary
     a_dict[k] += 123  # Should not emit warning, key access necessary
-    print(a_dict[k])  # [unnecessary-dict-index-lookup]
+    print(a_dict[k])  # Should not emit warning, v != a_dict[k]
+
+for k, v in b_dict.items():
     k = "another key"
-    print(a_dict[k])  # This is fine, key reassigned
+    print(b_dict[k])  # This is fine, key reassigned
 
 
 # Tests on comprehensions
@@ -61,3 +63,20 @@ for item in d.items():
     print(d[item[0]])  # [unnecessary-dict-index-lookup]
     item = (2, "b")
     print(d[item[0]])  # This is fine, no warning thrown as key has been reassigned
+
+
+# Test false positive described in #4630
+# (https://github.com/PyCQA/pylint/issues/4630)
+
+d = {'key': 'value'}
+
+for k, _ in d.items():
+    d[k] += 'VALUE'
+    if 'V' in d[k]:  # This is fine, if d[k] is replaced with _, the semantics change
+        print('found V')
+
+
+for k, _ in d.items():
+    if 'V' in d[k]:  # [unnecessary-dict-index-lookup]
+        d[k] = "value"
+        print(d[k])  # This is fine
