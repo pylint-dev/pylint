@@ -46,7 +46,7 @@
 """
 import collections
 from itertools import chain, zip_longest
-from typing import List, Pattern
+from typing import List, Pattern, cast
 
 import astroid
 
@@ -904,10 +904,12 @@ a metaclass class method.",
     def _check_unused_private_members(self, node: astroid.ClassDef) -> None:
         # Check for unused private functions
         for function_def in node.nodes_of_class(astroid.FunctionDef):
+            function_def = cast(astroid.FunctionDef, function_def)
             found = False
             if not is_attr_private(function_def.name):
                 continue
             for attribute in node.nodes_of_class(astroid.Attribute):
+                attribute = cast(astroid.Attribute, attribute)
                 if (
                     attribute.attrname == function_def.name
                     and attribute.scope() != function_def  # We ignore recursive calls
