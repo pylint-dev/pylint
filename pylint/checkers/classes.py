@@ -898,11 +898,12 @@ a metaclass class method.",
         check that instance attributes are defined in __init__ and check
         access to existent members
         """
-        self._check_unused_private_members(node)
+        self._check_unused_private_functions(node)
+        self._check_unused_private_variables(node)
+        self._check_unused_private_attributes(node)
         self._check_attribute_defined_outside_init(node)
 
-    def _check_unused_private_members(self, node: astroid.ClassDef) -> None:
-        # Check for unused private functions
+    def _check_unused_private_functions(self, node: astroid.ClassDef) -> None:
         for function_def in node.nodes_of_class(astroid.FunctionDef):
             function_def = cast(astroid.FunctionDef, function_def)
             if not is_attr_private(function_def.name):
@@ -936,7 +937,7 @@ a metaclass class method.",
                     args=(node.name, function_repr),
                 )
 
-        # Check for unused private variables
+    def _check_unused_private_variables(self, node: astroid.ClassDef) -> None:
         for assign_name in node.nodes_of_class(astroid.AssignName):
             found = False
             if isinstance(assign_name.parent, astroid.Arguments):
@@ -960,7 +961,7 @@ a metaclass class method.",
                     args=(node.name, assign_name.name),
                 )
 
-        # Check for unused private attributes
+    def _check_unused_private_attributes(self, node: astroid.ClassDef) -> None:
         for assign_attr in node.nodes_of_class(astroid.AssignAttr):
             found = False
             if not is_attr_private(assign_attr.attrname):
