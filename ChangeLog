@@ -22,6 +22,11 @@ Release date: TBA
 
   Closes #4638
 
+* Fix a false positive for ``unused-private-member`` when accessing a private variable
+  with ``self``
+
+  Closes #4644
+
 
 What's New in Pylint 2.9.1?
 ===========================

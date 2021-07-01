@@ -949,7 +949,7 @@ a metaclass class method.",
                 if (
                     isinstance(child, astroid.Attribute)
                     and child.attrname == assign_name.name
-                    and child.expr.name in ("cls", node.name)
+                    and child.expr.name in ("self", "cls", node.name)
                 ):
                     break
             else:
