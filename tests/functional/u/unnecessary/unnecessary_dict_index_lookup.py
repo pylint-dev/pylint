@@ -31,9 +31,12 @@ for k, v in b_dict.items():
 class Foo:
     c_dict = {}
 
+
 for k, v in Foo.c_dict.items():
     print(b_dict[k])  # Should not emit warning, accessing other dictionary
     print(Foo.c_dict[k])  # [unnecessary-dict-index-lookup]
+    unnecessary = 0 # pylint: disable=invalid-name
+    unnecessary += Foo.c_dict[k]  # [unnecessary-dict-index-lookup]
     Foo.c_dict[k] += v  # key access necessary
 
 # Tests on comprehensions
