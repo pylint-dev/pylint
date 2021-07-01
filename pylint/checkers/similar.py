@@ -34,7 +34,7 @@ from collections import defaultdict
 from getopt import getopt
 from io import TextIOWrapper
 from itertools import chain, groupby
-from typing import List
+from typing import List, Tuple
 
 import astroid
 
@@ -86,7 +86,7 @@ class Similar:
         except UnicodeDecodeError:
             pass
 
-    def run(self):
+    def run(self) -> None:
         """start looking for similarities and display results on stdout"""
         self._display_sims(self._compute_sims())
 
@@ -110,7 +110,7 @@ class Similar:
         sims.reverse()
         return sims
 
-    def _display_sims(self, similarities):
+    def _display_sims(self, similarities: List[Tuple]) -> None:
         """Display computed similarities on stdout"""
         duplicated_line_number = 0
         for number, files in similarities:
