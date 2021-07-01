@@ -1,4 +1,4 @@
-# ORIGINAL here:https://raw.githubusercontent.com/PyCQA/astroid/master/script/bump_changelog.py
+# ORIGINAL here: https://github.com/PyCQA/astroid/blob/main/script/bump_changelog.py
 # DO NOT MODIFY DIRECTLY
 
 """

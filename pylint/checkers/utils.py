@@ -46,7 +46,7 @@
 # Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """some functions that may be useful for various checkers
 """

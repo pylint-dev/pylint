@@ -37,7 +37,7 @@
 # Copyright (c) 2021 Tiago Honorato <tiagohonorato1@gmail.com>
 # Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Check Python 2 code for Python 2/3 source-compatible issues."""
 import itertools
