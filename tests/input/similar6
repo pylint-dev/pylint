@@ -13,3 +13,6 @@ async def func2(
     arg5: int = 5
 ) -> Ret1:
     pass
+
+def example():
+    """Valid function definition with docstring only."""
