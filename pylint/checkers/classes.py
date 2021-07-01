@@ -939,31 +939,25 @@ a metaclass class method.",
 
     def _check_unused_private_variables(self, node: astroid.ClassDef) -> None:
         for assign_name in node.nodes_of_class(astroid.AssignName):
-            found = False
             if isinstance(assign_name.parent, astroid.Arguments):
                 continue  # Ignore function arguments
             if not is_attr_private(assign_name.name):
                 continue
             for child in node.nodes_of_class((astroid.Name, astroid.Attribute)):
+                if isinstance(child, astroid.Name) and child.name == assign_name.name:
+                    break
                 if (
-                    isinstance(child, astroid.Name) and child.name == assign_name.name
-                ) or (
                     isinstance(child, astroid.Attribute)
                     and child.attrname == assign_name.name
                     and child.expr.name in ("cls", node.name)
                 ):
-                    found = True
                     break
-            if not found:
-                self.add_message(
-                    "unused-private-member",
-                    node=assign_name,
-                    args=(node.name, assign_name.name),
-                )
+            else:
+                args = (node.name, assign_name.name)
+                self.add_message("unused-private-member", node=assign_name, args=args)
 
     def _check_unused_private_attributes(self, node: astroid.ClassDef) -> None:
         for assign_attr in node.nodes_of_class(astroid.AssignAttr):
-            found = False
             if not is_attr_private(assign_attr.attrname):
                 continue
             for attribute in node.nodes_of_class(astroid.Attribute):
@@ -971,14 +965,10 @@ a metaclass class method.",
                     attribute.attrname == assign_attr.attrname
                     and attribute.expr.name == assign_attr.expr.name
                 ):
-                    found = True
                     break
-            if not found:
-                self.add_message(
-                    "unused-private-member",
-                    node=assign_attr,
-                    args=(node.name, assign_attr.attrname),
-                )
+            else:
+                args = (node.name, assign_attr.attrname)
+                self.add_message("unused-private-member", node=assign_attr, args=args)
 
     def _check_attribute_defined_outside_init(self, cnode: astroid.ClassDef) -> None:
         # check access to existent members on non metaclass classes
