@@ -164,8 +164,8 @@ def test_ignore_signatures_fail():
     assert (
         output.getvalue().strip()
         == (
-            """
-7 similar lines in 2 files
+            '''
+10 similar lines in 2 files
 ==%s:1
 ==%s:8
        arg1: int = 3,
@@ -175,8 +175,11 @@ def test_ignore_signatures_fail():
        arg5: int = 5
    ) -> Ret1:
        pass
-TOTAL lines=23 duplicates=7 percent=30.43
-"""
+   
+   def example():
+       """Valid function definition with docstring only."""
+TOTAL lines=29 duplicates=10 percent=34.48
+'''
             % (SIMILAR5, SIMILAR6)
         ).strip()
     )
@@ -190,7 +193,7 @@ def test_ignore_signatures_pass():
     assert (
         output.getvalue().strip()
         == """
-TOTAL lines=23 duplicates=0 percent=0.00
+TOTAL lines=29 duplicates=0 percent=0.00
 """.strip()
     )
 

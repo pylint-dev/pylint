@@ -218,7 +218,13 @@ def stripped_lines(
             if isinstance(n, (astroid.FunctionDef, astroid.AsyncFunctionDef))
         ]
         signature_lines = set(
-            chain(*(range(func.fromlineno, func.body[0].lineno) for func in functions))
+            chain(
+                *(
+                    range(func.fromlineno, func.body[0].lineno)
+                    for func in functions
+                    if func.body
+                )
+            )
         )
 
     strippedlines = []
