@@ -127,7 +127,7 @@ class Similar:
                 report += f"=={line_set.name}:{idx}\n"
             if line_set:
                 for line in line_set._real_lines[idx : idx + number]:
-                    report += f"   {line.rstrip()}\n"
+                    report += f"   {line.rstrip()}\n" if line.rstrip() else "\n"
             duplicated_line_number += number * (len(files) - 1)
         total_line_number: int = sum(len(lineset) for lineset in self.linesets)
         report += "TOTAL lines={} duplicates={} percent={:.2f}\n".format(

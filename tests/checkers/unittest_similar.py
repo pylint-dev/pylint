@@ -175,7 +175,7 @@ def test_ignore_signatures_fail():
        arg5: int = 5
    ) -> Ret1:
        pass
-   
+
    def example():
        """Valid function definition with docstring only."""
 TOTAL lines=29 duplicates=10 percent=34.48
