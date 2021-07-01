@@ -22,6 +22,9 @@ Release date: TBA
 
   Closes #4648
 
+* The ``similarity`` checker no longer add three trailing whitespaces for
+  empty lines in its report.
+
 
 What's New in Pylint 2.9.2?
 ===========================
