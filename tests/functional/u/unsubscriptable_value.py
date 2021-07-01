@@ -124,3 +124,33 @@ def test_one(param):
     """Should complain about var_one[0], but doesn't"""
     var_one = return_an_int(param)
     return var_one[0]  # [unsubscriptable-object]
+
+
+def test_1():
+    """Regression test for #2072"""
+    a = None
+    for i in range(1, 5):
+        if i % 2:
+            a = "foo"
+        else:
+            a = a[1:]
+
+
+def test_2():
+    """Regression test for #2072"""
+    a = None
+    for i in range(1, 5):
+        if i % 2:
+            a = "foo"
+        if not i % 2:
+            a = a[1:]
+
+
+def test_3():
+    """Regression test for #2072"""
+    a = None
+    for i in range(1, 5):
+        if i % 2:
+            a = "foo"
+        elif not i % 2:
+            a = a[1:]
