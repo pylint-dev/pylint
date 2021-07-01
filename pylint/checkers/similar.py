@@ -112,27 +112,30 @@ class Similar:
 
     def _display_sims(self, similarities: List[Tuple]) -> None:
         """Display computed similarities on stdout"""
-        duplicated_line_number = 0
+        report = self._get_similarity_report(similarities)
+        print(report)
+
+    def _get_similarity_report(self, similarities: List[Tuple]) -> str:
+        """Create a report from similarities"""
+        report: str = ""
+        duplicated_line_number: int = 0
         for number, files in similarities:
-            print()
-            print(number, "similar lines in", len(files), "files")
+            report += f"\n{number} similar lines in {len(files)} files\n"
             files = sorted(files)
-            lineset = idx = None
-            for lineset, idx in files:
-                print(f"=={lineset.name}:{idx}")
-            if lineset:
-                for line in lineset._real_lines[idx : idx + number]:
-                    print("  ", line.rstrip())
+            line_set = idx = None
+            for line_set, idx in files:
+                report += f"=={line_set.name}:{idx}\n"
+            if line_set:
+                for line in line_set._real_lines[idx : idx + number]:
+                    report += f"   {line.rstrip()}\n"
             duplicated_line_number += number * (len(files) - 1)
-        total_line_number = sum(len(lineset) for lineset in self.linesets)
-        print(
-            "TOTAL lines=%s duplicates=%s percent=%.2f"
-            % (
-                total_line_number,
-                duplicated_line_number,
-                duplicated_line_number * 100.0 / total_line_number,
-            )
+        total_line_number: int = sum(len(lineset) for lineset in self.linesets)
+        report += "TOTAL lines={} duplicates={} percent={:.2f}\n".format(
+            total_line_number,
+            duplicated_line_number,
+            duplicated_line_number * 100.0 / total_line_number,
         )
+        return report
 
     def _find_common(self, lineset1, lineset2):
         """find similarities in the two given linesets"""
