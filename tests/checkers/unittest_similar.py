@@ -15,7 +15,7 @@
 # Copyright (c) 2021 Aditya Gupta <adityagupta1089@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 from contextlib import redirect_stdout
 from io import StringIO
@@ -165,8 +165,8 @@ def test_ignore_signatures_fail():
     assert (
         output.getvalue().strip()
         == (
-            """
-7 similar lines in 2 files
+            '''
+10 similar lines in 2 files
 ==%s:[1:8]
 ==%s:[8:15]
        arg1: int = 3,
@@ -176,8 +176,11 @@ def test_ignore_signatures_fail():
        arg5: int = 5
    ) -> Ret1:
        pass
-TOTAL lines=23 duplicates=7 percent=30.43
-"""
+
+   def example():
+       """Valid function definition with docstring only."""
+TOTAL lines=29 duplicates=10 percent=34.48
+'''
             % (SIMILAR5, SIMILAR6)
         ).strip()
     )
@@ -191,7 +194,7 @@ def test_ignore_signatures_pass():
     assert (
         output.getvalue().strip()
         == """
-TOTAL lines=23 duplicates=0 percent=0.00
+TOTAL lines=29 duplicates=0 percent=0.00
 """.strip()
     )
 

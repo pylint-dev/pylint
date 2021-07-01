@@ -2,11 +2,11 @@
 README for Pylint - https://pylint.pycqa.org/
 =============================================
 
-.. image:: https://github.com/PyCQA/pylint/actions/workflows/ci.yaml/badge.svg?branch=master
+.. image:: https://github.com/PyCQA/pylint/actions/workflows/ci.yaml/badge.svg?branch=main
     :target: https://github.com/PyCQA/pylint/actions
 
-.. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=master
-    :target: https://coveralls.io/github/PyCQA/pylint?branch=master
+.. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=main
+    :target: https://coveralls.io/github/PyCQA/pylint?branch=main
 
 
 .. image:: https://img.shields.io/pypi/v/pylint.svg
@@ -20,11 +20,11 @@ README for Pylint - https://pylint.pycqa.org/
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
 
-.. image:: https://results.pre-commit.ci/badge/github/PyCQA/pylint/master.svg
-   :target: https://results.pre-commit.ci/latest/github/PyCQA/pylint/master
+.. image:: https://results.pre-commit.ci/badge/github/PyCQA/pylint/main.svg
+   :target: https://results.pre-commit.ci/latest/github/PyCQA/pylint/main
    :alt: pre-commit.ci status
 
-.. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/master/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
+.. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/main/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
    :width: 75
    :height: 60
    :alt: Tidelift
@@ -162,9 +162,9 @@ For more detailed information, check the documentation.
 License
 -------
 
-pylint is, with a few exceptions listed below, `GPLv2 <https://github.com/PyCQA/pylint/blob/master/LICENSE>`_.
+pylint is, with a few exceptions listed below, `GPLv2 <https://github.com/PyCQA/pylint/blob/main/LICENSE>`_.
 
 The icon files are licensed under the `CC BY-SA 4.0 <https://creativecommons.org/licenses/by-sa/4.0/>`_ license:
 
-- `doc/logo.png <https://raw.githubusercontent.com/PyCQA/pylint/master/doc/logo.png>`_
-- `doc/logo.svg <https://raw.githubusercontent.com/PyCQA/pylint/master/doc/logo.svg>`_
+- `doc/logo.png <https://raw.githubusercontent.com/PyCQA/pylint/main/doc/logo.png>`_
+- `doc/logo.svg <https://raw.githubusercontent.com/PyCQA/pylint/main/doc/logo.svg>`_

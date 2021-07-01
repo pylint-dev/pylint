@@ -39,12 +39,14 @@
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Ashley Whetter <ashleyw@activestate.com>
+# Copyright (c) 2021 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
+# Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 haasea <44787650+haasea@users.noreply.github.com>
 # Copyright (c) 2021 Alexander Kapshuna <kapsh@kap.sh>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """variables checkers for Python code
 """
@@ -457,11 +459,6 @@ MSGS = {
         "redefined-builtin",
         "Used when a variable or function override a built-in.",
     ),
-    "W0623": (
-        "Redefining name %r from %s in exception handler",
-        "redefine-in-handler",
-        "Used when an exception handler assigns the exception to an existing name",
-    ),
     "W0631": (
         "Using possibly undefined loop variable %r",
         "undefined-loop-variable",
@@ -731,7 +728,7 @@ class VariablesChecker(BaseChecker):
         self._postponed_evaluation_enabled = is_postponed_evaluation_enabled(node)
 
         for name, stmts in node.locals.items():
-            if utils.is_builtin(name) and not utils.is_inside_except(stmts[0]):
+            if utils.is_builtin(name):
                 if self._should_ignore_redefined_builtin(stmts[0]) or name == "__doc__":
                     continue
                 self.add_message("redefined-builtin", args=name, node=stmts[0])
@@ -819,8 +816,6 @@ class VariablesChecker(BaseChecker):
             return
         globs = node.root().globals
         for name, stmt in node.items():
-            if utils.is_inside_except(stmt):
-                continue
             if name in globs and not isinstance(stmt, astroid.Global):
                 definition = globs[name][0]
                 if (
@@ -1831,6 +1826,10 @@ class VariablesChecker(BaseChecker):
         """Given a type annotation, store all the name nodes it refers to"""
         if isinstance(type_annotation, astroid.Name):
             self._type_annotation_names.append(type_annotation.name)
+            return
+
+        if isinstance(type_annotation, astroid.Attribute):
+            self._store_type_annotation_node(type_annotation.expr)
             return
 
         if not isinstance(type_annotation, astroid.Subscript):

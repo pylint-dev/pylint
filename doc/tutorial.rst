@@ -103,31 +103,31 @@ entirety:
 
 .. sourcecode:: python
 
-   1  #!/usr/bin/env python3
-   2
-   3  import string;
-   4
-   5  shift = 3
-   6  choice = input("would you like to encode or decode?")
-   7  word = input("Please enter text")
-   8  letters = string.ascii_letters + string.punctuation + string.digits
-   9  encoded = ''
-  10  if choice == "encode":
-  11      for letter in word:
-  12          if letter == ' ':
-  13              encoded = encoded + ' '
-  14          else:
-  15              x = letters.index(letter) + shift
-  16              encoded = encoded + letters[x]
-  17  if choice == "decode":
-  18      for letter in word:
-  19          if letter == ' ':
-  20              encoded = encoded + ' '
-  21          else:
-  22              x = letters.index(letter) - shift
-  23              encoded = encoded + letters[x]
-  24
-  25  print(encoded)
+   #!/usr/bin/env python3
+
+   import string;
+
+   shift = 3
+   choice = input("would you like to encode or decode?")
+   word = input("Please enter text")
+   letters = string.ascii_letters + string.punctuation + string.digits
+   encoded = ''
+   if choice == "encode":
+       for letter in word:
+           if letter == ' ':
+               encoded = encoded + ' '
+           else:
+               x = letters.index(letter) + shift
+               encoded = encoded + letters[x]
+   if choice == "decode":
+       for letter in word:
+           if letter == ' ':
+               encoded = encoded + ' '
+           else:
+               x = letters.index(letter) - shift
+               encoded = encoded + letters[x]
+
+   print(encoded)
 
 
 Let's get started.
@@ -195,33 +195,33 @@ Here is the updated code:
 
 .. sourcecode:: python
 
-   1  #!/usr/bin/env python3
-   2  """This script prompts a user to enter a message to encode or decode
-   3  using a classic Caesar shift substitution (3 letter shift)"""
-   4
-   5  import string
-   6
-   7  shift = 3
-   8  choice = input("would you like to encode or decode?")
-   9  word = input("Please enter text")
-  10  letters = string.ascii_letters + string.punctuation + string.digits
-  11  encoded = ''
-  12  if choice == "encode":
-  13      for letter in word:
-  14          if letter == ' ':
-  15              encoded = encoded + ' '
-  16          else:
-  17              x = letters.index(letter) + shift
-  18              encoded = encoded + letters[x]
-  19  if choice == "decode":
-  20      for letter in word:
-  21          if letter == ' ':
-  22              encoded = encoded + ' '
-  23          else:
-  24              x = letters.index(letter) - shift
-  25              encoded = encoded + letters[x]
-  26
-  27  print(encoded)
+   #!/usr/bin/env python3
+   """This script prompts a user to enter a message to encode or decode
+   using a classic Caesar shift substitution (3 letter shift)"""
+
+   import string
+
+   shift = 3
+   choice = input("would you like to encode or decode?")
+   word = input("Please enter text")
+   letters = string.ascii_letters + string.punctuation + string.digits
+   encoded = ''
+   if choice == "encode":
+       for letter in word:
+           if letter == ' ':
+               encoded = encoded + ' '
+           else:
+               x = letters.index(letter) + shift
+               encoded = encoded + letters[x]
+   if choice == "decode":
+       for letter in word:
+           if letter == ' ':
+               encoded = encoded + ' '
+           else:
+               x = letters.index(letter) - shift
+               encoded = encoded + letters[x]
+
+   print(encoded)
 
 Here is what happens when we run it:
 

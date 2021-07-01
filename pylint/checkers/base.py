@@ -52,13 +52,14 @@
 # Copyright (c) 2020 Gabriel R Sezefredo <g@briel.dev>
 # Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
+# Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 David Liu <david@cs.toronto.edu>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """basic checker for Python code"""
 import builtins
@@ -1986,8 +1987,6 @@ class NameChecker(_BasicChecker):
                     utils.safe_infer(assign_type.value), astroid.Const
                 ):
                     self._check_name("const", node.name, node)
-            elif isinstance(assign_type, astroid.ExceptHandler):
-                self._check_name("variable", node.name, node)
             elif isinstance(
                 assign_type, astroid.AnnAssign
             ) and utils.is_assign_name_annotated_with(node, "Final"):
@@ -2062,10 +2061,6 @@ class NameChecker(_BasicChecker):
                     return True
             return False
 
-        if utils.is_inside_except(node):
-            clobbering, _ = utils.clobber_in_except(node)
-            if clobbering:
-                return
         if self._name_allowed_by_regex(name=name):
             return
         if self._name_disallowed_by_regex(name=name):

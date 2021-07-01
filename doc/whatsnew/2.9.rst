@@ -3,10 +3,23 @@
 **************************
 
 :Release: 2.9
-:Date: TBA
+:Date: 2021-06-29
 
 Summary -- Release highlights
 =============================
+
+Pylint is now compatible with python 3.10.
+
+A lot of new checks have been added, some non-opinionated performance warnings
+like ``use-maxsplit-arg``, some consensual style warnings like
+``unnecessary-dict-index-lookup`` or new deprecation checks.
+
+We're aiming to reduce pylint noise for first time users and making some
+new checks optional is a step in that direction. In order to do that we
+created an optional code style checker that can be loaded using
+``pylint.extensions.code_style`` with the ``load-plugins`` options.
+More than ever, if as a veteran you want the most checks you can possibly get,
+`you should check the list of pylint extensions. <http://pylint.pycqa.org/en/latest/technical_reference/extensions.html#optional-pylint-checkers-in-the-extensions-module>`_.
 
 
 New checkers
@@ -51,6 +64,8 @@ New checkers
 Other Changes
 =============
 
+* Add type annotations to pyreverse dot files
+
 * Pylint's tags are now the standard form ``vX.Y.Z`` and not ``pylint-X.Y.Z`` anymore.
 
 * Fix false-positive ``too-many-ancestors`` when inheriting from builtin classes,
@@ -74,3 +89,11 @@ Other Changes
 * ``ignore-paths`` configuration directive has been added. Defined regex patterns are matched against file path.
 
 * Added handling of floating point values when parsing configuration from pyproject.toml
+
+* Fix false positive ``useless-type-doc`` on ignored argument using ``pylint.extensions.docparams`` when a function
+  was typed using pep484 but not inside the docstring.
+
+* Fix missing support for detecting deprecated aliases to existing functions/methods.
+  functions/methods.
+
+* Added various deprecated functions/methods for python 3.10, 3.7, 3.6 and 3.3

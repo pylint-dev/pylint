@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Checker mixin for deprecated functionality."""
 from itertools import chain
@@ -197,15 +197,23 @@ class DeprecatedMixin:
             # Not interested in other nodes.
             return
 
-        qname = inferred.qname()
-        if any(name in self.deprecated_methods() for name in (qname, func_name)):
+        if hasattr(inferred.parent, "qname") and inferred.parent.qname():
+            # Handling the situation when deprecated function is
+            # alias to existing function.
+            qnames = {
+                inferred.qname(),
+                f"{inferred.parent.qname()}.{func_name}",
+                func_name,
+            }
+        else:
+            qnames = {inferred.qname(), func_name}
+        if any(name in self.deprecated_methods() for name in qnames):
             self.add_message("deprecated-method", node=node, args=(func_name,))
             return
         num_of_args = len(node.args)
         kwargs = {kw.arg for kw in node.keywords} if node.keywords else {}
-        for position, arg_name in chain(
-            self.deprecated_arguments(func_name), self.deprecated_arguments(qname)
-        ):
+        deprecated_arguments = (self.deprecated_arguments(qn) for qn in qnames)
+        for position, arg_name in chain(*deprecated_arguments):
             if arg_name in kwargs:
                 # function was called with deprecated argument as keyword argument
                 self.add_message(

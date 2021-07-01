@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
 import copy
@@ -1689,7 +1689,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         and subscript == subscript.parent.target
                     ):
                         # Ignore this subscript if it is the target of an assignment
-                        continue
+                        # Early termination; after reassignment dict index lookup will be necessary
+                        return
 
                     # Case where .items is assigned to k,v (i.e., for k, v in d.items())
                     if isinstance(value, astroid.Name):
