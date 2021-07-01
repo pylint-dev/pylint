@@ -110,27 +110,27 @@ class Similar:
         sims.reverse()
         return sims
 
-    def _display_sims(self, sims):
-        """display computed similarities on stdout"""
-        nb_lignes_dupliquees = 0
-        for num, couples in sims:
+    def _display_sims(self, similarities):
+        """Display computed similarities on stdout"""
+        duplicated_line_number = 0
+        for number, files in similarities:
             print()
-            print(num, "similar lines in", len(couples), "files")
-            couples = sorted(couples)
+            print(number, "similar lines in", len(files), "files")
+            files = sorted(files)
             lineset = idx = None
-            for lineset, idx in couples:
+            for lineset, idx in files:
                 print(f"=={lineset.name}:{idx}")
             if lineset:
-                for line in lineset._real_lines[idx : idx + num]:
+                for line in lineset._real_lines[idx : idx + number]:
                     print("  ", line.rstrip())
-            nb_lignes_dupliquees += num * (len(couples) - 1)
-        nb_total_lignes = sum(len(lineset) for lineset in self.linesets)
+            duplicated_line_number += number * (len(files) - 1)
+        total_line_number = sum(len(lineset) for lineset in self.linesets)
         print(
             "TOTAL lines=%s duplicates=%s percent=%.2f"
             % (
-                nb_total_lignes,
-                nb_lignes_dupliquees,
-                nb_lignes_dupliquees * 100.0 / nb_total_lignes,
+                total_line_number,
+                duplicated_line_number,
+                duplicated_line_number * 100.0 / total_line_number,
             )
         )
 
