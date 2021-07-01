@@ -15,7 +15,7 @@
 # Copyright (c) 2021 Aditya Gupta <adityagupta1089@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 from contextlib import redirect_stdout
 from io import StringIO
