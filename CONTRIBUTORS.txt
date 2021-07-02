@@ -521,3 +521,5 @@ contributors:
 * Yilei Yang: contributor
 
 * Marcin Kurczewski (rr-): contributor
+
+* Eisuke Kawashima (e-kwsm): contributor
