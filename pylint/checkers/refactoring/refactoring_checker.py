@@ -1040,7 +1040,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         If the next value has a default value, then do not add message.
 
         :param node: Check to see if this Call node is a next function
-        :type node: :class:`astroid.node_classes.Call`
+        :type node: :class:`astroid.Call`
         """
 
         def _looks_like_infinite_iterator(param):
@@ -1348,8 +1348,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return (
             isinstance(node, astroid.Assign)
             and len(node.targets) == 1
-            and isinstance(node.targets[0], astroid.node_classes.AssignName)
-            and isinstance(node.value, astroid.node_classes.Name)
+            and isinstance(node.targets[0], astroid.AssignName)
+            and isinstance(node.value, astroid.Name)
         )
 
     def _check_swap_variables(self, node):
@@ -1727,11 +1727,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # if no handlers handle the exception then it's ok
         return True
 
-    def _is_node_return_ended(self, node: astroid.node_classes.NodeNG) -> bool:
+    def _is_node_return_ended(self, node: astroid.NodeNG) -> bool:
         """Check if the node ends with an explicit return statement.
 
         Args:
-            node (astroid.node_classes.NodeNG): node to be checked.
+            node (astroid.NodeNG): node to be checked.
 
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
@@ -1776,7 +1776,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return any(self._is_node_return_ended(_child) for _child in node.get_children())
 
     @staticmethod
-    def _has_return_in_siblings(node: astroid.node_classes.NodeNG) -> bool:
+    def _has_return_in_siblings(node: astroid.NodeNG) -> bool:
         """
         Returns True if there is at least one return in the node's siblings
         """

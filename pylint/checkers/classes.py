@@ -1639,7 +1639,7 @@ a metaclass class method.",
                 self.add_message("protected-access", node=node, args=attrname)
 
     @staticmethod
-    def _is_called_inside_special_method(node: astroid.node_classes.NodeNG) -> bool:
+    def _is_called_inside_special_method(node: astroid.NodeNG) -> bool:
         """
         Returns true if the node is located inside a special (aka dunder) method
         """

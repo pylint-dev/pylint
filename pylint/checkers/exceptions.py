@@ -432,8 +432,8 @@ class ExceptionsChecker(checkers.BaseChecker):
     def _check_try_except_raise(self, node):
         def gather_exceptions_from_handler(
             handler,
-        ) -> typing.Optional[typing.List[astroid.node_classes.NodeNG]]:
-            exceptions: typing.List[astroid.node_classes.NodeNG] = []
+        ) -> typing.Optional[typing.List[astroid.NodeNG]]:
+            exceptions: typing.List[astroid.NodeNG] = []
             if handler.type:
                 exceptions_in_handler = utils.safe_infer(handler.type)
                 if isinstance(exceptions_in_handler, astroid.Tuple):

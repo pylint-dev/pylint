@@ -3,7 +3,6 @@ from typing import Dict, List, NamedTuple, Set, Union
 
 import astroid
 import astroid.bases
-import astroid.node_classes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (

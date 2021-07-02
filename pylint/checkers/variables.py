@@ -928,8 +928,7 @@ class VariablesChecker(BaseChecker):
                 assign_nodes = []
 
             not_defined_locally_by_import = not any(
-                isinstance(local, astroid.node_classes.Import)
-                for local in locals_.get(name, ())
+                isinstance(local, astroid.Import) for local in locals_.get(name, ())
             )
             if not assign_nodes and not_defined_locally_by_import:
                 self.add_message("global-variable-not-assigned", args=name, node=node)
@@ -1324,7 +1323,7 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _in_lambda_or_comprehension_body(
-        node: astroid.node_classes.NodeNG, frame: astroid.node_classes.NodeNG
+        node: astroid.NodeNG, frame: astroid.NodeNG
     ) -> bool:
         """return True if node within a lambda/comprehension body (or similar) and thus should not have access to class attributes in frame"""
         child = node
@@ -1335,10 +1334,7 @@ class VariablesChecker(BaseChecker):
             if isinstance(parent, astroid.Lambda) and child is not parent.args:
                 # Body of lambda should not have access to class attributes.
                 return True
-            if (
-                isinstance(parent, astroid.node_classes.Comprehension)
-                and child is not parent.iter
-            ):
+            if isinstance(parent, astroid.Comprehension) and child is not parent.iter:
                 # Only iter of list/set/dict/generator comprehension should have access.
                 return True
             if isinstance(parent, astroid.scoped_nodes.ComprehensionScope) and not (
@@ -1391,7 +1387,7 @@ class VariablesChecker(BaseChecker):
             if not forbid_lookup and defframe.root().lookup(name)[1]:
                 maybee0601 = False
                 use_outer_definition = stmt == defstmt and not isinstance(
-                    defnode, astroid.node_classes.Comprehension
+                    defnode, astroid.Comprehension
                 )
             # check if we have a nonlocal
             elif name in defframe.locals:
@@ -1941,7 +1937,7 @@ class VariablesChecker(BaseChecker):
         target_assign_names = (
             target.name
             for target in node.targets
-            if isinstance(target, astroid.node_classes.AssignName)
+            if isinstance(target, astroid.AssignName)
         )
         if self_cls_name in target_assign_names:
             self.add_message("self-cls-assignment", node=node, args=(self_cls_name,))

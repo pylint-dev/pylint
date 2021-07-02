@@ -1,7 +1,6 @@
 from typing import List, Set, Tuple, Type, Union, cast
 
 import astroid
-from astroid.node_classes import NodeNG
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import check_messages, safe_infer
@@ -77,7 +76,7 @@ class CodeStyleChecker(BaseChecker):
         if len(node.items) > 1 and all(
             isinstance(dict_value, astroid.Dict) for _, dict_value in node.items
         ):
-            KeyTupleT = Tuple[Type[NodeNG], str]
+            KeyTupleT = Tuple[Type[astroid.NodeNG], str]
 
             # Makes sure all keys are 'Const' string nodes
             keys_checked: Set[KeyTupleT] = set()

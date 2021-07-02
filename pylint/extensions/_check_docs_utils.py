@@ -126,7 +126,7 @@ def possible_exc_types(node):
 
 
     :param node: The raise node to find exception types for.
-    :type node: astroid.node_classes.NodeNG
+    :type node: astroid.NodeNG
 
     :returns: A list of exception types possibly raised by :param:`node`.
     :rtype: set(str)

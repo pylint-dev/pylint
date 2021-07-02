@@ -612,7 +612,7 @@ class DocstringParameterChecker(BaseChecker):
         :type missing_excs: set(str)
 
         :param node: The node show the message on.
-        :type node: astroid.node_classes.NodeNG
+        :type node: astroid.NodeNG
         """
         if node.is_abstract():
             try:

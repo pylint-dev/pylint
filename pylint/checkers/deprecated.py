@@ -57,7 +57,7 @@ class DeprecatedMixin:
         "deprecated-class",
     )
     def visit_call(self, node: astroid.Call) -> None:
-        """Called when a :class:`.astroid.node_classes.Call` node is visited."""
+        """Called when a :class:`.astroid.Call` node is visited."""
         try:
             self.check_deprecated_class_in_call(node)
             for inferred in node.func.infer():

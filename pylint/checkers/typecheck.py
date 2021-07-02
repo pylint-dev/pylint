@@ -1150,7 +1150,7 @@ accessed. Python regular expressions are accepted.",
 
         # Check the left hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
-        if not isinstance(lhs, astroid.node_classes.AssignAttr):
+        if not isinstance(lhs, astroid.AssignAttr):
             return
         if not lhs.attrname == "__name__":
             return
@@ -1845,7 +1845,7 @@ accessed. Python regular expressions are accepted.",
 
     @check_messages("dict-items-missing-iter")
     def visit_for(self, node):
-        if not isinstance(node.target, astroid.node_classes.Tuple):
+        if not isinstance(node.target, astroid.Tuple):
             # target is not a tuple
             return
         if not len(node.target.elts) == 2:
@@ -1853,14 +1853,14 @@ accessed. Python regular expressions are accepted.",
             return
 
         iterable = node.iter
-        if not isinstance(iterable, astroid.node_classes.Name):
+        if not isinstance(iterable, astroid.Name):
             # it's not a bare variable
             return
 
         inferred = safe_infer(iterable)
         if not inferred:
             return
-        if not isinstance(inferred, astroid.node_classes.Dict):
+        if not isinstance(inferred, astroid.Dict):
             # the iterable is not a dict
             return
 

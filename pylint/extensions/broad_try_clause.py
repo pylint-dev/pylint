@@ -9,8 +9,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Looks for try/except statements with too much code in the try clause."""
-
-from astroid.node_classes import For, If, While, With
+import astroid
 
 from pylint import checkers, interfaces
 
@@ -53,7 +52,9 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         statement_count = len(try_node.body)
 
         for body_node in try_node.body:
-            if isinstance(body_node, (For, If, While, With)):
+            if isinstance(
+                body_node, (astroid.For, astroid.If, astroid.While, astroid.With)
+            ):
                 statement_count += self._count_statements(body_node)
 
         return statement_count

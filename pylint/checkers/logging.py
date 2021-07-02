@@ -300,7 +300,7 @@ class LoggingChecker(checkers.BaseChecker):
         """Checks that function call is not format_string.format().
 
         Args:
-          node (astroid.node_classes.Call):
+          node (astroid.Call):
             Call AST node to be checked.
         """
         func = utils.safe_infer(node.func)
@@ -319,7 +319,7 @@ class LoggingChecker(checkers.BaseChecker):
         """Checks that format string tokens match the supplied arguments.
 
         Args:
-          node (astroid.node_classes.NodeNG): AST node to be checked.
+          node (astroid.NodeNG): AST node to be checked.
           format_arg (int): Index of the format string in the node arguments.
         """
         num_args = _count_supplied_tokens(node.args[format_arg + 1 :])
@@ -376,7 +376,7 @@ def is_complex_format_str(node):
     """Checks if node represents a string with complex formatting specs.
 
     Args:
-        node (astroid.node_classes.NodeNG): AST node to check
+        node (astroid.NodeNG): AST node to check
     Returns:
         bool: True if inferred string uses complex formatting, False otherwise
     """

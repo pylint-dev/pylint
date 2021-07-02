@@ -46,12 +46,12 @@ class MyAstroidChecker(BaseChecker):
     )
 
     def visit_call(self, node):
-        """Called when a :class:`.astroid.node_classes.Call` node is visited.
+        """Called when a :class:`.astroid.Call` node is visited.
 
         See :mod:`astroid` for the description of available nodes.
 
         :param node: The node to check.
-        :type node: astroid.node_classes.Call
+        :type node: astroid.Call
         """
         if not (
             isinstance(node.func, astroid.Attribute)
