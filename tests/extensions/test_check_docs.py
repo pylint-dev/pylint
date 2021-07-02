@@ -344,7 +344,7 @@ class TestParamDocChecker(CheckerTestCase):
         """Visit all methods of a class node
 
         :param node: class node
-        :type node: :class:`astroid.scoped_nodes.Class`
+        :type node: :class:`astroid.ClassDef`
         """
         for body_item in node.body:
             if isinstance(body_item, astroid.FunctionDef) and hasattr(

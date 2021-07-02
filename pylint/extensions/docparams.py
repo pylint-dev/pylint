@@ -209,7 +209,7 @@ class DocstringParameterChecker(BaseChecker):
         """Called for function and method definitions (def).
 
         :param node: Node for a function or method definition in the AST
-        :type node: :class:`astroid.scoped_nodes.Function`
+        :type node: :class:`astroid.Function`
         """
         node_doc = utils.docstringify(node.doc, self.config.default_docstring_type)
 
@@ -380,7 +380,7 @@ class DocstringParameterChecker(BaseChecker):
         :type expected_argument_names: set
 
         :param warning_node: The node to be analyzed
-        :type warning_node: :class:`astroid.scoped_nodes.Node`
+        :type warning_node: :class:`astroid.NodeNG`
         """
         missing_argument_names = (
             expected_argument_names - found_argument_names
@@ -416,7 +416,7 @@ class DocstringParameterChecker(BaseChecker):
         :type expected_argument_names: set
 
         :param warning_node: The node to be analyzed
-        :type warning_node: :class:`astroid.scoped_nodes.Node`
+        :type warning_node: :class:`astroid.NodeNG`
         """
         differing_argument_names = (
             (expected_argument_names ^ found_argument_names)
@@ -451,7 +451,7 @@ class DocstringParameterChecker(BaseChecker):
         :type ignored_argument_names: set
 
         :param warning_node: The node to be analyzed
-        :type warning_node: :class:`astroid.scoped_nodes.Node`
+        :type warning_node: :class:`astroid.NodeNG`
         """
         existing_ignored_argument_names = ignored_argument_names & found_argument_names
 
@@ -492,10 +492,10 @@ class DocstringParameterChecker(BaseChecker):
 
         :param arguments_node: Arguments node for the function, method or
             class constructor.
-        :type arguments_node: :class:`astroid.scoped_nodes.Arguments`
+        :type arguments_node: :class:`astroid.Arguments`
 
         :param warning_node: The node to assign the warnings to
-        :type warning_node: :class:`astroid.scoped_nodes.Node`
+        :type warning_node: :class:`astroid.NodeNG`
 
         :param accept_no_param_doc: Whether or not to allow no parameters
             to be documented.

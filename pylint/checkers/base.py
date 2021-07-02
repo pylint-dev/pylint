@@ -70,6 +70,7 @@ import sys
 from typing import Pattern
 
 import astroid
+import astroid.bases
 
 from pylint import checkers, exceptions, interfaces
 from pylint import utils as lint_utils
@@ -1111,7 +1112,7 @@ class BasicChecker(_BasicChecker):
     def _check_using_constant_test(self, node, test):
         const_nodes = (
             astroid.Module,
-            astroid.scoped_nodes.GeneratorExp,
+            astroid.GeneratorExp,
             astroid.Lambda,
             astroid.FunctionDef,
             astroid.ClassDef,

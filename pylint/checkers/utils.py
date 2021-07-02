@@ -71,6 +71,7 @@ from typing import (
 
 import _string
 import astroid
+import astroid.scoped_nodes
 
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = (
@@ -306,7 +307,7 @@ def is_super(node: astroid.node_classes.NodeNG) -> bool:
     return False
 
 
-def is_error(node: astroid.scoped_nodes.FunctionDef) -> bool:
+def is_error(node: astroid.FunctionDef) -> bool:
     """Return true if the given function node only raises an exception"""
     return len(node.body) == 1 and isinstance(node.body[0], astroid.Raise)
 
@@ -430,7 +431,7 @@ def is_func_decorator(node: astroid.node_classes.NodeNG) -> bool:
             (
                 astroid.Lambda,
                 astroid.scoped_nodes.ComprehensionScope,
-                astroid.scoped_nodes.ListComp,
+                astroid.ListComp,
             ),
         ):
             break

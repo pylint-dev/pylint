@@ -49,6 +49,7 @@ from itertools import chain, zip_longest
 from typing import List, Pattern, cast
 
 import astroid
+import astroid.scoped_nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (

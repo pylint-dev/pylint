@@ -58,6 +58,7 @@ import re
 from functools import lru_cache
 
 import astroid
+import astroid.scoped_nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import is_postponed_evaluation_enabled
@@ -1871,7 +1872,7 @@ class VariablesChecker(BaseChecker):
             scope = node.scope().parent.scope()
 
         if not (
-            isinstance(scope, astroid.scoped_nodes.FunctionDef)
+            isinstance(scope, astroid.FunctionDef)
             and scope.is_method()
             and "builtins.staticmethod" not in scope.decoratornames()
         ):
