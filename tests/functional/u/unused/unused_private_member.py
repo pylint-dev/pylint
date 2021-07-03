@@ -103,3 +103,35 @@ class Klass:
 k = Klass()
 print(k.twentyone)
 print(k.ninetyfive)
+
+
+class FalsePositive4657:
+    """False positivie tests for 4657"""
+    __attr_a = None
+    __attr_b = 'b'
+
+    @classmethod
+    def load_attrs(cls):
+        """Load attributes."""
+        cls.__attr_a = 'a'
+
+    @property
+    def attr_a(self):
+        """Get a."""
+        return self.__attr_a
+
+    @property
+    def attr_b(self):
+        """Get b."""
+        return self.__attr_b
+
+    # Test cases where we assign self.attr, but try to
+    # access cls.attr
+
+    def __init__(self):
+        self.__attr_c = "this is an unused private instance attribute"  # [unused-private-member]
+
+    @property
+    def attr_c(self):
+        """Get c."""
+        return cls.__attr_c  # [undefined-variable]

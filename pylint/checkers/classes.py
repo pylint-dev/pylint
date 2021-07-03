@@ -961,9 +961,14 @@ a metaclass class method.",
             if not is_attr_private(assign_attr.attrname):
                 continue
             for attribute in node.nodes_of_class(astroid.Attribute):
-                if (
-                    attribute.attrname == assign_attr.attrname
-                    and attribute.expr.name == assign_attr.expr.name
+                if attribute.attrname == assign_attr.attrname and (
+                    (
+                        # If assigned to cls.attrib, can be accessed by cls/self
+                        assign_attr.expr.name == "cls"
+                        and attribute.expr.name in ["cls", "self"]
+                    )
+                    # If assigned to self.attrib, can only be accessed by self
+                    or (assign_attr.expr.name == attribute.expr.name == "self")
                 ):
                     break
             else:
