@@ -118,7 +118,10 @@ def _will_be_released_automatically(node: astroid.Call) -> bool:
     """Checks if a call that could be used in a ``with`` statement is used in an alternative
     construct which would ensure that its __exit__ method is called."""
     callables_taking_care_of_exit = frozenset(
-        ("contextlib._BaseExitStack.enter_context",)
+        (
+            "contextlib._BaseExitStack.enter_context",
+            "contextlib.ExitStack.enter_context",  # necessary for Python 3.6 compatibility
+        )
     )
     parent = node.parent
     if not isinstance(parent, astroid.Call):
