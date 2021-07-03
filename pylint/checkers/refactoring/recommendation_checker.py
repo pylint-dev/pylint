@@ -78,38 +78,58 @@ class RecommendationChecker(checkers.BaseChecker):
         """Add message when accessing first or last elements of a str.split() or str.rsplit()."""
 
         # Check if call is split() or rsplit()
-        if (
+        if not (
             isinstance(node.func, astroid.Attribute)
             and node.func.attrname in ("split", "rsplit")
             and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
         ):
+            return
+
+        try:
+            utils.get_argument_from_call(node, 0, "sep")
+        except utils.NoSuchArgumentError:
+            return
+
+        try:
+            # Ignore if maxsplit arg has been set
+            utils.get_argument_from_call(node, 1, "maxsplit")
+            return
+        except utils.NoSuchArgumentError:
+            pass
+
+        if isinstance(node.parent, astroid.Subscript):
             try:
-                utils.get_argument_from_call(node, 0, "sep")
-            except utils.NoSuchArgumentError:
+                subscript_value = utils.get_subscript_const_value(node.parent).value
+            except utils.InferredTypeError:
                 return
 
-            try:
-                # Ignore if maxsplit arg has been set
-                utils.get_argument_from_call(node, 1, "maxsplit")
-                return
-            except utils.NoSuchArgumentError:
-                pass
+            # Check for cases where variable (Name) subscripts may be mutated within a loop
+            if isinstance(node.parent.slice, astroid.Name):
+                # Check if loop present within the scope of the node
+                scope = node.scope()
+                for loop_node in scope.nodes_of_class((astroid.For, astroid.While)):
+                    if not loop_node.parent_of(node):
+                        continue
 
-            if isinstance(node.parent, astroid.Subscript):
-                try:
-                    subscript_value = utils.get_subscript_const_value(node.parent).value
-                except utils.InferredTypeError:
-                    return
+                    # Check if var is mutated within loop (Assign/AugAssign)
+                    for assignment_node in loop_node.nodes_of_class(astroid.AugAssign):
+                        if node.parent.slice.name == assignment_node.target.name:
+                            return
+                    for assignment_node in loop_node.nodes_of_class(astroid.Assign):
+                        if node.parent.slice.name in [
+                            n.name for n in assignment_node.targets
+                        ]:
+                            return
 
-                if subscript_value in (-1, 0):
-                    fn_name = node.func.attrname
-                    new_fn = "rsplit" if subscript_value == -1 else "split"
-                    new_name = (
-                        node.func.as_string().rsplit(fn_name, maxsplit=1)[0]
-                        + new_fn
-                        + f"({node.args[0].as_string()}, maxsplit=1)[{subscript_value}]"
-                    )
-                    self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
+            if subscript_value in (-1, 0):
+                fn_name = node.func.attrname
+                new_fn = "rsplit" if subscript_value == -1 else "split"
+                new_name = (
+                    node.func.as_string().rsplit(fn_name, maxsplit=1)[0]
+                    + new_fn
+                    + f"({node.args[0].as_string()}, maxsplit=1)[{subscript_value}]"
+                )
+                self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
 
     @utils.check_messages("consider-using-enumerate", "consider-using-dict-items")
     def visit_for(self, node: astroid.For) -> None:

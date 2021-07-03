@@ -82,3 +82,12 @@ print(Bar.split.rsplit(",")[-1])  # [use-maxsplit-arg]
 a = "1,2,3".split('\n')[0]  # [use-maxsplit-arg]
 a = "1,2,3".split('split')[-1]  # [use-maxsplit-arg]
 a = "1,2,3".rsplit('rsplit')[0]  # [use-maxsplit-arg]
+
+# Test cases for false-positive reported in #4664
+# https://github.com/PyCQA/pylint/issues/4664
+source = 'A.B.C.D.E.F.G'
+other_iterable = range(5)
+i = 0
+for j in other_iterable:
+    print(source.split('.')[i])
+    i = i + 1
