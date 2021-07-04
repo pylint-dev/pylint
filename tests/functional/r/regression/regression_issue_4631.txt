@@ -1,0 +1,2 @@
+unused-import:9:0::Unused YTMusic imported from ytmusicapi:HIGH
+undefined-variable:16:18:get_youtube_link:Undefined variable '__query_ytmusic':HIGH

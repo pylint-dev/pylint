@@ -6,9 +6,11 @@
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """
 Visitor doing some postprocessing on the astroid tree.
@@ -205,23 +207,19 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             # the name has been defined as 'global' in the frame and belongs
             # there.
             frame = node.root()
-        try:
-            if not hasattr(frame, "locals_type"):
-                # If the frame doesn't have a locals_type yet,
-                # it means it wasn't yet visited. Visit it now
-                # to add what's missing from it.
-                if isinstance(frame, astroid.ClassDef):
-                    self.visit_classdef(frame)
-                elif isinstance(frame, astroid.FunctionDef):
-                    self.visit_functiondef(frame)
-                else:
-                    self.visit_module(frame)
+        if not hasattr(frame, "locals_type"):
+            # If the frame doesn't have a locals_type yet,
+            # it means it wasn't yet visited. Visit it now
+            # to add what's missing from it.
+            if isinstance(frame, astroid.ClassDef):
+                self.visit_classdef(frame)
+            elif isinstance(frame, astroid.FunctionDef):
+                self.visit_functiondef(frame)
+            else:
+                self.visit_module(frame)
 
-            current = frame.locals_type[node.name]
-            values = set(node.infer())
-            frame.locals_type[node.name] = list(set(current) | values)
-        except astroid.InferenceError:
-            pass
+        current = frame.locals_type[node.name]
+        frame.locals_type[node.name] = list(set(current) | utils.infer_node(node))
 
     @staticmethod
     def handle_assignattr_type(node, parent):
@@ -229,12 +227,10 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
         handle instance_attrs_type
         """
-        try:
-            values = set(node.infer())
-            current = set(parent.instance_attrs_type[node.attrname])
-            parent.instance_attrs_type[node.attrname] = list(current | values)
-        except astroid.InferenceError:
-            pass
+        current = set(parent.instance_attrs_type[node.attrname])
+        parent.instance_attrs_type[node.attrname] = list(
+            current | utils.infer_node(node)
+        )
 
     def visit_import(self, node):
         """visit an astroid.Import node

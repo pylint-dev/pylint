@@ -7,7 +7,7 @@ about: Suggest an idea for this project
   Hi there! Thank you for wanting to make pylint better.
 
   Before you submit this, make sure that this feature wasn't
-  already requested or if it is not already implemented in the master branch.
+  already requested or if it is not already implemented in the main branch.
 -->
 
 ### Is your feature request related to a problem? Please describe

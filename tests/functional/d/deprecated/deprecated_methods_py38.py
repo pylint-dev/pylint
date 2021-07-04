@@ -43,3 +43,11 @@ class Tests(unittest.TestCase):
 
         self.assertRaisesRegex(ValueError, "exception")
         self.assertRegex("something", r".+")
+
+
+class Deprecated:  # pylint: disable=too-few-public-methods
+    deprecated_method = logging.warn
+
+
+d = Deprecated()
+d.deprecated_method()  # [deprecated-method]

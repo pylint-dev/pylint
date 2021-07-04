@@ -66,3 +66,40 @@ class MyCls:
     @classmethod
     def get_class_var(cls):
         return cls.__class_var
+
+
+class Bla:
+    """Regression test for issue 4638"""
+
+    def __init__(self):
+        type(self).__a()
+        self.__b()
+        Bla.__c()
+
+    @classmethod
+    def __a(cls):
+        pass
+
+    @classmethod
+    def __b(cls):
+        pass
+
+    @classmethod
+    def __c(cls):
+        pass
+
+
+class Klass:
+    """Regression test for 4644"""
+
+    __seventyseven = 77
+    __ninetyone = 91
+
+    def __init__(self):
+        self.twentyone = 21 * (1 / (self.__seventyseven + 33)) % 100
+        self.ninetyfive = Klass.__ninetyone + 4
+
+
+k = Klass()
+print(k.twentyone)
+print(k.ninetyfive)

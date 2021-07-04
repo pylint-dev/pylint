@@ -8,18 +8,19 @@
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Kylian <development@goudcode.nl>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
-# Copyright (c) 2021 Mark Byrne <mbyrnepr2@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Utilities for creating VCG and Dot diagrams"""
 
 import os
 
 from pylint.graph import DotBackend
-from pylint.pyreverse.utils import is_exception
+from pylint.pyreverse.utils import get_annotation_label, is_exception
 from pylint.pyreverse.vcgutils import VCGPrinter
 
 
@@ -134,11 +135,29 @@ class DotWriter(DiagramWriter):
         if not self.config.only_classnames:
             label = r"{}|{}\l|".format(label, r"\l".join(obj.attrs))
             for func in obj.methods:
+                return_type = (
+                    f": {get_annotation_label(func.returns)}" if func.returns else ""
+                )
+
                 if func.args.args:
-                    args = [arg.name for arg in func.args.args if arg.name != "self"]
+                    args = [arg for arg in func.args.args if arg.name != "self"]
                 else:
                     args = []
-                label = r"{}{}({})\l".format(label, func.name, ", ".join(args))
+
+                annotations = dict(zip(args, func.args.annotations[1:]))
+                for arg in args:
+                    annotation_label = ""
+                    ann = annotations.get(arg)
+                    if ann:
+                        annotation_label = get_annotation_label(ann)
+                    annotations[arg] = annotation_label
+
+                args = ", ".join(
+                    f"{arg.name}: {ann}" if ann else f"{arg.name}"
+                    for arg, ann in annotations.items()
+                )
+
+                label = fr"{label}{func.name}({args}){return_type}\l"
             label = "{%s}" % label
         if is_exception(obj.node):
             return dict(fontcolor="red", label=label, shape="record")

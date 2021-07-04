@@ -6,9 +6,11 @@
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """diagram objects
 """
@@ -122,7 +124,7 @@ class ClassDiagram(Figure, FilterMixIn):
             if isinstance(node, astroid.Instance):
                 node = node._proxied
             if (
-                isinstance(node, astroid.ClassDef)
+                isinstance(node, (astroid.ClassDef, astroid.Name, astroid.Subscript))
                 and hasattr(node, "name")
                 and not self.has_node(node)
             ):

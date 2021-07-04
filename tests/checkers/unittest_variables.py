@@ -14,18 +14,21 @@
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import os
 import re
 import sys
+import unittest
 from pathlib import Path
 
 import astroid
 
 from pylint.checkers import variables
+from pylint.constants import IS_PYPY
 from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, Message, linter, set_config
 
@@ -186,6 +189,24 @@ class TestVariablesChecker(CheckerTestCase):
                 pass
             def my_method(self) -> MyType:
                 pass
+        """
+        )
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @unittest.skipIf(IS_PYPY, "PyPy does not parse type comments")
+    def test_attribute_in_type_comment(self):
+        """Ensure attribute lookups in type comments are accounted for.
+
+        https://github.com/PyCQA/pylint/issues/4603
+        """
+        module = astroid.parse(
+            """
+        import foo
+        from foo import Bar, Boo
+        a = ... # type: foo.Bar
+        b = ... # type: foo.Bar[Boo]
+        c = ... # type: Bar.Boo
         """
         )
         with self.assertNoMessages():

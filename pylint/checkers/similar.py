@@ -17,12 +17,12 @@
 # Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 Aditya Gupta <adityagupta1089@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 # pylint: disable=redefined-builtin
 """a similarities / code duplication command line tool and pylint checker
@@ -385,7 +385,7 @@ class Similar:
         except UnicodeDecodeError:
             pass
 
-    def run(self):
+    def run(self) -> None:
         """start looking for similarities and display results on stdout"""
         self._display_sims(self._compute_sims())
 
@@ -428,29 +428,32 @@ class Similar:
         sims.reverse()
         return sims
 
-    def _display_sims(self, sims):
-        """display computed similarities on stdout"""
-        nb_lignes_dupliquees = 0
-        for num, couples in sims:
-            print()
-            print(num, "similar lines in", len(couples), "files")
+    def _display_sims(self, similarities: List[Tuple]) -> None:
+        """Display computed similarities on stdout"""
+        report = self._get_similarity_report(similarities)
+        print(report)
+
+    def _get_similarity_report(self, similarities: List[Tuple]) -> str:
+        """Create a report from similarities"""
+        report: str = ""
+        duplicated_line_number: int = 0
+        for number, couples in similarities:
+            report += f"\n{number} similar lines in {len(couples)} files\n"
             couples = sorted(couples)
-            lineset = start_line = end_line = None
-            for lineset, start_line, end_line in couples:
-                print(f"=={lineset.name}:[{start_line}:{end_line}]")
-            if lineset:
-                for line in lineset.real_lines[start_line:end_line]:
-                    print("  ", line.rstrip())
-            nb_lignes_dupliquees += num * (len(couples) - 1)
-        nb_total_lignes = sum(len(lineset) for lineset in self.linesets)
-        print(
-            "TOTAL lines=%s duplicates=%s percent=%.2f"
-            % (
-                nb_total_lignes,
-                nb_lignes_dupliquees,
-                nb_lignes_dupliquees * 100.0 / nb_total_lignes,
-            )
+            line_set = start_line = end_line = None
+            for line_set, start_line, end_line in couples:
+                report += f"=={lineset.name}:[{start_line}:{end_line}]"
+            if line_set:
+                for line in line_set._real_lines[start_line:end_line]:
+                    report += f"   {line.rstrip()}\n" if line.rstrip() else "\n"
+            duplicated_line_number += number * (len(couples) - 1)
+        total_line_number: int = sum(len(lineset) for lineset in self.linesets)
+        report += "TOTAL lines={} duplicates={} percent={:.2f}\n".format(
+            total_line_number,
+            duplicated_line_number,
+            duplicated_line_number * 100.0 / total_line_number,
         )
+        return report
 
     def _find_common(
         self, lineset1: "LineSet", lineset2: "LineSet"
@@ -581,7 +584,13 @@ def stripped_lines(
             if isinstance(n, (astroid.FunctionDef, astroid.AsyncFunctionDef))
         ]
         signature_lines = set(
-            chain(*(range(func.fromlineno, func.body[0].lineno) for func in functions))
+            chain(
+                *(
+                    range(func.fromlineno, func.body[0].lineno)
+                    for func in functions
+                    if func.body
+                )
+            )
         )
 
     strippedlines = []

@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 from typing import cast
 
 import astroid
@@ -233,7 +233,8 @@ class RecommendationChecker(checkers.BaseChecker):
                     and subscript == subscript.parent.target
                 ):
                     # Ignore this subscript if it is the target of an assignment
-                    continue
+                    # Early termination as dict index lookup is necessary
+                    return
 
                 self.add_message("consider-using-dict-items", node=node)
                 return

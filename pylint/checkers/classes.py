@@ -40,13 +40,13 @@
 # Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """classes checker for Python code
 """
 import collections
 from itertools import chain, zip_longest
-from typing import List, Pattern
+from typing import List, Pattern, cast
 
 import astroid
 
@@ -898,60 +898,66 @@ a metaclass class method.",
         check that instance attributes are defined in __init__ and check
         access to existent members
         """
-        self._check_unused_private_members(node)
+        self._check_unused_private_functions(node)
+        self._check_unused_private_variables(node)
+        self._check_unused_private_attributes(node)
         self._check_attribute_defined_outside_init(node)
 
-    def _check_unused_private_members(self, node: astroid.ClassDef) -> None:
-        # Check for unused private functions
+    def _check_unused_private_functions(self, node: astroid.ClassDef) -> None:
         for function_def in node.nodes_of_class(astroid.FunctionDef):
-            found = False
+            function_def = cast(astroid.FunctionDef, function_def)
             if not is_attr_private(function_def.name):
                 continue
             for attribute in node.nodes_of_class(astroid.Attribute):
+                attribute = cast(astroid.Attribute, attribute)
                 if (
-                    attribute.attrname == function_def.name
-                    and attribute.scope() != function_def  # We ignore recursive calls
-                    and attribute.expr.name in ("self", node.name)
+                    attribute.attrname != function_def.name
+                    or attribute.scope() == function_def  # We ignore recursive calls
                 ):
-                    found = True
+                    continue
+                if isinstance(attribute.expr, astroid.Name) and attribute.expr.name in (
+                    "self",
+                    node.name,
+                ):
+                    # self.__attrname / node_name.__attrname
                     break
-            if not found:
+                if isinstance(attribute.expr, astroid.Call):
+                    # type(self).__attrname
+                    inferred = safe_infer(attribute.expr)
+                    if (
+                        isinstance(inferred, astroid.ClassDef)
+                        and inferred.name == node.name
+                    ):
+                        break
+            else:
+                function_repr = f"{function_def.name}({function_def.args.as_string()})"
                 self.add_message(
                     "unused-private-member",
                     node=function_def,
-                    args=(
-                        node.name,
-                        f"{function_def.name}({function_def.args.as_string()})",
-                    ),
+                    args=(node.name, function_repr),
                 )
 
-        # Check for unused private variables
+    def _check_unused_private_variables(self, node: astroid.ClassDef) -> None:
         for assign_name in node.nodes_of_class(astroid.AssignName):
-            found = False
             if isinstance(assign_name.parent, astroid.Arguments):
                 continue  # Ignore function arguments
             if not is_attr_private(assign_name.name):
                 continue
             for child in node.nodes_of_class((astroid.Name, astroid.Attribute)):
+                if isinstance(child, astroid.Name) and child.name == assign_name.name:
+                    break
                 if (
-                    isinstance(child, astroid.Name) and child.name == assign_name.name
-                ) or (
                     isinstance(child, astroid.Attribute)
                     and child.attrname == assign_name.name
-                    and child.expr.name in ("cls", node.name)
+                    and child.expr.name in ("self", "cls", node.name)
                 ):
-                    found = True
                     break
-            if not found:
-                self.add_message(
-                    "unused-private-member",
-                    node=assign_name,
-                    args=(node.name, assign_name.name),
-                )
+            else:
+                args = (node.name, assign_name.name)
+                self.add_message("unused-private-member", node=assign_name, args=args)
 
-        # Check for unused private attributes
+    def _check_unused_private_attributes(self, node: astroid.ClassDef) -> None:
         for assign_attr in node.nodes_of_class(astroid.AssignAttr):
-            found = False
             if not is_attr_private(assign_attr.attrname):
                 continue
             for attribute in node.nodes_of_class(astroid.Attribute):
@@ -959,14 +965,10 @@ a metaclass class method.",
                     attribute.attrname == assign_attr.attrname
                     and attribute.expr.name == assign_attr.expr.name
                 ):
-                    found = True
                     break
-            if not found:
-                self.add_message(
-                    "unused-private-member",
-                    node=assign_attr,
-                    args=(node.name, assign_attr.attrname),
-                )
+            else:
+                args = (node.name, assign_attr.attrname)
+                self.add_message("unused-private-member", node=assign_attr, args=args)
 
     def _check_attribute_defined_outside_init(self, cnode: astroid.ClassDef) -> None:
         # check access to existent members on non metaclass classes
