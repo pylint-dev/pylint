@@ -62,7 +62,6 @@ New checkers
 Other Changes
 =============
 
-
 * Fix false-positive ``consider-using-with`` (R1732) if ``contextlib.ExitStack`` takes care of calling the ``__exit__`` method
 
 * Add type annotations to pyreverse dot files
