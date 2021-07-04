@@ -67,9 +67,12 @@ class MinimalTestReporter(BaseReporter):
     _display = None
 
 
-class FunctionalTestReporter(BaseReporter):  # pylint: disable=abstract-method
+class FunctionalTestReporter(BaseReporter):
     def on_set_current_module(self, module, filepath):
         self.messages = []
 
     def display_reports(self, layout):
         """Ignore layouts and don't call self._display()."""
+
+    def _display(self, layout):
+        pass
