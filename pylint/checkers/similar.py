@@ -764,9 +764,11 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         BaseChecker.__init__(self, linter)
         Similar.__init__(
             self,
-            min_lines=DEFAULT_MIN_SIMILARITY_LINE,
-            ignore_comments=True,
-            ignore_docstrings=True,
+            min_lines=self.config.min_similarity_lines,
+            ignore_comments=self.config.ignore_comments,
+            ignore_docstrings=self.config.ignore_docstrings,
+            ignore_imports=self.config.ignore_imports,
+            ignore_signatures=self.config.ignore_signatures,
         )
         self.stats = None
 
