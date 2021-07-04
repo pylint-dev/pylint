@@ -442,7 +442,7 @@ class Similar:
             couples = sorted(couples)
             line_set = start_line = end_line = None
             for line_set, start_line, end_line in couples:
-                report += f"=={lineset.name}:[{start_line}:{end_line}]"
+                report += f"=={line_set.name}:[{start_line}:{end_line}]\n"
             if line_set:
                 for line in line_set._real_lines[start_line:end_line]:
                     report += f"   {line.rstrip()}\n" if line.rstrip() else "\n"
