@@ -103,7 +103,7 @@ def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
     return False
 
 
-def _is_inside_context_manager(node):
+def _is_inside_context_manager(node: astroid.Call) -> bool:
     frame = node.frame()
     if not isinstance(
         frame, (astroid.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod)
@@ -112,6 +112,23 @@ def _is_inside_context_manager(node):
     return frame.name == "__enter__" or utils.decorated_with(
         frame, "contextlib.contextmanager"
     )
+
+
+def _will_be_released_automatically(node: astroid.Call) -> bool:
+    """Checks if a call that could be used in a ``with`` statement is used in an alternative
+    construct which would ensure that its __exit__ method is called."""
+    callables_taking_care_of_exit = frozenset(
+        (
+            "contextlib._BaseExitStack.enter_context",
+            "contextlib.ExitStack.enter_context",  # necessary for Python 3.6 compatibility
+        )
+    )
+    if not isinstance(node.parent, astroid.Call):
+        return False
+    func = utils.safe_infer(node.parent.func)
+    if not func:
+        return False
+    return func.qname() in callables_taking_care_of_exit
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
@@ -1299,7 +1316,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 and not isinstance(node.parent, astroid.With)
             )
         )
-        if could_be_used_in_with and not _is_inside_context_manager(node):
+        if could_be_used_in_with and not (
+            _is_inside_context_manager(node) or _will_be_released_automatically(node)
+        ):
             self.add_message("consider-using-with", node=node)
 
     def _check_consider_using_join(self, aug_assign):
