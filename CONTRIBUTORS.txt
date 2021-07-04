@@ -505,3 +505,6 @@ contributors:
 * Lorena Buciu (lorena-b): contributor
 
 * Sergei Lebedev (superbobry): contributor
+
+* Maksym Humetskyi (mhumetskyi): contributor
+  - Fixed ignored empty functions by similarities checker with "ignore-signatures" option enabled
