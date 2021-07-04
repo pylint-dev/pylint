@@ -43,7 +43,6 @@ import copy
 import functools
 import itertools
 import operator
-import random
 import re
 import sys
 from collections import defaultdict
@@ -167,6 +166,7 @@ class SuccessiveLinesLimits:
 
     :note: Only the end line number can be updated.
     """
+
     __slots__ = ("_start", "_end")
 
     def __init__(self, start: LineNumber, end: LineNumber) -> None:
@@ -256,8 +256,7 @@ def hash_lineset(
 
         index = Index(index_i)
         index2lines[index] = SuccessiveLinesLimits(
-            start=LineNumber(start_linenumber),
-            end=LineNumber(end_linenumber)
+            start=LineNumber(start_linenumber), end=LineNumber(end_linenumber)
         )
 
         l_c = LinesChunk(lineset.name, index, *succ_lines)
@@ -342,15 +341,14 @@ def filter_noncode_lines(
     return sum(sline_1 == sline_2 for sline_1, sline_2 in zip(stripped_l1, stripped_l2))
 
 
-CommonalitiesT = NamedTuple("CommonalitiesT", (
-    ("cmn_lines_nb", int),  # Number of common lines chunk between two files
-    ("fst_lset", "LineSet"),  # LineSet representing the first file
-    ("fst_file_start", LineNumber),  # Starting line, in the first file, of common lines chunk
-    ("fst_file_end", LineNumber),  # Ending line, in the first file, of common lines chunk
-    ("snd_lset", "LineSet"),  # LineSet representing the second file
-    ("snd_file_start", LineNumber),  # Starting line, in the second file, of common lines chunk
-    ("snd_file_end", LineNumber))  # Ending line, in the second file, of common lines chunk
-)
+class CommonalitiesT(NamedTuple):
+    cmn_lines_nb: int
+    fst_lset: "LineSet"
+    fst_file_start: LineNumber
+    fst_file_end: LineNumber
+    snd_lset: "LineSet"
+    snd_file_start: LineNumber
+    snd_file_end: LineNumber
 
 
 class Similar:
@@ -399,7 +397,7 @@ class Similar:
 
     def _compute_sims(self) -> List[Tuple[int, Set[LinesChunkLimits]]]:
         """compute similarities in appended files"""
-        no_duplicates : Dict[int, List[Set[LinesChunkLimits]]] = defaultdict(list)
+        no_duplicates: Dict[int, List[Set[LinesChunkLimits]]] = defaultdict(list)
 
         for commonalities in self._iter_sims():
             num = commonalities.cmn_lines_nb
@@ -411,7 +409,7 @@ class Similar:
             end_line_2 = commonalities.snd_file_end
 
             duplicate = no_duplicates[num]
-            couples : Set[LinesChunkLimits]
+            couples: Set[LinesChunkLimits]
             for couples in duplicate:
                 if (lineset1, start_line_1, end_line_1) in couples or (
                     lineset2,
@@ -427,7 +425,7 @@ class Similar:
                     }
                 )
         sims: List[Tuple[int, Set[LinesChunkLimits]]] = []
-        ensembles : List[Set[LinesChunkLimits]]
+        ensembles: List[Set[LinesChunkLimits]]
         for num, ensembles in no_duplicates.items():
             cpls: Set[LinesChunkLimits]
             for cpls in ensembles:
@@ -523,13 +521,15 @@ class Similar:
                 )
                 > self.min_lines
             ):
-                yield CommonalitiesT(cmn_lines_nb=nb_common_lines,
-                                     fst_lset=lineset1,
-                                     fst_file_start=file_1_lines.start,
-                                     fst_file_end=file_1_lines.end,
-                                     snd_lset=lineset2,
-                                     snd_file_start=file_2_lines.start,
-                                     snd_file_end=file_2_lines.end)
+                yield CommonalitiesT(
+                    cmn_lines_nb=nb_common_lines,
+                    fst_lset=lineset1,
+                    fst_file_start=file_1_lines.start,
+                    fst_file_end=file_1_lines.end,
+                    snd_lset=lineset2,
+                    snd_file_start=file_2_lines.start,
+                    snd_file_end=file_2_lines.end,
+                )
 
     def _iter_sims(self) -> Generator[CommonalitiesT, None, None]:
         """iterate on similarities among all files, by making a cartesian
