@@ -101,9 +101,15 @@ class CplSuccessiveLinesLimits:
     and a counter on the number of common lines between both stripped lines collections extracted
     from both files
     """
+
     __slots__ = ("first_file", "second_file", "effective_cmn_lines_nb")
 
-    def __init__(self, first_file: "SuccessiveLinesLimits", second_file: "SuccessiveLinesLimits", effective_cmn_lines_nb: int) -> None:
+    def __init__(
+        self,
+        first_file: "SuccessiveLinesLimits",
+        second_file: "SuccessiveLinesLimits",
+        effective_cmn_lines_nb: int,
+    ) -> None:
         self.first_file = first_file
         self.second_file = second_file
         self.effective_cmn_lines_nb = effective_cmn_lines_nb
@@ -242,7 +248,9 @@ def hash_lineset(
     for index_i, *succ_lines in enumerate(zip(*shifted_lines)):
         start_linenumber = lineset.stripped_lines[index_i].line_number
         try:
-            end_linenumber = lineset.stripped_lines[index_i + min_common_lines].line_number
+            end_linenumber = lineset.stripped_lines[
+                index_i + min_common_lines
+            ].line_number
         except IndexError:
             end_linenumber = lineset.stripped_lines[-1].line_number + 1
 
@@ -620,7 +628,9 @@ def stripped_lines(
         if ignore_signatures and lineno in signature_lines:
             line = ""
         if line:
-            strippedlines.append(LineSpecifs(text=line, line_number=LineNumber(lineno - 1)))
+            strippedlines.append(
+                LineSpecifs(text=line, line_number=LineNumber(lineno - 1))
+            )
     return strippedlines
 
 
