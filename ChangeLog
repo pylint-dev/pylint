@@ -80,7 +80,7 @@ Release date: 2021-06-29
 * Improved the Similarity checker performance.
 
   Close #4120
-  
+
 * astroid has been upgraded to 2.6.1
 
 * astroid has been upgraded to 2.6.0
