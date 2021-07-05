@@ -223,9 +223,11 @@ def stripped_lines(
         signature_lines = set(
             chain(
                 *(
-                    range(func.fromlineno, func.body[0].lineno)
+                    range(
+                        func.fromlineno,
+                        func.body[0].lineno if func.body else func.tolineno + 1,
+                    )
                     for func in functions
-                    if func.body
                 )
             )
         )

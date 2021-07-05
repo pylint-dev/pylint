@@ -27,6 +27,10 @@ Release date: TBA
 
   Closes #4657
 
+* Fix ignored empty functions by similarities checker with "ignore-signatures" option enabled
+
+  Closes #4652
+
 
 What's New in Pylint 2.9.3?
 ===========================
