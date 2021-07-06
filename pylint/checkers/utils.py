@@ -1510,3 +1510,28 @@ def get_subscript_const_value(node: astroid.Subscript) -> astroid.Const:
         )
 
     return inferred
+
+
+def get_import_name(
+    importnode: Union[astroid.Import, astroid.ImportFrom], modname: str
+) -> str:
+    """Get a prepared module name from the given import node
+
+    In the case of relative imports, this will return the
+    absolute qualified module name, which might be useful
+    for debugging. Otherwise, the initial module name
+    is returned unchanged.
+
+    :param importnode: node representing import statement.
+    :param modname: module name from import statement.
+    :returns: absolute qualified module name of the module
+        used in import.
+    """
+    if isinstance(importnode, astroid.ImportFrom):
+        if importnode.level:
+            root = importnode.root()
+            if isinstance(root, astroid.Module):
+                modname = root.relative_to_absolute_name(
+                    modname, level=importnode.level
+                )
+    return modname
