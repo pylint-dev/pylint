@@ -1,12 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-import builtins
 
 import astroid
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
+from pylint.constants import BUILTINS
 
 
 class NotChecker(checkers.BaseChecker):
@@ -39,9 +39,7 @@ class NotChecker(checkers.BaseChecker):
     # not equivalent to "set(LEFT_VALS) > set(RIGHT_VALS)"
     skipped_nodes = (astroid.Set,)
     # 'builtins' py3, '__builtin__' py2
-    skipped_classnames = [
-        f"{builtins.__name__}.{qname}" for qname in ("set", "frozenset")
-    ]
+    skipped_classnames = [f"{BUILTINS}.{qname}" for qname in ("set", "frozenset")]
 
     @utils.check_messages("unneeded-not")
     def visit_unaryop(self, node):
