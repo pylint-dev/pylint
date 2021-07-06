@@ -34,7 +34,6 @@
 """Checker for string formatting operations.
 """
 
-import builtins
 import collections
 import numbers
 import re
@@ -45,6 +44,7 @@ import astroid
 
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
+from pylint.constants import BUILTINS
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 
 if TYPE_CHECKING:
@@ -216,9 +216,9 @@ OTHER_NODES = (
     astroid.GeneratorExp,
 )
 
-BUILTINS_STR = builtins.__name__ + ".str"
-BUILTINS_FLOAT = builtins.__name__ + ".float"
-BUILTINS_INT = builtins.__name__ + ".int"
+BUILTINS_STR = BUILTINS + ".str"
+BUILTINS_FLOAT = BUILTINS + ".float"
+BUILTINS_INT = BUILTINS + ".int"
 
 
 def get_access_path(key, parts):
