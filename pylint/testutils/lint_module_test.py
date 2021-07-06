@@ -157,7 +157,7 @@ class LintModuleTest:
         with self._open_source_file() as f:
             expected_msgs = self.get_expected_messages(f)
         if not expected_msgs:
-            return Counter(), []
+            expected_msgs = Counter()
         with self._open_expected_file() as f:
             expected_output_lines = [
                 OutputLine.from_csv(row) for row in csv.reader(f, "test")
