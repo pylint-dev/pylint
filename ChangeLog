@@ -17,6 +17,10 @@ Release date: TBA
 ..
   Put bug fixes that should not wait for a new minor version here
 
+* Fix false-positive ``consider-using-with`` (R1732) if a ternary conditional is used together with ``with``
+
+  Closes #4676
+
 * Fix false-positive ``deprecated-module`` when relative import uses deprecated module name.
 
   Closes #4629

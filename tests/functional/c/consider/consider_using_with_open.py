@@ -1,5 +1,5 @@
 # pylint: disable=missing-function-docstring, missing-module-docstring, invalid-name, import-outside-toplevel
-# pylint: disable=missing-class-docstring, too-few-public-methods, unused-variable
+# pylint: disable=missing-class-docstring, too-few-public-methods, unused-variable, multiple-statements
 """
 The functional test for the standard ``open()`` function has to be moved in a separate file,
 because PyPy has to be excluded for the tests as the ``open()`` function is uninferable in PyPy.
@@ -49,3 +49,18 @@ def test_open_outside_assignment():
 def test_open_inside_with_block():
     with open("foo") as fh:
         open("bar")  # [consider-using-with]
+
+
+def test_ternary_if_in_with_block(file1, file2, which):
+    """Regression test for issue #4676 (false positive)"""
+    with (open(file1) if which else open(file2)) as input_file:  # must not trigger
+        return input_file.read()
+
+
+def test_single_line_with(file1):
+    with open(file1): return file1.read()  # must not trigger
+
+
+def test_multiline_with_items(file1, file2, which):
+    with (open(file1) if which
+          else open(file2)) as input_file:  return input_file.read()
