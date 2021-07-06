@@ -62,7 +62,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """basic checker for Python code"""
-import builtins
 import collections
 import itertools
 import re
@@ -79,6 +78,7 @@ from pylint.checkers.utils import (
     is_property_deleter,
     is_property_setter,
 )
+from pylint.constants import BUILTINS
 from pylint.reporters.ureports import nodes as reporter_nodes
 
 
@@ -178,7 +178,6 @@ REVERSED_METHODS = (SEQUENCE_PROTOCOL_METHODS, (REVERSED_PROTOCOL_METHOD,))
 TYPECHECK_COMPARISON_OPERATORS = frozenset(("is", "is not", "==", "!="))
 LITERAL_NODE_TYPES = (astroid.Const, astroid.Dict, astroid.List, astroid.Set)
 UNITTEST_CASE = "unittest.case"
-BUILTINS = builtins.__name__
 TYPE_QNAME = "%s.type" % BUILTINS
 ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
 

@@ -54,7 +54,6 @@
 """try to find more bugs in the code using astroid inference capabilities
 """
 
-import builtins
 import fnmatch
 import heapq
 import itertools
@@ -92,11 +91,10 @@ from pylint.checkers.utils import (
     supports_membership_test,
     supports_setitem,
 )
-from pylint.constants import PY310_PLUS
+from pylint.constants import BUILTINS, PY310_PLUS
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
-BUILTINS = builtins.__name__
 STR_FORMAT = {"%s.str.format" % BUILTINS}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
 BUILTIN_TUPLE = "builtins.tuple"
