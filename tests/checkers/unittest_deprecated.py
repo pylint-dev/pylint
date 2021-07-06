@@ -452,7 +452,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         # Tests detecting deprecated class via import from
         node = astroid.extract_node(
             """
-        from .deprecated import DeprecatedClass
+        from deprecated import DeprecatedClass
         """
         )
         with self.assertAddsMessages(
