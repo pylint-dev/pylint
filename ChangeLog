@@ -21,6 +21,10 @@ Release date: TBA
 
   Closes #4676
 
+* Fix false-positive ``deprecated-module`` when relative import uses deprecated module name.
+
+  Closes #4629
+
 * Fix false-positive ``consider-using-with`` (R1732) if ``contextlib.ExitStack`` takes care of calling the ``__exit__`` method
 
   Closes #4654
