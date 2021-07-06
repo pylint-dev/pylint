@@ -1521,6 +1521,11 @@ def get_import_name(
     absolute qualified module name, which might be useful
     for debugging. Otherwise, the initial module name
     is returned unchanged.
+
+    :param importnode: node representing import statement.
+    :param modname: module name from import statement.
+    :returns: absolute qualified module name of the module
+        used in import.
     """
     if isinstance(importnode, astroid.ImportFrom):
         if importnode.level:
