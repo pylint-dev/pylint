@@ -78,7 +78,6 @@ def _is_raising(body: typing.List) -> bool:
 
 
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
-BUILTINS_NAME = builtins.__name__
 
 MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E0701": (
