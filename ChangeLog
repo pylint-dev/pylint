@@ -17,6 +17,10 @@ Release date: TBA
 ..
   Put bug fixes that should not wait for a new minor version here
 
+* Fix hard failure when parsing missing attribute in a class with duplicated bases
+
+  Closes #4687
+
 * Fix false-positive ``consider-using-with`` (R1732) if a ternary conditional is used together with ``with``
 
   Closes #4676
