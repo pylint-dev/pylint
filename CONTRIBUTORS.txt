@@ -508,3 +508,6 @@ contributors:
 
 * Maksym Humetskyi (mhumetskyi): contributor
   - Fixed ignored empty functions by similarities checker with "ignore-signatures" option enabled
+
+* Daniel Dorani (doranid): contributor
+
