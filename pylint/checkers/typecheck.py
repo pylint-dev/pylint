@@ -185,7 +185,7 @@ def _(node):
 
     try:
         mro = node.mro()[1:]
-    except (NotImplementedError, TypeError):
+    except (NotImplementedError, TypeError, astroid.MroError):
         mro = node.ancestors()
 
     other_values = [value for cls in mro for value in _node_names(cls)]
