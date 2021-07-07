@@ -108,14 +108,17 @@ class RecommendationChecker(checkers.BaseChecker):
                 # Check if loop present within the scope of the node
                 scope = node.scope()
                 for loop_node in scope.nodes_of_class((astroid.For, astroid.While)):
+                    loop_node = cast(astroid.node_classes.NodeNG, loop_node)
                     if not loop_node.parent_of(node):
                         continue
 
                     # Check if var is mutated within loop (Assign/AugAssign)
                     for assignment_node in loop_node.nodes_of_class(astroid.AugAssign):
+                        assignment_node = cast(astroid.AugAssign, assignment_node)
                         if node.parent.slice.name == assignment_node.target.name:
                             return
                     for assignment_node in loop_node.nodes_of_class(astroid.Assign):
+                        assignment_node = cast(astroid.Assign, assignment_node)
                         if node.parent.slice.name in [
                             n.name for n in assignment_node.targets
                         ]:
