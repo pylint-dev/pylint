@@ -1,17 +1,17 @@
-# pylint: disable=missing-docstring,too-few-public-methods,undefined-variable
+# pylint: disable=missing-docstring,too-few-public-methods
 
 import pkg.sub  # [import-error]
 
 
-class Failed(metaclass=pkg.sub.Metaclass):
+class Failed(metaclass=pkg.sub.Metaclass):  # [undefined-variable]
     pass
 
 
-class FailedTwo(metaclass=ab.ABCMeta):
+class FailedTwo(metaclass=ab.ABCMeta):  # [undefined-variable]
     pass
 
 
-class FailedThree(metaclass=pkg.sob.Metaclass):
+class FailedThree(metaclass=pkg.sob.Metaclass):  # [undefined-variable]
     pass
 
 
