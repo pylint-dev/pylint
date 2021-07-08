@@ -2139,8 +2139,10 @@ class VariablesChecker(BaseChecker):
                 isinstance(klass._metaclass, astroid.Attribute)
                 and klass._metaclass.expr
             ):
-                name = klass._metaclass.expr.name
-
+                if isinstance(klass._metaclass.expr, astroid.Name):
+                    name = klass._metaclass.expr.name
+                elif isinstance(klass._metaclass.expr, astroid.Attribute):
+                    name = klass._metaclass.expr.attrname
             if name is not None:
                 if not (
                     name in astroid.Module.scope_attrs
