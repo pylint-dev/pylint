@@ -3,7 +3,7 @@
 import pkg.sub  # [import-error]
 
 
-class Failed(metaclass=pkg.sub.Metaclass):  # [undefined-variable]
+class Failed(metaclass=pkg.sub.Metaclass):
     pass
 
 
@@ -11,7 +11,7 @@ class FailedTwo(metaclass=ab.ABCMeta):  # [undefined-variable]
     pass
 
 
-class FailedThree(metaclass=pkg.sob.Metaclass):  # [undefined-variable]
+class FailedThree(metaclass=pkg.sob.Metaclass):
     pass
 
 

@@ -2130,27 +2130,18 @@ class VariablesChecker(BaseChecker):
                 if found:
                     consumed.append((scope_locals, name))
                     break
-
         if found is None and not metaclass:
-            name = None
-            if isinstance(klass._metaclass, astroid.Name):
-                name = klass._metaclass.name
-            elif (
-                isinstance(klass._metaclass, astroid.Attribute)
-                and klass._metaclass.expr
+            current_expr = klass._metaclass
+            while isinstance(current_expr, astroid.Attribute):
+                current_expr = current_expr.expr
+            name = current_expr.name
+            if not (
+                name in astroid.Module.scope_attrs
+                or utils.is_builtin(name)
+                or name in self.config.additional_builtins
+                or name in parent_node.locals
             ):
-                if isinstance(klass._metaclass.expr, astroid.Name):
-                    name = klass._metaclass.expr.name
-                elif isinstance(klass._metaclass.expr, astroid.Attribute):
-                    name = klass._metaclass.expr.attrname
-            if name is not None:
-                if not (
-                    name in astroid.Module.scope_attrs
-                    or utils.is_builtin(name)
-                    or name in self.config.additional_builtins
-                    or name in parent_node.locals
-                ):
-                    self.add_message("undefined-variable", node=klass, args=(name,))
+                self.add_message("undefined-variable", node=klass, args=(name,))
 
         return consumed
 
