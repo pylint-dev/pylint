@@ -223,10 +223,10 @@ MSGS = {
     "R0402": (
         "Use 'from %s import %s' instead",
         "consider-using-from-import",
-        "Emitted when a submodule/member of a package is imported and "
+        "Emitted when a submodule of a package is imported and "
         "aliased with the same name. "
-        "E.g., instead of ``import pandas.DataFrame as DataFrame`` use "
-        "``from pandas import DataFrame``",
+        "E.g., instead of ``import concurrent.futures as futures`` use "
+        "``from concurrent import futures``",
     ),
     "W0401": (
         "Wildcard import %s",
