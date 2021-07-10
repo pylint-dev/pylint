@@ -212,8 +212,8 @@ def test_ignore_signatures_empty_functions_fail():
         == (
             '''
 6 similar lines in 2 files
-==%s:1
-==%s:1
+==%s:[1:7]
+==%s:[1:7]
        arg1: int = 1,
        arg2: str = "2",
        arg3: int = 3,
