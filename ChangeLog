@@ -9,6 +9,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.10.rst'
 
+* Improved the Similarity checker performance.
+
+  Close #4120
+
 
 What's New in Pylint 2.9.4?
 ===========================
@@ -107,13 +111,7 @@ Release date: 2021-06-29
 
   Closes #4618
 
-* Improved the Similarity checker performance.
-
-  Close #4120
-
 * astroid has been upgraded to 2.6.1
-
-* astroid has been upgraded to 2.6.0
 
 * Added various deprecated functions/methods for python 3.10, 3.7, 3.6 and 3.3
 

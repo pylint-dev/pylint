@@ -16,3 +16,5 @@ New checkers
 
 Other Changes
 =============
+
+* Performance of the Similarity checker has been improved.
