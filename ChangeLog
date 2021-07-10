@@ -49,6 +49,10 @@ Release date: TBA
 
 * Clarify documentation for consider-using-from-import
 
+* Don't emit ``unreachable`` warning for empty generator functions
+
+  Closes #4698
+
 
 What's New in Pylint 2.9.3?
 ===========================

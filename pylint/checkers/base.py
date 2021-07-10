@@ -1365,7 +1365,7 @@ class BasicChecker(_BasicChecker):
         block
         """
         self._check_unreachable(node)
-        # Is it inside final body of a try...finally bloc ?
+        # Is it inside final body of a try...finally block ?
         self._check_not_in_finally(node, "return", (astroid.FunctionDef,))
 
     @utils.check_messages("unreachable")
@@ -1384,7 +1384,7 @@ class BasicChecker(_BasicChecker):
         """
         # 1 - Is it right sibling ?
         self._check_unreachable(node)
-        # 2 - Is it inside final body of a try...finally bloc ?
+        # 2 - Is it inside final body of a try...finally block ?
         self._check_not_in_finally(node, "break", (astroid.For, astroid.While))
 
     @utils.check_messages("unreachable")
@@ -1480,12 +1480,22 @@ class BasicChecker(_BasicChecker):
         """check unreachable code"""
         unreach_stmt = node.next_sibling()
         if unreach_stmt is not None:
+            if (
+                isinstance(node, astroid.Return)
+                and isinstance(unreach_stmt, astroid.Expr)
+                and isinstance(unreach_stmt.value, astroid.Yield)
+            ):
+                # Don't add 'unreachable' for empty generators.
+                # Only add warning if 'yield' is followed by another node.
+                unreach_stmt = unreach_stmt.next_sibling()
+                if unreach_stmt is None:
+                    return
             self.add_message("unreachable", node=unreach_stmt)
 
     def _check_not_in_finally(self, node, node_name, breaker_classes=()):
         """check that a node is not inside a finally clause of a
         try...finally statement.
-        If we found before a try...finally bloc a parent which its type is
+        If we found before a try...finally block a parent which its type is
         in breaker_classes, we skip the whole check."""
         # if self._tryfinallys is empty, we're not an in try...finally block
         if not self._tryfinallys:
