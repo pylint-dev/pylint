@@ -66,6 +66,10 @@ Release date: TBA
 
   Closes #4668
 
+* Fix crash when inferring variables assigned in match patterns
+
+  Closes #4685
+
 
 What's New in Pylint 2.9.3?
 ===========================
