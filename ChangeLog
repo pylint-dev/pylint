@@ -26,6 +26,11 @@ Release date: TBA
 
   Closes #4732
 
+* Fix a crash when a AttributeInferenceError was not handled properly when
+  failing to infer the real name of an import in astroid.
+
+  Closes #4692
+
 
 What's New in Pylint 2.9.4?
 ===========================
