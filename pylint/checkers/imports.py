@@ -56,6 +56,7 @@ import astroid
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
     check_messages,
+    get_import_name,
     is_from_fallback_block,
     node_ignores_exception,
 )
@@ -76,24 +77,6 @@ def _qualified_names(modname):
     """
     names = modname.split(".")
     return [".".join(names[0 : i + 1]) for i in range(len(names))]
-
-
-def _get_import_name(importnode, modname):
-    """Get a prepared module name from the given import node
-
-    In the case of relative imports, this will return the
-    absolute qualified module name, which might be useful
-    for debugging. Otherwise, the initial module name
-    is returned unchanged.
-    """
-    if isinstance(importnode, astroid.ImportFrom):
-        if importnode.level:
-            root = importnode.root()
-            if isinstance(root, astroid.Module):
-                modname = root.relative_to_absolute_name(
-                    modname, level=importnode.level
-                )
-    return modname
 
 
 def _get_first_import(node, context, name, base, level, alias):
@@ -826,7 +809,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ):
                 return None
 
-            dotted_modname = _get_import_name(importnode, modname)
+            dotted_modname = get_import_name(importnode, modname)
             self.add_message("import-error", args=repr(dotted_modname), node=importnode)
         return None
 

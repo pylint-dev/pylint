@@ -8,7 +8,7 @@ from typing import Any, Container, Iterable, Tuple, Union
 import astroid
 
 from pylint.checkers import utils
-from pylint.checkers.utils import safe_infer
+from pylint.checkers.utils import get_import_name, safe_infer
 
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,
@@ -109,6 +109,7 @@ class DeprecatedMixin:
     def visit_importfrom(self, node):
         """triggered when a from statement is seen"""
         basename = node.modname
+        basename = get_import_name(node, basename)
         self.check_deprecated_module(node, basename)
         class_names = (name for name, _ in node.names)
         self.check_deprecated_class(node, basename, class_names)
@@ -175,7 +176,6 @@ class DeprecatedMixin:
 
     def check_deprecated_module(self, node, mod_path):
         """Checks if the module is deprecated"""
-
         for mod_name in self.deprecated_modules():
             if mod_path == mod_name or mod_path.startswith(mod_name + "."):
                 self.add_message("deprecated-module", node=node, args=mod_path)

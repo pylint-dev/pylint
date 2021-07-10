@@ -103,7 +103,7 @@ def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
     return False
 
 
-def _is_inside_context_manager(node):
+def _is_inside_context_manager(node: astroid.Call) -> bool:
     frame = node.frame()
     if not isinstance(
         frame, (astroid.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod)
@@ -112,6 +112,39 @@ def _is_inside_context_manager(node):
     return frame.name == "__enter__" or utils.decorated_with(
         frame, "contextlib.contextmanager"
     )
+
+
+def _is_part_of_with_items(node: astroid.Call) -> bool:
+    """
+    Checks if one of the node's parents is an ``astroid.With`` node and that the node itself is located
+    somewhere under its ``items``.
+    """
+    frame = node.frame()
+    current = node
+    while current != frame:
+        if isinstance(current, astroid.With):
+            items_start = current.items[0][0].lineno
+            items_end = current.items[-1][0].tolineno
+            return items_start <= node.lineno <= items_end
+        current = current.parent
+    return False
+
+
+def _will_be_released_automatically(node: astroid.Call) -> bool:
+    """Checks if a call that could be used in a ``with`` statement is used in an alternative
+    construct which would ensure that its __exit__ method is called."""
+    callables_taking_care_of_exit = frozenset(
+        (
+            "contextlib._BaseExitStack.enter_context",
+            "contextlib.ExitStack.enter_context",  # necessary for Python 3.6 compatibility
+        )
+    )
+    if not isinstance(node.parent, astroid.Call):
+        return False
+    func = utils.safe_infer(node.parent.func)
+    if not func:
+        return False
+    return func.qname() in callables_taking_care_of_exit
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
@@ -1296,10 +1329,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             or (
                 # things like ``open("foo")`` which are not already inside a ``with`` statement
                 inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS
-                and not isinstance(node.parent, astroid.With)
+                and not _is_part_of_with_items(node)
             )
         )
-        if could_be_used_in_with and not _is_inside_context_manager(node):
+        if could_be_used_in_with and not (
+            _is_inside_context_manager(node) or _will_be_released_automatically(node)
+        ):
             self.add_message("consider-using-with", node=node)
 
     def _check_consider_using_join(self, aug_assign):

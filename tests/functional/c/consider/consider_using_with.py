@@ -154,3 +154,11 @@ def test_popen():
     _ = subprocess.Popen("sh")  # [consider-using-with]
     with subprocess.Popen("sh"):
         pass
+
+
+def test_suppress_in_exit_stack():
+    """Regression test for issue #4654 (false positive)"""
+    with contextlib.ExitStack() as stack:
+        _ = stack.enter_context(
+            open("/sys/firmware/devicetree/base/hwid,location", "r")
+        )  # must not trigger

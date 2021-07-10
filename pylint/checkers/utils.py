@@ -72,7 +72,8 @@ from typing import (
 import _string
 import astroid
 
-BUILTINS_NAME = builtins.__name__
+from pylint.constants import BUILTINS
+
 COMP_NODE_TYPES = (
     astroid.ListComp,
     astroid.SetComp,
@@ -301,7 +302,7 @@ def get_all_elements(
 
 def is_super(node: astroid.node_classes.NodeNG) -> bool:
     """return True if the node is referencing the "super" builtin function"""
-    if getattr(node, "name", None) == "super" and node.root().name == BUILTINS_NAME:
+    if getattr(node, "name", None) == "super" and node.root().name == BUILTINS:
         return True
     return False
 
@@ -317,7 +318,7 @@ SPECIAL_BUILTINS = ("__builtins__",)  # '__path__', '__file__')
 
 def is_builtin_object(node: astroid.node_classes.NodeNG) -> bool:
     """Returns True if the given node is an object from the __builtin__ module."""
-    return node and node.root().name == BUILTINS_NAME
+    return node and node.root().name == BUILTINS
 
 
 def is_builtin(name: str) -> bool:
@@ -791,10 +792,7 @@ def _is_property_decorator(decorator: astroid.Name) -> bool:
             if inferred.qname() in ("builtins.property", "functools.cached_property"):
                 return True
             for ancestor in inferred.ancestors():
-                if (
-                    ancestor.name == "property"
-                    and ancestor.root().name == BUILTINS_NAME
-                ):
+                if ancestor.name == "property" and ancestor.root().name == BUILTINS:
                     return True
     return False
 
@@ -1512,3 +1510,28 @@ def get_subscript_const_value(node: astroid.Subscript) -> astroid.Const:
         )
 
     return inferred
+
+
+def get_import_name(
+    importnode: Union[astroid.Import, astroid.ImportFrom], modname: str
+) -> str:
+    """Get a prepared module name from the given import node
+
+    In the case of relative imports, this will return the
+    absolute qualified module name, which might be useful
+    for debugging. Otherwise, the initial module name
+    is returned unchanged.
+
+    :param importnode: node representing import statement.
+    :param modname: module name from import statement.
+    :returns: absolute qualified module name of the module
+        used in import.
+    """
+    if isinstance(importnode, astroid.ImportFrom):
+        if importnode.level:
+            root = importnode.root()
+            if isinstance(root, astroid.Module):
+                modname = root.relative_to_absolute_name(
+                    modname, level=importnode.level
+                )
+    return modname
