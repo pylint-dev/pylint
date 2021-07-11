@@ -24,14 +24,36 @@ try:
 except ImportError:
     pass
 
-# pylint: disable=no-name-in-module
-from functional.s.syntax_error import toto # [syntax-error]
 
-# Don't emit import-error if guarded behind `sys.version_info`
+from functional.s.syntax_error import toto  # [no-name-in-module,syntax-error]
+
+
+# Don't emit `import-error` or `no-name-in-module`
+# if guarded behind `sys.version_info` or `typing.TYPE_CHECKING`
 import sys
+import typing
+import typing as tp  # pylint: disable=reimported
+from typing import TYPE_CHECKING
+
 
 if sys.version_info >= (3, 9):
     import zoneinfo
+    from zoneinfo import zone_class
+else:
+    import zoneinfo_alt
 
 if sys.version_info[:2] >= (3, 9):
     import zoneinfo
+else:
+    import zoneinfo_alt
+
+
+if typing.TYPE_CHECKING:
+    import stub_import
+
+if tp.TYPE_CHECKING:
+    import stub_import
+
+if TYPE_CHECKING:
+    import stub_import
+    from stub_import import stub_class
