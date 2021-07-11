@@ -52,6 +52,10 @@ Release date: TBA
 
   Closes #4664
 
+* Don't emit ``cyclic-import`` message if import is guarded by ``typing.TYPE_CHECKING``.
+
+  Closes #3525
+
 * Clarify documentation for consider-using-from-import
 
 * Don't emit ``unreachable`` warning for empty generator functions
