@@ -1219,6 +1219,15 @@ def safe_infer(
             inferred_type = _get_python_type_of_node(inferred)
             if inferred_type not in inferred_types:
                 return None  # If there is ambiguity on the inferred node.
+            if isinstance(inferred, astroid.objects.PartialFunction):
+                # Before https://github.com/PyCQA/astroid/pull/1097,
+                # partials got placed into the same scope as parents
+                # even though they usually have different names and may be
+                # defined elsewhere.
+                # We do not select the later value in this case.
+                # This condition can be removed if astroid#1097 is
+                # guaranteed to be present.
+                continue
             # For multiple inferences of the same type, select the last one
             value = inferred
     except astroid.InferenceError:
