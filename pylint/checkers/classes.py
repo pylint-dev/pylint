@@ -960,6 +960,22 @@ a metaclass class method.",
         for assign_attr in node.nodes_of_class(astroid.AssignAttr):
             if not is_attr_private(assign_attr.attrname):
                 continue
+
+            # Logic for checking false positive when using __new__,
+            # Get the returned object names of the __new__ magic function
+            # Then check if the attribute was consumed in other instance methods
+            acceptable_obj_names = ["self"]
+            if (
+                isinstance(assign_attr.scope(), astroid.FunctionDef)
+                and assign_attr.scope().name == "__new__"
+            ):
+                acceptable_obj_names.extend(
+                    [
+                        n.value.name
+                        for n in assign_attr.scope().nodes_of_class(astroid.Return)
+                    ]
+                )
+
             for attribute in node.nodes_of_class(astroid.Attribute):
                 if attribute.attrname == assign_attr.attrname and (
                     (
@@ -968,7 +984,11 @@ a metaclass class method.",
                         and attribute.expr.name in ["cls", "self"]
                     )
                     # If assigned to self.attrib, can only be accessed by self
-                    or (assign_attr.expr.name == attribute.expr.name == "self")
+                    # Or if __new__ was used, the returned object names are acceptable
+                    or (
+                        assign_attr.expr.name in acceptable_obj_names
+                        and attribute.expr.name == "self"
+                    )
                 ):
                     break
             else:

@@ -135,3 +135,26 @@ class FalsePositive4657:
     def attr_c(self):
         """Get c."""
         return cls.__attr_c  # [undefined-variable]
+
+# Test cases for false-positive reported in #4668
+# https://github.com/PyCQA/pylint/issues/4668
+
+class FalsePositive4668:
+    # pylint: disable=protected-access, no-member
+
+    def __new__(cls, func, *args):
+        if args:
+            true_obj = super(FalsePositive4668, cls).__new__(cls)
+            true_obj.func = func
+            true_obj.__args = args  # Do not emit message here
+            return true_obj
+
+        false_obj = super(FalsePositive4668, cls).__new__(cls)
+        false_obj.func = func
+        false_obj.__args = args  # Do not emit message here
+        false_obj.__secret_bool = False
+        return false_obj
+
+    def exec(self):
+        print(self.__secret_bool)
+        return self.func(*self.__args)
