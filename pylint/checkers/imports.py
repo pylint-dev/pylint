@@ -829,9 +829,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             pass
 
         in_type_checking_block = (
-            isinstance(node.parent, astroid.If)
-            and isinstance(node.parent.test, (astroid.Name, astroid.Attribute))
-            and node.parent.test.as_string().endswith("TYPE_CHECKING")
+            isinstance(node.parent, astroid.If) and node.parent.is_typing_guard()
         )
 
         if context_name == importedmodname:
