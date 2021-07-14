@@ -71,6 +71,7 @@ from typing import (
 
 import _string
 import astroid
+import astroid.objects
 
 from pylint.constants import BUILTINS
 
@@ -794,6 +795,22 @@ def _is_property_decorator(decorator: astroid.Name) -> bool:
             for ancestor in inferred.ancestors():
                 if ancestor.name == "property" and ancestor.root().name == BUILTINS:
                     return True
+        elif isinstance(inferred, astroid.FunctionDef):
+            # If decorator is function, check if it has exactly one return
+            # and the return is itself a function decorated with property
+            returns: List[astroid.Return] = list(
+                inferred._get_return_nodes_skip_functions()
+            )
+            if len(returns) == 1 and isinstance(
+                returns[0].value, (astroid.Name, astroid.Attribute)
+            ):
+                inferred = safe_infer(returns[0].value)
+                if (
+                    inferred
+                    and isinstance(inferred, astroid.objects.Property)
+                    and isinstance(inferred.function, astroid.FunctionDef)
+                ):
+                    return decorated_with_property(inferred.function)
     return False
 
 

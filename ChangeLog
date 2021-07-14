@@ -53,6 +53,10 @@ Release date: TBA
 
   Closes #4698
 
+* Fix ``invalid-overridden-method`` with nested property
+
+  Closes #4368
+
 
 What's New in Pylint 2.9.3?
 ===========================
