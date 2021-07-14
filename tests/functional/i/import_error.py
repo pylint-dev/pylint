@@ -37,15 +37,15 @@ from typing import TYPE_CHECKING
 
 
 if sys.version_info >= (3, 9):
-    import zoneinfo
-    from zoneinfo import zone_class
+    import some_module
+    from some_module import some_class
 else:
-    import zoneinfo_alt
+    import some_module_alt
 
 if sys.version_info[:2] >= (3, 9):
-    import zoneinfo
+    import some_module
 else:
-    import zoneinfo_alt
+    import some_module_alt
 
 
 if typing.TYPE_CHECKING:
