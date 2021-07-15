@@ -17,6 +17,8 @@ Release date: TBA
 ..
   Put bug fixes that should not wait for a new minor version here
 
+* Fix bug in which --fail-on can return a zero exit code even when the specified issue is present
+
 * Fix hard failure when handling missing attribute in a class with duplicated bases
 
   Closes #4687
