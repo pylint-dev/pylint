@@ -512,3 +512,5 @@ contributors:
 * Daniel Dorani (doranid): contributor
 
 * Will Shanks: contributor
+
+* Mark Bell: contributor
