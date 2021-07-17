@@ -398,7 +398,7 @@ group are mutually exclusive.",
                 # We need to make sure we return a failing exit code in this case.
                 # So we use self.linter.msg_status if that is non-zero, otherwise we just return 1.
                 sys.exit(self.linter.msg_status or 1)
-            elif score_value and score_value >= linter.config.fail_under:
+            elif score_value >= linter.config.fail_under:
                 sys.exit(0)
             else:
                 sys.exit(self.linter.msg_status)
