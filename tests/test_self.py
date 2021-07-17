@@ -1136,34 +1136,40 @@ class TestRunTC:
         output_file = "thisdirectorydoesnotexit/output.txt"
         self._runtest([path, f"--output={output_file}"], code=32)
 
-    @pytest.mark.parametrize("args, expected", [
-        ([], 0),
-        (["--enable=C"], 0),
-        (["--fail-on=superfluous-parens"], 0),
-        (["--fail-on=import-error"], 6),
-        (["--fail-on=unused-import"], 6),
-        (["--fail-on=unused-import", "--enable=C"], 22),
-        (["--fail-on=missing-function-docstring"], 22),
-        (["--fail-on=useless-suppression"], 6),
-        (["--fail-on=useless-suppression", "--enable=C"], 22),
-        ])
+    @pytest.mark.parametrize(
+        "args, expected",
+        [
+            ([], 0),
+            (["--enable=C"], 0),
+            (["--fail-on=superfluous-parens"], 0),
+            (["--fail-on=import-error"], 6),
+            (["--fail-on=unused-import"], 6),
+            (["--fail-on=unused-import", "--enable=C"], 22),
+            (["--fail-on=missing-function-docstring"], 22),
+            (["--fail-on=useless-suppression"], 6),
+            (["--fail-on=useless-suppression", "--enable=C"], 22),
+        ],
+    )
     def test_fail_on_exit_code(self, args, expected):
         path = join(HERE, "regrtest_data", "fail_on.py")
         # We set fail-under to be something very low so that even with the warnings
         # and errors that are generated they don't affect the exit code.
         self._runtest([path, "--fail-under=-10"] + args, code=expected)
 
-    @pytest.mark.parametrize("args, expected", [
-        ([], 0),
-        (["--enable=C"], 0),
-        (["--fail-on=superfluous-parens"], 0),
-        (["--fail-on=import-error"], 0),
-        (["--fail-on=unused-import"], 0),
-        (["--fail-on=unused-import", "--enable=C"], 0),
-        (["--fail-on=missing-function-docstring"], 0),
-        (["--fail-on=useless-suppression"], 1),
-        (["--fail-on=useless-suppression", "--enable=C"], 1),
-        ])
+    @pytest.mark.parametrize(
+        "args, expected",
+        [
+            ([], 0),
+            (["--enable=C"], 0),
+            (["--fail-on=superfluous-parens"], 0),
+            (["--fail-on=import-error"], 0),
+            (["--fail-on=unused-import"], 0),
+            (["--fail-on=unused-import", "--enable=C"], 0),
+            (["--fail-on=missing-function-docstring"], 0),
+            (["--fail-on=useless-suppression"], 1),
+            (["--fail-on=useless-suppression", "--enable=C"], 1),
+        ],
+    )
     def test_fail_on_info_only_exit_code(self, args, expected):
         path = join(HERE, "regrtest_data", "fail_on_info_only.py")
         self._runtest([path] + args, code=expected)
