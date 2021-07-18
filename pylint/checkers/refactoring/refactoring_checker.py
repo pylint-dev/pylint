@@ -9,6 +9,7 @@ from functools import reduce
 from typing import Dict, List, NamedTuple, Optional, Tuple, Union, cast
 
 import astroid
+from astroid.util import Uninferable
 
 from pylint import checkers, interfaces
 from pylint import utils as lint_utils
@@ -1344,8 +1345,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "simplify-boolean-expression",
         "consider-using-ternary",
         "consider-swap-variables",
+        "consider-using-with",
     )
     def visit_assign(self, node):
+        self._append_context_managers_to_stack(node)
+        self.visit_return(node)  # remaining checks are identical as for return nodes
+
+    @utils.check_messages(
+        "simplify-boolean-expression",
+        "consider-using-ternary",
+        "consider-swap-variables",
+    )
+    def visit_return(self, node: astroid.Return):
         self._check_swap_variables(node)
         if self._is_and_or_ternary(node.value):
             cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
@@ -1375,36 +1386,60 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
         self.add_message(message, node=node, args=(suggestion,))
 
-    visit_return = visit_assign
+    def _append_context_managers_to_stack(self, node: astroid.Assign):
+        if _is_inside_context_manager(node):
+            # if we are inside a context manager itself, we assume that it will handle the resource management itself.
+            return
+        if isinstance(node.targets[0], (astroid.Tuple, astroid.List, astroid.Set)):
+            assignees = node.targets[0].elts
+            value = utils.safe_infer(node.value)
+            if value is None or not hasattr(value, "elts"):
+                # We cannot deduce what values are assigned, so we have to skip this
+                return
+            values = value.elts
+        else:
+            assignees = [node.targets[0]]
+            values = [node.value]
+        if assignees is Uninferable or values is Uninferable:
+            return
+        for assignee, value in zip(assignees, values):
+            if isinstance(value, astroid.Call):
+                inferred = utils.safe_infer(value.func)
+                if (
+                    not inferred
+                    or inferred.qname() not in CALLS_RETURNING_CONTEXT_MANAGERS
+                ):
+                    continue
+                stack = self._consider_using_with_stack.get_stack_for_frame(
+                    node.frame()
+                )
+                varname = (
+                    assignee.name
+                    if isinstance(assignee, astroid.AssignName)
+                    else assignee.attrname
+                )
+                if varname in stack:
+                    # variable was redefined before it was used in a ``with`` block
+                    self.add_message(
+                        "consider-using-with",
+                        node=stack[varname],
+                    )
+                stack[varname] = value
 
     def _check_consider_using_with(self, node: astroid.Call):
         if _is_inside_context_manager(node):
             # if we are inside a context manager itself, we assume that it will handle the resource management itself.
             return
+        if (
+            node
+            in self._consider_using_with_stack.get_stack_for_frame(
+                node.frame()
+            ).values()
+        ):
+            # the result of this call was already assigned to a variable and will be checked when leaving the scope.
+            return
         inferred = utils.safe_infer(node.func)
         if not inferred:
-            return
-        if inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS and isinstance(
-            node.parent, astroid.Assign
-        ):
-            # If the returned context manager is assigned to a variable, it is OK if it gets used later on.
-            # We store it in a stack, which will be checked when ``with`` statements are processed.
-            # When leaving the current frame, all remaining items in the stack will trigger the message.
-            target = node.parent.targets[0]
-            target_name = (
-                target.name
-                if isinstance(target, astroid.AssignName)
-                else target.attrname
-            )
-            frame = node.frame()
-            stack = self._consider_using_with_stack.get_stack_for_frame(frame)
-            if target_name in stack:
-                # variable was redefined before it was used in a ``with`` block
-                self.add_message(
-                    "consider-using-with",
-                    node=self._consider_using_with_stack.function_scope[target_name],
-                )
-            stack[target_name] = node
             return
         could_be_used_in_with = (
             # things like ``lock.acquire()``
