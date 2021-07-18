@@ -964,15 +964,14 @@ a metaclass class method.",
             # Logic for checking false positive when using __new__,
             # Get the returned object names of the __new__ magic function
             # Then check if the attribute was consumed in other instance methods
-            acceptable_obj_names = ["self"]
-            if (
-                isinstance(assign_attr.scope(), astroid.FunctionDef)
-                and assign_attr.scope().name == "__new__"
-            ):
+            acceptable_obj_names: List[str] = ["self"]
+            scope = assign_attr.scope()
+            if isinstance(scope, astroid.FunctionDef) and scope.name == "__new__":
                 acceptable_obj_names.extend(
                     [
-                        n.value.name
-                        for n in assign_attr.scope().nodes_of_class(astroid.Return)
+                        return_node.value.name
+                        for return_node in scope.nodes_of_class(astroid.Return)
+                        if isinstance(return_node.value, astroid.Name)
                     ]
                 )
 
