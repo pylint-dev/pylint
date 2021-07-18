@@ -112,6 +112,7 @@ class MyLockContext:
     """
     The message must not be triggered if the resource allocation is done inside a context manager.
     """
+
     def __init__(self):
         self.lock = threading.Lock()
 
@@ -162,3 +163,53 @@ def test_suppress_in_exit_stack():
         _ = stack.enter_context(
             open("/sys/firmware/devicetree/base/hwid,location", "r")
         )  # must not trigger
+
+
+# regression tests for #4689 - if a context manager is assigned to a variable, the message
+# must not trigger if this variable is used in a ``with`` block later on. This can also happen in
+# a nested scope.
+executor = futures.ThreadPoolExecutor()  # must not trigger, as it is used later on
+with executor:
+    pass
+
+
+global_executor = (
+    futures.ProcessPoolExecutor()
+)  # must not trigger, will be used in nested scope
+
+
+def my_nested_function():
+    with global_executor:
+        pass
+
+
+# this must also work for tuple unpacking
+thread_executor, process_executor = (
+    futures.ThreadPoolExecutor(),  # must not trigger
+    futures.ProcessPoolExecutor(),  # must not trigger
+)
+
+with thread_executor:
+    pass
+
+with process_executor:
+    pass
+
+unused_executor1, unused_executor2 = (
+    futures.ThreadPoolExecutor(),  # [consider-using-with]
+    futures.ProcessPoolExecutor(),  # [consider-using-with]
+)
+
+used_executor, unused_executor = (
+    futures.ThreadPoolExecutor(),  # must not trigger
+    futures.ProcessPoolExecutor(),  # [consider-using-with]
+)
+with used_executor:
+    pass
+
+unused_executor, used_executor = (
+    futures.ThreadPoolExecutor(),  # [consider-using-with]
+    futures.ProcessPoolExecutor(),  # must not trigger
+)
+with used_executor:
+    pass

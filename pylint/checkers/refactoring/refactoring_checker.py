@@ -6,7 +6,7 @@ import copy
 import itertools
 import tokenize
 from functools import reduce
-from typing import List, Optional, Tuple, Union, cast
+from typing import Dict, List, NamedTuple, Optional, Tuple, Union, cast
 
 import astroid
 
@@ -145,6 +145,24 @@ def _will_be_released_automatically(node: astroid.Call) -> bool:
     if not func:
         return False
     return func.qname() in callables_taking_care_of_exit
+
+
+class ConsiderUsingWithStack(NamedTuple):
+    """Stack for objects that may potentially trigger a R1732 message
+    if they are not used in a ``with`` block later on."""
+
+    module_scope: Dict[str, astroid.NodeNG] = {}
+    class_scope: Dict[str, astroid.NodeNG] = {}
+    function_scope: Dict[str, astroid.NodeNG] = {}
+
+    def get_stack_for_frame(
+        self, frame: Union[astroid.FunctionDef, astroid.ClassDef, astroid.Module]
+    ):
+        if isinstance(frame, astroid.FunctionDef):
+            return self.function_scope
+        if isinstance(frame, astroid.ClassDef):
+            return self.class_scope
+        return self.module_scope
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
@@ -416,6 +434,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def __init__(self, linter=None):
         checkers.BaseTokenChecker.__init__(self, linter)
         self._return_nodes = {}
+        self._consider_using_with_stack = ConsiderUsingWithStack()
         self._init()
         self._never_returning_functions = None
 
@@ -425,6 +444,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._nested_blocks_msg = None
         self._reported_swap_nodes = set()
         self._can_simplify_bool_op = False
+        self._consider_using_with_stack.module_scope.clear()
+        self._consider_using_with_stack.class_scope.clear()
+        self._consider_using_with_stack.function_scope.clear()
 
     def open(self):
         # do this in open since config not fully initialized in __init__
@@ -543,7 +565,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if self.linter.is_message_enabled("trailing-comma-tuple"):
                     self.add_message("trailing-comma-tuple", line=token.start[0])
 
+    @utils.check_messages("consider-using-with")
     def leave_module(self, _):
+        # check for context managers that have been created but not used
+        self._emit_consider_using_with_if_needed(
+            self._consider_using_with_stack.module_scope
+        )
         self._init()
 
     @utils.check_messages("too-many-nested-blocks")
@@ -593,7 +620,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @utils.check_messages("redefined-argument-from-local")
     def visit_with(self, node):
-        for _, names in node.items:
+        for var, names in node.items:
+            if isinstance(var, astroid.Name):
+                for stack in (
+                    self._consider_using_with_stack.function_scope,
+                    self._consider_using_with_stack.class_scope,
+                    self._consider_using_with_stack.module_scope,
+                ):
+                    # We don't need to restrict the stacks we search to the current scope and outer scopes,
+                    # as e.g. the function_scope stack will be empty when we check a ``with`` on the class level.
+                    if var.name in stack:
+                        del stack[var.name]
+                        break
             if not names:
                 continue
             for name in names.nodes_of_class(astroid.AssignName):
@@ -818,9 +856,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message("simplifiable-if-expression", node=node, args=(reduced_to,))
 
     @utils.check_messages(
-        "too-many-nested-blocks", "inconsistent-return-statements", "useless-return"
+        "too-many-nested-blocks",
+        "inconsistent-return-statements",
+        "useless-return",
+        "consider-using-with",
     )
-    def leave_functiondef(self, node):
+    def leave_functiondef(self, node: astroid.FunctionDef) -> None:
         # check left-over nested blocks stack
         self._emit_nested_blocks_message_if_needed(self._nested_blocks)
         # new scope = reinitialize the stack of nested blocks
@@ -830,6 +871,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # check for single return or return None at the end
         self._check_return_at_the_end(node)
         self._return_nodes[node.name] = []
+        # check for context managers that have been created but not used
+        self._emit_consider_using_with_if_needed(
+            self._consider_using_with_stack.function_scope
+        )
+        self._consider_using_with_stack.function_scope.clear()
+
+    @utils.check_messages("consider-using-with")
+    def leave_classdef(self, _: astroid.ClassDef) -> None:
+        # check for context managers that have been created but not used
+        self._emit_consider_using_with_if_needed(
+            self._consider_using_with_stack.class_scope
+        )
+        self._consider_using_with_stack.class_scope.clear()
 
     @utils.check_messages("stop-iteration-return")
     def visit_raise(self, node):
@@ -1020,6 +1074,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 node=nested_blocks[0],
                 args=(len(nested_blocks), self.config.max_nested_blocks),
             )
+
+    def _emit_consider_using_with_if_needed(self, stack: Dict[str, astroid.NodeNG]):
+        for node in stack.values():
+            self.add_message("consider-using-with", node=node)
 
     @staticmethod
     def _duplicated_isinstance_types(node):
@@ -1320,8 +1378,33 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     visit_return = visit_assign
 
     def _check_consider_using_with(self, node: astroid.Call):
+        if _is_inside_context_manager(node):
+            # if we are inside a context manager itself, we assume that it will handle the resource management itself.
+            return
         inferred = utils.safe_infer(node.func)
         if not inferred:
+            return
+        if inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS and isinstance(
+            node.parent, astroid.Assign
+        ):
+            # If the returned context manager is assigned to a variable, it is OK if it gets used later on.
+            # We store it in a stack, which will be checked when ``with`` statements are processed.
+            # When leaving the current frame, all remaining items in the stack will trigger the message.
+            target = node.parent.targets[0]
+            target_name = (
+                target.name
+                if isinstance(target, astroid.AssignName)
+                else target.attrname
+            )
+            frame = node.frame()
+            stack = self._consider_using_with_stack.get_stack_for_frame(frame)
+            if target_name in stack:
+                # variable was redefined before it was used in a ``with`` block
+                self.add_message(
+                    "consider-using-with",
+                    node=self._consider_using_with_stack.function_scope[target_name],
+                )
+            stack[target_name] = node
             return
         could_be_used_in_with = (
             # things like ``lock.acquire()``
@@ -1332,9 +1415,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 and not _is_part_of_with_items(node)
             )
         )
-        if could_be_used_in_with and not (
-            _is_inside_context_manager(node) or _will_be_released_automatically(node)
-        ):
+        if could_be_used_in_with and not _will_be_released_automatically(node):
             self.add_message("consider-using-with", node=node)
 
     def _check_consider_using_join(self, aug_assign):
