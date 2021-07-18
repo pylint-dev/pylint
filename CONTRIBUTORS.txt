@@ -514,3 +514,6 @@ contributors:
 * Will Shanks: contributor
 
 * Mark Bell: contributor
+
+* Marco Gorelli: contributor
+  - Documented Jupyter integration
