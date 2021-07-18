@@ -14,9 +14,9 @@ consider-using-with:72:4:test_lock_acquisition:Consider using 'with' for resourc
 consider-using-with:79:4:test_lock_acquisition:Consider using 'with' for resource-allocating operations
 consider-using-with:86:4:test_lock_acquisition:Consider using 'with' for resource-allocating operations
 consider-using-with:93:4:test_lock_acquisition:Consider using 'with' for resource-allocating operations
-consider-using-with:128:8:test_multiprocessing:Consider using 'with' for resource-allocating operations
-consider-using-with:133:4:test_multiprocessing:Consider using 'with' for resource-allocating operations
-consider-using-with:138:4:test_multiprocessing:Consider using 'with' for resource-allocating operations
-consider-using-with:144:8:test_futures:Consider using 'with' for resource-allocating operations
-consider-using-with:148:8:test_futures:Consider using 'with' for resource-allocating operations
-consider-using-with:154:8:test_popen:Consider using 'with' for resource-allocating operations
+consider-using-with:129:8:test_multiprocessing:Consider using 'with' for resource-allocating operations
+consider-using-with:134:4:test_multiprocessing:Consider using 'with' for resource-allocating operations
+consider-using-with:139:4:test_multiprocessing:Consider using 'with' for resource-allocating operations
+consider-using-with:145:8:test_futures:Consider using 'with' for resource-allocating operations
+consider-using-with:149:8:test_futures:Consider using 'with' for resource-allocating operations
+consider-using-with:155:8:test_popen:Consider using 'with' for resource-allocating operations
