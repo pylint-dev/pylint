@@ -9,6 +9,8 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.10.rst'
 
+* Added `time.clock` to deprecated functions/methods for python 3.3
+
 
 What's New in Pylint 2.9.4?
 ===========================

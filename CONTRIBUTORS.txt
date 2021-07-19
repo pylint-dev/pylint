@@ -517,3 +517,5 @@ contributors:
 
 * Marco Gorelli: contributor
   - Documented Jupyter integration
+
+* Yilei Yang: contributor
