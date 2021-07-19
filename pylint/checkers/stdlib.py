@@ -184,6 +184,7 @@ DEPRECATED_METHODS = {
             "nntplib._NNTPBase.xpath",
             "platform.popen",
             "sqlite3.OptimizedUnicode",
+            "time.clock",
         },
         (3, 4, 0): {
             "importlib.find_loader",
