@@ -2,6 +2,12 @@ import os
 from pathlib import Path
 from typing import Optional, Set
 
+<<<<<<< HEAD
+=======
+import pytest
+
+import pylint.lint
+>>>>>>> Adding check for dict
 from pylint.lint.run import Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
 
@@ -40,3 +46,54 @@ reports = "yes"
     )
     mock_exit.assert_called_once_with(0)
     check_configuration_file_reader(runner)
+
+
+def test_toml_with_empty_list_for_plugins(tmp_path):
+    # This would check that there is no crash for when empty lists
+    # passed as plugins , refer #4580
+    config_file = tmp_path / "pyproject.toml"
+    config_file.write_text(
+        """
+[tool.pylint]
+disable = "logging-not-lazy,logging-format-interpolation"
+load-plugins = []
+"""
+    )
+    with pytest.raises(AttributeError):
+        check_configuration_file_reader(config_file)
+
+
+def test_toml_with_invalid_data_for_imports(tmp_path):
+    # This would test config with invalid data for imports section
+    # refer #4580
+    config_file = tmp_path / "pyproject.toml"
+    config_file.write_text(
+        """
+[tool.pylint."imports"]
+disable = [
+    "logging-not-lazy",
+    "logging-format-interpolation",
+]
+preferred-modules = { "a"="b" }
+"""
+    )
+    with pytest.raises(AttributeError):
+        check_configuration_file_reader(config_file)
+
+
+def test_toml_with_invalid_data_for_basic(tmp_path):
+    # This would test config with invalid data for basic section
+    # refer #4580
+    config_file = tmp_path / "pyproject.toml"
+    config_file.write_text(
+        """
+[tool.pylint."basic"]
+disable = [
+    "logging-not-lazy",
+    "logging-format-interpolation",
+]
+name-group = { "a"="b" }
+"""
+    )
+    with pytest.raises(AttributeError):
+        check_configuration_file_reader(config_file)
