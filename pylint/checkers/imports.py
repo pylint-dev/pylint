@@ -49,7 +49,7 @@ import copy
 import os
 import sys
 from distutils import sysconfig
-from typing import Dict, List, Union
+from typing import Dict, List, Set, Union
 
 import astroid
 
@@ -58,6 +58,7 @@ from pylint.checkers.utils import (
     check_messages,
     get_import_name,
     is_from_fallback_block,
+    is_node_in_guarded_import_block,
     node_ignores_exception,
 )
 from pylint.exceptions import EmptyReportError
@@ -119,18 +120,10 @@ def _ignore_import_failure(node, modname, ignored_modules):
         if submodule in ignored_modules:
             return True
 
-    # ignore import failure if guarded by `sys.version_info` test
-    if isinstance(node.parent, astroid.If) and isinstance(
-        node.parent.test, astroid.Compare
-    ):
-        value = node.parent.test.left
-        if isinstance(value, astroid.Subscript):
-            value = value.value
-        if (
-            isinstance(value, astroid.Attribute)
-            and value.as_string() == "sys.version_info"
-        ):
-            return True
+    if is_node_in_guarded_import_block(node):
+        # Ignore import failure if part of guarded import block
+        # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
+        return True
 
     return node_ignores_exception(node, ImportError)
 
@@ -556,25 +549,30 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._add_imported_module(node, imported_module.name)
 
     @check_messages(*MSGS)
-    def leave_module(self, node):
+    def leave_module(self, node: astroid.Module) -> None:
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
 
         # Check that imports are grouped by package within a given category
-        met_import = set()  # set for 'import x' style
-        met_from = set()  # set for 'from x import y' style
+        met_import: Set[str] = set()  # set for 'import x' style
+        met_from: Set[str] = set()  # set for 'from x import y' style
         current_package = None
         for import_node, import_name in std_imports + ext_imports + loc_imports:
             if not self.linter.is_message_enabled(
                 "ungrouped-imports", import_node.fromlineno
             ):
                 continue
-            if isinstance(import_node, astroid.node_classes.ImportFrom):
+            if isinstance(import_node, astroid.ImportFrom):
                 met = met_from
             else:
                 met = met_import
             package, _, _ = import_name.partition(".")
-            if current_package and current_package != package and package in met:
+            if (
+                current_package
+                and current_package != package
+                and package in met
+                and is_node_in_guarded_import_block(import_node) is False
+            ):
                 self.add_message("ungrouped-imports", node=import_node, args=package)
             current_package = package
             met.add(package)
@@ -813,7 +811,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             self.add_message("import-error", args=repr(dotted_modname), node=importnode)
         return None
 
-    def _add_imported_module(self, node, importedmodname):
+    def _add_imported_module(
+        self, node: Union[astroid.Import, astroid.ImportFrom], importedmodname: str
+    ) -> None:
         """notify an imported module, used to analyze dependencies"""
         module_file = node.root().file
         context_name = node.root().name
@@ -825,6 +825,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             )
         except ImportError:
             pass
+
+        in_type_checking_block = (
+            isinstance(node.parent, astroid.If) and node.parent.is_typing_guard()
+        )
 
         if context_name == importedmodname:
             self.add_message("import-self", node=node)
@@ -845,7 +849,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
             # update import graph
             self.import_graph[context_name].add(importedmodname)
-            if not self.linter.is_message_enabled("cyclic-import", line=node.lineno):
+            if (
+                not self.linter.is_message_enabled("cyclic-import", line=node.lineno)
+                or in_type_checking_block
+            ):
                 self._excluded_edges[context_name].add(importedmodname)
 
     def _check_preferred_module(self, node, mod_path):

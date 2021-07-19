@@ -1173,11 +1173,15 @@ class VariablesChecker(BaseChecker):
                     self.add_message("undefined-variable", args=name, node=node)
 
     @utils.check_messages("no-name-in-module")
-    def visit_import(self, node):
+    def visit_import(self, node: astroid.Import) -> None:
         """check modules attribute accesses"""
         if not self._analyse_fallback_blocks and utils.is_from_fallback_block(node):
             # No need to verify this, since ImportError is already
             # handled by the client code.
+            return
+        if utils.is_node_in_guarded_import_block(node) is True:
+            # Don't verify import if part of guarded import block
+            # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
             return
 
         for name, _ in node.names:
@@ -1191,11 +1195,15 @@ class VariablesChecker(BaseChecker):
             self._check_module_attrs(node, module, parts[1:])
 
     @utils.check_messages("no-name-in-module")
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node: astroid.ImportFrom) -> None:
         """check modules attribute accesses"""
         if not self._analyse_fallback_blocks and utils.is_from_fallback_block(node):
             # No need to verify this, since ImportError is already
             # handled by the client code.
+            return
+        if utils.is_node_in_guarded_import_block(node) is True:
+            # Don't verify import if part of guarded import block
+            # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
             return
 
         name_parts = node.modname.split(".")

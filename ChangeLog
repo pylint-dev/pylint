@@ -52,11 +52,25 @@ Release date: TBA
 
   Closes #4664
 
+* Don't emit ``cyclic-import`` message if import is guarded by ``typing.TYPE_CHECKING``.
+
+  Closes #3525
+
+* Fix false-positive ``not-callable`` with alternative ``TypedDict`` syntax
+
+  Closes #4715
+
 * Clarify documentation for consider-using-from-import
 
 * Don't emit ``unreachable`` warning for empty generator functions
 
   Closes #4698
+
+* Don't emit ``import-error``, ``no-name-in-module``, and ``ungrouped-imports``
+  for imports guarded by ``sys.version_info`` or ``typing.TYPE_CHECKING``.
+
+  Closes #3285
+  Closes #3382
 
 * Fix ``invalid-overridden-method`` with nested property
 
@@ -70,6 +84,10 @@ Release date: TBA
   as they have legitimate use cases without a ``with`` block.
 
   Closes #4689
+
+* Fix crash when inferring variables assigned in match patterns
+
+  Closes #4685
 
 
 What's New in Pylint 2.9.3?

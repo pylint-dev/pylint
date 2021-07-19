@@ -22,3 +22,17 @@ match var:
         print(new_point)
     case new_var:
         print(new_var)
+
+
+# Test inference of variables assigned in patterns doesn't crash pylint
+var = 42
+match var:
+    case (1, *rest3):
+        if rest3 != 2:
+            pass
+    case {1: _, **rest4}:
+        if rest4 != 2:
+            pass
+    case c:
+        if c != 2:
+            pass

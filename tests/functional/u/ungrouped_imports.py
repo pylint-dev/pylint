@@ -24,3 +24,11 @@ import subprocess
 import unittest
 from unittest import TestCase
 from unittest.mock import MagicMock
+
+
+# https://github.com/PyCQA/pylint/issues/3382
+# Imports in a `if TYPE_CHECKING` block should not trigger `ungrouped-imports`
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    import re
+    from typing import List
