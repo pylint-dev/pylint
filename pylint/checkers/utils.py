@@ -1552,3 +1552,12 @@ def get_import_name(
                     modname, level=importnode.level
                 )
     return modname
+
+
+def is_node_in_guarded_import_block(node: astroid.NodeNG) -> bool:
+    """Return True if node is part for guarded if block.
+    I.e. `sys.version_info` or `typing.TYPE_CHECKING`
+    """
+    return isinstance(node.parent, astroid.If) and (
+        node.parent.is_sys_guard() or node.parent.is_typing_guard()
+    )
