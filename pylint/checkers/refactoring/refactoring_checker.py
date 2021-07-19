@@ -42,8 +42,6 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
         "tarfile.TarFile",
         "tarfile.TarFile.open",
         "multiprocessing.context.BaseContext.Pool",
-        "concurrent.futures.thread.ThreadPoolExecutor",
-        "concurrent.futures.process.ProcessPoolExecutor",
         "subprocess.Popen",
     )
 )

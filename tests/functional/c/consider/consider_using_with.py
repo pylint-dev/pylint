@@ -8,7 +8,7 @@ import tempfile
 import threading
 import urllib
 import zipfile
-from concurrent import futures
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 
 def test_codecs_open():
@@ -141,16 +141,6 @@ def test_multiprocessing():
         pass
 
 
-def test_futures():
-    _ = futures.ThreadPoolExecutor()  # [consider-using-with]
-    with futures.ThreadPoolExecutor():
-        pass
-
-    _ = futures.ProcessPoolExecutor()  # [consider-using-with]
-    with futures.ProcessPoolExecutor():
-        pass
-
-
 def test_popen():
     _ = subprocess.Popen("sh")  # [consider-using-with]
     with subprocess.Popen("sh"):
@@ -165,51 +155,63 @@ def test_suppress_in_exit_stack():
         )  # must not trigger
 
 
-# regression tests for #4689 - if a context manager is assigned to a variable, the message
-# must not trigger if this variable is used in a ``with`` block later on. This can also happen in
-# a nested scope.
-executor = futures.ThreadPoolExecutor()  # must not trigger, as it is used later on
-with executor:
+def test_futures():
+    """
+    Regression test for issue #4689.
+    ThreadPoolExecutor and ProcessPoolExecutor were formerly part of the callables that raised
+    the R1732 message if used outside a with block, but there are legitimate use cases where
+    Executor instances are used e.g. as a persistent background worker pool throughout the program.
+    """
+    thread_executor = ThreadPoolExecutor()
+    thread_executor.submit(print, 1)
+    process_executor = ProcessPoolExecutor()
+    process_executor.submit(print, 2)
+    thread_executor.shutdown()
+    process_executor.shutdown()
+
+
+pool = multiprocessing.Pool()  # must not trigger, as it is used later on
+with pool:
     pass
 
 
-global_executor = (
-    futures.ProcessPoolExecutor()
+global_pool = (
+    multiprocessing.Pool()
 )  # must not trigger, will be used in nested scope
 
 
 def my_nested_function():
-    with global_executor:
+    with global_pool:
         pass
 
 
 # this must also work for tuple unpacking
-thread_executor, process_executor = (
-    futures.ThreadPoolExecutor(),  # must not trigger
-    futures.ProcessPoolExecutor(),  # must not trigger
+pool1, pool2 = (
+    multiprocessing.Pool(),  # must not trigger
+    multiprocessing.Pool(),  # must not trigger
 )
 
-with thread_executor:
+with pool1:
     pass
 
-with process_executor:
+with pool2:
     pass
 
-unused_executor1, unused_executor2 = (
-    futures.ThreadPoolExecutor(),  # [consider-using-with]
-    futures.ProcessPoolExecutor(),  # [consider-using-with]
+unused_pool1, unused_pool2 = (
+    multiprocessing.Pool(),  # [consider-using-with]
+    multiprocessing.Pool(),  # [consider-using-with]
 )
 
-used_executor, unused_executor = (
-    futures.ThreadPoolExecutor(),  # must not trigger
-    futures.ProcessPoolExecutor(),  # [consider-using-with]
+used_pool, unused_pool = (
+    multiprocessing.Pool(),  # must not trigger
+    multiprocessing.Pool(),  # [consider-using-with]
 )
-with used_executor:
+with used_pool:
     pass
 
-unused_executor, used_executor = (
-    futures.ThreadPoolExecutor(),  # [consider-using-with]
-    futures.ProcessPoolExecutor(),  # must not trigger
+unused_pool, used_pool = (
+    multiprocessing.Pool(),  # [consider-using-with]
+    multiprocessing.Pool(),  # must not trigger
 )
-with used_executor:
+with used_pool:
     pass

@@ -17,10 +17,8 @@ consider-using-with:93:4:test_lock_acquisition:Consider using 'with' for resourc
 consider-using-with:129:8:test_multiprocessing:Consider using 'with' for resource-allocating operations:HIGH
 consider-using-with:134:4:test_multiprocessing:Consider using 'with' for resource-allocating operations:HIGH
 consider-using-with:139:4:test_multiprocessing:Consider using 'with' for resource-allocating operations:HIGH
-consider-using-with:145:8:test_futures:Consider using 'with' for resource-allocating operations:HIGH
-consider-using-with:149:8:test_futures:Consider using 'with' for resource-allocating operations:HIGH
-consider-using-with:155:8:test_popen:Consider using 'with' for resource-allocating operations:HIGH
-consider-using-with:199:4::Consider using 'with' for resource-allocating operations:HIGH
-consider-using-with:200:4::Consider using 'with' for resource-allocating operations:HIGH
-consider-using-with:205:4::Consider using 'with' for resource-allocating operations:HIGH
-consider-using-with:211:4::Consider using 'with' for resource-allocating operations:HIGH
+consider-using-with:145:8:test_popen:Consider using 'with' for resource-allocating operations:HIGH
+consider-using-with:201:4::Consider using 'with' for resource-allocating operations:HIGH
+consider-using-with:202:4::Consider using 'with' for resource-allocating operations:HIGH
+consider-using-with:207:4::Consider using 'with' for resource-allocating operations:HIGH
+consider-using-with:213:4::Consider using 'with' for resource-allocating operations:HIGH
