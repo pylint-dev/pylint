@@ -813,7 +813,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             self.add_message("import-error", args=repr(dotted_modname), node=importnode)
         return None
 
-    def _add_imported_module(self, node, importedmodname):
+    def _add_imported_module(
+        self, node: Union[astroid.Import, astroid.ImportFrom], importedmodname: str
+    ) -> None:
         """notify an imported module, used to analyze dependencies"""
         module_file = node.root().file
         context_name = node.root().name
@@ -825,6 +827,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             )
         except ImportError:
             pass
+
+        in_type_checking_block = (
+            isinstance(node.parent, astroid.If) and node.parent.is_typing_guard()
+        )
 
         if context_name == importedmodname:
             self.add_message("import-self", node=node)
@@ -845,7 +851,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
             # update import graph
             self.import_graph[context_name].add(importedmodname)
-            if not self.linter.is_message_enabled("cyclic-import", line=node.lineno):
+            if (
+                not self.linter.is_message_enabled("cyclic-import", line=node.lineno)
+                or in_type_checking_block
+            ):
                 self._excluded_edges[context_name].add(importedmodname)
 
     def _check_preferred_module(self, node, mod_path):
