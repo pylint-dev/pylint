@@ -56,6 +56,10 @@ Release date: TBA
 
   Closes #3525
 
+* Fix false-positive ``not-callable`` with alternative ``TypedDict`` syntax
+
+  Closes #4715
+
 * Clarify documentation for consider-using-from-import
 
 * Don't emit ``unreachable`` warning for empty generator functions
