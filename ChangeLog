@@ -84,6 +84,11 @@ Release date: TBA
 
   Closes #4685
 
+* Fix a crash when a StopIteration was raised when inferring
+  a faulty function in a context manager.
+
+  Closes #4723
+
 
 What's New in Pylint 2.9.3?
 ===========================
