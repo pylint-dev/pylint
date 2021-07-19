@@ -294,3 +294,18 @@ def undefined_annotation(a:x): # [undefined-variable]
         for x in [1, 2]:
             pass
     return a
+
+
+# #3711's comment regression test
+lst = []
+lst2 = [1, 2, 3]
+
+for item in lst:
+    pass
+
+bigger = [
+    [
+        x for x in lst2 if x > item
+    ]
+    for item in lst
+]
