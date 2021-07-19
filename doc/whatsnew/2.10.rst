@@ -17,4 +17,4 @@ New checkers
 Other Changes
 =============
 
-* Added `time.clock` to deprecated functions/methods for python 3.3
+* Added ``time.clock`` to deprecated functions/methods for python 3.3
