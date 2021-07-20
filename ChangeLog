@@ -82,6 +82,11 @@ Release date: TBA
 
   Closes #4668
 
+* No longer emit ``consider-using-with`` for ``ThreadPoolExecutor`` and ``ProcessPoolExecutor``
+  as they have legitimate use cases without a ``with`` block.
+
+  Closes #4689
+
 * Fix crash when inferring variables assigned in match patterns
 
   Closes #4685
