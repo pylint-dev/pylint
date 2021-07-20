@@ -17,6 +17,7 @@
 # Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
+# Copyright (c) 2021 Maksym Humetskyi <Humetsky@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 Aditya Gupta <adityagupta1089@users.noreply.github.com>
