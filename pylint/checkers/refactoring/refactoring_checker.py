@@ -1345,7 +1345,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-swap-variables",
         "consider-using-with",
     )
-    def visit_assign(self, node):
+    def visit_assign(self, node: astroid.Assign) -> None:
         self._append_context_managers_to_stack(node)
         self.visit_return(node)  # remaining checks are identical as for return nodes
 
@@ -1354,7 +1354,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-using-ternary",
         "consider-swap-variables",
     )
-    def visit_return(self, node: astroid.Return):
+    def visit_return(self, node: astroid.Return) -> None:
         self._check_swap_variables(node)
         if self._is_and_or_ternary(node.value):
             cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
@@ -1384,7 +1384,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
         self.add_message(message, node=node, args=(suggestion,))
 
-    def _append_context_managers_to_stack(self, node: astroid.Assign):
+    def _append_context_managers_to_stack(self, node: astroid.Assign) -> None:
         if _is_inside_context_manager(node):
             # if we are inside a context manager itself, we assume that it will handle the resource management itself.
             return
@@ -1398,7 +1398,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             assignees = [node.targets[0]]
             values = [node.value]
-        if assignees is Uninferable or values is Uninferable:
+        if Uninferable in (assignees, values):
             return
         for assignee, value in zip(assignees, values):
             if isinstance(value, astroid.Call):
