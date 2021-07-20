@@ -275,3 +275,15 @@ def infer_node(node: Union[astroid.AssignAttr, astroid.AssignName]) -> set:
         return set(node.infer())
     except astroid.InferenceError:
         return set()
+
+
+def get_file_extension(filename_or_extension: str) -> str:
+    """
+    Get either the file extension if the input string is a filename (i.e. contains a dot),
+    or return the string as it is assuming it already is just the file extension itself.
+    """
+    basename = os.path.basename(filename_or_extension)
+    if basename.find(".") > 0:
+        return os.path.splitext(basename)[-1][1:]
+    # no real filename, so we assume the input string is just the name of the extension
+    return filename_or_extension

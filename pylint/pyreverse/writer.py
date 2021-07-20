@@ -19,17 +19,29 @@
 
 import os
 
-from pylint.graph import DotBackend
+from pylint.pyreverse.diagrams import (
+    ClassDiagram,
+    ClassEntity,
+    DiagramEntity,
+    PackageDiagram,
+    PackageEntity,
+)
+from pylint.pyreverse.printer import (
+    DotPrinter,
+    EdgeType,
+    Layout,
+    NodeProperties,
+    NodeType,
+    VCGPrinter,
+)
 from pylint.pyreverse.utils import get_annotation_label, is_exception
-from pylint.pyreverse.vcgutils import VCGPrinter
 
 
 class DiagramWriter:
     """base class for writing project diagrams"""
 
-    def __init__(self, config, styles):
+    def __init__(self, config):
         self.config = config
-        self.pkg_edges, self.inh_edges, self.imp_edges, self.association_edges = styles
         self.printer = None  # defined in set_printer
 
     def write(self, diadefs):
@@ -44,35 +56,48 @@ class DiagramWriter:
                 self.write_classes(diagram)
             else:
                 self.write_packages(diagram)
-            self.close_graph()
+            self.save()
 
-    def write_packages(self, diagram):
+    def write_packages(self, diagram: PackageDiagram) -> None:
         """write a package diagram"""
         # sorted to get predictable (hence testable) results
-        for i, obj in enumerate(sorted(diagram.modules(), key=lambda x: x.title)):
-            self.printer.emit_node(i, label=self.get_title(obj), shape="box")
-            obj.fig_id = i
+        for obj in sorted(diagram.modules(), key=lambda x: x.title):
+            obj.fig_id = obj.node.qname()
+            self.printer.emit_node(
+                obj.fig_id,
+                type_=NodeType.PACKAGE,
+                properties=self.get_package_properties(obj),
+            )
         # package dependencies
         for rel in diagram.get_relationships("depends"):
             self.printer.emit_edge(
-                rel.from_object.fig_id, rel.to_object.fig_id, **self.pkg_edges
+                rel.from_object.fig_id,
+                rel.to_object.fig_id,
+                type_=EdgeType.USES,
             )
 
-    def write_classes(self, diagram):
+    def write_classes(self, diagram: ClassDiagram) -> None:
         """write a class diagram"""
         # sorted to get predictable (hence testable) results
-        for i, obj in enumerate(sorted(diagram.objects, key=lambda x: x.title)):
-            self.printer.emit_node(i, **self.get_values(obj))
-            obj.fig_id = i
+        for obj in sorted(diagram.objects, key=lambda x: x.title):
+            obj.fig_id = obj.node.qname()
+            type_ = NodeType.INTERFACE if obj.shape == "interface" else NodeType.CLASS
+            self.printer.emit_node(
+                obj.fig_id, type_=type_, properties=self.get_class_properties(obj)
+            )
         # inheritance links
         for rel in diagram.get_relationships("specialization"):
             self.printer.emit_edge(
-                rel.from_object.fig_id, rel.to_object.fig_id, **self.inh_edges
+                rel.from_object.fig_id,
+                rel.to_object.fig_id,
+                type_=EdgeType.INHERITS,
             )
         # implementation links
         for rel in diagram.get_relationships("implements"):
             self.printer.emit_edge(
-                rel.from_object.fig_id, rel.to_object.fig_id, **self.imp_edges
+                rel.from_object.fig_id,
+                rel.to_object.fig_id,
+                type_=EdgeType.IMPLEMENTS,
             )
         # generate associations
         for rel in diagram.get_relationships("association"):
@@ -80,58 +105,55 @@ class DiagramWriter:
                 rel.from_object.fig_id,
                 rel.to_object.fig_id,
                 label=rel.name,
-                **self.association_edges,
+                type_=EdgeType.ASSOCIATION,
             )
 
-    def set_printer(self, file_name, basename):
+    def set_printer(self, file_name: str, basename: str) -> None:
         """set printer"""
         raise NotImplementedError
 
-    def get_title(self, obj):
+    def get_title(self, obj: DiagramEntity) -> str:
         """get project title"""
         raise NotImplementedError
 
-    def get_values(self, obj):
+    def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
+        """get label and shape for packages."""
+        raise NotImplementedError
+
+    def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
         """get label and shape for classes."""
         raise NotImplementedError
 
-    def close_graph(self):
-        """finalize the graph"""
+    def save(self) -> None:
+        """write to disk"""
         raise NotImplementedError
 
 
 class DotWriter(DiagramWriter):
     """write dot graphs from a diagram definition and a project"""
 
-    def __init__(self, config):
-        styles = [
-            dict(arrowtail="none", arrowhead="open"),
-            dict(arrowtail="none", arrowhead="empty"),
-            dict(arrowtail="node", arrowhead="empty", style="dashed"),
-            dict(
-                fontcolor="green", arrowtail="none", arrowhead="diamond", style="solid"
-            ),
-        ]
-        DiagramWriter.__init__(self, config, styles)
-
-    def set_printer(self, file_name, basename):
+    def set_printer(self, file_name: str, basename: str) -> None:
         """initialize DotWriter and add options for layout."""
-        layout = dict(rankdir="BT")
-        self.printer = DotBackend(basename, additional_param=layout)
+        self.printer = DotPrinter(basename, layout=Layout.BOTTOM_TO_TOP)
         self.file_name = file_name
 
-    def get_title(self, obj):
+    def get_title(self, obj: DiagramEntity) -> str:
         """get project title"""
         return obj.title
 
-    def get_values(self, obj):
+    def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
+        """get label and shape for packages."""
+        return NodeProperties(
+            label=self.get_title(obj),
+            color="black",
+        )
+
+    def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
         """get label and shape for classes.
 
         The label contains all attributes and methods
         """
         label = obj.title
-        if obj.shape == "interface":
-            label = "«interface»\\n%s" % label
         if not self.config.only_classnames:
             label = r"{}|{}\l|".format(label, r"\l".join(obj.attrs))
             for func in obj.methods:
@@ -140,12 +162,14 @@ class DotWriter(DiagramWriter):
                 )
 
                 if func.args.args:
-                    args = [arg for arg in func.args.args if arg.name != "self"]
+                    argument_list = [
+                        arg for arg in func.args.args if arg.name != "self"
+                    ]
                 else:
-                    args = []
+                    argument_list = []
 
-                annotations = dict(zip(args, func.args.annotations[1:]))
-                for arg in args:
+                annotations = dict(zip(argument_list, func.args.annotations[1:]))
+                for arg in argument_list:
                     annotation_label = ""
                     ann = annotations.get(arg)
                     if ann:
@@ -159,51 +183,37 @@ class DotWriter(DiagramWriter):
 
                 label = fr"{label}{func.name}({args}){return_type}\l"
             label = "{%s}" % label
-        if is_exception(obj.node):
-            return dict(fontcolor="red", label=label, shape="record")
-        return dict(label=label, shape="record")
+        properties = NodeProperties(
+            label=label,
+            fontcolor="red" if is_exception(obj.node) else "black",
+            color="black",
+        )
+        return properties
 
-    def close_graph(self):
-        """print the dot graph into <file_name>"""
+    def save(self) -> None:
+        """write to disk"""
         self.printer.generate(self.file_name)
 
 
 class VCGWriter(DiagramWriter):
     """write vcg graphs from a diagram definition and a project"""
 
-    def __init__(self, config):
-        styles = [
-            dict(arrowstyle="solid", backarrowstyle="none", backarrowsize=0),
-            dict(arrowstyle="solid", backarrowstyle="none", backarrowsize=10),
-            dict(
-                arrowstyle="solid",
-                backarrowstyle="none",
-                linestyle="dotted",
-                backarrowsize=10,
-            ),
-            dict(arrowstyle="solid", backarrowstyle="none", textcolor="green"),
-        ]
-        DiagramWriter.__init__(self, config, styles)
-
-    def set_printer(self, file_name, basename):
+    def set_printer(self, file_name: str, basename: str) -> None:
         """initialize VCGWriter for a UML graph"""
-        self.graph_file = open(file_name, "w+")  # pylint: disable=consider-using-with
-        self.printer = VCGPrinter(self.graph_file)
-        self.printer.open_graph(
-            title=basename,
-            layoutalgorithm="dfs",
-            late_edge_labels="yes",
-            port_sharing="no",
-            manhattan_edges="yes",
-        )
-        self.printer.emit_node = self.printer.node
-        self.printer.emit_edge = self.printer.edge
+        self.file_name = file_name
+        self.printer = VCGPrinter(basename)
 
-    def get_title(self, obj):
+    def get_title(self, obj: DiagramEntity) -> str:
         """get project title in vcg format"""
         return r"\fb%s\fn" % obj.title
 
-    def get_values(self, obj):
+    def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
+        """get label and shape for packages."""
+        return NodeProperties(
+            label=self.get_title(obj),
+        )
+
+    def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
         """get label and shape for classes.
 
         The label contains all attributes and methods
@@ -212,10 +222,6 @@ class VCGWriter(DiagramWriter):
             label = r"\fb\f09%s\fn" % obj.title
         else:
             label = r"\fb%s\fn" % obj.title
-        if obj.shape == "interface":
-            shape = "ellipse"
-        else:
-            shape = "box"
         if not self.config.only_classnames:
             attrs = obj.attrs
             methods = [func.name for func in obj.methods]
@@ -229,9 +235,8 @@ class VCGWriter(DiagramWriter):
                 label = fr"{label}\n\f{line}"
             for func in methods:
                 label = fr"{label}\n\f10{func}()"
-        return dict(label=label, shape=shape)
+        return NodeProperties(label=label)
 
-    def close_graph(self):
-        """close graph and file"""
-        self.printer.close_graph()
-        self.graph_file.close()
+    def save(self) -> None:
+        """write to disk"""
+        self.printer.generate(self.file_name)
