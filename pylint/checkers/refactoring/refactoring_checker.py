@@ -6,7 +6,7 @@ import copy
 import itertools
 import tokenize
 from functools import reduce
-from typing import Dict, List, NamedTuple, Optional, Tuple, Union, cast
+from typing import Dict, Iterator, List, NamedTuple, Optional, Tuple, Union, cast
 
 import astroid
 from astroid.util import Uninferable
@@ -154,14 +154,23 @@ class ConsiderUsingWithStack(NamedTuple):
     class_scope: Dict[str, astroid.NodeNG] = {}
     function_scope: Dict[str, astroid.NodeNG] = {}
 
+    def __iter__(self) -> Iterator[Dict[str, astroid.NodeNG]]:
+        yield from (self.function_scope, self.class_scope, self.module_scope)
+
     def get_stack_for_frame(
         self, frame: Union[astroid.FunctionDef, astroid.ClassDef, astroid.Module]
     ):
+        """Get the stack corresponding to the scope of the given frame."""
         if isinstance(frame, astroid.FunctionDef):
             return self.function_scope
         if isinstance(frame, astroid.ClassDef):
             return self.class_scope
         return self.module_scope
+
+    def clear_all(self) -> None:
+        """Convenience method to clear all stacks"""
+        for stack in self:
+            stack.clear()
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
@@ -443,9 +452,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._nested_blocks_msg = None
         self._reported_swap_nodes = set()
         self._can_simplify_bool_op = False
-        self._consider_using_with_stack.module_scope.clear()
-        self._consider_using_with_stack.class_scope.clear()
-        self._consider_using_with_stack.function_scope.clear()
+        self._consider_using_with_stack.clear_all()
 
     def open(self):
         # do this in open since config not fully initialized in __init__
@@ -621,11 +628,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_with(self, node):
         for var, names in node.items:
             if isinstance(var, astroid.Name):
-                for stack in (
-                    self._consider_using_with_stack.function_scope,
-                    self._consider_using_with_stack.class_scope,
-                    self._consider_using_with_stack.module_scope,
-                ):
+                for stack in self._consider_using_with_stack:
                     # We don't need to restrict the stacks we search to the current scope and outer scopes,
                     # as e.g. the function_scope stack will be empty when we check a ``with`` on the class level.
                     if var.name in stack:
@@ -1401,28 +1404,24 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if Uninferable in (assignees, values):
             return
         for assignee, value in zip(assignees, values):
-            if isinstance(value, astroid.Call):
-                inferred = utils.safe_infer(value.func)
-                if (
-                    not inferred
-                    or inferred.qname() not in CALLS_RETURNING_CONTEXT_MANAGERS
-                ):
-                    continue
-                stack = self._consider_using_with_stack.get_stack_for_frame(
-                    node.frame()
+            if not isinstance(value, astroid.Call):
+                continue
+            inferred = utils.safe_infer(value.func)
+            if not inferred or inferred.qname() not in CALLS_RETURNING_CONTEXT_MANAGERS:
+                continue
+            stack = self._consider_using_with_stack.get_stack_for_frame(node.frame())
+            varname = (
+                assignee.name
+                if isinstance(assignee, astroid.AssignName)
+                else assignee.attrname
+            )
+            if varname in stack:
+                # variable was redefined before it was used in a ``with`` block
+                self.add_message(
+                    "consider-using-with",
+                    node=stack[varname],
                 )
-                varname = (
-                    assignee.name
-                    if isinstance(assignee, astroid.AssignName)
-                    else assignee.attrname
-                )
-                if varname in stack:
-                    # variable was redefined before it was used in a ``with`` block
-                    self.add_message(
-                        "consider-using-with",
-                        node=stack[varname],
-                    )
-                stack[varname] = value
+            stack[varname] = value
 
     def _check_consider_using_with(self, node: astroid.Call):
         if _is_inside_context_manager(node):
