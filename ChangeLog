@@ -17,6 +17,11 @@ Release date: TBA
 ..
   Put bug fixes that should not wait for a new minor version here
 
+* Fix a crash when there would be a 'TypeError object does not support
+  item assignment' in the code we parse.
+
+  Closes #4439
+
 * Fix crash if a callable returning a context manager was assigned to a list or dict item
 
   Closes #4732
