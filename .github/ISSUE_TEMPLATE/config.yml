@@ -1,0 +1,14 @@
+blank_issues_enabled: true
+contact_links:
+  - name: User manual
+    url: http://pylint.pycqa.org/en/latest/
+    about: Documentation for users
+  - name: Technical references
+    url: http://pylint.pycqa.org/en/latest/technical_reference/index.html
+    about: Documentation for developper
+  - name: Contributing
+    url: http://pylint.pycqa.org/en/latest/development_guide/contribute.html
+    about: Documentation for contributor
+  - name: Discord server
+    url: https://discord.gg/Egy6P8AMB5
+    about: Astroid and pylint informal dev discussion
