@@ -23,9 +23,8 @@ import subprocess
 import sys
 import tempfile
 from enum import Enum
+from pathlib import Path
 from typing import Any, Dict, FrozenSet, List, Mapping, NamedTuple, Optional, Tuple
-
-from pylint.pyreverse.utils import get_file_extension
 
 
 class NodeType(Enum):
@@ -459,7 +458,7 @@ class DotPrinter(Printer):
             os.close(pdot)
             os.close(ppng)
         else:
-            target = get_file_extension(outputfile)
+            target = Path(outputfile).suffix.lstrip(".")
             if not target:
                 target = "png"
                 outputfile = outputfile + "." + target

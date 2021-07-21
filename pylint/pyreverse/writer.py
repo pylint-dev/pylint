@@ -43,6 +43,7 @@ class DiagramWriter:
     def __init__(self, config):
         self.config = config
         self.printer = None  # defined in set_printer
+        self.file_name = ""  # defined in set_printer
 
     def write(self, diadefs):
         """write files for <project> according to <diadefs>"""
@@ -126,7 +127,7 @@ class DiagramWriter:
 
     def save(self) -> None:
         """write to disk"""
-        raise NotImplementedError
+        self.printer.generate(self.file_name)
 
 
 class DotWriter(DiagramWriter):
@@ -190,10 +191,6 @@ class DotWriter(DiagramWriter):
         )
         return properties
 
-    def save(self) -> None:
-        """write to disk"""
-        self.printer.generate(self.file_name)
-
 
 class VCGWriter(DiagramWriter):
     """write vcg graphs from a diagram definition and a project"""
@@ -236,7 +233,3 @@ class VCGWriter(DiagramWriter):
             for func in methods:
                 label = fr"{label}\n\f10{func}()"
         return NodeProperties(label=label)
-
-    def save(self) -> None:
-        """write to disk"""
-        self.printer.generate(self.file_name)
