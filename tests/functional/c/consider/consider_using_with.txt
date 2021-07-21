@@ -22,3 +22,5 @@ consider-using-with:201:4::Consider using 'with' for resource-allocating operati
 consider-using-with:202:4::Consider using 'with' for resource-allocating operations:HIGH
 consider-using-with:207:4::Consider using 'with' for resource-allocating operations:HIGH
 consider-using-with:213:4::Consider using 'with' for resource-allocating operations:HIGH
+consider-using-with:229:18:test_subscript_assignment:Consider using 'with' for resource-allocating operations:HIGH
+consider-using-with:231:24:test_subscript_assignment:Consider using 'with' for resource-allocating operations:HIGH

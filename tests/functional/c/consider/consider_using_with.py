@@ -215,3 +215,17 @@ unused_pool, used_pool = (
 )
 with used_pool:
     pass
+
+
+def test_subscript_assignment():
+    """
+    Regression test for issue https://github.com/PyCQA/pylint/issues/4732.
+    If a context manager is assigned to a list or dict, we are not able to
+    tell if / how the context manager is used later on, as it is not assigned
+    to a variable or attribute directly.
+    In this case we can only emit the message directly.
+    """
+    job_list = [None, None]
+    job_list[0] = subprocess.Popen("ls")  # [consider-using-with]
+    job_dict = {}
+    job_dict["myjob"] = subprocess.Popen("ls")  # [consider-using-with]

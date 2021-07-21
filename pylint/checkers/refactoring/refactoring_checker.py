@@ -1407,7 +1407,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if not isinstance(value, astroid.Call):
                 continue
             inferred = utils.safe_infer(value.func)
-            if not inferred or inferred.qname() not in CALLS_RETURNING_CONTEXT_MANAGERS:
+            if (
+                not inferred
+                or inferred.qname() not in CALLS_RETURNING_CONTEXT_MANAGERS
+                or not isinstance(assignee, (astroid.AssignName, astroid.AssignAttr))
+            ):
                 continue
             stack = self._consider_using_with_stack.get_stack_for_frame(node.frame())
             varname = (
