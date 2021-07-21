@@ -1,0 +1,88 @@
+name: Bug report
+description: Report a bug in pylint
+labels: [bug, needs triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please make sure that this issue wasn't already requested, or already implemented in the main branch.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What is the bug about ?
+      description:
+        Please provide the code you linted, and configurations files and multiple named
+        file if required
+      value: |
+        Given a file `a.py`:
+
+        ```python
+        # Please disable message unrelated to the bug
+        # pylint: disable=missing-docstring,
+        <a> = b + 1
+        ```
+
+        Using the following configuration pylintrc:
+        ```ini
+        # Please remove configuration unrelated to the bug
+
+        [MESSAGES CONTROL]
+        enable=use-symbolic-message-instead,
+        ```
+    validations:
+      required: true
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: What is the command used and its actual output ?
+      description: Please provide the command used and the current output
+      value: |
+        Result of `pylint a.py`:
+        ```
+        ************* Module a
+        a.py:3:1: E0001: invalid syntax (<unknown>, line 1) (syntax-error)
+        ```
+    validations:
+      required: true
+  - type: textarea
+    id: future-behavior
+    attributes:
+      label: What would you expect instead ?
+      description:
+        Tell us what you expect instead, for example expected output or behavior
+    validations:
+      required: false
+  - type: textarea
+    id: python-interpreter
+    attributes:
+      label: "Output of 'pylint --version'"
+      description: Please copy and paste the result
+      placeholder: |
+        pylint 2.9.6
+        astroid 2.6.5
+        Python 3.8.10 (default, Jun  2 2021, 10:49:15)
+        [GCC 9.4.0]
+      render: shell
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system ?
+      options:
+        - Linux
+        - Mac
+        - PC
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: additional-deps
+    attributes:
+      label: Additional dependencies ?
+      description: If applicable ie, if we can't reproduce without it
+      placeholder: |
+        Additional dependencies:
+        ```
+        pandas==0.23.2
+        marshmallow==3.10.0
+        ...
+        ```

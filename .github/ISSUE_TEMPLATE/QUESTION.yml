@@ -1,0 +1,19 @@
+name: Support question
+description: Questions about pylint that are not covered in the documentation
+labels: [question, needs triage, documentation]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+    validations:
+      required: true
+  - type: textarea
+    id: documentation
+    attributes:
+      label: Documentation for future user
+      description:
+        Where did you expect this information to be ? What do we need to add or what do
+        we need to reorganize ?
+    validations:
+      required: true
