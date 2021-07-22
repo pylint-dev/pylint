@@ -945,8 +945,6 @@ class VariablesChecker(BaseChecker):
 
     def visit_name(self, node):
         """Check that a name is defined in the current scope"""
-        # refactoring this block is a pain.
-        # pylint: disable=too-many-nested-blocks,too-many-branches
         stmt = node.statement()
         if stmt.fromlineno is None:
             # name node from an astroid built from live code, skip
@@ -966,7 +964,7 @@ class VariablesChecker(BaseChecker):
 
         # iterates through parent scopes, from the inner to the outer
         base_scope_type = self._to_consume[start_index].scope_type
-
+        # pylint: disable=too-many-nested-blocks; refactoring this block is a pain.
         for i in range(start_index, -1, -1):
             current_consumer = self._to_consume[i]
 
@@ -1009,19 +1007,16 @@ class VariablesChecker(BaseChecker):
             # variable used outside the loop
             # avoid the case where there are homonyms inside function scope and
             # comprehension current scope (avoid bug #1731)
-            if name in current_consumer.consumed and not (
-                current_consumer.scope_type == "comprehension"
-                and self._has_homonym_in_upper_function_scope(node, i)
+            if name in current_consumer.consumed and (
+                utils.is_func_decorator(current_consumer.node)
+                or not (
+                    current_consumer.scope_type == "comprehension"
+                    and self._has_homonym_in_upper_function_scope(node, i)
+                )
             ):
                 defnode = utils.assign_parent(current_consumer.consumed[name][0])
                 self._check_late_binding_closure(node, defnode)
                 self._loopvar_name(node, name)
-                break
-
-            # the name has already been consumed, skip decorators
-            if name in current_consumer.consumed and utils.is_func_decorator(
-                current_consumer.node
-            ):
                 break
 
             found_node = current_consumer.get_next_to_consume(node)
