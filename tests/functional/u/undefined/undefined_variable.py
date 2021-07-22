@@ -309,3 +309,13 @@ bigger = [
     ]
     for item in lst
 ]
+
+
+# 3791
+@decorator(x for x in range(3))
+def decorated1(x):
+    print(x)
+
+@decorator(x * x for x in range(3))
+def decorated2(x):
+    print(x)

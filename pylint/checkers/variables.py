@@ -44,6 +44,7 @@
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 haasea <44787650+haasea@users.noreply.github.com>
 # Copyright (c) 2021 Alexander Kapshuna <kapsh@kap.sh>
+# Copyright (c) 2021 Marcin Kurczewski <rr-@sakuya.pl>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -1013,6 +1014,12 @@ class VariablesChecker(BaseChecker):
                 defnode = utils.assign_parent(current_consumer.consumed[name][0])
                 self._check_late_binding_closure(node, defnode)
                 self._loopvar_name(node, name)
+                break
+
+            # the name has already been consumed, skip decorators
+            if name in current_consumer.consumed and utils.is_func_decorator(
+                current_consumer.node
+            ):
                 break
 
             found_node = current_consumer.get_next_to_consume(node)

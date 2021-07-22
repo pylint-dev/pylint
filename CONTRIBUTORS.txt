@@ -1,4 +1,4 @@
-﻿Contributors
+Contributors
 ------------
 
 Current team:
@@ -519,3 +519,5 @@ contributors:
   - Documented Jupyter integration
 
 * Yilei Yang: contributor
+
+* Marcin Kurczewski (rr-): contributor
