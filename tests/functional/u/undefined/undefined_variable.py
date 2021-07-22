@@ -319,3 +319,12 @@ def decorated1(x):
 @decorator(x * x for x in range(3))
 def decorated2(x):
     print(x)
+
+@decorator(x)  # [undefined-variable]
+@decorator(x * x for x in range(3))
+def decorated3(x):
+    print(x)
+
+@decorator(x * x * y for x in range(3))  # [undefined-variable]
+def decorated4(x):
+    print(x)
