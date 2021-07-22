@@ -945,6 +945,8 @@ class VariablesChecker(BaseChecker):
 
     def visit_name(self, node):
         """Check that a name is defined in the current scope"""
+        # refactoring this block is a pain.
+        # pylint: disable=too-many-nested-blocks,too-many-branches
         stmt = node.statement()
         if stmt.fromlineno is None:
             # name node from an astroid built from live code, skip
@@ -964,7 +966,7 @@ class VariablesChecker(BaseChecker):
 
         # iterates through parent scopes, from the inner to the outer
         base_scope_type = self._to_consume[start_index].scope_type
-        # pylint: disable=too-many-nested-blocks; refactoring this block is a pain.
+
         for i in range(start_index, -1, -1):
             current_consumer = self._to_consume[i]
 
