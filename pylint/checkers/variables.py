@@ -44,6 +44,7 @@
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 haasea <44787650+haasea@users.noreply.github.com>
 # Copyright (c) 2021 Alexander Kapshuna <kapsh@kap.sh>
+# Copyright (c) 2021 Marcin Kurczewski <rr-@sakuya.pl>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -1006,9 +1007,12 @@ class VariablesChecker(BaseChecker):
             # variable used outside the loop
             # avoid the case where there are homonyms inside function scope and
             # comprehension current scope (avoid bug #1731)
-            if name in current_consumer.consumed and not (
-                current_consumer.scope_type == "comprehension"
-                and self._has_homonym_in_upper_function_scope(node, i)
+            if name in current_consumer.consumed and (
+                utils.is_func_decorator(current_consumer.node)
+                or not (
+                    current_consumer.scope_type == "comprehension"
+                    and self._has_homonym_in_upper_function_scope(node, i)
+                )
             ):
                 defnode = utils.assign_parent(current_consumer.consumed[name][0])
                 self._check_late_binding_closure(node, defnode)
