@@ -15,17 +15,14 @@ body:
         ⚠ Verify first that your issue is not [already reported on GitHub][issue
         search].
 
-
-        If you are seeking community support, please consider [starting a
-        discussion][Discussions].
-
-
-        Thank you for your collaboration!
+        💬 If you are seeking community support, please consider [starting a discussion
+        on Discord][Discussions].
 
 
         [issue search]: https://github.com/PyCQA/pylint/issues?q=is%3Aissue+is%3Aopen+
 
         [Discussions]: https://discord.gg/Egy6P8AMB5
+
   - type: textarea
     id: question
     attributes:
@@ -41,3 +38,12 @@ body:
         we need to reorganize ?
     validations:
       required: true
+  - type: textarea
+    attributes:
+      label: (Additional context)
+      description: >
+        Add any other context, links, etc. about the question here.
+
+      placeholder: >-
+        I asked on https://stackoverflow.com/... and the community advised me to do X, Y
+        and Z.

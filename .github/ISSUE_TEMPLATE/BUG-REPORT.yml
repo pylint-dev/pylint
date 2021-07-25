@@ -7,7 +7,11 @@ body:
       value: |
         **Thank you for wanting to report a bug in pylint!**
 
-        ⚠ Please make sure that this issue wasn't already requested, or already implemented in the main branch.
+        ⚠ Please make sure that this [issue wasn't already requested][issue search], or already implemented in the main branch.
+
+
+        [issue search]: https://github.com/PyCQA/pylint/issues?q=is%3Aissue+is%3Aopen+
+
   - type: textarea
     id: what-happened
     attributes:

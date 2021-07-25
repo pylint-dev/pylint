@@ -7,8 +7,11 @@ body:
       value: |
         **Thank you for wanting to make a suggestion for pylint!**
 
-        ⚠
-        Please make sure that this feature wasn't already requested or already implemented in the main branch.
+        ⚠ Please make sure that [this feature wasn't already requested][issue search] or already implemented in the main branch.
+
+
+        [issue search]: https://github.com/PyCQA/pylint/issues?q=is%3Aissue+is%3Aopen+
+
   - type: textarea
     id: current-problem
     attributes:
@@ -31,7 +34,7 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: Additional context
+      label: (Additional context)
       description: >
         Add any other context, links, etc. about the feature here. Describe how the
         feature would be used, why it is needed and what it would solve.
