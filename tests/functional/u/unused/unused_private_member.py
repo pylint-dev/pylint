@@ -136,7 +136,6 @@ class FalsePositive4657:
         """Get c."""
         return cls.__attr_c  # [undefined-variable]
 
-<<<<<<< HEAD
 
 # Test cases for false-positive reported in #4668
 # https://github.com/PyCQA/pylint/issues/4668
@@ -161,10 +160,10 @@ class FalsePositive4668:
     def exec(self):
         print(self.__secret_bool)
         return self.func(*self.__args)
-=======
+
+
 # Test cases for false-positive reported in #4673
 # https://github.com/PyCQA/pylint/issues/4673
-
 class FalsePositive4673:
     """ The testing class """
 
@@ -202,4 +201,3 @@ class FalsePositive4673:
 
         fn_to_return = __inner_1 if flag else __inner_3(__inner_2)
         return fn_to_return
->>>>>>> 82fd4e90... [unused-private-member] add logic for checking nested functions

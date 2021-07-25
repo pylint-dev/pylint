@@ -912,9 +912,8 @@ a metaclass class method.",
             parent_scope = function_def.parent.scope()
             if isinstance(parent_scope, astroid.FunctionDef):
                 # Handle nested functions
-                outer_fn = parent_scope
                 if function_def.name in (
-                    n.name for n in outer_fn.nodes_of_class(astroid.Name)
+                    n.name for n in parent_scope.nodes_of_class(astroid.Name)
                 ):
                     continue
             for attribute in node.nodes_of_class(astroid.Attribute):
@@ -940,19 +939,23 @@ a metaclass class method.",
                         break
             else:
                 name_stack = []
+                outer_level_names = ""
                 curr = parent_scope
                 # Generate proper names for nested functions
                 while curr != node:
                     name_stack.append(curr.name)
                     curr = curr.parent.scope()
 
-                function_repr = f"{function_def.name}({function_def.args.as_string()})"
+                if name_stack:
+                    outer_level_names = f"{'.'.join(reversed(name_stack))}."
+
+                function_repr = f"{outer_level_names}{function_def.name}({function_def.args.as_string()})"
                 self.add_message(
                     "unused-private-member",
                     node=function_def,
                     args=(
                         node.name,
-                        f"{'.'.join(reversed(name_stack))}{'.' if name_stack else ''}{function_repr}",
+                        function_repr,
                     ),
                 )
 
