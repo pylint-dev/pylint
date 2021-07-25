@@ -7,8 +7,7 @@ body:
       value: |
         **Thank you for wanting to report a bug in pylint!**
 
-        ⚠
-        Please make sure that this issue wasn't already requested, or already implemented in the main branch.
+        ⚠ Please make sure that this issue wasn't already requested, or already implemented in the main branch.
   - type: textarea
     id: what-happened
     attributes:
@@ -24,16 +23,21 @@ body:
         # pylint: disable=missing-docstring,
         <a> = b + 1
         ```
-
-        Using the following configuration pylintrc:
-        ```ini
-        # Please remove configuration unrelated to the bug
-
-        [MESSAGES CONTROL]
-        enable=use-symbolic-message-instead,
-        ```
     validations:
       required: true
+  - type: textarea
+    id: configuration
+    attributes:
+      label: (Configuration)
+      description:
+        Please provide the part of the configuration that is causing the bug if required
+        (Leave this part blank if the configuration is not relevant)
+      value: |
+        Using the following configuration:
+        ```ini
+        ```
+    validations:
+      required: false
   - type: textarea
     id: current-behavior
     attributes:
@@ -50,7 +54,7 @@ body:
   - type: textarea
     id: future-behavior
     attributes:
-      label: Expected behavior
+      label: (Expected behavior)
       description:
         What would you expect instead ? For example expected output or behavior
     validations:
@@ -58,8 +62,10 @@ body:
   - type: textarea
     id: python-interpreter
     attributes:
-      label: "Output of 'pylint --version'"
-      description: Please copy and paste the result
+      label: (Version affected)
+      description:
+        Please copy and paste the result of 'pylint --version' or specify the range of
+        version affected
       placeholder: |
         pylint 2.9.6
         astroid 2.6.5
@@ -68,14 +74,14 @@ body:
       render: shell
   - type: textarea
     attributes:
-      label: OS / Environment
+      label: (OS / Environment)
       description: >-
         Provide all relevant information below, e.g. OS version, terminal etc.
       placeholder: Fedora 33, Cygwin, etc.
   - type: textarea
     id: additional-deps
     attributes:
-      label: Additional dependencies ?
+      label: (Additional dependencies)
       description: If applicable ie, if we can't reproduce without it
       placeholder: |
         Additional dependencies:
