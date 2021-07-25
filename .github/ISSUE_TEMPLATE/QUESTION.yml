@@ -1,7 +1,31 @@
-name: Support question
+name: 🤔 Support question
 description: Questions about pylint that are not covered in the documentation
 labels: [question, needs triage, documentation]
 body:
+  - type: markdown
+    attributes:
+      value: >
+        **Thank you for wanting to report a problem with pylint documentation!**
+
+
+        Please fill out your suggestions below. If the problem seems straightforward,
+        feel free to go ahead and submit a pull request instead!
+
+
+        ⚠ Verify first that your issue is not [already reported on GitHub][issue
+        search].
+
+
+        If you are seeking community support, please consider [starting a
+        discussion][Discussions].
+
+
+        Thank you for your collaboration!
+
+
+        [issue search]: https://github.com/PyCQA/pylint/issues?q=is%3Aissue+is%3Aopen+
+
+        [Discussions]: https://discord.gg/Egy6P8AMB5
   - type: textarea
     id: question
     attributes:

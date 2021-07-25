@@ -1,18 +1,21 @@
-name: Bug report
+name: 🐛 Bug report
 description: Report a bug in pylint
 labels: [bug, needs triage]
 body:
   - type: markdown
     attributes:
       value: |
+        **Thank you for wanting to report a bug in pylint!**
+
+        ⚠
         Please make sure that this issue wasn't already requested, or already implemented in the main branch.
   - type: textarea
     id: what-happened
     attributes:
-      label: What is the bug about ?
+      label: Bug description
       description:
-        Please provide the code you linted, and configurations files and multiple named
-        file if required
+        What is the bug about? Please provide the code that is causing the issue, and
+        configurations used if required
       value: |
         Given a file `a.py`:
 
@@ -34,8 +37,8 @@ body:
   - type: textarea
     id: current-behavior
     attributes:
-      label: What is the command used and its actual output ?
-      description: Please provide the command used and the current output
+      label: Command used
+      description: What is the command used and its actual output ?
       value: |
         Result of `pylint a.py`:
         ```
@@ -47,9 +50,9 @@ body:
   - type: textarea
     id: future-behavior
     attributes:
-      label: What would you expect instead ?
+      label: Expected behavior
       description:
-        Tell us what you expect instead, for example expected output or behavior
+        What would you expect instead ? For example expected output or behavior
     validations:
       required: false
   - type: textarea
@@ -63,17 +66,12 @@ body:
         Python 3.8.10 (default, Jun  2 2021, 10:49:15)
         [GCC 9.4.0]
       render: shell
-  - type: dropdown
-    id: os
+  - type: textarea
     attributes:
-      label: Operating system ?
-      options:
-        - Linux
-        - Mac
-        - PC
-        - Other
-    validations:
-      required: true
+      label: OS / Environment
+      description: >-
+        Provide all relevant information below, e.g. OS version, terminal etc.
+      placeholder: Fedora 33, Cygwin, etc.
   - type: textarea
     id: additional-deps
     attributes:
