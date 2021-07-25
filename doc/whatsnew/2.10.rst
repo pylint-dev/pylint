@@ -17,4 +17,6 @@ New checkers
 Other Changes
 =============
 
+* Pyreverse - Show class has-a relationships inferred from type-hints
+
 * Added ``time.clock`` to deprecated functions/methods for python 3.3
