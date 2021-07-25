@@ -1,0 +1,96 @@
+name: 🐛 Bug report
+description: Report a bug in pylint
+labels: [bug, needs triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Thank you for wanting to report a bug in pylint!**
+
+        ⚠ Please make sure that this [issue wasn't already requested][issue search], or already implemented in the main branch.
+
+
+        [issue search]: https://github.com/PyCQA/pylint/issues?q=is%3Aissue+is%3Aopen+
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Bug description
+      description:
+        What is the bug about? Please provide the code that is causing the issue, and
+        configurations used if required
+      value: |
+        Given a file `a.py`:
+
+        ```python
+        # Please disable message unrelated to the bug
+        # pylint: disable=missing-docstring,
+        <a> = b + 1
+        ```
+    validations:
+      required: true
+  - type: textarea
+    id: configuration
+    attributes:
+      label: (Configuration)
+      description:
+        Please provide the part of the configuration that is causing the bug if required
+        (Leave this part blank if the configuration is not relevant)
+      value: |
+        Using the following configuration:
+        ```ini
+        ```
+    validations:
+      required: false
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Command used
+      description: What is the command used and its actual output ?
+      value: |
+        Result of `pylint a.py`:
+        ```
+        ************* Module a
+        a.py:3:1: E0001: invalid syntax (<unknown>, line 1) (syntax-error)
+        ```
+    validations:
+      required: true
+  - type: textarea
+    id: future-behavior
+    attributes:
+      label: (Expected behavior)
+      description:
+        What would you expect instead ? For example expected output or behavior
+    validations:
+      required: false
+  - type: textarea
+    id: python-interpreter
+    attributes:
+      label: (Version affected)
+      description:
+        Please copy and paste the result of 'pylint --version' or specify the range of
+        version affected
+      placeholder: |
+        pylint 2.9.6
+        astroid 2.6.5
+        Python 3.8.10 (default, Jun  2 2021, 10:49:15)
+        [GCC 9.4.0]
+      render: shell
+  - type: textarea
+    attributes:
+      label: (OS / Environment)
+      description: >-
+        Provide all relevant information below, e.g. OS version, terminal etc.
+      placeholder: Fedora 33, Cygwin, etc.
+  - type: textarea
+    id: additional-deps
+    attributes:
+      label: (Additional dependencies)
+      description: If applicable ie, if we can't reproduce without it
+      placeholder: |
+        Additional dependencies:
+        ```
+        pandas==0.23.2
+        marshmallow==3.10.0
+        ...
+        ```
