@@ -34,16 +34,15 @@ body:
     attributes:
       label: Documentation for future user
       description:
-        Where did you expect this information to be ? What do we need to add or what do
-        we need to reorganize ?
+        Where did you expect this information to be? What do we need to add or what do
+        we need to reorganize?
     validations:
       required: true
   - type: textarea
     attributes:
-      label: (Additional context)
+      label: Additional context
       description: >
         Add any other context, links, etc. about the question here.
-
       placeholder: >-
         I asked on https://stackoverflow.com/... and the community advised me to do X, Y
         and Z.
