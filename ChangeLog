@@ -6,6 +6,11 @@ What's New in Pylint 2.10.0?
 ============================
 Release date: TBA
 
+* Added ``ignored-parents`` option to the design checker to ignore specific
+  classes from the ``too-many-ancestors`` check (R0901).
+
+  Partially closes #3057
+
 ..
   Put new features here and also in 'doc/whatsnew/2.10.rst'
 
@@ -13,11 +18,6 @@ Release date: TBA
 What's New in Pylint 2.9.6?
 ===========================
 Release date: TBA
-
-* Added ``ignored-parents`` option to the design checker to ignore classes
-  while counting ancestors.
-
-  Partially closes #3057
 
 ..
   Put bug fixes that should not wait for a new minor version here
