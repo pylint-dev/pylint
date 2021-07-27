@@ -3,13 +3,11 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-from pathlib import Path
 
 import astroid
 
 from pylint.checkers import design_analysis
 from pylint.testutils import CheckerTestCase, set_config
-
 
 
 class TestDesignChecker(CheckerTestCase):
