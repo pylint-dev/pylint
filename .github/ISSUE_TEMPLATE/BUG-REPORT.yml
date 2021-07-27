@@ -37,6 +37,18 @@ body:
         (Leave this part blank if the configuration is not relevant)
       render: ini
   - type: textarea
+    id: cmd-used
+    attributes:
+      label: Command used
+      description: What was the command used to invoke pylint?
+      placeholder: |
+        ```
+        pylint a.py
+        ```
+      render: shell
+    validations:
+      required: true
+  - type: textarea
     id: current-behavior
     attributes:
       label: Pylint output
