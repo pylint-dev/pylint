@@ -10,7 +10,6 @@ import astroid
 from pylint.checkers import design_analysis
 from pylint.testutils import CheckerTestCase, set_config
 
-REGR_DATA_DIR = str(Path(__file__).parent / ".." / "regrtest_data")
 
 
 class TestDesignChecker(CheckerTestCase):
