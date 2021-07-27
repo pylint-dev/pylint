@@ -421,7 +421,6 @@ class MisdesignChecker(BaseChecker):
         parents = _get_parents(
             node, STDLIB_CLASSES_IGNORE_ANCESTOR.union(self.config.ignored_parents)
         )
-        print(parents)
         nb_parents = len(parents)
         if nb_parents > self.config.max_parents:
             self.add_message(
