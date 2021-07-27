@@ -34,7 +34,7 @@ body:
         Please provide the part of the configuration that is causing the bug if required
         (Leave this part blank if the configuration is not relevant)
       placeholder: |
-        # Leave this black if the configuration is not relevant!
+        # Leave this blank if the configuration is not relevant!
 
         [MASTER]
         load-plugins=
