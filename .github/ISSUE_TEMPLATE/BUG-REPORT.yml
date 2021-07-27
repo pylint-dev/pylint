@@ -79,7 +79,7 @@ body:
     id: python-interpreter
     attributes:
       label: Pylint version
-      description: |
+      description: >-
         Please copy and paste the result of `pylint --version` or specify the range of
         version affected.
       placeholder: |
