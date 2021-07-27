@@ -34,7 +34,7 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: (Additional context)
+      label: Additional context
       description: >
         Add any other context, links, etc. about the feature here. Describe how the
         feature would be used, why it is needed and what it would solve.
