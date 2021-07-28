@@ -12,6 +12,9 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added ``unspecified-encoding``: Emitted when open() is called without specifying an encoding
+
+  Closes #3826
 
 
 Other Changes

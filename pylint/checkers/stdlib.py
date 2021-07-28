@@ -30,6 +30,7 @@
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
 # Copyright (c) 2021 victor <16359131+jiajunsu@users.noreply.github.com>
+# Copyright (c) 2021 Daniel van Noord <13665637+DanielNoord@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -44,12 +45,13 @@ import astroid
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
 
-OPEN_FILES = {"open", "file"}
+OPEN_FILES_MODE = ("open", "file")
+OPEN_FILES_ENCODING = ("open",)
 UNITTEST_CASE = "unittest.case"
 THREADING_THREAD = "threading.Thread"
 COPY_COPY = "copy.copy"
 OS_ENVIRON = "os._Environ"
-ENV_GETTERS = {"os.getenv"}
+ENV_GETTERS = ("os.getenv",)
 SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
 OPEN_MODULE = "_io"
@@ -425,6 +427,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "deprecated-decorator",
             "The decorator is marked as deprecated and will be removed in the future.",
         ),
+        "W1514": (
+            "Using open without explicitly specifying an encoding",
+            "unspecified-encoding",
+            "It is better to specify an encoding when opening documents. "
+            "Using the system default implicitly can create problems on other operating systems. "
+            "See https://www.python.org/dev/peps/pep-0597/",
+        ),
     }
 
     def __init__(self, linter=None):
@@ -485,6 +494,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "subprocess-popen-preexec-fn",
         "subprocess-run-check",
         "deprecated-class",
+        "unspecified-encoding",
     )
     def visit_call(self, node):
         """Visit a Call node."""
@@ -494,8 +504,19 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 if inferred is astroid.Uninferable:
                     continue
                 if inferred.root().name == OPEN_MODULE:
-                    if getattr(node.func, "name", None) in OPEN_FILES:
+                    if (
+                        isinstance(node.func, astroid.Name)
+                        and node.func.name in OPEN_FILES_MODE
+                    ):
                         self._check_open_mode(node)
+                    if (
+                        isinstance(node.func, astroid.Name)
+                        and node.func.name in OPEN_FILES_ENCODING
+                    ) or (
+                        isinstance(node.func, astroid.Attribute)
+                        and node.func.attrname in OPEN_FILES_ENCODING
+                    ):
+                        self._check_open_encoded(node)
                 elif inferred.root().name == UNITTEST_CASE:
                     self._check_redundant_assert(node, inferred)
                 elif isinstance(inferred, astroid.ClassDef):
@@ -572,6 +593,34 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 mode_arg.value
             ):
                 self.add_message("bad-open-mode", node=node, args=mode_arg.value)
+
+    def _check_open_encoded(self, node: astroid.Call) -> None:
+        """Check that the encoded argument of an open call is valid."""
+        mode_arg = None
+        try:
+            mode_arg = utils.get_argument_from_call(node, position=1, keyword="mode")
+        except utils.NoSuchArgumentError:
+            pass
+
+        if mode_arg:
+            mode_arg = utils.safe_infer(mode_arg)
+        if not mode_arg or "b" not in mode_arg.value:
+            encoding_arg = None
+            try:
+                encoding_arg = utils.get_argument_from_call(
+                    node, position=None, keyword="encoding"
+                )
+            except utils.NoSuchArgumentError:
+                self.add_message("unspecified-encoding", node=node)
+
+            if encoding_arg:
+                encoding_arg = utils.safe_infer(encoding_arg)
+
+                if (
+                    isinstance(encoding_arg, astroid.Const)
+                    and encoding_arg.value is None
+                ):
+                    self.add_message("unspecified-encoding", node=node)
 
     def _check_env_function(self, node, infer):
         env_name_kwarg = "key"
