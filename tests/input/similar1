@@ -4,6 +4,7 @@ three
 four
 five
 six # comments optionally ignored
+# even full line comment!
 seven
 eight
 nine

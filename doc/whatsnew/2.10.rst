@@ -20,4 +20,7 @@ New checkers
 Other Changes
 =============
 
+
+* Performance of the Similarity checker has been improved.
+
 * Added ``time.clock`` to deprecated functions/methods for python 3.3
