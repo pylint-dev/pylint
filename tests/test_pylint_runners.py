@@ -9,12 +9,14 @@ from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
 
 
 @pytest.mark.parametrize(
-    "runner", [run_pylint, run_epylint, run_pyreverse, run_symilar]
+    "runner", [run_epylint, run_pylint, run_pyreverse, run_symilar]
 )
-def test_runner(runner):
+def test_runner(runner, tmpdir):
+    print(os.path.abspath(__file__))
     filepath = os.path.abspath(__file__)
     testargs = ["", filepath]
-    with patch.object(sys, "argv", testargs):
-        with pytest.raises(SystemExit) as err:
-            runner()
-        assert err.value.code == 0
+    with tmpdir.as_cwd():
+        with patch.object(sys, "argv", testargs):
+            with pytest.raises(SystemExit) as err:
+                runner()
+            assert err.value.code == 0
