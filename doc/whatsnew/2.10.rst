@@ -17,6 +17,14 @@ New checkers
   Closes #3826
 
 
+Extensions
+==========
+
+* ``CodeStyleChecker``
+
+  * Extended ``consider-using-tuple`` check to cover ``in`` comparisons.
+
+
 Other Changes
 =============
 
