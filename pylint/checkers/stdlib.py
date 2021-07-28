@@ -512,8 +512,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     if (
                         isinstance(node.func, astroid.Name)
                         and node.func.name in OPEN_FILES_ENCODING
-                    ) or (
-                        isinstance(node.func, astroid.Attribute)
+                        or isinstance(node.func, astroid.Attribute)
                         and node.func.attrname in OPEN_FILES_ENCODING
                     ):
                         self._check_open_encoded(node)
