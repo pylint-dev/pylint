@@ -33,10 +33,10 @@ def main() -> None:
     logging.debug(f"Launching bump_changelog with args: {args}")
     if "dev" in args.version:
         return
-    with open(DEFAULT_CHANGELOG_PATH) as f:
+    with open(DEFAULT_CHANGELOG_PATH, encoding="utf-8") as f:
         content = f.read()
     content = transform_content(content, args.version)
-    with open(DEFAULT_CHANGELOG_PATH, "w") as f:
+    with open(DEFAULT_CHANGELOG_PATH, "w", encoding="utf-8") as f:
         f.write(content)
 
 
