@@ -373,7 +373,7 @@ group are mutually exclusive.",
 
         if self._output:
             try:
-                with open(self._output, "w") as output:
+                with open(self._output, "w", encoding="utf-8") as output:
                     linter.reporter.set_output(output)
                     linter.check(args)
                     score_value = linter.generate_reports()

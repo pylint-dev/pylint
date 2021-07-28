@@ -546,7 +546,7 @@ def Run(argv=None):
         min_lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
     )
     for filename in args:
-        with open(filename) as stream:
+        with open(filename, encoding="utf-8") as stream:
             sim.append_stream(filename, stream)
     sim.run()
     sys.exit(0)
