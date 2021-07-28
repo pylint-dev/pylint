@@ -26,6 +26,12 @@ Release date: TBA
 
   Close #4120
 
+* Don't emit ``no-member`` error if guarded behind if statement.
+
+  Ref #1162
+  Closes #1990
+  Closes #4168
+
 
 What's New in Pylint 2.9.6?
 ===========================
