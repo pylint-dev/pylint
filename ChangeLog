@@ -27,7 +27,7 @@ Release date: TBA
   Close #4120
   Close #4118
 
-* Support configuring mixin class pattern via `mixin-class-rgx` when `ignore-mixin-members` is enabled.
+* Support configuring mixin class pattern via ``mixin-class-rgx`` when ``ignore-mixin-members`` is enabled.
 
 * Don't emit ``no-member`` error if guarded behind if statement.
 
