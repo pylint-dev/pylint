@@ -523,3 +523,5 @@ contributors:
 * Marcin Kurczewski (rr-): contributor
 
 * Eisuke Kawashima (e-kwsm): contributor
+
+* Daniel van Noord (DanielNoord): contributor

@@ -2,12 +2,24 @@
 Pylint's ChangeLog
 ------------------
 
+
+
 What's New in Pylint 2.10.0?
 ============================
 Release date: TBA
 
 ..
   Put new features here and also in 'doc/whatsnew/2.10.rst'
+..
+  Put bug fixes that should not wait for a new minor version here
+
+* Added ``unspecified-encoding``: Emitted when open() is called without specifying an encoding
+
+  Closes #3826
+
+* Improved the Similarity checker performance.
+
+  Close #4120
 
 * The default for ``PYLINTHOME`` is now the standard ``XDG_CACHE_HOME``, and pylint now uses ``appdirs``.
 
@@ -16,10 +28,13 @@ Release date: TBA
 
 What's New in Pylint 2.9.6?
 ===========================
-Release date: TBA
+Release date: 2021-07-28
 
-..
-  Put bug fixes that should not wait for a new minor version here
+
+* Fix a false positive ``undefined-variable`` when variable name in decoration
+  matches function argument
+
+  Closes #3791
 
 
 What's New in Pylint 2.9.5?

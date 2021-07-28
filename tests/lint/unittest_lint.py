@@ -157,7 +157,7 @@ def create_files(paths, chroot="."):
         if not isdir(dirpath):
             os.makedirs(dirpath)
     for filepath in files:
-        with open(filepath, "w"):
+        with open(filepath, "w", encoding="utf-8"):
             pass
 
 
