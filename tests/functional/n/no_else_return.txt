@@ -1,7 +1,0 @@
-no-else-return:6:foo1:Unnecessary "else" after "return"
-no-else-return:15:foo2:Unnecessary "elif" after "return"
-no-else-return:29:foo3:Unnecessary "else" after "return"
-no-else-return:41:foo4:Unnecessary "else" after "return"
-no-else-return:53:foo5:Unnecessary "elif" after "return"
-no-else-return:68:foo6:Unnecessary "else" after "return"
-no-else-return:104:bar4:Unnecessary "else" after "return"

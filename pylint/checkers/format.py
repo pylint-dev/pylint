@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012-2015 Google, Inc.
 # Copyright (c) 2013 moxian <aleftmail@inbox.ru>
-# Copyright (c) 2014-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 frost-nzcr4 <frost.nzcr4@jagmort.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
@@ -16,30 +15,31 @@
 # Copyright (c) 2016 Petr Pulc <petrpulc@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2017, 2019 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017, 2019-2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2017 Krzysztof Czapla <k.czapla68@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 James M. Allen <james.m.allen@gmail.com>
 # Copyright (c) 2017 vinnyrose <vinnyrose@users.noreply.github.com>
-# Copyright (c) 2018-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2018 Pierre Sassoulas <pierre.sassoulas@wisebim.fr>
+# Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2018, 2020 Bryce Guinta <bryce.guinta@protonmail.com>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
 # Copyright (c) 2018 Michael Hudson-Doyle <michael.hudson@canonical.com>
 # Copyright (c) 2018 Natalie Serebryakova <natalie.serebryakova@Natalies-MacBook-Pro.local>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Marcus Näslund <naslundx@gmail.com>
-# Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Fureigh <rhys.fureigh@gsa.gov>
 # Copyright (c) 2018 Andreas Freimuth <andreas.freimuth@united-bits.de>
 # Copyright (c) 2018 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2020 Raphael Gaschignard <raphael@rtpg.co>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Python code format's checker.
 
@@ -52,7 +52,6 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 import tokenize
 from functools import reduce  # pylint: disable=redefined-builtin
-from tokenize import TokenInfo
 from typing import List
 
 from astroid import nodes
@@ -261,7 +260,7 @@ class FormatChecker(BaseTokenChecker):
                 "metavar": "<regexp>",
                 "default": r"^\s*(# )?<?https?://\S+>?$",
                 "help": (
-                    "Regexp for a line that is allowed to be longer than " "the limit."
+                    "Regexp for a line that is allowed to be longer than the limit."
                 ),
             },
         ),
@@ -354,8 +353,10 @@ class FormatChecker(BaseTokenChecker):
     def process_module(self, _module):
         pass
 
-    def _check_keyword_parentheses(self, tokens: List[TokenInfo], start: int) -> None:
-        """Check that there are not unnecessary parens after a keyword.
+    def _check_keyword_parentheses(
+        self, tokens: List[tokenize.TokenInfo], start: int
+    ) -> None:
+        """Check that there are not unnecessary parentheses after a keyword.
 
         Parens are unnecessary if there is exactly one balanced outer pair on a
         line, and it is followed by a colon, and contains no commas (i.e. is not a
@@ -385,7 +386,7 @@ class FormatChecker(BaseTokenChecker):
             # Since the walrus operator doesn't exist below python3.8, the tokenizer
             # generates independent tokens
             if (
-                token.string == ":="  #  <-- python3.8+ path
+                token.string == ":="  # <-- python3.8+ path
                 or token.string + tokens[i + 1].string == ":="
             ):
                 contains_walrus_operator = True
@@ -442,9 +443,7 @@ class FormatChecker(BaseTokenChecker):
 
     def _prepare_token_dispatcher(self):
         dispatch = {}
-        for tokens, handler in [
-            (_KEYWORD_TOKENS, self._check_keyword_parentheses),
-        ]:
+        for tokens, handler in ((_KEYWORD_TOKENS, self._check_keyword_parentheses),):
             for token in tokens:
                 dispatch[token] = handler
         return dispatch
@@ -452,9 +451,9 @@ class FormatChecker(BaseTokenChecker):
     def process_tokens(self, tokens):
         """process tokens and search for :
 
-         _ too long lines (i.e. longer than <max_chars>)
-         _ optionally bad construct (if given, bad_construct must be a compiled
-           regular expression).
+        _ too long lines (i.e. longer than <max_chars>)
+        _ optionally bad construct (if given, bad_construct must be a compiled
+          regular expression).
         """
         self._bracket_stack = [None]
         indents = [0]
@@ -528,7 +527,10 @@ class FormatChecker(BaseTokenChecker):
                 "too-many-lines"
             )[0]
             names = (message_definition.msgid, "too-many-lines")
-            line = next(filter(None, map(self.linter._pragma_lineno.get, names)), 1)
+            line = next(
+                filter(None, (self.linter._pragma_lineno.get(name) for name in names)),
+                1,
+            )
             self.add_message(
                 "too-many-lines",
                 args=(line_num, self.config.max_module_lines),
@@ -630,9 +632,10 @@ class FormatChecker(BaseTokenChecker):
             return
 
         # Function overloads that use ``Ellipsis`` are exempted.
-        if isinstance(node, nodes.Expr) and (
-            isinstance(node.value, nodes.Ellipsis)
-            or (isinstance(node.value, nodes.Const) and node.value.value is Ellipsis)
+        if (
+            isinstance(node, nodes.Expr)
+            and isinstance(node.value, nodes.Const)
+            and node.value.value is Ellipsis
         ):
             frame = node.frame()
             if is_overload_stub(frame) or is_protocol_class(node_frame_class(frame)):
@@ -725,25 +728,51 @@ class FormatChecker(BaseTokenChecker):
             - no trailing whitespace
             - less than a maximum number of characters
         """
-        #  By default, check the line length
-        check_l_length = True
+        # we're first going to do a rough check whether any lines in this set
+        # go over the line limit. If none of them do, then we don't need to
+        # parse out the pylint options later on and can just assume that these
+        # lines are clean
+
+        # we'll also handle the line ending check here to avoid double-iteration
+        # unless the line lengths are suspect
+
+        max_chars = self.config.max_line_length
+
+        split_lines = self.specific_splitlines(lines)
+
+        for offset, line in enumerate(split_lines):
+            self.check_line_ending(line, lineno + offset)
+
+        # hold onto the initial lineno for later
+        potential_line_length_warning = False
+        for offset, line in enumerate(split_lines):
+            # this check is purposefully simple and doesn't rstrip
+            # since this is running on every line you're checking it's
+            # advantageous to avoid doing a lot of work
+            if len(line) > max_chars:
+                potential_line_length_warning = True
+                break
+
+        # if there were no lines passing the max_chars config, we don't bother
+        # running the full line check (as we've met an even more strict condition)
+        if not potential_line_length_warning:
+            return
 
         # Line length check may be deactivated through `pylint: disable` comment
         mobj = OPTION_PO.search(lines)
         if mobj:
-            check_l_length = self.is_line_length_check_activated(mobj)
+            if not self.is_line_length_check_activated(mobj):
+                # the line length check is deactivated, we can stop here
+                return
             # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(mobj)
 
-        for line in self.specific_splitlines(lines):
-            if check_l_length:
-                self.check_line_length(line, lineno)
-            self.check_line_ending(line, lineno)
-            lineno += 1
+        # here we re-run specific_splitlines since we have filtered out pylint options above
+        for offset, line in enumerate(self.specific_splitlines(lines)):
+            self.check_line_length(line, lineno + offset)
 
     def check_indent_level(self, string, expected, line_num):
-        """return the indent level of the string
-        """
+        """return the indent level of the string"""
         indent = self.config.indent_string
         if indent == "\\t":  # \t is not interpreted in the configuration file
             indent = "\t"
@@ -768,5 +797,5 @@ class FormatChecker(BaseTokenChecker):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(FormatChecker(linter))

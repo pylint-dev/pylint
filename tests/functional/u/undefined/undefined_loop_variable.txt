@@ -1,0 +1,3 @@
+undefined-loop-variable:6:11:do_stuff:Using possibly undefined loop variable 'var'
+undefined-loop-variable:25:7::Using possibly undefined loop variable 'var1'
+undefined-loop-variable:75:11:do_stuff_with_redefined_range:Using possibly undefined loop variable 'var'

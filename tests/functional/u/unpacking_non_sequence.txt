@@ -1,10 +1,10 @@
-unpacking-non-sequence:78::Attempting to unpack a non-sequence defined at line 75
-unpacking-non-sequence:79::Attempting to unpack a non-sequence
-unpacking-non-sequence:80::Attempting to unpack a non-sequence None
-unpacking-non-sequence:81::Attempting to unpack a non-sequence 1
-unpacking-non-sequence:82::Attempting to unpack a non-sequence defined at line 9 of functional.u.unpacking
-unpacking-non-sequence:83::Attempting to unpack a non-sequence defined at line 11 of functional.u.unpacking
-unpacking-non-sequence:84::Attempting to unpack a non-sequence
-unpacking-non-sequence:99:ClassUnpacking.test:Attempting to unpack a non-sequence defined at line 75
-unpacking-non-sequence:100:ClassUnpacking.test:Attempting to unpack a non-sequence
-unpacking-non-sequence:101:ClassUnpacking.test:Attempting to unpack a non-sequence
+unpacking-non-sequence:77:0::Attempting to unpack a non-sequence defined at line 74
+unpacking-non-sequence:78:0::Attempting to unpack a non-sequence
+unpacking-non-sequence:79:0::Attempting to unpack a non-sequence None
+unpacking-non-sequence:80:0::Attempting to unpack a non-sequence 1
+unpacking-non-sequence:81:0::Attempting to unpack a non-sequence defined at line 9 of functional.u.unpacking
+unpacking-non-sequence:82:0::Attempting to unpack a non-sequence defined at line 11 of functional.u.unpacking
+unpacking-non-sequence:83:0::Attempting to unpack a non-sequence
+unpacking-non-sequence:98:8:ClassUnpacking.test:Attempting to unpack a non-sequence defined at line 74
+unpacking-non-sequence:99:8:ClassUnpacking.test:Attempting to unpack a non-sequence
+unpacking-non-sequence:100:8:ClassUnpacking.test:Attempting to unpack a non-sequence

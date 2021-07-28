@@ -35,6 +35,8 @@ name is found in, and not the type of object assigned.
 +--------------------+---------------------------------------------------------------------------------------------------+
 | ``class-attribute``| Attributes defined in class bodies.                                                               |
 +--------------------+---------------------------------------------------------------------------------------------------+
+| ``class-const``    | Enum constants and class variables annotated with ``ClassVar``                                    |
++--------------------+---------------------------------------------------------------------------------------------------+
 | ``inlinevar``      | Loop variables in list comprehensions and generator expressions.                                  |
 +--------------------+---------------------------------------------------------------------------------------------------+
 
@@ -76,6 +78,8 @@ Following options are exposed:
 
 .. option:: --class-attribute-naming-style=<style>
 
+.. option:: --class-const-naming-style=<style>
+
 .. option:: --inlinevar-naming-style=<style>
 
 
@@ -110,10 +114,12 @@ expression will lead to an instance of ``invalid-name``.
 
 .. option:: --class-attribute-rgx=<regex>
 
+.. option:: --class-const-rgx=<regex>
+
 .. option:: --inlinevar-rgx=<regex>
 
 Multiple naming styles for custom regular expressions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Large code bases that have been worked on for multiple years often exhibit an
 evolution in style as well. In some cases, modules can be in the same package,
@@ -127,7 +133,7 @@ prevalent naming style inside each module and enforce it on all names.
 
 Consider the following (simplified) example::
 
-   pylint --function-rgx='(?:(?P<snake>[a-z_]+)|(?P<camel>_?[A-Z]+))$' sample.py
+   pylint --function-rgx='(?:(?P<snake>[a-z_]+)|(?P<camel>[a-z]+([A-Z][a-z]*)*))$' sample.py
 
 The regular expression defines two naming styles, ``snake`` for snake-case
 names, and ``camel`` for camel-case names.

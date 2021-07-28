@@ -1,3 +1,0 @@
-blacklisted-name:5::"Black listed name ""explicit_bad_some_constant"""
-invalid-name:7::"Constant name ""snake_case_bad_SOME_CONSTANT"" doesn't conform to snake_case naming style ('([^\\W\\dA-Z][^\\WA-Z]*|__.*__)$' pattern)"
-blacklisted-name:19:blacklisted_2_snake_case:"Black listed name ""blacklisted_2_snake_case"""

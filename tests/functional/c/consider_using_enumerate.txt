@@ -1,4 +1,0 @@
-consider-using-enumerate:7:bad:Consider using enumerate instead of iterating with range and len
-consider-using-enumerate:9:bad:Consider using enumerate instead of iterating with range and len
-consider-using-enumerate:17:Bad.__iter__:Consider using enumerate instead of iterating with range and len
-consider-using-enumerate:21:Bad.test:Consider using enumerate instead of iterating with range and len

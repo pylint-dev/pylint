@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2014-2015 Bruno Daniel <bruno.daniel@blue-yonder.com>
-# Copyright (c) 2015-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016-2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
@@ -11,20 +10,30 @@
 # Copyright (c) 2018 Jim Robertson <jrobertson98atx@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Adam Dangoor <adamdangoor@gmail.com>
+# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Luigi <luigi.cristofolini@q-ctrl.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Logan Miller <14319179+komodo472@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Pylint plugin for checking in Sphinx, Google, or Numpy style docstrings
 """
+import re
+from typing import Optional
+
 import astroid
 
-import pylint.extensions._check_docs_utils as utils
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
+from pylint.extensions import _check_docs_utils as utils
+from pylint.extensions._check_docs_utils import Docstring
 from pylint.interfaces import IAstroidChecker
+from pylint.utils import get_global_option
 
 
 class DocstringParameterChecker(BaseChecker):
@@ -123,6 +132,16 @@ class DocstringParameterChecker(BaseChecker):
             "differing-type-doc",
             "Please check parameter names in type declarations.",
         ),
+        "W9019": (
+            '"%s" useless ignored parameter documentation',
+            "useless-param-doc",
+            "Please remove the ignored parameter documentation.",
+        ),
+        "W9020": (
+            '"%s" useless ignored parameter type documentation',
+            "useless-type-doc",
+            "Please remove the ignored parameter type documentation.",
+        ),
     }
 
     options = (
@@ -193,6 +212,18 @@ class DocstringParameterChecker(BaseChecker):
         :type node: :class:`astroid.scoped_nodes.Function`
         """
         node_doc = utils.docstringify(node.doc, self.config.default_docstring_type)
+
+        # skip functions that match the 'no-docstring-rgx' config option
+        no_docstring_rgx = get_global_option(self, "no-docstring-rgx")
+        if no_docstring_rgx and re.match(no_docstring_rgx, node.name):
+            return
+
+        # skip functions smaller than 'docstring-min-length'
+        lines = checker_utils.get_node_last_lineno(node) - node.lineno
+        max_lines = get_global_option(self, "docstring-min-length")
+        if max_lines > -1 and lines < max_lines:
+            return
+
         self.check_functiondef_params(node, node_doc)
         self.check_functiondef_returns(node, node_doc)
         self.check_functiondef_yields(node, node_doc)
@@ -336,16 +367,20 @@ class DocstringParameterChecker(BaseChecker):
         """Compare the found argument names with the expected ones and
         generate a message if there are arguments missing.
 
-        :param set found_argument_names: argument names found in the
-            docstring
+        :param found_argument_names: argument names found in the docstring
+        :type found_argument_names: set
 
-        :param str message_id: pylint message id
+        :param message_id: pylint message id
+        :type message_id: str
 
         :param not_needed_names: names that may be omitted
-        :type not_needed_names: set of str
+        :type not_needed_names: set
 
-        :param set expected_argument_names: Expected argument names
-        :param NodeNG warning_node: The node to be analyzed
+        :param expected_argument_names: Expected argument names
+        :type expected_argument_names: set
+
+        :param warning_node: The node to be analyzed
+        :type warning_node: :class:`astroid.scoped_nodes.Node`
         """
         missing_argument_names = (
             expected_argument_names - found_argument_names
@@ -368,16 +403,20 @@ class DocstringParameterChecker(BaseChecker):
         """Compare the found argument names with the expected ones and
         generate a message if there are extra arguments found.
 
-        :param set found_argument_names: argument names found in the
-            docstring
+        :param found_argument_names: argument names found in the docstring
+        :type found_argument_names: set
 
-        :param str message_id: pylint message id
+        :param message_id: pylint message id
+        :type message_id: str
 
         :param not_needed_names: names that may be omitted
-        :type not_needed_names: set of str
+        :type not_needed_names: set
 
-        :param set expected_argument_names: Expected argument names
-        :param NodeNG warning_node: The node to be analyzed
+        :param expected_argument_names: Expected argument names
+        :type expected_argument_names: set
+
+        :param warning_node: The node to be analyzed
+        :type warning_node: :class:`astroid.scoped_nodes.Node`
         """
         differing_argument_names = (
             (expected_argument_names ^ found_argument_names)
@@ -392,8 +431,43 @@ class DocstringParameterChecker(BaseChecker):
                 node=warning_node,
             )
 
+    def _compare_ignored_args(
+        self,
+        found_argument_names,
+        message_id,
+        ignored_argument_names,
+        warning_node,
+    ):
+        """Compare the found argument names with the ignored ones and
+        generate a message if there are ignored arguments found.
+
+        :param found_argument_names: argument names found in the docstring
+        :type found_argument_names: set
+
+        :param message_id: pylint message id
+        :type message_id: str
+
+        :param ignored_argument_names: Expected argument names
+        :type ignored_argument_names: set
+
+        :param warning_node: The node to be analyzed
+        :type warning_node: :class:`astroid.scoped_nodes.Node`
+        """
+        existing_ignored_argument_names = ignored_argument_names & found_argument_names
+
+        if existing_ignored_argument_names:
+            self.add_message(
+                message_id,
+                args=(", ".join(sorted(existing_ignored_argument_names)),),
+                node=warning_node,
+            )
+
     def check_arguments_in_docstring(
-        self, doc, arguments_node, warning_node, accept_no_param_doc=None
+        self,
+        doc: Docstring,
+        arguments_node: astroid.Arguments,
+        warning_node: astroid.NodeNG,
+        accept_no_param_doc: Optional[bool] = None,
     ):
         """Check that all parameters in a function, method or class constructor
         on the one hand and the parameters mentioned in the parameter
@@ -442,6 +516,15 @@ class DocstringParameterChecker(BaseChecker):
         expected_argument_names.update(arg.name for arg in arguments_node.kwonlyargs)
         not_needed_type_in_docstring = self.not_needed_param_in_docstring.copy()
 
+        expected_but_ignored_argument_names = set()
+        ignored_argument_names = get_global_option(self, "ignored-argument-names")
+        if ignored_argument_names:
+            expected_but_ignored_argument_names = {
+                arg
+                for arg in expected_argument_names
+                if ignored_argument_names.match(arg)
+            }
+
         if arguments_node.vararg is not None:
             expected_argument_names.add(arguments_node.vararg)
             not_needed_type_in_docstring.add(arguments_node.vararg)
@@ -449,7 +532,6 @@ class DocstringParameterChecker(BaseChecker):
             expected_argument_names.add(arguments_node.kwarg)
             not_needed_type_in_docstring.add(arguments_node.kwarg)
         params_with_doc, params_with_type = doc.match_param_docs()
-
         # Tolerate no parameter documentation at all.
         if not params_with_doc and not params_with_type and accept_no_param_doc:
             tolerate_missing_params = True
@@ -458,11 +540,21 @@ class DocstringParameterChecker(BaseChecker):
             self._compare_missing_args(
                 params_with_doc,
                 "missing-param-doc",
-                self.not_needed_param_in_docstring,
+                self.not_needed_param_in_docstring
+                | expected_but_ignored_argument_names,
                 expected_argument_names,
                 warning_node,
             )
 
+        # This is before the update of param_with_type because this must check only
+        # the type documented in a docstring, not the one using pep484
+        # See #4117 and #4593
+        self._compare_ignored_args(
+            params_with_type,
+            "useless-type-doc",
+            expected_but_ignored_argument_names,
+            warning_node,
+        )
         for index, arg_name in enumerate(arguments_node.args):
             if arguments_node.annotations[index]:
                 params_with_type.add(arg_name.name)
@@ -474,7 +566,7 @@ class DocstringParameterChecker(BaseChecker):
             self._compare_missing_args(
                 params_with_type,
                 "missing-type-doc",
-                not_needed_type_in_docstring,
+                not_needed_type_in_docstring | expected_but_ignored_argument_names,
                 expected_argument_names,
                 warning_node,
             )
@@ -491,6 +583,12 @@ class DocstringParameterChecker(BaseChecker):
             "differing-type-doc",
             not_needed_type_in_docstring,
             expected_argument_names,
+            warning_node,
+        )
+        self._compare_ignored_args(
+            params_with_doc,
+            "useless-param-doc",
+            expected_but_ignored_argument_names,
             warning_node,
         )
 

@@ -1,2 +1,2 @@
-preferred-module:4::Prefer importing 'ujson' instead of 'json'
-preferred-module:5::Prefer importing 'regex' instead of 're'
+preferred-module:4:0::Prefer importing 'ujson' instead of 'json'
+preferred-module:5:0::Prefer importing 'regex' instead of 're'

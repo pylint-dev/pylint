@@ -1,5 +1,5 @@
-# pylint: disable=E1101, no-absolute-import, import-error,line-too-long, missing-docstring,wrong-import-order,wrong-import-position
-# pylint: disable=invalid-name
+# pylint: disable=no-member, no-absolute-import, import-error,line-too-long
+# pylint: disable=invalid-name,missing-docstring,wrong-import-order,wrong-import-position
 try:
     import __builtin__ as builtins
 except ImportError:
@@ -33,7 +33,5 @@ class Logger(renamed_logging.Logger):
     pass
 
 custom_logger = Logger('three')
-
-# Currently disabled until we get this in https://github.com/PyCQA/astroid/pull/637
-# custom_logger.info('testing {0}'.format('info'))
-# custom_logger.info('testing %s' % 'info')
+custom_logger.info('testing {0}'.format('info'))  # [logging-format-interpolation]
+custom_logger.info('testing %s' % 'info')  # [logging-not-lazy]

@@ -7,5 +7,6 @@ class Unhashable(object):
 {}[[1, 2, 3]] # [unhashable-dict-key]
 {}[{}] # [unhashable-dict-key]
 {}[Unhashable()] # [unhashable-dict-key]
+{}[1:2]  # [unhashable-dict-key]
 {'foo': 'bar'}['foo']
 {'foo': 'bar'}[42]

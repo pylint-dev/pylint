@@ -1,0 +1,7 @@
+no-else-return:6:4:foo1:"Unnecessary ""else"" after ""return"""
+no-else-return:15:4:foo2:"Unnecessary ""elif"" after ""return"""
+no-else-return:29:8:foo3:"Unnecessary ""else"" after ""return"""
+no-else-return:41:4:foo4:"Unnecessary ""else"" after ""return"""
+no-else-return:53:4:foo5:"Unnecessary ""elif"" after ""return"""
+no-else-return:68:8:foo6:"Unnecessary ""else"" after ""return"""
+no-else-return:104:4:bar4:"Unnecessary ""else"" after ""return"""

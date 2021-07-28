@@ -1,8 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 
-import optparse
+import optparse  # pylint: disable=deprecated-module
 from typing import Any, Dict, Tuple
 
 from pylint.config.option import _validate
@@ -18,7 +18,7 @@ class OptionsProviderMixIn:
     # those attributes should be overridden
     priority = -1
     name = "default"
-    options = ()  # type: Tuple[Tuple[str, Dict[str, Any]], ...]
+    options: Tuple[Tuple[str, Dict[str, Any]], ...] = ()
     level = 0
 
     def __init__(self):
@@ -86,7 +86,7 @@ class OptionsProviderMixIn:
             if option[0] == opt:
                 return option[1]
         raise optparse.OptionError(
-            "no such option %s in section %r" % (opt, self.name), opt
+            f"no such option {opt} in section {self.name!r}", opt
         )
 
     def options_by_section(self):

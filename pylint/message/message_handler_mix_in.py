@@ -1,7 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import sys
+from typing import List, Tuple
 
 from pylint.constants import (
     _SCOPE_EXEMPT,
@@ -21,11 +22,9 @@ from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
 
 
 class MessagesHandlerMixIn:
-    """a mix-in class containing all the messages related methods for the main
-    lint class
-    """
+    """A mix-in class containing all the messages related methods for the main lint class."""
 
-    __by_id_managed_msgs = []  # type: ignore
+    __by_id_managed_msgs: List[Tuple[str, str, str, int, bool]] = []
 
     def __init__(self):
         self._msgs_state = {}
@@ -43,34 +42,24 @@ class MessagesHandlerMixIn:
     def get_by_id_managed_msgs(cls):
         return cls.__by_id_managed_msgs
 
-    def _register_by_id_managed_msg(self, msgid, line, is_disabled=True):
+    def _register_by_id_managed_msg(self, msgid_or_symbol: str, line, is_disabled=True):
         """If the msgid is a numeric one, then register it to inform the user
         it could furnish instead a symbolic msgid."""
-        try:
-            message_definitions = self.msgs_store.get_message_definitions(msgid)
-            for message_definition in message_definitions:
-                if msgid == message_definition.msgid:
-                    MessagesHandlerMixIn.__by_id_managed_msgs.append(
-                        (
-                            self.current_name,
-                            message_definition.msgid,
-                            message_definition.symbol,
-                            line,
-                            is_disabled,
-                        )
-                    )
-        except UnknownMessageError:
-            pass
+        if msgid_or_symbol[1:].isdigit():
+            try:
+                symbol = self.msgs_store.message_id_store.get_symbol(msgid=msgid_or_symbol)  # type: ignore
+            except UnknownMessageError:
+                return
+            managed = (self.current_name, msgid_or_symbol, symbol, line, is_disabled)  # type: ignore
+            MessagesHandlerMixIn.__by_id_managed_msgs.append(managed)
 
     def disable(self, msgid, scope="package", line=None, ignore_unknown=False):
-        """don't output message of the given id"""
         self._set_msg_status(
             msgid, enable=False, scope=scope, line=line, ignore_unknown=ignore_unknown
         )
         self._register_by_id_managed_msg(msgid, line)
 
     def enable(self, msgid, scope="package", line=None, ignore_unknown=False):
-        """reenable message of the given id"""
         self._set_msg_status(
             msgid, enable=True, scope=scope, line=line, ignore_unknown=ignore_unknown
         )
@@ -80,7 +69,6 @@ class MessagesHandlerMixIn:
         self, msgid, enable, scope="package", line=None, ignore_unknown=False
     ):
         assert scope in ("package", "module")
-
         if msgid == "all":
             for _msgid in MSG_TYPES:
                 self._set_msg_status(_msgid, enable, scope, line, ignore_unknown)
@@ -195,7 +183,7 @@ class MessagesHandlerMixIn:
         except KeyError:
             # Check if the message's line is after the maximum line existing in ast tree.
             # This line won't appear in the ast tree and won't be referred in
-            #  self.file_state._module_msgs_state
+            # self.file_state._module_msgs_state
             # This happens for example with a commented line at the end of a module.
             max_line_number = self.file_state.get_effective_max_line_number()
             if max_line_number and line > max_line_number:
@@ -286,6 +274,17 @@ class MessagesHandlerMixIn:
         # update stats
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
+        if self.stats is None:
+            # pylint: disable=fixme
+            # TODO self.stats should make sense,
+            # class should make sense as soon as instantiated
+            # This is not true for Linter and Reporter at least
+            # pylint: enable=fixme
+            self.stats = {
+                msg_cat: 0,
+                "by_module": {self.current_name: {msg_cat: 0}},
+                "by_msg": {},
+            }
         self.stats[msg_cat] += 1
         self.stats["by_module"][self.current_name][msg_cat] += 1
         try:
@@ -303,7 +302,10 @@ class MessagesHandlerMixIn:
         else:
             module, obj = get_module_and_frameid(node)
             abspath = node.root().file
-        path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
+        if abspath is not None:
+            path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
+        else:
+            path = "configuration"
         # add the message
         self.reporter.handle_message(
             Message(

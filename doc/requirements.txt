@@ -1,1 +1,3 @@
-python-docs-theme
+Sphinx==4.1.1
+python-docs-theme==2021.5
+-e .

@@ -1,5 +1,0 @@
-implicit-str-concat:4::Implicit string concatenation found in list
-implicit-str-concat:6::Implicit string concatenation found in tuple
-implicit-str-concat:8::Implicit string concatenation found in set
-implicit-str-concat:11::Implicit string concatenation found in list
-implicit-str-concat:27::Implicit string concatenation found in assignment

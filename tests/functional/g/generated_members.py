@@ -9,6 +9,8 @@ class Klass(object):
 
 print(Klass().DoesNotExist)
 print(Klass().aBC_set1)
+print(Klass().ham.does.not_.exist)
+print(Klass().spam.does.not_.exist)  # [no-member]
 node_classes.Tuple.does.not_.exist
 checkers.base.doesnotexist()
 

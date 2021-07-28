@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 
 import collections
@@ -40,12 +40,10 @@ class Message(_MsgBase):
             *location
         )
 
-    def format(self, template):
+    def format(self, template: str) -> str:
         """Format the message according to the given template.
 
         The template format is the one of the format method :
         cf. https://docs.python.org/2/library/string.html#formatstrings
         """
-        # For some reason, _asdict on derived namedtuples does not work with
-        # Python 3.4. Needs some investigation.
-        return template.format(**dict(zip(self._fields, self)))
+        return template.format(**self._asdict())

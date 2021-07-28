@@ -1,16 +1,19 @@
-# Copyright (c) 2014-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
+# Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Unit tests for the variables checker."""
 import astroid
@@ -116,3 +119,128 @@ class TestVariablesChecker(CheckerTestCase):
             Message("protected-access", node=node.value, args="_nargs")
         ):
             self.checker.visit_attribute(node.value)
+
+    @set_config(check_protected_access_in_special_methods=True)
+    def test_check_protected_access_in_special_methods(self):
+        """Test that check-protected-access-in-special-methods can be used to
+        trigger protected-access message emission for single underscore prefixed names
+        inside special methods
+        """
+
+        node = astroid.parse(
+            """
+        class Protected:
+            '''empty'''
+            def __init__(self):
+                self._protected = 42
+                self.public = "A"
+                self.__private = None
+            def __eq__(self, other):
+                self._protected = other._protected
+            def _fake_special_(self, other):
+                a = other.public
+                self.public = other._protected
+                self.__private = other.__private
+        """
+        )
+        classdef = node.body[-1]
+        assign_attribute_in_eq = classdef.instance_attr("_protected")[-1]
+        attribute_in_eq = list(assign_attribute_in_eq.assigned_stmts())[-1]
+        assign_attribute_in_fake_1 = classdef.instance_attr("public")[-1]
+        attribute_in_fake_1 = list(assign_attribute_in_fake_1.assigned_stmts())[-1]
+        assign_attribute_in_fake_2 = classdef.instance_attr("__private")[-1]
+        attribute_in_fake_2 = list(assign_attribute_in_fake_2.assigned_stmts())[-1]
+        unused_private_attr_1 = classdef.instance_attr("__private")[0]
+        unused_private_attr_2 = classdef.instance_attr("__private")[1]
+        with self.assertAddsMessages(
+            Message("protected-access", node=attribute_in_eq, args="_protected"),
+            Message("protected-access", node=attribute_in_fake_1, args="_protected"),
+            Message("protected-access", node=attribute_in_fake_2, args="__private"),
+            Message(
+                "unused-private-member",
+                node=unused_private_attr_1,
+                args=("Protected", "__private"),
+            ),
+            Message(
+                "unused-private-member",
+                node=unused_private_attr_2,
+                args=("Protected", "__private"),
+            ),
+        ):
+            self.walk(node.root())
+
+    @set_config(check_protected_access_in_special_methods=False)
+    def test_check_protected_access_in_special_methods_deact(self):
+        """Test that when check-protected-access-in-special-methods is False (default)
+        no protected-access message emission for single underscore prefixed names
+        inside special methods occur
+        """
+
+        node = astroid.parse(
+            """
+        class Protected:
+            '''empty'''
+            def __init__(self):
+                self._protected = 42
+                self.public = "A"
+                self.__private = None
+            def __eq__(self, other):
+                self._protected = other._protected
+            def _fake_special_(self, other):
+                a = other.public
+                self.public = other._protected
+                self.__private = other.__private
+        """
+        )
+        classdef = node.body[-1]
+        assign_attribute_in_fake_1 = classdef.instance_attr("public")[-1]
+        attribute_in_fake_1 = list(assign_attribute_in_fake_1.assigned_stmts())[-1]
+        assign_attribute_in_fake_2 = classdef.instance_attr("__private")[-1]
+        attribute_in_fake_2 = list(assign_attribute_in_fake_2.assigned_stmts())[-1]
+        unused_private_attr_1 = classdef.instance_attr("__private")[0]
+        unused_private_attr_2 = classdef.instance_attr("__private")[1]
+        with self.assertAddsMessages(
+            Message("protected-access", node=attribute_in_fake_1, args="_protected"),
+            Message("protected-access", node=attribute_in_fake_2, args="__private"),
+            Message(
+                "unused-private-member",
+                node=unused_private_attr_1,
+                args=("Protected", "__private"),
+            ),
+            Message(
+                "unused-private-member",
+                node=unused_private_attr_2,
+                args=("Protected", "__private"),
+            ),
+        ):
+            self.walk(node.root())
+
+    def test_private_attribute_hides_method(self):
+        node = astroid.extract_node(
+            """
+            class Parent:
+                def __init__(self):
+                    self.__private = None
+
+            class Child(Parent):
+                def __private(self): #@
+                    pass
+            """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_protected_attribute_hides_method(self):
+        node = astroid.extract_node(
+            """
+            class Parent:
+                def __init__(self):
+                    self._protected = None
+
+            class Child(Parent):
+                def _protected(self): #@
+                    pass
+            """
+        )
+        with self.assertAddsMessages(Message("method-hidden", node=node, args=("", 4))):
+            self.checker.visit_functiondef(node)

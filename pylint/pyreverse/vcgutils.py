@@ -1,10 +1,15 @@
-# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
+# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Functions to generate files readable with Georg Sander's vcg
 (Visualization of Compiler Graphs).
@@ -153,36 +158,31 @@ EDGE_ATTRS = {
 
 
 class VCGPrinter:
-    """A vcg graph writer.
-    """
+    """A vcg graph writer."""
 
     def __init__(self, output_stream):
         self._stream = output_stream
         self._indent = ""
 
     def open_graph(self, **args):
-        """open a vcg graph
-        """
+        """open a vcg graph"""
         self._stream.write("%sgraph:{\n" % self._indent)
         self._inc_indent()
         self._write_attributes(GRAPH_ATTRS, **args)
 
     def close_graph(self):
-        """close a vcg graph
-        """
+        """close a vcg graph"""
         self._dec_indent()
         self._stream.write("%s}\n" % self._indent)
 
     def node(self, title, **args):
-        """draw a node
-        """
-        self._stream.write('%snode: {title:"%s"' % (self._indent, title))
+        """draw a node"""
+        self._stream.write(f'{self._indent}node: {{title:"{title}"')
         self._write_attributes(NODE_ATTRS, **args)
         self._stream.write("}\n")
 
     def edge(self, from_node, to_node, edge_type="", **args):
-        """draw an edge from a node to another.
-        """
+        """draw an edge from a node to another."""
         self._stream.write(
             '%s%sedge: {sourcename:"%s" targetname:"%s"'
             % (self._indent, edge_type, from_node, to_node)
@@ -193,8 +193,7 @@ class VCGPrinter:
     # private ##################################################################
 
     def _write_attributes(self, attributes_dict, **args):
-        """write graph, node or edge attributes
-        """
+        """write graph, node or edge attributes"""
         for key, value in args.items():
             try:
                 _type = attributes_dict[key]
@@ -206,24 +205,21 @@ possible attributes are %s"""
                 ) from e
 
             if not _type:
-                self._stream.write('%s%s:"%s"\n' % (self._indent, key, value))
+                self._stream.write(f'{self._indent}{key}:"{value}"\n')
             elif _type == 1:
-                self._stream.write("%s%s:%s\n" % (self._indent, key, int(value)))
+                self._stream.write(f"{self._indent}{key}:{int(value)}\n")
             elif value in _type:
-                self._stream.write("%s%s:%s\n" % (self._indent, key, value))
+                self._stream.write(f"{self._indent}{key}:{value}\n")
             else:
                 raise Exception(
-                    """value %s isn\'t correct for attribute %s
-correct values are %s"""
-                    % (value, key, _type)
+                    f"""value {value} isn't correct for attribute {key}
+correct values are {type}"""
                 )
 
     def _inc_indent(self):
-        """increment indentation
-        """
+        """increment indentation"""
         self._indent = "  %s" % self._indent
 
     def _dec_indent(self):
-        """decrement indentation
-        """
+        """decrement indentation"""
         self._indent = self._indent[:-2]

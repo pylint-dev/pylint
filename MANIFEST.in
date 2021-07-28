@@ -1,13 +1,14 @@
-include ChangeLog
-include CONTRIBUTORS.txt
-include COPYING
-include DEPENDS
-include README.rst
-include bin/*
-include examples/*.py examples/pylintrc examples/pylintrc_camelcase
-include elisp/startup elisp/*.el
-include man/*.1
-include pytest.ini
-recursive-include doc *.bat *.png *.py *.svg *.rst *.txt Makefile
-graft tests
-recursive-exclude tests *.pyc
+recursive-exclude pylint *.rst
+prune .github
+prune doc
+prune elisp
+prune examples
+prune tests
+prune script
+exclude .*
+exclude ChangeLog
+exclude Dockerfile
+exclude README.rst
+exclude pylintrc
+exclude requirements_*.txt
+exclude tox.ini

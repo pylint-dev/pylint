@@ -1,2 +1,0 @@
-useless-super-delegation:21:UselessSuper.useless:Useless super delegation in method 'useless'
-useless-super-delegation:34:Ham.__init__:Useless super delegation in method '__init__'

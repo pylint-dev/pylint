@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # mode: python; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4
 # -*- vim:fenc=utf-8:ft=python:et:sw=4:ts=4:sts=4
 
@@ -8,21 +7,24 @@
 # Copyright (c) 2014 Manuel Vázquez Acosta <mva.led@gmail.com>
 # Copyright (c) 2014 Derek Harland <derek.harland@finq.co.nz>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Daniela Plascencia <daplascen@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Ryan McGuire <ryan@enigmacurry.com>
 # Copyright (c) 2018 thernstig <30827238+thernstig@users.noreply.github.com>
 # Copyright (c) 2018 Radostin Stoyanov <rst0git@users.noreply.github.com>
+# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Emacs and Flymake compatible Pylint.
 
@@ -56,7 +58,6 @@ You may also use py_run to run pylint with desired options and get back (or not)
 its output.
 """
 import os
-import os.path as osp
 import shlex
 import sys
 from io import StringIO
@@ -88,13 +89,15 @@ def lint(filename, options=()):
     the tree)
     """
     # traverse downwards until we are out of a python package
-    full_path = osp.abspath(filename)
-    parent_path = osp.dirname(full_path)
-    child_path = osp.basename(full_path)
+    full_path = os.path.abspath(filename)
+    parent_path = os.path.dirname(full_path)
+    child_path = os.path.basename(full_path)
 
-    while parent_path != "/" and osp.exists(osp.join(parent_path, "__init__.py")):
-        child_path = osp.join(osp.basename(parent_path), child_path)
-        parent_path = osp.dirname(parent_path)
+    while parent_path != "/" and os.path.exists(
+        os.path.join(parent_path, "__init__.py")
+    ):
+        child_path = os.path.join(os.path.basename(parent_path), child_path)
+        parent_path = os.path.dirname(parent_path)
 
     # Start pylint
     # Ensure we use the python and pylint associated with the running epylint
@@ -110,23 +113,24 @@ def lint(filename, options=()):
         ]
         + list(options)
     )
-    process = Popen(
+
+    with Popen(
         cmd, stdout=PIPE, cwd=parent_path, env=_get_env(), universal_newlines=True
-    )
+    ) as process:
 
-    for line in process.stdout:
-        # remove pylintrc warning
-        if line.startswith("No config file found"):
-            continue
+        for line in process.stdout:
+            # remove pylintrc warning
+            if line.startswith("No config file found"):
+                continue
 
-        # modify the file name thats output to reverse the path traversal we made
-        parts = line.split(":")
-        if parts and parts[0] == child_path:
-            line = ":".join([filename] + parts[1:])
-        print(line, end=" ")
+            # modify the file name thats output to reverse the path traversal we made
+            parts = line.split(":")
+            if parts and parts[0] == child_path:
+                line = ":".join([filename] + parts[1:])
+            print(line, end=" ")
 
-    process.wait()
-    return process.returncode
+        process.wait()
+        return process.returncode
 
 
 def py_run(command_options="", return_std=False, stdout=None, stderr=None):
@@ -170,26 +174,26 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
         else:
             stderr = sys.stderr
     # Call pylint in a subprocess
-    process = Popen(
+    with Popen(
         cli,
         shell=False,
         stdout=stdout,
         stderr=stderr,
         env=_get_env(),
         universal_newlines=True,
-    )
-    proc_stdout, proc_stderr = process.communicate()
-    # Return standard output and error
-    if return_std:
-        return StringIO(proc_stdout), StringIO(proc_stderr)
-    return None
+    ) as process:
+        proc_stdout, proc_stderr = process.communicate()
+        # Return standard output and error
+        if return_std:
+            return StringIO(proc_stdout), StringIO(proc_stderr)
+        return None
 
 
 def Run():
     if len(sys.argv) == 1:
         print("Usage: %s <filename> [options]" % sys.argv[0])
         sys.exit(1)
-    elif not osp.exists(sys.argv[1]):
+    elif not os.path.exists(sys.argv[1]):
         print("%s does not exist" % sys.argv[1])
         sys.exit(1)
     else:

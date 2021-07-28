@@ -9,11 +9,11 @@ Linting C extension modules is not supported out of the box, especially since
 pylint has no way to get an AST object out of the extension module.
 
 But **pylint** actually has a mechanism which you might use in case you
-want to analyze C extensions. **pylint** has a flag, called **extension-pkg-whitelist**,
-through which you can tell it to import that module and to build an AST from that
-imported module::
+want to analyze C extensions. **pylint** has a flag, called **extension-pkg-allow-list**
+(formerly **extension-pkg-whitelist**), through which you can tell it to
+import that module and to build an AST from that imported module::
 
-   $ pylint --extension-pkg-whitelist=your_c_extension
+   $ pylint --extension-pkg-allow-list=your_c_extension
 
 Be aware though that using this flag means that extensions are loaded into the
 active Python interpreter and may run arbitrary code, which you may not want. This

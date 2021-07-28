@@ -1,4 +1,0 @@
-invalid-hash-returned:36:FirstBadHash.__hash__:__hash__ does not return int
-invalid-hash-returned:43:SecondBadHash.__hash__:__hash__ does not return int
-invalid-hash-returned:50:ThirdBadHash.__hash__:__hash__ does not return int
-invalid-hash-returned:57:FourthBadHash.__hash__:__hash__ does not return int

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2009-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009, 2012, 2014 Google, Inc.
 # Copyright (c) 2012 Mike Bryant <leachim@leachim.info>
@@ -14,12 +13,13 @@
 # Copyright (c) 2018 Yury Gribov <tetra2005@gmail.com>
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Mariatta Wijaya <mariatta@python.org>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Svet <svet@hyperscience.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """checker for use of Python logging
 """
@@ -31,7 +31,7 @@ from pylint import checkers, interfaces
 from pylint.checkers import utils
 from pylint.checkers.utils import check_messages
 
-MSGS = {
+MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "W1201": (
         "Use %s formatting in logging functions",
         "logging-not-lazy",
@@ -257,7 +257,9 @@ class LoggingChecker(checkers.BaseChecker):
                 emit = total_number_of_strings > 0
             if emit:
                 self.add_message(
-                    "logging-not-lazy", node=node, args=(self._helper_string(node),),
+                    "logging-not-lazy",
+                    node=node,
+                    args=(self._helper_string(node),),
                 )
         elif isinstance(node.args[format_pos], astroid.Call):
             self._check_call_func(node.args[format_pos])

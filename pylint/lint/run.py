@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import os
 import sys
@@ -34,7 +34,7 @@ def cb_list_extensions(option, optname, value, parser):
     for filename in os.listdir(os.path.dirname(extensions.__file__)):
         if filename.endswith(".py") and not filename.startswith("_"):
             extension_name, _, _ = filename.partition(".")
-            print("pylint.extensions.{}".format(extension_name))
+            print(f"pylint.extensions.{extension_name}")
     sys.exit(0)
 
 
@@ -72,9 +72,14 @@ group are mutually exclusive.",
         return 1
 
     def __init__(
-        self, args, reporter=None, exit=True, do_exit=UNUSED_PARAM_SENTINEL,
+        self,
+        args,
+        reporter=None,
+        exit=True,
+        do_exit=UNUSED_PARAM_SENTINEL,
     ):  # pylint: disable=redefined-builtin
         self._rcfile = None
+        self._output = None
         self._version_asked = False
         self._plugins = []
         self.verbose = None
@@ -88,6 +93,7 @@ group are mutually exclusive.",
                     "rcfile": (self.cb_set_rcfile, True),
                     "load-plugins": (self.cb_add_plugins, True),
                     "verbose": (self.cb_verbose_mode, False),
+                    "output": (self.cb_set_output, True),
                 },
             )
         except ArgumentPreprocessingError as ex:
@@ -105,6 +111,17 @@ group are mutually exclusive.",
                         "type": "string",
                         "metavar": "<file>",
                         "help": "Specify a configuration file to load.",
+                    },
+                ),
+                (
+                    "output",
+                    {
+                        "action": "callback",
+                        "callback": Run._return_one,
+                        "group": "Commands",
+                        "type": "string",
+                        "metavar": "<file>",
+                        "help": "Specify an output file.",
                     },
                 ),
                 (
@@ -295,7 +312,12 @@ group are mutually exclusive.",
         # read configuration
         linter.disable("I")
         linter.enable("c-extension-no-member")
-        linter.read_config_file(verbose=self.verbose)
+        try:
+            linter.read_config_file(verbose=self.verbose)
+        except OSError as ex:
+            print(ex, file=sys.stderr)
+            sys.exit(32)
+
         config_parser = linter.cfgfile_parser
         # run init hook, if present, before loading plugins
         if config_parser.has_option("MASTER", "init-hook"):
@@ -335,7 +357,7 @@ group are mutually exclusive.",
         if linter.config.jobs > 1 or linter.config.jobs == 0:
             if multiprocessing is None:
                 print(
-                    "Multiprocessing library is missing, " "fallback to single process",
+                    "Multiprocessing library is missing, fallback to single process",
                     file=sys.stderr,
                 )
                 linter.set_option("jobs", 1)
@@ -346,8 +368,21 @@ group are mutually exclusive.",
         # load plugin specific configuration.
         linter.load_plugin_configuration()
 
-        linter.check(args)
-        score_value = linter.generate_reports()
+        # Now that plugins are loaded, get list of all fail_on messages, and enable them
+        linter.enable_fail_on_messages()
+
+        if self._output:
+            try:
+                with open(self._output, "w", encoding="utf-8") as output:
+                    linter.reporter.set_output(output)
+                    linter.check(args)
+                    score_value = linter.generate_reports()
+            except OSError as ex:
+                print(ex, file=sys.stderr)
+                sys.exit(32)
+        else:
+            linter.check(args)
+            score_value = linter.generate_reports()
 
         if do_exit is not UNUSED_PARAM_SENTINEL:
             warnings.warn(
@@ -359,9 +394,13 @@ group are mutually exclusive.",
         if exit:
             if linter.config.exit_zero:
                 sys.exit(0)
+            elif linter.any_fail_on_issues():
+                # We need to make sure we return a failing exit code in this case.
+                # So we use self.linter.msg_status if that is non-zero, otherwise we just return 1.
+                sys.exit(self.linter.msg_status or 1)
+            elif score_value is not None and score_value >= linter.config.fail_under:
+                sys.exit(0)
             else:
-                if score_value and score_value > linter.config.fail_under:
-                    sys.exit(0)
                 sys.exit(self.linter.msg_status)
 
     def version_asked(self, _, __):
@@ -371,6 +410,10 @@ group are mutually exclusive.",
     def cb_set_rcfile(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""
         self._rcfile = value
+
+    def cb_set_output(self, name, value):
+        """callback for option preprocessing (i.e. before option parsing)"""
+        self._output = value
 
     def cb_add_plugins(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""

@@ -1,0 +1,5 @@
+missing-module-docstring:1:0::Missing module docstring
+missing-class-docstring:9:0:UndocumentedClass:Missing class docstring
+missing-class-docstring:19:0:OtherClassUndocumented:Missing class docstring
+missing-function-docstring:36:0:public_undocumented:Missing function or method docstring
+missing-function-docstring:46:0:undocumented_other_function:Missing function or method docstring

@@ -1,3 +1,0 @@
-invalid-format-returned:36:FirstBadFormat.__format__:__format__ does not return str
-invalid-format-returned:43:SecondBadFormat.__format__:__format__ does not return str
-invalid-format-returned:50:ThirdBadFormat.__format__:__format__ does not return str

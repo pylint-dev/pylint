@@ -1,8 +1,0 @@
-#! /bin/sh -e
-
-if [ "$1" = "purge" ]; then
-    # remove old emacs file
-    rm -f /etc/emacs/site-start.d/50pylint.el
-fi
-
-#DEBHELPER#

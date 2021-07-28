@@ -1,0 +1,4 @@
+missing-return-doc:4:0:_private_func:Missing return documentation
+missing-return-type-doc:4:0:_private_func:Missing return type documentation
+missing-yield-doc:10:0:_private_func2:Missing yield documentation
+missing-yield-type-doc:10:0:_private_func2:Missing yield type documentation

@@ -1,2 +1,0 @@
-too-many-star-expressions:3::More than one starred expression in assignment
-too-many-star-expressions:6::More than one starred expression in assignment

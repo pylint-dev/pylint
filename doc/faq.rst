@@ -50,7 +50,7 @@ supported.
 2.4 What versions of Python is Pylint supporting?
 --------------------------------------------------
 
-The supported running environment since Pylint 2.X is Python 3.5+.
+The supported running environment since Pylint 2.7.X is Python 3.6+.
 
 
 3. Running Pylint
@@ -93,8 +93,13 @@ localized using the following rules:
 
 * value of the PYLINTHOME environment variable if set
 
-* ".pylint.d" subdirectory of the user's home directory if it is found
-	(not always findable on Windows platforms)
+* "pylint" subdirectory of the user's XDG_CACHE_HOME if the environment variable is set, otherwise
+
+        - Linux: "~/.cache/pylint"
+
+        - Mac OS X: "~/Library/Caches/pylint"
+
+        - Windows: "C:\Users\<username>\AppData\Local\pylint"
 
 * ".pylint.d" directory in the current directory
 
@@ -199,6 +204,8 @@ pydocstyle_: missing-module-docstring, missing-class-docstring, missing-function
 
 pep8-naming_: invalid-name, bad-classmethod-argument, bad-mcs-classmethod-argument, no-self-argument
 
+isort_: wrong-import-order
+
 flake8-import-order_: wrong-import-order
 
 .. _`pycodestyle`: https://github.com/PyCQA/pycodestyle
@@ -206,6 +213,7 @@ flake8-import-order_: wrong-import-order
 .. _`mccabe`: https://github.com/PyCQA/mccabe
 .. _`pydocstyle`: https://github.com/PyCQA/pydocstyle
 .. _`pep8-naming`: https://github.com/PyCQA/pep8-naming
+.. _`isort`: https://github.com/pycqa/isort
 .. _`flake8-import-order`: https://github.com/PyCQA/flake8-import-order
 
 

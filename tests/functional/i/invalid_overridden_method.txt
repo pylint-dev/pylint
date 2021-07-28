@@ -1,4 +1,0 @@
-invalid-overridden-method:38:InvalidDerived.prop:Method 'prop' was expected to be 'property', found it instead as 'method'
-invalid-overridden-method:41:InvalidDerived.async_method:Method 'async_method' was expected to be 'async', found it instead as 'non-async'
-invalid-overridden-method:45:InvalidDerived.method_a:Method 'method_a' was expected to be 'method', found it instead as 'property'
-invalid-overridden-method:48:InvalidDerived.method_b:Method 'method_b' was expected to be 'non-async', found it instead as 'async'

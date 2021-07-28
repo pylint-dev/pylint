@@ -286,11 +286,7 @@ contributors:
 
 * Michael Scott Cuthbert: contributor
 
-* Pierre Sassoulas : contributor
-    - Made C0412 (ungrouped import) compatible with isort
-    - Made multiple message with the same old name possible
-    - Made Pylint a little faster by refactoring the message store
-    - Broke down "missing-docstrings" between "module", "class" and "function"
+* Pierre Sassoulas : maintainer, contributor
 
 * Nathan Marrow
 
@@ -395,3 +391,141 @@ contributors:
 * Ram Rachum (cool-RR)
 
 * D. Alphus (Alphadelta14): contributor
+
+* Pieter Engelbrecht
+
+* Ethan Leba: contributor
+
+* Matěj Grabovský: contributor
+
+* Yeting Li (yetingli): contributor
+
+* Frost Ming (frostming): contributor
+
+* Luigi Bertaco Cristofolini (luigibertaco): contributor
+
+* Eli Fine (eli88fine): Fixed false positive duplicate code warning for lines with symbols only
+
+* Ganden Schaffner: contributor
+
+* Josselin Feist: contributor
+
+* David Cain: contributor
+
+* Pedro Algarvio (s0undt3ch): contributor
+
+* Luigi Bertaco Cristofolini (luigibertaco): contributor
+
+* Or Bahari
+
+* Joshua Cannon: contributor
+
+* Giuseppe Valente: contributor
+
+* Takashi Hirashima: contributor
+
+* Joffrey Mander: contributor
+
+* Julien Palard: contributor
+
+* Raphael Gaschignard: contributor
+
+* Sorin Sbarnea: contributor
+
+* Gergely Kalmár: contributor
+
+* Batuhan Taskaya: contributor
+
+* Frank Harrison (doublethefish): contributor
+
+* Gauthier Sebaux: contributor
+
+* Logan Miller (komodo472): contributor
+
+* Matthew Suozzo: contributor
+
+* Marc Mueller (cdce8p): contributor
+
+* David Gilman: contributor
+
+* Ikraduya Edian: contributor
+    - Added new checks 'consider-using-generator' and 'use-a-generator'.
+
+* Tiago Honorato: contributor
+
+* Lefteris Karapetsas: contributor
+
+* Louis Sautier: contributor
+
+* Quentin Young: contributor
+
+* Alexander Kapshuna: contributor
+
+* Mark Byrne: contributor
+
+* Konstantina Saketou: contributor
+
+* Andrew Howe: contributor
+
+* James Sinclair (irgeek): contributor
+
+* Andreas Finkler: contributor
+
+* Aidan Haase, Elizabeth Bott: contributor
+
+* Sebastian Müller: contributor
+
+* Ramiro Leal-Cavazos (ramiro050): Fixed bug preventing pylint from working with emacs tramp
+
+* manderj: contributor
+
+* qwiddle: contributor
+
+* das-intensity: contributor
+
+* Jiajunsu (victor): contributor
+
+* Andrew Haigh (nelfin): contributor
+
+* Pang Yu Shao (yushao2): contributor
+
+* Aditya Gupta (adityagupta1089) : contributor
+  - Added ignore_signatures to duplicate checker
+
+* Jacob Walls: contributor
+
+* ruro: contributor
+
+* David Liu (david-yz-liu): contributor
+
+* Bernard Nauwelaerts: contributor
+
+* Fabian Damken: contributor
+
+* Markus Siebenhaar: contributor
+
+* Lorena Buciu (lorena-b): contributor
+
+* Sergei Lebedev (superbobry): contributor
+
+* Maksym Humetskyi (mhumetskyi): contributor
+  - Fixed ignored empty functions by similarities checker with "ignore-signatures" option enabled
+
+* Daniel Dorani (doranid): contributor
+
+* Will Shanks: contributor
+
+* Mark Bell: contributor
+
+* Marco Gorelli: contributor
+  - Documented Jupyter integration
+
+* Rebecca Turner (9999years): contributor
+
+* Yilei Yang: contributor
+
+* Marcin Kurczewski (rr-): contributor
+
+* Eisuke Kawashima (e-kwsm): contributor
+
+* Daniel van Noord (DanielNoord): contributor

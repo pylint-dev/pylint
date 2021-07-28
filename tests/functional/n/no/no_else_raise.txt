@@ -1,0 +1,7 @@
+no-else-raise:6:4:foo1:"Unnecessary ""else"" after ""raise"""
+no-else-raise:15:4:foo2:"Unnecessary ""elif"" after ""raise"""
+no-else-raise:29:8:foo3:"Unnecessary ""else"" after ""raise"""
+no-else-raise:41:4:foo4:"Unnecessary ""else"" after ""raise"""
+no-else-raise:53:4:foo5:"Unnecessary ""elif"" after ""raise"""
+no-else-raise:68:8:foo6:"Unnecessary ""else"" after ""raise"""
+no-else-raise:104:4:bar4:"Unnecessary ""else"" after ""raise"""

@@ -1,0 +1,1 @@
+no-member:25:6::Instance of 'C' has no 'myfield' member:INFERENCE

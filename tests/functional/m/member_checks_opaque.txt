@@ -1,1 +1,0 @@
-no-member:12::Instance of 'int' has no 'test' member:INFERENCE

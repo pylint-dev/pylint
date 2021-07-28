@@ -1,15 +1,21 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import configparser
 import os
 
 import toml
+from toml.decoder import TomlDecodeError
 
 
 def _toml_has_config(path):
-    with open(path) as toml_handle:
-        content = toml.load(toml_handle)
+    with open(path, encoding="utf-8") as toml_handle:
+        try:
+            content = toml.load(toml_handle)
+        except TomlDecodeError as error:
+            print(f"Failed to load '{path}': {error}")
+            return False
+
         try:
             content["tool"]["pylint"]
         except KeyError:
@@ -20,7 +26,7 @@ def _toml_has_config(path):
 
 def _cfg_has_config(path):
     parser = configparser.ConfigParser()
-    parser.read(path)
+    parser.read(path, encoding="utf-8")
     return any(section.startswith("pylint.") for section in parser.sections())
 
 

@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2011-2014 Google, Inc.
 # Copyright (c) 2012 Tim Hatch <tim@timhatch.com>
-# Copyright (c) 2013-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
@@ -21,13 +20,16 @@
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Alexander Todorov <atodorov@otb.bg>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Checks for various exception related errors."""
 import builtins
@@ -35,7 +37,6 @@ import inspect
 import typing
 
 import astroid
-from astroid.node_classes import NodeNG
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -77,9 +78,8 @@ def _is_raising(body: typing.List) -> bool:
 
 
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
-BUILTINS_NAME = builtins.__name__
 
-MSGS = {
+MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E0701": (
         "Bad except clauses order (%s)",
         "bad-except-order",
@@ -432,8 +432,8 @@ class ExceptionsChecker(checkers.BaseChecker):
     def _check_try_except_raise(self, node):
         def gather_exceptions_from_handler(
             handler,
-        ) -> typing.Optional[typing.List[NodeNG]]:
-            exceptions = []  # type: typing.List[NodeNG]
+        ) -> typing.Optional[typing.List[astroid.node_classes.NodeNG]]:
+            exceptions: typing.List[astroid.node_classes.NodeNG] = []
             if handler.type:
                 exceptions_in_handler = utils.safe_infer(handler.type)
                 if isinstance(exceptions_in_handler, astroid.Tuple):
@@ -461,21 +461,16 @@ class ExceptionsChecker(checkers.BaseChecker):
                 # also break early if bare except is followed by bare except.
 
                 excs_in_current_handler = gather_exceptions_from_handler(handler)
-
                 if not excs_in_current_handler:
-                    bare_raise = False
                     break
                 if excs_in_bare_handler is None:
                     # It can be `None` when the inference failed
                     break
-
                 for exc_in_current_handler in excs_in_current_handler:
                     inferred_current = utils.safe_infer(exc_in_current_handler)
                     if any(
-                        utils.is_subclass_of(
-                            utils.safe_infer(exc_in_bare_handler), inferred_current
-                        )
-                        for exc_in_bare_handler in excs_in_bare_handler
+                        utils.is_subclass_of(utils.safe_infer(e), inferred_current)
+                        for e in excs_in_bare_handler
                     ):
                         bare_raise = False
                         break
@@ -495,7 +490,7 @@ class ExceptionsChecker(checkers.BaseChecker):
     def visit_binop(self, node):
         if isinstance(node.parent, astroid.ExceptHandler):
             # except (V | A)
-            suggestion = "Did you mean '(%s, %s)' instead?" % (
+            suggestion = "Did you mean '({}, {})' instead?".format(
                 node.left.as_string(),
                 node.right.as_string(),
             )
@@ -505,7 +500,7 @@ class ExceptionsChecker(checkers.BaseChecker):
     def visit_compare(self, node):
         if isinstance(node.parent, astroid.ExceptHandler):
             # except (V < A)
-            suggestion = "Did you mean '(%s, %s)' instead?" % (
+            suggestion = "Did you mean '({}, {})' instead?".format(
                 node.left.as_string(),
                 ", ".join(operand.as_string() for _, operand in node.ops),
             )
@@ -568,7 +563,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
                     for previous_exc in exceptions_classes:
                         if previous_exc in exc_ancestors:
-                            msg = "%s is an ancestor class of %s" % (
+                            msg = "{} is an ancestor class of {}".format(
                                 previous_exc.name,
                                 exc.name,
                             )

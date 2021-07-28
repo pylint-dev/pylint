@@ -7,7 +7,7 @@
 # pygtk.require().
 #init-hook=
 
-# Add files or directories to the blacklist. They should be base names, not
+# Files or directories to be skipped. They should be base names, not
 # paths.
 ignore=CVS
 
@@ -17,7 +17,9 @@ persistent=yes
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
 load-plugins=
-    pylint.extensions.check_elif
+    pylint.extensions.check_elif,
+    pylint.extensions.bad_builtin,
+    pylint.extensions.code_style,
 
 # Use multiple processes to speed up Pylint.
 jobs=1
@@ -29,7 +31,7 @@ unsafe-load-any-extension=no
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
 # run arbitrary code
-extension-pkg-whitelist=
+extension-pkg-allow-list=
 
 
 [MESSAGES CONTROL]
@@ -41,7 +43,10 @@ confidence=
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
 # multiple time. See also the "--disable" option for examples.
-enable=use-symbolic-message-instead,useless-supression,fixme
+enable=
+    use-symbolic-message-instead,
+    useless-supression,
+    fixme
 
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifiers separated by comma (,) or put this
@@ -155,7 +160,7 @@ no-space-check=trailing-comma,dict-separator
 # Maximum number of lines in a module
 max-module-lines=2000
 
-# String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
+# String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1
 # tab).
 indent-string='    '
 
@@ -167,9 +172,6 @@ expected-line-ending-format=
 
 
 [BASIC]
-
-# List of builtins function names that should not be used, separated by a comma
-bad-functions=map,filter,input
 
 # Good variable names which should always be accepted, separated by a comma
 good-names=i,j,k,ex,Run,_
@@ -322,6 +324,9 @@ max-statements=100
 # Maximum number of parents for a class (see R0901).
 max-parents=7
 
+# List of qualified class names to ignore when counting class parents (see R0901).
+ignored-parents=
+
 # Maximum number of attributes for a class (see R0902).
 max-attributes=11
 
@@ -371,3 +376,9 @@ int-import-graph=
 # Exceptions that will emit a warning when being caught. Defaults to
 # "Exception"
 overgeneral-exceptions=Exception
+
+
+[pylint.DEPRECATED_BUILTINS]
+
+# List of builtins function names that should not be used, separated by a comma
+bad-functions=map,input

@@ -1,19 +1,22 @@
 # Copyright (c) 2014-2015 Bruno Daniel <bruno.daniel@blue-yonder.com>
-# Copyright (c) 2015-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016-2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Mitar <mitar.github@tnode.com>
 # Copyright (c) 2017 John Paraskevopoulos <io.paraskev@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Adrian Chirieac <chirieacam@gmail.com>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2020 Luigi <luigi.cristofolini@q-ctrl.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Logan Miller <14319179+komodo472@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Unit tests for the pylint checkers in :mod:`pylint.extensions.check_docs`,
 in particular the parameter documentation checker `DocstringChecker`
@@ -32,7 +35,11 @@ class TestParamDocChecker(CheckerTestCase):
     """Tests for pylint_plugin.ParamDocChecker"""
 
     CHECKER_CLASS = DocstringParameterChecker
-    CONFIG = {"accept_no_param_doc": False}
+    CONFIG = {
+        "accept_no_param_doc": False,
+        "no_docstring_rgx": "",
+        "docstring_min_length": -1,
+    }
 
     def test_missing_func_params_in_sphinx_docstring(self):
         """Example of a function with missing Sphinx parameter documentation in
@@ -1412,20 +1419,18 @@ class TestParamDocChecker(CheckerTestCase):
     @pytest.mark.parametrize("complex_type", COMPLEX_TYPES)
     def test_finds_multiple_types_sphinx(self, complex_type):
         node = astroid.extract_node(
-            '''
+            f'''
         def my_func(named_arg):
             """The docstring
 
             :param named_arg: Returned
-            :type named_arg: {0}
+            :type named_arg: {complex_type}
 
             :returns: named_arg
-            :rtype: {0}
+            :rtype: {complex_type}
             """
             return named_arg
-        '''.format(
-                complex_type
-            )
+        '''
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
@@ -1433,20 +1438,18 @@ class TestParamDocChecker(CheckerTestCase):
     @pytest.mark.parametrize("complex_type", COMPLEX_TYPES)
     def test_finds_multiple_types_google(self, complex_type):
         node = astroid.extract_node(
-            '''
+            f'''
         def my_func(named_arg):
             """The docstring
 
             Args:
-                named_arg ({0}): Returned
+                named_arg ({complex_type}): Returned
 
             Returns:
-                {0}: named_arg
+                {complex_type}: named_arg
             """
             return named_arg
-        '''.format(
-                complex_type
-            )
+        '''
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
@@ -1454,24 +1457,22 @@ class TestParamDocChecker(CheckerTestCase):
     @pytest.mark.parametrize("complex_type", COMPLEX_TYPES)
     def test_finds_multiple_types_numpy(self, complex_type):
         node = astroid.extract_node(
-            '''
+            f'''
         def my_func(named_arg):
             """The docstring
 
             Args
             ----
-            named_arg : {0}
+            named_arg : {complex_type}
                 Returned
 
             Returns
             -------
-                {0}
+                {complex_type}
                     named_arg
             """
             return named_arg
-        '''.format(
-                complex_type
-            )
+        '''
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
@@ -1479,19 +1480,17 @@ class TestParamDocChecker(CheckerTestCase):
     @pytest.mark.parametrize("container_type", CONTAINER_TYPES)
     def test_finds_compact_container_types_sphinx(self, container_type):
         node = astroid.extract_node(
-            '''
+            f'''
         def my_func(named_arg):
             """The docstring
 
-            :param {0} named_arg: Returned
+            :param {container_type} named_arg: Returned
 
             :returns: named_arg
-            :rtype: {0}
+            :rtype: {container_type}
             """
             return named_arg
-        '''.format(
-                container_type
-            )
+        '''
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
@@ -2101,8 +2100,7 @@ class TestParamDocChecker(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_ignores_raise_notimplementederror_sphinx(self):
-        """Example of an abstract
-        """
+        """Example of an abstract"""
         node = astroid.extract_node(
             """
         class Foo(object):
@@ -2153,6 +2151,180 @@ class TestParamDocChecker(CheckerTestCase):
                     An argument.
                 '''
                 raise NotImplementedError()
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_ignored_argument_names_sphinx(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _): #@
+                '''docstring ...
+
+                :param arg: An argument.
+                :type arg: int
+                '''
+                pass
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_ignored_argument_names_google(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _): #@
+                '''docstring ...
+
+                Args:
+                    arg (int): An argument.
+                '''
+                pass
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_ignored_argument_names_numpy(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _): #@
+                '''docstring ...
+
+                Parameters
+                ----------
+                arg : int
+                    An argument.
+                '''
+                pass
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_useless_docs_ignored_argument_names_sphinx(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _, _ignored): #@
+                '''docstring ...
+
+                :param arg: An argument.
+                :type arg: int
+
+                :param _: Another argument.
+                :type _: float
+
+                :param _ignored: Ignored argument.
+                '''
+                pass
+        """
+        )
+        with self.assertAddsMessages(
+            Message(msg_id="useless-type-doc", node=node, args=("_",)),
+            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+        ):
+            self.checker.visit_functiondef(node)
+
+    def test_useless_docs_ignored_argument_names_google(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _, _ignored): #@
+                '''docstring ...
+
+                Args:
+                    arg (int): An argument.
+                    _ (float): Another argument.
+                    _ignored: Ignored argument.
+                '''
+                pass
+        """
+        )
+        with self.assertAddsMessages(
+            Message(msg_id="useless-type-doc", node=node, args=("_",)),
+            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+        ):
+            self.checker.visit_functiondef(node)
+
+    def test_useless_docs_ignored_argument_names_numpy(self):
+        """Example of a method documenting the return type that an
+        implementation should return.
+        """
+        node = astroid.extract_node(
+            """
+        class Foo(object):
+            def foo(self, arg, _, _ignored): #@
+                '''docstring ...
+
+                Parameters
+                ----------
+                arg : int
+                    An argument.
+
+                _ : float
+                    Another argument.
+
+                _ignored :
+                    Ignored Argument
+                '''
+                pass
+        """
+        )
+        with self.assertAddsMessages(
+            Message(msg_id="useless-type-doc", node=node, args=("_",)),
+            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+        ):
+            self.checker.visit_functiondef(node)
+
+    @set_config(no_docstring_rgx=r"^_(?!_).*$")
+    def test_skip_no_docstring_rgx(self):
+        """Example of a function that matches the default 'no-docstring-rgx' config option
+
+        No error message is emitted.
+        """
+        node = astroid.extract_node(
+            """
+        def _private_function_foo(x, y):
+            '''docstring ...
+
+            missing parameter documentation'''
+            pass
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @set_config(docstring_min_length=3)
+    def test_skip_docstring_min_length(self):
+        """Example of a function that is less than 'docstring-min-length' config option
+
+        No error message is emitted.
+        """
+        node = astroid.extract_node(
+            """
+        def function_foo(x, y):
+            '''function is too short and is missing parameter documentation'''
+            pass
         """
         )
         with self.assertNoMessages():

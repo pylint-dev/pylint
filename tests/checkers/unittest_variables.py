@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
@@ -8,22 +7,28 @@
 # Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 mar-chi-pan <mar.polatoglou@gmail.com>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import os
 import re
 import sys
+import unittest
 from pathlib import Path
 
 import astroid
 
 from pylint.checkers import variables
+from pylint.constants import IS_PYPY
 from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, Message, linter, set_config
 
@@ -35,7 +40,7 @@ class TestVariablesChecker(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
 
     def test_bitbucket_issue_78(self):
-        """ Issue 78 report a false positive for unused-module """
+        """Issue 78 report a false positive for unused-module"""
         module = astroid.parse(
             """
         from sys import path
@@ -127,7 +132,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.checker.visit_global(node)
 
     def test_listcomp_in_decorator(self):
-        """ Make sure class attributes in scope for listcomp in decorator.
+        """Make sure class attributes in scope for listcomp in decorator.
 
         https://github.com/PyCQA/pylint/issues/511
         """
@@ -152,8 +157,28 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    def test_listcomp_in_ancestors(self):
+        """Ensure list comprehensions in base classes are scoped correctly
+
+        https://github.com/PyCQA/pylint/issues/3434
+        """
+        module = astroid.parse(
+            """
+        import collections
+
+
+        l = ["a","b","c"]
+
+
+        class Foo(collections.namedtuple("Foo",[x+"_foo" for x in l])):
+            pass
+        """
+        )
+        with self.assertNoMessages():
+            self.walk(module)
+
     def test_return_type_annotation(self):
-        """ Make sure class attributes in scope for return type annotations.
+        """Make sure class attributes in scope for return type annotations.
 
         https://github.com/PyCQA/pylint/issues/1976
         """
@@ -164,6 +189,24 @@ class TestVariablesChecker(CheckerTestCase):
                 pass
             def my_method(self) -> MyType:
                 pass
+        """
+        )
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @unittest.skipIf(IS_PYPY, "PyPy does not parse type comments")
+    def test_attribute_in_type_comment(self):
+        """Ensure attribute lookups in type comments are accounted for.
+
+        https://github.com/PyCQA/pylint/issues/4603
+        """
+        module = astroid.parse(
+            """
+        import foo
+        from foo import Bar, Boo
+        a = ... # type: foo.Bar
+        b = ... # type: foo.Bar[Boo]
+        c = ... # type: Bar.Boo
         """
         )
         with self.assertNoMessages():
@@ -184,7 +227,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
     @set_config(callbacks=("callback_", "_callback"))
     def test_custom_callback_string(self):
-        """ Test the --calbacks option works. """
+        """Test the --calbacks option works."""
         node = astroid.extract_node(
             """
         def callback_one(abc):

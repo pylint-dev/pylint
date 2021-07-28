@@ -1,15 +1,16 @@
 # pylint: disable=missing-docstring,too-many-ancestors, broad-except
 import collections.abc
-from typing import TYPE_CHECKING, Any, MutableMapping
+from typing import TYPE_CHECKING, Sized
 
 if TYPE_CHECKING:
-    BaseClass = MutableMapping[str, Any]
+    BaseClass = Sized
 else:
-    BaseClass = collections.abc.MutableMapping
+    BaseClass = collections.abc.Sized
 
 
 class TestBaseException(BaseClass):
-    pass
+    def __len__(self):
+        return 0
 
 
 class TestException(TestBaseException):
@@ -19,7 +20,7 @@ class TestException(TestBaseException):
 def test():
     try:
         1 / 0
-    except TestException:  # [try-except-raise]
+    except TestException:  # [catching-non-exception,try-except-raise]
         raise
     except Exception:
         pass

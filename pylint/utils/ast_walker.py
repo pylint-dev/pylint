@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
 
@@ -13,6 +13,7 @@ class ASTWalker:
         self.visit_events = collections.defaultdict(list)
         self.leave_events = collections.defaultdict(list)
         self.linter = linter
+        self.exception_msg = False
 
     def _is_method_enabled(self, method):
         if not hasattr(method, "checks_msgs"):
@@ -65,13 +66,20 @@ class ASTWalker:
         visit_events = self.visit_events.get(cid, ())
         leave_events = self.leave_events.get(cid, ())
 
-        if astroid.is_statement:
-            self.nbstatements += 1
-        # generate events for this node on each checker
-        for callback in visit_events or ():
-            callback(astroid)
-        # recurse on children
-        for child in astroid.get_children():
-            self.walk(child)
-        for callback in leave_events or ():
-            callback(astroid)
+        try:
+            if astroid.is_statement:
+                self.nbstatements += 1
+            # generate events for this node on each checker
+            for callback in visit_events or ():
+                callback(astroid)
+            # recurse on children
+            for child in astroid.get_children():
+                self.walk(child)
+            for callback in leave_events or ():
+                callback(astroid)
+        except Exception:
+            if self.exception_msg is False:
+                file = getattr(astroid.root(), "file", None)
+                print(f"Exception on node {repr(astroid)} in file '{file}'")
+                self.exception_msg = True
+            raise

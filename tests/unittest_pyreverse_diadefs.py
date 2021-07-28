@@ -1,16 +1,20 @@
 # Copyright (c) 2008-2010, 2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Unit test for the extensions.diadefslib modules"""
 # pylint: disable=redefined-outer-name
@@ -19,6 +23,7 @@ from pathlib import Path
 
 import astroid
 import pytest
+from unittest_pyreverse_writer import Config, get_project
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
@@ -27,12 +32,11 @@ from pylint.pyreverse.diadefslib import (
     DiadefsHandler,
 )
 from pylint.pyreverse.inspector import Linker
-from unittest_pyreverse_writer import Config, get_project
 
 
 def _process_classes(classes):
     """extract class names of a list"""
-    return sorted([(isinstance(c.node, astroid.ClassDef), c.title) for c in classes])
+    return sorted((isinstance(c.node, astroid.ClassDef), c.title) for c in classes)
 
 
 def _process_relations(relations):
@@ -65,7 +69,7 @@ def test_option_values(HANDLER, PROJECT):
     assert not df_h.module_names
     assert cl_h._get_levels() == (-1, -1)
     assert cl_h.module_names
-    for hndl in [df_h, cl_h]:
+    for hndl in (df_h, cl_h):
         hndl.config.all_ancestors = True
         hndl.config.all_associated = True
         hndl.config.module_names = True
@@ -77,7 +81,7 @@ def test_option_values(HANDLER, PROJECT):
     cl_config = Config()
     cl_config.classes = ["Specialization"]
     cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
-    for hndl in [df_h, cl_h]:
+    for hndl in (df_h, cl_h):
         hndl.config.show_ancestors = 2
         hndl.config.show_associated = 1
         hndl.config.module_names = False
@@ -126,9 +130,7 @@ def test_known_values1(HANDLER, PROJECT):
     assert keys == ["package", "class"]
     pd = dd[0]
     assert pd.title == "packages No Name"
-    modules = sorted(
-        [(isinstance(m.node, astroid.Module), m.title) for m in pd.objects]
-    )
+    modules = sorted((isinstance(m.node, astroid.Module), m.title) for m in pd.objects)
     assert modules == [
         (True, "data"),
         (True, "data.clientmodule_test"),

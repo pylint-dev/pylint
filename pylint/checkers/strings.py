@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2009 Charles Hebert <charles.hebert@logilab.fr>
-# Copyright (c) 2010-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
@@ -18,34 +16,39 @@
 # Copyright (c) 2018 Yury Gribov <tetra2005@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Wes Turner <westurner@google.com>
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Matthew Suozzo <msuozzo@google.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Peter Kolbus <peter.kolbus@garmin.com>
 
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Checker for string formatting operations.
 """
 
-import builtins
 import collections
 import numbers
 import re
 import tokenize
-import typing
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
 import astroid
-from astroid.arguments import CallSite
-from astroid.node_classes import Const
 
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
+from pylint.constants import BUILTINS
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+
+if TYPE_CHECKING:
+    from typing import Counter  # typing.Counter added in Python 3.6.1
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
 # Prefixes for both strings and bytes literals per
@@ -80,7 +83,7 @@ SINGLE_QUOTED_REGEX = re.compile("(%s)?'''" % "|".join(_PREFIXES))
 DOUBLE_QUOTED_REGEX = re.compile('(%s)?"""' % "|".join(_PREFIXES))
 QUOTE_DELIMITER_REGEX = re.compile("(%s)?(\"|')" % "|".join(_PREFIXES), re.DOTALL)
 
-MSGS = {
+MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E1300": (
         "Unsupported format character %r (%#02x) at index %d",
         "bad-format-character",
@@ -213,21 +216,21 @@ OTHER_NODES = (
     astroid.GeneratorExp,
 )
 
-BUILTINS_STR = builtins.__name__ + ".str"
-BUILTINS_FLOAT = builtins.__name__ + ".float"
-BUILTINS_INT = builtins.__name__ + ".int"
+BUILTINS_STR = BUILTINS + ".str"
+BUILTINS_FLOAT = BUILTINS + ".float"
+BUILTINS_INT = BUILTINS + ".int"
 
 
 def get_access_path(key, parts):
-    """ Given a list of format specifiers, returns
+    """Given a list of format specifiers, returns
     the final access path (e.g. a.b.c[0][1]).
     """
     path = []
     for is_attribute, specifier in parts:
         if is_attribute:
-            path.append(".{}".format(specifier))
+            path.append(f".{specifier}")
         else:
-            path.append("[{!r}]".format(specifier))
+            path.append(f"[{specifier!r}]")
     return str(key) + "".join(path)
 
 
@@ -387,10 +390,14 @@ class StringFormatChecker(BaseChecker):
                     if not arg:
                         continue
                     arg_type = utils.safe_infer(arg)
-                    if arg_type not in (
-                        None,
-                        astroid.Uninferable,
-                    ) and not arg_matches_format_type(arg_type, format_type):
+                    if (
+                        arg_type
+                        not in (
+                            None,
+                            astroid.Uninferable,
+                        )
+                        and not arg_matches_format_type(arg_type, format_type)
+                    ):
                         self.add_message(
                             "bad-string-format-type",
                             node=node,
@@ -439,8 +446,8 @@ class StringFormatChecker(BaseChecker):
             )
 
     def _check_new_format(self, node, func):
-        """Check the new string formatting. """
-        # Skip ormat nodes which don't have an explicit string on the
+        """Check the new string formatting."""
+        # Skip format nodes which don't have an explicit string on the
         # left side of the format operation.
         # We do this because our inference engine can't properly handle
         # redefinitions of the original string.
@@ -462,7 +469,7 @@ class StringFormatChecker(BaseChecker):
         if not (isinstance(strnode, astroid.Const) and isinstance(strnode.value, str)):
             return
         try:
-            call_site = CallSite.from_call(node)
+            call_site = astroid.arguments.CallSite.from_call(node)
         except astroid.InferenceError:
             return
 
@@ -700,7 +707,7 @@ class StringConstantChecker(BaseTokenChecker):
             elif tok_type == tokenize.STRING:
                 # 'token' is the whole un-parsed token; we can look at the start
                 # of it to see whether it's a raw or unicode string etc.
-                self.process_string_token(token, start[0])
+                self.process_string_token(token, start[0], start[1])
                 # We figure the next token, ignoring comments & newlines:
                 j = i + 1
                 while j < len(tokens) and tokens[j].type in (
@@ -747,7 +754,8 @@ class StringConstantChecker(BaseTokenChecker):
         Args:
           tokens: The tokens to be checked against for consistent usage.
         """
-        string_delimiters = collections.Counter()  # type: typing.Counter[str]
+        # typing.Counter added in Python 3.6.1 so this type hint must be a comment
+        string_delimiters = collections.Counter()  # type: Counter[str]
 
         # First, figure out which quote character predominates in the module
         for tok_type, token, _, _, _ in tokens:
@@ -771,7 +779,9 @@ class StringConstantChecker(BaseTokenChecker):
 
     def check_for_concatenated_strings(self, elements, iterable_type):
         for elt in elements:
-            if not (isinstance(elt, Const) and elt.pytype() in _AST_NODE_STR_TYPES):
+            if not (
+                isinstance(elt, astroid.Const) and elt.pytype() in _AST_NODE_STR_TYPES
+            ):
                 continue
             if elt.col_offset < 0:
                 # This can happen in case of escaped newlines
@@ -794,7 +804,7 @@ class StringConstantChecker(BaseTokenChecker):
                         "implicit-str-concat", line=elt.lineno, args=(iterable_type,)
                     )
 
-    def process_string_token(self, token, start_row):
+    def process_string_token(self, token, start_row, start_col):
         quote_char = None
         index = None
         for index, char in enumerate(token):
@@ -806,21 +816,30 @@ class StringConstantChecker(BaseTokenChecker):
 
         prefix = token[:index].lower()  # markers like u, b, r.
         after_prefix = token[index:]
-        if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char:
-            string_body = after_prefix[3:-3]
-        else:
-            string_body = after_prefix[1:-1]  # Chop off quotes
+        # Chop off quotes
+        quote_length = (
+            3 if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char else 1
+        )
+        string_body = after_prefix[quote_length:-quote_length]
         # No special checks on raw strings at the moment.
         if "r" not in prefix:
-            self.process_non_raw_string_token(prefix, string_body, start_row)
+            self.process_non_raw_string_token(
+                prefix,
+                string_body,
+                start_row,
+                start_col + len(prefix) + quote_length,
+            )
 
-    def process_non_raw_string_token(self, prefix, string_body, start_row):
+    def process_non_raw_string_token(
+        self, prefix, string_body, start_row, string_start_col
+    ):
         """check for bad escapes in a non-raw string.
 
         prefix: lowercase string of eg 'ur' string prefix markers.
         string_body: the un-parsed body of the string, not including the quote
         marks.
         start_row: integer line number in the source.
+        string_start_col: integer col number of the string start in the source.
         """
         # Walk through the string; if we see a backslash then escape the next
         # character, and skip over it.  If we see a non-escaped character,
@@ -839,6 +858,16 @@ class StringConstantChecker(BaseTokenChecker):
             # of the string would be a SyntaxError.
             next_char = string_body[index + 1]
             match = string_body[index : index + 2]
+            # The column offset will vary depending on whether the string token
+            # is broken across lines. Calculate relative to the nearest line
+            # break or relative to the start of the token's line.
+            last_newline = string_body.rfind("\n", 0, index)
+            if last_newline == -1:
+                line = start_row
+                col_offset = index + string_start_col
+            else:
+                line = start_row + string_body.count("\n", 0, index)
+                col_offset = index - last_newline - 1
             if next_char in self.UNICODE_ESCAPE_CHARACTERS:
                 if "u" in prefix:
                     pass
@@ -847,16 +876,16 @@ class StringConstantChecker(BaseTokenChecker):
                 else:
                     self.add_message(
                         "anomalous-unicode-escape-in-string",
-                        line=start_row,
+                        line=line,
                         args=(match,),
-                        col_offset=index,
+                        col_offset=col_offset,
                     )
             elif next_char not in self.ESCAPE_CHARACTERS:
                 self.add_message(
                     "anomalous-backslash-in-string",
-                    line=start_row,
+                    line=line,
                     args=(match,),
-                    col_offset=index,
+                    col_offset=col_offset,
                 )
             # Whether it was a valid escape or not, backslash followed by
             # another character can always be consumed whole: the second
@@ -865,7 +894,7 @@ class StringConstantChecker(BaseTokenChecker):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(StringFormatChecker(linter))
     linter.register_checker(StringConstantChecker(linter))
 

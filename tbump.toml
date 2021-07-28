@@ -1,0 +1,47 @@
+github_url = "https://github.com/PyCQA/pylint"
+
+[version]
+current = "2.10.0-dev0"
+regex = '''
+^(?P<major>0|[1-9]\d*)
+\.
+(?P<minor>0|[1-9]\d*)
+\.
+(?P<patch>0|[1-9]\d*)
+(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
+'''
+
+[git]
+message_template = "Bump pylint to {new_version}, update changelog"
+tag_template = "v{new_version}"
+
+# For each file to patch, add a [[file]] config
+# section containing the path of the file, relative to the
+# tbump.toml location.
+[[file]]
+src = "pylint/__pkginfo__.py"
+
+# You can specify a list of commands to
+# run after the files have been patched
+# and before the git commit is made
+[[before_commit]]
+name = "Upgrade changelog"
+cmd = "python3 script/bump_changelog.py {new_version}"
+
+[[before_commit]]
+name = "Upgrade copyrights"
+cmd = "pip3 install copyrite;copyrite --contribution-threshold 1 --change-threshold 3 --backend-type git --aliases=.copyrite_aliases . --jobs=8"
+
+[[before_commit]]
+name = "Apply pre-commit"
+cmd = "pre-commit run --all-files||echo 'Hack so this command does not fail'"
+
+[[before_commit]]
+name = "Acceptance tests"
+cmd = "pytest -m acceptance"
+
+# Or run some commands after the git tag and the branch
+# have been pushed:
+#  [[after_push]]
+#  name = "publish"
+#  cmd = "./publish.sh"

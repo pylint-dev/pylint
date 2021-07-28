@@ -45,7 +45,7 @@ def func_with_long(parameter):
     return parameter
 
 
-# No line-too-long message should be emitted as the disable comment stands for all the multiline
+# No line-too-long message should be emitted as the disable comment stands for all the multiline
 def issue_2957():
     """
     This is a very very very long line within a docstring that should trigger a pylint C0301 error line-too-long

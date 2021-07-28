@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import sys
 from unittest import mock
@@ -47,11 +47,11 @@ class FalseChecker(BaseChecker):
 class TestMessagesDefinition:
     @staticmethod
     def assert_with_fail_msg(msg, expected=True):
-        fail_msg = "With minversion='{}' and maxversion='{}',".format(
-            msg.minversion, msg.maxversion
+        fail_msg = (
+            f"With minversion='{msg.minversion}' and maxversion='{msg.maxversion}',"
+            f" and the python interpreter being {sys.version_info} "
+            "the message should{}be emitable"
         )
-        fail_msg += " and the python interpreter being {} ".format(sys.version_info)
-        fail_msg += "the message should{}be emitable"
         if expected:
             assert msg.may_be_emitted(), fail_msg.format(" ")
         else:

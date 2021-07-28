@@ -1,3 +1,0 @@
-invalid-bool-returned:36:FirstBadBool.__bool__:__bool__ does not return bool
-invalid-bool-returned:43:SecondBadBool.__bool__:__bool__ does not return bool
-invalid-bool-returned:50:ThirdBadBool.__bool__:__bool__ does not return bool

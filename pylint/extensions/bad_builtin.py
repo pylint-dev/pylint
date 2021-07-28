@@ -1,9 +1,12 @@
-# Copyright (c) 2016, 2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Checker for deprecated builtins."""
 import astroid
@@ -26,8 +29,8 @@ class BadBuiltinChecker(BaseChecker):
         "W0141": (
             "Used builtin function %s",
             "bad-builtin",
-            "Used when a black listed builtin function is used (see the "
-            "bad-function option). Usual black listed functions are the ones "
+            "Used when a disallowed builtin function is used (see the "
+            "bad-function option). Usual disallowed functions are the ones "
             "like map, or filter , where Python offers now some cleaner "
             "alternative like list comprehension.",
         )
@@ -56,7 +59,7 @@ class BadBuiltinChecker(BaseChecker):
                 if name in self.config.bad_functions:
                     hint = BUILTIN_HINTS.get(name)
                     if hint:
-                        args = "%r. %s" % (name, hint)
+                        args = f"{name!r}. {hint}"
                     else:
                         args = repr(name)
                     self.add_message("bad-builtin", node=node, args=args)

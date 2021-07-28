@@ -1,7 +1,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-import optparse
+import optparse  # pylint: disable=deprecated-module
 import sys
 import time
 
@@ -28,17 +28,14 @@ class _ManHelpFormatter(optparse.HelpFormatter):
             optstring = self.format_option_strings(option)
         if option.help:
             help_text = self.expand_default(option)
-            help_string = " ".join([l.strip() for l in help_text.splitlines()])
+            help_string = " ".join(line.strip() for line in help_text.splitlines())
             help_string = help_string.replace("\\", "\\\\")
             help_string = help_string.replace("[current:", "[default:")
         else:
             help_string = ""
-        return """.IP "%s"
-%s
-""" % (
-            optstring,
-            help_string,
-        )
+        return f""".IP "{optstring}"
+{help_string}
+"""
 
     def format_head(self, optparser, pkginfo, section=1):
         long_desc = ""
@@ -50,41 +47,33 @@ class _ManHelpFormatter(optparse.HelpFormatter):
         short_desc = self.format_short_description(pgm, pkginfo.description)
         if hasattr(pkginfo, "long_desc"):
             long_desc = self.format_long_description(pgm, pkginfo.long_desc)
-        return "%s\n%s\n%s\n%s" % (
-            self.format_title(pgm, section),
-            short_desc,
-            self.format_synopsis(pgm),
-            long_desc,
-        )
+        return f"""{self.format_title(pgm, section)}
+{short_desc}
+{self.format_synopsis(pgm)}
+{long_desc}"""
 
     @staticmethod
     def format_title(pgm, section):
         date = "%d-%02d-%02d" % time.localtime()[:3]
-        return '.TH %s %s "%s" %s' % (pgm, section, date, pgm)
+        return f'.TH {pgm} {section} "{date}" {pgm}'
 
     @staticmethod
     def format_short_description(pgm, short_desc):
-        return """.SH NAME
-.B %s
-\\- %s
-""" % (
-            pgm,
-            short_desc.strip(),
-        )
+        return f""".SH NAME
+.B {pgm}
+\\- {short_desc.strip()}
+"""
 
     @staticmethod
     def format_synopsis(pgm):
-        return (
-            """.SH SYNOPSIS
-.B  %s
+        return f""".SH SYNOPSIS
+.B  {pgm}
 [
 .I OPTIONS
 ] [
 .I <arguments>
 ]
 """
-            % pgm
-        )
 
     @staticmethod
     def format_long_description(pgm, long_desc):
@@ -92,41 +81,28 @@ class _ManHelpFormatter(optparse.HelpFormatter):
         long_desc = long_desc.replace("\n.\n", "\n\n")
         if long_desc.lower().startswith(pgm):
             long_desc = long_desc[len(pgm) :]
-        return """.SH DESCRIPTION
-.B %s
-%s
-""" % (
-            pgm,
-            long_desc.strip(),
-        )
+        return f""".SH DESCRIPTION
+.B {pgm}
+{long_desc.strip()}
+"""
 
     @staticmethod
     def format_tail(pkginfo):
-        tail = """.SH SEE ALSO
-/usr/share/doc/pythonX.Y-%s/
+        tail = f""".SH SEE ALSO
+/usr/share/doc/pythonX.Y-{getattr(pkginfo, "debian_name", "pylint")}/
 
 .SH BUGS
 Please report bugs on the project\'s mailing list:
-%s
+{pkginfo.mailinglist}
 
 .SH AUTHOR
-%s <%s>
-""" % (
-            getattr(pkginfo, "debian_name", "pylint"),
-            pkginfo.mailinglist,
-            pkginfo.author,
-            pkginfo.author_email,
-        )
-
-        if hasattr(pkginfo, "copyright"):
-            tail += (
-                """
-.SH COPYRIGHT
-%s
+{pkginfo.author} <{pkginfo.author_email}>
 """
-                % pkginfo.copyright
-            )
-
+        if hasattr(pkginfo, "copyright"):
+            tail += f"""
+.SH COPYRIGHT
+{pkginfo.copyright}
+"""
         return tail
 
 

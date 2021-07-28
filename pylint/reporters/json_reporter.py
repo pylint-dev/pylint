@@ -1,18 +1,18 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
-# Copyright (c) 2015-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2017 guillaume2 <guillaume.peillex@gmail.col>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """JSON reporter"""
 import json
-import sys
 
 from pylint.interfaces import IReporter
 from pylint.reporters.base_reporter import BaseReporter
@@ -25,13 +25,9 @@ class JSONReporter(BaseReporter):
     name = "json"
     extension = "json"
 
-    def __init__(self, output=None):
-        BaseReporter.__init__(self, output or sys.stdout)
-        self.messages = []
-
-    def handle_message(self, msg):
-        """Manage message of different type and in the context of path."""
-        self.messages.append(
+    def display_messages(self, layout):
+        """Launch layouts display"""
+        json_dumpable = [
             {
                 "type": msg.category,
                 "module": msg.module,
@@ -43,11 +39,9 @@ class JSONReporter(BaseReporter):
                 "message": msg.msg or "",
                 "message-id": msg.msg_id,
             }
-        )
-
-    def display_messages(self, layout):
-        """Launch layouts display"""
-        print(json.dumps(self.messages, indent=4), file=self.out)
+            for msg in self.messages
+        ]
+        print(json.dumps(json_dumpable, indent=4), file=self.out)
 
     def display_reports(self, layout):
         """Don't do anything in this reporter."""

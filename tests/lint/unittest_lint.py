@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2009 Charles Hebert <charles.hebert@logilab.fr>
 # Copyright (c) 2011-2014 Google, Inc.
 # Copyright (c) 2012 Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
 # Copyright (c) 2012 Anthony VEREZ <anthony.verez.external@cassidian.com>
@@ -13,12 +11,10 @@
 # Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
-# Copyright (c) 2017 Pierre Sassoulas <pierre.sassoulas@cea.fr>
+# Copyright (c) 2017-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2017 Craig Citro <craigcitro@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2018 Pierre Sassoulas <pierre.sassoulas@wisebim.fr>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018 Matus Valo <matusvalo@users.noreply.github.com>
 # Copyright (c) 2018 Scott Worley <scottworley@scottworley.com>
@@ -29,9 +25,14 @@
 # Copyright (c) 2019 Trevor Bekolay <tbekolay@gmail.com>
 # Copyright (c) 2019 Andres Perez Hortal <andresperezcba@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 Martin Vielsmaier <martin@vielsmaier.net>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # pylint: disable=redefined-outer-name
 
 import os
@@ -45,10 +46,10 @@ from os import chdir, getcwd
 from os.path import abspath, basename, dirname, isdir, join, sep
 from shutil import rmtree
 
+import appdirs
 import pytest
 
-import pylint.testutils as testutils
-from pylint import checkers, config, exceptions, interfaces, lint
+from pylint import checkers, config, exceptions, interfaces, lint, testutils
 from pylint.checkers.utils import check_messages
 from pylint.constants import (
     MSG_STATE_CONFIDENCE,
@@ -63,7 +64,7 @@ from pylint.utils import FileState, tokenize_module
 if os.name == "java":
     # pylint: disable=no-member
     # os._name is valid see https://www.programcreek.com/python/example/3842/os._name
-    if os._name == "nt":
+    if os.name == "nt":
         HOME = "USERPROFILE"
     else:
         HOME = "HOME"
@@ -71,11 +72,6 @@ elif sys.platform == "win32":
     HOME = "USERPROFILE"
 else:
     HOME = "HOME"
-
-try:
-    PYPY_VERSION_INFO = sys.pypy_version_info
-except AttributeError:
-    PYPY_VERSION_INFO = None
 
 
 @contextmanager
@@ -161,7 +157,8 @@ def create_files(paths, chroot="."):
         if not isdir(dirpath):
             os.makedirs(dirpath)
     for filepath in files:
-        open(filepath, "w").close()
+        with open(filepath, "w", encoding="utf-8"):
+            pass
 
 
 @pytest.fixture
@@ -226,7 +223,7 @@ def test_more_args(fake_path, case):
         create_files(["a/b/c/__init__.py", "a/d/__init__.py", "a/e/f.py"])
         expected = [
             join(chroot, suffix)
-            for suffix in [sep.join(("a", "b")), "a", sep.join(("a", "e"))]
+            for suffix in (sep.join(("a", "b")), "a", sep.join(("a", "e")))
         ] + fake_path
 
         assert sys.path == fake_path
@@ -242,7 +239,7 @@ def disable():
 
 @pytest.fixture(scope="module")
 def reporter():
-    return testutils.TestReporter
+    return testutils.GenericTestReporter
 
 
 @pytest.fixture
@@ -480,7 +477,7 @@ def test_disable_alot(linter):
 
 
 def test_addmessage(linter):
-    linter.set_reporter(testutils.TestReporter())
+    linter.set_reporter(testutils.GenericTestReporter())
     linter.open()
     linter.set_current_module("0123")
     linter.add_message("C0301", line=1, args=(1, 2))
@@ -492,7 +489,7 @@ def test_addmessage(linter):
 
 
 def test_addmessage_invalid(linter):
-    linter.set_reporter(testutils.TestReporter())
+    linter.set_reporter(testutils.GenericTestReporter())
     linter.open()
     linter.set_current_module("0123")
 
@@ -534,7 +531,8 @@ def test_load_plugin_config_file():
     config_path = join(REGRTEST_DATA_DIR, "dummy_plugin.rc")
 
     run = Run(
-        ["--rcfile", config_path, join(REGRTEST_DATA_DIR, "empty.py")], exit=False,
+        ["--rcfile", config_path, join(REGRTEST_DATA_DIR, "empty.py")],
+        exit=False,
     )
     assert (
         len([ch.name for ch in run.linter.get_checkers() if ch.name == "dummy_plugin"])
@@ -569,7 +567,7 @@ def test_init_hooks_called_before_load_plugins():
 
 
 def test_analyze_explicit_script(linter):
-    linter.set_reporter(testutils.TestReporter())
+    linter.set_reporter(testutils.GenericTestReporter())
     linter.check(os.path.join(DATA_DIR, "ascript"))
     assert ["C:  2: Line too long (175/100)"] == linter.reporter.messages
 
@@ -588,7 +586,7 @@ def test_full_documentation(linter):
     linter.print_full_documentation(out)
     output = out.getvalue()
     # A few spot checks only
-    for re_str in [
+    for re_str in (
         # autogenerated text
         "^Pylint global options and switches$",
         "Verbatim name of the checker is ``python3``",
@@ -596,7 +594,7 @@ def test_full_documentation(linter):
         "^:old-octal-literal \\(E1608\\):",
         # options
         "^:dummy-variables-rgx:",
-    ]:
+    ):
         regexp = re.compile(re_str, re.MULTILINE)
         assert re.search(regexp, output)
 
@@ -634,7 +632,7 @@ def test_pylint_home():
     if uhome == "~":
         expected = ".pylint.d"
     else:
-        expected = os.path.join(uhome, ".pylint.d")
+        expected = appdirs.user_cache_dir("pylint")
     assert config.PYLINT_HOME == expected
 
     try:
@@ -652,11 +650,6 @@ def test_pylint_home():
         del os.environ["PYLINTHOME"]
 
 
-@pytest.mark.skipif(
-    PYPY_VERSION_INFO,
-    reason="TOX runs this test from within the repo and finds "
-    "the project's pylintrc.",
-)
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc():
     with fake_home():
@@ -766,8 +759,8 @@ def test_custom_should_analyze_file():
     package_dir = os.path.join(REGRTEST_DATA_DIR, "bad_package")
     wrong_file = os.path.join(package_dir, "wrong.py")
 
-    for jobs in [1, 2]:
-        reporter = testutils.TestReporter()
+    for jobs in (1, 2):
+        reporter = testutils.GenericTestReporter()
         linter = _CustomPyLinter()
         linter.config.jobs = jobs
         linter.config.persistent = 0
@@ -785,11 +778,43 @@ def test_custom_should_analyze_file():
         assert "invalid syntax" in messages[0]
 
 
+# we do the check with jobs=1 as well, so that we are sure that the duplicates
+# are created by the multiprocessing problem.
+@pytest.mark.parametrize("jobs", [1, 2])
+def test_multiprocessing(jobs):
+    """Check that multiprocessing does not create duplicates."""
+    # For the bug (#3584) to show up we need more than one file with issues
+    # per process
+    filenames = [
+        "special_attr_scope_lookup_crash.py",
+        "syntax_error.py",
+        "unused_variable.py",
+        "wildcard.py",
+        "wrong_import_position.py",
+    ]
+
+    reporter = testutils.GenericTestReporter()
+    linter = PyLinter()
+    linter.config.jobs = jobs
+    linter.config.persistent = 0
+    linter.open()
+    linter.set_reporter(reporter)
+
+    try:
+        sys.path.append(os.path.dirname(REGRTEST_DATA_DIR))
+        linter.check([os.path.join(REGRTEST_DATA_DIR, fname) for fname in filenames])
+    finally:
+        sys.path.pop()
+
+    messages = reporter.messages
+    assert len(messages) == len(set(messages))
+
+
 def test_filename_with__init__(init_linter):
     # This tracks a regression where a file whose name ends in __init__.py,
     # such as flycheck__init__.py, would accidentally lead to linting the
     # entire containing directory.
-    reporter = testutils.TestReporter()
+    reporter = testutils.GenericTestReporter()
     linter = init_linter
     linter.open()
     linter.set_reporter(reporter)

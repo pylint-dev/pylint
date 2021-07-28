@@ -1,0 +1,25 @@
+a = (
+    (
+        [
+            "Lines 1-8 used to trigger a similarity warning, but now they don't because...",
+            "...lines with only symbols are ignored and don't count in the line count limit."
+        ]
+    ),
+)
+
+"This line in similar4 breaks up the sections of code by being different than similar3"
+
+b = (
+    (
+        [
+            "Lines 12-25 still trigger a similarity...",
+            "...warning, because..."
+        ],
+        [
+            "...even after ignoring lines with only symbols..."
+        ],
+    ),
+    (
+        "...there are still 5 similar lines in this code block.",
+    )
+)

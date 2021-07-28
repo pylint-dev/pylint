@@ -1,7 +1,7 @@
-# pylint: disable=R0201,missing-docstring,using-constant-test,unused-import,wrong-import-position,reimported, useless-object-inheritance, unnecessary-pass
+# pylint: disable=no-self-use,missing-docstring,using-constant-test, useless-object-inheritance
+# pylint: disable=unused-import,wrong-import-position,reimported, unnecessary-pass
 from __future__ import division
 __revision__ = ''
-
 class AAAA(object):
     """docstring"""
     def __init__(self):

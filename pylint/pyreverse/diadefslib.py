@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006, 2008-2010, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
@@ -10,21 +9,22 @@
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """handle diagram generation options for class diagram or default diagrams
 """
 
 import astroid
 
+from pylint.constants import BUILTINS
 from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
 from pylint.pyreverse.utils import LocalsVisitor
-
-BUILTINS_NAME = "builtins"
 
 # diagram generators ##########################################################
 
@@ -43,7 +43,7 @@ class DiaDefGenerator:
         """get title for objects"""
         title = node.name
         if self.module_names:
-            title = "%s.%s" % (node.root().name, title)
+            title = f"{node.root().name}.{title}"
         return title
 
     def _set_option(self, option):
@@ -78,7 +78,7 @@ class DiaDefGenerator:
         """true if builtins and not show_builtins"""
         if self.config.show_builtin:
             return True
-        return node.root().name != BUILTINS_NAME
+        return node.root().name != BUILTINS
 
     def add_class(self, node):
         """visit one class and add it to diagram"""
@@ -171,8 +171,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         self.extract_classes(node, anc_level, association_level)
 
     def visit_importfrom(self, node):
-        """visit astroid.ImportFrom  and catch modules for package diagram
-        """
+        """visit astroid.ImportFrom  and catch modules for package diagram"""
         if self.pkgdiagram:
             self.pkgdiagram.add_from_depend(node, node.modname)
 

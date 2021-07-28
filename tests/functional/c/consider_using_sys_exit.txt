@@ -1,3 +1,0 @@
-consider-using-sys-exit:5:foo:Consider using sys.exit()
-consider-using-sys-exit:8:foo_1:Consider using sys.exit()
-consider-using-sys-exit:14::Consider using sys.exit()

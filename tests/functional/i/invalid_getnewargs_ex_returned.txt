@@ -1,6 +1,0 @@
-invalid-getnewargs-ex-returned:36:FirstBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict)
-invalid-getnewargs-ex-returned:43:SecondBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict)
-invalid-getnewargs-ex-returned:50:ThirdBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict)
-invalid-getnewargs-ex-returned:57:FourthBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict)
-invalid-getnewargs-ex-returned:64:FifthBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict)
-invalid-getnewargs-ex-returned:71:SixthBadGetNewArgsEx.__getnewargs_ex__:__getnewargs_ex__ does not return a tuple containing (tuple, dict)

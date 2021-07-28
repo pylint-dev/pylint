@@ -1,5 +1,5 @@
 """Check multiple key definition"""
-# pylint: disable=C0103,pointless-statement
+# pylint: disable=pointless-statement
 
 correct_dict = {
     'tea': 'for two',

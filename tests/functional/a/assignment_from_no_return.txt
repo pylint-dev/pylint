@@ -1,2 +1,0 @@
-assignment-from-no-return:26:Class.some_other_method:Assigning result of a function call, where the function has no return
-assignment-from-no-return:31::Assigning result of a function call, where the function has no return

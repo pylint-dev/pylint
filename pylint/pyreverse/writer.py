@@ -6,22 +6,26 @@
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Kylian <development@goudcode.nl>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Utilities for creating VCG and Dot diagrams"""
 
+import os
+
 from pylint.graph import DotBackend
-from pylint.pyreverse.utils import is_exception
+from pylint.pyreverse.utils import get_annotation_label, is_exception
 from pylint.pyreverse.vcgutils import VCGPrinter
 
 
 class DiagramWriter:
-    """base class for writing project diagrams
-    """
+    """base class for writing project diagrams"""
 
     def __init__(self, config, styles):
         self.config = config
@@ -29,11 +33,12 @@ class DiagramWriter:
         self.printer = None  # defined in set_printer
 
     def write(self, diadefs):
-        """write files for <project> according to <diadefs>
-        """
+        """write files for <project> according to <diadefs>"""
         for diagram in diadefs:
             basename = diagram.title.strip().replace(" ", "_")
-            file_name = "%s.%s" % (basename, self.config.output_format)
+            file_name = f"{basename}.{self.config.output_format}"
+            if os.path.exists(self.config.output_directory):
+                file_name = os.path.join(self.config.output_directory, file_name)
             self.set_printer(file_name, basename)
             if diagram.TYPE == "class":
                 self.write_classes(diagram)
@@ -75,7 +80,7 @@ class DiagramWriter:
                 rel.from_object.fig_id,
                 rel.to_object.fig_id,
                 label=rel.name,
-                **self.association_edges
+                **self.association_edges,
             )
 
     def set_printer(self, file_name, basename):
@@ -96,8 +101,7 @@ class DiagramWriter:
 
 
 class DotWriter(DiagramWriter):
-    """write dot graphs from a diagram definition and a project
-    """
+    """write dot graphs from a diagram definition and a project"""
 
     def __init__(self, config):
         styles = [
@@ -111,8 +115,7 @@ class DotWriter(DiagramWriter):
         DiagramWriter.__init__(self, config, styles)
 
     def set_printer(self, file_name, basename):
-        """initialize DotWriter and add options for layout.
-        """
+        """initialize DotWriter and add options for layout."""
         layout = dict(rankdir="BT")
         self.printer = DotBackend(basename, additional_param=layout)
         self.file_name = file_name
@@ -130,13 +133,31 @@ class DotWriter(DiagramWriter):
         if obj.shape == "interface":
             label = "«interface»\\n%s" % label
         if not self.config.only_classnames:
-            label = r"%s|%s\l|" % (label, r"\l".join(obj.attrs))
+            label = r"{}|{}\l|".format(label, r"\l".join(obj.attrs))
             for func in obj.methods:
+                return_type = (
+                    f": {get_annotation_label(func.returns)}" if func.returns else ""
+                )
+
                 if func.args.args:
-                    args = [arg.name for arg in func.args.args if arg.name != "self"]
+                    args = [arg for arg in func.args.args if arg.name != "self"]
                 else:
                     args = []
-                label = r"%s%s(%s)\l" % (label, func.name, ", ".join(args))
+
+                annotations = dict(zip(args, func.args.annotations[1:]))
+                for arg in args:
+                    annotation_label = ""
+                    ann = annotations.get(arg)
+                    if ann:
+                        annotation_label = get_annotation_label(ann)
+                    annotations[arg] = annotation_label
+
+                args = ", ".join(
+                    f"{arg.name}: {ann}" if ann else f"{arg.name}"
+                    for arg, ann in annotations.items()
+                )
+
+                label = fr"{label}{func.name}({args}){return_type}\l"
             label = "{%s}" % label
         if is_exception(obj.node):
             return dict(fontcolor="red", label=label, shape="record")
@@ -148,8 +169,7 @@ class DotWriter(DiagramWriter):
 
 
 class VCGWriter(DiagramWriter):
-    """write vcg graphs from a diagram definition and a project
-    """
+    """write vcg graphs from a diagram definition and a project"""
 
     def __init__(self, config):
         styles = [
@@ -167,7 +187,9 @@ class VCGWriter(DiagramWriter):
 
     def set_printer(self, file_name, basename):
         """initialize VCGWriter for a UML graph"""
-        self.graph_file = open(file_name, "w+")
+        self.graph_file = open(  # pylint: disable=consider-using-with
+            file_name, "w+", encoding="utf-8"
+        )
         self.printer = VCGPrinter(self.graph_file)
         self.printer.open_graph(
             title=basename,
@@ -202,13 +224,13 @@ class VCGWriter(DiagramWriter):
             # box width for UML like diagram
             maxlen = max(len(name) for name in [obj.title] + methods + attrs)
             line = "_" * (maxlen + 2)
-            label = r"%s\n\f%s" % (label, line)
+            label = fr"{label}\n\f{line}"
             for attr in attrs:
-                label = r"%s\n\f08%s" % (label, attr)
+                label = fr"{label}\n\f08{attr}"
             if attrs:
-                label = r"%s\n\f%s" % (label, line)
+                label = fr"{label}\n\f{line}"
             for func in methods:
-                label = r"%s\n\f10%s()" % (label, func)
+                label = fr"{label}\n\f10{func}()"
         return dict(label=label, shape=shape)
 
     def close_graph(self):

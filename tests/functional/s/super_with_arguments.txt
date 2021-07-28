@@ -1,1 +1,0 @@
-super-with-arguments:7:Bar.__init__:Consider using Python 3 style super() without arguments

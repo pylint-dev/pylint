@@ -1,8 +1,11 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import os
 import sys
+from typing import List
+
+from pylint.message import Message
 
 
 class BaseReporter:
@@ -19,11 +22,13 @@ class BaseReporter:
         self.out = None
         self.out_encoding = None
         self.set_output(output)
+        self.messages: List[Message] = []
         # Build the path prefix to strip to get relative paths
         self.path_strip_prefix = os.getcwd() + os.sep
 
-    def handle_message(self, msg):
+    def handle_message(self, msg: Message) -> None:
         """Handle a new message triggered on the current file."""
+        self.messages.append(msg)
 
     def set_output(self, output=None):
         """set output stream"""

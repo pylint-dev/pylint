@@ -20,7 +20,7 @@ Example
 
 Let us run Pylint on a module from the Python source: `warnings.py`_ and see what happens:
 
-.. sourcecode:: bash
+.. sourcecode:: shell
 
   amitdev$ pylint -E Lib/warnings.py
   E:297,36: Instance of 'WarningMessage' has no 'message' member (no-member)
@@ -67,7 +67,6 @@ Module, Class, Function etc. In our case we need to transform a class. It can be
 .. sourcecode:: python
 
   import astroid
-  from astroid import MANAGER
 
   def register(linter):
     # Needed for registering the plugin.
@@ -79,7 +78,7 @@ Module, Class, Function etc. In our case we need to transform a class. It can be
       for f in warnings.WarningMessage._WARNING_DETAILS:
         cls.locals[f] = [astroid.ClassDef(f, None)]
 
-  MANAGER.register_transform(astroid.ClassDef, transform)
+  astroid.MANAGER.register_transform(astroid.ClassDef, transform)
 
 Let's go through the plugin. First, we need to register a class transform, which
 is done via the ``register_transform`` function in ``MANAGER``. It takes the node
@@ -106,4 +105,4 @@ an example, any code transformation can be done by plugins.
 See `astroid/brain`_ for real life examples of transform plugins.
 
 .. _`warnings.py`: https://hg.python.org/cpython/file/2.7/Lib/warnings.py
-.. _`astroid/brain`: https://github.com/PyCQA/astroid/tree/master/astroid/brain
+.. _`astroid/brain`: https://github.com/PyCQA/astroid/tree/main/astroid/brain

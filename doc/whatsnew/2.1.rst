@@ -28,11 +28,11 @@ New checkers
 Other Changes
 =============
 
-* `try-except-raise` check was demoted from an error to a warning, as part of issue #2323.
+* ``try-except-raise`` check was demoted from an error to a warning, as part of issue #2323.
 
-* Correctly handle the new name of the Python implementation of the `abc` module.
+* Correctly handle the new name of the Python implementation of the ``abc`` module.
 
-  In Python 3.7, the `abc` module has both a C implementation as well as a Python one,
+  In Python 3.7, the ``abc`` module has both a C implementation as well as a Python one,
   but the Python implementation has a different file name that what ``pylint`` was expecting,
   resulting in some checks getting confused.
 
@@ -57,13 +57,13 @@ Other Changes
 * Fixed a bug where ``pylint`` was not able to disable certain messages on the last line through
   the global disable option.
 
-* ``pylint`` no longer emits `useless-return` when it finds a single statement that is the ``return`` itself
+* ``pylint`` no longer emits ``useless-return`` when it finds a single statement that is the ``return`` itself
 
   We still want to be explicit when a function is supposed to return
   an optional value; even though ``pass`` could still work, it's not explicit
   enough and the function might look like it's missing an implementation.
 
-* Fixed a bug where ``pylint`` was crashing when being unable to infer the value of an argument to `next()`
+* Fixed a bug where ``pylint`` was crashing when being unable to infer the value of an argument to ``next()``
 
 
 * ``pylint`` no longer emit ``not-an-iterable`` when dealing with async iterators.

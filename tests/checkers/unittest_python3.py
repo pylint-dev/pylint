@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2014-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2015 Cosmin Poieana <cmin@ropython.org>
@@ -12,14 +11,20 @@
 # Copyright (c) 2018 sbagan <pnlbagan@gmail.com>
 # Copyright (c) 2018 Aivar Annamaa <aivarannamaa@users.noreply.github.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Gabriel R Sezefredo <gabriel@sezefredo.com.br>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Federico Bond <federicobond@gmail.com>
 # Copyright (c) 2020 Athos Ribeiro <athoscr@fedoraproject.org>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Tiago Honorato <tiagohonorato1@gmail.com>
+# Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
+# Copyright (c) 2021 David Gilman <davidgilman1@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Tests for the python3 checkers."""
 
@@ -31,7 +36,7 @@ from pylint import testutils
 from pylint.checkers import python3 as checker
 from pylint.interfaces import INFERENCE, INFERENCE_FAILURE
 
-# TODO(cpopa): Port these to the functional test framework instead. pylint: disable=fixme
+# TODO(cpopa): Port these to the functional test framework instead. pylint: disable=fixme
 
 
 class TestPython3Checker(testutils.CheckerTestCase):
@@ -44,116 +49,131 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertAddsMessages(testutils.Message(message, node=node)):
             self.checker.visit_name(node)
 
+    def test_bad_builtins(self):
+        builtins = [
+            "apply",
+            "buffer",
+            "cmp",
+            "coerce",
+            "execfile",
+            "file",
+            "input",
+            "intern",
+            "long",
+            "raw_input",
+            "round",
+            "reduce",
+            "StandardError",
+            "unichr",
+            "unicode",
+            "xrange",
+            "reload",
+        ]
+        for builtin in builtins:
+            self.check_bad_builtin(builtin)
+
     def as_iterable_in_for_loop_test(self, fxn):
-        code = "for x in {}(): pass".format(fxn)
+        code = f"for x in {fxn}(): pass"
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_used_by_iterable_in_for_loop_test(self, fxn):
-        checker = "{}-builtin-not-iterating".format(fxn)
+        checker = f"{fxn}-builtin-not-iterating"
         node = astroid.extract_node(
-            """
+            f"""
         for x in (whatever(
-            {}() #@
+            {fxn}() #@
         )):
             pass
-        """.format(
-                fxn
-            )
+        """
         )
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
     def as_iterable_in_genexp_test(self, fxn):
-        code = "x = (x for x in {}())".format(fxn)
+        code = f"x = (x for x in {fxn}())"
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_iterable_in_starred_context(self, fxn):
-        code = "x = test(*{}())".format(fxn)
+        code = f"x = test(*{fxn}())"
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_iterable_in_listcomp_test(self, fxn):
-        code = "x = [x for x in {}(None, [1])]".format(fxn)
+        code = f"x = [x for x in {fxn}(None, [1])]"
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_iterable_in_yield_from(self, fxn):
-        code = "yield from {}()".format(fxn)
+        code = f"yield from {fxn}()"
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_used_in_variant_in_genexp_test(self, fxn):
-        checker = "{}-builtin-not-iterating".format(fxn)
+        checker = f"{fxn}-builtin-not-iterating"
         node = astroid.extract_node(
-            """
+            f"""
         list(
-            __({}(x))
+            __({fxn}(x))
             for x in [1]
         )
-        """.format(
-                fxn
-            )
+        """
         )
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
     def as_used_in_variant_in_listcomp_test(self, fxn):
-        checker = "{}-builtin-not-iterating".format(fxn)
+        checker = f"{fxn}-builtin-not-iterating"
         node = astroid.extract_node(
-            """
+            f"""
         [
-            __({}(None, x))
+            __({fxn}(None, x))
         for x in [[1]]]
-        """.format(
-                fxn
-            )
+        """
         )
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
     def as_argument_to_callable_constructor_test(self, fxn, callable_fn):
-        module = astroid.parse("x = {}({}())".format(callable_fn, fxn))
+        module = astroid.parse(f"x = {callable_fn}({fxn}())")
         with self.assertNoMessages():
             self.walk(module)
 
     def as_argument_to_materialized_filter(self, callable_fn):
-        module = astroid.parse("list(filter(None, {}()))".format(callable_fn))
+        module = astroid.parse(f"list(filter(None, {callable_fn}()))")
         with self.assertNoMessages():
             self.walk(module)
 
     def as_argument_to_random_fxn_test(self, fxn):
-        checker = "{}-builtin-not-iterating".format(fxn)
+        checker = f"{fxn}-builtin-not-iterating"
         node = astroid.extract_node(
-            """
+            f"""
         y(
-            {}() #@
+            {fxn}() #@
         )
-        """.format(
-                fxn
-            )
+        """
         )
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
     def as_argument_to_str_join_test(self, fxn):
-        code = "x = ''.join({}())".format(fxn)
+        code = f"x = ''.join({fxn}())"
         module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_argument_to_itertools_functions(self, fxn):
-        code = """
+        code = f"""
         from __future__ import absolute_import
         import itertools
         from itertools import product
@@ -161,32 +181,36 @@ class TestPython3Checker(testutils.CheckerTestCase):
             pass
         for i,j in itertools.product({fxn}(), repeat=2):
             pass
-        """.format(
-            fxn=fxn
-        )
+        """
         module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    def as_argument_to_zip_test(self, fxn):
+        module = astroid.parse(f"list(zip({fxn}))")
+        with self.assertNoMessages():
+            self.walk(module)
+
+    def as_argument_to_map_test(self, fxn):
+        module = astroid.parse(f"list(map(__, {fxn}()))")
         with self.assertNoMessages():
             self.walk(module)
 
     def as_iterable_in_unpacking(self, fxn):
         node = astroid.extract_node(
-            """
-        a, b = __({}())
-        """.format(
-                fxn
-            )
+            f"""
+        a, b = __({fxn}())
+        """
         )
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
     def as_assignment(self, fxn):
-        checker = "{}-builtin-not-iterating".format(fxn)
+        checker = f"{fxn}-builtin-not-iterating"
         node = astroid.extract_node(
-            """
-        a = __({}())
-        """.format(
-                fxn
-            )
+            f"""
+        a = __({fxn}())
+        """
         )
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
@@ -208,7 +232,8 @@ class TestPython3Checker(testutils.CheckerTestCase):
         self.as_iterable_in_yield_from(fxn)
         self.as_iterable_in_starred_context(fxn)
         self.as_argument_to_itertools_functions(fxn)
-
+        self.as_argument_to_zip_test(fxn)
+        self.as_argument_to_map_test(fxn)
         for func in (
             "iter",
             "list",
@@ -265,7 +290,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
         non_iterating_code = ["x = __({}())", "__({}())[0]"]
 
         for method in ("keys", "items", "values"):
-            dict_method = "{{}}.{}".format(method)
+            dict_method = f"{{}}.{method}"
 
             for code in iterating_code:
                 with_value = code.format(dict_method)
@@ -277,7 +302,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
                 with_value = code.format(dict_method)
                 node = astroid.extract_node(with_value)
 
-                checker = "dict-{}-not-iterating".format(method)
+                checker = f"dict-{method}-not-iterating"
                 message = testutils.Message(checker, node=node)
                 with self.assertAddsMessages(message):
                     self.checker.visit_call(node)
@@ -297,12 +322,10 @@ class TestPython3Checker(testutils.CheckerTestCase):
     def defined_method_test(self, method, warning):
         """Helper for verifying that a certain method is not defined."""
         node = astroid.extract_node(
-            """
+            f"""
             class Foo(object):
-                def __{}__(self, other):  #@
-                    pass""".format(
-                method
-            )
+                def __{method}__(self, other):  #@
+                    pass"""
         )
         message = testutils.Message(warning, node=node)
         with self.assertAddsMessages(message):

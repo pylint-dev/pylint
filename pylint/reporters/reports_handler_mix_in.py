@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
 
@@ -17,7 +17,7 @@ class ReportsHandlerMixIn:
         self._reports_state = {}
 
     def report_order(self):
-        """ Return a list of reports, sorted in the order
+        """Return a list of reports, sorted in the order
         in which they must be called.
         """
         return list(self._reports)

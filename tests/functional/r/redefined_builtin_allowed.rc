@@ -1,0 +1,4 @@
+[messages control]
+disable = invalid-name
+[variables]
+allowed-redefined-builtins = dir, list

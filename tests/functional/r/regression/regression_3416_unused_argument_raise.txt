@@ -1,0 +1,3 @@
+unused-argument:9:8:fun:Unused argument 'arg_a'
+unused-argument:9:15:fun:Unused argument 'arg_b'
+unused-argument:9:22:fun:Unused argument 'arg_c'

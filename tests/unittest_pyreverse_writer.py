@@ -1,17 +1,19 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2008, 2010, 2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """
 unit test for visitors.diadefs and extensions.diadefslib modules
@@ -21,12 +23,14 @@ unit test for visitors.diadefs and extensions.diadefslib modules
 import codecs
 import os
 from difflib import unified_diff
+from unittest.mock import patch
 
+import astroid
 import pytest
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
-from pylint.pyreverse.utils import get_visibility
+from pylint.pyreverse.utils import get_annotation, get_visibility, infer_node
 from pylint.pyreverse.writer import DotWriter
 
 _DEFAULTS = {
@@ -42,6 +46,7 @@ _DEFAULTS = {
     "mode": "PUB_ONLY",
     "show_builtin": False,
     "only_classnames": False,
+    "output_directory": "",
 }
 
 
@@ -106,13 +111,11 @@ def test_dot_files(generated_file):
     expected = _file_lines(expected_file)
     generated = "\n".join(generated)
     expected = "\n".join(expected)
-    files = "\n *** expected : %s, generated : %s \n" % (expected_file, generated_file)
-    assert expected == generated, "%s%s" % (
-        files,
-        "\n".join(
-            line for line in unified_diff(expected.splitlines(), generated.splitlines())
-        ),
+    files = f"\n *** expected : {expected_file}, generated : {generated_file} \n"
+    diff = "\n".join(
+        line for line in unified_diff(expected.splitlines(), generated.splitlines())
     )
+    assert expected == generated, f"{files}{diff}"
     os.remove(generated_file)
 
 
@@ -131,8 +134,73 @@ def test_dot_files(generated_file):
 def test_get_visibility(names, expected):
     for name in names:
         got = get_visibility(name)
-        assert got == expected, "got %s instead of %s for value %s" % (
-            got,
-            expected,
-            name,
-        )
+        assert got == expected, f"got {got} instead of {expected} for value {name}"
+
+
+@pytest.mark.parametrize(
+    "assign, label",
+    [
+        ("a: str = None", "Optional[str]"),
+        ("a: str = 'mystr'", "str"),
+        ("a: Optional[str] = 'str'", "Optional[str]"),
+        ("a: Optional[str] = None", "Optional[str]"),
+    ],
+)
+def test_get_annotation_annassign(assign, label):
+    """AnnAssign"""
+    node = astroid.extract_node(assign)
+    got = get_annotation(node.value).name
+    assert isinstance(node, astroid.AnnAssign)
+    assert got == label, f"got {got} instead of {label} for value {node}"
+
+
+@pytest.mark.parametrize(
+    "init_method, label",
+    [
+        ("def __init__(self, x: str):                   self.x = x", "str"),
+        ("def __init__(self, x: str = 'str'):           self.x = x", "str"),
+        ("def __init__(self, x: str = None):            self.x = x", "Optional[str]"),
+        ("def __init__(self, x: Optional[str]):         self.x = x", "Optional[str]"),
+        ("def __init__(self, x: Optional[str] = None):  self.x = x", "Optional[str]"),
+        ("def __init__(self, x: Optional[str] = 'str'): self.x = x", "Optional[str]"),
+    ],
+)
+def test_get_annotation_assignattr(init_method, label):
+    """AssignAttr"""
+    assign = rf"""
+        class A:
+            {init_method}
+    """
+    node = astroid.extract_node(assign)
+    instance_attrs = node.instance_attrs
+    for _, assign_attrs in instance_attrs.items():
+        for assign_attr in assign_attrs:
+            got = get_annotation(assign_attr).name
+            assert isinstance(assign_attr, astroid.AssignAttr)
+            assert got == label, f"got {got} instead of {label} for value {node}"
+
+
+@patch("pylint.pyreverse.utils.get_annotation")
+@patch("astroid.node_classes.NodeNG.infer", side_effect=astroid.InferenceError)
+def test_infer_node_1(mock_infer, mock_get_annotation):
+    """Return set() when astroid.InferenceError is raised and an annotation has
+    not been returned
+    """
+    mock_get_annotation.return_value = None
+    node = astroid.extract_node("a: str = 'mystr'")
+    mock_infer.return_value = "x"
+    assert infer_node(node) == set()
+    assert mock_infer.called
+
+
+@patch("pylint.pyreverse.utils.get_annotation")
+@patch("astroid.node_classes.NodeNG.infer")
+def test_infer_node_2(mock_infer, mock_get_annotation):
+    """Return set(node.infer()) when InferenceError is not raised and an
+    annotation has not been returned
+    """
+    mock_get_annotation.return_value = None
+    node = astroid.extract_node("a: str = 'mystr'")
+    mock_infer.return_value = "x"
+    assert infer_node(node) == set("x")
+    assert mock_infer.called

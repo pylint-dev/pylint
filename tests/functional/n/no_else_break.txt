@@ -1,7 +1,0 @@
-no-else-break:8:foo1:Unnecessary "else" after "break"
-no-else-break:16:foo2:Unnecessary "elif" after "break"
-no-else-break:28:foo3:Unnecessary "else" after "break"
-no-else-break:41:foo4:Unnecessary "else" after "break"
-no-else-break:54:foo5:Unnecessary "elif" after "break"
-no-else-break:70:foo6:Unnecessary "else" after "break"
-no-else-break:110:bar4:Unnecessary "else" after "break"

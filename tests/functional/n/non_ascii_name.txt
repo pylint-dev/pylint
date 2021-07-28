@@ -1,2 +1,0 @@
-non-ascii-name:3::"Constant name ""áéíóú"" contains a non-ASCII unicode character"
-non-ascii-name:5:úóíéá:"Function name ""úóíéá"" contains a non-ASCII unicode character"

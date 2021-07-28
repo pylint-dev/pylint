@@ -1,1 +1,0 @@
-consider-using-set-comprehension:9::Consider using a set comprehension

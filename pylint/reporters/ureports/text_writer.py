@@ -1,10 +1,13 @@
-# Copyright (c) 2015-2016, 2018-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2016, 2018-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Text formatting drivers for ureports"""
 
@@ -24,8 +27,7 @@ class TextWriter(BaseWriter):
         self.list_level = 0
 
     def visit_section(self, layout):
-        """display a section as text
-        """
+        """display a section as text"""
         self.section += 1
         self.writeln()
         self.format_children(layout)
@@ -69,8 +71,8 @@ class TextWriter(BaseWriter):
         format_strings = " ".join(["%%-%ss"] * len(cols_width))
         format_strings = format_strings % tuple(cols_width)
         format_strings = format_strings.split(" ")
-        table_linesep = "\n+" + "+".join(["-" * w for w in cols_width]) + "+\n"
-        headsep = "\n+" + "+".join(["=" * w for w in cols_width]) + "+\n"
+        table_linesep = "\n+" + "+".join("-" * w for w in cols_width) + "+\n"
+        headsep = "\n+" + "+".join("=" * w for w in cols_width) + "+\n"
 
         self.write(table_linesep)
         for index, line in enumerate(table_content):
@@ -84,8 +86,7 @@ class TextWriter(BaseWriter):
                 self.write(table_linesep)
 
     def visit_verbatimtext(self, layout):
-        """display a verbatim layout as text (so difficult ;)
-        """
+        """display a verbatim layout as text (so difficult ;)"""
         self.writeln("::\n")
         for line in layout.data.splitlines():
             self.writeln("    " + line)

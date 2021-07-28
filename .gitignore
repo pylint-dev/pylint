@@ -1,6 +1,6 @@
-.svn/
-.hg/
-.hgtags/
+# Do not add entries specific to your dev environment or development
+# preferences in this file. You can use the global .gitignore for that:
+# git config --global core.excludesFile '~/.gitignore'
 /log
 *.py[cod]
 /build
@@ -13,14 +13,8 @@ doc/technical_reference/extensions.rst
 doc/technical_reference/features.rst
 pyve
 build-stamp
-debian/files
-debian/pylint.*.log
-debian/pylint.*.debhelper
-debian/pylint.substvars
-debian/pylint
 .coverage
 .coverage.*
-.idea
 .cache/
 .eggs/
 .pytest_cache/

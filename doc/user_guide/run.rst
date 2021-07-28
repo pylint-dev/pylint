@@ -53,6 +53,15 @@ and get its standard output and error:
   from pylint import epylint as lint
   (pylint_stdout, pylint_stderr) = lint.py_run('module_name.py', return_std=True)
 
+It is also possible to include additional Pylint options in the first argument to ``py_run``:
+
+.. sourcecode:: python
+
+  from pylint import epylint as lint
+  (pylint_stdout, pylint_stderr) = lint.py_run('module_name.py --disable C0114', return_std=True)
+
+The options ``--msg-template="{path}:{line}: {category} ({msg_id}, {symbol}, {obj}) {msg}"`` and
+``--reports=n`` are set implicitly inside the ``epylint`` module.
 
 Command line options
 --------------------
@@ -93,10 +102,10 @@ configuration file in the following order and uses the first one it finds:
    providing it has at least one ``tool.pylint.`` section.
 #. ``setup.cfg`` in the current working directory,
    providing it has at least one ``pylint.`` section
-#. If the current working directory is in a Python module, Pylint searches \
-   up the hierarchy of Python modules until it finds a ``pylintrc`` file. \
+#. If the current working directory is in a Python package, Pylint searches \
+   up the hierarchy of Python packages until it finds a ``pylintrc`` file. \
    This allows you to specify coding standards on a module-by-module \
-   basis.  Of course, a directory is judged to be a Python module if it \
+   basis.  Of course, a directory is judged to be a Python package if it \
    contains an ``__init__.py`` file.
 #. The file named by environment variable ``PYLINTRC``
 #. if you have a home directory which isn't ``/root``:
@@ -118,8 +127,8 @@ configuration.
 
 Other useful global options include:
 
---ignore=<file[,file...]>  Add files or directories to the blacklist. They
-                           should be base names, not paths.
+--ignore=<file[,file...]>  Files or directories to be skipped. They should be
+                           base names, not paths.
 --output-format=<format>   Select output format (text, json, custom).
 --msg-template=<template>  Modify text output message template.
 --list-msgs                Generate pylint's messages.
@@ -171,4 +180,6 @@ exit code  meaning                    stderr stream message
                                       - "<return of linter.help()>"
                                       - "Jobs number <#> should be greater \
                                         than 0"
+                                      - "<IOError message when trying to open \
+                                        output file>"
 =========  =========================  ==========================================

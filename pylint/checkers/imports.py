@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2013 buck@yelp.com <buck@yelp.com>
@@ -16,7 +15,7 @@
 # Copyright (c) 2016 Maik Röder <maikroeder@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Michka Popoff <michkapopoff@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Erik Wright <erik.wright@shopify.com>
@@ -27,15 +26,22 @@
 # Copyright (c) 2018 Mike Frysinger <vapier@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Nick Smith <clickthisnick@users.noreply.github.com>
 # Copyright (c) 2019 Paul Renvoisé <renvoisepaul@gmail.com>
+# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Will Shanks <wsha@posteo.net>
+# Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
+# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
+# Copyright (c) 2021 Andrew Howe <howeaj@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """imports checkers for Python code"""
 
@@ -44,23 +50,23 @@ import copy
 import os
 import sys
 from distutils import sysconfig
+from typing import Dict, List, Set, Union
 
 import astroid
-import isort
-from astroid import modutils
-from astroid.decorators import cached
 
-from pylint.checkers import BaseChecker
+from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
     check_messages,
+    get_import_name,
     is_from_fallback_block,
+    is_node_in_guarded_import_block,
     node_ignores_exception,
 )
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
-from pylint.reporters.ureports.nodes import Paragraph, VerbatimText
-from pylint.utils import get_global_option
+from pylint.reporters.ureports.nodes import Paragraph, VerbatimText, VNode
+from pylint.utils import IsortDriver, get_global_option
 
 
 def _qualified_names(modname):
@@ -75,28 +81,9 @@ def _qualified_names(modname):
     return [".".join(names[0 : i + 1]) for i in range(len(names))]
 
 
-def _get_import_name(importnode, modname):
-    """Get a prepared module name from the given import node
-
-    In the case of relative imports, this will return the
-    absolute qualified module name, which might be useful
-    for debugging. Otherwise, the initial module name
-    is returned unchanged.
-    """
-    if isinstance(importnode, astroid.ImportFrom):
-        if importnode.level:
-            root = importnode.root()
-            if isinstance(root, astroid.Module):
-                modname = root.relative_to_absolute_name(
-                    modname, level=importnode.level
-                )
-    return modname
-
-
 def _get_first_import(node, context, name, base, level, alias):
-    """return the node where [base.]<name> is imported or None if not found
-    """
-    fullname = "%s.%s" % (base, name) if base else name
+    """return the node where [base.]<name> is imported or None if not found"""
+    fullname = f"{base}.{name}" if base else name
 
     first = None
     found = False
@@ -112,7 +99,7 @@ def _get_first_import(node, context, name, base, level, alias):
         elif isinstance(first, astroid.ImportFrom):
             if level == first.level:
                 for imported_name, imported_alias in first.names:
-                    if fullname == "%s.%s" % (first.modname, imported_name):
+                    if fullname == f"{first.modname}.{imported_name}":
                         found = True
                         break
                     if (
@@ -133,6 +120,11 @@ def _ignore_import_failure(node, modname, ignored_modules):
     for submodule in _qualified_names(modname):
         if submodule in ignored_modules:
             return True
+
+    if is_node_in_guarded_import_block(node):
+        # Ignore import failure if part of guarded import block
+        # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
+        return True
 
     return node_ignores_exception(node, ImportError)
 
@@ -163,10 +155,10 @@ def _repr_tree_defs(data, indent_str=None):
         else:
             files = "(%s)" % ",".join(sorted(files))
         if indent_str is None:
-            lines.append("%s %s" % (mod, files))
+            lines.append(f"{mod} {files}")
             sub_indent_str = "  "
         else:
-            lines.append(r"%s\-%s %s" % (indent_str, mod, files))
+            lines.append(fr"{indent_str}\-{mod} {files}")
             if i == len(nodes) - 1:
                 sub_indent_str = "%s  " % indent_str
             else:
@@ -176,11 +168,10 @@ def _repr_tree_defs(data, indent_str=None):
     return "\n".join(lines)
 
 
-def _dependencies_graph(filename, dep_info):
-    """write dependencies as a dot (graphviz) file
-    """
+def _dependencies_graph(filename: str, dep_info: Dict[str, List[str]]) -> str:
+    """write dependencies as a dot (graphviz) file"""
     done = {}
-    printer = DotBackend(filename[:-4], rankdir="LR")
+    printer = DotBackend(os.path.splitext(os.path.basename(filename))[0], rankdir="LR")
     printer.emit('URL="." node[shape="box"]')
     for modname, dependencies in sorted(dep_info.items()):
         done[modname] = 1
@@ -192,15 +183,15 @@ def _dependencies_graph(filename, dep_info):
     for depmodname, dependencies in sorted(dep_info.items()):
         for modname in dependencies:
             printer.emit_edge(modname, depmodname)
-    printer.generate(filename)
+    return printer.generate(filename)
 
 
-def _make_graph(filename, dep_info, sect, gtype):
+def _make_graph(filename: str, dep_info: Dict[str, List[str]], sect: VNode, gtype: str):
     """generate a dependencies graph and add some information about it in the
     report's section
     """
-    _dependencies_graph(filename, dep_info)
-    sect.append(Paragraph("%simports graph has been written to %s" % (gtype, filename)))
+    outputfile = _dependencies_graph(filename, dep_info)
+    sect.append(Paragraph(f"{gtype}imports graph has been written to {outputfile}"))
 
 
 # the import checker itself ###################################################
@@ -222,6 +213,14 @@ MSGS = {
         "Cyclic import (%s)",
         "cyclic-import",
         "Used when a cyclic import between two or more modules is detected.",
+    ),
+    "R0402": (
+        "Use 'from %s import %s' instead",
+        "consider-using-from-import",
+        "Emitted when a submodule of a package is imported and "
+        "aliased with the same name. "
+        "E.g., instead of ``import concurrent.futures as futures`` use "
+        "``from concurrent import futures``",
     ),
     "W0401": (
         "Wildcard import %s",
@@ -295,7 +294,7 @@ DEFAULT_KNOWN_THIRD_PARTY = ("enchant",)
 DEFAULT_PREFERRED_MODULES = ()
 
 
-class ImportsChecker(BaseChecker):
+class ImportsChecker(DeprecatedMixin, BaseChecker):
     """checks for
     * external modules dependencies
     * relative / wildcard imports
@@ -309,13 +308,13 @@ class ImportsChecker(BaseChecker):
     name = "imports"
     msgs = MSGS
     priority = -2
-    deprecated_modules = ("optparse", "tkinter.tix")
+    default_deprecated_modules = ()
 
     options = (
         (
             "deprecated-modules",
             {
-                "default": deprecated_modules,
+                "default": default_deprecated_modules,
                 "type": "csv",
                 "metavar": "<modules>",
                 "help": "Deprecated modules which should not be used,"
@@ -337,9 +336,9 @@ class ImportsChecker(BaseChecker):
             {
                 "default": "",
                 "type": "string",
-                "metavar": "<file.dot>",
-                "help": "Create a graph of every (i.e. internal and"
-                " external) dependencies in the given file"
+                "metavar": "<file.gv>",
+                "help": "Output a graph (.gv or any supported image format) of"
+                " all (i.e. internal and external) dependencies to the given file"
                 " (report RP0402 must not be disabled).",
             },
         ),
@@ -348,9 +347,10 @@ class ImportsChecker(BaseChecker):
             {
                 "default": "",
                 "type": "string",
-                "metavar": "<file.dot>",
-                "help": "Create a graph of external dependencies in the"
-                " given file (report RP0402 must not be disabled).",
+                "metavar": "<file.gv>",
+                "help": "Output a graph (.gv or any supported image format)"
+                " of external dependencies to the given file"
+                " (report RP0402 must not be disabled).",
             },
         ),
         (
@@ -358,9 +358,10 @@ class ImportsChecker(BaseChecker):
             {
                 "default": "",
                 "type": "string",
-                "metavar": "<file.dot>",
-                "help": "Create a graph of internal dependencies in the"
-                " given file (report RP0402 must not be disabled).",
+                "metavar": "<file.gv>",
+                "help": "Output a graph (.gv or any supported image format)"
+                " of internal dependencies to the given file"
+                " (report RP0402 must not be disabled).",
             },
         ),
         (
@@ -490,6 +491,10 @@ class ImportsChecker(BaseChecker):
             for cycle in get_cycles(graph, vertices=vertices):
                 self.add_message("cyclic-import", args=" -> ".join(cycle))
 
+    def deprecated_modules(self):
+        """Callback returning the deprecated modules."""
+        return self.config.deprecated_modules
+
     @check_messages(*MSGS)
     def visit_import(self, node):
         """triggered when an import statement is seen"""
@@ -502,7 +507,7 @@ class ImportsChecker(BaseChecker):
             self.add_message("multiple-imports", args=", ".join(names), node=node)
 
         for name in names:
-            self._check_deprecated_module(node, name)
+            self.check_deprecated_module(node, name)
             self._check_preferred_module(node, name)
             imported_module = self._get_imported_module(node, name)
             if isinstance(node.parent, astroid.Module):
@@ -524,7 +529,7 @@ class ImportsChecker(BaseChecker):
 
         self._check_import_as_rename(node)
         self._check_misplaced_future(node)
-        self._check_deprecated_module(node, basename)
+        self.check_deprecated_module(node, basename)
         self._check_preferred_module(node, basename)
         self._check_wildcard_imports(node, imported_module)
         self._check_same_line_imports(node)
@@ -540,30 +545,35 @@ class ImportsChecker(BaseChecker):
             return
         for name, _ in node.names:
             if name != "*":
-                self._add_imported_module(node, "%s.%s" % (imported_module.name, name))
+                self._add_imported_module(node, f"{imported_module.name}.{name}")
             else:
                 self._add_imported_module(node, imported_module.name)
 
     @check_messages(*MSGS)
-    def leave_module(self, node):
+    def leave_module(self, node: astroid.Module) -> None:
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
 
         # Check that imports are grouped by package within a given category
-        met_import = set()  #  set for 'import x' style
-        met_from = set()  #  set for 'from x import y' style
+        met_import: Set[str] = set()  # set for 'import x' style
+        met_from: Set[str] = set()  # set for 'from x import y' style
         current_package = None
         for import_node, import_name in std_imports + ext_imports + loc_imports:
             if not self.linter.is_message_enabled(
                 "ungrouped-imports", import_node.fromlineno
             ):
                 continue
-            if isinstance(import_node, astroid.node_classes.ImportFrom):
+            if isinstance(import_node, astroid.ImportFrom):
                 met = met_from
             else:
                 met = met_import
             package, _, _ = import_name.partition(".")
-            if current_package and current_package != package and package in met:
+            if (
+                current_package
+                and current_package != package
+                and package in met
+                and is_node_in_guarded_import_block(import_node) is False
+            ):
                 self.add_message("ungrouped-imports", node=import_node, args=package)
             current_package = package
             met.add(package)
@@ -709,11 +719,7 @@ class ImportsChecker(BaseChecker):
         third_party_not_ignored = []
         first_party_not_ignored = []
         local_not_ignored = []
-        isort_obj = isort.SortImports(
-            file_contents="",
-            known_third_party=self.config.known_third_party,
-            known_standard_library=self.config.known_standard_library,
-        )
+        isort_driver = IsortDriver(self.config)
         for node, modname in self._imports_stack:
             if modname.startswith("."):
                 package = "." + modname.split(".")[1]
@@ -723,7 +729,7 @@ class ImportsChecker(BaseChecker):
             ignore_for_import_order = not self.linter.is_message_enabled(
                 "wrong-import-order", node.fromlineno
             )
-            import_category = isort_obj.place_module(package)
+            import_category = isort_driver.place_module(package)
             node_and_package_import = (node, package)
             if import_category in ("FUTURE", "STDLIB"):
                 std_imports.append(node_and_package_import)
@@ -802,24 +808,33 @@ class ImportsChecker(BaseChecker):
             ):
                 return None
 
-            dotted_modname = _get_import_name(importnode, modname)
+            dotted_modname = get_import_name(importnode, modname)
             self.add_message("import-error", args=repr(dotted_modname), node=importnode)
+        return None
 
-    def _add_imported_module(self, node, importedmodname):
+    def _add_imported_module(
+        self, node: Union[astroid.Import, astroid.ImportFrom], importedmodname: str
+    ) -> None:
         """notify an imported module, used to analyze dependencies"""
         module_file = node.root().file
         context_name = node.root().name
         base = os.path.splitext(os.path.basename(module_file))[0]
 
         try:
-            importedmodname = modutils.get_module_part(importedmodname, module_file)
+            importedmodname = astroid.modutils.get_module_part(
+                importedmodname, module_file
+            )
         except ImportError:
             pass
+
+        in_type_checking_block = (
+            isinstance(node.parent, astroid.If) and node.parent.is_typing_guard()
+        )
 
         if context_name == importedmodname:
             self.add_message("import-self", node=node)
 
-        elif not modutils.is_standard_module(importedmodname):
+        elif not astroid.modutils.is_standard_module(importedmodname):
             # if this is not a package __init__ module
             if base != "__init__" and context_name not in self._module_pkg:
                 # record the module's parent, or the module itself if this is
@@ -835,14 +850,11 @@ class ImportsChecker(BaseChecker):
 
             # update import graph
             self.import_graph[context_name].add(importedmodname)
-            if not self.linter.is_message_enabled("cyclic-import", line=node.lineno):
+            if (
+                not self.linter.is_message_enabled("cyclic-import", line=node.lineno)
+                or in_type_checking_block
+            ):
                 self._excluded_edges[context_name].add(importedmodname)
-
-    def _check_deprecated_module(self, node, mod_path):
-        """check if the module is deprecated"""
-        for mod_name in self.config.deprecated_modules:
-            if mod_path == mod_name or mod_path.startswith(mod_name + "."):
-                self.add_message("deprecated-module", node=node, args=mod_path)
 
     def _check_preferred_module(self, node, mod_path):
         """check if the module has a preferred replacement"""
@@ -853,22 +865,28 @@ class ImportsChecker(BaseChecker):
                 args=(self.preferred_modules[mod_path], mod_path),
             )
 
-    def _check_import_as_rename(self, node):
+    def _check_import_as_rename(
+        self, node: Union[astroid.Import, astroid.ImportFrom]
+    ) -> None:
         names = node.names
         for name in names:
             if not all(name):
                 return
 
-            real_name = name[0]
-            splitted_packages = real_name.rsplit(".")
-            real_name = splitted_packages[-1]
-            imported_name = name[1]
-            # consider only following cases
-            # import x as x
-            # and ignore following
-            # import x.y.z as z
-            if real_name == imported_name and len(splitted_packages) == 1:
+            splitted_packages = name[0].rsplit(".", maxsplit=1)
+            import_name = splitted_packages[-1]
+            aliased_name = name[1]
+            if import_name != aliased_name:
+                continue
+
+            if len(splitted_packages) == 1:
                 self.add_message("useless-import-alias", node=node)
+            elif len(splitted_packages) == 2:
+                self.add_message(
+                    "consider-using-from-import",
+                    node=node,
+                    args=(splitted_packages[0], import_name),
+                )
 
     def _check_reimport(self, node, basename=None, level=None):
         """check if the import is necessary (i.e. not already done)"""
@@ -929,14 +947,14 @@ class ImportsChecker(BaseChecker):
                     graph[importee].add(importer)
         return graph
 
-    @cached
+    @astroid.decorators.cached
     def _external_dependencies_info(self):
         """return cached external dependencies information or build and
         cache them
         """
         return self._filter_dependencies_graph(internal=False)
 
-    @cached
+    @astroid.decorators.cached
     def _internal_dependencies_info(self):
         """return cached internal dependencies information or build and
         cache them
@@ -961,21 +979,20 @@ class ImportsChecker(BaseChecker):
         )
 
     def _check_toplevel(self, node):
-        """Check whether the import is made outside the module toplevel.
-        """
+        """Check whether the import is made outside the module toplevel."""
         # If the scope of the import is a module, then obviously it is
         # not outside the module toplevel.
         if isinstance(node.scope(), astroid.Module):
             return
 
         module_names = [
-            "{}.{}".format(node.modname, name[0])
+            f"{node.modname}.{name[0]}"
             if isinstance(node, astroid.ImportFrom)
             else name[0]
             for name in node.names
         ]
 
-        # Get the full names of all the imports that are not whitelisted.
+        # Get the full names of all the imports that are only allowed at the module level
         scoped_imports = [
             name for name in module_names if name not in self._allow_any_import_level
         ]
@@ -987,5 +1004,5 @@ class ImportsChecker(BaseChecker):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(ImportsChecker(linter))

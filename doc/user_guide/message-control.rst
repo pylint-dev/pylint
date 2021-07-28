@@ -59,7 +59,7 @@ The pragma controls can disable / enable:
             print(self.bla)
             if self.blop:
                 # pylint: enable=no-member
-                # disable all no-members for this block
+                # enable all no-members for this block
                 print(self.blip)
             else:
                 # This is affected by the scope disable
@@ -67,7 +67,7 @@ The pragma controls can disable / enable:
             # pylint: enable=no-member
             print(self.blip)
             if self.blop:
-                # pylint: enable=no-member
+                # pylint: disable=no-member
                 # disable all no-members for this block
                 print(self.blip)
             else:

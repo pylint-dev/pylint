@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Script used to generate the extensions file before building the actual documentation."""
 
@@ -18,7 +18,7 @@ from pylint.utils import get_rst_title
 # Skip documenting these modules since:
 # 1) They are deprecated, why document them moving forward?
 # 2) We can't load the deprecated module and the newly renamed module at the
-#    same time without getting naming conflicts
+# same time without getting naming conflicts
 DEPRECATED_MODULES = ["check_docs"]  # ==> docparams
 
 
@@ -56,7 +56,7 @@ def builder_inited(app):
         )
         stream.write("Pylint provides the following optional plugins:\n\n")
         for module in modules:
-            stream.write("- :ref:`{}`\n".format(module))
+            stream.write(f"- :ref:`{module}`\n")
         stream.write("\n")
         stream.write(
             "You can activate any or all of these extensions "

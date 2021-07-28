@@ -1,4 +1,4 @@
-# pylint:disable=W0105, W0511
+# pylint:disable=pointless-string-statement
 """Test for backslash escapes in byte vs unicode strings"""
 
 # Would be valid in Unicode, but probably not what you want otherwise

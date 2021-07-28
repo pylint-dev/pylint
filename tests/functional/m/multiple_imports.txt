@@ -1,1 +1,1 @@
-multiple-imports:2::Multiple imports on one line (os, socket)
+multiple-imports:2:0::Multiple imports on one line (os, socket)

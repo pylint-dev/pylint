@@ -2,18 +2,20 @@
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 y2kbugger <y2kbugger@users.noreply.github.com>
 # Copyright (c) 2018-2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Jace Browning <jacebrowning@gmail.com>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Plain text reporters:
 
@@ -26,6 +28,7 @@ import warnings
 
 from pylint import utils
 from pylint.interfaces import IReporter
+from pylint.message import Message
 from pylint.reporters import BaseReporter
 from pylint.reporters.ureports.text_writer import TextWriter
 
@@ -116,7 +119,7 @@ def colorize_ansi(msg, color=None, style=None):
     escape_code = _get_ansi_code(color, style)
     # If invalid (or unknown) color, don't wrap msg with ansi codes
     if escape_code:
-        return "%s%s%s" % (escape_code, msg, ANSI_RESET)
+        return f"{escape_code}{msg}{ANSI_RESET}"
     return msg
 
 
@@ -131,16 +134,16 @@ class TextReporter(BaseReporter):
     def __init__(self, output=None):
         BaseReporter.__init__(self, output)
         self._modules = set()
-        self._template = None
+        self._template = self.line_format
 
     def on_set_current_module(self, module, filepath):
-        self._template = str(self.linter.config.msg_template or self.line_format)
+        self._template = str(self.linter.config.msg_template or self._template)
 
     def write_message(self, msg):
         """Convenience method to write a formatted message with class default template"""
         self.writeln(msg.format(self._template))
 
-    def handle_message(self, msg):
+    def handle_message(self, msg: Message) -> None:
         """manage message of different type and in the context of path"""
         if msg.module not in self._modules:
             if msg.module:
@@ -216,7 +219,7 @@ class ColorizedTextReporter(TextReporter):
         except KeyError:
             return None, None
 
-    def handle_message(self, msg):
+    def handle_message(self, msg: Message) -> None:
         """manage message of different types, and colorize output
         using ansi escape codes
         """

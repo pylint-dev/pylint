@@ -1,0 +1,1 @@
+useless-super-delegation:16:4:Ham.__init__:Useless super delegation in method '__init__'

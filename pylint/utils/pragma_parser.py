@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import re
 from collections import namedtuple
@@ -38,14 +38,14 @@ ALL_KEYWORDS = "|".join(
 
 
 TOKEN_SPECIFICATION = [
-    ("KEYWORD", r"\b({:s})\b".format(ALL_KEYWORDS)),
+    ("KEYWORD", fr"\b({ALL_KEYWORDS:s})\b"),
     ("MESSAGE_STRING", r"[0-9A-Za-z\-\_]{2,}"),  #  Identifiers
     ("ASSIGN", r"="),  #  Assignment operator
     ("MESSAGE_NUMBER", r"[CREIWF]{1}\d*"),
 ]
 
 TOK_REGEX = "|".join(
-    "(?P<{:s}>{:s})".format(token_name, token_rgx)
+    f"(?P<{token_name:s}>{token_rgx:s})"
     for token_name, token_rgx in TOKEN_SPECIFICATION
 )
 
@@ -87,7 +87,7 @@ class InvalidPragmaError(PragmaParserError):
 
 def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]:
     action = None
-    messages = []  # type: List[str]
+    messages: List[str] = []
     assignment_required = False
     previous_token = ""
 

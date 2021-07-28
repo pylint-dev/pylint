@@ -1,3 +1,0 @@
-invalid-bytes-returned:36:FirstBadBytes.__bytes__:__bytes__ does not return bytes
-invalid-bytes-returned:43:SecondBadBytes.__bytes__:__bytes__ does not return bytes
-invalid-bytes-returned:50:ThirdBadBytes.__bytes__:__bytes__ does not return bytes

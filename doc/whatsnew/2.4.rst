@@ -40,7 +40,7 @@ New checkers
 
   Close #2327
 
-* Added `unnecessary-comprehension` that detects unnecessary comprehensions.
+* Added ``unnecessary-comprehension`` that detects unnecessary comprehensions.
 
   This check is emitted when ``pylint`` finds list-, set- or dict-comprehensions,
   that are unnecessary and can be rewritten with the list-, set- or dict-constructors.
@@ -83,7 +83,7 @@ New checkers
 
   Close #3006
 
-* Added `subprocess-run-check` to handle subprocess.run without explicitly set `check` keyword.
+* Added ``subprocess-run-check`` to handle subprocess.run without explicitly set ``check`` keyword.
 
   Close #2848
 
@@ -194,13 +194,13 @@ The following does not trigger a ``missing-return-doc`` anymore ::
 
 * ``signature-mutators`` CLI and config option was added.
 
-With this option, users can choose to ignore `too-many-function-args`, `unexpected-keyword-arg`,
-and `no-value-for-parameter` for functions decorated with decorators that change
+With this option, users can choose to ignore ``too-many-function-args``, ``unexpected-keyword-arg``,
+and ``no-value-for-parameter`` for functions decorated with decorators that change
 the signature of a decorated function.
 
 For example a test may want to make use of hypothesis.
-Adding `hypothesis.extra.numpy.arrays` to `signature_mutators`
-would mean that `no-value-for-parameter` would not be raised for::
+Adding ``hypothesis.extra.numpy.arrays`` to ``signature_mutators``
+would mean that ``no-value-for-parameter`` would not be raised for::
 
     @given(img=arrays(dtype=np.float32, shape=(3, 3, 3, 3)))
     def test_image(img):
@@ -208,10 +208,10 @@ would mean that `no-value-for-parameter` would not be raised for::
 
 * Allow the option of f-strings as a valid logging string formatting method.
 
-`logging-fstring--interpolation` has been merged into
-`logging-format-interpolation` to allow the `logging-format-style` option
+``logging-fstring--interpolation`` has been merged into
+``logging-format-interpolation`` to allow the ``logging-format-style`` option
 to control which logging string format style is valid.
-To allow this, a new `fstr` value is valid for the `logging-format-style`
+To allow this, a new ``fstr`` value is valid for the ``logging-format-style``
 option.
 
 * ``--list-msgs-enabled`` command was added.

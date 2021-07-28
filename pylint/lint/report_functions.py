@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
 
@@ -22,11 +22,9 @@ def report_messages_stats(sect, stats, _):
         # don't print this report when we didn't detected any errors
         raise exceptions.EmptyReportError()
     in_order = sorted(
-        [
-            (value, msg_id)
-            for msg_id, value in stats["by_msg"].items()
-            if not msg_id.startswith("I")
-        ]
+        (value, msg_id)
+        for msg_id, value in stats["by_msg"].items()
+        if not msg_id.startswith("I")
     )
     in_order.reverse()
     lines = ("message id", "occurrences")

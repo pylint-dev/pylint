@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006, 2009-2010, 2012-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012, 2014 Google, Inc.
-# Copyright (c) 2014-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
@@ -12,27 +11,31 @@
 # Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Jakub Wilk <jwilk@jwilk.net>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Michael Scott Cuthbert <cuthbert@mit.edu>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """check for signs of poor design"""
 
 import re
 from collections import defaultdict
+from typing import FrozenSet, List, Set, cast
 
 import astroid
-from astroid import BoolOp, If, decorators
+from astroid import nodes
 
 from pylint import utils
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
 
-MSGS = {
+MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "R0901": (
         "Too many ancestors (%s/%s)",
         "too-many-ancestors",
@@ -95,16 +98,98 @@ SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
 TYPING_NAMEDTUPLE = "typing.NamedTuple"
+TYPING_TYPEDDICT = "typing.TypedDict"
+
+# Set of stdlib classes to ignore when calculating number of ancestors
+STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
+    (
+        "builtins.object",
+        "builtins.tuple",
+        "builtins.dict",
+        "builtins.list",
+        "builtins.set",
+        "bulitins.frozenset",
+        "collections.ChainMap",
+        "collections.Counter",
+        "collections.OrderedDict",
+        "collections.UserDict",
+        "collections.UserList",
+        "collections.UserString",
+        "collections.defaultdict",
+        "collections.deque",
+        "collections.namedtuple",
+        "_collections_abc.Awaitable",
+        "_collections_abc.Coroutine",
+        "_collections_abc.AsyncIterable",
+        "_collections_abc.AsyncIterator",
+        "_collections_abc.AsyncGenerator",
+        "_collections_abc.Hashable",
+        "_collections_abc.Iterable",
+        "_collections_abc.Iterator",
+        "_collections_abc.Generator",
+        "_collections_abc.Reversible",
+        "_collections_abc.Sized",
+        "_collections_abc.Container",
+        "_collections_abc.Collection",
+        "_collections_abc.Set",
+        "_collections_abc.MutableSet",
+        "_collections_abc.Mapping",
+        "_collections_abc.MutableMapping",
+        "_collections_abc.MappingView",
+        "_collections_abc.KeysView",
+        "_collections_abc.ItemsView",
+        "_collections_abc.ValuesView",
+        "_collections_abc.Sequence",
+        "_collections_abc.MutableSequence",
+        "_collections_abc.ByteString",
+        "typing.Tuple",
+        "typing.List",
+        "typing.Dict",
+        "typing.Set",
+        "typing.FrozenSet",
+        "typing.Deque",
+        "typing.DefaultDict",
+        "typing.OrderedDict",
+        "typing.Counter",
+        "typing.ChainMap",
+        "typing.Awaitable",
+        "typing.Coroutine",
+        "typing.AsyncIterable",
+        "typing.AsyncIterator",
+        "typing.AsyncGenerator",
+        "typing.Iterable",
+        "typing.Iterator",
+        "typing.Generator",
+        "typing.Reversible",
+        "typing.Container",
+        "typing.Collection",
+        "typing.AbstractSet",
+        "typing.MutableSet",
+        "typing.Mapping",
+        "typing.MutableMapping",
+        "typing.Sequence",
+        "typing.MutableSequence",
+        "typing.ByteString",
+        "typing.MappingView",
+        "typing.KeysView",
+        "typing.ItemsView",
+        "typing.ValuesView",
+        "typing.ContextManager",
+        "typing.AsyncContextManger",
+        "typing.Hashable",
+        "typing.Sized",
+    )
+)
 
 
 def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
     """Check if a class is exempt from too-few-public-methods"""
 
-    # If it's a typing.Namedtuple or an Enum
+    # If it's a typing.Namedtuple, typing.TypedDict or an Enum
     for ancestor in node.ancestors():
         if ancestor.name == "Enum" and ancestor.root().name == "enum":
             return True
-        if ancestor.qname() == TYPING_NAMEDTUPLE:
+        if ancestor.qname() in (TYPING_NAMEDTUPLE, TYPING_TYPEDDICT):
             return True
 
     # Or if it's a dataclass
@@ -136,7 +221,7 @@ def _count_boolean_expressions(bool_op):
     """
     nb_bool_expr = 0
     for bool_expr in bool_op.get_children():
-        if isinstance(bool_expr, BoolOp):
+        if isinstance(bool_expr, astroid.BoolOp):
             nb_bool_expr += _count_boolean_expressions(bool_expr)
         else:
             nb_bool_expr += 1
@@ -151,6 +236,35 @@ def _count_methods_in_class(node):
         if SPECIAL_OBJ.search(method.name) and method.name != "__init__":
             all_methods += 1
     return all_methods
+
+
+def _get_parents(
+    node: nodes.ClassDef, ignored_parents: FrozenSet[str]
+) -> Set[nodes.ClassDef]:
+    r"""Get parents of ``node``, excluding ancestors of ``ignored_parents``.
+
+    If we have the following inheritance diagram:
+
+             F
+            /
+        D  E
+         \/
+          B  C
+           \/
+            A      # class A(B, C): ...
+
+    And ``ignored_parents`` is ``{"E"}``, then this function will return
+    ``{A, B, C, D}`` -- both ``E`` and its ancestors are excluded.
+    """
+    parents: Set[nodes.ClassDef] = set()
+    to_explore = cast(List[nodes.ClassDef], list(node.ancestors(recurs=False)))
+    while to_explore:
+        parent = to_explore.pop()
+        if parent.qname() in ignored_parents:
+            continue
+        parents.add(parent)
+        to_explore.extend(parent.ancestors(recurs=False))  # type: ignore
+    return parents
 
 
 class MisdesignChecker(BaseChecker):
@@ -211,7 +325,7 @@ class MisdesignChecker(BaseChecker):
                 "default": 50,
                 "type": "int",
                 "metavar": "<int>",
-                "help": "Maximum number of statements in function / method " "body.",
+                "help": "Maximum number of statements in function / method body.",
             },
         ),
         (
@@ -221,6 +335,15 @@ class MisdesignChecker(BaseChecker):
                 "type": "int",
                 "metavar": "<num>",
                 "help": "Maximum number of parents for a class (see R0901).",
+            },
+        ),
+        (
+            "ignored-parents",
+            {
+                "default": (),
+                "type": "csv",
+                "metavar": "<comma separated list of class names>",
+                "help": "List of qualified class names to ignore when countint class parents (see R0901)",
             },
         ),
         (
@@ -280,10 +403,10 @@ class MisdesignChecker(BaseChecker):
         self._stmts = []
 
     def _inc_all_stmts(self, amount):
-        for i in range(len(self._stmts)):
+        for i, _ in enumerate(self._stmts):
             self._stmts[i] += amount
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _ignored_argument_names(self):
         return utils.get_global_option(self, "ignored-argument-names", default=None)
 
@@ -293,10 +416,12 @@ class MisdesignChecker(BaseChecker):
         "too-few-public-methods",
         "too-many-public-methods",
     )
-    def visit_classdef(self, node):
-        """check size of inheritance hierarchy and number of instance attributes
-        """
-        nb_parents = len(list(node.ancestors()))
+    def visit_classdef(self, node: nodes.ClassDef):
+        """check size of inheritance hierarchy and number of instance attributes"""
+        parents = _get_parents(
+            node, STDLIB_CLASSES_IGNORE_ANCESTOR.union(self.config.ignored_parents)
+        )
+        nb_parents = len(parents)
         if nb_parents > self.config.max_parents:
             self.add_message(
                 "too-many-ancestors",
@@ -460,7 +585,9 @@ class MisdesignChecker(BaseChecker):
         self._check_boolean_expressions(node)
         branches = 1
         # don't double count If nodes coming from some 'elif'
-        if node.orelse and (len(node.orelse) > 1 or not isinstance(node.orelse[0], If)):
+        if node.orelse and (
+            len(node.orelse) > 1 or not isinstance(node.orelse[0], astroid.If)
+        ):
             branches += 1
         self._inc_branch(node, branches)
         self._inc_all_stmts(branches)
@@ -471,7 +598,7 @@ class MisdesignChecker(BaseChecker):
         if the "if" node test is a BoolOp node
         """
         condition = node.test
-        if not isinstance(condition, BoolOp):
+        if not isinstance(condition, astroid.BoolOp):
             return
         nb_bool_expr = _count_boolean_expressions(condition)
         if nb_bool_expr > self.config.max_bool_expr:
@@ -496,5 +623,5 @@ class MisdesignChecker(BaseChecker):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(MisdesignChecker(linter))

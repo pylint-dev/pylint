@@ -44,7 +44,6 @@ def test(path):
     seq = reversed([1, 2, 3])
     seq = reversed((1, 2, 3))
     seq = reversed(set()) # [bad-reversed-sequence]
-    seq = reversed({'a': 1, 'b': 2}) # [bad-reversed-sequence]
     seq = reversed(iter([1, 2, 3])) # [bad-reversed-sequence]
     seq = reversed(GoodReversed())
     seq = reversed(SecondGoodReversed())

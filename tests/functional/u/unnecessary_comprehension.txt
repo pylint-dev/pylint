@@ -1,8 +1,0 @@
-unnecessary-comprehension:5::Unnecessary use of a comprehension
-unnecessary-comprehension:8::Unnecessary use of a comprehension
-unnecessary-comprehension:9::Unnecessary use of a comprehension
-unnecessary-comprehension:17::Unnecessary use of a comprehension
-unnecessary-comprehension:20::Unnecessary use of a comprehension
-unnecessary-comprehension:21::Unnecessary use of a comprehension
-unnecessary-comprehension:29::Unnecessary use of a comprehension
-unnecessary-comprehension:31::Unnecessary use of a comprehension

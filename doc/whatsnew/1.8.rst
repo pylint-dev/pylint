@@ -347,12 +347,12 @@ Other Changes
 * Fix of false positive ``useless-else-on-loop`` message when break statements
   are deeply nested inside loop.
 
-* The Python 3 porting checker no longer emits multiple `no-absolute-import` per file.
+* The Python 3 porting checker no longer emits multiple ``no-absolute-import`` per file.
 
 * The Python 3 porting checker respects disabled checkers found in the config file.
 
 * Modules, classes, or methods consist of compound statements that exceed the ``docstring-min-length``
-  are now correctly emitting `missing-docstring`
+  are now correctly emitting ``missing-docstring``
 
 * Fix no ``wrong-import-order`` message emitted on ordering of first and third party libraries.
   With this fix, pylint distinguishes first and third party modules when checking

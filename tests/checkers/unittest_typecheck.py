@@ -1,32 +1,37 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Holger Peters <email@holger-peters.de>
-# Copyright (c) 2015-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Filipe Brandenburger <filbranden@google.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Martin Vielsmaier <martin.vielsmaier@gmail.com>
 # Copyright (c) 2019 Federico Bond <federicobond@gmail.com>
+# Copyright (c) 2020 Julien Palard <julien@palard.fr>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 David Gilman <davidgilman1@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import astroid
 import pytest
 
 from pylint.checkers import typecheck
+from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 try:
-    import coverage.tracer as _
+    from coverage import tracer as _  # pylint: disable=unused-import
 
     C_EXTENTIONS_AVAILABLE = True
 except ImportError:
@@ -43,8 +48,7 @@ class TestTypeChecker(CheckerTestCase):
     CHECKER_CLASS = typecheck.TypeChecker
 
     def test_no_member_in_getattr(self):
-        """Make sure that a module attribute access is checked by pylint.
-        """
+        """Make sure that a module attribute access is checked by pylint."""
 
         node = astroid.extract_node(
             """
@@ -209,21 +213,16 @@ class TestTypeChecker(CheckerTestCase):
     def test_invalid_metaclass(self):
         module = astroid.parse(
             """
-        import six
-
         class InvalidAsMetaclass(object):
             pass
 
-        @six.add_metaclass(int)
-        class FirstInvalid(object):
+        class FirstInvalid(object, metaclass=int):
             pass
 
-        @six.add_metaclass(InvalidAsMetaclass)
-        class SecondInvalid(object):
+        class SecondInvalid(object, metaclass=InvalidAsMetaclass):
             pass
 
-        @six.add_metaclass(2)
-        class ThirdInvalid(object):
+        class ThirdInvalid(object, metaclass=2):
             pass
         """
         )
@@ -356,3 +355,137 @@ class TestTypeChecker(CheckerTestCase):
             Message("not-callable", node=call, args="get_num(10)")
         ):
             self.checker.visit_call(call)
+
+
+class TestTypeCheckerOnDecorators(CheckerTestCase):
+    "Tests for pylint.checkers.typecheck on decorated functions."
+    CHECKER_CLASS = typecheck.TypeChecker
+
+    def test_issue3882_class_decorators(self):
+        decorators = """
+        class Unsubscriptable:
+            def __init__(self, f):
+                self.f = f
+
+        class Subscriptable:
+            def __init__(self, f):
+                self.f = f
+
+            def __getitem__(self, item):
+                return item
+        """
+        for generic in "Optional", "List", "ClassVar", "Final", "Literal":
+            self.typing_objects_are_subscriptable(generic)
+
+        self.getitem_on_modules()
+        self.decorated_by_a_subscriptable_class(decorators)
+        self.decorated_by_an_unsubscriptable_class(decorators)
+
+        self.decorated_by_subscriptable_then_unsubscriptable_class(decorators)
+        self.decorated_by_unsubscriptable_then_subscriptable_class(decorators)
+
+    def getitem_on_modules(self):
+        """Mainly validate the code won't crash if we're not having a function."""
+        module = astroid.parse(
+            """
+        import collections
+        test = collections[int]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertAddsMessages(
+            Message(
+                "unsubscriptable-object",
+                node=subscript.value,
+                args="collections",
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_subscript(subscript)
+
+    def typing_objects_are_subscriptable(self, generic):
+        module = astroid.parse(
+            f"""
+        import typing
+        test = typing.{generic}[int]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
+    def decorated_by_a_subscriptable_class(self, decorators):
+        module = astroid.parse(
+            decorators
+            + """
+        @Subscriptable
+        def decorated():
+            ...
+
+        test = decorated[None]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
+    def decorated_by_subscriptable_then_unsubscriptable_class(self, decorators):
+        module = astroid.parse(
+            decorators
+            + """
+        @Unsubscriptable
+        @Subscriptable
+        def decorated():
+            ...
+
+        test = decorated[None]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertAddsMessages(
+            Message(
+                "unsubscriptable-object",
+                node=subscript.value,
+                args="decorated",
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_subscript(subscript)
+
+    def decorated_by_unsubscriptable_then_subscriptable_class(self, decorators):
+        module = astroid.parse(
+            decorators
+            + """
+        @Subscriptable
+        @Unsubscriptable
+        def decorated():
+            ...
+
+        test = decorated[None]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
+    def decorated_by_an_unsubscriptable_class(self, decorators):
+        module = astroid.parse(
+            decorators
+            + """
+        @Unsubscriptable
+        def decorated():
+            ...
+
+        test = decorated[None]
+        """
+        )
+        subscript = module.body[-1].value
+        with self.assertAddsMessages(
+            Message(
+                "unsubscriptable-object",
+                node=subscript.value,
+                args="decorated",
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_subscript(subscript)

@@ -16,19 +16,24 @@ Please take the time to check if it is already in the issue tracker at
 https://github.com/PyCQA/pylint
 
 If you cannot find it in the tracker, create a new issue there or discuss your
-problem on the code-quality@python.org mailing list.
+problem on the code-quality@python.org mailing list or using the discord server https://discord.gg/kFebW799.
 
 The code-quality mailing list is also a nice place to provide feedback about
 Pylint, since it is shared with other tools that aim at improving the quality of
 python code.
 
-Note that if you don't find something you have expected in Pylint's
-issue tracker, it may be because it is an issue with one of its dependencies, namely
+Note that if you don't find something you have expected in Pylint's issue
+tracker, it may be because it is an issue with one of its dependencies, namely
 astroid:
 
 * https://github.com/PyCQA/astroid
 
 .. _Mailing lists:
+
+Discord server
+--------------
+
+https://discord.gg/Egy6P8AMB5
 
 Mailing lists
 -------------
@@ -62,14 +67,14 @@ your patch gets accepted.
 
 - Test your code
 
-  * Pylint is very well tested, with a high good code coverage.
+  * Pylint is very well tested, with a high code coverage.
     It has two types of tests, usual unittests and functional tests.
 
     The usual unittests can be found under `/pylint/test` directory and they can
     be used for testing almost anything Pylint related. But for the ease
     of testing Pylint's messages, we also have the concept of functional tests.
 
-  * You should also run all the tests to ensure that your change isn't
+  * You should also run all the tests to ensure that your change isn't a
     breaking one. You can run the tests using the tox_ package, as in::
 
       python -m tox
@@ -95,14 +100,13 @@ your patch gets accepted.
 
       pytest pylint -k test_functional
 
-  * ``pylint`` uses black_ and isort_ Python autoformatter for formatting its code.
-    We have a pre-commit hook which should take care of the autoformatting for you
-    for when you are working on a patch. To enable it, do the following:
+  * ``pylint`` uses black_ and isort_ among other Python autoformatters.
+    We have a pre-commit hook which should take care of the autoformatting for
+    you. To enable it, do the following:
 
      * install ``pre-commit`` using ``pip install pre-commit``
 
      * then run ``pre-commit install`` in the ``pylint`` root directory to enable the git hooks.
-
 
 - Add a short entry to the ChangeLog describing the change, except for internal
   implementation only changes. Not usually required, but for changes other than small
@@ -110,7 +114,10 @@ your patch gets accepted.
   (`What's New` section). For the release document we usually write some more details,
   and it is also a good place to offer examples on how the new change is supposed to work.
 
-- Add yourself to the `CONTRIBUTORS` file, if you are not already there.
+- Add a short entry in :file:`doc/whatsnew/VERSION.rst`.
+
+- Add yourself to the `CONTRIBUTORS` file, flag yourself appropriately
+  (if in doubt, you're a ``contributor``).
 
 - Write a comprehensive commit message
 
@@ -143,22 +150,24 @@ If multiple messages are expected on the same line, then this syntax can be used
 
     a, b, c = 1.test # [unbalanced-tuple-unpacking, no-member]
 
-The syntax of the .txt file has to be this::
+You can also use ``# +n: [`` with n an integer if the above syntax would make the line too long or other reasons::
 
-    symbol:line_number:function_or_class:Expected message
+    # +1: [empty-comment]
+    #
 
-For example, this is a valid message line::
-
-    abstract-class-instantiated:79:main:Abstract class 'BadClass' with abstract methods instantiated
-
-If the Python file is expected to not emit any errors, then the .txt file has to be empty.
 If you need special control over Pylint's flag, you can also create a .rc file, which
 can have sections of Pylint's configuration.
 
 During development, it's sometimes helpful to run all functional tests in your
-current environment in order to have faster feedback. Run with::
+current environment in order to have faster feedback. Run from Pylint root directory with::
 
-    python pylint/test/test_functional.py
+    python tests/test_functional.py
+
+You can use all the options you would use for pytest, for example `-k "test_functional[len_checks]"`.
+If required the .txt file can be re-generated from the current output by appending
+`--update-functional-output` to the command line::
+
+    python tests/test_functional.py --update-functional-output -k "test_functional[len_checks]"
 
 .. _`Closing issues via commit messages`: https://help.github.com/articles/closing-issues-via-commit-messages/
 .. _`About pull requests`: https://help.github.com/articles/using-pull-requests/
@@ -171,7 +180,7 @@ current environment in order to have faster feedback. Run with::
 
 Tips for Getting Started with Pylint Development
 ------------------------------------------------
-* Read the :ref:`technical-reference`. It gives a short walkthrough of the pylint
+* Read the :ref:`technical-reference`. It gives a short walk through of the pylint
   codebase and will help you identify where you will need to make changes
   for what you are trying to implement.
 

@@ -1,4 +1,0 @@
-invalid-name:10::"Constant name ""aaa"" doesn't conform to UPPER_CASE naming style"
-invalid-name:14::"Constant name ""time"" doesn't conform to UPPER_CASE naming style"
-invalid-name:30:a:"Function name ""a"" doesn't conform to snake_case naming style"
-invalid-name:44::"Constant name ""Foocapfor"" doesn't conform to UPPER_CASE naming style"

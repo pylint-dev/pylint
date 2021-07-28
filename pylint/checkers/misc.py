@@ -1,24 +1,26 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006, 2009-2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Alexandru Coman <fcoman@bitdefender.com>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 glegoux <gilles.legoux@gmail.com>
-# Copyright (c) 2017-2019 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017-2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
 # Copyright (c) 2018 Rogalski, Lukasz <lukasz.rogalski@intel.com>
 # Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 wtracy <afishionado@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 
 """Check source code is ascii only or has an encoding declaration (PEP 263)"""
@@ -34,11 +36,9 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 
 class ByIdManagedMessagesChecker(BaseChecker):
 
-    """checks for messages that are enabled or disabled by id instead of symbol."""
+    """Checks for messages that are enabled or disabled by id instead of symbol."""
 
     __implements__ = IRawChecker
-
-    # configuration section name
     name = "miscellaneous"
     msgs = {
         "I0023": (
@@ -47,22 +47,15 @@ class ByIdManagedMessagesChecker(BaseChecker):
             "Used when a message is enabled or disabled by id.",
         )
     }
-
     options = ()
 
     def process_module(self, module):
-        """inspect the source file to find messages activated or deactivated by id."""
+        """Inspect the source file to find messages activated or deactivated by id."""
         managed_msgs = MessagesHandlerMixIn.get_by_id_managed_msgs()
-        for (mod_name, msg_id, msg_symbol, lineno, is_disabled) in managed_msgs:
+        for (mod_name, msgid, symbol, lineno, is_disabled) in managed_msgs:
             if mod_name == module.name:
-                if is_disabled:
-                    txt = "Id '{ident}' is used to disable '{symbol}' message emission".format(
-                        ident=msg_id, symbol=msg_symbol
-                    )
-                else:
-                    txt = "Id '{ident}' is used to enable '{symbol}' message emission".format(
-                        ident=msg_id, symbol=msg_symbol
-                    )
+                verb = "disable" if is_disabled else "enable"
+                txt = f"'{msgid}' is cryptic: use '# pylint: {verb}={symbol}' instead"
                 self.add_message("use-symbolic-message-instead", line=lineno, args=txt)
         MessagesHandlerMixIn.clear_by_id_managed_msgs()
 
@@ -112,9 +105,9 @@ class EncodingChecker(BaseChecker):
     def open(self):
         super().open()
 
-        notes = "|".join(map(re.escape, self.config.notes))
+        notes = "|".join(re.escape(note) for note in self.config.notes)
         if self.config.notes_rgx:
-            regex_string = r"#\s*(%s|%s)\b" % (notes, self.config.notes_rgx)
+            regex_string = fr"#\s*({notes}|{self.config.notes_rgx})\b"
         else:
             regex_string = r"#\s*(%s)\b" % (notes)
 
@@ -127,12 +120,9 @@ class EncodingChecker(BaseChecker):
             pass
         except LookupError:
             if line.startswith("#") and "coding" in line and file_encoding in line:
-                self.add_message(
-                    "syntax-error",
-                    line=lineno,
-                    args='Cannot decode using encoding "{}",'
-                    " bad encoding".format(file_encoding),
-                )
+                msg = f"Cannot decode using encoding '{file_encoding}', bad encoding"
+                self.add_message("syntax-error", line=lineno, args=msg)
+        return None
 
     def process_module(self, module):
         """inspect the source file to find encoding problem"""
@@ -170,7 +160,6 @@ class EncodingChecker(BaseChecker):
                     except PragmaParserError:
                         # Printing useful information dealing with this error is done in the lint package
                         pass
-                    values = [_val.upper() for _val in values]
                     if set(values) & set(self.config.notes):
                         continue
                 except ValueError:
@@ -184,10 +173,9 @@ class EncodingChecker(BaseChecker):
             # emit warnings if necessary
             match = self._fixme_pattern.search("#" + comment_text.lower())
             if match:
-                note = match.group(1)
                 self.add_message(
                     "fixme",
-                    col_offset=comment.string.lower().index(note.lower()),
+                    col_offset=comment.start[1] + 1,
                     args=comment_text,
                     line=comment.start[0],
                 )

@@ -1,0 +1,3 @@
+invalid-repr-returned:36:4:FirstBadRepr.__repr__:__repr__ does not return str
+invalid-repr-returned:43:4:SecondBadRepr.__repr__:__repr__ does not return str
+invalid-repr-returned:50:4:ThirdBadRepr.__repr__:__repr__ does not return str

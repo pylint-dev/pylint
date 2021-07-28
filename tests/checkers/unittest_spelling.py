@@ -1,17 +1,20 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2017 Pedro Algarvio <pedro@algarvio.me>
+# Copyright (c) 2017, 2020 Pedro Algarvio <pedro@algarvio.me>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 agutole <toldo_carp@hotmail.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Ganden Schaffner <gschaffner@pm.me>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Eli Fine <ejfine@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Unittest for the spelling checker."""
 
@@ -36,7 +39,9 @@ if enchant is not None:
         pass
 
 
-class TestSpellingChecker(CheckerTestCase):
+class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-methods
+    # This is a test case class, not sure why it would be relevant to have
+    #   this pylint rule enforced for test case classes.
     CHECKER_CLASS = spelling.SpellingChecker
 
     skip_on_missing_package_or_dict = pytest.mark.skipif(
@@ -45,9 +50,8 @@ class TestSpellingChecker(CheckerTestCase):
     )
 
     def _get_msg_suggestions(self, word, count=4):
-        return "'{}'".format(
-            "' or '".join(self.checker.spelling_dict.suggest(word)[:count])
-        )
+        suggestions = "' or '".join(self.checker.spelling_dict.suggest(word)[:count])
+        return f"'{suggestions}'"
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
@@ -237,7 +241,7 @@ class TestSpellingChecker(CheckerTestCase):
             "affine3D",
         ):
             stmt = astroid.extract_node(
-                'class TestClass(object):\n   """{} comment"""\n   pass'.format(ccn)
+                f'class TestClass(object):\n   """{ccn} comment"""\n   pass'
             )
             self.checker.visit_classdef(stmt)
             assert self.linter.release_messages() == []
@@ -282,6 +286,127 @@ class TestSpellingChecker(CheckerTestCase):
             )
         ):
             self.checker.visit_classdef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_sphinx_directives_2(self):
+        stmt = astroid.extract_node(
+            'class ComentAbc(object):\n   """This is :py:attr:`ComentAbc` with a bad coment"""\n   pass'
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=2,
+                args=(
+                    "coment",
+                    "This is :py:attr:`ComentAbc` with a bad coment",
+                    "                                        ^^^^^^",
+                    self._get_msg_suggestions("coment"),
+                ),
+            )
+        ):
+            self.checker.visit_classdef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    @pytest.mark.parametrize(
+        ",".join(
+            (
+                "misspelled_portion_of_directive",
+                "second_portion_of_directive",
+                "description",
+            )
+        ),
+        (
+            ("fmt", ": on", "black directive to turn on formatting"),
+            ("fmt", ": off", "black directive to turn off formatting"),
+            ("noqa", "", "pycharm directive"),
+            ("noqa", ":", "flake8 / zimports directive"),
+            ("nosec", "", "bandit directive"),
+            ("isort", ":skip", "isort directive"),
+            ("mypy", ":", "mypy directive"),
+        ),
+    )
+    def test_skip_tool_directives_at_beginning_of_comments_but_still_raise_error_if_directive_appears_later_in_comment(  # pylint:disable=unused-argument
+        # Having the extra description parameter allows the description
+        #   to show up in the pytest output as part of the test name
+        #   when running parametrized tests.
+        self,
+        misspelled_portion_of_directive,
+        second_portion_of_directive,
+        description,
+    ):
+        full_comment = f"# {misspelled_portion_of_directive}{second_portion_of_directive} {misspelled_portion_of_directive}"
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-comment",
+                line=1,
+                args=(
+                    misspelled_portion_of_directive,
+                    full_comment,
+                    f"  {'^'*len(misspelled_portion_of_directive)}",
+                    self._get_msg_suggestions(misspelled_portion_of_directive),
+                ),
+            )
+        ):
+            self.checker.process_tokens(_tokenize_str(full_comment))
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_code_flanked_in_double_backticks(self):
+        full_comment = "# The function ``.qsize()`` .qsize()"
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-comment",
+                line=1,
+                args=(
+                    "qsize",
+                    full_comment,
+                    "                 ^^^^^",
+                    self._get_msg_suggestions("qsize"),
+                ),
+            )
+        ):
+            self.checker.process_tokens(_tokenize_str(full_comment))
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_code_flanked_in_single_backticks(self):
+        full_comment = "# The function `.qsize()` .qsize()"
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-comment",
+                line=1,
+                args=(
+                    "qsize",
+                    full_comment,
+                    "                 ^^^^^",
+                    self._get_msg_suggestions("qsize"),
+                ),
+            )
+        ):
+            self.checker.process_tokens(_tokenize_str(full_comment))
+
+    @skip_on_missing_package_or_dict
+    @set_config(
+        spelling_dict=spell_dict,
+        spelling_ignore_comment_directives="newdirective:,noqa",
+    )
+    def test_skip_directives_specified_in_pylintrc(self):
+        full_comment = "# newdirective: do this newdirective"
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-comment",
+                line=1,
+                args=(
+                    "newdirective",
+                    full_comment,
+                    "          ^^^^^^^^^^^^",
+                    self._get_msg_suggestions("newdirective"),
+                ),
+            )
+        ):
+            self.checker.process_tokens(_tokenize_str(full_comment))
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
@@ -363,3 +488,128 @@ class TestSpellingChecker(CheckerTestCase):
             ),
         ):
             self.checker.process_tokens(_tokenize_str("# bad coment coment"))
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_docstring_lines_that_look_like_comments_1(self):
+        stmt = astroid.extract_node(
+            '''def f():
+    """
+    # msitake
+    """'''
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=3,
+                args=(
+                    "msitake",
+                    "    # msitake",
+                    "      ^^^^^^^",
+                    self._get_msg_suggestions("msitake"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_docstring_lines_that_look_like_comments_2(self):
+        stmt = astroid.extract_node(
+            '''def f():
+    """# msitake"""'''
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=2,
+                args=(
+                    "msitake",
+                    "# msitake",
+                    "  ^^^^^^^",
+                    self._get_msg_suggestions("msitake"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_docstring_lines_that_look_like_comments_3(self):
+        stmt = astroid.extract_node(
+            '''def f():
+    """
+# msitake
+    """'''
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=3,
+                args=(
+                    "msitake",
+                    "# msitake",
+                    "  ^^^^^^^",
+                    self._get_msg_suggestions("msitake"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_docstring_lines_that_look_like_comments_4(self):
+        stmt = astroid.extract_node(
+            '''def f():
+    """
+    # cat
+    """'''
+        )
+        with self.assertAddsMessages():
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_docstring_lines_that_look_like_comments_5(self):
+        stmt = astroid.extract_node(
+            '''def f():
+    """
+    msitake # cat
+    """'''
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=3,
+                args=(
+                    "msitake",
+                    "    msitake # cat",
+                    "    ^^^^^^^",
+                    self._get_msg_suggestions("msitake"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_docstring_lines_that_look_like_comments_6(self):
+        stmt = astroid.extract_node(
+            '''def f():
+    """
+    cat # msitake
+    """'''
+        )
+        with self.assertAddsMessages(
+            Message(
+                "wrong-spelling-in-docstring",
+                line=3,
+                args=(
+                    "msitake",
+                    "    cat # msitake",
+                    "          ^^^^^^^",
+                    self._get_msg_suggestions("msitake"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)

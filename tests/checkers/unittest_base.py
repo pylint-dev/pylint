@@ -1,30 +1,34 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2013-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
+# Copyright (c) 2017, 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2017, 2019 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2017 Pierre Sassoulas <pierre.sassoulas@cea.fr>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2018 Fureigh <fureigh@users.noreply.github.com>
 # Copyright (c) 2018 glmdgrielson <32415403+glmdgrielson@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 ethan-leba <ethanleba5@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 bernie gray <bfgray3@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
+# Copyright (c) 2021 David Gilman <davidgilman1@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Unittest for the base checker."""
 
 import re
 import sys
 import unittest
+from typing import Dict, Type
 
 import astroid
 
@@ -33,7 +37,7 @@ from pylint.testutils import CheckerTestCase, Message, set_config
 
 
 class TestDocstring(CheckerTestCase):
-    CHECKER_CLASS = base.DocStringChecker
+    CHECKER_CLASS: Type = base.DocStringChecker
 
     def test_missing_docstring_module(self):
         module = astroid.parse("something")
@@ -135,8 +139,8 @@ class TestDocstring(CheckerTestCase):
 
 
 class TestNameChecker(CheckerTestCase):
-    CHECKER_CLASS = base.NameChecker
-    CONFIG = {"bad_names": set()}
+    CHECKER_CLASS: Type = base.NameChecker
+    CONFIG: Dict = {"bad_names": set()}
 
     @set_config(
         attr_rgx=re.compile("[A-Z]+"),
@@ -414,18 +418,69 @@ class TestComparison(CheckerTestCase):
 
     def test_comparison(self):
         node = astroid.extract_node("foo == True")
-        message = Message("singleton-comparison", node=node, args=(True, "just 'expr'"))
+        message = Message(
+            "singleton-comparison",
+            node=node,
+            args=(
+                "'foo == True'",
+                "'foo is True' if checking for the singleton value True, or 'bool(foo)' if testing for truthiness",
+            ),
+        )
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
 
         node = astroid.extract_node("foo == False")
-        message = Message("singleton-comparison", node=node, args=(False, "'not expr'"))
+        message = Message(
+            "singleton-comparison",
+            node=node,
+            args=(
+                "'foo == False'",
+                "'foo is False' if checking for the singleton value False, or 'not foo' if testing for falsiness",
+            ),
+        )
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
 
         node = astroid.extract_node("foo == None")
         message = Message(
-            "singleton-comparison", node=node, args=(None, "'expr is None'")
+            "singleton-comparison", node=node, args=("'foo == None'", "'foo is None'")
+        )
+        with self.assertAddsMessages(message):
+            self.checker.visit_compare(node)
+
+        node = astroid.extract_node("foo is float('nan')")
+        message = Message(
+            "nan-comparison",
+            node=node,
+            args=("'foo is float('nan')'", "'math.isnan(foo)'"),
+        )
+        with self.assertAddsMessages(message):
+            self.checker.visit_compare(node)
+
+        node = astroid.extract_node(
+            """
+                                import numpy
+                                foo != numpy.NaN
+                                """
+        )
+        message = Message(
+            "nan-comparison",
+            node=node,
+            args=("'foo != numpy.NaN'", "'not math.isnan(foo)'"),
+        )
+        with self.assertAddsMessages(message):
+            self.checker.visit_compare(node)
+
+        node = astroid.extract_node(
+            """
+                                import numpy as nmp
+                                foo is not nmp.NaN
+                                """
+        )
+        message = Message(
+            "nan-comparison",
+            node=node,
+            args=("'foo is not nmp.NaN'", "'not math.isnan(foo)'"),
         )
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
@@ -433,7 +488,14 @@ class TestComparison(CheckerTestCase):
         node = astroid.extract_node("True == foo")
         messages = (
             Message("misplaced-comparison-constant", node=node, args=("foo == True",)),
-            Message("singleton-comparison", node=node, args=(True, "just 'expr'")),
+            Message(
+                "singleton-comparison",
+                node=node,
+                args=(
+                    "'True == foo'",
+                    "'True is foo' if checking for the singleton value True, or 'bool(foo)' if testing for truthiness",
+                ),
+            ),
         )
         with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
@@ -441,7 +503,14 @@ class TestComparison(CheckerTestCase):
         node = astroid.extract_node("False == foo")
         messages = (
             Message("misplaced-comparison-constant", node=node, args=("foo == False",)),
-            Message("singleton-comparison", node=node, args=(False, "'not expr'")),
+            Message(
+                "singleton-comparison",
+                node=node,
+                args=(
+                    "'False == foo'",
+                    "'False is foo' if checking for the singleton value False, or 'not foo' if testing for falsiness",
+                ),
+            ),
         )
         with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
@@ -449,7 +518,11 @@ class TestComparison(CheckerTestCase):
         node = astroid.extract_node("None == foo")
         messages = (
             Message("misplaced-comparison-constant", node=node, args=("foo == None",)),
-            Message("singleton-comparison", node=node, args=(None, "'expr is None'")),
+            Message(
+                "singleton-comparison",
+                node=node,
+                args=("'None == foo'", "'None is foo'"),
+            ),
         )
         with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
@@ -482,23 +555,17 @@ class TestNamePresets(unittest.TestCase):
         for name, name_type in always_pass_data:
             self._test_is_correct(naming_style, name, name_type)
 
-    def _test_is_correct(self, naming_style, name, name_type):
+    @staticmethod
+    def _test_is_correct(naming_style, name, name_type):
         rgx = naming_style.get_regex(name_type)
-        self.assertTrue(
-            rgx.match(name),
-            "{!r} does not match pattern {!r} (style: {}, type: {})".format(
-                name, rgx, naming_style, name_type
-            ),
-        )
+        fail = f"{name!r} does not match pattern {rgx!r} (style: {naming_style}, type: {name_type})"
+        assert rgx.match(name), fail
 
-    def _test_is_incorrect(self, naming_style, name, name_type):
+    @staticmethod
+    def _test_is_incorrect(naming_style, name, name_type):
         rgx = naming_style.get_regex(name_type)
-        self.assertFalse(
-            rgx.match(name),
-            "{!r} match pattern {!r} but shouldn't (style: {}, type: {})".format(
-                name, rgx, naming_style, name_type
-            ),
-        )
+        fail = f"{name!r} not match pattern {rgx!r} (style: {naming_style}, type: {name_type})"
+        assert not rgx.match(name), fail
 
     def test_snake_case(self):
         naming_style = base.SnakeCaseStyle
@@ -600,3 +667,14 @@ Basic checker Messages
             str(less_basic), expected_beginning + expected_middle + expected_end
         )
         self.assertEqual(repr(less_basic), repr(basic))
+
+
+class TestNoSix(unittest.TestCase):
+    @unittest.skip("too many dependencies need six :(")
+    def test_no_six(self):
+        try:
+            has_six = True
+        except ImportError:
+            has_six = False
+
+        self.assertFalse(has_six, "pylint must be able to run without six")

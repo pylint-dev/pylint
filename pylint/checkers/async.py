@@ -1,16 +1,17 @@
-# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Checker for anything related to the async protocol (PEP 492)."""
 
 import sys
 
 import astroid
-from astroid import bases, exceptions
 
 from pylint import checkers, interfaces, utils
 from pylint.checkers import utils as checker_utils
@@ -59,7 +60,12 @@ class AsyncChecker(checkers.BaseChecker):
             if inferred is None or inferred is astroid.Uninferable:
                 continue
 
-            if isinstance(inferred, bases.AsyncGenerator):
+            if isinstance(inferred, astroid.AsyncFunctionDef):
+                # Check if we are dealing with a function decorated
+                # with contextlib.asynccontextmanager.
+                if decorated_with(inferred, self._async_generators):
+                    continue
+            elif isinstance(inferred, astroid.bases.AsyncGenerator):
                 # Check if we are dealing with a function decorated
                 # with contextlib.asynccontextmanager.
                 if decorated_with(inferred.parent, self._async_generators):
@@ -68,7 +74,7 @@ class AsyncChecker(checkers.BaseChecker):
                 try:
                     inferred.getattr("__aenter__")
                     inferred.getattr("__aexit__")
-                except exceptions.NotFoundError:
+                except astroid.exceptions.NotFoundError:
                     if isinstance(inferred, astroid.Instance):
                         # If we do not know the bases of this class,
                         # just skip it.
@@ -80,7 +86,6 @@ class AsyncChecker(checkers.BaseChecker):
                                 continue
                 else:
                     continue
-
             self.add_message(
                 "not-async-context-manager", node=node, args=(inferred.name,)
             )

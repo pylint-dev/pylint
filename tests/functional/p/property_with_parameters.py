@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, too-few-public-methods
-from abc import ABCMeta, abstractproperty
+from abc import ABCMeta, abstractmethod
 
 
 class Cls:
@@ -11,11 +11,12 @@ class Cls:
 class MyClassBase(metaclass=ABCMeta):
     """MyClassBase."""
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def example(self):
         """Getter."""
 
-    @abstractproperty
     @example.setter
+    @abstractmethod
     def example(self, value):
         """Setter."""

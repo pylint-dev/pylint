@@ -16,6 +16,7 @@ To use Pylint with:
  - PyCharm_, see :ref:`the section below <pylint_in_pycharm>`,
  - TextMate_, see :ref:`the section below <pylint_in_textmate>`
  - `Visual Studio Code`_, see https://code.visualstudio.com/docs/python/linting#_pylint,
+ - `Jupyter Notebook`_, see https://github.com/nbQA-dev/nbQA,
 
 Pylint is integrated in:
 
@@ -40,6 +41,7 @@ Pylint is integrated in:
 .. _PyCharm: https://www.jetbrains.com/pycharm/
 .. _TextMate: https://macromates.com
 .. _Visual Studio Code: https://code.visualstudio.com/
+.. _Jupyter Notebook: https://jupyter.org/
 
 Using Pylint thru flymake in Emacs
 ==================================

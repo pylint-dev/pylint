@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 from contextlib import redirect_stdout
 from io import StringIO
@@ -237,7 +237,7 @@ def test_renamed_message_register(store):
 
 
 def test_multiple_child_of_old_name(store):
-    """ We can define multiple name with the same old name. """
+    """We can define multiple name with the same old name."""
 
     class FamillyChecker(BaseChecker):
         name = "famillychecker"

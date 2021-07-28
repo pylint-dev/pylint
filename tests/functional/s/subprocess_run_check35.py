@@ -1,4 +1,4 @@
-# pylint: disable=blacklisted-name,no-value-for-parameter,missing-docstring
+# pylint: disable=disallowed-name,no-value-for-parameter,missing-docstring
 
 import subprocess
 

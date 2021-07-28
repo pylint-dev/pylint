@@ -1,10 +1,13 @@
-# Copyright (c) 2015-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """
  for the visitors.diadefs module
@@ -15,10 +18,9 @@ import os
 
 import astroid
 import pytest
-from astroid import bases, nodes
+from unittest_pyreverse_writer import get_project
 
 from pylint.pyreverse import inspector
-from unittest_pyreverse_writer import get_project
 
 
 @pytest.fixture
@@ -33,7 +35,7 @@ def test_class_implements(project):
     klass = project.get_module("data.clientmodule_test")["Ancestor"]
     assert hasattr(klass, "implements")
     assert len(klass.implements) == 1
-    assert isinstance(klass.implements[0], nodes.ClassDef)
+    assert isinstance(klass.implements[0], astroid.nodes.ClassDef)
     assert klass.implements[0].name == "Interface"
 
 
@@ -63,7 +65,9 @@ def test_instance_attrs_resolution(project):
     assert len(type_dict) == 2
     keys = sorted(type_dict.keys())
     assert keys == ["_id", "relation"]
-    assert isinstance(type_dict["relation"][0], bases.Instance), type_dict["relation"]
+    assert isinstance(type_dict["relation"][0], astroid.bases.Instance), type_dict[
+        "relation"
+    ]
     assert type_dict["relation"][0].name == "DoNothing"
     assert type_dict["_id"][0] is astroid.Uninferable
 

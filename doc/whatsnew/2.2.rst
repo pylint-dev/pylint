@@ -35,13 +35,13 @@ New checkers
 Other Changes
 =============
 
-* `try-except-raise` checker now handles multilevel inheritance hirerachy for exceptions correctly.
+* ``try-except-raise`` checker now handles multilevel inheritance hirerachy for exceptions correctly.
 
   Close #2484
 
-* Ignore import x.y.z as z cases for checker `useless-import-alias`.
+* Ignore import x.y.z as z cases for checker ``useless-import-alias``.
 
-* `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement,
+* ``unnecessary-pass`` is now also emitted when a function or class contains only docstring and pass statement,
   in which case, docstring is enough for empty definition.
 
 * Fix false positive ``undefined-variable`` and ``used-before-assignment`` with nonlocal keyword usage.

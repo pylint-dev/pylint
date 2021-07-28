@@ -3,9 +3,11 @@
 How to Write a Checker
 ======================
 You can find some simple examples in the distribution
-(`custom.py <https://github.com/PyCQA/pylint/blob/master/examples/custom.py>`_
+(`custom.py <https://github.com/PyCQA/pylint/blob/main/examples/custom.py>`_
+,
+`custom_raw.py <https://github.com/PyCQA/pylint/blob/main/examples/custom_raw.py>`_
 and
-`custom_raw.py <https://github.com/PyCQA/pylint/blob/master/examples/custom_raw.py>`_).
+`deprecation_checker.py <https://github.com/PyCQA/pylint/blob/main/examples/deprecation_checker.py>`_).
 
 .. TODO Create custom_token.py
 
@@ -80,7 +82,7 @@ So far we have defined the following required components of our checker:
            )
        }
 
-   * The ``message-id`` should be a 5-digit number,
+   * The ``message-id`` should be a 4-digit number,
      prefixed with a **message category**.
      There are multiple message categories,
      these being ``C``, ``W``, ``E``, ``F``, ``R``,

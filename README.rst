@@ -1,16 +1,12 @@
 
 README for Pylint - https://pylint.pycqa.org/
-============================================
+=============================================
 
-.. image:: https://travis-ci.org/PyCQA/pylint.svg?branch=master
-    :target: https://travis-ci.org/PyCQA/pylint
+.. image:: https://github.com/PyCQA/pylint/actions/workflows/ci.yaml/badge.svg?branch=main
+    :target: https://github.com/PyCQA/pylint/actions
 
-.. image:: https://ci.appveyor.com/api/projects/status/rbvwhakyj1y09atb/branch/master?svg=true
-    :alt: AppVeyor Build Status
-    :target: https://ci.appveyor.com/project/PCManticore/pylint
-
-.. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=master
-    :target: https://coveralls.io/github/PyCQA/pylint?branch=master
+.. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=main
+    :target: https://coveralls.io/github/PyCQA/pylint?branch=main
 
 
 .. image:: https://img.shields.io/pypi/v/pylint.svg
@@ -24,7 +20,11 @@ README for Pylint - https://pylint.pycqa.org/
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
 
-.. |tideliftlogo| image:: doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White_small.png
+.. image:: https://results.pre-commit.ci/badge/github/PyCQA/pylint/main.svg
+   :target: https://results.pre-commit.ci/latest/github/PyCQA/pylint/main
+   :alt: pre-commit.ci status
+
+.. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/main/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
    :width: 75
    :height: 60
    :alt: Tidelift
@@ -107,9 +107,9 @@ Pylint is shipped with following additional commands:
 Testing
 -------
 
-We use tox_ for running the test suite. You should be able to install it with::
+We use tox_ and pytest-benchmark_ for running the test suite. You should be able to install it with::
 
-    pip install tox pytest
+    pip install tox pytest pytest-benchmark
 
 
 To run the test suite for a particular Python version, you can do::
@@ -126,7 +126,7 @@ We use pytest_ for testing ``pylint``, which you can use without using ``tox`` f
 
 If you want to run tests on a specific portion of the code with pytest_, (pytest-cov_) and your local python version::
 
-    # ( pip install pytest-cov )
+    # ( pip install pytest-cov )
     # Everything:
     python3 -m pytest tests/
     # Everything in tests/message with coverage for the relevant code:
@@ -155,15 +155,16 @@ For more detailed information, check the documentation.
 .. _here: https://pylint.pycqa.org/en/latest/user_guide/installation.html
 .. _tox: https://tox.readthedocs.io/en/latest/
 .. _pytest: https://docs.pytest.org/en/latest/
+.. _pytest-benchmark: https://pytest-benchmark.readthedocs.io/en/latest/index.html
 .. _pytest-cov: https://pypi.org/project/pytest-cov/
 .. _astroid: https://github.com/PyCQA/astroid
 
 License
 -------
 
-pylint is, with a few exceptions listed below, `GPLv2 <COPYING>`_.
+pylint is, with a few exceptions listed below, `GPLv2 <https://github.com/PyCQA/pylint/blob/main/LICENSE>`_.
 
 The icon files are licensed under the `CC BY-SA 4.0 <https://creativecommons.org/licenses/by-sa/4.0/>`_ license:
 
-- `doc/logo.png <doc/logo.png>`_
-- `doc/logo.svg <doc/logo.svg>`_
+- `doc/logo.png <https://raw.githubusercontent.com/PyCQA/pylint/main/doc/logo.png>`_
+- `doc/logo.svg <https://raw.githubusercontent.com/PyCQA/pylint/main/doc/logo.svg>`_

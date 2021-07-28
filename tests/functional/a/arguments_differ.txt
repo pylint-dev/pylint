@@ -1,6 +1,11 @@
-arguments-differ:12:Child.test:Parameters differ from overridden 'test' method
-arguments-differ:23:ChildDefaults.test:Parameters differ from overridden 'test' method
-arguments-differ:41:ClassmethodChild.func:Parameters differ from overridden 'func' method
-arguments-differ:68:VarargsChild.has_kwargs:Parameters differ from overridden 'has_kwargs' method
-arguments-differ:71:VarargsChild.no_kwargs:Parameters differ from overridden 'no_kwargs' method
-arguments-differ:172:SecondChangesArgs.test:Parameters differ from overridden 'test' method
+arguments-differ:12:4:Child.test:Number of parameters was 1 in 'Parent.test' and is now 2 in overridden 'Child.test' method
+arguments-differ:23:4:ChildDefaults.test:Number of parameters was 3 in 'ParentDefaults.test' and is now 2 in overridden 'ChildDefaults.test' method
+arguments-differ:41:4:ClassmethodChild.func:Number of parameters was 2 in 'Classmethod.func' and is now 0 in overridden 'ClassmethodChild.func' method
+arguments-differ:68:4:VarargsChild.has_kwargs:Variadics removed in overridden 'VarargsChild.has_kwargs' method
+arguments-renamed:71:4:VarargsChild.no_kwargs:Parameter 'args' has been renamed to 'arg' in overridden 'VarargsChild.no_kwargs' method
+arguments-differ:172:4:SecondChangesArgs.test:Number of parameters was 2 in 'FirstHasArgs.test' and is now 4 in overridden 'SecondChangesArgs.test' method
+arguments-differ:298:4:Foo.kwonly_1:Number of parameters was 4 in 'AbstractFoo.kwonly_1' and is now 3 in overridden 'Foo.kwonly_1' method
+arguments-differ:301:4:Foo.kwonly_2:Number of parameters was 3 in 'AbstractFoo.kwonly_2' and is now 2 in overridden 'Foo.kwonly_2' method
+arguments-differ:304:4:Foo.kwonly_3:Number of parameters was 3 in 'AbstractFoo.kwonly_3' and is now 3 in overridden 'Foo.kwonly_3' method
+arguments-differ:307:4:Foo.kwonly_4:Number of parameters was 3 in 'AbstractFoo.kwonly_4' and is now 3 in overridden 'Foo.kwonly_4' method
+arguments-differ:310:4:Foo.kwonly_5:Variadics removed in overridden 'Foo.kwonly_5' method

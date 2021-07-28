@@ -1,7 +1,0 @@
-no-else-continue:8:foo1:Unnecessary "else" after "continue"
-no-else-continue:16:foo2:Unnecessary "elif" after "continue"
-no-else-continue:28:foo3:Unnecessary "else" after "continue"
-no-else-continue:41:foo4:Unnecessary "else" after "continue"
-no-else-continue:54:foo5:Unnecessary "elif" after "continue"
-no-else-continue:70:foo6:Unnecessary "else" after "continue"
-no-else-continue:110:bar4:Unnecessary "else" after "continue"

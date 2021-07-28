@@ -1,0 +1,4 @@
+consider-using-tuple:9:9::Consider using an in-place tuple instead of list
+consider-using-tuple:14:12::Consider using an in-place tuple instead of list
+consider-using-tuple:15:12::Consider using an in-place tuple instead of set
+consider-using-tuple:19:12::Consider using an in-place tuple instead of list

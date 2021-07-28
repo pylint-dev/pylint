@@ -1,0 +1,4 @@
+invalid-length-returned:38:4:FirstBadLen.__len__:__len__ does not return non-negative integer
+invalid-length-returned:45:4:SecondBadLen.__len__:__len__ does not return non-negative integer
+invalid-length-returned:52:4:ThirdBadLen.__len__:__len__ does not return non-negative integer
+invalid-length-returned:59:4:NonRegression.__len__:__len__ does not return non-negative integer

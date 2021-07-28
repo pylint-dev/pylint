@@ -1,0 +1,15 @@
+missing-parentheses-for-call-in-test:29:0::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:35:0::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:43:0::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:51:0::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:56:0::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:64:0::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:70:11::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:72:17::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:73:18::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:75:0::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:76:0::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:79:0::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:80:0::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:85:0::Using a conditional statement with potentially wrong function or method call due to missing parentheses
+missing-parentheses-for-call-in-test:91:0::Using a conditional statement with potentially wrong function or method call due to missing parentheses

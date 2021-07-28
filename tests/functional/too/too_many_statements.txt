@@ -1,2 +1,0 @@
-too-many-statements:5:stupid_function:Too many statements (55/50)
-too-many-statements:62:long_function_with_inline_def:Too many statements (62/50)

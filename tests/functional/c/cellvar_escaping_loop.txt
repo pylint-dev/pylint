@@ -1,6 +1,6 @@
-cell-var-from-loop:70:bad_case.<lambda>:Cell variable i defined in loop
-cell-var-from-loop:75:bad_case2.<lambda>:Cell variable i defined in loop
-cell-var-from-loop:83:bad_case3.<lambda>:Cell variable j defined in loop
-cell-var-from-loop:93:bad_case4.nested:Cell variable i defined in loop
-cell-var-from-loop:114:bad_case5.<lambda>:Cell variable i defined in loop
-cell-var-from-loop:122:bad_case6.<lambda>:Cell variable i defined in loop
+cell-var-from-loop:70:27:bad_case.<lambda>:Cell variable i defined in loop
+cell-var-from-loop:75:20:bad_case2.<lambda>:Cell variable i defined in loop
+cell-var-from-loop:83:27:bad_case3.<lambda>:Cell variable j defined in loop
+cell-var-from-loop:93:19:bad_case4.nested:Cell variable i defined in loop
+cell-var-from-loop:114:20:bad_case5.<lambda>:Cell variable i defined in loop
+cell-var-from-loop:122:27:bad_case6.<lambda>:Cell variable i defined in loop

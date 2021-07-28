@@ -1,4 +1,0 @@
-invalid-index-returned:36:FirstBadIndex.__index__:__index__ does not return int
-invalid-index-returned:43:SecondBadIndex.__index__:__index__ does not return int
-invalid-index-returned:50:ThirdBadIndex.__index__:__index__ does not return int
-invalid-index-returned:57:FourthBadIndex.__index__:__index__ does not return int

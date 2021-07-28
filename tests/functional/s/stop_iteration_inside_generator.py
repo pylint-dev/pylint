@@ -32,15 +32,15 @@ def gen_stopiterchild():
     raise RebornStopIteration  # [stop-iteration-return]
 
 # pylint should warn here
-# because of the possibility that next raises a StopIteration exception
+# because of the possibility that next raises a StopIteration exception
 def gen_next_raises_stopiter():
     g = gen_ok()
     while True:
         yield next(g)  # [stop-iteration-return]
 
 # This one is the same as gen_next_raises_stopiter
-# but is ok because the next function is inside
-# a try/except block handling StopIteration
+# but is ok because the next function is inside
+# a try/except block handling StopIteration
 def gen_next_inside_try_except():
     g = gen_ok()
     while True:
@@ -50,8 +50,8 @@ def gen_next_inside_try_except():
             return
 
 # This one is the same as gen_next_inside_try_except
-# but is not ok because the next function is inside
-# a try/except block that don't handle StopIteration
+# but is not ok because the next function is inside
+# a try/except block that don't handle StopIteration
 def gen_next_inside_wrong_try_except():
     g = gen_ok()
     while True:
@@ -61,8 +61,8 @@ def gen_next_inside_wrong_try_except():
             return
 
 # This one is the same as gen_next_inside_try_except
-# but is not ok because the next function is inside
-# a try/except block that handle StopIteration but reraise it
+# but is not ok because the next function is inside
+# a try/except block that handle StopIteration but reraise it
 def gen_next_inside_wrong_try_except2():
     g = gen_ok()
     while True:

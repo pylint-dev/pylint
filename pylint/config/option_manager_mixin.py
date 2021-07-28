@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 
 import collections
@@ -7,7 +7,7 @@ import configparser
 import contextlib
 import copy
 import functools
-import optparse
+import optparse  # pylint: disable=deprecated-module
 import os
 import sys
 
@@ -81,8 +81,8 @@ class OptionsManagerMixIn:
     def register_options_provider(self, provider, own_group=True):
         """register an options provider"""
         assert provider.priority <= 0, "provider's priority can't be >= 0"
-        for i in range(len(self.options_providers)):
-            if provider.priority > self.options_providers[i].priority:
+        for i, options_provider in enumerate(self.options_providers):
+            if provider.priority > options_provider.priority:
                 self.options_providers.insert(i, provider)
                 break
         else:
@@ -236,36 +236,38 @@ class OptionsManagerMixIn:
             provider.load_defaults()
 
     def read_config_file(self, config_file=None, verbose=None):
-        """read the configuration file but do not load it (i.e. dispatching
+        """Read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
         """
-        helplevel = 1
-        while helplevel <= self._maxlevel:
-            opt = "-".join(["long"] * helplevel) + "-help"
+        help_level = 1
+        while help_level <= self._maxlevel:
+            opt = "-".join(["long"] * help_level) + "-help"
             if opt in self._all_options:
                 break  # already processed
-
-            helpfunc = functools.partial(self.helpfunc, level=helplevel)
-
-            helpmsg = "%s verbose help." % " ".join(["more"] * helplevel)
-            optdict = {"action": "callback", "callback": helpfunc, "help": helpmsg}
+            help_function = functools.partial(self.helpfunc, level=help_level)
+            help_msg = "%s verbose help." % " ".join(["more"] * help_level)
+            optdict = {
+                "action": "callback",
+                "callback": help_function,
+                "help": help_msg,
+            }
             provider = self.options_providers[0]
             self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
             provider.options += ((opt, optdict),)
-            helplevel += 1
+            help_level += 1
         if config_file is None:
             config_file = self.config_file
         if config_file is not None:
             config_file = os.path.expanduser(config_file)
             if not os.path.exists(config_file):
-                raise OSError("The config file {:s} doesn't exist!".format(config_file))
+                raise OSError(f"The config file {config_file} doesn't exist!")
 
         use_config_file = config_file and os.path.exists(config_file)
         if use_config_file:  # pylint: disable=too-many-nested-blocks
             parser = self.cfgfile_parser
 
             if config_file.endswith(".toml"):
-                with open(config_file) as fp:
+                with open(config_file, encoding="utf-8") as fp:
                     content = toml.load(fp)
 
                 try:
@@ -279,7 +281,7 @@ class OptionsManagerMixIn:
                         for option, value in values.items():
                             if isinstance(value, bool):
                                 values[option] = "yes" if value else "no"
-                            elif isinstance(value, int):
+                            elif isinstance(value, (int, float)):
                                 values[option] = str(value)
                             elif isinstance(value, list):
                                 values[option] = ",".join(value)
@@ -295,20 +297,17 @@ class OptionsManagerMixIn:
                         sect = sect[len("pylint.") :]
                     if not sect.isupper() and values:
                         parser._sections[sect.upper()] = values
-
         if not verbose:
             return
-
         if use_config_file:
-            msg = "Using config file {}".format(os.path.abspath(config_file))
+            msg = f"Using config file {os.path.abspath(config_file)}"
         else:
             msg = "No config file found, using default configuration"
         print(msg, file=sys.stderr)
 
     def load_config_file(self):
-        """dispatch values previously read from a configuration file to each
-        options provider)
-        """
+        """Dispatch values previously read from a configuration file to each
+        options provider)"""
         parser = self.cfgfile_parser
         for section in parser.sections():
             for option, value in parser.items(section):
@@ -348,7 +347,7 @@ class OptionsManagerMixIn:
             return args
 
     def add_help_section(self, title, description, level=0):
-        """add a dummy option section for help purpose """
+        """add a dummy option section for help purpose"""
         group = optparse.OptionGroup(
             self.cmdline_parser, title=title.capitalize(), description=description
         )
@@ -357,7 +356,7 @@ class OptionsManagerMixIn:
         self.cmdline_parser.add_option_group(group)
 
     def help(self, level=0):
-        """return the usage string for available options """
+        """return the usage string for available options"""
         self.cmdline_parser.formatter.output_level = level
         with _patch_optparse():
             return self.cmdline_parser.format_help()

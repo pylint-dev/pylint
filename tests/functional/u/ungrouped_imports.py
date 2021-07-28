@@ -18,9 +18,17 @@ from astroid import exceptions # [ungrouped-imports]
 if True:
     import logging.handlers  # [ungrouped-imports]
 from os.path import join  # [ungrouped-imports]
-# Test related to compatibility with isort:
+# Test related to compatibility with isort:
 # We check that we do not create error with the old way pylint was handling it
 import subprocess
 import unittest
 from unittest import TestCase
 from unittest.mock import MagicMock
+
+
+# https://github.com/PyCQA/pylint/issues/3382
+# Imports in a `if TYPE_CHECKING` block should not trigger `ungrouped-imports`
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    import re
+    from typing import List

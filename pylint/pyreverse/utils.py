@@ -1,48 +1,49 @@
 # Copyright (c) 2006, 2008, 2010, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 yeting li <liyt@ios.ac.cn>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 bernie gray <bfgray3@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""
-generic classes/functions for pyreverse core/extensions
-"""
+"""Generic classes/functions for pyreverse core/extensions. """
 import os
 import re
 import sys
+from typing import Optional, Union
 
-########### pyreverse option utils ##############################
-
+import astroid
 
 RCFILE = ".pyreverserc"
 
 
 def get_default_options():
-    """
-    Read config file and return list of options
-    """
+    """Read config file and return list of options."""
     options = []
     home = os.environ.get("HOME", "")
     if home:
         rcfile = os.path.join(home, RCFILE)
         try:
-            options = open(rcfile).read().split()
+            with open(rcfile, encoding="utf-8") as file_handle:
+                options = file_handle.read().split()
         except OSError:
             pass  # ignore if no config file found
     return options
 
 
 def insert_default_options():
-    """insert default options to sys.argv
-    """
+    """insert default options to sys.argv"""
     options = get_default_options()
     options.reverse()
     for arg in options:
@@ -50,15 +51,13 @@ def insert_default_options():
 
 
 # astroid utilities ###########################################################
-
-SPECIAL = re.compile(r"^__[^\W_]+\w*__$")
-PRIVATE = re.compile(r"^__\w*[^\W_]+_?$")
+SPECIAL = re.compile(r"^__([^\W_]_*)+__$")
+PRIVATE = re.compile(r"^__(_*[^\W_])+_?$")
 PROTECTED = re.compile(r"^_\w*$")
 
 
 def get_visibility(name):
-    """return the visibility from a name: public, protected, private or special
-    """
+    """return the visibility from a name: public, protected, private or special"""
     if SPECIAL.match(name):
         visibility = "special"
     elif PRIVATE.match(name):
@@ -120,8 +119,7 @@ VIS_MOD = {
 
 
 class FilterMixIn:
-    """filter nodes according to a mode and nodes' visibility
-    """
+    """filter nodes according to a mode and nodes' visibility"""
 
     def __init__(self, mode):
         "init filter modes"
@@ -134,8 +132,7 @@ class FilterMixIn:
         self.__mode = __mode
 
     def show_attr(self, node):
-        """return true if the node should be treated
-        """
+        """return true if the node should be treated"""
         visibility = get_visibility(getattr(node, "name", node))
         return not self.__mode & VIS_MOD[visibility]
 
@@ -221,3 +218,60 @@ class LocalsVisitor(ASTWalker):
         if methods[1] is not None:
             return methods[1](node)
         return None
+
+
+def get_annotation_label(ann: Union[astroid.Name, astroid.Subscript]) -> str:
+    label = ""
+    if isinstance(ann, astroid.Subscript):
+        label = ann.as_string()
+    elif isinstance(ann, astroid.Name):
+        label = ann.name
+    return label
+
+
+def get_annotation(
+    node: Union[astroid.AssignAttr, astroid.AssignName]
+) -> Optional[Union[astroid.Name, astroid.Subscript]]:
+    """return the annotation for `node`"""
+    ann = None
+    if isinstance(node.parent, astroid.AnnAssign):
+        ann = node.parent.annotation
+    elif isinstance(node, astroid.AssignAttr):
+        init_method = node.parent.parent
+        try:
+            annotations = dict(zip(init_method.locals, init_method.args.annotations))
+            ann = annotations.get(node.parent.value.name)
+        except AttributeError:
+            pass
+    else:
+        return ann
+
+    try:
+        default, *_ = node.infer()
+    except astroid.InferenceError:
+        default = ""
+
+    label = get_annotation_label(ann)
+    if ann:
+        label = (
+            rf"Optional[{label}]"
+            if getattr(default, "value", "value") is None
+            and not label.startswith("Optional")
+            else label
+        )
+    if label:
+        ann.name = label
+    return ann
+
+
+def infer_node(node: Union[astroid.AssignAttr, astroid.AssignName]) -> set:
+    """Return a set containing the node annotation if it exists
+    otherwise return a set of the inferred types using the NodeNG.infer method"""
+
+    ann = get_annotation(node)
+    if ann:
+        return {ann}
+    try:
+        return set(node.infer())
+    except astroid.InferenceError:
+        return set()

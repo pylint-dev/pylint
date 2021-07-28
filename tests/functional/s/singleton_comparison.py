@@ -12,4 +12,9 @@ i = None == x  # [singleton-comparison]
 
 j = x != True  # [singleton-comparison]
 j1 = x != False  # [singleton-comparison]
-j2 = x != None # [singleton-comparison]
+j2 = x != None  # [singleton-comparison]
+assert x == True  # [singleton-comparison]
+assert x != False  # [singleton-comparison]
+if x == True:  # [singleton-comparison]
+    pass
+z = bool(x == True)  # [singleton-comparison]

@@ -1,2 +1,0 @@
-deprecated-method:6::Using deprecated method load_module()
-deprecated-method:7::Using deprecated method load_module()

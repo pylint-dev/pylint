@@ -202,8 +202,9 @@ output buffer, to go to the lines where pylint found matches.
 
   (save-some-buffers (not pylint-ask-about-save) nil)
   (let* ((filename (buffer-file-name))
+         (localname-offset (cl-struct-slot-offset 'tramp-file-name 'localname))
          (filename (or (and (tramp-tramp-file-p filename)
-                         (aref (tramp-dissect-file-name filename) 3))
+                         (elt (tramp-dissect-file-name filename) localname-offset))
                       filename))
          (filename (shell-quote-argument filename))
          (pylint-command (if arg

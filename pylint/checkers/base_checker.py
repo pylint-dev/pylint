@@ -1,19 +1,21 @@
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013-2014 Google, Inc.
 # Copyright (c) 2013 buck@yelp.com <buck@yelp.com>
-# Copyright (c) 2014-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018-2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019 Bruno P. Kinoshita <kinow@users.noreply.github.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
-
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+import functools
 from inspect import cleandoc
 from typing import Any
 
@@ -25,20 +27,21 @@ from pylint.message.message_definition import MessageDefinition
 from pylint.utils import get_rst_section, get_rst_title
 
 
+@functools.total_ordering
 class BaseChecker(OptionsProviderMixIn):
 
     # checker name (you may reuse an existing one)
-    name = None  # type: str
+    name: str = ""
     # options level (0 will be displaying in --help, 1 in --long-help)
     level = 1
     # ordered list of options to control the checker behaviour
-    options = ()  # type: Any
+    options: Any = ()
     # messages issued by this checker
-    msgs = {}  # type: Any
+    msgs: Any = {}
     # reports issued by this checker
-    reports = ()  # type: Any
+    reports: Any = ()
     # mark this checker as enabled or not.
-    enabled = True
+    enabled: bool = True
 
     def __init__(self, linter=None):
         """checker instances should have the linter as argument
@@ -51,15 +54,12 @@ class BaseChecker(OptionsProviderMixIn):
 
     def __gt__(self, other):
         """Permit to sort a list of Checker by name."""
-        return "{}{}".format(self.name, self.msgs).__gt__(
-            "{}{}".format(other.name, other.msgs)
-        )
+        return f"{self.name}{self.msgs}".__gt__(f"{other.name}{other.msgs}")
 
     def __repr__(self):
         status = "Checker" if self.enabled else "Disabled checker"
-        return "{} '{}' (responsible for '{}')".format(
-            status, self.name, "', '".join(self.msgs.keys())
-        )
+        msgs = "', '".join(self.msgs.keys())
+        return f"{status} '{self.name}' (responsible for '{msgs}')"
 
     def __str__(self):
         """This might be incomplete because multiple class inheriting BaseChecker
@@ -80,15 +80,15 @@ class BaseChecker(OptionsProviderMixIn):
         result += "Verbatim name of the checker is ``%s``.\n\n" % self.name
         if doc:
             # Provide anchor to link against
-            result += get_rst_title("{} Documentation".format(checker_title), "^")
+            result += get_rst_title(f"{checker_title} Documentation", "^")
             result += "%s\n\n" % cleandoc(doc)
         # options might be an empty generator and not be False when casted to boolean
         options = list(options)
         if options:
-            result += get_rst_title("{} Options".format(checker_title), "^")
+            result += get_rst_title(f"{checker_title} Options", "^")
             result += "%s\n" % get_rst_section(None, options)
         if msgs:
-            result += get_rst_title("{} Messages".format(checker_title), "^")
+            result += get_rst_title(f"{checker_title} Messages", "^")
             for msgid, msg in sorted(
                 msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
             ):
@@ -96,7 +96,7 @@ class BaseChecker(OptionsProviderMixIn):
                 result += "%s\n" % msg.format_help(checkerref=False)
             result += "\n"
         if reports:
-            result += get_rst_title("{} Reports".format(checker_title), "^")
+            result += get_rst_title(f"{checker_title} Reports", "^")
             for report in reports:
                 result += ":%s: %s\n" % report[:2]
             result += "\n"
@@ -118,18 +118,14 @@ class BaseChecker(OptionsProviderMixIn):
         checker.
 
         :raises InvalidMessageError: If the checker id in the messages are not
-        always the same. """
+        always the same."""
         checker_id = None
         existing_ids = []
         for message in self.messages:
             if checker_id is not None and checker_id != message.msgid[1:3]:
                 error_msg = "Inconsistent checker part in message id "
-                error_msg += "'{}' (expected 'x{checker_id}xx' ".format(
-                    message.msgid, checker_id=checker_id
-                )
-                error_msg += "because we already had {existing_ids}).".format(
-                    existing_ids=existing_ids
-                )
+                error_msg += f"'{message.msgid}' (expected 'x{checker_id}xx' "
+                error_msg += f"because we already had {existing_ids})."
                 raise InvalidMessageError(error_msg)
             checker_id = message.msgid[1:3]
             existing_ids.append(message.msgid)
@@ -171,8 +167,8 @@ class BaseChecker(OptionsProviderMixIn):
         for message_definition in self.messages:
             if message_definition.msgid == msgid:
                 return message_definition
-        error_msg = "MessageDefinition for '{}' does not exists. ".format(msgid)
-        error_msg += "Choose from {}.".format([m.msgid for m in self.messages])
+        error_msg = f"MessageDefinition for '{msgid}' does not exists. "
+        error_msg += f"Choose from {[m.msgid for m in self.messages]}."
         raise InvalidMessageError(error_msg)
 
     def open(self):

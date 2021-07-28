@@ -1,4 +1,5 @@
-unreachable:7:func1:Unreachable code
-unreachable:12:func2:Unreachable code
-unreachable:18:func3:Unreachable code
-unreachable:22:func4:Unreachable code
+unreachable:7:4:func1:Unreachable code
+unreachable:12:8:func2:Unreachable code
+unreachable:18:8:func3:Unreachable code
+unreachable:22:4:func4:Unreachable code
+unreachable:35:4:func6:Unreachable code
