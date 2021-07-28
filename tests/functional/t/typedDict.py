@@ -23,3 +23,9 @@ CustomTD5 = TypedDict("CustomTD5", {"var5": bool})
 my_dict = CustomTD(var=1)
 my_dict["var"]
 my_dict["var"] = 2
+
+
+# https://github.com/PyCQA/pylint/issues/4715
+# Instance of TypedDict should be callable
+Link = TypedDict("Link", {"href": str})
+Link(href="foo")

@@ -88,7 +88,7 @@ class LintTestUsingModule:
 
     def _get_expected(self):
         if self._has_output() and self.output:
-            with open(self.output) as fobj:
+            with open(self.output, encoding="utf-8") as fobj:
                 return fobj.read().strip() + "\n"
         else:
             return ""
@@ -103,7 +103,7 @@ class LintTestUpdate(LintTestUsingModule):
         except OSError:
             expected = ""
         if got != expected:
-            with open(self.output, "w") as f:
+            with open(self.output, "w", encoding="utf-8") as f:
                 f.write(got)
 
 
@@ -121,7 +121,7 @@ def gen_tests(filter_rgx):
         tests.append((module_file, messages_file, dependencies))
     if UPDATE_FILE.exists():
         return tests
-    assert len(tests) < 12, "Please do not add new test cases here." + "\n".join(
+    assert len(tests) < 13, "Please do not add new test cases here." + "\n".join(
         str(k) for k in tests if not k[2]
     )
     return tests

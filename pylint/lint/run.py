@@ -373,7 +373,7 @@ group are mutually exclusive.",
 
         if self._output:
             try:
-                with open(self._output, "w") as output:
+                with open(self._output, "w", encoding="utf-8") as output:
                     linter.reporter.set_output(output)
                     linter.check(args)
                     score_value = linter.generate_reports()
@@ -394,14 +394,13 @@ group are mutually exclusive.",
         if exit:
             if linter.config.exit_zero:
                 sys.exit(0)
+            elif linter.any_fail_on_issues():
+                # We need to make sure we return a failing exit code in this case.
+                # So we use self.linter.msg_status if that is non-zero, otherwise we just return 1.
+                sys.exit(self.linter.msg_status or 1)
+            elif score_value is not None and score_value >= linter.config.fail_under:
+                sys.exit(0)
             else:
-                if (
-                    score_value
-                    and score_value >= linter.config.fail_under
-                    # detected messages flagged by --fail-on prevent non-zero exit code
-                    and not linter.any_fail_on_issues()
-                ):
-                    sys.exit(0)
                 sys.exit(self.linter.msg_status)
 
     def version_asked(self, _, __):

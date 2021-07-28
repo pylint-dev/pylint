@@ -510,3 +510,16 @@ contributors:
   - Fixed ignored empty functions by similarities checker with "ignore-signatures" option enabled
 
 * Daniel Dorani (doranid): contributor
+
+* Will Shanks: contributor
+
+* Mark Bell: contributor
+
+* Marco Gorelli: contributor
+  - Documented Jupyter integration
+
+* Yilei Yang: contributor
+
+* Marcin Kurczewski (rr-): contributor
+
+* Daniel van Noord (DanielNoord): contributor

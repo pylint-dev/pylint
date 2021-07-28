@@ -571,7 +571,9 @@ class PyLinter(
                     (reporter_output,) = reporter_output
 
                     # pylint: disable=consider-using-with
-                    output_file = stack.enter_context(open(reporter_output, "w"))
+                    output_file = stack.enter_context(
+                        open(reporter_output, "w", encoding="utf-8")
+                    )
 
                     reporter.set_output(output_file)
                     output_files.append(output_file)
@@ -617,8 +619,9 @@ class PyLinter(
                 except KeyError:
                     meth = self._bw_options_methods[optname]
                     warnings.warn(
-                        "%s is deprecated, replace it by %s"
-                        % (optname, optname.split("-")[0]),
+                        "{} is deprecated, replace it by {}".format(
+                            optname, optname.split("-")[0]
+                        ),
                         DeprecationWarning,
                     )
                 value = utils._check_csv(value)
@@ -707,7 +710,9 @@ class PyLinter(
                         self.fail_on_symbols.append(msg.symbol)
 
     def any_fail_on_issues(self):
-        return any(x in self.fail_on_symbols for x in self.stats["by_msg"])
+        return self.stats is not None and any(
+            x in self.fail_on_symbols for x in self.stats["by_msg"]
+        )
 
     def disable_noerror_messages(self):
         for msgcat, msgids in self.msgs_store._msgs_by_category.items():

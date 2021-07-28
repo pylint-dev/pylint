@@ -6,9 +6,10 @@ import copy
 import itertools
 import tokenize
 from functools import reduce
-from typing import List, Optional, Tuple, Union, cast
+from typing import Dict, Iterator, List, NamedTuple, Optional, Tuple, Union, cast
 
 import astroid
+from astroid.util import Uninferable
 
 from pylint import checkers, interfaces
 from pylint import utils as lint_utils
@@ -41,8 +42,6 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
         "tarfile.TarFile",
         "tarfile.TarFile.open",
         "multiprocessing.context.BaseContext.Pool",
-        "concurrent.futures.thread.ThreadPoolExecutor",
-        "concurrent.futures.process.ProcessPoolExecutor",
         "subprocess.Popen",
     )
 )
@@ -145,6 +144,33 @@ def _will_be_released_automatically(node: astroid.Call) -> bool:
     if not func:
         return False
     return func.qname() in callables_taking_care_of_exit
+
+
+class ConsiderUsingWithStack(NamedTuple):
+    """Stack for objects that may potentially trigger a R1732 message
+    if they are not used in a ``with`` block later on."""
+
+    module_scope: Dict[str, astroid.NodeNG] = {}
+    class_scope: Dict[str, astroid.NodeNG] = {}
+    function_scope: Dict[str, astroid.NodeNG] = {}
+
+    def __iter__(self) -> Iterator[Dict[str, astroid.NodeNG]]:
+        yield from (self.function_scope, self.class_scope, self.module_scope)
+
+    def get_stack_for_frame(
+        self, frame: Union[astroid.FunctionDef, astroid.ClassDef, astroid.Module]
+    ):
+        """Get the stack corresponding to the scope of the given frame."""
+        if isinstance(frame, astroid.FunctionDef):
+            return self.function_scope
+        if isinstance(frame, astroid.ClassDef):
+            return self.class_scope
+        return self.module_scope
+
+    def clear_all(self) -> None:
+        """Convenience method to clear all stacks"""
+        for stack in self:
+            stack.clear()
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
@@ -416,6 +442,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def __init__(self, linter=None):
         checkers.BaseTokenChecker.__init__(self, linter)
         self._return_nodes = {}
+        self._consider_using_with_stack = ConsiderUsingWithStack()
         self._init()
         self._never_returning_functions = None
 
@@ -425,6 +452,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._nested_blocks_msg = None
         self._reported_swap_nodes = set()
         self._can_simplify_bool_op = False
+        self._consider_using_with_stack.clear_all()
 
     def open(self):
         # do this in open since config not fully initialized in __init__
@@ -543,7 +571,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if self.linter.is_message_enabled("trailing-comma-tuple"):
                     self.add_message("trailing-comma-tuple", line=token.start[0])
 
+    @utils.check_messages("consider-using-with")
     def leave_module(self, _):
+        # check for context managers that have been created but not used
+        self._emit_consider_using_with_if_needed(
+            self._consider_using_with_stack.module_scope
+        )
         self._init()
 
     @utils.check_messages("too-many-nested-blocks")
@@ -593,7 +626,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @utils.check_messages("redefined-argument-from-local")
     def visit_with(self, node):
-        for _, names in node.items:
+        for var, names in node.items:
+            if isinstance(var, astroid.Name):
+                for stack in self._consider_using_with_stack:
+                    # We don't need to restrict the stacks we search to the current scope and outer scopes,
+                    # as e.g. the function_scope stack will be empty when we check a ``with`` on the class level.
+                    if var.name in stack:
+                        del stack[var.name]
+                        break
             if not names:
                 continue
             for name in names.nodes_of_class(astroid.AssignName):
@@ -818,9 +858,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message("simplifiable-if-expression", node=node, args=(reduced_to,))
 
     @utils.check_messages(
-        "too-many-nested-blocks", "inconsistent-return-statements", "useless-return"
+        "too-many-nested-blocks",
+        "inconsistent-return-statements",
+        "useless-return",
+        "consider-using-with",
     )
-    def leave_functiondef(self, node):
+    def leave_functiondef(self, node: astroid.FunctionDef) -> None:
         # check left-over nested blocks stack
         self._emit_nested_blocks_message_if_needed(self._nested_blocks)
         # new scope = reinitialize the stack of nested blocks
@@ -830,6 +873,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # check for single return or return None at the end
         self._check_return_at_the_end(node)
         self._return_nodes[node.name] = []
+        # check for context managers that have been created but not used
+        self._emit_consider_using_with_if_needed(
+            self._consider_using_with_stack.function_scope
+        )
+        self._consider_using_with_stack.function_scope.clear()
+
+    @utils.check_messages("consider-using-with")
+    def leave_classdef(self, _: astroid.ClassDef) -> None:
+        # check for context managers that have been created but not used
+        self._emit_consider_using_with_if_needed(
+            self._consider_using_with_stack.class_scope
+        )
+        self._consider_using_with_stack.class_scope.clear()
 
     @utils.check_messages("stop-iteration-return")
     def visit_raise(self, node):
@@ -1020,6 +1076,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 node=nested_blocks[0],
                 args=(len(nested_blocks), self.config.max_nested_blocks),
             )
+
+    def _emit_consider_using_with_if_needed(self, stack: Dict[str, astroid.NodeNG]):
+        for node in stack.values():
+            self.add_message("consider-using-with", node=node)
 
     @staticmethod
     def _duplicated_isinstance_types(node):
@@ -1286,8 +1346,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "simplify-boolean-expression",
         "consider-using-ternary",
         "consider-swap-variables",
+        "consider-using-with",
     )
-    def visit_assign(self, node):
+    def visit_assign(self, node: astroid.Assign) -> None:
+        self._append_context_managers_to_stack(node)
+        self.visit_return(node)  # remaining checks are identical as for return nodes
+
+    @utils.check_messages(
+        "simplify-boolean-expression",
+        "consider-using-ternary",
+        "consider-swap-variables",
+    )
+    def visit_return(self, node: astroid.Return) -> None:
         self._check_swap_variables(node)
         if self._is_and_or_ternary(node.value):
             cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
@@ -1317,9 +1387,58 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
         self.add_message(message, node=node, args=(suggestion,))
 
-    visit_return = visit_assign
+    def _append_context_managers_to_stack(self, node: astroid.Assign) -> None:
+        if _is_inside_context_manager(node):
+            # if we are inside a context manager itself, we assume that it will handle the resource management itself.
+            return
+        if isinstance(node.targets[0], (astroid.Tuple, astroid.List, astroid.Set)):
+            assignees = node.targets[0].elts
+            value = utils.safe_infer(node.value)
+            if value is None or not hasattr(value, "elts"):
+                # We cannot deduce what values are assigned, so we have to skip this
+                return
+            values = value.elts
+        else:
+            assignees = [node.targets[0]]
+            values = [node.value]
+        if Uninferable in (assignees, values):
+            return
+        for assignee, value in zip(assignees, values):
+            if not isinstance(value, astroid.Call):
+                continue
+            inferred = utils.safe_infer(value.func)
+            if (
+                not inferred
+                or inferred.qname() not in CALLS_RETURNING_CONTEXT_MANAGERS
+                or not isinstance(assignee, (astroid.AssignName, astroid.AssignAttr))
+            ):
+                continue
+            stack = self._consider_using_with_stack.get_stack_for_frame(node.frame())
+            varname = (
+                assignee.name
+                if isinstance(assignee, astroid.AssignName)
+                else assignee.attrname
+            )
+            if varname in stack:
+                # variable was redefined before it was used in a ``with`` block
+                self.add_message(
+                    "consider-using-with",
+                    node=stack[varname],
+                )
+            stack[varname] = value
 
     def _check_consider_using_with(self, node: astroid.Call):
+        if _is_inside_context_manager(node):
+            # if we are inside a context manager itself, we assume that it will handle the resource management itself.
+            return
+        if (
+            node
+            in self._consider_using_with_stack.get_stack_for_frame(
+                node.frame()
+            ).values()
+        ):
+            # the result of this call was already assigned to a variable and will be checked when leaving the scope.
+            return
         inferred = utils.safe_infer(node.func)
         if not inferred:
             return
@@ -1332,9 +1451,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 and not _is_part_of_with_items(node)
             )
         )
-        if could_be_used_in_with and not (
-            _is_inside_context_manager(node) or _will_be_released_automatically(node)
-        ):
+        if could_be_used_in_with and not _will_be_released_automatically(node):
             self.add_message("consider-using-with", node=node)
 
     def _check_consider_using_join(self, aug_assign):

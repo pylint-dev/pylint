@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, too-few-public-methods
+# pylint: disable=missing-docstring,too-few-public-methods,disallowed-name,invalid-name,unused-argument
 import abc
 
 
@@ -76,3 +76,52 @@ class AbstractProperty:
     @abc.abstractmethod
     def prop(self):
         return
+
+
+# https://github.com/PyCQA/pylint/issues/4368
+# Decrator functions with a nested property decorator should still be
+# inferred as property.
+
+def my_property(func):
+    @property
+    def _wrapper(self):
+        pass
+    return _wrapper
+
+def not_a_property(func):
+    def _wrapper(self):
+        pass
+    return _wrapper
+
+def multiple_returns(func):
+    def _wrapper(self):
+        pass
+    if foobar:  # pylint: disable=undefined-variable
+        return False
+    return _wrapper
+
+class A:
+    @property
+    def foo(self):
+        return True
+
+    @property
+    def bar(self):
+        return True
+
+    @property
+    def bar2(self):
+        return True
+
+class B(A):
+    @my_property
+    def foo(self):
+        return False
+
+    @not_a_property
+    def bar(self):  # [invalid-overridden-method]
+        return False
+
+    @multiple_returns
+    def bar2(self):  # [invalid-overridden-method]
+        return False

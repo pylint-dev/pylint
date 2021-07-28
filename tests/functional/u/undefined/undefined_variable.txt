@@ -28,3 +28,5 @@ used-before-assignment:254:26:func_should_fail:Using variable 'datetime' before 
 undefined-variable:281:18:not_using_loop_variable_accordingly:Undefined variable 'iteree'
 undefined-variable:292:27:undefined_annotation:Undefined variable 'x'
 used-before-assignment:293:7:undefined_annotation:Using variable 'x' before assignment
+undefined-variable:323:11:decorated3:Undefined variable 'x'
+undefined-variable:328:19:decorated4:Undefined variable 'y'

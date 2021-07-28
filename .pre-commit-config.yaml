@@ -21,17 +21,17 @@ repos:
           - --remove-duplicate-keys
           - --remove-unused-variables
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.20.0
+    rev: v2.23.0
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
         exclude: *fixtures
   - repo: https://github.com/PyCQA/isort
-    rev: 5.9.1
+    rev: 5.9.2
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
-    rev: 21.6b0
+    rev: 21.7b0
     hooks:
       - id: black
         args: [--safe, --quiet]

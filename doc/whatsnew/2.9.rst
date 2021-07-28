@@ -99,3 +99,8 @@ Other Changes
   functions/methods.
 
 * Added various deprecated functions/methods for python 3.10, 3.7, 3.6 and 3.3
+
+* No longer emit ``consider-using-with`` for ``ThreadPoolExecutor`` and ``ProcessPoolExecutor``
+  as they have legitimate use cases without a ``with`` block.
+
+* Fix crash if a callable returning a context manager was assigned to a list or dict item

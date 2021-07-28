@@ -12,6 +12,7 @@
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
 # Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Maksym Humetskyi <Humetsky@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Aditya Gupta <adityagupta1089@users.noreply.github.com>
 
@@ -423,7 +424,7 @@ def test_get_map_data():
     # Manually perform a 'map' type function
     for source_fname in source_streams:
         sim = similar.SimilarChecker(linter)
-        with open(source_fname) as stream:
+        with open(source_fname, encoding="utf-8") as stream:
             sim.append_stream(source_fname, stream)
         # The map bit, can you tell? ;)
         data.extend(sim.get_map_data())
