@@ -1,5 +1,6 @@
 # pylint: disable=invalid-name,missing-docstring,pointless-statement
 from datetime import datetime
+from typing import Union
 
 value = "Hello World"
 value.isoformat()  # [no-member]
@@ -26,10 +27,10 @@ res = value.isoformat() if isinstance(value, datetime) else value
 
 
 class Base:
-    _attr_state: str | float | datetime = "Unknown"
+    _attr_state: Union[str, datetime] = "Unknown"
 
     @property
-    def state(self) -> str | float | datetime:
+    def state(self) -> Union[str, datetime]:
         return self._attr_state
 
     def some_function(self) -> str:
