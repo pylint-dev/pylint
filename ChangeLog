@@ -26,6 +26,10 @@ Release date: TBA
 
   Close #4120
 
+* The default for ``PYLINTHOME`` is now the standard ``XDG_CACHE_HOME``, and pylint now uses ``appdirs``.
+
+  Closes #3878
+
 
 What's New in Pylint 2.9.6?
 ===========================
