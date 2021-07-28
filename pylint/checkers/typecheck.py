@@ -454,6 +454,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         * the owner is a class and the name can be found in its metaclass.
         * The access node is protected by an except handler, which handles
           AttributeError, Exception or bare except.
+        * The node is guarded behind and `IF` or `IFExp` node
     """
     # pylint: disable=too-many-return-statements
     if node_ignores_exception(node, AttributeError):
@@ -522,6 +523,30 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         # Avoid false positive on Enum.__members__.{items(), values, keys}
         # See https://github.com/PyCQA/pylint/issues/4123
         return False
+    # Don't emit no-member if guarded behind `IF` or `IFExp`
+    #   * Walk up recursively until if statement is found.
+    #   * Check if condition can be inferred as `Const`,
+    #       would evaluate as `False`,
+    #       and wheater the node is part of the `body`.
+    #   * Continue checking until scope of node is reached.
+    scope: astroid.NodeNG = node.scope()
+    node_origin: astroid.NodeNG = node
+    parent: astroid.NodeNG = node.parent
+    while parent != scope:
+        if isinstance(parent, (astroid.If, astroid.IfExp)):
+            inferred = safe_infer(parent.test)
+            if (  # pylint: disable=too-many-boolean-expressions
+                isinstance(inferred, astroid.Const)
+                and inferred.bool_value() is False
+                and (
+                    isinstance(parent, astroid.If)
+                    and node_origin in parent.body
+                    or isinstance(parent, astroid.IfExp)
+                    and node_origin == parent.body
+                )
+            ):
+                return False
+        node_origin, parent = parent, parent.parent
 
     return True
 
