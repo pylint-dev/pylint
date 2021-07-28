@@ -553,7 +553,7 @@ class TestRunTC:
             # create module under directories which have the same name as reporter.path_strip_prefix
             # e.g. /src/some/path/src/test_target.py when reporter.path_strip_prefix = /src/
             os.makedirs(fake_path)
-            with open(module, "w") as test_target:
+            with open(module, "w", encoding="utf-8") as test_target:
                 test_target.write("a,b = object()")
 
             self._test_output(
