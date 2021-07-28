@@ -13,7 +13,7 @@ def example_path(tmp_path):
         self.hassan()
     """
     path = tmp_path / "my_app.py"
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         f.write(content)
     return path
 
