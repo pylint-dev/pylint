@@ -55,7 +55,7 @@ ENV_GETTERS = ("os.getenv",)
 SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
 OPEN_MODULE = "_io"
-BREAKPOINTS = ("builtins.breakpoint", "sys.breakpointhook")
+DEBUG_BREAKPOINTS = ("builtins.breakpoint", "sys.breakpointhook", "pdb.set_trace")
 
 
 DEPRECATED_MODULES = {
@@ -436,10 +436,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "See https://www.python.org/dev/peps/pep-0597/",
         ),
         "W1515": (
-            "Leaving breakpoint() or sys.breakpointhook() in production code is not recommended",
-            "no-breakpoint",
-            "Calls to breakpoint() and sys.breakpointhook() should be removed from code that "
-            "is not actively being debugged.",
+            "Leaving functions creating breakpoints in production code is not recommended",
+            "forgotten-debug-statement",
+            "Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be removed "
+            "from code that is not actively being debugged.",
         ),
     }
 
@@ -502,7 +502,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "subprocess-run-check",
         "deprecated-class",
         "unspecified-encoding",
-        "no-breakpoint",
+        "forgotten-debug-statement",
     )
     def visit_call(self, node):
         """Visit a Call node."""
@@ -539,8 +539,8 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                         self._check_env_function(node, inferred)
                     elif name == SUBPROCESS_RUN:
                         self._check_for_check_kw_in_run(node)
-                    elif name in BREAKPOINTS:
-                        self.add_message("no-breakpoint", node=node)
+                    elif name in DEBUG_BREAKPOINTS:
+                        self.add_message("forgotten-debug-statement", node=node)
                 self.check_deprecated_method(node, inferred)
         except astroid.InferenceError:
             return

@@ -1,2 +1,0 @@
-no-breakpoint:5:0::"Leaving breakpoint() or sys.breakpointhook() in production code is unrecommended"
-no-breakpoint:6:0::"Leaving breakpoint() or sys.breakpointhook() in production code is unrecommended"
