@@ -1471,17 +1471,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_use_list_or_dict_literal(self, node: astroid.Call) -> None:
         """Check if empty list or dict is created by using the literal [] or {}"""
-        try:
-            for inferred in node.func.infer():
-                if inferred is astroid.Uninferable:
-                    continue
-                if isinstance(inferred, astroid.ClassDef) and node.args == []:
-                    if inferred.name == "list":
-                        self.add_message("use-list-literal", node=node)
-                    if inferred.name == "dict" and node.keywords == []:
-                        self.add_message("use-dict-literal", node=node)
-        except astroid.InferenceError:
-            pass
+        if node.as_string() in ("list()", "dict()"):
+            inferred = utils.safe_infer(node.func)
+            if isinstance(inferred, astroid.ClassDef) and not node.args:
+                if inferred.qname() == "builtins.list":
+                    self.add_message("use-list-literal", node=node)
+                if inferred.qname() == "builtins.dict" and not node.keywords:
+                    self.add_message("use-dict-literal", node=node)
 
     def _check_consider_using_join(self, aug_assign):
         """
