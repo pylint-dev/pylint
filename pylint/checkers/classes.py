@@ -981,7 +981,7 @@ a metaclass class method.",
                     (
                         # If assigned to cls.attrib, can be accessed by cls/self
                         assign_attr.expr.name == "cls"
-                        and attribute.expr.name in ["cls", "self"]
+                        and attribute.expr.name in ("cls", "self")
                     )
                     # If assigned to self.attrib, can only be accessed by self
                     # Or if __new__ was used, the returned object names are acceptable

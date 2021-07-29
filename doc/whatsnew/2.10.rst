@@ -21,9 +21,16 @@ New checkers
   Closes #3692
 
 
+Extensions
+==========
+
+* ``CodeStyleChecker``
+
+  * Extended ``consider-using-tuple`` check to cover ``in`` comparisons.
+
+
 Other Changes
 =============
-
 
 * Performance of the Similarity checker has been improved.
 
