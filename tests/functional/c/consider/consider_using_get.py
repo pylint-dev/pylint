@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,invalid-name,using-constant-test,invalid-sequence-index,undefined-variable
-dictionary = dict()
+dictionary = {}
 key = 'key'
 
 if 'key' in dictionary:  # [consider-using-get]
