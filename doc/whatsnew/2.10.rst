@@ -16,6 +16,14 @@ New checkers
 
   Closes #3826
 
+* Added ``use-list-literal``: Emitted when ``list()`` is called with no arguments instead of using ``[]``
+
+  Closes #4365
+
+* Added ``use-dict-literal``: Emitted when ``dict()`` is called with no arguments instead of using ``{}``
+
+  Closes #4365
+
 * Added ``forgotten-debug-statement``: Emitted when breakpoint() or sys.breakpointhook() calls are found
 
   Closes #3692

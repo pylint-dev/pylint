@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance
+# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance, use-list-literal
 # pylint: disable=too-many-ancestors, no-absolute-import, import-error, multiple-imports,wrong-import-position
 from __future__ import print_function
 

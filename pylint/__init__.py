@@ -75,4 +75,4 @@ def modify_sys_path() -> None:
 
 
 version = __version__
-__all__ = ["__version__", "version"]
+__all__ = ["__version__", "version", "modify_sys_path"]
