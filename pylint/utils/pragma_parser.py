@@ -116,7 +116,7 @@ def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]
             if action:
                 yield emit_pragma_representer(action, messages)
             action = value
-            messages = list()
+            messages = []
             assignment_required = action in MESSAGE_KEYWORDS
         elif kind in ("MESSAGE_STRING", "MESSAGE_NUMBER"):
             messages.append(value)

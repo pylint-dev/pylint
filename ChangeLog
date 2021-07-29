@@ -36,6 +36,14 @@ Release date: TBA
 
   Closes #3878
 
+* Added ``use-list-literal``: Emitted when ``list()`` is called with no arguments instead of using ``[]``
+
+  Closes #4365
+
+* Added ``use-dict-literal``: Emitted when ``dict()`` is called with no arguments instead of using ``{}``
+
+  Closes #4365
+
 * ``CodeStyleChecker``
 
   * Extended ``consider-using-tuple`` check to cover ``in`` comparisons.

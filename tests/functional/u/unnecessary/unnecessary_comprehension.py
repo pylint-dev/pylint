@@ -13,7 +13,7 @@
 [2 * x for x in iterable]  # exclude useful comprehensions
 [(x, y, 1) for x, y in iterable]  # exclude useful comprehensions
 # Test case for issue #4499
-a_dict = dict()
+a_dict = {}
 [(k, v) for k, v in a_dict.items()]  # [unnecessary-comprehension]
 
 # Set comprehensions
@@ -39,8 +39,8 @@ a_dict = dict()
 {2 * x: 3 + x for x in iterable}  # exclude useful comprehensions
 
 # Some additional tests on helptext -- when object is already a list/set/dict
-my_list = list()
-my_dict = dict()
+my_list = []
+my_dict = {}
 my_set = set()
 
 [elem for elem in my_list]  # [unnecessary-comprehension]
