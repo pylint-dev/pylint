@@ -436,7 +436,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "See https://www.python.org/dev/peps/pep-0597/",
         ),
         "W1515": (
-            "Leaving breakpoint() or sys.breakpointhook() in production code is unrecommended",
+            "Leaving breakpoint() or sys.breakpointhook() in production code is not recommended",
             "no-breakpoint",
             "Calls to breakpoint() and sys.breakpointhook() should be removed from code that "
             "is not actively being debugged.",
