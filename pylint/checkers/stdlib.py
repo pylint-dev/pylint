@@ -443,11 +443,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
             if since_vers <= sys.version_info:
                 self._deprecated_methods.update(func_list)
-        self._deprecated_attributes = dict()
+        self._deprecated_attributes = {}
         for since_vers, func_list in DEPRECATED_ARGUMENTS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_attributes.update(func_list)
-        self._deprecated_classes = dict()
+        self._deprecated_classes = {}
         for since_vers, class_list in DEPRECATED_CLASSES.items():
             if since_vers <= sys.version_info:
                 self._deprecated_classes.update(class_list)
