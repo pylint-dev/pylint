@@ -93,8 +93,13 @@ localized using the following rules:
 
 * value of the PYLINTHOME environment variable if set
 
-* ".pylint.d" subdirectory of the user's home directory if it is found
-	(not always findable on Windows platforms)
+* "pylint" subdirectory of the user's XDG_CACHE_HOME if the environment variable is set, otherwise
+
+        - Linux: "~/.cache/pylint"
+
+        - Mac OS X: "~/Library/Caches/pylint"
+
+        - Windows: "C:\Users\<username>\AppData\Local\pylint"
 
 * ".pylint.d" directory in the current directory
 

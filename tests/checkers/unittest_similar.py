@@ -52,26 +52,27 @@ def test_ignore_comments():
         == (
             """
 10 similar lines in 2 files
-==%s:0
-==%s:0
+==%s:[0:11]
+==%s:[0:11]
    import one
    from two import two
    three
    four
    five
    six
+   # A full line comment
    seven
    eight
    nine
    ''' ten
-TOTAL lines=60 duplicates=10 percent=16.67
+TOTAL lines=62 duplicates=10 percent=16.13
 """
             % (SIMILAR1, SIMILAR2)
         ).strip()
     )
 
 
-def test_ignore_docsrings():
+def test_ignore_docstrings():
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-docstrings", SIMILAR1, SIMILAR2])
@@ -80,9 +81,9 @@ def test_ignore_docsrings():
         output.getvalue().strip()
         == (
             """
-8 similar lines in 2 files
-==%s:6
-==%s:6
+5 similar lines in 2 files
+==%s:[7:15]
+==%s:[7:15]
    seven
    eight
    nine
@@ -93,14 +94,14 @@ def test_ignore_docsrings():
    fourteen
 
 5 similar lines in 2 files
-==%s:0
-==%s:0
+==%s:[0:5]
+==%s:[0:5]
    import one
    from two import two
    three
    four
    five
-TOTAL lines=60 duplicates=13 percent=21.67
+TOTAL lines=62 duplicates=10 percent=16.13
 """
             % ((SIMILAR1, SIMILAR2) * 2)
         ).strip()
@@ -115,7 +116,7 @@ def test_ignore_imports():
     assert (
         output.getvalue().strip()
         == """
-TOTAL lines=60 duplicates=0 percent=0.00
+TOTAL lines=62 duplicates=0 percent=0.00
 """.strip()
     )
 
@@ -130,8 +131,8 @@ def test_multiline_imports():
         == (
             """
 8 similar lines in 2 files
-==%s:0
-==%s:0
+==%s:[0:8]
+==%s:[0:8]
    from foo import (
      bar,
      baz,
@@ -169,9 +170,9 @@ def test_ignore_signatures_fail():
         output.getvalue().strip()
         == (
             '''
-10 similar lines in 2 files
-==%s:1
-==%s:8
+9 similar lines in 2 files
+==%s:[1:11]
+==%s:[8:18]
        arg1: int = 3,
        arg2: Class1 = val1,
        arg3: Class2 = func3(val2),
@@ -182,7 +183,7 @@ def test_ignore_signatures_fail():
 
    def example():
        """Valid function definition with docstring only."""
-TOTAL lines=29 duplicates=10 percent=34.48
+TOTAL lines=29 duplicates=9 percent=31.03
 '''
             % (SIMILAR5, SIMILAR6)
         ).strip()
@@ -212,8 +213,8 @@ def test_ignore_signatures_empty_functions_fail():
         == (
             '''
 6 similar lines in 2 files
-==%s:1
-==%s:1
+==%s:[1:7]
+==%s:[1:7]
        arg1: int = 1,
        arg2: str = "2",
        arg3: int = 3,
@@ -258,14 +259,14 @@ def test_ignore_nothing():
         == (
             """
 5 similar lines in 2 files
-==%s:0
-==%s:0
+==%s:[0:5]
+==%s:[0:5]
    import one
    from two import two
    three
    four
    five
-TOTAL lines=60 duplicates=5 percent=8.33
+TOTAL lines=62 duplicates=5 percent=8.06
 """
             % (SIMILAR1, SIMILAR2)
         ).strip()
@@ -282,8 +283,8 @@ def test_lines_without_meaningful_content_do_not_trigger_similarity():
         == (
             """
 14 similar lines in 2 files
-==%s:11
-==%s:11
+==%s:[11:25]
+==%s:[11:25]
    b = (
        (
            [
@@ -340,12 +341,6 @@ def test_get_map_data():
     )
     expected_linelists = (
         (
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
             "def adipiscing(elit):",
             'etiam = "id"',
             'dictum = "purus,"',
@@ -354,26 +349,21 @@ def test_get_map_data():
             'nec = "ornare"',
             'tortor = "sit"',
             "return etiam, dictum, vitae, neque, nec, tortor",
-            "",
-            "",
             "class Amet:",
             "def similar_function_3_lines(self, tellus):",
             "agittis = 10",
             "tellus *= 300",
             "return agittis, tellus",
-            "",
             "def lorem(self, ipsum):",
             'dolor = "sit"',
             'amet = "consectetur"',
             "return (lorem, dolor, amet)",
-            "",
             "def similar_function_5_lines(self, similar):",
             "some_var = 10",
             "someother_var *= 300",
             'fusce = "sit"',
             'amet = "tortor"',
             "return some_var, someother_var, fusce, amet",
-            "",
             'def __init__(self, moleskie, lectus="Mauris", ac="pellentesque"):',
             'metus = "ut"',
             'lobortis = "urna."',
@@ -385,7 +375,6 @@ def test_get_map_data():
             'iaculis = "dolor"',
             'facilisis = "ultrices"',
             'vitae = "ut."',
-            "",
             "return (",
             "metus,",
             "lobortis,",
@@ -398,28 +387,18 @@ def test_get_map_data():
             "facilisis,",
             "vitae,",
             ")",
-            "",
             "def similar_function_3_lines(self, tellus):",
             "agittis = 10",
             "tellus *= 300",
             "return agittis, tellus",
         ),
         (
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
             "class Nulla:",
             'tortor = "ultrices quis porta in"',
             'sagittis = "ut tellus"',
-            "",
             "def pulvinar(self, blandit, metus):",
             "egestas = [mauris for mauris in zip(blandit, metus)]",
             "neque = (egestas, blandit)",
-            "",
             "def similar_function_5_lines(self, similar):",
             "some_var = 10",
             "someother_var *= 300",
@@ -427,14 +406,10 @@ def test_get_map_data():
             'amet = "tortor"',
             'iaculis = "dolor"',
             "return some_var, someother_var, fusce, amet, iaculis, iaculis",
-            "",
-            "",
             "def tortor(self):",
             "ultrices = 2",
             'quis = ultricies * "porta"',
             "return ultricies, quis",
-            "",
-            "",
             "class Commodo:",
             "def similar_function_3_lines(self, tellus):",
             "agittis = 10",
@@ -449,7 +424,7 @@ def test_get_map_data():
     # Manually perform a 'map' type function
     for source_fname in source_streams:
         sim = similar.SimilarChecker(linter)
-        with open(source_fname) as stream:
+        with open(source_fname, encoding="utf-8") as stream:
             sim.append_stream(source_fname, stream)
         # The map bit, can you tell? ;)
         data.extend(sim.get_map_data())
@@ -460,5 +435,5 @@ def test_get_map_data():
     ):
         assert source_fname == lineset_obj.name
         # There doesn't seem to be a faster way of doing this, yet.
-        lines = (line for idx, line in lineset_obj.enumerate_stripped())
+        lines = (linespec.text for linespec in lineset_obj.stripped_lines)
         assert tuple(expected_lines) == tuple(lines)

@@ -48,5 +48,5 @@ issue labelled as blocker.
 
 #### Whatsnew
 
-If it's a minor release, create a new `What's new in Pylint X.Y+1` document. Take a look
-at the examples from `doc/whatsnew`.
+If it's a minor release, create a new `What's new in Pylint X.Y+1` document. Add it to
+`doc/index.rst`. Take a look at the examples from `doc/whatsnew`.

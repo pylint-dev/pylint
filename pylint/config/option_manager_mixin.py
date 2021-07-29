@@ -267,7 +267,7 @@ class OptionsManagerMixIn:
             parser = self.cfgfile_parser
 
             if config_file.endswith(".toml"):
-                with open(config_file) as fp:
+                with open(config_file, encoding="utf-8") as fp:
                     content = toml.load(fp)
 
                 try:

@@ -151,7 +151,7 @@ def test_suppress_in_exit_stack():
     """Regression test for issue #4654 (false positive)"""
     with contextlib.ExitStack() as stack:
         _ = stack.enter_context(
-            open("/sys/firmware/devicetree/base/hwid,location", "r")
+            open("/sys/firmware/devicetree/base/hwid,location", "r", encoding="utf-8")
         )  # must not trigger
 
 
