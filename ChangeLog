@@ -49,7 +49,6 @@ Release date: TBA
   * Extended ``consider-using-tuple`` check to cover ``in`` comparisons.
 
 
-
 What's New in Pylint 2.9.6?
 ===========================
 Release date: 2021-07-28
