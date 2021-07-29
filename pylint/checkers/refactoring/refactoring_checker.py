@@ -1476,7 +1476,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if isinstance(inferred, astroid.ClassDef) and not node.args:
                 if inferred.qname() == "builtins.list":
                     self.add_message("use-list-literal", node=node)
-                if inferred.qname() == "builtins.dict" and not node.keywords:
+                elif inferred.qname() == "builtins.dict" and not node.keywords:
                     self.add_message("use-dict-literal", node=node)
 
     def _check_consider_using_join(self, aug_assign):
