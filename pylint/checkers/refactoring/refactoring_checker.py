@@ -413,6 +413,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "value by index lookup. "
             "The value can be accessed directly instead.",
         ),
+        "R1734": (
+            "Consider using [] instead of list()",
+            "use-list-literal",
+            "Emitted when using list() to create an empty list instead of the literal []. "
+            "The literal is faster as it avoids an additional function call.",
+        ),
+        "R1735": (
+            "Consider using {} instead of dict()",
+            "use-dict-literal",
+            "Emitted when using dict() to create an empty dictionary instead of the literal {}. "
+            "The literal is faster as it avoids an additional function call.",
+        ),
     }
     options = (
         (
@@ -943,7 +955,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[1:-1]
                 call_name = node.func.name
-                if call_name in ["any", "all"]:
+                if call_name in ("any", "all"):
                     self.add_message(
                         "use-a-generator",
                         node=node,
@@ -964,6 +976,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "super-with-arguments",
         "consider-using-generator",
         "consider-using-with",
+        "use-list-literal",
+        "use-dict-literal",
     )
     def visit_call(self, node):
         self._check_raising_stopiteration_in_generator_next_call(node)
@@ -972,6 +986,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_super_with_arguments(node)
         self._check_consider_using_generator(node)
         self._check_consider_using_with(node)
+        self._check_use_list_or_dict_literal(node)
 
     @staticmethod
     def _has_exit_in_scope(scope):
@@ -1453,6 +1468,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         if could_be_used_in_with and not _will_be_released_automatically(node):
             self.add_message("consider-using-with", node=node)
+
+    def _check_use_list_or_dict_literal(self, node: astroid.Call) -> None:
+        """Check if empty list or dict is created by using the literal [] or {}"""
+        if node.as_string() in ("list()", "dict()"):
+            inferred = utils.safe_infer(node.func)
+            if isinstance(inferred, astroid.ClassDef) and not node.args:
+                if inferred.qname() == "builtins.list":
+                    self.add_message("use-list-literal", node=node)
+                elif inferred.qname() == "builtins.dict" and not node.keywords:
+                    self.add_message("use-dict-literal", node=node)
 
     def _check_consider_using_join(self, aug_assign):
         """

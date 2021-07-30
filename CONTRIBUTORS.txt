@@ -518,6 +518,12 @@ contributors:
 * Marco Gorelli: contributor
   - Documented Jupyter integration
 
+* Rebecca Turner (9999years): contributor
+
 * Yilei Yang: contributor
 
 * Marcin Kurczewski (rr-): contributor
+
+* Eisuke Kawashima (e-kwsm): contributor
+
+* Daniel van Noord (DanielNoord): contributor

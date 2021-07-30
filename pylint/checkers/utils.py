@@ -502,7 +502,7 @@ def parse_format_string(
     IncompleteFormatString or UnsupportedFormatCharacter if a
     parse error occurs."""
     keys = set()
-    key_types = dict()
+    key_types = {}
     pos_types = []
     num_args = 0
 

@@ -46,7 +46,7 @@ POSSIBLE_DOT_FILENAMES = ["foo.dot", "foo.gv", "tests/regrtest_data/foo.dot"]
 def test_dependencies_graph(dest):
     """DOC files are correctly generated, and the graphname is the basename"""
     imports._dependencies_graph(dest, {"labas": ["hoho", "yep"], "hoho": ["yep"]})
-    with open(dest) as stream:
+    with open(dest, encoding="utf-8") as stream:
         assert (
             stream.read().strip()
             == """

@@ -12,6 +12,29 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added ``unspecified-encoding``: Emitted when open() is called without specifying an encoding
+
+  Closes #3826
+
+* Added ``use-list-literal``: Emitted when ``list()`` is called with no arguments instead of using ``[]``
+
+  Closes #4365
+
+* Added ``use-dict-literal``: Emitted when ``dict()`` is called with no arguments instead of using ``{}``
+
+  Closes #4365
+
+* Added ``forgotten-debug-statement``: Emitted when ``breakpoint``, ``pdb.set_trace`` or ``sys.breakpointhook`` calls are found
+
+  Closes #3692
+
+
+Extensions
+==========
+
+* ``CodeStyleChecker``
+
+  * Extended ``consider-using-tuple`` check to cover ``in`` comparisons.
 
 
 Other Changes
@@ -19,4 +42,15 @@ Other Changes
 
 * Pyreverse - Show class has-a relationships inferred from type-hints
 
+* Performance of the Similarity checker has been improved.
+
 * Added ``time.clock`` to deprecated functions/methods for python 3.3
+
+* Added ``ignored-parents`` option to the design checker to ignore specific
+  classes from the ``too-many-ancestors`` check (R0901).
+
+* Don't emit ``no-member`` error if guarded behind if statement.
+
+  Ref #1162
+  Closes #1990
+  Closes #4168

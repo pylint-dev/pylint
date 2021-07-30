@@ -23,6 +23,7 @@
 import os
 import subprocess
 import sys
+from typing import Iterable
 
 from pylint.config import ConfigurationMixIn
 from pylint.pyreverse import writer
@@ -192,10 +193,10 @@ class Run(ConfigurationMixIn):
 
     options = OPTIONS  # type: ignore
 
-    def __init__(self, args):
+    def __init__(self, args: Iterable[str]):
         ConfigurationMixIn.__init__(self, usage=__doc__)
         insert_default_options()
-        args = self.load_command_line_configuration()
+        args = self.load_command_line_configuration(args)
         if self.config.output_format not in ("dot", "vcg"):
             _check_graphviz_available(self.config.output_format)
 

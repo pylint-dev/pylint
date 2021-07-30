@@ -2,6 +2,7 @@
 Pylint's ChangeLog
 ------------------
 
+
 What's New in Pylint 2.10.0?
 ============================
 Release date: TBA
@@ -12,14 +13,58 @@ Closes #4744
 
 ..
   Put new features here and also in 'doc/whatsnew/2.10.rst'
+..
+  Put bug fixes that should not wait for a new minor version here
+
+* Added ``ignored-parents`` option to the design checker to ignore specific
+  classes from the ``too-many-ancestors`` check (R0901).
+
+  Partially closes #3057
+
+* Added ``unspecified-encoding``: Emitted when open() is called without specifying an encoding
+
+  Closes #3826
+
+* Improved the Similarity checker performance. Fix issue with ``--min-similarity-lines`` used with ``--jobs``.
+
+  Close #4120
+  Close #4118
+
+* Don't emit ``no-member`` error if guarded behind if statement.
+
+  Ref #1162
+  Closes #1990
+  Closes #4168
+
+* The default for ``PYLINTHOME`` is now the standard ``XDG_CACHE_HOME``, and pylint now uses ``appdirs``.
+
+  Closes #3878
+
+* Added ``use-list-literal``: Emitted when ``list()`` is called with no arguments instead of using ``[]``
+
+  Closes #4365
+
+* Added ``use-dict-literal``: Emitted when ``dict()`` is called with no arguments instead of using ``{}``
+
+  Closes #4365
+
+* ``CodeStyleChecker``
+
+  * Extended ``consider-using-tuple`` check to cover ``in`` comparisons.
+
+* Added ``forgotten-debug-statement``: Emitted when ``breakpoint``, ``pdb.set_trace`` or ``sys.breakpointhook`` calls are found
+
+  Closes #3692
 
 
 What's New in Pylint 2.9.6?
 ===========================
-Release date: TBA
+Release date: 2021-07-28
 
-..
-  Put bug fixes that should not wait for a new minor version here
+* Fix a false positive ``undefined-variable`` when variable name in decoration
+  matches function argument
+
+  Closes #3791
 
 
 What's New in Pylint 2.9.5?

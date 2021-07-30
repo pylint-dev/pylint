@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, use-list-literal, use-dict-literal
 import collections
 
 HEHE = {}

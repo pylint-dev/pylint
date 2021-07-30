@@ -571,7 +571,9 @@ class PyLinter(
                     (reporter_output,) = reporter_output
 
                     # pylint: disable=consider-using-with
-                    output_file = stack.enter_context(open(reporter_output, "w"))
+                    output_file = stack.enter_context(
+                        open(reporter_output, "w", encoding="utf-8")
+                    )
 
                     reporter.set_output(output_file)
                     output_files.append(output_file)
@@ -617,8 +619,9 @@ class PyLinter(
                 except KeyError:
                     meth = self._bw_options_methods[optname]
                     warnings.warn(
-                        "%s is deprecated, replace it by %s"
-                        % (optname, optname.split("-")[0]),
+                        "{} is deprecated, replace it by {}".format(
+                            optname, optname.split("-")[0]
+                        ),
                         DeprecationWarning,
                     )
                 value = utils._check_csv(value)
@@ -714,7 +717,7 @@ class PyLinter(
     def disable_noerror_messages(self):
         for msgcat, msgids in self.msgs_store._msgs_by_category.items():
             # enable only messages with 'error' severity and above ('fatal')
-            if msgcat in ["E", "F"]:
+            if msgcat in ("E", "F"):
                 for msgid in msgids:
                     self.enable(msgid)
             else:
