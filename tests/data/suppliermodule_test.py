@@ -8,3 +8,5 @@ class Interface:
         raise NotImplementedError
 
 class DoNothing: pass
+
+class DoNothing2: pass
