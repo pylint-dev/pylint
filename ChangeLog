@@ -7,10 +7,6 @@ What's New in Pylint 2.10.0?
 ============================
 Release date: TBA
 
-* pyreverse: Show class has-a relationships inferred from the type-hint
-
-Closes #4744
-
 ..
   Put new features here and also in 'doc/whatsnew/2.10.rst'
 ..
