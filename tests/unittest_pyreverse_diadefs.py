@@ -99,6 +99,7 @@ class TestDefaultDiadefGenerator:
     _should_rels = [
         ("association", "DoNothing", "Ancestor"),
         ("association", "DoNothing", "Specialization"),
+        ("association", "DoNothing2", "Specialization"),
         ("implements", "Ancestor", "Interface"),
         ("specialization", "Specialization", "Ancestor"),
     ]
@@ -142,6 +143,7 @@ def test_known_values1(HANDLER, PROJECT):
     assert classes == [
         (True, "Ancestor"),
         (True, "DoNothing"),
+        (True, "DoNothing2"),
         (True, "Interface"),
         (True, "Specialization"),
     ]
@@ -170,6 +172,7 @@ def test_known_values3(HANDLER, PROJECT):
         (True, "data.clientmodule_test.Ancestor"),
         (True, special),
         (True, "data.suppliermodule_test.DoNothing"),
+        (True, "data.suppliermodule_test.DoNothing2"),
     ]
 
 
@@ -184,6 +187,7 @@ def test_known_values4(HANDLER, PROJECT):
     assert classes == [
         (True, "Ancestor"),
         (True, "DoNothing"),
+        (True, "DoNothing2"),
         (True, "Specialization"),
     ]
 

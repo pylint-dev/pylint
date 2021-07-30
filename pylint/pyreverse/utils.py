@@ -269,9 +269,9 @@ def infer_node(node: Union[astroid.AssignAttr, astroid.AssignName]) -> set:
     otherwise return a set of the inferred types using the NodeNG.infer method"""
 
     ann = get_annotation(node)
-    if ann:
-        return {ann}
     try:
+        if ann:
+            return set(ann.infer())
         return set(node.infer())
     except astroid.InferenceError:
-        return set()
+        return {ann} if ann else set()
