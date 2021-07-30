@@ -16,6 +16,10 @@ Closes #4744
 ..
   Put bug fixes that should not wait for a new minor version here
 
+* pyreverse: Show class has-a relationships inferred from the type-hint
+
+Closes #4744
+
 * Added ``ignored-parents`` option to the design checker to ignore specific
   classes from the ``too-many-ancestors`` check (R0901).
 
