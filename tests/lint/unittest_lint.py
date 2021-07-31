@@ -643,7 +643,7 @@ def test_pylint_home():
             assert config.PYLINT_HOME == pylintd
         finally:
             try:
-                os.remove(pylintd)
+                rmtree(pylintd)
             except FileNotFoundError:
                 pass
     finally:
