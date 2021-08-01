@@ -3,3 +3,7 @@ superfluous-parens:7:0::Unnecessary parens after 'not' keyword
 superfluous-parens:11:0::Unnecessary parens after 'for' keyword
 superfluous-parens:13:0::Unnecessary parens after 'if' keyword
 superfluous-parens:18:0::Unnecessary parens after 'del' keyword
+superfluous-parens:21:0::Unnecessary parens after 'in' keyword
+superfluous-parens:23:0::Unnecessary parens after 'else' keyword
+superfluous-parens:24:0::Unnecessary parens after 'else' keyword
+superfluous-parens:28:0::Unnecessary parens after 'in' keyword

@@ -1,0 +1,2 @@
+superfluous-parens:6:0::Unnecessary parens after 'not' keyword
+superfluous-parens:9:0::Unnecessary parens after 'not' keyword
