@@ -104,7 +104,8 @@ k = Klass()
 print(k.twentyone)
 print(k.ninetyfive)
 
-
+# https://github.com/PyCQA/pylint/issues/4657
+# Mutation of class member with cls should not fire a false-positive
 class FalsePositive4657:
     """False positivie tests for 4657"""
     __attr_a = None
@@ -137,8 +138,8 @@ class FalsePositive4657:
         return cls.__attr_c  # [undefined-variable]
 
 
-# Test cases for false-positive reported in #4668
 # https://github.com/PyCQA/pylint/issues/4668
+# Attributes assigned within __new__() has to be processed as part of the class
 class FalsePositive4668:
     # pylint: disable=protected-access, no-member, unreachable
 
@@ -153,6 +154,7 @@ class FalsePositive4668:
         false_obj.func = func
         false_obj.__args = args  # Do not emit message here
         false_obj.__secret_bool = False
+        false_obj.__unused = None  # [unused-private-member]
         return false_obj
         # unreachable but non-Name return value
         return 3+4
@@ -162,8 +164,8 @@ class FalsePositive4668:
         return self.func(*self.__args)
 
 
-# Test cases for false-positive reported in #4673
 # https://github.com/PyCQA/pylint/issues/4673
+# Nested functions shouldn't cause a false positive if they are properly used
 class FalsePositive4673:
     """ The testing class """
 
@@ -201,3 +203,41 @@ class FalsePositive4673:
 
         fn_to_return = __inner_1 if flag else __inner_3(__inner_2)
         return fn_to_return
+
+
+# https://github.com/PyCQA/pylint/issues/4755
+# Nested attributes shouldn't cause crash
+class Crash4755Context:
+    def __init__(self):
+        self.__messages = None  # [unused-private-member]
+
+class Crash4755Command:
+    def __init__(self):
+        self.context = Crash4755Context()
+
+    def method(self):
+        self.context.__messages = []
+        for message in self.context.__messages:
+            print(message)
+
+
+# https://github.com/PyCQA/pylint/issues/4681
+# Accessing attributes of the class using the class name should not result in a false positive
+# as long as it is used within the class
+class FalsePositive4681:
+    __instance = None
+    __should_cause_error = None  # [unused-private-member]
+    @staticmethod
+    def instance():
+        if FalsePositive4681.__instance is None:
+            FalsePositive4681()
+        return FalsePositive4681.__instance
+
+    def __init__(self):
+        try:
+            FalsePositive4681.__instance = 42  # This should be fine
+            FalsePositive4681.__should_cause_error = True  # [unused-private-member]
+        except Exception:  # pylint: disable=broad-except
+            print("Error")
+            FalsePositive4681.__instance = False  # This should be fine
+            FalsePositive4681.__should_cause_error = False  # [unused-private-member]
