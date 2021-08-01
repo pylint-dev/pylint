@@ -60,6 +60,10 @@ Release date: TBA
 
   Closes #4673
 
+* Fix a false positive for ``unused-private-member`` with class names
+
+  Closes #4681
+
 
 What's New in Pylint 2.9.6?
 ===========================

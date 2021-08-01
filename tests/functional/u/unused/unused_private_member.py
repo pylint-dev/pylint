@@ -201,3 +201,25 @@ class FalsePositive4673:
 
         fn_to_return = __inner_1 if flag else __inner_3(__inner_2)
         return fn_to_return
+
+
+# https://github.com/PyCQA/pylint/issues/4681
+# Accessing attributes of the class using the class name should not result in a false positive
+# as long as it is used within the class
+class FalsePositive4681:
+    __instance = None
+    __should_cause_error = None  # [unused-private-member]
+    @staticmethod
+    def instance():
+        if FalsePositive4681.__instance is None:
+            FalsePositive4681()
+        return FalsePositive4681.__instance
+
+    def __init__(self):
+        try:
+            FalsePositive4681.__instance = 42  # This should be fine
+            FalsePositive4681.__should_cause_error = True  # [unused-private-member]
+        except Exception:  # pylint: disable=broad-except
+            print("Error")
+            FalsePositive4681.__instance = False  # This should be fine
+            FalsePositive4681.__should_cause_error = False  # [unused-private-member]

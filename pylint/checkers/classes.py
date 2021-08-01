@@ -974,6 +974,7 @@ a metaclass class method.",
 
     def _check_unused_private_attributes(self, node: astroid.ClassDef) -> None:
         for assign_attr in node.nodes_of_class(astroid.AssignAttr):
+            assign_attr = cast(astroid.AssignAttr, assign_attr)
             if not is_attr_private(assign_attr.attrname):
                 continue
 
@@ -992,20 +993,29 @@ a metaclass class method.",
                 )
 
             for attribute in node.nodes_of_class(astroid.Attribute):
-                if attribute.attrname == assign_attr.attrname and (
-                    (
-                        # If assigned to cls.attrib, can be accessed by cls/self
-                        assign_attr.expr.name == "cls"
-                        and attribute.expr.name in ("cls", "self")
-                    )
+                attribute = cast(astroid.Attribute, attribute)
+                if attribute.attrname != assign_attr.attrname:
+                    continue
+
+                if assign_attr.expr.name == "cls" and attribute.expr.name in (
+                    "cls",
+                    "self",
+                ):
+                    # If assigned to cls.attrib, can be accessed by cls/self
+                    break
+
+                if (
+                    assign_attr.expr.name in acceptable_obj_names
+                    and attribute.expr.name == "self"
+                ):
                     # If assigned to self.attrib, can only be accessed by self
                     # Or if __new__ was used, the returned object names are acceptable
-                    or (
-                        assign_attr.expr.name in acceptable_obj_names
-                        and attribute.expr.name == "self"
-                    )
-                ):
                     break
+
+                if assign_attr.expr.name == attribute.expr.name == node.name:
+                    # Recognise attributes which are accessed via the class name
+                    break
+
             else:
                 args = (node.name, assign_attr.attrname)
                 self.add_message("unused-private-member", node=assign_attr, args=args)
