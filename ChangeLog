@@ -60,6 +60,13 @@ Release date: TBA
 
   Closes #4673
 
+* Fix false positives for ``superfluous-parens`` with walrus operator, ternary operator and inside list comprehension.
+
+  Closes #2818
+  Closes #3249
+  Closes #3608
+  Closes #4346
+
 
 What's New in Pylint 2.9.6?
 ===========================

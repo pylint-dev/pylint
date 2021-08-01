@@ -54,3 +54,10 @@ Other Changes
   Ref #1162
   Closes #1990
   Closes #4168
+
+* Fix false positives for ``superfluous-parens`` with walrus operator, ternary operator and inside list comprehension.
+
+  Closes #2818
+  Closes #3249
+  Closes #3608
+  Closes #4346
