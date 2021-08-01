@@ -60,6 +60,10 @@ Release date: TBA
 
   Closes #4673
 
+* Fix crash for ``unused-private-member`` that occurred with nested attributes.
+
+  Closes #4755
+
 * Fix a false positive for ``unused-private-member`` with class names
 
   Closes #4681
