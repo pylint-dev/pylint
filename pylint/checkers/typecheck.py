@@ -42,6 +42,7 @@
 # Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
+# Copyright (c) 2021 doranid <ddandd@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 # Copyright (c) 2021 Andrew Haigh <nelfin@gmail.com>
@@ -453,6 +454,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         * the owner is a class and the name can be found in its metaclass.
         * The access node is protected by an except handler, which handles
           AttributeError, Exception or bare except.
+        * The node is guarded behind and `IF` or `IFExp` node
     """
     # pylint: disable=too-many-return-statements
     if node_ignores_exception(node, AttributeError):
@@ -516,11 +518,35 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         and isinstance(owner.parent, astroid.ClassDef)
         and owner.parent.name == "EnumMeta"
         and owner_name == "__members__"
-        and node.attrname in ["items", "values", "keys"]
+        and node.attrname in ("items", "values", "keys")
     ):
         # Avoid false positive on Enum.__members__.{items(), values, keys}
         # See https://github.com/PyCQA/pylint/issues/4123
         return False
+    # Don't emit no-member if guarded behind `IF` or `IFExp`
+    #   * Walk up recursively until if statement is found.
+    #   * Check if condition can be inferred as `Const`,
+    #       would evaluate as `False`,
+    #       and wheater the node is part of the `body`.
+    #   * Continue checking until scope of node is reached.
+    scope: astroid.NodeNG = node.scope()
+    node_origin: astroid.NodeNG = node
+    parent: astroid.NodeNG = node.parent
+    while parent != scope:
+        if isinstance(parent, (astroid.If, astroid.IfExp)):
+            inferred = safe_infer(parent.test)
+            if (  # pylint: disable=too-many-boolean-expressions
+                isinstance(inferred, astroid.Const)
+                and inferred.bool_value() is False
+                and (
+                    isinstance(parent, astroid.If)
+                    and node_origin in parent.body
+                    or isinstance(parent, astroid.IfExp)
+                    and node_origin == parent.body
+                )
+            ):
+                return False
+        node_origin, parent = parent, parent.parent
 
     return True
 
@@ -1755,7 +1781,7 @@ accessed. Python regular expressions are accepted.",
             return
 
         op, right = node.ops[0]
-        if op in ["in", "not in"]:
+        if op in ("in", "not in"):
             self._check_membership_test(right)
 
     @check_messages(

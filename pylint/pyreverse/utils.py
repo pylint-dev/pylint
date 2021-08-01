@@ -35,7 +35,7 @@ def get_default_options():
     if home:
         rcfile = os.path.join(home, RCFILE)
         try:
-            with open(rcfile) as file_handle:
+            with open(rcfile, encoding="utf-8") as file_handle:
                 options = file_handle.read().split()
         except OSError:
             pass  # ignore if no config file found
@@ -269,9 +269,9 @@ def infer_node(node: Union[astroid.AssignAttr, astroid.AssignName]) -> set:
     otherwise return a set of the inferred types using the NodeNG.infer method"""
 
     ann = get_annotation(node)
-    if ann:
-        return {ann}
     try:
+        if ann:
+            return set(ann.infer())
         return set(node.infer())
     except astroid.InferenceError:
-        return set()
+        return {ann} if ann else set()

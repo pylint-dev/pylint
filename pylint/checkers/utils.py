@@ -42,6 +42,7 @@
 # Copyright (c) 2020 Slavfox <slavfoxman@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 
@@ -501,7 +502,7 @@ def parse_format_string(
     IncompleteFormatString or UnsupportedFormatCharacter if a
     parse error occurs."""
     keys = set()
-    key_types = dict()
+    key_types = {}
     pos_types = []
     num_args = 0
 

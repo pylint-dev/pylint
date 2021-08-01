@@ -1,5 +1,5 @@
 """ docstring for file clientmodule.py """
-from data.suppliermodule_test import Interface, DoNothing
+from data.suppliermodule_test import Interface, DoNothing, DoNothing2
 
 class Ancestor:
     """ Ancestor method """
@@ -23,7 +23,8 @@ class Specialization(Ancestor):
     TYPE = 'final class'
     top = 'class'
 
-    def __init__(self, value, _id):
+    def __init__(self, value, _id, relation2: DoNothing2):
         Ancestor.__init__(self, value)
         self._id = _id
         self.relation = DoNothing()
+        self.relation2 = relation2

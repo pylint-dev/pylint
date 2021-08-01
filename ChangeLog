@@ -2,22 +2,99 @@
 Pylint's ChangeLog
 ------------------
 
+
 What's New in Pylint 2.10.0?
 ============================
 Release date: TBA
 
 ..
   Put new features here and also in 'doc/whatsnew/2.10.rst'
+..
+  Put bug fixes that should not wait for a new minor version here
 
-* Added ``time.clock`` to deprecated functions/methods for python 3.3
+* pyreverse: Show class has-a relationships inferred from the type-hint
+
+  Closes #4744
+
+* Added ``ignored-parents`` option to the design checker to ignore specific
+  classes from the ``too-many-ancestors`` check (R0901).
+
+  Partially closes #3057
+
+* Added ``unspecified-encoding``: Emitted when open() is called without specifying an encoding
+
+  Closes #3826
+
+* Improved the Similarity checker performance. Fix issue with ``--min-similarity-lines`` used with ``--jobs``.
+
+  Close #4120
+  Close #4118
+
+* Don't emit ``no-member`` error if guarded behind if statement.
+
+  Ref #1162
+  Closes #1990
+  Closes #4168
+
+* The default for ``PYLINTHOME`` is now the standard ``XDG_CACHE_HOME``, and pylint now uses ``appdirs``.
+
+  Closes #3878
+
+* Added ``use-list-literal``: Emitted when ``list()`` is called with no arguments instead of using ``[]``
+
+  Closes #4365
+
+* Added ``use-dict-literal``: Emitted when ``dict()`` is called with no arguments instead of using ``{}``
+
+  Closes #4365
+
+* ``CodeStyleChecker``
+
+  * Extended ``consider-using-tuple`` check to cover ``in`` comparisons.
+
+* Added ``forgotten-debug-statement``: Emitted when ``breakpoint``, ``pdb.set_trace`` or ``sys.breakpointhook`` calls are found
+
+  Closes #3692
+
+* Fix false-positive of ``unused-private-member`` when using nested functions in a class
+
+  Closes #4673
+
+
+What's New in Pylint 2.9.6?
+===========================
+Release date: 2021-07-28
+
+* Fix a false positive ``undefined-variable`` when variable name in decoration
+  matches function argument
+
+  Closes #3791
+
+
+What's New in Pylint 2.9.5?
+===========================
+Release date: 2021-07-21
+
+* Fix a crash when there would be a 'TypeError object does not support
+  item assignment' in the code we parse.
+
+  Closes #4439
+
+* Fix crash if a callable returning a context manager was assigned to a list or dict item
+
+  Closes #4732
+
+* Fix a crash when a AttributeInferenceError was not handled properly when
+  failing to infer the real name of an import in astroid.
+
+  Closes #4692
 
 
 What's New in Pylint 2.9.4?
 ===========================
-Release date: TBA
+Release date: 2021-07-20
 
-..
-  Put bug fixes that should not wait for a new minor version here
+* Added ``time.clock`` to deprecated functions/methods for python 3.3
 
 * Fix bug in which --fail-on can return a zero exit code even when the specified issue is present
 
@@ -81,6 +158,11 @@ Release date: TBA
 * Fix false-positive of ``unused-private-member`` when using ``__new__`` in a class
 
   Closes #4668
+
+* No longer emit ``consider-using-with`` for ``ThreadPoolExecutor`` and ``ProcessPoolExecutor``
+  as they have legitimate use cases without a ``with`` block.
+
+  Closes #4689
 
 * Fix crash when inferring variables assigned in match patterns
 

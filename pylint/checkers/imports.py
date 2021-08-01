@@ -35,8 +35,9 @@
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
+# Copyright (c) 2021 Will Shanks <wsha@posteo.net>
 # Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
+# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 # Copyright (c) 2021 Andrew Howe <howeaj@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

@@ -39,6 +39,7 @@
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Ashley Whetter <ashleyw@activestate.com>
+# Copyright (c) 2021 Marcin Kurczewski <rr-@sakuya.pl>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
@@ -1006,9 +1007,12 @@ class VariablesChecker(BaseChecker):
             # variable used outside the loop
             # avoid the case where there are homonyms inside function scope and
             # comprehension current scope (avoid bug #1731)
-            if name in current_consumer.consumed and not (
-                current_consumer.scope_type == "comprehension"
-                and self._has_homonym_in_upper_function_scope(node, i)
+            if name in current_consumer.consumed and (
+                utils.is_func_decorator(current_consumer.node)
+                or not (
+                    current_consumer.scope_type == "comprehension"
+                    and self._has_homonym_in_upper_function_scope(node, i)
+                )
             ):
                 defnode = utils.assign_parent(current_consumer.consumed[name][0])
                 self._check_late_binding_closure(node, defnode)

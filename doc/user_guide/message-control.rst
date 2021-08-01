@@ -178,3 +178,11 @@ Here's an example with all these rules in a single place:
             # no error
             print(self.bla)
             print(self.blop)
+
+
+Detecting useless disables
+--------------------------
+
+When pylint get better and false positives are removed,
+disable that became useless can accumulate and clutter the code.
+In order to clean them you can enable the ``useless-suppression`` warning.

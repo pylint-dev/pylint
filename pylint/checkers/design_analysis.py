@@ -25,6 +25,7 @@
 
 import re
 from collections import defaultdict
+from typing import FrozenSet, List, Set, cast
 
 import astroid
 from astroid import nodes
@@ -237,6 +238,35 @@ def _count_methods_in_class(node):
     return all_methods
 
 
+def _get_parents(
+    node: nodes.ClassDef, ignored_parents: FrozenSet[str]
+) -> Set[nodes.ClassDef]:
+    r"""Get parents of ``node``, excluding ancestors of ``ignored_parents``.
+
+    If we have the following inheritance diagram:
+
+             F
+            /
+        D  E
+         \/
+          B  C
+           \/
+            A      # class A(B, C): ...
+
+    And ``ignored_parents`` is ``{"E"}``, then this function will return
+    ``{A, B, C, D}`` -- both ``E`` and its ancestors are excluded.
+    """
+    parents: Set[nodes.ClassDef] = set()
+    to_explore = cast(List[nodes.ClassDef], list(node.ancestors(recurs=False)))
+    while to_explore:
+        parent = to_explore.pop()
+        if parent.qname() in ignored_parents:
+            continue
+        parents.add(parent)
+        to_explore.extend(parent.ancestors(recurs=False))  # type: ignore
+    return parents
+
+
 class MisdesignChecker(BaseChecker):
     """checks for sign of poor/misdesign:
     * number of methods, attributes, local variables...
@@ -305,6 +335,15 @@ class MisdesignChecker(BaseChecker):
                 "type": "int",
                 "metavar": "<num>",
                 "help": "Maximum number of parents for a class (see R0901).",
+            },
+        ),
+        (
+            "ignored-parents",
+            {
+                "default": (),
+                "type": "csv",
+                "metavar": "<comma separated list of class names>",
+                "help": "List of qualified class names to ignore when countint class parents (see R0901)",
             },
         ),
         (
@@ -379,11 +418,10 @@ class MisdesignChecker(BaseChecker):
     )
     def visit_classdef(self, node: nodes.ClassDef):
         """check size of inheritance hierarchy and number of instance attributes"""
-        nb_parents = sum(
-            1
-            for ancestor in node.ancestors()
-            if ancestor.qname() not in STDLIB_CLASSES_IGNORE_ANCESTOR
+        parents = _get_parents(
+            node, STDLIB_CLASSES_IGNORE_ANCESTOR.union(self.config.ignored_parents)
         )
+        nb_parents = len(parents)
         if nb_parents > self.config.max_parents:
             self.add_message(
                 "too-many-ancestors",

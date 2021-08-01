@@ -1,4 +1,13 @@
-consider-using-tuple:9:9::Consider using an in-place tuple instead of list
-consider-using-tuple:14:12::Consider using an in-place tuple instead of list
-consider-using-tuple:15:12::Consider using an in-place tuple instead of set
-consider-using-tuple:19:12::Consider using an in-place tuple instead of list
+consider-using-tuple:9:9::Consider using an in-place tuple instead of list:HIGH
+consider-using-tuple:14:12::Consider using an in-place tuple instead of list:HIGH
+consider-using-tuple:15:12::Consider using an in-place tuple instead of set:HIGH
+consider-using-tuple:19:12::Consider using an in-place tuple instead of list:HIGH
+consider-using-tuple:36:5::Consider using an in-place tuple instead of list:HIGH
+consider-using-tuple:42:8::Consider using an in-place tuple instead of list:HIGH
+consider-using-tuple:44:8::Consider using an in-place tuple instead of set:HIGH
+consider-using-tuple:47:11::Consider using an in-place tuple instead of list:HIGH
+consider-using-tuple:48:12::Consider using an in-place tuple instead of list:HIGH
+consider-using-tuple:49:24::Consider using an in-place tuple instead of list:HIGH
+consider-using-tuple:50:11::Consider using an in-place tuple instead of list:HIGH
+consider-using-tuple:55:13::Consider using an in-place tuple instead of list:HIGH
+consider-using-tuple:56:10::Consider using an in-place tuple instead of list:HIGH

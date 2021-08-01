@@ -33,10 +33,10 @@ def main() -> None:
     logging.debug(f"Launching bump_changelog with args: {args}")
     if "dev" in args.version:
         return
-    with open(DEFAULT_CHANGELOG_PATH) as f:
+    with open(DEFAULT_CHANGELOG_PATH, encoding="utf-8") as f:
         content = f.read()
     content = transform_content(content, args.version)
-    with open(DEFAULT_CHANGELOG_PATH, "w") as f:
+    with open(DEFAULT_CHANGELOG_PATH, "w", encoding="utf-8") as f:
         f.write(content)
 
 
@@ -136,7 +136,7 @@ def do_checks(content, next_version, version, version_type):
     wn_next_version = get_whats_new(next_version)
     wn_this_version = get_whats_new(version)
     # There is only one field where the release date is TBA
-    if version_type in [VersionType.MAJOR, VersionType.MINOR]:
+    if version_type in (VersionType.MAJOR, VersionType.MINOR):
         assert (
             content.count(RELEASE_DATE_TEXT) <= 1
         ), f"There should be only one release date 'TBA' ({version}) {err}"

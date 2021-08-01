@@ -24,6 +24,7 @@
 # Copyright (c) 2020 Pieter Engelbrecht <pengelbrecht@rems2.com>
 # Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Mark Bell <mark00bell@googlemail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Dr. Nick <das-intensity@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
@@ -552,7 +553,7 @@ class TestRunTC:
             # create module under directories which have the same name as reporter.path_strip_prefix
             # e.g. /src/some/path/src/test_target.py when reporter.path_strip_prefix = /src/
             os.makedirs(fake_path)
-            with open(module, "w") as test_target:
+            with open(module, "w", encoding="utf-8") as test_target:
                 test_target.write("a,b = object()")
 
             self._test_output(

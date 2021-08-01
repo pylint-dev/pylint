@@ -128,7 +128,7 @@ def test_multi_format_output(tmp_path):
         linter.reporter.close_output_files()
         del linter.reporter
 
-    with open(json) as f:
+    with open(json, encoding="utf-8") as f:
         assert (
             f.read() == "[\n"
             "    {\n"

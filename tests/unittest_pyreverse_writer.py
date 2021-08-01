@@ -234,3 +234,21 @@ def test_infer_node_2(mock_infer, mock_get_annotation):
     mock_infer.return_value = "x"
     assert infer_node(node) == set("x")
     assert mock_infer.called
+
+
+def test_infer_node_3():
+    """Return a set containing an astroid.ClassDef object when the attribute
+    has a type annotation"""
+    node = astroid.extract_node(
+        """
+        class Component:
+            pass
+
+        class Composite:
+            def __init__(self, component: Component):
+                self.component = component
+    """
+    )
+    instance_attr = node.instance_attrs.get("component")[0]
+    assert isinstance(infer_node(instance_attr), set)
+    assert isinstance(infer_node(instance_attr).pop(), astroid.ClassDef)

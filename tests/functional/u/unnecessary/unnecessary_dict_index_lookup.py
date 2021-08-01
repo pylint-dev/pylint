@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring, too-few-public-methods, expression-not-assigned, line-too-long
 
-a_dict = dict()
-b_dict = dict()
+a_dict = {}
+b_dict = {}
 
 for k, v in a_dict.items():
     print(a_dict[k])  # [unnecessary-dict-index-lookup]

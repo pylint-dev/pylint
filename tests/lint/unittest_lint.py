@@ -46,6 +46,7 @@ from os import chdir, getcwd
 from os.path import abspath, basename, dirname, isdir, join, sep
 from shutil import rmtree
 
+import appdirs
 import pytest
 
 from pylint import checkers, config, exceptions, interfaces, lint, testutils
@@ -156,7 +157,7 @@ def create_files(paths, chroot="."):
         if not isdir(dirpath):
             os.makedirs(dirpath)
     for filepath in files:
-        with open(filepath, "w"):
+        with open(filepath, "w", encoding="utf-8"):
             pass
 
 
@@ -631,7 +632,7 @@ def test_pylint_home():
     if uhome == "~":
         expected = ".pylint.d"
     else:
-        expected = os.path.join(uhome, ".pylint.d")
+        expected = appdirs.user_cache_dir("pylint")
     assert config.PYLINT_HOME == expected
 
     try:
@@ -642,7 +643,7 @@ def test_pylint_home():
             assert config.PYLINT_HOME == pylintd
         finally:
             try:
-                os.remove(pylintd)
+                rmtree(pylintd)
             except FileNotFoundError:
                 pass
     finally:
