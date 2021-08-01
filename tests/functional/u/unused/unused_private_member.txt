@@ -5,8 +5,9 @@ unused-private-member:20:4:HasUnusedInClass.__private_static_method_unused:Unuse
 unused-private-member:28:8:HasUnusedInClass.__init__:Unused private member `HasUnusedInClass.__instance_secret`:HIGH
 unused-private-member:34:4:HasUnusedInClass.__test:Unused private member `HasUnusedInClass.__test(self, x, y, z)`:HIGH
 unused-private-member:55:4:HasUnusedInClass.__test_recursive:Unused private member `HasUnusedInClass.__test_recursive(self)`:HIGH
-unused-private-member:132:8:FalsePositive4657.__init__:Unused private member `FalsePositive4657.__attr_c`:HIGH
-undefined-variable:137:15:FalsePositive4657.attr_c:Undefined variable 'cls':HIGH
-unused-private-member:179:8:FalsePositive4673.do_thing.__true_positive:Unused private member `FalsePositive4673.do_thing.__true_positive(in_thing)`:HIGH
-unused-private-member:199:8:FalsePositive4673.complicated_example.__inner_4:Unused private member `FalsePositive4673.complicated_example.__inner_4()`:HIGH
-unused-private-member:210:8:Crash4755Context.__init__:Unused private member `Crash4755Context.__messages`:HIGH
+unused-private-member:133:8:FalsePositive4657.__init__:Unused private member `FalsePositive4657.__attr_c`:HIGH
+undefined-variable:138:15:FalsePositive4657.attr_c:Undefined variable 'cls':HIGH
+unused-private-member:157:8:FalsePositive4668.__new__:Unused private member `FalsePositive4668.__unused`:HIGH
+unused-private-member:181:8:FalsePositive4673.do_thing.__true_positive:Unused private member `FalsePositive4673.do_thing.__true_positive(in_thing)`:HIGH
+unused-private-member:201:8:FalsePositive4673.complicated_example.__inner_4:Unused private member `FalsePositive4673.complicated_example.__inner_4()`:HIGH
+unused-private-member:212:8:Crash4755Context.__init__:Unused private member `Crash4755Context.__messages`:HIGH

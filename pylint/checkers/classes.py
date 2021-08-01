@@ -978,6 +978,7 @@ a metaclass class method.",
                 assign_attr.expr, astroid.Name
             ):
                 continue
+
             # Logic for checking false positive when using __new__,
             # Get the returned object names of the __new__ magic function
             # Then check if the attribute was consumed in other instance methods

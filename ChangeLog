@@ -60,7 +60,7 @@ Release date: TBA
 
   Closes #4673
 
-* Fix crash for ``unused-private-member`` that occurs when there is a presence of nested attributes
+* Fix crash for ``unused-private-member`` that occurred with nested attributes.
 
   Closes #4755
 
