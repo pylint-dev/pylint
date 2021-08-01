@@ -7,3 +7,5 @@ unused-private-member:34:4:HasUnusedInClass.__test:Unused private member `HasUnu
 unused-private-member:55:4:HasUnusedInClass.__test_recursive:Unused private member `HasUnusedInClass.__test_recursive(self)`:HIGH
 unused-private-member:132:8:FalsePositive4657.__init__:Unused private member `FalsePositive4657.__attr_c`:HIGH
 undefined-variable:137:15:FalsePositive4657.attr_c:Undefined variable 'cls':HIGH
+unused-private-member:179:8:FalsePositive4673.do_thing.__true_positive:Unused private member `FalsePositive4673.do_thing.__true_positive(in_thing)`:HIGH
+unused-private-member:199:8:FalsePositive4673.complicated_example.__inner_4:Unused private member `FalsePositive4673.complicated_example.__inner_4()`:HIGH

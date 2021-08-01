@@ -909,6 +909,13 @@ a metaclass class method.",
             function_def = cast(astroid.FunctionDef, function_def)
             if not is_attr_private(function_def.name):
                 continue
+            parent_scope = function_def.parent.scope()
+            if isinstance(parent_scope, astroid.FunctionDef):
+                # Handle nested functions
+                if function_def.name in (
+                    n.name for n in parent_scope.nodes_of_class(astroid.Name)
+                ):
+                    continue
             for attribute in node.nodes_of_class(astroid.Attribute):
                 attribute = cast(astroid.Attribute, attribute)
                 if (
@@ -931,11 +938,19 @@ a metaclass class method.",
                     ):
                         break
             else:
-                function_repr = f"{function_def.name}({function_def.args.as_string()})"
+                name_stack = []
+                curr = parent_scope
+                # Generate proper names for nested functions
+                while curr != node:
+                    name_stack.append(curr.name)
+                    curr = curr.parent.scope()
+
+                outer_level_names = f"{'.'.join(reversed(name_stack))}"
+                function_repr = f"{outer_level_names}.{function_def.name}({function_def.args.as_string()})"
                 self.add_message(
                     "unused-private-member",
                     node=function_def,
-                    args=(node.name, function_repr),
+                    args=(node.name, function_repr.lstrip(".")),
                 )
 
     def _check_unused_private_variables(self, node: astroid.ClassDef) -> None:

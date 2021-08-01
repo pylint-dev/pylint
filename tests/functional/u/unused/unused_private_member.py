@@ -160,3 +160,44 @@ class FalsePositive4668:
     def exec(self):
         print(self.__secret_bool)
         return self.func(*self.__args)
+
+
+# Test cases for false-positive reported in #4673
+# https://github.com/PyCQA/pylint/issues/4673
+class FalsePositive4673:
+    """ The testing class """
+
+    def __init__(self, in_thing):
+        self.thing = False
+        self.do_thing(in_thing)
+
+    def do_thing(self, in_thing):
+        """ Checks the false-positive condition, sets a property. """
+        def __false_positive(in_thing):
+            print(in_thing)
+
+        def __true_positive(in_thing):  # [unused-private-member]
+            print(in_thing)
+
+        __false_positive(in_thing)
+        self.thing = True
+
+    def undo_thing(self):
+        """ Unsets a property. """
+        self.thing = False
+
+    def complicated_example(self, flag):
+        def __inner_1():
+            pass
+
+        def __inner_2():
+            pass
+
+        def __inner_3(fn):
+            return fn
+
+        def __inner_4():  # [unused-private-member]
+            pass
+
+        fn_to_return = __inner_1 if flag else __inner_3(__inner_2)
+        return fn_to_return
