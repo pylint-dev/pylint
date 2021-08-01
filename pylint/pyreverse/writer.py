@@ -26,15 +26,10 @@ from pylint.pyreverse.diagrams import (
     PackageDiagram,
     PackageEntity,
 )
-from pylint.pyreverse.printer import (
-    DotPrinter,
-    EdgeType,
-    Layout,
-    NodeProperties,
-    NodeType,
-    VCGPrinter,
-)
+from pylint.pyreverse.dot_printer import DotPrinter
+from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType
 from pylint.pyreverse.utils import get_annotation_label, is_exception
+from pylint.pyreverse.vcgutils import VCGPrinter
 
 
 class DiagramWriter:
