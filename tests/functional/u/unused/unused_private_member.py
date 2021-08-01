@@ -201,3 +201,19 @@ class FalsePositive4673:
 
         fn_to_return = __inner_1 if flag else __inner_3(__inner_2)
         return fn_to_return
+
+
+# Test cases for crash reported in #4755
+# https://github.com/PyCQA/pylint/issues/4755
+class Crash4755Context:
+    def __init__(self):
+        self.__messages = None  # [unused-private-member]
+
+class Crash4755Command:
+    def __init__(self):
+        self.context = Crash4755Context()
+
+    def method(self):
+        self.context.__messages = []
+        for message in self.context.__messages:
+            print(message)

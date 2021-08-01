@@ -60,6 +60,10 @@ Release date: TBA
 
   Closes #4673
 
+* Fix crash for ``unused-private-member`` that occurs when there is a presence of nested attributes
+
+  Closes #4755
+
 
 What's New in Pylint 2.9.6?
 ===========================

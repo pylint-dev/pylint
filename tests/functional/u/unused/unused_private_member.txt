@@ -9,3 +9,4 @@ unused-private-member:132:8:FalsePositive4657.__init__:Unused private member `Fa
 undefined-variable:137:15:FalsePositive4657.attr_c:Undefined variable 'cls':HIGH
 unused-private-member:179:8:FalsePositive4673.do_thing.__true_positive:Unused private member `FalsePositive4673.do_thing.__true_positive(in_thing)`:HIGH
 unused-private-member:199:8:FalsePositive4673.complicated_example.__inner_4:Unused private member `FalsePositive4673.complicated_example.__inner_4()`:HIGH
+unused-private-member:210:8:Crash4755Context.__init__:Unused private member `Crash4755Context.__messages`:HIGH

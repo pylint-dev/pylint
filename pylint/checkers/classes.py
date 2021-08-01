@@ -974,9 +974,10 @@ a metaclass class method.",
 
     def _check_unused_private_attributes(self, node: astroid.ClassDef) -> None:
         for assign_attr in node.nodes_of_class(astroid.AssignAttr):
-            if not is_attr_private(assign_attr.attrname):
+            if not is_attr_private(assign_attr.attrname) or not isinstance(
+                assign_attr.expr, astroid.Name
+            ):
                 continue
-
             # Logic for checking false positive when using __new__,
             # Get the returned object names of the __new__ magic function
             # Then check if the attribute was consumed in other instance methods
