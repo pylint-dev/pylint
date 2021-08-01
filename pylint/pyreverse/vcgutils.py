@@ -194,12 +194,6 @@ class VCGPrinter(Printer):
         self._indent = ""
         super().__init__(title, layout, use_automatic_namespace)
 
-    def _inc_indent(self) -> None:
-        self._indent += "  "
-
-    def _dec_indent(self) -> None:
-        self._indent = self._indent[:-2]
-
     def _open_graph(self) -> None:
         """Emit the header lines"""
         self.emit(f"{self._indent}graph:{{\n")
@@ -214,6 +208,11 @@ class VCGPrinter(Printer):
         )
         if self.layout:
             self._write_attributes(GRAPH_ATTRS, orientation=ORIENTATION[self.layout])
+
+    def _close_graph(self) -> None:
+        """Emit the lines needed to properly close the graph."""
+        self._dec_indent()
+        self.emit(f"{self._indent}}}")
 
     def emit_node(
         self,
@@ -275,7 +274,10 @@ class VCGPrinter(Printer):
                     f"value {value} isn't correct for attribute {key} correct values are {type}"
                 )
 
-    def _close_graph(self) -> None:
-        """Emit the lines needed to properly close the graph."""
-        self._dec_indent()
-        self.emit(f"{self._indent}}}")
+    def _inc_indent(self):
+        """increment indentation"""
+        self._indent += "  "
+
+    def _dec_indent(self):
+        """decrement indentation"""
+        self._indent = self._indent[:-2]
