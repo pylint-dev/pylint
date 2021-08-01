@@ -6,6 +6,7 @@
 """
 Base class defining the interface for a printer.
 """
+from abc import ABC, abstractmethod
 from enum import Enum
 from typing import List, NamedTuple, Optional
 
@@ -37,7 +38,7 @@ class NodeProperties(NamedTuple):
     body: Optional[str] = None
 
 
-class Printer:
+class Printer(ABC):
     """Base class defining the interface for a printer"""
 
     def __init__(
@@ -52,15 +53,16 @@ class Printer:
         self.lines: List[str] = []
         self._open_graph()
 
+    @abstractmethod
     def _open_graph(self) -> None:
-        """Emit the header lines"""
-        raise NotImplementedError
+        """Emit the header lines, i.e. all boilerplate code that defines things like layout etc."""
 
     def emit(self, line: str, force_newline: Optional[bool] = True) -> None:
         if force_newline and not line.endswith("\n"):
             line += "\n"
         self.lines.append(line)
 
+    @abstractmethod
     def emit_node(
         self,
         name: str,
@@ -68,8 +70,8 @@ class Printer:
         properties: Optional[NodeProperties] = None,
     ) -> None:
         """Create a new node. Nodes can be classes, packages, participants etc."""
-        raise NotImplementedError
 
+    @abstractmethod
     def emit_edge(
         self,
         from_node: str,
@@ -78,7 +80,6 @@ class Printer:
         label: Optional[str] = None,
     ) -> None:
         """Create an edge from one node to another to display relationships."""
-        raise NotImplementedError
 
     def generate(self, outputfile: str) -> None:
         """Generate and save the final outputfile."""
@@ -86,6 +87,6 @@ class Printer:
         with open(outputfile, "w", encoding="utf-8") as outfile:
             outfile.writelines(self.lines)
 
+    @abstractmethod
     def _close_graph(self) -> None:
         """Emit the lines needed to properly close the graph."""
-        raise NotImplementedError
