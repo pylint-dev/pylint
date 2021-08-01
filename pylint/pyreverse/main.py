@@ -21,7 +21,6 @@
   create UML diagrams for classes and modules in <packages>
 """
 import os
-import subprocess
 import sys
 from typing import Iterable
 
@@ -29,7 +28,7 @@ from pylint.config import ConfigurationMixIn
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
-from pylint.pyreverse.utils import insert_default_options
+from pylint.pyreverse.utils import check_graphviz_availability, insert_default_options
 
 OPTIONS = (
     (
@@ -175,19 +174,6 @@ this disables -f values",
 )
 
 
-def _check_graphviz_available(output_format):
-    """check if we need graphviz for different output format"""
-    try:
-        subprocess.call(["dot", "-V"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except OSError:
-        print(
-            "The output format '%s' is currently not available.\n"
-            "Please install 'Graphviz' to have other output formats "
-            "than 'dot' or 'vcg'." % output_format
-        )
-        sys.exit(32)
-
-
 class Run(ConfigurationMixIn):
     """base class providing common behaviour for pyreverse commands"""
 
@@ -198,7 +184,7 @@ class Run(ConfigurationMixIn):
         insert_default_options()
         args = self.load_command_line_configuration(args)
         if self.config.output_format not in ("dot", "vcg"):
-            _check_graphviz_available(self.config.output_format)
+            check_graphviz_availability()
 
         sys.exit(self.run(args))
 

@@ -7,7 +7,6 @@
 Class to generate files in dot format and image formats supported by Graphviz.
 """
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -15,6 +14,7 @@ from pathlib import Path
 from typing import Dict, FrozenSet, Optional
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
+from pylint.pyreverse.utils import check_graphviz_availability
 
 ALLOWED_CHARSETS: FrozenSet[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
 SHAPES: Dict[NodeType, str] = {
@@ -29,12 +29,6 @@ ARROWS: Dict[EdgeType, Dict] = {
         fontcolor="green", arrowtail="none", arrowhead="diamond", style="solid"
     ),
     EdgeType.USES: dict(arrowtail="none", arrowhead="open"),
-}
-RANKDIR: Dict[Layout, str] = {
-    Layout.LEFT_TO_RIGHT: "LR",
-    Layout.RIGHT_TO_LEFT: "RL",
-    Layout.TOP_TO_BOTTOM: "TB",
-    Layout.BOTTOM_TO_TOP: "BT",
 }
 
 
@@ -53,7 +47,7 @@ class DotPrinter(Printer):
         """Emit the header lines"""
         self.emit(f'digraph "{self.title}" {{')
         if self.layout:
-            self.emit(f"rankdir={RANKDIR[self.layout]}")
+            self.emit(f"rankdir={self.layout.value}")
         if self.charset:
             assert (
                 self.charset.lower() in ALLOWED_CHARSETS
@@ -122,19 +116,13 @@ class DotPrinter(Printer):
         with open(dot_sourcepath, "w", encoding="utf8") as outfile:
             outfile.writelines(self.lines)
         if target not in graphviz_extensions:
-            if shutil.which("dot") is None:
-                raise RuntimeError(
-                    f"Cannot generate `{outputfile}` because 'dot' "
-                    "executable not found. Install graphviz, or specify a `.gv` "
-                    "outputfile to produce the DOT source code."
-                )
+            check_graphviz_availability()
             use_shell = sys.platform == "win32"
             subprocess.call(
                 ["dot", "-T", target, dot_sourcepath, "-o", outputfile],
                 shell=use_shell,
             )
             os.unlink(dot_sourcepath)
-        # return outputfile  TODO should we return this?
 
     def _close_graph(self) -> None:
         """Emit the lines needed to properly close the graph."""

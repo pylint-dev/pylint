@@ -18,6 +18,9 @@
 """Utilities for creating VCG and Dot diagrams"""
 
 import os
+from typing import List
+
+import astroid
 
 from pylint.pyreverse.diagrams import (
     ClassDiagram,
@@ -57,12 +60,12 @@ class DiagramWriter:
     def write_packages(self, diagram: PackageDiagram) -> None:
         """write a package diagram"""
         # sorted to get predictable (hence testable) results
-        for obj in sorted(diagram.modules(), key=lambda x: x.title):
-            obj.fig_id = obj.node.qname()
+        for module in sorted(diagram.modules(), key=lambda x: x.title):
+            module.fig_id = module.node.qname()
             self.printer.emit_node(
-                obj.fig_id,
+                module.fig_id,
                 type_=NodeType.PACKAGE,
-                properties=self.get_package_properties(obj),
+                properties=self.get_package_properties(module),
             )
         # package dependencies
         for rel in diagram.get_relationships("depends"):
@@ -158,14 +161,14 @@ class DotWriter(DiagramWriter):
                 )
 
                 if func.args.args:
-                    argument_list = [
+                    arguments: List[astroid.AssignName] = [
                         arg for arg in func.args.args if arg.name != "self"
                     ]
                 else:
-                    argument_list = []
+                    arguments = []
 
-                annotations = dict(zip(argument_list, func.args.annotations[1:]))
-                for arg in argument_list:
+                annotations = dict(zip(arguments, func.args.annotations[1:]))
+                for arg in arguments:
                     annotation_label = ""
                     ann = annotations.get(arg)
                     if ann:
