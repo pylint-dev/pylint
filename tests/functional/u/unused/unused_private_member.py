@@ -104,7 +104,6 @@ k = Klass()
 print(k.twentyone)
 print(k.ninetyfive)
 
-
 # https://github.com/PyCQA/pylint/issues/4657
 # Mutation of class member with cls should not fire a false-positive
 class FalsePositive4657:
