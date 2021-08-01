@@ -992,6 +992,7 @@ a metaclass class method.",
                 )
 
             for attribute in node.nodes_of_class(astroid.Attribute):
+                # pylint: disable=too-many-boolean-expressions
                 if attribute.attrname == assign_attr.attrname and (
                     (
                         # If assigned to cls.attrib, can be accessed by cls/self
@@ -1004,6 +1005,7 @@ a metaclass class method.",
                         assign_attr.expr.name in acceptable_obj_names
                         and attribute.expr.name == "self"
                     )
+                    or (assign_attr.expr.name == attribute.expr.name == node.name)
                 ):
                     break
             else:

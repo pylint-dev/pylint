@@ -201,3 +201,22 @@ class FalsePositive4673:
 
         fn_to_return = __inner_1 if flag else __inner_3(__inner_2)
         return fn_to_return
+
+
+# Test cases for false-positive reported in #4681
+# https://github.com/PyCQA/pylint/issues/4681
+class FalsePositive4681:
+    __instance = None
+
+    @staticmethod
+    def instance():
+        if FalsePositive4681.__instance is None:
+            FalsePositive4681()
+        return FalsePositive4681.__instance
+
+    def __init__(self):
+        try:
+            FalsePositive4681.__instance = 42  # This should be fine
+        except Exception:  # pylint: disable=broad-except
+            print("Error")
+            FalsePositive4681.__instance = False  # This should be fine
