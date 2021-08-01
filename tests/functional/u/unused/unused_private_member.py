@@ -220,7 +220,7 @@ class Crash4755Command:
         for message in self.context.__messages:
             print(message)
 
-            
+
 # https://github.com/PyCQA/pylint/issues/4681
 # Accessing attributes of the class using the class name should not result in a false positive
 # as long as it is used within the class
