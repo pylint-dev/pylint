@@ -946,16 +946,11 @@ a metaclass class method.",
                     curr = curr.parent.scope()
 
                 outer_level_names = f"{'.'.join(reversed(name_stack))}"
-
+                function_repr = f"{outer_level_names}.{function_def.name}({function_def.args.as_string()})"
                 self.add_message(
                     "unused-private-member",
                     node=function_def,
-                    args=(
-                        node.name,
-                        f"{outer_level_names}.{function_def.name}({function_def.args.as_string()})".lstrip(
-                            "."
-                        ),
-                    ),
+                    args=(node.name, function_repr.lstrip(".")),
                 )
 
     def _check_unused_private_variables(self, node: astroid.ClassDef) -> None:
