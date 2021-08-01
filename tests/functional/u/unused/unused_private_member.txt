@@ -11,10 +11,6 @@ unused-private-member:157:8:FalsePositive4668.__new__:Unused private member `Fal
 unused-private-member:181:8:FalsePositive4673.do_thing.__true_positive:Unused private member `FalsePositive4673.do_thing.__true_positive(in_thing)`:HIGH
 unused-private-member:201:8:FalsePositive4673.complicated_example.__inner_4:Unused private member `FalsePositive4673.complicated_example.__inner_4()`:HIGH
 unused-private-member:212:8:Crash4755Context.__init__:Unused private member `Crash4755Context.__messages`:HIGH
-unused-private-member:132:8:FalsePositive4657.__init__:Unused private member `FalsePositive4657.__attr_c`:HIGH
-undefined-variable:137:15:FalsePositive4657.attr_c:Undefined variable 'cls':HIGH
-unused-private-member:179:8:FalsePositive4673.do_thing.__true_positive:Unused private member `FalsePositive4673.do_thing.__true_positive(in_thing)`:HIGH
-unused-private-member:199:8:FalsePositive4673.complicated_example.__inner_4:Unused private member `FalsePositive4673.complicated_example.__inner_4()`:HIGH
-unused-private-member:211:4:FalsePositive4681:Unused private member `FalsePositive4681.__should_cause_error`:HIGH
-unused-private-member:221:12:FalsePositive4681.__init__:Unused private member `FalsePositive4681.__should_cause_error`:HIGH
-unused-private-member:225:12:FalsePositive4681.__init__:Unused private member `FalsePositive4681.__should_cause_error`:HIGH
+unused-private-member:229:4:FalsePositive4681:Unused private member `FalsePositive4681.__should_cause_error`:HIGH
+unused-private-member:239:12:FalsePositive4681.__init__:Unused private member `FalsePositive4681.__should_cause_error`:HIGH
+unused-private-member:243:12:FalsePositive4681.__init__:Unused private member `FalsePositive4681.__should_cause_error`:HIGH
