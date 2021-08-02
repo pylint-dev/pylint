@@ -198,26 +198,22 @@ class TestSuperfluousParentheses(CheckerTestCase):
         """Parenthesis change the meaning of assignment in the walrus operator
         and so are not always superfluous:"""
         cases = [
-            ("if (odd := is_odd(i))", 0),
-            ("not (foo := 5)", 0),
+            ("if (odd := is_odd(i))\n"),
+            ("not (foo := 5)\n"),
         ]
-        for code, offset in cases:
+        for code in cases:
             with self.assertNoMessages():
-                self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
+                self.checker.process_tokens(_tokenize_str(code))
 
     def testPositiveSuperfluousParensWalrusOperatorIf(self):
         """Test positive superfluous parens cases with the walrus operator"""
         cases = [
-            (Message("superfluous-parens", line=1, args="if"), "if ((x := y)):", 0),
-            (
-                Message("superfluous-parens", line=1, args="not"),
-                "if not ((x := y)):",
-                0,
-            ),
+            (Message("superfluous-parens", line=1, args="if"), "if ((x := y)):\n"),
+            (Message("superfluous-parens", line=1, args="not"), "if not ((x := y)):\n"),
         ]
-        for msg, code, offset in cases:
+        for msg, code in cases:
             with self.assertAddsMessages(msg):
-                self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
+                self.checker.process_tokens(_tokenize_str(code))
 
     def testCheckIfArgsAreNotUnicode(self):
         cases = [("if (foo):", 0), ("assert (1 == 1)", 0)]
