@@ -545,36 +545,55 @@ scope_type : {self._atomic.scope_type}
     def scope_type(self):
         return self._atomic.scope_type
 
-    def mark_as_consumed(self, name, new_node):
+    def mark_as_consumed(self, name, consumed_nodes):
         """
-        Mark the name as consumed and delete it from
+        Mark the given nodes as consumed for the name.
+        If all of the nodes for the name were consumed, delete the name from
         the to_consume dictionary
         """
-        self.consumed[name] = new_node
-        del self.to_consume[name]
+        unconsumed = [n for n in self.to_consume[name] if n not in set(consumed_nodes)]
+        self.consumed[name] = consumed_nodes
+
+        if unconsumed:
+            self.to_consume[name] = unconsumed
+        else:
+            del self.to_consume[name]
 
     def get_next_to_consume(self, node):
-        # Get the definition of `node` from this scope
+        """
+        Return a list of the nodes that define `node` from this scope.
+        Return None to indicate a special case that needs to be handled by the caller.
+        """
         name = node.name
         parent_node = node.parent
-        found_node = self.to_consume.get(name)
+        found_nodes = self.to_consume.get(name)
         if (
-            found_node
+            found_nodes
             and isinstance(parent_node, astroid.Assign)
-            and parent_node == found_node[0].parent
+            and parent_node == found_nodes[0].parent
         ):
-            lhs = found_node[0].parent.targets[0]
+            lhs = found_nodes[0].parent.targets[0]
             if lhs.name == name:  # this name is defined in this very statement
-                found_node = None
+                found_nodes = None
 
         if (
-            found_node
+            found_nodes
             and isinstance(parent_node, astroid.For)
             and parent_node.iter == node
-            and parent_node.target in found_node
+            and parent_node.target in found_nodes
         ):
-            found_node = None
-        return found_node
+            found_nodes = None
+
+        # Filter out assignments in ExceptHandlers that node is not contained in
+        if found_nodes:
+            found_nodes = [
+                n
+                for n in found_nodes
+                if not isinstance(n.statement(), astroid.ExceptHandler)
+                or n.statement().parent_of(node)
+            ]
+
+        return found_nodes
 
 
 # pylint: disable=too-many-public-methods
@@ -943,6 +962,7 @@ class VariablesChecker(BaseChecker):
     def visit_delname(self, node):
         self.visit_name(node)
 
+    # pylint: disable=too-many-branches
     def visit_name(self, node):
         """Check that a name is defined in the current scope"""
         stmt = node.statement()
@@ -1019,12 +1039,17 @@ class VariablesChecker(BaseChecker):
                 self._loopvar_name(node, name)
                 break
 
-            found_node = current_consumer.get_next_to_consume(node)
-            if found_node is None:
+            found_nodes = current_consumer.get_next_to_consume(node)
+            if found_nodes is None:
                 continue
 
             # checks for use before assignment
-            defnode = utils.assign_parent(current_consumer.to_consume[name][0])
+            if found_nodes:
+                defnode = utils.assign_parent(found_nodes[0])
+            else:
+                defnode = None
+                if used_before_assignment_is_enabled:
+                    self.add_message("used-before-assignment", args=name, node=node)
 
             if (
                 undefined_variable_is_enabled or used_before_assignment_is_enabled
@@ -1156,7 +1181,7 @@ class VariablesChecker(BaseChecker):
                         elif current_consumer.scope_type == "lambda":
                             self.add_message("undefined-variable", node=node, args=name)
 
-            current_consumer.mark_as_consumed(name, found_node)
+            current_consumer.mark_as_consumed(name, found_nodes)
             # check it's not a loop variable used outside the loop
             self._loopvar_name(node, name)
             break
