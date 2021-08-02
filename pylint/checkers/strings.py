@@ -929,9 +929,7 @@ class StringConstantChecker(BaseTokenChecker):
             if inner_matches:
                 for match in inner_matches:
                     # Check if match is a local or global variable
-                    if match := node.scope().locals.get(
-                        match
-                    ) or node.root().locals.get(match):
+                    if node.scope().locals.get(match) or node.root().locals.get(match):
                         assign_node = node
                         while not isinstance(assign_node, astroid.Assign):
                             assign_node = assign_node.parent
