@@ -206,8 +206,8 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "in which case it can be either a normal string or a bug in the code.",
     ),
     "W1310": (
-        "Using an string which should probably be a f-string",
-        "possible-f-string-as-string",
+        "The %s syntax imply an f-string but the leading 'f' is missing",
+        "possible-forgotten-f-prefix"
         "Used when we detect a string that uses '{}' with a local variable inside. "
         "This string is probably meant to be an f-string.",
     ),
@@ -901,7 +901,10 @@ class StringConstantChecker(BaseTokenChecker):
 
     @check_messages("possible-f-string-as-string")
     def visit_const(self, node: astroid.Const):
-        self._detect_possible_f_string(node)
+        if node.pytype() == "builtins.str" and not isinstance(
+            node.parent, astroid.JoinedStr
+        ):
+            self._detect_possible_f_string(node)
 
     def _detect_possible_f_string(self, node: astroid.Const):
         """Check whether strings include local/global variables in '{}'
@@ -929,7 +932,9 @@ class StringConstantChecker(BaseTokenChecker):
             if inner_matches:
                 for match in inner_matches:
                     # Check if match is a local or global variable
-                    if node.scope().locals.get(match) or node.root().locals.get(match):
+                    if not(node.scope().locals.get(match) or node.root().locals.get(match)):
+                        return
+                    ... 
                         assign_node = node
                         while not isinstance(assign_node, astroid.Assign):
                             assign_node = assign_node.parent
