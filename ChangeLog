@@ -68,6 +68,10 @@ Release date: TBA
 
   Closes #4681
 
+* Added ``possible-f-string-as-string``: Emitted when variables are used in normal strings in between "{}"
+
+  Closes #2507
+
 
 What's New in Pylint 2.9.6?
 ===========================

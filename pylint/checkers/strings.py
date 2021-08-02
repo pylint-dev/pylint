@@ -26,6 +26,7 @@
 # Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Peter Kolbus <peter.kolbus@garmin.com>
+# Copyright (c) 2021 Daniel van Noord <13665637+DanielNoord@users.noreply.github.com>
 
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -203,6 +204,12 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "f-string-without-interpolation",
         "Used when we detect an f-string that does not use any interpolation variables, "
         "in which case it can be either a normal string or a bug in the code.",
+    ),
+    "W1310": (
+        "Using an string which should probably be a f-string",
+        "possible-f-string-as-string",
+        "Used when we detect a string that uses '{}' with a local variable inside. "
+        "This string is probably meant to be an f-string.",
     ),
 }
 
@@ -891,6 +898,57 @@ class StringConstantChecker(BaseTokenChecker):
             # another character can always be consumed whole: the second
             # character can never be the start of a new backslash escape.
             index += 2
+
+    @check_messages("possible-f-string-as-string")
+    def visit_const(self, node: astroid.Const):
+        self._detect_possible_f_string(node)
+
+    def _detect_possible_f_string(self, node: astroid.Const):
+        """Check whether strings include local/global variables in '{}'
+        Those should probably be f-strings's
+        """
+
+        def detect_if_used_in_format(node: astroid.Const, assign_name: str) -> bool:
+            """Check if the node is used in a call to format() if so return True"""
+            # the skip_class is to make sure we don't go into inner scopes, but might not be needed per se
+            for attr in node.scope().nodes_of_class(
+                astroid.Attribute, skip_klass=(astroid.FunctionDef,)
+            ):
+                if isinstance(attr.expr, astroid.Name):
+                    if attr.expr.name == assign_name and attr.attrname == "format":
+                        return True
+            return False
+
+        if node.pytype() == "builtins.str" and not isinstance(
+            node.parent, astroid.JoinedStr
+        ):
+            # Find all pairs of '{}' within a string
+            inner_matches = re.findall(r"(?<=\{).*?(?=\})", node.value)
+            if len(inner_matches) != len(set(inner_matches)):
+                return
+            if inner_matches:
+                for match in inner_matches:
+                    # Check if match is a local or global variable
+                    if match := node.scope().locals.get(
+                        match
+                    ) or node.root().locals.get(match):
+                        assign_node = node
+                        while not isinstance(assign_node, astroid.Assign):
+                            assign_node = assign_node.parent
+                        if isinstance(assign_node.value, astroid.Tuple):
+                            node_index = assign_node.value.elts.index(node)
+                            assign_name = assign_node.targets[0].elts[node_index].name
+                        else:
+                            assign_name = assign_node.targets[0].name
+                        if not detect_if_used_in_format(node, assign_name):
+                            self.add_message(
+                                "possible-f-string-as-string",
+                                line=node.lineno,
+                                node=node,
+                            )
+                            return
+                    else:
+                        return
 
 
 def register(linter):

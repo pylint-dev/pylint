@@ -1,0 +1,3 @@
+possible-f-string-as-string:7:4::Using an string which should probably be a f-string:HIGH
+possible-f-string-as-string:8:4::Using an string which should probably be a f-string:HIGH
+possible-f-string-as-string:9:20::Using an string which should probably be a f-string:HIGH
