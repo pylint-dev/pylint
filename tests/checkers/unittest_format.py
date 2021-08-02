@@ -199,10 +199,7 @@ class TestSuperfluousParentheses(CheckerTestCase):
         and so are not always superfluous:"""
         cases = [
             ("if (odd := is_odd(i))", 0),
-            (
-                "not (foo := 5)",
-                0,
-            ),
+            ("not (foo := 5)", 0),
         ]
         for code, offset in cases:
             with self.assertNoMessages():

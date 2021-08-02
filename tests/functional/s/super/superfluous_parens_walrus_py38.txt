@@ -1,2 +1,5 @@
-superfluous-parens:6:0::Unnecessary parens after 'not' keyword
-superfluous-parens:9:0::Unnecessary parens after 'not' keyword
+superfluous-parens:6:0::Unnecessary parens after 'not' keyword:HIGH
+superfluous-parens:9:0::Unnecessary parens after 'not' keyword:HIGH
+undefined-variable:15:10::Undefined variable 'is_odd':HIGH
+superfluous-parens:20:0::Unnecessary parens after 'not' keyword:HIGH
+superfluous-parens:23:0::Unnecessary parens after 'if' keyword:HIGH
