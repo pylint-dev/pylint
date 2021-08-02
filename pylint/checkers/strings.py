@@ -207,7 +207,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     ),
     "W1310": (
         "The %s syntax imply an f-string but the leading 'f' is missing",
-        "possible-forgotten-f-prefix"
+        "possible-forgotten-f-prefix",
         "Used when we detect a string that uses '{}' with a local variable inside. "
         "This string is probably meant to be an f-string.",
     ),
@@ -899,7 +899,7 @@ class StringConstantChecker(BaseTokenChecker):
             # character can never be the start of a new backslash escape.
             index += 2
 
-    @check_messages("possible-f-string-as-string")
+    @check_messages("possible-forgotten-f-prefix")
     def visit_const(self, node: astroid.Const):
         if node.pytype() == "builtins.str" and not isinstance(
             node.parent, astroid.JoinedStr
@@ -932,24 +932,25 @@ class StringConstantChecker(BaseTokenChecker):
             if inner_matches:
                 for match in inner_matches:
                     # Check if match is a local or global variable
-                    if not(node.scope().locals.get(match) or node.root().locals.get(match)):
+                    if not (
+                        node.scope().locals.get(match) or node.root().locals.get(match)
+                    ):
                         return
-                    ...
-                        assign_node = node
-                        while not isinstance(assign_node, astroid.Assign):
-                            assign_node = assign_node.parent
-                        if isinstance(assign_node.value, astroid.Tuple):
-                            node_index = assign_node.value.elts.index(node)
-                            assign_name = assign_node.targets[0].elts[node_index].name
-                        else:
-                            assign_name = assign_node.targets[0].name
-                        if not detect_if_used_in_format(node, assign_name):
-                            self.add_message(
-                                "possible-f-string-as-string",
-                                line=node.lineno,
-                                node=node,
-                            )
-                            return
+                    assign_node = node
+                    while not isinstance(assign_node, astroid.Assign):
+                        assign_node = assign_node.parent
+                    if isinstance(assign_node.value, astroid.Tuple):
+                        node_index = assign_node.value.elts.index(node)
+                        assign_name = assign_node.targets[0].elts[node_index].name
+                    else:
+                        assign_name = assign_node.targets[0].name
+                    if not detect_if_used_in_format(node, assign_name):
+                        self.add_message(
+                            "possible-forgotten-f-prefix",
+                            line=node.lineno,
+                            node=node,
+                            args=(f"{{{match}}}",),
+                        )
                     else:
                         return
 

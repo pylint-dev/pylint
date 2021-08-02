@@ -68,7 +68,7 @@ Release date: TBA
 
   Closes #4681
 
-* Added ``possible-f-string-as-string``: Emitted when variables are used in normal strings in between "{}"
+* Added ``possible-forgotten-f-prefix``: Emitted when variables are used in normal strings in between "{}"
 
   Closes #2507
 

@@ -1,0 +1,4 @@
+possible-forgotten-f-prefix:7:4::The {var} syntax imply an f-string but the leading 'f' is missing:HIGH
+possible-forgotten-f-prefix:8:4::The {var_two} syntax imply an f-string but the leading 'f' is missing:HIGH
+possible-forgotten-f-prefix:8:4::The {var} syntax imply an f-string but the leading 'f' is missing:HIGH
+possible-forgotten-f-prefix:9:20::The {var} syntax imply an f-string but the leading 'f' is missing:HIGH
