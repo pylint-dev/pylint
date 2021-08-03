@@ -775,22 +775,23 @@ class PyLinter(
         self._python3_porting_mode = True
 
     def list_messages_enabled(self):
-        enabled = [
-            f"  {message.symbol} ({message.msgid})"
-            for message in self.msgs_store.messages
-            if self.is_message_enabled(message.msgid)
-        ]
-        disabled = [
-            f"  {message.symbol} ({message.msgid})"
-            for message in self.msgs_store.messages
-            if not self.is_message_enabled(message.msgid)
-        ]
+        emittable, non_emittable = self.msgs_store.find_emittable_messages()
+        enabled = []
+        disabled = []
+        for message in emittable:
+            if self.is_message_enabled(message.msgid):
+                enabled.append(f"  {message.symbol} ({message.msgid})")
+            else:
+                disabled.append(f"  {message.symbol} ({message.msgid})")
         print("Enabled messages:")
-        for msg in sorted(enabled):
+        for msg in enabled:
             print(msg)
         print("\nDisabled messages:")
-        for msg in sorted(disabled):
+        for msg in disabled:
             print(msg)
+        print("\nNon-emittable messages with current interpreter:")
+        for msg in non_emittable:
+            print(f"  {msg.symbol} ({msg.msgid})")
         print("")
 
     # block level option handling #############################################

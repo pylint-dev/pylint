@@ -75,6 +75,11 @@ Release date: TBA
   Closes #3608
   Closes #4346
 
+
+* Refactor of ``--list-msgs`` & ``--list-msgs-enabled``: both options now show whether messages are emittable with the current interpreter.
+
+  Closes #4778
+
 * Fix false negative for ``used-before-assignment`` when the variable is assigned
   in an exception handler, but used outside of the handler.
 
