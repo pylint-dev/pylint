@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
-from typing import Dict, List, ValuesView
+from typing import Dict, List, Tuple, ValuesView
 
 from pylint.exceptions import UnknownMessageError
 from pylint.message.message_definition import MessageDefinition
@@ -73,18 +73,25 @@ class MessageDefinitionStore:
 
     def list_messages(self) -> None:
         """Output full messages list documentation in ReST format."""
+        emittable, non_emittable = self.find_emittable_messages()
+        print("Emittable messages with current interpreter:")
+        for msg in emittable:
+            print(msg.format_help(checkerref=False))
+        print("\nNon-emittable messages with current interpreter:")
+        for msg in non_emittable:
+            print(msg.format_help(checkerref=False))
+        print("")
+
+    def find_emittable_messages(
+        self,
+    ) -> Tuple[List[MessageDefinition], List[MessageDefinition]]:
+        """Finds all emittable and non-emittable messages"""
         messages = sorted(self._messages_definitions.values(), key=lambda m: m.msgid)
         emittable = []
         non_emittable = []
         for message in messages:
             if message.may_be_emitted():
-                emittable.append(message.format_help(checkerref=False))
+                emittable.append(message)
             else:
-                non_emittable.append(message.format_help(checkerref=False))
-        print("Emittable messages with current interpreter:")
-        for msg in emittable:
-            print(msg)
-        print("\nNon-emittable messages with current interpreter:")
-        for msg in non_emittable:
-            print(msg)
-        print("")
+                non_emittable.append(message)
+        return emittable, non_emittable
