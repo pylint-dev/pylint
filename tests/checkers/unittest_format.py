@@ -184,11 +184,6 @@ class TestSuperfluousParentheses(CheckerTestCase):
                 "if (1) in (1, 2, 3):",
                 0,
             ),
-            (
-                Message("superfluous-parens", line=1, args="in"),
-                "return (x for x in ((3, 4)))",
-                0,
-            ),
         ]
         for msg, code, offset in cases:
             with self.assertAddsMessages(msg):
