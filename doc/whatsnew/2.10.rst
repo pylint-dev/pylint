@@ -61,3 +61,8 @@ Other Changes
   Closes #3249
   Closes #3608
   Closes #4346
+
+* Fix false negative for ``used-before-assignment`` when the variable is assigned
+  in an exception handler, but used outside of the handler.
+
+  Closes #626
