@@ -75,6 +75,10 @@ Release date: TBA
   Closes #3608
   Closes #4346
 
+* Refactor of ``--list-msgs`` & ``--list-msgs-enabled``: both options now show whether messages are emittable with the current interpreter.
+
+  Closes #4778
+
 
 What's New in Pylint 2.9.6?
 ===========================

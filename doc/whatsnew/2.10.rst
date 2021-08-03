@@ -61,3 +61,7 @@ Other Changes
   Closes #3249
   Closes #3608
   Closes #4346
+
+* Refactor of ``--list-msgs`` & ``--list-msgs-enabled``: both options now show whether messages are emittable with the current interpreter.
+
+  Closes #4778

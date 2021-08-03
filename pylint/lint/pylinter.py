@@ -775,21 +775,24 @@ class PyLinter(
         self._python3_porting_mode = True
 
     def list_messages_enabled(self):
-        enabled = [
-            f"  {message.symbol} ({message.msgid})"
-            for message in self.msgs_store.messages
-            if self.is_message_enabled(message.msgid)
-        ]
-        disabled = [
-            f"  {message.symbol} ({message.msgid})"
-            for message in self.msgs_store.messages
-            if not self.is_message_enabled(message.msgid)
-        ]
+        enabled = []
+        disabled = []
+        non_emittable = []
+        for message in self.msgs_store.messages:
+            if not message.may_be_emitted():
+                non_emittable.append(f"  {message.symbol} ({message.msgid})")
+            elif self.is_message_enabled(message.msgid):
+                enabled.append(f"  {message.symbol} ({message.msgid})")
+            else:
+                disabled.append(f"  {message.symbol} ({message.msgid})")
         print("Enabled messages:")
         for msg in sorted(enabled):
             print(msg)
         print("\nDisabled messages:")
         for msg in sorted(disabled):
+            print(msg)
+        print("\nNon-emittable messages with current interpreter:")
+        for msg in sorted(non_emittable):
             print(msg)
         print("")
 
