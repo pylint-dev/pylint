@@ -1,6 +1,6 @@
 """Test the superfluous-parens warning."""
 from __future__ import print_function
-# pylint: disable=unneeded-not, unnecessary-comprehension, missing-function-docstring, invalid-name
+# pylint: disable=unneeded-not, unnecessary-comprehension, missing-function-docstring, invalid-name, fixme
 A = 3
 if (A == 5):  # [superfluous-parens]
     pass
