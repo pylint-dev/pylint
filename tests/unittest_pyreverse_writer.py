@@ -11,6 +11,7 @@
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -31,7 +32,7 @@ import pytest
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.utils import get_annotation, get_visibility, infer_node
-from pylint.pyreverse.writer import DotWriter
+from pylint.pyreverse.writer import DotWriter, VCGWriter
 
 _DEFAULTS = {
     "all_ancestors": None,
@@ -82,30 +83,59 @@ def get_project(module, name="No Name"):
 
 
 DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
+VCG_FILES = ["packages_No_Name.vcg", "classes_No_Name.vcg"]
 
 
 @pytest.fixture(scope="module")
-def setup():
+def setup_dot():
+    config = Config()
+    writer = DotWriter(config)
+    yield from _setup(config, writer)
+
+
+@pytest.fixture(scope="module")
+def setup_vcg():
+    config = Config()
+    config.output_format = "vcg"
+    writer = VCGWriter(config)
+    yield from _setup(config, writer)
+
+
+def _setup(config, writer):
     project = get_project(os.path.join(os.path.dirname(__file__), "data"))
     linker = Linker(project)
-    CONFIG = Config()
-    handler = DiadefsHandler(CONFIG)
+    handler = DiadefsHandler(config)
     dd = DefaultDiadefGenerator(linker, handler).visit(project)
     for diagram in dd:
         diagram.extract_relationships()
-    writer = DotWriter(CONFIG)
     writer.write(dd)
     yield
-    for fname in DOT_FILES:
+    for fname in DOT_FILES + VCG_FILES:
         try:
             os.remove(fname)
         except FileNotFoundError:
             continue
 
 
-@pytest.mark.usefixtures("setup")
+@pytest.mark.usefixtures("setup_dot")
 @pytest.mark.parametrize("generated_file", DOT_FILES)
 def test_dot_files(generated_file):
+    expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)
+    generated = _file_lines(generated_file)
+    expected = _file_lines(expected_file)
+    generated = "\n".join(generated)
+    expected = "\n".join(expected)
+    files = f"\n *** expected : {expected_file}, generated : {generated_file} \n"
+    diff = "\n".join(
+        line for line in unified_diff(expected.splitlines(), generated.splitlines())
+    )
+    assert expected == generated, f"{files}{diff}"
+    os.remove(generated_file)
+
+
+@pytest.mark.usefixtures("setup_vcg")
+@pytest.mark.parametrize("generated_file", VCG_FILES)
+def test_vcg_files(generated_file):
     expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)
     generated = _file_lines(generated_file)
     expected = _file_lines(expected_file)

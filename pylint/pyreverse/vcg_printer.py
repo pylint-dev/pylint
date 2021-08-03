@@ -7,19 +7,21 @@
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Functions to generate files readable with Georg Sander's vcg
 (Visualization of Compiler Graphs).
-
 You can download vcg at https://rw4.cs.uni-sb.de/~sander/html/gshome.html
 Note that vcg exists as a debian package.
-
 See vcg's documentation for explanation about the different values that
 maybe used for the functions parameters.
 """
+from typing import Any, Dict, Mapping, Optional
+
+from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 
 ATTRS_VAL = {
     "algos": (
@@ -152,73 +154,129 @@ EDGE_ATTRS = {
     "anchor": 1,
     "horizontal_order": 1,
 }
-
+SHAPES: Dict[NodeType, str] = {
+    NodeType.PACKAGE: "box",
+    NodeType.CLASS: "box",
+    NodeType.INTERFACE: "ellipse",
+}
+ARROWS: Dict[EdgeType, Dict] = {
+    EdgeType.USES: dict(arrowstyle="solid", backarrowstyle="none", backarrowsize=0),
+    EdgeType.INHERITS: dict(
+        arrowstyle="solid", backarrowstyle="none", backarrowsize=10
+    ),
+    EdgeType.IMPLEMENTS: dict(
+        arrowstyle="solid",
+        backarrowstyle="none",
+        linestyle="dotted",
+        backarrowsize=10,
+    ),
+    EdgeType.ASSOCIATION: dict(
+        arrowstyle="solid", backarrowstyle="none", textcolor="green"
+    ),
+}
+ORIENTATION: Dict[Layout, str] = {
+    Layout.LEFT_TO_RIGHT: "left_to_right",
+    Layout.RIGHT_TO_LEFT: "right_to_left",
+    Layout.TOP_TO_BOTTOM: "top_to_bottom",
+    Layout.BOTTOM_TO_TOP: "bottom_to_top",
+}
 
 # Misc utilities ###############################################################
 
 
-class VCGPrinter:
-    """A vcg graph writer."""
-
-    def __init__(self, output_stream):
-        self._stream = output_stream
+class VCGPrinter(Printer):
+    def __init__(
+        self,
+        title: str,
+        layout: Optional[Layout] = None,
+        use_automatic_namespace: Optional[bool] = None,
+    ):
         self._indent = ""
+        super().__init__(title, layout, use_automatic_namespace)
 
-    def open_graph(self, **args):
-        """open a vcg graph"""
-        self._stream.write("%sgraph:{\n" % self._indent)
+    def _open_graph(self) -> None:
+        """Emit the header lines"""
+        self.emit(f"{self._indent}graph:{{\n")
         self._inc_indent()
-        self._write_attributes(GRAPH_ATTRS, **args)
-
-    def close_graph(self):
-        """close a vcg graph"""
-        self._dec_indent()
-        self._stream.write("%s}\n" % self._indent)
-
-    def node(self, title, **args):
-        """draw a node"""
-        self._stream.write(f'{self._indent}node: {{title:"{title}"')
-        self._write_attributes(NODE_ATTRS, **args)
-        self._stream.write("}\n")
-
-    def edge(self, from_node, to_node, edge_type="", **args):
-        """draw an edge from a node to another."""
-        self._stream.write(
-            '%s%sedge: {sourcename:"%s" targetname:"%s"'
-            % (self._indent, edge_type, from_node, to_node)
+        self._write_attributes(
+            GRAPH_ATTRS,
+            title=self.title,
+            layoutalgorithm="dfs",
+            late_edge_labels="yes",
+            port_sharing="no",
+            manhattan_edges="yes",
         )
-        self._write_attributes(EDGE_ATTRS, **args)
-        self._stream.write("}\n")
+        if self.layout:
+            self._write_attributes(GRAPH_ATTRS, orientation=ORIENTATION[self.layout])
 
-    # private ##################################################################
+    def _close_graph(self) -> None:
+        """Emit the lines needed to properly close the graph."""
+        self._dec_indent()
+        self.emit(f"{self._indent}}}")
 
-    def _write_attributes(self, attributes_dict, **args):
+    def emit_node(
+        self,
+        name: str,
+        type_: NodeType,
+        properties: Optional[NodeProperties] = None,
+    ) -> None:
+        """Create a new node. Nodes can be classes, packages, participants etc."""
+        if properties is None:
+            properties = NodeProperties(label=name)
+        self.emit(f'{self._indent}node: {{title:"{name}"', force_newline=False)
+        label = properties.label if properties.label is not None else name
+        self._write_attributes(
+            NODE_ATTRS,
+            label=label,
+            shape=SHAPES[type_],
+        )
+        self.emit("}")
+
+    def emit_edge(
+        self,
+        from_node: str,
+        to_node: str,
+        type_: EdgeType,
+        label: Optional[str] = None,
+    ) -> None:
+        """Create an edge from one node to another to display relationships."""
+        self.emit(
+            f'{self._indent}edge: {{sourcename:"{from_node}" targetname:"{to_node}"',
+            force_newline=False,
+        )
+        attributes = ARROWS[type_]
+        if label:
+            attributes["label"] = label
+        self._write_attributes(
+            EDGE_ATTRS,
+            **attributes,
+        )
+        self.emit("}")
+
+    def _write_attributes(self, attributes_dict: Mapping[str, Any], **args) -> None:
         """write graph, node or edge attributes"""
         for key, value in args.items():
             try:
                 _type = attributes_dict[key]
             except KeyError as e:
                 raise Exception(
-                    """no such attribute %s
-possible attributes are %s"""
-                    % (key, attributes_dict.keys())
+                    f"no such attribute {key}\npossible attributes are {attributes_dict.keys()}"
                 ) from e
 
             if not _type:
-                self._stream.write(f'{self._indent}{key}:"{value}"\n')
+                self.emit(f'{self._indent}{key}:"{value}"\n')
             elif _type == 1:
-                self._stream.write(f"{self._indent}{key}:{int(value)}\n")
+                self.emit(f"{self._indent}{key}:{int(value)}\n")
             elif value in _type:
-                self._stream.write(f"{self._indent}{key}:{value}\n")
+                self.emit(f"{self._indent}{key}:{value}\n")
             else:
                 raise Exception(
-                    f"""value {value} isn't correct for attribute {key}
-correct values are {type}"""
+                    f"value {value} isn't correct for attribute {key} correct values are {type}"
                 )
 
     def _inc_indent(self):
         """increment indentation"""
-        self._indent = "  %s" % self._indent
+        self._indent += "  "
 
     def _dec_indent(self):
         """decrement indentation"""
