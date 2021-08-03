@@ -65,7 +65,8 @@ def print_good():
 
 def pprint_bad():
     """Test string format """
-    "{{}}".format(1) # [format-string-without-interpolation]
+    "{{}}".format(1) # [too-many-format-args]
+
     "{} {".format() # [bad-format-string]
     "{} }".format() # [bad-format-string]
     "{0} {}".format(1, 2) # [format-combined-specification]
