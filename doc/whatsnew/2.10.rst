@@ -74,4 +74,3 @@ Other Changes
 * Added ``format-string-without-interpolation`` checker: Emitted when formatting is applied to a string without any variables to be replaced
 
   Closes #4042
-
