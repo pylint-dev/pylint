@@ -68,6 +68,13 @@ Release date: TBA
 
   Closes #4681
 
+* Fix false positives for ``superfluous-parens`` with walrus operator, ternary operator and inside list comprehension.
+
+  Closes #2818
+  Closes #3249
+  Closes #3608
+  Closes #4346
+
 * Fix false negative for ``used-before-assignment`` when the variable is assigned
   in an exception handler, but used outside of the handler.
 
