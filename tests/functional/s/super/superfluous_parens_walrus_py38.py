@@ -70,7 +70,7 @@ W = not (vals := ARRAY_2D[::])  # False positive
 Y = not (vals := ARRAY_2D[2:2])  # False positive
 Z = not (just_want_to_finish_the_alphabet := True)  # False positive
 
-x = ("Version " + __version__) in output 
+x = ("Version " + __version__) in output
 y = 2 + (5 * 3)
 assert "Version " + __version__ in output
 assert "" + ("Version " + __version__) in output
@@ -84,5 +84,3 @@ class YieldRegression3249:
         yield (order := super().from_json(json))
         for module in modules:
             yield OrderedModule(order=order, module=Module(module))
-            
-            
