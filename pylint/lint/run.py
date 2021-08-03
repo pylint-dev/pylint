@@ -156,7 +156,8 @@ group are mutually exclusive.",
                         "callback": self.cb_list_messages,
                         "group": "Commands",
                         "level": 1,
-                        "help": "Generate pylint's messages.",
+                        "help": "Display a list of all pylint's messages divided by whether "
+                        "they are emittable with the given interpreter.",
                     },
                 ),
                 (
@@ -167,8 +168,8 @@ group are mutually exclusive.",
                         "callback": self.cb_list_messages_enabled,
                         "group": "Commands",
                         "level": 1,
-                        "help": "Display a list of what messages are enabled "
-                        "and disabled with the given configuration.",
+                        "help": "Display a list of what messages are enabled, "
+                        "disabled and non-emittable with the given configuration.",
                     },
                 ),
                 (

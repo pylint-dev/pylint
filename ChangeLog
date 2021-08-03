@@ -80,6 +80,16 @@ Release date: TBA
   Closes #4042
 
 
+* Refactor of ``--list-msgs`` & ``--list-msgs-enabled``: both options now show whether messages are emittable with the current interpreter.
+
+  Closes #4778
+
+* Fix false negative for ``used-before-assignment`` when the variable is assigned
+  in an exception handler, but used outside of the handler.
+
+  Closes #626
+
+
 What's New in Pylint 2.9.6?
 ===========================
 Release date: 2021-07-28
