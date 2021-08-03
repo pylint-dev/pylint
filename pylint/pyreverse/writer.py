@@ -32,7 +32,7 @@ from pylint.pyreverse.diagrams import (
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType
 from pylint.pyreverse.utils import get_annotation_label, is_exception
-from pylint.pyreverse.vcgutils import VCGPrinter
+from pylint.pyreverse.vcg_printer import VCGPrinter
 
 
 class DiagramWriter:
