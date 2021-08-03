@@ -45,6 +45,19 @@ class DiagramEntity(Figure):
         self.node = node
 
 
+class PackageEntity(DiagramEntity):
+    """A diagram object representing a package"""
+
+
+class ClassEntity(DiagramEntity):
+    """A diagram object representing a class"""
+
+    def __init__(self, title, node):
+        super().__init__(title=title, node=node)
+        self.attrs = None
+        self.methods = None
+
+
 class ClassDiagram(Figure, FilterMixIn):
     """main class diagram handling"""
 

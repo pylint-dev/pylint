@@ -20,6 +20,7 @@
 """Generic classes/functions for pyreverse core/extensions. """
 import os
 import re
+import shutil
 import sys
 from typing import Optional, Union
 
@@ -275,3 +276,16 @@ def infer_node(node: Union[astroid.AssignAttr, astroid.AssignName]) -> set:
         return set(node.infer())
     except astroid.InferenceError:
         return {ann} if ann else set()
+
+
+def check_graphviz_availability():
+    """Check if the ``dot`` command is available on the machine.
+    This is needed if image output is desired and ``dot`` is used to convert
+    from *.dot or *.gv into the final output format."""
+    if shutil.which("dot") is None:
+        print(
+            "The requested output format is currently not available.\n"
+            "Please install 'Graphviz' to have other output formats "
+            "than 'dot' or 'vcg'."
+        )
+        sys.exit(32)
