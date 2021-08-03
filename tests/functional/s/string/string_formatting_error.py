@@ -18,3 +18,7 @@ def pprint():
     print("%2z" % PARG_1)  # [bad-format-character]
     print("strange format %2" % PARG_2) # [truncated-format-string]
     print("works in 3 %a" % 1)
+    print("String" % PARG_1) # [format-string-without-interpolation]
+    print("String" % ())  # [format-string-without-interpolation]
+    print("String" % [])  # [format-string-without-interpolation]
+    print("String" % None)  # [format-string-without-interpolation]

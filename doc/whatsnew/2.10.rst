@@ -61,3 +61,7 @@ Other Changes
   Closes #3249
   Closes #3608
   Closes #4346
+
+* Added ``format-string-without-interpolation`` checker: Emitted when formatting is applied to a string without any variables to be replaced
+
+  Closes #4042
