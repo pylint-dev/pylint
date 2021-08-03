@@ -144,8 +144,7 @@ def func3():
         print(f"{error}")
         try:
             1 / 2
-        except TypeError as error:
-        # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
+        except TypeError as error:  # [unused-variable]
             print("warning")
 
 def func4():
