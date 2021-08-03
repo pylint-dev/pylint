@@ -38,3 +38,10 @@ NUMS_DICT = {'1': 1, '2': 2, '3': 3}
 # Test functions
 def function_A():
     return (x for x in ((3, 4)))  # [superfluous-parens]
+
+# TODO: Test string combinations, see https://github.com/PyCQA/pylint/issues/4792
+# Lines 45, 46 & 47 should raise the superfluous-parens message
+I = "TestString"
+J = ("Test " + "String")
+K = ("Test " + "String") in I
+assert "" + ("Version " + "String") in I
