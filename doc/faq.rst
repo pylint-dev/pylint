@@ -131,6 +131,10 @@ A block is either a scope (say a function, a module), or a multiline statement (
 
 .. _`It's currently impossible to disable inside an else block`: https://github.com/PyCQA/pylint/issues/872
 
+Since Pylint 2.10 you can also disable a particular message for the following line.
+You can do so by adding a line with "#pylint: disable-next=some-message,another-one".
+This will disable the messages only for the line immediately following this comment-line.
+
 4.2 Is there a way to disable a message for a particular module only?
 ---------------------------------------------------------------------
 
