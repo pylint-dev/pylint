@@ -31,3 +31,7 @@ class InvalidReporterError(Exception):
 
 class InvalidArgsError(ValueError):
     """raised when passed arguments are invalid, e.g., have the wrong length"""
+
+
+class NoLineSuppliedError(Exception):
+    """raised when trying to disable a message on a next line without supplying a line number"""

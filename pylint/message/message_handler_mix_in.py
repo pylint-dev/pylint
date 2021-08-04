@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import sys
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from pylint.constants import (
     _SCOPE_EXEMPT,
@@ -15,7 +15,11 @@ from pylint.constants import (
     MSG_TYPES_STATUS,
     WarningScope,
 )
-from pylint.exceptions import InvalidMessageError, UnknownMessageError
+from pylint.exceptions import (
+    InvalidMessageError,
+    NoLineSuppliedError,
+    UnknownMessageError,
+)
 from pylint.interfaces import UNDEFINED
 from pylint.message.message import Message
 from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
@@ -58,6 +62,24 @@ class MessagesHandlerMixIn:
             msgid, enable=False, scope=scope, line=line, ignore_unknown=ignore_unknown
         )
         self._register_by_id_managed_msg(msgid, line)
+
+    def disable_next(
+        self,
+        msgid: str,
+        scope: str = "package",
+        line: Union[bool, int] = None,
+        ignore_unknown: bool = False,
+    ):
+        if not line:
+            raise NoLineSuppliedError
+        self._set_msg_status(
+            msgid,
+            enable=False,
+            scope=scope,
+            line=line + 1,
+            ignore_unknown=ignore_unknown,
+        )
+        self._register_by_id_managed_msg(msgid, line + 1)
 
     def enable(self, msgid, scope="package", line=None, ignore_unknown=False):
         self._set_msg_status(

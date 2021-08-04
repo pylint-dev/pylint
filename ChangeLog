@@ -85,6 +85,10 @@ Release date: TBA
 
   Closes #626
 
+* Add ``disable-next`` option: allows using `# pylint: disable-next=msgid` to disable a message for the following line
+
+  Closes #1682
+
 
 What's New in Pylint 2.9.6?
 ===========================
