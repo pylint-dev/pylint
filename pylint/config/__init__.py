@@ -115,8 +115,7 @@ def find_pylintrc():
 
 PYLINTRC = find_pylintrc()
 
-ENV_HELP = (
-    """
+ENV_HELP = """
 The following environment variables are used:
     * PYLINTHOME
     Path to the directory where persistent data for the run will be stored. If
@@ -126,5 +125,3 @@ directory).
     Path to the configuration file. See the documentation for the method used
 to search for configuration file.
 """
-    % globals()  # type: ignore
-)

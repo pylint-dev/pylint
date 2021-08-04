@@ -9,3 +9,7 @@ format-needs-mapping:16:10:pprint:Expected mapping for format string, not Tuple
 format-needs-mapping:17:10:pprint:Expected mapping for format string, not List
 bad-format-character:18:10:pprint:Unsupported format character 'z' (0x7a) at index 2
 truncated-format-string:19:10:pprint:Format string ends in middle of conversion specifier
+format-string-without-interpolation:21:10:pprint:Using formatting for a string that does not have any interpolated variables
+format-string-without-interpolation:22:10:pprint:Using formatting for a string that does not have any interpolated variables
+format-string-without-interpolation:23:10:pprint:Using formatting for a string that does not have any interpolated variables
+format-string-without-interpolation:24:10:pprint:Using formatting for a string that does not have any interpolated variables

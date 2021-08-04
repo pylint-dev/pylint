@@ -204,6 +204,12 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "Used when we detect an f-string that does not use any interpolation variables, "
         "in which case it can be either a normal string or a bug in the code.",
     ),
+    "W1310": (
+        "Using formatting for a string that does not have any interpolated variables",
+        "format-string-without-interpolation",
+        "Used when we detect a string that does not have any interpolation variables, "
+        "in which case it can be either a normal string without formatting or a bug in the code.",
+    ),
 }
 
 OTHER_NODES = (
@@ -273,6 +279,7 @@ class StringFormatChecker(BaseChecker):
         "too-many-format-args",
         "too-few-format-args",
         "bad-string-format-type",
+        "format-string-without-interpolation",
     )
     def visit_binop(self, node):
         if node.op != "%":
@@ -300,6 +307,9 @@ class StringFormatChecker(BaseChecker):
             return
         except utils.IncompleteFormatString:
             self.add_message("truncated-format-string", node=node)
+            return
+        if not required_keys and not required_num_args:
+            self.add_message("format-string-without-interpolation", node=node)
             return
         if required_keys and required_num_args:
             # The format string uses both named and unnamed format
@@ -518,6 +528,9 @@ class StringFormatChecker(BaseChecker):
         if check_args:
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
+            if not num_args:
+                self.add_message("format-string-without-interpolation", node=node)
+                return
             if len(positional_arguments) > num_args:
                 self.add_message("too-many-format-args", node=node)
             elif len(positional_arguments) < num_args:
