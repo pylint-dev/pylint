@@ -1,4 +1,4 @@
-#pylint: disable=invalid-name,missing-docstring
+#pylint: disable=invalid-name,missing-docstring,redundant-u-string-prefix
 
 # Basic test with a list
 TEST_LIST1 = ['a' 'b']  # [implicit-str-concat]
