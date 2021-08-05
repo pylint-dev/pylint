@@ -123,11 +123,19 @@ Much probably. Read :ref:`ide-integration`
 4.1 How to disable a particular message?
 -----------------------------------------------------------
 
-Add "#pylint: disable=some-message,another-one" at the desired block level
-or at the end of the desired line of code.
+For a single line : Add ``#pylint: disable=some-message,another-one`` at the
+end of the desired line of code. Since Pylint 2.10 you can also use
+``#pylint: disable-next=...`` on the line just above the problem.
+``...`` in the following example is a short hand for the list of
+messages you want to disable.
 
-A block is either a scope (say a function, a module), or a multiline statement (Try, Finally, if statements, for loops).
+For larger disable : You can add ``#pylint: disable=...`` at the block level to
+disable for the block. It's possible to enable for the reminder of the block
+with ``#pylint: enable=...`` A block is either a scope (say a function, a module),
+or a multiline statement (try, finally, if statements, for loops).
 `It's currently impossible to disable inside an else block`_
+
+Read :ref:`message-control` for details and examples.
 
 .. _`It's currently impossible to disable inside an else block`: https://github.com/PyCQA/pylint/issues/872
 

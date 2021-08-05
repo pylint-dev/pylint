@@ -490,7 +490,11 @@ class PyLinter(
         self._external_opts = options
         self.options = options + PyLinter.make_options()
         self.option_groups = option_groups + PyLinter.option_groups
-        self._options_methods = {"enable": self.enable, "disable": self.disable}
+        self._options_methods = {
+            "enable": self.enable,
+            "disable": self.disable,
+            "disable-next": self.disable_next,
+        }
         self._bw_options_methods = {
             "disable-msg": self._options_methods["disable"],
             "enable-msg": self._options_methods["enable"],
@@ -800,7 +804,7 @@ class PyLinter(
     def process_tokens(self, tokens):
         """Process tokens from the current module to search for module/block level
         options."""
-        control_pragmas = {"disable", "enable"}
+        control_pragmas = {"disable", "disable-next", "enable"}
         prev_line = None
         saw_newline = True
         seen_newline = True

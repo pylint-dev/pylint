@@ -39,6 +39,13 @@ The pragma controls can disable / enable:
 
         a, b = ... # pylint: disable=unbalanced-tuple-unpacking
 
+* All the violations on the following line
+
+    .. sourcecode:: python
+
+        # pylint: disable-next=unbalanced-tuple-unpacking
+        a, b = ...
+
 * All the violations in a single scope
 
     .. sourcecode:: python
@@ -177,6 +184,14 @@ Here's an example with all these rules in a single place:
             # pylint: disable=no-member
             # no error
             print(self.bla)
+            print(self.blop)
+
+        def meth9(self):
+            """test next line disabling"""
+            # no error
+            # pylint: disable-next=no-member
+            print(self.bla)
+            # error
             print(self.blop)
 
 
