@@ -89,9 +89,13 @@ Release date: TBA
 
   Closes #626
 
-* Add ``disable-next`` option: allows using `# pylint: disable-next=msgid` to disable a message for the following line
+* Added ``disable-next`` option: allows using `# pylint: disable-next=msgid` to disable a message for the following line
 
   Closes #1682
+
+* Added ``redundant-u-string-prefix`` checker: Emitted when the u prefix is added to a string
+
+  Closes #4102
 
 
 What's New in Pylint 2.9.6?

@@ -669,6 +669,13 @@ class StringConstantChecker(BaseTokenChecker):
             "Quote delimiters are not used consistently throughout a module "
             "(with allowances made for avoiding unnecessary escaping).",
         ),
+        "W1406": (
+            "The u prefix for strings is no longer necessary in Python >=3.0",
+            "redundant-u-string-prefix",
+            "Used when we detect a string with a u prefix. These prefixes were necessary "
+            "in Python 2 to indicate a string was Unicode, but since Python 3.0 strings "
+            "are Unicode by default.",
+        ),
     }
     options = (
         (
@@ -904,6 +911,22 @@ class StringConstantChecker(BaseTokenChecker):
             # another character can always be consumed whole: the second
             # character can never be the start of a new backslash escape.
             index += 2
+
+    @check_messages("redundant-u-string-prefix")
+    def visit_const(self, node: astroid.Const):
+        if node.pytype() == "builtins.str" and not isinstance(
+            node.parent, astroid.JoinedStr
+        ):
+            self._detect_u_string_prefix(node)
+
+    def _detect_u_string_prefix(self, node: astroid.Const):
+        """Check whether strings include a 'u' prefix like u'String'"""
+        if node.kind == "u":
+            self.add_message(
+                "redundant-u-string-prefix",
+                line=node.lineno,
+                col_offset=node.col_offset,
+            )
 
 
 def register(linter):

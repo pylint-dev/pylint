@@ -71,10 +71,14 @@ Other Changes
 
   Closes #626
 
-* Add ``disable-next`` option: allows using `# pylint: disable-next=msgid` to disable a message for the following line
+* Added ``disable-next`` option: allows using `# pylint: disable-next=msgid` to disable a message for the following line
 
   Closes #1682
 
 * Added ``format-string-without-interpolation`` checker: Emitted when formatting is applied to a string without any variables to be replaced
 
   Closes #4042
+
+* Added ``redundant-u-string-prefix`` checker: Emitted when the u prefix is added to a string
+
+  Closes #4102
