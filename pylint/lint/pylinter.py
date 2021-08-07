@@ -11,6 +11,8 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
+from pathlib import Path
+from typing import Union
 
 import astroid
 from astroid import AstroidError
@@ -170,6 +172,7 @@ class PyLinter(
     priority = 0
     level = 0
     msgs = MSGS
+    crash_file_prefix: Union[str, Path] = "pylint-crash-"
 
     @staticmethod
     def make_options():
@@ -965,7 +968,6 @@ class PyLinter(
 
         files_or_modules is either a string or list of strings presenting modules to check.
         """
-
         self.initialize()
 
         if not isinstance(files_or_modules, (list, tuple)):
@@ -1027,7 +1029,7 @@ class PyLinter(
                 except Exception as ex:  # pylint: disable=broad-except
                     error = ex
                     template_path = prepare_crash_report(
-                        error, filepath, "pylint-crash-"
+                        error, filepath, self.crash_file_prefix
                     )
                 if error is not None:
                     msg = get_fatal_error_message(filepath, template_path)
