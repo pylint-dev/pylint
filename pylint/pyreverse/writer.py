@@ -25,17 +25,16 @@ from pylint.pyreverse.diagrams import (
     PackageDiagram,
     PackageEntity,
 )
-from pylint.pyreverse.dot_printer import DotPrinter
-from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType
+from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType
 from pylint.pyreverse.utils import is_exception
-from pylint.pyreverse.vcg_printer import VCGPrinter
 
 
 class DiagramWriter:
     """base class for writing project diagrams"""
 
-    def __init__(self, config):
+    def __init__(self, config, printer_class):
         self.config = config
+        self.printer_class = printer_class
         self.printer = None  # defined in set_printer
         self.file_name = ""  # defined in set_printer
 
@@ -105,30 +104,11 @@ class DiagramWriter:
 
     def set_printer(self, file_name: str, basename: str) -> None:
         """set printer"""
-        raise NotImplementedError
-
-    def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
-        """get label and shape for packages."""
-        raise NotImplementedError
-
-    def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
-        """get label and shape for classes."""
-        raise NotImplementedError
-
-    def save(self) -> None:
-        """write to disk"""
-        self.printer.generate(self.file_name)
-
-
-class DotWriter(DiagramWriter):
-    """write dot graphs from a diagram definition and a project"""
-
-    def set_printer(self, file_name: str, basename: str) -> None:
-        """initialize DotWriter and add options for layout."""
-        self.printer = DotPrinter(basename, layout=Layout.BOTTOM_TO_TOP)
+        self.printer = self.printer_class(basename)
         self.file_name = file_name
 
-    def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
+    @staticmethod
+    def get_package_properties(obj: PackageEntity) -> NodeProperties:
         """get label and shape for packages."""
         return NodeProperties(
             label=obj.title,
@@ -136,10 +116,7 @@ class DotWriter(DiagramWriter):
         )
 
     def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
-        """get label and shape for classes.
-
-        The label contains all attributes and methods
-        """
+        """get label and shape for classes."""
         properties = NodeProperties(
             label=obj.title,
             attrs=obj.attrs if not self.config.only_classnames else None,
@@ -149,31 +126,6 @@ class DotWriter(DiagramWriter):
         )
         return properties
 
-
-class VCGWriter(DiagramWriter):
-    """write vcg graphs from a diagram definition and a project"""
-
-    def set_printer(self, file_name: str, basename: str) -> None:
-        """initialize VCGWriter for a UML graph"""
-        self.file_name = file_name
-        self.printer = VCGPrinter(basename)
-
-    def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
-        """get label and shape for packages."""
-        return NodeProperties(
-            label=obj.title,
-            color="black",
-        )
-
-    def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
-        """get label and shape for classes.
-
-        The label contains all attributes and methods
-        """
-        return NodeProperties(
-            label=obj.title,
-            attrs=obj.attrs if not self.config.only_classnames else None,
-            methods=obj.methods if not self.config.only_classnames else None,
-            fontcolor="red" if is_exception(obj.node) else "black",
-            color="black",
-        )
+    def save(self) -> None:
+        """write to disk"""
+        self.printer.generate(self.file_name)
