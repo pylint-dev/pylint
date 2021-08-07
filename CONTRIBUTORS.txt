@@ -529,3 +529,5 @@ contributors:
 * Daniel van Noord (DanielNoord): contributor
 
 * Michal Vasilek: contributor
+
+* Sam Vermeiren (PaaEl): contributor
