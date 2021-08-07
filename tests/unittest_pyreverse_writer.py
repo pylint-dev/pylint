@@ -30,9 +30,11 @@ import astroid
 import pytest
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
+from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.utils import get_annotation, get_visibility, infer_node
-from pylint.pyreverse.writer import DotWriter, VCGWriter
+from pylint.pyreverse.vcg_printer import VCGPrinter
+from pylint.pyreverse.writer import DiagramWriter
 
 _DEFAULTS = {
     "all_ancestors": None,
@@ -89,7 +91,7 @@ VCG_FILES = ["packages_No_Name.vcg", "classes_No_Name.vcg"]
 @pytest.fixture(scope="module")
 def setup_dot():
     config = Config()
-    writer = DotWriter(config)
+    writer = DiagramWriter(config, printer_class=DotPrinter)
     yield from _setup(config, writer)
 
 
@@ -97,7 +99,7 @@ def setup_dot():
 def setup_vcg():
     config = Config()
     config.output_format = "vcg"
-    writer = VCGWriter(config)
+    writer = DiagramWriter(config, printer_class=VCGPrinter)
     yield from _setup(config, writer)
 
 

@@ -41,6 +41,7 @@ class DotPrinter(Printer):
         layout: Optional[Layout] = None,
         use_automatic_namespace: Optional[bool] = None,
     ):
+        layout = layout or Layout.BOTTOM_TO_TOP
         self.charset = "utf-8"
         self.node_style = "solid"
         super().__init__(title, layout, use_automatic_namespace)
