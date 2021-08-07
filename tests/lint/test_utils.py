@@ -10,7 +10,9 @@ def test_prepare_crash_report(tmp_path):
     try:
         raise Exception(exception_content)
     except Exception as ex:  # pylint: disable=broad-except
-        template_path = prepare_crash_report(ex, python_file, tmp_path)
+        template_path = prepare_crash_report(
+            ex, python_file, tmp_path / "pylint-crash-%Y.txt"
+        )
     assert str(tmp_path) in str(template_path)
     with open(template_path, encoding="utf8") as f:
         template_content = f.read()
