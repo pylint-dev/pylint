@@ -1,5 +1,7 @@
 # pylint: disable=missing-module-docstring, missing-function-docstring, protected-access
+import os
 import unittest.mock
+from pathlib import Path
 
 import pylint.lint
 
@@ -88,6 +90,25 @@ disable = [
 ]
 jobs = 10
 reports = true
+"""
+    )
+    check_configuration_file_reader(config_file)
+
+
+def test_can_read_env_variable(tmp_path):
+    # Check that we can read the "regular" INI .pylintrc file
+    # if it has an environment variable.
+    os.environ["tmp_path_env"] = str(tmp_path)
+    config_file = (
+        Path(os.path.expandvars(os.path.expanduser("${tmp_path_env}"))) / ".pylintrc"
+    )
+
+    config_file.write_text(
+        """
+[messages control]
+disable = logging-not-lazy,logging-format-interpolation
+jobs = 10
+reports = yes
 """
     )
     check_configuration_file_reader(config_file)
