@@ -18,20 +18,16 @@
 """Utilities for creating VCG and Dot diagrams"""
 
 import os
-from typing import List
-
-import astroid
 
 from pylint.pyreverse.diagrams import (
     ClassDiagram,
     ClassEntity,
-    DiagramEntity,
     PackageDiagram,
     PackageEntity,
 )
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType
-from pylint.pyreverse.utils import get_annotation_label, is_exception
+from pylint.pyreverse.utils import is_exception
 from pylint.pyreverse.vcg_printer import VCGPrinter
 
 
@@ -111,10 +107,6 @@ class DiagramWriter:
         """set printer"""
         raise NotImplementedError
 
-    def get_title(self, obj: DiagramEntity) -> str:
-        """get project title"""
-        raise NotImplementedError
-
     def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
         """get label and shape for packages."""
         raise NotImplementedError
@@ -136,14 +128,10 @@ class DotWriter(DiagramWriter):
         self.printer = DotPrinter(basename, layout=Layout.BOTTOM_TO_TOP)
         self.file_name = file_name
 
-    def get_title(self, obj: DiagramEntity) -> str:
-        """get project title"""
-        return obj.title
-
     def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
         """get label and shape for packages."""
         return NodeProperties(
-            label=self.get_title(obj),
+            label=obj.title,
             color="black",
         )
 
@@ -152,38 +140,10 @@ class DotWriter(DiagramWriter):
 
         The label contains all attributes and methods
         """
-        label = obj.title
-        if not self.config.only_classnames:
-            label = r"{}|{}\l|".format(label, r"\l".join(obj.attrs))
-            for func in obj.methods:
-                return_type = (
-                    f": {get_annotation_label(func.returns)}" if func.returns else ""
-                )
-
-                if func.args.args:
-                    arguments: List[astroid.AssignName] = [
-                        arg for arg in func.args.args if arg.name != "self"
-                    ]
-                else:
-                    arguments = []
-
-                annotations = dict(zip(arguments, func.args.annotations[1:]))
-                for arg in arguments:
-                    annotation_label = ""
-                    ann = annotations.get(arg)
-                    if ann:
-                        annotation_label = get_annotation_label(ann)
-                    annotations[arg] = annotation_label
-
-                args = ", ".join(
-                    f"{arg.name}: {ann}" if ann else f"{arg.name}"
-                    for arg, ann in annotations.items()
-                )
-
-                label = fr"{label}{func.name}({args}){return_type}\l"
-            label = "{%s}" % label
         properties = NodeProperties(
-            label=label,
+            label=obj.title,
+            attrs=obj.attrs if not self.config.only_classnames else None,
+            methods=obj.methods if not self.config.only_classnames else None,
             fontcolor="red" if is_exception(obj.node) else "black",
             color="black",
         )
@@ -198,14 +158,11 @@ class VCGWriter(DiagramWriter):
         self.file_name = file_name
         self.printer = VCGPrinter(basename)
 
-    def get_title(self, obj: DiagramEntity) -> str:
-        """get project title in vcg format"""
-        return r"\fb%s\fn" % obj.title
-
     def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
         """get label and shape for packages."""
         return NodeProperties(
-            label=self.get_title(obj),
+            label=obj.title,
+            color="black",
         )
 
     def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
@@ -213,21 +170,10 @@ class VCGWriter(DiagramWriter):
 
         The label contains all attributes and methods
         """
-        if is_exception(obj.node):
-            label = r"\fb\f09%s\fn" % obj.title
-        else:
-            label = r"\fb%s\fn" % obj.title
-        if not self.config.only_classnames:
-            attrs = obj.attrs
-            methods = [func.name for func in obj.methods]
-            # box width for UML like diagram
-            maxlen = max(len(name) for name in [obj.title] + methods + attrs)
-            line = "_" * (maxlen + 2)
-            label = fr"{label}\n\f{line}"
-            for attr in attrs:
-                label = fr"{label}\n\f08{attr}"
-            if attrs:
-                label = fr"{label}\n\f{line}"
-            for func in methods:
-                label = fr"{label}\n\f10{func}()"
-        return NodeProperties(label=label)
+        return NodeProperties(
+            label=obj.title,
+            attrs=obj.attrs if not self.config.only_classnames else None,
+            methods=obj.methods if not self.config.only_classnames else None,
+            fontcolor="red" if is_exception(obj.node) else "black",
+            color="black",
+        )
