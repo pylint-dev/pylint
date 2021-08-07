@@ -3,6 +3,7 @@
 
 import collections
 import contextlib
+import datetime
 import functools
 import operator
 import os
@@ -11,8 +12,10 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
+from pathlib import Path
 
 import astroid
+from astroid import AstroidError
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
@@ -1003,6 +1006,51 @@ class PyLinter(
                 self.get_ast, check_astroid_module, name, filepath, modname
             )
 
+    @staticmethod
+    def _prepare_crash_report(ex: Exception, filepath: str) -> str:
+        now = datetime.datetime.now().strftime("%Y-%m-%d-%H")
+        issue_template_path = Path(f"pylint-crash-{now}.txt")
+        with open(filepath, encoding="utf8") as f:
+            file_content = f.read()
+        template = ""
+        if not issue_template_path.exists():
+            template = """\
+First, please verify that the bug is not already filled:
+https://github.com/PyCQA/pylint/issues/
+
+Then create a new crash issue:
+https://github.com/PyCQA/pylint/issues/new?assignees=&labels=crash%2Cneeds+triage&template=BUG-REPORT.yml
+
+"""
+        template += f"""\
+
+Issue title:
+Crash ``{ex}`` (if possible, be more specific about what made pylint crash)
+Content:
+When parsing the following file:
+
+<!--
+ If sharing the code is not an option, please state so,
+ but providing only the stacktrace would still be helpful.
+ -->
+
+```python
+{file_content}
+```
+
+pylint crashed with a {ex.__class__.__name__} with the following stacktrace:
+```
+"""
+        with open(issue_template_path, "a", encoding="utf8") as f:
+            f.write(template)
+            traceback.print_exc(file=f)
+            f.write("\n```\n")
+        return (
+            f"Fatal error while checking '{filepath}'. "
+            f"Please open an issue in our bug tracker so we address this. "
+            f"There is a pre-filled template that you can use in '{issue_template_path}'."
+        )
+
     def _check_files(self, get_ast, file_descrs):
         """Check all files from file_descrs
 
@@ -1014,7 +1062,19 @@ class PyLinter(
         """
         with self._astroid_module_checker() as check_astroid_module:
             for name, filepath, modname in file_descrs:
-                self._check_file(get_ast, check_astroid_module, name, filepath, modname)
+                try:
+                    self._check_file(
+                        get_ast, check_astroid_module, name, filepath, modname
+                    )
+                except AstroidError as ex:
+                    self.add_message(
+                        "astroid-error",
+                        args=(filepath, self._prepare_crash_report(ex, filepath)),
+                    )
+                except Exception as ex:  # pylint: disable=broad-except
+                    self.add_message(
+                        "fatal", args=self._prepare_crash_report(ex, filepath)
+                    )
 
     def _check_file(self, get_ast, check_astroid_module, name, filepath, modname):
         """Check a file using the passed utility functions (get_ast and check_astroid_module)
