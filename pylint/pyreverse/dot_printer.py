@@ -69,8 +69,6 @@ class DotPrinter(Printer):
         color = properties.color if properties.color is not None else "black"
         label = self._build_label_for_node(properties)
         if label:
-            if type_ is NodeType.INTERFACE:
-                label = "<<interface>>\\n" + label
             label_part = f', label="{label}"'
         else:
             label_part = ""
@@ -82,39 +80,54 @@ class DotPrinter(Printer):
         )
 
     @staticmethod
-    def _build_label_for_node(properties: NodeProperties) -> str:
-        label = properties.label
-        if label and properties.attrs is not None and properties.methods is not None:
-            methods: List[str] = []
-            for func in properties.methods:
-                return_type = (
-                    f": {get_annotation_label(func.returns)}" if func.returns else ""
-                )
+    def _build_label_for_node(
+        properties: NodeProperties, is_interface: Optional[bool] = False
+    ) -> str:
+        if not properties.label:
+            return ""
 
-                if func.args.args:
-                    arguments: List[astroid.AssignName] = [
-                        arg for arg in func.args.args if arg.name != "self"
-                    ]
-                else:
-                    arguments = []
+        label: str = properties.label
+        if is_interface:
+            # add a stereotype
+            label = "<<interface>>\\n" + label
 
-                annotations = dict(zip(arguments, func.args.annotations[1:]))
-                for arg in arguments:
-                    annotation_label = ""
-                    ann = annotations.get(arg)
-                    if ann:
-                        annotation_label = get_annotation_label(ann)
-                    annotations[arg] = annotation_label
+        if properties.attrs is None and properties.methods is None:
+            # return a "compact" form which only displays the class name in a box
+            return label
 
-                args = ", ".join(
-                    f"{arg.name}: {ann}" if ann else f"{arg.name}"
-                    for arg, ann in annotations.items()
-                )
+        # Add class attributes
+        attrs: List[str] = properties.attrs or []
+        label = "{" + label + "|" + r"\l".join(attrs) + r"\l|"
 
-                methods.append(fr"{func.name}({args}){return_type}\l")
-            label = r"{{{}|{}\l|{}}}".format(
-                label, r"\l".join(properties.attrs), "".join(methods)
+        # Add class methods
+        methods: List[astroid.FunctionDef] = properties.methods or []
+        for func in methods:
+            return_type = (
+                f": {get_annotation_label(func.returns)}" if func.returns else ""
             )
+
+            if func.args.args:
+                arguments: List[astroid.AssignName] = [
+                    arg for arg in func.args.args if arg.name != "self"
+                ]
+            else:
+                arguments = []
+
+            annotations = dict(zip(arguments, func.args.annotations[1:]))
+            for arg in arguments:
+                annotation_label = ""
+                ann = annotations.get(arg)
+                if ann:
+                    annotation_label = get_annotation_label(ann)
+                annotations[arg] = annotation_label
+
+            args = ", ".join(
+                f"{arg.name}: {ann}" if ann else f"{arg.name}"
+                for arg, ann in annotations.items()
+            )
+
+            label += fr"{func.name}({args}){return_type}\l"
+        label += "}"
         return label
 
     def emit_edge(
