@@ -11,10 +11,12 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Dict, FrozenSet, Optional
+from typing import Dict, FrozenSet, List, Optional
+
+import astroid
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
-from pylint.pyreverse.utils import check_graphviz_availability
+from pylint.pyreverse.utils import check_graphviz_availability, get_annotation_label
 
 ALLOWED_CHARSETS: FrozenSet[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
 SHAPES: Dict[NodeType, str] = {
@@ -65,7 +67,7 @@ class DotPrinter(Printer):
             properties = NodeProperties(label=name)
         shape = SHAPES[type_]
         color = properties.color if properties.color is not None else "black"
-        label = properties.label
+        label = self._build_label_for_node(properties)
         if label:
             if type_ is NodeType.INTERFACE:
                 label = "<<interface>>\\n" + label
@@ -78,6 +80,42 @@ class DotPrinter(Printer):
         self.emit(
             f'"{name}" [color="{color}"{fontcolor_part}{label_part}, shape="{shape}", style="{self.node_style}"];'
         )
+
+    @staticmethod
+    def _build_label_for_node(properties: NodeProperties) -> str:
+        label = properties.label
+        if label and properties.attrs is not None and properties.methods is not None:
+            methods: List[str] = []
+            for func in properties.methods:
+                return_type = (
+                    f": {get_annotation_label(func.returns)}" if func.returns else ""
+                )
+
+                if func.args.args:
+                    arguments: List[astroid.AssignName] = [
+                        arg for arg in func.args.args if arg.name != "self"
+                    ]
+                else:
+                    arguments = []
+
+                annotations = dict(zip(arguments, func.args.annotations[1:]))
+                for arg in arguments:
+                    annotation_label = ""
+                    ann = annotations.get(arg)
+                    if ann:
+                        annotation_label = get_annotation_label(ann)
+                    annotations[arg] = annotation_label
+
+                args = ", ".join(
+                    f"{arg.name}: {ann}" if ann else f"{arg.name}"
+                    for arg, ann in annotations.items()
+                )
+
+                methods.append(fr"{func.name}({args}){return_type}\l")
+            label = r"{{{}|{}\l|{}}}".format(
+                label, r"\l".join(properties.attrs), "".join(methods)
+            )
+        return label
 
     def emit_edge(
         self,

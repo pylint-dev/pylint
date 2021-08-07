@@ -223,14 +223,34 @@ class VCGPrinter(Printer):
         """Create a new node. Nodes can be classes, packages, participants etc."""
         if properties is None:
             properties = NodeProperties(label=name)
+        elif properties.label is None:
+            properties.label = name
         self.emit(f'{self._indent}node: {{title:"{name}"', force_newline=False)
-        label = properties.label if properties.label is not None else name
         self._write_attributes(
             NODE_ATTRS,
-            label=label,
+            label=self._build_label_for_node(properties),
             shape=SHAPES[type_],
         )
         self.emit("}")
+
+    @staticmethod
+    def _build_label_for_node(properties: NodeProperties) -> str:
+        fontcolor = "\f09" if properties.fontcolor == "red" else ""
+        label = rf"\fb{fontcolor}{properties.label}\fn"
+        if label and properties.attrs is not None and properties.methods is not None:
+            attrs = properties.attrs
+            methods = [func.name for func in properties.methods]
+            # box width for UML like diagram
+            maxlen = max(len(name) for name in [properties.label] + methods + attrs)
+            line = "_" * (maxlen + 2)
+            label = fr"{label}\n\f{line}"
+            for attr in attrs:
+                label = fr"{label}\n\f08{attr}"
+            if attrs:
+                label = fr"{label}\n\f{line}"
+            for func in methods:
+                label = fr"{label}\n\f10{func}()"
+        return label
 
     def emit_edge(
         self,

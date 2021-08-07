@@ -10,6 +10,8 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import List, NamedTuple, Optional
 
+import astroid
+
 
 class NodeType(Enum):
     CLASS = "class"
@@ -33,9 +35,10 @@ class Layout(Enum):
 
 class NodeProperties(NamedTuple):
     label: str
+    attrs: Optional[List[str]] = None
+    methods: Optional[List[astroid.FunctionDef]] = None
     color: Optional[str] = None
     fontcolor: Optional[str] = None
-    body: Optional[str] = None
 
 
 class Printer(ABC):
