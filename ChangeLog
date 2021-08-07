@@ -96,6 +96,10 @@ Release date: TBA
 * Added ``redundant-u-string-prefix`` checker: Emitted when the u prefix is added to a string
 
   Closes #4102
+  
+  * Config files can now contain environment variables
+
+  Closes #3839
 
 
 What's New in Pylint 2.9.6?
