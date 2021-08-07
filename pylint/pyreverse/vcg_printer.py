@@ -237,19 +237,22 @@ class VCGPrinter(Printer):
     def _build_label_for_node(properties: NodeProperties) -> str:
         fontcolor = "\f09" if properties.fontcolor == "red" else ""
         label = rf"\fb{fontcolor}{properties.label}\fn"
-        if label and properties.attrs is not None and properties.methods is not None:
-            attrs = properties.attrs
-            methods = [func.name for func in properties.methods]
-            # box width for UML like diagram
-            maxlen = max(len(name) for name in [properties.label] + methods + attrs)
-            line = "_" * (maxlen + 2)
+        if properties.attrs is None and properties.methods is None:
+            # return a compact form which only displays the classname in a box
+            return label
+        attrs = properties.attrs or []
+        methods = properties.methods or []
+        method_names = [func.name for func in methods]
+        # box width for UML like diagram
+        maxlen = max(len(name) for name in [properties.label] + method_names + attrs)
+        line = "_" * (maxlen + 2)
+        label = fr"{label}\n\f{line}"
+        for attr in attrs:
+            label = fr"{label}\n\f08{attr}"
+        if attrs:
             label = fr"{label}\n\f{line}"
-            for attr in attrs:
-                label = fr"{label}\n\f08{attr}"
-            if attrs:
-                label = fr"{label}\n\f{line}"
-            for func in methods:
-                label = fr"{label}\n\f10{func}()"
+        for func in method_names:
+            label = fr"{label}\n\f10{func}()"
         return label
 
     def emit_edge(
