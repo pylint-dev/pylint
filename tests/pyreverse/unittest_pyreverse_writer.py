@@ -104,7 +104,7 @@ def setup_vcg():
 
 
 def _setup(config, writer):
-    project = get_project(os.path.join(os.path.dirname(__file__), "data"))
+    project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
     linker = Linker(project)
     handler = DiadefsHandler(config)
     dd = DefaultDiadefGenerator(linker, handler).visit(project)
