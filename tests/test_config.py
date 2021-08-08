@@ -2,8 +2,9 @@
 import os
 import unittest.mock
 
-import pylint.lint
 import pytest
+
+import pylint.lint
 from pylint.config import OptionsManagerMixIn
 
 
@@ -117,4 +118,3 @@ reports = yes
             options_manager_mix_in.read_config_file("${tmp_path_en}")
 
     test_read_config_file()
-    
