@@ -23,7 +23,7 @@ from pathlib import Path
 
 import astroid
 import pytest
-from unittest_pyreverse_writer import Config, get_project
+from test_writer import Config, get_project
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,

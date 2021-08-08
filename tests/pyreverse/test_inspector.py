@@ -18,7 +18,7 @@ import os
 
 import astroid
 import pytest
-from unittest_pyreverse_writer import get_project
+from test_writer import get_project
 
 from pylint.pyreverse import inspector
 
