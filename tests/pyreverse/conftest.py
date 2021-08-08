@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 
 import pytest
@@ -10,7 +10,7 @@ class PyreverseConfig:  # pylint: disable=too-many-instance-attributes
     The default values correspond to the defaults of the options parser."""
 
     mode: str = "PUB_ONLY"
-    classes: List = []
+    classes: List = field(default_factory=list)
     show_ancestors: Optional[int] = None
     all_ancestors: Optional[bool] = None
     show_associated: Optional[int] = None
@@ -19,7 +19,7 @@ class PyreverseConfig:  # pylint: disable=too-many-instance-attributes
     module_names: Optional[bool] = None
     only_classnames: bool = False
     output_format: str = "dot"
-    ignore_list: List = []
+    ignore_list: List = field(default_factory=list)
     project: str = ""
     output_directory: str = ""
 
