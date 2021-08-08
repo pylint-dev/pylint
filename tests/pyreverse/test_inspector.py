@@ -18,9 +18,9 @@ import os
 
 import astroid
 import pytest
-from test_writer import get_project
 
 from pylint.pyreverse import inspector
+from pylint.testutils.pyreverse import get_project
 
 
 @pytest.fixture

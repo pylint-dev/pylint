@@ -29,9 +29,10 @@ import pytest
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.dot_printer import DotPrinter
-from pylint.pyreverse.inspector import Linker, project_from_files
+from pylint.pyreverse.inspector import Linker
 from pylint.pyreverse.vcg_printer import VCGPrinter
 from pylint.pyreverse.writer import DiagramWriter
+from pylint.testutils.pyreverse import get_project
 
 _DEFAULTS = {
     "all_ancestors": None,
@@ -72,30 +73,20 @@ def _file_lines(path):
     return [line for line in lines if line]
 
 
-def get_project(module, name="No Name"):
-    """return an astroid project representation"""
-
-    def _astroid_wrapper(func, modname):
-        return func(modname)
-
-    return project_from_files([module], _astroid_wrapper, project_name=name)
-
-
 DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
 VCG_FILES = ["packages_No_Name.vcg", "classes_No_Name.vcg"]
 
 
-@pytest.fixture(scope="module")
-def setup_dot():
-    config = Config()
+@pytest.fixture()
+def setup_dot(default_config):
+    config = default_config
     writer = DiagramWriter(config, printer_class=DotPrinter)
     yield from _setup(config, writer)
 
 
-@pytest.fixture(scope="module")
-def setup_vcg():
-    config = Config()
-    config.output_format = "vcg"
+@pytest.fixture()
+def setup_vcg(vcg_config):
+    config = vcg_config
     writer = DiagramWriter(config, printer_class=VCGPrinter)
     yield from _setup(config, writer)
 
