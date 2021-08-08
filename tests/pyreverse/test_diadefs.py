@@ -23,7 +23,6 @@ from pathlib import Path
 
 import astroid
 import pytest
-from test_writer import Config, get_project
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
@@ -32,6 +31,7 @@ from pylint.pyreverse.diadefslib import (
     DiadefsHandler,
 )
 from pylint.pyreverse.inspector import Linker
+from pylint.testutils.pyreverse import get_project
 
 
 def _process_classes(classes):
@@ -50,8 +50,8 @@ def _process_relations(relations):
 
 
 @pytest.fixture
-def HANDLER():
-    return DiadefsHandler(Config())
+def HANDLER(default_config):
+    return DiadefsHandler(default_config)
 
 
 @pytest.fixture(scope="module")
@@ -59,10 +59,10 @@ def PROJECT():
     return get_project("data")
 
 
-def test_option_values(HANDLER, PROJECT):
+def test_option_values(default_config, HANDLER, PROJECT):
     """test for ancestor, associated and module options"""
     df_h = DiaDefGenerator(Linker(PROJECT), HANDLER)
-    cl_config = Config()
+    cl_config = default_config
     cl_config.classes = ["Specialization"]
     cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
     assert df_h._get_levels() == (0, 0)
@@ -76,9 +76,9 @@ def test_option_values(HANDLER, PROJECT):
         hndl._set_default_options()
         assert hndl._get_levels() == (-1, -1)
         assert hndl.module_names
-    handler = DiadefsHandler(Config())
+    handler = DiadefsHandler(default_config)
     df_h = DiaDefGenerator(Linker(PROJECT), handler)
-    cl_config = Config()
+    cl_config = default_config
     cl_config.classes = ["Specialization"]
     cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
     for hndl in (df_h, cl_h):
@@ -111,13 +111,13 @@ class TestDefaultDiadefGenerator:
         relations = _process_relations(cd.relationships)
         assert relations == self._should_rels
 
-    def test_functional_relation_extraction(self):
+    def test_functional_relation_extraction(self, default_config):
         """functional test of relations extraction;
         different classes possibly in different modules"""
         # XXX should be catching pyreverse environnement problem but doesn't
         # pyreverse doesn't extracts the relations but this test ok
         project = get_project("data")
-        handler = DiadefsHandler(Config())
+        handler = DiadefsHandler(default_config)
         diadefs = handler.get_diadefs(project, Linker(project, tag=True))
         cd = diadefs[1]
         relations = _process_relations(cd.relationships)
