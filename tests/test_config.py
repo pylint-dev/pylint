@@ -1,9 +1,10 @@
 # pylint: disable=missing-module-docstring, missing-function-docstring, protected-access
 import os
 import unittest.mock
-from pathlib import Path
 
 import pylint.lint
+import pytest
+from pylint.config import OptionsManagerMixIn
 
 
 def check_configuration_file_reader(config_file):
@@ -98,11 +99,7 @@ reports = true
 def test_can_read_env_variable(tmp_path):
     # Check that we can read the "regular" INI .pylintrc file
     # if it has an environment variable.
-    os.environ["tmp_path_env"] = str(tmp_path)
-    config_file = (
-        Path(os.path.expandvars(os.path.expanduser("${tmp_path_env}"))) / ".pylintrc"
-    )
-
+    config_file = tmp_path / "pylintrc"
     config_file.write_text(
         """
 [messages control]
@@ -111,4 +108,13 @@ jobs = 10
 reports = yes
 """
     )
-    check_configuration_file_reader(config_file)
+    os.environ["tmp_path_env"] = str(tmp_path / "pylintrc")
+    options_manager_mix_in = OptionsManagerMixIn("", "${tmp_path_env}")
+    options_manager_mix_in.read_config_file("${tmp_path_env}")
+
+    def test_read_config_file():
+        with pytest.raises(OSError):
+            options_manager_mix_in.read_config_file("${tmp_path_en}")
+
+    test_read_config_file()
+    
