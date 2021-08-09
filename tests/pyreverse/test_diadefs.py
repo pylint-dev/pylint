@@ -31,7 +31,6 @@ from pylint.pyreverse.diadefslib import (
     DiadefsHandler,
 )
 from pylint.pyreverse.inspector import Linker
-from pylint.testutils.pyreverse import get_project
 
 
 def _process_classes(classes):
@@ -55,7 +54,7 @@ def HANDLER(default_config):
 
 
 @pytest.fixture(scope="module")
-def PROJECT():
+def PROJECT(get_project):
     return get_project("data")
 
 
@@ -111,7 +110,7 @@ class TestDefaultDiadefGenerator:
         relations = _process_relations(cd.relationships)
         assert relations == self._should_rels
 
-    def test_functional_relation_extraction(self, default_config):
+    def test_functional_relation_extraction(self, default_config, get_project):
         """functional test of relations extraction;
         different classes possibly in different modules"""
         # XXX should be catching pyreverse environnement problem but doesn't
@@ -149,7 +148,7 @@ def test_known_values1(HANDLER, PROJECT):
     ]
 
 
-def test_known_values2(HANDLER):
+def test_known_values2(HANDLER, get_project):
     project = get_project("data.clientmodule_test")
     dd = DefaultDiadefGenerator(Linker(project), HANDLER).visit(project)
     assert len(dd) == 1
@@ -193,7 +192,7 @@ def test_known_values4(HANDLER, PROJECT):
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires dataclasses")
-def test_regression_dataclasses_inference(HANDLER):
+def test_regression_dataclasses_inference(HANDLER, get_project):
     project_path = Path("regrtest_data") / "dataclasses_pyreverse"
     path = get_project(str(project_path))
 

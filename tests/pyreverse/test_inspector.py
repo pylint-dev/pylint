@@ -20,11 +20,10 @@ import astroid
 import pytest
 
 from pylint.pyreverse import inspector
-from pylint.testutils.pyreverse import get_project
 
 
 @pytest.fixture
-def project():
+def project(get_project):
     project = get_project("data", "data")
     linker = inspector.Linker(project)
     linker.visit(project)
