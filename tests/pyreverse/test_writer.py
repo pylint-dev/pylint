@@ -17,7 +17,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """
-unit test for visitors.diadefs and extensions.diadefslib modules
+Unit test for ``DiagramWriter``
 """
 
 
@@ -32,7 +32,6 @@ from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.inspector import Linker
 from pylint.pyreverse.vcg_printer import VCGPrinter
 from pylint.pyreverse.writer import DiagramWriter
-from pylint.testutils.pyreverse import get_project
 
 _DEFAULTS = {
     "all_ancestors": None,
@@ -78,21 +77,22 @@ VCG_FILES = ["packages_No_Name.vcg", "classes_No_Name.vcg"]
 
 
 @pytest.fixture()
-def setup_dot(default_config):
+def setup_dot(default_config, get_project):
     config = default_config
     writer = DiagramWriter(config, printer_class=DotPrinter)
-    yield from _setup(config, writer)
+    project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
+    yield from _setup(project, config, writer)
 
 
 @pytest.fixture()
-def setup_vcg(vcg_config):
+def setup_vcg(vcg_config, get_project):
     config = vcg_config
     writer = DiagramWriter(config, printer_class=VCGPrinter)
-    yield from _setup(config, writer)
-
-
-def _setup(config, writer):
     project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
+    yield from _setup(project, config, writer)
+
+
+def _setup(project, config, writer):
     linker = Linker(project)
     handler = DiadefsHandler(config)
     dd = DefaultDiadefGenerator(linker, handler).visit(project)

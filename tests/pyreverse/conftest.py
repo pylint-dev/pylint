@@ -1,6 +1,8 @@
-from typing import Optional, Tuple
+from typing import Callable, Optional, Tuple
 
 import pytest
+
+from pylint.pyreverse.inspector import Project, project_from_files
 
 
 # This class could and should be replaced with a simple dataclass when support for Python < 3.7 is dropped.
@@ -41,12 +43,25 @@ class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many
 
 
 @pytest.fixture()
-def default_config():
+def default_config() -> PyreverseConfig:
     return PyreverseConfig()
 
 
 @pytest.fixture()
-def vcg_config():
+def vcg_config() -> PyreverseConfig:
     return PyreverseConfig(
         output_format="vcg",
     )
+
+
+@pytest.fixture(scope="session")
+def get_project() -> Callable:
+    def _get_project(module: str, name: Optional[str] = "No Name") -> Project:
+        """return an astroid project representation"""
+
+        def _astroid_wrapper(func, modname):
+            return func(modname)
+
+        return project_from_files([module], _astroid_wrapper, project_name=name)
+
+    return _get_project
