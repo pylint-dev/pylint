@@ -1050,10 +1050,11 @@ class VariablesChecker(BaseChecker):
                 if used_before_assignment_is_enabled:
                     self.add_message("used-before-assignment", args=name, node=node)
 
+            self._check_late_binding_closure(node)
+
             if (
                 undefined_variable_is_enabled or used_before_assignment_is_enabled
             ) and defnode is not None:
-                self._check_late_binding_closure(node)
                 defstmt = defnode.statement()
                 defframe = defstmt.frame()
                 # The class reuses itself in the class scope.

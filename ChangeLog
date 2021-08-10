@@ -103,6 +103,9 @@ Release date: TBA
   Closes #2846
   Closes #3107
 
+* Fixed bug with ``cell-var-from-loop`` checker: it no longer has false negatives when
+  both ``unused-variable`` and ``used-before-assignment`` are disabled.
+
 
 What's New in Pylint 2.9.6?
 ===========================
