@@ -56,7 +56,7 @@ def good():
 
     for index in range(len(iterable)):
         def test(iterable):
-            return iterable[index]
+            return iterable[index]  # pylint: disable=cell-var-from-loop
         yield test([1, 2, 3])
 
 

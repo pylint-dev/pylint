@@ -455,6 +455,11 @@ def is_ancestor_name(
     return False
 
 
+def is_being_called(node: astroid.node_classes.NodeNG) -> bool:
+    """return True if node is the function being called in a Call node"""
+    return isinstance(node.parent, astroid.Call) and node.parent.func is node
+
+
 def assign_parent(node: astroid.node_classes.NodeNG) -> astroid.node_classes.NodeNG:
     """return the higher parent which is not an AssignName, Tuple or List node"""
     while node and isinstance(node, (astroid.AssignName, astroid.Tuple, astroid.List)):

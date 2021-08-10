@@ -97,6 +97,12 @@ Release date: TBA
 
   Closes #4102
 
+* Fixed ``cell-var-from-loop`` checker: handle cell variables in comprehensions within functions,
+  and function default argument expressions. Also handle basic variable shadowing.
+
+  Closes #2846
+  Closes #3107
+
 
 What's New in Pylint 2.9.6?
 ===========================

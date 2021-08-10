@@ -1034,8 +1034,7 @@ class VariablesChecker(BaseChecker):
                     and self._has_homonym_in_upper_function_scope(node, i)
                 )
             ):
-                defnode = utils.assign_parent(current_consumer.consumed[name][0])
-                self._check_late_binding_closure(node, defnode)
+                self._check_late_binding_closure(node)
                 self._loopvar_name(node, name)
                 break
 
@@ -1054,7 +1053,7 @@ class VariablesChecker(BaseChecker):
             if (
                 undefined_variable_is_enabled or used_before_assignment_is_enabled
             ) and defnode is not None:
-                self._check_late_binding_closure(node, defnode)
+                self._check_late_binding_closure(node)
                 defstmt = defnode.statement()
                 defframe = defstmt.frame()
                 # The class reuses itself in the class scope.
@@ -1804,27 +1803,41 @@ class VariablesChecker(BaseChecker):
 
         self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
 
-    def _check_late_binding_closure(self, node, assignment_node):
+    def _check_late_binding_closure(self, node: astroid.Name) -> None:
+        """Check whether node is a cell var that is assigned within a containing loop.
+
+        Special cases where we don't care about the error:
+        1. When the node's function is immediately called, e.g. (lambda: i)()
+        2. When the node's function is returned from within the loop, e.g. return lambda: i
+        """
         if not self.linter.is_message_enabled("cell-var-from-loop"):
             return
 
-        def _is_direct_lambda_call():
-            return (
-                isinstance(node_scope.parent, astroid.Call)
-                and node_scope.parent.func is node_scope
-            )
+        node_scope = node.frame()
 
-        node_scope = node.scope()
-        if not isinstance(node_scope, (astroid.Lambda, astroid.FunctionDef)):
-            return
-        if isinstance(node.parent, astroid.Arguments):
+        # If node appears in a default argument expression,
+        # look at the next enclosing frame instead
+        if utils.is_default_argument(node, node_scope):
+            node_scope = node_scope.parent.frame()
+
+        # Check if node is a cell var
+        if (
+            not isinstance(node_scope, (astroid.Lambda, astroid.FunctionDef))
+            or node.name in node_scope.locals
+        ):
             return
 
-        if isinstance(assignment_node, astroid.Comprehension):
-            if assignment_node.parent.parent_of(node.scope()):
-                self.add_message("cell-var-from-loop", node=node, args=node.name)
+        assign_scope, stmts = node.lookup(node.name)
+        if not stmts or not assign_scope.parent_of(node_scope):
+            return
+
+        if utils.is_comprehension(assign_scope):
+            self.add_message("cell-var-from-loop", node=node, args=node.name)
         else:
-            assign_scope = assignment_node.scope()
+            # Look for an enclosing For loop.
+            # Currently, we only consider the first assignment
+            assignment_node = stmts[0]
+
             maybe_for = assignment_node
             while maybe_for and not isinstance(maybe_for, astroid.For):
                 if maybe_for is assign_scope:
@@ -1834,7 +1847,7 @@ class VariablesChecker(BaseChecker):
                 if (
                     maybe_for
                     and maybe_for.parent_of(node_scope)
-                    and not _is_direct_lambda_call()
+                    and not utils.is_being_called(node_scope)
                     and not isinstance(node_scope.statement(), astroid.Return)
                 ):
                     self.add_message("cell-var-from-loop", node=node, args=node.name)
