@@ -30,7 +30,7 @@ from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import check_messages, infer_all
 
 MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "W1201": (
@@ -205,20 +205,17 @@ class LoggingChecker(checkers.BaseChecker):
             )
 
         def is_logger_class():
-            try:
-                for inferred in node.func.infer():
-                    if isinstance(inferred, astroid.BoundMethod):
-                        parent = inferred._proxied.parent
-                        if isinstance(parent, nodes.ClassDef) and (
-                            parent.qname() == "logging.Logger"
-                            or any(
-                                ancestor.qname() == "logging.Logger"
-                                for ancestor in parent.ancestors()
-                            )
-                        ):
-                            return True, inferred._proxied.name
-            except astroid.exceptions.InferenceError:
-                pass
+            for inferred in infer_all(node.func):
+                if isinstance(inferred, astroid.BoundMethod):
+                    parent = inferred._proxied.parent
+                    if isinstance(parent, nodes.ClassDef) and (
+                        parent.qname() == "logging.Logger"
+                        or any(
+                            ancestor.qname() == "logging.Logger"
+                            for ancestor in parent.ancestors()
+                        )
+                    ):
+                        return True, inferred._proxied.name
             return False, None
 
         if is_logging_name():
