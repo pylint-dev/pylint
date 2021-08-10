@@ -158,6 +158,8 @@ Release date: TBA
 
   Closes #4653
 
+* Improve performance when inferring ``Call`` nodes, by utilizing caching.
+
 
 What's New in Pylint 2.9.6?
 ===========================

@@ -9,7 +9,7 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import utils
-from pylint.checkers.utils import get_import_name, safe_infer
+from pylint.checkers.utils import get_import_name, infer_all, safe_infer
 
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,
@@ -58,14 +58,11 @@ class DeprecatedMixin:
         "deprecated-class",
     )
     def visit_call(self, node: nodes.Call) -> None:
-        """Called when a :class:`.astroid.Call` node is visited."""
-        try:
-            self.check_deprecated_class_in_call(node)
-            for inferred in node.func.infer():
-                # Calling entry point for deprecation check logic.
-                self.check_deprecated_method(node, inferred)
-        except astroid.InferenceError:
-            pass
+        """Called when a :class:`nodes.Call` node is visited."""
+        self.check_deprecated_class_in_call(node)
+        for inferred in infer_all(node.func):
+            # Calling entry point for deprecation check logic.
+            self.check_deprecated_method(node, inferred)
 
     @utils.check_messages(
         "deprecated-module",

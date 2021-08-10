@@ -75,6 +75,7 @@ from pylint import checkers, exceptions, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import (
+    infer_all,
     is_overload_stub,
     is_property_deleter,
     is_property_setter,
@@ -782,11 +783,8 @@ class BasicErrorChecker(_BasicChecker):
         """Check instantiating abstract class with
         abc.ABCMeta as metaclass.
         """
-        try:
-            for inferred in node.func.infer():
-                self._check_inferred_class_is_abstract(inferred, node)
-        except astroid.InferenceError:
-            return
+        for inferred in infer_all(node.func):
+            self._check_inferred_class_is_abstract(inferred, node)
 
     def _check_inferred_class_is_abstract(self, inferred, node):
         if not isinstance(inferred, nodes.ClassDef):

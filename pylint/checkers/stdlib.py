@@ -507,44 +507,41 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     )
     def visit_call(self, node):
         """Visit a Call node."""
-        try:
-            self.check_deprecated_class_in_call(node)
-            for inferred in node.func.infer():
-                if inferred is astroid.Uninferable:
-                    continue
-                if inferred.root().name == OPEN_MODULE:
-                    if (
-                        isinstance(node.func, nodes.Name)
-                        and node.func.name in OPEN_FILES_MODE
-                    ):
-                        self._check_open_mode(node)
-                    if (
-                        isinstance(node.func, nodes.Name)
-                        and node.func.name in OPEN_FILES_ENCODING
-                        or isinstance(node.func, nodes.Attribute)
-                        and node.func.attrname in OPEN_FILES_ENCODING
-                    ):
-                        self._check_open_encoded(node)
-                elif inferred.root().name == UNITTEST_CASE:
-                    self._check_redundant_assert(node, inferred)
-                elif isinstance(inferred, nodes.ClassDef):
-                    if inferred.qname() == THREADING_THREAD:
-                        self._check_bad_thread_instantiation(node)
-                    elif inferred.qname() == SUBPROCESS_POPEN:
-                        self._check_for_preexec_fn_in_popen(node)
-                elif isinstance(inferred, nodes.FunctionDef):
-                    name = inferred.qname()
-                    if name == COPY_COPY:
-                        self._check_shallow_copy_environ(node)
-                    elif name in ENV_GETTERS:
-                        self._check_env_function(node, inferred)
-                    elif name == SUBPROCESS_RUN:
-                        self._check_for_check_kw_in_run(node)
-                    elif name in DEBUG_BREAKPOINTS:
-                        self.add_message("forgotten-debug-statement", node=node)
-                self.check_deprecated_method(node, inferred)
-        except astroid.InferenceError:
-            return
+        self.check_deprecated_class_in_call(node)
+        for inferred in utils.infer_all(node.func):
+            if inferred is astroid.Uninferable:
+                continue
+            if inferred.root().name == OPEN_MODULE:
+                if (
+                    isinstance(node.func, nodes.Name)
+                    and node.func.name in OPEN_FILES_MODE
+                ):
+                    self._check_open_mode(node)
+                if (
+                    isinstance(node.func, nodes.Name)
+                    and node.func.name in OPEN_FILES_ENCODING
+                    or isinstance(node.func, nodes.Attribute)
+                    and node.func.attrname in OPEN_FILES_ENCODING
+                ):
+                    self._check_open_encoded(node)
+            elif inferred.root().name == UNITTEST_CASE:
+                self._check_redundant_assert(node, inferred)
+            elif isinstance(inferred, nodes.ClassDef):
+                if inferred.qname() == THREADING_THREAD:
+                    self._check_bad_thread_instantiation(node)
+                elif inferred.qname() == SUBPROCESS_POPEN:
+                    self._check_for_preexec_fn_in_popen(node)
+            elif isinstance(inferred, nodes.FunctionDef):
+                name = inferred.qname()
+                if name == COPY_COPY:
+                    self._check_shallow_copy_environ(node)
+                elif name in ENV_GETTERS:
+                    self._check_env_function(node, inferred)
+                elif name == SUBPROCESS_RUN:
+                    self._check_for_check_kw_in_run(node)
+                elif name in DEBUG_BREAKPOINTS:
+                    self.add_message("forgotten-debug-statement", node=node)
+            self.check_deprecated_method(node, inferred)
 
     @utils.check_messages("boolean-datetime")
     def visit_unaryop(self, node):

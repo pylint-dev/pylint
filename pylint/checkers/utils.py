@@ -1204,6 +1204,14 @@ def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
     return value if len(inferred_types) <= 1 else None
 
 
+@lru_cache(maxsize=1024)
+def infer_all(node: nodes.NodeNG) -> List[nodes.NodeNG]:
+    try:
+        return list(node.infer())
+    except astroid.InferenceError:
+        return []
+
+
 def has_known_bases(klass: nodes.ClassDef, context=None) -> bool:
     """Return true if all base classes of a class could be inferred."""
     try:
