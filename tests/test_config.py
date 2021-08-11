@@ -100,16 +100,16 @@ reports = true
 def test_can_read_env_variable(tmp_path):
     # Check that we can read the "regular" INI .pylintrc file
     # if it has an environment variable.
-    config_file = tmp_path / "pylintrc"
+    config_file = tmp_path / "pyproject.toml"
     config_file.write_text(
         """
-[messages control]
-disable = logging-not-lazy,logging-format-interpolation
-jobs = 10
-reports = yes
+[tool.pylint."messages control"]
+disable = "logging-not-lazy,logging-format-interpolation"
+jobs = "10"
+reports = "yes"
 """
     )
-    os.environ["tmp_path_env"] = str(tmp_path / "pylintrc")
+    os.environ["tmp_path_env"] = str(tmp_path / "pyproject.toml")
     options_manager_mix_in = OptionsManagerMixIn("", "${tmp_path_env}")
     options_manager_mix_in.read_config_file("${tmp_path_env}")
 
@@ -118,3 +118,8 @@ reports = yes
             options_manager_mix_in.read_config_file("${tmp_path_en}")
 
     test_read_config_file()
+    options_manager_mix_in.load_config_file()
+    section = options_manager_mix_in.cfgfile_parser.sections()[0]
+    jobs, jobs_nr = options_manager_mix_in.cfgfile_parser.items(section)[1]
+    assert jobs == "jobs"
+    assert jobs_nr == "10"
