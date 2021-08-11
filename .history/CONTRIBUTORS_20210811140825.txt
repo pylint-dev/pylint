@@ -529,5 +529,3 @@ contributors:
 * Daniel van Noord (DanielNoord): contributor
 
 * Michal Vasilek: contributor
-
-* Kai Mueller (kasium): contributor
