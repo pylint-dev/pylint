@@ -74,6 +74,7 @@ import _string
 import astroid
 import astroid.objects
 from astroid import TooManyLevelsError, nodes
+from astroid.context import InferenceContext
 
 COMP_NODE_TYPES = (
     nodes.ListComp,
@@ -1205,9 +1206,11 @@ def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
 
 
 @lru_cache(maxsize=1024)
-def infer_all(node: nodes.NodeNG) -> List[nodes.NodeNG]:
+def infer_all(
+    node: nodes.NodeNG, context: InferenceContext = None
+) -> List[nodes.NodeNG]:
     try:
-        return list(node.infer())
+        return list(node.infer(context=context))
     except astroid.InferenceError:
         return []
 
