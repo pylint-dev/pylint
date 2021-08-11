@@ -97,6 +97,10 @@ Release date: TBA
 
   Closes #4102
 
+* Fix false postive for ``invalid-all-format`` if the list or tuple builtin functions are used
+
+  Closes #4711
+
 
 What's New in Pylint 2.9.6?
 ===========================
