@@ -100,7 +100,7 @@ Release date: TBA
 * Fix false postive for ``invalid-all-format`` if the list or tuple builtin functions are used
 
   Closes #4711
-  
+
 * Config files can now contain environment variables
 
   Closes #3839
