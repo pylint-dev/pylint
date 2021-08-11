@@ -11,10 +11,12 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Dict, FrozenSet, Optional
+from typing import Dict, FrozenSet, List, Optional
+
+import astroid
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
-from pylint.pyreverse.utils import check_graphviz_availability
+from pylint.pyreverse.utils import check_graphviz_availability, get_annotation_label
 
 ALLOWED_CHARSETS: FrozenSet[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
 SHAPES: Dict[NodeType, str] = {
@@ -39,6 +41,7 @@ class DotPrinter(Printer):
         layout: Optional[Layout] = None,
         use_automatic_namespace: Optional[bool] = None,
     ):
+        layout = layout or Layout.BOTTOM_TO_TOP
         self.charset = "utf-8"
         self.node_style = "solid"
         super().__init__(title, layout, use_automatic_namespace)
@@ -65,10 +68,8 @@ class DotPrinter(Printer):
             properties = NodeProperties(label=name)
         shape = SHAPES[type_]
         color = properties.color if properties.color is not None else "black"
-        label = properties.label
+        label = self._build_label_for_node(properties)
         if label:
-            if type_ is NodeType.INTERFACE:
-                label = "<<interface>>\\n" + label
             label_part = f', label="{label}"'
         else:
             label_part = ""
@@ -78,6 +79,57 @@ class DotPrinter(Printer):
         self.emit(
             f'"{name}" [color="{color}"{fontcolor_part}{label_part}, shape="{shape}", style="{self.node_style}"];'
         )
+
+    @staticmethod
+    def _build_label_for_node(
+        properties: NodeProperties, is_interface: Optional[bool] = False
+    ) -> str:
+        if not properties.label:
+            return ""
+
+        label: str = properties.label
+        if is_interface:
+            # add a stereotype
+            label = "<<interface>>\\n" + label
+
+        if properties.attrs is None and properties.methods is None:
+            # return a "compact" form which only displays the class name in a box
+            return label
+
+        # Add class attributes
+        attrs: List[str] = properties.attrs or []
+        label = "{" + label + "|" + r"\l".join(attrs) + r"\l|"
+
+        # Add class methods
+        methods: List[astroid.FunctionDef] = properties.methods or []
+        for func in methods:
+            return_type = (
+                f": {get_annotation_label(func.returns)}" if func.returns else ""
+            )
+
+            if func.args.args:
+                arguments: List[astroid.AssignName] = [
+                    arg for arg in func.args.args if arg.name != "self"
+                ]
+            else:
+                arguments = []
+
+            annotations = dict(zip(arguments, func.args.annotations[1:]))
+            for arg in arguments:
+                annotation_label = ""
+                ann = annotations.get(arg)
+                if ann:
+                    annotation_label = get_annotation_label(ann)
+                annotations[arg] = annotation_label
+
+            args = ", ".join(
+                f"{arg.name}: {ann}" if ann else f"{arg.name}"
+                for arg, ann in annotations.items()
+            )
+
+            label += fr"{func.name}({args}){return_type}\l"
+        label += "}"
+        return label
 
     def emit_edge(
         self,

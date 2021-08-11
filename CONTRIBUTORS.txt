@@ -530,4 +530,7 @@ contributors:
 
 * Michal Vasilek: contributor
 
+* Kai Mueller (kasium): contributor
+
 * Sam Vermeiren (PaaEl): contributor
+
