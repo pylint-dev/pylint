@@ -258,7 +258,7 @@ class OptionsManagerMixIn:
         if config_file is None:
             config_file = self.config_file
         if config_file is not None:
-            config_file = os.path.expanduser(config_file)
+            config_file = os.path.expandvars(os.path.expanduser(config_file))
             if not os.path.exists(config_file):
                 raise OSError(f"The config file {config_file} doesn't exist!")
 
