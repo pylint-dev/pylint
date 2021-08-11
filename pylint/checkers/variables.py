@@ -2010,7 +2010,7 @@ class VariablesChecker(BaseChecker):
         if assigned is astroid.Uninferable:
             return
 
-        if not isinstance(assigned, (astroid.Tuple, astroid.List)):
+        if not isinstance(assigned, (astroid.Tuple, astroid.List, list, tuple)):
             self.add_message("invalid-all-format", node=assigned)
             return
 
