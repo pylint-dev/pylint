@@ -82,3 +82,12 @@ Other Changes
 * Added ``redundant-u-string-prefix`` checker: Emitted when the u prefix is added to a string
 
   Closes #4102
+
+* Fixed ``cell-var-from-loop`` checker: handle cell variables in comprehensions within functions,
+  and function default argument expressions. Also handle basic variable shadowing.
+
+  Closes #2846
+  Closes #3107
+
+* Fixed bug with ``cell-var-from-loop`` checker: it no longer has false negatives when
+  both ``unused-variable`` and ``used-before-assignment`` are disabled.

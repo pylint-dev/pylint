@@ -97,6 +97,15 @@ Release date: TBA
 
   Closes #4102
 
+* Fixed ``cell-var-from-loop`` checker: handle cell variables in comprehensions within functions,
+  and function default argument expressions. Also handle basic variable shadowing.
+
+  Closes #2846
+  Closes #3107
+
+* Fixed bug with ``cell-var-from-loop`` checker: it no longer has false negatives when
+  both ``unused-variable`` and ``used-before-assignment`` are disabled.
+
 * Fix false postive for ``invalid-all-format`` if the list or tuple builtin functions are used
 
   Closes #4711
