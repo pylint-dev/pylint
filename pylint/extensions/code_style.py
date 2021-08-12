@@ -1,4 +1,4 @@
-from typing import List, Set, Tuple, Type
+from typing import List, Set, Tuple, Type, Union
 
 import astroid
 from astroid.node_classes import NodeNG
@@ -53,18 +53,11 @@ class CodeStyleChecker(BaseChecker):
 
     @check_messages("consider-using-tuple")
     def visit_for(self, node: astroid.For) -> None:
-        self._check_inplace_defined_list_set(node.iter)
+        self._check_inplace_defined_list_set(node)
 
     @check_messages("consider-using-tuple")
     def visit_comprehension(self, node: astroid.Comprehension) -> None:
-        self._check_inplace_defined_list_set(node.iter)
-
-    @check_messages("consider-using-tuple")
-    def visit_compare(self, node: astroid.Compare) -> None:
-        for op, comparator in node.ops:
-            if op != "in":
-                continue
-            self._check_inplace_defined_list_set(comparator)
+        self._check_inplace_defined_list_set(node)
 
     def _check_dict_consider_namedtuple_dataclass(self, node: astroid.Dict) -> None:
         """Check if dictionary values can be replaced by Namedtuple or Dataclass."""
@@ -135,15 +128,17 @@ class CodeStyleChecker(BaseChecker):
             self.add_message("consider-using-namedtuple-or-dataclass", node=node)
             return
 
-    def _check_inplace_defined_list_set(self, node: NodeNG) -> None:
+    def _check_inplace_defined_list_set(
+        self, node: Union[astroid.For, astroid.Comprehension]
+    ) -> None:
         """Check if inplace defined list / set can be replaced by a tuple."""
-        if isinstance(node, (astroid.List, astroid.Set)) and not any(
-            isinstance(item, astroid.Starred) for item in node.elts
+        if isinstance(node.iter, (astroid.List, astroid.Set)) and not any(
+            isinstance(item, astroid.Starred) for item in node.iter.elts
         ):
             self.add_message(
                 "consider-using-tuple",
-                node=node,
-                args=(f" instead of {node.__class__.__qualname__.lower()}",),
+                node=node.iter,
+                args=(f" instead of {node.iter.__class__.__qualname__.lower()}"),
             )
 
 

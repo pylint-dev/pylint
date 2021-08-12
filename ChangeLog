@@ -48,10 +48,6 @@ Release date: TBA
 
   Closes #4365
 
-* ``CodeStyleChecker``
-
-  * Extended ``consider-using-tuple`` check to cover ``in`` comparisons.
-
 * Added ``forgotten-debug-statement``: Emitted when ``breakpoint``, ``pdb.set_trace`` or ``sys.breakpointhook`` calls are found
 
   Closes #3692
