@@ -32,6 +32,10 @@ New checkers
 Other Changes
 =============
 
+* pylint does not crash with a traceback anymore when a file is problematic. It
+  creates a template text file for opening an issue on the bug tracker instead.
+  The linting can go on for other non problematic files instead of being impossible.
+
 * Pyreverse - Show class has-a relationships inferred from type-hints
 
 * Performance of the Similarity checker has been improved.

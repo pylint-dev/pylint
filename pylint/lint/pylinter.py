@@ -13,6 +13,7 @@ import warnings
 from io import TextIOWrapper
 
 import astroid
+from astroid import AstroidError
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
@@ -23,7 +24,11 @@ from pylint.lint.report_functions import (
     report_messages_stats,
     report_total_messages_stats,
 )
-from pylint.lint.utils import fix_import_path
+from pylint.lint.utils import (
+    fix_import_path,
+    get_fatal_error_message,
+    prepare_crash_report,
+)
 from pylint.message import MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
@@ -165,6 +170,8 @@ class PyLinter(
     priority = 0
     level = 0
     msgs = MSGS
+    # Will be used like this : datetime.now().strftime(crash_file_path)
+    crash_file_path: str = "pylint-crash-%Y-%m-%d-%H.txt"
 
     @staticmethod
     def make_options():
@@ -960,7 +967,6 @@ class PyLinter(
 
         files_or_modules is either a string or list of strings presenting modules to check.
         """
-
         self.initialize()
 
         if not isinstance(files_or_modules, (list, tuple)):
@@ -1014,7 +1020,24 @@ class PyLinter(
         """
         with self._astroid_module_checker() as check_astroid_module:
             for name, filepath, modname in file_descrs:
-                self._check_file(get_ast, check_astroid_module, name, filepath, modname)
+                error = None
+                try:
+                    self._check_file(
+                        get_ast, check_astroid_module, name, filepath, modname
+                    )
+                except Exception as ex:  # pylint: disable=broad-except
+                    error = ex
+                    template_path = prepare_crash_report(
+                        error, filepath, self.crash_file_path
+                    )
+                if error is not None:
+                    msg = get_fatal_error_message(filepath, template_path)
+                    if isinstance(error, AstroidError):
+                        symbol = "astroid-error"
+                        msg = (filepath, msg)
+                    else:
+                        symbol = "fatal"
+                    self.add_message(symbol, args=msg)
 
     def _check_file(self, get_ast, check_astroid_module, name, filepath, modname):
         """Check a file using the passed utility functions (get_ast and check_astroid_module)
