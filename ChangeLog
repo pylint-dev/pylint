@@ -118,6 +118,8 @@ Release date: TBA
 
   Closes #4828
 
+* Added ``use-sequence-for-iteration``: Emitted when iterating over an in-place defined ``set``.
+
 
 What's New in Pylint 2.9.6?
 ===========================

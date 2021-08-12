@@ -28,6 +28,8 @@ New checkers
 
   Closes #3692
 
+* Added ``use-sequence-for-iteration``: Emitted when iterating over an in-place defined ``set``.
+
 
 Other Changes
 =============
