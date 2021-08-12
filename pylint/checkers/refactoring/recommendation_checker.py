@@ -264,6 +264,12 @@ class RecommendationChecker(checkers.BaseChecker):
 
     @utils.check_messages("consider-using-dict-items")
     def visit_comprehension(self, node: astroid.Comprehension) -> None:
+        self._check_consider_using_dict_items_comprehension(node)
+
+    def _check_consider_using_dict_items_comprehension(
+        self, node: astroid.Comprehension
+    ) -> None:
+        """Add message when accessing dict values by index lookup."""
         iterating_object_name = utils.get_iterating_dictionary_name(node)
         if iterating_object_name is None:
             return
