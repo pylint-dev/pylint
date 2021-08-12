@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Union
 
+from pylint.config import PYLINT_HOME
 from pylint.lint.expand_modules import get_python_path
 
 
@@ -18,7 +19,9 @@ class ArgumentPreprocessingError(Exception):
 def prepare_crash_report(
     ex: Exception, filepath: str, crash_file_path: Union[Path, str]
 ) -> Path:
-    issue_template_path = Path(datetime.now().strftime(str(crash_file_path))).resolve()
+    issue_template_path = (
+        Path(PYLINT_HOME) / datetime.now().strftime(str(crash_file_path))
+    ).resolve()
     with open(filepath, encoding="utf8") as f:
         file_content = f.read()
     template = ""
