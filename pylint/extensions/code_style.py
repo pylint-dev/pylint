@@ -1,4 +1,4 @@
-from typing import List, Set, Tuple, Type, Union
+from typing import List, Set, Tuple, Type, Union, cast
 
 import astroid
 from astroid.node_classes import NodeNG
@@ -65,6 +65,7 @@ class CodeStyleChecker(BaseChecker):
             isinstance(node.parent, (astroid.Assign, astroid.AnnAssign))
             and isinstance(node.parent.parent, astroid.Module)
             or isinstance(node.parent, astroid.AnnAssign)
+            and isinstance(node.parent.target, astroid.AssignName)
             and utils.is_assign_name_annotated_with(node.parent.target, "Final")
         ):
             # If dict is not part of an 'Assign' or 'AnnAssign' node in
@@ -80,6 +81,7 @@ class CodeStyleChecker(BaseChecker):
             # Makes sure all keys are 'Const' string nodes
             keys_checked: Set[KeyTupleT] = set()
             for _, dict_value in node.items:
+                dict_value = cast(astroid.Dict, dict_value)
                 for key, _ in dict_value.items:
                     key_tuple = (type(key), key.as_string())
                     if key_tuple in keys_checked:
@@ -95,6 +97,7 @@ class CodeStyleChecker(BaseChecker):
             # Makes sure all subdicts have at least 1 common key
             key_tuples: List[Tuple[KeyTupleT, ...]] = []
             for _, dict_value in node.items:
+                dict_value = cast(astroid.Dict, dict_value)
                 key_tuples.append(
                     tuple((type(key), key.as_string()) for key, _ in dict_value.items)
                 )
@@ -113,15 +116,17 @@ class CodeStyleChecker(BaseChecker):
             for _, dict_value in node.items
         ):
             # Make sure all sublists have the same length > 0
-            list_length = len(node.items[0][1].elts)
+            list_length = len(node.items[0][1].elts)  # type: ignore
             if list_length == 0:
                 return
             for _, dict_value in node.items[1:]:
+                dict_value = cast(Union[astroid.List, astroid.Tuple], dict_value)
                 if len(dict_value.elts) != list_length:
                     return
 
             # Make sure at least one list entry isn't a dict
             for _, dict_value in node.items:
+                dict_value = cast(Union[astroid.List, astroid.Tuple], dict_value)
                 if all(isinstance(entry, astroid.Dict) for entry in dict_value.elts):
                     return
 
