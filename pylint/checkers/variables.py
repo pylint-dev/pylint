@@ -1464,6 +1464,7 @@ class VariablesChecker(BaseChecker):
                             astroid.AnnAssign,
                             astroid.AugAssign,
                             astroid.Expr,
+                            astroid.Return,
                         ),
                     )
                     and isinstance(defstmt.value, astroid.IfExp)

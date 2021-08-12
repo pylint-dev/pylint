@@ -84,3 +84,8 @@ l3 += (
 def func2():
     return f'The number {(count := 4)} ' \
            f'is equal to {count}'
+
+
+# https://github.com/PyCQA/pylint/issues/4828
+def func3():
+    return bar if (bar := "") else ""
