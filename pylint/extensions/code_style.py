@@ -36,7 +36,7 @@ class CodeStyleChecker(BaseChecker):
             "Emitted when dictionary values can be replaced by namedtuples or dataclass instances.",
         ),
         "R6102": (
-            "Consider using an in-place tuple%s",
+            "Consider using an in-place tuple instead of list",
             "consider-using-tuple",
             "Emitted when an in-place defined list or set can be "
             "replaced by a slightly faster tuple.",
@@ -53,11 +53,11 @@ class CodeStyleChecker(BaseChecker):
 
     @check_messages("consider-using-tuple")
     def visit_for(self, node: astroid.For) -> None:
-        self._check_inplace_defined_list_set(node)
+        self._check_inplace_defined_list(node)
 
     @check_messages("consider-using-tuple")
     def visit_comprehension(self, node: astroid.Comprehension) -> None:
-        self._check_inplace_defined_list_set(node)
+        self._check_inplace_defined_list(node)
 
     def _check_dict_consider_namedtuple_dataclass(self, node: astroid.Dict) -> None:
         """Check if dictionary values can be replaced by Namedtuple or Dataclass."""
@@ -133,18 +133,12 @@ class CodeStyleChecker(BaseChecker):
             self.add_message("consider-using-namedtuple-or-dataclass", node=node)
             return
 
-    def _check_inplace_defined_list_set(
+    def _check_inplace_defined_list(
         self, node: Union[astroid.For, astroid.Comprehension]
     ) -> None:
-        """Check if inplace defined list / set can be replaced by a tuple."""
-        if isinstance(node.iter, (astroid.List, astroid.Set)) and not any(
-            isinstance(item, astroid.Starred) for item in node.iter.elts
-        ):
-            self.add_message(
-                "consider-using-tuple",
-                node=node.iter,
-                args=(f" instead of {node.iter.__class__.__qualname__.lower()}",),
-            )
+        """Check if in-place defined list can be replaced by a tuple."""
+        if isinstance(node.iter, astroid.List):
+            self.add_message("consider-using-tuple", node=node.iter)
 
 
 def register(linter: PyLinter) -> None:

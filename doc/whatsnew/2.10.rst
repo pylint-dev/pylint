@@ -31,6 +31,16 @@ New checkers
 * Added ``use-sequence-for-iteration``: Emitted when iterating over an in-place defined ``set``.
 
 
+Extensions
+==========
+
+* ``CodeStyleChecker``
+
+  * Limit ``consider-using-tuple`` to be emitted only for in-place defined ``lists``.
+
+  * Emit ``consider-using-tuple`` even if list contains a ``starred`` expression.
+
+
 Other Changes
 =============
 
