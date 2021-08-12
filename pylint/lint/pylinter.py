@@ -1020,19 +1020,16 @@ class PyLinter(
         """
         with self._astroid_module_checker() as check_astroid_module:
             for name, filepath, modname in file_descrs:
-                error = None
                 try:
                     self._check_file(
                         get_ast, check_astroid_module, name, filepath, modname
                     )
                 except Exception as ex:  # pylint: disable=broad-except
-                    error = ex
                     template_path = prepare_crash_report(
-                        error, filepath, self.crash_file_path
+                        ex, filepath, self.crash_file_path
                     )
-                if error is not None:
                     msg = get_fatal_error_message(filepath, template_path)
-                    if isinstance(error, AstroidError):
+                    if isinstance(ex, AstroidError):
                         symbol = "astroid-error"
                         msg = (filepath, msg)
                     else:
