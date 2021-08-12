@@ -138,7 +138,7 @@ class CodeStyleChecker(BaseChecker):
             self.add_message(
                 "consider-using-tuple",
                 node=node.iter,
-                args=(f" instead of {node.iter.__class__.__qualname__.lower()}"),
+                args=(f" instead of {node.iter.__class__.__qualname__.lower()}",),
             )
 
 
