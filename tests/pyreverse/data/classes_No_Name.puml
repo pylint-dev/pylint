@@ -1,0 +1,33 @@
+@startuml classes_No_Name
+set namespaceSeparator none
+class "Ancestor" as data.clientmodule_test.Ancestor {
+attr : str
+cls_member
+
+get_value()
+set_value(value)
+}
+class "DoNothing" as data.suppliermodule_test.DoNothing {
+
+}
+class "DoNothing2" as data.suppliermodule_test.DoNothing2 {
+
+}
+class "Interface" as data.suppliermodule_test.Interface {
+
+
+get_value()
+set_value(value)
+}
+class "Specialization" as data.clientmodule_test.Specialization {
+TYPE : str
+relation
+relation2
+top : str
+}
+data.clientmodule_test.Specialization --|> data.clientmodule_test.Ancestor
+data.clientmodule_test.Ancestor ..|> data.suppliermodule_test.Interface
+data.suppliermodule_test.DoNothing --* data.clientmodule_test.Ancestor : cls_member
+data.suppliermodule_test.DoNothing --* data.clientmodule_test.Specialization : relation
+data.suppliermodule_test.DoNothing2 --* data.clientmodule_test.Specialization : relation2
+@enduml
