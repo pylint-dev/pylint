@@ -16,6 +16,13 @@ New checkers
 Extensions
 ==========
 
+* ``CodeStyleChecker``
+
+  * Added ``use-set-for-membership``: Emitted when using an in-place defined ``list``
+    or ``tuple`` to do a membership test. ``sets`` are better optimized for that.
+
+    Closes #4776
+
 
 Other Changes
 =============
