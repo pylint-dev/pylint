@@ -44,7 +44,7 @@ def do_stuff_with_a_list():
 
 
 def do_stuff_with_a_set():
-    for var in {1, 2, 3}:
+    for var in {1, 2, 3}:  # pylint: disable=use-sequence-for-iteration
         pass
     return var
 

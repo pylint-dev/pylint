@@ -12,7 +12,7 @@ for x in [1, 2, 3]:  # [consider-using-tuple]
 (x for x in var)
 (x for x in (1, 2, 3))
 (x for x in [1, 2, 3])  # [consider-using-tuple]
-(x for x in {1, 2, 3})  # [consider-using-tuple]
+(x for x in {1, 2, 3})  # [consider-using-tuple,use-sequence-for-iteration]
 
 [x for x in var]
 [x for x in (1, 2, 3)]
@@ -26,4 +26,4 @@ for x in [2, *var]:
     pass
 
 [x for x in [*var, 2]]
-[x for x in {*var, 2}]
+[x for x in {*var, 2}]  # [use-sequence-for-iteration]
