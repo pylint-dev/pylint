@@ -12,6 +12,8 @@ from typing import List, NamedTuple, Optional
 
 import astroid
 
+from pylint.pyreverse.utils import get_annotation_label
+
 
 class NodeType(Enum):
     CLASS = "class"
@@ -83,6 +85,28 @@ class Printer(ABC):
         label: Optional[str] = None,
     ) -> None:
         """Create an edge from one node to another to display relationships."""
+
+    @staticmethod
+    def _get_method_arguments(method: astroid.FunctionDef) -> List[str]:
+        if method.args.args:
+            arguments: List[astroid.AssignName] = [
+                arg for arg in method.args.args if arg.name != "self"
+            ]
+        else:
+            arguments = []
+
+        annotations = dict(zip(arguments, method.args.annotations[1:]))
+        for arg in arguments:
+            annotation_label = ""
+            ann = annotations.get(arg)
+            if ann:
+                annotation_label = get_annotation_label(ann)
+            annotations[arg] = annotation_label
+
+        return [
+            f"{arg.name}: {ann}" if ann else f"{arg.name}"
+            for arg, ann in annotations.items()
+        ]
 
     def generate(self, outputfile: str) -> None:
         """Generate and save the final outputfile."""
