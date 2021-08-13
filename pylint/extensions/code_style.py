@@ -38,8 +38,9 @@ class CodeStyleChecker(BaseChecker):
         "R6102": (
             "Consider using an in-place tuple instead of list",
             "consider-using-tuple",
-            "Emitted when an in-place defined list or set can be "
-            "replaced by a slightly faster tuple.",
+            "Only for style consistency! "
+            "Emitted where an in-place defined ``list`` can be replaced by a ``tuple``. "
+            "Due to optimizations by CPython, there is no performance benefit from it.",
         ),
     }
 
