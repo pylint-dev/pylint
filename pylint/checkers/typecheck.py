@@ -1510,7 +1510,6 @@ accessed. Python regular expressions are accepted.",
                 return None
             itemmethod = methods[0]
         except (
-            astroid.NotFoundError,
             astroid.AttributeInferenceError,
             IndexError,
         ):

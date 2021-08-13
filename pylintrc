@@ -20,6 +20,9 @@ load-plugins=
     pylint.extensions.check_elif,
     pylint.extensions.bad_builtin,
     pylint.extensions.code_style,
+    pylint.extensions.overlapping_exceptions,
+    pylint.extensions.typing,
+    pylint.extensions.redefined_variable_type,
 
 # Use multiple processes to speed up Pylint.
 jobs=1
