@@ -125,6 +125,10 @@ Release date: TBA
   * Limit ``consider-using-tuple`` to be emitted only for in-place defined ``lists``.
 
   * Emit ``consider-using-tuple`` even if list contains a ``starred`` expression.
+  
+* Ignore decorators lines by similarities checker when ignore signatures flag enabled
+
+  Closes #4839
 
 
 What's New in Pylint 2.9.6?
