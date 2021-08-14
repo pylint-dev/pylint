@@ -117,38 +117,22 @@ def _setup(project, config, writer):
 @pytest.mark.usefixtures("setup_dot")
 @pytest.mark.parametrize("generated_file", DOT_FILES)
 def test_dot_files(generated_file):
-    expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)
-    generated = _file_lines(generated_file)
-    expected = _file_lines(expected_file)
-    generated = "\n".join(generated)
-    expected = "\n".join(expected)
-    files = f"\n *** expected : {expected_file}, generated : {generated_file} \n"
-    diff = "\n".join(
-        line for line in unified_diff(expected.splitlines(), generated.splitlines())
-    )
-    assert expected == generated, f"{files}{diff}"
-    os.remove(generated_file)
+    _assert_files_are_equal(generated_file)
 
 
 @pytest.mark.usefixtures("setup_vcg")
 @pytest.mark.parametrize("generated_file", VCG_FILES)
 def test_vcg_files(generated_file):
-    expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)
-    generated = _file_lines(generated_file)
-    expected = _file_lines(expected_file)
-    generated = "\n".join(generated)
-    expected = "\n".join(expected)
-    files = f"\n *** expected : {expected_file}, generated : {generated_file} \n"
-    diff = "\n".join(
-        line for line in unified_diff(expected.splitlines(), generated.splitlines())
-    )
-    assert expected == generated, f"{files}{diff}"
-    os.remove(generated_file)
+    _assert_files_are_equal(generated_file)
 
 
 @pytest.mark.usefixtures("setup_puml")
 @pytest.mark.parametrize("generated_file", PUML_FILES)
 def test_puml_files(generated_file):
+    _assert_files_are_equal(generated_file)
+
+
+def _assert_files_are_equal(generated_file):
     expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)
     generated = _file_lines(generated_file)
     expected = _file_lines(expected_file)
@@ -159,4 +143,3 @@ def test_puml_files(generated_file):
         line for line in unified_diff(expected.splitlines(), generated.splitlines())
     )
     assert expected == generated, f"{files}{diff}"
-    os.remove(generated_file)
