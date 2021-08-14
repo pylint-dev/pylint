@@ -40,6 +40,8 @@ Extensions
 Other Changes
 =============
 
+* Pyreverse - add output in PlantUML format
+
 * Pyreverse - Show class has-a relationships inferred from type-hints
 
 * Performance of the Similarity checker has been improved.

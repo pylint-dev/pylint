@@ -12,6 +12,10 @@ Release date: TBA
 ..
   Put bug fixes that should not wait for a new minor version here
 
++ pyreverse: add output in PlantUML format.
+
+  Closes #4498
+
 * pyreverse: Show class has-a relationships inferred from the type-hint
 
   Closes #4744
