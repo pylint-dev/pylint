@@ -10,7 +10,12 @@ from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
 from pylint.pyreverse.printer import Printer
 from pylint.pyreverse.vcg_printer import VCGPrinter
 
-filetype_to_printer = {"vcg": VCGPrinter, "puml": PlantUmlPrinter, "dot": DotPrinter}
+filetype_to_printer = {
+    "vcg": VCGPrinter,
+    "plantuml": PlantUmlPrinter,
+    "puml": PlantUmlPrinter,
+    "dot": DotPrinter,
+}
 
 
 def get_printer_for_filetype(filetype: str) -> Type[Printer]:

@@ -21,6 +21,7 @@ from pylint.pyreverse.vcg_printer import VCGPrinter
         ("vcg", VCGPrinter),
         ("dot", DotPrinter),
         ("puml", PlantUmlPrinter),
+        ("plantuml", PlantUmlPrinter),
         ("png", DotPrinter),
     ],
 )
