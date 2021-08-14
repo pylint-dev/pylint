@@ -130,6 +130,8 @@ Release date: TBA
 
   Closes #4839
 
+* Allow ``true`` and ``false`` values in ``pylintrc`` for better compatibility with ``toml`` config.
+
 
 What's New in Pylint 2.9.6?
 ===========================
