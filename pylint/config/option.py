@@ -35,11 +35,11 @@ def _choice_validator(choices, name, value):
 def _yn_validator(opt, _, value):
     if isinstance(value, int):
         return bool(value)
-    if value in ("y", "yes"):
+    if value in ("y", "yes", "true"):
         return True
-    if value in ("n", "no"):
+    if value in ("n", "no", "false"):
         return False
-    msg = "option %s: invalid yn value %r, should be in (y, yes, n, no)"
+    msg = "option %s: invalid yn value %r, should be in (y, yes, true, n, no, false)"
     raise optparse.OptionValueError(msg % (opt, value))
 
 
