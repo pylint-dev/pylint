@@ -28,10 +28,7 @@ from difflib import unified_diff
 import pytest
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
-from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.inspector import Linker
-from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
-from pylint.pyreverse.vcg_printer import VCGPrinter
 from pylint.pyreverse.writer import DiagramWriter
 
 _DEFAULTS = {
@@ -80,21 +77,21 @@ PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
 
 @pytest.fixture()
 def setup_dot(default_config, get_project):
-    writer = DiagramWriter(default_config, printer_class=DotPrinter)
+    writer = DiagramWriter(default_config)
     project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
     yield from _setup(project, default_config, writer)
 
 
 @pytest.fixture()
 def setup_vcg(vcg_config, get_project):
-    writer = DiagramWriter(vcg_config, printer_class=VCGPrinter)
+    writer = DiagramWriter(vcg_config)
     project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
     yield from _setup(project, vcg_config, writer)
 
 
 @pytest.fixture()
 def setup_puml(puml_config, get_project):
-    writer = DiagramWriter(puml_config, printer_class=PlantUmlPrinter)
+    writer = DiagramWriter(puml_config)
     project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
     yield from _setup(project, puml_config, writer)
 

@@ -27,10 +27,8 @@ from typing import Iterable
 from pylint.config import ConfigurationMixIn
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
-from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.utils import check_graphviz_availability, insert_default_options
-from pylint.pyreverse.vcg_printer import VCGPrinter
 
 OPTIONS = (
     (
@@ -209,8 +207,7 @@ class Run(ConfigurationMixIn):
             diadefs = handler.get_diadefs(project, linker)
         finally:
             sys.path.pop(0)
-        printer_class = VCGPrinter if self.config.output_format == "vcg" else DotPrinter
-        writer.DiagramWriter(self.config, printer_class).write(diadefs)
+        writer.DiagramWriter(self.config).write(diadefs)
         return 0
 
 

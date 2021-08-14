@@ -26,15 +26,16 @@ from pylint.pyreverse.diagrams import (
     PackageEntity,
 )
 from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType
+from pylint.pyreverse.printer_factory import get_printer_for_filetype
 from pylint.pyreverse.utils import is_exception
 
 
 class DiagramWriter:
     """base class for writing project diagrams"""
 
-    def __init__(self, config, printer_class):
+    def __init__(self, config):
         self.config = config
-        self.printer_class = printer_class
+        self.printer_class = get_printer_for_filetype(self.config.output_format)
         self.printer = None  # defined in set_printer
         self.file_name = ""  # defined in set_printer
 
