@@ -595,7 +595,7 @@ def stripped_lines(
             chain(
                 *(
                     range(
-                        func.fromlineno,
+                        func.lineno,
                         func.body[0].lineno if func.body else func.tolineno + 1,
                     )
                     for func in functions
