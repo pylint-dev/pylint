@@ -143,6 +143,7 @@ def test_known_values1(HANDLER, PROJECT):
         (True, "Ancestor"),
         (True, "DoNothing"),
         (True, "DoNothing2"),
+        (True, "DoSomething"),
         (True, "Interface"),
         (True, "Specialization"),
     ]
