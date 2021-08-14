@@ -141,6 +141,7 @@ def test_known_values1(HANDLER, PROJECT):
     classes = _process_classes(cd.objects)
     assert classes == [
         (True, "Ancestor"),
+        (True, "CustomException"),
         (True, "DoNothing"),
         (True, "DoNothing2"),
         (True, "DoSomething"),

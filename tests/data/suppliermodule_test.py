@@ -7,6 +7,8 @@ class Interface:
     def set_value(self, value):
         raise NotImplementedError
 
+class CustomException(Exception): pass
+
 class DoNothing: pass
 
 class DoNothing2: pass

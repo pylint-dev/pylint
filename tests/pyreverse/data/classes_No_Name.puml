@@ -7,6 +7,9 @@ cls_member
 get_value()
 set_value(value)
 }
+class "<color:red>CustomException</color>" as data.suppliermodule_test.CustomException {
+
+}
 class "DoNothing" as data.suppliermodule_test.DoNothing {
 
 }

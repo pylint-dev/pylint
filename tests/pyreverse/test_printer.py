@@ -9,7 +9,7 @@ import pytest
 
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
-from pylint.pyreverse.printer import Layout, Printer
+from pylint.pyreverse.printer import Layout, NodeType, Printer
 from pylint.pyreverse.vcg_printer import VCGPrinter
 
 
@@ -33,3 +33,20 @@ def test_explicit_layout(
 ) -> None:
     printer = printer_class(title="unittest", layout=layout)
     assert printer.lines[line_index].strip() == expected_content
+
+
+@pytest.mark.parametrize(
+    "layout, printer_class",
+    [(Layout.BOTTOM_TO_TOP, PlantUmlPrinter), (Layout.RIGHT_TO_LEFT, PlantUmlPrinter)],
+)
+def test_unsupported_layout(layout: Layout, printer_class: Type[Printer]):
+    with pytest.raises(ValueError):
+        printer_class(title="unittest", layout=layout)
+
+
+class TestPlantUmlPrinter:
+    printer = PlantUmlPrinter(title="unittest", layout=Layout.TOP_TO_BOTTOM)
+
+    def test_node_without_properties(self):
+        self.printer.emit_node(name="test", type_=NodeType.CLASS)
+        assert self.printer.lines[-1] == 'class "test" as test {\n\n}\n'
