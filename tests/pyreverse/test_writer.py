@@ -107,7 +107,7 @@ def _setup(project, config, writer):
         diagram.extract_relationships()
     writer.write(dd)
     yield
-    for fname in DOT_FILES + VCG_FILES:
+    for fname in DOT_FILES + VCG_FILES + PUML_FILES:
         try:
             os.remove(fname)
         except FileNotFoundError:
