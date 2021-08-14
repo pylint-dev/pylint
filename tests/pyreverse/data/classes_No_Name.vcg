@@ -13,6 +13,9 @@ graph:{
   node: {title:"data.suppliermodule_test.DoNothing2"  label:"\fbDoNothing2\fn\n\f____________"
   shape:box
 }
+  node: {title:"data.suppliermodule_test.DoSomething"  label:"\fbDoSomething\fn\n\f________________________\n\f08my_int : Optional[int]\n\f08my_string : str\n\f________________________\n\f10do_it()"
+  shape:box
+}
   node: {title:"data.suppliermodule_test.Interface"  label:"\fbInterface\fn\n\f___________\n\f10get_value()\n\f10set_value()"
   shape:box
 }
