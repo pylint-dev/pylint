@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-from typing import cast
+from typing import Union, cast
 
 import astroid
 
@@ -42,6 +42,12 @@ class RecommendationChecker(checkers.BaseChecker):
             "The first and last element can be accessed by using "
             "str.split(sep, maxsplit=1)[0] or str.rsplit(sep, maxsplit=1)[-1] "
             "instead.",
+        ),
+        "C0208": (
+            "Use a sequence type when iterating over values",
+            "use-sequence-for-iteration",
+            "When iterating over values, sequence types (e.g., ``lists``, ``tuples``, ``ranges``) "
+            "are more efficient than ``sets``.",
         ),
     }
 
@@ -134,10 +140,15 @@ class RecommendationChecker(checkers.BaseChecker):
                 )
                 self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
 
-    @utils.check_messages("consider-using-enumerate", "consider-using-dict-items")
+    @utils.check_messages(
+        "consider-using-enumerate",
+        "consider-using-dict-items",
+        "use-sequence-for-iteration",
+    )
     def visit_for(self, node: astroid.For) -> None:
         self._check_consider_using_enumerate(node)
         self._check_consider_using_dict_items(node)
+        self._check_use_sequence_for_iteration(node)
 
     def _check_consider_using_enumerate(self, node: astroid.For) -> None:
         """Emit a convention whenever range and len are used for indexing."""
@@ -262,8 +273,18 @@ class RecommendationChecker(checkers.BaseChecker):
                 self.add_message("consider-using-dict-items", node=node)
                 return
 
-    @utils.check_messages("consider-using-dict-items")
+    @utils.check_messages(
+        "consider-using-dict-items",
+        "use-sequence-for-iteration",
+    )
     def visit_comprehension(self, node: astroid.Comprehension) -> None:
+        self._check_consider_using_dict_items_comprehension(node)
+        self._check_use_sequence_for_iteration(node)
+
+    def _check_consider_using_dict_items_comprehension(
+        self, node: astroid.Comprehension
+    ) -> None:
+        """Add message when accessing dict values by index lookup."""
         iterating_object_name = utils.get_iterating_dictionary_name(node)
         if iterating_object_name is None:
             return
@@ -285,3 +306,10 @@ class RecommendationChecker(checkers.BaseChecker):
 
                 self.add_message("consider-using-dict-items", node=node)
                 return
+
+    def _check_use_sequence_for_iteration(
+        self, node: Union[astroid.For, astroid.Comprehension]
+    ) -> None:
+        """Check if code iterates over an in-place defined set."""
+        if isinstance(node.iter, astroid.Set):
+            self.add_message("use-sequence-for-iteration", node=node.iter)

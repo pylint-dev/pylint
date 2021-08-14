@@ -44,6 +44,7 @@ def _expand_default(self, option):
 
 @contextlib.contextmanager
 def _patch_optparse():
+    # pylint: disable = redefined-variable-type
     orig_default = optparse.HelpFormatter
     try:
         optparse.HelpFormatter.expand_default = _expand_default
