@@ -8,6 +8,7 @@ from typing import Type
 import pytest
 
 from pylint.pyreverse.dot_printer import DotPrinter
+from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
 from pylint.pyreverse.printer import Layout, Printer
 from pylint.pyreverse.vcg_printer import VCGPrinter
 
@@ -23,6 +24,8 @@ from pylint.pyreverse.vcg_printer import VCGPrinter
         (Layout.BOTTOM_TO_TOP, VCGPrinter, "orientation:bottom_to_top", -1),
         (Layout.LEFT_TO_RIGHT, VCGPrinter, "orientation:left_to_right", -1),
         (Layout.RIGHT_TO_LEFT, VCGPrinter, "orientation:right_to_left", -1),
+        (Layout.TOP_TO_BOTTOM, PlantUmlPrinter, "top to bottom direction", -1),
+        (Layout.LEFT_TO_RIGHT, PlantUmlPrinter, "left to right direction", -1),
     ],
 )
 def test_explicit_layout(
