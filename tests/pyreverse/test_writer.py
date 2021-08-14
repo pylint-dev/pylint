@@ -28,9 +28,7 @@ from difflib import unified_diff
 import pytest
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
-from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.inspector import Linker
-from pylint.pyreverse.vcg_printer import VCGPrinter
 from pylint.pyreverse.writer import DiagramWriter
 
 _DEFAULTS = {
@@ -74,22 +72,28 @@ def _file_lines(path):
 
 DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
 VCG_FILES = ["packages_No_Name.vcg", "classes_No_Name.vcg"]
+PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
 
 
 @pytest.fixture()
 def setup_dot(default_config, get_project):
-    config = default_config
-    writer = DiagramWriter(config, printer_class=DotPrinter)
+    writer = DiagramWriter(default_config)
     project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
-    yield from _setup(project, config, writer)
+    yield from _setup(project, default_config, writer)
 
 
 @pytest.fixture()
 def setup_vcg(vcg_config, get_project):
-    config = vcg_config
-    writer = DiagramWriter(config, printer_class=VCGPrinter)
+    writer = DiagramWriter(vcg_config)
     project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
-    yield from _setup(project, config, writer)
+    yield from _setup(project, vcg_config, writer)
+
+
+@pytest.fixture()
+def setup_puml(puml_config, get_project):
+    writer = DiagramWriter(puml_config)
+    project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
+    yield from _setup(project, puml_config, writer)
 
 
 def _setup(project, config, writer):
@@ -100,7 +104,7 @@ def _setup(project, config, writer):
         diagram.extract_relationships()
     writer.write(dd)
     yield
-    for fname in DOT_FILES + VCG_FILES:
+    for fname in DOT_FILES + VCG_FILES + PUML_FILES:
         try:
             os.remove(fname)
         except FileNotFoundError:
@@ -110,22 +114,22 @@ def _setup(project, config, writer):
 @pytest.mark.usefixtures("setup_dot")
 @pytest.mark.parametrize("generated_file", DOT_FILES)
 def test_dot_files(generated_file):
-    expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)
-    generated = _file_lines(generated_file)
-    expected = _file_lines(expected_file)
-    generated = "\n".join(generated)
-    expected = "\n".join(expected)
-    files = f"\n *** expected : {expected_file}, generated : {generated_file} \n"
-    diff = "\n".join(
-        line for line in unified_diff(expected.splitlines(), generated.splitlines())
-    )
-    assert expected == generated, f"{files}{diff}"
-    os.remove(generated_file)
+    _assert_files_are_equal(generated_file)
 
 
 @pytest.mark.usefixtures("setup_vcg")
 @pytest.mark.parametrize("generated_file", VCG_FILES)
 def test_vcg_files(generated_file):
+    _assert_files_are_equal(generated_file)
+
+
+@pytest.mark.usefixtures("setup_puml")
+@pytest.mark.parametrize("generated_file", PUML_FILES)
+def test_puml_files(generated_file):
+    _assert_files_are_equal(generated_file)
+
+
+def _assert_files_are_equal(generated_file):
     expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)
     generated = _file_lines(generated_file)
     expected = _file_lines(expected_file)
@@ -136,4 +140,3 @@ def test_vcg_files(generated_file):
         line for line in unified_diff(expected.splitlines(), generated.splitlines())
     )
     assert expected == generated, f"{files}{diff}"
-    os.remove(generated_file)

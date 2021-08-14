@@ -1,0 +1,13 @@
+@startuml packages_No_Name
+set namespaceSeparator none
+package "data" as data {
+
+}
+package "data.clientmodule_test" as data.clientmodule_test {
+
+}
+package "data.suppliermodule_test" as data.suppliermodule_test {
+
+}
+data.clientmodule_test --> data.suppliermodule_test
+@enduml

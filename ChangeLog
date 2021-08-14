@@ -12,6 +12,10 @@ Release date: TBA
 ..
   Put bug fixes that should not wait for a new minor version here
 
++ pyreverse: add output in PlantUML format.
+
+  Closes #4498
+
 * pylint does not crash with a traceback anymore when a file is problematic. It
   creates a template text file for opening an issue on the bug tracker instead.
   The linting can go on for other non problematic files instead of being impossible.

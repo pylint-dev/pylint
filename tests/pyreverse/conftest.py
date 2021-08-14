@@ -54,6 +54,13 @@ def vcg_config() -> PyreverseConfig:
     )
 
 
+@pytest.fixture()
+def puml_config() -> PyreverseConfig:
+    return PyreverseConfig(
+        output_format="puml",
+    )
+
+
 @pytest.fixture(scope="session")
 def get_project() -> Callable:
     def _get_project(module: str, name: Optional[str] = "No Name") -> Project:

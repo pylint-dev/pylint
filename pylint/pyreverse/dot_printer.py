@@ -80,9 +80,8 @@ class DotPrinter(Printer):
             f'"{name}" [color="{color}"{fontcolor_part}{label_part}, shape="{shape}", style="{self.node_style}"];'
         )
 
-    @staticmethod
     def _build_label_for_node(
-        properties: NodeProperties, is_interface: Optional[bool] = False
+        self, properties: NodeProperties, is_interface: Optional[bool] = False
     ) -> str:
         if not properties.label:
             return ""
@@ -103,31 +102,11 @@ class DotPrinter(Printer):
         # Add class methods
         methods: List[astroid.FunctionDef] = properties.methods or []
         for func in methods:
-            return_type = (
-                f": {get_annotation_label(func.returns)}" if func.returns else ""
-            )
-
-            if func.args.args:
-                arguments: List[astroid.AssignName] = [
-                    arg for arg in func.args.args if arg.name != "self"
-                ]
-            else:
-                arguments = []
-
-            annotations = dict(zip(arguments, func.args.annotations[1:]))
-            for arg in arguments:
-                annotation_label = ""
-                ann = annotations.get(arg)
-                if ann:
-                    annotation_label = get_annotation_label(ann)
-                annotations[arg] = annotation_label
-
-            args = ", ".join(
-                f"{arg.name}: {ann}" if ann else f"{arg.name}"
-                for arg, ann in annotations.items()
-            )
-
-            label += fr"{func.name}({args}){return_type}\l"
+            args = self._get_method_arguments(func)
+            label += fr"{func.name}({', '.join(args)})"
+            if func.returns:
+                label += ": " + get_annotation_label(func.returns)
+            label += r"\l"
         label += "}"
         return label
 
