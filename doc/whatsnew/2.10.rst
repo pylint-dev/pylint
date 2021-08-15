@@ -44,7 +44,7 @@ Extensions
 Other Changes
 =============
 
-* Pyreverse - add option to produce colored output.
+* pyreverse now permit to produce colored generated diagram by using the ``colorized`` option.
 
 * Pyreverse - add output in PlantUML format
 
