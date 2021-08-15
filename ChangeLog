@@ -12,7 +12,11 @@ Release date: TBA
 ..
   Put bug fixes that should not wait for a new minor version here
 
-+ pyreverse: add output in PlantUML format.
+* pyreverse: add option to produce colored output.
+
+  Closes #4488
+
+* pyreverse: add output in PlantUML format.
 
   Closes #4498
 

@@ -44,6 +44,8 @@ Extensions
 Other Changes
 =============
 
+* pyreverse now permit to produce colored generated diagram by using the ``colorized`` option.
+
 * Pyreverse - add output in PlantUML format
 
 * pylint does not crash with a traceback anymore when a file is problematic. It

@@ -24,6 +24,7 @@ Unit test for ``DiagramWriter``
 import codecs
 import os
 from difflib import unified_diff
+from unittest.mock import Mock
 
 import pytest
 
@@ -71,8 +72,10 @@ def _file_lines(path):
 
 
 DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
+COLORIZED_DOT_FILES = ["packages_colorized.dot", "classes_colorized.dot"]
 VCG_FILES = ["packages_No_Name.vcg", "classes_No_Name.vcg"]
 PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
+COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
 
 
 @pytest.fixture()
@@ -80,6 +83,15 @@ def setup_dot(default_config, get_project):
     writer = DiagramWriter(default_config)
     project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
     yield from _setup(project, default_config, writer)
+
+
+@pytest.fixture()
+def setup_colorized_dot(colorized_dot_config, get_project):
+    writer = DiagramWriter(colorized_dot_config)
+    project = get_project(
+        os.path.join(os.path.dirname(__file__), "..", "data"), name="colorized"
+    )
+    yield from _setup(project, colorized_dot_config, writer)
 
 
 @pytest.fixture()
@@ -96,6 +108,15 @@ def setup_puml(puml_config, get_project):
     yield from _setup(project, puml_config, writer)
 
 
+@pytest.fixture()
+def setup_colorized_puml(colorized_puml_config, get_project):
+    writer = DiagramWriter(colorized_puml_config)
+    project = get_project(
+        os.path.join(os.path.dirname(__file__), "..", "data"), name="colorized"
+    )
+    yield from _setup(project, colorized_puml_config, writer)
+
+
 def _setup(project, config, writer):
     linker = Linker(project)
     handler = DiadefsHandler(config)
@@ -104,7 +125,9 @@ def _setup(project, config, writer):
         diagram.extract_relationships()
     writer.write(dd)
     yield
-    for fname in DOT_FILES + VCG_FILES + PUML_FILES:
+    for fname in (
+        DOT_FILES + COLORIZED_DOT_FILES + VCG_FILES + PUML_FILES + COLORIZED_PUML_FILES
+    ):
         try:
             os.remove(fname)
         except FileNotFoundError:
@@ -114,6 +137,12 @@ def _setup(project, config, writer):
 @pytest.mark.usefixtures("setup_dot")
 @pytest.mark.parametrize("generated_file", DOT_FILES)
 def test_dot_files(generated_file):
+    _assert_files_are_equal(generated_file)
+
+
+@pytest.mark.usefixtures("setup_colorized_dot")
+@pytest.mark.parametrize("generated_file", COLORIZED_DOT_FILES)
+def test_colorized_dot_files(generated_file):
     _assert_files_are_equal(generated_file)
 
 
@@ -129,6 +158,12 @@ def test_puml_files(generated_file):
     _assert_files_are_equal(generated_file)
 
 
+@pytest.mark.usefixtures("setup_colorized_puml")
+@pytest.mark.parametrize("generated_file", COLORIZED_PUML_FILES)
+def test_colorized_puml_files(generated_file):
+    _assert_files_are_equal(generated_file)
+
+
 def _assert_files_are_equal(generated_file):
     expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)
     generated = _file_lines(generated_file)
@@ -140,3 +175,11 @@ def _assert_files_are_equal(generated_file):
         line for line in unified_diff(expected.splitlines(), generated.splitlines())
     )
     assert expected == generated, f"{files}{diff}"
+
+
+def test_color_for_stdlib_module(default_config):
+    writer = DiagramWriter(default_config)
+    obj = Mock()
+    obj.node = Mock()
+    obj.node.qname.return_value = "collections"
+    assert writer.get_shape_color(obj) == "grey"

@@ -23,6 +23,8 @@ class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many
         module_names: Optional[bool] = None,
         only_classnames: bool = False,
         output_format: str = "dot",
+        colorized: bool = False,
+        max_color_depth: int = 2,
         ignore_list: Tuple = tuple(),
         project: str = "",
         output_directory: str = "",
@@ -37,6 +39,8 @@ class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many
         self.module_names = module_names
         self.only_classnames = only_classnames
         self.output_format = output_format
+        self.colorized = colorized
+        self.max_color_depth = max_color_depth
         self.ignore_list = ignore_list
         self.project = project
         self.output_directory = output_directory
@@ -45,6 +49,14 @@ class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many
 @pytest.fixture()
 def default_config() -> PyreverseConfig:
     return PyreverseConfig()
+
+
+@pytest.fixture()
+def colorized_dot_config() -> PyreverseConfig:
+    return PyreverseConfig(
+        output_format="dot",
+        colorized=True,
+    )
 
 
 @pytest.fixture()
@@ -58,6 +70,14 @@ def vcg_config() -> PyreverseConfig:
 def puml_config() -> PyreverseConfig:
     return PyreverseConfig(
         output_format="puml",
+    )
+
+
+@pytest.fixture()
+def colorized_puml_config() -> PyreverseConfig:
+    return PyreverseConfig(
+        output_format="puml",
+        colorized=True,
     )
 
 
