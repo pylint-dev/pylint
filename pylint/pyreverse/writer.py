@@ -140,7 +140,7 @@ class DiagramWriter:
         """get label and shape for packages."""
         return NodeProperties(
             label=obj.title,
-            color=self.get_color(obj) if self.config.colorized else "black",
+            color=self.get_shape_color(obj) if self.config.colorized else "black",
         )
 
     def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
@@ -150,11 +150,11 @@ class DiagramWriter:
             attrs=obj.attrs if not self.config.only_classnames else None,
             methods=obj.methods if not self.config.only_classnames else None,
             fontcolor="red" if is_exception(obj.node) else "black",
-            color=self.get_color(obj) if self.config.colorized else "black",
+            color=self.get_shape_color(obj) if self.config.colorized else "black",
         )
         return properties
 
-    def get_color(self, obj: DiagramEntity) -> str:
+    def get_shape_color(self, obj: DiagramEntity) -> str:
         """get shape color"""
         qualified_name = obj.node.qname()
         if modutils.is_standard_module(qualified_name.split(".", maxsplit=1)[0]):
