@@ -1,4 +1,4 @@
-# pylint: disable=unused-import, missing-docstring, invalid-name, reimported, import-error, wrong-import-order, no-name-in-module, relative-beyond-top-level
+# pylint: disable=unused-import, missing-docstring, invalid-name, reimported, import-error, wrong-import-order, no-name-in-module
 # Functional tests for import aliasing
 # 1. useless-import-alias
 # 2. consider-using-from-import
@@ -23,3 +23,4 @@ from . import foo as bar, foo2 as bar2
 from foo.bar import foobar as foobar  # [useless-import-alias]
 from foo.bar import foobar as foo
 from .foo.bar import f as foobar
+from ............a import b  # [relative-beyond-top-level]

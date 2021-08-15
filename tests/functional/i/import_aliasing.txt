@@ -7,3 +7,4 @@ useless-import-alias:18:0::Import alias does not rename original package
 useless-import-alias:20:0::Import alias does not rename original package
 useless-import-alias:21:0::Import alias does not rename original package
 useless-import-alias:23:0::Import alias does not rename original package
+relative-beyond-top-level:26:0::Attempted relative import beyond top-level package
