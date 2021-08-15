@@ -241,3 +241,25 @@ class FalsePositive4681:
             print("Error")
             FalsePositive4681.__instance = False  # This should be fine
             FalsePositive4681.__should_cause_error = False  # [unused-private-member]
+
+
+class Pony:
+    """https://github.com/PyCQA/pylint/issues/4837"""
+    __defaults = {}
+    __defaults_set = False
+
+    def __init__(self, value):
+        self.value = value
+
+    def __init_defaults(self):  # [unused-private-member]
+        if not self.__defaults_set:
+            type(self).__defaults = { "fur": "pink" }
+            type(self).__defaults_set = True
+
+    def __get_fur_color(self):  # [unused-private-member]
+        color = lookup_attribute(self.__defaults, "fur")
+        return color
+
+
+def lookup_attribute(mapping, key):
+    return mapping[key]
