@@ -44,6 +44,8 @@ Extensions
 Other Changes
 =============
 
+* Pyreverse - add option to produce colored output.
+
 * Pyreverse - add output in PlantUML format
 
 * pylint does not crash with a traceback anymore when a file is problematic. It
