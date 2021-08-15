@@ -14,6 +14,8 @@ Release date: TBA
 
 * pyreverse: add option to produce colored output.
 
+  Closes #4488
+
 * pyreverse: add output in PlantUML format.
 
   Closes #4498
