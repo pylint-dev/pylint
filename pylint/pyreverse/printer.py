@@ -56,7 +56,16 @@ class Printer(ABC):
         self.layout = layout
         self.use_automatic_namespace = use_automatic_namespace
         self.lines: List[str] = []
+        self._indent = ""
         self._open_graph()
+
+    def _inc_indent(self):
+        """increment indentation"""
+        self._indent += "  "
+
+    def _dec_indent(self):
+        """decrement indentation"""
+        self._indent = self._indent[:-2]
 
     @abstractmethod
     def _open_graph(self) -> None:
@@ -65,7 +74,7 @@ class Printer(ABC):
     def emit(self, line: str, force_newline: Optional[bool] = True) -> None:
         if force_newline and not line.endswith("\n"):
             line += "\n"
-        self.lines.append(line)
+        self.lines.append(self._indent + line)
 
     @abstractmethod
     def emit_node(

@@ -49,4 +49,4 @@ class TestPlantUmlPrinter:
 
     def test_node_without_properties(self):
         self.printer.emit_node(name="test", type_=NodeType.CLASS)
-        assert self.printer.lines[-1] == 'class "test" as test {\n\n}\n'
+        assert self.printer.lines[-2:] == ['class "test" as test {\n', "}\n"]
