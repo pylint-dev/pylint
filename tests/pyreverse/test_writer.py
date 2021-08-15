@@ -182,4 +182,4 @@ def test_color_for_stdlib_module(default_config):
     obj = Mock()
     obj.node = Mock()
     obj.node.qname.return_value = "collections"
-    assert writer.get_color(obj) == "grey"
+    assert writer.get_shape_color(obj) == "grey"
