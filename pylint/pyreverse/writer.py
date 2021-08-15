@@ -17,11 +17,16 @@
 
 """Utilities for creating VCG and Dot diagrams"""
 
+import itertools
 import os
+
+import astroid
+from astroid import modutils
 
 from pylint.pyreverse.diagrams import (
     ClassDiagram,
     ClassEntity,
+    DiagramEntity,
     PackageDiagram,
     PackageEntity,
 )
@@ -38,6 +43,29 @@ class DiagramWriter:
         self.printer_class = get_printer_for_filetype(self.config.output_format)
         self.printer = None  # defined in set_printer
         self.file_name = ""  # defined in set_printer
+        self.depth = self.config.max_color_depth
+        self.available_colors = itertools.cycle(
+            [
+                "aliceblue",
+                "antiquewhite",
+                "aquamarine",
+                "burlywood",
+                "cadetblue",
+                "chartreuse",
+                "chocolate",
+                "coral",
+                "cornflowerblue",
+                "cyan",
+                "darkgoldenrod",
+                "darkseagreen",
+                "dodgerblue",
+                "forestgreen",
+                "gold",
+                "hotpink",
+                "mediumspringgreen",
+            ]
+        )
+        self.used_colors = {}
 
     def write(self, diadefs):
         """write files for <project> according to <diadefs>"""
@@ -108,12 +136,11 @@ class DiagramWriter:
         self.printer = self.printer_class(basename)
         self.file_name = file_name
 
-    @staticmethod
-    def get_package_properties(obj: PackageEntity) -> NodeProperties:
+    def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
         """get label and shape for packages."""
         return NodeProperties(
             label=obj.title,
-            color="black",
+            color=self.get_color(obj) if self.config.colorized else "black",
         )
 
     def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
@@ -123,9 +150,25 @@ class DiagramWriter:
             attrs=obj.attrs if not self.config.only_classnames else None,
             methods=obj.methods if not self.config.only_classnames else None,
             fontcolor="red" if is_exception(obj.node) else "black",
-            color="black",
+            color=self.get_color(obj) if self.config.colorized else "black",
         )
         return properties
+
+    def get_color(self, obj: DiagramEntity) -> str:
+        """get shape color"""
+        qualified_name = obj.node.qname()
+        if modutils.is_standard_module(qualified_name.split(".", maxsplit=1)[0]):
+            return "grey"
+        if isinstance(obj.node, astroid.ClassDef):
+            package = qualified_name.rsplit(".", maxsplit=2)[0]
+        elif obj.node.package:
+            package = qualified_name
+        else:
+            package = qualified_name.rsplit(".", maxsplit=1)[0]
+        base_name = ".".join(package.split(".", self.depth)[: self.depth])
+        if base_name not in self.used_colors:
+            self.used_colors[base_name] = next(self.available_colors)
+        return self.used_colors[base_name]
 
     def save(self) -> None:
         """write to disk"""

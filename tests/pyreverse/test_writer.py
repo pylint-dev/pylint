@@ -71,8 +71,10 @@ def _file_lines(path):
 
 
 DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
+COLORIZED_DOT_FILES = ["packages_colorized.dot", "classes_colorized.dot"]
 VCG_FILES = ["packages_No_Name.vcg", "classes_No_Name.vcg"]
 PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
+COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
 
 
 @pytest.fixture()
@@ -80,6 +82,15 @@ def setup_dot(default_config, get_project):
     writer = DiagramWriter(default_config)
     project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
     yield from _setup(project, default_config, writer)
+
+
+@pytest.fixture()
+def setup_colorized_dot(colorized_dot_config, get_project):
+    writer = DiagramWriter(colorized_dot_config)
+    project = get_project(
+        os.path.join(os.path.dirname(__file__), "..", "data"), name="colorized"
+    )
+    yield from _setup(project, colorized_dot_config, writer)
 
 
 @pytest.fixture()
@@ -96,6 +107,15 @@ def setup_puml(puml_config, get_project):
     yield from _setup(project, puml_config, writer)
 
 
+@pytest.fixture()
+def setup_colorized_puml(colorized_puml_config, get_project):
+    writer = DiagramWriter(colorized_puml_config)
+    project = get_project(
+        os.path.join(os.path.dirname(__file__), "..", "data"), name="colorized"
+    )
+    yield from _setup(project, colorized_puml_config, writer)
+
+
 def _setup(project, config, writer):
     linker = Linker(project)
     handler = DiadefsHandler(config)
@@ -104,7 +124,9 @@ def _setup(project, config, writer):
         diagram.extract_relationships()
     writer.write(dd)
     yield
-    for fname in DOT_FILES + VCG_FILES + PUML_FILES:
+    for fname in (
+        DOT_FILES + COLORIZED_DOT_FILES + VCG_FILES + PUML_FILES + COLORIZED_PUML_FILES
+    ):
         try:
             os.remove(fname)
         except FileNotFoundError:
@@ -117,6 +139,12 @@ def test_dot_files(generated_file):
     _assert_files_are_equal(generated_file)
 
 
+@pytest.mark.usefixtures("setup_colorized_dot")
+@pytest.mark.parametrize("generated_file", COLORIZED_DOT_FILES)
+def test_colorized_dot_files(generated_file):
+    _assert_files_are_equal(generated_file)
+
+
 @pytest.mark.usefixtures("setup_vcg")
 @pytest.mark.parametrize("generated_file", VCG_FILES)
 def test_vcg_files(generated_file):
@@ -126,6 +154,12 @@ def test_vcg_files(generated_file):
 @pytest.mark.usefixtures("setup_puml")
 @pytest.mark.parametrize("generated_file", PUML_FILES)
 def test_puml_files(generated_file):
+    _assert_files_are_equal(generated_file)
+
+
+@pytest.mark.usefixtures("setup_colorized_puml")
+@pytest.mark.parametrize("generated_file", COLORIZED_PUML_FILES)
+def test_colorized_puml_files(generated_file):
     _assert_files_are_equal(generated_file)
 
 

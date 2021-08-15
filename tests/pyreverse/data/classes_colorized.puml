@@ -1,0 +1,42 @@
+@startuml classes_colorized
+set namespaceSeparator none
+class "Ancestor" as data.clientmodule_test.Ancestor #aliceblue {
+attr : str
+cls_member
+
+get_value()
+set_value(value)
+}
+class "<color:red>CustomException</color>" as data.suppliermodule_test.CustomException #aliceblue {
+
+}
+class "DoNothing" as data.suppliermodule_test.DoNothing #aliceblue {
+
+}
+class "DoNothing2" as data.suppliermodule_test.DoNothing2 #aliceblue {
+
+}
+class "DoSomething" as data.suppliermodule_test.DoSomething #aliceblue {
+my_int : Optional[int]
+my_string : str
+
+do_it(new_int: int) -> int
+}
+class "Interface" as data.suppliermodule_test.Interface #aliceblue {
+
+
+get_value()
+set_value(value)
+}
+class "Specialization" as data.clientmodule_test.Specialization #aliceblue {
+TYPE : str
+relation
+relation2
+top : str
+}
+data.clientmodule_test.Specialization --|> data.clientmodule_test.Ancestor
+data.clientmodule_test.Ancestor ..|> data.suppliermodule_test.Interface
+data.suppliermodule_test.DoNothing --* data.clientmodule_test.Ancestor : cls_member
+data.suppliermodule_test.DoNothing --* data.clientmodule_test.Specialization : relation
+data.suppliermodule_test.DoNothing2 --* data.clientmodule_test.Specialization : relation2
+@enduml

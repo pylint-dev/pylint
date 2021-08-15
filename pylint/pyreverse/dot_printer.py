@@ -35,6 +35,8 @@ ARROWS: Dict[EdgeType, Dict] = {
 
 
 class DotPrinter(Printer):
+    DEFAULT_COLOR = "black"
+
     def __init__(
         self,
         title: str,
@@ -43,7 +45,6 @@ class DotPrinter(Printer):
     ):
         layout = layout or Layout.BOTTOM_TO_TOP
         self.charset = "utf-8"
-        self.node_style = "solid"
         super().__init__(title, layout, use_automatic_namespace)
 
     def _open_graph(self) -> None:
@@ -67,7 +68,8 @@ class DotPrinter(Printer):
         if properties is None:
             properties = NodeProperties(label=name)
         shape = SHAPES[type_]
-        color = properties.color if properties.color is not None else "black"
+        color = properties.color if properties.color is not None else self.DEFAULT_COLOR
+        style = "filled" if color != self.DEFAULT_COLOR else "solid"
         label = self._build_label_for_node(properties)
         if label:
             label_part = f', label="{label}"'
@@ -77,7 +79,7 @@ class DotPrinter(Printer):
             f', fontcolor="{properties.fontcolor}"' if properties.fontcolor else ""
         )
         self.emit(
-            f'"{name}" [color="{color}"{fontcolor_part}{label_part}, shape="{shape}", style="{self.node_style}"];'
+            f'"{name}" [color="{color}"{fontcolor_part}{label_part}, shape="{shape}", style="{style}"];'
         )
 
     def _build_label_for_node(
