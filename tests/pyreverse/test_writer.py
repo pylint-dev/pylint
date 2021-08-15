@@ -24,6 +24,7 @@ Unit test for ``DiagramWriter``
 import codecs
 import os
 from difflib import unified_diff
+from unittest.mock import Mock
 
 import pytest
 
@@ -174,3 +175,11 @@ def _assert_files_are_equal(generated_file):
         line for line in unified_diff(expected.splitlines(), generated.splitlines())
     )
     assert expected == generated, f"{files}{diff}"
+
+
+def test_color_for_stdlib_module(default_config):
+    writer = DiagramWriter(default_config)
+    obj = Mock()
+    obj.node = Mock()
+    obj.node.qname.return_value = "collections"
+    assert writer.get_color(obj) == "grey"
