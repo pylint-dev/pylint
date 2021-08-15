@@ -24,6 +24,11 @@ Release date: TBA
 
   Closes #4744
 
+* Fixed a crash when importing beyond the top level package during ``import-error``
+  message creation
+
+  Closes #4775
+
 * Added ``ignored-parents`` option to the design checker to ignore specific
   classes from the ``too-many-ancestors`` check (R0901).
 

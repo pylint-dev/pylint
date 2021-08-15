@@ -73,6 +73,7 @@ from typing import (
 import _string
 import astroid
 import astroid.objects
+from astroid import TooManyLevelsError
 
 from pylint.constants import BUILTINS
 
@@ -1550,13 +1551,13 @@ def get_import_name(
     :returns: absolute qualified module name of the module
         used in import.
     """
-    if isinstance(importnode, astroid.ImportFrom):
-        if importnode.level:
-            root = importnode.root()
-            if isinstance(root, astroid.Module):
-                modname = root.relative_to_absolute_name(
-                    modname, level=importnode.level
-                )
+    if isinstance(importnode, astroid.ImportFrom) and importnode.level:
+        root = importnode.root()
+        if isinstance(root, astroid.Module):
+            try:
+                return root.relative_to_absolute_name(modname, level=importnode.level)
+            except TooManyLevelsError:
+                return modname
     return modname
 
 
