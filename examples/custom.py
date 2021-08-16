@@ -1,4 +1,4 @@
-import astroid
+import astroid.nodes as an
 
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IAstroidChecker
@@ -45,17 +45,17 @@ class MyAstroidChecker(BaseChecker):
         ),
     )
 
-    def visit_call(self, node):
-        """Called when a :class:`.astroid.node_classes.Call` node is visited.
+    def visit_call(self, node: an.Call) -> None:
+        """Called when a :class:`.an.Call` node is visited.
 
-        See :mod:`astroid` for the description of available nodes.
+        See :mod:`an` for the description of available nodes.
 
         :param node: The node to check.
-        :type node: astroid.node_classes.Call
+        :type node: an.Call
         """
         if not (
-            isinstance(node.func, astroid.Attribute)
-            and isinstance(node.func.expr, astroid.Name)
+            isinstance(node.func, an.Attribute)
+            and isinstance(node.func.expr, an.Name)
             and node.func.expr.name == self.config.store_locals_indicator
             and node.func.attrname == "create"
         ):
