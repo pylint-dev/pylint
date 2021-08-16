@@ -136,7 +136,7 @@ def do_checks(content, next_version, version, version_type):
     wn_next_version = get_whats_new(next_version)
     wn_this_version = get_whats_new(version)
     # There is only one field where the release date is TBA
-    if version_type in [VersionType.MAJOR, VersionType.MINOR]:
+    if version_type in (VersionType.MAJOR, VersionType.MINOR):
         assert (
             content.count(RELEASE_DATE_TEXT) <= 1
         ), f"There should be only one release date 'TBA' ({version}) {err}"

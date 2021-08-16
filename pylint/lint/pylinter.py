@@ -728,7 +728,7 @@ class PyLinter(
     def disable_noerror_messages(self):
         for msgcat, msgids in self.msgs_store._msgs_by_category.items():
             # enable only messages with 'error' severity and above ('fatal')
-            if msgcat in ["E", "F"]:
+            if msgcat in ("E", "F"):
                 for msgid in msgids:
                     self.enable(msgid)
             else:

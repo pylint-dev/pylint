@@ -157,7 +157,7 @@ def _in_iterating_context(node):
     elif (
         isinstance(parent, nodes.Compare)
         and len(parent.ops) == 1
-        and parent.ops[0][0] in ["in", "not in"]
+        and parent.ops[0][0] in ("in", "not in")
     ):
         return True
     # Also if it's an `yield from`, that's fair
