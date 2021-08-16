@@ -12,7 +12,7 @@
 import sys
 
 import astroid
-import astroid.nodes as an
+from astroid import nodes
 
 from pylint import checkers, interfaces, utils
 from pylint.checkers import utils as checker_utils
@@ -47,9 +47,9 @@ class AsyncChecker(checkers.BaseChecker):
 
     @checker_utils.check_messages("yield-inside-async-function")
     def visit_asyncfunctiondef(self, node):
-        for child in node.nodes_of_class(an.Yield):
+        for child in node.nodes_of_class(nodes.Yield):
             if child.scope() is node and (
-                sys.version_info[:2] == (3, 5) or isinstance(child, an.YieldFrom)
+                sys.version_info[:2] == (3, 5) or isinstance(child, nodes.YieldFrom)
             ):
                 self.add_message("yield-inside-async-function", node=child)
 
@@ -60,7 +60,7 @@ class AsyncChecker(checkers.BaseChecker):
             if inferred is None or inferred is astroid.Uninferable:
                 continue
 
-            if isinstance(inferred, an.AsyncFunctionDef):
+            if isinstance(inferred, nodes.AsyncFunctionDef):
                 # Check if we are dealing with a function decorated
                 # with contextlib.asynccontextmanager.
                 if decorated_with(inferred, self._async_generators):

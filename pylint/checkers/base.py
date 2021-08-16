@@ -69,7 +69,7 @@ import sys
 from typing import Pattern
 
 import astroid
-import astroid.nodes as an
+from astroid import nodes
 
 from pylint import checkers, exceptions, interfaces
 from pylint import utils as lint_utils
@@ -177,7 +177,7 @@ REVERSED_PROTOCOL_METHOD = "__reversed__"
 SEQUENCE_PROTOCOL_METHODS = ("__getitem__", "__len__")
 REVERSED_METHODS = (SEQUENCE_PROTOCOL_METHODS, (REVERSED_PROTOCOL_METHOD,))
 TYPECHECK_COMPARISON_OPERATORS = frozenset(("is", "is not", "==", "!="))
-LITERAL_NODE_TYPES = (an.Const, an.Dict, an.List, an.Set)
+LITERAL_NODE_TYPES = (nodes.Const, nodes.Dict, nodes.List, nodes.Set)
 UNITTEST_CASE = "unittest.case"
 TYPE_QNAME = "%s.type" % BUILTINS
 ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
@@ -218,12 +218,12 @@ def _redefines_import(node):
     Returns True if the node redefines an import, False otherwise.
     """
     current = node
-    while current and not isinstance(current.parent, an.ExceptHandler):
+    while current and not isinstance(current.parent, nodes.ExceptHandler):
         current = current.parent
     if not current or not utils.error_of_type(current.parent, ImportError):
         return False
     try_block = current.parent.parent
-    for import_node in try_block.nodes_of_class((an.ImportFrom, an.Import)):
+    for import_node in try_block.nodes_of_class((nodes.ImportFrom, nodes.Import)):
         for name, alias in import_node.names:
             if alias:
                 if alias == node.name:
@@ -240,11 +240,11 @@ def in_loop(node):
         if isinstance(
             parent,
             (
-                an.For,
-                an.ListComp,
-                an.SetComp,
-                an.DictComp,
-                an.GeneratorExp,
+                nodes.For,
+                nodes.ListComp,
+                nodes.SetComp,
+                nodes.DictComp,
+                nodes.GeneratorExp,
             ),
         ):
             return True
@@ -275,7 +275,7 @@ def _get_break_loop_node(break_node):
     Returns:
         astroid.For or astroid.While: the loop node holding the break node.
     """
-    loop_nodes = (an.For, an.While)
+    loop_nodes = (nodes.For, nodes.While)
     parent = break_node.parent
     while not isinstance(parent, loop_nodes) or break_node in getattr(
         parent, "orelse", []
@@ -297,8 +297,8 @@ def _loop_exits_early(loop):
     Returns:
         bool: True if the loop may ends up in a break statement, False otherwise.
     """
-    loop_nodes = (an.For, an.While)
-    definition_nodes = (an.FunctionDef, an.ClassDef)
+    loop_nodes = (nodes.For, nodes.While)
+    definition_nodes = (nodes.FunctionDef, nodes.ClassDef)
     inner_loop_nodes = [
         _node
         for _node in loop.nodes_of_class(loop_nodes, skip_klass=definition_nodes)
@@ -306,7 +306,7 @@ def _loop_exits_early(loop):
     ]
     return any(
         _node
-        for _node in loop.nodes_of_class(an.Break, skip_klass=definition_nodes)
+        for _node in loop.nodes_of_class(nodes.Break, skip_klass=definition_nodes)
         if _get_break_loop_node(_node) not in inner_loop_nodes
     )
 
@@ -339,7 +339,7 @@ def _get_properties(config):
     return property_classes, property_names
 
 
-def _determine_function_name_type(node: an.FunctionDef, config=None):
+def _determine_function_name_type(node: nodes.FunctionDef, config=None):
     """Determine the name type whose regex the a function's name should match.
 
     :param node: A function node.
@@ -365,8 +365,9 @@ def _determine_function_name_type(node: an.FunctionDef, config=None):
     for decorator in decorators:
         # If the function is a property (decorated with @property
         # or @abc.abstractproperty), the name type is 'attr'.
-        if isinstance(decorator, an.Name) or (
-            isinstance(decorator, an.Attribute) and decorator.attrname in property_names
+        if isinstance(decorator, nodes.Name) or (
+            isinstance(decorator, nodes.Attribute)
+            and decorator.attrname in property_names
         ):
             inferred = utils.safe_infer(decorator)
             if (
@@ -445,7 +446,7 @@ def redefined_by_decorator(node):
     if node.decorators:
         for decorator in node.decorators.nodes:
             if (
-                isinstance(decorator, an.Attribute)
+                isinstance(decorator, nodes.Attribute)
                 and getattr(decorator.expr, "name", None) == node.name
             ):
                 return True
@@ -573,9 +574,9 @@ class BasicErrorChecker(_BasicChecker):
     def _too_many_starred_for_tuple(self, assign_tuple):
         starred_count = 0
         for elem in assign_tuple.itered():
-            if isinstance(elem, an.Tuple):
+            if isinstance(elem, nodes.Tuple):
                 return self._too_many_starred_for_tuple(elem)
-            if isinstance(elem, an.Starred):
+            if isinstance(elem, nodes.Starred):
                 starred_count += 1
         return starred_count > 1
 
@@ -584,10 +585,10 @@ class BasicErrorChecker(_BasicChecker):
         # Check *a, *b = ...
         assign_target = node.targets[0]
         # Check *a = b
-        if isinstance(node.targets[0], an.Starred):
+        if isinstance(node.targets[0], nodes.Starred):
             self.add_message("invalid-star-assignment-target", node=node)
 
-        if not isinstance(assign_target, an.Tuple):
+        if not isinstance(assign_target, nodes.Tuple):
             return
         if self._too_many_starred_for_tuple(assign_target):
             self.add_message("too-many-star-expressions", node=node)
@@ -595,16 +596,16 @@ class BasicErrorChecker(_BasicChecker):
     @utils.check_messages("star-needs-assignment-target")
     def visit_starred(self, node):
         """Check that a Starred expression is used in an assignment target."""
-        if isinstance(node.parent, an.Call):
+        if isinstance(node.parent, nodes.Call):
             # f(*args) is converted to Call(args=[Starred]), so ignore
             # them for this check.
             return
-        if isinstance(node.parent, (an.List, an.Tuple, an.Set, an.Dict)):
+        if isinstance(node.parent, (nodes.List, nodes.Tuple, nodes.Set, nodes.Dict)):
             # PEP 448 unpacking.
             return
 
         stmt = node.statement()
-        if not isinstance(stmt, an.Assign):
+        if not isinstance(stmt, nodes.Assign):
             return
 
         if stmt.value is node or stmt.value.parent_of(node):
@@ -628,7 +629,7 @@ class BasicErrorChecker(_BasicChecker):
             self._check_redefinition(node.is_method() and "method" or "function", node)
         # checks for max returns, branch, return in __init__
         returns = node.nodes_of_class(
-            an.Return, skip_klass=(an.FunctionDef, an.ClassDef)
+            nodes.Return, skip_klass=(nodes.FunctionDef, nodes.ClassDef)
         )
         if node.is_method() and node.name == "__init__":
             if node.is_generator():
@@ -662,7 +663,7 @@ class BasicErrorChecker(_BasicChecker):
 
         scope_globals = {
             name: child
-            for child in node.nodes_of_class(an.Global)
+            for child in node.nodes_of_class(nodes.Global)
             for name in child.names
             if child.scope() is node
         }
@@ -670,7 +671,7 @@ class BasicErrorChecker(_BasicChecker):
         if not scope_globals:
             return
 
-        for node_name in node.nodes_of_class(an.Name):
+        for node_name in node.nodes_of_class(nodes.Name):
             if node_name.scope() is not node:
                 continue
 
@@ -695,7 +696,7 @@ class BasicErrorChecker(_BasicChecker):
         nonlocals = set(
             from_iter(
                 child.names
-                for child in node.nodes_of_class(an.Nonlocal)
+                for child in node.nodes_of_class(nodes.Nonlocal)
                 if same_scope(child)
             )
         )
@@ -706,7 +707,7 @@ class BasicErrorChecker(_BasicChecker):
         global_vars = set(
             from_iter(
                 child.names
-                for child in node.nodes_of_class(an.Global)
+                for child in node.nodes_of_class(nodes.Global)
                 if same_scope(child)
             )
         )
@@ -715,7 +716,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.check_messages("return-outside-function")
     def visit_return(self, node):
-        if not isinstance(node.frame(), an.FunctionDef):
+        if not isinstance(node.frame(), nodes.FunctionDef):
             self.add_message("return-outside-function", node=node)
 
     @utils.check_messages("yield-outside-function")
@@ -747,7 +748,7 @@ class BasicErrorChecker(_BasicChecker):
         """check use of the non-existent ++ and -- operator operator"""
         if (
             (node.op in "+-")
-            and isinstance(node.operand, an.UnaryOp)
+            and isinstance(node.operand, nodes.UnaryOp)
             and (node.operand.op == node.op)
         ):
             self.add_message("nonexistent-operator", node=node, args=node.op * 2)
@@ -758,7 +759,7 @@ class BasicErrorChecker(_BasicChecker):
             if current_scope.parent is None:
                 break
 
-            if not isinstance(current_scope, (an.ClassDef, an.FunctionDef)):
+            if not isinstance(current_scope, (nodes.ClassDef, nodes.FunctionDef)):
                 self.add_message("nonlocal-without-binding", args=(name,), node=node)
                 return
 
@@ -769,7 +770,7 @@ class BasicErrorChecker(_BasicChecker):
             # Okay, found it.
             return
 
-        if not isinstance(current_scope, an.FunctionDef):
+        if not isinstance(current_scope, nodes.FunctionDef):
             self.add_message("nonlocal-without-binding", args=(name,), node=node)
 
     @utils.check_messages("nonlocal-without-binding")
@@ -789,7 +790,7 @@ class BasicErrorChecker(_BasicChecker):
             return
 
     def _check_inferred_class_is_abstract(self, inferred, node):
-        if not isinstance(inferred, an.ClassDef):
+        if not isinstance(inferred, nodes.ClassDef):
             return
 
         klass = utils.node_frame_class(node)
@@ -826,7 +827,7 @@ class BasicErrorChecker(_BasicChecker):
             )
 
     def _check_yield_outside_func(self, node):
-        if not isinstance(node.frame(), (an.FunctionDef, an.Lambda)):
+        if not isinstance(node.frame(), (nodes.FunctionDef, nodes.Lambda)):
             self.add_message("yield-outside-function", node=node)
 
     def _check_else_on_loop(self, node):
@@ -845,16 +846,16 @@ class BasicErrorChecker(_BasicChecker):
         """check that a node is inside a for or while loop"""
         _node = node.parent
         while _node:
-            if isinstance(_node, (an.For, an.While)):
+            if isinstance(_node, (nodes.For, nodes.While)):
                 if node not in _node.orelse:
                     return
 
-            if isinstance(_node, (an.ClassDef, an.FunctionDef)):
+            if isinstance(_node, (nodes.ClassDef, nodes.FunctionDef)):
                 break
             if (
-                isinstance(_node, an.TryFinally)
+                isinstance(_node, nodes.TryFinally)
                 and node in _node.finalbody
-                and isinstance(node, an.Continue)
+                and isinstance(node, nodes.Continue)
             ):
                 self.add_message("continue-in-finally", node=node)
 
@@ -876,7 +877,7 @@ class BasicErrorChecker(_BasicChecker):
             # Additional checks for methods which are not considered
             # redefined, since they are already part of the base API.
             if (
-                isinstance(parent_frame, an.ClassDef)
+                isinstance(parent_frame, nodes.ClassDef)
                 and node.name in REDEFINABLE_METHODS
             ):
                 return
@@ -886,12 +887,12 @@ class BasicErrorChecker(_BasicChecker):
                 return
 
             # Exempt functions redefined on a condition.
-            if isinstance(node.parent, an.If):
+            if isinstance(node.parent, nodes.If):
                 # Exempt "if not <func>" cases
                 if (
-                    isinstance(node.parent.test, an.UnaryOp)
+                    isinstance(node.parent.test, nodes.UnaryOp)
                     and node.parent.test.op == "not"
-                    and isinstance(node.parent.test.operand, an.Name)
+                    and isinstance(node.parent.test.operand, nodes.Name)
                     and node.parent.test.operand.name == node.name
                 ):
                     return
@@ -899,11 +900,11 @@ class BasicErrorChecker(_BasicChecker):
                 # Exempt "if <func> is not None" cases
                 # pylint: disable=too-many-boolean-expressions
                 if (
-                    isinstance(node.parent.test, an.Compare)
-                    and isinstance(node.parent.test.left, an.Name)
+                    isinstance(node.parent.test, nodes.Compare)
+                    and isinstance(node.parent.test.left, nodes.Name)
                     and node.parent.test.left.name == node.name
                     and node.parent.test.ops[0][0] == "is"
-                    and isinstance(node.parent.test.ops[0][1], an.Const)
+                    and isinstance(node.parent.test.ops[0][1], nodes.Const)
                     and node.parent.test.ops[0][1].value is None
                 ):
                     return
@@ -1107,29 +1108,29 @@ class BasicChecker(_BasicChecker):
 
     def _check_using_constant_test(self, node, test):
         const_nodes = (
-            an.Module,
-            an.GeneratorExp,
-            an.Lambda,
-            an.FunctionDef,
-            an.ClassDef,
+            nodes.Module,
+            nodes.GeneratorExp,
+            nodes.Lambda,
+            nodes.FunctionDef,
+            nodes.ClassDef,
             astroid.bases.Generator,
             astroid.UnboundMethod,
             astroid.BoundMethod,
-            an.Module,
+            nodes.Module,
         )
-        structs = (an.Dict, an.Tuple, an.Set, an.List)
+        structs = (nodes.Dict, nodes.Tuple, nodes.Set, nodes.List)
 
         # These nodes are excepted, since they are not constant
         # values, requiring a computation to happen.
         except_nodes = (
-            an.Call,
-            an.BinOp,
-            an.BoolOp,
-            an.UnaryOp,
-            an.Subscript,
+            nodes.Call,
+            nodes.BinOp,
+            nodes.BoolOp,
+            nodes.UnaryOp,
+            nodes.Subscript,
         )
         inferred = None
-        emit = isinstance(test, (an.Const,) + structs + const_nodes)
+        emit = isinstance(test, (nodes.Const,) + structs + const_nodes)
         if not isinstance(test, except_nodes):
             inferred = utils.safe_infer(test)
 
@@ -1140,9 +1141,9 @@ class BasicChecker(_BasicChecker):
             # it may be a illicit function call due to missing parentheses
             call_inferred = None
             try:
-                if isinstance(inferred, an.FunctionDef):
+                if isinstance(inferred, nodes.FunctionDef):
                     call_inferred = inferred.infer_call_result()
-                elif isinstance(inferred, an.Lambda):
+                elif isinstance(inferred, nodes.Lambda):
                     call_inferred = inferred.infer_call_result(node)
             except astroid.InferenceError:
                 call_inferred = None
@@ -1174,21 +1175,21 @@ class BasicChecker(_BasicChecker):
     def visit_expr(self, node):
         """Check for various kind of statements without effect"""
         expr = node.value
-        if isinstance(expr, an.Const) and isinstance(expr.value, str):
+        if isinstance(expr, nodes.Const) and isinstance(expr.value, str):
             # treat string statement in a separated message
             # Handle PEP-257 attribute docstrings.
             # An attribute docstring is defined as being a string right after
             # an assignment at the module level, class level or __init__ level.
             scope = expr.scope()
-            if isinstance(scope, (an.ClassDef, an.Module, an.FunctionDef)):
-                if isinstance(scope, an.FunctionDef) and scope.name != "__init__":
+            if isinstance(scope, (nodes.ClassDef, nodes.Module, nodes.FunctionDef)):
+                if isinstance(scope, nodes.FunctionDef) and scope.name != "__init__":
                     pass
                 else:
                     sibling = expr.previous_sibling()
                     if (
                         sibling is not None
                         and sibling.scope() is scope
-                        and isinstance(sibling, (an.Assign, an.AnnAssign))
+                        and isinstance(sibling, (nodes.Assign, nodes.AnnAssign))
                     ):
                         return
             self.add_message("pointless-string-statement", node=node)
@@ -1202,12 +1203,12 @@ class BasicChecker(_BasicChecker):
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
         if (
-            isinstance(expr, (an.Yield, an.Await, an.Call))
-            or (isinstance(node.parent, an.TryExcept) and node.parent.body == [node])
-            or (isinstance(expr, an.Const) and expr.value is Ellipsis)
+            isinstance(expr, (nodes.Yield, nodes.Await, nodes.Call))
+            or (isinstance(node.parent, nodes.TryExcept) and node.parent.body == [node])
+            or (isinstance(expr, nodes.Const) and expr.value is Ellipsis)
         ):
             return
-        if any(expr.nodes_of_class(an.Call)):
+        if any(expr.nodes_of_class(nodes.Call)):
             self.add_message(
                 "expression-not-assigned", node=node, args=expr.as_string()
             )
@@ -1219,9 +1220,9 @@ class BasicChecker(_BasicChecker):
         # Return the arguments for the given call which are
         # not passed as vararg.
         for arg in call_args:
-            if isinstance(arg, an.Starred):
+            if isinstance(arg, nodes.Starred):
                 if (
-                    isinstance(arg.value, an.Name)
+                    isinstance(arg.value, nodes.Name)
                     and arg.value.name != node.args.vararg
                 ):
                     yield arg
@@ -1233,7 +1234,7 @@ class BasicChecker(_BasicChecker):
         if not args:
             return True
         for arg in args:
-            if isinstance(arg.value, an.Name):
+            if isinstance(arg.value, nodes.Name):
                 if arg.value.name != variadic_name:
                     return True
             else:
@@ -1254,12 +1255,12 @@ class BasicChecker(_BasicChecker):
             # of the lambda.
             return
         call = node.body
-        if not isinstance(call, an.Call):
+        if not isinstance(call, nodes.Call):
             # The body of the lambda must be a function call expression
             # for the lambda to be unnecessary.
             return
-        if isinstance(node.body.func, an.Attribute) and isinstance(
-            node.body.func.expr, an.Call
+        if isinstance(node.body.func, nodes.Attribute) and isinstance(
+            node.body.func.expr, nodes.Call
         ):
             # Chained call, the intermediate call might
             # return something else (but we don't check that, yet).
@@ -1293,7 +1294,7 @@ class BasicChecker(_BasicChecker):
         if len(ordinary_args) != len(new_call_args):
             return
         for arg, passed_arg in zip(ordinary_args, new_call_args):
-            if not isinstance(passed_arg, an.Name):
+            if not isinstance(passed_arg, nodes.Name):
                 return
             if arg.name != passed_arg.name:
                 return
@@ -1314,7 +1315,7 @@ class BasicChecker(_BasicChecker):
         """Check for dangerous default values as arguments."""
 
         def is_iterable(internal_node):
-            return isinstance(internal_node, (an.List, an.Set, an.Dict))
+            return isinstance(internal_node, (nodes.List, nodes.Set, nodes.Dict))
 
         defaults = node.args.defaults or [] + node.args.kw_defaults or []
         for default in defaults:
@@ -1341,7 +1342,7 @@ class BasicChecker(_BasicChecker):
                     #     or a dict.
                     if is_iterable(default):
                         msg = value.pytype()
-                    elif isinstance(default, an.Call):
+                    elif isinstance(default, nodes.Call):
                         msg = f"{value.name}() ({value.qname()})"
                     else:
                         msg = f"{default.as_string()} ({value.qname()})"
@@ -1359,7 +1360,7 @@ class BasicChecker(_BasicChecker):
         """
         self._check_unreachable(node)
         # Is it inside final body of a try...finally block ?
-        self._check_not_in_finally(node, "return", (an.FunctionDef,))
+        self._check_not_in_finally(node, "return", (nodes.FunctionDef,))
 
     @utils.check_messages("unreachable")
     def visit_continue(self, node):
@@ -1378,7 +1379,7 @@ class BasicChecker(_BasicChecker):
         # 1 - Is it right sibling ?
         self._check_unreachable(node)
         # 2 - Is it inside final body of a try...finally block ?
-        self._check_not_in_finally(node, "break", (an.For, an.While))
+        self._check_not_in_finally(node, "break", (nodes.For, nodes.While))
 
     @utils.check_messages("unreachable")
     def visit_raise(self, node):
@@ -1393,7 +1394,7 @@ class BasicChecker(_BasicChecker):
         self.add_message("exec-used", node=node)
 
     def _check_misplaced_format_function(self, call_node):
-        if not isinstance(call_node.func, an.Attribute):
+        if not isinstance(call_node.func, nodes.Attribute):
             return
         if call_node.func.attrname != "format":
             return
@@ -1405,9 +1406,12 @@ class BasicChecker(_BasicChecker):
             # we are doubtful on inferred type of node, so here just check if format
             # was called on print()
             call_expr = call_node.func.expr
-            if not isinstance(call_expr, an.Call):
+            if not isinstance(call_expr, nodes.Call):
                 return
-            if isinstance(call_expr.func, an.Name) and call_expr.func.name == "print":
+            if (
+                isinstance(call_expr.func, nodes.Name)
+                and call_expr.func.name == "print"
+            ):
                 self.add_message("misplaced-format-function", node=call_node)
 
     @utils.check_messages(
@@ -1418,7 +1422,7 @@ class BasicChecker(_BasicChecker):
         call and check for * or ** use
         """
         self._check_misplaced_format_function(node)
-        if isinstance(node.func, an.Name):
+        if isinstance(node.func, nodes.Name):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
@@ -1435,12 +1439,12 @@ class BasicChecker(_BasicChecker):
         """check whether assert is used on a tuple or string literal."""
         if (
             node.fail is None
-            and isinstance(node.test, an.Tuple)
+            and isinstance(node.test, nodes.Tuple)
             and len(node.test.elts) == 2
         ):
             self.add_message("assert-on-tuple", node=node)
 
-        if isinstance(node.test, an.Const) and isinstance(node.test.value, str):
+        if isinstance(node.test, nodes.Const) and isinstance(node.test.value, str):
             if node.test.value:
                 when = "never"
             else:
@@ -1452,7 +1456,7 @@ class BasicChecker(_BasicChecker):
         """check duplicate key in dictionary"""
         keys = set()
         for k, _ in node.items:
-            if isinstance(k, an.Const):
+            if isinstance(k, nodes.Const):
                 key = k.value
                 if key in keys:
                     self.add_message("duplicate-key", node=node, args=key)
@@ -1471,9 +1475,9 @@ class BasicChecker(_BasicChecker):
         unreach_stmt = node.next_sibling()
         if unreach_stmt is not None:
             if (
-                isinstance(node, an.Return)
-                and isinstance(unreach_stmt, an.Expr)
-                and isinstance(unreach_stmt.value, an.Yield)
+                isinstance(node, nodes.Return)
+                and isinstance(unreach_stmt, nodes.Expr)
+                and isinstance(unreach_stmt.value, nodes.Yield)
             ):
                 # Don't add 'unreachable' for empty generators.
                 # Only add warning if 'yield' is followed by another node.
@@ -1512,7 +1516,7 @@ class BasicChecker(_BasicChecker):
             if argument is None:
                 # Nothing was inferred.
                 # Try to see if we have iter().
-                if isinstance(node.args[0], an.Call):
+                if isinstance(node.args[0], nodes.Call):
                     try:
                         func = next(node.args[0].func.infer())
                     except astroid.InferenceError:
@@ -1523,7 +1527,7 @@ class BasicChecker(_BasicChecker):
                         self.add_message("bad-reversed-sequence", node=node)
                 return
 
-            if isinstance(argument, (an.List, an.Tuple)):
+            if isinstance(argument, (nodes.List, nodes.Tuple)):
                 return
 
             if isinstance(argument, astroid.Instance):
@@ -1563,8 +1567,8 @@ class BasicChecker(_BasicChecker):
         pairs = node.items
         if pairs:
             for prev_pair, pair in zip(pairs, pairs[1:]):
-                if isinstance(prev_pair[1], an.AssignName) and (
-                    pair[1] is None and not isinstance(pair[0], an.Call)
+                if isinstance(prev_pair[1], nodes.AssignName) and (
+                    pair[1] is None and not isinstance(pair[0], nodes.Call)
                 ):
                     # Don't emit a message if the second is a function call
                     # there's no way that can be mistaken for a name assignment.
@@ -1580,7 +1584,7 @@ class BasicChecker(_BasicChecker):
 
         rhs_names = []
         targets = node.targets
-        if isinstance(targets[0], an.Tuple):
+        if isinstance(targets[0], nodes.Tuple):
             if len(targets) != 1:
                 # A complex assignment, so bail out early.
                 return
@@ -1589,22 +1593,22 @@ class BasicChecker(_BasicChecker):
                 # Unpacking a variable into the same name.
                 return
 
-        if isinstance(node.value, an.Name):
+        if isinstance(node.value, nodes.Name):
             if len(targets) != 1:
                 return
             rhs_names = [node.value]
-        elif isinstance(node.value, an.Tuple):
+        elif isinstance(node.value, nodes.Tuple):
             rhs_count = len(node.value.elts)
             if len(targets) != rhs_count or rhs_count == 1:
                 return
             rhs_names = node.value.elts
 
         for target, lhs_name in zip(targets, rhs_names):
-            if not isinstance(lhs_name, an.Name):
+            if not isinstance(lhs_name, nodes.Name):
                 continue
-            if not isinstance(target, an.AssignName):
+            if not isinstance(target, nodes.AssignName):
                 continue
-            if isinstance(scope, an.ClassDef) and target.name in scope_locals:
+            if isinstance(scope, nodes.ClassDef) and target.name in scope_locals:
                 # Check that the scope is different than a class level, which is usually
                 # a pattern to expose module level attributes as class level ones.
                 continue
@@ -1619,14 +1623,14 @@ class BasicChecker(_BasicChecker):
         )
 
         for target in targets:
-            if not isinstance(target, an.Tuple):
+            if not isinstance(target, nodes.Tuple):
                 continue
 
             found_names = []
             for element in target.elts:
-                if isinstance(element, an.Tuple):
+                if isinstance(element, nodes.Tuple):
                     self._check_redeclared_assign_name([element])
-                elif isinstance(element, an.AssignName) and element.name != "_":
+                elif isinstance(element, nodes.AssignName) and element.name != "_":
                     if dummy_variables_rgx and dummy_variables_rgx.match(element.name):
                         return
                     found_names.append(element.name)
@@ -1974,28 +1978,28 @@ class NameChecker(_BasicChecker):
         self._check_assign_to_new_keyword_violation(node.name, node)
         frame = node.frame()
         assign_type = node.assign_type()
-        if isinstance(assign_type, an.Comprehension):
+        if isinstance(assign_type, nodes.Comprehension):
             self._check_name("inlinevar", node.name, node)
-        elif isinstance(frame, an.Module):
-            if isinstance(assign_type, an.Assign):
-                if isinstance(utils.safe_infer(assign_type.value), an.ClassDef):
+        elif isinstance(frame, nodes.Module):
+            if isinstance(assign_type, nodes.Assign):
+                if isinstance(utils.safe_infer(assign_type.value), nodes.ClassDef):
                     self._check_name("class", node.name, node)
                 # Don't emit if the name redefines an import
                 # in an ImportError except handler.
                 elif not _redefines_import(node) and isinstance(
-                    utils.safe_infer(assign_type.value), an.Const
+                    utils.safe_infer(assign_type.value), nodes.Const
                 ):
                     self._check_name("const", node.name, node)
             elif isinstance(
-                assign_type, an.AnnAssign
+                assign_type, nodes.AnnAssign
             ) and utils.is_assign_name_annotated_with(node, "Final"):
                 self._check_name("const", node.name, node)
-        elif isinstance(frame, an.FunctionDef):
+        elif isinstance(frame, nodes.FunctionDef):
             # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
                 if not _redefines_import(node):
                     self._check_name("variable", node.name, node)
-        elif isinstance(frame, an.ClassDef):
+        elif isinstance(frame, nodes.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
                 for ancestor in frame.ancestors():
                     if (
@@ -2011,7 +2015,7 @@ class NameChecker(_BasicChecker):
     def _recursive_check_names(self, args, node):
         """check names in a possibly recursive list <arg>"""
         for arg in args:
-            if isinstance(arg, an.AssignName):
+            if isinstance(arg, nodes.AssignName):
                 self._check_name("argument", arg.name, node)
             else:
                 self._recursive_check_names(arg.elts, node)
@@ -2056,7 +2060,7 @@ class NameChecker(_BasicChecker):
         def _should_exempt_from_invalid_name(node):
             if node_type == "variable":
                 inferred = utils.safe_infer(node)
-                if isinstance(inferred, an.ClassDef):
+                if isinstance(inferred, nodes.ClassDef):
                     return True
             return False
 
@@ -2184,7 +2188,7 @@ class DocStringChecker(_BasicChecker):
             ):
                 return
 
-            if isinstance(node.parent.frame(), an.ClassDef):
+            if isinstance(node.parent.frame(), nodes.ClassDef):
                 overridden = False
                 confidence = (
                     interfaces.INFERENCE
@@ -2194,14 +2198,14 @@ class DocStringChecker(_BasicChecker):
                 # check if node is from a method overridden by its ancestor
                 for ancestor in node.parent.frame().ancestors():
                     if node.name in ancestor and isinstance(
-                        ancestor[node.name], an.FunctionDef
+                        ancestor[node.name], nodes.FunctionDef
                     ):
                         overridden = True
                         break
                 self._check_docstring(
                     ftype, node, report_missing=not overridden, confidence=confidence
                 )
-            elif isinstance(node.parent.frame(), an.Module):
+            elif isinstance(node.parent.frame(), nodes.Module):
                 self._check_docstring(ftype, node)
             else:
                 return
@@ -2232,8 +2236,8 @@ class DocStringChecker(_BasicChecker):
             self.stats["undocumented_" + node_type] += 1
             if (
                 node.body
-                and isinstance(node.body[0], an.Expr)
-                and isinstance(node.body[0].value, an.Call)
+                and isinstance(node.body[0], nodes.Expr)
+                and isinstance(node.body[0].value, nodes.Call)
             ):
                 # Most likely a string with a format call. Let's see.
                 func = utils.safe_infer(node.body[0].value.func)
@@ -2271,7 +2275,7 @@ class PassChecker(_BasicChecker):
     @utils.check_messages("unnecessary-pass")
     def visit_pass(self, node):
         if len(node.parent.child_sequence(node)) > 1 or (
-            isinstance(node.parent, (an.ClassDef, an.FunctionDef))
+            isinstance(node.parent, (nodes.ClassDef, nodes.FunctionDef))
             and (node.parent.doc is not None)
         ):
             self.add_message("unnecessary-pass", node=node)
@@ -2281,7 +2285,7 @@ def _is_one_arg_pos_call(call):
     """Is this a call with exactly 1 argument,
     where that argument is positional?
     """
-    return isinstance(call, an.Call) and len(call.args) == 1 and not call.keywords
+    return isinstance(call, nodes.Call) and len(call.args) == 1 and not call.keywords
 
 
 def _infer_dunder_doc_attribute(node):
@@ -2294,7 +2298,7 @@ def _infer_dunder_doc_attribute(node):
     docstring = utils.safe_infer(docstring)
     if not docstring:
         return None
-    if not isinstance(docstring, an.Const):
+    if not isinstance(docstring, nodes.Const):
         return None
     return docstring.value
 
@@ -2365,7 +2369,7 @@ class ComparisonChecker(_BasicChecker):
         singleton_values = (True, False, None)
 
         def _is_singleton_const(node) -> bool:
-            return isinstance(node, an.Const) and any(
+            return isinstance(node, nodes.Const) and any(
                 node.value is value for value in singleton_values
             )
 
@@ -2421,7 +2425,7 @@ class ComparisonChecker(_BasicChecker):
     ):
         def _is_float_nan(node):
             try:
-                if isinstance(node, an.Call) and len(node.args) == 1:
+                if isinstance(node, nodes.Call) and len(node.args) == 1:
                     if (
                         node.args[0].value.lower() == "nan"
                         and node.inferred()[0].pytype() == "builtins.float"
@@ -2432,8 +2436,8 @@ class ComparisonChecker(_BasicChecker):
                 return False
 
         def _is_numpy_nan(node):
-            if isinstance(node, an.Attribute) and node.attrname == "NaN":
-                if isinstance(node.expr, an.Name):
+            if isinstance(node, nodes.Attribute) and node.attrname == "NaN":
+                if isinstance(node.expr, nodes.Name):
                     return node.expr.name in ("numpy", "nmp", "np")
             return False
 
@@ -2459,10 +2463,10 @@ class ComparisonChecker(_BasicChecker):
 
     def _check_literal_comparison(self, literal, node):
         """Check if we compare to a literal, which is usually what we do not want to do."""
-        nodes = (an.List, an.Tuple, an.Dict, an.Set)
+        nodes = (nodes.List, nodes.Tuple, nodes.Dict, nodes.Set)
         is_other_literal = isinstance(literal, nodes)
         is_const = False
-        if isinstance(literal, an.Const):
+        if isinstance(literal, nodes.Const):
             if isinstance(literal.value, bool) or literal.value is None:
                 # Not interested in this values.
                 return
@@ -2472,7 +2476,7 @@ class ComparisonChecker(_BasicChecker):
             self.add_message("literal-comparison", node=node)
 
     def _check_misplaced_constant(self, node, left, right, operator):
-        if isinstance(right, an.Const):
+        if isinstance(right, nodes.Const):
             return
         operator = REVERSED_COMPS.get(operator, operator)
         suggestion = f"{right.as_string()} {operator} {left.value!r}"
@@ -2490,10 +2494,14 @@ class ComparisonChecker(_BasicChecker):
         left_operand = node.left
         right_operand = node.ops[0][1]
         operator = node.ops[0][0]
-        if isinstance(left_operand, an.Const) and isinstance(right_operand, an.Const):
+        if isinstance(left_operand, nodes.Const) and isinstance(
+            right_operand, nodes.Const
+        ):
             left_operand = left_operand.value
             right_operand = right_operand.value
-        elif isinstance(left_operand, an.Name) and isinstance(right_operand, an.Name):
+        elif isinstance(left_operand, nodes.Name) and isinstance(
+            right_operand, nodes.Name
+        ):
             left_operand = left_operand.name
             right_operand = right_operand.name
 
@@ -2506,7 +2514,7 @@ class ComparisonChecker(_BasicChecker):
         if operator not in COMPARISON_OPERATORS:
             return
 
-        bare_callables = (an.FunctionDef, astroid.BoundMethod)
+        bare_callables = (nodes.FunctionDef, astroid.BoundMethod)
         left_operand, right_operand = node.left, node.ops[0][1]
         # this message should be emitted only when there is comparison of bare callable
         # with non bare callable.
@@ -2539,7 +2547,7 @@ class ComparisonChecker(_BasicChecker):
 
         left = node.left
         operator, right = node.ops[0]
-        if operator in COMPARISON_OPERATORS and isinstance(left, an.Const):
+        if operator in COMPARISON_OPERATORS and isinstance(left, nodes.Const):
             self._check_misplaced_constant(node, left, right, operator)
 
         if operator in ("==", "!="):
@@ -2564,12 +2572,17 @@ class ComparisonChecker(_BasicChecker):
     def _check_type_x_is_y(self, node, left, operator, right):
         """Check for expressions like type(x) == Y."""
         left_func = utils.safe_infer(left.func)
-        if not (isinstance(left_func, an.ClassDef) and left_func.qname() == TYPE_QNAME):
+        if not (
+            isinstance(left_func, nodes.ClassDef) and left_func.qname() == TYPE_QNAME
+        ):
             return
 
         if operator in ("is", "is not") and _is_one_arg_pos_call(right):
             right_func = utils.safe_infer(right.func)
-            if isinstance(right_func, an.ClassDef) and right_func.qname() == TYPE_QNAME:
+            if (
+                isinstance(right_func, nodes.ClassDef)
+                and right_func.qname() == TYPE_QNAME
+            ):
                 # type(x) == type(a)
                 right_arg = utils.safe_infer(right.args[0])
                 if not isinstance(right_arg, LITERAL_NODE_TYPES):
