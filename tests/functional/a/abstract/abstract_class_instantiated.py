@@ -126,3 +126,18 @@ else:
 
 def main2():
     FourthBadClass() # [abstract-class-instantiated]
+
+
+class BadClassTwo(abc.ABC):
+    """
+    Check that instantiating a class with `abc.ABCMeta` as ancestor fails if it
+    defines abstract methods.
+    """
+    @abc.abstractmethod
+    def test(self):
+        pass
+
+
+def main_two():
+    """ do nothing """
+    BadClassTwo() # [abstract-class-instantiated]
