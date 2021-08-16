@@ -3,10 +3,10 @@
 
 
 import astroid
+from astroid.const import BUILTINS
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
-from pylint.constants import BUILTINS
 
 
 class NotChecker(checkers.BaseChecker):

@@ -70,6 +70,7 @@ from typing import Pattern
 
 import astroid
 from astroid import nodes
+from astroid.const import BUILTINS
 
 from pylint import checkers, exceptions, interfaces
 from pylint import utils as lint_utils
@@ -79,7 +80,6 @@ from pylint.checkers.utils import (
     is_property_deleter,
     is_property_setter,
 )
-from pylint.constants import BUILTINS
 from pylint.reporters.ureports import nodes as reporter_nodes
 
 

@@ -1,6 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-import builtins
 import platform
 import sys
 
@@ -8,7 +7,6 @@ import astroid
 
 from pylint.__pkginfo__ import __version__
 
-BUILTINS = builtins.__name__
 PY38_PLUS = sys.version_info[:2] >= (3, 8)
 PY39_PLUS = sys.version_info[:2] >= (3, 9)
 PY310_PLUS = sys.version_info[:2] >= (3, 10)

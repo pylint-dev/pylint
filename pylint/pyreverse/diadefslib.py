@@ -21,8 +21,8 @@
 """
 
 import astroid
+from astroid.const import BUILTINS
 
-from pylint.constants import BUILTINS
 from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
 from pylint.pyreverse.utils import LocalsVisitor
 

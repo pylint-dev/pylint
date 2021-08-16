@@ -11,10 +11,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import astroid
+from astroid.const import BUILTINS
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, is_none, node_type
-from pylint.constants import BUILTINS
 from pylint.interfaces import IAstroidChecker
 
 
@@ -85,8 +85,8 @@ class MultipleTypesChecker(BaseChecker):
                     ) and redef_parent in orig_parent.nodes_of_class(astroid.If):
                         orig_node, orig_type = redef_node, redef_type
                         continue
-                orig_type = orig_type.replace(BUILTINS + ".", "")
-                redef_type = redef_type.replace(BUILTINS + ".", "")
+                orig_type = orig_type.replace(f"{BUILTINS}.", "")
+                redef_type = redef_type.replace(f"{BUILTINS}.", "")
                 self.add_message(
                     "redefined-variable-type",
                     node=redef_node,

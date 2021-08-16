@@ -74,8 +74,7 @@ import _string
 import astroid
 import astroid.objects
 from astroid import TooManyLevelsError
-
-from pylint.constants import BUILTINS
+from astroid.const import BUILTINS
 
 COMP_NODE_TYPES = (
     astroid.ListComp,
