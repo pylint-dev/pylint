@@ -6,3 +6,11 @@ consider-using-tuple:23:9::Consider using an in-place tuple instead of list
 consider-using-tuple:26:12::Consider using an in-place tuple instead of list
 use-sequence-for-iteration:30:12::Use a sequence type when iterating over values
 use-sequence-for-iteration:31:12::Use a sequence type when iterating over values
+consider-using-tuple:39:5::Consider using an in-place tuple instead of list
+consider-using-tuple:47:8::Consider using an in-place tuple instead of list
+consider-using-tuple:50:11::Consider using an in-place tuple instead of list
+consider-using-tuple:51:12::Consider using an in-place tuple instead of list
+consider-using-tuple:52:24::Consider using an in-place tuple instead of list
+consider-using-tuple:53:11::Consider using an in-place tuple instead of list
+consider-using-tuple:58:13::Consider using an in-place tuple instead of list
+consider-using-tuple:59:10::Consider using an in-place tuple instead of list
