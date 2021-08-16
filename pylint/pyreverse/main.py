@@ -21,11 +21,11 @@
 
   create UML diagrams for classes and modules in <packages>
 """
-import os
 import sys
 from typing import Iterable
 
 from pylint.config import ConfigurationMixIn
+from pylint.lint.utils import fix_import_path
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
@@ -212,10 +212,7 @@ class Run(ConfigurationMixIn):
         if not args:
             print(self.help())
             return 1
-        # insert current working directory to the python path to recognize
-        # dependencies to local modules even if cwd is not in the PYTHONPATH
-        sys.path.insert(0, os.getcwd())
-        try:
+        with fix_import_path(args):
             project = project_from_files(
                 args,
                 project_name=self.config.project,
@@ -224,9 +221,7 @@ class Run(ConfigurationMixIn):
             linker = Linker(project, tag=True)
             handler = DiadefsHandler(self.config)
             diadefs = handler.get_diadefs(project, linker)
-        finally:
-            sys.path.pop(0)
-        writer.DiagramWriter(self.config).write(diadefs)
+            writer.DiagramWriter(self.config).write(diadefs)
         return 0
 
 
