@@ -1039,25 +1039,25 @@ a metaclass class method.",
             return
         defining_methods = self.config.defining_attr_methods
         current_module = cnode.root()
-        for attr, nodes in cnode.instance_attrs.items():
+        for attr, nodes_lst in cnode.instance_attrs.items():
             # Exclude `__dict__` as it is already defined.
             if attr == "__dict__":
                 continue
 
             # Skip nodes which are not in the current module and it may screw up
             # the output, while it's not worth it
-            nodes = [
+            nodes_lst = [
                 n
-                for n in nodes
+                for n in nodes_lst
                 if not isinstance(n.statement(), (nodes.Delete, nodes.AugAssign))
                 and n.root() is current_module
             ]
-            if not nodes:
+            if not nodes_lst:
                 continue  # error detected by typechecking
 
             # Check if any method attr is defined in is a defining method
             # or if we have the attribute defined in a setter.
-            frames = (node.frame() for node in nodes)
+            frames = (node.frame() for node in nodes_lst)
             if any(
                 frame.name in defining_methods or is_property_setter(frame)
                 for frame in frames
@@ -1079,7 +1079,7 @@ a metaclass class method.",
                 try:
                     cnode.local_attr(attr)
                 except astroid.NotFoundError:
-                    for node in nodes:
+                    for node in nodes_lst:
                         if node.frame().name not in defining_methods:
                             # If the attribute was set by a call in any
                             # of the defining methods, then don't emit
@@ -1709,7 +1709,7 @@ a metaclass class method.",
     def _check_accessed_members(self, node, accessed):
         """check that accessed members are defined"""
         excs = ("AttributeError", "Exception", "BaseException")
-        for attr, nodes in accessed.items():
+        for attr, nodes_lst in accessed.items():
             try:
                 # is it a class attribute ?
                 node.local_attr(attr)
@@ -1731,7 +1731,7 @@ a metaclass class method.",
                 pass
             else:
                 # filter out augment assignment nodes
-                defstmts = [stmt for stmt in defstmts if stmt not in nodes]
+                defstmts = [stmt for stmt in defstmts if stmt not in nodes_lst]
                 if not defstmts:
                     # only augment assignment for this node, no-member should be
                     # triggered by the typecheck checker
@@ -1752,7 +1752,7 @@ a metaclass class method.",
                     # it's defined, it's accessed after the initial assignment
                     frame = defstmt.frame()
                     lno = defstmt.fromlineno
-                    for _node in nodes:
+                    for _node in nodes_lst:
                         if (
                             _node.frame() is frame
                             and _node.fromlineno < lno
