@@ -11,6 +11,11 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.11.rst'
 
 
+* ``CodeStyleChecker``
+
+  * Emit ``consider-using-tuple`` for ``in`` comparisons when a ``list`` is used.
+
+
 What's New in Pylint 2.10.1?
 ============================
 Release date: TBA

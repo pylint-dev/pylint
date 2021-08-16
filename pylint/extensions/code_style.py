@@ -61,6 +61,12 @@ class CodeStyleChecker(BaseChecker):
         if isinstance(node.iter, nodes.List):
             self.add_message("consider-using-tuple", node=node.iter)
 
+    @check_messages("consider-using-tuple")
+    def visit_compare(self, node: nodes.Compare) -> None:
+        for op, comparator in node.ops:
+            if op == "in" and isinstance(comparator, nodes.List):
+                self.add_message("consider-using-tuple", node=comparator)
+
     def _check_dict_consider_namedtuple_dataclass(self, node: nodes.Dict) -> None:
         """Check if dictionary values can be replaced by Namedtuple or Dataclass."""
         if not (

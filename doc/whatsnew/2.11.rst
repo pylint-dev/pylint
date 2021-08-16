@@ -16,6 +16,10 @@ New checkers
 Extensions
 ==========
 
+* ``CodeStyleChecker``
+
+  * Emit ``consider-using-tuple`` for ``in`` comparisons when a ``list`` is used.
+
 
 Other Changes
 =============
