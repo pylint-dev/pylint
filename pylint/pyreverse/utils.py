@@ -272,6 +272,8 @@ def infer_node(node: Union[astroid.AssignAttr, astroid.AssignName]) -> set:
     ann = get_annotation(node)
     try:
         if ann:
+            if isinstance(ann, astroid.Subscript):
+                return {ann}
             return set(ann.infer())
         return set(node.infer())
     except astroid.InferenceError:

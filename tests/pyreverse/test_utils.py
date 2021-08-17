@@ -7,6 +7,7 @@
 """Tests for pylint.pyreverse.utils"""
 
 from unittest.mock import patch
+from typing import Optional
 
 import astroid
 import pytest
@@ -117,3 +118,23 @@ def test_infer_node_3():
     instance_attr = node.instance_attrs.get("component")[0]
     assert isinstance(infer_node(instance_attr), set)
     assert isinstance(infer_node(instance_attr).pop(), astroid.ClassDef)
+
+
+
+def test_infer_node_4():
+    """Verify the label for an argument with a typehint of the type
+    astroid.Subscript
+    """
+    node = astroid.extract_node(
+        """
+        class MyClass:
+            def __init__(self, my_int: Optional[int] = None):
+                self.my_test_int = my_int
+    """)
+
+    instance_attr = node.instance_attrs.get("my_test_int")[0]
+    assert isinstance(instance_attr, astroid.AssignAttr)
+
+    inferred = infer_node(instance_attr).pop()
+    assert isinstance(inferred, astroid.Subscript)
+    assert inferred.name == 'Optional[int]'
