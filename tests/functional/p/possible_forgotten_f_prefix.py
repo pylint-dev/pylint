@@ -1,4 +1,4 @@
-# pylint: disable=missing-module-docstring, invalid-name, line-too-long
+# pylint: disable=missing-docstring, invalid-name, line-too-long, multiple-statements, pointless-string-statement, pointless-statement
 var = "string"
 var_two = "extra string"
 
@@ -11,6 +11,24 @@ x1, x2, x3 = (1, 2, "This is a {var} which should be a f-string")  # [possible-f
 y = "This is a {var} used for formatting later"
 z = y.format(var="string")
 
+g = "This is a {another_var} used for formatting later"
+h = y.format(another_var="string")
+
+i = "This is {invalid /// python /// inside}"
+
 examples = [var, var_two]
 x = f"This is an example with a list: {''.join(examples) + 'well...' }"
 x = "This is an example with a list: {''.join(examples) + 'well...' }"  # [possible-forgotten-f-prefix]
+
+param = "string"
+"This is a string" # good
+"This is a {param}" # [possible-forgotten-f-prefix]
+f"This is a {param}" # good
+
+"This is a calculation: 1 + 1" # good
+"This is a calculation: {1 + 1}" # [possible-forgotten-f-prefix]
+f"This is a calculation: {1 + 1}" # good
+
+"This is a nice string" # good
+"This is a {'nice' + param}" # [possible-forgotten-f-prefix]
+f"This is a {'nice' + param}" # good
