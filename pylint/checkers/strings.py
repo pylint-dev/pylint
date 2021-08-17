@@ -34,7 +34,7 @@
 
 """Checker for string formatting operations.
 """
-
+import ast
 import collections
 import numbers
 import re
@@ -151,7 +151,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E1310": (
         "Suspicious argument in %s.%s call",
         "bad-str-strip-call",
-        "The argument to a str.{l,r,}strip call contains a duplicate character, ",
+        "The argument to a str.{l,r,}strip call contains a duplicate character, ",  # pylint: disable=possible-forgotten-f-prefix
     ),
     "W1302": (
         "Invalid format string",
@@ -189,7 +189,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "W1307": (
         "Using invalid lookup key %r in format specifier %r",
         "invalid-format-index",
-        "Used when a PEP 3101 format string uses a lookup specifier "
+        "Used when a PEP 3101 format string uses a lookup specifier "  # pylint: disable=possible-forgotten-f-prefix
         "({a[1]}), but the argument passed for formatting "
         "doesn't contain or doesn't have that key as an attribute.",
     ),
@@ -933,48 +933,37 @@ class StringConstantChecker(BaseTokenChecker):
         Those should probably be f-strings's
         """
 
-        def detect_if_used_in_format(node: astroid.Const, assign_name: str) -> bool:
+        def detect_if_used_in_format(node: astroid.Const) -> bool:
             """Check if the node is used in a call to format() if so return True"""
-            # the skip_class is to make sure we don't go into inner scopes, but might not be needed per se
-            for attr in node.scope().nodes_of_class(
-                astroid.Attribute, skip_klass=(astroid.FunctionDef,)
-            ):
-                if isinstance(attr.expr, astroid.Name):
-                    if attr.expr.name == assign_name and attr.attrname == "format":
-                        return True
+            print(node)
             return False
 
-        if node.pytype() == "builtins.str" and not isinstance(
-            node.parent, astroid.JoinedStr
-        ):
-            # Find all pairs of '{}' within a string
-            inner_matches = re.findall(r"(?<=\{).*?(?=\})", node.value)
-            if len(inner_matches) != len(set(inner_matches)):
-                return
-            if inner_matches:
-                for match in inner_matches:
-                    # Check if match is a local or global variable
-                    if not (
-                        node.scope().locals.get(match) or node.root().locals.get(match)
-                    ):
-                        return
-                    assign_node = node
-                    while not isinstance(assign_node, astroid.Assign):
-                        assign_node = assign_node.parent
-                    if isinstance(assign_node.value, astroid.Tuple):
-                        node_index = assign_node.value.elts.index(node)
-                        assign_name = assign_node.targets[0].elts[node_index].name
-                    else:
-                        assign_name = assign_node.targets[0].name
-                    if not detect_if_used_in_format(node, assign_name):
-                        self.add_message(
-                            "possible-forgotten-f-prefix",
-                            line=node.lineno,
-                            node=node,
-                            args=(f"{{{match}}}",),
-                        )
-                    else:
-                        return
+        # Find all pairs of '{}' within a string
+        inner_matches = re.findall(r"(?<=\{).*?(?=\})", node.value)
+        if len(inner_matches) != len(set(inner_matches)):
+            return
+        if inner_matches:
+            for match in inner_matches:
+                try:
+                    ast.parse(match, "<fstring>", "eval")
+                except SyntaxError:
+                    # Not valid python
+                    continue
+                # if not isinstance(parsed_match, ast.Expression):
+                #     # Not a proper expression, won't work in f-string
+                #     continue
+                # for ast_node in ast.walk(parsed_match):
+                #     if isinstance(ast_node, ast.Name):
+                #         print(
+                #             f"TODO check that the name {ast_node.id} exists in the scope  ?"
+                #         )
+                if not detect_if_used_in_format(node):
+                    self.add_message(
+                        "possible-forgotten-f-prefix",
+                        line=node.lineno,
+                        node=node,
+                        args=(f"'{{{match}}}'",),
+                    )
 
     def _detect_u_string_prefix(self, node: astroid.Const):
         """Check whether strings include a 'u' prefix like u'String'"""
