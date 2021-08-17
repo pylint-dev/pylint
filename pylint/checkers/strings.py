@@ -926,7 +926,7 @@ class StringConstantChecker(BaseTokenChecker):
             node.parent, astroid.JoinedStr
         ):
             self._detect_possible_f_string(node)
-     self._detect_u_string_prefix(node)
+        self._detect_u_string_prefix(node)
 
     def _detect_possible_f_string(self, node: astroid.Const):
         """Check whether strings include local/global variables in '{}'
