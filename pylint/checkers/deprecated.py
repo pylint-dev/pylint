@@ -6,6 +6,7 @@ from itertools import chain
 from typing import Any, Container, Iterable, Tuple, Union
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers import utils
 from pylint.checkers.utils import get_import_name, safe_infer
@@ -13,8 +14,8 @@ from pylint.checkers.utils import get_import_name, safe_infer
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,
     astroid.UnboundMethod,
-    astroid.FunctionDef,
-    astroid.ClassDef,
+    nodes.FunctionDef,
+    nodes.ClassDef,
 )
 
 
@@ -56,8 +57,8 @@ class DeprecatedMixin:
         "deprecated-argument",
         "deprecated-class",
     )
-    def visit_call(self, node: astroid.Call) -> None:
-        """Called when a :class:`.astroid.node_classes.Call` node is visited."""
+    def visit_call(self, node: nodes.Call) -> None:
+        """Called when a :class:`.astroid.Call` node is visited."""
         try:
             self.check_deprecated_class_in_call(node)
             for inferred in node.func.infer():
@@ -94,7 +95,7 @@ class DeprecatedMixin:
         children = list(node.get_children())
         if not children:
             return
-        if isinstance(children[0], astroid.Call):
+        if isinstance(children[0], nodes.Call):
             inf = safe_infer(children[0].func)
         else:
             inf = safe_infer(children[0])
@@ -189,9 +190,9 @@ class DeprecatedMixin:
         if not isinstance(inferred, ACCEPTABLE_NODES):
             return
 
-        if isinstance(node.func, astroid.Attribute):
+        if isinstance(node.func, nodes.Attribute):
             func_name = node.func.attrname
-        elif isinstance(node.func, astroid.Name):
+        elif isinstance(node.func, nodes.Name):
             func_name = node.func.name
         else:
             # Not interested in other nodes.
@@ -237,8 +238,8 @@ class DeprecatedMixin:
     def check_deprecated_class_in_call(self, node):
         """Checks if call the deprecated class"""
 
-        if isinstance(node.func, astroid.Attribute) and isinstance(
-            node.func.expr, astroid.Name
+        if isinstance(node.func, nodes.Attribute) and isinstance(
+            node.func.expr, nodes.Name
         ):
             mod_name = node.func.expr.name
             class_name = node.func.attrname
