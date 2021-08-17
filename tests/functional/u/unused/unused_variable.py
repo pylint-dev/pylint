@@ -144,8 +144,7 @@ def func3():
         print(f"{error}")
         try:
             1 / 2
-        except TypeError as error:
-        # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
+        except TypeError as error:  # [unused-variable]
             print("warning")
 
 def func4():
@@ -155,5 +154,21 @@ def func4():
         try:
             1 / 0
         except ZeroDivisionError as error:
-        # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
+            # TODO fix bug for not identifying unused variables in nested exceptions see issue #4391
             print("error")
+
+
+def main(lst):
+    """https://github.com/PyCQA/astroid/pull/1111#issuecomment-890367609"""
+    try:
+        raise ValueError
+    except ValueError as e:  # [unused-variable]
+        pass
+
+    for e in lst:
+        pass
+
+    # e will be undefined if lst is empty
+    print(e)  # [undefined-loop-variable]
+
+main([])

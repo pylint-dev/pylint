@@ -20,6 +20,9 @@ load-plugins=
     pylint.extensions.check_elif,
     pylint.extensions.bad_builtin,
     pylint.extensions.code_style,
+    pylint.extensions.overlapping_exceptions,
+    pylint.extensions.typing,
+    pylint.extensions.redefined_variable_type,
 
 # Use multiple processes to speed up Pylint.
 jobs=1
@@ -376,6 +379,15 @@ int-import-graph=
 # Exceptions that will emit a warning when being caught. Defaults to
 # "Exception"
 overgeneral-exceptions=Exception
+
+
+[TYPING]
+
+# Minimum supported python version (used for typing only!)
+py-version = 3.6
+
+# Annotations are used exclusively for type checking
+runtime-typing = no
 
 
 [pylint.DEPRECATED_BUILTINS]

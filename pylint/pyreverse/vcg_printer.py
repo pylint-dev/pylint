@@ -185,18 +185,9 @@ ORIENTATION: Dict[Layout, str] = {
 
 
 class VCGPrinter(Printer):
-    def __init__(
-        self,
-        title: str,
-        layout: Optional[Layout] = None,
-        use_automatic_namespace: Optional[bool] = None,
-    ):
-        self._indent = ""
-        super().__init__(title, layout, use_automatic_namespace)
-
     def _open_graph(self) -> None:
         """Emit the header lines"""
-        self.emit(f"{self._indent}graph:{{\n")
+        self.emit("graph:{\n")
         self._inc_indent()
         self._write_attributes(
             GRAPH_ATTRS,
@@ -212,7 +203,7 @@ class VCGPrinter(Printer):
     def _close_graph(self) -> None:
         """Emit the lines needed to properly close the graph."""
         self._dec_indent()
-        self.emit(f"{self._indent}}}")
+        self.emit("}")
 
     def emit_node(
         self,
@@ -223,14 +214,37 @@ class VCGPrinter(Printer):
         """Create a new node. Nodes can be classes, packages, participants etc."""
         if properties is None:
             properties = NodeProperties(label=name)
-        self.emit(f'{self._indent}node: {{title:"{name}"', force_newline=False)
-        label = properties.label if properties.label is not None else name
+        elif properties.label is None:
+            properties.label = name
+        self.emit(f'node: {{title:"{name}"', force_newline=False)
         self._write_attributes(
             NODE_ATTRS,
-            label=label,
+            label=self._build_label_for_node(properties),
             shape=SHAPES[type_],
         )
         self.emit("}")
+
+    @staticmethod
+    def _build_label_for_node(properties: NodeProperties) -> str:
+        fontcolor = "\f09" if properties.fontcolor == "red" else ""
+        label = rf"\fb{fontcolor}{properties.label}\fn"
+        if properties.attrs is None and properties.methods is None:
+            # return a compact form which only displays the classname in a box
+            return label
+        attrs = properties.attrs or []
+        methods = properties.methods or []
+        method_names = [func.name for func in methods]
+        # box width for UML like diagram
+        maxlen = max(len(name) for name in [properties.label] + method_names + attrs)
+        line = "_" * (maxlen + 2)
+        label = fr"{label}\n\f{line}"
+        for attr in attrs:
+            label = fr"{label}\n\f08{attr}"
+        if attrs:
+            label = fr"{label}\n\f{line}"
+        for func in method_names:
+            label = fr"{label}\n\f10{func}()"
+        return label
 
     def emit_edge(
         self,
@@ -241,7 +255,7 @@ class VCGPrinter(Printer):
     ) -> None:
         """Create an edge from one node to another to display relationships."""
         self.emit(
-            f'{self._indent}edge: {{sourcename:"{from_node}" targetname:"{to_node}"',
+            f'edge: {{sourcename:"{from_node}" targetname:"{to_node}"',
             force_newline=False,
         )
         attributes = ARROWS[type_]
@@ -264,20 +278,12 @@ class VCGPrinter(Printer):
                 ) from e
 
             if not _type:
-                self.emit(f'{self._indent}{key}:"{value}"\n')
+                self.emit(f'{key}:"{value}"\n')
             elif _type == 1:
-                self.emit(f"{self._indent}{key}:{int(value)}\n")
+                self.emit(f"{key}:{int(value)}\n")
             elif value in _type:
-                self.emit(f"{self._indent}{key}:{value}\n")
+                self.emit(f"{key}:{value}\n")
             else:
                 raise Exception(
                     f"value {value} isn't correct for attribute {key} correct values are {type}"
                 )
-
-    def _inc_indent(self):
-        """increment indentation"""
-        self._indent += "  "
-
-    def _dec_indent(self):
-        """decrement indentation"""
-        self._indent = self._indent[:-2]

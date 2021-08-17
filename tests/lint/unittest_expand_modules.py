@@ -59,6 +59,21 @@ unittest_lint = {
     "path": str(TEST_DIRECTORY / "lint/unittest_lint.py"),
 }
 
+test_utils = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.test_utils",
+    "path": str(TEST_DIRECTORY / "lint/test_utils.py"),
+}
+
+test_pylinter = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.test_pylinter",
+    "path": str(TEST_DIRECTORY / "lint/test_pylinter.py"),
+}
 
 init_of_package = {
     "basename": "lint",
@@ -75,7 +90,13 @@ init_of_package = {
         ([__file__], [this_file]),
         (
             [Path(__file__).parent],
-            [init_of_package, this_file_from_init, unittest_lint],
+            [
+                init_of_package,
+                test_pylinter,
+                test_utils,
+                this_file_from_init,
+                unittest_lint,
+            ],
         ),
     ],
 )

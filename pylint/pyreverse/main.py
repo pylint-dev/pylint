@@ -11,6 +11,7 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -124,8 +125,7 @@ OPTIONS = (
             short="k",
             action="store_true",
             default=False,
-            help="don't show attributes and methods in the class boxes; \
-this disables -f values",
+            help="don't show attributes and methods in the class boxes; this disables -f values",
         ),
     ),
     (
@@ -140,36 +140,55 @@ this disables -f values",
         ),
     ),
     (
+        "colorized",
+        dict(
+            dest="colorized",
+            action="store_true",
+            default=False,
+            help="Use colored output. Classes/modules of the same package get the same color.",
+        ),
+    ),
+    (
+        "max-color-depth",
+        dict(
+            dest="max_color_depth",
+            action="store",
+            default=2,
+            metavar="<depth>",
+            type="int",
+            help="Use separate colors up to package depth of <depth>",
+        ),
+    ),
+    (
         "ignore",
-        {
-            "type": "csv",
-            "metavar": "<file[,file...]>",
-            "dest": "ignore_list",
-            "default": ("CVS",),
-            "help": "Files or directories to be skipped. They "
-            "should be base names, not paths.",
-        },
+        dict(
+            type="csv",
+            metavar="<file[,file...]>",
+            dest="ignore_list",
+            default=("CVS",),
+            help="Files or directories to be skipped. They should be base names, not paths.",
+        ),
     ),
     (
         "project",
-        {
-            "default": "",
-            "type": "string",
-            "short": "p",
-            "metavar": "<project name>",
-            "help": "set the project name.",
-        },
+        dict(
+            default="",
+            type="string",
+            short="p",
+            metavar="<project name>",
+            help="set the project name.",
+        ),
     ),
     (
         "output-directory",
-        {
-            "default": "",
-            "type": "string",
-            "short": "d",
-            "action": "store",
-            "metavar": "<output_directory>",
-            "help": "set the output directory path.",
-        },
+        dict(
+            default="",
+            type="string",
+            short="d",
+            action="store",
+            metavar="<output_directory>",
+            help="set the output directory path.",
+        ),
     ),
 )
 
@@ -207,11 +226,7 @@ class Run(ConfigurationMixIn):
             diadefs = handler.get_diadefs(project, linker)
         finally:
             sys.path.pop(0)
-
-        if self.config.output_format == "vcg":
-            writer.VCGWriter(self.config).write(diadefs)
-        else:
-            writer.DotWriter(self.config).write(diadefs)
+        writer.DiagramWriter(self.config).write(diadefs)
         return 0
 
 

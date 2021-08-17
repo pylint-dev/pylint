@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance
 
+
 class Aaaa(object): # [too-many-instance-attributes]
 
     def __init__(self):

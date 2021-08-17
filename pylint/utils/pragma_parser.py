@@ -27,7 +27,9 @@ PragmaRepresenter = namedtuple("PragmaRepresenter", "action messages")
 
 
 ATOMIC_KEYWORDS = frozenset(("disable-all", "skip-file"))
-MESSAGE_KEYWORDS = frozenset(("disable-msg", "enable-msg", "disable", "enable"))
+MESSAGE_KEYWORDS = frozenset(
+    ("disable-next", "disable-msg", "enable-msg", "disable", "enable")
+)
 # sorted is necessary because sets are unordered collections and ALL_KEYWORDS
 #  string should not vary between executions
 #  reverse is necessary in order to have the longest keywords first, so that, for example,

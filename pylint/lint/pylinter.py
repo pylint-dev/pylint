@@ -13,6 +13,7 @@ import warnings
 from io import TextIOWrapper
 
 import astroid
+from astroid import AstroidError
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
@@ -23,7 +24,11 @@ from pylint.lint.report_functions import (
     report_messages_stats,
     report_total_messages_stats,
 )
-from pylint.lint.utils import fix_import_path
+from pylint.lint.utils import (
+    fix_import_path,
+    get_fatal_error_message,
+    prepare_crash_report,
+)
 from pylint.message import MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
@@ -165,6 +170,8 @@ class PyLinter(
     priority = 0
     level = 0
     msgs = MSGS
+    # Will be used like this : datetime.now().strftime(crash_file_path)
+    crash_file_path: str = "pylint-crash-%Y-%m-%d-%H.txt"
 
     @staticmethod
     def make_options():
@@ -490,7 +497,11 @@ class PyLinter(
         self._external_opts = options
         self.options = options + PyLinter.make_options()
         self.option_groups = option_groups + PyLinter.option_groups
-        self._options_methods = {"enable": self.enable, "disable": self.disable}
+        self._options_methods = {
+            "enable": self.enable,
+            "disable": self.disable,
+            "disable-next": self.disable_next,
+        }
         self._bw_options_methods = {
             "disable-msg": self._options_methods["disable"],
             "enable-msg": self._options_methods["enable"],
@@ -717,7 +728,7 @@ class PyLinter(
     def disable_noerror_messages(self):
         for msgcat, msgids in self.msgs_store._msgs_by_category.items():
             # enable only messages with 'error' severity and above ('fatal')
-            if msgcat in ("E", "F"):
+            if msgcat in ["E", "F"]:
                 for msgid in msgids:
                     self.enable(msgid)
             else:
@@ -775,22 +786,23 @@ class PyLinter(
         self._python3_porting_mode = True
 
     def list_messages_enabled(self):
-        enabled = [
-            f"  {message.symbol} ({message.msgid})"
-            for message in self.msgs_store.messages
-            if self.is_message_enabled(message.msgid)
-        ]
-        disabled = [
-            f"  {message.symbol} ({message.msgid})"
-            for message in self.msgs_store.messages
-            if not self.is_message_enabled(message.msgid)
-        ]
+        emittable, non_emittable = self.msgs_store.find_emittable_messages()
+        enabled = []
+        disabled = []
+        for message in emittable:
+            if self.is_message_enabled(message.msgid):
+                enabled.append(f"  {message.symbol} ({message.msgid})")
+            else:
+                disabled.append(f"  {message.symbol} ({message.msgid})")
         print("Enabled messages:")
-        for msg in sorted(enabled):
+        for msg in enabled:
             print(msg)
         print("\nDisabled messages:")
-        for msg in sorted(disabled):
+        for msg in disabled:
             print(msg)
+        print("\nNon-emittable messages with current interpreter:")
+        for msg in non_emittable:
+            print(f"  {msg.symbol} ({msg.msgid})")
         print("")
 
     # block level option handling #############################################
@@ -799,7 +811,7 @@ class PyLinter(
     def process_tokens(self, tokens):
         """Process tokens from the current module to search for module/block level
         options."""
-        control_pragmas = {"disable", "enable"}
+        control_pragmas = {"disable", "disable-next", "enable"}
         prev_line = None
         saw_newline = True
         seen_newline = True
@@ -955,7 +967,6 @@ class PyLinter(
 
         files_or_modules is either a string or list of strings presenting modules to check.
         """
-
         self.initialize()
 
         if not isinstance(files_or_modules, (list, tuple)):
@@ -1009,7 +1020,21 @@ class PyLinter(
         """
         with self._astroid_module_checker() as check_astroid_module:
             for name, filepath, modname in file_descrs:
-                self._check_file(get_ast, check_astroid_module, name, filepath, modname)
+                try:
+                    self._check_file(
+                        get_ast, check_astroid_module, name, filepath, modname
+                    )
+                except Exception as ex:  # pylint: disable=broad-except
+                    template_path = prepare_crash_report(
+                        ex, filepath, self.crash_file_path
+                    )
+                    msg = get_fatal_error_message(filepath, template_path)
+                    if isinstance(ex, AstroidError):
+                        symbol = "astroid-error"
+                        msg = (filepath, msg)
+                    else:
+                        symbol = "fatal"
+                    self.add_message(symbol, args=msg)
 
     def _check_file(self, get_ast, check_astroid_module, name, filepath, modname):
         """Check a file using the passed utility functions (get_ast and check_astroid_module)

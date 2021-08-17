@@ -113,6 +113,16 @@ def _is_inside_context_manager(node: astroid.Call) -> bool:
     )
 
 
+def _is_a_return_statement(node: astroid.Call) -> bool:
+    frame = node.frame()
+    parent = node.parent
+    while parent is not frame:
+        if isinstance(parent, astroid.Return):
+            return True
+        parent = parent.parent
+    return False
+
+
 def _is_part_of_with_items(node: astroid.Call) -> bool:
     """
     Checks if one of the node's parents is an ``astroid.With`` node and that the node itself is located
@@ -955,7 +965,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[1:-1]
                 call_name = node.func.name
-                if call_name in ("any", "all"):
+                if call_name in ["any", "all"]:
                     self.add_message(
                         "use-a-generator",
                         node=node,
@@ -1443,8 +1453,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             stack[varname] = value
 
     def _check_consider_using_with(self, node: astroid.Call):
-        if _is_inside_context_manager(node):
-            # if we are inside a context manager itself, we assume that it will handle the resource management itself.
+        if _is_inside_context_manager(node) or _is_a_return_statement(node):
+            # If we are inside a context manager itself, we assume that it will handle the resource management itself.
+            # If the node is a child of a return, we assume that the caller knows he is getting a context manager
+            # he should use properly (i.e. in a ``with``).
             return
         if (
             node

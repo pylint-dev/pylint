@@ -10,6 +10,10 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import List, NamedTuple, Optional
 
+import astroid
+
+from pylint.pyreverse.utils import get_annotation_label
+
 
 class NodeType(Enum):
     CLASS = "class"
@@ -33,9 +37,10 @@ class Layout(Enum):
 
 class NodeProperties(NamedTuple):
     label: str
+    attrs: Optional[List[str]] = None
+    methods: Optional[List[astroid.FunctionDef]] = None
     color: Optional[str] = None
     fontcolor: Optional[str] = None
-    body: Optional[str] = None
 
 
 class Printer(ABC):
@@ -51,7 +56,16 @@ class Printer(ABC):
         self.layout = layout
         self.use_automatic_namespace = use_automatic_namespace
         self.lines: List[str] = []
+        self._indent = ""
         self._open_graph()
+
+    def _inc_indent(self):
+        """increment indentation"""
+        self._indent += "  "
+
+    def _dec_indent(self):
+        """decrement indentation"""
+        self._indent = self._indent[:-2]
 
     @abstractmethod
     def _open_graph(self) -> None:
@@ -60,7 +74,7 @@ class Printer(ABC):
     def emit(self, line: str, force_newline: Optional[bool] = True) -> None:
         if force_newline and not line.endswith("\n"):
             line += "\n"
-        self.lines.append(line)
+        self.lines.append(self._indent + line)
 
     @abstractmethod
     def emit_node(
@@ -80,6 +94,28 @@ class Printer(ABC):
         label: Optional[str] = None,
     ) -> None:
         """Create an edge from one node to another to display relationships."""
+
+    @staticmethod
+    def _get_method_arguments(method: astroid.FunctionDef) -> List[str]:
+        if method.args.args:
+            arguments: List[astroid.AssignName] = [
+                arg for arg in method.args.args if arg.name != "self"
+            ]
+        else:
+            arguments = []
+
+        annotations = dict(zip(arguments, method.args.annotations[1:]))
+        for arg in arguments:
+            annotation_label = ""
+            ann = annotations.get(arg)
+            if ann:
+                annotation_label = get_annotation_label(ann)
+            annotations[arg] = annotation_label
+
+        return [
+            f"{arg.name}: {ann}" if ann else f"{arg.name}"
+            for arg, ann in annotations.items()
+        ]
 
     def generate(self, outputfile: str) -> None:
         """Generate and save the final outputfile."""

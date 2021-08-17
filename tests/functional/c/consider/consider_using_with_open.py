@@ -64,3 +64,7 @@ def test_single_line_with(file1):
 def test_multiline_with_items(file1, file2, which):
     with (open(file1, encoding="utf-8") if which
         else open(file2, encoding="utf-8")) as input_file: return input_file.read()
+
+
+def test_suppress_on_return():
+    return open("foo", encoding="utf8")  # must not trigger

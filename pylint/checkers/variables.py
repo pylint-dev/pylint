@@ -545,36 +545,55 @@ scope_type : {self._atomic.scope_type}
     def scope_type(self):
         return self._atomic.scope_type
 
-    def mark_as_consumed(self, name, new_node):
+    def mark_as_consumed(self, name, consumed_nodes):
         """
-        Mark the name as consumed and delete it from
+        Mark the given nodes as consumed for the name.
+        If all of the nodes for the name were consumed, delete the name from
         the to_consume dictionary
         """
-        self.consumed[name] = new_node
-        del self.to_consume[name]
+        unconsumed = [n for n in self.to_consume[name] if n not in set(consumed_nodes)]
+        self.consumed[name] = consumed_nodes
+
+        if unconsumed:
+            self.to_consume[name] = unconsumed
+        else:
+            del self.to_consume[name]
 
     def get_next_to_consume(self, node):
-        # Get the definition of `node` from this scope
+        """
+        Return a list of the nodes that define `node` from this scope.
+        Return None to indicate a special case that needs to be handled by the caller.
+        """
         name = node.name
         parent_node = node.parent
-        found_node = self.to_consume.get(name)
+        found_nodes = self.to_consume.get(name)
         if (
-            found_node
+            found_nodes
             and isinstance(parent_node, astroid.Assign)
-            and parent_node == found_node[0].parent
+            and parent_node == found_nodes[0].parent
         ):
-            lhs = found_node[0].parent.targets[0]
+            lhs = found_nodes[0].parent.targets[0]
             if lhs.name == name:  # this name is defined in this very statement
-                found_node = None
+                found_nodes = None
 
         if (
-            found_node
+            found_nodes
             and isinstance(parent_node, astroid.For)
             and parent_node.iter == node
-            and parent_node.target in found_node
+            and parent_node.target in found_nodes
         ):
-            found_node = None
-        return found_node
+            found_nodes = None
+
+        # Filter out assignments in ExceptHandlers that node is not contained in
+        if found_nodes:
+            found_nodes = [
+                n
+                for n in found_nodes
+                if not isinstance(n.statement(), astroid.ExceptHandler)
+                or n.statement().parent_of(node)
+            ]
+
+        return found_nodes
 
 
 # pylint: disable=too-many-public-methods
@@ -943,6 +962,7 @@ class VariablesChecker(BaseChecker):
     def visit_delname(self, node):
         self.visit_name(node)
 
+    # pylint: disable=too-many-branches
     def visit_name(self, node):
         """Check that a name is defined in the current scope"""
         stmt = node.statement()
@@ -1014,22 +1034,27 @@ class VariablesChecker(BaseChecker):
                     and self._has_homonym_in_upper_function_scope(node, i)
                 )
             ):
-                defnode = utils.assign_parent(current_consumer.consumed[name][0])
-                self._check_late_binding_closure(node, defnode)
+                self._check_late_binding_closure(node)
                 self._loopvar_name(node, name)
                 break
 
-            found_node = current_consumer.get_next_to_consume(node)
-            if found_node is None:
+            found_nodes = current_consumer.get_next_to_consume(node)
+            if found_nodes is None:
                 continue
 
             # checks for use before assignment
-            defnode = utils.assign_parent(current_consumer.to_consume[name][0])
+            if found_nodes:
+                defnode = utils.assign_parent(found_nodes[0])
+            else:
+                defnode = None
+                if used_before_assignment_is_enabled:
+                    self.add_message("used-before-assignment", args=name, node=node)
+
+            self._check_late_binding_closure(node)
 
             if (
                 undefined_variable_is_enabled or used_before_assignment_is_enabled
             ) and defnode is not None:
-                self._check_late_binding_closure(node, defnode)
                 defstmt = defnode.statement()
                 defframe = defstmt.frame()
                 # The class reuses itself in the class scope.
@@ -1156,7 +1181,7 @@ class VariablesChecker(BaseChecker):
                         elif current_consumer.scope_type == "lambda":
                             self.add_message("undefined-variable", node=node, args=name)
 
-            current_consumer.mark_as_consumed(name, found_node)
+            current_consumer.mark_as_consumed(name, found_nodes)
             # check it's not a loop variable used outside the loop
             self._loopvar_name(node, name)
             break
@@ -1439,6 +1464,7 @@ class VariablesChecker(BaseChecker):
                             astroid.AnnAssign,
                             astroid.AugAssign,
                             astroid.Expr,
+                            astroid.Return,
                         ),
                     )
                     and isinstance(defstmt.value, astroid.IfExp)
@@ -1716,6 +1742,12 @@ class VariablesChecker(BaseChecker):
             if utils.is_overload_stub(node):
                 return
 
+            # Special case for exception variable
+            if isinstance(stmt.parent, astroid.ExceptHandler) and any(
+                n.name == name for n in stmt.parent.nodes_of_class(astroid.Name)
+            ):
+                return
+
             self.add_message(message_name, args=name, node=stmt)
 
     def _is_name_ignored(self, stmt, name):
@@ -1773,27 +1805,41 @@ class VariablesChecker(BaseChecker):
 
         self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
 
-    def _check_late_binding_closure(self, node, assignment_node):
+    def _check_late_binding_closure(self, node: astroid.Name) -> None:
+        """Check whether node is a cell var that is assigned within a containing loop.
+
+        Special cases where we don't care about the error:
+        1. When the node's function is immediately called, e.g. (lambda: i)()
+        2. When the node's function is returned from within the loop, e.g. return lambda: i
+        """
         if not self.linter.is_message_enabled("cell-var-from-loop"):
             return
 
-        def _is_direct_lambda_call():
-            return (
-                isinstance(node_scope.parent, astroid.Call)
-                and node_scope.parent.func is node_scope
-            )
+        node_scope = node.frame()
 
-        node_scope = node.scope()
-        if not isinstance(node_scope, (astroid.Lambda, astroid.FunctionDef)):
-            return
-        if isinstance(node.parent, astroid.Arguments):
+        # If node appears in a default argument expression,
+        # look at the next enclosing frame instead
+        if utils.is_default_argument(node, node_scope):
+            node_scope = node_scope.parent.frame()
+
+        # Check if node is a cell var
+        if (
+            not isinstance(node_scope, (astroid.Lambda, astroid.FunctionDef))
+            or node.name in node_scope.locals
+        ):
             return
 
-        if isinstance(assignment_node, astroid.Comprehension):
-            if assignment_node.parent.parent_of(node.scope()):
-                self.add_message("cell-var-from-loop", node=node, args=node.name)
+        assign_scope, stmts = node.lookup(node.name)
+        if not stmts or not assign_scope.parent_of(node_scope):
+            return
+
+        if utils.is_comprehension(assign_scope):
+            self.add_message("cell-var-from-loop", node=node, args=node.name)
         else:
-            assign_scope = assignment_node.scope()
+            # Look for an enclosing For loop.
+            # Currently, we only consider the first assignment
+            assignment_node = stmts[0]
+
             maybe_for = assignment_node
             while maybe_for and not isinstance(maybe_for, astroid.For):
                 if maybe_for is assign_scope:
@@ -1803,7 +1849,7 @@ class VariablesChecker(BaseChecker):
                 if (
                     maybe_for
                     and maybe_for.parent_of(node_scope)
-                    and not _is_direct_lambda_call()
+                    and not utils.is_being_called(node_scope)
                     and not isinstance(node_scope.statement(), astroid.Return)
                 ):
                     self.add_message("cell-var-from-loop", node=node, args=node.name)
@@ -1979,7 +2025,7 @@ class VariablesChecker(BaseChecker):
         if assigned is astroid.Uninferable:
             return
 
-        if not isinstance(assigned, (astroid.Tuple, astroid.List)):
+        if not isinstance(assigned, (astroid.Tuple, astroid.List, list, tuple)):
             self.add_message("invalid-all-format", node=assigned)
             return
 

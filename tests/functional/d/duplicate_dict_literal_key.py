@@ -1,5 +1,5 @@
 """Check multiple key definition"""
-# pylint: disable=pointless-statement
+# pylint: disable=pointless-statement, redundant-u-string-prefix
 
 correct_dict = {
     'tea': 'for two',

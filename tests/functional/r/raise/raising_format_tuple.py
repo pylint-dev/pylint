@@ -4,6 +4,7 @@ contains a percent sign, thus suggesting a % string formatting was intended
 instead.  The same holds for a string containing {...} suggesting str.format()
 was intended.
 '''
+# pylint: disable=redundant-u-string-prefix
 
 def bad_percent(arg):
     '''Raising a percent-formatted string and an argument'''

@@ -1,0 +1,2 @@
+not-an-iterable:39:9::Non-iterable value Test2.int_prop is used in an iterating context:HIGH
+unsupported-assignment-operation:43:0::'Test2.int_prop' does not support item assignment:HIGH

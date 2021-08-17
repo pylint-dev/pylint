@@ -206,6 +206,12 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "in which case it can be either a normal string or a bug in the code.",
     ),
     "W1310": (
+        "Using formatting for a string that does not have any interpolated variables",
+        "format-string-without-interpolation",
+        "Used when we detect a string that does not have any interpolation variables, "
+        "in which case it can be either a normal string without formatting or a bug in the code.",
+    ),
+    "W1311": (
         "The %s syntax imply an f-string but the leading 'f' is missing",
         "possible-forgotten-f-prefix",
         "Used when we detect a string that uses '{}' with a local variable inside. "
@@ -280,6 +286,7 @@ class StringFormatChecker(BaseChecker):
         "too-many-format-args",
         "too-few-format-args",
         "bad-string-format-type",
+        "format-string-without-interpolation",
     )
     def visit_binop(self, node):
         if node.op != "%":
@@ -307,6 +314,9 @@ class StringFormatChecker(BaseChecker):
             return
         except utils.IncompleteFormatString:
             self.add_message("truncated-format-string", node=node)
+            return
+        if not required_keys and not required_num_args:
+            self.add_message("format-string-without-interpolation", node=node)
             return
         if required_keys and required_num_args:
             # The format string uses both named and unnamed format
@@ -525,6 +535,9 @@ class StringFormatChecker(BaseChecker):
         if check_args:
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
+            if not num_args:
+                self.add_message("format-string-without-interpolation", node=node)
+                return
             if len(positional_arguments) > num_args:
                 self.add_message("too-many-format-args", node=node)
             elif len(positional_arguments) < num_args:
@@ -662,6 +675,13 @@ class StringConstantChecker(BaseTokenChecker):
             "inconsistent-quotes",
             "Quote delimiters are not used consistently throughout a module "
             "(with allowances made for avoiding unnecessary escaping).",
+        ),
+        "W1406": (
+            "The u prefix for strings is no longer necessary in Python >=3.0",
+            "redundant-u-string-prefix",
+            "Used when we detect a string with a u prefix. These prefixes were necessary "
+            "in Python 2 to indicate a string was Unicode, but since Python 3.0 strings "
+            "are Unicode by default.",
         ),
     }
     options = (
@@ -900,11 +920,13 @@ class StringConstantChecker(BaseTokenChecker):
             index += 2
 
     @check_messages("possible-forgotten-f-prefix")
+    @check_messages("redundant-u-string-prefix")
     def visit_const(self, node: astroid.Const):
         if node.pytype() == "builtins.str" and not isinstance(
             node.parent, astroid.JoinedStr
         ):
             self._detect_possible_f_string(node)
+     self._detect_u_string_prefix(node)
 
     def _detect_possible_f_string(self, node: astroid.Const):
         """Check whether strings include local/global variables in '{}'
@@ -953,6 +975,15 @@ class StringConstantChecker(BaseTokenChecker):
                         )
                     else:
                         return
+
+    def _detect_u_string_prefix(self, node: astroid.Const):
+        """Check whether strings include a 'u' prefix like u'String'"""
+        if node.kind == "u":
+            self.add_message(
+                "redundant-u-string-prefix",
+                line=node.lineno,
+                col_offset=node.col_offset,
+            )
 
 
 def register(linter):

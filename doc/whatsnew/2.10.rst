@@ -32,17 +32,32 @@ New checkers
 
   Closes #2507
 
+* Added ``use-sequence-for-iteration``: Emitted when iterating over an in-place defined ``set``.
+
+
 
 Extensions
 ==========
 
 * ``CodeStyleChecker``
 
-  * Extended ``consider-using-tuple`` check to cover ``in`` comparisons.
+  * Limit ``consider-using-tuple`` to be emitted only for in-place defined ``lists``.
+
+  * Emit ``consider-using-tuple`` even if list contains a ``starred`` expression.
 
 
 Other Changes
 =============
+
+* pyreverse now permit to produce colored generated diagram by using the ``colorized`` option.
+
+* Pyreverse - add output in PlantUML format
+
+* ``consider-using-with`` is no longer triggered if a context manager is returned from a function.
+
+* pylint does not crash with a traceback anymore when a file is problematic. It
+  creates a template text file for opening an issue on the bug tracker instead.
+  The linting can go on for other non problematic files instead of being impossible.
 
 * Pyreverse - Show class has-a relationships inferred from type-hints
 
@@ -65,3 +80,33 @@ Other Changes
   Closes #3249
   Closes #3608
   Closes #4346
+
+* Refactor of ``--list-msgs`` & ``--list-msgs-enabled``: both options now show whether messages are emittable with the current interpreter.
+
+  Closes #4778
+
+* Fix false negative for ``used-before-assignment`` when the variable is assigned
+  in an exception handler, but used outside of the handler.
+
+  Closes #626
+
+* Added ``disable-next`` option: allows using `# pylint: disable-next=msgid` to disable a message for the following line
+
+  Closes #1682
+
+* Added ``format-string-without-interpolation`` checker: Emitted when formatting is applied to a string without any variables to be replaced
+
+  Closes #4042
+
+* Added ``redundant-u-string-prefix`` checker: Emitted when the u prefix is added to a string
+
+  Closes #4102
+
+* Fixed ``cell-var-from-loop`` checker: handle cell variables in comprehensions within functions,
+  and function default argument expressions. Also handle basic variable shadowing.
+
+  Closes #2846
+  Closes #3107
+
+* Fixed bug with ``cell-var-from-loop`` checker: it no longer has false negatives when
+  both ``unused-variable`` and ``used-before-assignment`` are disabled.

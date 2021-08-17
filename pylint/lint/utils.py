@@ -3,12 +3,69 @@
 
 import contextlib
 import sys
+import traceback
+from datetime import datetime
+from pathlib import Path
+from typing import Union
 
+from pylint.config import PYLINT_HOME
 from pylint.lint.expand_modules import get_python_path
 
 
 class ArgumentPreprocessingError(Exception):
     """Raised if an error occurs during argument preprocessing."""
+
+
+def prepare_crash_report(
+    ex: Exception, filepath: str, crash_file_path: Union[Path, str]
+) -> Path:
+    issue_template_path = (
+        Path(PYLINT_HOME) / datetime.now().strftime(str(crash_file_path))
+    ).resolve()
+    with open(filepath, encoding="utf8") as f:
+        file_content = f.read()
+    template = ""
+    if not issue_template_path.exists():
+        template = """\
+First, please verify that the bug is not already filled:
+https://github.com/PyCQA/pylint/issues/
+
+Then create a new crash issue:
+https://github.com/PyCQA/pylint/issues/new?assignees=&labels=crash%2Cneeds+triage&template=BUG-REPORT.yml
+
+"""
+    template += f"""\
+
+Issue title:
+Crash ``{ex}`` (if possible, be more specific about what made pylint crash)
+Content:
+When parsing the following file:
+
+<!--
+ If sharing the code is not an option, please state so,
+ but providing only the stacktrace would still be helpful.
+ -->
+
+```python
+{file_content}
+```
+
+pylint crashed with a ``{ex.__class__.__name__}`` and with the following stacktrace:
+```
+"""
+    with open(issue_template_path, "a", encoding="utf8") as f:
+        f.write(template)
+        traceback.print_exc(file=f)
+        f.write("```\n")
+    return issue_template_path
+
+
+def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
+    return (
+        f"Fatal error while checking '{filepath}'. "
+        f"Please open an issue in our bug tracker so we address this. "
+        f"There is a pre-filled template that you can use in '{issue_template_path}'."
+    )
 
 
 def preprocess_options(args, search_for):

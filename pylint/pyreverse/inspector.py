@@ -172,7 +172,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         try:
             node.implements = list(interfaces(node, self.inherited_interfaces))
         except astroid.InferenceError:
-            node.implements = ()
+            node.implements = []
 
     def visit_functiondef(self, node):
         """visit an astroid.Function node

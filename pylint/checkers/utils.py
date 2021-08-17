@@ -73,6 +73,7 @@ from typing import (
 import _string
 import astroid
 import astroid.objects
+from astroid import TooManyLevelsError
 
 from pylint.constants import BUILTINS
 
@@ -453,6 +454,11 @@ def is_ancestor_name(
         if node in base.nodes_of_class(astroid.Name):
             return True
     return False
+
+
+def is_being_called(node: astroid.node_classes.NodeNG) -> bool:
+    """return True if node is the function being called in a Call node"""
+    return isinstance(node.parent, astroid.Call) and node.parent.func is node
 
 
 def assign_parent(node: astroid.node_classes.NodeNG) -> astroid.node_classes.NodeNG:
@@ -1545,13 +1551,13 @@ def get_import_name(
     :returns: absolute qualified module name of the module
         used in import.
     """
-    if isinstance(importnode, astroid.ImportFrom):
-        if importnode.level:
-            root = importnode.root()
-            if isinstance(root, astroid.Module):
-                modname = root.relative_to_absolute_name(
-                    modname, level=importnode.level
-                )
+    if isinstance(importnode, astroid.ImportFrom) and importnode.level:
+        root = importnode.root()
+        if isinstance(root, astroid.Module):
+            try:
+                return root.relative_to_absolute_name(modname, level=importnode.level)
+            except TooManyLevelsError:
+                return modname
     return modname
 
 

@@ -16,7 +16,8 @@ Please take the time to check if it is already in the issue tracker at
 https://github.com/PyCQA/pylint
 
 If you cannot find it in the tracker, create a new issue there or discuss your
-problem on the code-quality@python.org mailing list or using the discord server https://discord.gg/kFebW799.
+problem on the code-quality@python.org mailing list or using the discord
+server https://discord.gg/Egy6P8AMB5.
 
 The code-quality mailing list is also a nice place to provide feedback about
 Pylint, since it is shared with other tools that aim at improving the quality of
