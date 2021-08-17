@@ -78,7 +78,9 @@ def preprocess_options(args, search_for):
     i = 0
     while i < len(args):
         arg = args[i]
-        if arg.startswith("--"):
+        if not arg.startswith("--"):
+            i += 1
+        else:
             try:
                 option, val = arg[2:].split("=", 1)
             except ValueError:
@@ -99,8 +101,6 @@ def preprocess_options(args, search_for):
                     msg = "Option %s doesn't expects a value" % option
                     raise ArgumentPreprocessingError(msg)
                 cb(option, val)
-        else:
-            i += 1
 
 
 def _patch_sys_path(args):

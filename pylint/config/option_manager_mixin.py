@@ -240,8 +240,7 @@ class OptionsManagerMixIn:
         """Read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
         """
-        help_level = 1
-        while help_level <= self._maxlevel:
+        for help_level in range(1, self._maxlevel + 1):
             opt = "-".join(["long"] * help_level) + "-help"
             if opt in self._all_options:
                 break  # already processed
@@ -255,7 +254,7 @@ class OptionsManagerMixIn:
             provider = self.options_providers[0]
             self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
             provider.options += ((opt, optdict),)
-            help_level += 1
+
         if config_file is None:
             config_file = self.config_file
         if config_file is not None:
