@@ -64,7 +64,7 @@ from typing import (
 )
 
 import astroid
-from astroid.node_classes import NodeNG
+from astroid import nodes
 
 from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
@@ -576,7 +576,7 @@ def stripped_lines(
         tree = astroid.parse("".join(lines))
     if ignore_imports:
         node_is_import_by_lineno = (
-            (node.lineno, isinstance(node, (astroid.Import, astroid.ImportFrom)))
+            (node.lineno, isinstance(node, (nodes.Import, nodes.ImportFrom)))
             for node in tree.body
         )
         line_begins_import = {
@@ -588,16 +588,18 @@ def stripped_lines(
         current_line_is_import = False
     if ignore_signatures:
 
-        def _get_functions(functions: List[NodeNG], tree: NodeNG) -> List[NodeNG]:
+        def _get_functions(
+            functions: List[nodes.NodeNG], tree: nodes.NodeNG
+        ) -> List[nodes.NodeNG]:
             """Recursively get all functions including nested in the classes from the tree."""
 
             for node in tree.body:
-                if isinstance(node, (astroid.FunctionDef, astroid.AsyncFunctionDef)):
+                if isinstance(node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
                     functions.append(node)
 
                 if isinstance(
                     node,
-                    (astroid.ClassDef, astroid.FunctionDef, astroid.AsyncFunctionDef),
+                    (nodes.ClassDef, nodes.FunctionDef, nodes.AsyncFunctionDef),
                 ):
                     _get_functions(functions, node)
 

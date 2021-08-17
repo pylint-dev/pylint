@@ -41,6 +41,7 @@ import sys
 from collections.abc import Iterable
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
@@ -513,25 +514,25 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     continue
                 if inferred.root().name == OPEN_MODULE:
                     if (
-                        isinstance(node.func, astroid.Name)
+                        isinstance(node.func, nodes.Name)
                         and node.func.name in OPEN_FILES_MODE
                     ):
                         self._check_open_mode(node)
                     if (
-                        isinstance(node.func, astroid.Name)
+                        isinstance(node.func, nodes.Name)
                         and node.func.name in OPEN_FILES_ENCODING
-                        or isinstance(node.func, astroid.Attribute)
+                        or isinstance(node.func, nodes.Attribute)
                         and node.func.attrname in OPEN_FILES_ENCODING
                     ):
                         self._check_open_encoded(node)
                 elif inferred.root().name == UNITTEST_CASE:
                     self._check_redundant_assert(node, inferred)
-                elif isinstance(inferred, astroid.ClassDef):
+                elif isinstance(inferred, nodes.ClassDef):
                     if inferred.qname() == THREADING_THREAD:
                         self._check_bad_thread_instantiation(node)
                     elif inferred.qname() == SUBPROCESS_POPEN:
                         self._check_for_preexec_fn_in_popen(node)
-                elif isinstance(inferred, astroid.FunctionDef):
+                elif isinstance(inferred, nodes.FunctionDef):
                     name = inferred.qname()
                     if name == COPY_COPY:
                         self._check_shallow_copy_environ(node)
@@ -567,7 +568,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if (
             isinstance(infer, astroid.BoundMethod)
             and node.args
-            and isinstance(node.args[0], astroid.Const)
+            and isinstance(node.args[0], nodes.Const)
             and infer.name in ["assertTrue", "assertFalse"]
         ):
             self.add_message(
@@ -598,12 +599,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             return
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
-            if isinstance(mode_arg, astroid.Const) and not _check_mode_str(
+            if isinstance(mode_arg, nodes.Const) and not _check_mode_str(
                 mode_arg.value
             ):
                 self.add_message("bad-open-mode", node=node, args=mode_arg.value)
 
-    def _check_open_encoded(self, node: astroid.Call) -> None:
+    def _check_open_encoded(self, node: nodes.Call) -> None:
         """Check that the encoded argument of an open call is valid."""
         mode_arg = None
         try:
@@ -625,10 +626,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if encoding_arg:
                 encoding_arg = utils.safe_infer(encoding_arg)
 
-                if (
-                    isinstance(encoding_arg, astroid.Const)
-                    and encoding_arg.value is None
-                ):
+                if isinstance(encoding_arg, nodes.Const) and encoding_arg.value is None:
                     self.add_message("unspecified-encoding", node=node)
 
     def _check_env_function(self, node, infer):
@@ -675,7 +673,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             return
 
         name = infer.qname()
-        if isinstance(call_arg, astroid.Const):
+        if isinstance(call_arg, nodes.Const):
             emit = False
             if call_arg.value is None:
                 emit = not allow_none
