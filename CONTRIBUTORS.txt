@@ -509,6 +509,7 @@ contributors:
 * Maksym Humetskyi (mhumetskyi): contributor
   - Fixed ignored empty functions by similarities checker with "ignore-signatures" option enabled
   - Ignore function decorators signatures as well by similarities checker with "ignore-signatures" option enabled
+  - Ignore class methods and nested functions signatures as well by similarities checker with "ignore-signatures" option enabled
 
 * Daniel Dorani (doranid): contributor
 
