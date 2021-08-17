@@ -51,7 +51,6 @@ class MyAstroidChecker(BaseChecker):
         See :mod:`astroid` for the description of available nodes.
 
         :param node: The node to check.
-        :type node: nodes.Call
         """
         if not (
             isinstance(node.func, nodes.Attribute)
