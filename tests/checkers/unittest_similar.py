@@ -36,6 +36,8 @@ SIMILAR3 = str(INPUT / "similar3")
 SIMILAR4 = str(INPUT / "similar4")
 SIMILAR5 = str(INPUT / "similar5")
 SIMILAR6 = str(INPUT / "similar6")
+SIMILAR_CLS_A = str(INPUT / "similar_cls_a.py")
+SIMILAR_CLS_B = str(INPUT / "similar_cls_b.py")
 EMPTY_FUNCTION_1 = str(INPUT / "similar_empty_func_1.py")
 EMPTY_FUNCTION_2 = str(INPUT / "similar_empty_func_2.py")
 MULTILINE = str(INPUT / "multiline-import")
@@ -209,6 +211,66 @@ def test_ignore_signatures_pass():
         output.getvalue().strip()
         == """
 TOTAL lines=35 duplicates=0 percent=0.00
+""".strip()
+    )
+
+
+def test_ignore_signatures_class_methods_fail():
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        similar.Run([SIMILAR_CLS_B, SIMILAR_CLS_A])
+    assert ex.value.code == 0
+    assert (
+        output.getvalue().strip()
+        == (
+            '''
+15 similar lines in 2 files
+==%s:[1:18]
+==%s:[1:18]
+       def parent_method(
+           self,
+           *,
+           a="",
+           b=None,
+           c=True,
+       ):
+           """Overridden method example."""
+
+           def _internal_func(
+               arg1: int = 1,
+               arg2: str = "2",
+               arg3: int = 3,
+               arg4: bool = True,
+           ):
+               pass
+
+
+7 similar lines in 2 files
+==%s:[20:27]
+==%s:[20:27]
+               self,
+               *,
+               a=None,
+               b=False,
+               c="",
+           ):
+               pass
+TOTAL lines=54 duplicates=22 percent=40.74
+'''
+            % (SIMILAR_CLS_A, SIMILAR_CLS_B, SIMILAR_CLS_A, SIMILAR_CLS_B)
+        ).strip()
+    )   
+
+
+def test_ignore_signatures_class_methods_pass():
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        similar.Run(["--ignore-signatures", SIMILAR_CLS_B, SIMILAR_CLS_A])
+    assert ex.value.code == 0
+    assert (
+        output.getvalue().strip()
+        == """
+TOTAL lines=54 duplicates=0 percent=0.00
 """.strip()
     )
 
