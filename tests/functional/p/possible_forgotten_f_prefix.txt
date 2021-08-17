@@ -1,10 +1,9 @@
-possible-forgotten-f-prefix:7:4::The '{var}' syntax imply an f-string but the leading 'f' is missing:HIGH
-possible-forgotten-f-prefix:8:4::The '{var_two}' syntax imply an f-string but the leading 'f' is missing:HIGH
-possible-forgotten-f-prefix:8:4::The '{var}' syntax imply an f-string but the leading 'f' is missing:HIGH
-possible-forgotten-f-prefix:9:20::The '{var}' syntax imply an f-string but the leading 'f' is missing:HIGH
-possible-forgotten-f-prefix:11:4::The '{var}' syntax imply an f-string but the leading 'f' is missing:HIGH
-possible-forgotten-f-prefix:14:4::The '{another_var}' syntax imply an f-string but the leading 'f' is missing:HIGH
-possible-forgotten-f-prefix:25:4::The '{''.join(examples) + 'well...' }' syntax imply an f-string but the leading 'f' is missing:HIGH
-possible-forgotten-f-prefix:29:0::The '{param}' syntax imply an f-string but the leading 'f' is missing:HIGH
-possible-forgotten-f-prefix:33:0::The '{1 + 1}' syntax imply an f-string but the leading 'f' is missing:HIGH
-possible-forgotten-f-prefix:37:0::The '{'nice' + param}' syntax imply an f-string but the leading 'f' is missing:HIGH
+possible-forgotten-f-prefix:11:4::The '{PARAM}' syntax implies an f-string but the leading 'f' is missing:HIGH
+possible-forgotten-f-prefix:12:4::The '{PARAM_TWO}' syntax implies an f-string but the leading 'f' is missing:HIGH
+possible-forgotten-f-prefix:12:4::The '{PARAM}' syntax implies an f-string but the leading 'f' is missing:HIGH
+possible-forgotten-f-prefix:13:20::The '{PARAM}' syntax implies an f-string but the leading 'f' is missing:HIGH
+possible-forgotten-f-prefix:25:4::The '{''.join(PARAM_LIST) + 'well...'}' syntax implies an f-string but the leading 'f' is missing:HIGH
+possible-forgotten-f-prefix:29:4::The '{1 + 1}' syntax implies an f-string but the leading 'f' is missing:HIGH
+possible-forgotten-f-prefix:45:0::The '{PARAM_THREE}' syntax implies an f-string but the leading 'f' is missing:HIGH
+possible-forgotten-f-prefix:49:0::The '{1 + 1}' syntax implies an f-string but the leading 'f' is missing:HIGH
+possible-forgotten-f-prefix:53:0::The '{'nice' + PARAM_THREE}' syntax implies an f-string but the leading 'f' is missing:HIGH

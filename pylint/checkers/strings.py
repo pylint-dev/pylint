@@ -151,7 +151,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E1310": (
         "Suspicious argument in %s.%s call",
         "bad-str-strip-call",
-        "The argument to a str.{l,r,}strip call contains a duplicate character, ",  # pylint: disable=possible-forgotten-f-prefix
+        "The argument to a str.{l,r,}strip call contains a duplicate character, ",
     ),
     "W1302": (
         "Invalid format string",
@@ -189,7 +189,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "W1307": (
         "Using invalid lookup key %r in format specifier %r",
         "invalid-format-index",
-        "Used when a PEP 3101 format string uses a lookup specifier "  # pylint: disable=possible-forgotten-f-prefix
+        "Used when a PEP 3101 format string uses a lookup specifier "
         "({a[1]}), but the argument passed for formatting "
         "doesn't contain or doesn't have that key as an attribute.",
     ),
@@ -212,7 +212,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "in which case it can be either a normal string without formatting or a bug in the code.",
     ),
     "W1311": (
-        "The %s syntax imply an f-string but the leading 'f' is missing",
+        "The '%s' syntax implies an f-string but the leading 'f' is missing",
         "possible-forgotten-f-prefix",
         "Used when we detect a string that uses '{}' with a local variable inside. "
         "This string is probably meant to be an f-string.",
@@ -933,15 +933,24 @@ class StringConstantChecker(BaseTokenChecker):
         Those should probably be f-strings's
         """
 
-        def detect_if_used_in_format(node: astroid.Const) -> bool:
+        def detect_if_used_in_format(node: astroid.Const, assign_name: str) -> bool:
             """Check if the node is used in a call to format() if so return True"""
-            print(node)
+            # the skip_class is to make sure we don't go into inner scopes, but might not be needed per se
+            for attr in node.scope().nodes_of_class(
+                astroid.Attribute, skip_klass=(astroid.FunctionDef,)
+            ):
+                if isinstance(attr.expr, astroid.Name):
+                    if attr.expr.name == assign_name and attr.attrname == "format":
+                        return True
             return False
 
         # Find all pairs of '{}' within a string
         inner_matches = re.findall(r"(?<=\{).*?(?=\})", node.value)
+
+        # If a variable is used twice it is probably used for formatting later on
         if len(inner_matches) != len(set(inner_matches)):
             return
+
         if inner_matches:
             for match in inner_matches:
                 try:
@@ -957,13 +966,37 @@ class StringConstantChecker(BaseTokenChecker):
                 #         print(
                 #             f"TODO check that the name {ast_node.id} exists in the scope  ?"
                 #         )
-                if not detect_if_used_in_format(node):
-                    self.add_message(
-                        "possible-forgotten-f-prefix",
-                        line=node.lineno,
-                        node=node,
-                        args=(f"'{{{match}}}'",),
-                    )
+
+                # Get the assign node, if there is any
+                assign_node = node
+                while not isinstance(assign_node, astroid.Assign):
+                    assign_node = assign_node.parent
+                    if isinstance(assign_node, astroid.Module):
+                        break
+                else:
+                    # Get the assign name and handle the case of tuple assignment
+                    if isinstance(assign_node.value, astroid.Tuple):
+                        node_index = assign_node.value.elts.index(node)
+                        assign_name = assign_node.targets[0].elts[node_index].name
+                    else:
+                        assign_name = assign_node.targets[0].name
+
+                    # Detect calls to .format()
+                    if not detect_if_used_in_format(node, assign_name):
+                        self.add_message(
+                            "possible-forgotten-f-prefix",
+                            line=node.lineno,
+                            node=node,
+                            args=(f"{{{match}}}",),
+                        )
+                    continue
+
+                self.add_message(
+                    "possible-forgotten-f-prefix",
+                    line=node.lineno,
+                    node=node,
+                    args=(f"{{{match}}}",),
+                )
 
     def _detect_u_string_prefix(self, node: astroid.Const):
         """Check whether strings include a 'u' prefix like u'String'"""

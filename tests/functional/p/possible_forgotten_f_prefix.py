@@ -1,38 +1,53 @@
-# pylint: disable=missing-docstring, invalid-name, line-too-long, multiple-statements, pointless-string-statement, pointless-statement
-var = "string"
-var_two = "extra string"
+"""Check various forms of strings which could be f-strings without a prefix"""
+# pylint: disable=invalid-name, line-too-long, pointless-string-statement, pointless-statement
+# pylint: disable=missing-function-docstring
 
-x = f"This is a {var} which should be a f-string"
-x = "This is a {var} used twice, see {var}"
-x = "This is a {var} which should be a f-string"  # [possible-forgotten-f-prefix]
-x = "This is a {var} and {var_two} which should be a f-string"  # [possible-forgotten-f-prefix, possible-forgotten-f-prefix]
-x1, x2, x3 = (1, 2, "This is a {var} which should be a f-string")  # [possible-forgotten-f-prefix]
+# Check for local variable interpolation
+PARAM = "string"
+PARAM_TWO = "extra string"
 
-y = "This is a {var} used for formatting later"  # [possible-forgotten-f-prefix]
-z = y.format(var="string")
+A = f"This is a {PARAM} which should be a f-string"
+B = "This is a {PARAM} used twice, see {PARAM}"
+C = "This is a {PARAM} which should be a f-string"  # [possible-forgotten-f-prefix]
+D = "This is a {PARAM} and {PARAM_TWO} which should be a f-string"  # [possible-forgotten-f-prefix, possible-forgotten-f-prefix]
+E1, E2, E3 = (1, 2, "This is a {PARAM} which should be a f-string")  # [possible-forgotten-f-prefix]
 
-g = "This is a {another_var} used for formatting later"  # [possible-forgotten-f-prefix]
-h = g.format(another_var="string")
+# Check for use of .format()
+F = "This is a {parameter} used for formatting later"
+G = F.format(parameter="string")
 
-i = "This is {invalid /// python /// inside}"
-j = "This is {not */ valid python.}"
-k = "This is {def function(): return 42} valid python but not an expression"
+H = "This is a {another_parameter} used for formatting later"
+I = H.format(another_parameter="string")
 
-def function(): return 42
+# Check for use of variables within functions
+PARAM_LIST = [PARAM, PARAM_TWO]
+J = f"This is an example with a list: {''.join(PARAM_LIST) + 'well...'}"
+K = "This is an example with a list: {''.join(PARAM_LIST) + 'well...'}"  # [possible-forgotten-f-prefix]
 
-examples = [var, var_two]
-x = f"This is an example with a list: {''.join(examples) + 'well...' }"
-x = "This is an example with a list: {''.join(examples) + 'well...' }"  # [possible-forgotten-f-prefix]
+# Check for calculations without variables
+L = f"This is a calculation: {1 + 1}"
+M = "This is a calculation: {1 + 1}"  # [possible-forgotten-f-prefix]
 
-param = "string"
-"This is a string" # good
-"This is a {param}" # [possible-forgotten-f-prefix]
-f"This is a {param}" # good
+# Check invalid Python code
+N = "This is {invalid /// python /// inside}"
+O = "This is {not */ valid python.}"
+P = "This is {def function(): return 42} valid python but not an expression"
 
-"This is a calculation: 1 + 1" # good
-"This is a calculation: {1 + 1}" # [possible-forgotten-f-prefix]
-f"This is a calculation: {1 + 1}" # good
 
-"This is a nice string" # good
-"This is a {'nice' + param}" # [possible-forgotten-f-prefix]
-f"This is a {'nice' + param}" # good
+def function():
+    return 42
+
+
+# Check strings without assignment
+PARAM_THREE = "string"
+f"This is a {PARAM_THREE}"
+"This is a string"
+"This is a {PARAM_THREE}"  # [possible-forgotten-f-prefix]
+
+f"This is a calculation: {1 + 1}"
+"This is a calculation: 1 + 1"
+"This is a calculation: {1 + 1}"  # [possible-forgotten-f-prefix]
+
+f"This is a {'nice' + PARAM_THREE}"
+"This is a nice string"
+"This is a {'nice' + PARAM_THREE}"  # [possible-forgotten-f-prefix]
