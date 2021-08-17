@@ -149,8 +149,8 @@ def _make_tree_defs(mod_files_list):
 def _repr_tree_defs(data, indent_str=None):
     """return a string which represents imports as a tree"""
     lines = []
-    nodes = data.items()
-    for i, (mod, (sub, files)) in enumerate(sorted(nodes, key=lambda x: x[0])):
+    nodes_items = data.items()
+    for i, (mod, (sub, files)) in enumerate(sorted(nodes_items, key=lambda x: x[0])):
         if not files:
             files = ""
         else:
@@ -160,7 +160,7 @@ def _repr_tree_defs(data, indent_str=None):
             sub_indent_str = "  "
         else:
             lines.append(fr"{indent_str}\-{mod} {files}")
-            if i == len(nodes) - 1:
+            if i == len(nodes_items) - 1:
                 sub_indent_str = "%s  " % indent_str
             else:
                 sub_indent_str = "%s| " % indent_str
