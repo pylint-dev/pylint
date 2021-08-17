@@ -34,8 +34,6 @@ O = "This is {not */ valid python.}"
 P = "This is {def function(): return 42} valid python but not an expression"
 
 
-def function():
-    return 42
 
 
 # Check strings without assignment
