@@ -259,7 +259,7 @@ TOTAL lines=54 duplicates=22 percent=40.74
 '''
             % (SIMILAR_CLS_A, SIMILAR_CLS_B, SIMILAR_CLS_A, SIMILAR_CLS_B)
         ).strip()
-    )   
+    )
 
 
 def test_ignore_signatures_class_methods_pass():

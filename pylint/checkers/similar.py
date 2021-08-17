@@ -594,12 +594,15 @@ def stripped_lines(
             for node in tree.body:
                 if isinstance(node, (astroid.FunctionDef, astroid.AsyncFunctionDef)):
                     functions.append(node)
-                
-                if isinstance(node, (astroid.ClassDef, astroid.FunctionDef, astroid.AsyncFunctionDef)):
+
+                if isinstance(
+                    node,
+                    (astroid.ClassDef, astroid.FunctionDef, astroid.AsyncFunctionDef),
+                ):
                     _get_functions(functions, node)
 
             return functions
-        
+
         functions = _get_functions([], tree)
         signature_lines = set(
             chain(

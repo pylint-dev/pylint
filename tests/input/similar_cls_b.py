@@ -15,7 +15,7 @@ class B:
             arg4: bool = True,
         ):
             pass
-    
+
     class InternalB:
         def some_method_b(
             self,
