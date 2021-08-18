@@ -26,6 +26,7 @@
 import string
 
 import astroid
+from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -198,8 +199,8 @@ class LoggingChecker(checkers.BaseChecker):
 
         def is_logging_name():
             return (
-                isinstance(node.func, astroid.Attribute)
-                and isinstance(node.func.expr, astroid.Name)
+                isinstance(node.func, nodes.Attribute)
+                and isinstance(node.func.expr, nodes.Name)
                 and node.func.expr.name in self._logging_names
             )
 
@@ -208,7 +209,7 @@ class LoggingChecker(checkers.BaseChecker):
                 for inferred in node.func.infer():
                     if isinstance(inferred, astroid.BoundMethod):
                         parent = inferred._proxied.parent
-                        if isinstance(parent, astroid.ClassDef) and (
+                        if isinstance(parent, nodes.ClassDef) and (
                             parent.qname() == "logging.Logger"
                             or any(
                                 ancestor.qname() == "logging.Logger"
@@ -245,7 +246,7 @@ class LoggingChecker(checkers.BaseChecker):
         else:
             return
 
-        if isinstance(node.args[format_pos], astroid.BinOp):
+        if isinstance(node.args[format_pos], nodes.BinOp):
             binop = node.args[format_pos]
             emit = binop.op == "%"
             if binop.op == "+":
@@ -261,11 +262,11 @@ class LoggingChecker(checkers.BaseChecker):
                     node=node,
                     args=(self._helper_string(node),),
                 )
-        elif isinstance(node.args[format_pos], astroid.Call):
+        elif isinstance(node.args[format_pos], nodes.Call):
             self._check_call_func(node.args[format_pos])
-        elif isinstance(node.args[format_pos], astroid.Const):
+        elif isinstance(node.args[format_pos], nodes.Const):
             self._check_format_string(node, format_pos)
-        elif isinstance(node.args[format_pos], astroid.JoinedStr):
+        elif isinstance(node.args[format_pos], nodes.JoinedStr):
             self.add_message(
                 "logging-fstring-interpolation",
                 node=node,
@@ -294,7 +295,7 @@ class LoggingChecker(checkers.BaseChecker):
         """
         Return True if the operand in argument is a literal string
         """
-        return isinstance(operand, astroid.Const) and operand.name == "str"
+        return isinstance(operand, nodes.Const) and operand.name == "str"
 
     def _check_call_func(self, node):
         """Checks that function call is not format_string.format().
@@ -319,7 +320,7 @@ class LoggingChecker(checkers.BaseChecker):
         """Checks that format string tokens match the supplied arguments.
 
         Args:
-          node (astroid.node_classes.NodeNG): AST node to be checked.
+          node (nodes.NodeNG): AST node to be checked.
           format_arg (int): Index of the format string in the node arguments.
         """
         num_args = _count_supplied_tokens(node.args[format_arg + 1 :])
@@ -376,13 +377,13 @@ def is_complex_format_str(node):
     """Checks if node represents a string with complex formatting specs.
 
     Args:
-        node (astroid.node_classes.NodeNG): AST node to check
+        node (nodes.NodeNG): AST node to check
     Returns:
         bool: True if inferred string uses complex formatting, False otherwise
     """
     inferred = utils.safe_infer(node)
     if inferred is None or not (
-        isinstance(inferred, astroid.Const) and isinstance(inferred.value, str)
+        isinstance(inferred, nodes.Const) and isinstance(inferred.value, str)
     ):
         return True
     try:
@@ -409,7 +410,7 @@ def _count_supplied_tokens(args):
     Returns:
       int: Number of AST nodes that aren't keywords.
     """
-    return sum(1 for arg in args if not isinstance(arg, astroid.Keyword))
+    return sum(1 for arg in args if not isinstance(arg, nodes.Keyword))
 
 
 def register(linter):
