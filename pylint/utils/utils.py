@@ -63,7 +63,7 @@ def get_module_and_frameid(node):
         try:
             frame = frame.parent.frame()
         except AttributeError:
-            frame = None
+            break
     obj.reverse()
     return module, ".".join(obj)
 

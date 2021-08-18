@@ -671,9 +671,9 @@ def node_frame_class(node: astroid.node_classes.NodeNG) -> Optional[astroid.Clas
         and not isinstance(klass, astroid.ClassDef)
     ):
         if klass.parent is None:
-            klass = None
-        else:
-            klass = klass.parent.frame()
+            return None
+
+        klass = klass.parent.frame()
 
     return klass
 

@@ -293,11 +293,7 @@ class TypingChecker(BaseChecker):
         """
         if self._py37_plus() and not self._py39_plus():
             msg_future_import = self._msg_postponed_eval_hint(node)
-            while True:
-                try:
-                    msg = self._consider_using_alias_msgs.pop(0)
-                except IndexError:
-                    break
+            for msg in self._consider_using_alias_msgs:
                 if msg.qname in self._alias_name_collisions:
                     continue
                 self.add_message(

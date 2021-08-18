@@ -75,8 +75,7 @@ class BaseWriter:
             cols -= 1
             result[-1].append(cell)
         # fill missing cells
-        while len(result[-1]) < cols:
-            result[-1].append("")
+        result[-1] += [""] * (cols - len(result[-1]))
         return result
 
     def compute_content(self, layout):
