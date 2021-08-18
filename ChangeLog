@@ -154,6 +154,11 @@ Release date: TBA
 * Allow ``true`` and ``false`` values in ``pylintrc`` for better compatibility with ``toml`` config.
 
 
+* Class methods' signatures are ignored the same way as functions' with similarities "ignore-signatures" option enabled
+
+  Closes #4653
+
+
 What's New in Pylint 2.9.6?
 ===========================
 Release date: 2021-07-28

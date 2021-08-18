@@ -22,6 +22,7 @@
 """check for new / old style related problems
 """
 import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, has_known_bases, node_frame_class
@@ -61,20 +62,20 @@ class NewStyleConflictChecker(BaseChecker):
         if not node.is_method():
             return
         klass = node.parent.frame()
-        for stmt in node.nodes_of_class(astroid.Call):
+        for stmt in node.nodes_of_class(nodes.Call):
             if node_frame_class(stmt) != node_frame_class(node):
                 # Don't look down in other scopes.
                 continue
 
             expr = stmt.func
-            if not isinstance(expr, astroid.Attribute):
+            if not isinstance(expr, nodes.Attribute):
                 continue
 
             call = expr.expr
             # skip the test if using super
             if not (
-                isinstance(call, astroid.Call)
-                and isinstance(call.func, astroid.Name)
+                isinstance(call, nodes.Call)
+                and isinstance(call.func, nodes.Name)
                 and call.func.name == "super"
             ):
                 continue
@@ -89,8 +90,8 @@ class NewStyleConflictChecker(BaseChecker):
                 # in derived classes
                 arg0 = call.args[0]
                 if (
-                    isinstance(arg0, astroid.Call)
-                    and isinstance(arg0.func, astroid.Name)
+                    isinstance(arg0, nodes.Call)
+                    and isinstance(arg0.func, nodes.Name)
                     and arg0.func.name == "type"
                 ):
                     self.add_message("bad-super-call", node=call, args=("type",))
@@ -100,9 +101,9 @@ class NewStyleConflictChecker(BaseChecker):
                 # in derived classes
                 if (
                     len(call.args) >= 2
-                    and isinstance(call.args[1], astroid.Name)
+                    and isinstance(call.args[1], nodes.Name)
                     and call.args[1].name == "self"
-                    and isinstance(arg0, astroid.Attribute)
+                    and isinstance(arg0, nodes.Attribute)
                     and arg0.attrname == "__class__"
                 ):
                     self.add_message(

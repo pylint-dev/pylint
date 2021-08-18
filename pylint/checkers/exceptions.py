@@ -37,6 +37,7 @@ import inspect
 import typing
 
 import astroid
+from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -57,7 +58,7 @@ def _annotated_unpack_infer(stmt, context=None):
     Returns an iterator which yields tuples in the format
     ('original node', 'inferred node').
     """
-    if isinstance(stmt, (astroid.List, astroid.Tuple)):
+    if isinstance(stmt, (nodes.List, nodes.Tuple)):
         for elt in stmt.elts:
             inferred = utils.safe_infer(elt)
             if inferred and inferred is not astroid.Uninferable:
@@ -72,7 +73,7 @@ def _annotated_unpack_infer(stmt, context=None):
 def _is_raising(body: typing.List) -> bool:
     """Return true if the given statement node raise an exception"""
     for node in body:
-        if isinstance(node, astroid.Raise):
+        if isinstance(node, nodes.Raise):
             return True
     return False
 
@@ -212,11 +213,11 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
             self._checker.add_message("notimplemented-raised", node=self._node)
 
     def visit_call(self, call):
-        if isinstance(call.func, astroid.Name):
+        if isinstance(call.func, nodes.Name):
             self.visit_name(call.func)
         if (
             len(call.args) > 1
-            and isinstance(call.args[0], astroid.Const)
+            and isinstance(call.args[0], nodes.Const)
             and isinstance(call.args[0].value, str)
         ):
             msg = call.args[0].value
@@ -315,7 +316,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         # Filter out if it's present in __exit__.
         scope = node.scope()
         if (
-            isinstance(scope, astroid.FunctionDef)
+            isinstance(scope, nodes.FunctionDef)
             and scope.is_method()
             and scope.name == "__exit__"
         ):
@@ -324,15 +325,15 @@ class ExceptionsChecker(checkers.BaseChecker):
         current = node
         # Stop when a new scope is generated or when the raise
         # statement is found inside a TryFinally.
-        ignores = (astroid.ExceptHandler, astroid.FunctionDef)
+        ignores = (nodes.ExceptHandler, nodes.FunctionDef)
         while current and not isinstance(current.parent, ignores):
             current = current.parent
 
-        expected = (astroid.ExceptHandler,)
+        expected = (nodes.ExceptHandler,)
         if not current or not isinstance(current.parent, expected):
             self.add_message("misplaced-bare-raise", node=node)
 
-    def _check_bad_exception_context(self, node: astroid.Raise) -> None:
+    def _check_bad_exception_context(self, node: nodes.Raise) -> None:
         """Verify that the exception context is properly set.
 
         An exception context can be only `None` or an exception.
@@ -341,15 +342,15 @@ class ExceptionsChecker(checkers.BaseChecker):
         if cause in (astroid.Uninferable, None):
             return
 
-        if isinstance(cause, astroid.Const):
+        if isinstance(cause, nodes.Const):
             if cause.value is not None:
                 self.add_message("bad-exception-context", node=node)
-        elif not isinstance(cause, astroid.ClassDef) and not utils.inherit_from_std_ex(
+        elif not isinstance(cause, nodes.ClassDef) and not utils.inherit_from_std_ex(
             cause
         ):
             self.add_message("bad-exception-context", node=node)
 
-    def _check_raise_missing_from(self, node: astroid.Raise) -> None:
+    def _check_raise_missing_from(self, node: nodes.Raise) -> None:
         if node.exc is None:
             # This is a plain `raise`, raising the previously-caught exception. No need for a
             # cause.
@@ -368,20 +369,18 @@ class ExceptionsChecker(checkers.BaseChecker):
             # The `except` doesn't have an `as exception:` part, meaning there's no way that
             # the `raise` is raising the same exception.
             self.add_message("raise-missing-from", node=node)
-        elif isinstance(node.exc, astroid.Call) and isinstance(
-            node.exc.func, astroid.Name
-        ):
+        elif isinstance(node.exc, nodes.Call) and isinstance(node.exc.func, nodes.Name):
             # We have a `raise SomeException(whatever)`.
             self.add_message("raise-missing-from", node=node)
         elif (
-            isinstance(node.exc, astroid.Name)
+            isinstance(node.exc, nodes.Name)
             and node.exc.name != containing_except_node.name.name
         ):
             # We have a `raise SomeException`.
             self.add_message("raise-missing-from", node=node)
 
     def _check_catching_non_exception(self, handler, exc, part):
-        if isinstance(exc, astroid.Tuple):
+        if isinstance(exc, nodes.Tuple):
             # Check if it is a tuple of exceptions.
             inferred = [utils.safe_infer(elt) for elt in exc.elts]
             if any(node is astroid.Uninferable for node in inferred):
@@ -394,14 +393,13 @@ class ExceptionsChecker(checkers.BaseChecker):
             ):
                 return
 
-        if not isinstance(exc, astroid.ClassDef):
+        if not isinstance(exc, nodes.ClassDef):
             # Don't emit the warning if the inferred stmt
             # is None, but the exception handler is something else,
             # maybe it was redefined.
-            if isinstance(exc, astroid.Const) and exc.value is None:
+            if isinstance(exc, nodes.Const) and exc.value is None:
                 if (
-                    isinstance(handler.type, astroid.Const)
-                    and handler.type.value is None
+                    isinstance(handler.type, nodes.Const) and handler.type.value is None
                 ) or handler.type.parent_of(exc):
                     # If the exception handler catches None or
                     # the exception component, which is None, is
@@ -432,16 +430,16 @@ class ExceptionsChecker(checkers.BaseChecker):
     def _check_try_except_raise(self, node):
         def gather_exceptions_from_handler(
             handler,
-        ) -> typing.Optional[typing.List[astroid.node_classes.NodeNG]]:
-            exceptions: typing.List[astroid.node_classes.NodeNG] = []
+        ) -> typing.Optional[typing.List[nodes.NodeNG]]:
+            exceptions: typing.List[nodes.NodeNG] = []
             if handler.type:
                 exceptions_in_handler = utils.safe_infer(handler.type)
-                if isinstance(exceptions_in_handler, astroid.Tuple):
+                if isinstance(exceptions_in_handler, nodes.Tuple):
                     exceptions = list(
                         {
                             exception
                             for exception in exceptions_in_handler.elts
-                            if isinstance(exception, astroid.Name)
+                            if isinstance(exception, nodes.Name)
                         }
                     )
                 elif exceptions_in_handler:
@@ -488,7 +486,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     @utils.check_messages("wrong-exception-operation")
     def visit_binop(self, node):
-        if isinstance(node.parent, astroid.ExceptHandler):
+        if isinstance(node.parent, nodes.ExceptHandler):
             # except (V | A)
             suggestion = "Did you mean '({}, {})' instead?".format(
                 node.left.as_string(),
@@ -498,7 +496,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     @utils.check_messages("wrong-exception-operation")
     def visit_compare(self, node):
-        if isinstance(node.parent, astroid.ExceptHandler):
+        if isinstance(node.parent, nodes.ExceptHandler):
             # except (V < A)
             suggestion = "Did you mean '({}, {})' instead?".format(
                 node.left.as_string(),
@@ -531,7 +529,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                     msg = "empty except clause should always appear last"
                     self.add_message("bad-except-order", node=node, args=msg)
 
-            elif isinstance(handler.type, astroid.BoolOp):
+            elif isinstance(handler.type, nodes.BoolOp):
                 self.add_message(
                     "binary-op-exception", node=handler, args=handler.type.op
                 )
@@ -552,13 +550,13 @@ class ExceptionsChecker(checkers.BaseChecker):
 
                     self._check_catching_non_exception(handler, exc, part)
 
-                    if not isinstance(exc, astroid.ClassDef):
+                    if not isinstance(exc, nodes.ClassDef):
                         continue
 
                     exc_ancestors = [
                         anc
                         for anc in exc.ancestors()
-                        if isinstance(anc, astroid.ClassDef)
+                        if isinstance(anc, nodes.ClassDef)
                     ]
 
                     for previous_exc in exceptions_classes:

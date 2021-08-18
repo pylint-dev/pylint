@@ -110,3 +110,7 @@ Other Changes
 
 * Fixed bug with ``cell-var-from-loop`` checker: it no longer has false negatives when
   both ``unused-variable`` and ``used-before-assignment`` are disabled.
+
+* Class methods' signatures are now ignored the same way as functions' with similarities "ignore-signatures" option enabled
+
+  Closes #4653

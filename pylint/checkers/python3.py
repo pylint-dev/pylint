@@ -46,6 +46,7 @@ import tokenize
 from collections import namedtuple
 
 import astroid
+from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -69,7 +70,7 @@ def _is_old_octal(literal):
 
 
 def _inferred_value_is_dict(value):
-    if isinstance(value, astroid.Dict):
+    if isinstance(value, nodes.Dict):
         return True
     return isinstance(value, astroid.Instance) and "dict" in value.basenames
 
@@ -120,20 +121,20 @@ def _in_iterating_context(node):
     # Since a call can't be the loop variant we only need to know if the node's
     # parent is a 'for' loop to know it's being used as the iterator for the
     # loop.
-    if isinstance(parent, astroid.For):
+    if isinstance(parent, nodes.For):
         return True
     # Need to make sure the use of the node is in the iterator part of the
     # comprehension.
-    if isinstance(parent, astroid.Comprehension):
+    if isinstance(parent, nodes.Comprehension):
         if parent.iter == node:
             return True
     # Various built-ins can take in an iterable or list and lead to the same
     # value.
-    elif isinstance(parent, astroid.Call):
-        if isinstance(parent.func, astroid.Name):
+    elif isinstance(parent, nodes.Call):
+        if isinstance(parent.func, nodes.Name):
             if parent.func.name in _ACCEPTS_ITERATOR:
                 return True
-        elif isinstance(parent.func, astroid.Attribute):
+        elif isinstance(parent.func, nodes.Attribute):
             if parent.func.attrname in ATTRIBUTES_ACCEPTS_ITERATOR:
                 return True
 
@@ -146,23 +147,23 @@ def _in_iterating_context(node):
                 return True
     # If the call is in an unpacking, there's no need to warn,
     # since it can be considered iterating.
-    elif isinstance(parent, astroid.Assign) and isinstance(
-        parent.targets[0], (astroid.List, astroid.Tuple)
+    elif isinstance(parent, nodes.Assign) and isinstance(
+        parent.targets[0], (nodes.List, nodes.Tuple)
     ):
         if len(parent.targets[0].elts) > 1:
             return True
     # If the call is in a containment check, we consider that to
     # be an iterating context
     elif (
-        isinstance(parent, astroid.Compare)
+        isinstance(parent, nodes.Compare)
         and len(parent.ops) == 1
         and parent.ops[0][0] in ("in", "not in")
     ):
         return True
     # Also if it's an `yield from`, that's fair
-    elif isinstance(parent, astroid.YieldFrom):
+    elif isinstance(parent, nodes.YieldFrom):
         return True
-    if isinstance(parent, astroid.Starred):
+    if isinstance(parent, nodes.Starred):
         return True
     return False
 
@@ -171,7 +172,7 @@ def _is_conditional_import(node):
     """Checks if an import node is in the context of a conditional."""
     parent = node.parent
     return isinstance(
-        parent, (astroid.TryExcept, astroid.ExceptHandler, astroid.If, astroid.IfExp)
+        parent, (nodes.TryExcept, nodes.ExceptHandler, nodes.If, nodes.IfExp)
     )
 
 
@@ -933,13 +934,13 @@ class Python3Checker(checkers.BaseChecker):
             super().add_message(msg_id, *args, **kwargs)
 
     def _is_py2_test(self, node):
-        if isinstance(node.test, astroid.Attribute) and isinstance(
-            node.test.expr, astroid.Name
+        if isinstance(node.test, nodes.Attribute) and isinstance(
+            node.test.expr, nodes.Name
         ):
             if node.test.expr.name == "six" and node.test.attrname == "PY2":
                 return True
         elif (
-            isinstance(node.test, astroid.Compare)
+            isinstance(node.test, nodes.Compare)
             and node.test.repr_tree() in self._python_2_tests
         ):
             return True
@@ -988,7 +989,7 @@ class Python3Checker(checkers.BaseChecker):
     @utils.check_messages("parameter-unpacking")
     def visit_arguments(self, node):
         for arg in node.args:
-            if isinstance(arg, astroid.Tuple):
+            if isinstance(arg, nodes.Tuple):
                 self.add_message("parameter-unpacking", node=arg)
 
     @utils.check_messages("comprehension-escape")
@@ -996,14 +997,14 @@ class Python3Checker(checkers.BaseChecker):
         names = {
             generator.target.name
             for generator in node.generators
-            if isinstance(generator.target, astroid.AssignName)
+            if isinstance(generator.target, nodes.AssignName)
         }
         scope = node.parent.scope()
-        scope_names = scope.nodes_of_class(astroid.Name, skip_klass=astroid.FunctionDef)
+        scope_names = scope.nodes_of_class(nodes.Name, skip_klass=nodes.FunctionDef)
         has_redefined_assign_name = any(
             assign_name
             for assign_name in scope.nodes_of_class(
-                astroid.AssignName, skip_klass=astroid.FunctionDef
+                nodes.AssignName, skip_klass=nodes.FunctionDef
             )
             if assign_name.name in names and assign_name.lineno > node.lineno
         )
@@ -1032,7 +1033,7 @@ class Python3Checker(checkers.BaseChecker):
         if node.name not in self._bad_builtins:
             return
         if node_ignores_exception(node) or isinstance(
-            find_try_except_wrapper_node(node), astroid.ExceptHandler
+            find_try_except_wrapper_node(node), nodes.ExceptHandler
         ):
             return
 
@@ -1070,7 +1071,7 @@ class Python3Checker(checkers.BaseChecker):
 
         if node.names[0][0] == "*":
             if self.linter.is_message_enabled("import-star-module-level"):
-                if not isinstance(node.scope(), astroid.Module):
+                if not isinstance(node.scope(), nodes.Module):
                     self.add_message("import-star-module-level", node=node)
 
     def visit_import(self, node):
@@ -1098,7 +1099,7 @@ class Python3Checker(checkers.BaseChecker):
                 # If we can infer the object and that object is not an int, bail out.
                 if inferred and not (
                     (
-                        isinstance(inferred, astroid.Const)
+                        isinstance(inferred, nodes.Const)
                         and isinstance(inferred.value, int)
                     )
                     or (
@@ -1113,16 +1114,16 @@ class Python3Checker(checkers.BaseChecker):
     def _check_cmp_argument(self, node):
         # Check that the `cmp` argument is used
         kwargs = []
-        if isinstance(node.func, astroid.Attribute) and node.func.attrname == "sort":
+        if isinstance(node.func, nodes.Attribute) and node.func.attrname == "sort":
             inferred = utils.safe_infer(node.func.expr)
             if not inferred:
                 return
 
             builtins_list = f"{astroid.bases.BUILTINS}.list"
-            if isinstance(inferred, astroid.List) or inferred.qname() == builtins_list:
+            if isinstance(inferred, nodes.List) or inferred.qname() == builtins_list:
                 kwargs = node.keywords
 
-        elif isinstance(node.func, astroid.Name) and node.func.name == "sorted":
+        elif isinstance(node.func, nodes.Name) and node.func.name == "sorted":
             inferred = utils.safe_infer(node.func)
             if not inferred:
                 return
@@ -1138,13 +1139,13 @@ class Python3Checker(checkers.BaseChecker):
 
     @staticmethod
     def _is_constant_string_or_name(node):
-        if isinstance(node, astroid.Const):
+        if isinstance(node, nodes.Const):
             return isinstance(node.value, str)
-        return isinstance(node, astroid.Name)
+        return isinstance(node, nodes.Name)
 
     @staticmethod
     def _is_none(node):
-        return isinstance(node, astroid.Const) and node.value is None
+        return isinstance(node, nodes.Const) and node.value is None
 
     @staticmethod
     def _has_only_n_positional_args(node, number_of_args):
@@ -1157,7 +1158,7 @@ class Python3Checker(checkers.BaseChecker):
             if inferred_type is astroid.Uninferable:
                 confidence = INFERENCE_FAILURE
             elif not (
-                isinstance(inferred_type, astroid.Const)
+                isinstance(inferred_type, nodes.Const)
                 and isinstance(inferred_type.value, str)
             ):
                 return None
@@ -1166,7 +1167,7 @@ class Python3Checker(checkers.BaseChecker):
     def visit_call(self, node):
         self._check_cmp_argument(node)
 
-        if isinstance(node.func, astroid.Attribute):
+        if isinstance(node.func, nodes.Attribute):
             inferred_types = set()
 
             try:
@@ -1176,7 +1177,7 @@ class Python3Checker(checkers.BaseChecker):
                     if inferred_receiver is astroid.Uninferable:
                         continue
                     inferred_types.add(inferred_receiver)
-                    if isinstance(inferred_receiver, astroid.Module):
+                    if isinstance(inferred_receiver, nodes.Module):
                         self._warn_if_deprecated(
                             node,
                             inferred_receiver.name,
@@ -1234,7 +1235,7 @@ class Python3Checker(checkers.BaseChecker):
                 self.add_message("dict-iter-method", node=node)
             elif node.func.attrname in ("viewkeys", "viewvalues", "viewitems"):
                 self.add_message("dict-view-method", node=node)
-        elif isinstance(node.func, astroid.Name):
+        elif isinstance(node.func, nodes.Name):
             found_node = node.func.lookup(node.func.name)[0]
             if _is_builtin(found_node):
                 if node.func.name in ("filter", "map", "range", "zip"):
@@ -1249,7 +1250,7 @@ class Python3Checker(checkers.BaseChecker):
                             break
 
     def _validate_encoding(self, encoding, node):
-        if isinstance(encoding, astroid.Const):
+        if isinstance(encoding, nodes.Const):
             value = encoding.value
             if value in self._invalid_encodings:
                 self.add_message("invalid-str-codec", node=node)
@@ -1267,7 +1268,7 @@ class Python3Checker(checkers.BaseChecker):
             return
 
     def visit_assignattr(self, node):
-        if isinstance(node.assign_type(), astroid.AugAssign):
+        if isinstance(node.assign_type(), nodes.AugAssign):
             self.visit_attribute(node)
 
     def visit_delattr(self, node):
@@ -1294,7 +1295,7 @@ class Python3Checker(checkers.BaseChecker):
                         if exception_message in inferred.instance_attrs:
                             continue
                         self.add_message("exception-message-attribute", node=node)
-                if isinstance(inferred, astroid.Module):
+                if isinstance(inferred, nodes.Module):
                     self._warn_if_deprecated(
                         node, inferred.name, {node.attrname}, report_on_modules=False
                     )
@@ -1311,7 +1312,7 @@ class Python3Checker(checkers.BaseChecker):
                 current = current.parent
             return current is not None
 
-        if isinstance(node.name, (astroid.Tuple, astroid.List)):
+        if isinstance(node.name, (nodes.Tuple, nodes.List)):
             self.add_message("unpacking-in-except", node=node)
             return
 
@@ -1320,7 +1321,7 @@ class Python3Checker(checkers.BaseChecker):
 
         # Find any names
         scope = node.parent.scope()
-        scope_names = scope.nodes_of_class(astroid.Name, skip_klass=astroid.FunctionDef)
+        scope_names = scope.nodes_of_class(nodes.Name, skip_klass=nodes.FunctionDef)
         scope_names = list(scope_names)
         potential_leaked_names = [
             scope_name
@@ -1332,7 +1333,7 @@ class Python3Checker(checkers.BaseChecker):
         reassignments_for_same_name = {
             assign_name.lineno
             for assign_name in scope.nodes_of_class(
-                astroid.AssignName, skip_klass=astroid.FunctionDef
+                nodes.AssignName, skip_klass=nodes.FunctionDef
             )
             if assign_name.name == node.name.name
         }
@@ -1367,7 +1368,7 @@ class Python3Checker(checkers.BaseChecker):
         self._check_raise_value(node, value)
 
     def _check_raise_value(self, node, expr):
-        if isinstance(expr, astroid.Const):
+        if isinstance(expr, nodes.Const):
             value = expr.value
             if isinstance(value, str):
                 self.add_message("raising-string", node=node)

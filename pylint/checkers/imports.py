@@ -53,6 +53,7 @@ from distutils import sysconfig
 from typing import Dict, List, Set, Union
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
@@ -92,11 +93,11 @@ def _get_first_import(node, context, name, base, level, alias):
             continue
         if first.scope() is node.scope() and first.fromlineno > node.fromlineno:
             continue
-        if isinstance(first, astroid.Import):
+        if isinstance(first, nodes.Import):
             if any(fullname == iname[0] for iname in first.names):
                 found = True
                 break
-        elif isinstance(first, astroid.ImportFrom):
+        elif isinstance(first, nodes.ImportFrom):
             if level == first.level:
                 for imported_name, imported_alias in first.names:
                     if fullname == f"{first.modname}.{imported_name}":
@@ -148,8 +149,8 @@ def _make_tree_defs(mod_files_list):
 def _repr_tree_defs(data, indent_str=None):
     """return a string which represents imports as a tree"""
     lines = []
-    nodes = data.items()
-    for i, (mod, (sub, files)) in enumerate(sorted(nodes, key=lambda x: x[0])):
+    nodes_items = data.items()
+    for i, (mod, (sub, files)) in enumerate(sorted(nodes_items, key=lambda x: x[0])):
         if not files:
             files = ""
         else:
@@ -159,7 +160,7 @@ def _repr_tree_defs(data, indent_str=None):
             sub_indent_str = "  "
         else:
             lines.append(fr"{indent_str}\-{mod} {files}")
-            if i == len(nodes) - 1:
+            if i == len(nodes_items) - 1:
                 sub_indent_str = "%s  " % indent_str
             else:
                 sub_indent_str = "%s| " % indent_str
@@ -510,10 +511,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             self.check_deprecated_module(node, name)
             self._check_preferred_module(node, name)
             imported_module = self._get_imported_module(node, name)
-            if isinstance(node.parent, astroid.Module):
+            if isinstance(node.parent, nodes.Module):
                 # Allow imports nested
                 self._check_position(node)
-            if isinstance(node.scope(), astroid.Module):
+            if isinstance(node.scope(), nodes.Module):
                 self._record_import(node, imported_module)
 
             if imported_module is None:
@@ -536,10 +537,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self._check_reimport(node, basename=basename, level=node.level)
         self._check_toplevel(node)
 
-        if isinstance(node.parent, astroid.Module):
+        if isinstance(node.parent, nodes.Module):
             # Allow imports nested
             self._check_position(node)
-        if isinstance(node.scope(), astroid.Module):
+        if isinstance(node.scope(), nodes.Module):
             self._record_import(node, imported_module)
         if imported_module is None:
             return
@@ -550,7 +551,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._add_imported_module(node, imported_module.name)
 
     @check_messages(*MSGS)
-    def leave_module(self, node: astroid.Module) -> None:
+    def leave_module(self, node: nodes.Module) -> None:
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
 
@@ -563,7 +564,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 "ungrouped-imports", import_node.fromlineno
             ):
                 continue
-            if isinstance(import_node, astroid.ImportFrom):
+            if isinstance(import_node, nodes.ImportFrom):
                 met = met_from
             else:
                 met = met_import
@@ -590,21 +591,21 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         # instruction)
         if self._first_non_import_node:
             return
-        if not isinstance(node.parent, astroid.Module):
+        if not isinstance(node.parent, nodes.Module):
             return
-        nested_allowed = [astroid.TryExcept, astroid.TryFinally]
+        nested_allowed = [nodes.TryExcept, nodes.TryFinally]
         is_nested_allowed = [
             allowed for allowed in nested_allowed if isinstance(node, allowed)
         ]
         if is_nested_allowed and any(
-            node.nodes_of_class((astroid.Import, astroid.ImportFrom))
+            node.nodes_of_class((nodes.Import, nodes.ImportFrom))
         ):
             return
-        if isinstance(node, astroid.Assign):
+        if isinstance(node, nodes.Assign):
             # Add compatibility for module level dunder names
             # https://www.python.org/dev/peps/pep-0008/#module-level-dunder-names
             valid_targets = [
-                isinstance(target, astroid.AssignName)
+                isinstance(target, nodes.AssignName)
                 and target.name.startswith("__")
                 and target.name.endswith("__")
                 for target in node.targets
@@ -632,15 +633,15 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         # Check if the node belongs to an `If` or a `Try` block. If they
         # contain imports, skip recording this node.
-        if not isinstance(node.parent.scope(), astroid.Module):
+        if not isinstance(node.parent.scope(), nodes.Module):
             return
 
         root = node
-        while not isinstance(root.parent, astroid.Module):
+        while not isinstance(root.parent, nodes.Module):
             root = root.parent
 
-        if isinstance(root, (astroid.If, astroid.TryFinally, astroid.TryExcept)):
-            if any(root.nodes_of_class((astroid.Import, astroid.ImportFrom))):
+        if isinstance(root, (nodes.If, nodes.TryFinally, nodes.TryExcept)):
+            if any(root.nodes_of_class((nodes.Import, nodes.ImportFrom))):
                 return
 
         self._first_non_import_node = node
@@ -655,8 +656,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if prev:
                 # consecutive future statements are possible
                 if not (
-                    isinstance(prev, astroid.ImportFrom)
-                    and prev.modname == "__future__"
+                    isinstance(prev, nodes.ImportFrom) and prev.modname == "__future__"
                 ):
                     self.add_message("misplaced-future", node=node)
             return
@@ -681,14 +681,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _record_import(self, node, importedmodnode):
         """Record the package `node` imports from"""
-        if isinstance(node, astroid.ImportFrom):
+        if isinstance(node, nodes.ImportFrom):
             importedname = node.modname
         else:
             importedname = importedmodnode.name if importedmodnode else None
         if not importedname:
             importedname = node.names[0][0].split(".")[0]
 
-        if isinstance(node, astroid.ImportFrom) and (node.level or 0) >= 1:
+        if isinstance(node, nodes.ImportFrom) and (node.level or 0) >= 1:
             # We need the importedname with first point to detect local package
             # Example of node:
             #  'from .my_package1 import MyClass1'
@@ -725,7 +725,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 package = "." + modname.split(".")[1]
             else:
                 package = modname.split(".")[0]
-            nested = not isinstance(node.parent, astroid.Module)
+            nested = not isinstance(node.parent, nodes.Module)
             ignore_for_import_order = not self.linter.is_message_enabled(
                 "wrong-import-order", node.fromlineno
             )
@@ -813,7 +813,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return None
 
     def _add_imported_module(
-        self, node: Union[astroid.Import, astroid.ImportFrom], importedmodname: str
+        self, node: Union[nodes.Import, nodes.ImportFrom], importedmodname: str
     ) -> None:
         """notify an imported module, used to analyze dependencies"""
         module_file = node.root().file
@@ -828,7 +828,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             pass
 
         in_type_checking_block = (
-            isinstance(node.parent, astroid.If) and node.parent.is_typing_guard()
+            isinstance(node.parent, nodes.If) and node.parent.is_typing_guard()
         )
 
         if context_name == importedmodname:
@@ -866,7 +866,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             )
 
     def _check_import_as_rename(
-        self, node: Union[astroid.Import, astroid.ImportFrom]
+        self, node: Union[nodes.Import, nodes.ImportFrom]
     ) -> None:
         names = node.names
         for name in names:
@@ -982,12 +982,12 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         """Check whether the import is made outside the module toplevel."""
         # If the scope of the import is a module, then obviously it is
         # not outside the module toplevel.
-        if isinstance(node.scope(), astroid.Module):
+        if isinstance(node.scope(), nodes.Module):
             return
 
         module_names = [
             f"{node.modname}.{name[0]}"
-            if isinstance(node, astroid.ImportFrom)
+            if isinstance(node, nodes.ImportFrom)
             else name[0]
             for name in node.names
         ]
