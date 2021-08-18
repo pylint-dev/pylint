@@ -15,8 +15,20 @@ E1, E2, E3 = (1, 2, "This is a {PARAM} which should be a f-string")  # [possible
 
 # Check for use of .format()
 F = "This is a {parameter} used for formatting later"
+F.format(parameter="string")
 G = F.format(parameter="string")
+"{0}, {1}".format(1, 2)
 H = "{0}, {1}".format(1, 2)
+I1, I2, I3 = (1, 2, "This is a {PARAM} which is later formatted")
+I3.format(PARAM)
+
+J = {"key_one": "", "key_two": {"inner_key": ""}}
+J["key_one"] = "This is a {parameter} used for formatting later"
+J["key_one"].format(PARAM)
+K = J["key_one"].format(PARAM)
+J["key_two"]["inner_key"] = "This is a {parameter} used for formatting later"
+J["key_two"]["inner_key"].format(PARAM)
+L = J["key_two"]["inner_key"].format(PARAM)
 
 
 def func_one():
@@ -24,8 +36,8 @@ def func_one():
 
 
 def func_two():
-    I = "{0}, {1}"
-    return I.format(1, 2)
+    x = "{0}, {1}"
+    return x.format(1, 2)
 
 
 class Class(object):
@@ -37,17 +49,17 @@ class Class(object):
 
 # Check for use of variables within functions
 PARAM_LIST = [PARAM, PARAM_TWO]
-J = f"This is an example with a list: {''.join(PARAM_LIST) + 'well...'}"
-K = "This is an example with a list: {''.join(PARAM_LIST) + 'well...'}"  # [possible-forgotten-f-prefix]
+M = f"This is an example with a list: {''.join(PARAM_LIST) + 'well...'}"
+N = "This is an example with a list: {''.join(PARAM_LIST) + 'well...'}"  # [possible-forgotten-f-prefix]
 
 # Check for calculations without variables
-L = f"This is a calculation: {1 + 1}"
-M = "This is a calculation: {1 + 1}"  # [possible-forgotten-f-prefix]
+O = f"This is a calculation: {1 + 1}"
+P = "This is a calculation: {1 + 1}"  # [possible-forgotten-f-prefix]
 
 # Check invalid Python code
-N = "This is {invalid /// python /// inside}"
-O = "This is {not */ valid python.}"
-P = "This is {def function(): return 42} valid python but not an expression"
+Q = "This is {invalid /// python /// inside}"
+R = "This is {not */ valid python.}"
+S = "This is {def function(): return 42} valid python but not an expression"
 
 # Check strings without assignment
 PARAM_THREE = "string"
