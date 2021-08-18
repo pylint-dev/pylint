@@ -53,10 +53,13 @@ When parsing the following file:
 pylint crashed with a ``{ex.__class__.__name__}`` and with the following stacktrace:
 ```
 """
-    with open(issue_template_path, "a", encoding="utf8") as f:
-        f.write(template)
-        traceback.print_exc(file=f)
-        f.write("```\n")
+    try:
+        with open(issue_template_path, "a", encoding="utf8") as f:
+            f.write(template)
+            traceback.print_exc(file=f)
+            f.write("```\n")
+    except FileNotFoundError:
+        print(f"Can't write the issue template for the crash in {issue_template_path}.")
     return issue_template_path
 
 
