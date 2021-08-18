@@ -3,6 +3,7 @@
 from typing import Union, cast
 
 import astroid
+from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -59,33 +60,33 @@ class RecommendationChecker(checkers.BaseChecker):
         return utils.is_builtin_object(inferred) and inferred.name == function
 
     @utils.check_messages("consider-iterating-dictionary", "use-maxsplit-arg")
-    def visit_call(self, node: astroid.Call) -> None:
+    def visit_call(self, node: nodes.Call) -> None:
         self._check_consider_iterating_dictionary(node)
         self._check_use_maxsplit_arg(node)
 
-    def _check_consider_iterating_dictionary(self, node: astroid.Call) -> None:
-        if not isinstance(node.func, astroid.Attribute):
+    def _check_consider_iterating_dictionary(self, node: nodes.Call) -> None:
+        if not isinstance(node.func, nodes.Attribute):
             return
         if node.func.attrname != "keys":
             return
-        if not isinstance(node.parent, (astroid.For, astroid.Comprehension)):
+        if not isinstance(node.parent, (nodes.For, nodes.Comprehension)):
             return
 
         inferred = utils.safe_infer(node.func)
         if not isinstance(inferred, astroid.BoundMethod) or not isinstance(
-            inferred.bound, astroid.Dict
+            inferred.bound, nodes.Dict
         ):
             return
 
-        if isinstance(node.parent, (astroid.For, astroid.Comprehension)):
+        if isinstance(node.parent, (nodes.For, nodes.Comprehension)):
             self.add_message("consider-iterating-dictionary", node=node)
 
-    def _check_use_maxsplit_arg(self, node: astroid.Call) -> None:
+    def _check_use_maxsplit_arg(self, node: nodes.Call) -> None:
         """Add message when accessing first or last elements of a str.split() or str.rsplit()."""
 
         # Check if call is split() or rsplit()
         if not (
-            isinstance(node.func, astroid.Attribute)
+            isinstance(node.func, nodes.Attribute)
             and node.func.attrname in ("split", "rsplit")
             and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
         ):
@@ -103,28 +104,28 @@ class RecommendationChecker(checkers.BaseChecker):
         except utils.NoSuchArgumentError:
             pass
 
-        if isinstance(node.parent, astroid.Subscript):
+        if isinstance(node.parent, nodes.Subscript):
             try:
                 subscript_value = utils.get_subscript_const_value(node.parent).value
             except utils.InferredTypeError:
                 return
 
             # Check for cases where variable (Name) subscripts may be mutated within a loop
-            if isinstance(node.parent.slice, astroid.Name):
+            if isinstance(node.parent.slice, nodes.Name):
                 # Check if loop present within the scope of the node
                 scope = node.scope()
-                for loop_node in scope.nodes_of_class((astroid.For, astroid.While)):
-                    loop_node = cast(astroid.node_classes.NodeNG, loop_node)
+                for loop_node in scope.nodes_of_class((nodes.For, nodes.While)):
+                    loop_node = cast(nodes.NodeNG, loop_node)
                     if not loop_node.parent_of(node):
                         continue
 
                     # Check if var is mutated within loop (Assign/AugAssign)
-                    for assignment_node in loop_node.nodes_of_class(astroid.AugAssign):
-                        assignment_node = cast(astroid.AugAssign, assignment_node)
+                    for assignment_node in loop_node.nodes_of_class(nodes.AugAssign):
+                        assignment_node = cast(nodes.AugAssign, assignment_node)
                         if node.parent.slice.name == assignment_node.target.name:
                             return
-                    for assignment_node in loop_node.nodes_of_class(astroid.Assign):
-                        assignment_node = cast(astroid.Assign, assignment_node)
+                    for assignment_node in loop_node.nodes_of_class(nodes.Assign):
+                        assignment_node = cast(nodes.Assign, assignment_node)
                         if node.parent.slice.name in [
                             n.name for n in assignment_node.targets
                         ]:
@@ -145,27 +146,26 @@ class RecommendationChecker(checkers.BaseChecker):
         "consider-using-dict-items",
         "use-sequence-for-iteration",
     )
-    def visit_for(self, node: astroid.For) -> None:
+    def visit_for(self, node: nodes.For) -> None:
         self._check_consider_using_enumerate(node)
         self._check_consider_using_dict_items(node)
         self._check_use_sequence_for_iteration(node)
 
-    def _check_consider_using_enumerate(self, node: astroid.For) -> None:
+    def _check_consider_using_enumerate(self, node: nodes.For) -> None:
         """Emit a convention whenever range and len are used for indexing."""
         # Verify that we have a `range([start], len(...), [stop])` call and
         # that the object which is iterated is used as a subscript in the
         # body of the for.
 
         # Is it a proper range call?
-        if not isinstance(node.iter, astroid.Call):
+        if not isinstance(node.iter, nodes.Call):
             return
         if not self._is_builtin(node.iter.func, "range"):
             return
         if not node.iter.args:
             return
         is_constant_zero = (
-            isinstance(node.iter.args[0], astroid.Const)
-            and node.iter.args[0].value == 0
+            isinstance(node.iter.args[0], nodes.Const) and node.iter.args[0].value == 0
         )
         if len(node.iter.args) == 2 and not is_constant_zero:
             return
@@ -173,7 +173,7 @@ class RecommendationChecker(checkers.BaseChecker):
             return
 
         # Is it a proper len call?
-        if not isinstance(node.iter.args[-1], astroid.Call):
+        if not isinstance(node.iter.args[-1], nodes.Call):
             return
         second_func = node.iter.args[-1].func
         if not self._is_builtin(second_func, "len"):
@@ -182,16 +182,16 @@ class RecommendationChecker(checkers.BaseChecker):
         if not len_args or len(len_args) != 1:
             return
         iterating_object = len_args[0]
-        if isinstance(iterating_object, astroid.Name):
-            expected_subscript_val_type = astroid.Name
-        elif isinstance(iterating_object, astroid.Attribute):
-            expected_subscript_val_type = astroid.Attribute
+        if isinstance(iterating_object, nodes.Name):
+            expected_subscript_val_type = nodes.Name
+        elif isinstance(iterating_object, nodes.Attribute):
+            expected_subscript_val_type = nodes.Attribute
         else:
             return
         # If we're defining __iter__ on self, enumerate won't work
         scope = node.scope()
         if (
-            isinstance(iterating_object, astroid.Name)
+            isinstance(iterating_object, nodes.Name)
             and iterating_object.name == "self"
             and scope.name == "__iter__"
         ):
@@ -202,13 +202,13 @@ class RecommendationChecker(checkers.BaseChecker):
         # in order to make sure that the same object is used in the
         # for body.
         for child in node.body:
-            for subscript in child.nodes_of_class(astroid.Subscript):
-                subscript = cast(astroid.Subscript, subscript)
+            for subscript in child.nodes_of_class(nodes.Subscript):
+                subscript = cast(nodes.Subscript, subscript)
                 if not isinstance(subscript.value, expected_subscript_val_type):
                     continue
 
                 value = subscript.slice
-                if not isinstance(value, astroid.Name):
+                if not isinstance(value, nodes.Name):
                     continue
                 if subscript.value.scope() != node.scope():
                     # Ignore this subscript if it's not in the same
@@ -217,15 +217,15 @@ class RecommendationChecker(checkers.BaseChecker):
                     # name for the iterating object was used.
                     continue
                 if value.name == node.target.name and (
-                    isinstance(subscript.value, astroid.Name)
+                    isinstance(subscript.value, nodes.Name)
                     and iterating_object.name == subscript.value.name
-                    or isinstance(subscript.value, astroid.Attribute)
+                    or isinstance(subscript.value, nodes.Attribute)
                     and iterating_object.attrname == subscript.value.attrname
                 ):
                     self.add_message("consider-using-enumerate", node=node)
                     return
 
-    def _check_consider_using_dict_items(self, node: astroid.For) -> None:
+    def _check_consider_using_dict_items(self, node: nodes.For) -> None:
         """Add message when accessing dict values by index lookup."""
         # Verify that we have a .keys() call and
         # that the object which is iterated is used as a subscript in the
@@ -240,15 +240,15 @@ class RecommendationChecker(checkers.BaseChecker):
         # in order to make sure that the same object is used in the
         # for body.
         for child in node.body:
-            for subscript in child.nodes_of_class(astroid.Subscript):
-                subscript = cast(astroid.Subscript, subscript)
+            for subscript in child.nodes_of_class(nodes.Subscript):
+                subscript = cast(nodes.Subscript, subscript)
 
-                if not isinstance(subscript.value, (astroid.Name, astroid.Attribute)):
+                if not isinstance(subscript.value, (nodes.Name, nodes.Attribute)):
                     continue
 
                 value = subscript.slice
                 if (
-                    not isinstance(value, astroid.Name)
+                    not isinstance(value, nodes.Name)
                     or value.name != node.target.name
                     or iterating_object_name != subscript.value.as_string()
                 ):
@@ -261,9 +261,9 @@ class RecommendationChecker(checkers.BaseChecker):
                     # defined and compare that to the for loop's line number
                     continue
                 if (
-                    isinstance(subscript.parent, astroid.Assign)
+                    isinstance(subscript.parent, nodes.Assign)
                     and subscript in subscript.parent.targets
-                    or isinstance(subscript.parent, astroid.AugAssign)
+                    or isinstance(subscript.parent, nodes.AugAssign)
                     and subscript == subscript.parent.target
                 ):
                     # Ignore this subscript if it is the target of an assignment
@@ -277,12 +277,12 @@ class RecommendationChecker(checkers.BaseChecker):
         "consider-using-dict-items",
         "use-sequence-for-iteration",
     )
-    def visit_comprehension(self, node: astroid.Comprehension) -> None:
+    def visit_comprehension(self, node: nodes.Comprehension) -> None:
         self._check_consider_using_dict_items_comprehension(node)
         self._check_use_sequence_for_iteration(node)
 
     def _check_consider_using_dict_items_comprehension(
-        self, node: astroid.Comprehension
+        self, node: nodes.Comprehension
     ) -> None:
         """Add message when accessing dict values by index lookup."""
         iterating_object_name = utils.get_iterating_dictionary_name(node)
@@ -290,15 +290,15 @@ class RecommendationChecker(checkers.BaseChecker):
             return
 
         for child in node.parent.get_children():
-            for subscript in child.nodes_of_class(astroid.Subscript):
-                subscript = cast(astroid.Subscript, subscript)
+            for subscript in child.nodes_of_class(nodes.Subscript):
+                subscript = cast(nodes.Subscript, subscript)
 
-                if not isinstance(subscript.value, (astroid.Name, astroid.Attribute)):
+                if not isinstance(subscript.value, (nodes.Name, nodes.Attribute)):
                     continue
 
                 value = subscript.slice
                 if (
-                    not isinstance(value, astroid.Name)
+                    not isinstance(value, nodes.Name)
                     or value.name != node.target.name
                     or iterating_object_name != subscript.value.as_string()
                 ):
@@ -308,8 +308,8 @@ class RecommendationChecker(checkers.BaseChecker):
                 return
 
     def _check_use_sequence_for_iteration(
-        self, node: Union[astroid.For, astroid.Comprehension]
+        self, node: Union[nodes.For, nodes.Comprehension]
     ) -> None:
         """Check if code iterates over an in-place defined set."""
-        if isinstance(node.iter, astroid.Set):
+        if isinstance(node.iter, nodes.Set):
             self.add_message("use-sequence-for-iteration", node=node.iter)
