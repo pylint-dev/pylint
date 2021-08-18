@@ -1520,7 +1520,7 @@ def get_subscript_const_value(node: nodes.Subscript) -> nodes.Const:
     """
     inferred = safe_infer(node.slice)
     if not isinstance(inferred, nodes.Const):
-        raise InferredTypeError("Subscript.slice cannot be inferred as an nodes.Const")
+        raise InferredTypeError("Subscript.slice cannot be inferred as a nodes.Const")
 
     return inferred
 
