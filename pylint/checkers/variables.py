@@ -2060,8 +2060,8 @@ class VariablesChecker(BaseChecker):
     def _check_globals(self, not_consumed):
         if self._allow_global_unused_variables:
             return
-        for name, nodes in not_consumed.items():
-            for node in nodes:
+        for name, node_lst in not_consumed.items():
+            for node in node_lst:
                 self.add_message("unused-variable", args=(name,), node=node)
 
     def _check_imports(self, not_consumed):
