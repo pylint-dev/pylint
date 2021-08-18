@@ -1,7 +1,6 @@
 from typing import List, Set, Tuple, Type, Union, cast
 
-import astroid
-from astroid.node_classes import NodeNG
+from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import check_messages, safe_infer
@@ -49,24 +48,24 @@ class CodeStyleChecker(BaseChecker):
         super().__init__(linter=linter)
 
     @check_messages("consider-using-namedtuple-or-dataclass")
-    def visit_dict(self, node: astroid.Dict) -> None:
+    def visit_dict(self, node: nodes.Dict) -> None:
         self._check_dict_consider_namedtuple_dataclass(node)
 
     @check_messages("consider-using-tuple")
-    def visit_for(self, node: astroid.For) -> None:
+    def visit_for(self, node: nodes.For) -> None:
         self._check_inplace_defined_list(node)
 
     @check_messages("consider-using-tuple")
-    def visit_comprehension(self, node: astroid.Comprehension) -> None:
+    def visit_comprehension(self, node: nodes.Comprehension) -> None:
         self._check_inplace_defined_list(node)
 
-    def _check_dict_consider_namedtuple_dataclass(self, node: astroid.Dict) -> None:
+    def _check_dict_consider_namedtuple_dataclass(self, node: nodes.Dict) -> None:
         """Check if dictionary values can be replaced by Namedtuple or Dataclass."""
         if not (
-            isinstance(node.parent, (astroid.Assign, astroid.AnnAssign))
-            and isinstance(node.parent.parent, astroid.Module)
-            or isinstance(node.parent, astroid.AnnAssign)
-            and isinstance(node.parent.target, astroid.AssignName)
+            isinstance(node.parent, (nodes.Assign, nodes.AnnAssign))
+            and isinstance(node.parent.parent, nodes.Module)
+            or isinstance(node.parent, nodes.AnnAssign)
+            and isinstance(node.parent.target, nodes.AssignName)
             and utils.is_assign_name_annotated_with(node.parent.target, "Final")
         ):
             # If dict is not part of an 'Assign' or 'AnnAssign' node in
@@ -75,21 +74,21 @@ class CodeStyleChecker(BaseChecker):
 
         # All dict_values are itself dict nodes
         if len(node.items) > 1 and all(
-            isinstance(dict_value, astroid.Dict) for _, dict_value in node.items
+            isinstance(dict_value, nodes.Dict) for _, dict_value in node.items
         ):
-            KeyTupleT = Tuple[Type[NodeNG], str]
+            KeyTupleT = Tuple[Type[nodes.NodeNG], str]
 
             # Makes sure all keys are 'Const' string nodes
             keys_checked: Set[KeyTupleT] = set()
             for _, dict_value in node.items:
-                dict_value = cast(astroid.Dict, dict_value)
+                dict_value = cast(nodes.Dict, dict_value)
                 for key, _ in dict_value.items:
                     key_tuple = (type(key), key.as_string())
                     if key_tuple in keys_checked:
                         continue
                     inferred = safe_infer(key)
                     if not (
-                        isinstance(inferred, astroid.Const)
+                        isinstance(inferred, nodes.Const)
                         and inferred.pytype() == "builtins.str"
                     ):
                         return
@@ -98,7 +97,7 @@ class CodeStyleChecker(BaseChecker):
             # Makes sure all subdicts have at least 1 common key
             key_tuples: List[Tuple[KeyTupleT, ...]] = []
             for _, dict_value in node.items:
-                dict_value = cast(astroid.Dict, dict_value)
+                dict_value = cast(nodes.Dict, dict_value)
                 key_tuples.append(
                     tuple((type(key), key.as_string()) for key, _ in dict_value.items)
                 )
@@ -113,7 +112,7 @@ class CodeStyleChecker(BaseChecker):
 
         # All dict_values are itself either list or tuple nodes
         if len(node.items) > 1 and all(
-            isinstance(dict_value, (astroid.List, astroid.Tuple))
+            isinstance(dict_value, (nodes.List, nodes.Tuple))
             for _, dict_value in node.items
         ):
             # Make sure all sublists have the same length > 0
@@ -121,24 +120,24 @@ class CodeStyleChecker(BaseChecker):
             if list_length == 0:
                 return
             for _, dict_value in node.items[1:]:
-                dict_value = cast(Union[astroid.List, astroid.Tuple], dict_value)
+                dict_value = cast(Union[nodes.List, nodes.Tuple], dict_value)
                 if len(dict_value.elts) != list_length:
                     return
 
             # Make sure at least one list entry isn't a dict
             for _, dict_value in node.items:
-                dict_value = cast(Union[astroid.List, astroid.Tuple], dict_value)
-                if all(isinstance(entry, astroid.Dict) for entry in dict_value.elts):
+                dict_value = cast(Union[nodes.List, nodes.Tuple], dict_value)
+                if all(isinstance(entry, nodes.Dict) for entry in dict_value.elts):
                     return
 
             self.add_message("consider-using-namedtuple-or-dataclass", node=node)
             return
 
     def _check_inplace_defined_list(
-        self, node: Union[astroid.For, astroid.Comprehension]
+        self, node: Union[nodes.For, nodes.Comprehension]
     ) -> None:
         """Check if in-place defined list can be replaced by a tuple."""
-        if isinstance(node.iter, astroid.List):
+        if isinstance(node.iter, nodes.List):
             self.add_message("consider-using-tuple", node=node.iter)
 
 

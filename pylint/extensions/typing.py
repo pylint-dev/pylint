@@ -1,9 +1,8 @@
 from functools import lru_cache
 from typing import Dict, List, NamedTuple, Set, Union
 
-import astroid
 import astroid.bases
-import astroid.node_classes
+from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
@@ -70,7 +69,7 @@ UNION_NAMES = ("Optional", "Union")
 
 
 class DeprecatedTypingAliasMsg(NamedTuple):
-    node: Union[astroid.Name, astroid.Attribute]
+    node: Union[nodes.Name, nodes.Attribute]
     qname: str
     alias: str
     parent_subscript: bool
@@ -187,7 +186,7 @@ class TypingChecker(BaseChecker):
         "consider-using-alias",
         "consider-alternative-union-syntax",
     )
-    def visit_name(self, node: astroid.Name) -> None:
+    def visit_name(self, node: nodes.Name) -> None:
         if self._should_check_typing_alias() and node.name in ALIAS_NAMES:
             self._check_for_typing_alias(node)
         if self._should_check_alternative_union_syntax() and node.name in UNION_NAMES:
@@ -198,7 +197,7 @@ class TypingChecker(BaseChecker):
         "consider-using-alias",
         "consider-alternative-union-syntax",
     )
-    def visit_attribute(self, node: astroid.Attribute):
+    def visit_attribute(self, node: nodes.Attribute):
         if self._should_check_typing_alias() and node.attrname in ALIAS_NAMES:
             self._check_for_typing_alias(node)
         if (
@@ -209,7 +208,7 @@ class TypingChecker(BaseChecker):
 
     def _check_for_alternative_union_syntax(
         self,
-        node: Union[astroid.Name, astroid.Attribute],
+        node: Union[nodes.Name, nodes.Attribute],
         name: str,
     ) -> None:
         """Check if alternative union syntax could be used.
@@ -221,7 +220,7 @@ class TypingChecker(BaseChecker):
         """
         inferred = safe_infer(node)
         if not (
-            isinstance(inferred, astroid.FunctionDef)
+            isinstance(inferred, nodes.FunctionDef)
             and inferred.qname()
             in (
                 "typing.Optional",
@@ -241,7 +240,7 @@ class TypingChecker(BaseChecker):
 
     def _check_for_typing_alias(
         self,
-        node: Union[astroid.Name, astroid.Attribute],
+        node: Union[nodes.Name, nodes.Attribute],
     ) -> None:
         """Check if typing alias is depecated or could be replaced.
 
@@ -255,7 +254,7 @@ class TypingChecker(BaseChecker):
             context, and can safely be replaced.
         """
         inferred = safe_infer(node)
-        if not isinstance(inferred, astroid.ClassDef):
+        if not isinstance(inferred, nodes.ClassDef):
             return
         alias = DEPRECATED_TYPING_ALIASES.get(inferred.qname(), None)
         if alias is None:
@@ -271,7 +270,7 @@ class TypingChecker(BaseChecker):
 
         # For PY37+, check for type annotation context first
         if not is_node_in_type_annotation_context(node) and isinstance(
-            node.parent, astroid.Subscript
+            node.parent, nodes.Subscript
         ):
             if alias.name_collision is True:
                 self._alias_name_collisions.add(inferred.qname())
@@ -281,12 +280,12 @@ class TypingChecker(BaseChecker):
                 node,
                 inferred.qname(),
                 alias.name,
-                isinstance(node.parent, astroid.Subscript),
+                isinstance(node.parent, nodes.Subscript),
             )
         )
 
     @check_messages("consider-using-alias")
-    def leave_module(self, node: astroid.Module) -> None:
+    def leave_module(self, node: nodes.Module) -> None:
         """After parsing of module is complete, add messages for
         'consider-using-alias' check. Make sure results are safe
         to recommend / collision free.

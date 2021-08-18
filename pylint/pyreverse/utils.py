@@ -25,6 +25,7 @@ import sys
 from typing import Optional, Union
 
 import astroid
+from astroid import nodes
 
 RCFILE = ".pyreverserc"
 
@@ -221,23 +222,23 @@ class LocalsVisitor(ASTWalker):
         return None
 
 
-def get_annotation_label(ann: Union[astroid.Name, astroid.Subscript]) -> str:
+def get_annotation_label(ann: Union[nodes.Name, nodes.Subscript]) -> str:
     label = ""
-    if isinstance(ann, astroid.Subscript):
+    if isinstance(ann, nodes.Subscript):
         label = ann.as_string()
-    elif isinstance(ann, astroid.Name):
+    elif isinstance(ann, nodes.Name):
         label = ann.name
     return label
 
 
 def get_annotation(
-    node: Union[astroid.AssignAttr, astroid.AssignName]
-) -> Optional[Union[astroid.Name, astroid.Subscript]]:
+    node: Union[nodes.AssignAttr, nodes.AssignName]
+) -> Optional[Union[nodes.Name, nodes.Subscript]]:
     """return the annotation for `node`"""
     ann = None
-    if isinstance(node.parent, astroid.AnnAssign):
+    if isinstance(node.parent, nodes.AnnAssign):
         ann = node.parent.annotation
-    elif isinstance(node, astroid.AssignAttr):
+    elif isinstance(node, nodes.AssignAttr):
         init_method = node.parent.parent
         try:
             annotations = dict(zip(init_method.locals, init_method.args.annotations))
@@ -265,14 +266,14 @@ def get_annotation(
     return ann
 
 
-def infer_node(node: Union[astroid.AssignAttr, astroid.AssignName]) -> set:
+def infer_node(node: Union[nodes.AssignAttr, nodes.AssignName]) -> set:
     """Return a set containing the node annotation if it exists
     otherwise return a set of the inferred types using the NodeNG.infer method"""
 
     ann = get_annotation(node)
     try:
         if ann:
-            if isinstance(ann, astroid.Subscript):
+            if isinstance(ann, nodes.Subscript):
                 return {ann}
             return set(ann.infer())
         return set(node.infer())

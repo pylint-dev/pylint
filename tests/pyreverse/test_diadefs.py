@@ -21,8 +21,8 @@
 import sys
 from pathlib import Path
 
-import astroid
 import pytest
+from astroid import nodes
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
@@ -35,7 +35,7 @@ from pylint.pyreverse.inspector import Linker
 
 def _process_classes(classes):
     """extract class names of a list"""
-    return sorted((isinstance(c.node, astroid.ClassDef), c.title) for c in classes)
+    return sorted((isinstance(c.node, nodes.ClassDef), c.title) for c in classes)
 
 
 def _process_relations(relations):
@@ -130,7 +130,7 @@ def test_known_values1(HANDLER, PROJECT):
     assert keys == ["package", "class"]
     pd = dd[0]
     assert pd.title == "packages No Name"
-    modules = sorted((isinstance(m.node, astroid.Module), m.title) for m in pd.objects)
+    modules = sorted((isinstance(m.node, nodes.Module), m.title) for m in pd.objects)
     assert modules == [
         (True, "data"),
         (True, "data.clientmodule_test"),

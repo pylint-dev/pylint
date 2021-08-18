@@ -5,7 +5,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
@@ -31,19 +31,19 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
     }
 
     @check_messages("confusing-consecutive-elif")
-    def visit_if(self, node: astroid.If):
+    def visit_if(self, node: nodes.If):
         body_ends_with_if = isinstance(
-            node.body[-1], astroid.If
+            node.body[-1], nodes.If
         ) and self._has_no_else_clause(node.body[-1])
         if node.has_elif_block() and body_ends_with_if:
             self.add_message("confusing-consecutive-elif", node=node.orelse[0])
 
     @staticmethod
-    def _has_no_else_clause(node: astroid.If):
+    def _has_no_else_clause(node: nodes.If):
         orelse = node.orelse
-        while orelse and isinstance(orelse[0], astroid.If):
+        while orelse and isinstance(orelse[0], nodes.If):
             orelse = orelse[0].orelse
-        if not orelse or isinstance(orelse[0], astroid.If):
+        if not orelse or isinstance(orelse[0], nodes.If):
             return True
         return False
 

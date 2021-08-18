@@ -9,7 +9,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Checker for deprecated builtins."""
-import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
@@ -51,7 +51,7 @@ class BadBuiltinChecker(BaseChecker):
 
     @check_messages("bad-builtin")
     def visit_call(self, node):
-        if isinstance(node.func, astroid.Name):
+        if isinstance(node.func, nodes.Name):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)

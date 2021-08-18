@@ -21,6 +21,7 @@
 """
 
 import astroid
+from astroid import nodes
 
 from pylint.constants import BUILTINS
 from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
@@ -104,7 +105,7 @@ class DiaDefGenerator:
             for node in association_nodes:
                 if isinstance(node, astroid.Instance):
                     node = node._proxied
-                if not (isinstance(node, astroid.ClassDef) and self.show_node(node)):
+                if not (isinstance(node, nodes.ClassDef) and self.show_node(node)):
                     continue
                 yield node
 

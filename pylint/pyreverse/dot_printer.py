@@ -13,7 +13,7 @@ import tempfile
 from pathlib import Path
 from typing import Dict, FrozenSet, List, Optional
 
-import astroid
+from astroid import nodes
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 from pylint.pyreverse.utils import check_graphviz_availability, get_annotation_label
@@ -102,7 +102,7 @@ class DotPrinter(Printer):
         label = "{" + label + "|" + r"\l".join(attrs) + r"\l|"
 
         # Add class methods
-        methods: List[astroid.FunctionDef] = properties.methods or []
+        methods: List[nodes.FunctionDef] = properties.methods or []
         for func in methods:
             args = self._get_method_arguments(func)
             label += fr"{func.name}({', '.join(args)})"

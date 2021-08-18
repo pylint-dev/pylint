@@ -26,6 +26,7 @@ in particular the parameter documentation checker `DocstringChecker`
 
 import astroid
 import pytest
+from astroid import nodes
 
 from pylint.extensions.docparams import DocstringParameterChecker
 from pylint.testutils import CheckerTestCase, Message, set_config
@@ -344,12 +345,10 @@ class TestParamDocChecker(CheckerTestCase):
         """Visit all methods of a class node
 
         :param node: class node
-        :type node: :class:`astroid.scoped_nodes.Class`
+        :type node: :class:`nodes.Class`
         """
         for body_item in node.body:
-            if isinstance(body_item, astroid.FunctionDef) and hasattr(
-                body_item, "name"
-            ):
+            if isinstance(body_item, nodes.FunctionDef) and hasattr(body_item, "name"):
                 self.checker.visit_functiondef(body_item)
 
     def test_missing_method_params_in_sphinx_docstring(self):
