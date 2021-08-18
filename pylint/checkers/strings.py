@@ -949,15 +949,13 @@ class StringConstantChecker(BaseTokenChecker):
                         if isinstance(call.expr, nodes.Name):
                             calls.add(call.expr.name)
                         elif isinstance(call.expr, nodes.Subscript):
-                            slice_repr = [call.expr.value, call.expr.slice]
+                            slice_repr = [call.expr.value, call.expr.slice.value]
                             while not isinstance(slice_repr[0], nodes.Name):
                                 slice_repr = [
                                     slice_repr[0].value,
-                                    slice_repr[0].slice,
+                                    slice_repr[0].slice.value,
                                 ] + slice_repr[1:]
-                            calls.add(
-                                [slice_repr[0].name] + [i.value for i in slice_repr[1:]]
-                            )
+                            calls.add(tuple(slice_repr[0].name) + tuple(slice_repr[1:]))
                 return calls
 
             def check_match_in_calls(
@@ -969,16 +967,16 @@ class StringConstantChecker(BaseTokenChecker):
                     if assignment.name in format_calls:
                         return True
                 elif isinstance(assignment, nodes.Subscript):
-                    slice_repr = [assignment.value, assignment.slice]
+                    slice_repr = [assignment.value, assignment.slice.value]
                     while not isinstance(slice_repr[0], nodes.Name):
                         slice_repr = [
                             slice_repr[0].value,
-                            slice_repr[0].slice,
+                            slice_repr[0].slice.value,
                         ] + slice_repr[1:]
-                    slice_repr = [slice_repr[0].name] + [
-                        i.value for i in slice_repr[1:]
-                    ]
-                    if slice_repr in format_calls:
+                    if (
+                        tuple(slice_repr[0].name) + tuple(slice_repr[1:])
+                        in format_calls
+                    ):
                         return True
                 return False
 
