@@ -3,6 +3,7 @@
 from typing import List
 
 import astroid
+from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -60,7 +61,7 @@ class LenChecker(checkers.BaseChecker):
         # the len() call could also be nested together with other
         # boolean operations, e.g. `if z or len(x):`
         parent = node.parent
-        while isinstance(parent, astroid.BoolOp):
+        while isinstance(parent, nodes.BoolOp):
             parent = parent.parent
         # we're finally out of any nested boolean operations so check if
         # this len() call is part of a test condition
@@ -68,10 +69,10 @@ class LenChecker(checkers.BaseChecker):
             return
         len_arg = node.args[0]
         generator_or_comprehension = (
-            astroid.ListComp,
-            astroid.SetComp,
-            astroid.DictComp,
-            astroid.GeneratorExp,
+            nodes.ListComp,
+            nodes.SetComp,
+            nodes.DictComp,
+            nodes.GeneratorExp,
         )
         if isinstance(len_arg, generator_or_comprehension):
             # The node is a generator or comprehension as in len([x for x in ...])
@@ -92,7 +93,7 @@ class LenChecker(checkers.BaseChecker):
             self.add_message("len-as-condition", node=node)
 
     @staticmethod
-    def instance_has_bool(class_def: astroid.ClassDef) -> bool:
+    def instance_has_bool(class_def: nodes.ClassDef) -> bool:
         try:
             class_def.getattr("__bool__")
             return True
@@ -106,14 +107,14 @@ class LenChecker(checkers.BaseChecker):
         is a test condition or something else (boolean expression)
         e.g. `if not len(S):`"""
         if (
-            isinstance(node, astroid.UnaryOp)
+            isinstance(node, nodes.UnaryOp)
             and node.op == "not"
             and utils.is_call_of_name(node.operand, "len")
         ):
             self.add_message("len-as-condition", node=node)
 
     @staticmethod
-    def base_classes_of_node(instance: astroid.nodes.ClassDef) -> List[astroid.Name]:
+    def base_classes_of_node(instance: nodes.ClassDef) -> List[nodes.Name]:
         """Return all the classes names that a ClassDef inherit from including 'object'."""
         try:
             return [instance.name] + [x.name for x in instance.ancestors()]

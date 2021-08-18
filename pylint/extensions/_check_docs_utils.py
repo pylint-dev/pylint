@@ -25,6 +25,7 @@ import re
 from typing import List
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers import utils
 
@@ -53,9 +54,9 @@ def get_setters_property_name(node):
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
         if (
-            isinstance(decorator, astroid.Attribute)
+            isinstance(decorator, nodes.Attribute)
             and decorator.attrname == "setter"
-            and isinstance(decorator.expr, astroid.Name)
+            and isinstance(decorator.expr, nodes.Name)
         ):
             return decorator.expr.name
     return None
@@ -65,9 +66,9 @@ def get_setters_property(node):
     """Get the property node for the given setter node.
 
     :param node: The node to get the property for.
-    :type node: astroid.FunctionDef
+    :type node: nodes.FunctionDef
 
-    :rtype: astroid.FunctionDef or None
+    :rtype: nodes.FunctionDef or None
     :returns: The node relating to the property of the given setter node,
         or None if one could not be found.
     """
@@ -100,13 +101,13 @@ def returns_something(return_node):
     if returns is None:
         return False
 
-    return not (isinstance(returns, astroid.Const) and returns.value is None)
+    return not (isinstance(returns, nodes.Const) and returns.value is None)
 
 
 def _get_raise_target(node):
-    if isinstance(node.exc, astroid.Call):
+    if isinstance(node.exc, nodes.Call):
         func = node.exc.func
-        if isinstance(func, (astroid.Name, astroid.Attribute)):
+        if isinstance(func, (nodes.Name, nodes.Attribute)):
             return utils.safe_infer(func)
     return None
 
@@ -126,19 +127,19 @@ def possible_exc_types(node):
 
 
     :param node: The raise node to find exception types for.
-    :type node: astroid.node_classes.NodeNG
+    :type node: nodes.NodeNG
 
     :returns: A list of exception types possibly raised by :param:`node`.
     :rtype: set(str)
     """
     excs = []
-    if isinstance(node.exc, astroid.Name):
+    if isinstance(node.exc, nodes.Name):
         inferred = utils.safe_infer(node.exc)
         if inferred:
             excs = [inferred.name]
     elif node.exc is None:
         handler = node.parent
-        while handler and not isinstance(handler, astroid.ExceptHandler):
+        while handler and not isinstance(handler, nodes.ExceptHandler):
             handler = handler.parent
 
         if handler and handler.type:
@@ -146,10 +147,10 @@ def possible_exc_types(node):
             excs = (exc.name for exc in inferred_excs if exc is not astroid.Uninferable)
     else:
         target = _get_raise_target(node)
-        if isinstance(target, astroid.ClassDef):
+        if isinstance(target, nodes.ClassDef):
             excs = [target.name]
-        elif isinstance(target, astroid.FunctionDef):
-            for ret in target.nodes_of_class(astroid.Return):
+        elif isinstance(target, nodes.FunctionDef):
+            for ret in target.nodes_of_class(nodes.Return):
                 if ret.frame() != target:
                     # return from inner function - ignore it
                     continue
@@ -157,7 +158,7 @@ def possible_exc_types(node):
                 val = utils.safe_infer(ret.value)
                 if (
                     val
-                    and isinstance(val, (astroid.Instance, astroid.ClassDef))
+                    and isinstance(val, (astroid.Instance, nodes.ClassDef))
                     and utils.inherit_from_std_ex(val)
                 ):
                     excs.append(val.name)
