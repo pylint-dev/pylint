@@ -28,7 +28,7 @@ New checkers
 
   Closes #3692
 
-* Added ``possible-forgotten-f-prefix``: Emitted when variables are used in normal strings in between "{}"
+* Added ``possible-forgotten-f-prefix``: Emitted when variables or valid expressions are used in normal strings in between "{}"
 
   Closes #2507
 
