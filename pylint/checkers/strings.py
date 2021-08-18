@@ -42,7 +42,6 @@ from typing import TYPE_CHECKING, Iterable
 
 import astroid
 from astroid import nodes
-from astroid.const import BUILTINS
 
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
@@ -243,11 +242,11 @@ def arg_matches_format_type(arg_type, format_type):
         return True
     if isinstance(arg_type, astroid.Instance):
         arg_type = arg_type.pytype()
-        if arg_type == f"{BUILTINS}.str":
+        if arg_type == "builtins.str":
             return format_type == "c"
-        if arg_type == f"{BUILTINS}.float":
+        if arg_type == "builtins.float":
             return format_type in "deEfFgGn%"
-        if arg_type == f"{BUILTINS}.int":
+        if arg_type == "builtins.int":
             # Integers allow all types
             return True
         return False

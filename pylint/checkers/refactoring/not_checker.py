@@ -3,7 +3,6 @@
 
 
 import astroid
-from astroid.const import BUILTINS
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -39,7 +38,7 @@ class NotChecker(checkers.BaseChecker):
     # not equivalent to "set(LEFT_VALS) > set(RIGHT_VALS)"
     skipped_nodes = (astroid.Set,)
     # 'builtins' py3, '__builtin__' py2
-    skipped_classnames = [f"{BUILTINS}.{qname}" for qname in ("set", "frozenset")]
+    skipped_classnames = [f"builtins.{qname}" for qname in ("set", "frozenset")]
 
     @utils.check_messages("unneeded-not")
     def visit_unaryop(self, node):

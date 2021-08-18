@@ -70,7 +70,6 @@ from typing import Pattern
 
 import astroid
 from astroid import nodes
-from astroid.const import BUILTINS
 
 from pylint import checkers, exceptions, interfaces
 from pylint import utils as lint_utils
@@ -179,7 +178,7 @@ REVERSED_METHODS = (SEQUENCE_PROTOCOL_METHODS, (REVERSED_PROTOCOL_METHOD,))
 TYPECHECK_COMPARISON_OPERATORS = frozenset(("is", "is not", "==", "!="))
 LITERAL_NODE_TYPES = (nodes.Const, nodes.Dict, nodes.List, nodes.Set)
 UNITTEST_CASE = "unittest.case"
-TYPE_QNAME = "%s.type" % BUILTINS
+TYPE_QNAME = "builtins.type"
 ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
 
 # Name categories that are always consistent with all naming conventions.
@@ -189,7 +188,7 @@ EXEMPT_NAME_CATEGORIES = {"exempt", "ignore"}
 # about dangerous default values as arguments
 DEFAULT_ARGUMENT_SYMBOLS = dict(
     zip(
-        [".".join([BUILTINS, x]) for x in ("set", "dict", "list")],
+        [".".join(["builtins", x]) for x in ("set", "dict", "list")],
         ["set()", "{}", "[]"],
     ),
     **{

@@ -51,7 +51,6 @@ from typing import List, Pattern, cast
 
 import astroid
 from astroid import nodes
-from astroid.const import BUILTINS
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
@@ -439,7 +438,7 @@ def _is_attribute_property(name, klass):
         attributes = klass.getattr(name)
     except astroid.NotFoundError:
         return False
-    property_name = f"{BUILTINS}.property"
+    property_name = "builtins.property"
     for attr in attributes:
         if attr is astroid.Uninferable:
             continue
@@ -881,7 +880,7 @@ a metaclass class method.",
             if not ancestor:
                 continue
             if isinstance(ancestor, astroid.Instance) and ancestor.is_subtype_of(
-                f"{BUILTINS}.type"
+                "builtins.type"
             ):
                 continue
 
@@ -2176,7 +2175,7 @@ class SpecialMethodsChecker(BaseChecker):
             # by no-method-argument.
             return
 
-        if decorated_with(node, [f"{BUILTINS}.staticmethod"]):
+        if decorated_with(node, ["builtins.staticmethod"]):
             # We expect to not take in consideration self.
             all_args = node.args.args
         else:
