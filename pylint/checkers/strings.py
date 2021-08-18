@@ -951,6 +951,12 @@ class StringConstantChecker(BaseTokenChecker):
         if len(inner_matches) != len(set(inner_matches)):
             return
 
+        if (
+            isinstance(node.parent, astroid.Attribute)
+            and node.parent.attrname == "format"
+        ):
+            return
+
         if inner_matches:
             for match in inner_matches:
                 try:
@@ -958,14 +964,6 @@ class StringConstantChecker(BaseTokenChecker):
                 except SyntaxError:
                     # Not valid python
                     continue
-                # if not isinstance(parsed_match, ast.Expression):
-                #     # Not a proper expression, won't work in f-string
-                #     continue
-                # for ast_node in ast.walk(parsed_match):
-                #     if isinstance(ast_node, ast.Name):
-                #         print(
-                #             f"TODO check that the name {ast_node.id} exists in the scope  ?"
-                #         )
 
                 # Get the assign node, if there is any
                 assign_node = node

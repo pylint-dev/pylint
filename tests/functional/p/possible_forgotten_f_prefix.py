@@ -1,6 +1,7 @@
 """Check various forms of strings which could be f-strings without a prefix"""
 # pylint: disable=invalid-name, line-too-long, pointless-string-statement, pointless-statement
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring, missing-class-docstring, too-few-public-methods
+# pylint: disable=useless-object-inheritance
 
 # Check for local variable interpolation
 PARAM = "string"
@@ -15,9 +16,24 @@ E1, E2, E3 = (1, 2, "This is a {PARAM} which should be a f-string")  # [possible
 # Check for use of .format()
 F = "This is a {parameter} used for formatting later"
 G = F.format(parameter="string")
+H = "{0}, {1}".format(1, 2)
 
-H = "This is a {another_parameter} used for formatting later"
-I = H.format(another_parameter="string")
+
+def func_one():
+    return "{0}, {1}".format(1, 2)
+
+
+def func_two():
+    I = "{0}, {1}"
+    return I.format(1, 2)
+
+
+class Class(object):
+    attr = 0
+
+    def __str__(self):
+        return "{self.attr}".format(self=self)
+
 
 # Check for use of variables within functions
 PARAM_LIST = [PARAM, PARAM_TWO]
@@ -32,9 +48,6 @@ M = "This is a calculation: {1 + 1}"  # [possible-forgotten-f-prefix]
 N = "This is {invalid /// python /// inside}"
 O = "This is {not */ valid python.}"
 P = "This is {def function(): return 42} valid python but not an expression"
-
-
-
 
 # Check strings without assignment
 PARAM_THREE = "string"
