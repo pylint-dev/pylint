@@ -131,10 +131,10 @@ class ClassDiagram(Figure, FilterMixIn):
         self._nodes[node] = ent
         self.objects.append(ent)
 
-    def class_names(self, nodes):
+    def class_names(self, nodes_lst):
         """return class names if needed in diagram"""
         names = []
-        for node in nodes:
+        for node in nodes_lst:
             if isinstance(node, astroid.Instance):
                 node = node._proxied
             if (
