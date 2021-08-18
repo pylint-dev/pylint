@@ -28,12 +28,11 @@ New checkers
 
   Closes #3692
 
-* Added ``possible-forgotten-f-prefix``: Emitted when variables are used in normal strings in between "{}"
+* Added ``possible-forgotten-f-prefix``: Emitted when variables or valid expressions are used in normal strings in between "{}"
 
   Closes #2507
 
 * Added ``use-sequence-for-iteration``: Emitted when iterating over an in-place defined ``set``.
-
 
 
 Extensions

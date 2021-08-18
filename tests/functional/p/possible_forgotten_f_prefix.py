@@ -20,15 +20,15 @@ G = F.format(parameter="string")
 "{0}, {1}".format(1, 2)
 H = "{0}, {1}".format(1, 2)
 I1, I2, I3 = (1, 2, "This is a {PARAM} which is later formatted")
-I3.format(PARAM)
+I3.format(PARAM=PARAM)
 
 J = {"key_one": "", "key_two": {"inner_key": ""}}
 J["key_one"] = "This is a {parameter} used for formatting later"
-J["key_one"].format(PARAM)
-K = J["key_one"].format(PARAM)
+J["key_one"].format(parameter=PARAM)
+K = J["key_one"].format(parameter=PARAM)
 J["key_two"]["inner_key"] = "This is a {parameter} used for formatting later"
-J["key_two"]["inner_key"].format(PARAM)
-L = J["key_two"]["inner_key"].format(PARAM)
+J["key_two"]["inner_key"].format(parameter=PARAM)
+L = J["key_two"]["inner_key"].format(parameter=PARAM)
 
 
 def func_one():

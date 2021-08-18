@@ -965,7 +965,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[1:-1]
                 call_name = node.func.name
-                if call_name in ("any", "all"):
+                if call_name in ["any", "all"]:
                     self.add_message(
                         "use-a-generator",
                         node=node,

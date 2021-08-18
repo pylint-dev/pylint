@@ -519,7 +519,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         and isinstance(owner.parent, nodes.ClassDef)
         and owner.parent.name == "EnumMeta"
         and owner_name == "__members__"
-        and node.attrname in ("items", "values", "keys")
+        and node.attrname in ["items", "values", "keys"]
     ):
         # Avoid false positive on Enum.__members__.{items(), values, keys}
         # See https://github.com/PyCQA/pylint/issues/4123
@@ -1778,7 +1778,7 @@ accessed. Python regular expressions are accepted.",
             return
 
         op, right = node.ops[0]
-        if op in ("in", "not in"):
+        if op in ["in", "not in"]:
             self._check_membership_test(right)
 
     @check_messages(
