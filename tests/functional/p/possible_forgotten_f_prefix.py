@@ -30,6 +30,7 @@ J["key_two"]["inner_key"] = "This is a {parameter} used for formatting later"
 J["key_two"]["inner_key"].format(parameter=PARAM)
 L = J["key_two"]["inner_key"].format(parameter=PARAM)
 
+M = "This is a {parameter} used for formatting later"
 
 def func_one():
     return "{0}, {1}".format(1, 2)
@@ -40,6 +41,10 @@ def func_two():
     return x.format(1, 2)
 
 
+def func_three():
+    x = M.format(parameter=PARAM)
+    return x
+
 class Class(object):
     attr = 0
 
@@ -49,17 +54,17 @@ class Class(object):
 
 # Check for use of variables within functions
 PARAM_LIST = [PARAM, PARAM_TWO]
-M = f"This is an example with a list: {''.join(PARAM_LIST) + 'well...'}"
-N = "This is an example with a list: {''.join(PARAM_LIST) + 'well...'}"  # [possible-forgotten-f-prefix]
+N = f"This is an example with a list: {''.join(PARAM_LIST) + 'well...'}"
+O = "This is an example with a list: {''.join(PARAM_LIST) + 'well...'}"  # [possible-forgotten-f-prefix]
 
 # Check for calculations without variables
-O = f"This is a calculation: {1 + 1}"
-P = "This is a calculation: {1 + 1}"  # [possible-forgotten-f-prefix]
+P = f"This is a calculation: {1 + 1}"
+Q = "This is a calculation: {1 + 1}"  # [possible-forgotten-f-prefix]
 
 # Check invalid Python code
-Q = "This is {invalid /// python /// inside}"
-R = "This is {not */ valid python.}"
-S = "This is {def function(): return 42} valid python but not an expression"
+R = "This is {invalid /// python /// inside}"
+S = "This is {not */ valid python.}"
+T = "This is {def function(): return 42} valid python but not an expression"
 
 # Check strings without assignment
 PARAM_THREE = "string"
@@ -74,3 +79,6 @@ f"This is a calculation: {1 + 1}"
 f"This is a {'nice' + PARAM_THREE}"
 "This is a nice string"
 "This is a {'nice' + PARAM_THREE}"  # [possible-forgotten-f-prefix]
+
+# Check raw strings
+U = r"a{1}"
