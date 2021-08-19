@@ -70,7 +70,6 @@ from typing import Pattern, Tuple
 
 import astroid
 from astroid import nodes
-from pylint.constants import PY310_PLUS
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -94,6 +93,7 @@ from pylint.checkers.utils import (
     supports_membership_test,
     supports_setitem,
 )
+from pylint.constants import PY310_PLUS
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
