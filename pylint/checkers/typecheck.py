@@ -69,7 +69,7 @@ from functools import singledispatch
 from typing import Pattern, Tuple
 
 import astroid
-from astroid import nodes
+from astroid import bases, nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -927,8 +927,13 @@ accessed. Python regular expressions are accepted.",
     @check_messages("invalid-metaclass")
     def visit_classdef(self, node):
         def _metaclass_name(metaclass):
+            # pylint: disable=unidiomatic-typecheck
             if isinstance(metaclass, (nodes.ClassDef, nodes.FunctionDef)):
                 return metaclass.name
+            if type(metaclass) is bases.Instance:
+                # Really do mean type, not isinstance, since subclasses of bases.Instance
+                # like Const or Dict should use metaclass.as_string below.
+                return str(metaclass)
             return metaclass.as_string()
 
         metaclass = node.declared_metaclass()
