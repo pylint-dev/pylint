@@ -24,7 +24,11 @@ New checkers
 
   Closes #4365
 
-* Added optional extension ``while_used``: Emitted whenever a ``while`` loop is used.
+* Added optional extension ``consider-ternary-expression``: Emitted whenever a variable is assigned in both branches of an if/else block.
+
+  Closes # 4366
+
+* Added optional extension ``while-used``: Emitted whenever a ``while`` loop is used.
 
   Closes # 4367
 
