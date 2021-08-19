@@ -224,9 +224,13 @@ class TestTypeChecker(CheckerTestCase):
 
         class ThirdInvalid(object, metaclass=2):
             pass
+
+        class FourthInvalid(object, metaclass=InvalidAsMetaclass()):
+            pass
         """
         )
         for class_obj, metaclass_name in (
+            ("FourthInvalid", "Instance of .InvalidAsMetaclass"),
             ("ThirdInvalid", "2"),
             ("SecondInvalid", "InvalidAsMetaclass"),
             ("FirstInvalid", "int"),
