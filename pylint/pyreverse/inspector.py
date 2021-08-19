@@ -21,6 +21,7 @@ import os
 import traceback
 
 import astroid
+from astroid import nodes
 
 from pylint.pyreverse import utils
 
@@ -166,7 +167,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         node.instance_attrs_type = collections.defaultdict(list)
         for assignattrs in node.instance_attrs.values():
             for assignattr in assignattrs:
-                if not isinstance(assignattr, astroid.Unknown):
+                if not isinstance(assignattr, nodes.Unknown):
                     self.handle_assignattr_type(assignattr, node)
         # resolve implemented interface
         try:
@@ -211,9 +212,9 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             # If the frame doesn't have a locals_type yet,
             # it means it wasn't yet visited. Visit it now
             # to add what's missing from it.
-            if isinstance(frame, astroid.ClassDef):
+            if isinstance(frame, nodes.ClassDef):
                 self.visit_classdef(frame)
-            elif isinstance(frame, astroid.FunctionDef):
+            elif isinstance(frame, nodes.FunctionDef):
                 self.visit_functiondef(frame)
             else:
                 self.visit_module(frame)

@@ -12,14 +12,14 @@
 
 import itertools
 
-import astroid
+from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
 
 
 def _is_constant_empty_str(node):
-    return isinstance(node, astroid.Const) and node.value == ""
+    return isinstance(node, nodes.Const) and node.value == ""
 
 
 class CompareToEmptyStringChecker(checkers.BaseChecker):

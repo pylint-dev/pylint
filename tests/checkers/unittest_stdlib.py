@@ -13,6 +13,7 @@
 import contextlib
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers import stdlib
 from pylint.interfaces import UNDEFINED
@@ -41,13 +42,13 @@ class TestStdlibChecker(CheckerTestCase):
         # beats me..)
 
         def infer_func(node, context=None):  # pylint: disable=unused-argument
-            new_node = astroid.AssignAttr()
+            new_node = nodes.AssignAttr()
             new_node.parent = node
             yield new_node
 
         manager = astroid.MANAGER
         transform = astroid.inference_tip(infer_func)
-        with _add_transform(manager, astroid.Name, transform):
+        with _add_transform(manager, nodes.Name, transform):
             node = astroid.extract_node(
                 """
             call_something()

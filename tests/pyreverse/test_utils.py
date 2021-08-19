@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 import astroid
 import pytest
+from astroid import nodes
 
 from pylint.pyreverse.utils import get_annotation, get_visibility, infer_node
 
@@ -45,7 +46,7 @@ def test_get_annotation_annassign(assign, label):
     """AnnAssign"""
     node = astroid.extract_node(assign)
     got = get_annotation(node.value).name
-    assert isinstance(node, astroid.AnnAssign)
+    assert isinstance(node, nodes.AnnAssign)
     assert got == label, f"got {got} instead of {label} for value {node}"
 
 
@@ -71,7 +72,7 @@ def test_get_annotation_assignattr(init_method, label):
     for _, assign_attrs in instance_attrs.items():
         for assign_attr in assign_attrs:
             got = get_annotation(assign_attr).name
-            assert isinstance(assign_attr, astroid.AssignAttr)
+            assert isinstance(assign_attr, nodes.AssignAttr)
             assert got == label, f"got {got} instead of {label} for value {node}"
 
 
@@ -102,7 +103,7 @@ def test_infer_node_2(mock_infer, mock_get_annotation):
 
 
 def test_infer_node_3():
-    """Return a set containing an astroid.ClassDef object when the attribute
+    """Return a set containing a nodes.ClassDef object when the attribute
     has a type annotation"""
     node = astroid.extract_node(
         """
@@ -116,12 +117,12 @@ def test_infer_node_3():
     )
     instance_attr = node.instance_attrs.get("component")[0]
     assert isinstance(infer_node(instance_attr), set)
-    assert isinstance(infer_node(instance_attr).pop(), astroid.ClassDef)
+    assert isinstance(infer_node(instance_attr).pop(), nodes.ClassDef)
 
 
 def test_infer_node_4():
     """Verify the label for an argument with a typehint of the type
-    astroid.Subscript
+    nodes.Subscript
     """
     node = astroid.extract_node(
         """
@@ -132,8 +133,8 @@ def test_infer_node_4():
     )
 
     instance_attr = node.instance_attrs.get("my_test_int")[0]
-    assert isinstance(instance_attr, astroid.AssignAttr)
+    assert isinstance(instance_attr, nodes.AssignAttr)
 
     inferred = infer_node(instance_attr).pop()
-    assert isinstance(inferred, astroid.Subscript)
+    assert isinstance(inferred, nodes.Subscript)
     assert inferred.name == "Optional[int]"

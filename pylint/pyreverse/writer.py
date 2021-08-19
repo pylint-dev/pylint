@@ -20,8 +20,7 @@
 import itertools
 import os
 
-import astroid
-from astroid import modutils
+from astroid import modutils, nodes
 
 from pylint.pyreverse.diagrams import (
     ClassDiagram,
@@ -159,7 +158,7 @@ class DiagramWriter:
         qualified_name = obj.node.qname()
         if modutils.is_standard_module(qualified_name.split(".", maxsplit=1)[0]):
             return "grey"
-        if isinstance(obj.node, astroid.ClassDef):
+        if isinstance(obj.node, nodes.ClassDef):
             package = qualified_name.rsplit(".", maxsplit=2)[0]
         elif obj.node.package:
             package = qualified_name

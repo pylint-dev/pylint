@@ -10,7 +10,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
@@ -52,7 +52,7 @@ class ElseifUsedChecker(BaseTokenChecker):
         self._init()
 
     def visit_ifexp(self, node):
-        if isinstance(node.parent, astroid.FormattedValue):
+        if isinstance(node.parent, nodes.FormattedValue):
             return
         self._if_counter += 1
 
@@ -61,7 +61,7 @@ class ElseifUsedChecker(BaseTokenChecker):
 
     @check_messages("else-if-used")
     def visit_if(self, node):
-        if isinstance(node.parent, astroid.If):
+        if isinstance(node.parent, nodes.If):
             orelse = node.parent.orelse
             # current if node must directly follow an "else"
             if orelse and orelse == [node]:

@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import List, NamedTuple, Optional
 
-import astroid
+from astroid import nodes
 
 from pylint.pyreverse.utils import get_annotation_label
 
@@ -38,7 +38,7 @@ class Layout(Enum):
 class NodeProperties(NamedTuple):
     label: str
     attrs: Optional[List[str]] = None
-    methods: Optional[List[astroid.FunctionDef]] = None
+    methods: Optional[List[nodes.FunctionDef]] = None
     color: Optional[str] = None
     fontcolor: Optional[str] = None
 
@@ -96,9 +96,9 @@ class Printer(ABC):
         """Create an edge from one node to another to display relationships."""
 
     @staticmethod
-    def _get_method_arguments(method: astroid.FunctionDef) -> List[str]:
+    def _get_method_arguments(method: nodes.FunctionDef) -> List[str]:
         if method.args.args:
-            arguments: List[astroid.AssignName] = [
+            arguments: List[nodes.AssignName] = [
                 arg for arg in method.args.args if arg.name != "self"
             ]
         else:

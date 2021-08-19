@@ -16,6 +16,7 @@
 """
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers.utils import decorated_with_property
 from pylint.pyreverse.utils import FilterMixIn, is_interface
@@ -97,7 +98,7 @@ class ClassDiagram(Figure, FilterMixIn):
         properties = [
             (n, m)
             for n, m in node.items()
-            if isinstance(m, astroid.FunctionDef) and decorated_with_property(m)
+            if isinstance(m, nodes.FunctionDef) and decorated_with_property(m)
         ]
         for node_name, associated_nodes in (
             list(node.instance_attrs_type.items())
@@ -117,7 +118,7 @@ class ClassDiagram(Figure, FilterMixIn):
         methods = [
             m
             for m in node.values()
-            if isinstance(m, astroid.FunctionDef)
+            if isinstance(m, nodes.FunctionDef)
             and not decorated_with_property(m)
             and self.show_attr(m.name)
         ]
@@ -130,14 +131,14 @@ class ClassDiagram(Figure, FilterMixIn):
         self._nodes[node] = ent
         self.objects.append(ent)
 
-    def class_names(self, nodes):
+    def class_names(self, nodes_lst):
         """return class names if needed in diagram"""
         names = []
-        for node in nodes:
+        for node in nodes_lst:
             if isinstance(node, astroid.Instance):
                 node = node._proxied
             if (
-                isinstance(node, (astroid.ClassDef, astroid.Name, astroid.Subscript))
+                isinstance(node, (nodes.ClassDef, nodes.Name, nodes.Subscript))
                 and hasattr(node, "name")
                 and not self.has_node(node)
             ):
@@ -160,7 +161,7 @@ class ClassDiagram(Figure, FilterMixIn):
 
     def classes(self):
         """return all class nodes in the diagram"""
-        return [o for o in self.objects if isinstance(o.node, astroid.ClassDef)]
+        return [o for o in self.objects if isinstance(o.node, nodes.ClassDef)]
 
     def classe(self, name):
         """return a class by its name, raise KeyError if not found"""
@@ -217,7 +218,7 @@ class PackageDiagram(ClassDiagram):
 
     def modules(self):
         """return all module nodes in the diagram"""
-        return [o for o in self.objects if isinstance(o.node, astroid.Module)]
+        return [o for o in self.objects if isinstance(o.node, nodes.Module)]
 
     def module(self, name):
         """return a module by its name, raise KeyError if not found"""

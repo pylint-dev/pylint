@@ -10,7 +10,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, is_none, node_type
@@ -72,7 +72,7 @@ class MultipleTypesChecker(BaseChecker):
                 # this is not actually redefining.
                 orig_parent = orig_node.parent
                 redef_parent = redef_node.parent
-                if isinstance(orig_parent, astroid.If):
+                if isinstance(orig_parent, nodes.If):
                     if orig_parent == redef_parent:
                         if (
                             redef_node in orig_parent.orelse
@@ -81,8 +81,8 @@ class MultipleTypesChecker(BaseChecker):
                             orig_node, orig_type = redef_node, redef_type
                             continue
                     elif isinstance(
-                        redef_parent, astroid.If
-                    ) and redef_parent in orig_parent.nodes_of_class(astroid.If):
+                        redef_parent, nodes.If
+                    ) and redef_parent in orig_parent.nodes_of_class(nodes.If):
                         orig_node, orig_type = redef_node, redef_type
                         continue
                 orig_type = orig_type.replace(BUILTINS + ".", "")
@@ -97,7 +97,7 @@ class MultipleTypesChecker(BaseChecker):
     def visit_assign(self, node):
         # we don't handle multiple assignment nor slice assignment
         target = node.targets[0]
-        if isinstance(target, (astroid.Tuple, astroid.Subscript)):
+        if isinstance(target, (nodes.Tuple, nodes.Subscript)):
             return
         # ignore NoneType
         if is_none(node):

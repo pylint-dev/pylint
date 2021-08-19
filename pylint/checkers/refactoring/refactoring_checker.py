@@ -9,6 +9,7 @@ from functools import reduce
 from typing import Dict, Iterator, List, NamedTuple, Optional, Tuple, Union, cast
 
 import astroid
+from astroid import nodes
 from astroid.util import Uninferable
 
 from pylint import checkers, interfaces
@@ -102,10 +103,10 @@ def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
     return False
 
 
-def _is_inside_context_manager(node: astroid.Call) -> bool:
+def _is_inside_context_manager(node: nodes.Call) -> bool:
     frame = node.frame()
     if not isinstance(
-        frame, (astroid.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod)
+        frame, (nodes.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod)
     ):
         return False
     return frame.name == "__enter__" or utils.decorated_with(
@@ -113,25 +114,25 @@ def _is_inside_context_manager(node: astroid.Call) -> bool:
     )
 
 
-def _is_a_return_statement(node: astroid.Call) -> bool:
+def _is_a_return_statement(node: nodes.Call) -> bool:
     frame = node.frame()
     parent = node.parent
     while parent is not frame:
-        if isinstance(parent, astroid.Return):
+        if isinstance(parent, nodes.Return):
             return True
         parent = parent.parent
     return False
 
 
-def _is_part_of_with_items(node: astroid.Call) -> bool:
+def _is_part_of_with_items(node: nodes.Call) -> bool:
     """
-    Checks if one of the node's parents is an ``astroid.With`` node and that the node itself is located
+    Checks if one of the node's parents is a ``nodes.With`` node and that the node itself is located
     somewhere under its ``items``.
     """
     frame = node.frame()
     current = node
     while current != frame:
-        if isinstance(current, astroid.With):
+        if isinstance(current, nodes.With):
             items_start = current.items[0][0].lineno
             items_end = current.items[-1][0].tolineno
             return items_start <= node.lineno <= items_end
@@ -139,7 +140,7 @@ def _is_part_of_with_items(node: astroid.Call) -> bool:
     return False
 
 
-def _will_be_released_automatically(node: astroid.Call) -> bool:
+def _will_be_released_automatically(node: nodes.Call) -> bool:
     """Checks if a call that could be used in a ``with`` statement is used in an alternative
     construct which would ensure that its __exit__ method is called."""
     callables_taking_care_of_exit = frozenset(
@@ -148,7 +149,7 @@ def _will_be_released_automatically(node: astroid.Call) -> bool:
             "contextlib.ExitStack.enter_context",  # necessary for Python 3.6 compatibility
         )
     )
-    if not isinstance(node.parent, astroid.Call):
+    if not isinstance(node.parent, nodes.Call):
         return False
     func = utils.safe_infer(node.parent.func)
     if not func:
@@ -160,20 +161,20 @@ class ConsiderUsingWithStack(NamedTuple):
     """Stack for objects that may potentially trigger a R1732 message
     if they are not used in a ``with`` block later on."""
 
-    module_scope: Dict[str, astroid.NodeNG] = {}
-    class_scope: Dict[str, astroid.NodeNG] = {}
-    function_scope: Dict[str, astroid.NodeNG] = {}
+    module_scope: Dict[str, nodes.NodeNG] = {}
+    class_scope: Dict[str, nodes.NodeNG] = {}
+    function_scope: Dict[str, nodes.NodeNG] = {}
 
-    def __iter__(self) -> Iterator[Dict[str, astroid.NodeNG]]:
+    def __iter__(self) -> Iterator[Dict[str, nodes.NodeNG]]:
         yield from (self.function_scope, self.class_scope, self.module_scope)
 
     def get_stack_for_frame(
-        self, frame: Union[astroid.FunctionDef, astroid.ClassDef, astroid.Module]
+        self, frame: Union[nodes.FunctionDef, nodes.ClassDef, nodes.Module]
     ):
         """Get the stack corresponding to the scope of the given frame."""
-        if isinstance(frame, astroid.FunctionDef):
+        if isinstance(frame, nodes.FunctionDef):
             return self.function_scope
-        if isinstance(frame, astroid.ClassDef):
+        if isinstance(frame, nodes.ClassDef):
             return self.class_scope
         return self.module_scope
 
@@ -486,7 +487,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _is_bool_const(node):
-        return isinstance(node.value, astroid.Const) and isinstance(
+        return isinstance(node.value, nodes.Const) and isinstance(
             node.value.value, bool
         )
 
@@ -498,7 +499,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Unfortunately we need to know the exact type in certain
         cases.
         """
-        if isinstance(node.parent, astroid.If):
+        if isinstance(node.parent, nodes.If):
             orelse = node.parent.orelse
             # current if node must directly follow an "else"
             if orelse and orelse == [node]:
@@ -525,26 +526,26 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # Check if both branches can be reduced.
         first_branch = node.body[0]
         else_branch = node.orelse[0]
-        if isinstance(first_branch, astroid.Return):
-            if not isinstance(else_branch, astroid.Return):
+        if isinstance(first_branch, nodes.Return):
+            if not isinstance(else_branch, nodes.Return):
                 return
             first_branch_is_bool = self._is_bool_const(first_branch)
             else_branch_is_bool = self._is_bool_const(else_branch)
             reduced_to = "'return bool(test)'"
-        elif isinstance(first_branch, astroid.Assign):
-            if not isinstance(else_branch, astroid.Assign):
+        elif isinstance(first_branch, nodes.Assign):
+            if not isinstance(else_branch, nodes.Assign):
                 return
 
             # Check if we assign to the same value
             first_branch_targets = [
                 target.name
                 for target in first_branch.targets
-                if isinstance(target, astroid.AssignName)
+                if isinstance(target, nodes.AssignName)
             ]
             else_branch_targets = [
                 target.name
                 for target in else_branch.targets
-                if isinstance(target, astroid.AssignName)
+                if isinstance(target, nodes.AssignName)
             ]
             if not first_branch_targets or not else_branch_targets:
                 return
@@ -616,11 +617,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         scope = name_node.scope()
-        if not isinstance(scope, astroid.FunctionDef):
+        if not isinstance(scope, nodes.FunctionDef):
             return
 
         for defined_argument in scope.args.nodes_of_class(
-            astroid.AssignName, skip_klass=(astroid.Lambda,)
+            nodes.AssignName, skip_klass=(nodes.Lambda,)
         ):
             if defined_argument.name == name_node.name:
                 self.add_message(
@@ -638,18 +639,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_nested_blocks(node)
         self._check_unnecessary_dict_index_lookup(node)
 
-        for name in node.target.nodes_of_class(astroid.AssignName):
+        for name in node.target.nodes_of_class(nodes.AssignName):
             self._check_redefined_argument_from_local(name)
 
     @utils.check_messages("redefined-argument-from-local")
     def visit_excepthandler(self, node):
-        if node.name and isinstance(node.name, astroid.AssignName):
+        if node.name and isinstance(node.name, nodes.AssignName):
             self._check_redefined_argument_from_local(node.name)
 
     @utils.check_messages("redefined-argument-from-local")
     def visit_with(self, node):
         for var, names in node.items:
-            if isinstance(var, astroid.Name):
+            if isinstance(var, nodes.Name):
                 for stack in self._consider_using_with_stack:
                     # We don't need to restrict the stacks we search to the current scope and outer scopes,
                     # as e.g. the function_scope stack will be empty when we check a ``with`` on the class level.
@@ -658,7 +659,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         break
             if not names:
                 continue
-            for name in names.nodes_of_class(astroid.AssignName):
+            for name in names.nodes_of_class(nodes.AssignName):
                 self._check_redefined_argument_from_local(name)
 
     def _check_superfluous_else(self, node, msg_id, returning_node_class):
@@ -679,37 +680,37 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_superfluous_else_return(self, node):
         return self._check_superfluous_else(
-            node, msg_id="no-else-return", returning_node_class=astroid.Return
+            node, msg_id="no-else-return", returning_node_class=nodes.Return
         )
 
     def _check_superfluous_else_raise(self, node):
         return self._check_superfluous_else(
-            node, msg_id="no-else-raise", returning_node_class=astroid.Raise
+            node, msg_id="no-else-raise", returning_node_class=nodes.Raise
         )
 
     def _check_superfluous_else_break(self, node):
         return self._check_superfluous_else(
-            node, msg_id="no-else-break", returning_node_class=astroid.Break
+            node, msg_id="no-else-break", returning_node_class=nodes.Break
         )
 
     def _check_superfluous_else_continue(self, node):
         return self._check_superfluous_else(
-            node, msg_id="no-else-continue", returning_node_class=astroid.Continue
+            node, msg_id="no-else-continue", returning_node_class=nodes.Continue
         )
 
     @staticmethod
     def _type_and_name_are_equal(node_a, node_b):
-        for _type in (astroid.Name, astroid.AssignName):
+        for _type in (nodes.Name, nodes.AssignName):
             if all(isinstance(_node, _type) for _node in (node_a, node_b)):
                 return node_a.name == node_b.name
-        if all(isinstance(_node, astroid.Const) for _node in (node_a, node_b)):
+        if all(isinstance(_node, nodes.Const) for _node in (node_a, node_b)):
             return node_a.value == node_b.value
         return False
 
     def _is_dict_get_block(self, node):
 
         # "if <compare node>"
-        if not isinstance(node.test, astroid.Compare):
+        if not isinstance(node.test, nodes.Compare):
             return False
 
         # Does not have a single statement in the guard's body
@@ -719,10 +720,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # Look for a single variable assignment on the LHS and a subscript on RHS
         stmt = node.body[0]
         if not (
-            isinstance(stmt, astroid.Assign)
+            isinstance(stmt, nodes.Assign)
             and len(node.body[0].targets) == 1
-            and isinstance(node.body[0].targets[0], astroid.AssignName)
-            and isinstance(stmt.value, astroid.Subscript)
+            and isinstance(node.body[0].targets[0], nodes.AssignName)
+            and isinstance(stmt.value, nodes.Subscript)
         ):
             return False
 
@@ -735,7 +736,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return False
 
         # The object needs to be a dictionary instance
-        return isinstance(utils.safe_infer(node.test.ops[0][1]), astroid.Dict)
+        return isinstance(utils.safe_infer(node.test.ops[0][1]), nodes.Dict)
 
     def _check_consider_get(self, node):
         if_block_ok = self._is_dict_get_block(node)
@@ -744,7 +745,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         elif (
             if_block_ok
             and len(node.orelse) == 1
-            and isinstance(node.orelse[0], astroid.Assign)
+            and isinstance(node.orelse[0], nodes.Assign)
             and self._type_and_name_are_equal(
                 node.orelse[0].targets[0], node.body[0].targets[0]
             )
@@ -771,7 +772,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_get(node)
         self._check_consider_using_min_max_builtin(node)
 
-    def _check_consider_using_min_max_builtin(self, node: astroid.If):
+    def _check_consider_using_min_max_builtin(self, node: nodes.If):
         """Check if the given if node can be refactored as an min/max python builtin."""
         if self._is_actual_elif(node) or node.orelse:
             # Not interested in if statements with multiple branches.
@@ -787,10 +788,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         target = body.targets[0]
         if not (
-            isinstance(node.test, astroid.Compare)
-            and not isinstance(target, astroid.Subscript)
-            and not isinstance(node.test.left, astroid.Subscript)
-            and isinstance(body, astroid.Assign)
+            isinstance(node.test, nodes.Compare)
+            and not isinstance(target, nodes.Subscript)
+            and not isinstance(node.test.left, nodes.Subscript)
+            and isinstance(body, nodes.Assign)
         ):
             return
 
@@ -815,18 +816,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if len(node.test.ops) > 1:
             return
 
-        if not isinstance(body.value, (astroid.Name, astroid.Const)):
+        if not isinstance(body.value, (nodes.Name, nodes.Const)):
             return
 
         operator, right_statement = node.test.ops[0]
-        if isinstance(body.value, astroid.Name):
+        if isinstance(body.value, nodes.Name):
             body_value = body.value.name
         else:
             body_value = body.value.value
 
-        if isinstance(right_statement, astroid.Name):
+        if isinstance(right_statement, nodes.Name):
             right_statement_value = right_statement.name
-        elif isinstance(right_statement, astroid.Const):
+        elif isinstance(right_statement, nodes.Const):
             right_statement_value = right_statement.value
         else:
             return
@@ -855,8 +856,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_simplifiable_ifexp(node)
 
     def _check_simplifiable_ifexp(self, node):
-        if not isinstance(node.body, astroid.Const) or not isinstance(
-            node.orelse, astroid.Const
+        if not isinstance(node.body, nodes.Const) or not isinstance(
+            node.orelse, nodes.Const
         ):
             return
 
@@ -865,7 +866,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             return
 
-        if isinstance(node.test, astroid.Compare):
+        if isinstance(node.test, nodes.Compare):
             test_reduced_to = "test"
         else:
             test_reduced_to = "bool(test)"
@@ -885,7 +886,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "useless-return",
         "consider-using-with",
     )
-    def leave_functiondef(self, node: astroid.FunctionDef) -> None:
+    def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         # check left-over nested blocks stack
         self._emit_nested_blocks_message_if_needed(self._nested_blocks)
         # new scope = reinitialize the stack of nested blocks
@@ -902,7 +903,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._consider_using_with_stack.function_scope.clear()
 
     @utils.check_messages("consider-using-with")
-    def leave_classdef(self, _: astroid.ClassDef) -> None:
+    def leave_classdef(self, _: nodes.ClassDef) -> None:
         # check for context managers that have been created but not used
         self._emit_consider_using_with_if_needed(
             self._consider_using_with_stack.class_scope
@@ -916,14 +917,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_stop_iteration_inside_generator(self, node):
         """Check if an exception of type StopIteration is raised inside a generator"""
         frame = node.frame()
-        if not isinstance(frame, astroid.FunctionDef) or not frame.is_generator():
+        if not isinstance(frame, nodes.FunctionDef) or not frame.is_generator():
             return
         if utils.node_ignores_exception(node, StopIteration):
             return
         if not node.exc:
             return
         exc = utils.safe_infer(node.exc)
-        if not exc or not isinstance(exc, (astroid.Instance, astroid.ClassDef)):
+        if not exc or not isinstance(exc, (astroid.Instance, nodes.ClassDef)):
             return
         if self._check_exception_inherit_from_stopiteration(exc):
             self.add_message("stop-iteration-return", node=node)
@@ -936,12 +937,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_consider_using_comprehension_constructor(self, node):
         if (
-            isinstance(node.func, astroid.Name)
+            isinstance(node.func, nodes.Name)
             and node.args
-            and isinstance(node.args[0], astroid.ListComp)
+            and isinstance(node.args[0], nodes.ListComp)
         ):
             if node.func.name == "dict" and not isinstance(
-                node.args[0].elt, astroid.Call
+                node.args[0].elt, nodes.Call
             ):
                 message_name = "consider-using-dict-comprehension"
                 self.add_message(message_name, node=node)
@@ -954,14 +955,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109
         checked_call = ["any", "all", "list", "tuple"]
         if (
-            isinstance(node, astroid.Call)
+            isinstance(node, nodes.Call)
             and node.func
-            and isinstance(node.func, astroid.Name)
+            and isinstance(node.func, nodes.Name)
             and node.func.name in checked_call
         ):
             # functions in checked_calls take exactly one argument
             # check whether the argument is list comprehension
-            if len(node.args) == 1 and isinstance(node.args[0], astroid.ListComp):
+            if len(node.args) == 1 and isinstance(node.args[0], nodes.ListComp):
                 # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[1:-1]
                 call_name = node.func.name
@@ -1002,12 +1003,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _has_exit_in_scope(scope):
         exit_func = scope.locals.get("exit")
         return bool(
-            exit_func and isinstance(exit_func[0], (astroid.ImportFrom, astroid.Import))
+            exit_func and isinstance(exit_func[0], (nodes.ImportFrom, nodes.Import))
         )
 
     def _check_quit_exit_call(self, node):
 
-        if isinstance(node.func, astroid.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
+        if isinstance(node.func, nodes.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
             # If we have `exit` imported from `sys` in the current or global scope, exempt this instance.
             local_scope = node.scope()
             if self._has_exit_in_scope(local_scope) or self._has_exit_in_scope(
@@ -1017,16 +1018,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self.add_message("consider-using-sys-exit", node=node)
 
     def _check_super_with_arguments(self, node):
-        if not isinstance(node.func, astroid.Name) or node.func.name != "super":
+        if not isinstance(node.func, nodes.Name) or node.func.name != "super":
             return
 
         # pylint: disable=too-many-boolean-expressions
         if (
             len(node.args) != 2
-            or not isinstance(node.args[1], astroid.Name)
+            or not isinstance(node.args[1], nodes.Name)
             or node.args[1].name != "self"
-            or not isinstance(node.args[0], astroid.Name)
-            or not isinstance(node.args[1], astroid.Name)
+            or not isinstance(node.args[0], nodes.Name)
+            or not isinstance(node.args[1], nodes.Name)
             or node_frame_class(node) is None
             or node.args[0].name != node_frame_class(node).name
         ):
@@ -1040,7 +1041,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         If the next value has a default value, then do not add message.
 
         :param node: Check to see if this Call node is a next function
-        :type node: :class:`astroid.node_classes.Call`
+        :type node: :class:`nodes.Call`
         """
 
         def _looks_like_infinite_iterator(param):
@@ -1049,7 +1050,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 return inferred.qname() in KNOWN_INFINITE_ITERATORS
             return False
 
-        if isinstance(node.func, astroid.Attribute):
+        if isinstance(node.func, nodes.Attribute):
             # A next() method, which is now what we want.
             return
 
@@ -1060,7 +1061,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # positional arguments and no keyword arguments
             has_sentinel_value = len(node.args) > 1
             if (
-                isinstance(frame, astroid.FunctionDef)
+                isinstance(frame, nodes.FunctionDef)
                 and frame.is_generator()
                 and not has_sentinel_value
                 and not utils.node_ignores_exception(node, StopIteration)
@@ -1071,7 +1072,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_nested_blocks(self, node):
         """Update and check the number of nested blocks"""
         # only check block levels inside functions or methods
-        if not isinstance(node.scope(), astroid.FunctionDef):
+        if not isinstance(node.scope(), nodes.FunctionDef):
             return
         # messages are triggered on leaving the nested block. Here we save the
         # stack in case the current node isn't nested in the previous one
@@ -1085,7 +1086,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     break
                 self._nested_blocks.pop()
             # if the node is an elif, this should not be another nesting level
-            if isinstance(node, astroid.If) and self._is_actual_elif(node):
+            if isinstance(node, nodes.If) and self._is_actual_elif(node):
                 if self._nested_blocks:
                     self._nested_blocks.pop()
             self._nested_blocks.append(node)
@@ -1102,7 +1103,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 args=(len(nested_blocks), self.config.max_nested_blocks),
             )
 
-    def _emit_consider_using_with_if_needed(self, stack: Dict[str, astroid.NodeNG]):
+    def _emit_consider_using_with_if_needed(self, stack: Dict[str, nodes.NodeNG]):
         for node in stack.values():
             self.add_message("consider-using-with", node=node)
 
@@ -1110,7 +1111,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _duplicated_isinstance_types(node):
         """Get the duplicated types from the underlying isinstance calls.
 
-        :param astroid.BoolOp node: Node which should contain a bunch of isinstance calls.
+        :param nodes.BoolOp node: Node which should contain a bunch of isinstance calls.
         :returns: Dictionary of the comparison objects from the isinstance calls,
                   to duplicate values from consecutive calls.
         :rtype: dict
@@ -1119,7 +1120,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         all_types = collections.defaultdict(set)
 
         for call in node.values:
-            if not isinstance(call, astroid.Call) or len(call.args) != 2:
+            if not isinstance(call, nodes.Call) or len(call.args) != 2:
                 continue
 
             inferred = utils.safe_infer(call.func)
@@ -1135,7 +1136,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if isinstance_object in all_types:
                 duplicated_objects.add(isinstance_object)
 
-            if isinstance(isinstance_types, astroid.Tuple):
+            if isinstance(isinstance_types, nodes.Tuple):
                 elems = [
                     class_type.as_string() for class_type in isinstance_types.itered()
                 ]
@@ -1170,13 +1171,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         for value in node.values:
             if (
-                not isinstance(value, astroid.Compare)
+                not isinstance(value, nodes.Compare)
                 or len(value.ops) != 1
                 or value.ops[0][0] not in allowed_ops[node.op]
             ):
                 return
             for comparable in value.left, value.ops[0][1]:
-                if isinstance(comparable, astroid.Call):
+                if isinstance(comparable, nodes.Call):
                     return
 
         # Gather variables and values from comparisons
@@ -1184,7 +1185,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for value in node.values:
             variable_set = set()
             for comparable in value.left, value.ops[0][1]:
-                if isinstance(comparable, astroid.Name):
+                if isinstance(comparable, nodes.Name):
                     variable_set.add(comparable.as_string())
                 values.append(comparable.as_string())
             variables.append(variable_set)
@@ -1221,9 +1222,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             for operator, right_operand in comparison_node.ops:
                 for operand in (left_operand, right_operand):
                     value = None
-                    if isinstance(operand, astroid.Name):
+                    if isinstance(operand, nodes.Name):
                         value = operand.name
-                    elif isinstance(operand, astroid.Const):
+                    elif isinstance(operand, nodes.Const):
                         value = operand.value
 
                     if value is None:
@@ -1245,7 +1246,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             lambda: {"lower_bound": set(), "upper_bound": set()}
         )
         for comparison_node in node.values:
-            if isinstance(comparison_node, astroid.Compare):
+            if isinstance(comparison_node, nodes.Compare):
                 _find_lower_upper_bounds(comparison_node, uses)
 
         for _, bounds in uses.items():
@@ -1270,7 +1271,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         for subnode in values:
             inferred_bool = None
-            if not next(subnode.nodes_of_class(astroid.Name), False):
+            if not next(subnode.nodes_of_class(nodes.Name), False):
                 inferred = utils.safe_infer(subnode)
                 if inferred:
                     inferred_bool = inferred.bool_value()
@@ -1280,7 +1281,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             elif (operator == "or") == inferred_bool:
                 return [subnode]
 
-        return simplified_values or [astroid.Const(operator == "and")]
+        return simplified_values or [nodes.Const(operator == "and")]
 
     def _simplify_boolean_operation(self, bool_op):
         """Attempts to simplify a boolean operation
@@ -1290,7 +1291,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         children = list(bool_op.get_children())
         intermediate = [
             self._simplify_boolean_operation(child)
-            if isinstance(child, astroid.BoolOp)
+            if isinstance(child, nodes.BoolOp)
             else child
             for child in children
         ]
@@ -1317,7 +1318,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not self._can_simplify_bool_op:
             return
 
-        if not next(simplified_expr.nodes_of_class(astroid.Name), False):
+        if not next(simplified_expr.nodes_of_class(nodes.Name), False):
             self.add_message(
                 "condition-evals-to-constant",
                 node=node,
@@ -1346,10 +1347,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     @staticmethod
     def _is_simple_assignment(node):
         return (
-            isinstance(node, astroid.Assign)
+            isinstance(node, nodes.Assign)
             and len(node.targets) == 1
-            and isinstance(node.targets[0], astroid.node_classes.AssignName)
-            and isinstance(node.value, astroid.node_classes.Name)
+            and isinstance(node.targets[0], nodes.AssignName)
+            and isinstance(node.value, nodes.Name)
         )
 
     def _check_swap_variables(self, node):
@@ -1373,7 +1374,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-swap-variables",
         "consider-using-with",
     )
-    def visit_assign(self, node: astroid.Assign) -> None:
+    def visit_assign(self, node: nodes.Assign) -> None:
         self._append_context_managers_to_stack(node)
         self.visit_return(node)  # remaining checks are identical as for return nodes
 
@@ -1382,7 +1383,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-using-ternary",
         "consider-swap-variables",
     )
-    def visit_return(self, node: astroid.Return) -> None:
+    def visit_return(self, node: nodes.Return) -> None:
         self._check_swap_variables(node)
         if self._is_and_or_ternary(node.value):
             cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
@@ -1390,7 +1391,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         if all(
-            isinstance(value, astroid.Compare) for value in (truth_value, false_value)
+            isinstance(value, nodes.Compare) for value in (truth_value, false_value)
         ):
             return
 
@@ -1412,11 +1413,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
         self.add_message(message, node=node, args=(suggestion,))
 
-    def _append_context_managers_to_stack(self, node: astroid.Assign) -> None:
+    def _append_context_managers_to_stack(self, node: nodes.Assign) -> None:
         if _is_inside_context_manager(node):
             # if we are inside a context manager itself, we assume that it will handle the resource management itself.
             return
-        if isinstance(node.targets[0], (astroid.Tuple, astroid.List, astroid.Set)):
+        if isinstance(node.targets[0], (nodes.Tuple, nodes.List, nodes.Set)):
             assignees = node.targets[0].elts
             value = utils.safe_infer(node.value)
             if value is None or not hasattr(value, "elts"):
@@ -1429,19 +1430,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if Uninferable in (assignees, values):
             return
         for assignee, value in zip(assignees, values):
-            if not isinstance(value, astroid.Call):
+            if not isinstance(value, nodes.Call):
                 continue
             inferred = utils.safe_infer(value.func)
             if (
                 not inferred
                 or inferred.qname() not in CALLS_RETURNING_CONTEXT_MANAGERS
-                or not isinstance(assignee, (astroid.AssignName, astroid.AssignAttr))
+                or not isinstance(assignee, (nodes.AssignName, nodes.AssignAttr))
             ):
                 continue
             stack = self._consider_using_with_stack.get_stack_for_frame(node.frame())
             varname = (
                 assignee.name
-                if isinstance(assignee, astroid.AssignName)
+                if isinstance(assignee, nodes.AssignName)
                 else assignee.attrname
             )
             if varname in stack:
@@ -1452,7 +1453,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 )
             stack[varname] = value
 
-    def _check_consider_using_with(self, node: astroid.Call):
+    def _check_consider_using_with(self, node: nodes.Call):
         if _is_inside_context_manager(node) or _is_a_return_statement(node):
             # If we are inside a context manager itself, we assume that it will handle the resource management itself.
             # If the node is a child of a return, we assume that the caller knows he is getting a context manager
@@ -1481,11 +1482,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if could_be_used_in_with and not _will_be_released_automatically(node):
             self.add_message("consider-using-with", node=node)
 
-    def _check_use_list_or_dict_literal(self, node: astroid.Call) -> None:
+    def _check_use_list_or_dict_literal(self, node: nodes.Call) -> None:
         """Check if empty list or dict is created by using the literal [] or {}"""
         if node.as_string() in ("list()", "dict()"):
             inferred = utils.safe_infer(node.func)
-            if isinstance(inferred, astroid.ClassDef) and not node.args:
+            if isinstance(inferred, nodes.ClassDef) and not node.args:
                 if inferred.qname() == "builtins.list":
                     self.add_message("use-list-literal", node=node)
                 elif inferred.qname() == "builtins.dict" and not node.keywords:
@@ -1500,25 +1501,25 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             result += number  # aug_assign
         """
         for_loop = aug_assign.parent
-        if not isinstance(for_loop, astroid.For) or len(for_loop.body) > 1:
+        if not isinstance(for_loop, nodes.For) or len(for_loop.body) > 1:
             return
         assign = for_loop.previous_sibling()
-        if not isinstance(assign, astroid.Assign):
+        if not isinstance(assign, nodes.Assign):
             return
         result_assign_names = {
             target.name
             for target in assign.targets
-            if isinstance(target, astroid.AssignName)
+            if isinstance(target, nodes.AssignName)
         }
 
         is_concat_loop = (
             aug_assign.op == "+="
-            and isinstance(aug_assign.target, astroid.AssignName)
+            and isinstance(aug_assign.target, nodes.AssignName)
             and len(for_loop.body) == 1
             and aug_assign.target.name in result_assign_names
-            and isinstance(assign.value, astroid.Const)
+            and isinstance(assign.value, nodes.Const)
             and isinstance(assign.value.value, str)
-            and isinstance(aug_assign.value, astroid.Name)
+            and isinstance(aug_assign.value, nodes.Name)
             and aug_assign.value.name == for_loop.target.name
         )
         if is_concat_loop:
@@ -1529,13 +1530,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_using_join(node)
 
     @utils.check_messages("unnecessary-comprehension", "unnecessary-dict-index-lookup")
-    def visit_comprehension(self, node: astroid.Comprehension) -> None:
+    def visit_comprehension(self, node: nodes.Comprehension) -> None:
         self._check_unnecessary_comprehension(node)
         self._check_unnecessary_dict_index_lookup(node)
 
-    def _check_unnecessary_comprehension(self, node: astroid.Comprehension) -> None:
+    def _check_unnecessary_comprehension(self, node: nodes.Comprehension) -> None:
         if (
-            isinstance(node.parent, astroid.GeneratorExp)
+            isinstance(node.parent, nodes.GeneratorExp)
             or len(node.ifs) != 0
             or len(node.parent.generators) != 1
             or node.is_async
@@ -1543,21 +1544,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         if (
-            isinstance(node.parent, astroid.DictComp)
-            and isinstance(node.parent.key, astroid.Name)
-            and isinstance(node.parent.value, astroid.Name)
-            and isinstance(node.target, astroid.Tuple)
-            and all(isinstance(elt, astroid.AssignName) for elt in node.target.elts)
+            isinstance(node.parent, nodes.DictComp)
+            and isinstance(node.parent.key, nodes.Name)
+            and isinstance(node.parent.value, nodes.Name)
+            and isinstance(node.target, nodes.Tuple)
+            and all(isinstance(elt, nodes.AssignName) for elt in node.target.elts)
         ):
             expr_list = [node.parent.key.name, node.parent.value.name]
             target_list = [elt.name for elt in node.target.elts]
 
-        elif isinstance(node.parent, (astroid.ListComp, astroid.SetComp)):
+        elif isinstance(node.parent, (nodes.ListComp, nodes.SetComp)):
             expr = node.parent.elt
-            if isinstance(expr, astroid.Name):
+            if isinstance(expr, nodes.Name):
                 expr_list = expr.name
-            elif isinstance(expr, astroid.Tuple):
-                if any(not isinstance(elt, astroid.Name) for elt in expr.elts):
+            elif isinstance(expr, nodes.Tuple):
+                if any(not isinstance(elt, nodes.Name) for elt in expr.elts):
                     return
                 expr_list = [elt.name for elt in expr.elts]
             else:
@@ -1565,14 +1566,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             target = node.parent.generators[0].target
             target_list = (
                 target.name
-                if isinstance(target, astroid.AssignName)
+                if isinstance(target, nodes.AssignName)
                 else (
                     [
                         elt.name
                         for elt in target.elts
-                        if isinstance(elt, astroid.AssignName)
+                        if isinstance(elt, nodes.AssignName)
                     ]
-                    if isinstance(target, astroid.Tuple)
+                    if isinstance(target, nodes.Tuple)
                     else []
                 )
             )
@@ -1581,27 +1582,27 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if expr_list == target_list != []:
             args: Optional[Tuple[str]] = None
             inferred = utils.safe_infer(node.iter)
-            if isinstance(node.parent, astroid.DictComp) and isinstance(
+            if isinstance(node.parent, nodes.DictComp) and isinstance(
                 inferred, astroid.objects.DictItems
             ):
                 args = (f"{node.iter.func.expr.as_string()}",)
             elif (
-                isinstance(node.parent, astroid.ListComp)
-                and isinstance(inferred, astroid.List)
+                isinstance(node.parent, nodes.ListComp)
+                and isinstance(inferred, nodes.List)
             ) or (
-                isinstance(node.parent, astroid.SetComp)
-                and isinstance(inferred, astroid.Set)
+                isinstance(node.parent, nodes.SetComp)
+                and isinstance(inferred, nodes.Set)
             ):
                 args = (f"{node.iter.as_string()}",)
             if args:
                 self.add_message("unnecessary-comprehension", node=node, args=args)
                 return
 
-            if isinstance(node.parent, astroid.DictComp):
+            if isinstance(node.parent, nodes.DictComp):
                 func = "dict"
-            elif isinstance(node.parent, astroid.ListComp):
+            elif isinstance(node.parent, nodes.ListComp):
                 func = "list"
-            elif isinstance(node.parent, astroid.SetComp):
+            elif isinstance(node.parent, nodes.SetComp):
                 func = "set"
             else:
                 return
@@ -1620,13 +1621,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         All of: condition, true_value and false_value should not be a complex boolean expression
         """
         return (
-            isinstance(node, astroid.BoolOp)
+            isinstance(node, nodes.BoolOp)
             and node.op == "or"
             and len(node.values) == 2
-            and isinstance(node.values[0], astroid.BoolOp)
-            and not isinstance(node.values[1], astroid.BoolOp)
+            and isinstance(node.values[0], nodes.BoolOp)
+            and not isinstance(node.values[1], nodes.BoolOp)
             and node.values[0].op == "and"
-            and not isinstance(node.values[0].values[1], astroid.BoolOp)
+            and not isinstance(node.values[0].values[1], nodes.BoolOp)
             and len(node.values[0].values) == 2
         )
 
@@ -1638,10 +1639,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def visit_functiondef(self, node):
         self._return_nodes[node.name] = list(
-            node.nodes_of_class(astroid.Return, skip_klass=astroid.FunctionDef)
+            node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
 
-    def _check_consistent_returns(self, node: astroid.FunctionDef) -> None:
+    def _check_consistent_returns(self, node: nodes.FunctionDef) -> None:
         """Check that all return statements inside a function are consistent.
 
         Return statements are consistent if:
@@ -1649,7 +1650,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             - all returns are empty and if there is, possibly, an implicit return.
 
         Args:
-            node (astroid.FunctionDef): the function holding the return statements.
+            node (nodes.FunctionDef): the function holding the return statements.
 
         """
         # explicit return statements are those with a not None value
@@ -1664,11 +1665,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
         self.add_message("inconsistent-return-statements", node=node)
 
-    def _is_if_node_return_ended(self, node: astroid.If) -> bool:
+    def _is_if_node_return_ended(self, node: nodes.If) -> bool:
         """Check if the If node ends with an explicit return statement.
 
         Args:
-            node (astroid.If): If node to be checked.
+            node (nodes.If): If node to be checked.
 
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
@@ -1677,7 +1678,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         is_if_returning = any(
             self._is_node_return_ended(_ifn)
             for _ifn in node.body
-            if not isinstance(_ifn, astroid.FunctionDef)
+            if not isinstance(_ifn, nodes.FunctionDef)
         )
         if not node.orelse:
             # If there is not orelse part then the if statement is returning if :
@@ -1690,15 +1691,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         is_orelse_returning = any(
             self._is_node_return_ended(_ore)
             for _ore in node.orelse
-            if not isinstance(_ore, astroid.FunctionDef)
+            if not isinstance(_ore, nodes.FunctionDef)
         )
         return is_if_returning and is_orelse_returning
 
-    def _is_raise_node_return_ended(self, node: astroid.Raise) -> bool:
+    def _is_raise_node_return_ended(self, node: nodes.Raise) -> bool:
         """Check if the Raise node ends with an explicit return statement.
 
         Args:
-            node (astroid.Raise): Raise node to be checked.
+            node (nodes.Raise): Raise node to be checked.
 
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
@@ -1727,20 +1728,20 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # if no handlers handle the exception then it's ok
         return True
 
-    def _is_node_return_ended(self, node: astroid.node_classes.NodeNG) -> bool:
+    def _is_node_return_ended(self, node: nodes.NodeNG) -> bool:
         """Check if the node ends with an explicit return statement.
 
         Args:
-            node (astroid.node_classes.NodeNG): node to be checked.
+            node (nodes.NodeNG): node to be checked.
 
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
 
         """
         # Recursion base case
-        if isinstance(node, astroid.Return):
+        if isinstance(node, nodes.Return):
             return True
-        if isinstance(node, astroid.Call):
+        if isinstance(node, nodes.Call):
             try:
                 funcdef_node = node.func.inferred()[0]
                 if self._is_function_def_never_returning(funcdef_node):
@@ -1749,25 +1750,25 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 pass
         # Avoid the check inside while loop as we don't know
         # if they will be completed
-        if isinstance(node, astroid.While):
+        if isinstance(node, nodes.While):
             return True
-        if isinstance(node, astroid.Raise):
+        if isinstance(node, nodes.Raise):
             return self._is_raise_node_return_ended(node)
-        if isinstance(node, astroid.If):
+        if isinstance(node, nodes.If):
             return self._is_if_node_return_ended(node)
-        if isinstance(node, astroid.TryExcept):
+        if isinstance(node, nodes.TryExcept):
             handlers = {
                 _child
                 for _child in node.get_children()
-                if isinstance(_child, astroid.ExceptHandler)
+                if isinstance(_child, nodes.ExceptHandler)
             }
             all_but_handler = set(node.get_children()) - handlers
             return any(
                 self._is_node_return_ended(_child) for _child in all_but_handler
             ) and all(self._is_node_return_ended(_child) for _child in handlers)
         if (
-            isinstance(node, astroid.Assert)
-            and isinstance(node.test, astroid.Const)
+            isinstance(node, nodes.Assert)
+            and isinstance(node.test, nodes.Const)
             and not node.test.value
         ):
             # consider assert False as a return node
@@ -1776,31 +1777,31 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return any(self._is_node_return_ended(_child) for _child in node.get_children())
 
     @staticmethod
-    def _has_return_in_siblings(node: astroid.node_classes.NodeNG) -> bool:
+    def _has_return_in_siblings(node: nodes.NodeNG) -> bool:
         """
         Returns True if there is at least one return in the node's siblings
         """
         next_sibling = node.next_sibling()
         while next_sibling:
-            if isinstance(next_sibling, astroid.Return):
+            if isinstance(next_sibling, nodes.Return):
                 return True
             next_sibling = next_sibling.next_sibling()
         return False
 
-    def _is_function_def_never_returning(self, node: astroid.FunctionDef) -> bool:
+    def _is_function_def_never_returning(self, node: nodes.FunctionDef) -> bool:
         """Return True if the function never returns. False otherwise.
 
         Args:
-            node (astroid.FunctionDef): function definition node to be analyzed.
+            node (nodes.FunctionDef): function definition node to be analyzed.
 
         Returns:
             bool: True if the function never returns, False otherwise.
         """
-        if isinstance(node, astroid.FunctionDef) and node.returns:
+        if isinstance(node, nodes.FunctionDef) and node.returns:
             return (
-                isinstance(node.returns, astroid.Attribute)
+                isinstance(node.returns, nodes.Attribute)
                 and node.returns.attrname == "NoReturn"
-                or isinstance(node.returns, astroid.Name)
+                or isinstance(node.returns, nodes.Name)
                 and node.returns.name == "NoReturn"
             )
         try:
@@ -1824,16 +1825,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         last = node.body[-1]
-        if isinstance(last, astroid.Return):
+        if isinstance(last, nodes.Return):
             # e.g. "return"
             if last.value is None:
                 self.add_message("useless-return", node=node)
             # return None"
-            elif isinstance(last.value, astroid.Const) and (last.value.value is None):
+            elif isinstance(last.value, nodes.Const) and (last.value.value is None):
                 self.add_message("useless-return", node=node)
 
     def _check_unnecessary_dict_index_lookup(
-        self, node: Union[astroid.For, astroid.Comprehension]
+        self, node: Union[nodes.For, nodes.Comprehension]
     ) -> None:
         """Add message when accessing dict values by index lookup."""
         # Verify that we have a .items() call and
@@ -1841,8 +1842,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # body of the for.
         # Is it a proper items call?
         if (
-            isinstance(node.iter, astroid.Call)
-            and isinstance(node.iter.func, astroid.Attribute)
+            isinstance(node.iter, nodes.Call)
+            and isinstance(node.iter.func, nodes.Attribute)
             and node.iter.func.attrname == "items"
         ):
             inferred = utils.safe_infer(node.iter.func)
@@ -1856,25 +1857,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # for body.
 
             children = (
-                node.body
-                if isinstance(node, astroid.For)
-                else node.parent.get_children()
+                node.body if isinstance(node, nodes.For) else node.parent.get_children()
             )
             for child in children:
-                for subscript in child.nodes_of_class(astroid.Subscript):
-                    subscript = cast(astroid.Subscript, subscript)
+                for subscript in child.nodes_of_class(nodes.Subscript):
+                    subscript = cast(nodes.Subscript, subscript)
 
-                    if not isinstance(
-                        subscript.value, (astroid.Name, astroid.Attribute)
-                    ):
+                    if not isinstance(subscript.value, (nodes.Name, nodes.Attribute)):
                         continue
 
                     value = subscript.slice
 
-                    if isinstance(node, astroid.For) and (
-                        isinstance(subscript.parent, astroid.Assign)
+                    if isinstance(node, nodes.For) and (
+                        isinstance(subscript.parent, nodes.Assign)
                         and subscript in subscript.parent.targets
-                        or isinstance(subscript.parent, astroid.AugAssign)
+                        or isinstance(subscript.parent, nodes.AugAssign)
                         and subscript == subscript.parent.target
                     ):
                         # Ignore this subscript if it is the target of an assignment
@@ -1882,16 +1879,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         return
 
                     # Case where .items is assigned to k,v (i.e., for k, v in d.items())
-                    if isinstance(value, astroid.Name):
+                    if isinstance(value, nodes.Name):
                         if (
-                            not isinstance(node.target, astroid.Tuple)
+                            not isinstance(node.target, nodes.Tuple)
                             or value.name != node.target.elts[0].name
                             or iterating_object_name != subscript.value.as_string()
                         ):
                             continue
 
                         if (
-                            isinstance(node, astroid.For)
+                            isinstance(node, nodes.For)
                             and value.lookup(value.name)[1][-1].lineno > node.lineno
                         ):
                             # Ignore this subscript if it has been redefined after
@@ -1907,16 +1904,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         )
 
                     # Case where .items is assigned to single var (i.e., for item in d.items())
-                    elif isinstance(value, astroid.Subscript):
+                    elif isinstance(value, nodes.Subscript):
                         if (
-                            not isinstance(node.target, astroid.AssignName)
+                            not isinstance(node.target, nodes.AssignName)
                             or node.target.name != value.value.name
                             or iterating_object_name != subscript.value.as_string()
                         ):
                             continue
 
                         if (
-                            isinstance(node, astroid.For)
+                            isinstance(node, nodes.For)
                             and value.value.lookup(value.value.name)[1][-1].lineno
                             > node.lineno
                         ):
@@ -1928,10 +1925,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
                         # check if subscripted by 0 (key)
                         inferred = utils.safe_infer(value.slice)
-                        if (
-                            not isinstance(inferred, astroid.Const)
-                            or inferred.value != 0
-                        ):
+                        if not isinstance(inferred, nodes.Const) or inferred.value != 0:
                             continue
                         self.add_message(
                             "unnecessary-dict-index-lookup",

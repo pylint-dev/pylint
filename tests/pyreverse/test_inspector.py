@@ -18,6 +18,7 @@ import os
 
 import astroid
 import pytest
+from astroid import nodes
 
 from pylint.pyreverse import inspector
 
@@ -34,7 +35,7 @@ def test_class_implements(project):
     klass = project.get_module("data.clientmodule_test")["Ancestor"]
     assert hasattr(klass, "implements")
     assert len(klass.implements) == 1
-    assert isinstance(klass.implements[0], astroid.nodes.ClassDef)
+    assert isinstance(klass.implements[0], nodes.ClassDef)
     assert klass.implements[0].name == "Interface"
 
 
