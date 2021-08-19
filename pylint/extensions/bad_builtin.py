@@ -58,10 +58,7 @@ class BadBuiltinChecker(BaseChecker):
             if not (name in node.frame() or name in node.root()):
                 if name in self.config.bad_functions:
                     hint = BUILTIN_HINTS.get(name)
-                    if hint:
-                        args = f"{name!r}. {hint}"
-                    else:
-                        args = repr(name)
+                    args = f"{name!r}. {hint}" if hint else repr(name)
                     self.add_message("bad-builtin", node=node, args=args)
 
 

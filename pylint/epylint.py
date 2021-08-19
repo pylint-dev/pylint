@@ -164,15 +164,9 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
 
     # Providing standard output and/or error if not set
     if stdout is None:
-        if return_std:
-            stdout = PIPE
-        else:
-            stdout = sys.stdout
+        stdout = PIPE if return_std else sys.stdout
     if stderr is None:
-        if return_std:
-            stderr = PIPE
-        else:
-            stderr = sys.stderr
+        stderr = PIPE if return_std else sys.stderr
     # Call pylint in a subprocess
     with Popen(
         cli,
