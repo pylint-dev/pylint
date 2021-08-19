@@ -126,10 +126,7 @@ class EncodingChecker(BaseChecker):
 
     def process_module(self, module):
         """inspect the source file to find encoding problem"""
-        if module.file_encoding:
-            encoding = module.file_encoding
-        else:
-            encoding = "ascii"
+        encoding = module.file_encoding if module.file_encoding else "ascii"
 
         with module.stream() as stream:
             for lineno, line in enumerate(stream):

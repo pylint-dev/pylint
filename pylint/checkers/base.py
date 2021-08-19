@@ -358,10 +358,7 @@ def _determine_function_name_type(node: nodes.FunctionDef, config=None):
         # form, treat it like an attribute as well.
         return "attr"
 
-    if node.decorators:
-        decorators = node.decorators.nodes
-    else:
-        decorators = []
+    decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
         # If the function is a property (decorated with @property
         # or @abc.abstractproperty), the name type is 'attr'.
