@@ -70,7 +70,7 @@ from typing import Pattern, Tuple
 
 import astroid
 from astroid import nodes
-from astroid.const import PY310_PLUS
+from pylint.constants import PY310_PLUS
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
