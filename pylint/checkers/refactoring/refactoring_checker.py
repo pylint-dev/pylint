@@ -126,7 +126,7 @@ def _is_a_return_statement(node: nodes.Call) -> bool:
 
 def _is_part_of_with_items(node: nodes.Call) -> bool:
     """
-    Checks if one of the node's parents is an ``nodes.With`` node and that the node itself is located
+    Checks if one of the node's parents is a ``nodes.With`` node and that the node itself is located
     somewhere under its ``items``.
     """
     frame = node.frame()

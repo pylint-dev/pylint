@@ -103,7 +103,7 @@ def test_infer_node_2(mock_infer, mock_get_annotation):
 
 
 def test_infer_node_3():
-    """Return a set containing an nodes.ClassDef object when the attribute
+    """Return a set containing a nodes.ClassDef object when the attribute
     has a type annotation"""
     node = astroid.extract_node(
         """
