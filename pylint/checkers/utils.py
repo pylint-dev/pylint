@@ -75,8 +75,6 @@ import astroid
 import astroid.objects
 from astroid import TooManyLevelsError, nodes
 
-from pylint.constants import BUILTINS
-
 COMP_NODE_TYPES = (
     nodes.ListComp,
     nodes.SetComp,
@@ -305,7 +303,7 @@ def get_all_elements(
 
 def is_super(node: nodes.NodeNG) -> bool:
     """return True if the node is referencing the "super" builtin function"""
-    if getattr(node, "name", None) == "super" and node.root().name == BUILTINS:
+    if getattr(node, "name", None) == "super" and node.root().name == "builtins":
         return True
     return False
 
@@ -321,7 +319,7 @@ SPECIAL_BUILTINS = ("__builtins__",)  # '__path__', '__file__')
 
 def is_builtin_object(node: nodes.NodeNG) -> bool:
     """Returns True if the given node is an object from the __builtin__ module."""
-    return node and node.root().name == BUILTINS
+    return node and node.root().name == "builtins"
 
 
 def is_builtin(name: str) -> bool:
@@ -797,7 +795,7 @@ def _is_property_decorator(decorator: nodes.Name) -> bool:
             if inferred.qname() in ("builtins.property", "functools.cached_property"):
                 return True
             for ancestor in inferred.ancestors():
-                if ancestor.name == "property" and ancestor.root().name == BUILTINS:
+                if ancestor.name == "property" and ancestor.root().name == "builtins":
                     return True
         elif isinstance(inferred, nodes.FunctionDef):
             # If decorator is function, check if it has exactly one return

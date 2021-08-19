@@ -979,9 +979,7 @@ class Python3Checker(checkers.BaseChecker):
                 # classmethod 1 argument should cause a failure, if it is a
                 # staticmethod 0 arguments should cause a failure.
                 failing_arg_count = 1
-                if utils.decorated_with(
-                    node, [astroid.bases.BUILTINS + ".staticmethod"]
-                ):
+                if utils.decorated_with(node, ["builtins.staticmethod"]):
                     failing_arg_count = 0
                 if len(node.args.args) == failing_arg_count:
                     self.add_message("next-method-defined", node=node)
@@ -1119,7 +1117,7 @@ class Python3Checker(checkers.BaseChecker):
             if not inferred:
                 return
 
-            builtins_list = f"{astroid.bases.BUILTINS}.list"
+            builtins_list = "builtins.list"
             if isinstance(inferred, nodes.List) or inferred.qname() == builtins_list:
                 kwargs = node.keywords
 
@@ -1128,7 +1126,7 @@ class Python3Checker(checkers.BaseChecker):
             if not inferred:
                 return
 
-            builtins_sorted = f"{astroid.bases.BUILTINS}.sorted"
+            builtins_sorted = "builtins.sorted"
             if inferred.qname() == builtins_sorted:
                 kwargs = node.keywords
 

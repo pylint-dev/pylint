@@ -45,7 +45,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
-from pylint.constants import BUILTINS
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 
 if TYPE_CHECKING:
@@ -223,10 +222,6 @@ OTHER_NODES = (
     nodes.GeneratorExp,
 )
 
-BUILTINS_STR = BUILTINS + ".str"
-BUILTINS_FLOAT = BUILTINS + ".float"
-BUILTINS_INT = BUILTINS + ".int"
-
 
 def get_access_path(key, parts):
     """Given a list of format specifiers, returns
@@ -247,11 +242,11 @@ def arg_matches_format_type(arg_type, format_type):
         return True
     if isinstance(arg_type, astroid.Instance):
         arg_type = arg_type.pytype()
-        if arg_type == BUILTINS_STR:
+        if arg_type == "builtins.str":
             return format_type == "c"
-        if arg_type == BUILTINS_FLOAT:
+        if arg_type == "builtins.float":
             return format_type in "deEfFgGn%"
-        if arg_type == BUILTINS_INT:
+        if arg_type == "builtins.int":
             # Integers allow all types
             return True
         return False

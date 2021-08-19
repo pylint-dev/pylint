@@ -93,11 +93,11 @@ from pylint.checkers.utils import (
     supports_membership_test,
     supports_setitem,
 )
-from pylint.constants import BUILTINS, PY310_PLUS
+from pylint.constants import PY310_PLUS
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
-STR_FORMAT = {"%s.str.format" % BUILTINS}
+STR_FORMAT = {"builtins.str.format"}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
 BUILTIN_TUPLE = "builtins.tuple"
 TYPE_ANNOTATION_NODES_TYPES = (
@@ -1514,7 +1514,7 @@ accessed. Python regular expressions are accepted.",
             return None
         if (
             not isinstance(itemmethod, nodes.FunctionDef)
-            or itemmethod.root().name != BUILTINS
+            or itemmethod.root().name != "builtins"
             or not itemmethod.parent
             or itemmethod.parent.name not in SEQUENCE_TYPES
         ):
@@ -1535,7 +1535,7 @@ accessed. Python regular expressions are accepted.",
                 return None
         # Instance values must be int, slice, or have an __index__ method
         elif isinstance(index_type, astroid.Instance):
-            if index_type.pytype() in (BUILTINS + ".int", BUILTINS + ".slice"):
+            if index_type.pytype() in ("builtins.int", "builtins.slice"):
                 return None
             try:
                 index_type.getattr("__index__")
@@ -1578,7 +1578,7 @@ accessed. Python regular expressions are accepted.",
             # Instance values must be of type int, None or an object
             # with __index__
             elif isinstance(index_type, astroid.Instance):
-                if index_type.pytype() in (BUILTINS + ".int", BUILTINS + ".NoneType"):
+                if index_type.pytype() in ("builtins.int", "builtins.NoneType"):
                     continue
 
                 try:

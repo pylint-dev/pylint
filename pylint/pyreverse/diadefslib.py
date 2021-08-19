@@ -23,7 +23,6 @@
 import astroid
 from astroid import nodes
 
-from pylint.constants import BUILTINS
 from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
 from pylint.pyreverse.utils import LocalsVisitor
 
@@ -79,7 +78,7 @@ class DiaDefGenerator:
         """true if builtins and not show_builtins"""
         if self.config.show_builtin:
             return True
-        return node.root().name != BUILTINS
+        return node.root().name != "builtins"
 
     def add_class(self, node):
         """visit one class and add it to diagram"""

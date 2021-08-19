@@ -14,7 +14,6 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, is_none, node_type
-from pylint.constants import BUILTINS
 from pylint.interfaces import IAstroidChecker
 
 
@@ -85,8 +84,8 @@ class MultipleTypesChecker(BaseChecker):
                     ) and redef_parent in orig_parent.nodes_of_class(nodes.If):
                         orig_node, orig_type = redef_node, redef_type
                         continue
-                orig_type = orig_type.replace(BUILTINS + ".", "")
-                redef_type = redef_type.replace(BUILTINS + ".", "")
+                orig_type = orig_type.replace("builtins.", "")
+                redef_type = redef_type.replace("builtins.", "")
                 self.add_message(
                     "redefined-variable-type",
                     node=redef_node,
