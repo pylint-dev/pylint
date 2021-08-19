@@ -1,4 +1,5 @@
-from typing import List, Set, Tuple, Type, Union, cast
+import sys
+from typing import List, Optional, Set, Tuple, Type, Union, cast
 
 from astroid import nodes
 
@@ -6,6 +7,12 @@ from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import check_messages, safe_infer
 from pylint.interfaces import IAstroidChecker
 from pylint.lint import PyLinter
+from pylint.utils.utils import get_global_option
+
+if sys.version_info >= (3, 10):
+    from typing import TypeGuard
+else:
+    from typing_extensions import TypeGuard
 
 
 class CodeStyleChecker(BaseChecker):
@@ -41,11 +48,38 @@ class CodeStyleChecker(BaseChecker):
             "Emitted where an in-place defined ``list`` can be replaced by a ``tuple``. "
             "Due to optimizations by CPython, there is no performance benefit from it.",
         ),
+        "R6103": (
+            "Use '%s' instead",
+            "consider-using-assignment-expr",
+            "Emitted when an if assignment is directly followed by an if statement and "
+            "both can be combined by using an assignment expression ``:=``. "
+            "Requires Python 3.8",
+        ),
     }
+    options = (
+        (
+            "max-line-length-suggestions",
+            {
+                "default": 88,
+                "type": "int",
+                "metavar": "<int>",
+                "help": (
+                    "Max line length for which to sill emit suggestions. "
+                    "Used to prevent optional suggestions which would get split "
+                    "by a code formatter (e.g., black)."
+                ),
+            },
+        ),
+    )
 
     def __init__(self, linter: PyLinter) -> None:
         """Initialize checker instance."""
         super().__init__(linter=linter)
+
+    def open(self) -> None:
+        py_version: Tuple[int, int] = get_global_option(self, "py-version")  # type: ignore
+        self._py38_plus = py_version >= (3, 8)
+        self._max_length: int = self.config.max_line_length_suggestions
 
     @check_messages("consider-using-namedtuple-or-dataclass")
     def visit_dict(self, node: nodes.Dict) -> None:
@@ -60,6 +94,11 @@ class CodeStyleChecker(BaseChecker):
     def visit_comprehension(self, node: nodes.Comprehension) -> None:
         if isinstance(node.iter, nodes.List):
             self.add_message("consider-using-tuple", node=node.iter)
+
+    @check_messages("consider-using-assignment-expr")
+    def visit_if(self, node: nodes.If) -> None:
+        if self._py38_plus:
+            self._check_consider_using_assignment_expr(node)
 
     def _check_dict_consider_namedtuple_dataclass(self, node: nodes.Dict) -> None:
         """Check if dictionary values can be replaced by Namedtuple or Dataclass."""
@@ -134,6 +173,131 @@ class CodeStyleChecker(BaseChecker):
 
             self.add_message("consider-using-namedtuple-or-dataclass", node=node)
             return
+
+    def _check_consider_using_assignment_expr(self, node: nodes.If) -> None:
+        """Check if an assignment expression (walrus operator) can be used.
+
+        For example if an assignment is directly followed by an if statment:
+        >>> x = 2
+        >>> if x:
+        >>>     ...
+
+        Can be replaced by:
+        >>> if (x := 2):
+        >>>     ...
+
+        Note: Assignment expressions were added in Python 3.8
+        """
+        # Check if `node.test` contains a `Name` node
+        node_name: Optional[nodes.Name] = None
+        if isinstance(node.test, nodes.Name):
+            node_name = node.test
+        elif (
+            isinstance(node.test, nodes.UnaryOp)
+            and node.test.op == "not"
+            and isinstance(node.test.operand, nodes.Name)
+        ):
+            node_name = node.test.operand
+        elif (
+            isinstance(node.test, nodes.Compare)
+            and isinstance(node.test.left, nodes.Name)
+            and len(node.test.ops) == 1
+        ):
+            node_name = node.test.left
+        else:
+            return
+
+        # Make sure the previous node is an assignment to the same name
+        # used in `node.test`. Furthermore, ignore if assignment spans multiple lines.
+        prev_sibling = node.previous_sibling()
+        if CodeStyleChecker._check_prev_sibling_to_if_stmt(
+            prev_sibling, node_name.name
+        ):
+
+            # Check if match statement would be a better fit.
+            # I.e. multiple ifs that test the same name.
+            if CodeStyleChecker._check_ignore_assignment_expr_suggestion(
+                node, node_name.name
+            ):
+                return
+
+            # Build suggestion string. Check length of suggestion
+            # does not exceed max-line-length-suggestions
+            test_str = node.test.as_string().replace(
+                node_name.name,
+                f"({node_name.name} := {prev_sibling.value.as_string()})",
+                1,
+            )
+            suggestion = f"if {test_str}:"
+            if (
+                node.col_offset is not None
+                and len(suggestion) + node.col_offset > self._max_length
+                or len(suggestion) > self._max_length
+            ):
+                return
+
+            self.add_message(
+                "consider-using-assignment-expr",
+                node=node_name,
+                args=(suggestion,),
+            )
+
+    @staticmethod
+    def _check_prev_sibling_to_if_stmt(
+        prev_sibling: Optional[nodes.NodeNG], name: Optional[str]
+    ) -> TypeGuard[Union[nodes.Assign, nodes.AnnAssign]]:
+        """Check if previous sibling is an assignment with the same name.
+        Ignore statements which span multiple lines.
+        """
+        if prev_sibling is None or prev_sibling.tolineno - prev_sibling.fromlineno != 0:
+            return False
+
+        if (
+            isinstance(prev_sibling, nodes.Assign)
+            and len(prev_sibling.targets) == 1
+            and isinstance(prev_sibling.targets[0], nodes.AssignName)
+            and prev_sibling.targets[0].name == name
+        ):
+            return True
+        if (
+            isinstance(prev_sibling, nodes.AnnAssign)
+            and isinstance(prev_sibling.target, nodes.AssignName)
+            and prev_sibling.target.name == name
+        ):
+            return True
+        return False
+
+    @staticmethod
+    def _check_ignore_assignment_expr_suggestion(
+        node: nodes.If, name: Optional[str]
+    ) -> bool:
+        """Return True if suggestion for assignment expr should be ignore.
+
+        E.g., in cases where a match statement would be a better fit
+        (multiple conditions).
+        """
+        if isinstance(node.test, nodes.Compare):
+            next_if_node: Optional[nodes.If] = None
+            next_sibling = node.next_sibling()
+            if len(node.orelse) == 1 and isinstance(node.orelse[0], nodes.If):
+                # elif block
+                next_if_node = node.orelse[0]
+            elif isinstance(next_sibling, nodes.If):
+                # separate if block
+                next_if_node = next_sibling
+
+            if (  # pylint: disable=too-many-boolean-expressions
+                next_if_node is not None
+                and (
+                    isinstance(next_if_node.test, nodes.Compare)
+                    and isinstance(next_if_node.test.left, nodes.Name)
+                    and next_if_node.test.left.name == name
+                    or isinstance(next_if_node.test, nodes.Name)
+                    and next_if_node.test.name == name
+                )
+            ):
+                return True
+        return False
 
 
 def register(linter: PyLinter) -> None:
