@@ -10,6 +10,9 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.11.rst'
 
+* Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependant checks.
+  Will default to whatever Python version pylint is executed with.
+
 
 What's New in Pylint 2.10.3?
 ============================
@@ -140,7 +143,6 @@ Release date: 2021-08-20
 
   Closes #4042
 
-
 * Refactor of ``--list-msgs`` & ``--list-msgs-enabled``: both options now show whether messages are emittable with the current interpreter.
 
   Closes #4778
@@ -192,7 +194,6 @@ Release date: 2021-08-20
   Closes #4839
 
 * Allow ``true`` and ``false`` values in ``pylintrc`` for better compatibility with ``toml`` config.
-
 
 * Class methods' signatures are ignored the same way as functions' with similarities "ignore-signatures" option enabled
 

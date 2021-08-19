@@ -1,5 +1,4 @@
-from functools import lru_cache
-from typing import Dict, List, NamedTuple, Set, Union
+from typing import Dict, List, NamedTuple, Set, Tuple, Union
 
 import astroid.bases
 from astroid import nodes
@@ -12,6 +11,7 @@ from pylint.checkers.utils import (
 )
 from pylint.interfaces import IAstroidChecker
 from pylint.lint import PyLinter
+from pylint.utils.utils import get_global_option
 
 
 class TypingAlias(NamedTuple):
@@ -104,19 +104,6 @@ class TypingChecker(BaseChecker):
     }
     options = (
         (
-            "py-version",
-            {
-                "default": (3, 7),
-                "type": "py_version",
-                "metavar": "<py_version>",
-                "help": (
-                    "Min Python version to use for typing related checks, "
-                    "e.g. ``3.7``. This should be equal to the min supported Python "
-                    "version of the project."
-                ),
-            },
-        ),
-        (
             "runtime-typing",
             {
                 "default": True,
@@ -135,49 +122,38 @@ class TypingChecker(BaseChecker):
         ),
     )
 
+    _should_check_typing_alias: bool
+    """The use of type aliases (PEP 585) requires Python 3.9
+    or Python 3.7+ with postponed evaluation.
+    """
+
+    _should_check_alternative_union_syntax: bool
+    """The use of alternative union syntax (PEP 604) requires Python 3.10
+    or Python 3.7+ with postponed evaluation.
+    """
+
     def __init__(self, linter: PyLinter) -> None:
         """Initialize checker instance."""
         super().__init__(linter=linter)
         self._alias_name_collisions: Set[str] = set()
         self._consider_using_alias_msgs: List[DeprecatedTypingAliasMsg] = []
 
-    @lru_cache()
-    def _py37_plus(self) -> bool:
-        return self.config.py_version >= (3, 7)
+    def open(self) -> None:
+        py_version: Tuple[int, int] = get_global_option(self, "py-version")  # type: ignore
+        self._py37_plus = py_version >= (3, 7)
+        self._py39_plus = py_version >= (3, 9)
+        self._py310_plus = py_version >= (3, 10)
 
-    @lru_cache()
-    def _py39_plus(self) -> bool:
-        return self.config.py_version >= (3, 9)
-
-    @lru_cache()
-    def _py310_plus(self) -> bool:
-        return self.config.py_version >= (3, 10)
-
-    @lru_cache()
-    def _should_check_typing_alias(self) -> bool:
-        """The use of type aliases (PEP 585) requires Python 3.9
-        or Python 3.7+ with postponed evaluation.
-        """
-        return (
-            self._py39_plus()
-            or self._py37_plus()
-            and self.config.runtime_typing is False
+        self._should_check_typing_alias = self._py39_plus or (
+            self._py37_plus and self.config.runtime_typing is False
         )
-
-    @lru_cache()
-    def _should_check_alternative_union_syntax(self) -> bool:
-        """The use of alternative union syntax (PEP 604) requires Python 3.10
-        or Python 3.7+ with postponed evaluation.
-        """
-        return (
-            self._py310_plus()
-            or self._py37_plus()
-            and self.config.runtime_typing is False
+        self._should_check_alternative_union_syntax = self._py310_plus or (
+            self._py37_plus and self.config.runtime_typing is False
         )
 
     def _msg_postponed_eval_hint(self, node) -> str:
         """Message hint if postponed evaluation isn't enabled."""
-        if self._py310_plus() or "annotations" in node.root().future_imports:
+        if self._py310_plus or "annotations" in node.root().future_imports:
             return ""
         return ". Add 'from __future__ import annotations' as well"
 
@@ -187,9 +163,9 @@ class TypingChecker(BaseChecker):
         "consider-alternative-union-syntax",
     )
     def visit_name(self, node: nodes.Name) -> None:
-        if self._should_check_typing_alias() and node.name in ALIAS_NAMES:
+        if self._should_check_typing_alias and node.name in ALIAS_NAMES:
             self._check_for_typing_alias(node)
-        if self._should_check_alternative_union_syntax() and node.name in UNION_NAMES:
+        if self._should_check_alternative_union_syntax and node.name in UNION_NAMES:
             self._check_for_alternative_union_syntax(node, node.name)
 
     @check_messages(
@@ -198,12 +174,9 @@ class TypingChecker(BaseChecker):
         "consider-alternative-union-syntax",
     )
     def visit_attribute(self, node: nodes.Attribute):
-        if self._should_check_typing_alias() and node.attrname in ALIAS_NAMES:
+        if self._should_check_typing_alias and node.attrname in ALIAS_NAMES:
             self._check_for_typing_alias(node)
-        if (
-            self._should_check_alternative_union_syntax()
-            and node.attrname in UNION_NAMES
-        ):
+        if self._should_check_alternative_union_syntax and node.attrname in UNION_NAMES:
             self._check_for_alternative_union_syntax(node, node.attrname)
 
     def _check_for_alternative_union_syntax(
@@ -230,7 +203,7 @@ class TypingChecker(BaseChecker):
             and inferred.qname() == "typing._SpecialForm"
         ):
             return
-        if not (self._py310_plus() or is_node_in_type_annotation_context(node)):
+        if not (self._py310_plus or is_node_in_type_annotation_context(node)):
             return
         self.add_message(
             "consider-alternative-union-syntax",
@@ -260,7 +233,7 @@ class TypingChecker(BaseChecker):
         if alias is None:
             return
 
-        if self._py39_plus():
+        if self._py39_plus:
             self.add_message(
                 "deprecated-typing-alias",
                 node=node,
@@ -290,7 +263,7 @@ class TypingChecker(BaseChecker):
         'consider-using-alias' check. Make sure results are safe
         to recommend / collision free.
         """
-        if self._py37_plus() and not self._py39_plus():
+        if self._py37_plus and not self._py39_plus:
             msg_future_import = self._msg_postponed_eval_hint(node)
             for msg in self._consider_using_alias_msgs:
                 if msg.qname in self._alias_name_collisions:
