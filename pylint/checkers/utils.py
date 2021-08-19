@@ -1176,7 +1176,7 @@ def _get_python_type_of_node(node):
     return None
 
 
-@lru_cache(maxsize=8192)
+@lru_cache(maxsize=1024)
 def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
     """Return the inferred value for the given node.
 
@@ -1205,7 +1205,7 @@ def safe_infer(node: nodes.NodeNG, context=None) -> Optional[nodes.NodeNG]:
     return value if len(inferred_types) <= 1 else None
 
 
-@lru_cache(maxsize=2048)
+@lru_cache(maxsize=512)
 def infer_all(
     node: nodes.NodeNG, context: InferenceContext = None
 ) -> List[nodes.NodeNG]:
