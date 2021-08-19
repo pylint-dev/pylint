@@ -53,11 +53,13 @@ class CodeStyleChecker(BaseChecker):
 
     @check_messages("consider-using-tuple")
     def visit_for(self, node: nodes.For) -> None:
-        self._check_inplace_defined_list(node)
+        if isinstance(node.iter, nodes.List):
+            self.add_message("consider-using-tuple", node=node.iter)
 
     @check_messages("consider-using-tuple")
     def visit_comprehension(self, node: nodes.Comprehension) -> None:
-        self._check_inplace_defined_list(node)
+        if isinstance(node.iter, nodes.List):
+            self.add_message("consider-using-tuple", node=node.iter)
 
     def _check_dict_consider_namedtuple_dataclass(self, node: nodes.Dict) -> None:
         """Check if dictionary values can be replaced by Namedtuple or Dataclass."""
@@ -132,13 +134,6 @@ class CodeStyleChecker(BaseChecker):
 
             self.add_message("consider-using-namedtuple-or-dataclass", node=node)
             return
-
-    def _check_inplace_defined_list(
-        self, node: Union[nodes.For, nodes.Comprehension]
-    ) -> None:
-        """Check if in-place defined list can be replaced by a tuple."""
-        if isinstance(node.iter, nodes.List):
-            self.add_message("consider-using-tuple", node=node.iter)
 
 
 def register(linter: PyLinter) -> None:
