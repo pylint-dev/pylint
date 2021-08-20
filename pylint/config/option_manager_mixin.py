@@ -332,10 +332,7 @@ class OptionsManagerMixIn:
         return additional arguments
         """
         with _patch_optparse():
-            if args is None:
-                args = sys.argv[1:]
-            else:
-                args = list(args)
+            args = sys.argv[1:] if args is None else list(args)
             (options, args) = self.cmdline_parser.parse_args(args=args)
             for provider in self._nocallback_options:
                 config = provider.config

@@ -43,10 +43,7 @@ def report_messages_by_module_stats(sect, stats, _):
         total = stats[m_type]
         for module in stats["by_module"].keys():
             mod_total = stats["by_module"][module][m_type]
-            if total == 0:
-                percent = 0
-            else:
-                percent = float((mod_total) * 100) / total
+            percent = 0 if total == 0 else float((mod_total) * 100) / total
             by_mod[module][m_type] = percent
     sorted_result = []
     for module, mod_info in by_mod.items():

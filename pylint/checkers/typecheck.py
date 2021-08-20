@@ -166,10 +166,7 @@ def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
 
     # Match against ignored classes.
     ignored_classes = set(ignored_classes)
-    if hasattr(owner, "qname"):
-        qname = owner.qname()
-    else:
-        qname = ""
+    qname = owner.qname() if hasattr(owner, "qname") else ""
     return any(ignore in (attrname, qname) for ignore in ignored_classes)
 
 
@@ -1462,10 +1459,7 @@ accessed. Python regular expressions are accepted.",
         # values.
         for [(name, defval), assigned] in parameters:
             if (defval is None) and not assigned:
-                if name is None:
-                    display_name = "<tuple>"
-                else:
-                    display_name = repr(name)
+                display_name = "<tuple>" if name is None else repr(name)
                 if not has_no_context_positional_variadic and not overload_function:
                     self.add_message(
                         "no-value-for-parameter",

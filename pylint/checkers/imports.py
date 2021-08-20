@@ -151,10 +151,7 @@ def _repr_tree_defs(data, indent_str=None):
     lines = []
     nodes_items = data.items()
     for i, (mod, (sub, files)) in enumerate(sorted(nodes_items, key=lambda x: x[0])):
-        if not files:
-            files = ""
-        else:
-            files = f"({','.join(sorted(files))})"
+        files = "" if not files else f"({','.join(sorted(files))})"
         if indent_str is None:
             lines.append(f"{mod} {files}")
             sub_indent_str = "  "
@@ -564,10 +561,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 "ungrouped-imports", import_node.fromlineno
             ):
                 continue
-            if isinstance(import_node, nodes.ImportFrom):
-                met = met_from
-            else:
-                met = met_import
+            met = met_from if isinstance(import_node, nodes.ImportFrom) else met_import
             package, _, _ = import_name.partition(".")
             if (
                 current_package
