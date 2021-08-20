@@ -91,8 +91,15 @@ else:
                 except OSError:
                     pass
         # Create spam prevention file for today
-        with open(spam_prevention_file, "w", encoding="utf8") as f:
-            f.write("")
+        try:
+            with open(spam_prevention_file, "w", encoding="utf8") as f:
+                f.write("")
+        except Exception:  # pylint: disable=broad-except
+            # Can't write in PYLINT_HOME ?
+            print(
+                "Can't write the file that was supposed to "
+                f"prevent pylint.d deprecation spam in {PYLINT_HOME}."
+            )
 
 
 def _get_pdata_path(base_name, recurs):
