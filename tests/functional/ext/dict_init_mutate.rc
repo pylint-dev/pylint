@@ -1,0 +1,7 @@
+[MASTER]
+load-plugins=pylint.extensions.dict_init_mutate,
+
+[MESSAGES CONTROL]
+disable=
+  invalid-name,
+  missing-module-docstring,

@@ -1,0 +1,2 @@
+dict-init-mutate:1:0::Dictionary mutated immediately after initialization
+dict-init-mutate:6:0::Dictionary mutated immediately after initialization
