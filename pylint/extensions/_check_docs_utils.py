@@ -247,12 +247,10 @@ class SphinxDocstring(Docstring):
         \w(?:\w|\.[^\.])*    # Valid python name
         """
 
-    re_simple_container_type = r"""
-        {type}                        # a container type
+    re_simple_container_type = fr"""
+        {re_type}                     # a container type
         [\(\[] [^\n\s]+ [\)\]]        # with the contents of the container
-    """.format(
-        type=re_type
-    )
+    """
 
     re_multiple_simple_type = r"""
         (?:{container_type}|{type})
@@ -261,14 +259,12 @@ class SphinxDocstring(Docstring):
         type=re_type, container_type=re_simple_container_type
     )
 
-    re_xref = r"""
+    re_xref = fr"""
         (?::\w+:)?                    # optional tag
-        `{}`                         # what to reference
-        """.format(
-        re_type
-    )
+        `{re_type}`                   # what to reference
+        """
 
-    re_param_raw = r"""
+    re_param_raw = fr"""
         :                       # initial colon
         (?:                     # Sphinx keywords
         param|parameter|
@@ -278,51 +274,43 @@ class SphinxDocstring(Docstring):
         \s+                     # whitespace
 
         (?:                     # optional type declaration
-        ({type}|{container_type})
+        ({re_type}|{re_simple_container_type})
         \s+
         )?
 
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(
-        type=re_type, container_type=re_simple_container_type
-    )
+        """
     re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
 
-    re_type_raw = r"""
-        :type                   # Sphinx keyword
-        \s+                     # whitespace
-        ({type})                # Parameter name
-        \s*                     # whitespace
-        :                       # final colon
-        """.format(
-        type=re_multiple_simple_type
-    )
+    re_type_raw = fr"""
+        :type                           # Sphinx keyword
+        \s+                             # whitespace
+        ({re_multiple_simple_type})     # Parameter name
+        \s*                             # whitespace
+        :                               # final colon
+        """
     re_type_in_docstring = re.compile(re_type_raw, re.X | re.S)
 
-    re_property_type_raw = r"""
-        :type:                  # Sphinx keyword
-        \s+                     # whitespace
-        {type}                  # type declaration
-        """.format(
-        type=re_multiple_simple_type
-    )
+    re_property_type_raw = fr"""
+        :type:                      # Sphinx keyword
+        \s+                         # whitespace
+        {re_multiple_simple_type}   # type declaration
+        """
     re_property_type_in_docstring = re.compile(re_property_type_raw, re.X | re.S)
 
-    re_raise_raw = r"""
-        :                       # initial colon
-        (?:                     # Sphinx keyword
+    re_raise_raw = fr"""
+        :                               # initial colon
+        (?:                             # Sphinx keyword
         raises?|
         except|exception
         )
-        \s+                     # whitespace
-        ({type})                # exception type
-        \s*                     # whitespace
-        :                       # final colon
-        """.format(
-        type=re_multiple_simple_type
-    )
+        \s+                             # whitespace
+        ({re_multiple_simple_type})     # exception type
+        \s*                             # whitespace
+        :                               # final colon
+        """
     re_raise_in_docstring = re.compile(re_raise_raw, re.X | re.S)
 
     re_rtype_in_docstring = re.compile(r":rtype:")
@@ -454,12 +442,10 @@ class GoogleDocstring(Docstring):
 
     re_xref = SphinxDocstring.re_xref
 
-    re_container_type = r"""
-        (?:{type}|{xref})             # a container type
+    re_container_type = fr"""
+        (?:{re_type}|{re_xref})       # a container type
         [\(\[] [^\n]+ [\)\]]          # with the contents of the container
-    """.format(
-        type=re_type, xref=re_xref
-    )
+    """
 
     re_multiple_type = r"""
         (?:{container_type}|{type}|{xref})
@@ -484,16 +470,14 @@ class GoogleDocstring(Docstring):
     )
 
     re_param_line = re.compile(
-        r"""
+        fr"""
         \s*  \*{{0,2}}(\w+)             # identifier potentially with asterisks
         \s*  ( [(]
-            {type}
+            {re_multiple_type}
             (?:,\s+optional)?
             [)] )? \s* :                # optional type declaration
         \s*  (.*)                       # beginning of optional description
-    """.format(
-            type=re_multiple_type
-        ),
+    """,
         re.X | re.S | re.M,
     )
 
@@ -502,12 +486,10 @@ class GoogleDocstring(Docstring):
     )
 
     re_raise_line = re.compile(
-        r"""
-        \s*  ({type}) \s* :              # identifier
+        fr"""
+        \s*  ({re_multiple_type}) \s* :  # identifier
         \s*  (.*)                        # beginning of optional description
-    """.format(
-            type=re_multiple_type
-        ),
+    """,
         re.X | re.S | re.M,
     )
 
@@ -516,22 +498,18 @@ class GoogleDocstring(Docstring):
     )
 
     re_returns_line = re.compile(
-        r"""
-        \s* ({type}:)?                    # identifier
+        fr"""
+        \s* ({re_multiple_type}:)?        # identifier
         \s* (.*)                          # beginning of description
-    """.format(
-            type=re_multiple_type
-        ),
+    """,
         re.X | re.S | re.M,
     )
 
     re_property_returns_line = re.compile(
-        r"""
-        ^{type}:                       # indentifier
+        fr"""
+        ^{re_multiple_type}:           # indentifier
         \s* (.*)                       # Summary line / description
-    """.format(
-            type=re_multiple_type
-        ),
+    """,
         re.X | re.S | re.M,
     )
 
@@ -743,15 +721,13 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_param_line = re.compile(
-        r"""
-        \s*  (\w+)                      # identifier
+        fr"""
+        \s*  (\w+)                                                          # identifier
         \s*  :
-        \s*  (?:({type})(?:,\s+optional)?)? # optional type declaration
-        \n                              # description starts on a new line
-        \s* (.*)                        # description
-    """.format(
-            type=GoogleDocstring.re_multiple_type
-        ),
+        \s*  (?:({GoogleDocstring.re_multiple_type})(?:,\s+optional)?)?     # optional type declaration
+        \n                                                                  # description starts on a new line
+        \s* (.*)                                                            # description
+    """,
         re.X | re.S,
     )
 
@@ -760,12 +736,10 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_raise_line = re.compile(
-        r"""
-        \s* ({type})$   # type declaration
-        \s* (.*)        # optional description
-    """.format(
-            type=GoogleDocstring.re_type
-        ),
+        fr"""
+        \s* ({GoogleDocstring.re_type})$   # type declaration
+        \s* (.*)                           # optional description
+    """,
         re.X | re.S | re.M,
     )
 
@@ -774,13 +748,11 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_returns_line = re.compile(
-        r"""
+        fr"""
         \s* (?:\w+\s+:\s+)? # optional name
-        ({type})$                         # type declaration
-        \s* (.*)                          # optional description
-    """.format(
-            type=GoogleDocstring.re_multiple_type
-        ),
+        ({GoogleDocstring.re_multiple_type})$   # type declaration
+        \s* (.*)                                # optional description
+    """,
         re.X | re.S | re.M,
     )
 

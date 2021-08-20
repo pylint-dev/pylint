@@ -1,5 +1,5 @@
 """pylint doesn't see the NameError in this module"""
-
+#pylint: disable=consider-using-f-string
 __revision__ = None
 
 MSG = "hello %s" % MSG  # [used-before-assignment]

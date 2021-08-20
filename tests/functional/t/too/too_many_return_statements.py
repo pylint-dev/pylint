@@ -27,7 +27,7 @@ def stupid_function(arg): # [too-many-return-statements]
 def many_yield(text):
     """Not a problem"""
     if text:
-        yield "    line 1: %s\n" % text
+        yield f"    line 1: {text}\n"
         yield "    line 2\n"
         yield "    line 3\n"
         yield "    line 4\n"

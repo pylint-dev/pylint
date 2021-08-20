@@ -1406,11 +1406,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             suggestion = false_value.as_string()
         else:
             message = "consider-using-ternary"
-            suggestion = "{truth} if {cond} else {false}".format(
-                truth=truth_value.as_string(),
-                cond=cond.as_string(),
-                false=false_value.as_string(),
-            )
+            suggestion = f"{truth_value.as_string()} if {cond.as_string()} else {false_value.as_string()}"
         self.add_message(message, node=node, args=(suggestion,))
 
     def _append_context_managers_to_stack(self, node: nodes.Assign) -> None:

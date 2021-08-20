@@ -37,7 +37,7 @@ def builder_inited(app):
         if name[0] == "_" or name in DEPRECATED_MODULES:
             continue
         if ext == ".py":
-            modules.append("pylint.extensions.%s" % name)
+            modules.append(f"pylint.extensions.{name}")
         elif ext == ".rst":
             doc_files["pylint.extensions." + name] = os.path.join(ext_path, filename)
     modules.sort()

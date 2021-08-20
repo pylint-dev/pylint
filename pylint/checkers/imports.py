@@ -154,16 +154,16 @@ def _repr_tree_defs(data, indent_str=None):
         if not files:
             files = ""
         else:
-            files = "(%s)" % ",".join(sorted(files))
+            files = f"({','.join(sorted(files))})"
         if indent_str is None:
             lines.append(f"{mod} {files}")
             sub_indent_str = "  "
         else:
             lines.append(fr"{indent_str}\-{mod} {files}")
             if i == len(nodes_items) - 1:
-                sub_indent_str = "%s  " % indent_str
+                sub_indent_str = f"{indent_str}  "
             else:
-                sub_indent_str = "%s| " % indent_str
+                sub_indent_str = f"{indent_str}| "
         if sub:
             lines.append(_repr_tree_defs(sub, sub_indent_str))
     return "\n".join(lines)
@@ -745,8 +745,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                         "wrong-import-order",
                         node=node,
                         args=(
-                            'standard import "%s"' % node.as_string(),
-                            '"%s"' % wrong_import[0][0].as_string(),
+                            f'standard import "{node.as_string()}"',
+                            f'"{wrong_import[0][0].as_string()}"',
                         ),
                     )
             elif import_category == "THIRDPARTY":
@@ -760,8 +760,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                         "wrong-import-order",
                         node=node,
                         args=(
-                            'third party import "%s"' % node.as_string(),
-                            '"%s"' % wrong_import[0][0].as_string(),
+                            f'third party import "{node.as_string()}"',
+                            f'"{wrong_import[0][0].as_string()}"',
                         ),
                     )
             elif import_category == "FIRSTPARTY":
@@ -775,8 +775,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                         "wrong-import-order",
                         node=node,
                         args=(
-                            'first party import "%s"' % node.as_string(),
-                            '"%s"' % wrong_import[0][0].as_string(),
+                            f'first party import "{node.as_string()}"',
+                            f'"{wrong_import[0][0].as_string()}"',
                         ),
                     )
             elif import_category == "LOCALFOLDER":
@@ -793,9 +793,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 return None
             self.add_message("relative-beyond-top-level", node=importnode)
         except astroid.AstroidSyntaxError as exc:
-            message = "Cannot import {!r} due to syntax error {!r}".format(
-                modname, str(exc.error)  # pylint: disable=no-member; false positive
-            )
+            message = f"Cannot import {modname!r} due to syntax error {str(exc.error)!r}"  # pylint: disable=no-member; false positive
             self.add_message("syntax-error", line=importnode.lineno, args=message)
 
         except astroid.AstroidBuildingException:

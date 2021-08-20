@@ -68,7 +68,7 @@ def report_messages_by_module_stats(sect, stats, _):
             continue
         lines.append(line[-1])
         for val in line[:-1]:
-            lines.append("%.2f" % val)
+            lines.append(f"{val:.2f}")
     if len(lines) == 5:
         raise exceptions.EmptyReportError()
     sect.append(report_nodes.Table(children=lines, cols=5, rheaders=1))

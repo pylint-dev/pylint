@@ -232,7 +232,7 @@ class SpellingChecker(BaseTokenChecker):
                 "metavar": "<dict name>",
                 "choices": dict_choices,
                 "help": "Spelling dictionary name. "
-                "Available dictionaries: %s.%s" % (dicts, instr),
+                f"Available dictionaries: {dicts}.{instr}",
             },
         ),
         (
@@ -399,14 +399,14 @@ class SpellingChecker(BaseTokenChecker):
             # Store word to private dict or raise a message.
             if self.config.spelling_store_unknown_words:
                 if lower_cased_word not in self.unknown_words:
-                    self.private_dict_file.write("%s\n" % lower_cased_word)
+                    self.private_dict_file.write(f"{lower_cased_word}\n")
                     self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to N suggestions.
                 suggestions = self.spelling_dict.suggest(word)
                 del suggestions[self.config.max_spelling_suggestions :]
                 line_segment = line[word_start_at:]
-                match = re.search(r"(\W|^)(%s)(\W|$)" % word, line_segment)
+                match = re.search(fr"(\W|^)({word})(\W|$)", line_segment)
                 if match:
                     # Start position of second group in regex.
                     col = match.regs[2][0]

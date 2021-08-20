@@ -16,7 +16,7 @@ class _ManHelpFormatter(optparse.HelpFormatter):
         )
 
     def format_heading(self, heading):
-        return ".SH %s\n" % heading.upper()
+        return f".SH {heading.upper()}\n"
 
     def format_description(self, description):
         return description
@@ -54,7 +54,10 @@ class _ManHelpFormatter(optparse.HelpFormatter):
 
     @staticmethod
     def format_title(pgm, section):
-        date = "%d-%02d-%02d" % time.localtime()[:3]
+        date = (
+            "%d-%02d-%02d"  # pylint: disable=consider-using-f-string
+            % time.localtime()[:3]
+        )
         return f'.TH {pgm} {section} "{date}" {pgm}'
 
     @staticmethod

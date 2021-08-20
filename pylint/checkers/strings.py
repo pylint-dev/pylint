@@ -79,9 +79,9 @@ _PREFIXES = {
     "Rb",
     "RB",
 }
-SINGLE_QUOTED_REGEX = re.compile("(%s)?'''" % "|".join(_PREFIXES))
-DOUBLE_QUOTED_REGEX = re.compile('(%s)?"""' % "|".join(_PREFIXES))
-QUOTE_DELIMITER_REGEX = re.compile("(%s)?(\"|')" % "|".join(_PREFIXES), re.DOTALL)
+SINGLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?'''")
+DOUBLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?\"\"\"")
+QUOTE_DELIMITER_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?(\"|')", re.DOTALL)
 
 MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E1300": (
@@ -1059,7 +1059,7 @@ def _get_quote_delimiter(string_token: str) -> str:
     """
     match = QUOTE_DELIMITER_REGEX.match(string_token)
     if not match:
-        raise ValueError("string token %s is not a well-formed string" % string_token)
+        raise ValueError(f"string token {string_token} is not a well-formed string")
     return match.group(2)
 
 

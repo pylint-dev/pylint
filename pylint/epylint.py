@@ -191,10 +191,10 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
 
 def Run():
     if len(sys.argv) == 1:
-        print("Usage: %s <filename> [options]" % sys.argv[0])
+        print(f"Usage: {sys.argv[0]} <filename> [options]")
         sys.exit(1)
     elif not os.path.exists(sys.argv[1]):
-        print("%s does not exist" % sys.argv[1])
+        print(f"{sys.argv[1]} does not exist")
         sys.exit(1)
     else:
         sys.exit(lint(sys.argv[1], sys.argv[2:]))

@@ -52,10 +52,10 @@ def test_ignore_comments():
     assert (
         output.getvalue().strip()
         == (
-            """
+            f"""
 10 similar lines in 2 files
-==%s:[0:11]
-==%s:[0:11]
+=={SIMILAR1}:[0:11]
+=={SIMILAR2}:[0:11]
    import one
    from two import two
    three
@@ -69,7 +69,6 @@ def test_ignore_comments():
    ''' ten
 TOTAL lines=62 duplicates=10 percent=16.13
 """
-            % (SIMILAR1, SIMILAR2)
         ).strip()
     )
 
@@ -82,10 +81,10 @@ def test_ignore_docstrings():
     assert (
         output.getvalue().strip()
         == (
-            """
+            f"""
 5 similar lines in 2 files
-==%s:[7:15]
-==%s:[7:15]
+=={SIMILAR1}:[7:15]
+=={SIMILAR2}:[7:15]
    seven
    eight
    nine
@@ -96,8 +95,8 @@ def test_ignore_docstrings():
    fourteen
 
 5 similar lines in 2 files
-==%s:[0:5]
-==%s:[0:5]
+=={SIMILAR1}:[0:5]
+=={SIMILAR2}:[0:5]
    import one
    from two import two
    three
@@ -105,7 +104,6 @@ def test_ignore_docstrings():
    five
 TOTAL lines=62 duplicates=10 percent=16.13
 """
-            % ((SIMILAR1, SIMILAR2) * 2)
         ).strip()
     )
 
@@ -131,10 +129,10 @@ def test_multiline_imports():
     assert (
         output.getvalue().strip()
         == (
-            """
+            f"""
 8 similar lines in 2 files
-==%s:[0:8]
-==%s:[0:8]
+=={MULTILINE}:[0:8]
+=={MULTILINE}:[0:8]
    from foo import (
      bar,
      baz,
@@ -145,7 +143,6 @@ def test_multiline_imports():
    )
 TOTAL lines=16 duplicates=8 percent=50.00
 """
-            % (MULTILINE, MULTILINE)
         ).strip()
     )
 
@@ -171,10 +168,10 @@ def test_ignore_signatures_fail():
     assert (
         output.getvalue().strip()
         == (
-            '''
+            f'''
 9 similar lines in 2 files
-==%s:[7:17]
-==%s:[8:18]
+=={SIMILAR5}:[7:17]
+=={SIMILAR6}:[8:18]
        arg1: int = 3,
        arg2: Class1 = val1,
        arg3: Class2 = func3(val2),
@@ -187,8 +184,8 @@ def test_ignore_signatures_fail():
        """Valid function definition with docstring only."""
 
 6 similar lines in 2 files
-==%s:[0:6]
-==%s:[1:7]
+=={SIMILAR5}:[0:6]
+=={SIMILAR6}:[1:7]
    @deco1(dval1)
    @deco2(dval2)
    @deco3(
@@ -197,7 +194,6 @@ def test_ignore_signatures_fail():
    )
 TOTAL lines=35 duplicates=15 percent=42.86
 '''
-            % (SIMILAR5, SIMILAR6, SIMILAR5, SIMILAR6)
         ).strip()
     )
 
@@ -223,10 +219,10 @@ def test_ignore_signatures_class_methods_fail():
     assert (
         output.getvalue().strip()
         == (
-            '''
+            f'''
 15 similar lines in 2 files
-==%s:[1:18]
-==%s:[1:18]
+=={SIMILAR_CLS_A}:[1:18]
+=={SIMILAR_CLS_B}:[1:18]
        def parent_method(
            self,
            *,
@@ -246,8 +242,8 @@ def test_ignore_signatures_class_methods_fail():
 
 
 7 similar lines in 2 files
-==%s:[20:27]
-==%s:[20:27]
+=={SIMILAR_CLS_A}:[20:27]
+=={SIMILAR_CLS_B}:[20:27]
                self,
                *,
                a=None,
@@ -257,7 +253,6 @@ def test_ignore_signatures_class_methods_fail():
                pass
 TOTAL lines=54 duplicates=22 percent=40.74
 '''
-            % (SIMILAR_CLS_A, SIMILAR_CLS_B, SIMILAR_CLS_A, SIMILAR_CLS_B)
         ).strip()
     )
 
@@ -283,10 +278,10 @@ def test_ignore_signatures_empty_functions_fail():
     assert (
         output.getvalue().strip()
         == (
-            '''
+            f'''
 6 similar lines in 2 files
-==%s:[1:7]
-==%s:[1:7]
+=={EMPTY_FUNCTION_1}:[1:7]
+=={EMPTY_FUNCTION_2}:[1:7]
        arg1: int = 1,
        arg2: str = "2",
        arg3: int = 3,
@@ -295,7 +290,6 @@ def test_ignore_signatures_empty_functions_fail():
        """Valid function definition with docstring only."""
 TOTAL lines=14 duplicates=6 percent=42.86
 '''
-            % (EMPTY_FUNCTION_1, EMPTY_FUNCTION_2)
         ).strip()
     )
 
@@ -329,10 +323,10 @@ def test_ignore_nothing():
     assert (
         output.getvalue().strip()
         == (
-            """
+            f"""
 5 similar lines in 2 files
-==%s:[0:5]
-==%s:[0:5]
+=={SIMILAR1}:[0:5]
+=={SIMILAR2}:[0:5]
    import one
    from two import two
    three
@@ -340,7 +334,6 @@ def test_ignore_nothing():
    five
 TOTAL lines=62 duplicates=5 percent=8.06
 """
-            % (SIMILAR1, SIMILAR2)
         ).strip()
     )
 
@@ -353,10 +346,10 @@ def test_lines_without_meaningful_content_do_not_trigger_similarity():
     assert (
         output.getvalue().strip()
         == (
-            """
+            f"""
 14 similar lines in 2 files
-==%s:[11:25]
-==%s:[11:25]
+=={SIMILAR3}:[11:25]
+=={SIMILAR4}:[11:25]
    b = (
        (
            [
@@ -373,7 +366,6 @@ def test_lines_without_meaningful_content_do_not_trigger_similarity():
    )
 TOTAL lines=50 duplicates=14 percent=28.00
 """
-            % (SIMILAR3, SIMILAR4)
         ).strip()
     )
 

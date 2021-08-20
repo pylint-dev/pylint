@@ -95,7 +95,7 @@ def save_results(results, base):
         try:
             os.mkdir(PYLINT_HOME)
         except OSError:
-            print("Unable to create directory %s" % PYLINT_HOME, file=sys.stderr)
+            print(f"Unable to create directory {PYLINT_HOME}", file=sys.stderr)
     data_file = _get_pdata_path(base, 1)
     try:
         with open(data_file, "wb") as stream:

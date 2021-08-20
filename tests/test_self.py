@@ -233,7 +233,7 @@ class TestRunTC:
         output = out.getvalue()
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
-        pattern = rf"\[{MAIN_CHECKER_NAME.upper()}"
+        pattern = fr"\[{MAIN_CHECKER_NAME.upper()}"
         master = re.search(pattern, output)
         assert master is not None, f"{pattern} not found in {output}"
         out = StringIO(output[master.start() :])
@@ -297,7 +297,7 @@ class TestRunTC:
                 [
                     "--py3k",
                     "--disable=no-absolute-import",
-                    "-j %d" % jobs,
+                    f"-j {int(jobs)}",
                     join(HERE, "input", "no_absolute_import.py"),
                 ],
                 code=expected_ret_code,
@@ -483,7 +483,7 @@ class TestRunTC:
         config_path = join(HERE, "regrtest_data", ".pylintrc")
         expected = "Your code has been rated at 10.00/10"
         self._test_output(
-            [path, "--rcfile=%s" % config_path, "-rn"], expected_output=expected
+            [path, f"--rcfile={config_path}", "-rn"], expected_output=expected
         )
 
     def test_pylintrc_plugin_duplicate_options(self):
@@ -499,7 +499,7 @@ class TestRunTC:
         )
         self._test_output(
             [
-                "--rcfile=%s" % config_path,
+                f"--rcfile={config_path}",
                 "--help-msg=dummy-message-01,dummy-message-02",
             ],
             expected_output=expected,
@@ -509,7 +509,7 @@ class TestRunTC:
             "# Dummy option 2\ndummy_option_2=dummy value 2"
         )
         self._test_output(
-            ["--rcfile=%s" % config_path, "--generate-rcfile"], expected_output=expected
+            [f"--rcfile={config_path}", "--generate-rcfile"], expected_output=expected
         )
         sys.path.remove(dummy_plugin_path)
 
@@ -525,7 +525,7 @@ class TestRunTC:
         """
         )
         self._test_output(
-            [path, "--rcfile=%s" % config_path, "-rn"], expected_output=expected
+            [path, f"--rcfile={config_path}", "-rn"], expected_output=expected
         )
 
     def test_no_crash_with_formatting_regex_defaults(self):

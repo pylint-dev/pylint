@@ -20,6 +20,7 @@ def example_path(tmp_path):
 
 def test_epylint_good_command(example_path):
     out, err = lint.py_run(
+        # pylint: disable-next=consider-using-f-string
         "%s -E --disable=E1111 --msg-template '{category} {module} {obj} {line} {column} {msg}'"
         % example_path,
         return_std=True,
@@ -37,6 +38,7 @@ def test_epylint_good_command(example_path):
 
 def test_epylint_strange_command(example_path):
     out, err = lint.py_run(
+        # pylint: disable-next=consider-using-f-string
         "%s -E --disable=E1111 --msg-template={category} {module} {obj} {line} {column} {msg}"
         % example_path,
         return_std=True,

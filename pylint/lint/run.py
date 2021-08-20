@@ -40,7 +40,7 @@ def cb_list_extensions(option, optname, value, parser):
 
 def cb_list_confidence_levels(option, optname, value, parser):
     for level in interfaces.CONFIDENCE_LEVELS:
-        print("%-18s: %s" % level)
+        print(f"%-18s: {level}")
     sys.exit(0)
 
 
@@ -350,8 +350,7 @@ group are mutually exclusive.",
 
         if linter.config.jobs < 0:
             print(
-                "Jobs number (%d) should be greater than or equal to 0"
-                % linter.config.jobs,
+                f"Jobs number ({linter.config.jobs}) should be greater than or equal to 0",
                 file=sys.stderr,
             )
             sys.exit(32)

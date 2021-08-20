@@ -227,7 +227,7 @@ class VCGPrinter(Printer):
     @staticmethod
     def _build_label_for_node(properties: NodeProperties) -> str:
         fontcolor = "\f09" if properties.fontcolor == "red" else ""
-        label = rf"\fb{fontcolor}{properties.label}\fn"
+        label = fr"\fb{fontcolor}{properties.label}\fn"
         if properties.attrs is None and properties.methods is None:
             # return a compact form which only displays the classname in a box
             return label

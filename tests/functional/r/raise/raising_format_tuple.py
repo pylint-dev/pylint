@@ -12,7 +12,7 @@ def bad_percent(arg):
 
 def good_percent(arg):
     '''Instead of passing multiple arguments, format the message'''
-    raise KeyError('Bad key: %r' % arg)
+    raise KeyError(f'Bad key: {arg!r}')
 
 def bad_multiarg(name, value):
     '''Raising a formatted string and multiple additional arguments'''
@@ -20,7 +20,7 @@ def bad_multiarg(name, value):
 
 def good_multiarg(name, value):
     '''The arguments have to be written as a tuple for formatting'''
-    raise ValueError('%s measures %.2f' % (name, value))
+    raise ValueError(f'{name} measures {value:.2f}')
 
 def bad_braces(arg):
     '''Curly braces as placeholders'''
@@ -28,7 +28,7 @@ def bad_braces(arg):
 
 def good_braces(arg):
     '''Call str.format() instead'''
-    raise KeyError('Bad key: {:r}'.format(arg))
+    raise KeyError(f'Bad key: {arg!r}')
 
 def bad_multistring(arg):
     '''Multiple adjacent string literals'''

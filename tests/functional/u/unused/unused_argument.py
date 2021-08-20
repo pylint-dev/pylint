@@ -72,7 +72,7 @@ class AAAA(object):
 
     def using_inner_function(self, etype, size=1):
         """return a fake result set for a particular entity type"""
-        rset = AAAA([('A',)]*size, '%s X' % etype,
+        rset = AAAA([('A',)]*size, f'{etype} X',
                     description=[(etype,)]*size)
         def inner(row, col=0, etype=etype, req=self, rset=rset):
             """inner using all its argument"""

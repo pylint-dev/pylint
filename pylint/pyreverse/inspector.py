@@ -32,7 +32,7 @@ def _iface_hdlr(_):
 
 
 def _astroid_wrapper(func, modname):
-    print("parsing %s..." % modname)
+    print(f"parsing {modname}...")
     try:
         return func(modname)
     except astroid.exceptions.AstroidBuildingException as exc:
@@ -281,7 +281,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         module = node.root()
         context_name = module.name
         if relative:
-            mod_path = "{}.{}".format(".".join(context_name.split(".")[:-1]), mod_path)
+            mod_path = f"{'.'.join(context_name.split('.')[:-1])}.{mod_path}"
         if self.compute_module(context_name, mod_path):
             # handle dependencies
             if not hasattr(module, "depends"):
