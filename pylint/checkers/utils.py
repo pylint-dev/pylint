@@ -42,6 +42,9 @@
 # Copyright (c) 2020 Slavfox <slavfoxman@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2021 David Liu <david@cs.toronto.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
