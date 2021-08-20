@@ -24,8 +24,8 @@ if TYPE_CHECKING:
 
 BAD_FUNCTIONS = ["map", "filter"]
 # Some hints regarding the use of bad builtins.
-BUILTIN_HINTS = {"map": "Using a list comprehension can be clearer."}
-BUILTIN_HINTS["filter"] = BUILTIN_HINTS["map"]
+list_comp_msg = "Using a list comprehension can be clearer."
+BUILTIN_HINTS = {"map": list_comp_msg, "filter": list_comp_msg}
 
 
 class BadBuiltinChecker(BaseChecker):
