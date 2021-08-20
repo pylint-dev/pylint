@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Rebecca Turner <rturner@starry.com>
+# Copyright (c) 2021 Rebecca Turner <rbt@sent.as>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE

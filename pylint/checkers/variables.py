@@ -39,8 +39,10 @@
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Ashley Whetter <ashleyw@activestate.com>
-# Copyright (c) 2021 Marcin Kurczewski <rr-@sakuya.pl>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 David Liu <david@cs.toronto.edu>
+# Copyright (c) 2021 kasium <15907922+kasium@users.noreply.github.com>
+# Copyright (c) 2021 Marcin Kurczewski <rr-@sakuya.pl>
 # Copyright (c) 2021 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 haasea <44787650+haasea@users.noreply.github.com>

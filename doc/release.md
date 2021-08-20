@@ -46,7 +46,7 @@ issue labelled as blocker.
 - Close milestone `X.Y.Z`
 - Create the milestones for `X.Y.Z+1`, (or `X.Y+1.0`, and `X+1.0.0` if applicable)
 
-#### Whatsnew
+#### What's new
 
 If it's a minor release, create a new `What's new in Pylint X.Y+1` document. Add it to
 `doc/index.rst`. Take a look at the examples from `doc/whatsnew`.
