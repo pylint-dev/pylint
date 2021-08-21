@@ -49,7 +49,7 @@ from os import chdir, getcwd
 from os.path import abspath, basename, dirname, isdir, join, sep
 from shutil import rmtree
 
-import appdirs
+import platformdirs
 import pytest
 
 from pylint import checkers, config, exceptions, interfaces, lint, testutils
@@ -635,7 +635,7 @@ def test_pylint_home():
     if uhome == "~":
         expected = ".pylint.d"
     else:
-        expected = appdirs.user_cache_dir("pylint")
+        expected = platformdirs.user_cache_dir("pylint")
     assert config.PYLINT_HOME == expected
 
     try:
