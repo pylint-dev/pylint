@@ -11,9 +11,15 @@ Release date: TBA
   Put new features here and also in 'doc/whatsnew/2.11.rst'
 
 
-What's New in Pylint 2.10.1?
+What's New in Pylint 2.10.2?
 ============================
 Release date: TBA
+
+
+
+What's New in Pylint 2.10.1?
+============================
+Release date: 2021-08-20
 
 * pylint does not crash when PYLINT_HOME does not exist.
 
