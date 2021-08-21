@@ -41,12 +41,6 @@ class CodeStyleChecker(BaseChecker):
             "Emitted where an in-place defined ``list`` can be replaced by a ``tuple``. "
             "Due to optimizations by CPython, there is no performance benefit from it.",
         ),
-        "R6103": (
-            "Consider using set for membership test",
-            "use-set-for-membership",
-            "Membership tests are more efficient when performed on "
-            "a lookup optimized datatype like ``sets``.",
-        ),
     }
 
     def __init__(self, linter: PyLinter) -> None:
@@ -66,12 +60,6 @@ class CodeStyleChecker(BaseChecker):
     def visit_comprehension(self, node: nodes.Comprehension) -> None:
         if isinstance(node.iter, nodes.List):
             self.add_message("consider-using-tuple", node=node.iter)
-
-    @check_messages("use-set-for-membership")
-    def visit_compare(self, node: nodes.Compare) -> None:
-        for op, comparator in node.ops:
-            if op == "in":
-                self._check_in_comparison(comparator)
 
     def _check_dict_consider_namedtuple_dataclass(self, node: nodes.Dict) -> None:
         """Check if dictionary values can be replaced by Namedtuple or Dataclass."""
@@ -146,14 +134,6 @@ class CodeStyleChecker(BaseChecker):
 
             self.add_message("consider-using-namedtuple-or-dataclass", node=node)
             return
-
-    def _check_in_comparison(self, comparator: nodes.NodeNG) -> None:
-        """Checks for membership comparisons with in-place container objects."""
-        if not isinstance(comparator, nodes.BaseContainer):
-            return
-
-        if not isinstance(comparator, nodes.Set):
-            self.add_message("use-set-for-membership", node=comparator)
 
 
 def register(linter: PyLinter) -> None:
