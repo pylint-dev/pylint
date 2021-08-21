@@ -22,6 +22,12 @@ Release date: TBA
 
   Closes #4886
 
+* Fix a crash in the checker raising ``shallow-copy-environ`` when failing to infer
+  on ``copy.copy``
+
+  Closes #4896
+
+
 
 What's New in Pylint 2.10.1?
 ============================

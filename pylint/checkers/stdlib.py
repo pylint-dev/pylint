@@ -483,9 +483,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if "check" not in kwargs:
             self.add_message("subprocess-run-check", node=node)
 
-    def _check_shallow_copy_environ(self, node):
+    def _check_shallow_copy_environ(self, node: nodes.Call) -> None:
         arg = utils.get_argument_from_call(node, position=0)
-        for inferred in arg.inferred():
+        try:
+            inferred_args = arg.inferred()
+        except astroid.InferenceError:
+            return
+        for inferred in inferred_args:
             if inferred.qname() == OS_ENVIRON:
                 self.add_message("shallow-copy-environ", node=node)
                 break
@@ -505,7 +509,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "unspecified-encoding",
         "forgotten-debug-statement",
     )
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         """Visit a Call node."""
         self.check_deprecated_class_in_call(node)
         for inferred in utils.infer_all(node.func):
