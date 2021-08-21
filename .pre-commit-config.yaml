@@ -61,14 +61,6 @@ repos:
           ]
         # disabled plugins: pylint.extensions.mccabe
         exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/
-      - id: mypy
-        name: mypy
-        entry: mypy
-        language: system
-        types: [python]
-        args: []
-        require_serial: true
-        exclude: tests/functional/|tests/input|tests(/.*)*/data|tests/regrtest_data/|tests/data/|tests(/.*)+/conftest.py|doc/|bin/
       - id: fix-documentation
         name: Fix documentation
         entry: python3 -m script.fix_documentation
@@ -82,6 +74,18 @@ repos:
         args: ["--ignore-roles=func,class,mod", "--report=warning"]
         types: [text] # necessary to include ChangeLog file
         files: ^(ChangeLog|doc/(.*/)*.*\.rst)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.910
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: mypy
+        language: python
+        types: [python]
+        args: []
+        require_serial: true
+        additional_dependencies: ["types-pkg_resources==0.1.3", "types-toml==0.1.3"]
+        exclude: tests/functional/|tests/input|tests(/.*)*/data|tests/regrtest_data/|tests/data/|tests(/.*)+/conftest.py|doc/|bin/
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.3.2
     hooks:
