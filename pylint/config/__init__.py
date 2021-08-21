@@ -35,6 +35,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import os
+import pathlib
 import pickle
 import sys
 from datetime import datetime
@@ -86,14 +87,17 @@ else:
             file=sys.stderr,
         )
         # Remove old spam prevention file
-        for filename in os.listdir(PYLINT_HOME):
-            if prefix_spam_prevention in filename:
-                try:
-                    os.remove(os.path.join(PYLINT_HOME, filename))
-                except OSError:
-                    pass
+        if os.path.exists(PYLINT_HOME):
+            for filename in os.listdir(PYLINT_HOME):
+                if prefix_spam_prevention in filename:
+                    try:
+                        os.remove(os.path.join(PYLINT_HOME, filename))
+                    except OSError:
+                        pass
+
         # Create spam prevention file for today
         try:
+            pathlib.Path(PYLINT_HOME).mkdir(parents=True, exist_ok=True)
             with open(spam_prevention_file, "w", encoding="utf8") as f:
                 f.write("")
         except Exception:  # pylint: disable=broad-except
