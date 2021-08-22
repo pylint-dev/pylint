@@ -1,1 +1,1 @@
-yield-inside-async-function:12:4:bad_coro:Yield inside async function
+yield-inside-async-function:16:4:bad:Yield inside async function:HIGH
