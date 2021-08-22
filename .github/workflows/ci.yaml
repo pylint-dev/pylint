@@ -298,7 +298,7 @@ jobs:
         run: |
           echo "Failed to restore Python venv from cache"
           exit 1
-      - name: Run pytest
+      - name: Run benchmark
         run: |
           . venv/bin/activate
           pip install pygal
@@ -306,19 +306,13 @@ jobs:
           pytest --exitfirst \
             --benchmark-only \
             --benchmark-autosave \
-            --benchmark-save-data \
-            --benchmark-group-by="group"
-      - name: Create partial artifact name suffix
-        id: artifact-name-suffix
-        run: >-
-          echo "::set-output name=datetime::"$(date "+%Y%m%d_%H%M")
-      - name: Upload benchmark artifact
-        uses: actions/upload-artifact@v2.2.4
+            --benchmark-json output.json
+      - name: Store benchmark result
+        uses: rhysd/github-action-benchmark@v1
         with:
-          name:
-            benchmark-${{ runner.os }}-${{ matrix.python-version }}_${{
-            steps.artifact-name-suffix.outputs.datetime }}
-          path: .benchmarks/
+          name: Python Benchmark with pytest-benchmark
+          tool: "pytest"
+          output-file-path: output.json
 
   prepare-tests-windows:
     name: Prepare tests for Python ${{ matrix.python-version }} (Windows)
