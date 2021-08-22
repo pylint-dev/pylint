@@ -8,5 +8,5 @@ async def good_coro():
 
 
 async def bad_coro():
-    yield 42 # [yield-inside-async-function]
+    yield 42
     yield from [1, 2, 3] # [yield-inside-async-function]
