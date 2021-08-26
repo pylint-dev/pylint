@@ -535,3 +535,5 @@ contributors:
 * Kai Mueller (kasium): contributor
 
 * Sam Vermeiren (PaaEl): contributor
+
+* Phil A. (flying-sheep): contributor
