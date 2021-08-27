@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use
 
 
 def some_func():
@@ -54,3 +54,25 @@ class Child(Parent):
         """This is supported for this child class"""
 
         return 42
+
+
+# Regression test for https://github.com/PyCQA/pylint/issues/4220
+class A:
+    """Parent class"""
+    def f(self):
+        """This returns something"""
+        return 42
+
+
+class B(A):
+    """Child class"""
+    def __init__(self):
+        self.a = A()
+        result = self.a.f()  # no error here
+        print(result)
+
+    def f(self):
+        """This doesn't return anything"""
+
+
+res = B().a.f()  # no error here
