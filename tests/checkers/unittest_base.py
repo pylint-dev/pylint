@@ -303,7 +303,11 @@ class TestMultiNamingStyle(CheckerTestCase):
         message = Message(
             "invalid-name",
             node=classes[0],
-            args=("Class", "classb", "UP group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern"),
+            args=(
+                "Class",
+                "classb",
+                "UP group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
+            ),
         )
         with self.assertAddsMessages(message):
             cls = None
@@ -371,7 +375,11 @@ class TestMultiNamingStyle(CheckerTestCase):
         message = Message(
             "invalid-name",
             node=function_defs[1],
-            args=("Function", "FUNC", "down group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern"),
+            args=(
+                "Function",
+                "FUNC",
+                "down group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
+            ),
         )
         with self.assertAddsMessages(message):
             func = None

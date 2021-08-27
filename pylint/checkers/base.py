@@ -1905,8 +1905,7 @@ class NameChecker(_BasicChecker):
                 continue
             groups = collections.defaultdict(list)
             min_warnings = sys.maxsize
-            prevalent_group, _ = max(
-                all_groups.items(), key=lambda item: len(item[1]))
+            prevalent_group, _ = max(all_groups.items(), key=lambda item: len(item[1]))
             for group in all_groups.values():
                 groups[len(group)].append(group)
                 min_warnings = min(len(group), min_warnings)
@@ -2020,7 +2019,12 @@ class NameChecker(_BasicChecker):
         return self._name_group.get(node_type, node_type)
 
     def _raise_name_warning(
-        self, node, node_type, name, confidence, warning="invalid-name",
+        self,
+        node,
+        node_type,
+        name,
+        confidence,
+        warning="invalid-name",
         prevalent_group=None,
     ):
         type_label = HUMAN_READABLE_TYPES[node_type]
@@ -2029,7 +2033,7 @@ class NameChecker(_BasicChecker):
             # This happens in the multi naming match case. The expected
             # prevalent group needs to be spelled out to make the message
             # correct.
-            hint = '%s group in the ' % prevalent_group + hint
+            hint = "%s group in the " % prevalent_group + hint
         if self.config.include_naming_hint:
             hint += " (%r pattern)" % self._name_regexps[node_type].pattern
         args = (
