@@ -15,14 +15,15 @@ What's New in Pylint 2.10.3?
 ============================
 Release date: TBA
 
+..
+  Put bug fixes that should not wait for a new minor version here
+
+* Fix `invalid-name` error messages when using multiple naming style regexes.
 
 
 What's New in Pylint 2.10.2?
 ============================
 Release date: 2021-08-21
-
-..
-  Put bug fixes that should not wait for a new minor version here
 
 * We now use platformdirs instead of appdirs since the latter is not maintained.
 
