@@ -397,3 +397,85 @@ def test_get_node_last_lineno_combined():
         """
     )
     assert utils.get_node_last_lineno(node) == 11
+
+
+class TestStatementsAreExclusive:
+    @staticmethod
+    @pytest.mark.parametrize(
+        "first, second, expected_result",
+        [
+            pytest.param(0, 1, False, id="not-under-common-ifelse"),
+            pytest.param(1, 2, True, id="if-and-else"),
+            pytest.param(2, 1, True, id="if-and-else-swapped"),
+            pytest.param(2, 3, False, id="both-in-else"),
+        ],
+    )
+    def test_if_else(first, second, expected_result):
+        nodes = astroid.extract_node(
+            """
+            print("Test")  #@
+            if condition:
+                print("condition is True")  #@
+            else:
+                print("condition is False")  #@
+                print("condition really is False")  #@
+            """
+        )
+        assert (
+            utils.statements_are_exclusive(nodes[first], nodes[second])
+            is expected_result
+        )
+
+    @staticmethod
+    def test_if_exp():
+        node = astroid.extract_node("res = 1 if predicate else 2  #@")
+        first = node.value.body
+        second = node.value.orelse
+        assert utils.statements_are_exclusive(first, second) is True
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "first, second, expected_result",
+        [
+            pytest.param(0, 1, False, id="both-in-try"),
+            pytest.param(1, 2, True, id="try-and-except"),
+            pytest.param(1, 4, False, id="try-and-else"),
+            pytest.param(2, 3, True, id="different-excepts"),
+            pytest.param(3, 4, True, id="except-and-else"),
+            pytest.param(1, 5, True, id="try-and-finally"),
+            pytest.param(3, 5, True, id="except-and-finally"),
+            pytest.param(1, 6, False, id="not-under-common-tryexcept"),
+        ],
+    )
+    def test_try_except(first, second, expected_result):
+        """
+        The control flow inside a try-except-finally is a bit tricky, so we make
+        some assumptions to simplify things:
+        1. As the ``try`` block could be interrupted at any time, we assume that the body
+           of the ``try`` and the body of the exception handlers are always exclusive.
+        2. Different exception handlers are seen as exclusive
+        3. try/except bodies and the body of a ``finally`` are seen as exclusive
+        What can never be exclusive is the body of the ``try`` and (if existant) the content
+        of the ``else`` block, as the else block is only reached if the ``try`` finished without
+        exception.
+        """
+        nodes = astroid.extract_node(
+            """
+            try:
+                enter_shop()  #@
+                buy_a_horse()  #@
+            except OutOfHorses:
+                say("damn it!")  #@
+            except NotEnoughMoney:
+                buy_a_pig_instead()  #@
+            else:
+                say("Now let's get some hay.")  #@
+            finally:
+                leave_shop()  #@
+            say("Let's go home")  #@
+            """
+        )
+        assert (
+            utils.statements_are_exclusive(nodes[first], nodes[second])
+            is expected_result
+        )

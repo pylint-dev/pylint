@@ -15,7 +15,7 @@ from astroid.util import Uninferable
 from pylint import checkers, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
-from pylint.checkers.utils import node_frame_class
+from pylint.checkers.utils import node_frame_class, statements_are_exclusive
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
@@ -1446,10 +1446,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 else assignee.attrname
             )
             if varname in stack:
+                existing_node = stack[varname]
+                if statements_are_exclusive(node, existing_node):
+                    # only one of the two assignments can be executed at runtime, thus it is fine
+                    stack[varname] = value
+                    continue
                 # variable was redefined before it was used in a ``with`` block
                 self.add_message(
                     "consider-using-with",
-                    node=stack[varname],
+                    node=existing_node,
                 )
             stack[varname] = value
 
