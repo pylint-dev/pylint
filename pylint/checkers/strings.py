@@ -25,6 +25,7 @@
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Peter Kolbus <peter.kolbus@garmin.com>
 
 

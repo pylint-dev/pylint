@@ -75,9 +75,9 @@ def get_next_versions(version: str, version_type: VersionType) -> List[str]:
 
 
 def get_version_type(version: str) -> VersionType:
-    if version.endswith("0.0"):
+    if version.endswith(".0.0"):
         version_type = VersionType.MAJOR
-    elif version.endswith("0"):
+    elif version.endswith(".0"):
         version_type = VersionType.MINOR
     else:
         version_type = VersionType.PATCH

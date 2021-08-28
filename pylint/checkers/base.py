@@ -24,7 +24,7 @@
 # Copyright (c) 2017 danields <danields761@gmail.com>
 # Copyright (c) 2017 Jacques Kvam <jwkvam@gmail.com>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
-# Copyright (c) 2018-2019 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2018-2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018-2019 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
 # Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>

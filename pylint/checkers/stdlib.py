@@ -26,11 +26,11 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
 # Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
 # Copyright (c) 2021 victor <16359131+jiajunsu@users.noreply.github.com>
-# Copyright (c) 2021 Daniel van Noord <13665637+DanielNoord@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -483,9 +483,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if "check" not in kwargs:
             self.add_message("subprocess-run-check", node=node)
 
-    def _check_shallow_copy_environ(self, node):
+    def _check_shallow_copy_environ(self, node: nodes.Call) -> None:
         arg = utils.get_argument_from_call(node, position=0)
-        for inferred in arg.inferred():
+        try:
+            inferred_args = arg.inferred()
+        except astroid.InferenceError:
+            return
+        for inferred in inferred_args:
             if inferred.qname() == OS_ENVIRON:
                 self.add_message("shallow-copy-environ", node=node)
                 break
@@ -505,7 +509,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "unspecified-encoding",
         "forgotten-debug-statement",
     )
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         """Visit a Call node."""
         self.check_deprecated_class_in_call(node)
         for inferred in utils.infer_all(node.func):

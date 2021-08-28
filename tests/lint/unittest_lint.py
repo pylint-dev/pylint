@@ -28,6 +28,9 @@
 # Copyright (c) 2020 Martin Vielsmaier <martin@vielsmaier.net>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2021 Michal Vasilek <michal@vasilek.cz>
+# Copyright (c) 2021 Eisuke Kawashima <e-kwsm@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
@@ -46,7 +49,7 @@ from os import chdir, getcwd
 from os.path import abspath, basename, dirname, isdir, join, sep
 from shutil import rmtree
 
-import appdirs
+import platformdirs
 import pytest
 
 from pylint import checkers, config, exceptions, interfaces, lint, testutils
@@ -632,7 +635,7 @@ def test_pylint_home():
     if uhome == "~":
         expected = ".pylint.d"
     else:
-        expected = appdirs.user_cache_dir("pylint")
+        expected = platformdirs.user_cache_dir("pylint")
     assert config.PYLINT_HOME == expected
 
     try:

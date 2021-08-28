@@ -24,6 +24,7 @@
 # Copyright (c) 2020 Pieter Engelbrecht <pengelbrecht@rems2.com>
 # Copyright (c) 2020 Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Mark Bell <mark00bell@googlemail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Dr. Nick <das-intensity@users.noreply.github.com>

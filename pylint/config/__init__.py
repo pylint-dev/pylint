@@ -23,20 +23,24 @@
 # Copyright (c) 2018 Gary Tyler McLeod <mail@garytyler.com>
 # Copyright (c) 2018 Konstantin <Github@pheanex.de>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2019, 2021 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Janne Rönkkö <jannero@users.noreply.github.com>
-# Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Eisuke Kawashima <e-kwsm@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import os
+import pathlib
 import pickle
 import sys
+from datetime import datetime
 
-import appdirs
+import platformdirs
 
 from pylint.config.configuration_mixin import ConfigurationMixIn
 from pylint.config.find_default_config_files import find_default_config_files
@@ -65,15 +69,43 @@ if "PYLINTHOME" in os.environ:
 elif USER_HOME == "~":
     PYLINT_HOME = ".pylint.d"
 else:
-    PYLINT_HOME = appdirs.user_cache_dir("pylint")
-
+    PYLINT_HOME = platformdirs.user_cache_dir("pylint")
+    # The spam prevention is due to pylint being used in parallel by
+    # pre-commit, and the message being spammy in this context
+    # Also if you work with old version of pylint that recreate the
+    # old pylint home, you can get the old message for a long time.
+    prefix_spam_prevention = "pylint_warned_about_old_cache_already"
+    spam_prevention_file = os.path.join(
+        PYLINT_HOME,
+        datetime.now().strftime(prefix_spam_prevention + "_%Y-%m-%d.temp"),
+    )
     old_home = os.path.join(USER_HOME, ".pylint.d")
-    if os.path.exists(old_home):
+    if os.path.exists(old_home) and not os.path.exists(spam_prevention_file):
         print(
             f"PYLINTHOME is now '{PYLINT_HOME}' but obsolescent '{old_home}' is found; "
             "you can safely remove the latter",
             file=sys.stderr,
         )
+        # Remove old spam prevention file
+        if os.path.exists(PYLINT_HOME):
+            for filename in os.listdir(PYLINT_HOME):
+                if prefix_spam_prevention in filename:
+                    try:
+                        os.remove(os.path.join(PYLINT_HOME, filename))
+                    except OSError:
+                        pass
+
+        # Create spam prevention file for today
+        try:
+            pathlib.Path(PYLINT_HOME).mkdir(parents=True, exist_ok=True)
+            with open(spam_prevention_file, "w", encoding="utf8") as f:
+                f.write("")
+        except Exception:  # pylint: disable=broad-except
+            # Can't write in PYLINT_HOME ?
+            print(
+                "Can't write the file that was supposed to "
+                f"prevent pylint.d deprecation spam in {PYLINT_HOME}."
+            )
 
 
 def _get_pdata_path(base_name, recurs):

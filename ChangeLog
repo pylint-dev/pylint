@@ -3,14 +3,50 @@ Pylint's ChangeLog
 ------------------
 
 
-What's New in Pylint 2.10.0?
+What's New in Pylint 2.11.0?
 ============================
 Release date: TBA
 
 ..
-  Put new features here and also in 'doc/whatsnew/2.10.rst'
+  Put new features here and also in 'doc/whatsnew/2.11.rst'
+
+
+What's New in Pylint 2.10.3?
+============================
+Release date: TBA
+
+
+
+What's New in Pylint 2.10.2?
+============================
+Release date: 2021-08-21
+
 ..
   Put bug fixes that should not wait for a new minor version here
+
+* We now use platformdirs instead of appdirs since the latter is not maintained.
+
+  Closes #4886
+
+* Fix a crash in the checker raising ``shallow-copy-environ`` when failing to infer
+  on ``copy.copy``
+
+  Closes #4891
+
+
+
+What's New in Pylint 2.10.1?
+============================
+Release date: 2021-08-20
+
+* pylint does not crash when PYLINT_HOME does not exist.
+
+  Closes #4883
+
+
+What's New in Pylint 2.10.0?
+============================
+Release date: 2021-08-20
 
 * pyreverse: add option to produce colored output.
 

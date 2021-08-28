@@ -11,10 +11,10 @@
 # Copyright (c) 2015 Noam Yorav-Raphael <noamraph@gmail.com>
 # Copyright (c) 2015 James Morgensen <james.morgensen@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016, 2021 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 Jared Garst <cultofjared@gmail.com>
 # Copyright (c) 2016 Maik Röder <maikroeder@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
-# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Michka Popoff <michkapopoff@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
@@ -27,7 +27,7 @@
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Nick Smith <clickthisnick@users.noreply.github.com>
 # Copyright (c) 2019 Paul Renvoisé <renvoisepaul@gmail.com>
