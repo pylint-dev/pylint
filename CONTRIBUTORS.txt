@@ -539,4 +539,3 @@ contributors:
 * Phil A. (flying-sheep): contributor
 
 * Melvin Hazeleger (melvio): contributor
-
