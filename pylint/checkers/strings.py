@@ -932,7 +932,7 @@ class StringConstantChecker(BaseTokenChecker):
                 col_offset=node.col_offset,
             )
 
-    def _detect_replacable_format_call(self, node: nodes.Const):
+    def _detect_replacable_format_call(self, node: nodes.Const) -> None:
         """Check whether a string is used in a call to format() or '%' and whether it
         can be replaced by a f-string"""
         if (
