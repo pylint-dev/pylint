@@ -60,6 +60,7 @@ import numbers
 import re
 import string
 from functools import lru_cache, partial
+from operator import attrgetter
 from typing import (
     Any,
     Callable,
@@ -329,11 +330,9 @@ def statements_are_exclusive(first: nodes.NodeNG, second: nodes.NodeNG) -> bool:
 
 def get_common_parent(first: nodes.NodeNG, second: nodes.NodeNG) -> astroid.NodeNG:
     """Finds the first node which is parent to both the given nodes under the same frame."""
-    assert (
-        first.frame() is second.frame()
-    ), "Retrieval of common parent node is only possible for nodes in the same frame!"
-    frame = first.frame()
-    # we first find all parents of the first node up to the enclosing frame
+    # we first get the frame that includes both nodes
+    frame = min(first.frame(), second.frame(), key=attrgetter("lineno"))
+    # we then find all parents of the first node up to the enclosing frame
     parents_of_first_node = []
     parent = first
     while parent is not frame:
