@@ -60,13 +60,13 @@ class CodeStyleChecker(BaseChecker):
         (
             "max-line-length-suggestions",
             {
-                "default": 88,
                 "type": "int",
                 "metavar": "<int>",
                 "help": (
                     "Max line length for which to sill emit suggestions. "
                     "Used to prevent optional suggestions which would get split "
-                    "by a code formatter (e.g., black)."
+                    "by a code formatter (e.g., black). "
+                    "Will default to the setting for ``max-line-length``."
                 ),
             },
         ),
@@ -79,7 +79,10 @@ class CodeStyleChecker(BaseChecker):
     def open(self) -> None:
         py_version: Tuple[int, int] = get_global_option(self, "py-version")  # type: ignore
         self._py38_plus = py_version >= (3, 8)
-        self._max_length: int = self.config.max_line_length_suggestions
+        self._max_length: int = (  # type: ignore
+            self.config.max_line_length_suggestions
+            or get_global_option(self, "max-line-length")
+        )
 
     @check_messages("consider-using-namedtuple-or-dataclass")
     def visit_dict(self, node: nodes.Dict) -> None:

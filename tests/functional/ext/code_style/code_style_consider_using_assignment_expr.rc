@@ -1,3 +1,6 @@
 [MASTER]
 load-plugins=pylint.extensions.code_style
 py-version=3.8
+
+[CODE_STYLE]
+max-line-length-suggestions=88
