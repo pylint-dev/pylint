@@ -101,6 +101,6 @@ body:
       label: Additional dependencies
       description: If applicable ie, if we can't reproduce without it
       placeholder: |
-        Please copy and paste the result of `pip freeze`. For example: 
+        Please copy and paste the result of `pip freeze`. For example:
         pandas==0.23.2
         marshmallow==3.10.0
