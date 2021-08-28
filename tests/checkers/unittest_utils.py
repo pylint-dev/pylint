@@ -479,3 +479,71 @@ class TestStatementsAreExclusive:
             utils.statements_are_exclusive(nodes[first], nodes[second])
             is expected_result
         )
+
+
+class TestGetCommonParent:
+    @staticmethod
+    def test_direct_siblings():
+        parent, node1, node2 = astroid.extract_node(
+            """
+            def myfunc():  #@
+                a = 1  #@
+                b = 2  #@
+            """
+        )
+        assert utils.get_common_parent(node1, node2) is parent
+
+    @staticmethod
+    def test_nodes_on_different_indentations():
+        parent, node1, node2 = astroid.extract_node(
+            """
+            def myfunc():  #@
+                a = 1  #@
+                if a > 10:
+                    b = 2  #@
+            """
+        )
+        assert utils.get_common_parent(node1, node2) is parent
+
+    @staticmethod
+    def test_nodes_inside_while_else_loop():
+        parent, node1, node2 = astroid.extract_node(
+            """
+            def myfunc():
+                while a < 10:  #@
+                    a += 1  #@
+                    if a == 8:
+                        break
+                else:
+                    a += 99  #@
+            """
+        )
+        assert utils.get_common_parent(node1, node2) is parent
+
+    @staticmethod
+    def test_nodes_in_different_frames():
+        parent, node1, node2 = astroid.extract_node(
+            """
+            class Dummy:  #@
+                CONSTANT = 4711  #@
+                def __init__(self):
+                    self.variable = 4712  #@
+            """
+        )
+        assert utils.get_common_parent(node1, node2) is parent
+
+
+def test_get_lineno_range():
+    node = astroid.extract_node(
+        """
+        predicate = some_func()
+        for _ in range(10):  #@
+            print("This")
+            print("That")
+            if predicate:
+                print("predicate was truthy")
+            else:
+                print("predicate was falsy")
+        """
+    )
+    assert utils.get_lineno_range(node.body) == range(4, 10)
