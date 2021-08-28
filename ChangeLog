@@ -10,6 +10,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.11.rst'
 
+* Added ``consider-using-f-string``: Emitted when .format() or '%' is being used to format a string.
+
+  Closes #3592
+
 
 What's New in Pylint 2.10.3?
 ============================
@@ -200,10 +204,6 @@ Release date: 2021-08-20
 * Improve performance when inferring ``Call`` nodes, by utilizing caching.
 
 * Improve error message for invalid-metaclass when the node is an Instance.
-
-* Added ``consider-using-f-string``: Emitted when .format() or '%' is being used to format a string.
-
-  Closes #3592
 
 
 What's New in Pylint 2.9.6?

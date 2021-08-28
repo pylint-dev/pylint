@@ -12,6 +12,10 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Added ``consider-using-f-string``: Emitted when .format() or '%' is being used to format a string.
+
+  Closes #3592
+
 
 Extensions
 ==========
