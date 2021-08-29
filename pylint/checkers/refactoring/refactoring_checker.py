@@ -15,7 +15,7 @@ from astroid.util import Uninferable
 from pylint import checkers, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
-from pylint.checkers.utils import node_frame_class, statements_are_exclusive
+from pylint.checkers.utils import node_frame_class
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
@@ -1447,7 +1447,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
             if varname in stack:
                 existing_node = stack[varname]
-                if statements_are_exclusive(node, existing_node):
+                if astroid.are_exclusive(node, existing_node):
                     # only one of the two assignments can be executed at runtime, thus it is fine
                     stack[varname] = value
                     continue

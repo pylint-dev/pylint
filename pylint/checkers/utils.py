@@ -60,7 +60,6 @@ import numbers
 import re
 import string
 from functools import lru_cache, partial
-from operator import attrgetter
 from typing import (
     Any,
     Callable,
@@ -293,62 +292,6 @@ def is_inside_lambda(node: nodes.NodeNG) -> bool:
             return True
         parent = parent.parent
     return False
-
-
-def statements_are_exclusive(first: nodes.NodeNG, second: nodes.NodeNG) -> bool:
-    """
-    Checks if the first and second statement are in two code branches where only one
-    can execute at runtime, e. g. because they are inside an if-else block.
-    """
-    if first.frame() is not second.frame():
-        return False
-    common_parent = get_common_parent(first, second)
-    if first.lineno > second.lineno:
-        # "first" and "second" are switched
-        first, second = second, first
-    if isinstance(common_parent, nodes.If):
-        return first.lineno in get_lineno_range(
-            common_parent.body
-        ) and second.lineno in get_lineno_range(common_parent.orelse)
-    if isinstance(common_parent, nodes.IfExp):
-        return first is common_parent.body and second is common_parent.orelse
-    if isinstance(common_parent, nodes.TryExcept):
-        paths = [get_lineno_range(common_parent.body)]
-        for handler in common_parent.handlers:
-            paths.append(get_lineno_range(handler.body))
-        if common_parent.orelse:
-            paths.append(get_lineno_range(common_parent.orelse))
-            if first.lineno in paths[0] and second.lineno in paths[-1]:
-                return False
-        return not any(first.lineno in path and second.lineno in path for path in paths)
-    if isinstance(common_parent, nodes.TryFinally):
-        return first.lineno in get_lineno_range(
-            common_parent.body
-        ) and second.lineno in get_lineno_range(common_parent.finalbody)
-    return False
-
-
-def get_common_parent(first: nodes.NodeNG, second: nodes.NodeNG) -> astroid.NodeNG:
-    """Finds the first node which is parent to both the given nodes under the same frame."""
-    # we first get the frame that includes both nodes
-    frame = min(first.frame(), second.frame(), key=attrgetter("lineno"))
-    # we then find all parents of the first node up to the enclosing frame
-    parents_of_first_node = []
-    parent = first
-    while parent is not frame:
-        parents_of_first_node.append(parent)
-        parent = parent.parent
-    # now we walk the line of the second node's parents upwards until we find
-    # a node which is also in the list of parents of the first one or we hit the frame
-    parent = second
-    while parent not in parents_of_first_node and parent is not frame:
-        parent = parent.parent
-    return parent
-
-
-def get_lineno_range(node_list: List[nodes.NodeNG]) -> range:
-    """Get the range of line numbers spanned by the nodes in the list."""
-    return range(node_list[0].fromlineno, node_list[-1].tolineno + 1)
 
 
 def get_all_elements(
