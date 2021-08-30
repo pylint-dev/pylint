@@ -66,7 +66,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import Pattern
+from typing import Optional, Pattern
 
 import astroid
 from astroid import nodes
@@ -1903,6 +1903,7 @@ class NameChecker(_BasicChecker):
                 continue
             groups = collections.defaultdict(list)
             min_warnings = sys.maxsize
+            prevalent_group, _ = max(all_groups.items(), key=lambda item: len(item[1]))
             for group in all_groups.values():
                 groups[len(group)].append(group)
                 min_warnings = min(len(group), min_warnings)
@@ -1915,7 +1916,7 @@ class NameChecker(_BasicChecker):
             else:
                 warnings = groups[min_warnings][0]
             for args in warnings:
-                self._raise_name_warning(*args)
+                self._raise_name_warning(*args, prevalent_group=prevalent_group)
 
     @utils.check_messages(
         "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
@@ -2016,10 +2017,21 @@ class NameChecker(_BasicChecker):
         return self._name_group.get(node_type, node_type)
 
     def _raise_name_warning(
-        self, node, node_type, name, confidence, warning="invalid-name"
-    ):
+        self,
+        node: nodes.NodeNG,
+        node_type: str,
+        name: str,
+        confidence,
+        warning: str = "invalid-name",
+        prevalent_group: Optional[str] = None,
+    ) -> None:
         type_label = HUMAN_READABLE_TYPES[node_type]
         hint = self._name_hints[node_type]
+        if prevalent_group:
+            # This happens in the multi naming match case. The expected
+            # prevalent group needs to be spelled out to make the message
+            # correct.
+            hint = f"the `{prevalent_group}` group in the {hint}"
         if self.config.include_naming_hint:
             hint += f" ({self._name_regexps[node_type].pattern!r} pattern)"
         args = (
