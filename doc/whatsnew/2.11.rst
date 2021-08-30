@@ -20,6 +20,13 @@ New checkers
 Extensions
 ==========
 
+
+* Added new extension ``SetMembershipChecker`` with ``use-set-for-membership`` check:
+  Emitted when using an in-place defined ``list`` or ``tuple`` to do a membership test. ``sets`` are better optimized for that.
+
+  Closes #4776
+
+
 * ``CodeStyleChecker``
 
   * Added ``consider-using-assignment-expr``: Emitted when an assignment is directly followed by an if statement

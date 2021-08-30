@@ -10,6 +10,11 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.11.rst'
 
+* Added new extension ``SetMembershipChecker`` with ``use-set-for-membership`` check:
+  Emitted when using an in-place defined ``list`` or ``tuple`` to do a membership test. ``sets`` are better optimized for that.
+
+  Closes #4776
+
 
 * Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependant checks.
   Will default to whatever Python version pylint is executed with.
