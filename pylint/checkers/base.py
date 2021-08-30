@@ -2022,7 +2022,7 @@ class NameChecker(_BasicChecker):
         node_type: str,
         name: str,
         confidence,
-        warning: str ="invalid-name",
+        warning: str = "invalid-name",
         prevalent_group: Optional[str] = None,
     ) -> None:
         type_label = HUMAN_READABLE_TYPES[node_type]
