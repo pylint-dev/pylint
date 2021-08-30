@@ -1,0 +1,6 @@
+abstract-class-instantiated:108:4:main:Abstract class 'BadMroAbstractMethods' with abstract methods instantiated:HIGH
+abstract-class-instantiated:109:4:main:Abstract class 'BadClass' with abstract methods instantiated:HIGH
+abstract-class-instantiated:110:4:main:Abstract class 'SecondBadClass' with abstract methods instantiated:HIGH
+abstract-class-instantiated:111:4:main:Abstract class 'ThirdBadClass' with abstract methods instantiated:HIGH
+abstract-class-instantiated:128:4:main2:Abstract class 'FourthBadClass' with abstract methods instantiated:HIGH
+abstract-class-instantiated:143:4:main_two:Abstract class 'BadClassTwo' with abstract methods instantiated:HIGH

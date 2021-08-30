@@ -32,7 +32,7 @@ class GenericTestReporter(BaseReporter):
         str_message: str = msg.msg
         self.message_ids[msg_id] = 1
         if obj:
-            obj = ":%s" % obj
+            obj = f":{obj}"
         sigle = msg_id[0]
         if linesep != "\n":
             # 2to3 writes os.linesep instead of using

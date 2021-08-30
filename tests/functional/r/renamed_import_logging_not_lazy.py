@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, too-few-public-methods, no-member
+# pylint: disable=missing-docstring, too-few-public-methods, no-member, consider-using-f-string
 
 from __future__ import absolute_import
 # Muck up the names in an effort to confuse...

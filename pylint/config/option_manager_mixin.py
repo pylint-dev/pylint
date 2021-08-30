@@ -245,7 +245,7 @@ class OptionsManagerMixIn:
             if opt in self._all_options:
                 break  # already processed
             help_function = functools.partial(self.helpfunc, level=help_level)
-            help_msg = "%s verbose help." % " ".join(["more"] * help_level)
+            help_msg = f"{' '.join(['more'] * help_level)} verbose help."
             optdict = {
                 "action": "callback",
                 "callback": help_function,

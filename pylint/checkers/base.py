@@ -193,7 +193,7 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
         ["set()", "{}", "[]"],
     ),
     **{
-        x: "%s()" % x
+        x: f"{x}()"
         for x in (
             "collections.deque",
             "collections.ChainMap",
@@ -404,12 +404,12 @@ def report_by_type_stats(sect, stats, old_stats):
             try:
                 documented = total - stats["undocumented_" + node_type]
                 percent = (documented * 100.0) / total
-                nice_stats[node_type]["percent_documented"] = "%.2f" % percent
+                nice_stats[node_type]["percent_documented"] = f"{percent:.2f}"
             except KeyError:
                 nice_stats[node_type]["percent_documented"] = "NC"
             try:
                 percent = (stats["badname_" + node_type] * 100.0) / total
-                nice_stats[node_type]["percent_badname"] = "%.2f" % percent
+                nice_stats[node_type]["percent_badname"] = f"{percent:.2f}"
             except KeyError:
                 nice_stats[node_type]["percent_badname"] = "NC"
     lines = ("type", "number", "old number", "difference", "%documented", "%badname")
@@ -1703,8 +1703,7 @@ def _create_naming_options():
                     "type": "choice",
                     "choices": list(NAMING_STYLES.keys()),
                     "metavar": "<style>",
-                    "help": "Naming style matching correct %s names."
-                    % (human_readable_name,),
+                    "help": f"Naming style matching correct {human_readable_name} names.",
                 },
             )
         )
@@ -1715,8 +1714,7 @@ def _create_naming_options():
                     "default": None,
                     "type": "regexp",
                     "metavar": "<regexp>",
-                    "help": "Regular expression matching correct %s names. Overrides %s-naming-style."
-                    % (human_readable_name, name_type),
+                    "help": f"Regular expression matching correct {human_readable_name} names. Overrides {name_type}-naming-style.",
                 },
             )
         )
@@ -1888,9 +1886,9 @@ class NameChecker(_BasicChecker):
                 regexps[name_type] = custom_regex
 
             if custom_regex is not None:
-                hints[name_type] = "%r pattern" % custom_regex.pattern
+                hints[name_type] = f"{custom_regex.pattern!r} pattern"
             else:
-                hints[name_type] = "%s naming style" % naming_style_name
+                hints[name_type] = f"{naming_style_name} naming style"
 
         return regexps, hints
 
@@ -2023,7 +2021,7 @@ class NameChecker(_BasicChecker):
         type_label = HUMAN_READABLE_TYPES[node_type]
         hint = self._name_hints[node_type]
         if self.config.include_naming_hint:
-            hint += " (%r pattern)" % self._name_regexps[node_type].pattern
+            hint += f" ({self._name_regexps[node_type].pattern!r} pattern)"
         args = (
             (type_label.capitalize(), name, hint)
             if warning == "invalid-name"

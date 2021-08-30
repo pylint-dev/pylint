@@ -66,8 +66,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
                         self.add_message(
                             "overlapping-except",
                             node=handler.type,
-                            args="%s and %s are the same"
-                            % (prev_part.as_string(), part.as_string()),
+                            args=f"{prev_part.as_string()} and {part.as_string()} are the same",
                         )
                     elif prev_exc in exc_ancestors or exc in prev_exc_ancestors:
                         ancestor = part if exc in prev_exc_ancestors else prev_part
@@ -75,8 +74,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
                         self.add_message(
                             "overlapping-except",
                             node=handler.type,
-                            args="%s is an ancestor class of %s"
-                            % (ancestor.as_string(), descendant.as_string()),
+                            args=f"{ancestor.as_string()} is an ancestor class of {descendant.as_string()}",
                         )
                 handled_in_clause += [(part, exc)]
 

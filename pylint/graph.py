@@ -54,18 +54,20 @@ class DotBackend:
         self.renderer = renderer
         self.lines = []
         self._source = None
-        self.emit("digraph %s {" % normalize_node_id(graphname))
+        self.emit(f"digraph {normalize_node_id(graphname)} {{")
         if rankdir:
-            self.emit("rankdir=%s" % rankdir)
+            self.emit(f"rankdir={rankdir}")
         if ratio:
-            self.emit("ratio=%s" % ratio)
+            self.emit(f"ratio={ratio}")
         if size:
-            self.emit('size="%s"' % size)
+            self.emit(f'size="{size}"')
         if charset:
-            assert charset.lower() in ("utf-8", "iso-8859-1", "latin1"), (
-                "unsupported charset %s" % charset
-            )
-            self.emit('charset="%s"' % charset)
+            assert charset.lower() in (
+                "utf-8",
+                "iso-8859-1",
+                "latin1",
+            ), f"unsupported charset {charset}"
+            self.emit(f'charset="{charset}"')
         for param in additional_param.items():
             self.emit("=".join(param))
 
@@ -150,19 +152,19 @@ class DotBackend:
         """
         attrs = [f'{prop}="{value}"' for prop, value in props.items()]
         n_from, n_to = normalize_node_id(name1), normalize_node_id(name2)
-        self.emit("{} -> {} [{}];".format(n_from, n_to, ", ".join(sorted(attrs))))
+        self.emit(f"{n_from} -> {n_to} [{', '.join(sorted(attrs))}];")
 
     def emit_node(self, name, **props):
         """emit a node with given properties.
         node properties: see https://www.graphviz.org/doc/info/attrs.html
         """
         attrs = [f'{prop}="{value}"' for prop, value in props.items()]
-        self.emit("{} [{}];".format(normalize_node_id(name), ", ".join(sorted(attrs))))
+        self.emit(f"{normalize_node_id(name)} [{', '.join(sorted(attrs))}];")
 
 
 def normalize_node_id(nid):
     """Returns a suitable DOT node id for `nid`."""
-    return '"%s"' % nid
+    return f'"{nid}"'
 
 
 def get_cycles(graph_dict, vertices=None):

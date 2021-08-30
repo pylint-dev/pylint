@@ -110,7 +110,7 @@ class EncodingChecker(BaseChecker):
         if self.config.notes_rgx:
             regex_string = fr"#\s*({notes}|{self.config.notes_rgx})\b"
         else:
-            regex_string = r"#\s*(%s)\b" % (notes)
+            regex_string = fr"#\s*({notes})\b"
 
         self._fixme_pattern = re.compile(regex_string, re.I)
 

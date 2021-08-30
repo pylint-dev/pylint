@@ -110,7 +110,7 @@ class ClassDiagram(Figure, FilterMixIn):
                 continue
             names = self.class_names(associated_nodes)
             if names:
-                node_name = "{} : {}".format(node_name, ", ".join(names))
+                node_name = f"{node_name} : {', '.join(names)}"
             attrs.append(node_name)
         return sorted(attrs)
 
@@ -240,7 +240,7 @@ class PackageDiagram(ClassDiagram):
             package = node.root().name
             if mod_name == f"{package}.{name}":
                 return mod
-            if mod_name == "{}.{}".format(package.rsplit(".", 1)[0], name):
+            if mod_name == f"{package.rsplit('.', 1)[0]}.{name}":
                 return mod
         raise KeyError(name)
 

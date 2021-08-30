@@ -96,12 +96,12 @@ def preprocess_options(args, search_for):
                 del args[i]
                 if takearg and val is None:
                     if i >= len(args) or args[i].startswith("-"):
-                        msg = "Option %s expects a value" % option
+                        msg = f"Option {option} expects a value"
                         raise ArgumentPreprocessingError(msg)
                     val = args[i]
                     del args[i]
                 elif not takearg and val is not None:
-                    msg = "Option %s doesn't expects a value" % option
+                    msg = f"Option {option} doesn't expects a value"
                     raise ArgumentPreprocessingError(msg)
                 cb(option, val)
 

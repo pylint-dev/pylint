@@ -131,7 +131,7 @@ class FilterMixIn:
             try:
                 __mode += MODES[nummod]
             except KeyError as ex:
-                print("Unknown filter mode %s" % ex, file=sys.stderr)
+                print(f"Unknown filter mode {ex}", file=sys.stderr)
         self.__mode = __mode
 
     def show_attr(self, node):
@@ -176,10 +176,10 @@ class ASTWalker:
             handler = self.handler
             kid = klass.__name__.lower()
             e_method = getattr(
-                handler, "visit_%s" % kid, getattr(handler, "visit_default", None)
+                handler, f"visit_{kid}", getattr(handler, "visit_default", None)
             )
             l_method = getattr(
-                handler, "leave_%s" % kid, getattr(handler, "leave_default", None)
+                handler, f"leave_{kid}", getattr(handler, "leave_default", None)
             )
             self._cache[klass] = (e_method, l_method)
         else:
@@ -257,7 +257,7 @@ def get_annotation(
     label = get_annotation_label(ann)
     if ann:
         label = (
-            rf"Optional[{label}]"
+            fr"Optional[{label}]"
             if getattr(default, "value", "value") is None
             and not label.startswith("Optional")
             else label

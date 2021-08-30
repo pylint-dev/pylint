@@ -139,10 +139,10 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         """
         mode = self.config.mode
         if len(node.modules) > 1:
-            self.pkgdiagram = PackageDiagram("packages %s" % node.name, mode)
+            self.pkgdiagram = PackageDiagram(f"packages {node.name}", mode)
         else:
             self.pkgdiagram = None
-        self.classdiagram = ClassDiagram("classes %s" % node.name, mode)
+        self.classdiagram = ClassDiagram(f"classes {node.name}", mode)
 
     def leave_project(self, node):  # pylint: disable=unused-argument
         """leave the pyreverse.utils.Project node

@@ -65,8 +65,8 @@ def table_lines_from_stats(stats, old_stats, columns):
             diff_str = diff_string(old, new)
         else:
             old, diff_str = "NC", "NC"
-        new = "%.3f" % new if isinstance(new, float) else str(new)
-        old = "%.3f" % old if isinstance(old, float) else str(old)
+        new = f"{new:.3f}" if isinstance(new, float) else str(new)
+        old = f"{old:.3f}" if isinstance(old, float) else str(old)
         lines += (m_type.replace("_", " "), new, old, diff_str)
     return lines
 

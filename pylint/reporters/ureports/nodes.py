@@ -50,11 +50,11 @@ class VNode:
             return self.__class__.__name__.lower()
 
     def accept(self, visitor, *args, **kwargs):
-        func = getattr(visitor, "visit_%s" % self._get_visit_name())
+        func = getattr(visitor, f"visit_{self._get_visit_name()}")
         return func(self, *args, **kwargs)
 
     def leave(self, visitor, *args, **kwargs):
-        func = getattr(visitor, "leave_%s" % self._get_visit_name())
+        func = getattr(visitor, f"leave_{self._get_visit_name()}")
         return func(self, *args, **kwargs)
 
 

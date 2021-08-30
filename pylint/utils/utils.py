@@ -47,7 +47,7 @@ def diff_string(old, new):
     difference
     """
     diff = abs(old - new)
-    diff_str = "{}{}".format(CMPS[cmp(old, new)], diff and ("%.2f" % diff) or "")
+    diff_str = f"{CMPS[cmp(old, new)]}{diff and f'{diff:.2f}' or ''}"
     return diff_str
 
 
@@ -80,16 +80,16 @@ def get_rst_section(section, options, doc=None):
         result += get_rst_title(section, "'")
     if doc:
         formatted_doc = normalize_text(doc)
-        result += "%s\n\n" % formatted_doc
+        result += f"{formatted_doc}\n\n"
     for optname, optdict, value in options:
         help_opt = optdict.get("help")
-        result += ":%s:\n" % optname
+        result += f":{optname}:\n"
         if help_opt:
             formatted_help = normalize_text(help_opt, indent="  ")
-            result += "%s\n" % formatted_help
+            result += f"{formatted_help}\n"
         if value:
             value = str(_format_option_value(optdict, value))
-            result += "\n  Default: ``%s``\n" % value.replace("`` ", "```` ``")
+            result += f"\n  Default: ``{value.replace('`` ', '```` ``')}``\n"
     return result
 
 
@@ -240,7 +240,7 @@ def _check_csv(value):
 def _comment(string):
     """return string as a comment"""
     lines = [line.strip() for line in string.splitlines()]
-    return "# " + ("%s# " % os.linesep).join(lines)
+    return "# " + f"{os.linesep}# ".join(lines)
 
 
 def _format_option_value(optdict, value):
@@ -257,7 +257,7 @@ def _format_option_value(optdict, value):
     elif optdict.get("type") == "yn":
         value = "yes" if value else "no"
     elif isinstance(value, str) and value.isspace():
-        value = "'%s'" % value
+        value = f"'{value}'"
     return value
 
 
@@ -265,7 +265,7 @@ def format_section(stream, section, options, doc=None):
     """format an options section using the INI format"""
     if doc:
         print(_comment(doc), file=stream)
-    print("[%s]" % section, file=stream)
+    print(f"[{section}]", file=stream)
     _ini_format(stream, options)
 
 
@@ -281,7 +281,7 @@ def _ini_format(stream, options):
         else:
             print(file=stream)
         if value is None:
-            print("#%s=" % optname, file=stream)
+            print(f"#{optname}=", file=stream)
         else:
             value = str(value).strip()
             if re.match(r"^([\w-]+,)+[\w-]+$", str(value)):

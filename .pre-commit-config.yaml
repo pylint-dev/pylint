@@ -21,7 +21,7 @@ repos:
           - --remove-duplicate-keys
           - --remove-unused-variables
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.23.3
+    rev: v2.24.0
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
@@ -84,7 +84,8 @@ repos:
         types: [python]
         args: []
         require_serial: true
-        additional_dependencies: ["types-pkg_resources==0.1.3", "types-toml==0.1.3"]
+        additional_dependencies:
+          ["platformdirs==2.2.0", "types-pkg_resources==0.1.3", "types-toml==0.1.3"]
         exclude: tests/functional/|tests/input|tests(/.*)*/data|tests/regrtest_data/|tests/data/|tests(/.*)+/conftest.py|doc/|bin/
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.3.2
