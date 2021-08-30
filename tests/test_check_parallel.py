@@ -30,9 +30,9 @@ def _gen_file_data(idx=0):
         os.path.join(os.path.dirname(__file__), "input", "similar1")
     )
     file_data = (
-        "--test-file_data-name-%d--" % idx,
+        f"--test-file_data-name-{idx}--",
         filepath,
-        "--test-file_data-modname-%d--" % idx,
+        f"--test-file_data-modname-{idx}--",
     )
     return file_data
 
@@ -419,6 +419,7 @@ class TestCheckParallel:
         # with the number of files.
         expected_stats = {
             "by_module": {
+                # pylint: disable-next=consider-using-f-string
                 "--test-file_data-name-%d--"
                 % idx: {
                     "convention": 0,

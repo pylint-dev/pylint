@@ -271,7 +271,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 "default": OVERGENERAL_EXCEPTIONS,
                 "type": "csv",
                 "metavar": "<comma-separated class names>",
-                "help": "Exceptions that will emit a warning "
+                "help": "Exceptions that will emit a warning "  # pylint: disable=consider-using-f-string
                 'when being caught. Defaults to "%s".'
                 % (", ".join(OVERGENERAL_EXCEPTIONS),),
             },
@@ -488,20 +488,14 @@ class ExceptionsChecker(checkers.BaseChecker):
     def visit_binop(self, node):
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V | A)
-            suggestion = "Did you mean '({}, {})' instead?".format(
-                node.left.as_string(),
-                node.right.as_string(),
-            )
+            suggestion = f"Did you mean '({node.left.as_string()}, {node.right.as_string()})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
     @utils.check_messages("wrong-exception-operation")
     def visit_compare(self, node):
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V < A)
-            suggestion = "Did you mean '({}, {})' instead?".format(
-                node.left.as_string(),
-                ", ".join(operand.as_string() for _, operand in node.ops),
-            )
+            suggestion = f"Did you mean '({node.left.as_string()}, {', '.join(operand.as_string() for _, operand in node.ops)})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
     @utils.check_messages(
@@ -561,10 +555,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
                     for previous_exc in exceptions_classes:
                         if previous_exc in exc_ancestors:
-                            msg = "{} is an ancestor class of {}".format(
-                                previous_exc.name,
-                                exc.name,
-                            )
+                            msg = f"{previous_exc.name} is an ancestor class of {exc.name}"
                             self.add_message(
                                 "bad-except-order", node=handler.type, args=msg
                             )

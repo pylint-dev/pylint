@@ -255,20 +255,18 @@ class MessagesHandlerMixIn:
             if message_definition.scope == WarningScope.LINE:
                 if line is None:
                     raise InvalidMessageError(
-                        "Message %s must provide line, got None"
-                        % message_definition.msgid
+                        f"Message {message_definition.msgid} must provide line, got None"
                     )
                 if node is not None:
                     raise InvalidMessageError(
-                        "Message %s must only provide line, "
-                        "got line=%s, node=%s" % (message_definition.msgid, line, node)
+                        f"Message {message_definition.msgid} must only provide line, "
+                        f"got line={line}, node={node}"
                     )
             elif message_definition.scope == WarningScope.NODE:
                 # Node-based warnings may provide an override line.
                 if node is None:
                     raise InvalidMessageError(
-                        "Message %s must provide Node, got None"
-                        % message_definition.msgid
+                        f"Message {message_definition.msgid} must provide Node, got None"
                     )
 
     def add_one_message(
@@ -372,9 +370,9 @@ Pylint provides global options and switches.
                         if section is None:
                             title = "General options"
                         else:
-                            title = "%s options" % section.capitalize()
+                            title = f"{section.capitalize()} options"
                         result += get_rst_title(title, "~")
-                        result += "%s\n" % get_rst_section(None, options)
+                        result += f"{get_rst_section(None, options)}\n"
         result += get_rst_title("Pylint checkers' options and switches", "-")
         result += """\
 

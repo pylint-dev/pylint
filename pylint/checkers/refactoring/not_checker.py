@@ -75,10 +75,8 @@ class NotChecker(checkers.BaseChecker):
                     and _type.qname() in self.skipped_classnames
                 ):
                     return
-            suggestion = "{} {} {}".format(
-                left.as_string(),
-                self.reverse_op[operator],
-                right.as_string(),
+            suggestion = (
+                f"{left.as_string()} {self.reverse_op[operator]} {right.as_string()}"
             )
             self.add_message(
                 "unneeded-not", node=node, args=(node.as_string(), suggestion)

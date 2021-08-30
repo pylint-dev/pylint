@@ -248,7 +248,7 @@ def _missing_member_hint(owner, attrname, distance_threshold, max_choices):
     if len(names) == 1:
         names = ", ".join(names)
     else:
-        names = "one of {} or {}".format(", ".join(names[:-1]), names[-1])
+        names = f"one of {', '.join(names[:-1])} or {names[-1]}"
 
     return f"; maybe {names}?"
 

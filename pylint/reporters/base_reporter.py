@@ -42,7 +42,7 @@ class BaseReporter:
         """display results encapsulated in the layout tree"""
         self.section = 0
         if hasattr(layout, "report_id"):
-            layout.children[0].children[0].data += " (%s)" % layout.report_id
+            layout.children[0].children[0].data += f" ({layout.report_id})"
         self._display(layout)
 
     def _display(self, layout):

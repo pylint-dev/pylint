@@ -1,4 +1,5 @@
 """Logging warnings using a logger class."""
+# pylint: disable=consider-using-f-string
 from __future__ import absolute_import
 import logging
 
