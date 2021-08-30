@@ -2031,7 +2031,7 @@ class NameChecker(_BasicChecker):
             # This happens in the multi naming match case. The expected
             # prevalent group needs to be spelled out to make the message
             # correct.
-            hint = "the `%s` group in the " % prevalent_group + hint
+            hint = f"the `{prevalent_group}{hint}` group in the "
         if self.config.include_naming_hint:
             hint += f" ({self._name_regexps[node_type].pattern!r} pattern)"
         args = (
