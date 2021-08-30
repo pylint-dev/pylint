@@ -1,3 +1,5 @@
+.. _message-control:
+
 Messages control
 ================
 
