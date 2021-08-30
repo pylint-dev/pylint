@@ -35,6 +35,10 @@ Release date: TBA
 
   Closes #4751
 
+* https is now prefered in the documentation and http://pylint.pycqa.org correctly redirect to https://pylint.pycqa.org
+
+  Closes #3802
+
 
 What's New in Pylint 2.10.3?
 ============================
