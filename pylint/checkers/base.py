@@ -66,7 +66,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import Pattern
+from typing import Optional, Pattern
 
 import astroid
 from astroid import nodes
@@ -2020,20 +2020,20 @@ class NameChecker(_BasicChecker):
 
     def _raise_name_warning(
         self,
-        node,
-        node_type,
-        name,
+        node: nodes.NodeNG,
+        node_type: str,
+        name: str,
         confidence,
-        warning="invalid-name",
-        prevalent_group=None,
-    ):
+        warning: str ="invalid-name",
+        prevalent_group: Optional[str] = None,
+    ) -> None:
         type_label = HUMAN_READABLE_TYPES[node_type]
         hint = self._name_hints[node_type]
         if prevalent_group:
             # This happens in the multi naming match case. The expected
             # prevalent group needs to be spelled out to make the message
             # correct.
-            hint = "%s group in the " % prevalent_group + hint
+            hint = "the `%s` group in the " % prevalent_group + hint
         if self.config.include_naming_hint:
             hint += " (%r pattern)" % self._name_regexps[node_type].pattern
         args = (

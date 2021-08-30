@@ -306,7 +306,7 @@ class TestMultiNamingStyle(CheckerTestCase):
             args=(
                 "Class",
                 "classb",
-                "UP group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
+                "the `UP` group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
             ),
         )
         with self.assertAddsMessages(message):
@@ -344,7 +344,7 @@ class TestMultiNamingStyle(CheckerTestCase):
                 args=(
                     "Class",
                     "CLASSC",
-                    "down group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
+                    "the `down` group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
                 ),
             ),
         ]
@@ -378,7 +378,7 @@ class TestMultiNamingStyle(CheckerTestCase):
             args=(
                 "Function",
                 "FUNC",
-                "down group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
+                "the `down` group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
             ),
         )
         with self.assertAddsMessages(message):
@@ -410,7 +410,7 @@ class TestMultiNamingStyle(CheckerTestCase):
             args=(
                 "Function",
                 "UPPER",
-                "down group in the '(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
+                "the `down` group in the '(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
             ),
         )
         with self.assertAddsMessages(message):
