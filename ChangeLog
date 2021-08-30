@@ -19,6 +19,10 @@ What's New in Pylint 2.10.3?
 ============================
 Release date: TBA
 
+  * Fix false positive for ``consider-using-with`` if a context manager is assigned to a
+    variable in different paths of control flow (e. g. if-else clause).
+
+    Closes #4751
 
 
 What's New in Pylint 2.10.2?

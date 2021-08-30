@@ -1442,10 +1442,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 else assignee.attrname
             )
             if varname in stack:
+                existing_node = stack[varname]
+                if astroid.are_exclusive(node, existing_node):
+                    # only one of the two assignments can be executed at runtime, thus it is fine
+                    stack[varname] = value
+                    continue
                 # variable was redefined before it was used in a ``with`` block
                 self.add_message(
                     "consider-using-with",
-                    node=stack[varname],
+                    node=existing_node,
                 )
             stack[varname] = value
 

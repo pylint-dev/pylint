@@ -82,6 +82,9 @@ Other Changes
 
 * ``consider-using-with`` is no longer triggered if a context manager is returned from a function.
 
+* Fix false positive for ``consider-using-with`` if a context manager is assigned to a
+  variable in different paths of control flow (e. g. if-else clause).
+
 * pylint does not crash with a traceback anymore when a file is problematic. It
   creates a template text file for opening an issue on the bug tracker instead.
   The linting can go on for other non problematic files instead of being impossible.
