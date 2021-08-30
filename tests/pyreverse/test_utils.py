@@ -66,7 +66,7 @@ def test_get_annotation_annassign(assign, label):
 )
 def test_get_annotation_assignattr(init_method, label):
     """AssignAttr"""
-    assign = rf"""
+    assign = fr"""
         class A:
             {init_method}
     """

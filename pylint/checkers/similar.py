@@ -457,11 +457,7 @@ class Similar:
                     report += f"   {line.rstrip()}\n" if line.rstrip() else "\n"
             duplicated_line_number += number * (len(couples_l) - 1)
         total_line_number: int = sum(len(lineset) for lineset in self.linesets)
-        report += "TOTAL lines={} duplicates={} percent={:.2f}\n".format(
-            total_line_number,
-            duplicated_line_number,
-            duplicated_line_number * 100.0 / total_line_number,
-        )
+        report += f"TOTAL lines={total_line_number} duplicates={duplicated_line_number} percent={duplicated_line_number * 100.0 / total_line_number:.2f}\n"
         return report
 
     def _find_common(
@@ -676,7 +672,7 @@ class LineSet:
         )
 
     def __str__(self):
-        return "<Lineset for %s>" % self.name
+        return f"<Lineset for {self.name}>"
 
     def __len__(self):
         return len(self._real_lines)

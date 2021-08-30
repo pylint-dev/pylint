@@ -315,8 +315,7 @@ class PyLinter(
                     "choices": [c.name for c in interfaces.CONFIDENCE_LEVELS],
                     "group": "Messages control",
                     "help": "Only show warnings with the listed confidence levels."
-                    " Leave empty to show all. Valid levels: %s."
-                    % (", ".join(c.name for c in interfaces.CONFIDENCE_LEVELS),),
+                    f" Leave empty to show all. Valid levels: {', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS)}.",
                 },
             ),
             (
@@ -467,6 +466,18 @@ class PyLinter(
                     "help": (
                         "Interpret the stdin as a python script, whose filename "
                         "needs to be passed as the module_or_package argument."
+                    ),
+                },
+            ),
+            (
+                "py-version",
+                {
+                    "default": sys.version_info[:2],
+                    "type": "py_version",
+                    "metavar": "<py_version>",
+                    "help": (
+                        "Min Python version to use for version dependend checks. "
+                        "Will default to the version used to run pylint."
                     ),
                 },
             ),
@@ -630,9 +641,7 @@ class PyLinter(
                 except KeyError:
                     meth = self._bw_options_methods[optname]
                     warnings.warn(
-                        "{} is deprecated, replace it by {}".format(
-                            optname, optname.split("-")[0]
-                        ),
+                        f"{optname} is deprecated, replace it by {optname.split('-')[0]}",
                         DeprecationWarning,
                     )
                 value = utils._check_csv(value)
@@ -652,7 +661,7 @@ class PyLinter(
         try:
             checkers.BaseTokenChecker.set_option(self, optname, value, action, optdict)
         except config.UnsupportedAction:
-            print("option %s can't be read from config file" % optname, file=sys.stderr)
+            print(f"option {optname} can't be read from config file", file=sys.stderr)
 
     def register_reporter(self, reporter_class):
         self._reporters[reporter_class.name] = reporter_class
@@ -1302,10 +1311,10 @@ class PyLinter(
         try:
             note = eval(evaluation, {}, self.stats)  # pylint: disable=eval-used
         except Exception as ex:  # pylint: disable=broad-except
-            msg = "An exception occurred while rating: %s" % ex
+            msg = f"An exception occurred while rating: {ex}"
         else:
             self.stats["global_note"] = note
-            msg = "Your code has been rated at %.2f/10" % note
+            msg = f"Your code has been rated at {note:.2f}/10"
             pnote = previous_stats.get("global_note")
             if pnote is not None:
                 msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"

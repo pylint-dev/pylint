@@ -185,9 +185,9 @@ def _get_unpacking_extra_info(node, inferred):
     inferred_module = inferred.root().name
     if node.root().name == inferred_module:
         if node.lineno == inferred.lineno:
-            more = " %s" % inferred.as_string()
+            more = f" {inferred.as_string()}"
         elif inferred.lineno:
-            more = " defined at line %s" % inferred.lineno
+            more = f" defined at line {inferred.lineno}"
     elif inferred.lineno:
         more = f" defined at line {inferred.lineno} of {inferred_module}"
     return more
@@ -1711,7 +1711,7 @@ class VariablesChecker(BaseChecker):
                     if asname is not None:
                         msg = f"{qname} imported as {asname}"
                     else:
-                        msg = "import %s" % name
+                        msg = f"import {name}"
                     self.add_message("unused-import", args=msg, node=stmt)
                     return
                 if isinstance(stmt, nodes.ImportFrom):
@@ -2102,7 +2102,7 @@ class VariablesChecker(BaseChecker):
                     if as_name == "_":
                         continue
                     if as_name is None:
-                        msg = "import %s" % imported_name
+                        msg = f"import {imported_name}"
                     else:
                         msg = f"{imported_name} imported as {as_name}"
                     if not _is_type_checking_import(stmt):
@@ -2128,8 +2128,7 @@ class VariablesChecker(BaseChecker):
                         if as_name is None:
                             msg = f"{imported_name} imported from {stmt.modname}"
                         else:
-                            fields = (imported_name, stmt.modname, as_name)
-                            msg = "%s imported from %s as %s" % fields
+                            msg = f"{imported_name} imported from {stmt.modname} as {as_name}"
                         if not _is_type_checking_import(stmt):
                             self.add_message("unused-import", args=msg, node=stmt)
         del self._to_consume

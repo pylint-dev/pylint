@@ -500,7 +500,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
 
     def test_dict_iter_method(self):
         for meth in ("keys", "values", "items"):
-            node = astroid.extract_node("x.iter%s()  #@" % meth)
+            node = astroid.extract_node(f"x.iter{meth}()  #@")
             message = testutils.Message("dict-iter-method", node=node)
             with self.assertAddsMessages(message):
                 self.checker.visit_call(node)
@@ -537,7 +537,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
 
     def test_dict_view_method(self):
         for meth in ("keys", "values", "items"):
-            node = astroid.extract_node("x.view%s()  #@" % meth)
+            node = astroid.extract_node(f"x.view{meth}()  #@")
             message = testutils.Message("dict-view-method", node=node)
             with self.assertAddsMessages(message):
                 self.checker.visit_call(node)

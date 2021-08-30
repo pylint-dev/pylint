@@ -94,4 +94,4 @@ class TextWriter(BaseWriter):
 
     def visit_text(self, layout):
         """add some text"""
-        self.write("%s" % layout.data)
+        self.write(f"{layout.data}")
