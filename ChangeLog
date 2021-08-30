@@ -10,27 +10,39 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.11.rst'
 
+
+* Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependant checks.
+  Will default to whatever Python version pylint is executed with.
+
+* ``CodeStyleChecker``
+
+  * Added ``consider-using-assignment-expr``: Emitted when an assignment is directly followed by an if statement
+    and both can be combined by using an assignment expression ``:=``. Requires Python 3.8
+
+    Closes #4862
+
 * Added ``consider-using-f-string``: Emitted when .format() or '%' is being used to format a string.
 
   Closes #3592
+
+* Fix false positive for ``consider-using-with`` if a context manager is assigned to a
+  variable in different paths of control flow (e. g. if-else clause).
+
+  Closes #4751
 
 
 What's New in Pylint 2.10.3?
 ============================
 Release date: TBA
 
-  * Fix false positive for ``consider-using-with`` if a context manager is assigned to a
-    variable in different paths of control flow (e. g. if-else clause).
+..
+  Put bug fixes that should not wait for a new minor version here
 
-    Closes #4751
 
 
 What's New in Pylint 2.10.2?
 ============================
 Release date: 2021-08-21
-
-..
-  Put bug fixes that should not wait for a new minor version here
 
 * We now use platformdirs instead of appdirs since the latter is not maintained.
 
@@ -147,7 +159,6 @@ Release date: 2021-08-20
 * Added ``format-string-without-interpolation`` checker: Emitted when formatting is applied to a string without any variables to be replaced
 
   Closes #4042
-
 
 * Refactor of ``--list-msgs`` & ``--list-msgs-enabled``: both options now show whether messages are emittable with the current interpreter.
 

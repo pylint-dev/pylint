@@ -469,6 +469,18 @@ class PyLinter(
                     ),
                 },
             ),
+            (
+                "py-version",
+                {
+                    "default": sys.version_info[:2],
+                    "type": "py_version",
+                    "metavar": "<py_version>",
+                    "help": (
+                        "Min Python version to use for version dependend checks. "
+                        "Will default to the version used to run pylint."
+                    ),
+                },
+            ),
         )
 
     option_groups = (

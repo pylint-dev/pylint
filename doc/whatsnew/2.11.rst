@@ -20,6 +20,16 @@ New checkers
 Extensions
 ==========
 
+* ``CodeStyleChecker``
+
+  * Added ``consider-using-assignment-expr``: Emitted when an assignment is directly followed by an if statement
+    and both can be combined by using an assignment expression ``:=``. Requires Python 3.8
+
+    Closes #4862
+
 
 Other Changes
 =============
+
+* Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependant checks.
+  Will default to whatever Python version pylint is executed with.
