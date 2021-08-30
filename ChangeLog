@@ -10,6 +10,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.11.rst'
 
+* Added ``consider-using-f-string``: Emitted when .format() or '%' is being used to format a string.
+
+  Closes #3592
+
 
 What's New in Pylint 2.10.3?
 ============================
@@ -192,7 +196,6 @@ Release date: 2021-08-20
   Closes #4839
 
 * Allow ``true`` and ``false`` values in ``pylintrc`` for better compatibility with ``toml`` config.
-
 
 * Class methods' signatures are ignored the same way as functions' with similarities "ignore-signatures" option enabled
 

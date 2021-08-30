@@ -50,7 +50,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
             pathnode = self._append_node(node)
             self.tail = pathnode
             self.dispatch_list(node.body)
-            bottom = "%s" % self._bottom_counter
+            bottom = f"{self._bottom_counter}"
             self._bottom_counter += 1
             self.graph.connect(self.tail, bottom)
             self.graph.connect(node, bottom)
@@ -135,7 +135,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         else:
             loose_ends.append(node)
         if node:
-            bottom = "%s" % self._bottom_counter
+            bottom = f"{self._bottom_counter}"
             self._bottom_counter += 1
             for end in loose_ends:
                 self.graph.connect(end, bottom)
@@ -181,9 +181,9 @@ class McCabeMethodChecker(checkers.BaseChecker):
             complexity = graph.complexity()
             node = graph.root
             if hasattr(node, "name"):
-                node_name = "'%s'" % node.name
+                node_name = f"'{node.name}'"
             else:
-                node_name = "This '%s'" % node.__class__.__name__.lower()
+                node_name = f"This '{node.__class__.__name__.lower()}'"
             if complexity <= self.config.max_complexity:
                 continue
             self.add_message(

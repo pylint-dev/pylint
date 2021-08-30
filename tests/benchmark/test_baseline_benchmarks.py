@@ -131,9 +131,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_benchmark_j10(self, benchmark):
         """Establish a baseline of pylint performance with no work across threads
@@ -155,9 +153,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_benchmark_check_parallel_j10(self, benchmark):
         """Should demonstrate times very close to `test_baseline_benchmark_j10`"""
@@ -170,9 +166,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(check_parallel, linter, jobs=10, files=fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_lots_of_files_j1(self, benchmark):
         """Establish a baseline with only 'master' checker being run in -j1
@@ -190,9 +184,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_lots_of_files_j10(self, benchmark):
         """Establish a baseline with only 'master' checker being run in -j10
@@ -211,9 +203,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_lots_of_files_j1_empty_checker(self, benchmark):
         """Baselines pylint for a single extra checker being run in -j1, for N-files
@@ -232,9 +222,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_lots_of_files_j10_empty_checker(self, benchmark):
         """Baselines pylint for a single extra checker being run in -j10, for N-files
@@ -253,9 +241,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_benchmark_j1_single_working_checker(self, benchmark):
         """Establish a baseline of single-worker performance for PyLinter
@@ -280,9 +266,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_benchmark_j10_single_working_checker(self, benchmark):
         """Establishes baseline of multi-worker performance for PyLinter/check_parallel
@@ -308,9 +292,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_benchmark_j1_all_checks_single_file(self, benchmark):
         """Runs a single file, with -j1, against all plug-ins
@@ -327,9 +309,7 @@ class TestEstablishBaselineBenchmarks:
 
         assert (
             runner.linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            runner.linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(runner.linter.reporter.messages)}"
 
     def test_baseline_benchmark_j1_all_checks_lots_of_files(self, benchmark):
         """Runs lots of files, with -j1, against all plug-ins

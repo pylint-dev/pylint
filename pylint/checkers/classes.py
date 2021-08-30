@@ -2039,7 +2039,7 @@ class SpecialMethodsChecker(BaseChecker):
             "__iter__ returns non-iterator",
             "non-iterator-returned",
             "Used when an __iter__ method returns something which is not an "
-            "iterable (i.e. has no `%s` method)" % NEXT_METHOD,
+            f"iterable (i.e. has no `{NEXT_METHOD}` method)",
             {
                 "old_names": [
                     ("W0234", "old-non-iterator-returned-1"),
@@ -2189,6 +2189,7 @@ class SpecialMethodsChecker(BaseChecker):
             # tuple, although the user should implement the method
             # to take all of them in consideration.
             emit = mandatory not in expected_params
+            # pylint: disable-next=consider-using-f-string
             expected_params = "between %d or %d" % expected_params
         else:
             # If the number of mandatory parameters doesn't

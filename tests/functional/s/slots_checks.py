@@ -25,7 +25,7 @@ class ThirdGood(object):
     __slots__ = ['a']
 
 class FourthGood(object):
-    __slots__ = ('a%s' % i for i in range(10))
+    __slots__ = (f'a{i}' for i in range(10))
 
 class FifthGood(object):
     __slots__ = deque(["a", "b", "c"])

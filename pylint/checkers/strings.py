@@ -80,9 +80,9 @@ _PREFIXES = {
     "Rb",
     "RB",
 }
-SINGLE_QUOTED_REGEX = re.compile("(%s)?'''" % "|".join(_PREFIXES))
-DOUBLE_QUOTED_REGEX = re.compile('(%s)?"""' % "|".join(_PREFIXES))
-QUOTE_DELIMITER_REGEX = re.compile("(%s)?(\"|')" % "|".join(_PREFIXES), re.DOTALL)
+SINGLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?'''")
+DOUBLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?\"\"\"")
+QUOTE_DELIMITER_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?(\"|')", re.DOTALL)
 
 MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E1300": (
@@ -673,6 +673,12 @@ class StringConstantChecker(BaseTokenChecker):
             "in Python 2 to indicate a string was Unicode, but since Python 3.0 strings "
             "are Unicode by default.",
         ),
+        "C1407": (
+            "Formatting a regular string which could be a f-string",
+            "consider-using-f-string",
+            "Used when we detect a string that is being formatted with format() or % "
+            "which could potentially be a f-string. The use of f-strings is preferred.",
+        ),
     }
     options = (
         (
@@ -910,17 +916,82 @@ class StringConstantChecker(BaseTokenChecker):
             index += 2
 
     @check_messages("redundant-u-string-prefix")
+    @check_messages("consider-using-f-string")
     def visit_const(self, node: nodes.Const):
         if node.pytype() == "builtins.str" and not isinstance(
             node.parent, nodes.JoinedStr
         ):
             self._detect_u_string_prefix(node)
+            self._detect_replacable_format_call(node)
 
     def _detect_u_string_prefix(self, node: nodes.Const):
         """Check whether strings include a 'u' prefix like u'String'"""
         if node.kind == "u":
             self.add_message(
                 "redundant-u-string-prefix",
+                line=node.lineno,
+                col_offset=node.col_offset,
+            )
+
+    def _detect_replacable_format_call(self, node: nodes.Const) -> None:
+        """Check whether a string is used in a call to format() or '%' and whether it
+        can be replaced by a f-string"""
+        if (
+            isinstance(node.parent, nodes.Attribute)
+            and node.parent.attrname == "format"
+        ):
+            # Allow assigning .format to a variable
+            if isinstance(node.parent.parent, nodes.Assign):
+                return
+
+            if node.parent.parent.args:
+                for arg in node.parent.parent.args:
+                    # If star expressions with more than 1 element are being used
+                    if isinstance(arg, nodes.Starred):
+                        inferred = utils.safe_infer(arg.value)
+                        if (
+                            isinstance(inferred, astroid.List)
+                            and len(inferred.elts) > 1
+                        ):
+                            return
+
+            elif node.parent.parent.keywords:
+                keyword_args = [
+                    i[0] for i in utils.parse_format_method_string(node.value)[0]
+                ]
+                for keyword in node.parent.parent.keywords:
+                    # If keyword is used multiple times
+                    if keyword_args.count(keyword.arg) > 1:
+                        return
+
+                    keyword = utils.safe_infer(keyword.value)
+
+                    # If lists of more than one element are being unpacked
+                    if isinstance(keyword, nodes.Dict):
+                        if len(keyword.items) > 1 and len(keyword_args) > 1:
+                            return
+
+            # If all tests pass, then raise message
+            self.add_message(
+                "consider-using-f-string",
+                line=node.lineno,
+                col_offset=node.col_offset,
+            )
+
+        elif isinstance(node.parent, nodes.BinOp) and node.parent.op == "%":
+            inferred_right = utils.safe_infer(node.parent.right)
+
+            # If dicts or lists of length > 1 are used
+            if isinstance(inferred_right, nodes.Dict):
+                if len(inferred_right.items) > 1:
+                    return
+            elif isinstance(inferred_right, nodes.List):
+                if len(inferred_right.elts) > 1:
+                    return
+
+            # If all tests pass, then raise message
+            self.add_message(
+                "consider-using-f-string",
                 line=node.lineno,
                 col_offset=node.col_offset,
             )
@@ -989,7 +1060,7 @@ def _get_quote_delimiter(string_token: str) -> str:
     """
     match = QUOTE_DELIMITER_REGEX.match(string_token)
     if not match:
-        raise ValueError("string token %s is not a well-formed string" % string_token)
+        raise ValueError(f"string token {string_token} is not a well-formed string")
     return match.group(2)
 
 

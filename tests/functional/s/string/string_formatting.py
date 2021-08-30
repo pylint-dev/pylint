@@ -1,7 +1,7 @@
 """Test for Python 3 string formatting error"""
 
 # pylint: disable=too-few-public-methods, import-error, unused-argument, line-too-long, no-absolute-import,
-# pylint: disable=useless-object-inheritance
+# pylint: disable=useless-object-inheritance, consider-using-f-string
 import os
 import sys
 import logging
