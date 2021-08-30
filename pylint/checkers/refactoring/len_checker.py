@@ -81,7 +81,7 @@ class LenChecker(checkers.BaseChecker):
         try:
             instance = next(len_arg.infer())
         except astroid.InferenceError:
-            # Probably undefined-varible, abort check
+            # Probably undefined-variable, abort check
             return
         mother_classes = self.base_classes_of_node(instance)
         affected_by_pep8 = any(
