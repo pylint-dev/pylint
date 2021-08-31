@@ -2500,7 +2500,7 @@ class ComparisonChecker(_BasicChecker):
     def _check_logical_tautology(self, node):
         """Check if identifier is compared against itself.
         :param node: Compare node
-        :type node: astroid.node_classes.Compare
+        :type node: astroid.nodes.Compare
         :Example:
         val = 786
         if val == val:  # [comparison-with-itself]

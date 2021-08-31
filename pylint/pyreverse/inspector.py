@@ -53,7 +53,7 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
         return
     found = set()
     missing = False
-    for iface in astroid.node_classes.unpack_infer(implements):
+    for iface in nodes.unpack_infer(implements):
         if iface is astroid.Uninferable:
             missing = True
             continue

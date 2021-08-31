@@ -138,13 +138,13 @@ and to remove the list of return nodes when we leave the function.
 
 Finally we'll implement the check.
 We will define a ``visit_return`` function,
-which is called with a :class:`.astroid.node_classes.Return` node.
+which is called with a :class:`.astroid.nodes.Return` node.
 
 .. _astroid_extract_node:
 .. TODO We can shorten/remove this bit once astroid has API docs.
 
 We'll need to be able to figure out what attributes a
-:class:`.astroid.node_classes.Return` node has available.
+:class:`.astroid.nodes.Return` node has available.
 We can use :func:`astroid.extract_node` for this::
 
   >>> node = astroid.extract_node("return 5")
@@ -179,7 +179,7 @@ Now we know how to use the astroid node, we can implement our check.
 .. code-block:: python
 
   def visit_return(self, node):
-      if not isinstance(node.value, astroid.node_classes.Const):
+      if not isinstance(node.value, astroid.nodes.Const):
           return
 
       for other_return in self._function_stack[-1]:
