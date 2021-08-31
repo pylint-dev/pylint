@@ -49,5 +49,5 @@ Other Changes
 * Fix false positive for ``function-redefined`` for simple type annotations
 
   Closes #4936
-  
+
 * Fix false positive for ``protected-access`` if a protected member is used in type hints of function definitions
