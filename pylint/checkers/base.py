@@ -862,7 +862,11 @@ class BasicErrorChecker(_BasicChecker):
         parent_frame = node.parent.frame()
 
         # Ignore function stubs created for type information
-        redefinitions = parent_frame.locals[node.name]
+        redefinitions = [
+            i
+            for i in parent_frame.locals[node.name]
+            if not (isinstance(i.parent, nodes.AnnAssign) and i.parent.simple)
+        ]
         defined_self = next(
             (local for local in redefinitions if not utils.is_overload_stub(local)),
             node,
