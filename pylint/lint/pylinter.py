@@ -536,7 +536,6 @@ class PyLinter(
         )
         self.register_checker(self)
         self._dynamic_plugins = set()
-        self._python3_porting_mode = False
         self._error_mode = False
         self.load_provider_defaults()
         if reporter:
@@ -755,44 +754,9 @@ class PyLinter(
         self._error_mode = True
         self.disable_noerror_messages()
         self.disable("miscellaneous")
-        if self._python3_porting_mode:
-            self.disable("all")
-            for msg_id in self._checker_messages("python3"):
-                if msg_id.startswith("E"):
-                    self.enable(msg_id)
-            config_parser = self.cfgfile_parser
-            if config_parser.has_option("MESSAGES CONTROL", "disable"):
-                value = config_parser.get("MESSAGES CONTROL", "disable")
-                self.global_set_option("disable", value)
-        else:
-            self.disable("python3")
         self.set_option("reports", False)
         self.set_option("persistent", False)
         self.set_option("score", False)
-
-    def python3_porting_mode(self):
-        """Disable all other checkers and enable Python 3 warnings."""
-        self.disable("all")
-        # re-enable some errors, or 'print', 'raise', 'async', 'await' will mistakenly lint fine
-        self.enable("fatal")  # F0001
-        self.enable("astroid-error")  # F0002
-        self.enable("parse-error")  # F0010
-        self.enable("syntax-error")  # E0001
-        self.enable("python3")
-        if self._error_mode:
-            # The error mode was activated, using the -E flag.
-            # So we'll need to enable only the errors from the
-            # Python 3 porting checker.
-            for msg_id in self._checker_messages("python3"):
-                if msg_id.startswith("E"):
-                    self.enable(msg_id)
-                else:
-                    self.disable(msg_id)
-        config_parser = self.cfgfile_parser
-        if config_parser.has_option("MESSAGES CONTROL", "disable"):
-            value = config_parser.get("MESSAGES CONTROL", "disable")
-            self.global_set_option("disable", value)
-        self._python3_porting_mode = True
 
     def list_messages_enabled(self):
         emittable, non_emittable = self.msgs_store.find_emittable_messages()

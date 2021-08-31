@@ -94,9 +94,6 @@ class MessagesHandlerMixIn:
         if msgid == "all":
             for _msgid in MSG_TYPES:
                 self._set_msg_status(_msgid, enable, scope, line, ignore_unknown)
-            if enable and not self._python3_porting_mode:
-                # Don't activate the python 3 porting checker if it wasn't activated explicitly.
-                self.disable("python3")
             return
 
         # msgid is a category?

@@ -248,16 +248,6 @@ group are mutually exclusive.",
                     },
                 ),
                 (
-                    "py3k",
-                    {
-                        "action": "callback",
-                        "callback": self.cb_python3_porting_mode,
-                        "help": "In Python 3 porting mode, all checkers will be "
-                        "disabled and only messages emitted by the porting "
-                        "checker will be displayed.",
-                    },
-                ),
-                (
                     "verbose",
                     {
                         "action": "callback",
@@ -468,10 +458,6 @@ group are mutually exclusive.",
         for check in self.linter.get_checker_names():
             print(check)
         sys.exit(0)
-
-    def cb_python3_porting_mode(self, *args, **kwargs):
-        """Activate only the python3 porting checker."""
-        self.linter.python3_porting_mode()
 
     def cb_verbose_mode(self, *args, **kwargs):
         self.verbose = True
