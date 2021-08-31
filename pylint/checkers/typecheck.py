@@ -67,7 +67,7 @@ import types
 from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
-from typing import Any, List, Pattern, Tuple
+from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple
 
 import astroid
 from astroid import bases, nodes
@@ -1359,7 +1359,7 @@ accessed. Python regular expressions are accepted.",
         # Analyze the list of formal parameters.
         args = list(itertools.chain(called.args.posonlyargs or (), called.args.args))
         num_mandatory_parameters = len(args) - len(called.args.defaults)
-        parameters: List[List[Union[Tuple[Optional[str], Any], bool]]] = []
+        parameters: List[List[Any]] = []
         parameter_name_to_index = {}
         for i, arg in enumerate(args):
             if isinstance(arg, nodes.Tuple):
@@ -1794,7 +1794,7 @@ accessed. Python regular expressions are accepted.",
     def visit_subscript(self, node: nodes.Subscript) -> None:
         self._check_invalid_sequence_index(node)
 
-        supported_protocol = None
+        supported_protocol: Optional[Callable[[Any, Any], bool]] = None
         if isinstance(node.value, (nodes.ListComp, nodes.DictComp)):
             return
 

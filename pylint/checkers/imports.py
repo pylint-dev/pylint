@@ -50,7 +50,7 @@ import copy
 import os
 import sys
 from distutils import sysconfig
-from typing import Dict, List, Set, Union
+from typing import Any, Dict, List, Set, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -66,6 +66,7 @@ from pylint.checkers.utils import (
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
+from pylint.lint import PyLinter
 from pylint.reporters.ureports.nodes import Paragraph, VerbatimText, VNode
 from pylint.utils import IsortDriver, get_global_option
 
@@ -420,14 +421,16 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def __init__(
         self, linter: PyLinter = None
-    ):  # pylint: disable=super-init-not-called
+    ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
-        self.stats = None
-        self.import_graph = None
-        self._imports_stack = []
+        self.stats: Dict[Any, Any] = {}
+        self.import_graph: collections.defaultdict = collections.defaultdict(set)
+        self._imports_stack: List[Tuple[Any, Any]] = []
         self._first_non_import_node = None
-        self._module_pkg = {}  # mapping of modules to the pkg they belong in
-        self._allow_any_import_level = set()
+        self._module_pkg: Dict[
+            Any, Any
+        ] = {}  # mapping of modules to the pkg they belong in
+        self._allow_any_import_level: Set[Any] = set()
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),

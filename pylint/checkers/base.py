@@ -66,7 +66,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import Any, Optional, Pattern
+from typing import Any, Iterator, Optional, Pattern
 
 import astroid
 from astroid import nodes
@@ -1459,9 +1459,7 @@ class BasicChecker(_BasicChecker):
         """update try...finally flag"""
         self._tryfinallys.append(node)
 
-    def leave_tryfinally(
-        self, node: nodes.TryFinally  # pylint: disable=unused-argument
-    ) -> None:
+    def leave_tryfinally(self, _: nodes.TryFinally) -> None:
         """update try...finally flag"""
         self._tryfinallys.pop()
 
@@ -1898,9 +1896,7 @@ class NameChecker(_BasicChecker):
         self._check_name("module", node.name.split(".")[-1], node)
         self._bad_names = {}
 
-    def leave_module(
-        self, node: nodes.Module  # pylint: disable=unused-argument
-    ) -> None:
+    def leave_module(self, _: nodes.Module) -> None:
         for all_groups in self._bad_names.values():
             if len(all_groups) < 2:
                 continue
@@ -2490,10 +2486,9 @@ class ComparisonChecker(_BasicChecker):
         suggestion = f"{right.as_string()} {operator} {left.value!r}"
         self.add_message("misplaced-comparison-constant", node=node, args=(suggestion,))
 
-    def _check_logical_tautology(self, node):
+    def _check_logical_tautology(self, node: nodes.Compare):
         """Check if identifier is compared against itself.
         :param node: Compare node
-        :type node: astroid.nodes.Compare
         :Example:
         val = 786
         if val == val:  # [comparison-with-itself]

@@ -378,7 +378,7 @@ class StringFormatChecker(BaseChecker):
             if isinstance(args, nodes.Tuple):
                 rhs_tuple = utils.safe_infer(args)
                 num_args = None
-                if rhs_tuple and hasattr(rhs_tuple, "elts"):
+                if isinstance(rhs_tuple, nodes.BaseContainer):
                     args_elts = rhs_tuple.elts
                     num_args = len(args_elts)
             elif isinstance(args, (OTHER_NODES, (nodes.Dict, nodes.DictComp))):
@@ -400,7 +400,7 @@ class StringFormatChecker(BaseChecker):
                     arg_type = utils.safe_infer(arg)
                     if (
                         arg_type
-                        and not arg_type == astroid.Uninferable
+                        and arg_type != astroid.Uninferable
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(

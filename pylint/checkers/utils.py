@@ -1164,15 +1164,11 @@ def supports_getitem(value: nodes.NodeNG, node: nodes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_getitem_protocol)
 
 
-def supports_setitem(
-    value: nodes.NodeNG, node: nodes.NodeNG  # pylint: disable=unused-argument
-) -> bool:
+def supports_setitem(value: nodes.NodeNG, _: nodes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_setitem_protocol)
 
 
-def supports_delitem(
-    value: nodes.NodeNG, node: nodes.NodeNG  # pylint: disable=unused-argument
-) -> bool:
+def supports_delitem(value: nodes.NodeNG, _: nodes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_delitem_protocol)
 
 

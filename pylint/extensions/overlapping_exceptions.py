@@ -3,6 +3,8 @@
 
 """Looks for overlapping exceptions."""
 
+from typing import Any, List, Tuple
+
 import astroid
 from astroid import nodes
 

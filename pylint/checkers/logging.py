@@ -295,18 +295,15 @@ class LoggingChecker(checkers.BaseChecker):
         """
         return isinstance(operand, nodes.Const) and operand.name == "str"
 
-    def _check_call_func(self, node):
-        """Checks that function call is not format_string.format().
-
-        Args:
-          node (astroid.nodes.Call):
-            Call AST node to be checked.
-        """
+    def _check_call_func(self, node: nodes.Call):
+        """Checks that function call is not format_string.format()."""
         func = utils.safe_infer(node.func)
         types = ("str", "unicode")
         methods = ("format",)
-        if is_method_call(func, types, methods) and not is_complex_format_str(
-            func.bound
+        if (
+            isinstance(func, astroid.BoundMethod)
+            and is_method_call(func, types, methods)
+            and not is_complex_format_str(func.bound)
         ):
             self.add_message(
                 "logging-format-interpolation",

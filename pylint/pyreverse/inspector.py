@@ -80,6 +80,35 @@ class IdGeneratorMixIn:
         return self.id_count
 
 
+class Project:
+    """a project handle a set of modules / packages"""
+
+    def __init__(self, name=""):
+        self.name = name
+        self.uid = None
+        self.path = None
+        self.modules = []
+        self.locals = {}
+        self.__getitem__ = self.locals.__getitem__
+        self.__iter__ = self.locals.__iter__
+        self.values = self.locals.values
+        self.keys = self.locals.keys
+        self.items = self.locals.items
+
+    def add_module(self, node):
+        self.locals[node.name] = node
+        self.modules.append(node)
+
+    def get_module(self, name):
+        return self.locals[name]
+
+    def get_children(self):
+        return self.modules
+
+    def __repr__(self):
+        return f"<Project {self.name!r} at {id(self)} ({len(self.modules)} modules)>"
+
+
 class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     """Walk on the project tree and resolve relationships.
 
@@ -290,34 +319,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             mod_paths = module.depends
             if mod_path not in mod_paths:
                 mod_paths.append(mod_path)
-
-
-class Project:
-    """a project handle a set of modules / packages"""
-
-    def __init__(self, name=""):
-        self.name = name
-        self.path = None
-        self.modules = []
-        self.locals = {}
-        self.__getitem__ = self.locals.__getitem__
-        self.__iter__ = self.locals.__iter__
-        self.values = self.locals.values
-        self.keys = self.locals.keys
-        self.items = self.locals.items
-
-    def add_module(self, node):
-        self.locals[node.name] = node
-        self.modules.append(node)
-
-    def get_module(self, name):
-        return self.locals[name]
-
-    def get_children(self):
-        return self.modules
-
-    def __repr__(self):
-        return f"<Project {self.name!r} at {id(self)} ({len(self.modules)} modules)>"
 
 
 def project_from_files(
