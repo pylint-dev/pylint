@@ -41,3 +41,6 @@ Other Changes
 * Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependant checks.
   Will default to whatever Python version pylint is executed with.
 * The ``invalid-name`` message is now more detailed when using multiple naming style regexes.
+
+
+* Fix false positive for ``protected-access`` if a protected member is used in type hints of function definitions

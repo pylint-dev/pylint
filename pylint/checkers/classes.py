@@ -52,7 +52,7 @@ from typing import List, Pattern, cast
 import astroid
 from astroid import nodes
 
-from pylint.checkers import BaseChecker
+from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     PYMETHODS,
     SPECIAL_METHODS_PARAMS,
@@ -1563,7 +1563,7 @@ a metaclass class method.",
         if any(method_name == member.name for member in parent_class.mymethods()):
             self.add_message(msg, node=node.targets[0])
 
-    def _check_protected_attribute_access(self, node):
+    def _check_protected_attribute_access(self, node: nodes.Attribute):
         """Given an attribute access node (set or get), check if attribute
         access is legitimate. Call _check_first_attr with node before calling
         this method. Valid cases are:
@@ -1585,6 +1585,10 @@ a metaclass class method.",
             # In classes, check we are not getting a parent method
             # through the class object or through super
             callee = node.expr.as_string()
+
+            # Typing annotations in funciton definitions can include protected members
+            if utils.is_node_in_type_annotation_context(node):
+                return
 
             # We are not in a class, no remaining valid case
             if klass is None:
