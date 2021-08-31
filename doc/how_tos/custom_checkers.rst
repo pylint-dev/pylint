@@ -117,14 +117,14 @@ Next we'll track when we enter and leave a function.
 
 .. code-block:: python
 
-  def __init__(self, linter=None):
+  def __init__(self, linter: PyLinter =None) -> None:
       super(UniqueReturnChecker, self).__init__(linter)
       self._function_stack = []
 
-  def visit_functiondef(self, node):
+  def visit_functiondef(self, node: nodes.FunctioDef) -> None:
       self._function_stack.append([])
 
-  def leave_functiondef(self, node):
+  def leave_functiondef(self, node: nodes.FunctionDef) -> None:
       self._function_stack.pop()
 
 In the constructor we initialise a stack to keep a list of return nodes
@@ -178,7 +178,7 @@ Now we know how to use the astroid node, we can implement our check.
 
 .. code-block:: python
 
-  def visit_return(self, node):
+  def visit_return(self, node: nodes.Return) -> None:
       if not isinstance(node.value, nodes.Const):
           return
 

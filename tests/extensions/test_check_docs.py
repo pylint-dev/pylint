@@ -341,7 +341,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def _visit_methods_of_class(self, node):
+    def _visit_methods_of_class(self, node: nodes.ClassDef) -> None:
         """Visit all methods of a class node
 
         :param node: class node
