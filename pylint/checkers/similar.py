@@ -736,7 +736,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     # for available dict keys/values see the optik parser 'add_option' method
     options = (
         (
-            "min-similarity-lines",  # type: ignore
+            "min-similarity-lines",
             {
                 "default": DEFAULT_MIN_SIMILARITY_LINE,
                 "type": "int",
@@ -782,7 +782,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         ),
     )
     # reports
-    reports = (("RP0801", "Duplication", report_similarities),)  # type: ignore
+    reports = (("RP0801", "Duplication", report_similarities),)
 
     def __init__(self, linter=None) -> None:
         BaseChecker.__init__(self, linter)

@@ -228,7 +228,7 @@ _SPECIAL_METHODS_PARAMS = {
 SPECIAL_METHODS_PARAMS = {
     name: params
     for params, methods in _SPECIAL_METHODS_PARAMS.items()
-    for name in methods  # type: ignore
+    for name in methods
 }
 PYMETHODS = set(SPECIAL_METHODS_PARAMS)
 
@@ -748,8 +748,8 @@ def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
         return error
 
     if not isinstance(error_type, tuple):
-        error_type = (error_type,)  # type: ignore
-    expected_errors = {stringify_error(error) for error in error_type}  # type: ignore
+        error_type = (error_type,)
+    expected_errors = {stringify_error(error) for error in error_type}
     if not handler.type:
         return False
     return handler.catch(expected_errors)

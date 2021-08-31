@@ -264,7 +264,7 @@ def _get_parents(
         if parent.qname() in ignored_parents:
             continue
         parents.add(parent)
-        to_explore.extend(parent.ancestors(recurs=False))  # type: ignore
+        to_explore.extend(parent.ancestors(recurs=False))
     return parents
 
 
