@@ -192,9 +192,7 @@ tricks like: ::
 
 pylint does have some messages disabled by default, either because
 they are prone to false positives or that they are opinionated enough
-for not being included as default messages. But most of the disabled
-messages are from the Python 3 porting checker, which is disabled by
-default. It needs special activation with the ``--py3k`` flag.
+for not being included as default messages.
 
 You can see the plugin you need to explicitly `load in the technical reference`_
 

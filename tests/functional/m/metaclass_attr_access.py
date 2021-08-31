@@ -1,8 +1,8 @@
-# pylint: disable=too-few-public-methods, metaclass-assignment, useless-object-inheritance
+# pylint: disable=too-few-public-methods, useless-object-inheritance
 """test attribute access on metaclass"""
 
-
 from __future__ import print_function
+
 
 class Meta(type):
     """the meta class"""
@@ -10,6 +10,7 @@ class Meta(type):
         super(Meta, cls).__init__(name, bases, dictionary)
         print(cls, cls._meta_args)
         delattr(cls, '_meta_args')
+
 
 class Test(object):
     """metaclassed class"""

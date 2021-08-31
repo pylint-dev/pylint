@@ -16,6 +16,11 @@ New checkers
 
   Closes #3592
 
+Removed checkers
+================
+
+* The python3 porting mode checker and it's ``py3k`` option were removed. You can still find it in older pylint
+  versions.
 
 Extensions
 ==========

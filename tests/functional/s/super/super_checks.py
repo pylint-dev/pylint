@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,import-error, no-absolute-import,missing-docstring, useless-object-inheritance
+# pylint: disable=too-few-public-methods,import-error, missing-docstring, useless-object-inheritance
 # pylint: disable=useless-super-delegation,wrong-import-position,invalid-name, wrong-import-order
 # pylint: disable=super-with-arguments
 from unknown import Missing

@@ -1,6 +1,6 @@
 """Test disabling of cyclic import check inside a function
 """
-# pylint: disable=no-absolute-import,import-outside-toplevel
+# pylint: disable=import-outside-toplevel
 from __future__ import print_function
 
 

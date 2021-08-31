@@ -6,7 +6,7 @@ from __future__ import print_function
 __revision__ = None
 
 
-class File(file):  # pylint: disable=file-builtin,undefined-variable
+class File(file):  # pylint: disable=undefined-variable
     """ Testing new-style class inheritance from file"""
     def __init__(self, name, mode="r", buffering=-1, verbose=False):
         """Constructor"""
