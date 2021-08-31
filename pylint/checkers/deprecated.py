@@ -8,7 +8,8 @@ from typing import Any, Container, Iterable, Tuple, Union
 import astroid
 from astroid import nodes
 
-from pylint.checkers import BaseChecker, utils
+from pylint.checkers import utils
+from pylint.checkers.base_checker import BaseChecker
 from pylint.checkers.utils import get_import_name, infer_all, safe_infer
 
 ACCEPTABLE_NODES = (
