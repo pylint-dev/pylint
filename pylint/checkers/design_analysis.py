@@ -554,7 +554,7 @@ class MisdesignChecker(BaseChecker):
 
     leave_asyncfunctiondef = leave_functiondef
 
-    def visit_return(self, _) -> None:
+    def visit_return(self, _: nodes.Return) -> None:
         """count number of returns"""
         if not self._returns:
             return  # return outside function, reported by the base checker

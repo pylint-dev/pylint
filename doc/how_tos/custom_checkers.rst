@@ -179,7 +179,7 @@ Now we know how to use the astroid node, we can implement our check.
 .. code-block:: python
 
   def visit_return(self, node):
-      if not isinstance(node.value, astroid.nodes.Const):
+      if not isinstance(node.value, nodes.Const):
           return
 
       for other_return in self._function_stack[-1]:

@@ -161,9 +161,7 @@ class LoggingChecker(checkers.BaseChecker):
         ),
     )
 
-    def visit_module(
-        self, node: nodes.Module  # pylint: disable=unused-argument
-    ) -> None:
+    def visit_module(self, _: nodes.Module) -> None:
         """Clears any state left in this checker from last module checked."""
         # The code being checked can just as easily "import logging as foo",
         # so it is necessary to process the imports and store in this field

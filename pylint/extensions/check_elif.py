@@ -48,7 +48,7 @@ class ElseifUsedChecker(BaseTokenChecker):
             elif token == "if":
                 self._elifs.append(False)
 
-    def leave_module(self, _) -> None:
+    def leave_module(self, _: nodes.Module) -> None:
         self._init()
 
     def visit_ifexp(self, node: nodes.IfExp) -> None:

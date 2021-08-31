@@ -149,7 +149,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
             self.pkgdiagram = None
         self.classdiagram = ClassDiagram(f"classes {node.name}", mode)
 
-    def leave_project(self, node) -> Any:  # pylint: disable=unused-argument
+    def leave_project(self, _: Project) -> Any:
         """leave the pyreverse.utils.Project node
 
         return the generated diagram definition

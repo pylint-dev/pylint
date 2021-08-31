@@ -42,7 +42,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
             except astroid.InferenceError:
                 continue
 
-            handled_in_clause: list = []
+            handled_in_clause: List[Tuple[Any, Any]] = []
             for part, exc in excs:
                 if exc is astroid.Uninferable:
                     continue

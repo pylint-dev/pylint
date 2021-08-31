@@ -418,7 +418,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         ),
     )
 
-    def __init__(self, linter=None):  # pylint: disable=super-init-not-called
+    def __init__(self, linter: PyLinter = None):  # pylint: disable=super-init-not-called
         BaseChecker.__init__(self, linter)
         self.stats = None
         self.import_graph = None

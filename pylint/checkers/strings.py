@@ -354,7 +354,7 @@ class StringFormatChecker(BaseChecker):
                     if (
                         format_type is not None
                         and arg_type
-                        and not arg_type == astroid.Uninferable
+                        and arg_type != astroid.Uninferable
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(

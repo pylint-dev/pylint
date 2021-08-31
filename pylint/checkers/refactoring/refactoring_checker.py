@@ -595,7 +595,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     self.add_message("trailing-comma-tuple", line=token.start[0])
 
     @utils.check_messages("consider-using-with")
-    def leave_module(self, _) -> None:
+    def leave_module(self, _: nodes.Module) -> None:
         # check for context managers that have been created but not used
         self._emit_consider_using_with_if_needed(
             self._consider_using_with_stack.module_scope

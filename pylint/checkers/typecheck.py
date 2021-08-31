@@ -1359,7 +1359,7 @@ accessed. Python regular expressions are accepted.",
         # Analyze the list of formal parameters.
         args = list(itertools.chain(called.args.posonlyargs or (), called.args.args))
         num_mandatory_parameters = len(args) - len(called.args.defaults)
-        parameters: List[List[Any]] = []
+        parameters: List[List[Union[Tuple[Optional[str], Any], bool]]] = []
         parameter_name_to_index = {}
         for i, arg in enumerate(args):
             if isinstance(arg, nodes.Tuple):
@@ -1641,7 +1641,7 @@ accessed. Python regular expressions are accepted.",
                 # of self explaining tests.
 
                 # Retrieve node from all previusly visited nodes in the the inference history
-                context_path_names: Any = filter(None, _unflatten(context.path))
+                context_path_names: Iterator[Any] = filter(None, _unflatten(context.path))
                 inferred_paths = _flatten_container(
                     safe_infer(path) for path in context_path_names
                 )
@@ -1799,7 +1799,7 @@ accessed. Python regular expressions are accepted.",
         if isinstance(node.value, nodes.Dict):
             # Assert dict key is hashable
             inferred = safe_infer(node.slice)
-            if inferred and not inferred == astroid.Uninferable:
+            if inferred and inferred != astroid.Uninferable:
                 try:
                     hash_fn = next(inferred.igetattr("__hash__"))
                 except astroid.InferenceError:

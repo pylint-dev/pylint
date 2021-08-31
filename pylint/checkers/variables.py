@@ -786,7 +786,7 @@ class VariablesChecker(BaseChecker):
         """visit class: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "class"))
 
-    def leave_classdef(self, _) -> None:
+    def leave_classdef(self, _: nodes.ClassDef) -> None:
         """leave class: update consumption analysis variable"""
         # do not check for not used locals here (no sense)
         self._to_consume.pop()
@@ -795,7 +795,7 @@ class VariablesChecker(BaseChecker):
         """visit lambda: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "lambda"))
 
-    def leave_lambda(self, _) -> None:
+    def leave_lambda(self, _: nodes.Lambda) -> None:
         """leave lambda: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
@@ -804,7 +804,7 @@ class VariablesChecker(BaseChecker):
         """visit genexpr: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
-    def leave_generatorexp(self, _) -> None:
+    def leave_generatorexp(self, _: nodes.GeneratorExp) -> None:
         """leave genexpr: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
@@ -813,7 +813,7 @@ class VariablesChecker(BaseChecker):
         """visit dictcomp: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
-    def leave_dictcomp(self, _) -> None:
+    def leave_dictcomp(self, _: nodes.DictComp) -> None:
         """leave dictcomp: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
@@ -822,7 +822,7 @@ class VariablesChecker(BaseChecker):
         """visit setcomp: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
-    def leave_setcomp(self, _) -> None:
+    def leave_setcomp(self, _: nodes.SetComp) -> None:
         """leave setcomp: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
@@ -1271,7 +1271,7 @@ class VariablesChecker(BaseChecker):
         """visit dictcomp: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
-    def leave_listcomp(self, _) -> None:
+    def leave_listcomp(self, _: nodes.ListComp) -> None:
         """leave dictcomp: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()

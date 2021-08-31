@@ -201,9 +201,7 @@ class BaseVisitor:
         else:
             self.visit_default(node)
 
-    def visit_default(
-        self, node: nodes.NodeNG
-    ) -> None:  # pylint: disable=unused-argument
+    def visit_default(self, _: nodes.NodeNG) -> None:
         """Default implementation for all the nodes."""
 
 
@@ -250,7 +248,7 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
             if cls.newstyle:
                 self._checker.add_message("raising-non-exception", node=self._node)
 
-    def visit_tuple(self, _) -> None:
+    def visit_tuple(self, _: nodes.Tuple) -> None:
         self._checker.add_message("raising-bad-type", node=self._node, args="tuple")
 
     def visit_default(self, node: nodes.NodeNG) -> None:
@@ -512,7 +510,7 @@ class ExceptionsChecker(checkers.BaseChecker):
     def visit_tryexcept(self, node: nodes.TryExcept) -> None:
         """check for empty except"""
         self._check_try_except_raise(node)
-        exceptions_classes: list = []
+        exceptions_classes: List[Any] = []
         nb_handlers = len(node.handlers)
         for index, handler in enumerate(node.handlers):
             if handler.type is None:

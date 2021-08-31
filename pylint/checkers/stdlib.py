@@ -444,7 +444,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ),
     }
 
-    def __init__(self, linter=None):  # pylint: disable=super-init-not-called
+    def __init__(self, linter: PyLinter = None):  # pylint: disable=super-init-not-called
         BaseChecker.__init__(self, linter)
         self._deprecated_methods = set()
         self._deprecated_methods.update(DEPRECATED_METHODS[0])

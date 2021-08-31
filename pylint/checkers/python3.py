@@ -960,9 +960,7 @@ class Python3Checker(checkers.BaseChecker):
         new_node = self._branch_stack.pop()
         assert new_node.node == node
 
-    def visit_module(
-        self, node: nodes.Module  # pylint: disable=unused-argument
-    ) -> None:
+    def visit_module(self, _: nodes.Module) -> None:
         """Clear checker state after previous module."""
         self._future_division = False
         self._future_absolute_import = False
