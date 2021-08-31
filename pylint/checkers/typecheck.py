@@ -1862,6 +1862,10 @@ accessed. Python regular expressions are accepted.",
             # the iterable is not a dict
             return
 
+        if all(isinstance(i[0], nodes.Tuple) for i in inferred.items):
+            # if all keys are tuples
+            return
+
         self.add_message("dict-iter-missing-items", node=node)
 
 
