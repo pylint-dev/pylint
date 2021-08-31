@@ -20,12 +20,10 @@ New checkers
 Extensions
 ==========
 
-
 * Added new extension ``SetMembershipChecker`` with ``use-set-for-membership`` check:
   Emitted when using an in-place defined ``list`` or ``tuple`` to do a membership test. ``sets`` are better optimized for that.
 
   Closes #4776
-
 
 * ``CodeStyleChecker``
 
@@ -40,8 +38,16 @@ Other Changes
 
 * Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependant checks.
   Will default to whatever Python version pylint is executed with.
+
 * The ``invalid-name`` message is now more detailed when using multiple naming style regexes.
+
+* Fix false positive for ``consider-using-with`` if a context manager is assigned to a
+  variable in different paths of control flow (e. g. if-else clause).
+
+  Closes #4751
 
 * Fix false positive for ``function-redefined`` for simple type annotations
 
   Closes #4936
+
+* Fix false positive for ``protected-access`` if a protected member is used in type hints of function definitions

@@ -43,6 +43,8 @@ Release date: TBA
 
   Closes #4936
 
+* Fix false positive for ``protected-access`` if a protected member is used in type hints of function definitions
+
 
 What's New in Pylint 2.10.3?
 ============================
