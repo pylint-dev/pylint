@@ -1641,7 +1641,9 @@ accessed. Python regular expressions are accepted.",
                 # of self explaining tests.
 
                 # Retrieve node from all previusly visited nodes in the the inference history
-                context_path_names: Iterator[Any] = filter(None, _unflatten(context.path))
+                context_path_names: Iterator[Any] = filter(
+                    None, _unflatten(context.path)
+                )
                 inferred_paths = _flatten_container(
                     safe_infer(path) for path in context_path_names
                 )
