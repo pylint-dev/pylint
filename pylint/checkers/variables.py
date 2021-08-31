@@ -715,7 +715,7 @@ class VariablesChecker(BaseChecker):
         self._postponed_evaluation_enabled = False
 
     @utils.check_messages("redefined-outer-name")
-    def visit_for(self, node):
+    def visit_for(self, node: nodes.For) -> None:
         assigned_to = [a.name for a in node.target.nodes_of_class(nodes.AssignName)]
 
         # Only check variables that are used
@@ -737,11 +737,11 @@ class VariablesChecker(BaseChecker):
         self._loop_variables.append((node, assigned_to))
 
     @utils.check_messages("redefined-outer-name")
-    def leave_for(self, node):
+    def leave_for(self, node: nodes.For) -> None:
         self._loop_variables.pop()
         self._store_type_annotation_names(node)
 
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         """visit module : update consumption analysis variable
         checks globals doesn't overrides builtins
         """
@@ -763,7 +763,7 @@ class VariablesChecker(BaseChecker):
         "invalid-all-format",
         "unused-variable",
     )
-    def leave_module(self, node):
+    def leave_module(self, node: nodes.Module) -> None:
         """leave module: check globals"""
         assert len(self._to_consume) == 1
 
@@ -782,52 +782,52 @@ class VariablesChecker(BaseChecker):
 
         self._check_imports(not_consumed)
 
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         """visit class: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "class"))
 
-    def leave_classdef(self, _):
+    def leave_classdef(self, _) -> None:
         """leave class: update consumption analysis variable"""
         # do not check for not used locals here (no sense)
         self._to_consume.pop()
 
-    def visit_lambda(self, node):
+    def visit_lambda(self, node: nodes.Lambda) -> None:
         """visit lambda: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "lambda"))
 
-    def leave_lambda(self, _):
+    def leave_lambda(self, _) -> None:
         """leave lambda: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
 
-    def visit_generatorexp(self, node):
+    def visit_generatorexp(self, node: nodes.GeneratorExp) -> None:
         """visit genexpr: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
-    def leave_generatorexp(self, _):
+    def leave_generatorexp(self, _) -> None:
         """leave genexpr: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
 
-    def visit_dictcomp(self, node):
+    def visit_dictcomp(self, node: nodes.DictComp) -> None:
         """visit dictcomp: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
-    def leave_dictcomp(self, _):
+    def leave_dictcomp(self, _) -> None:
         """leave dictcomp: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
 
-    def visit_setcomp(self, node):
+    def visit_setcomp(self, node: nodes.SetComp) -> None:
         """visit setcomp: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
-    def leave_setcomp(self, _):
+    def leave_setcomp(self, _) -> None:
         """leave setcomp: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """visit function: update consumption analysis variable and check locals"""
         self._to_consume.append(NamesConsumer(node, "function"))
         if not (
@@ -869,7 +869,7 @@ class VariablesChecker(BaseChecker):
                 # do not print Redefining builtin for additional builtins
                 self.add_message("redefined-builtin", args=name, node=stmt)
 
-    def leave_functiondef(self, node):
+    def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         """leave function: check function's locals are consumed"""
         self._check_metaclasses(node)
 
@@ -911,7 +911,7 @@ class VariablesChecker(BaseChecker):
         "global-at-module-level",
         "redefined-builtin",
     )
-    def visit_global(self, node):
+    def visit_global(self, node: nodes.Global) -> None:
         """check names imported exists in the global scope"""
         frame = node.frame()
         if isinstance(frame, nodes.Module):
@@ -955,15 +955,15 @@ class VariablesChecker(BaseChecker):
         if default_message:
             self.add_message("global-statement", node=node)
 
-    def visit_assignname(self, node):
+    def visit_assignname(self, node: nodes.AssignName) -> None:
         if isinstance(node.assign_type(), nodes.AugAssign):
             self.visit_name(node)
 
-    def visit_delname(self, node):
+    def visit_delname(self, node: nodes.DelName) -> None:
         self.visit_name(node)
 
     # pylint: disable=too-many-branches
-    def visit_name(self, node):
+    def visit_name(self, node: nodes.Name) -> None:
         """Check that a name is defined in the current scope"""
         stmt = node.statement()
         if stmt.fromlineno is None:
@@ -1249,7 +1249,7 @@ class VariablesChecker(BaseChecker):
     @utils.check_messages(
         "unbalanced-tuple-unpacking", "unpacking-non-sequence", "self-cls-assignment"
     )
-    def visit_assign(self, node):
+    def visit_assign(self, node: nodes.Assign) -> None:
         """Check unbalanced tuple unpacking for assignments
         and unpacking non-sequences as well as in case self/cls
         get assigned.
@@ -1267,22 +1267,22 @@ class VariablesChecker(BaseChecker):
             return
 
     # listcomp have now also their scope
-    def visit_listcomp(self, node):
+    def visit_listcomp(self, node: nodes.ListComp) -> None:
         """visit dictcomp: update consumption analysis variable"""
         self._to_consume.append(NamesConsumer(node, "comprehension"))
 
-    def leave_listcomp(self, _):
+    def leave_listcomp(self, _) -> None:
         """leave dictcomp: update consumption analysis variable"""
         # do not check for not used locals here
         self._to_consume.pop()
 
-    def leave_assign(self, node):
+    def leave_assign(self, node: nodes.Assign) -> None:
         self._store_type_annotation_names(node)
 
-    def leave_with(self, node):
+    def leave_with(self, node: nodes.With) -> None:
         self._store_type_annotation_names(node)
 
-    def visit_arguments(self, node):
+    def visit_arguments(self, node: nodes.Arguments) -> None:
         for annotation in node.type_comment_args:
             self._store_type_annotation_node(annotation)
 

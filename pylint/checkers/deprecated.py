@@ -8,7 +8,7 @@ from typing import Any, Container, Iterable, Tuple, Union
 import astroid
 from astroid import nodes
 
-from pylint.checkers import utils
+from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import get_import_name, infer_all, safe_infer
 
 ACCEPTABLE_NODES = (
@@ -19,7 +19,7 @@ ACCEPTABLE_NODES = (
 )
 
 
-class DeprecatedMixin:
+class DeprecatedMixin(BaseChecker):
     """A mixin implementing logic for checking deprecated symbols.
     A class implementing mixin must define "deprecated-method" Message.
     """
@@ -68,7 +68,7 @@ class DeprecatedMixin:
         "deprecated-module",
         "deprecated-class",
     )
-    def visit_import(self, node):
+    def visit_import(self, node: nodes.Import) -> None:
         """triggered when an import statement is seen"""
         for name in (name for name, _ in node.names):
             self.check_deprecated_module(node, name)
@@ -87,7 +87,7 @@ class DeprecatedMixin:
         return ()
 
     @utils.check_messages("deprecated-decorator")
-    def visit_decorators(self, node):
+    def visit_decorators(self, node: nodes.Decorators) -> None:
         """Triggered when a decorator statement is seen"""
         children = list(node.get_children())
         if not children:
@@ -104,7 +104,7 @@ class DeprecatedMixin:
         "deprecated-module",
         "deprecated-class",
     )
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """triggered when a from statement is seen"""
         basename = node.modname
         basename = get_import_name(node, basename)

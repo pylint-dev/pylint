@@ -1,4 +1,6 @@
 """Check for use of while loops."""
+from astroid import nodes
+
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
@@ -17,7 +19,7 @@ class WhileChecker(BaseChecker):
     }
 
     @check_messages("while-used")
-    def visit_while(self, node):
+    def visit_while(self, node: nodes.While) -> None:
         self.add_message("while-used", node=node)
 
 

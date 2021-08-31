@@ -24,6 +24,7 @@
 """checker for use of Python logging
 """
 import string
+from typing import Set
 
 import astroid
 from astroid import nodes
@@ -160,12 +161,14 @@ class LoggingChecker(checkers.BaseChecker):
         ),
     )
 
-    def visit_module(self, node):  # pylint: disable=unused-argument
+    def visit_module(
+        self, node: nodes.Module  # pylint: disable=unused-argument
+    ) -> None:
         """Clears any state left in this checker from last module checked."""
         # The code being checked can just as easily "import logging as foo",
         # so it is necessary to process the imports and store in this field
         # what name the logging module is actually given.
-        self._logging_names = set()
+        self._logging_names: Set[str] = set()
         logging_mods = self.config.logging_modules
 
         self._format_style = self.config.logging_format_style
@@ -177,7 +180,7 @@ class LoggingChecker(checkers.BaseChecker):
             if len(parts) > 1:
                 self._from_imports[parts[0]] = parts[1]
 
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """Checks to see if a module uses a non-Python logging module."""
         try:
             logging_name = self._from_imports[node.modname]
@@ -187,14 +190,14 @@ class LoggingChecker(checkers.BaseChecker):
         except KeyError:
             pass
 
-    def visit_import(self, node):
+    def visit_import(self, node: nodes.Import) -> None:
         """Checks to see if this module uses Python's built-in logging."""
         for module, as_name in node.names:
             if module in self._logging_modules:
                 self._logging_names.add(as_name or module)
 
     @check_messages(*MSGS)
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         """Checks calls to logging methods."""
 
         def is_logging_name():

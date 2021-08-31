@@ -66,7 +66,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import Optional, Pattern
+from typing import Any, Optional, Pattern
 
 import astroid
 from astroid import nodes
@@ -565,7 +565,7 @@ class BasicErrorChecker(_BasicChecker):
     }
 
     @utils.check_messages("function-redefined")
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_redefinition("class", node)
 
     def _too_many_starred_for_tuple(self, assign_tuple):
@@ -578,7 +578,7 @@ class BasicErrorChecker(_BasicChecker):
         return starred_count > 1
 
     @utils.check_messages("too-many-star-expressions", "invalid-star-assignment-target")
-    def visit_assign(self, node):
+    def visit_assign(self, node: nodes.Assign) -> None:
         # Check *a, *b = ...
         assign_target = node.targets[0]
         # Check *a = b
@@ -591,7 +591,7 @@ class BasicErrorChecker(_BasicChecker):
             self.add_message("too-many-star-expressions", node=node)
 
     @utils.check_messages("star-needs-assignment-target")
-    def visit_starred(self, node):
+    def visit_starred(self, node: nodes.Starred) -> None:
         """Check that a Starred expression is used in an assignment target."""
         if isinstance(node.parent, nodes.Call):
             # f(*args) is converted to Call(args=[Starred]), so ignore
@@ -617,7 +617,7 @@ class BasicErrorChecker(_BasicChecker):
         "nonlocal-and-global",
         "used-prior-global-declaration",
     )
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         self._check_nonlocal_and_global(node)
         self._check_name_used_prior_global(node)
         if not redefined_by_decorator(
@@ -638,7 +638,7 @@ class BasicErrorChecker(_BasicChecker):
                     self.add_message("return-in-init", node=node)
         # Check for duplicate names by clustering args with same name for detailed report
         arg_clusters = collections.defaultdict(list)
-        arguments = filter(None, [node.args.args, node.args.kwonlyargs])
+        arguments: Any = filter(None, [node.args.args, node.args.kwonlyargs])
 
         for arg in itertools.chain.from_iterable(arguments):
             arg_clusters[arg.name].append(arg)
@@ -712,36 +712,36 @@ class BasicErrorChecker(_BasicChecker):
             self.add_message("nonlocal-and-global", args=(name,), node=node)
 
     @utils.check_messages("return-outside-function")
-    def visit_return(self, node):
+    def visit_return(self, node: nodes.Return) -> None:
         if not isinstance(node.frame(), nodes.FunctionDef):
             self.add_message("return-outside-function", node=node)
 
     @utils.check_messages("yield-outside-function")
-    def visit_yield(self, node):
+    def visit_yield(self, node: nodes.Yield) -> None:
         self._check_yield_outside_func(node)
 
     @utils.check_messages("yield-outside-function")
-    def visit_yieldfrom(self, node):
+    def visit_yieldfrom(self, node: nodes.YieldFrom) -> None:
         self._check_yield_outside_func(node)
 
     @utils.check_messages("not-in-loop", "continue-in-finally")
-    def visit_continue(self, node):
+    def visit_continue(self, node: nodes.Continue) -> None:
         self._check_in_loop(node, "continue")
 
     @utils.check_messages("not-in-loop")
-    def visit_break(self, node):
+    def visit_break(self, node: nodes.Break) -> None:
         self._check_in_loop(node, "break")
 
     @utils.check_messages("useless-else-on-loop")
-    def visit_for(self, node):
+    def visit_for(self, node: nodes.For) -> None:
         self._check_else_on_loop(node)
 
     @utils.check_messages("useless-else-on-loop")
-    def visit_while(self, node):
+    def visit_while(self, node: nodes.While) -> None:
         self._check_else_on_loop(node)
 
     @utils.check_messages("nonexistent-operator")
-    def visit_unaryop(self, node):
+    def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """check use of the non-existent ++ and -- operator operator"""
         if (
             (node.op in "+-")
@@ -771,12 +771,12 @@ class BasicErrorChecker(_BasicChecker):
             self.add_message("nonlocal-without-binding", args=(name,), node=node)
 
     @utils.check_messages("nonlocal-without-binding")
-    def visit_nonlocal(self, node):
+    def visit_nonlocal(self, node: nodes.Nonlocal) -> None:
         for name in node.names:
             self._check_nonlocal_without_binding(node, name)
 
     @utils.check_messages("abstract-class-instantiated")
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         """Check instantiating abstract class with
         abc.ABCMeta as metaclass.
         """
@@ -1091,15 +1091,15 @@ class BasicChecker(_BasicChecker):
         self.stats = self.linter.add_stats(module=0, function=0, method=0, class_=0)
 
     @utils.check_messages("using-constant-test", "missing-parentheses-for-call-in-test")
-    def visit_if(self, node):
+    def visit_if(self, node: nodes.If) -> None:
         self._check_using_constant_test(node, node.test)
 
     @utils.check_messages("using-constant-test", "missing-parentheses-for-call-in-test")
-    def visit_ifexp(self, node):
+    def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_using_constant_test(node, node.test)
 
     @utils.check_messages("using-constant-test", "missing-parentheses-for-call-in-test")
-    def visit_comprehension(self, node):
+    def visit_comprehension(self, node: nodes.Comprehension) -> None:
         if node.ifs:
             for if_test in node.ifs:
                 self._check_using_constant_test(node, if_test)
@@ -1157,11 +1157,13 @@ class BasicChecker(_BasicChecker):
                     pass
             self.add_message("using-constant-test", node=node)
 
-    def visit_module(self, _):
+    def visit_module(self, _) -> None:
         """check module name, docstring and required arguments"""
         self.stats["module"] += 1
 
-    def visit_classdef(self, node):  # pylint: disable=unused-argument
+    def visit_classdef(
+        self, node: nodes.ClassDef  # pylint: disable=unused-argument
+    ) -> None:
         """check module name, docstring and redefinition
         increment branch counter
         """
@@ -1170,7 +1172,7 @@ class BasicChecker(_BasicChecker):
     @utils.check_messages(
         "pointless-statement", "pointless-string-statement", "expression-not-assigned"
     )
-    def visit_expr(self, node):
+    def visit_expr(self, node: nodes.Expr) -> None:
         """Check for various kind of statements without effect"""
         expr = node.value
         if isinstance(expr, nodes.Const) and isinstance(expr.value, str):
@@ -1240,7 +1242,7 @@ class BasicChecker(_BasicChecker):
         return False
 
     @utils.check_messages("unnecessary-lambda")
-    def visit_lambda(self, node):
+    def visit_lambda(self, node: nodes.Lambda) -> None:
         """check whether or not the lambda is suspicious"""
         # if the body of the lambda is a call expression with the same
         # argument list as the lambda itself, then the lambda is
@@ -1300,7 +1302,7 @@ class BasicChecker(_BasicChecker):
         self.add_message("unnecessary-lambda", line=node.fromlineno, node=node)
 
     @utils.check_messages("dangerous-default-value")
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
@@ -1350,7 +1352,7 @@ class BasicChecker(_BasicChecker):
                 self.add_message("dangerous-default-value", node=node, args=(msg,))
 
     @utils.check_messages("unreachable", "lost-exception")
-    def visit_return(self, node):
+    def visit_return(self, node: nodes.Return) -> None:
         """1 - check is the node has a right sibling (if so, that's some
         unreachable code)
         2 - check is the node is inside the finally clause of a try...finally
@@ -1361,14 +1363,14 @@ class BasicChecker(_BasicChecker):
         self._check_not_in_finally(node, "return", (nodes.FunctionDef,))
 
     @utils.check_messages("unreachable")
-    def visit_continue(self, node):
+    def visit_continue(self, node: nodes.Continue) -> None:
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
 
     @utils.check_messages("unreachable", "lost-exception")
-    def visit_break(self, node):
+    def visit_break(self, node: nodes.Break) -> None:
         """1 - check is the node has a right sibling (if so, that's some
         unreachable code)
         2 - check is the node is inside the finally clause of a try...finally
@@ -1380,14 +1382,14 @@ class BasicChecker(_BasicChecker):
         self._check_not_in_finally(node, "break", (nodes.For, nodes.While))
 
     @utils.check_messages("unreachable")
-    def visit_raise(self, node):
+    def visit_raise(self, node: nodes.Raise) -> None:
         """check if the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
 
     @utils.check_messages("exec-used")
-    def visit_exec(self, node):
+    def visit_exec(self, node) -> None:
         """just print a warning on exec statements"""
         self.add_message("exec-used", node=node)
 
@@ -1415,7 +1417,7 @@ class BasicChecker(_BasicChecker):
     @utils.check_messages(
         "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function"
     )
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         """visit a Call node -> check if this is not a disallowed builtin
         call and check for * or ** use
         """
@@ -1433,7 +1435,7 @@ class BasicChecker(_BasicChecker):
                     self.add_message("eval-used", node=node)
 
     @utils.check_messages("assert-on-tuple", "assert-on-string-literal")
-    def visit_assert(self, node):
+    def visit_assert(self, node: nodes.Assert) -> None:
         """check whether assert is used on a tuple or string literal."""
         if (
             node.fail is None
@@ -1450,7 +1452,7 @@ class BasicChecker(_BasicChecker):
             self.add_message("assert-on-string-literal", node=node, args=(when,))
 
     @utils.check_messages("duplicate-key")
-    def visit_dict(self, node):
+    def visit_dict(self, node: nodes.Dict) -> None:
         """check duplicate key in dictionary"""
         keys = set()
         for k, _ in node.items:
@@ -1460,11 +1462,13 @@ class BasicChecker(_BasicChecker):
                     self.add_message("duplicate-key", node=node, args=key)
                 keys.add(key)
 
-    def visit_tryfinally(self, node):
+    def visit_tryfinally(self, node: nodes.TryFinally) -> None:
         """update try...finally flag"""
         self._tryfinallys.append(node)
 
-    def leave_tryfinally(self, node):  # pylint: disable=unused-argument
+    def leave_tryfinally(
+        self, node: nodes.TryFinally  # pylint: disable=unused-argument
+    ) -> None:
         """update try...finally flag"""
         self._tryfinallys.pop()
 
@@ -1559,7 +1563,7 @@ class BasicChecker(_BasicChecker):
                 self.add_message("bad-reversed-sequence", node=node)
 
     @utils.check_messages("confusing-with-statement")
-    def visit_with(self, node):
+    def visit_with(self, node: nodes.With) -> None:
         # a "with" statement with multiple managers corresponds
         # to one AST "With" node with multiple items
         pairs = node.items
@@ -1641,12 +1645,12 @@ class BasicChecker(_BasicChecker):
                     )
 
     @utils.check_messages("self-assigning-variable", "redeclared-assigned-name")
-    def visit_assign(self, node):
+    def visit_assign(self, node: nodes.Assign) -> None:
         self._check_self_assigning_variable(node)
         self._check_redeclared_assign_name(node.targets)
 
     @utils.check_messages("redeclared-assigned-name")
-    def visit_for(self, node):
+    def visit_for(self, node: nodes.For) -> None:
         self._check_redeclared_assign_name([node.target])
 
 
@@ -1897,11 +1901,13 @@ class NameChecker(_BasicChecker):
         return regexps, hints
 
     @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         self._check_name("module", node.name.split(".")[-1], node)
         self._bad_names = {}
 
-    def leave_module(self, node):  # pylint: disable=unused-argument
+    def leave_module(
+        self, node: nodes.Module  # pylint: disable=unused-argument
+    ) -> None:
         for all_groups in self._bad_names.values():
             if len(all_groups) < 2:
                 continue
@@ -1920,12 +1926,12 @@ class NameChecker(_BasicChecker):
             else:
                 warnings = groups[min_warnings][0]
             for args in warnings:
-                self._raise_name_warning(*args, prevalent_group=prevalent_group)
+                self._raise_name_warning(prevalent_group, *args)
 
     @utils.check_messages(
         "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
     )
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name("class", node.name, node)
         for attr, anodes in node.instance_attrs.items():
@@ -1935,7 +1941,7 @@ class NameChecker(_BasicChecker):
     @utils.check_messages(
         "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
     )
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
         self._check_assign_to_new_keyword_violation(node.name, node)
@@ -1963,14 +1969,14 @@ class NameChecker(_BasicChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
-    def visit_global(self, node):
+    def visit_global(self, node: nodes.Global) -> None:
         for name in node.names:
             self._check_name("const", name, node)
 
     @utils.check_messages(
         "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
     )
-    def visit_assignname(self, node):
+    def visit_assignname(self, node: nodes.AssignName) -> None:
         """check module level assigned names"""
         self._check_assign_to_new_keyword_violation(node.name, node)
         frame = node.frame()
@@ -2022,12 +2028,12 @@ class NameChecker(_BasicChecker):
 
     def _raise_name_warning(
         self,
+        prevalent_group: Optional[str],
         node: nodes.NodeNG,
         node_type: str,
         name: str,
         confidence,
         warning: str = "invalid-name",
-        prevalent_group: Optional[str] = None,
     ) -> None:
         type_label = HUMAN_READABLE_TYPES[node_type]
         hint = self._name_hints[node_type]
@@ -2062,7 +2068,7 @@ class NameChecker(_BasicChecker):
         non_ascii_match = self._non_ascii_rgx_compiled.match(name)
         if non_ascii_match is not None:
             self._raise_name_warning(
-                node, node_type, name, confidence, warning="non-ascii-name"
+                None, node, node_type, name, confidence, warning="non-ascii-name"
             )
 
         def _should_exempt_from_invalid_name(node):
@@ -2088,7 +2094,7 @@ class NameChecker(_BasicChecker):
             warnings.append((node, node_type, name, confidence))
 
         if match is None and not _should_exempt_from_invalid_name(node):
-            self._raise_name_warning(node, node_type, name, confidence)
+            self._raise_name_warning(None, node, node_type, name, confidence)
 
     def _check_assign_to_new_keyword_violation(self, name, node):
         keyword_first_version = self._name_became_keyword_in_version(
@@ -2177,16 +2183,16 @@ class DocStringChecker(_BasicChecker):
         )
 
     @utils.check_messages("missing-docstring", "empty-docstring")
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         self._check_docstring("module", node)
 
     @utils.check_messages("missing-docstring", "empty-docstring")
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         if self.config.no_docstring_rgx.match(node.name) is None:
             self._check_docstring("class", node)
 
     @utils.check_messages("missing-docstring", "empty-docstring")
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if self.config.no_docstring_rgx.match(node.name) is None:
             ftype = "method" if node.is_method() else "function"
             if (
@@ -2281,7 +2287,7 @@ class PassChecker(_BasicChecker):
     }
 
     @utils.check_messages("unnecessary-pass")
-    def visit_pass(self, node):
+    def visit_pass(self, node: nodes.Pass) -> None:
         if len(node.parent.child_sequence(node)) > 1 or (
             isinstance(node.parent, (nodes.ClassDef, nodes.FunctionDef))
             and (node.parent.doc is not None)
@@ -2545,7 +2551,7 @@ class ComparisonChecker(_BasicChecker):
         "comparison-with-itself",
         "comparison-with-callable",
     )
-    def visit_compare(self, node):
+    def visit_compare(self, node: nodes.Compare) -> None:
         self._check_callable_comparison(node)
         self._check_logical_tautology(node)
         self._check_unidiomatic_typecheck(node)

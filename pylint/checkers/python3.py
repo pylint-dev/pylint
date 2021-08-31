@@ -946,26 +946,28 @@ class Python3Checker(checkers.BaseChecker):
             return True
         return False
 
-    def visit_if(self, node):
+    def visit_if(self, node: nodes.If) -> None:
         self._branch_stack.append(Branch(node, self._is_py2_test(node)))
 
-    def leave_if(self, node):
+    def leave_if(self, node: nodes.If) -> None:
         new_node = self._branch_stack.pop().node
         assert new_node == node
 
-    def visit_ifexp(self, node):
+    def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._branch_stack.append(Branch(node, self._is_py2_test(node)))
 
-    def leave_ifexp(self, node):
+    def leave_ifexp(self, node: nodes.IfExp) -> None:
         new_node = self._branch_stack.pop()
         assert new_node.node == node
 
-    def visit_module(self, node):  # pylint: disable=unused-argument
+    def visit_module(
+        self, node: nodes.Module  # pylint: disable=unused-argument
+    ) -> None:
         """Clear checker state after previous module."""
         self._future_division = False
         self._future_absolute_import = False
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.is_method():
             if node.name in self._unused_magic_methods:
                 method_name = node.name
@@ -985,13 +987,13 @@ class Python3Checker(checkers.BaseChecker):
                     self.add_message("next-method-defined", node=node)
 
     @utils.check_messages("parameter-unpacking")
-    def visit_arguments(self, node):
+    def visit_arguments(self, node: nodes.Arguments) -> None:
         for arg in node.args:
             if isinstance(arg, nodes.Tuple):
                 self.add_message("parameter-unpacking", node=arg)
 
     @utils.check_messages("comprehension-escape")
-    def visit_listcomp(self, node):
+    def visit_listcomp(self, node: nodes.ListComp) -> None:
         names = {
             generator.target.name
             for generator in node.generators
@@ -1023,7 +1025,7 @@ class Python3Checker(checkers.BaseChecker):
             emitted_for_names.add(scope_name.name)
             self.add_message("comprehension-escape", node=scope_name)
 
-    def visit_name(self, node):
+    def visit_name(self, node: nodes.Name) -> None:
         """Detect when a "bad" built-in is referenced."""
         found_node, _ = node.lookup(node.name)
         if not _is_builtin(found_node):
@@ -1039,7 +1041,7 @@ class Python3Checker(checkers.BaseChecker):
         self.add_message(message, node=node)
 
     @utils.check_messages("print-statement")
-    def visit_print(self, node):
+    def visit_print(self, node) -> None:
         self.add_message("print-statement", node=node, always_warn=True)
 
     def _warn_if_deprecated(self, node, module, attributes, report_on_modules=True):
@@ -1052,7 +1054,7 @@ class Python3Checker(checkers.BaseChecker):
                 elif attributes and module_map[module].intersection(attributes):
                     self.add_message(message, node=node)
 
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         if node.modname == "__future__":
             for name, _ in node.names:
                 if name == "division":
@@ -1072,7 +1074,7 @@ class Python3Checker(checkers.BaseChecker):
                 if not isinstance(node.scope(), nodes.Module):
                     self.add_message("import-star-module-level", node=node)
 
-    def visit_import(self, node):
+    def visit_import(self, node: nodes.Import) -> None:
         if not self._future_absolute_import:
             if self.linter.is_message_enabled("no-absolute-import"):
                 self.add_message("no-absolute-import", node=node)
@@ -1082,7 +1084,7 @@ class Python3Checker(checkers.BaseChecker):
                 self._warn_if_deprecated(node, name, None)
 
     @utils.check_messages("metaclass-assignment")
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         if "__metaclass__" in node.locals:
             self.add_message("metaclass-assignment", node=node)
         locals_and_methods = set(node.locals).union(x.name for x in node.mymethods())
@@ -1090,7 +1092,7 @@ class Python3Checker(checkers.BaseChecker):
             self.add_message("eq-without-hash", node=node)
 
     @utils.check_messages("old-division")
-    def visit_binop(self, node):
+    def visit_binop(self, node: nodes.BinOp) -> None:
         if not self._future_division and node.op == "/":
             for arg in (node.left, node.right):
                 inferred = utils.safe_infer(arg)
@@ -1162,7 +1164,7 @@ class Python3Checker(checkers.BaseChecker):
                 return None
         return confidence
 
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         self._check_cmp_argument(node)
 
         if isinstance(node.func, nodes.Attribute):
@@ -1254,7 +1256,7 @@ class Python3Checker(checkers.BaseChecker):
                 self.add_message("invalid-str-codec", node=node)
 
     @utils.check_messages("indexing-exception")
-    def visit_subscript(self, node):
+    def visit_subscript(self, node: nodes.Subscript) -> None:
         """Look for indexing exceptions."""
         try:
             for inferred in node.value.infer():
@@ -1265,15 +1267,15 @@ class Python3Checker(checkers.BaseChecker):
         except astroid.InferenceError:
             return
 
-    def visit_assignattr(self, node):
+    def visit_assignattr(self, node: nodes.AssignAttr) -> None:
         if isinstance(node.assign_type(), nodes.AugAssign):
             self.visit_attribute(node)
 
-    def visit_delattr(self, node):
+    def visit_delattr(self, node: nodes.DelAttr) -> None:
         self.visit_attribute(node)
 
     @utils.check_messages("exception-message-attribute", "xreadlines-attribute")
-    def visit_attribute(self, node):
+    def visit_attribute(self, node: nodes.Attribute) -> None:
         """Look for removed attributes"""
         if node.attrname == "xreadlines":
             self.add_message("xreadlines-attribute", node=node)
@@ -1301,7 +1303,7 @@ class Python3Checker(checkers.BaseChecker):
             return
 
     @utils.check_messages("unpacking-in-except", "comprehension-escape")
-    def visit_excepthandler(self, node):
+    def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
         """Visit an except handler block and check for exception unpacking."""
 
         def _is_used_in_except_block(node, block):
@@ -1344,11 +1346,11 @@ class Python3Checker(checkers.BaseChecker):
             self.add_message("exception-escape", node=leaked_name)
 
     @utils.check_messages("backtick")
-    def visit_repr(self, node):
+    def visit_repr(self, node) -> None:
         self.add_message("backtick", node=node)
 
     @utils.check_messages("raising-string", "old-raise-syntax")
-    def visit_raise(self, node):
+    def visit_raise(self, node: nodes.Raise) -> None:
         """Visit a raise statement and check for raising
         strings or old-raise-syntax.
         """

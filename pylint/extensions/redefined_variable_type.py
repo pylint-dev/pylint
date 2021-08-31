@@ -43,18 +43,18 @@ class MultipleTypesChecker(BaseChecker):
         )
     }
 
-    def visit_classdef(self, _):
+    def visit_classdef(self, _) -> None:
         self._assigns.append({})
 
     @check_messages("redefined-variable-type")
-    def leave_classdef(self, _):
+    def leave_classdef(self, _) -> None:
         self._check_and_add_messages()
 
     visit_functiondef = visit_classdef
     leave_functiondef = leave_module = leave_classdef
 
-    def visit_module(self, _):
-        self._assigns = [{}]
+    def visit_module(self, _) -> None:
+        self._assigns: list[dict] = [{}]
 
     def _check_and_add_messages(self):
         assigns = self._assigns.pop()
@@ -93,7 +93,7 @@ class MultipleTypesChecker(BaseChecker):
                 )
                 break
 
-    def visit_assign(self, node):
+    def visit_assign(self, node: nodes.Assign) -> None:
         # we don't handle multiple assignment nor slice assignment
         target = node.targets[0]
         if isinstance(target, (nodes.Tuple, nodes.Subscript)):

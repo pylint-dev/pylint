@@ -48,19 +48,19 @@ class ElseifUsedChecker(BaseTokenChecker):
             elif token == "if":
                 self._elifs.append(False)
 
-    def leave_module(self, _):
+    def leave_module(self, _) -> None:
         self._init()
 
-    def visit_ifexp(self, node):
+    def visit_ifexp(self, node: nodes.IfExp) -> None:
         if isinstance(node.parent, nodes.FormattedValue):
             return
         self._if_counter += 1
 
-    def visit_comprehension(self, node):
+    def visit_comprehension(self, node: nodes.Comprehension) -> None:
         self._if_counter += len(node.ifs)
 
     @check_messages("else-if-used")
-    def visit_if(self, node):
+    def visit_if(self, node: nodes.If) -> None:
         if isinstance(node.parent, nodes.If):
             orelse = node.parent.orelse
             # current if node must directly follow an "else"

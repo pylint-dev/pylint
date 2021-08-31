@@ -444,7 +444,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ),
     }
 
-    def __init__(self, linter=None):
+    def __init__(self, linter=None):  # pylint: disable=super-init-not-called
         BaseChecker.__init__(self, linter)
         self._deprecated_methods = set()
         self._deprecated_methods.update(DEPRECATED_METHODS[0])
@@ -548,20 +548,20 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             self.check_deprecated_method(node, inferred)
 
     @utils.check_messages("boolean-datetime")
-    def visit_unaryop(self, node):
+    def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         if node.op == "not":
             self._check_datetime(node.operand)
 
     @utils.check_messages("boolean-datetime")
-    def visit_if(self, node):
+    def visit_if(self, node: nodes.If) -> None:
         self._check_datetime(node.test)
 
     @utils.check_messages("boolean-datetime")
-    def visit_ifexp(self, node):
+    def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_datetime(node.test)
 
     @utils.check_messages("boolean-datetime")
-    def visit_boolop(self, node):
+    def visit_boolop(self, node: nodes.BoolOp) -> None:
         for value in node.values:
             self._check_datetime(value)
 

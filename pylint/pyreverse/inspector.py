@@ -113,7 +113,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         # visited project
         self.project = project
 
-    def visit_project(self, node):
+    def visit_project(self, node) -> None:
         """visit a pyreverse.utils.Project node
 
         * optionally tag the node with a unique id
@@ -123,7 +123,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         for module in node.modules:
             self.visit(module)
 
-    def visit_package(self, node):
+    def visit_package(self, node) -> None:
         """visit an astroid.Package node
 
         * optionally tag the node with a unique id
@@ -133,7 +133,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         for subelmt in node.values():
             self.visit(subelmt)
 
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         """visit an astroid.Module node
 
         * set the locals_type mapping
@@ -147,7 +147,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         if self.tag:
             node.uid = self.generate_id()
 
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         """visit an astroid.Class node
 
         * set the locals_type and instance_attrs_type mappings
@@ -176,7 +176,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         except astroid.InferenceError:
             node.implements = []
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """visit an astroid.Function node
 
         * set the locals_type mapping
@@ -193,7 +193,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     link_class = visit_classdef
     link_function = visit_functiondef
 
-    def visit_assignname(self, node):
+    def visit_assignname(self, node: nodes.AssignName) -> None:
         """visit an astroid.AssignName node
 
         handle locals_type
@@ -234,7 +234,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             current | utils.infer_node(node)
         )
 
-    def visit_import(self, node):
+    def visit_import(self, node: nodes.Import) -> None:
         """visit an astroid.Import node
 
         resolve module dependencies
@@ -244,7 +244,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             relative = astroid.modutils.is_relative(name[0], context_file)
             self._imported_module(node, name[0], relative)
 
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """visit an astroid.ImportFrom node
 
         resolve module dependencies

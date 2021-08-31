@@ -418,7 +418,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         ),
     )
 
-    def __init__(self, linter=None):
+    def __init__(self, linter=None):  # pylint: disable=super-init-not-called
         BaseChecker.__init__(self, linter)
         self.stats = None
         self.import_graph = None
@@ -494,7 +494,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return self.config.deprecated_modules
 
     @check_messages(*MSGS)
-    def visit_import(self, node):
+    def visit_import(self, node: nodes.Import) -> None:
         """triggered when an import statement is seen"""
         self._check_reimport(node)
         self._check_import_as_rename(node)
@@ -520,7 +520,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             self._add_imported_module(node, imported_module.name)
 
     @check_messages(*MSGS)
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """triggered when a from statement is seen"""
         basename = node.modname
         imported_module = self._get_imported_module(node, basename)
@@ -618,7 +618,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         visit_ifexp
     ) = visit_comprehension = visit_expr = visit_if = compute_first_non_import_node
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if not self.linter.is_message_enabled("wrong-import-position", node.fromlineno):
             return
         # If it is the first non import instruction of the module, record it.

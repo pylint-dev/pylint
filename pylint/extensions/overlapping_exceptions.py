@@ -4,6 +4,7 @@
 """Looks for overlapping exceptions."""
 
 import astroid
+from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -29,7 +30,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
     options = ()
 
     @utils.check_messages("overlapping-except")
-    def visit_tryexcept(self, node):
+    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
         """check for empty except"""
         for handler in node.handlers:
             if handler.type is None:
@@ -41,7 +42,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
             except astroid.InferenceError:
                 continue
 
-            handled_in_clause = []
+            handled_in_clause: list = []
             for part, exc in excs:
                 if exc is astroid.Uninferable:
                     continue

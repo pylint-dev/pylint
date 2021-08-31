@@ -173,7 +173,7 @@ class TypingChecker(BaseChecker):
         "consider-using-alias",
         "consider-alternative-union-syntax",
     )
-    def visit_attribute(self, node: nodes.Attribute):
+    def visit_attribute(self, node: nodes.Attribute) -> None:
         if self._should_check_typing_alias and node.attrname in ALIAS_NAMES:
             self._check_for_typing_alias(node)
         if self._should_check_alternative_union_syntax and node.attrname in UNION_NAMES:

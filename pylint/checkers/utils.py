@@ -1164,11 +1164,15 @@ def supports_getitem(value: nodes.NodeNG, node: nodes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_getitem_protocol)
 
 
-def supports_setitem(value: nodes.NodeNG, *_: Any) -> bool:
+def supports_setitem(
+    value: nodes.NodeNG, node: nodes.NodeNG  # pylint: disable=unused-argument
+) -> bool:
     return _supports_protocol(value, _supports_setitem_protocol)
 
 
-def supports_delitem(value: nodes.NodeNG, *_: Any) -> bool:
+def supports_delitem(
+    value: nodes.NodeNG, node: nodes.NodeNG  # pylint: disable=unused-argument
+) -> bool:
     return _supports_protocol(value, _supports_delitem_protocol)
 
 
@@ -1245,7 +1249,7 @@ def is_none(node: nodes.NodeNG) -> bool:
     )
 
 
-def node_type(node: nodes.NodeNG) -> Optional[type]:
+def node_type(node: nodes.NodeNG) -> Optional[Any]:
     """Return the inferred type for `node`
 
     If there is more than one possible type, or if inferred type is Uninferable or None,

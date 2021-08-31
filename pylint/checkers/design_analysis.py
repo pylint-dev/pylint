@@ -417,7 +417,7 @@ class MisdesignChecker(BaseChecker):
         "too-few-public-methods",
         "too-many-public-methods",
     )
-    def visit_classdef(self, node: nodes.ClassDef):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         """check size of inheritance hierarchy and number of instance attributes"""
         parents = _get_parents(
             node, STDLIB_CLASSES_IGNORE_ANCESTOR.union(self.config.ignored_parents)
@@ -438,7 +438,7 @@ class MisdesignChecker(BaseChecker):
             )
 
     @check_messages("too-few-public-methods", "too-many-public-methods")
-    def leave_classdef(self, node):
+    def leave_classdef(self, node: nodes.ClassDef) -> None:
         """check number of public methods"""
         my_methods = sum(
             1 for method in node.mymethods() if not method.name.startswith("_")
@@ -482,7 +482,7 @@ class MisdesignChecker(BaseChecker):
         "too-many-statements",
         "keyword-arg-before-vararg",
     )
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
@@ -525,7 +525,7 @@ class MisdesignChecker(BaseChecker):
         "too-many-locals",
         "too-many-statements",
     )
-    def leave_functiondef(self, node):
+    def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         """most of the work is done here on close:
         checks for max returns, branch, return in __init__
         """
@@ -554,20 +554,20 @@ class MisdesignChecker(BaseChecker):
 
     leave_asyncfunctiondef = leave_functiondef
 
-    def visit_return(self, _):
+    def visit_return(self, _) -> None:
         """count number of returns"""
         if not self._returns:
             return  # return outside function, reported by the base checker
         self._returns[-1] += 1
 
-    def visit_default(self, node):
+    def visit_default(self, node) -> None:
         """default visit method -> increments the statements counter if
         necessary
         """
         if node.is_statement:
             self._inc_all_stmts(1)
 
-    def visit_tryexcept(self, node):
+    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
         """increments the branches counter"""
         branches = len(node.handlers)
         if node.orelse:
@@ -575,13 +575,13 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch(node, branches)
         self._inc_all_stmts(branches)
 
-    def visit_tryfinally(self, node):
+    def visit_tryfinally(self, node: nodes.TryFinally) -> None:
         """increments the branches counter"""
         self._inc_branch(node, 2)
         self._inc_all_stmts(2)
 
     @check_messages("too-many-boolean-expressions")
-    def visit_if(self, node):
+    def visit_if(self, node: nodes.If) -> None:
         """increments the branches counter and checks boolean expressions"""
         self._check_boolean_expressions(node)
         branches = 1
@@ -609,7 +609,7 @@ class MisdesignChecker(BaseChecker):
                 args=(nb_bool_expr, self.config.max_bool_expr),
             )
 
-    def visit_while(self, node):
+    def visit_while(self, node: nodes.While) -> None:
         """increments the branches counter"""
         branches = 1
         if node.orelse:

@@ -27,6 +27,7 @@ import re
 from typing import Optional
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
@@ -205,7 +206,7 @@ class DocstringParameterChecker(BaseChecker):
     constructor_names = {"__init__", "__new__"}
     not_needed_param_in_docstring = {"self", "cls"}
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Called for function and method definitions (def).
 
         :param node: Node for a function or method definition in the AST
@@ -278,7 +279,7 @@ class DocstringParameterChecker(BaseChecker):
         ) and not node.is_generator():
             self.add_message("redundant-yields-doc", node=node)
 
-    def visit_raise(self, node):
+    def visit_raise(self, node: nodes.Raise) -> None:
         func_node = node.frame()
         if not isinstance(func_node, astroid.FunctionDef):
             return
@@ -308,7 +309,7 @@ class DocstringParameterChecker(BaseChecker):
         missing_excs = expected_excs - found_excs_class_names
         self._add_raise_message(missing_excs, func_node)
 
-    def visit_return(self, node):
+    def visit_return(self, node: nodes.Return) -> None:
         if not utils.returns_something(node):
             return
 
@@ -331,7 +332,7 @@ class DocstringParameterChecker(BaseChecker):
         if not (doc.has_rtype() or (doc.has_property_type() and is_property)):
             self.add_message("missing-return-type-doc", node=func_node)
 
-    def visit_yield(self, node):
+    def visit_yield(self, node: nodes.Yield) -> None:
         func_node = node.frame()
         if not isinstance(func_node, astroid.FunctionDef):
             return
@@ -353,7 +354,7 @@ class DocstringParameterChecker(BaseChecker):
         if not (doc_has_yields_type or func_node.returns):
             self.add_message("missing-yield-type-doc", node=func_node)
 
-    def visit_yieldfrom(self, node):
+    def visit_yieldfrom(self, node: nodes.YieldFrom) -> None:
         self.visit_yield(node)
 
     def _compare_missing_args(

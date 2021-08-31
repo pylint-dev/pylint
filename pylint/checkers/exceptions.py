@@ -201,18 +201,18 @@ class BaseVisitor:
         else:
             self.visit_default(node)
 
-    def visit_default(self, node):  # pylint: disable=unused-argument
+    def visit_default(self, node) -> None:  # pylint: disable=unused-argument
         """Default implementation for all the nodes."""
 
 
 class ExceptionRaiseRefVisitor(BaseVisitor):
     """Visit references (anything that is not an AST leaf)."""
 
-    def visit_name(self, name):
+    def visit_name(self, name: nodes.Name) -> None:
         if name.name == "NotImplemented":
             self._checker.add_message("notimplemented-raised", node=self._node)
 
-    def visit_call(self, call):
+    def visit_call(self, call: nodes.Call) -> None:
         if isinstance(call.func, nodes.Name):
             self.visit_name(call.func)
         if (
@@ -228,14 +228,14 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
 class ExceptionRaiseLeafVisitor(BaseVisitor):
     """Visitor for handling leaf kinds of a raise value."""
 
-    def visit_const(self, const):
+    def visit_const(self, const: nodes.Const) -> None:
         if not isinstance(const.value, str):
             # raising-string will be emitted from python3 porting checker.
             self._checker.add_message(
                 "raising-bad-type", node=self._node, args=const.value.__class__.__name__
             )
 
-    def visit_instance(self, instance):
+    def visit_instance(self, instance) -> None:
         # pylint: disable=protected-access
         cls = instance._proxied
         self.visit_classdef(cls)
@@ -243,15 +243,15 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
     # Exception instances have a particular class type
     visit_exceptioninstance = visit_instance
 
-    def visit_classdef(self, cls):
+    def visit_classdef(self, cls: nodes.ClassDef) -> None:
         if not utils.inherit_from_std_ex(cls) and utils.has_known_bases(cls):
             if cls.newstyle:
                 self._checker.add_message("raising-non-exception", node=self._node)
 
-    def visit_tuple(self, _):
+    def visit_tuple(self, _) -> None:
         self._checker.add_message("raising-bad-type", node=self._node, args="tuple")
 
-    def visit_default(self, node):
+    def visit_default(self, node) -> None:
         name = getattr(node, "name", node.__class__.__name__)
         self._checker.add_message("raising-bad-type", node=self._node, args=name)
 
@@ -291,7 +291,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         "raising-format-tuple",
         "raise-missing-from",
     )
-    def visit_raise(self, node):
+    def visit_raise(self, node: nodes.Raise) -> None:
         if node.exc is None:
             self._check_misplaced_bare_raise(node)
             return
@@ -485,14 +485,14 @@ class ExceptionsChecker(checkers.BaseChecker):
                 self.add_message("try-except-raise", node=handler_having_bare_raise)
 
     @utils.check_messages("wrong-exception-operation")
-    def visit_binop(self, node):
+    def visit_binop(self, node: nodes.BinOp) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V | A)
             suggestion = f"Did you mean '({node.left.as_string()}, {node.right.as_string()})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
     @utils.check_messages("wrong-exception-operation")
-    def visit_compare(self, node):
+    def visit_compare(self, node: nodes.Compare) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V < A)
             suggestion = f"Did you mean '({node.left.as_string()}, {', '.join(operand.as_string() for _, operand in node.ops)})' instead?"
@@ -507,10 +507,10 @@ class ExceptionsChecker(checkers.BaseChecker):
         "catching-non-exception",
         "duplicate-except",
     )
-    def visit_tryexcept(self, node):
+    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
         """check for empty except"""
         self._check_try_except_raise(node)
-        exceptions_classes = []
+        exceptions_classes: list = []
         nb_handlers = len(node.handlers)
         for index, handler in enumerate(node.handlers):
             if handler.type is None:
