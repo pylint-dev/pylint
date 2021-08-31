@@ -638,7 +638,7 @@ class BasicErrorChecker(_BasicChecker):
                     self.add_message("return-in-init", node=node)
         # Check for duplicate names by clustering args with same name for detailed report
         arg_clusters = collections.defaultdict(list)
-        arguments: Any = filter(None, [node.args.args, node.args.kwonlyargs])
+        arguments: Iterator[Any] = filter(None, [node.args.args, node.args.kwonlyargs])
 
         for arg in itertools.chain.from_iterable(arguments):
             arg_clusters[arg.name].append(arg)
@@ -1157,12 +1157,12 @@ class BasicChecker(_BasicChecker):
                     pass
             self.add_message("using-constant-test", node=node)
 
-    def visit_module(self, _) -> None:
+    def visit_module(self, _: nodes.Module) -> None:
         """check module name, docstring and required arguments"""
         self.stats["module"] += 1
 
     def visit_classdef(
-        self, node: nodes.ClassDef  # pylint: disable=unused-argument
+        self, _: nodes.ClassDef
     ) -> None:
         """check module name, docstring and redefinition
         increment branch counter
