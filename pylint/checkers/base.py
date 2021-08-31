@@ -1161,9 +1161,7 @@ class BasicChecker(_BasicChecker):
         """check module name, docstring and required arguments"""
         self.stats["module"] += 1
 
-    def visit_classdef(
-        self, _: nodes.ClassDef
-    ) -> None:
+    def visit_classdef(self, _: nodes.ClassDef) -> None:
         """check module name, docstring and redefinition
         increment branch counter
         """
