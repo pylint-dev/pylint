@@ -560,7 +560,7 @@ class MisdesignChecker(BaseChecker):
             return  # return outside function, reported by the base checker
         self._returns[-1] += 1
 
-    def visit_default(self, node) -> None:
+    def visit_default(self, node: nodes.NodeNG) -> None:
         """default visit method -> increments the statements counter if
         necessary
         """

@@ -10,6 +10,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
+from typing import List
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
@@ -54,7 +56,7 @@ class MultipleTypesChecker(BaseChecker):
     leave_functiondef = leave_module = leave_classdef
 
     def visit_module(self, _) -> None:
-        self._assigns: list[dict] = [{}]
+        self._assigns: List[dict] = [{}]
 
     def _check_and_add_messages(self):
         assigns = self._assigns.pop()

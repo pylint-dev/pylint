@@ -201,7 +201,9 @@ class BaseVisitor:
         else:
             self.visit_default(node)
 
-    def visit_default(self, node) -> None:  # pylint: disable=unused-argument
+    def visit_default(
+        self, node: nodes.NodeNG
+    ) -> None:  # pylint: disable=unused-argument
         """Default implementation for all the nodes."""
 
 
@@ -235,7 +237,7 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
                 "raising-bad-type", node=self._node, args=const.value.__class__.__name__
             )
 
-    def visit_instance(self, instance) -> None:
+    def visit_instance(self, instance: astroid.objects.ExceptionInstance) -> None:
         # pylint: disable=protected-access
         cls = instance._proxied
         self.visit_classdef(cls)
@@ -251,7 +253,7 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
     def visit_tuple(self, _) -> None:
         self._checker.add_message("raising-bad-type", node=self._node, args="tuple")
 
-    def visit_default(self, node) -> None:
+    def visit_default(self, node: nodes.NodeNG) -> None:
         name = getattr(node, "name", node.__class__.__name__)
         self._checker.add_message("raising-bad-type", node=self._node, args=name)
 

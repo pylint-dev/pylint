@@ -26,6 +26,7 @@ import astroid
 from astroid import nodes
 
 from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
+from pylint.pyreverse.inspector import Project
 from pylint.pyreverse.utils import LocalsVisitor
 
 # diagram generators ##########################################################
@@ -134,7 +135,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         DiaDefGenerator.__init__(self, linker, handler)
         LocalsVisitor.__init__(self)
 
-    def visit_project(self, node) -> None:
+    def visit_project(self, node: Project) -> None:
         """visit a pyreverse.utils.Project node
 
         create a diagram definition for packages

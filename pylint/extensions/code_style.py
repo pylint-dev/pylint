@@ -160,7 +160,7 @@ class CodeStyleChecker(BaseChecker):
             for _, dict_value in node.items
         ):
             # Make sure all sublists have the same length > 0
-            list_length = len(node.items[0][1].elts)  # type: ignore
+            list_length = len(node.items[0][1].elts)
             if list_length == 0:
                 return
             for _, dict_value in node.items[1:]:

@@ -67,7 +67,7 @@ import types
 from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
-from typing import Any, Pattern, Tuple
+from typing import Any, List, Pattern, Tuple
 
 import astroid
 from astroid import bases, nodes
@@ -1359,7 +1359,7 @@ accessed. Python regular expressions are accepted.",
         # Analyze the list of formal parameters.
         args = list(itertools.chain(called.args.posonlyargs or (), called.args.args))
         num_mandatory_parameters = len(args) - len(called.args.defaults)
-        parameters: list[list[Any]] = []
+        parameters: List[List[Any]] = []
         parameter_name_to_index = {}
         for i, arg in enumerate(args):
             if isinstance(arg, nodes.Tuple):
@@ -1838,9 +1838,8 @@ accessed. Python regular expressions are accepted.",
                 return  # It would be better to handle function
                 # decorators, but let's start slow.
 
-        if supported_protocol:
-            if not supported_protocol(inferred, node):
-                self.add_message(msg, args=node.value.as_string(), node=node.value)
+        if supported_protocol and not supported_protocol(inferred, node):
+            self.add_message(msg, args=node.value.as_string(), node=node.value)
 
     @check_messages("dict-items-missing-iter")
     def visit_for(self, node: nodes.For) -> None:
