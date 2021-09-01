@@ -47,7 +47,7 @@ from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
 
 OPEN_FILES_MODE = ("open", "file")
-OPEN_FILES_ENCODING = ("open",)
+OPEN_FILES_ENCODING = ("open", "read_text", "write_text")
 UNITTEST_CASE = "unittest.case"
 THREADING_THREAD = "threading.Thread"
 COPY_COPY = "copy.copy"
@@ -55,7 +55,7 @@ OS_ENVIRON = "os._Environ"
 ENV_GETTERS = ("os.getenv",)
 SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
-OPEN_MODULE = "_io"
+OPEN_MODULE = {"_io", "pathlib"}
 DEBUG_BREAKPOINTS = ("builtins.breakpoint", "sys.breakpointhook", "pdb.set_trace")
 
 
@@ -515,7 +515,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for inferred in utils.infer_all(node.func):
             if inferred is astroid.Uninferable:
                 continue
-            if inferred.root().name == OPEN_MODULE:
+            if inferred.root().name in OPEN_MODULE:
                 if (
                     isinstance(node.func, nodes.Name)
                     and node.func.name in OPEN_FILES_MODE

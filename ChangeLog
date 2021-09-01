@@ -52,6 +52,11 @@ Release date: TBA
 
   Closes #3282
 
+* The ``unspecified-encoding`` checker now also checks calls to ``pathlib.Path().read_text()``
+  and ``pathlib.Path().write_text()``
+
+  Closes #4945
+
 
 What's New in Pylint 2.10.3?
 ============================

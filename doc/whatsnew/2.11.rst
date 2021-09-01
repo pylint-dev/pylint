@@ -60,3 +60,8 @@ Other Changes
 * Fix false positive ``dict-iter-missing-items`` for dictionaries only using tuples as keys
 
   Closes #3282
+
+* The ``unspecified-encoding`` checker now also checks calls to ``pathlib.Path().read_text()``
+  and ``pathlib.Path().write_text()``
+
+  Closes #4945
