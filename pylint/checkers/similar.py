@@ -49,7 +49,6 @@ import re
 import sys
 from collections import defaultdict
 from getopt import getopt
-from io import TextIOWrapper
 from itertools import chain, groupby
 from typing import (
     Any,
@@ -61,6 +60,7 @@ from typing import (
     NamedTuple,
     NewType,
     Set,
+    TextIO,
     Tuple,
 )
 
@@ -368,9 +368,7 @@ class Similar:
         self.ignore_signatures = ignore_signatures
         self.linesets: List["LineSet"] = []
 
-    def append_stream(
-        self, streamid: str, stream: TextIOWrapper, encoding=None
-    ) -> None:
+    def append_stream(self, streamid: str, stream: TextIO, encoding=None) -> None:
         """append a file to search for similarities"""
         if encoding is None:
             readlines = stream.readlines

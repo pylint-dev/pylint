@@ -58,10 +58,10 @@ Try updating it with: 'python tests/test_functional.py {UPDATE_OPTION}'"""
 class OutputLine(NamedTuple):
     symbol: str
     lineno: int
-    column: int
+    column: str
     object: Any
     msg: str
-    confidence: str
+    confidence: interfaces.Confidence
 
     @classmethod
     def from_msg(cls, msg):
