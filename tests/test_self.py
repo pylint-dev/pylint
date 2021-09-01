@@ -290,31 +290,8 @@ class TestRunTC:
             in out.getvalue().strip()
         )
 
-    def test_parallel_execution_bug_2674(self):
-        """Tests that disabling absolute imports works the same in -j1/j2"""
-        expected_ret_code = 0  # we are disabling the check, should pass
-        for jobs in (1, 2):
-            self._runtest(
-                [
-                    "--py3k",
-                    "--disable=no-absolute-import",
-                    f"-j {int(jobs)}",
-                    join(HERE, "input", "no_absolute_import.py"),
-                ],
-                code=expected_ret_code,
-            )
-
     def test_parallel_execution_missing_arguments(self):
         self._runtest(["-j 2", "not_here", "not_here_too"], code=1)
-
-    def test_py3k_option(self):
-        # Test that --py3k flag works.
-        rc_code = 0
-        self._runtest([UNNECESSARY_LAMBDA, "--py3k"], code=rc_code)
-
-    def test_py3k_jobs_option(self):
-        rc_code = 0
-        self._runtest([UNNECESSARY_LAMBDA, "--py3k", "-j 2"], code=rc_code)
 
     def test_abbreviations_are_not_supported(self):
         expected = "no such option: --load-plugin"

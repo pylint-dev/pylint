@@ -1,5 +1,5 @@
 [Messages Control]
-disable=too-few-public-methods,print-statement
+disable=too-few-public-methods
 
 [typecheck]
 generated-members=

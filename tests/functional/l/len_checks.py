@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,import-error, no-absolute-import,missing-docstring, misplaced-comparison-constant
+# pylint: disable=too-few-public-methods,import-error, missing-docstring, misplaced-comparison-constant
 # pylint: disable=useless-super-delegation,wrong-import-position,invalid-name, wrong-import-order, condition-evals-to-constant
 
 if len('TEST'):  # [len-as-condition]

@@ -2,6 +2,7 @@
 from unknown import Uninferable
 
 d = {1: 1, 2: 2}
+d_tuple = {(1, 2): 3, (4, 5): 6}
 l = [1, 2]
 s1 = {1, 2}
 s2 = {1, 2, 3}
@@ -20,4 +21,6 @@ for i, v in enumerate(l):
 for i, v in s1.intersection(s2):
     pass
 for k, v in Uninferable:
+    pass
+for a, b in d_tuple:
     pass

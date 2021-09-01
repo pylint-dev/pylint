@@ -16,6 +16,11 @@ New checkers
 
   Closes #3592
 
+Removed checkers
+================
+
+* The python3 porting mode checker and it's ``py3k`` option were removed. You can still find it in older pylint
+  versions.
 
 Extensions
 ==========
@@ -51,3 +56,7 @@ Other Changes
   Closes #4936
 
 * Fix false positive for ``protected-access`` if a protected member is used in type hints of function definitions
+
+* Fix false positive ``dict-iter-missing-items`` for dictionaries only using tuples as keys
+
+  Closes #3282

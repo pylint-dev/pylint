@@ -10,6 +10,9 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.11.rst'
 
+* The python3 porting mode checker and it's ``py3k`` option were removed. You can still find it in older pylint
+  versions.
+
 * Added new extension ``SetMembershipChecker`` with ``use-set-for-membership`` check:
   Emitted when using an in-place defined ``list`` or ``tuple`` to do a membership test. ``sets`` are better optimized for that.
 
@@ -44,6 +47,10 @@ Release date: TBA
   Closes #4936
 
 * Fix false positive for ``protected-access`` if a protected member is used in type hints of function definitions
+
+* Fix false positive ``dict-iter-missing-items`` for dictionaries only using tuples as keys
+
+  Closes #3282
 
 
 What's New in Pylint 2.10.3?

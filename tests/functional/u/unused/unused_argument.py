@@ -47,7 +47,7 @@ def metadata_from_dict(key):
     """
     return {key: str(value) for key, value in key.items()}
 
-# pylint: disable=too-few-public-methods, print-statement, misplaced-future,wrong-import-position
+# pylint: disable=too-few-public-methods,  misplaced-future,wrong-import-position
 from __future__ import print_function
 
 
