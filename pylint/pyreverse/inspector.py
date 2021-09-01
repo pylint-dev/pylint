@@ -123,16 +123,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         for module in node.modules:
             self.visit(module)
 
-    def visit_package(self, node):
-        """visit an astroid.Package node
-
-        * optionally tag the node with a unique id
-        """
-        if self.tag:
-            node.uid = self.generate_id()
-        for subelmt in node.values():
-            self.visit(subelmt)
-
     def visit_module(self, node):
         """visit an astroid.Module node
 
