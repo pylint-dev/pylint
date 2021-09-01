@@ -1234,7 +1234,7 @@ def is_none(node: nodes.NodeNG) -> bool:
     )
 
 
-def node_type(node: nodes.NodeNG) -> Optional[type]:
+def node_type(node: nodes.NodeNG) -> Optional[nodes.NodeNG]:
     """Return the inferred type for `node`
 
     If there is more than one possible type, or if inferred type is Uninferable or None,
@@ -1242,7 +1242,7 @@ def node_type(node: nodes.NodeNG) -> Optional[type]:
     """
     # check there is only one possible type for the assign node. Else we
     # don't handle it for now
-    types: Set[type] = set()
+    types: Set[nodes.NodeNG] = set()
     try:
         for var_type in node.infer():
             if var_type == astroid.Uninferable or is_none(var_type):
