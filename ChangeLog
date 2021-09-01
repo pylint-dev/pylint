@@ -63,6 +63,10 @@ Release date: TBA
 
   Closes #4907
 
+* Fix false positive ``unused-private-member`` for private staticmethods accessed in classmethods.
+
+  Closes #4849
+
 
 What's New in Pylint 2.10.3?
 ============================
