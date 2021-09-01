@@ -8,3 +8,4 @@ raising-bad-type:64:4:bad_case6:Raising NoneType while only classes or instances
 raising-non-exception:68:4:bad_case7:Raising a new style class which doesn't inherit from BaseException
 raising-non-exception:72:4:bad_case8:Raising a new style class which doesn't inherit from BaseException
 raising-non-exception:76:4:bad_case9:Raising a new style class which doesn't inherit from BaseException
+raising-bad-type:110:4:bad_case10:Raising str while only classes or instances are allowed
