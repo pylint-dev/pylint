@@ -31,7 +31,10 @@ class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many
         output_directory: str = "",
     ):
         self.mode = mode
-        self.classes = classes
+        if classes:
+            self.classes = classes
+        else:
+            self.classes = []
         self.show_ancestors = show_ancestors
         self.all_ancestors = all_ancestors
         self.show_associated = show_associated
