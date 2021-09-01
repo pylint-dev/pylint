@@ -45,7 +45,7 @@ MULTILINE = str(INPUT / "multiline-import")
 HIDE_CODE_WITH_IMPORTS = str(INPUT / "hide_code_with_imports.py")
 
 
-def test_ignore_comments():
+def test_ignore_comments() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-comments", SIMILAR1, SIMILAR2])
@@ -74,7 +74,7 @@ TOTAL lines=62 duplicates=10 percent=16.13
     )
 
 
-def test_ignore_docstrings():
+def test_ignore_docstrings() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-docstrings", SIMILAR1, SIMILAR2])
@@ -109,7 +109,7 @@ TOTAL lines=62 duplicates=10 percent=16.13
     )
 
 
-def test_ignore_imports():
+def test_ignore_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-imports", SIMILAR1, SIMILAR2])
@@ -122,7 +122,7 @@ TOTAL lines=62 duplicates=0 percent=0.00
     )
 
 
-def test_multiline_imports():
+def test_multiline_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([MULTILINE, MULTILINE])
@@ -148,7 +148,7 @@ TOTAL lines=16 duplicates=8 percent=50.00
     )
 
 
-def test_ignore_multiline_imports():
+def test_ignore_multiline_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-imports", MULTILINE, MULTILINE])
@@ -161,7 +161,7 @@ TOTAL lines=16 duplicates=0 percent=0.00
     )
 
 
-def test_ignore_signatures_fail():
+def test_ignore_signatures_fail() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([SIMILAR5, SIMILAR6])
@@ -199,7 +199,7 @@ TOTAL lines=35 duplicates=15 percent=42.86
     )
 
 
-def test_ignore_signatures_pass():
+def test_ignore_signatures_pass() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-signatures", SIMILAR5, SIMILAR6])
@@ -212,7 +212,7 @@ TOTAL lines=35 duplicates=0 percent=0.00
     )
 
 
-def test_ignore_signatures_class_methods_fail():
+def test_ignore_signatures_class_methods_fail() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([SIMILAR_CLS_B, SIMILAR_CLS_A])
@@ -258,7 +258,7 @@ TOTAL lines=54 duplicates=22 percent=40.74
     )
 
 
-def test_ignore_signatures_class_methods_pass():
+def test_ignore_signatures_class_methods_pass() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-signatures", SIMILAR_CLS_B, SIMILAR_CLS_A])
@@ -271,7 +271,7 @@ TOTAL lines=54 duplicates=0 percent=0.00
     )
 
 
-def test_ignore_signatures_empty_functions_fail():
+def test_ignore_signatures_empty_functions_fail() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([EMPTY_FUNCTION_1, EMPTY_FUNCTION_2])
@@ -295,7 +295,7 @@ TOTAL lines=14 duplicates=6 percent=42.86
     )
 
 
-def test_ignore_signatures_empty_functions_pass():
+def test_ignore_signatures_empty_functions_pass() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-signatures", EMPTY_FUNCTION_1, EMPTY_FUNCTION_2])
@@ -308,7 +308,7 @@ TOTAL lines=14 duplicates=0 percent=0.00
     )
 
 
-def test_no_hide_code_with_imports():
+def test_no_hide_code_with_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-imports"] + 2 * [HIDE_CODE_WITH_IMPORTS])
@@ -316,7 +316,7 @@ def test_no_hide_code_with_imports():
     assert "TOTAL lines=32 duplicates=16 percent=50.00" in output.getvalue()
 
 
-def test_ignore_nothing():
+def test_ignore_nothing() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([SIMILAR1, SIMILAR2])
@@ -339,7 +339,7 @@ TOTAL lines=62 duplicates=5 percent=8.06
     )
 
 
-def test_lines_without_meaningful_content_do_not_trigger_similarity():
+def test_lines_without_meaningful_content_do_not_trigger_similarity() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([SIMILAR3, SIMILAR4])
@@ -371,7 +371,7 @@ TOTAL lines=50 duplicates=14 percent=28.00
     )
 
 
-def test_help():
+def test_help() -> None:
     output = StringIO()
     with redirect_stdout(output):
         try:
@@ -382,7 +382,7 @@ def test_help():
             pytest.fail("not system exit")
 
 
-def test_no_args():
+def test_no_args() -> None:
     output = StringIO()
     with redirect_stdout(output):
         try:
@@ -393,7 +393,7 @@ def test_no_args():
             pytest.fail("not system exit")
 
 
-def test_get_map_data():
+def test_get_map_data() -> None:
     """Tests that a SimilarChecker respects the MapReduceMixin interface"""
     linter = PyLinter(reporter=Reporter())
 
