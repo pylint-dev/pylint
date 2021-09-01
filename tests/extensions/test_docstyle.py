@@ -17,6 +17,7 @@ from os.path import abspath, dirname, join
 import pytest
 
 from pylint.extensions.docstyle import DocStringStyleChecker
+from pylint.lint.pylinter import PyLinter
 
 EXPECTED_MSGS = [
     "First line empty in function docstring",
@@ -44,7 +45,7 @@ def checker():
     return DocStringStyleChecker
 
 
-def test_docstring_message(linter):
+def test_docstring_message(linter: PyLinter) -> None:
     docstring_test = join(dirname(abspath(__file__)), "data", "docstring.py")
     linter.check([docstring_test])
     msgs = linter.reporter.messages

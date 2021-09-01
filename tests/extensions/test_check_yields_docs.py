@@ -27,7 +27,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
 
     CHECKER_CLASS = DocstringParameterChecker
 
-    def test_ignores_no_docstring(self):
+    def test_ignores_no_docstring(self) -> None:
         yield_node = astroid.extract_node(
             """
         def my_func(self):
@@ -38,7 +38,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
             self.checker.visit_yield(yield_node)
 
     @set_config(accept_no_yields_doc=False)
-    def test_warns_no_docstring(self):
+    def test_warns_no_docstring(self) -> None:
         node = astroid.extract_node(
             """
         def my_func(self):
@@ -52,7 +52,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
-    def test_ignores_unknown_style(self):
+    def test_ignores_unknown_style(self) -> None:
         yield_node = astroid.extract_node(
             '''
         def my_func(self):
@@ -63,7 +63,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
-    def test_warn_partial_sphinx_yields(self):
+    def test_warn_partial_sphinx_yields(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self):
@@ -80,7 +80,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
-    def test_warn_partial_sphinx_yields_type(self):
+    def test_warn_partial_sphinx_yields_type(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self):
@@ -95,7 +95,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertAddsMessages(Message(msg_id="missing-yield-doc", node=node)):
             self.checker.visit_yield(yield_node)
 
-    def test_warn_missing_sphinx_yields(self):
+    def test_warn_missing_sphinx_yields(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self, doc_type):
@@ -114,7 +114,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
-    def test_warn_partial_google_yields(self):
+    def test_warn_partial_google_yields(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self):
@@ -132,7 +132,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
-    def test_warn_partial_google_yields_type(self):
+    def test_warn_partial_google_yields_type(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self):
@@ -148,7 +148,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertAddsMessages(Message(msg_id="missing-yield-doc", node=node)):
             self.checker.visit_yield(yield_node)
 
-    def test_warn_missing_google_yields(self):
+    def test_warn_missing_google_yields(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self, doc_type):
@@ -167,7 +167,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
-    def test_warn_missing_numpy_yields(self):
+    def test_warn_missing_numpy_yields(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self, doc_type):
@@ -188,7 +188,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
-    def test_find_sphinx_yields(self):
+    def test_find_sphinx_yields(self) -> None:
         yield_node = astroid.extract_node(
             '''
         def my_func(self):
@@ -203,7 +203,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
-    def test_find_google_yields(self):
+    def test_find_google_yields(self) -> None:
         yield_node = astroid.extract_node(
             '''
         def my_func(self):
@@ -218,7 +218,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
-    def test_find_numpy_yields(self):
+    def test_find_numpy_yields(self) -> None:
         yield_node = astroid.extract_node(
             '''
         def my_func(self):
@@ -235,7 +235,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
-    def test_finds_sphinx_yield_custom_class(self):
+    def test_finds_sphinx_yield_custom_class(self) -> None:
         yield_node = astroid.extract_node(
             '''
         def my_func(self):
@@ -250,7 +250,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
-    def test_finds_google_yield_custom_class(self):
+    def test_finds_google_yield_custom_class(self) -> None:
         yield_node = astroid.extract_node(
             '''
         def my_func(self):
@@ -265,7 +265,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
-    def test_finds_numpy_yield_custom_class(self):
+    def test_finds_numpy_yield_custom_class(self) -> None:
         yield_node = astroid.extract_node(
             '''
         def my_func(self):
@@ -282,7 +282,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
-    def test_finds_sphinx_yield_list_of_custom_class(self):
+    def test_finds_sphinx_yield_list_of_custom_class(self) -> None:
         yield_node = astroid.extract_node(
             '''
         def my_func(self):
@@ -297,7 +297,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
-    def test_finds_google_yield_list_of_custom_class(self):
+    def test_finds_google_yield_list_of_custom_class(self) -> None:
         yield_node = astroid.extract_node(
             '''
         def my_func(self):
@@ -312,7 +312,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
-    def test_finds_numpy_yield_list_of_custom_class(self):
+    def test_finds_numpy_yield_list_of_custom_class(self) -> None:
         yield_node = astroid.extract_node(
             '''
         def my_func(self):
@@ -329,7 +329,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
-    def test_warns_sphinx_yield_list_of_custom_class_without_description(self):
+    def test_warns_sphinx_yield_list_of_custom_class_without_description(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self):
@@ -344,7 +344,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertAddsMessages(Message(msg_id="missing-yield-doc", node=node)):
             self.checker.visit_yield(yield_node)
 
-    def test_warns_google_yield_list_of_custom_class_without_description(self):
+    def test_warns_google_yield_list_of_custom_class_without_description(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self):
@@ -360,7 +360,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertAddsMessages(Message(msg_id="missing-yield-doc", node=node)):
             self.checker.visit_yield(yield_node)
 
-    def test_warns_numpy_yield_list_of_custom_class_without_description(self):
+    def test_warns_numpy_yield_list_of_custom_class_without_description(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self):
@@ -380,7 +380,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
     # No such thing as redundant yield documentation for sphinx because it
     # doesn't support yield documentation
 
-    def test_ignores_google_redundant_yield_doc_multiple_yields(self):
+    def test_ignores_google_redundant_yield_doc_multiple_yields(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self):
@@ -397,7 +397,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_numpy_redundant_yield_doc_multiple_yields(self):
+    def test_ignores_numpy_redundant_yield_doc_multiple_yields(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self):
@@ -421,7 +421,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
     # No such thing as redundant yield documentation for sphinx because it
     # doesn't support yield documentation
 
-    def test_warns_google_redundant_yield_doc_return(self):
+    def test_warns_google_redundant_yield_doc_return(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self):
@@ -436,7 +436,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertAddsMessages(Message(msg_id="redundant-yields-doc", node=node)):
             self.checker.visit_functiondef(node)
 
-    def test_warns_numpy_redundant_yield_doc_return(self):
+    def test_warns_numpy_redundant_yield_doc_return(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(self):
@@ -453,7 +453,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertAddsMessages(Message(msg_id="redundant-yields-doc", node=node)):
             self.checker.visit_functiondef(node)
 
-    def test_sphinx_missing_yield_type_with_annotations(self):
+    def test_sphinx_missing_yield_type_with_annotations(self) -> None:
         node = astroid.extract_node(
             '''
             import typing
@@ -470,7 +470,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
-    def test_google_missing_yield_type_with_annotations(self):
+    def test_google_missing_yield_type_with_annotations(self) -> None:
         node = astroid.extract_node(
             '''
             import typing

@@ -22,7 +22,7 @@ from pylint.reporters import BaseReporter
 
 
 class CompareToZeroTestReporter(BaseReporter):
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: str) -> None:
         self.messages = []
 
     def _display(self, layout):
@@ -30,15 +30,16 @@ class CompareToZeroTestReporter(BaseReporter):
 
 
 class CompareToZeroUsedTC(unittest.TestCase):
+    _linter = PyLinter()
+
     @classmethod
-    def setUpClass(cls):
-        cls._linter = PyLinter()
+    def setUpClass(cls) -> None:
         cls._linter.set_reporter(CompareToZeroTestReporter())
         checkers.initialize(cls._linter)
         cls._linter.register_checker(CompareToZeroChecker(cls._linter))
         cls._linter.disable("I")
 
-    def test_comparetozero_message(self):
+    def test_comparetozero_message(self) -> None:
         elif_test = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "data", "compare_to_zero.py"
         )
