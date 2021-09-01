@@ -1386,11 +1386,6 @@ class BasicChecker(_BasicChecker):
         """
         self._check_unreachable(node)
 
-    @utils.check_messages("exec-used")
-    def visit_exec(self, node):
-        """just print a warning on exec statements"""
-        self.add_message("exec-used", node=node)
-
     def _check_misplaced_format_function(self, call_node):
         if not isinstance(call_node.func, nodes.Attribute):
             return
