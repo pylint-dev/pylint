@@ -229,11 +229,9 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
     """Visitor for handling leaf kinds of a raise value."""
 
     def visit_const(self, node: nodes.Const) -> None:
-        if not isinstance(node.value, str):
-            # raising-string will be emitted from python3 porting checker.
-            self._checker.add_message(
-                "raising-bad-type", node=self._node, args=node.value.__class__.__name__
-            )
+        self._checker.add_message(
+            "raising-bad-type", node=self._node, args=node.value.__class__.__name__
+        )
 
     def visit_instance(self, instance: astroid.objects.ExceptionInstance) -> None:
         # pylint: disable=protected-access
