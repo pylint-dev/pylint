@@ -121,7 +121,7 @@ Next we'll track when we enter and leave a function.
       super(UniqueReturnChecker, self).__init__(linter)
       self._function_stack = []
 
-  def visit_functiondef(self, node: nodes.FunctioDef) -> None:
+  def visit_functiondef(self, node: nodes.FunctionDef) -> None:
       self._function_stack.append([])
 
   def leave_functiondef(self, node: nodes.FunctionDef) -> None:
