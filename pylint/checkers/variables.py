@@ -2019,7 +2019,7 @@ class VariablesChecker(BaseChecker):
             return
 
         if not isinstance(assigned, (nodes.Tuple, nodes.List, list, tuple)):
-            self.add_message("invalid-all-format", node=assigned)
+            self.add_message("invalid-all-format", node=node)
             return
 
         for elt in getattr(assigned, "elts", ()):
