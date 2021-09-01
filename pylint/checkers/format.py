@@ -401,11 +401,11 @@ class FormatChecker(BaseTokenChecker):
                 depth -= 1
                 if depth:
                     if contains_double_parens and tokens[i + 1].string == ")":
-                        self.add_message(
-                            "superfluous-parens", line=line_num, args=keyword_token
-                        )
+                        # For walrus operators in `if (not)` conditions and comprehensions
+                        if keyword_token in {"in", "if", "not"}:
+                            continue
                         return
-                    contains_double_parens = 0
+                    contains_double_parens -= 1
                     continue
                 # ')' can't happen after if (foo), since it would be a syntax error.
                 if tokens[i + 1].string in (":", ")", "]", "}", "in") or tokens[

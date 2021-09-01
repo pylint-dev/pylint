@@ -1,6 +1,7 @@
 """Test the superfluous-parens warning."""
-from __future__ import print_function
 # pylint: disable=unneeded-not, unnecessary-comprehension, missing-function-docstring, invalid-name, fixme
+# pylint: disable=import-error, missing-class-docstring, too-few-public-methods
+import numpy as np
 A = 3
 if (A == 5):  # [superfluous-parens]
     pass
@@ -18,10 +19,10 @@ DICT = {'a': 1, 'b': 2}
 del(DICT['b'])  # [superfluous-parens]
 del DICT['a']
 
-B = [x for x in ((3, 4))]  # [superfluous-parens]
+B = [x for x in ((3, 4))]
 C = [x for x in ((3, 4) if 1 > 0 else (5, 6))]
-D = [x for x in ((3, 4) if 1 > 0 else ((5, 6)))]  # [superfluous-parens]
-E = [x for x in ((3, 4) if 1 > 0 else ((((5, 6)))))]  # [superfluous-parens]
+D = [x for x in ((3, 4) if 1 > 0 else ((5, 6)))]
+E = [x for x in ((3, 4) if 1 > 0 else ((((5, 6)))))]
 
 # Test assertions
 F = "Version 1.0"
@@ -34,14 +35,30 @@ H = 2 + (5 * 3)
 NUMS_LIST = ['1', '2', '3']
 NUMS_SET = {'1', '2', '3'}
 NUMS_DICT = {'1': 1, '2': 2, '3': 3}
+I = tuple(x for x in ((a, str(a)) for a in ()))
 
 # Test functions
 def function_A():
-    return (x for x in ((3, 4)))  # [superfluous-parens]
+    return (x for x in ((3, 4)))
 
 # TODO: Test string combinations, see https://github.com/PyCQA/pylint/issues/4792
 # Lines 45, 46 & 47 should raise the superfluous-parens message
-I = "TestString"
-J = ("Test " + "String")
-K = ("Test " + "String") in I
+J = "TestString"
+K = ("Test " + "String")
+L = ("Test " + "String") in I
 assert "" + ("Version " + "String") in I
+
+# Test numpy
+def function_B(var_1: int, var_2: int) -> np.ndarray:
+    result = (((var_1 & var_2)) > 0)
+    return result.astype(np.float32)
+
+def function_C(var_1: int, var_2: int) -> np.ndarray:
+    return (((var_1 & var_2)) > 0).astype(np.float32)
+
+# Test Class
+class ClassA:
+    keys = []
+
+    def __iter__(self):
+        return ((k, getattr(self, k)) for k in self.keys)
