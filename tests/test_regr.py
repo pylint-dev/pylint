@@ -23,11 +23,13 @@ to be incorporated in the automatic functional test framework
 import os
 import sys
 from os.path import abspath, dirname, join
+from typing import Iterator
 
 import astroid
 import pytest
 
 from pylint import testutils
+from pylint.lint.pylinter import PyLinter
 
 REGR_DATA = join(dirname(abspath(__file__)), "regrtest_data")
 sys.path.insert(1, REGR_DATA)
@@ -44,7 +46,7 @@ def disable():
 
 
 @pytest.fixture
-def finalize_linter(linter):
+def finalize_linter(linter: PyLinter) -> Iterator[PyLinter]:
     """call reporter.finalize() to cleanup
     pending messages if a test finished badly
     """
@@ -91,13 +93,13 @@ def test_crash(finalize_linter, file_name):
 @pytest.mark.parametrize(
     "fname", [x for x in os.listdir(REGR_DATA) if x.endswith("_crash.py")]
 )
-def test_descriptor_crash(fname, finalize_linter):
+def test_descriptor_crash(fname: str, finalize_linter: PyLinter) -> None:
     finalize_linter.check(join(REGR_DATA, fname))
     finalize_linter.reporter.finalize().strip()
 
 
 @pytest.fixture
-def modify_path():
+def modify_path() -> Iterator:
     cwd = os.getcwd()
     sys.path.insert(0, "")
     yield
@@ -106,7 +108,7 @@ def modify_path():
 
 
 @pytest.mark.usefixtures("modify_path")
-def test_check_package___init__(finalize_linter):
+def test_check_package___init__(finalize_linter: PyLinter) -> None:
     filename = "package.__init__"
     finalize_linter.check(filename)
     checked = list(finalize_linter.stats["by_module"].keys())
@@ -118,7 +120,7 @@ def test_check_package___init__(finalize_linter):
     assert checked == ["__init__"]
 
 
-def test_pylint_config_attr():
+def test_pylint_config_attr() -> None:
     mod = astroid.MANAGER.ast_from_module_name("pylint.lint.pylinter")
     pylinter = mod["PyLinter"]
     expect = [
