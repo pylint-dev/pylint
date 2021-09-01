@@ -60,18 +60,7 @@ import numbers
 import re
 import string
 from functools import lru_cache, partial
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Match,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, Union
 
 import _string
 import astroid
@@ -1245,7 +1234,7 @@ def is_none(node: nodes.NodeNG) -> bool:
     )
 
 
-def node_type(node: nodes.NodeNG) -> Optional[Any]:
+def node_type(node: nodes.NodeNG) -> Optional[type]:
     """Return the inferred type for `node`
 
     If there is more than one possible type, or if inferred type is Uninferable or None,
@@ -1253,7 +1242,7 @@ def node_type(node: nodes.NodeNG) -> Optional[Any]:
     """
     # check there is only one possible type for the assign node. Else we
     # don't handle it for now
-    types = set()
+    types: Set[type] = set()
     try:
         for var_type in node.infer():
             if var_type == astroid.Uninferable or is_none(var_type):

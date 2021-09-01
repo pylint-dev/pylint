@@ -36,9 +36,11 @@ Firstly we will need to fill in some required boilerplate:
 .. code-block:: python
 
   import astroid
+  from astroid import nodes
 
   from pylint.checkers import BaseChecker
   from pylint.interfaces import IAstroidChecker
+  from pylint.lint import PyLinter
 
   class UniqueReturnChecker(BaseChecker):
       __implements__ = IAstroidChecker
