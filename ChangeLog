@@ -13,6 +13,8 @@ Release date: TBA
 * The python3 porting mode checker and it's ``py3k`` option were removed. You can still find it in older pylint
   versions.
 
+* ``raising-bad-type`` is now properly emitted when  raising a string
+
 * Added new extension ``SetMembershipChecker`` with ``use-set-for-membership`` check:
   Emitted when using an in-place defined ``list`` or ``tuple`` to do a membership test. ``sets`` are better optimized for that.
 
