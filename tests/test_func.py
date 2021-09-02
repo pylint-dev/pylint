@@ -37,6 +37,12 @@ FILTER_RGX = None
 INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
 
 
+def exception_str(self, ex) -> str:  # pylint: disable=unused-argument
+    """function used to replace default __str__ method of exception instances
+    This function is not typed because it is legacy code"""
+    return f"in {ex.file}\n:: {', '.join(ex.args)}"
+
+
 class LintTestUsingModule:
     INPUT_DIR: Optional[str] = None
     DEFAULT_PACKAGE = "input"
@@ -72,11 +78,11 @@ class LintTestUsingModule:
         try:
             self.linter.check(tocheck)
         except Exception as ex:
-            msg = f"Exception: {ex} in {tocheck}\n:: {'‚ '.join(ex.args)}"
-            raise Exception(msg) from ex
-        finally:
-            # need finalization to restore a correct state
-            self.linter.reporter.finalize()
+            print(f"Exception: {ex} in {tocheck}:: {'‚ '.join(ex.args)}")
+            ex.file = tocheck  # type: ignore # This is legacy code we're trying to remove, impossible to type correctly
+            print(ex)
+            ex.__str__ = exception_str  # type: ignore # This is legacy code we're trying to remove, impossible to type correctly
+            raise
         self._check_result(self.linter.reporter.finalize())
 
     def _has_output(self) -> bool:
