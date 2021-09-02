@@ -77,13 +77,10 @@ class LintTestUsingModule:
         try:
             self.linter.check(tocheck)
         except Exception as ex:
-            # need finalization to restore a correct state
+            msg = f"Exception: {ex} ({exception_str} while checking {tocheck}))"
+            raise Exception(msg) from ex
+        finally:
             self.linter.reporter.finalize()
-            ex.file = tocheck  # type: ignore
-            print(ex)
-            ex.__str__ = exception_str  # type: ignore
-            raise
-        self._check_result(self.linter.reporter.finalize())
 
     def _has_output(self) -> bool:
         if self.module and not self.module.startswith("func_noerror_"):
