@@ -152,7 +152,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         for module in node.modules:
             self.visit(module)
 
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         """visit an astroid.Module node
 
         * set the locals_type mapping
