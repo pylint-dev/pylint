@@ -37,7 +37,7 @@ import inspect
 from typing import Any, List, Optional
 
 import astroid
-from astroid import nodes
+from astroid import nodes, objects
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -233,7 +233,7 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
             "raising-bad-type", node=self._node, args=node.value.__class__.__name__
         )
 
-    def visit_instance(self, instance: astroid.objects.ExceptionInstance) -> None:
+    def visit_instance(self, instance: objects.ExceptionInstance) -> None:
         # pylint: disable=protected-access
         cls = instance._proxied
         self.visit_classdef(cls)
