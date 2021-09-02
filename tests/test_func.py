@@ -37,11 +37,6 @@ FILTER_RGX = None
 INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
 
 
-def exception_str(self, ex):  # pylint: disable=unused-argument
-    """function used to replace default __str__ method of exception instances"""
-    return f"in {ex.file}\n:: {', '.join(ex.args)}"
-
-
 class LintTestUsingModule:
     INPUT_DIR: Optional[str] = None
     DEFAULT_PACKAGE = "input"
@@ -77,8 +72,7 @@ class LintTestUsingModule:
         try:
             self.linter.check(tocheck)
         except Exception as ex:
-            msg = f"Exception: {ex} ({exception_str} while checking {tocheck}))"
-            raise Exception(msg) from ex
+            raise Exception from ex
         finally:
             self.linter.reporter.finalize()
 
