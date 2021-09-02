@@ -41,6 +41,9 @@ I = tuple(x for x in ((a, str(a)) for a in ()))
 def function_A():
     return (x for x in ((3, 4)))
 
+def function_B(var):
+    return (var.startswith(('A', 'B', 'C')) or var == 'D')
+
 # TODO: Test string combinations, see https://github.com/PyCQA/pylint/issues/4792
 # Lines 45, 46 & 47 should raise the superfluous-parens message
 J = "TestString"
@@ -49,11 +52,11 @@ L = ("Test " + "String") in I
 assert "" + ("Version " + "String") in I
 
 # Test numpy
-def function_B(var_1: int, var_2: int) -> np.ndarray:
+def function_numpy_A(var_1: int, var_2: int) -> np.ndarray:
     result = (((var_1 & var_2)) > 0)
     return result.astype(np.float32)
 
-def function_C(var_1: int, var_2: int) -> np.ndarray:
+def function_numpy_B(var_1: int, var_2: int) -> np.ndarray:
     return (((var_1 & var_2)) > 0).astype(np.float32)
 
 # Test Class
