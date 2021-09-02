@@ -165,11 +165,6 @@ class TestSuperfluousParentheses(CheckerTestCase):
             (Message("superfluous-parens", line=1, args="if"), "if (foo):", 0),
             (Message("superfluous-parens", line=1, args="if"), "if ((foo, bar)):", 0),
             (Message("superfluous-parens", line=1, args="if"), "if (foo(bar)):", 0),
-            (
-                Message("superfluous-parens", line=1, args="return"),
-                "return ((x for x in x))",
-                0,
-            ),
             (Message("superfluous-parens", line=1, args="not"), "not (foo)", 0),
             (Message("superfluous-parens", line=1, args="not"), "if not (foo):", 1),
             (Message("superfluous-parens", line=1, args="if"), "if (not (foo)):", 0),

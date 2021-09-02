@@ -65,3 +65,7 @@ Other Changes
   and ``pathlib.Path().write_text()``
 
   Closes #4945
+
+* Fix false positive ``superfluous-parens`` for tuples created with inner tuples
+
+  Closes #4907
