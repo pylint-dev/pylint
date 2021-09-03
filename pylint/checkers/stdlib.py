@@ -39,12 +39,14 @@
 
 import sys
 from collections.abc import Iterable
+from typing import Any, Dict, Set
 
 import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
+from pylint.lint import PyLinter
 
 OPEN_FILES_MODE = ("open", "file")
 OPEN_FILES_ENCODING = ("open", "read_text", "write_text")
@@ -117,7 +119,7 @@ DEPRECATED_DECORATORS = {
 }
 
 
-DEPRECATED_METHODS = {
+DEPRECATED_METHODS: Dict = {
     0: {
         "cgi.parse_qs",
         "cgi.parse_qsl",
@@ -444,9 +446,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ),
     }
 
-    def __init__(self, linter=None):
+    def __init__(
+        self, linter: PyLinter = None
+    ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
-        self._deprecated_methods = set()
+        self._deprecated_methods: Set[Any] = set()
         self._deprecated_methods.update(DEPRECATED_METHODS[0])
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
             if since_vers <= sys.version_info:
@@ -548,20 +552,20 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             self.check_deprecated_method(node, inferred)
 
     @utils.check_messages("boolean-datetime")
-    def visit_unaryop(self, node):
+    def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         if node.op == "not":
             self._check_datetime(node.operand)
 
     @utils.check_messages("boolean-datetime")
-    def visit_if(self, node):
+    def visit_if(self, node: nodes.If) -> None:
         self._check_datetime(node.test)
 
     @utils.check_messages("boolean-datetime")
-    def visit_ifexp(self, node):
+    def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_datetime(node.test)
 
     @utils.check_messages("boolean-datetime")
-    def visit_boolop(self, node):
+    def visit_boolop(self, node: nodes.BoolOp) -> None:
         for value in node.values:
             self._check_datetime(value)
 

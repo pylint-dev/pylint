@@ -582,7 +582,7 @@ class FormatChecker(BaseTokenChecker):
                 )
 
     @check_messages("multiple-statements")
-    def visit_default(self, node):
+    def visit_default(self, node: nodes.NodeNG) -> None:
         """check the node line number and check it if not yet done"""
         if not node.is_statement:
             return

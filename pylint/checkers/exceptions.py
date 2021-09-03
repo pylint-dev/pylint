@@ -34,10 +34,10 @@
 """Checks for various exception related errors."""
 import builtins
 import inspect
-import typing
+from typing import Any, List, Optional
 
 import astroid
-from astroid import nodes
+from astroid import nodes, objects
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -70,7 +70,7 @@ def _annotated_unpack_infer(stmt, context=None):
         yield stmt, inferred
 
 
-def _is_raising(body: typing.List) -> bool:
+def _is_raising(body: List) -> bool:
     """Return true if the given statement node raise an exception"""
     for node in body:
         if isinstance(node, nodes.Raise):
@@ -201,26 +201,26 @@ class BaseVisitor:
         else:
             self.visit_default(node)
 
-    def visit_default(self, node):  # pylint: disable=unused-argument
+    def visit_default(self, _: nodes.NodeNG) -> None:
         """Default implementation for all the nodes."""
 
 
 class ExceptionRaiseRefVisitor(BaseVisitor):
     """Visit references (anything that is not an AST leaf)."""
 
-    def visit_name(self, name):
-        if name.name == "NotImplemented":
+    def visit_name(self, node: nodes.Name) -> None:
+        if node.name == "NotImplemented":
             self._checker.add_message("notimplemented-raised", node=self._node)
 
-    def visit_call(self, call):
-        if isinstance(call.func, nodes.Name):
-            self.visit_name(call.func)
+    def visit_call(self, node: nodes.Call) -> None:
+        if isinstance(node.func, nodes.Name):
+            self.visit_name(node.func)
         if (
-            len(call.args) > 1
-            and isinstance(call.args[0], nodes.Const)
-            and isinstance(call.args[0].value, str)
+            len(node.args) > 1
+            and isinstance(node.args[0], nodes.Const)
+            and isinstance(node.args[0].value, str)
         ):
-            msg = call.args[0].value
+            msg = node.args[0].value
             if "%" in msg or ("{" in msg and "}" in msg):
                 self._checker.add_message("raising-format-tuple", node=self._node)
 
@@ -228,12 +228,12 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
 class ExceptionRaiseLeafVisitor(BaseVisitor):
     """Visitor for handling leaf kinds of a raise value."""
 
-    def visit_const(self, const):
+    def visit_const(self, node: nodes.Const) -> None:
         self._checker.add_message(
-            "raising-bad-type", node=self._node, args=const.value.__class__.__name__
+            "raising-bad-type", node=self._node, args=node.value.__class__.__name__
         )
 
-    def visit_instance(self, instance):
+    def visit_instance(self, instance: objects.ExceptionInstance) -> None:
         # pylint: disable=protected-access
         cls = instance._proxied
         self.visit_classdef(cls)
@@ -241,15 +241,15 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
     # Exception instances have a particular class type
     visit_exceptioninstance = visit_instance
 
-    def visit_classdef(self, cls):
-        if not utils.inherit_from_std_ex(cls) and utils.has_known_bases(cls):
-            if cls.newstyle:
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
+        if not utils.inherit_from_std_ex(node) and utils.has_known_bases(node):
+            if node.newstyle:
                 self._checker.add_message("raising-non-exception", node=self._node)
 
-    def visit_tuple(self, _):
+    def visit_tuple(self, _: nodes.Tuple) -> None:
         self._checker.add_message("raising-bad-type", node=self._node, args="tuple")
 
-    def visit_default(self, node):
+    def visit_default(self, node: nodes.NodeNG) -> None:
         name = getattr(node, "name", node.__class__.__name__)
         self._checker.add_message("raising-bad-type", node=self._node, args=name)
 
@@ -289,7 +289,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         "raising-format-tuple",
         "raise-missing-from",
     )
-    def visit_raise(self, node):
+    def visit_raise(self, node: nodes.Raise) -> None:
         if node.exc is None:
             self._check_misplaced_bare_raise(node)
             return
@@ -428,8 +428,8 @@ class ExceptionsChecker(checkers.BaseChecker):
     def _check_try_except_raise(self, node):
         def gather_exceptions_from_handler(
             handler,
-        ) -> typing.Optional[typing.List[nodes.NodeNG]]:
-            exceptions: typing.List[nodes.NodeNG] = []
+        ) -> Optional[List[nodes.NodeNG]]:
+            exceptions: List[nodes.NodeNG] = []
             if handler.type:
                 exceptions_in_handler = utils.safe_infer(handler.type)
                 if isinstance(exceptions_in_handler, nodes.Tuple):
@@ -483,14 +483,14 @@ class ExceptionsChecker(checkers.BaseChecker):
                 self.add_message("try-except-raise", node=handler_having_bare_raise)
 
     @utils.check_messages("wrong-exception-operation")
-    def visit_binop(self, node):
+    def visit_binop(self, node: nodes.BinOp) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V | A)
             suggestion = f"Did you mean '({node.left.as_string()}, {node.right.as_string()})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
     @utils.check_messages("wrong-exception-operation")
-    def visit_compare(self, node):
+    def visit_compare(self, node: nodes.Compare) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V < A)
             suggestion = f"Did you mean '({node.left.as_string()}, {', '.join(operand.as_string() for _, operand in node.ops)})' instead?"
@@ -505,10 +505,10 @@ class ExceptionsChecker(checkers.BaseChecker):
         "catching-non-exception",
         "duplicate-except",
     )
-    def visit_tryexcept(self, node):
+    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
         """check for empty except"""
         self._check_try_except_raise(node)
-        exceptions_classes = []
+        exceptions_classes: List[Any] = []
         nb_handlers = len(node.handlers)
         for index, handler in enumerate(node.handlers):
             if handler.type is None:

@@ -15,7 +15,9 @@ class GenericTestReporter(BaseReporter):
 
     __implements__ = interfaces.IReporter
 
-    def __init__(self):  # pylint: disable=super-init-not-called
+    def __init__(
+        self,
+    ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         self.reset()
 
     def reset(self):

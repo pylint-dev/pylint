@@ -139,7 +139,7 @@ class TypingChecker(BaseChecker):
         self._consider_using_alias_msgs: List[DeprecatedTypingAliasMsg] = []
 
     def open(self) -> None:
-        py_version: Tuple[int, int] = get_global_option(self, "py-version")  # type: ignore
+        py_version: Tuple[int, int] = get_global_option(self, "py-version")
         self._py37_plus = py_version >= (3, 7)
         self._py39_plus = py_version >= (3, 9)
         self._py310_plus = py_version >= (3, 10)
@@ -173,7 +173,7 @@ class TypingChecker(BaseChecker):
         "consider-using-alias",
         "consider-alternative-union-syntax",
     )
-    def visit_attribute(self, node: nodes.Attribute):
+    def visit_attribute(self, node: nodes.Attribute) -> None:
         if self._should_check_typing_alias and node.attrname in ALIAS_NAMES:
             self._check_for_typing_alias(node)
         if self._should_check_alternative_union_syntax and node.attrname in UNION_NAMES:

@@ -79,8 +79,8 @@ def function(matches):
         index += 1
         print(match)
 
-
-def visit_if(self, node):
+from astroid import nodes
+def visit_if(self, node: nodes.If) -> None:
     """increments the branches counter"""
     branches = 1
     # don't double count If nodes coming from some 'elif'

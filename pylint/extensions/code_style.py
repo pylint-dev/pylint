@@ -77,9 +77,9 @@ class CodeStyleChecker(BaseChecker):
         super().__init__(linter=linter)
 
     def open(self) -> None:
-        py_version: Tuple[int, int] = get_global_option(self, "py-version")  # type: ignore
+        py_version: Tuple[int, int] = get_global_option(self, "py-version")
         self._py38_plus = py_version >= (3, 8)
-        self._max_length: int = (  # type: ignore
+        self._max_length: int = (
             self.config.max_line_length_suggestions
             or get_global_option(self, "max-line-length")
         )
@@ -160,7 +160,7 @@ class CodeStyleChecker(BaseChecker):
             for _, dict_value in node.items
         ):
             # Make sure all sublists have the same length > 0
-            list_length = len(node.items[0][1].elts)  # type: ignore
+            list_length = len(node.items[0][1].elts)
             if list_length == 0:
                 return
             for _, dict_value in node.items[1:]:
