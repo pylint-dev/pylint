@@ -26,7 +26,7 @@ in particular the parameter documentation checker `DocstringChecker`
 
 import astroid
 import pytest
-from astroid.nodes import ClassDef
+from astroid import nodes
 
 from pylint.extensions.docparams import DocstringParameterChecker
 from pylint.testutils import CheckerTestCase, Message, set_config
@@ -343,7 +343,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def _visit_methods_of_class(self, node: ClassDef) -> None:
+    def _visit_methods_of_class(self, node: nodes.ClassDef) -> None:
         """Visit all methods of a class node
 
         :param node: class node
