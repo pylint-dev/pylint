@@ -11,6 +11,7 @@
 
 """Module to add McCabe checker class for pylint. """
 
+from astroid import nodes
 from mccabe import PathGraph as Mccabe_PathGraph
 from mccabe import PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
 
@@ -171,7 +172,7 @@ class McCabeMethodChecker(checkers.BaseChecker):
     )
 
     @check_messages("too-complex")
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         """visit an astroid.Module node to check too complex rating and
         add message if is greather than max_complexity stored from options"""
         visitor = PathGraphingAstVisitor()

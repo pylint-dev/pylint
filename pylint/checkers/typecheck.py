@@ -67,7 +67,7 @@ import types
 from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
-from typing import Pattern, Tuple
+from typing import Any, Callable, Iterator, List, Optional, Pattern, Tuple
 
 import astroid
 from astroid import bases, nodes
@@ -915,7 +915,7 @@ accessed. Python regular expressions are accepted.",
         return tuple(re.compile(exp) for exp in generated_members)
 
     @check_messages("keyword-arg-before-vararg")
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         # check for keyword arg before varargs
         if node.args.vararg and node.args.defaults:
             self.add_message("keyword-arg-before-vararg", node=node, args=(node.name))
@@ -923,7 +923,7 @@ accessed. Python regular expressions are accepted.",
     visit_asyncfunctiondef = visit_functiondef
 
     @check_messages("invalid-metaclass")
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         def _metaclass_name(metaclass):
             # pylint: disable=unidiomatic-typecheck
             if isinstance(metaclass, (nodes.ClassDef, nodes.FunctionDef)):
@@ -955,15 +955,15 @@ accessed. Python regular expressions are accepted.",
                 "invalid-metaclass", node=node, args=(_metaclass_name(metaclass),)
             )
 
-    def visit_assignattr(self, node):
+    def visit_assignattr(self, node: nodes.AssignAttr) -> None:
         if isinstance(node.assign_type(), nodes.AugAssign):
             self.visit_attribute(node)
 
-    def visit_delattr(self, node):
+    def visit_delattr(self, node: nodes.DelAttr) -> None:
         self.visit_attribute(node)
 
     @check_messages("no-member", "c-extension-no-member")
-    def visit_attribute(self, node):
+    def visit_attribute(self, node: nodes.Attribute) -> None:
         """check that the accessed attribute exists
 
         to avoid too much false positives for now, we'll consider the code as
@@ -1090,7 +1090,7 @@ accessed. Python regular expressions are accepted.",
         "assignment-from-none",
         "non-str-assignment-to-dunder-name",
     )
-    def visit_assign(self, node):
+    def visit_assign(self, node: nodes.Assign) -> None:
         """
         Process assignments in the AST.
         """
@@ -1270,7 +1270,7 @@ accessed. Python regular expressions are accepted.",
 
     # pylint: disable=too-many-branches,too-many-locals
     @check_messages(*(list(MSGS.keys())))
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         """check that called functions/methods are inferred to callable objects,
         and that the arguments passed to the function match the parameters in
         the inferred function's definition
@@ -1359,7 +1359,7 @@ accessed. Python regular expressions are accepted.",
         # Analyze the list of formal parameters.
         args = list(itertools.chain(called.args.posonlyargs or (), called.args.args))
         num_mandatory_parameters = len(args) - len(called.args.defaults)
-        parameters = []
+        parameters: List[List[Any]] = []
         parameter_name_to_index = {}
         for i, arg in enumerate(args):
             if isinstance(arg, nodes.Tuple):
@@ -1553,7 +1553,7 @@ accessed. Python regular expressions are accepted.",
         return None
 
     @check_messages("invalid-sequence-index")
-    def visit_extslice(self, node):
+    def visit_extslice(self, node: nodes.ExtSlice) -> None:
         if not node.parent or not hasattr(node.parent, "value"):
             return None
         # Check extended slice objects as if they were used as a sequence
@@ -1615,7 +1615,7 @@ accessed. Python regular expressions are accepted.",
             self.add_message("invalid-slice-index", node=node)
 
     @check_messages("not-context-manager")
-    def visit_with(self, node):
+    def visit_with(self, node: nodes.With) -> None:
         for ctx_mgr, _ in node.items:
             context = astroid.context.InferenceContext()
             inferred = safe_infer(ctx_mgr, context=context)
@@ -1641,7 +1641,9 @@ accessed. Python regular expressions are accepted.",
                 # of self explaining tests.
 
                 # Retrieve node from all previusly visited nodes in the the inference history
-                context_path_names = filter(None, _unflatten(context.path))
+                context_path_names: Iterator[Any] = filter(
+                    None, _unflatten(context.path)
+                )
                 inferred_paths = _flatten_container(
                     safe_infer(path) for path in context_path_names
                 )
@@ -1677,7 +1679,7 @@ accessed. Python regular expressions are accepted.",
                     )
 
     @check_messages("invalid-unary-operand-type")
-    def visit_unaryop(self, node):
+    def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """Detect TypeErrors for unary operands."""
 
         for error in node.type_errors():
@@ -1685,7 +1687,7 @@ accessed. Python regular expressions are accepted.",
             self.add_message("invalid-unary-operand-type", args=str(error), node=node)
 
     @check_messages("unsupported-binary-operation")
-    def visit_binop(self, node: nodes.BinOp):
+    def visit_binop(self, node: nodes.BinOp) -> None:
         if node.op == "|":
             self._detect_unsupported_alternative_union_syntax(node)
 
@@ -1740,12 +1742,12 @@ accessed. Python regular expressions are accepted.",
                 break
 
     @check_messages("unsupported-binary-operation")
-    def _visit_binop(self, node):
+    def _visit_binop(self, node: nodes.BinOp) -> None:
         """Detect TypeErrors for binary arithmetic operands."""
         self._check_binop_errors(node)
 
     @check_messages("unsupported-binary-operation")
-    def _visit_augassign(self, node):
+    def _visit_augassign(self, node: nodes.AugAssign) -> None:
         """Detect TypeErrors for augmented binary arithmetic operands."""
         self._check_binop_errors(node)
 
@@ -1773,7 +1775,7 @@ accessed. Python regular expressions are accepted.",
             )
 
     @check_messages("unsupported-membership-test")
-    def visit_compare(self, node):
+    def visit_compare(self, node: nodes.Compare) -> None:
         if len(node.ops) != 1:
             return
 
@@ -1789,17 +1791,17 @@ accessed. Python regular expressions are accepted.",
         "invalid-sequence-index",
         "invalid-slice-index",
     )
-    def visit_subscript(self, node):
+    def visit_subscript(self, node: nodes.Subscript) -> None:
         self._check_invalid_sequence_index(node)
 
-        supported_protocol = None
+        supported_protocol: Optional[Callable[[Any, Any], bool]] = None
         if isinstance(node.value, (nodes.ListComp, nodes.DictComp)):
             return
 
         if isinstance(node.value, nodes.Dict):
             # Assert dict key is hashable
             inferred = safe_infer(node.slice)
-            if inferred not in (None, astroid.Uninferable):
+            if inferred and inferred != astroid.Uninferable:
                 try:
                     hash_fn = next(inferred.igetattr("__hash__"))
                 except astroid.InferenceError:
@@ -1838,11 +1840,11 @@ accessed. Python regular expressions are accepted.",
                 return  # It would be better to handle function
                 # decorators, but let's start slow.
 
-        if not supported_protocol(inferred, node):
+        if supported_protocol and not supported_protocol(inferred, node):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
 
     @check_messages("dict-items-missing-iter")
-    def visit_for(self, node):
+    def visit_for(self, node: nodes.For) -> None:
         if not isinstance(node.target, nodes.Tuple):
             # target is not a tuple
             return
@@ -1939,43 +1941,43 @@ class IterableChecker(BaseChecker):
             self.add_message("not-a-mapping", args=node.as_string(), node=node)
 
     @check_messages("not-an-iterable")
-    def visit_for(self, node):
+    def visit_for(self, node: nodes.For) -> None:
         self._check_iterable(node.iter)
 
     @check_messages("not-an-iterable")
-    def visit_asyncfor(self, node):
+    def visit_asyncfor(self, node: nodes.AsyncFor) -> None:
         self._check_iterable(node.iter, check_async=True)
 
     @check_messages("not-an-iterable")
-    def visit_yieldfrom(self, node):
+    def visit_yieldfrom(self, node: nodes.YieldFrom) -> None:
         if self._is_asyncio_coroutine(node.value):
             return
         self._check_iterable(node.value)
 
     @check_messages("not-an-iterable", "not-a-mapping")
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         for stararg in node.starargs:
             self._check_iterable(stararg.value)
         for kwarg in node.kwargs:
             self._check_mapping(kwarg.value)
 
     @check_messages("not-an-iterable")
-    def visit_listcomp(self, node):
+    def visit_listcomp(self, node: nodes.ListComp) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
 
     @check_messages("not-an-iterable")
-    def visit_dictcomp(self, node):
+    def visit_dictcomp(self, node: nodes.DictComp) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
 
     @check_messages("not-an-iterable")
-    def visit_setcomp(self, node):
+    def visit_setcomp(self, node: nodes.SetComp) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
 
     @check_messages("not-an-iterable")
-    def visit_generatorexp(self, node):
+    def visit_generatorexp(self, node: nodes.GeneratorExp) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
 

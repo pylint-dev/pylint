@@ -56,7 +56,7 @@ class NewStyleConflictChecker(BaseChecker):
     options = ()
 
     @check_messages("bad-super-call")
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """check use of super"""
         # ignore actual functions or method within a new style class
         if not node.is_method():

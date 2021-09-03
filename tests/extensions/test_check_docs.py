@@ -26,8 +26,7 @@ in particular the parameter documentation checker `DocstringChecker`
 
 import astroid
 import pytest
-from astroid import nodes
-from astroid.nodes.scoped_nodes import ClassDef
+from astroid.nodes import ClassDef
 
 from pylint.extensions.docparams import DocstringParameterChecker
 from pylint.testutils import CheckerTestCase, Message, set_config

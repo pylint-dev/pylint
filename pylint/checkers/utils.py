@@ -60,18 +60,7 @@ import numbers
 import re
 import string
 from functools import lru_cache, partial
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Match,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, Union
 
 import _string
 import astroid
@@ -228,7 +217,7 @@ _SPECIAL_METHODS_PARAMS = {
 SPECIAL_METHODS_PARAMS = {
     name: params
     for params, methods in _SPECIAL_METHODS_PARAMS.items()
-    for name in methods  # type: ignore
+    for name in methods
 }
 PYMETHODS = set(SPECIAL_METHODS_PARAMS)
 
@@ -748,8 +737,8 @@ def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
         return error
 
     if not isinstance(error_type, tuple):
-        error_type = (error_type,)  # type: ignore
-    expected_errors = {stringify_error(error) for error in error_type}  # type: ignore
+        error_type = (error_type,)
+    expected_errors = {stringify_error(error) for error in error_type}
     if not handler.type:
         return False
     return handler.catch(expected_errors)
@@ -1164,11 +1153,11 @@ def supports_getitem(value: nodes.NodeNG, node: nodes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_getitem_protocol)
 
 
-def supports_setitem(value: nodes.NodeNG, *_: Any) -> bool:
+def supports_setitem(value: nodes.NodeNG, _: nodes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_setitem_protocol)
 
 
-def supports_delitem(value: nodes.NodeNG, *_: Any) -> bool:
+def supports_delitem(value: nodes.NodeNG, _: nodes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_delitem_protocol)
 
 
@@ -1245,7 +1234,7 @@ def is_none(node: nodes.NodeNG) -> bool:
     )
 
 
-def node_type(node: nodes.NodeNG) -> Optional[type]:
+def node_type(node: nodes.NodeNG) -> Optional[nodes.NodeNG]:
     """Return the inferred type for `node`
 
     If there is more than one possible type, or if inferred type is Uninferable or None,
@@ -1253,7 +1242,7 @@ def node_type(node: nodes.NodeNG) -> Optional[type]:
     """
     # check there is only one possible type for the assign node. Else we
     # don't handle it for now
-    types = set()
+    types: Set[nodes.NodeNG] = set()
     try:
         for var_type in node.infer():
             if var_type == astroid.Uninferable or is_none(var_type):

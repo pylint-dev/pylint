@@ -52,7 +52,7 @@ class LenChecker(checkers.BaseChecker):
     options = ()
 
     @utils.check_messages("len-as-condition")
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         # a len(S) call is used inside a test condition
         # could be if, while, assert or if expression statement
         # e.g. `if len(S):`
@@ -102,7 +102,7 @@ class LenChecker(checkers.BaseChecker):
         return False
 
     @utils.check_messages("len-as-condition")
-    def visit_unaryop(self, node):
+    def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """`not len(S)` must become `not S` regardless if the parent block
         is a test condition or something else (boolean expression)
         e.g. `if not len(S):`"""
