@@ -86,9 +86,9 @@ class LintTestUsingModule:
         self._check_result(self.linter.reporter.finalize())
 
     def _has_output(self) -> bool:
-        if self.module and not self.module.startswith("func_noerror_"):
-            return True
-        return False
+        return isinstance(self.module, str) and not self.module.startswith(
+            "func_noerror_"
+        )
 
     def _get_expected(self) -> str:
         if self._has_output() and self.output:
