@@ -100,10 +100,7 @@ def _configure_lc_ctype(lc_ctype: str) -> Iterator:
 
 
 class MultiReporter(BaseReporter):
-    def __init__(
-        self,
-        reporters: List[Reporter],
-    ) -> None:
+    def __init__(self, reporters: List[BaseReporter]) -> None:
         # pylint: disable=super-init-not-called
         # We don't call it because there is an attribute "linter" that is set inside the base class
         # and we have another setter here using yet undefined attribute.
