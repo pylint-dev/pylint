@@ -278,7 +278,7 @@ class StringFormatChecker(BaseChecker):
         "bad-string-format-type",
         "format-string-without-interpolation",
     )
-    def visit_binop(self, node):
+    def visit_binop(self, node: nodes.BinOp) -> None:
         if node.op != "%":
             return
         left = node.left
@@ -353,7 +353,8 @@ class StringFormatChecker(BaseChecker):
                     arg_type = utils.safe_infer(arg)
                     if (
                         format_type is not None
-                        and arg_type not in (None, astroid.Uninferable)
+                        and arg_type
+                        and arg_type != astroid.Uninferable
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -373,11 +374,11 @@ class StringFormatChecker(BaseChecker):
             # Check that the number of arguments passed to the RHS of
             # the % operator matches the number required by the format
             # string.
-            args_elts = ()
+            args_elts = []
             if isinstance(args, nodes.Tuple):
                 rhs_tuple = utils.safe_infer(args)
                 num_args = None
-                if hasattr(rhs_tuple, "elts"):
+                if isinstance(rhs_tuple, nodes.BaseContainer):
                     args_elts = rhs_tuple.elts
                     num_args = len(args_elts)
             elif isinstance(args, (OTHER_NODES, (nodes.Dict, nodes.DictComp))):
@@ -399,10 +400,7 @@ class StringFormatChecker(BaseChecker):
                     arg_type = utils.safe_infer(arg)
                     if (
                         arg_type
-                        not in (
-                            None,
-                            astroid.Uninferable,
-                        )
+                        and arg_type != astroid.Uninferable
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -412,7 +410,7 @@ class StringFormatChecker(BaseChecker):
                         )
 
     @check_messages("f-string-without-interpolation")
-    def visit_joinedstr(self, node):
+    def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
         if isinstance(node.parent, nodes.FormattedValue):
             return
         for value in node.values:
@@ -421,7 +419,7 @@ class StringFormatChecker(BaseChecker):
         self.add_message("f-string-without-interpolation", node=node)
 
     @check_messages(*MSGS)
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         func = utils.safe_infer(node.func)
         if (
             isinstance(func, astroid.BoundMethod)
@@ -750,18 +748,18 @@ class StringConstantChecker(BaseTokenChecker):
             self.check_for_consistent_string_delimiters(tokens)
 
     @check_messages("implicit-str-concat")
-    def visit_list(self, node):
+    def visit_list(self, node: nodes.List) -> None:
         self.check_for_concatenated_strings(node.elts, "list")
 
     @check_messages("implicit-str-concat")
-    def visit_set(self, node):
+    def visit_set(self, node: nodes.Set) -> None:
         self.check_for_concatenated_strings(node.elts, "set")
 
     @check_messages("implicit-str-concat")
-    def visit_tuple(self, node):
+    def visit_tuple(self, node: nodes.Tuple) -> None:
         self.check_for_concatenated_strings(node.elts, "tuple")
 
-    def visit_assign(self, node):
+    def visit_assign(self, node: nodes.Assign) -> None:
         if isinstance(node.value, nodes.Const) and isinstance(node.value.value, str):
             self.check_for_concatenated_strings([node.value], "assignment")
 
@@ -917,7 +915,7 @@ class StringConstantChecker(BaseTokenChecker):
 
     @check_messages("redundant-u-string-prefix")
     @check_messages("consider-using-f-string")
-    def visit_const(self, node: nodes.Const):
+    def visit_const(self, node: nodes.Const) -> None:
         if node.pytype() == "builtins.str" and not isinstance(
             node.parent, nodes.JoinedStr
         ):

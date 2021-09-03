@@ -12,8 +12,10 @@
 """Looks for comparisons to zero."""
 
 import itertools
+from typing import Any, Iterable
 
 import astroid
+from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -46,7 +48,7 @@ class CompareToZeroChecker(checkers.BaseChecker):
     options = ()
 
     @utils.check_messages("compare-to-zero")
-    def visit_compare(self, node):
+    def visit_compare(self, node: nodes.Compare) -> None:
         _operators = ["!=", "==", "is not", "is"]
         # note: astroid.Compare has the left most operand in node.left
         # while the rest are a list of tuples in node.ops
@@ -54,7 +56,8 @@ class CompareToZeroChecker(checkers.BaseChecker):
         # here we squash everything into `ops` to make it easier for processing later
         ops = [("", node.left)]
         ops.extend(node.ops)
-        ops = list(itertools.chain(*ops))
+        iter_ops: Iterable[Any] = iter(ops)
+        ops = list(itertools.chain(*iter_ops))
 
         for ops_idx in range(len(ops) - 2):
             op_1 = ops[ops_idx]

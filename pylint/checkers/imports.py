@@ -50,7 +50,7 @@ import copy
 import os
 import sys
 from distutils import sysconfig
-from typing import Dict, List, Set, Union
+from typing import Any, Dict, List, Set, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -66,6 +66,7 @@ from pylint.checkers.utils import (
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
+from pylint.lint import PyLinter
 from pylint.reporters.ureports.nodes import Paragraph, VerbatimText, VNode
 from pylint.utils import IsortDriver, get_global_option
 
@@ -418,14 +419,18 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         ),
     )
 
-    def __init__(self, linter=None):
+    def __init__(
+        self, linter: PyLinter = None
+    ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
-        self.stats = None
-        self.import_graph = None
-        self._imports_stack = []
+        self.stats: Dict[Any, Any] = {}
+        self.import_graph: collections.defaultdict = collections.defaultdict(set)
+        self._imports_stack: List[Tuple[Any, Any]] = []
         self._first_non_import_node = None
-        self._module_pkg = {}  # mapping of modules to the pkg they belong in
-        self._allow_any_import_level = set()
+        self._module_pkg: Dict[
+            Any, Any
+        ] = {}  # mapping of modules to the pkg they belong in
+        self._allow_any_import_level: Set[Any] = set()
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
@@ -494,7 +499,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return self.config.deprecated_modules
 
     @check_messages(*MSGS)
-    def visit_import(self, node):
+    def visit_import(self, node: nodes.Import) -> None:
         """triggered when an import statement is seen"""
         self._check_reimport(node)
         self._check_import_as_rename(node)
@@ -520,7 +525,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             self._add_imported_module(node, imported_module.name)
 
     @check_messages(*MSGS)
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """triggered when a from statement is seen"""
         basename = node.modname
         imported_module = self._get_imported_module(node, basename)
@@ -618,7 +623,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         visit_ifexp
     ) = visit_comprehension = visit_expr = visit_if = compute_first_non_import_node
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if not self.linter.is_message_enabled("wrong-import-position", node.fromlineno):
             return
         # If it is the first non import instruction of the module, record it.

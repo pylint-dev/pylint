@@ -33,6 +33,8 @@ import re
 import tokenize
 from typing import Pattern
 
+from astroid import nodes
+
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, ITokenChecker
@@ -437,19 +439,19 @@ class SpellingChecker(BaseTokenChecker):
                 self._check_spelling("wrong-spelling-in-comment", token, start_row)
 
     @check_messages("wrong-spelling-in-docstring")
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
     @check_messages("wrong-spelling-in-docstring")
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
     @check_messages("wrong-spelling-in-docstring")
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
