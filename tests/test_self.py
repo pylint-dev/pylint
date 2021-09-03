@@ -103,7 +103,7 @@ class MultiReporter(BaseReporter):
     def __init__(
         self,
         reporters: List[
-            Union[JSONReporter, ColorizedTextReporter, TextReporter, BaseReporter]
+            Reporter
         ],
     ) -> None:
         # pylint: disable=super-init-not-called

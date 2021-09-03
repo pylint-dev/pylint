@@ -79,7 +79,7 @@ class LintTestUsingModule:
             self.linter.check(tocheck)
         except Exception as ex:
             print(f"Exception: {ex} in {tocheck}:: {'‚ '.join(ex.args)}")
-            ex.file = tocheck  # type: ignore # This is legacy code we're trying to remove, impossible to type correctly
+            ex.file = tocheck  # type: ignore # This is legacy code we're trying to remove, not worth it to type correctly
             print(ex)
             ex.__str__ = exception_str  # type: ignore # This is legacy code we're trying to remove, impossible to type correctly
             raise
