@@ -69,3 +69,7 @@ Other Changes
 * Fix false positive ``superfluous-parens`` for tuples created with inner tuples
 
   Closes #4907
+
+* Fix false positive ``unused-private-member`` for accessing attributes in a class using ``cls``
+
+  Closes #4849
