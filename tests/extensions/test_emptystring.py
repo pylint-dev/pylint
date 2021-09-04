@@ -19,6 +19,7 @@ from os import path as osp
 import pytest
 
 from pylint.extensions.emptystring import CompareToEmptyStringChecker
+from pylint.lint.pylinter import PyLinter
 
 
 @pytest.fixture(scope="module")
@@ -31,7 +32,7 @@ def disable():
     return ["I"]
 
 
-def test_emptystring_message(linter):
+def test_emptystring_message(linter: PyLinter) -> None:
     elif_test = osp.join(
         osp.dirname(osp.abspath(__file__)), "data", "empty_string_comparison.py"
     )

@@ -16,6 +16,7 @@
 
 import json
 from io import StringIO
+from typing import Any, Dict, List
 
 from pylint import checkers
 from pylint.lint import PyLinter
@@ -38,14 +39,14 @@ expected_result = [
 ]
 
 
-def test_simple_json_output_no_score():
+def test_simple_json_output_no_score() -> None:
     report = get_linter_result(score=False)
     assert len(report) == 1
     report_result = [sorted(report[0].items(), key=lambda item: item[0])]
     assert report_result == expected_result
 
 
-def get_linter_result(score):
+def get_linter_result(score: bool) -> List[Dict[str, Any]]:
     output = StringIO()
     reporter = JSONReporter(output)
     linter = PyLinter(reporter=reporter)

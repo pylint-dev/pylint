@@ -47,6 +47,6 @@ def test_unsupported_layout(layout: Layout, printer_class: Type[Printer]):
 class TestPlantUmlPrinter:
     printer = PlantUmlPrinter(title="unittest", layout=Layout.TOP_TO_BOTTOM)
 
-    def test_node_without_properties(self):
+    def test_node_without_properties(self) -> None:
         self.printer.emit_node(name="test", type_=NodeType.CLASS)
         assert self.printer.lines[-2:] == ['class "test" as test {\n', "}\n"]

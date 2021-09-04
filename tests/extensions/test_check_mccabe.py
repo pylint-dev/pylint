@@ -14,10 +14,12 @@
 # pylint: disable=redefined-outer-name
 
 from os import path as osp
+from typing import List
 
 import pytest
 
 from pylint.extensions import mccabe
+from pylint.lint.pylinter import PyLinter
 
 EXPECTED_MSGS = [
     "'f1' is too complex. The McCabe rating is 1",
@@ -53,14 +55,16 @@ def register():
 
 
 @pytest.fixture
-def fname_mccabe_example():
+def fname_mccabe_example() -> str:
     return osp.join(osp.dirname(osp.abspath(__file__)), "data", "mccabe.py")
 
 
 @pytest.mark.parametrize(
     "complexity, expected", [(0, EXPECTED_MSGS), (9, EXPECTED_MSGS[-2:])]
 )
-def test_max_mccabe_rate(linter, fname_mccabe_example, complexity, expected):
+def test_max_mccabe_rate(
+    linter: PyLinter, fname_mccabe_example: str, complexity: int, expected: List[str]
+) -> None:
     linter.global_set_option("max-complexity", complexity)
     linter.check([fname_mccabe_example])
     real_msgs = [message.msg for message in linter.reporter.messages]

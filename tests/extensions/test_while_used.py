@@ -11,7 +11,7 @@ class TestWhileUsed(CheckerTestCase):
 
     CHECKER_CLASS = WhileChecker
 
-    def test_while_used(self):
+    def test_while_used(self) -> None:
         node = astroid.extract_node(
             """
         def f():

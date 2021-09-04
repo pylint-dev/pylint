@@ -22,9 +22,11 @@
 # pylint: disable=redefined-outer-name
 import sys
 from pathlib import Path
+from typing import Callable, Dict, List, Tuple
 
 import pytest
 from astroid import nodes
+from conftest import PyreverseConfig  # type: ignore #pylint: disable=no-name-in-module
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
@@ -32,15 +34,18 @@ from pylint.pyreverse.diadefslib import (
     DiaDefGenerator,
     DiadefsHandler,
 )
-from pylint.pyreverse.inspector import Linker
+from pylint.pyreverse.diagrams import DiagramEntity, Relationship
+from pylint.pyreverse.inspector import Linker, Project
 
 
-def _process_classes(classes):
+def _process_classes(classes: List[DiagramEntity]) -> List[Tuple[bool, str]]:
     """extract class names of a list"""
     return sorted((isinstance(c.node, nodes.ClassDef), c.title) for c in classes)
 
 
-def _process_relations(relations):
+def _process_relations(
+    relations: Dict[str, List[Relationship]]
+) -> List[Tuple[str, str, str]]:
     """extract relation indices from a relation list"""
     result = []
     for rel_type, rels in relations.items():
@@ -51,7 +56,7 @@ def _process_relations(relations):
 
 
 @pytest.fixture
-def HANDLER(default_config):
+def HANDLER(default_config: PyreverseConfig) -> DiadefsHandler:
     return DiadefsHandler(default_config)
 
 
@@ -60,7 +65,9 @@ def PROJECT(get_project):
     return get_project("data")
 
 
-def test_option_values(default_config, HANDLER, PROJECT):
+def test_option_values(
+    default_config: PyreverseConfig, HANDLER: DiadefsHandler, PROJECT: Project
+) -> None:
     """test for ancestor, associated and module options"""
     df_h = DiaDefGenerator(Linker(PROJECT), HANDLER)
     cl_config = default_config
@@ -91,7 +98,7 @@ def test_option_values(default_config, HANDLER, PROJECT):
         assert not hndl.module_names
 
 
-def test_default_values():
+def test_default_values() -> None:
     """test default values for package or class diagrams"""
     # TODO : should test difference between default values for package or class diagrams pylint: disable=fixme
 
@@ -105,14 +112,18 @@ class TestDefaultDiadefGenerator:
         ("specialization", "Specialization", "Ancestor"),
     ]
 
-    def test_exctract_relations(self, HANDLER, PROJECT):
+    def test_exctract_relations(
+        self, HANDLER: DiadefsHandler, PROJECT: Project
+    ) -> None:
         """test extract_relations between classes"""
         cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
         cd.extract_relationships()
         relations = _process_relations(cd.relationships)
         assert relations == self._should_rels
 
-    def test_functional_relation_extraction(self, default_config, get_project):
+    def test_functional_relation_extraction(
+        self, default_config: PyreverseConfig, get_project: Callable
+    ) -> None:
         """functional test of relations extraction;
         different classes possibly in different modules"""
         # XXX should be catching pyreverse environnement problem but doesn't
@@ -125,7 +136,7 @@ class TestDefaultDiadefGenerator:
         assert relations == self._should_rels
 
 
-def test_known_values1(HANDLER, PROJECT):
+def test_known_values1(HANDLER: DiadefsHandler, PROJECT: Project) -> None:
     dd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)
     assert len(dd) == 2
     keys = [d.TYPE for d in dd]
@@ -152,7 +163,7 @@ def test_known_values1(HANDLER, PROJECT):
     ]
 
 
-def test_known_values2(HANDLER, get_project):
+def test_known_values2(HANDLER: DiadefsHandler, get_project: Callable) -> None:
     project = get_project("data.clientmodule_test")
     dd = DefaultDiadefGenerator(Linker(project), HANDLER).visit(project)
     assert len(dd) == 1
@@ -164,7 +175,7 @@ def test_known_values2(HANDLER, get_project):
     assert classes == [(True, "Ancestor"), (True, "Specialization")]
 
 
-def test_known_values3(HANDLER, PROJECT):
+def test_known_values3(HANDLER: DiadefsHandler, PROJECT: Project) -> None:
     HANDLER.config.classes = ["Specialization"]
     cdg = ClassDiadefGenerator(Linker(PROJECT), HANDLER)
     special = "data.clientmodule_test.Specialization"
@@ -179,7 +190,7 @@ def test_known_values3(HANDLER, PROJECT):
     ]
 
 
-def test_known_values4(HANDLER, PROJECT):
+def test_known_values4(HANDLER: DiadefsHandler, PROJECT: Project) -> None:
     HANDLER.config.classes = ["Specialization"]
     HANDLER.config.module_names = False
     cd = ClassDiadefGenerator(Linker(PROJECT), HANDLER).class_diagram(
@@ -196,7 +207,9 @@ def test_known_values4(HANDLER, PROJECT):
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires dataclasses")
-def test_regression_dataclasses_inference(HANDLER, get_project):
+def test_regression_dataclasses_inference(
+    HANDLER: DiadefsHandler, get_project: Callable
+) -> None:
     project_path = Path("regrtest_data") / "dataclasses_pyreverse"
     path = get_project(str(project_path))
 

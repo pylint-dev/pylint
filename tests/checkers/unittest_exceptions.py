@@ -30,13 +30,13 @@ class TestExceptionsChecker(CheckerTestCase):
     # and `raise (Error, ...)` will be converted to
     # `raise Error(...)`, so it beats the purpose of the test.
 
-    def test_raising_bad_type_python3(self):
+    def test_raising_bad_type_python3(self) -> None:
         node = astroid.extract_node("raise (ZeroDivisionError, None)  #@")
         message = Message("raising-bad-type", node=node, args="tuple")
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)
 
-    def test_bad_exception_context_function(self):
+    def test_bad_exception_context_function(self) -> None:
         node = astroid.extract_node(
             """
         def function():
