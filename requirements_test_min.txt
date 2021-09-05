@@ -2,4 +2,3 @@
 astroid==2.7.3  # Pinned to a specific version for tests
 pytest~=6.2
 pytest-benchmark~=3.4
-mypy_extensions==0.4.3
