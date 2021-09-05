@@ -390,6 +390,8 @@ class Similar:
 
     def run(self) -> None:
         """start looking for similarities and display results on stdout"""
+        if self.min_lines == 0:
+            sys.exit(0)
         self._display_sims(self._compute_sims())
 
     def _compute_sims(self) -> List[Tuple[int, Set[LinesChunkLimits_T]]]:
@@ -919,8 +921,6 @@ def Run(argv=None):
             ignore_signatures = True
     if not args:
         usage(1)
-    if min_lines == 0:
-        sys.exit(0)
     sim = Similar(
         min_lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
     )
