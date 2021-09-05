@@ -919,6 +919,8 @@ def Run(argv=None):
             ignore_signatures = True
     if not args:
         usage(1)
+    if min_lines == 0:
+        sys.exit(0)
     sim = Similar(
         min_lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
     )
