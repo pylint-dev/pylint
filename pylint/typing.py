@@ -4,9 +4,13 @@
 """A collection of typing utilities
 """
 
-from typing import Counter, Dict, List, Union
+from typing import TYPE_CHECKING, Dict, List, Union
+
+if TYPE_CHECKING:
+    from typing import Counter  # typing.Counter added in Python 3.6.1
+
 
 # The base type of the "stats" attribute of a checker
 CheckerStatistics = Dict[
-    str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
+    str, Union[int, "Counter[str]", List, Dict[str, Union[int, str, Dict[str, int]]]]
 ]
