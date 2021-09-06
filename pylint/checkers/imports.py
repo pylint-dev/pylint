@@ -50,7 +50,7 @@ import copy
 import os
 import sys
 from distutils import sysconfig
-from typing import Any, Counter, Dict, List, Set, Tuple, Union
+from typing import Any, Dict, List, Set, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -68,6 +68,7 @@ from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
 from pylint.lint import PyLinter
 from pylint.reporters.ureports.nodes import Paragraph, VerbatimText, VNode
+from pylint.typing import CheckerStatistics
 from pylint.utils import IsortDriver, get_global_option
 
 
@@ -423,10 +424,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self, linter: PyLinter = None
     ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
-        self.stats: Dict[
-            str,
-            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
-        ] = {}
+        self.stats: CheckerStatistics = {}
         self.import_graph: collections.defaultdict = collections.defaultdict(set)
         self._imports_stack: List[Tuple[Any, Any]] = []
         self._first_non_import_node = None

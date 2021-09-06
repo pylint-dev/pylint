@@ -46,21 +46,18 @@ messages nor reports. XXX not true, emit a 07 report !
 
 """
 
-from typing import Counter, Dict, List, Tuple, Union
+from typing import List, Tuple, Union
 
 from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
 from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.checkers.mapreduce_checker import MapReduceMixin
+from pylint.typing import CheckerStatistics
 from pylint.utils import diff_string, register_plugins
 
 
 def table_lines_from_stats(
-    stats: Dict[
-        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
-    ],
-    old_stats: Dict[
-        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
-    ],
+    stats: CheckerStatistics,
+    old_stats: CheckerStatistics,
     columns: Tuple[str, ...],
 ):
     """get values listed in <columns> from <stats> and <old_stats>,

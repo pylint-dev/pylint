@@ -17,13 +17,14 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 import functools
 from inspect import cleandoc
-from typing import Any, Counter, Dict, List, Union
+from typing import Any
 
 from pylint.config import OptionsProviderMixIn
 from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import UNDEFINED, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
+from pylint.typing import CheckerStatistics
 from pylint.utils import get_rst_section, get_rst_title
 
 
@@ -51,10 +52,7 @@ class BaseChecker(OptionsProviderMixIn):
             self.name = self.name.lower()
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
-        self.stats: Dict[
-            str,
-            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
-        ] = {}
+        self.stats: CheckerStatistics = {}
 
     def __gt__(self, other):
         """Permit to sort a list of Checker by name."""

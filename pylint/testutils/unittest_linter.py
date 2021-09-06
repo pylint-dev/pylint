@@ -1,10 +1,9 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-from typing import Counter, Dict, List, Union
-
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import Message
+from pylint.typing import CheckerStatistics
 
 
 class UnittestLinter:
@@ -14,10 +13,7 @@ class UnittestLinter:
 
     def __init__(self):
         self._messages = []
-        self.stats: Dict[
-            str,
-            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
-        ] = {}
+        self.stats: CheckerStatistics = {}
 
     def release_messages(self):
         try:

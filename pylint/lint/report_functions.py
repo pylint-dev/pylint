@@ -2,20 +2,17 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
-from typing import Counter, DefaultDict, Dict, List, Tuple, Union
+from typing import DefaultDict, Dict, List, Tuple, Union
 
 from pylint import checkers, exceptions
 from pylint.reporters.ureports import nodes as report_nodes
+from pylint.typing import CheckerStatistics
 
 
 def report_total_messages_stats(
     sect,
-    stats: Dict[
-        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
-    ],
-    previous_stats: Dict[
-        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
-    ],
+    stats: CheckerStatistics,
+    previous_stats: CheckerStatistics,
 ):
     """make total errors / warnings report"""
     lines = ["type", "number", "previous", "difference"]
@@ -27,12 +24,8 @@ def report_total_messages_stats(
 
 def report_messages_stats(
     sect,
-    stats: Dict[
-        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
-    ],
-    _: Dict[
-        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
-    ],
+    stats: CheckerStatistics,
+    _: CheckerStatistics,
 ):
     """make messages type report"""
     if not stats["by_msg"]:
@@ -53,12 +46,8 @@ def report_messages_stats(
 
 def report_messages_by_module_stats(
     sect,
-    stats: Dict[
-        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
-    ],
-    _: Dict[
-        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
-    ],
+    stats: CheckerStatistics,
+    _: CheckerStatistics,
 ):
     """make errors / warnings by modules report"""
     module_stats: Dict[str, Dict[str, int]] = stats["by_module"]  # type: ignore

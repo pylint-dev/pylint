@@ -66,7 +66,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import Any, Counter, Dict, Iterator, List, Optional, Pattern, Tuple, Union
+from typing import Any, Dict, Iterator, Optional, Pattern, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -81,6 +81,7 @@ from pylint.checkers.utils import (
     is_property_setter,
 )
 from pylint.reporters.ureports import nodes as reporter_nodes
+from pylint.typing import CheckerStatistics
 
 
 class NamingStyle:
@@ -388,12 +389,8 @@ def _has_abstract_methods(node):
 
 def report_by_type_stats(
     sect,
-    stats: Dict[
-        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
-    ],
-    old_stats: Dict[
-        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
-    ],
+    stats: CheckerStatistics,
+    old_stats: CheckerStatistics,
 ):
     """make a report of
 
@@ -1099,10 +1096,7 @@ class BasicChecker(_BasicChecker):
 
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)
-        self.stats: Dict[
-            str,
-            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
-        ] = {}
+        self.stats: CheckerStatistics = {}
         self._tryfinallys = None
 
     def open(self):

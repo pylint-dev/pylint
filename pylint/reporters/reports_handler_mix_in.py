@@ -2,10 +2,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
-from typing import TYPE_CHECKING, Counter, Dict, List, Union
+from typing import TYPE_CHECKING
 
 from pylint.exceptions import EmptyReportError
 from pylint.reporters.ureports.nodes import Section
+from pylint.typing import CheckerStatistics
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -55,14 +56,8 @@ class ReportsHandlerMixIn:
 
     def make_reports(  # type: ignore # ReportsHandlerMixIn is always mixed with PyLinter
         self: "PyLinter",
-        stats: Dict[
-            str,
-            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
-        ],
-        old_stats: Dict[
-            str,
-            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
-        ],
+        stats: CheckerStatistics,
+        old_stats: CheckerStatistics,
     ):
         """render registered reports"""
         sect = Section("Report", f"{self.stats['statement']} statements analysed.")
@@ -81,9 +76,7 @@ class ReportsHandlerMixIn:
 
     def add_stats(  # type: ignore # ReportsHandlerMixIn is always mixed with PyLinter
         self: "PyLinter", **kwargs
-    ) -> Dict[
-        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
-    ]:
+    ) -> CheckerStatistics:
         """add some stats entries to the statistic dictionary
         raise an AssertionError if there is a key conflict
         """

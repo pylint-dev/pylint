@@ -11,7 +11,7 @@
 
 import collections
 import os
-from typing import Counter, Dict, List, Tuple, Union
+from typing import List, Tuple
 
 import pytest
 from astroid.nodes.scoped_nodes import Module
@@ -24,6 +24,7 @@ from pylint.lint.parallel import _worker_check_single_file as worker_check_singl
 from pylint.lint.parallel import _worker_initialize as worker_initialize
 from pylint.lint.parallel import check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
+from pylint.typing import CheckerStatistics
 
 
 def _gen_file_data(idx: int = 0) -> Tuple[str, str, str]:
@@ -101,10 +102,7 @@ class ParallelTestChecker(BaseChecker):
         super().__init__(linter)
         self.data: List[str] = []
         self.linter = linter
-        self.stats: Dict[
-            str,
-            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
-        ] = {}
+        self.stats: CheckerStatistics = {}
 
     def open(self) -> None:
         """init the checkers: reset statistics information"""

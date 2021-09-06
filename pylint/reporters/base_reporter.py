@@ -3,9 +3,10 @@
 
 import os
 import sys
-from typing import Counter, Dict, List, Union
+from typing import List
 
 from pylint.message import Message
+from pylint.typing import CheckerStatistics
 
 
 class BaseReporter:
@@ -67,13 +68,7 @@ class BaseReporter:
 
     def on_close(
         self,
-        stats: Dict[
-            str,
-            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
-        ],
-        previous_stats: Dict[
-            str,
-            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
-        ],
+        stats: CheckerStatistics,
+        previous_stats: CheckerStatistics,
     ) -> None:
         """Hook called when a module finished analyzing."""

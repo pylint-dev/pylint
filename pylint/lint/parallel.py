@@ -8,6 +8,7 @@ from typing import Counter, Dict, List, Union
 from pylint import reporters
 from pylint.lint.utils import _patch_sys_path
 from pylint.message import Message
+from pylint.typing import CheckerStatistics
 
 try:
     import multiprocessing
@@ -31,17 +32,8 @@ def _get_new_args(message):
     return (message.msg_id, message.symbol, location, message.msg, message.confidence)
 
 
-def _merge_stats(
-    stats: List[
-        Dict[
-            str,
-            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
-        ]
-    ]
-):
-    merged: Dict[
-        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
-    ] = {}
+def _merge_stats(stats: List[CheckerStatistics]):
+    merged: CheckerStatistics = {}
     by_msg: Counter[str] = collections.Counter()
     for stat in stats:
         message_stats: Union[Counter, Dict] = stat.pop("by_msg", {})  # type: ignore

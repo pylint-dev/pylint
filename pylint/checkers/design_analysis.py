@@ -26,7 +26,7 @@
 
 import re
 from collections import defaultdict
-from typing import Counter, Dict, FrozenSet, List, Set, Union, cast
+from typing import FrozenSet, List, Set, cast
 
 import astroid
 from astroid import nodes
@@ -35,6 +35,7 @@ from pylint import utils
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
+from pylint.typing import CheckerStatistics
 
 MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "R0901": (
@@ -391,10 +392,7 @@ class MisdesignChecker(BaseChecker):
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
-        self.stats: Dict[
-            str,
-            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
-        ] = {}
+        self.stats: CheckerStatistics = {}
         self._returns = None
         self._branches = None
         self._stmts = None

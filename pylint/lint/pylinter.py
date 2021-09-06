@@ -11,7 +11,6 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
-from typing import Counter, Dict, List, Union
 
 import astroid
 from astroid import AstroidError
@@ -32,6 +31,7 @@ from pylint.lint.utils import (
 )
 from pylint.message import MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
+from pylint.typing import CheckerStatistics
 from pylint.utils import ASTWalker, FileState, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,
@@ -503,10 +503,7 @@ class PyLinter(
         self.file_state = FileState()
         self.current_name = None
         self.current_file = None
-        self.stats: Dict[
-            str,
-            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
-        ] = {}
+        self.stats: CheckerStatistics = {}
         self.fail_on_symbols = []
         # init options
         self._external_opts = options
