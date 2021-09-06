@@ -48,9 +48,3 @@ Test2.int_prop["key"] = "value"  # [unsupported-assignment-operation]
 class TEST3:
     """Test dataclass that puts call to field() in another function call"""
     attribute: int = cast(int, field(default_factory=dict))
-
-
-@dc.dataclass
-class TEST4:
-    """Test dataclass that uses a non-annotated attribute"""
-    attribute = cast(int, field(default_factory=dict))
