@@ -11,3 +11,4 @@ consider-using-in:19:0::"Consider merging these comparisons with ""in"" to 'valu
 consider-using-in:20:0::"Consider merging these comparisons with ""in"" to 'value not in (1, 2)'"
 consider-using-in:21:0::"Consider merging these comparisons with ""in"" to 'value1 in (value2,)'"
 consider-using-in:22:0::"Consider merging these comparisons with ""in"" to 'a_list in ([1, 2, 3], [])'"
+consider-using-in:53:0::"Consider merging these comparisons with ""in"" to 'A.value in (1, 2)'"

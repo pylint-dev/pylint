@@ -1185,7 +1185,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for value in node.values:
             variable_set = set()
             for comparable in value.left, value.ops[0][1]:
-                if isinstance(comparable, nodes.Name):
+                if isinstance(comparable, (nodes.Name, nodes.Attribute)):
                     variable_set.add(comparable.as_string())
                 values.append(comparable.as_string())
             variables.append(variable_set)

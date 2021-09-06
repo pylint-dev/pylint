@@ -63,6 +63,8 @@ Release date: TBA
 
   Closes #4907
 
+* Extended ``consider-using-in`` check to work for attribute access.
+
 
 What's New in Pylint 2.10.3?
 ============================

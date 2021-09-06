@@ -69,3 +69,5 @@ Other Changes
 * Fix false positive ``superfluous-parens`` for tuples created with inner tuples
 
   Closes #4907
+
+* Extended ``consider-using-in`` check to work for attribute access.
