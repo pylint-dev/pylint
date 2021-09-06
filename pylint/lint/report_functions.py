@@ -2,12 +2,21 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
+from typing import Counter, DefaultDict, Dict, List, Tuple, Union
 
 from pylint import checkers, exceptions
 from pylint.reporters.ureports import nodes as report_nodes
 
 
-def report_total_messages_stats(sect, stats, previous_stats):
+def report_total_messages_stats(
+    sect,
+    stats: Dict[
+        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
+    ],
+    previous_stats: Dict[
+        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
+    ],
+):
     """make total errors / warnings report"""
     lines = ["type", "number", "previous", "difference"]
     lines += checkers.table_lines_from_stats(
@@ -16,33 +25,53 @@ def report_total_messages_stats(sect, stats, previous_stats):
     sect.append(report_nodes.Table(children=lines, cols=4, rheaders=1))
 
 
-def report_messages_stats(sect, stats, _):
+def report_messages_stats(
+    sect,
+    stats: Dict[
+        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
+    ],
+    _: Dict[
+        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
+    ],
+):
     """make messages type report"""
     if not stats["by_msg"]:
         # don't print this report when we didn't detected any errors
         raise exceptions.EmptyReportError()
-    in_order = sorted(
+    by_msg_stats: Dict[str, int] = stats["by_msg"]  # type: ignore
+    in_order: List[Tuple[int, str]] = sorted(
         (value, msg_id)
-        for msg_id, value in stats["by_msg"].items()
+        for msg_id, value in by_msg_stats.items()
         if not msg_id.startswith("I")
     )
     in_order.reverse()
-    lines = ("message id", "occurrences")
+    lines: Tuple[str, ...] = ("message id", "occurrences")
     for value, msg_id in in_order:
         lines += (msg_id, str(value))
     sect.append(report_nodes.Table(children=lines, cols=2, rheaders=1))
 
 
-def report_messages_by_module_stats(sect, stats, _):
+def report_messages_by_module_stats(
+    sect,
+    stats: Dict[
+        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
+    ],
+    _: Dict[
+        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
+    ],
+):
     """make errors / warnings by modules report"""
-    if len(stats["by_module"]) == 1:
+    module_stats: Dict[str, Dict[str, int]] = stats["by_module"]  # type: ignore
+    if len(module_stats) == 1:
         # don't print this report when we are analysing a single module
         raise exceptions.EmptyReportError()
-    by_mod = collections.defaultdict(dict)
+    by_mod: DefaultDict[str, Dict[str, Union[int, float]]] = collections.defaultdict(
+        dict
+    )
     for m_type in ("fatal", "error", "warning", "refactor", "convention"):
-        total = stats[m_type]
-        for module in stats["by_module"].keys():
-            mod_total = stats["by_module"][module][m_type]
+        total: int = stats[m_type]  # type: ignore
+        for module in module_stats.keys():
+            mod_total = module_stats[module][m_type]
             percent = 0 if total == 0 else float((mod_total) * 100) / total
             by_mod[module][m_type] = percent
     sorted_result = []

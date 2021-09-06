@@ -3,7 +3,7 @@
 
 
 import os
-from typing import IO, Any, AnyStr, Callable, List, Mapping, Optional, Union
+from typing import IO, Any, AnyStr, Callable, Counter, Dict, List, Optional, Union
 
 from pylint.interfaces import IReporter
 from pylint.message import Message
@@ -95,8 +95,14 @@ class MultiReporter:
 
     def on_close(
         self,
-        stats: Mapping[Any, Any],
-        previous_stats: Mapping[Any, Any],
+        stats: Dict[
+            str,
+            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
+        ],
+        previous_stats: Dict[
+            str,
+            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
+        ],
     ) -> None:
         """hook called when a module finished analyzing"""
         for rep in self._sub_reporters:

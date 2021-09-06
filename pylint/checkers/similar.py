@@ -52,6 +52,7 @@ from getopt import getopt
 from itertools import chain, groupby
 from typing import (
     Any,
+    Counter,
     Dict,
     FrozenSet,
     Generator,
@@ -62,6 +63,7 @@ from typing import (
     Set,
     TextIO,
     Tuple,
+    Union,
 )
 
 import astroid
@@ -709,7 +711,15 @@ MSGS = {
 }
 
 
-def report_similarities(sect, stats, old_stats):
+def report_similarities(
+    sect,
+    stats: Dict[
+        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
+    ],
+    old_stats: Dict[
+        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
+    ],
+):
     """make a layout with some stats about duplication"""
     lines = ["", "now", "previous", "difference"]
     lines += table_lines_from_stats(
@@ -792,7 +802,10 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             ignore_imports=self.config.ignore_imports,
             ignore_signatures=self.config.ignore_signatures,
         )
-        self.stats = None
+        self.stats: Dict[
+            str,
+            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
+        ] = {}
 
     def set_option(self, optname, value, action=None, optdict=None):
         """method called to set an option (registered in the options list)

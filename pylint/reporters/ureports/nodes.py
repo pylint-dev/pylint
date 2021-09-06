@@ -16,6 +16,9 @@ A micro report is a tree of layout and content objects.
 """
 
 
+from typing import Optional
+
+
 class VNode:
     def __init__(self, nid=None):
         self.id = nid
@@ -138,6 +141,7 @@ class Section(BaseLayout):
             self.insert(0, Paragraph([Text(description)]))
         if title:
             self.insert(0, Title(children=(title,)))
+        self.report_id: Optional[str] = None
 
 
 class EvaluationSection(Section):

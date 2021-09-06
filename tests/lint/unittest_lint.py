@@ -48,7 +48,7 @@ from io import StringIO
 from os import chdir, getcwd
 from os.path import abspath, basename, dirname, isdir, join, sep
 from shutil import rmtree
-from typing import Iterable, Iterator, List, Optional, Tuple
+from typing import Dict, Iterable, Iterator, List, Optional, Tuple
 
 import platformdirs
 import pytest
@@ -828,7 +828,8 @@ def test_by_module_statement_value(init_linter: PyLinter) -> None:
     linter = init_linter
     linter.check(os.path.join(os.path.dirname(__file__), "data"))
 
-    for module, module_stats in linter.stats["by_module"].items():
+    by_module_stats: Dict[str, Dict[str, int]] = linter.stats["by_module"]  # type: ignore
+    for module, module_stats in by_module_stats.items():
 
         linter2 = init_linter
         if module == "data":

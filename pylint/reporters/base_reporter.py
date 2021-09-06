@@ -3,7 +3,7 @@
 
 import os
 import sys
-from typing import List
+from typing import Counter, Dict, List, Union
 
 from pylint.message import Message
 
@@ -41,7 +41,7 @@ class BaseReporter:
     def display_reports(self, layout):
         """display results encapsulated in the layout tree"""
         self.section = 0
-        if hasattr(layout, "report_id"):
+        if layout.report_id:
             layout.children[0].children[0].data += f" ({layout.report_id})"
         self._display(layout)
 
@@ -65,5 +65,15 @@ class BaseReporter:
     def on_set_current_module(self, module, filepath):
         """Hook called when a module starts to be analysed."""
 
-    def on_close(self, stats, previous_stats):
+    def on_close(
+        self,
+        stats: Dict[
+            str,
+            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
+        ],
+        previous_stats: Dict[
+            str,
+            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
+        ],
+    ) -> None:
         """Hook called when a module finished analyzing."""

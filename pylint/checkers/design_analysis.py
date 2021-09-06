@@ -26,7 +26,7 @@
 
 import re
 from collections import defaultdict
-from typing import FrozenSet, List, Set, cast
+from typing import Counter, Dict, FrozenSet, List, Set, Union, cast
 
 import astroid
 from astroid import nodes
@@ -391,7 +391,10 @@ class MisdesignChecker(BaseChecker):
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
-        self.stats = None
+        self.stats: Dict[
+            str,
+            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
+        ] = {}
         self._returns = None
         self._branches = None
         self._stmts = None

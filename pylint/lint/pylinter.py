@@ -11,6 +11,7 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
+from typing import Counter, Dict, List, Union
 
 import astroid
 from astroid import AstroidError
@@ -502,7 +503,10 @@ class PyLinter(
         self.file_state = FileState()
         self.current_name = None
         self.current_file = None
-        self.stats = None
+        self.stats: Dict[
+            str,
+            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
+        ] = {}
         self.fail_on_symbols = []
         # init options
         self._external_opts = options
@@ -729,8 +733,10 @@ class PyLinter(
                         self.fail_on_symbols.append(msg.symbol)
 
     def any_fail_on_issues(self):
-        return self.stats is not None and any(
-            x in self.fail_on_symbols for x in self.stats["by_msg"]
+        return (
+            self.stats
+            and self.stats.get("by_msg") is not None
+            and any(x in self.fail_on_symbols for x in self.stats["by_msg"])
         )
 
     def disable_noerror_messages(self):

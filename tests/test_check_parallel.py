@@ -11,7 +11,7 @@
 
 import collections
 import os
-from typing import List, Tuple
+from typing import Counter, Dict, List, Tuple, Union
 
 import pytest
 from astroid.nodes.scoped_nodes import Module
@@ -101,7 +101,10 @@ class ParallelTestChecker(BaseChecker):
         super().__init__(linter)
         self.data: List[str] = []
         self.linter = linter
-        self.stats = None
+        self.stats: Dict[
+            str,
+            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
+        ] = {}
 
     def open(self) -> None:
         """init the checkers: reset statistics information"""

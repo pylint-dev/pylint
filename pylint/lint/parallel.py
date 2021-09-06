@@ -3,6 +3,7 @@
 
 import collections
 import functools
+from typing import Counter, Dict, List, Union
 
 from pylint import reporters
 from pylint.lint.utils import _patch_sys_path
@@ -30,20 +31,29 @@ def _get_new_args(message):
     return (message.msg_id, message.symbol, location, message.msg, message.confidence)
 
 
-def _merge_stats(stats):
-    merged = {}
-    by_msg = collections.Counter()
+def _merge_stats(
+    stats: List[
+        Dict[
+            str,
+            Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]],
+        ]
+    ]
+):
+    merged: Dict[
+        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
+    ] = {}
+    by_msg: Counter[str] = collections.Counter()
     for stat in stats:
-        message_stats = stat.pop("by_msg", {})
+        message_stats: Union[Counter, Dict] = stat.pop("by_msg", {})  # type: ignore
         by_msg.update(message_stats)
 
         for key, item in stat.items():
             if key not in merged:
                 merged[key] = item
             elif isinstance(item, dict):
-                merged[key].update(item)
+                merged[key].update(item)  # type: ignore
             else:
-                merged[key] = merged[key] + item
+                merged[key] = merged[key] + item  # type: ignore
 
     merged["by_msg"] = by_msg
     return merged

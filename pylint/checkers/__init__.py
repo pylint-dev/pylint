@@ -46,28 +46,38 @@ messages nor reports. XXX not true, emit a 07 report !
 
 """
 
+from typing import Counter, Dict, List, Tuple, Union
+
 from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
 from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.utils import diff_string, register_plugins
 
 
-def table_lines_from_stats(stats, old_stats, columns):
+def table_lines_from_stats(
+    stats: Dict[
+        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
+    ],
+    old_stats: Dict[
+        str, Union[int, Counter[str], List, Dict[str, Union[int, str, Dict[str, int]]]]
+    ],
+    columns: Tuple[str, ...],
+):
     """get values listed in <columns> from <stats> and <old_stats>,
     and return a formated list of values, designed to be given to a
     ureport.Table object
     """
-    lines = []
+    lines: List[str] = []
     for m_type in columns:
-        new = stats[m_type]
-        old = old_stats.get(m_type)
+        new: Union[int, str] = stats[m_type]  # type: ignore
+        old: Union[int, str, None] = old_stats.get(m_type)  # type: ignore
         if old is not None:
             diff_str = diff_string(old, new)
         else:
             old, diff_str = "NC", "NC"
         new = f"{new:.3f}" if isinstance(new, float) else str(new)
         old = f"{old:.3f}" if isinstance(old, float) else str(old)
-        lines += (m_type.replace("_", " "), new, old, diff_str)
+        lines += [m_type.replace("_", " "), new, old, diff_str]
     return lines
 
 
