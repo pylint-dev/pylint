@@ -21,14 +21,14 @@ from pylint.checkers import BaseTokenChecker
 from pylint.exceptions import EmptyReportError
 from pylint.interfaces import ITokenChecker
 from pylint.reporters.ureports.nodes import Table
-from pylint.typing import CheckerStatistics
+from pylint.typing import CheckerStats
 from pylint.utils import diff_string
 
 
 def report_raw_stats(
     sect,
-    stats: CheckerStatistics,
-    old_stats: CheckerStatistics,
+    stats: CheckerStats,
+    old_stats: CheckerStats,
 ):
     """calculate percentage of code / doc / comment / empty"""
     total_lines: int = stats["total_lines"]  # type: ignore
@@ -71,7 +71,7 @@ class RawMetricsChecker(BaseTokenChecker):
 
     def __init__(self, linter):
         BaseTokenChecker.__init__(self, linter)
-        self.stats: CheckerStatistics = {}
+        self.stats: CheckerStats = {}
 
     def open(self):
         """init statistics"""

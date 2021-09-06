@@ -68,7 +68,7 @@ from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
 from pylint.lint import PyLinter
 from pylint.reporters.ureports.nodes import Paragraph, VerbatimText, VNode
-from pylint.typing import CheckerStatistics
+from pylint.typing import CheckerStats
 from pylint.utils import IsortDriver, get_global_option
 
 
@@ -424,7 +424,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self, linter: PyLinter = None
     ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
-        self.stats: CheckerStatistics = {}
+        self.stats: CheckerStats = {}
         self.import_graph: collections.defaultdict = collections.defaultdict(set)
         self._imports_stack: List[Tuple[Any, Any]] = []
         self._first_non_import_node = None

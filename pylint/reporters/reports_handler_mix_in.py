@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from pylint.exceptions import EmptyReportError
 from pylint.reporters.ureports.nodes import Section
-from pylint.typing import CheckerStatistics
+from pylint.typing import CheckerStats
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -56,8 +56,8 @@ class ReportsHandlerMixIn:
 
     def make_reports(  # type: ignore # ReportsHandlerMixIn is always mixed with PyLinter
         self: "PyLinter",
-        stats: CheckerStatistics,
-        old_stats: CheckerStatistics,
+        stats: CheckerStats,
+        old_stats: CheckerStats,
     ):
         """render registered reports"""
         sect = Section("Report", f"{self.stats['statement']} statements analysed.")
@@ -76,7 +76,7 @@ class ReportsHandlerMixIn:
 
     def add_stats(  # type: ignore # ReportsHandlerMixIn is always mixed with PyLinter
         self: "PyLinter", **kwargs
-    ) -> CheckerStatistics:
+    ) -> CheckerStats:
         """add some stats entries to the statistic dictionary
         raise an AssertionError if there is a key conflict
         """

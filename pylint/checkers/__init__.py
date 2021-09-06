@@ -51,13 +51,13 @@ from typing import List, Tuple, Union
 from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
 from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.checkers.mapreduce_checker import MapReduceMixin
-from pylint.typing import CheckerStatistics
+from pylint.typing import CheckerStats
 from pylint.utils import diff_string, register_plugins
 
 
 def table_lines_from_stats(
-    stats: CheckerStatistics,
-    old_stats: CheckerStatistics,
+    stats: CheckerStats,
+    old_stats: CheckerStats,
     columns: Tuple[str, ...],
 ):
     """get values listed in <columns> from <stats> and <old_stats>,
@@ -74,7 +74,7 @@ def table_lines_from_stats(
             old, diff_str = "NC", "NC"
         new = f"{new:.3f}" if isinstance(new, float) else str(new)
         old = f"{old:.3f}" if isinstance(old, float) else str(old)
-        lines += [m_type.replace("_", " "), new, old, diff_str]
+        lines.extend((m_type.replace("_", " "), new, old, diff_str))
     return lines
 
 

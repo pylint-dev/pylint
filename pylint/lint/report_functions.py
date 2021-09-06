@@ -6,13 +6,13 @@ from typing import DefaultDict, Dict, List, Tuple, Union
 
 from pylint import checkers, exceptions
 from pylint.reporters.ureports import nodes as report_nodes
-from pylint.typing import CheckerStatistics
+from pylint.typing import CheckerStats
 
 
 def report_total_messages_stats(
     sect,
-    stats: CheckerStatistics,
-    previous_stats: CheckerStatistics,
+    stats: CheckerStats,
+    previous_stats: CheckerStats,
 ):
     """make total errors / warnings report"""
     lines = ["type", "number", "previous", "difference"]
@@ -24,8 +24,8 @@ def report_total_messages_stats(
 
 def report_messages_stats(
     sect,
-    stats: CheckerStatistics,
-    _: CheckerStatistics,
+    stats: CheckerStats,
+    _: CheckerStats,
 ):
     """make messages type report"""
     if not stats["by_msg"]:
@@ -46,8 +46,8 @@ def report_messages_stats(
 
 def report_messages_by_module_stats(
     sect,
-    stats: CheckerStatistics,
-    _: CheckerStatistics,
+    stats: CheckerStats,
+    _: CheckerStats,
 ):
     """make errors / warnings by modules report"""
     module_stats: Dict[str, Dict[str, int]] = stats["by_module"]  # type: ignore

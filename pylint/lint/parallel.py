@@ -3,12 +3,15 @@
 
 import collections
 import functools
-from typing import Counter, Dict, List, Union
+from typing import TYPE_CHECKING, Dict, List, Union
 
 from pylint import reporters
 from pylint.lint.utils import _patch_sys_path
 from pylint.message import Message
-from pylint.typing import CheckerStatistics
+from pylint.typing import CheckerStats
+
+if TYPE_CHECKING:
+    from typing import Counter  # typing.Counter added in Python 3.6.1
 
 try:
     import multiprocessing
@@ -32,11 +35,11 @@ def _get_new_args(message):
     return (message.msg_id, message.symbol, location, message.msg, message.confidence)
 
 
-def _merge_stats(stats: List[CheckerStatistics]):
-    merged: CheckerStatistics = {}
-    by_msg: Counter[str] = collections.Counter()
+def _merge_stats(stats: List[CheckerStats]):
+    merged: CheckerStats = {}
+    by_msg: "Counter[str]" = collections.Counter()
     for stat in stats:
-        message_stats: Union[Counter, Dict] = stat.pop("by_msg", {})  # type: ignore
+        message_stats: Union["Counter[str]", Dict] = stat.pop("by_msg", {})  # type: ignore
         by_msg.update(message_stats)
 
         for key, item in stat.items():

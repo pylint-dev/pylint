@@ -6,7 +6,7 @@ import sys
 from typing import List
 
 from pylint.message import Message
-from pylint.typing import CheckerStatistics
+from pylint.typing import CheckerStats
 
 
 class BaseReporter:
@@ -68,7 +68,7 @@ class BaseReporter:
 
     def on_close(
         self,
-        stats: CheckerStatistics,
-        previous_stats: CheckerStatistics,
+        stats: CheckerStats,
+        previous_stats: CheckerStats,
     ) -> None:
         """Hook called when a module finished analyzing."""

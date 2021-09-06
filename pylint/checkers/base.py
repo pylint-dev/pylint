@@ -81,7 +81,7 @@ from pylint.checkers.utils import (
     is_property_setter,
 )
 from pylint.reporters.ureports import nodes as reporter_nodes
-from pylint.typing import CheckerStatistics
+from pylint.typing import CheckerStats
 
 
 class NamingStyle:
@@ -389,8 +389,8 @@ def _has_abstract_methods(node):
 
 def report_by_type_stats(
     sect,
-    stats: CheckerStatistics,
-    old_stats: CheckerStatistics,
+    stats: CheckerStats,
+    old_stats: CheckerStats,
 ):
     """make a report of
 
@@ -1096,7 +1096,7 @@ class BasicChecker(_BasicChecker):
 
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)
-        self.stats: CheckerStatistics = {}
+        self.stats: CheckerStats = {}
         self._tryfinallys = None
 
     def open(self):

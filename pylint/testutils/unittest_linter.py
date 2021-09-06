@@ -3,7 +3,7 @@
 
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import Message
-from pylint.typing import CheckerStatistics
+from pylint.typing import CheckerStats
 
 
 class UnittestLinter:
@@ -13,7 +13,7 @@ class UnittestLinter:
 
     def __init__(self):
         self._messages = []
-        self.stats: CheckerStatistics = {}
+        self.stats: CheckerStats = {}
 
     def release_messages(self):
         try:

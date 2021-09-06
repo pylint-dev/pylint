@@ -9,7 +9,7 @@ from pylint.interfaces import IReporter
 from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.ureports.nodes import BaseLayout
-from pylint.typing import CheckerStatistics
+from pylint.typing import CheckerStats
 
 AnyFile = IO[AnyStr]
 AnyPath = Union[str, bytes, os.PathLike]
@@ -96,8 +96,8 @@ class MultiReporter:
 
     def on_close(
         self,
-        stats: CheckerStatistics,
-        previous_stats: CheckerStatistics,
+        stats: CheckerStats,
+        previous_stats: CheckerStats,
     ) -> None:
         """hook called when a module finished analyzing"""
         for rep in self._sub_reporters:
