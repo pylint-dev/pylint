@@ -17,12 +17,32 @@ import re
 import sys
 import textwrap
 import tokenize
+from typing import TYPE_CHECKING, Any, List, Optional, Pattern, Tuple, Union, overload
 
 from astroid import Module, modutils
 
 from pylint.constants import PY_EXTS
 
+if TYPE_CHECKING:
+    from typing import Literal
+
+    from pylint.checkers.base_checker import BaseChecker
+
 DEFAULT_LINE_LENGTH = 79
+GLOBAL_OPTION_BOOL = Union[
+    "Literal['ignore-mixin-members']",
+    "Literal['suggestion-mode']",
+    "Literal['analyse-fallback-blocks']",
+    "Literal['allow-global-unused-variables']",
+]
+GLOBAL_OPTION_INT = Union[
+    "Literal['max-line-length']", "Literal['docstring-min-length']"
+]
+GLOBAL_OPTION_PATTERN = Union[
+    "Literal['no-docstring-rgx']",
+    "Literal['dummy-variables-rgx']",
+    "Literal['ignored-argument-names']",
+]
 
 
 def normalize_text(text, line_len=DEFAULT_LINE_LENGTH, indent=""):
@@ -148,7 +168,50 @@ def register_plugins(linter, directory):
                     imported[base] = 1
 
 
-def get_global_option(checker, option, default=None):
+@overload
+def get_global_option(
+    checker: "BaseChecker", option: GLOBAL_OPTION_BOOL, default: Optional[bool] = None
+) -> bool:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker", option: GLOBAL_OPTION_INT, default: Optional[int] = None
+) -> int:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker",
+    option: "Literal['ignored-modules']",
+    default: Optional[List[str]] = None,
+) -> List[str]:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker",
+    option: GLOBAL_OPTION_PATTERN,
+    default: Optional[Pattern] = None,
+) -> Pattern:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker",
+    option: "Literal['py-version']",
+    default: Tuple[int, ...] = None,
+) -> Tuple[int, ...]:
+    ...
+
+
+def get_global_option(
+    checker: "BaseChecker", option: str, default: Optional[Any] = None
+) -> Any:
     """Retrieve an option defined by the given *checker* or
     by all known option providers.
 
