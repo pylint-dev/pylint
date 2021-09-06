@@ -17,32 +17,34 @@ import re
 import sys
 import textwrap
 import tokenize
-from typing import TYPE_CHECKING, Any, List, Optional, Pattern, Tuple, Union, overload
+from typing import TYPE_CHECKING, List, Optional, Pattern, Tuple, Union, overload
 
 from astroid import Module, modutils
 
 from pylint.constants import PY_EXTS
 
-if TYPE_CHECKING:
+if sys.version_info >= (3, 8):
     from typing import Literal
+else:
+    from typing_extensions import Literal
 
+if TYPE_CHECKING:
     from pylint.checkers.base_checker import BaseChecker
 
 DEFAULT_LINE_LENGTH = 79
-GLOBAL_OPTION_BOOL = Union[
-    "Literal['ignore-mixin-members']",
-    "Literal['suggestion-mode']",
-    "Literal['analyse-fallback-blocks']",
-    "Literal['allow-global-unused-variables']",
+# These are types used to overload get_global_option() and refer to the options type
+GLOBAL_OPTION_BOOL = Literal[
+    "ignore-mixin-members",
+    "suggestion-mode",
+    "analyse-fallback-blocks",
+    "allow-global-unused-variables",
 ]
-GLOBAL_OPTION_INT = Union[
-    "Literal['max-line-length']", "Literal['docstring-min-length']"
+GLOBAL_OPTION_INT = Literal["max-line-length", "docstring-min-length"]
+GLOBAL_OPTION_LIST = Literal["ignored-modules"]
+GLOBAL_OPTION_PATTERN = Literal[
+    "no-docstring-rgx", "dummy-variables-rgx", "ignored-argument-names"
 ]
-GLOBAL_OPTION_PATTERN = Union[
-    "Literal['no-docstring-rgx']",
-    "Literal['dummy-variables-rgx']",
-    "Literal['ignored-argument-names']",
-]
+GLOBAL_OPTION_TUPLE_INT = Literal["py-version"]
 
 
 def normalize_text(text, line_len=DEFAULT_LINE_LENGTH, indent=""):
@@ -185,7 +187,7 @@ def get_global_option(
 @overload
 def get_global_option(
     checker: "BaseChecker",
-    option: "Literal['ignored-modules']",
+    option: GLOBAL_OPTION_LIST,
     default: Optional[List[str]] = None,
 ) -> List[str]:
     ...
@@ -203,15 +205,23 @@ def get_global_option(
 @overload
 def get_global_option(
     checker: "BaseChecker",
-    option: "Literal['py-version']",
+    option: GLOBAL_OPTION_TUPLE_INT,
     default: Tuple[int, ...] = None,
 ) -> Tuple[int, ...]:
     ...
 
 
 def get_global_option(
-    checker: "BaseChecker", option: str, default: Optional[Any] = None
-) -> Any:
+    checker: "BaseChecker",
+    option: Union[
+        GLOBAL_OPTION_BOOL,
+        GLOBAL_OPTION_INT,
+        GLOBAL_OPTION_LIST,
+        GLOBAL_OPTION_PATTERN,
+        GLOBAL_OPTION_TUPLE_INT,
+    ],
+    default: Union[None, bool, int, List[str], Pattern, Tuple[int, ...]] = None,
+) -> Union[None, bool, int, List[str], Pattern, Tuple[int, ...]]:
     """Retrieve an option defined by the given *checker* or
     by all known option providers.
 
