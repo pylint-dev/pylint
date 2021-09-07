@@ -926,9 +926,12 @@ a metaclass class method.",
                     continue
                 if isinstance(attribute.expr, nodes.Name) and attribute.expr.name in (
                     "self",
+                    "cls",
                     node.name,
                 ):
-                    # self.__attrname / node_name.__attrname
+                    # self.__attrname
+                    # cls.__attrname
+                    # node_name.__attrname
                     break
                 if isinstance(attribute.expr, nodes.Call):
                     # type(self).__attrname

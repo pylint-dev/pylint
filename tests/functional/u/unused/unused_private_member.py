@@ -242,6 +242,24 @@ class FalsePositive4681:
             FalsePositive4681.__instance = False  # This should be fine
             FalsePositive4681.__should_cause_error = False  # [unused-private-member]
 
+# https://github.com/PyCQA/pylint/issues/4849
+# Accessing private static methods from classmethods via `cls` should not result in a
+# false positive
+class FalsePositive4849:
+    @staticmethod
+    def __private_method():
+        """Is private and does nothing."""
+
+    # This should already be covered by `HasUnusedInClass`
+    @staticmethod
+    def __unused_private_method():  # [unused-private-member]
+        """Is not used."""
+
+    @classmethod
+    def use_private_method(cls):
+        """Calls private method."""
+        cls.__private_method()  # This should pass
+
 
 class Pony:
     """https://github.com/PyCQA/pylint/issues/4837"""
