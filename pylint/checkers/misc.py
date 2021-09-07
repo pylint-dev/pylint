@@ -29,6 +29,8 @@
 import re
 import tokenize
 
+from astroid import nodes
+
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IRawChecker, ITokenChecker
 from pylint.message import MessagesHandlerMixIn
@@ -50,11 +52,11 @@ class ByIdManagedMessagesChecker(BaseChecker):
     }
     options = ()
 
-    def process_module(self, module):
+    def process_module(self, node: nodes.Module) -> None:
         """Inspect the source file to find messages activated or deactivated by id."""
         managed_msgs = MessagesHandlerMixIn.get_by_id_managed_msgs()
         for (mod_name, msgid, symbol, lineno, is_disabled) in managed_msgs:
-            if mod_name == module.name:
+            if mod_name == node.name:
                 verb = "disable" if is_disabled else "enable"
                 txt = f"'{msgid}' is cryptic: use '# pylint: {verb}={symbol}' instead"
                 self.add_message("use-symbolic-message-instead", line=lineno, args=txt)
@@ -125,11 +127,11 @@ class EncodingChecker(BaseChecker):
                 self.add_message("syntax-error", line=lineno, args=msg)
         return None
 
-    def process_module(self, module):
+    def process_module(self, node: nodes.Module) -> None:
         """inspect the source file to find encoding problem"""
-        encoding = module.file_encoding if module.file_encoding else "ascii"
+        encoding = node.file_encoding if node.file_encoding else "ascii"
 
-        with module.stream() as stream:
+        with node.stream() as stream:
             for lineno, line in enumerate(stream):
                 self._check_encoding(lineno + 1, line, encoding)
 
