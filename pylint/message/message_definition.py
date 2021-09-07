@@ -18,8 +18,8 @@ class MessageDefinition:
         description: str,
         symbol: str,
         scope: str,
-        minversion: Optional[Tuple[int, int, int, str, int]] = None,
-        maxversion: Optional[Tuple[int, int, int, str, int]] = None,
+        minversion: Optional[Tuple[int, int]] = None,
+        maxversion: Optional[Tuple[int, int]] = None,
         old_names: List[Tuple[str, str]] = None,
     ):
         self.checker_name = checker.name

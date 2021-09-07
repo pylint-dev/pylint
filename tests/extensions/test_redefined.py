@@ -16,6 +16,7 @@ import pytest
 
 from pylint.extensions.redefined_variable_type import MultipleTypesChecker
 from pylint.lint import fix_import_path
+from pylint.lint.pylinter import PyLinter
 
 EXPECTED = [
     "Redefinition of self.var1 type from int to float",
@@ -41,7 +42,7 @@ def disable():
     return ["I"]
 
 
-def test_types_redefined(linter):
+def test_types_redefined(linter: PyLinter) -> None:
     elif_test = osp.join(osp.dirname(osp.abspath(__file__)), "data", "redefined.py")
     with fix_import_path([elif_test]):
         linter.check([elif_test])

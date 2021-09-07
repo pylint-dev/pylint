@@ -23,7 +23,7 @@ import io
 from pylint.utils import utils
 
 
-def test_decoding_stream_unknown_encoding():
+def test_decoding_stream_unknown_encoding() -> None:
     """decoding_stream should fall back to *some* decoding when given an
     unknown encoding.
     """
@@ -34,7 +34,7 @@ def test_decoding_stream_unknown_encoding():
     assert ret == ["foo\n", "bar"]
 
 
-def test_decoding_stream_known_encoding():
+def test_decoding_stream_known_encoding() -> None:
     binary_io = io.BytesIO("€".encode("cp1252"))
     stream = utils.decoding_stream(binary_io, "cp1252")
     assert stream.read() == "€"

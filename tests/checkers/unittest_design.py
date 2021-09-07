@@ -20,7 +20,7 @@ class TestDesignChecker(CheckerTestCase):
         ignored_parents=(".Dddd",),
         max_parents=1,
     )
-    def test_too_many_ancestors_ignored_parents_are_skipped(self):
+    def test_too_many_ancestors_ignored_parents_are_skipped(self) -> None:
         """Make sure that classes listed in ``ignored-parents`` aren't counted
         by the too-many-ancestors message.
         """

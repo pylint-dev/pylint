@@ -1,11 +1,16 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
+from typing import Dict, ValuesView
+
 from pylint.message import Message
+from pylint.message.message_definition import MessageDefinition
 
 
-def test_new_message(message_definitions):
-    def build_message(message_definition, location_value):
+def test_new_message(message_definitions: ValuesView[MessageDefinition]) -> None:
+    def build_message(
+        message_definition: MessageDefinition, location_value: Dict[str, str]
+    ) -> Message:
         return Message(
             symbol=message_definition.symbol,
             msg_id=message_definition.msgid,
