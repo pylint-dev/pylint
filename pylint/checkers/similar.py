@@ -820,7 +820,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             nb_duplicated_lines=0, percent_duplicated_lines=0
         )
 
-    def process_module(self, node):
+    def process_module(self, node: nodes.Module) -> None:
         """process a module
 
         the module's content is accessible via the stream object

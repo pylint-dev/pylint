@@ -18,6 +18,8 @@
 """Interfaces for Pylint objects"""
 from collections import namedtuple
 
+from astroid import nodes
+
 Confidence = namedtuple("Confidence", ["name", "description"])
 # Warning Certainties
 HIGH = Confidence("HIGH", "No false positive possible.")
@@ -66,7 +68,7 @@ class IChecker(Interface):
 class IRawChecker(IChecker):
     """interface for checker which need to parse the raw file"""
 
-    def process_module(self, astroid):
+    def process_module(self, node: nodes.Module) -> None:
         """process a module
 
         the module's content is accessible via astroid.stream
