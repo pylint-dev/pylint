@@ -200,6 +200,6 @@ Here's an example with all these rules in a single place:
 Detecting useless disables
 --------------------------
 
-When pylint get better and false positives are removed,
-disable that became useless can accumulate and clutter the code.
+As pylint gets better and false positives are removed,
+disables that became useless can accumulate and clutter the code.
 In order to clean them you can enable the ``useless-suppression`` warning.
