@@ -368,7 +368,7 @@ class TestMissingSubmodule(CheckerTestCase):
 
         sys.path.insert(0, REGR_DATA_DIR)
         try:
-            linter.check(os.path.join(REGR_DATA_DIR, "package_all"))
+            linter.check([os.path.join(REGR_DATA_DIR, "package_all")])
             got = linter.reporter.finalize().strip()
             assert got == "E:  3: Undefined variable name 'missing' in __all__"
         finally:
