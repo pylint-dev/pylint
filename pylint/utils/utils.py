@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from pylint.checkers.base_checker import BaseChecker
 
 DEFAULT_LINE_LENGTH = 79
+
 # These are types used to overload get_global_option() and refer to the options type
 GLOBAL_OPTION_BOOL = Literal[
     "ignore-mixin-members",
@@ -206,7 +207,7 @@ def get_global_option(
 def get_global_option(
     checker: "BaseChecker",
     option: GLOBAL_OPTION_TUPLE_INT,
-    default: Tuple[int, ...] = None,
+    default: Optional[Tuple[int, ...]] = None,
 ) -> Tuple[int, ...]:
     ...
 
