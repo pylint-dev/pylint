@@ -21,7 +21,7 @@ from pylint.reporters import BaseReporter
 
 
 class BroadTryClauseTestReporter(BaseReporter):
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: str) -> None:
         self.messages = []
 
     def _display(self, layout):
@@ -29,15 +29,16 @@ class BroadTryClauseTestReporter(BaseReporter):
 
 
 class BroadTryClauseTC(unittest.TestCase):
+    _linter = PyLinter()
+
     @classmethod
     def setUpClass(cls):
-        cls._linter = PyLinter()
         cls._linter.set_reporter(BroadTryClauseTestReporter())
         checkers.initialize(cls._linter)
         cls._linter.register_checker(BroadTryClauseChecker(cls._linter))
         cls._linter.disable("I")
 
-    def test_broad_try_clause_message(self):
+    def test_broad_try_clause_message(self) -> None:
         broad_try_clause_test = osp.join(
             osp.dirname(osp.abspath(__file__)), "data", "broad_try_clause.py"
         )

@@ -50,6 +50,12 @@ class RecommendationChecker(checkers.BaseChecker):
             "When iterating over values, sequence types (e.g., ``lists``, ``tuples``, ``ranges``) "
             "are more efficient than ``sets``.",
         ),
+        "C0209": (
+            "Formatting a regular string which could be a f-string",
+            "consider-using-f-string",
+            "Used when we detect a string that is being formatted with format() or % "
+            "which could potentially be a f-string. The use of f-strings is preferred.",
+        ),
     }
 
     @staticmethod
@@ -313,3 +319,75 @@ class RecommendationChecker(checkers.BaseChecker):
         """Check if code iterates over an in-place defined set."""
         if isinstance(node.iter, nodes.Set):
             self.add_message("use-sequence-for-iteration", node=node.iter)
+
+    @utils.check_messages("consider-using-f-string")
+    def visit_const(self, node: nodes.Const) -> None:
+        if node.pytype() == "builtins.str" and not isinstance(
+            node.parent, nodes.JoinedStr
+        ):
+            self._detect_replacable_format_call(node)
+
+    def _detect_replacable_format_call(self, node: nodes.Const) -> None:
+        """Check whether a string is used in a call to format() or '%' and whether it
+        can be replaced by a f-string"""
+        if (
+            isinstance(node.parent, nodes.Attribute)
+            and node.parent.attrname == "format"
+        ):
+            # Allow assigning .format to a variable
+            if isinstance(node.parent.parent, nodes.Assign):
+                return
+
+            if node.parent.parent.args:
+                for arg in node.parent.parent.args:
+                    # If star expressions with more than 1 element are being used
+                    if isinstance(arg, nodes.Starred):
+                        inferred = utils.safe_infer(arg.value)
+                        if (
+                            isinstance(inferred, astroid.List)
+                            and len(inferred.elts) > 1
+                        ):
+                            return
+
+            elif node.parent.parent.keywords:
+                keyword_args = [
+                    i[0] for i in utils.parse_format_method_string(node.value)[0]
+                ]
+                for keyword in node.parent.parent.keywords:
+                    # If keyword is used multiple times
+                    if keyword_args.count(keyword.arg) > 1:
+                        return
+
+                    keyword = utils.safe_infer(keyword.value)
+
+                    # If lists of more than one element are being unpacked
+                    if isinstance(keyword, nodes.Dict):
+                        if len(keyword.items) > 1 and len(keyword_args) > 1:
+                            return
+
+            # If all tests pass, then raise message
+            self.add_message(
+                "consider-using-f-string",
+                node=node,
+                line=node.lineno,
+                col_offset=node.col_offset,
+            )
+
+        elif isinstance(node.parent, nodes.BinOp) and node.parent.op == "%":
+            inferred_right = utils.safe_infer(node.parent.right)
+
+            # If dicts or lists of length > 1 are used
+            if isinstance(inferred_right, nodes.Dict):
+                if len(inferred_right.items) > 1:
+                    return
+            elif isinstance(inferred_right, nodes.List):
+                if len(inferred_right.elts) > 1:
+                    return
+
+            # If all tests pass, then raise message
+            self.add_message(
+                "consider-using-f-string",
+                node=node,
+                line=node.lineno,
+                col_offset=node.col_offset,
+            )

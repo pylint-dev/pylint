@@ -17,23 +17,25 @@
 # pylint: disable=redefined-outer-name
 
 import os
+from typing import Callable
 
 import astroid
 import pytest
 from astroid import nodes
 
 from pylint.pyreverse import inspector
+from pylint.pyreverse.inspector import Project
 
 
 @pytest.fixture
-def project(get_project):
+def project(get_project: Callable) -> Project:
     project = get_project("data", "data")
     linker = inspector.Linker(project)
     linker.visit(project)
     return project
 
 
-def test_class_implements(project):
+def test_class_implements(project: Project) -> None:
     klass = project.get_module("data.clientmodule_test")["Ancestor"]
     assert hasattr(klass, "implements")
     assert len(klass.implements) == 1
@@ -41,13 +43,13 @@ def test_class_implements(project):
     assert klass.implements[0].name == "Interface"
 
 
-def test_class_implements_specialization(project):
+def test_class_implements_specialization(project: Project) -> None:
     klass = project.get_module("data.clientmodule_test")["Specialization"]
     assert hasattr(klass, "implements")
     assert len(klass.implements) == 0
 
 
-def test_locals_assignment_resolution(project):
+def test_locals_assignment_resolution(project: Project) -> None:
     klass = project.get_module("data.clientmodule_test")["Specialization"]
     assert hasattr(klass, "locals_type")
     type_dict = klass.locals_type
@@ -60,7 +62,7 @@ def test_locals_assignment_resolution(project):
     assert type_dict["top"][0].value == "class"
 
 
-def test_instance_attrs_resolution(project):
+def test_instance_attrs_resolution(project: Project) -> None:
     klass = project.get_module("data.clientmodule_test")["Specialization"]
     assert hasattr(klass, "instance_attrs_type")
     type_dict = klass.instance_attrs_type
@@ -74,7 +76,7 @@ def test_instance_attrs_resolution(project):
     assert type_dict["_id"][0] is astroid.Uninferable
 
 
-def test_concat_interfaces():
+def test_concat_interfaces() -> None:
     cls = astroid.extract_node(
         '''
         class IMachin: pass
@@ -96,7 +98,7 @@ def test_concat_interfaces():
     assert [i.name for i in interfaces] == ["IMachin"]
 
 
-def test_interfaces():
+def test_interfaces() -> None:
     module = astroid.parse(
         """
     class Interface(object): pass
@@ -122,12 +124,12 @@ def test_interfaces():
         assert [i.name for i in inspector.interfaces(klass)] == interfaces
 
 
-def test_from_directory(project):
+def test_from_directory(project: Project) -> None:
     expected = os.path.join("tests", "data", "__init__.py")
     assert project.name == "data"
     assert project.path.endswith(expected)
 
 
-def test_project_node(project):
+def test_project_node(project: Project) -> None:
     expected = ["data", "data.clientmodule_test", "data.suppliermodule_test"]
     assert sorted(project.keys()) == expected

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,invalid-name,undefined-variable
+# pylint: disable=missing-docstring,invalid-name,undefined-variable,too-few-public-methods
 
 a1 = 2
 if a1:  # [consider-using-assignment-expr]
@@ -146,3 +146,14 @@ def func_p():
         ...
     elif p6_other:
         ...
+
+
+# -----
+# Assignment expression does NOT work for attribute access
+# Make sure not to emit message!
+class A:
+    var = 1
+
+A.var = 2
+if A.var:
+    ...

@@ -1,12 +1,14 @@
 """Test for issue https://github.com/PyCQA/pylint/issues/4286"""
 # pylint: disable=redefined-outer-name
+from pathlib import PosixPath
+
 import pytest
 
 from pylint import epylint as lint
 
 
 @pytest.fixture()
-def example_path(tmp_path):
+def example_path(tmp_path: PosixPath) -> PosixPath:
     content = """class IvrAudioApp:
 
     def run(self):
@@ -18,7 +20,7 @@ def example_path(tmp_path):
     return path
 
 
-def test_epylint_good_command(example_path):
+def test_epylint_good_command(example_path: PosixPath) -> None:
     out, err = lint.py_run(
         # pylint: disable-next=consider-using-f-string
         "%s -E --disable=E1111 --msg-template '{category} {module} {obj} {line} {column} {msg}'"
@@ -36,7 +38,7 @@ def test_epylint_good_command(example_path):
     assert err.read() == ""
 
 
-def test_epylint_strange_command(example_path):
+def test_epylint_strange_command(example_path: PosixPath) -> None:
     out, err = lint.py_run(
         # pylint: disable-next=consider-using-f-string
         "%s -E --disable=E1111 --msg-template={category} {module} {obj} {line} {column} {msg}"

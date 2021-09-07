@@ -24,12 +24,14 @@ Unit test for ``DiagramWriter``
 import codecs
 import os
 from difflib import unified_diff
+from typing import Callable, Iterator, List
 from unittest.mock import Mock
 
 import pytest
+from conftest import PyreverseConfig  # type: ignore
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
-from pylint.pyreverse.inspector import Linker
+from pylint.pyreverse.inspector import Linker, Project
 from pylint.pyreverse.writer import DiagramWriter
 
 _DEFAULTS = {
@@ -57,7 +59,7 @@ class Config:
             setattr(self, attr, value)
 
 
-def _file_lines(path):
+def _file_lines(path: str) -> List[str]:
     # we don't care about the actual encoding, but python3 forces us to pick one
     with codecs.open(path, encoding="latin1") as stream:
         lines = [
@@ -79,14 +81,16 @@ COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
 
 
 @pytest.fixture()
-def setup_dot(default_config, get_project):
+def setup_dot(default_config: PyreverseConfig, get_project: Callable) -> Iterator:
     writer = DiagramWriter(default_config)
     project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
     yield from _setup(project, default_config, writer)
 
 
 @pytest.fixture()
-def setup_colorized_dot(colorized_dot_config, get_project):
+def setup_colorized_dot(
+    colorized_dot_config: PyreverseConfig, get_project: Callable
+) -> Iterator:
     writer = DiagramWriter(colorized_dot_config)
     project = get_project(
         os.path.join(os.path.dirname(__file__), "..", "data"), name="colorized"
@@ -95,21 +99,23 @@ def setup_colorized_dot(colorized_dot_config, get_project):
 
 
 @pytest.fixture()
-def setup_vcg(vcg_config, get_project):
+def setup_vcg(vcg_config: PyreverseConfig, get_project: Callable) -> Iterator:
     writer = DiagramWriter(vcg_config)
     project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
     yield from _setup(project, vcg_config, writer)
 
 
 @pytest.fixture()
-def setup_puml(puml_config, get_project):
+def setup_puml(puml_config: PyreverseConfig, get_project: Callable) -> Iterator:
     writer = DiagramWriter(puml_config)
     project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
     yield from _setup(project, puml_config, writer)
 
 
 @pytest.fixture()
-def setup_colorized_puml(colorized_puml_config, get_project):
+def setup_colorized_puml(
+    colorized_puml_config: PyreverseConfig, get_project: Callable
+) -> Iterator:
     writer = DiagramWriter(colorized_puml_config)
     project = get_project(
         os.path.join(os.path.dirname(__file__), "..", "data"), name="colorized"
@@ -117,7 +123,9 @@ def setup_colorized_puml(colorized_puml_config, get_project):
     yield from _setup(project, colorized_puml_config, writer)
 
 
-def _setup(project, config, writer):
+def _setup(
+    project: Project, config: PyreverseConfig, writer: DiagramWriter
+) -> Iterator:
     linker = Linker(project)
     handler = DiadefsHandler(config)
     dd = DefaultDiadefGenerator(linker, handler).visit(project)
@@ -136,48 +144,51 @@ def _setup(project, config, writer):
 
 @pytest.mark.usefixtures("setup_dot")
 @pytest.mark.parametrize("generated_file", DOT_FILES)
-def test_dot_files(generated_file):
+def test_dot_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 
 @pytest.mark.usefixtures("setup_colorized_dot")
 @pytest.mark.parametrize("generated_file", COLORIZED_DOT_FILES)
-def test_colorized_dot_files(generated_file):
+def test_colorized_dot_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 
 @pytest.mark.usefixtures("setup_vcg")
 @pytest.mark.parametrize("generated_file", VCG_FILES)
-def test_vcg_files(generated_file):
+def test_vcg_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 
 @pytest.mark.usefixtures("setup_puml")
 @pytest.mark.parametrize("generated_file", PUML_FILES)
-def test_puml_files(generated_file):
+def test_puml_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 
 @pytest.mark.usefixtures("setup_colorized_puml")
 @pytest.mark.parametrize("generated_file", COLORIZED_PUML_FILES)
-def test_colorized_puml_files(generated_file):
+def test_colorized_puml_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 
-def _assert_files_are_equal(generated_file):
+def _assert_files_are_equal(generated_file: str) -> None:
     expected_file = os.path.join(os.path.dirname(__file__), "data", generated_file)
     generated = _file_lines(generated_file)
     expected = _file_lines(expected_file)
-    generated = "\n".join(generated)
-    expected = "\n".join(expected)
+    joined_generated = "\n".join(generated)
+    joined_expected = "\n".join(expected)
     files = f"\n *** expected : {expected_file}, generated : {generated_file} \n"
     diff = "\n".join(
-        line for line in unified_diff(expected.splitlines(), generated.splitlines())
+        line
+        for line in unified_diff(
+            joined_expected.splitlines(), joined_generated.splitlines()
+        )
     )
-    assert expected == generated, f"{files}{diff}"
+    assert joined_expected == joined_generated, f"{files}{diff}"
 
 
-def test_color_for_stdlib_module(default_config):
+def test_color_for_stdlib_module(default_config: PyreverseConfig) -> None:
     writer = DiagramWriter(default_config)
     obj = Mock()
     obj.node = Mock()

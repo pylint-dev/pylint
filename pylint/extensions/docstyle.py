@@ -11,6 +11,8 @@
 
 import linecache
 
+from astroid import nodes
+
 from pylint import checkers
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import HIGH, IAstroidChecker
@@ -36,13 +38,13 @@ class DocStringStyleChecker(checkers.BaseChecker):
     }
 
     @check_messages("docstring-first-line-empty", "bad-docstring-quotes")
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         self._check_docstring("module", node)
 
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_docstring("class", node)
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         ftype = "method" if node.is_method() else "function"
         self._check_docstring(ftype, node)
 

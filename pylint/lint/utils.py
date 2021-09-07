@@ -5,7 +5,7 @@ import contextlib
 import sys
 import traceback
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path, PosixPath
 from typing import Union
 
 from pylint.config import PYLINT_HOME
@@ -17,7 +17,7 @@ class ArgumentPreprocessingError(Exception):
 
 
 def prepare_crash_report(
-    ex: Exception, filepath: str, crash_file_path: Union[Path, str]
+    ex: Exception, filepath: PosixPath, crash_file_path: Union[Path, str]
 ) -> Path:
     issue_template_path = (
         Path(PYLINT_HOME) / datetime.now().strftime(str(crash_file_path))
@@ -63,7 +63,7 @@ pylint crashed with a ``{ex.__class__.__name__}`` and with the following stacktr
     return issue_template_path
 
 
-def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
+def get_fatal_error_message(filepath: str, issue_template_path: str) -> str:
     return (
         f"Fatal error while checking '{filepath}'. "
         f"Please open an issue in our bug tracker so we address this. "

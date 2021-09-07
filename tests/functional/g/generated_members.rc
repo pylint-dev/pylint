@@ -6,6 +6,6 @@ generated-members=
     \Afunctional\.g\.generated_members\.Klass\.ham\Z,
     DoesNotExist,
     "[a-zA-Z]+_set{1,2}",
-    node_classes.Tuple.*,
+    nodes.Tuple.*,
     checkers.*?base,
     (session|SESSION).rollback

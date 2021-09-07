@@ -48,7 +48,7 @@ class TestTypeChecker(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker
 
-    def test_no_member_in_getattr(self):
+    def test_no_member_in_getattr(self) -> None:
         """Make sure that a module attribute access is checked by pylint."""
 
         node = astroid.extract_node(
@@ -67,7 +67,7 @@ class TestTypeChecker(CheckerTestCase):
             self.checker.visit_attribute(node)
 
     @set_config(ignored_modules=("argparse",))
-    def test_no_member_in_getattr_ignored(self):
+    def test_no_member_in_getattr_ignored(self) -> None:
         """Make sure that a module attribute access check is omitted with a
         module that is configured to be ignored.
         """
@@ -82,7 +82,7 @@ class TestTypeChecker(CheckerTestCase):
             self.checker.visit_attribute(node)
 
     @set_config(ignored_modules=("xml.etree.",))
-    def test_ignored_modules_invalid_pattern(self):
+    def test_ignored_modules_invalid_pattern(self) -> None:
         node = astroid.extract_node(
             """
         import xml
@@ -96,7 +96,7 @@ class TestTypeChecker(CheckerTestCase):
             self.checker.visit_attribute(node)
 
     @set_config(ignored_modules=("xml",))
-    def test_ignored_modules_root_one_applies_as_well(self):
+    def test_ignored_modules_root_one_applies_as_well(self) -> None:
         # Check that when a root module is completely ignored, submodules are skipped.
         node = astroid.extract_node(
             """
@@ -108,7 +108,7 @@ class TestTypeChecker(CheckerTestCase):
             self.checker.visit_attribute(node)
 
     @set_config(ignored_modules=("xml.etree*",))
-    def test_ignored_modules_patterns(self):
+    def test_ignored_modules_patterns(self) -> None:
         node = astroid.extract_node(
             """
         import xml
@@ -119,7 +119,7 @@ class TestTypeChecker(CheckerTestCase):
             self.checker.visit_attribute(node)
 
     @set_config(ignored_classes=("xml.*",))
-    def test_ignored_classes_no_recursive_pattern(self):
+    def test_ignored_classes_no_recursive_pattern(self) -> None:
         node = astroid.extract_node(
             """
         import xml
@@ -133,7 +133,7 @@ class TestTypeChecker(CheckerTestCase):
             self.checker.visit_attribute(node)
 
     @set_config(ignored_classes=("optparse.Values",))
-    def test_ignored_classes_qualified_name(self):
+    def test_ignored_classes_qualified_name(self) -> None:
         """Test that ignored-classes supports qualified name for ignoring."""
         node = astroid.extract_node(
             """
@@ -145,7 +145,7 @@ class TestTypeChecker(CheckerTestCase):
             self.checker.visit_attribute(node)
 
     @set_config(ignored_classes=("Values",))
-    def test_ignored_classes_only_name(self):
+    def test_ignored_classes_only_name(self) -> None:
         """Test that ignored_classes works with the name only."""
         node = astroid.extract_node(
             """
@@ -158,7 +158,7 @@ class TestTypeChecker(CheckerTestCase):
 
     @set_config(suggestion_mode=False)
     @needs_c_extension
-    def test_nomember_on_c_extension_error_msg(self):
+    def test_nomember_on_c_extension_error_msg(self) -> None:
         node = astroid.extract_node(
             """
         from coverage import tracer
@@ -173,7 +173,7 @@ class TestTypeChecker(CheckerTestCase):
 
     @set_config(suggestion_mode=True)
     @needs_c_extension
-    def test_nomember_on_c_extension_info_msg(self):
+    def test_nomember_on_c_extension_info_msg(self) -> None:
         node = astroid.extract_node(
             """
         from coverage import tracer
@@ -211,7 +211,7 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_with(node)
 
-    def test_invalid_metaclass(self):
+    def test_invalid_metaclass(self) -> None:
         module = astroid.parse(
             """
         class InvalidAsMetaclass(object):
@@ -243,7 +243,7 @@ class TestTypeChecker(CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
 
-    def test_invalid_metaclass_function_metaclasses(self):
+    def test_invalid_metaclass_function_metaclasses(self) -> None:
         module = astroid.parse(
             """
         def invalid_metaclass_1(name, bases, attrs):
@@ -264,7 +264,7 @@ class TestTypeChecker(CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
 
-    def test_typing_namedtuple_not_callable_issue1295(self):
+    def test_typing_namedtuple_not_callable_issue1295(self) -> None:
         module = astroid.parse(
             """
         import typing
@@ -279,7 +279,7 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(call)
 
-    def test_typing_namedtuple_unsubscriptable_object_issue1295(self):
+    def test_typing_namedtuple_unsubscriptable_object_issue1295(self) -> None:
         module = astroid.parse(
             """
         import typing
@@ -290,7 +290,7 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
 
-    def test_staticmethod_multiprocessing_call(self):
+    def test_staticmethod_multiprocessing_call(self) -> None:
         """Make sure not-callable isn't raised for descriptors
 
         astroid can't process descriptors correctly so
@@ -308,7 +308,7 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(call)
 
-    def test_not_callable_uninferable_property(self):
+    def test_not_callable_uninferable_property(self) -> None:
         """Make sure not-callable isn't raised for uninferable
         properties
         """
@@ -326,7 +326,7 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(call)
 
-    def test_descriptor_call(self):
+    def test_descriptor_call(self) -> None:
         call = astroid.extract_node(
             """
         def func():
@@ -345,7 +345,7 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(call)
 
-    def test_unknown_parent(self):
+    def test_unknown_parent(self) -> None:
         """Make sure the callable check does not crash when a node's parent
         cannot be determined.
         """
@@ -366,7 +366,7 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
     "Tests for pylint.checkers.typecheck on decorated functions."
     CHECKER_CLASS = typecheck.TypeChecker
 
-    def test_issue3882_class_decorators(self):
+    def test_issue3882_class_decorators(self) -> None:
         decorators = """
         class Unsubscriptable:
             def __init__(self, f):
@@ -389,7 +389,7 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
         self.decorated_by_subscriptable_then_unsubscriptable_class(decorators)
         self.decorated_by_unsubscriptable_then_subscriptable_class(decorators)
 
-    def getitem_on_modules(self):
+    def getitem_on_modules(self) -> None:
         """Mainly validate the code won't crash if we're not having a function."""
         module = astroid.parse(
             """
@@ -408,7 +408,7 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
         ):
             self.checker.visit_subscript(subscript)
 
-    def typing_objects_are_subscriptable(self, generic):
+    def typing_objects_are_subscriptable(self, generic: str) -> None:
         module = astroid.parse(
             f"""
         import typing
@@ -419,7 +419,7 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
 
-    def decorated_by_a_subscriptable_class(self, decorators):
+    def decorated_by_a_subscriptable_class(self, decorators: str) -> None:
         module = astroid.parse(
             decorators
             + """
@@ -434,7 +434,9 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
 
-    def decorated_by_subscriptable_then_unsubscriptable_class(self, decorators):
+    def decorated_by_subscriptable_then_unsubscriptable_class(
+        self, decorators: str
+    ) -> None:
         module = astroid.parse(
             decorators
             + """
@@ -457,7 +459,9 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
         ):
             self.checker.visit_subscript(subscript)
 
-    def decorated_by_unsubscriptable_then_subscriptable_class(self, decorators):
+    def decorated_by_unsubscriptable_then_subscriptable_class(
+        self, decorators: str
+    ) -> None:
         module = astroid.parse(
             decorators
             + """
@@ -473,7 +477,7 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
 
-    def decorated_by_an_unsubscriptable_class(self, decorators):
+    def decorated_by_an_unsubscriptable_class(self, decorators: str) -> None:
         module = astroid.parse(
             decorators
             + """

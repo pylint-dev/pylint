@@ -1,6 +1,7 @@
-from typing import Callable, Optional, Tuple
+from typing import Callable, List, Optional, Tuple
 
 import pytest
+from astroid.nodes.scoped_nodes import Module
 
 from pylint.pyreverse.inspector import Project, project_from_files
 
@@ -14,7 +15,7 @@ class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many
     def __init__(
         self,
         mode: str = "PUB_ONLY",
-        classes: Tuple = tuple(),
+        classes: Optional[List[str]] = None,
         show_ancestors: Optional[int] = None,
         all_ancestors: Optional[bool] = None,
         show_associated: Optional[int] = None,
@@ -30,7 +31,10 @@ class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many
         output_directory: str = "",
     ):
         self.mode = mode
-        self.classes = classes
+        if classes:
+            self.classes = classes
+        else:
+            self.classes = []
         self.show_ancestors = show_ancestors
         self.all_ancestors = all_ancestors
         self.show_associated = show_associated
@@ -86,7 +90,7 @@ def get_project() -> Callable:
     def _get_project(module: str, name: Optional[str] = "No Name") -> Project:
         """return an astroid project representation"""
 
-        def _astroid_wrapper(func, modname):
+        def _astroid_wrapper(func: Callable, modname: str) -> Module:
             return func(modname)
 
         return project_from_files([module], _astroid_wrapper, project_name=name)

@@ -278,7 +278,7 @@ class StringFormatChecker(BaseChecker):
         "bad-string-format-type",
         "format-string-without-interpolation",
     )
-    def visit_binop(self, node):
+    def visit_binop(self, node: nodes.BinOp) -> None:
         if node.op != "%":
             return
         left = node.left
@@ -353,7 +353,8 @@ class StringFormatChecker(BaseChecker):
                     arg_type = utils.safe_infer(arg)
                     if (
                         format_type is not None
-                        and arg_type not in (None, astroid.Uninferable)
+                        and arg_type
+                        and arg_type != astroid.Uninferable
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -373,11 +374,11 @@ class StringFormatChecker(BaseChecker):
             # Check that the number of arguments passed to the RHS of
             # the % operator matches the number required by the format
             # string.
-            args_elts = ()
+            args_elts = []
             if isinstance(args, nodes.Tuple):
                 rhs_tuple = utils.safe_infer(args)
                 num_args = None
-                if hasattr(rhs_tuple, "elts"):
+                if isinstance(rhs_tuple, nodes.BaseContainer):
                     args_elts = rhs_tuple.elts
                     num_args = len(args_elts)
             elif isinstance(args, (OTHER_NODES, (nodes.Dict, nodes.DictComp))):
@@ -399,10 +400,7 @@ class StringFormatChecker(BaseChecker):
                     arg_type = utils.safe_infer(arg)
                     if (
                         arg_type
-                        not in (
-                            None,
-                            astroid.Uninferable,
-                        )
+                        and arg_type != astroid.Uninferable
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -412,7 +410,7 @@ class StringFormatChecker(BaseChecker):
                         )
 
     @check_messages("f-string-without-interpolation")
-    def visit_joinedstr(self, node):
+    def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
         if isinstance(node.parent, nodes.FormattedValue):
             return
         for value in node.values:
@@ -421,7 +419,7 @@ class StringFormatChecker(BaseChecker):
         self.add_message("f-string-without-interpolation", node=node)
 
     @check_messages(*MSGS)
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         func = utils.safe_infer(node.func)
         if (
             isinstance(func, astroid.BoundMethod)
@@ -673,12 +671,6 @@ class StringConstantChecker(BaseTokenChecker):
             "in Python 2 to indicate a string was Unicode, but since Python 3.0 strings "
             "are Unicode by default.",
         ),
-        "C1407": (
-            "Formatting a regular string which could be a f-string",
-            "consider-using-f-string",
-            "Used when we detect a string that is being formatted with format() or % "
-            "which could potentially be a f-string. The use of f-strings is preferred.",
-        ),
     }
     options = (
         (
@@ -750,18 +742,18 @@ class StringConstantChecker(BaseTokenChecker):
             self.check_for_consistent_string_delimiters(tokens)
 
     @check_messages("implicit-str-concat")
-    def visit_list(self, node):
+    def visit_list(self, node: nodes.List) -> None:
         self.check_for_concatenated_strings(node.elts, "list")
 
     @check_messages("implicit-str-concat")
-    def visit_set(self, node):
+    def visit_set(self, node: nodes.Set) -> None:
         self.check_for_concatenated_strings(node.elts, "set")
 
     @check_messages("implicit-str-concat")
-    def visit_tuple(self, node):
+    def visit_tuple(self, node: nodes.Tuple) -> None:
         self.check_for_concatenated_strings(node.elts, "tuple")
 
-    def visit_assign(self, node):
+    def visit_assign(self, node: nodes.Assign) -> None:
         if isinstance(node.value, nodes.Const) and isinstance(node.value.value, str):
             self.check_for_concatenated_strings([node.value], "assignment")
 
@@ -916,82 +908,17 @@ class StringConstantChecker(BaseTokenChecker):
             index += 2
 
     @check_messages("redundant-u-string-prefix")
-    @check_messages("consider-using-f-string")
-    def visit_const(self, node: nodes.Const):
+    def visit_const(self, node: nodes.Const) -> None:
         if node.pytype() == "builtins.str" and not isinstance(
             node.parent, nodes.JoinedStr
         ):
             self._detect_u_string_prefix(node)
-            self._detect_replacable_format_call(node)
 
     def _detect_u_string_prefix(self, node: nodes.Const):
         """Check whether strings include a 'u' prefix like u'String'"""
         if node.kind == "u":
             self.add_message(
                 "redundant-u-string-prefix",
-                line=node.lineno,
-                col_offset=node.col_offset,
-            )
-
-    def _detect_replacable_format_call(self, node: nodes.Const) -> None:
-        """Check whether a string is used in a call to format() or '%' and whether it
-        can be replaced by a f-string"""
-        if (
-            isinstance(node.parent, nodes.Attribute)
-            and node.parent.attrname == "format"
-        ):
-            # Allow assigning .format to a variable
-            if isinstance(node.parent.parent, nodes.Assign):
-                return
-
-            if node.parent.parent.args:
-                for arg in node.parent.parent.args:
-                    # If star expressions with more than 1 element are being used
-                    if isinstance(arg, nodes.Starred):
-                        inferred = utils.safe_infer(arg.value)
-                        if (
-                            isinstance(inferred, astroid.List)
-                            and len(inferred.elts) > 1
-                        ):
-                            return
-
-            elif node.parent.parent.keywords:
-                keyword_args = [
-                    i[0] for i in utils.parse_format_method_string(node.value)[0]
-                ]
-                for keyword in node.parent.parent.keywords:
-                    # If keyword is used multiple times
-                    if keyword_args.count(keyword.arg) > 1:
-                        return
-
-                    keyword = utils.safe_infer(keyword.value)
-
-                    # If lists of more than one element are being unpacked
-                    if isinstance(keyword, nodes.Dict):
-                        if len(keyword.items) > 1 and len(keyword_args) > 1:
-                            return
-
-            # If all tests pass, then raise message
-            self.add_message(
-                "consider-using-f-string",
-                line=node.lineno,
-                col_offset=node.col_offset,
-            )
-
-        elif isinstance(node.parent, nodes.BinOp) and node.parent.op == "%":
-            inferred_right = utils.safe_infer(node.parent.right)
-
-            # If dicts or lists of length > 1 are used
-            if isinstance(inferred_right, nodes.Dict):
-                if len(inferred_right.items) > 1:
-                    return
-            elif isinstance(inferred_right, nodes.List):
-                if len(inferred_right.elts) > 1:
-                    return
-
-            # If all tests pass, then raise message
-            self.add_message(
-                "consider-using-f-string",
                 line=node.lineno,
                 col_offset=node.col_offset,
             )

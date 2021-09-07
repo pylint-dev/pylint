@@ -17,6 +17,7 @@ import pytest
 
 from pylint.extensions.bad_builtin import BadBuiltinChecker
 from pylint.lint import fix_import_path
+from pylint.lint.pylinter import PyLinter
 
 EXPECTED = [
     "Used builtin function 'map'. Using a list comprehension can be clearer.",
@@ -34,7 +35,7 @@ def disable():
     return ["I"]
 
 
-def test_types_redefined(linter):
+def test_types_redefined(linter: PyLinter) -> None:
     elif_test = osp.join(osp.dirname(osp.abspath(__file__)), "data", "bad_builtin.py")
     with fix_import_path([elif_test]):
         linter.check([elif_test])

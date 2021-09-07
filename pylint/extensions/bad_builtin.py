@@ -51,7 +51,7 @@ class BadBuiltinChecker(BaseChecker):
     )
 
     @check_messages("bad-builtin")
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the

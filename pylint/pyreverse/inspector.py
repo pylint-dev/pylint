@@ -53,7 +53,7 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
         return
     found = set()
     missing = False
-    for iface in astroid.node_classes.unpack_infer(implements):
+    for iface in nodes.unpack_infer(implements):
         if iface is astroid.Uninferable:
             missing = True
             continue
@@ -78,6 +78,35 @@ class IdGeneratorMixIn:
         """generate a new identifier"""
         self.id_count += 1
         return self.id_count
+
+
+class Project:
+    """a project handle a set of modules / packages"""
+
+    def __init__(self, name=""):
+        self.name = name
+        self.uid = None
+        self.path = None
+        self.modules = []
+        self.locals = {}
+        self.__getitem__ = self.locals.__getitem__
+        self.__iter__ = self.locals.__iter__
+        self.values = self.locals.values
+        self.keys = self.locals.keys
+        self.items = self.locals.items
+
+    def add_module(self, node):
+        self.locals[node.name] = node
+        self.modules.append(node)
+
+    def get_module(self, name):
+        return self.locals[name]
+
+    def get_children(self):
+        return self.modules
+
+    def __repr__(self):
+        return f"<Project {self.name!r} at {id(self)} ({len(self.modules)} modules)>"
 
 
 class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
@@ -113,7 +142,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         # visited project
         self.project = project
 
-    def visit_project(self, node):
+    def visit_project(self, node: Project) -> None:
         """visit a pyreverse.utils.Project node
 
         * optionally tag the node with a unique id
@@ -123,17 +152,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         for module in node.modules:
             self.visit(module)
 
-    def visit_package(self, node):
-        """visit an astroid.Package node
-
-        * optionally tag the node with a unique id
-        """
-        if self.tag:
-            node.uid = self.generate_id()
-        for subelmt in node.values():
-            self.visit(subelmt)
-
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         """visit an astroid.Module node
 
         * set the locals_type mapping
@@ -147,7 +166,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         if self.tag:
             node.uid = self.generate_id()
 
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         """visit an astroid.Class node
 
         * set the locals_type and instance_attrs_type mappings
@@ -176,7 +195,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         except astroid.InferenceError:
             node.implements = []
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """visit an astroid.Function node
 
         * set the locals_type mapping
@@ -193,7 +212,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     link_class = visit_classdef
     link_function = visit_functiondef
 
-    def visit_assignname(self, node):
+    def visit_assignname(self, node: nodes.AssignName) -> None:
         """visit an astroid.AssignName node
 
         handle locals_type
@@ -234,7 +253,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             current | utils.infer_node(node)
         )
 
-    def visit_import(self, node):
+    def visit_import(self, node: nodes.Import) -> None:
         """visit an astroid.Import node
 
         resolve module dependencies
@@ -244,7 +263,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             relative = astroid.modutils.is_relative(name[0], context_file)
             self._imported_module(node, name[0], relative)
 
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """visit an astroid.ImportFrom node
 
         resolve module dependencies
@@ -290,34 +309,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             mod_paths = module.depends
             if mod_path not in mod_paths:
                 mod_paths.append(mod_path)
-
-
-class Project:
-    """a project handle a set of modules / packages"""
-
-    def __init__(self, name=""):
-        self.name = name
-        self.path = None
-        self.modules = []
-        self.locals = {}
-        self.__getitem__ = self.locals.__getitem__
-        self.__iter__ = self.locals.__iter__
-        self.values = self.locals.values
-        self.keys = self.locals.keys
-        self.items = self.locals.items
-
-    def add_module(self, node):
-        self.locals[node.name] = node
-        self.modules.append(node)
-
-    def get_module(self, name):
-        return self.locals[name]
-
-    def get_children(self):
-        return self.modules
-
-    def __repr__(self):
-        return f"<Project {self.name!r} at {id(self)} ({len(self.modules)} modules)>"
 
 
 def project_from_files(

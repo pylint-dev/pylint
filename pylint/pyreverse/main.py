@@ -196,7 +196,7 @@ OPTIONS = (
 class Run(ConfigurationMixIn):
     """base class providing common behaviour for pyreverse commands"""
 
-    options = OPTIONS  # type: ignore
+    options = OPTIONS
 
     def __init__(self, args: Iterable[str]):
         ConfigurationMixIn.__init__(self, usage=__doc__)

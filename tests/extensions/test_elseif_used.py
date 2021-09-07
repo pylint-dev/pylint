@@ -17,6 +17,7 @@ from os import path as osp
 import pytest
 
 from pylint.extensions.check_elif import ElseifUsedChecker
+from pylint.lint.pylinter import PyLinter
 
 
 @pytest.fixture(scope="module")
@@ -24,7 +25,7 @@ def checker():
     return ElseifUsedChecker
 
 
-def test_elseif_message(linter):
+def test_elseif_message(linter: PyLinter) -> None:
     elif_test = osp.join(osp.dirname(osp.abspath(__file__)), "data", "elif.py")
     linter.check([elif_test])
     msgs = linter.reporter.messages

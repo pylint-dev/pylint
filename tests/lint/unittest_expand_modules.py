@@ -10,7 +10,7 @@ import pytest
 from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
 
 
-def test__is_in_ignore_list_re_match():
+def test__is_in_ignore_list_re_match() -> None:
     patterns = [
         re.compile(".*enchilada.*"),
         re.compile("unittest_.*"),
@@ -21,7 +21,7 @@ def test__is_in_ignore_list_re_match():
     assert _is_in_ignore_list_re("src/tests/whatever.xml", patterns)
 
 
-def test__is_in_ignore_list_re_nomatch():
+def test__is_in_ignore_list_re_nomatch() -> None:
     patterns = [
         re.compile(".*enchilada.*"),
         re.compile("unittest_.*"),

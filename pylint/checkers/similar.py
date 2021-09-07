@@ -49,7 +49,6 @@ import re
 import sys
 from collections import defaultdict
 from getopt import getopt
-from io import TextIOWrapper
 from itertools import chain, groupby
 from typing import (
     Any,
@@ -61,6 +60,7 @@ from typing import (
     NamedTuple,
     NewType,
     Set,
+    TextIO,
     Tuple,
 )
 
@@ -368,9 +368,7 @@ class Similar:
         self.ignore_signatures = ignore_signatures
         self.linesets: List["LineSet"] = []
 
-    def append_stream(
-        self, streamid: str, stream: TextIOWrapper, encoding=None
-    ) -> None:
+    def append_stream(self, streamid: str, stream: TextIO, encoding=None) -> None:
         """append a file to search for similarities"""
         if encoding is None:
             readlines = stream.readlines
@@ -392,6 +390,8 @@ class Similar:
 
     def run(self) -> None:
         """start looking for similarities and display results on stdout"""
+        if self.min_lines == 0:
+            return
         self._display_sims(self._compute_sims())
 
     def _compute_sims(self) -> List[Tuple[int, Set[LinesChunkLimits_T]]]:
@@ -736,7 +736,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     # for available dict keys/values see the optik parser 'add_option' method
     options = (
         (
-            "min-similarity-lines",  # type: ignore
+            "min-similarity-lines",
             {
                 "default": DEFAULT_MIN_SIMILARITY_LINE,
                 "type": "int",
@@ -782,7 +782,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         ),
     )
     # reports
-    reports = (("RP0801", "Duplication", report_similarities),)  # type: ignore
+    reports = (("RP0801", "Duplication", report_similarities),)
 
     def __init__(self, linter=None) -> None:
         BaseChecker.__init__(self, linter)

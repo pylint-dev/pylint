@@ -3,17 +3,19 @@
 
 # pylint: disable=redefined-outer-name
 
+from typing import Callable, List, Optional
+
 import pytest
 
 from pylint.constants import PY38_PLUS
-from pylint.interfaces import HIGH, INFERENCE
+from pylint.interfaces import HIGH, INFERENCE, Confidence
 from pylint.message import Message
 from pylint.testutils.output_line import MalformedOutputLineException, OutputLine
 
 
 @pytest.fixture()
-def message():
-    def inner(confidence=HIGH):
+def message() -> Callable:
+    def inner(confidence: Confidence = HIGH) -> Message:
         return Message(
             symbol="missing-docstring",
             msg_id="C0123",
@@ -32,11 +34,11 @@ def message():
     return inner
 
 
-def test_output_line():
+def test_output_line() -> None:
     output_line = OutputLine(
         symbol="missing-docstring",
         lineno=0,
-        column=0,
+        column="0",
         object="",
         msg="Missing docstring's bad.",
         confidence=HIGH,
@@ -44,14 +46,14 @@ def test_output_line():
     assert output_line.symbol == "missing-docstring"
 
 
-def test_output_line_from_message(message):
+def test_output_line_from_message(message: Callable) -> None:
     output_line = OutputLine.from_msg(message())
     assert output_line.symbol == "missing-docstring"
     assert output_line.msg == "msg"
 
 
 @pytest.mark.parametrize("confidence", [HIGH, INFERENCE])
-def test_output_line_to_csv(confidence, message):
+def test_output_line_to_csv(confidence: Confidence, message: Callable) -> None:
     output_line = OutputLine.from_msg(message(confidence))
     csv = output_line.to_csv()
     expected_column = "column" if PY38_PLUS else ""
@@ -65,7 +67,7 @@ def test_output_line_to_csv(confidence, message):
     )
 
 
-def test_output_line_from_csv_error():
+def test_output_line_from_csv_error() -> None:
     with pytest.raises(
         MalformedOutputLineException,
         match="msg-symbolic-name:42:27:MyClass.my_function:The message",
@@ -81,16 +83,20 @@ def test_output_line_from_csv_error():
 @pytest.mark.parametrize(
     "confidence,expected_confidence", [[None, "HIGH"], ["INFERENCE", "INFERENCE"]]
 )
-def test_output_line_from_csv(confidence, expected_confidence):
-    proper_csv = (
-        "missing-docstring",
-        "1",
-        "2",
-        "obj",
-        "msg",
-    )
-    if confidence is not None:
-        proper_csv += (confidence,)
+def test_output_line_from_csv(
+    confidence: Optional[str], expected_confidence: Confidence
+) -> None:
+    if confidence:
+        proper_csv: List[str] = [
+            "missing-docstring",
+            "1",
+            "2",
+            "obj",
+            "msg",
+            confidence,
+        ]
+    else:
+        proper_csv = ["missing-docstring", "1", "2", "obj", "msg"]
     output_line = OutputLine.from_csv(proper_csv)
     expected_column = "2" if PY38_PLUS else ""
     assert output_line == OutputLine(

@@ -25,11 +25,15 @@
 import csv
 import os
 import sys
+from typing import Union
 
 import pytest
+from _pytest.config import Config
+from _pytest.recwarn import WarningsRecorder
 
 from pylint import testutils
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
+from pylint.testutils.functional_test_file import FunctionalTestFile
 from pylint.utils import HAS_ISORT_5
 
 # Notes:
@@ -96,10 +100,14 @@ TEST_WITH_EXPECTED_DEPRECATION = [
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
-def test_functional(test_file, recwarn, pytestconfig):
+def test_functional(
+    test_file: FunctionalTestFile, recwarn: WarningsRecorder, pytestconfig: Config
+) -> None:
     __tracebackhide__ = True  # pylint: disable=unused-variable
     if UPDATE_FILE.exists():
-        lint_test = LintModuleOutputUpdate(test_file, pytestconfig)
+        lint_test: Union[
+            LintModuleOutputUpdate, testutils.LintModuleTest
+        ] = LintModuleOutputUpdate(test_file, pytestconfig)
     else:
         lint_test = testutils.LintModuleTest(test_file, pytestconfig)
     lint_test.setUp()

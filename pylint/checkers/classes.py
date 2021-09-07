@@ -845,7 +845,7 @@ a metaclass class method.",
         "inconsistent-mro",
         "duplicate-bases",
     )
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         """init visit variable _accessed"""
         self._check_bases_classes(node)
         # if not an exception or a metaclass
@@ -1095,7 +1095,7 @@ a metaclass class method.",
                                 "attribute-defined-outside-init", args=attr, node=node
                             )
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """check method arguments, overriding"""
         # ignore actual functions
         if not node.is_method():
@@ -1403,7 +1403,7 @@ a metaclass class method.",
                     "class-variable-slots-conflict", args=(inferred.value,), node=elt
                 )
 
-    def leave_functiondef(self, node):
+    def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         """on method node, check if this method couldn't be a function
 
         ignore class, static and abstract methods, initializer,
@@ -1430,7 +1430,7 @@ a metaclass class method.",
             ):
                 self.add_message("no-self-use", node=node)
 
-    def visit_attribute(self, node):
+    def visit_attribute(self, node: nodes.Attribute) -> None:
         """check if the getattr is an access to a class member
         if so, register it. Also check for access to protected
         class member from outside its class (but ignore __special__
@@ -1517,7 +1517,7 @@ a metaclass class method.",
     @check_messages(
         "protected-access", "no-classmethod-decorator", "no-staticmethod-decorator"
     )
-    def visit_assign(self, assign_node):
+    def visit_assign(self, assign_node: nodes.Assign) -> None:
         self._check_classmethod_declaration(assign_node)
         node = assign_node.targets[0]
         if not isinstance(node, nodes.AssignAttr):
@@ -1704,7 +1704,7 @@ a metaclass class method.",
         except astroid.NotFoundError:
             return False
 
-    def visit_name(self, node):
+    def visit_name(self, node: nodes.Name) -> None:
         """check if the name handle an access to a class member
         if so, register it
         """
@@ -2157,7 +2157,7 @@ class SpecialMethodsChecker(BaseChecker):
         "invalid-getnewargs-returned",
         "invalid-getnewargs-ex-returned",
     )
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if not node.is_method():
             return
 
