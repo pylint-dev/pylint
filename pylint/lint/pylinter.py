@@ -11,13 +11,14 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
+from typing import Iterator, List, Optional, Tuple, Union
 
 import astroid
 from astroid import AstroidError
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
-from pylint.lint.expand_modules import expand_modules
+from pylint.lint.expand_modules import MODULE_DESCRIPTION_DICT, expand_modules
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
@@ -935,15 +936,12 @@ class PyLinter(
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
 
-    def check(self, files_or_modules):
+    def check(self, files_or_modules: List[str]) -> None:
         """main checking entry: check a list of files or modules from their name.
 
-        files_or_modules is either a string or list of strings presenting modules to check.
+        files_or_modules is a list of strings presenting modules to check.
         """
         self.initialize()
-
-        if not isinstance(files_or_modules, (list, tuple)):
-            files_or_modules = (files_or_modules,)
 
         if self.config.from_stdin:
             if len(files_or_modules) != 1:
@@ -970,7 +968,7 @@ class PyLinter(
                 files_or_modules,
             )
 
-    def check_single_file(self, name, filepath, modname):
+    def check_single_file(self, name: str, filepath: str, modname: str) -> None:
         """Check single file
 
         The arguments are the same that are documented in _check_files
@@ -982,7 +980,11 @@ class PyLinter(
                 self.get_ast, check_astroid_module, name, filepath, modname
             )
 
-    def _check_files(self, get_ast, file_descrs):
+    def _check_files(
+        self,
+        get_ast,
+        file_descrs: Union[List[Tuple[str, str, str]], Iterator[Tuple[str, str, str]]],
+    ):
         """Check all files from file_descrs
 
         The file_descrs should be iterable of tuple (name, filepath, modname)
@@ -1004,12 +1006,14 @@ class PyLinter(
                     msg = get_fatal_error_message(filepath, template_path)
                     if isinstance(ex, AstroidError):
                         symbol = "astroid-error"
-                        msg = (filepath, msg)
+                        self.add_message(symbol, args=(filepath, msg))
                     else:
                         symbol = "fatal"
-                    self.add_message(symbol, args=msg)
+                        self.add_message(symbol, args=msg)
 
-    def _check_file(self, get_ast, check_astroid_module, name, filepath, modname):
+    def _check_file(
+        self, get_ast, check_astroid_module, name: str, filepath: str, modname: str
+    ):
         """Check a file using the passed utility functions (get_ast and check_astroid_module)
 
         :param callable get_ast: callable returning AST from defined file taking the following arguments
@@ -1042,7 +1046,7 @@ class PyLinter(
             self.add_message(msgid, line, None, args)
 
     @staticmethod
-    def _get_file_descr_from_stdin(filepath):
+    def _get_file_descr_from_stdin(filepath: str) -> Tuple[str, str, str]:
         """Return file description (tuple of module name, file path, base name) from given file path
 
         This method is used for creating suitable file description for _check_files when the
@@ -1058,7 +1062,7 @@ class PyLinter(
 
         return (modname, filepath, filepath)
 
-    def _iterate_file_descrs(self, files_or_modules):
+    def _iterate_file_descrs(self, files_or_modules) -> Iterator[Tuple[str, str, str]]:
         """Return generator yielding file descriptions (tuples of module name, file path, base name)
 
         The returned generator yield one item for each Python module that should be linted.
@@ -1068,7 +1072,7 @@ class PyLinter(
             if self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield (name, filepath, descr["basename"])
 
-    def _expand_files(self, modules):
+    def _expand_files(self, modules) -> List[MODULE_DESCRIPTION_DICT]:
         """get modules and errors from a list of modules and handle errors"""
         result, errors = expand_modules(
             modules,
@@ -1085,7 +1089,7 @@ class PyLinter(
             self.add_message(key, args=message)
         return result
 
-    def set_current_module(self, modname, filepath=None):
+    def set_current_module(self, modname, filepath: Optional[str] = None):
         """set the name of the currently analyzed module and
         init statistics for it
         """

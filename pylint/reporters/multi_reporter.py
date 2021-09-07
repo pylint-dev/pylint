@@ -3,7 +3,7 @@
 
 
 import os
-from typing import IO, Any, AnyStr, Callable, List, Mapping, Optional, Union
+from typing import IO, Any, AnyStr, Callable, List, Mapping, Optional
 
 from pylint.interfaces import IReporter
 from pylint.message import Message
@@ -11,7 +11,6 @@ from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.ureports.nodes import BaseLayout
 
 AnyFile = IO[AnyStr]
-AnyPath = Union[str, bytes, os.PathLike]
 PyLinter = Any
 
 
@@ -88,7 +87,7 @@ class MultiReporter:
         for rep in self._sub_reporters:
             rep.display_messages(layout)
 
-    def on_set_current_module(self, module: str, filepath: Optional[AnyPath]) -> None:
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         """hook called when a module starts to be analysed"""
         for rep in self._sub_reporters:
             rep.on_set_current_module(module, filepath)

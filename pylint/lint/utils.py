@@ -5,8 +5,7 @@ import contextlib
 import sys
 import traceback
 from datetime import datetime
-from pathlib import Path, PosixPath
-from typing import Union
+from pathlib import Path
 
 from pylint.config import PYLINT_HOME
 from pylint.lint.expand_modules import get_python_path
@@ -16,9 +15,7 @@ class ArgumentPreprocessingError(Exception):
     """Raised if an error occurs during argument preprocessing."""
 
 
-def prepare_crash_report(
-    ex: Exception, filepath: PosixPath, crash_file_path: Union[Path, str]
-) -> Path:
+def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> Path:
     issue_template_path = (
         Path(PYLINT_HOME) / datetime.now().strftime(str(crash_file_path))
     ).resolve()
@@ -63,7 +60,7 @@ pylint crashed with a ``{ex.__class__.__name__}`` and with the following stacktr
     return issue_template_path
 
 
-def get_fatal_error_message(filepath: str, issue_template_path: str) -> str:
+def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
     return (
         f"Fatal error while checking '{filepath}'. "
         f"Please open an issue in our bug tracker so we address this. "

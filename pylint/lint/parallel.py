@@ -3,6 +3,7 @@
 
 import collections
 import functools
+from typing import Any, DefaultDict, Iterator, List, Tuple
 
 from pylint import reporters
 from pylint.lint.utils import _patch_sys_path
@@ -62,9 +63,13 @@ def _worker_initialize(linter, arguments=None):
     _patch_sys_path(arguments or ())
 
 
-def _worker_check_single_file(file_item):
+def _worker_check_single_file(
+    file_item: Tuple[str, str, str]
+) -> Tuple[int, Any, str, Any, List[Tuple[Any, ...]], Any, Any, DefaultDict[Any, List]]:
     name, filepath, modname = file_item
 
+    if not _worker_linter:
+        raise Exception("Worker linter not yet initialised")
     _worker_linter.open()
     _worker_linter.check_single_file(name, filepath, modname)
     mapreduce_data = collections.defaultdict(list)
@@ -109,7 +114,7 @@ def _merge_mapreduce_data(linter, all_mapreduce_data):
             checker.reduce_map_data(linter, collated_map_reduce_data[checker.name])
 
 
-def check_parallel(linter, jobs, files, arguments=None):
+def check_parallel(linter, jobs, files: Iterator[Tuple[str, str, str]], arguments=None):
     """Use the given linter to lint the files with given amount of workers (jobs)
     This splits the work filestream-by-filestream. If you need to do work across
     multiple files, as in the similarity-checker, then inherit from MapReduceMixin and
@@ -151,7 +156,7 @@ def check_parallel(linter, jobs, files, arguments=None):
             linter.set_current_module(module, file_path)
             for msg in messages:
                 msg = Message(*msg)
-                linter.reporter.handle_message(msg)
+                linter.reporter.handle_message(msg)  # type: ignore # L134 makes linter always have a reporter attribute
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status

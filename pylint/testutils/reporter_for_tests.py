@@ -3,7 +3,7 @@
 
 from io import StringIO
 from os import getcwd, linesep, sep
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from pylint import interfaces
 from pylint.message import Message
@@ -51,7 +51,7 @@ class GenericTestReporter(BaseReporter):
         return result
 
     # pylint: disable=unused-argument
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         pass
 
     # pylint: enable=unused-argument
@@ -63,14 +63,14 @@ class GenericTestReporter(BaseReporter):
 
 
 class MinimalTestReporter(BaseReporter):
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self.messages = []
 
     _display = None
 
 
 class FunctionalTestReporter(BaseReporter):
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self.messages = []
 
     def display_reports(self, layout):

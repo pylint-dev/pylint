@@ -1,8 +1,27 @@
 import os
 import sys
-from typing import List, Pattern, Tuple
+from typing import List, Pattern, Tuple, Union
 
 from astroid import modutils
+
+if sys.version_info >= (3, 8):
+    from typing import Literal, TypedDict
+else:
+    from typing_extensions import Literal, TypedDict
+
+
+class MODULE_DESCRIPTION_DICT(TypedDict):
+    path: str
+    name: str
+    isarg: bool
+    basepath: str
+    basename: str
+
+
+class ERROR_DESCRIPTION_DICT(TypedDict):
+    key: Literal["fatal"]
+    mod: str
+    ex: Union[ImportError, SyntaxError]
 
 
 def _modpath_from_file(filename, is_namespace, path=None):
@@ -42,12 +61,12 @@ def expand_modules(
     ignore_list: List[str],
     ignore_list_re: List[Pattern],
     ignore_list_paths_re: List[Pattern],
-) -> Tuple[List[dict], List[dict]]:
+) -> Tuple[List[MODULE_DESCRIPTION_DICT], List[ERROR_DESCRIPTION_DICT]]:
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
     """
-    result = []
-    errors = []
+    result: List[MODULE_DESCRIPTION_DICT] = []
+    errors: List[ERROR_DESCRIPTION_DICT] = []
     path = sys.path.copy()
 
     for something in files_or_modules:
