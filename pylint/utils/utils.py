@@ -17,7 +17,16 @@ import re
 import sys
 import textwrap
 import tokenize
-from typing import TYPE_CHECKING, List, Optional, Pattern, Tuple, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    List,
+    Optional,
+    Pattern,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+)
 
 from astroid import Module, modutils
 
@@ -46,6 +55,16 @@ GLOBAL_OPTION_PATTERN = Literal[
     "no-docstring-rgx", "dummy-variables-rgx", "ignored-argument-names"
 ]
 GLOBAL_OPTION_TUPLE_INT = Literal["py-version"]
+GLOBAL_OPTION_NAMES = Union[
+    GLOBAL_OPTION_BOOL,
+    GLOBAL_OPTION_INT,
+    GLOBAL_OPTION_LIST,
+    GLOBAL_OPTION_PATTERN,
+    GLOBAL_OPTION_TUPLE_INT,
+]
+GLOBAL_OPTION_RETURN_TYPES = TypeVar(
+    "GLOBAL_OPTION_RETURN_TYPES", bool, int, List[str], Pattern, Tuple[int, ...]
+)
 
 
 def normalize_text(text, line_len=DEFAULT_LINE_LENGTH, indent=""):
@@ -214,15 +233,9 @@ def get_global_option(
 
 def get_global_option(
     checker: "BaseChecker",
-    option: Union[
-        GLOBAL_OPTION_BOOL,
-        GLOBAL_OPTION_INT,
-        GLOBAL_OPTION_LIST,
-        GLOBAL_OPTION_PATTERN,
-        GLOBAL_OPTION_TUPLE_INT,
-    ],
-    default: Union[None, bool, int, List[str], Pattern, Tuple[int, ...]] = None,
-) -> Union[None, bool, int, List[str], Pattern, Tuple[int, ...]]:
+    option: GLOBAL_OPTION_NAMES,
+    default: Optional[GLOBAL_OPTION_RETURN_TYPES] = None,
+) -> Optional[GLOBAL_OPTION_RETURN_TYPES]:
     """Retrieve an option defined by the given *checker* or
     by all known option providers.
 
