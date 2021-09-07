@@ -65,6 +65,10 @@ Release date: TBA
 
 * Extended ``consider-using-in`` check to work for attribute access.
 
+* Setting ``min-similarity-lines`` to 0 now makes the similarty checker stop checking for duplicate code
+
+  Closes #4901
+
 
 What's New in Pylint 2.10.3?
 ============================
