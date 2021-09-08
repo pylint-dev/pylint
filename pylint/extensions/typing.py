@@ -1,4 +1,4 @@
-from typing import Dict, List, NamedTuple, Set, Tuple, Union
+from typing import Dict, List, NamedTuple, Set, Union
 
 import astroid.bases
 from astroid import nodes
@@ -139,7 +139,7 @@ class TypingChecker(BaseChecker):
         self._consider_using_alias_msgs: List[DeprecatedTypingAliasMsg] = []
 
     def open(self) -> None:
-        py_version: Tuple[int, int] = get_global_option(self, "py-version")
+        py_version = get_global_option(self, "py-version")
         self._py37_plus = py_version >= (3, 7)
         self._py39_plus = py_version >= (3, 9)
         self._py310_plus = py_version >= (3, 10)
