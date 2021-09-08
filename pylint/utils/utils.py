@@ -62,8 +62,8 @@ GLOBAL_OPTION_NAMES = Union[
     GLOBAL_OPTION_PATTERN,
     GLOBAL_OPTION_TUPLE_INT,
 ]
-GLOBAL_OPTION_RETURN_TYPES = TypeVar(
-    "GLOBAL_OPTION_RETURN_TYPES", bool, int, List[str], Pattern, Tuple[int, ...]
+T_GlobalOptionReturnTypes = TypeVar(
+    "T_GlobalOptionReturnTypes", bool, int, List[str], Pattern, Tuple[int, ...]
 )
 
 
@@ -234,8 +234,8 @@ def get_global_option(
 def get_global_option(
     checker: "BaseChecker",
     option: GLOBAL_OPTION_NAMES,
-    default: Optional[GLOBAL_OPTION_RETURN_TYPES] = None,
-) -> Optional[GLOBAL_OPTION_RETURN_TYPES]:
+    default: Optional[T_GlobalOptionReturnTypes] = None,
+) -> Optional[T_GlobalOptionReturnTypes]:
     """Retrieve an option defined by the given *checker* or
     by all known option providers.
 
