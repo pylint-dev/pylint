@@ -28,6 +28,7 @@
 
 import re
 import tokenize
+from typing import Optional
 
 from astroid import nodes
 
@@ -116,13 +117,19 @@ class EncodingChecker(BaseChecker):
 
         self._fixme_pattern = re.compile(regex_string, re.I)
 
-    def _check_encoding(self, lineno, line, file_encoding):
+    def _check_encoding(
+        self, lineno: int, line: bytes, file_encoding: str
+    ) -> Optional[str]:
         try:
             return line.decode(file_encoding)
         except UnicodeDecodeError:
             pass
         except LookupError:
-            if line.startswith("#") and "coding" in line and file_encoding in line:
+            if (
+                line.startswith(b"#")
+                and "coding" in str(line)
+                and file_encoding in str(line)
+            ):
                 msg = f"Cannot decode using encoding '{file_encoding}', bad encoding"
                 self.add_message("syntax-error", line=lineno, args=msg)
         return None

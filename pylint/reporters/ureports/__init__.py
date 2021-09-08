@@ -18,20 +18,19 @@ formatted as text and html.
 import os
 import sys
 from io import StringIO
+from typing import Iterator, TextIO
 
 
 class BaseWriter:
     """base class for ureport writers"""
 
-    def format(self, layout, stream=None, encoding=None):
+    def format(self, layout, stream: TextIO = sys.stdout, encoding=None) -> None:
         """format and write the given layout into the stream object
 
         unicode policy: unicode strings may be found in the layout;
         try to call stream.write with it, but give it back encoded using
         the given encoding if it fails
         """
-        if stream is None:
-            stream = sys.stdout
         if not encoding:
             encoding = getattr(stream, "encoding", "UTF-8")
         self.encoding = encoding or "UTF-8"
@@ -79,7 +78,7 @@ class BaseWriter:
         result[-1] += [""] * (cols - len(result[-1]))
         return result
 
-    def compute_content(self, layout):
+    def compute_content(self, layout) -> Iterator[str]:
         """trick to compute the formatting of children layout before actually
         writing it
 

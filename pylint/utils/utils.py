@@ -17,18 +17,20 @@ import re
 import sys
 import textwrap
 import tokenize
+from io import BufferedReader, BytesIO
 from typing import (
     TYPE_CHECKING,
     List,
     Optional,
     Pattern,
+    TextIO,
     Tuple,
     TypeVar,
     Union,
     overload,
 )
 
-from astroid import Module, modutils
+from astroid import Module, modutils, nodes
 
 from pylint.constants import PY_EXTS
 
@@ -143,7 +145,11 @@ def safe_decode(line, encoding, *args, **kwargs):
         return line.decode(sys.getdefaultencoding(), *args, **kwargs)
 
 
-def decoding_stream(stream, encoding, errors="strict"):
+def decoding_stream(
+    stream: Union[BufferedReader, BytesIO],
+    encoding: str,
+    errors: Literal["strict"] = "strict",
+) -> codecs.StreamReader:
     try:
         reader_cls = codecs.getreader(encoding or sys.getdefaultencoding())
     except LookupError:
@@ -151,8 +157,8 @@ def decoding_stream(stream, encoding, errors="strict"):
     return reader_cls(stream, errors)
 
 
-def tokenize_module(module):
-    with module.stream() as stream:
+def tokenize_module(node: nodes.Module) -> List[tokenize.TokenInfo]:
+    with node.stream() as stream:
         readline = stream.readline
         return list(tokenize.tokenize(readline))
 
@@ -348,7 +354,9 @@ def _format_option_value(optdict, value):
     return value
 
 
-def format_section(stream, section, options, doc=None):
+def format_section(
+    stream: TextIO, section: str, options: List[Tuple], doc: Optional[str] = None
+) -> None:
     """format an options section using the INI format"""
     if doc:
         print(_comment(doc), file=stream)
@@ -356,7 +364,7 @@ def format_section(stream, section, options, doc=None):
     _ini_format(stream, options)
 
 
-def _ini_format(stream, options):
+def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
     """format options using the INI format"""
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)
