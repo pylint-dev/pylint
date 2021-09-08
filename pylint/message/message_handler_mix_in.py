@@ -2,7 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import sys
-from typing import List, Tuple, Union
+from io import TextIOWrapper
+from typing import List, TextIO, Tuple, Union
 
 from pylint.constants import (
     _SCOPE_EXEMPT,
@@ -390,20 +391,13 @@ Below is a list of all checkers and their features.
             result += checker.get_full_documentation(**information)
         return result
 
-    def print_full_documentation(self, stream=None):
+    def print_full_documentation(self, stream: TextIO = sys.stdout) -> None:
         """output a full documentation in ReST format"""
-        if not stream:
-            stream = sys.stdout
         print(self.get_checkers_documentation()[:-1], file=stream)
 
     @staticmethod
-    def _print_checker_doc(information, stream=None):
-        """Helper method for print_full_documentation.
-
-        Also used by doc/exts/pylint_extensions.py.
-        """
-        if not stream:
-            stream = sys.stdout
+    def _print_checker_doc(information, stream: TextIOWrapper) -> None:
+        """Helper method used by doc/exts/pylint_extensions.py."""
         checker = information["checker"]
         del information["checker"]
         print(checker.get_full_documentation(**information)[:-1], file=stream)
