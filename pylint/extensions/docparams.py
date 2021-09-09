@@ -229,6 +229,8 @@ class DocstringParameterChecker(BaseChecker):
         self.check_functiondef_returns(node, node_doc)
         self.check_functiondef_yields(node, node_doc)
 
+    visit_asyncfunctiondef = visit_functiondef
+
     def check_functiondef_params(self, node, node_doc):
         node_allow_no_param = None
         if node.name in self.constructor_names:
