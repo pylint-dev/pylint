@@ -73,6 +73,10 @@ Release date: TBA
 
   Closes #4901
 
+* Fix a bug where pylint complained if the cache's parent directory does not exist
+
+  Closes #4900
+
 
 What's New in Pylint 2.10.3?
 ============================

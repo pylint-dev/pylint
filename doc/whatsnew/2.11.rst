@@ -75,3 +75,7 @@ Other Changes
 * Setting ``min-similarity-lines`` to 0 now makes the similarty checker stop checking for duplicate code
 
   Closes #4901
+
+* Fix a bug where pylint complained if the cache's parent directory does not exist
+
+  Closes #4900
