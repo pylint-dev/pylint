@@ -77,7 +77,7 @@ Release date: TBA
 
   Closes #4900
 
-# Fix ``no-self-use`` and ``docparams extension`` for async functions and methods.
+* Fix ``no-self-use`` and ``docparams extension`` for async functions and methods.
 
 
 What's New in Pylint 2.10.3?
