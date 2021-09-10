@@ -1562,7 +1562,7 @@ def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
 
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope after the current node"""
-    for assign_node in node.scope().nodes_of_class(nodes.AssignName):
-        if assign_node.name == varname and node.lineno < assign_node.lineno:
-            return True
-    return False
+    return any(
+        a.name == varname and  a.lineno > node.lineno
+        for a in node.scope().nodes_of_class(nodes.AssignName)
+    )
