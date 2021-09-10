@@ -30,3 +30,16 @@ def global_with_import():
     """should only warn for global-statement"""
     global sys  # [global-statement]
     import sys  # pylint: disable=import-outside-toplevel
+
+
+def global_no_assign():
+    """Not assigning anything to the global makes 'global' superfluous"""
+    global CONSTANT  # [global-variable-not-assigned]
+    print(CONSTANT)
+
+
+def global_operator_assign():
+    """Operator assigns should only throw a global statement error"""
+    global CONSTANT  # [global-statement]
+    print(CONSTANT)
+    CONSTANT += 1

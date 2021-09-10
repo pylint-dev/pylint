@@ -5,3 +5,5 @@ global-variable-not-assigned:18:4:other:Using global for 'HOP' but no assignment
 undefined-variable:19:10:other:Undefined variable 'HOP'
 global-variable-undefined:24:4:define_constant:Global variable 'SOMEVAR' undefined at the module level
 global-statement:31:4:global_with_import:Using the global statement
+global-variable-not-assigned:37:4:global_no_assign:Using global for 'CONSTANT' but no assignment is done:HIGH
+global-statement:43:4:global_operator_assign:Using the global statement:HIGH

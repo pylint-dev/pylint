@@ -931,7 +931,10 @@ class VariablesChecker(BaseChecker):
             not_defined_locally_by_import = not any(
                 isinstance(local, nodes.Import) for local in locals_.get(name, ())
             )
-            if not assign_nodes and not_defined_locally_by_import:
+            if (
+                not utils.is_reassigned_after_current(node, name)
+                and not_defined_locally_by_import
+            ):
                 self.add_message("global-variable-not-assigned", args=name, node=node)
                 default_message = False
                 continue

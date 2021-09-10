@@ -77,6 +77,11 @@ Release date: TBA
 
   Closes #4900
 
+* The ``global-variable-not-assigned`` checker now catches global variables that are never reassigned in a
+  local scope
+
+  Closes #1375
+
 
 What's New in Pylint 2.10.3?
 ============================
