@@ -115,7 +115,7 @@ The following options are availabe:
 Example Output
 ''''''''''''''
 
-Example diagrams generated with the .puml output format are shown below.
+Example diagrams generated with the ``.puml`` output format are shown below.
 
 Class Diagram
 .............
