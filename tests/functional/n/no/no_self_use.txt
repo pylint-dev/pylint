@@ -1,1 +1,2 @@
 no-self-use:16:4:Toto.function_method:Method could be a function
+no-self-use:24:4:Toto.async_function_method:Method could be a function
