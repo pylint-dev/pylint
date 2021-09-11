@@ -1,10 +1,13 @@
 """Warnings about global statements and usage of global variables."""
+# pylint: disable=invalid-name, redefined-outer-name, missing-function-docstring
 from __future__ import print_function
 
 global CSTE  # [global-at-module-level]
 print(CSTE)  # [undefined-variable]
 
 CONSTANT = 1
+def FUNC():
+    pass
 
 def fix_contant(value):
     """all this is ok, but try not using global ;)"""
@@ -25,7 +28,6 @@ def define_constant():
     SOMEVAR = 2
 
 
-# pylint: disable=invalid-name
 def global_with_import():
     """should only warn for global-statement"""
     global sys  # [global-statement]
@@ -43,3 +45,23 @@ def global_operator_assign():
     global CONSTANT  # [global-statement]
     print(CONSTANT)
     CONSTANT += 1
+
+
+def global_function_assign():
+    """Function assigns should only throw a global statement error"""
+    global CONSTANT  # [global-statement]
+
+    def CONSTANT():
+        pass
+
+    CONSTANT()
+
+
+def override_func():
+    """Overriding a function should only throw a global statement error"""
+    global FUNC # [global-statement]
+
+    def FUNC():
+        pass
+
+    FUNC()

@@ -949,6 +949,9 @@ class VariablesChecker(BaseChecker):
                 if anode.frame() is module:
                     # module level assignment
                     break
+                if isinstance(anode, nodes.FunctionDef) and anode.parent is module:
+                    # module level function assignment
+                    break
             else:
                 if not_defined_locally_by_import:
                     # global undefined at the module scope
