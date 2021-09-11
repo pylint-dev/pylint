@@ -1558,3 +1558,11 @@ def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
     return isinstance(node.parent, nodes.If) and (
         node.parent.is_sys_guard() or node.parent.is_typing_guard()
     )
+
+
+def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
+    """Check if the given variable name is reassigned in the same scope after the current node"""
+    return any(
+        a.name == varname and a.lineno > node.lineno
+        for a in node.scope().nodes_of_class((nodes.AssignName, nodes.FunctionDef))
+    )

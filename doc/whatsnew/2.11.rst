@@ -79,3 +79,9 @@ Other Changes
 * Fix a bug where pylint complained if the cache's parent directory does not exist
 
   Closes #4900
+
+* The ``global-variable-not-assigned`` checker now catches global variables that are never reassigned in a
+  local scope and catches (reassigned) functions
+
+  Closes #1375
+  Closes #330

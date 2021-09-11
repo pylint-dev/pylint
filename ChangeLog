@@ -77,6 +77,12 @@ Release date: TBA
 
   Closes #4900
 
+* The ``global-variable-not-assigned`` checker now catches global variables that are never reassigned in a
+  local scope and catches (reassigned) functions
+
+  Closes #1375
+  Closes #330
+
 * Fix ``no-self-use`` and ``docparams extension`` for async functions and methods.
 
 
