@@ -20,10 +20,12 @@
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Emacs and Flymake compatible Pylint.
 
@@ -163,15 +165,9 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
 
     # Providing standard output and/or error if not set
     if stdout is None:
-        if return_std:
-            stdout = PIPE
-        else:
-            stdout = sys.stdout
+        stdout = PIPE if return_std else sys.stdout
     if stderr is None:
-        if return_std:
-            stderr = PIPE
-        else:
-            stderr = sys.stderr
+        stderr = PIPE if return_std else sys.stderr
     # Call pylint in a subprocess
     with Popen(
         cli,
@@ -190,10 +186,10 @@ def py_run(command_options="", return_std=False, stdout=None, stderr=None):
 
 def Run():
     if len(sys.argv) == 1:
-        print("Usage: %s <filename> [options]" % sys.argv[0])
+        print(f"Usage: {sys.argv[0]} <filename> [options]")
         sys.exit(1)
     elif not os.path.exists(sys.argv[1]):
-        print("%s does not exist" % sys.argv[1])
+        print(f"{sys.argv[1]} does not exist")
         sys.exit(1)
     else:
         sys.exit(lint(sys.argv[1], sys.argv[2:]))

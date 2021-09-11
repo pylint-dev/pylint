@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
 from typing import Any, NamedTuple
@@ -58,10 +58,10 @@ Try updating it with: 'python tests/test_functional.py {UPDATE_OPTION}'"""
 class OutputLine(NamedTuple):
     symbol: str
     lineno: int
-    column: int
+    column: str
     object: Any
     msg: str
-    confidence: str
+    confidence: interfaces.Confidence
 
     @classmethod
     def from_msg(cls, msg):

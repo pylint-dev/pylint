@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Script used to generate the extensions file before building the actual documentation."""
 
@@ -37,7 +37,7 @@ def builder_inited(app):
         if name[0] == "_" or name in DEPRECATED_MODULES:
             continue
         if ext == ".py":
-            modules.append("pylint.extensions.%s" % name)
+            modules.append(f"pylint.extensions.{name}")
         elif ext == ".rst":
             doc_files["pylint.extensions." + name] = os.path.join(ext_path, filename)
     modules.sort()

@@ -1,7 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
+import traceback
 
 from astroid import nodes
 
@@ -81,5 +82,6 @@ class ASTWalker:
             if self.exception_msg is False:
                 file = getattr(astroid.root(), "file", None)
                 print(f"Exception on node {repr(astroid)} in file '{file}'")
+                traceback.print_exc()
                 self.exception_msg = True
             raise

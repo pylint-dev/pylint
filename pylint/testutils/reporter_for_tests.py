@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 from io import StringIO
 from os import getcwd, linesep, sep
@@ -15,7 +15,9 @@ class GenericTestReporter(BaseReporter):
 
     __implements__ = interfaces.IReporter
 
-    def __init__(self):  # pylint: disable=super-init-not-called
+    def __init__(
+        self,
+    ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         self.reset()
 
     def reset(self):
@@ -32,7 +34,7 @@ class GenericTestReporter(BaseReporter):
         str_message: str = msg.msg
         self.message_ids[msg_id] = 1
         if obj:
-            obj = ":%s" % obj
+            obj = f":{obj}"
         sigle = msg_id[0]
         if linesep != "\n":
             # 2to3 writes os.linesep instead of using
@@ -67,9 +69,12 @@ class MinimalTestReporter(BaseReporter):
     _display = None
 
 
-class FunctionalTestReporter(BaseReporter):  # pylint: disable=abstract-method
+class FunctionalTestReporter(BaseReporter):
     def on_set_current_module(self, module, filepath):
         self.messages = []
 
     def display_reports(self, layout):
         """Ignore layouts and don't call self._display()."""
+
+    def _display(self, layout):
+        pass

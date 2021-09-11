@@ -1,5 +1,5 @@
 """test string format error"""
-# pylint: disable=print-statement,unsupported-binary-operation,line-too-long
+# pylint: disable=unsupported-binary-operation,line-too-long, consider-using-f-string
 from __future__ import print_function
 
 PARG_1 = PARG_2 = PARG_3 = 1
@@ -18,3 +18,7 @@ def pprint():
     print("%2z" % PARG_1)  # [bad-format-character]
     print("strange format %2" % PARG_2) # [truncated-format-string]
     print("works in 3 %a" % 1)
+    print("String" % PARG_1) # [format-string-without-interpolation]
+    print("String" % ())  # [format-string-without-interpolation]
+    print("String" % [])  # [format-string-without-interpolation]
+    print("String" % None)  # [format-string-without-interpolation]

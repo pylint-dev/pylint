@@ -1,5 +1,5 @@
-# pylint: disable=no-member, no-absolute-import, import-error,line-too-long
-# pylint: disable=invalid-name,missing-docstring,wrong-import-order,wrong-import-position
+# pylint: disable=no-member,  import-error,line-too-long
+# pylint: disable=invalid-name,missing-docstring,wrong-import-order,wrong-import-position, consider-using-f-string
 try:
     import __builtin__ as builtins
 except ImportError:

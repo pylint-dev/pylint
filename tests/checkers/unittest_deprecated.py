@@ -1,3 +1,5 @@
+from typing import List, Optional, Set, Tuple, Union
+
 import astroid
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
@@ -9,16 +11,20 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = "deprecated"
 
-    def deprecated_methods(self):
+    def deprecated_methods(self) -> Set[str]:
         return {"deprecated_func", ".Deprecated.deprecated_method"}
 
-    def deprecated_modules(self):
+    def deprecated_modules(self) -> Set[str]:
         return {"deprecated_module"}
 
-    def deprecated_classes(self, module):
+    def deprecated_classes(self, module: str) -> List[str]:
         return ["DeprecatedClass"] if module == "deprecated" else []
 
-    def deprecated_arguments(self, method):
+    def deprecated_arguments(
+        self, method: str
+    ) -> Union[
+        Tuple[Tuple[Optional[int], str], ...], Tuple[Tuple[int, str], Tuple[int, str]]
+    ]:
         if method == "myfunction1":
             # def myfunction1(arg1, deprecated_arg1='spam')
             return ((1, "deprecated_arg1"),)
@@ -42,14 +48,14 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
             return ((0, "deprecated_arg"),)
         return ()
 
-    def deprecated_decorators(self):
+    def deprecated_decorators(self) -> Set[str]:
         return {".deprecated_decorator"}
 
 
 class TestDeprecatedChecker(CheckerTestCase):
     CHECKER_CLASS = _DeprecatedChecker
 
-    def test_deprecated_function(self):
+    def test_deprecated_function(self) -> None:
         # Tests detecting deprecated function
         node = astroid.extract_node(
             """
@@ -69,7 +75,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_deprecated_method(self):
+    def test_deprecated_method(self) -> None:
         # Tests detecting deprecated method
         node = astroid.extract_node(
             """
@@ -91,7 +97,32 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_no_message(self):
+    def test_deprecated_method_alias(self) -> None:
+        # Tests detecting deprecated method defined as alias
+        # to existing method
+        node = astroid.extract_node(
+            """
+        class Deprecated:
+            def _deprecated_method(self):
+                pass
+
+            deprecated_method = _deprecated_method
+
+        d = Deprecated()
+        d.deprecated_method()
+        """
+        )
+        with self.assertAddsMessages(
+            Message(
+                msg_id="deprecated-method",
+                args=("deprecated_method",),
+                node=node,
+                confidence=UNDEFINED,
+            )
+        ):
+            self.checker.visit_call(node)
+
+    def test_no_message(self) -> None:
         # Tests not raising error when no deprecated functions/methods are present.
         node = astroid.extract_node(
             """
@@ -110,7 +141,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
-    def test_function_deprecated_arg(self):
+    def test_function_deprecated_arg(self) -> None:
         # Tests raising error when calling function with deprecated argument
         node = astroid.extract_node(
             """
@@ -130,7 +161,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_function_deprecated_kwarg(self):
+    def test_function_deprecated_kwarg(self) -> None:
         # Tests raising error when calling function with deprecated keyword argument
         node = astroid.extract_node(
             """
@@ -150,7 +181,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_function_deprecated_not_used(self):
+    def test_function_deprecated_not_used(self) -> None:
         # Tests raising error when calling function without deprecated argument
         node = astroid.extract_node(
             """
@@ -163,7 +194,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
-    def test_function_deprecated_kwarg_only(self):
+    def test_function_deprecated_kwarg_only(self) -> None:
         # Tests raising error when calling function with deprecated keyword only argument
         node = astroid.extract_node(
             """
@@ -183,7 +214,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_method_deprecated_arg(self):
+    def test_method_deprecated_arg(self) -> None:
         # Tests raising error when calling method with deprecated argument
         node = astroid.extract_node(
             """
@@ -204,7 +235,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_method_deprecated_kwarg(self):
+    def test_method_deprecated_kwarg(self) -> None:
         # Tests raising error when calling method with deprecated keyword argument
         node = astroid.extract_node(
             """
@@ -225,7 +256,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_method_deprecated_not_used(self):
+    def test_method_deprecated_not_used(self) -> None:
         # Tests raising error when calling method without deprecated argument
         node = astroid.extract_node(
             """
@@ -239,7 +270,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
-    def test_method_deprecated_kwarg_only(self):
+    def test_method_deprecated_kwarg_only(self) -> None:
         # Tests raising error when calling method with deprecated keyword only argument
         node = astroid.extract_node(
             """
@@ -260,7 +291,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_function_deprecated_arg_kwargs(self):
+    def test_function_deprecated_arg_kwargs(self) -> None:
         # Tests raising error when calling function with deprecated argument
         # and keyword argument
         node = astroid.extract_node(
@@ -287,7 +318,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_function_deprecated_kwarg_kwarg(self):
+    def test_function_deprecated_kwarg_kwarg(self) -> None:
         # Tests raising error when calling function with deprecated keyword arguments
         node = astroid.extract_node(
             """
@@ -313,7 +344,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_method_deprecated_arg_kwargs(self):
+    def test_method_deprecated_arg_kwargs(self) -> None:
         # Tests raising error when calling method with deprecated argument
         # and keyword argument
         node = astroid.extract_node(
@@ -341,7 +372,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_method_deprecated_kwarg_kwarg(self):
+    def test_method_deprecated_kwarg_kwarg(self) -> None:
         # Tests raising error when calling method with deprecated keyword arguments
         node = astroid.extract_node(
             """
@@ -368,7 +399,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_class_deprecated_arguments(self):
+    def test_class_deprecated_arguments(self) -> None:
 
         node = astroid.extract_node(
             """
@@ -389,7 +420,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_deprecated_module(self):
+    def test_deprecated_module(self) -> None:
         # Tests detecting deprecated module
         node = astroid.extract_node(
             """
@@ -406,7 +437,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_import(node)
 
-    def test_deprecated_module_from(self):
+    def test_deprecated_module_from(self) -> None:
         # Tests detecting deprecated module
         node = astroid.extract_node(
             """
@@ -423,11 +454,11 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_importfrom(node)
 
-    def test_deprecated_class_import_from(self):
+    def test_deprecated_class_import_from(self) -> None:
         # Tests detecting deprecated class via import from
         node = astroid.extract_node(
             """
-        from .deprecated import DeprecatedClass
+        from deprecated import DeprecatedClass
         """
         )
         with self.assertAddsMessages(
@@ -440,7 +471,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_importfrom(node)
 
-    def test_deprecated_class_import(self):
+    def test_deprecated_class_import(self) -> None:
         # Tests detecting deprecated class via import
         node = astroid.extract_node(
             """
@@ -457,7 +488,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_import(node)
 
-    def test_deprecated_class_call(self):
+    def test_deprecated_class_call(self) -> None:
         # Tests detecting deprecated class via call
         node = astroid.extract_node(
             """
@@ -475,7 +506,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_call(node)
 
-    def test_deprecated_decorator(self):
+    def test_deprecated_decorator(self) -> None:
         # Tests detecting deprecated decorator
         node = astroid.extract_node(
             """
@@ -499,7 +530,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_decorators(node)
 
-    def test_deprecated_decorator_with_arguments(self):
+    def test_deprecated_decorator_with_arguments(self) -> None:
         # Tests detecting deprecated decorator with arguments
         node = astroid.extract_node(
             """

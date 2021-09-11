@@ -1,7 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import warnings
+from typing import Dict, Set
 
 import astroid
 
@@ -11,15 +12,15 @@ from pylint.utils import ASTWalker
 
 class TestASTWalker:
     class MockLinter:
-        def __init__(self, msgs):
+        def __init__(self, msgs: Dict[str, bool]) -> None:
             self._msgs = msgs
 
-        def is_message_enabled(self, msgid):
+        def is_message_enabled(self, msgid: str) -> bool:
             return self._msgs.get(msgid, True)
 
     class Checker:
-        def __init__(self):
-            self.called = set()
+        def __init__(self) -> None:
+            self.called: Set[str] = set()
 
         @check_messages("first-message")
         def visit_module(self, module):  # pylint: disable=unused-argument
@@ -37,7 +38,7 @@ class TestASTWalker:
         def leave_assignname(self, module):
             raise NotImplementedError
 
-    def test_check_messages(self):
+    def test_check_messages(self) -> None:
         linter = self.MockLinter(
             {"first-message": True, "second-message": False, "third-message": True}
         )
@@ -47,9 +48,9 @@ class TestASTWalker:
         walker.walk(astroid.parse("x = func()"))
         assert {"module", "assignname"} == checker.called
 
-    def test_deprecated_methods(self):
+    def test_deprecated_methods(self) -> None:
         class Checker:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.called = False
 
             @check_messages("first-message")

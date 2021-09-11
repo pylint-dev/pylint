@@ -12,9 +12,10 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Plain text reporters:
 
@@ -146,7 +147,7 @@ class TextReporter(BaseReporter):
         """manage message of different type and in the context of path"""
         if msg.module not in self._modules:
             if msg.module:
-                self.writeln("************* Module %s" % msg.module)
+                self.writeln(f"************* Module {msg.module}")
                 self._modules.add(msg.module)
             else:
                 self.writeln("************* ")
@@ -170,8 +171,7 @@ class ParseableTextReporter(TextReporter):
 
     def __init__(self, output=None):
         warnings.warn(
-            "%s output format is deprecated. This is equivalent "
-            "to --msg-template=%s" % (self.name, self.line_format),
+            f"{self.name} output format is deprecated. This is equivalent to --msg-template={self.line_format}",
             DeprecationWarning,
         )
         TextReporter.__init__(self, output)
@@ -226,10 +226,10 @@ class ColorizedTextReporter(TextReporter):
             color, style = self._get_decoration("S")
             if msg.module:
                 modsep = colorize_ansi(
-                    "************* Module %s" % msg.module, color, style
+                    f"************* Module {msg.module}", color, style
                 )
             else:
-                modsep = colorize_ansi("************* %s" % msg.module, color, style)
+                modsep = colorize_ansi(f"************* {msg.module}", color, style)
             self.writeln(modsep)
             self._modules.add(msg.module)
         color, style = self._get_decoration(msg.C)

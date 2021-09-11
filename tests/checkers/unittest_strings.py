@@ -8,7 +8,7 @@
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import astroid
 
@@ -40,13 +40,13 @@ TEST_TOKENS = (
 class TestStringChecker(CheckerTestCase):
     CHECKER_CLASS = strings.StringFormatChecker
 
-    def test_format_bytes(self):
+    def test_format_bytes(self) -> None:
         code = "b'test'.format(1, 2)"
         node = astroid.extract_node(code)
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
-    def test_format_types(self):
+    def test_format_types(self) -> None:
         for code in ("'%s' % 1", "'%d' % 1", "'%f' % 1"):
             with self.assertNoMessages():
                 node = astroid.extract_node(code)
@@ -87,6 +87,6 @@ class TestStringChecker(CheckerTestCase):
                 self.checker.visit_binop(node)
 
 
-def test_str_eval():
+def test_str_eval() -> None:
     for token in TEST_TOKENS:
         assert strings.str_eval(token) == "X"

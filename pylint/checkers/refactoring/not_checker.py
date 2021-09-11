@@ -1,9 +1,9 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-import builtins
 
 import astroid
+from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -37,25 +37,23 @@ class NotChecker(checkers.BaseChecker):
     }
     # sets are not ordered, so for example "not set(LEFT_VALS) <= set(RIGHT_VALS)" is
     # not equivalent to "set(LEFT_VALS) > set(RIGHT_VALS)"
-    skipped_nodes = (astroid.Set,)
+    skipped_nodes = (nodes.Set,)
     # 'builtins' py3, '__builtin__' py2
-    skipped_classnames = [
-        f"{builtins.__name__}.{qname}" for qname in ("set", "frozenset")
-    ]
+    skipped_classnames = [f"builtins.{qname}" for qname in ("set", "frozenset")]
 
     @utils.check_messages("unneeded-not")
-    def visit_unaryop(self, node):
+    def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         if node.op != "not":
             return
         operand = node.operand
 
-        if isinstance(operand, astroid.UnaryOp) and operand.op == "not":
+        if isinstance(operand, nodes.UnaryOp) and operand.op == "not":
             self.add_message(
                 "unneeded-not",
                 node=node,
                 args=(node.as_string(), operand.operand.as_string()),
             )
-        elif isinstance(operand, astroid.Compare):
+        elif isinstance(operand, nodes.Compare):
             left = operand.left
             # ignore multiple comparisons
             if len(operand.ops) > 1:
@@ -77,10 +75,8 @@ class NotChecker(checkers.BaseChecker):
                     and _type.qname() in self.skipped_classnames
                 ):
                     return
-            suggestion = "{} {} {}".format(
-                left.as_string(),
-                self.reverse_op[operator],
-                right.as_string(),
+            suggestion = (
+                f"{left.as_string()} {self.reverse_op[operator]} {right.as_string()}"
             )
             self.add_message(
                 "unneeded-not", node=node, args=(node.as_string(), suggestion)

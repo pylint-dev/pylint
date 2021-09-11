@@ -3,11 +3,11 @@
 How to Write a Checker
 ======================
 You can find some simple examples in the distribution
-(`custom.py <https://github.com/PyCQA/pylint/blob/master/examples/custom.py>`_
+(`custom.py <https://github.com/PyCQA/pylint/blob/main/examples/custom.py>`_
 ,
-`custom_raw.py <https://github.com/PyCQA/pylint/blob/master/examples/custom_raw.py>`_
+`custom_raw.py <https://github.com/PyCQA/pylint/blob/main/examples/custom_raw.py>`_
 and
-`deprecation_checker.py <https://github.com/PyCQA/pylint/blob/master/examples/deprecation_checker.py>`_).
+`deprecation_checker.py <https://github.com/PyCQA/pylint/blob/main/examples/deprecation_checker.py>`_).
 
 .. TODO Create custom_token.py
 
@@ -36,9 +36,11 @@ Firstly we will need to fill in some required boilerplate:
 .. code-block:: python
 
   import astroid
+  from astroid import nodes
 
   from pylint.checkers import BaseChecker
   from pylint.interfaces import IAstroidChecker
+  from pylint.lint import PyLinter
 
   class UniqueReturnChecker(BaseChecker):
       __implements__ = IAstroidChecker
@@ -117,14 +119,14 @@ Next we'll track when we enter and leave a function.
 
 .. code-block:: python
 
-  def __init__(self, linter=None):
+  def __init__(self, linter: PyLinter =None) -> None:
       super(UniqueReturnChecker, self).__init__(linter)
       self._function_stack = []
 
-  def visit_functiondef(self, node):
+  def visit_functiondef(self, node: nodes.FunctionDef) -> None:
       self._function_stack.append([])
 
-  def leave_functiondef(self, node):
+  def leave_functiondef(self, node: nodes.FunctionDef) -> None:
       self._function_stack.pop()
 
 In the constructor we initialise a stack to keep a list of return nodes
@@ -138,13 +140,13 @@ and to remove the list of return nodes when we leave the function.
 
 Finally we'll implement the check.
 We will define a ``visit_return`` function,
-which is called with a :class:`.astroid.node_classes.Return` node.
+which is called with a :class:`.astroid.nodes.Return` node.
 
 .. _astroid_extract_node:
 .. TODO We can shorten/remove this bit once astroid has API docs.
 
 We'll need to be able to figure out what attributes a
-:class:`.astroid.node_classes.Return` node has available.
+:class:`.astroid.nodes.Return` node has available.
 We can use :func:`astroid.extract_node` for this::
 
   >>> node = astroid.extract_node("return 5")
@@ -178,8 +180,8 @@ Now we know how to use the astroid node, we can implement our check.
 
 .. code-block:: python
 
-  def visit_return(self, node):
-      if not isinstance(node.value, astroid.node_classes.Const):
+  def visit_return(self, node: nodes.Return) -> None:
+      if not isinstance(node.value, nodes.Const):
           return
 
       for other_return in self._function_stack[-1]:

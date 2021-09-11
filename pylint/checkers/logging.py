@@ -19,17 +19,19 @@
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """checker for use of Python logging
 """
 import string
+from typing import Set
 
 import astroid
+from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import check_messages, infer_all
 
 MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "W1201": (
@@ -159,12 +161,12 @@ class LoggingChecker(checkers.BaseChecker):
         ),
     )
 
-    def visit_module(self, node):  # pylint: disable=unused-argument
+    def visit_module(self, _: nodes.Module) -> None:
         """Clears any state left in this checker from last module checked."""
         # The code being checked can just as easily "import logging as foo",
         # so it is necessary to process the imports and store in this field
         # what name the logging module is actually given.
-        self._logging_names = set()
+        self._logging_names: Set[str] = set()
         logging_mods = self.config.logging_modules
 
         self._format_style = self.config.logging_format_style
@@ -176,7 +178,7 @@ class LoggingChecker(checkers.BaseChecker):
             if len(parts) > 1:
                 self._from_imports[parts[0]] = parts[1]
 
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """Checks to see if a module uses a non-Python logging module."""
         try:
             logging_name = self._from_imports[node.modname]
@@ -186,38 +188,35 @@ class LoggingChecker(checkers.BaseChecker):
         except KeyError:
             pass
 
-    def visit_import(self, node):
+    def visit_import(self, node: nodes.Import) -> None:
         """Checks to see if this module uses Python's built-in logging."""
         for module, as_name in node.names:
             if module in self._logging_modules:
                 self._logging_names.add(as_name or module)
 
     @check_messages(*MSGS)
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         """Checks calls to logging methods."""
 
         def is_logging_name():
             return (
-                isinstance(node.func, astroid.Attribute)
-                and isinstance(node.func.expr, astroid.Name)
+                isinstance(node.func, nodes.Attribute)
+                and isinstance(node.func.expr, nodes.Name)
                 and node.func.expr.name in self._logging_names
             )
 
         def is_logger_class():
-            try:
-                for inferred in node.func.infer():
-                    if isinstance(inferred, astroid.BoundMethod):
-                        parent = inferred._proxied.parent
-                        if isinstance(parent, astroid.ClassDef) and (
-                            parent.qname() == "logging.Logger"
-                            or any(
-                                ancestor.qname() == "logging.Logger"
-                                for ancestor in parent.ancestors()
-                            )
-                        ):
-                            return True, inferred._proxied.name
-            except astroid.exceptions.InferenceError:
-                pass
+            for inferred in infer_all(node.func):
+                if isinstance(inferred, astroid.BoundMethod):
+                    parent = inferred._proxied.parent
+                    if isinstance(parent, nodes.ClassDef) and (
+                        parent.qname() == "logging.Logger"
+                        or any(
+                            ancestor.qname() == "logging.Logger"
+                            for ancestor in parent.ancestors()
+                        )
+                    ):
+                        return True, inferred._proxied.name
             return False, None
 
         if is_logging_name():
@@ -245,7 +244,7 @@ class LoggingChecker(checkers.BaseChecker):
         else:
             return
 
-        if isinstance(node.args[format_pos], astroid.BinOp):
+        if isinstance(node.args[format_pos], nodes.BinOp):
             binop = node.args[format_pos]
             emit = binop.op == "%"
             if binop.op == "+":
@@ -261,11 +260,11 @@ class LoggingChecker(checkers.BaseChecker):
                     node=node,
                     args=(self._helper_string(node),),
                 )
-        elif isinstance(node.args[format_pos], astroid.Call):
+        elif isinstance(node.args[format_pos], nodes.Call):
             self._check_call_func(node.args[format_pos])
-        elif isinstance(node.args[format_pos], astroid.Const):
+        elif isinstance(node.args[format_pos], nodes.Const):
             self._check_format_string(node, format_pos)
-        elif isinstance(node.args[format_pos], astroid.JoinedStr):
+        elif isinstance(node.args[format_pos], nodes.JoinedStr):
             self.add_message(
                 "logging-fstring-interpolation",
                 node=node,
@@ -294,20 +293,17 @@ class LoggingChecker(checkers.BaseChecker):
         """
         Return True if the operand in argument is a literal string
         """
-        return isinstance(operand, astroid.Const) and operand.name == "str"
+        return isinstance(operand, nodes.Const) and operand.name == "str"
 
-    def _check_call_func(self, node):
-        """Checks that function call is not format_string.format().
-
-        Args:
-          node (astroid.node_classes.Call):
-            Call AST node to be checked.
-        """
+    def _check_call_func(self, node: nodes.Call):
+        """Checks that function call is not format_string.format()."""
         func = utils.safe_infer(node.func)
         types = ("str", "unicode")
         methods = ("format",)
-        if is_method_call(func, types, methods) and not is_complex_format_str(
-            func.bound
+        if (
+            isinstance(func, astroid.BoundMethod)
+            and is_method_call(func, types, methods)
+            and not is_complex_format_str(func.bound)
         ):
             self.add_message(
                 "logging-format-interpolation",
@@ -319,7 +315,7 @@ class LoggingChecker(checkers.BaseChecker):
         """Checks that format string tokens match the supplied arguments.
 
         Args:
-          node (astroid.node_classes.NodeNG): AST node to be checked.
+          node (nodes.NodeNG): AST node to be checked.
           format_arg (int): Index of the format string in the node arguments.
         """
         num_args = _count_supplied_tokens(node.args[format_arg + 1 :])
@@ -376,13 +372,13 @@ def is_complex_format_str(node):
     """Checks if node represents a string with complex formatting specs.
 
     Args:
-        node (astroid.node_classes.NodeNG): AST node to check
+        node (nodes.NodeNG): AST node to check
     Returns:
         bool: True if inferred string uses complex formatting, False otherwise
     """
     inferred = utils.safe_infer(node)
     if inferred is None or not (
-        isinstance(inferred, astroid.Const) and isinstance(inferred.value, str)
+        isinstance(inferred, nodes.Const) and isinstance(inferred.value, str)
     ):
         return True
     try:
@@ -409,7 +405,7 @@ def _count_supplied_tokens(args):
     Returns:
       int: Number of AST nodes that aren't keywords.
     """
-    return sum(1 for arg in args if not isinstance(arg, astroid.Keyword))
+    return sum(1 for arg in args if not isinstance(arg, nodes.Keyword))
 
 
 def register(linter):

@@ -4,7 +4,7 @@
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 # pylint: disable=protected-access,missing-function-docstring,no-self-use
 
@@ -18,7 +18,7 @@ from pylint.testutils import GenericTestReporter as Reporter
 
 
 def _get_py_files(scanpath):
-    assert os.path.exists(scanpath), "Dir not found %s" % scanpath
+    assert os.path.exists(scanpath), f"Dir not found {scanpath}"
 
     filepaths = []
     for dirpath, dirnames, filenames in os.walk(scanpath):
@@ -46,12 +46,11 @@ def test_run(tmp_path, name, git_repo):
     checkoutdir.mkdir()
     os.system(f"git clone --depth=1 {git_repo} {checkoutdir}")
     filepaths = _get_py_files(scanpath=str(checkoutdir))
-    print("Have %d files" % len(filepaths))
+    print(f"Have {len(filepaths)} files")
 
     runner = Run(filepaths, reporter=Reporter(), do_exit=False)
 
     print(
-        "Had %d files with %d messages"
-        % (len(filepaths), len(runner.linter.reporter.messages))
+        f"Had {len(filepaths)} files with {len(runner.linter.reporter.messages)} messages"
     )
     pprint.pprint(runner.linter.reporter.messages)

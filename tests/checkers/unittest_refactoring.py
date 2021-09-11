@@ -1,12 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import astroid
 
 from pylint.checkers.refactoring import LenChecker
 
 
-def test_class_tree_detection():
+def test_class_tree_detection() -> None:
     module = astroid.parse(
         """
 class ClassWithBool(list):

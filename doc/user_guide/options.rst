@@ -133,7 +133,7 @@ prevalent naming style inside each module and enforce it on all names.
 
 Consider the following (simplified) example::
 
-   pylint --function-rgx='(?:(?P<snake>[a-z_]+)|(?P<camel>_?[A-Z]+))$' sample.py
+   pylint --function-rgx='(?:(?P<snake>[a-z_]+)|(?P<camel>[a-z]+([A-Z][a-z]*)*))$' sample.py
 
 The regular expression defines two naming styles, ``snake`` for snake-case
 names, and ``camel`` for camel-case names.

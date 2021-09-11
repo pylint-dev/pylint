@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import sys
 from unittest import mock
@@ -46,7 +46,7 @@ class FalseChecker(BaseChecker):
 
 class TestMessagesDefinition:
     @staticmethod
-    def assert_with_fail_msg(msg, expected=True):
+    def assert_with_fail_msg(msg: MessageDefinition, expected: bool = True) -> None:
         fail_msg = (
             f"With minversion='{msg.minversion}' and maxversion='{msg.maxversion}',"
             f" and the python interpreter being {sys.version_info} "
@@ -58,19 +58,19 @@ class TestMessagesDefinition:
             assert not msg.may_be_emitted(), fail_msg.format(" not ")
 
     @staticmethod
-    def get_message_definition():
-        args = [
+    def get_message_definition() -> MessageDefinition:
+        kwargs = {"minversion": None, "maxversion": None}
+        return MessageDefinition(
             FalseChecker(),
             "W1234",
             "message",
             "description",
             "msg-symbol",
             WarningScope.NODE,
-        ]
-        kwargs = {"minversion": None, "maxversion": None}
-        return MessageDefinition(*args, **kwargs)
+            **kwargs,
+        )
 
-    def test_may_be_emitted(self):
+    def test_may_be_emitted(self) -> None:
         major = sys.version_info.major
         minor = sys.version_info.minor
         msg = self.get_message_definition()
@@ -85,7 +85,7 @@ class TestMessagesDefinition:
         msg.maxversion = (major, minor - 1)
         self.assert_with_fail_msg(msg, expected=False)
 
-    def test_repr(self):
+    def test_repr(self) -> None:
         msg = self.get_message_definition()
         repr_str = str([msg, msg])
         assert "W1234" in repr_str
@@ -93,7 +93,7 @@ class TestMessagesDefinition:
         expected = "[MessageDefinition:msg-symbol-one (W1234), MessageDefinition:msg-symbol-two (W1235)]"
         assert str(FalseChecker().messages) == expected
 
-    def test_str(self):
+    def test_str(self) -> None:
         msg = self.get_message_definition()
         str_msg = str(msg)
         assert "W1234" in str_msg
@@ -102,7 +102,7 @@ class TestMessagesDefinition:
 message one msg description"""
         assert str(FalseChecker().messages[0]) == expected
 
-    def test_format_help(self):
+    def test_format_help(self) -> None:
         msg = self.get_message_definition()
         major = sys.version_info.major
         minor = sys.version_info.minor

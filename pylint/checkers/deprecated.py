@@ -1,24 +1,26 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Checker mixin for deprecated functionality."""
 from itertools import chain
 from typing import Any, Container, Iterable, Tuple, Union
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers import utils
-from pylint.checkers.utils import safe_infer
+from pylint.checkers.base_checker import BaseChecker
+from pylint.checkers.utils import get_import_name, infer_all, safe_infer
 
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,
     astroid.UnboundMethod,
-    astroid.FunctionDef,
-    astroid.ClassDef,
+    nodes.FunctionDef,
+    nodes.ClassDef,
 )
 
 
-class DeprecatedMixin:
+class DeprecatedMixin(BaseChecker):
     """A mixin implementing logic for checking deprecated symbols.
     A class implementing mixin must define "deprecated-method" Message.
     """
@@ -56,21 +58,18 @@ class DeprecatedMixin:
         "deprecated-argument",
         "deprecated-class",
     )
-    def visit_call(self, node: astroid.Call) -> None:
-        """Called when a :class:`.astroid.node_classes.Call` node is visited."""
-        try:
-            self.check_deprecated_class_in_call(node)
-            for inferred in node.func.infer():
-                # Calling entry point for deprecation check logic.
-                self.check_deprecated_method(node, inferred)
-        except astroid.InferenceError:
-            pass
+    def visit_call(self, node: nodes.Call) -> None:
+        """Called when a :class:`nodes.Call` node is visited."""
+        self.check_deprecated_class_in_call(node)
+        for inferred in infer_all(node.func):
+            # Calling entry point for deprecation check logic.
+            self.check_deprecated_method(node, inferred)
 
     @utils.check_messages(
         "deprecated-module",
         "deprecated-class",
     )
-    def visit_import(self, node):
+    def visit_import(self, node: nodes.Import) -> None:
         """triggered when an import statement is seen"""
         for name in (name for name, _ in node.names):
             self.check_deprecated_module(node, name)
@@ -89,12 +88,12 @@ class DeprecatedMixin:
         return ()
 
     @utils.check_messages("deprecated-decorator")
-    def visit_decorators(self, node):
+    def visit_decorators(self, node: nodes.Decorators) -> None:
         """Triggered when a decorator statement is seen"""
         children = list(node.get_children())
         if not children:
             return
-        if isinstance(children[0], astroid.Call):
+        if isinstance(children[0], nodes.Call):
             inf = safe_infer(children[0].func)
         else:
             inf = safe_infer(children[0])
@@ -106,9 +105,10 @@ class DeprecatedMixin:
         "deprecated-module",
         "deprecated-class",
     )
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """triggered when a from statement is seen"""
         basename = node.modname
+        basename = get_import_name(node, basename)
         self.check_deprecated_module(node, basename)
         class_names = (name for name, _ in node.names)
         self.check_deprecated_class(node, basename, class_names)
@@ -175,7 +175,6 @@ class DeprecatedMixin:
 
     def check_deprecated_module(self, node, mod_path):
         """Checks if the module is deprecated"""
-
         for mod_name in self.deprecated_modules():
             if mod_path == mod_name or mod_path.startswith(mod_name + "."):
                 self.add_message("deprecated-module", node=node, args=mod_path)
@@ -189,23 +188,31 @@ class DeprecatedMixin:
         if not isinstance(inferred, ACCEPTABLE_NODES):
             return
 
-        if isinstance(node.func, astroid.Attribute):
+        if isinstance(node.func, nodes.Attribute):
             func_name = node.func.attrname
-        elif isinstance(node.func, astroid.Name):
+        elif isinstance(node.func, nodes.Name):
             func_name = node.func.name
         else:
             # Not interested in other nodes.
             return
 
-        qname = inferred.qname()
-        if any(name in self.deprecated_methods() for name in (qname, func_name)):
+        if hasattr(inferred.parent, "qname") and inferred.parent.qname():
+            # Handling the situation when deprecated function is
+            # alias to existing function.
+            qnames = {
+                inferred.qname(),
+                f"{inferred.parent.qname()}.{func_name}",
+                func_name,
+            }
+        else:
+            qnames = {inferred.qname(), func_name}
+        if any(name in self.deprecated_methods() for name in qnames):
             self.add_message("deprecated-method", node=node, args=(func_name,))
             return
         num_of_args = len(node.args)
         kwargs = {kw.arg for kw in node.keywords} if node.keywords else {}
-        for position, arg_name in chain(
-            self.deprecated_arguments(func_name), self.deprecated_arguments(qname)
-        ):
+        deprecated_arguments = (self.deprecated_arguments(qn) for qn in qnames)
+        for position, arg_name in chain(*deprecated_arguments):
             if arg_name in kwargs:
                 # function was called with deprecated argument as keyword argument
                 self.add_message(
@@ -229,8 +236,8 @@ class DeprecatedMixin:
     def check_deprecated_class_in_call(self, node):
         """Checks if call the deprecated class"""
 
-        if isinstance(node.func, astroid.Attribute) and isinstance(
-            node.func.expr, astroid.Name
+        if isinstance(node.func, nodes.Attribute) and isinstance(
+            node.func.expr, nodes.Name
         ):
             mod_name = node.func.expr.name
             class_name = node.func.attrname

@@ -1,0 +1,81 @@
+***************************
+ What's New in Pylint 2.11
+***************************
+
+:Release: 2.11
+:Date: TBA
+
+Summary -- Release highlights
+=============================
+
+
+New checkers
+============
+
+* Added ``consider-using-f-string``: Emitted when .format() or '%' is being used to format a string.
+
+  Closes #3592
+
+Removed checkers
+================
+
+* The python3 porting mode checker and it's ``py3k`` option were removed. You can still find it in older pylint
+  versions.
+
+Extensions
+==========
+
+* Added new extension ``SetMembershipChecker`` with ``use-set-for-membership`` check:
+  Emitted when using an in-place defined ``list`` or ``tuple`` to do a membership test. ``sets`` are better optimized for that.
+
+  Closes #4776
+
+* ``CodeStyleChecker``
+
+  * Added ``consider-using-assignment-expr``: Emitted when an assignment is directly followed by an if statement
+    and both can be combined by using an assignment expression ``:=``. Requires Python 3.8
+
+    Closes #4862
+
+
+Other Changes
+=============
+
+* Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependant checks.
+  Will default to whatever Python version pylint is executed with.
+
+* The ``invalid-name`` message is now more detailed when using multiple naming style regexes.
+
+* Fix false positive for ``consider-using-with`` if a context manager is assigned to a
+  variable in different paths of control flow (e. g. if-else clause).
+
+  Closes #4751
+
+* Fix false positive for ``function-redefined`` for simple type annotations
+
+  Closes #4936
+
+* Fix false positive for ``protected-access`` if a protected member is used in type hints of function definitions
+
+* Fix false positive ``dict-iter-missing-items`` for dictionaries only using tuples as keys
+
+  Closes #3282
+
+* The ``unspecified-encoding`` checker now also checks calls to ``pathlib.Path().read_text()``
+  and ``pathlib.Path().write_text()``
+
+  Closes #4945
+
+* Fix false positive ``superfluous-parens`` for tuples created with inner tuples
+
+  Closes #4907
+
+* Extended ``consider-using-in`` check to work for attribute access.
+
+* Setting ``min-similarity-lines`` to 0 now makes the similarty checker stop checking for duplicate code
+
+  Closes #4901
+
+* Fix a bug where pylint complained if the cache's parent directory does not exist
+
+  Closes #4900

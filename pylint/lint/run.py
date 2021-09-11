@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import os
 import sys
@@ -40,7 +40,7 @@ def cb_list_extensions(option, optname, value, parser):
 
 def cb_list_confidence_levels(option, optname, value, parser):
     for level in interfaces.CONFIDENCE_LEVELS:
-        print("%-18s: %s" % level)
+        print(f"%-18s: {level}")
     sys.exit(0)
 
 
@@ -156,7 +156,8 @@ group are mutually exclusive.",
                         "callback": self.cb_list_messages,
                         "group": "Commands",
                         "level": 1,
-                        "help": "Generate pylint's messages.",
+                        "help": "Display a list of all pylint's messages divided by whether "
+                        "they are emittable with the given interpreter.",
                     },
                 ),
                 (
@@ -167,8 +168,8 @@ group are mutually exclusive.",
                         "callback": self.cb_list_messages_enabled,
                         "group": "Commands",
                         "level": 1,
-                        "help": "Display a list of what messages are enabled "
-                        "and disabled with the given configuration.",
+                        "help": "Display a list of what messages are enabled, "
+                        "disabled and non-emittable with the given configuration.",
                     },
                 ),
                 (
@@ -244,16 +245,6 @@ group are mutually exclusive.",
                         "help": "In error mode, checkers without error messages are "
                         "disabled and for others, only the ERROR messages are "
                         "displayed, and no reports are done by default.",
-                    },
-                ),
-                (
-                    "py3k",
-                    {
-                        "action": "callback",
-                        "callback": self.cb_python3_porting_mode,
-                        "help": "In Python 3 porting mode, all checkers will be "
-                        "disabled and only messages emitted by the porting "
-                        "checker will be displayed.",
                     },
                 ),
                 (
@@ -349,8 +340,7 @@ group are mutually exclusive.",
 
         if linter.config.jobs < 0:
             print(
-                "Jobs number (%d) should be greater than or equal to 0"
-                % linter.config.jobs,
+                f"Jobs number ({linter.config.jobs}) should be greater than or equal to 0",
                 file=sys.stderr,
             )
             sys.exit(32)
@@ -373,7 +363,7 @@ group are mutually exclusive.",
 
         if self._output:
             try:
-                with open(self._output, "w") as output:
+                with open(self._output, "w", encoding="utf-8") as output:
                     linter.reporter.set_output(output)
                     linter.check(args)
                     score_value = linter.generate_reports()
@@ -394,14 +384,13 @@ group are mutually exclusive.",
         if exit:
             if linter.config.exit_zero:
                 sys.exit(0)
+            elif linter.any_fail_on_issues():
+                # We need to make sure we return a failing exit code in this case.
+                # So we use self.linter.msg_status if that is non-zero, otherwise we just return 1.
+                sys.exit(self.linter.msg_status or 1)
+            elif score_value is not None and score_value >= linter.config.fail_under:
+                sys.exit(0)
             else:
-                if (
-                    score_value
-                    and score_value >= linter.config.fail_under
-                    # detected messages flagged by --fail-on prevent non-zero exit code
-                    and not linter.any_fail_on_issues()
-                ):
-                    sys.exit(0)
                 sys.exit(self.linter.msg_status)
 
     def version_asked(self, _, __):
@@ -469,10 +458,6 @@ group are mutually exclusive.",
         for check in self.linter.get_checker_names():
             print(check)
         sys.exit(0)
-
-    def cb_python3_porting_mode(self, *args, **kwargs):
-        """Activate only the python3 porting checker."""
-        self.linter.python3_porting_mode()
 
     def cb_verbose_mode(self, *args, **kwargs):
         self.verbose = True

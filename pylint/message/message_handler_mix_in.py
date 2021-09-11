@@ -1,8 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import sys
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from pylint.constants import (
     _SCOPE_EXEMPT,
@@ -15,7 +15,11 @@ from pylint.constants import (
     MSG_TYPES_STATUS,
     WarningScope,
 )
-from pylint.exceptions import InvalidMessageError, UnknownMessageError
+from pylint.exceptions import (
+    InvalidMessageError,
+    NoLineSuppliedError,
+    UnknownMessageError,
+)
 from pylint.interfaces import UNDEFINED
 from pylint.message.message import Message
 from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
@@ -59,6 +63,24 @@ class MessagesHandlerMixIn:
         )
         self._register_by_id_managed_msg(msgid, line)
 
+    def disable_next(
+        self,
+        msgid: str,
+        scope: str = "package",
+        line: Union[bool, int] = None,
+        ignore_unknown: bool = False,
+    ):
+        if not line:
+            raise NoLineSuppliedError
+        self._set_msg_status(
+            msgid,
+            enable=False,
+            scope=scope,
+            line=line + 1,
+            ignore_unknown=ignore_unknown,
+        )
+        self._register_by_id_managed_msg(msgid, line + 1)
+
     def enable(self, msgid, scope="package", line=None, ignore_unknown=False):
         self._set_msg_status(
             msgid, enable=True, scope=scope, line=line, ignore_unknown=ignore_unknown
@@ -72,9 +94,6 @@ class MessagesHandlerMixIn:
         if msgid == "all":
             for _msgid in MSG_TYPES:
                 self._set_msg_status(_msgid, enable, scope, line, ignore_unknown)
-            if enable and not self._python3_porting_mode:
-                # Don't activate the python 3 porting checker if it wasn't activated explicitly.
-                self.disable("python3")
             return
 
         # msgid is a category?
@@ -233,20 +252,18 @@ class MessagesHandlerMixIn:
             if message_definition.scope == WarningScope.LINE:
                 if line is None:
                     raise InvalidMessageError(
-                        "Message %s must provide line, got None"
-                        % message_definition.msgid
+                        f"Message {message_definition.msgid} must provide line, got None"
                     )
                 if node is not None:
                     raise InvalidMessageError(
-                        "Message %s must only provide line, "
-                        "got line=%s, node=%s" % (message_definition.msgid, line, node)
+                        f"Message {message_definition.msgid} must only provide line, "
+                        f"got line={line}, node={node}"
                     )
             elif message_definition.scope == WarningScope.NODE:
                 # Node-based warnings may provide an override line.
                 if node is None:
                     raise InvalidMessageError(
-                        "Message %s must provide Node, got None"
-                        % message_definition.msgid
+                        f"Message {message_definition.msgid} must provide Node, got None"
                     )
 
     def add_one_message(
@@ -350,9 +367,9 @@ Pylint provides global options and switches.
                         if section is None:
                             title = "General options"
                         else:
-                            title = "%s options" % section.capitalize()
+                            title = f"{section.capitalize()} options"
                         result += get_rst_title(title, "~")
-                        result += "%s\n" % get_rst_section(None, options)
+                        result += f"{get_rst_section(None, options)}\n"
         result += get_rst_title("Pylint checkers' options and switches", "-")
         result += """\
 

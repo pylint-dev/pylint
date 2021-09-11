@@ -4,9 +4,10 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Tests for the pylint checker in :mod:`pylint.extensions.check_docstring
 """
@@ -16,6 +17,7 @@ from os.path import abspath, dirname, join
 import pytest
 
 from pylint.extensions.docstyle import DocStringStyleChecker
+from pylint.lint.pylinter import PyLinter
 
 EXPECTED_MSGS = [
     "First line empty in function docstring",
@@ -43,7 +45,7 @@ def checker():
     return DocStringStyleChecker
 
 
-def test_docstring_message(linter):
+def test_docstring_message(linter: PyLinter) -> None:
     docstring_test = join(dirname(abspath(__file__)), "data", "docstring.py")
     linter.check([docstring_test])
     msgs = linter.reporter.messages

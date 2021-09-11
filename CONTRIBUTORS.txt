@@ -503,3 +503,43 @@ contributors:
 * Markus Siebenhaar: contributor
 
 * Lorena Buciu (lorena-b): contributor
+
+* Sergei Lebedev (superbobry): contributor
+
+* Maksym Humetskyi (mhumetskyi): contributor
+  - Fixed ignored empty functions by similarities checker with "ignore-signatures" option enabled
+  - Ignore function decorators signatures as well by similarities checker with "ignore-signatures" option enabled
+  - Ignore class methods and nested functions signatures as well by similarities checker with "ignore-signatures" option enabled
+
+* Daniel Dorani (doranid): contributor
+
+* Will Shanks: contributor
+
+* Mark Bell: contributor
+
+* Marco Gorelli: contributor
+  - Documented Jupyter integration
+
+* Rebecca Turner (9999years): contributor
+
+* Yilei Yang: contributor
+
+* Marcin Kurczewski (rr-): contributor
+
+* Eisuke Kawashima (e-kwsm): contributor
+
+* Daniel van Noord (DanielNoord): contributor
+
+* Michal Vasilek: contributor
+
+* Kai Mueller (kasium): contributor
+
+* Sam Vermeiren (PaaEl): contributor
+
+* Phil A. (flying-sheep): contributor
+
+* Melvin Hazeleger (melvio): contributor
+
+* Hayden Richards (SupImDos): contributor
+  - Fixed "no-self-use" for async methods
+  - Fixed "docparams" extension for async functions and methods

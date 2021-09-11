@@ -1,5 +1,5 @@
 """ Test that import errors are detected. """
-# pylint: disable=invalid-name, unused-import, no-absolute-import, bare-except, broad-except, wrong-import-order, wrong-import-position
+# pylint: disable=invalid-name, unused-import,  bare-except, broad-except, wrong-import-order, wrong-import-position
 import totally_missing # [import-error]
 
 try:
@@ -24,14 +24,36 @@ try:
 except ImportError:
     pass
 
-# pylint: disable=no-name-in-module
-from functional.s.syntax_error import toto # [syntax-error]
 
-# Don't emit import-error if guarded behind `sys.version_info`
+from functional.s.syntax_error import toto  # [no-name-in-module,syntax-error]
+
+
+# Don't emit `import-error` or `no-name-in-module`
+# if guarded behind `sys.version_info` or `typing.TYPE_CHECKING`
 import sys
+import typing
+import typing as tp  # pylint: disable=reimported
+from typing import TYPE_CHECKING
+
 
 if sys.version_info >= (3, 9):
-    import zoneinfo
+    import some_module
+    from some_module import some_class
+else:
+    import some_module_alt
 
 if sys.version_info[:2] >= (3, 9):
-    import zoneinfo
+    import some_module
+else:
+    import some_module_alt
+
+
+if typing.TYPE_CHECKING:
+    import stub_import
+
+if tp.TYPE_CHECKING:
+    import stub_import
+
+if TYPE_CHECKING:
+    import stub_import
+    from stub_import import stub_class

@@ -1,15 +1,16 @@
-consider-using-dict-items:6:4:bad:Consider iterating with .items()
-consider-using-dict-items:9:4:bad:Consider iterating with .items()
-consider-using-dict-items:21:4:another_bad:Consider iterating with .items()
-consider-using-dict-items:40:0::Consider iterating with .items()
-consider-using-dict-items:44:0::Consider iterating with .items()
-consider-iterating-dictionary:47:10::Consider iterating the dictionary directly instead of calling .keys()
-consider-using-dict-items:47:0::Consider iterating with .items()
-consider-using-dict-items:54:0::Consider iterating with .items()
-consider-using-dict-items:67:0::Consider iterating with .items()
-consider-using-dict-items:68:0::Consider iterating with .items()
-consider-using-dict-items:71:0::Consider iterating with .items()
-consider-using-dict-items:72:0::Consider iterating with .items()
-consider-using-dict-items:75:0::Consider iterating with .items()
-consider-iterating-dictionary:86:25::Consider iterating the dictionary directly instead of calling .keys()
-consider-using-dict-items:86:0::Consider iterating with .items()
+consider-using-dict-items:6:4:bad:Consider iterating with .items():HIGH
+consider-using-dict-items:9:4:bad:Consider iterating with .items():HIGH
+consider-using-dict-items:21:4:another_bad:Consider iterating with .items():HIGH
+consider-using-dict-items:40:0::Consider iterating with .items():HIGH
+consider-using-dict-items:44:0::Consider iterating with .items():HIGH
+consider-iterating-dictionary:47:10::Consider iterating the dictionary directly instead of calling .keys():HIGH
+consider-using-dict-items:47:0::Consider iterating with .items():HIGH
+consider-using-dict-items:54:0::Consider iterating with .items():HIGH
+consider-using-dict-items:67:0::Consider iterating with .items():HIGH
+consider-using-dict-items:68:0::Consider iterating with .items():HIGH
+consider-using-dict-items:71:0::Consider iterating with .items():HIGH
+consider-using-dict-items:72:0::Consider iterating with .items():HIGH
+consider-using-dict-items:75:0::Consider iterating with .items():HIGH
+consider-iterating-dictionary:86:25::Consider iterating the dictionary directly instead of calling .keys():HIGH
+consider-using-dict-items:86:0::Consider iterating with .items():HIGH
+consider-using-dict-items:103:0::Consider iterating with .items():HIGH

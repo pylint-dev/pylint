@@ -20,6 +20,9 @@ load-plugins=
     pylint.extensions.check_elif,
     pylint.extensions.bad_builtin,
     pylint.extensions.code_style,
+    pylint.extensions.overlapping_exceptions,
+    pylint.extensions.typing,
+    pylint.extensions.redefined_variable_type,
 
 # Use multiple processes to speed up Pylint.
 jobs=1
@@ -32,6 +35,9 @@ unsafe-load-any-extension=no
 # be loaded. Extensions are loading into the active Python interpreter and may
 # run arbitrary code
 extension-pkg-allow-list=
+
+# Minimum supported python version
+py-version = 3.6
 
 
 [MESSAGES CONTROL]
@@ -324,6 +330,9 @@ max-statements=100
 # Maximum number of parents for a class (see R0901).
 max-parents=7
 
+# List of qualified class names to ignore when counting class parents (see R0901).
+ignored-parents=
+
 # Maximum number of attributes for a class (see R0902).
 max-attributes=11
 
@@ -373,6 +382,12 @@ int-import-graph=
 # Exceptions that will emit a warning when being caught. Defaults to
 # "Exception"
 overgeneral-exceptions=Exception
+
+
+[TYPING]
+
+# Annotations are used exclusively for type checking
+runtime-typing = no
 
 
 [pylint.DEPRECATED_BUILTINS]

@@ -17,13 +17,14 @@
 # Copyright (c) 2020 Ganden Schaffner <gschaffner@pm.me>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
-# Copyright (c) 2021 bot <bot@noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 Eli Fine <ejfine@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Checker for spelling errors in comments and docstrings.
 """
@@ -31,6 +32,8 @@ import os
 import re
 import tokenize
 from typing import Pattern
+
+from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
@@ -232,7 +235,7 @@ class SpellingChecker(BaseTokenChecker):
                 "metavar": "<dict name>",
                 "choices": dict_choices,
                 "help": "Spelling dictionary name. "
-                "Available dictionaries: %s.%s" % (dicts, instr),
+                f"Available dictionaries: {dicts}.{instr}",
             },
         ),
         (
@@ -318,7 +321,7 @@ class SpellingChecker(BaseTokenChecker):
                 dict_name, self.config.spelling_private_dict_file
             )
             self.private_dict_file = open(  # pylint: disable=consider-using-with
-                self.config.spelling_private_dict_file, "a"
+                self.config.spelling_private_dict_file, "a", encoding="utf-8"
             )
         else:
             self.spelling_dict = enchant.Dict(dict_name)
@@ -399,14 +402,14 @@ class SpellingChecker(BaseTokenChecker):
             # Store word to private dict or raise a message.
             if self.config.spelling_store_unknown_words:
                 if lower_cased_word not in self.unknown_words:
-                    self.private_dict_file.write("%s\n" % lower_cased_word)
+                    self.private_dict_file.write(f"{lower_cased_word}\n")
                     self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to N suggestions.
                 suggestions = self.spelling_dict.suggest(word)
                 del suggestions[self.config.max_spelling_suggestions :]
                 line_segment = line[word_start_at:]
-                match = re.search(r"(\W|^)(%s)(\W|$)" % word, line_segment)
+                match = re.search(fr"(\W|^)({word})(\W|$)", line_segment)
                 if match:
                     # Start position of second group in regex.
                     col = match.regs[2][0]
@@ -436,19 +439,19 @@ class SpellingChecker(BaseTokenChecker):
                 self._check_spelling("wrong-spelling-in-comment", token, start_row)
 
     @check_messages("wrong-spelling-in-docstring")
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
     @check_messages("wrong-spelling-in-docstring")
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
     @check_messages("wrong-spelling-in-docstring")
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)

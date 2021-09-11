@@ -12,18 +12,20 @@ for x in [1, 2, 3]:  # [consider-using-tuple]
 (x for x in var)
 (x for x in (1, 2, 3))
 (x for x in [1, 2, 3])  # [consider-using-tuple]
-(x for x in {1, 2, 3})  # [consider-using-tuple]
 
 [x for x in var]
 [x for x in (1, 2, 3)]
 [x for x in [1, 2, 3]]  # [consider-using-tuple]
 
 
-# list/set can't be replaced if tuple unpacking is used
-for x in [*var]:
+for x in [*var]:  # [consider-using-tuple]
     pass
-for x in [2, *var]:
+for x in [2, *var]:  # [consider-using-tuple]
     pass
 
-[x for x in [*var, 2]]
-[x for x in {*var, 2}]
+[x for x in [*var, 2]]  # [consider-using-tuple]
+
+
+# Don't emit warning for sets as this is handled by builtin checker
+(x for x in {1, 2, 3})  # [use-sequence-for-iteration]
+[x for x in {*var, 2}]  # [use-sequence-for-iteration]

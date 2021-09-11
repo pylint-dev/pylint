@@ -294,3 +294,37 @@ def undefined_annotation(a:x): # [undefined-variable]
         for x in [1, 2]:
             pass
     return a
+
+
+# #3711's comment regression test
+lst = []
+lst2 = [1, 2, 3]
+
+for item in lst:
+    pass
+
+bigger = [
+    [
+        x for x in lst2 if x > item
+    ]
+    for item in lst
+]
+
+
+# 3791
+@decorator(x for x in range(3))
+def decorated1(x):
+    print(x)
+
+@decorator(x * x for x in range(3))
+def decorated2(x):
+    print(x)
+
+@decorator(x)  # [undefined-variable]
+@decorator(x * x for x in range(3))
+def decorated3(x):
+    print(x)
+
+@decorator(x * x * y for x in range(3))  # [undefined-variable]
+def decorated4(x):
+    print(x)

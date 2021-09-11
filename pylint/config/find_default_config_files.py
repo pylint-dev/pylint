@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import configparser
 import os
@@ -9,7 +9,7 @@ from toml.decoder import TomlDecodeError
 
 
 def _toml_has_config(path):
-    with open(path) as toml_handle:
+    with open(path, encoding="utf-8") as toml_handle:
         try:
             content = toml.load(toml_handle)
         except TomlDecodeError as error:

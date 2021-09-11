@@ -1,10 +1,16 @@
 # pylint: disable=missing-module-docstring, missing-function-docstring, protected-access
+import os
 import unittest.mock
+from pathlib import PosixPath
+
+import pytest
 
 import pylint.lint
+from pylint.config import OptionsManagerMixIn
+from pylint.lint.run import Run
 
 
-def check_configuration_file_reader(config_file):
+def check_configuration_file_reader(config_file: PosixPath) -> Run:
     """Initialize pylint with the given configuration file and check that
     what we initialized the linter with what was expected.
     """
@@ -30,7 +36,7 @@ def check_configuration_file_reader(config_file):
     return runner
 
 
-def test_can_read_ini(tmp_path):
+def test_can_read_ini(tmp_path: PosixPath) -> None:
     # Check that we can read the "regular" INI .pylintrc file
     config_file = tmp_path / ".pylintrc"
     config_file.write_text(
@@ -44,7 +50,7 @@ reports = yes
     check_configuration_file_reader(config_file)
 
 
-def test_can_read_setup_cfg(tmp_path):
+def test_can_read_setup_cfg(tmp_path: PosixPath) -> None:
     # Check that we can read a setup.cfg (which is an INI file where
     # section names are prefixed with "pylint."
     config_file = tmp_path / "setup.cfg"
@@ -59,7 +65,7 @@ reports = yes
     check_configuration_file_reader(config_file)
 
 
-def test_can_read_toml(tmp_path):
+def test_can_read_toml(tmp_path: PosixPath) -> None:
     # Check that we can read a TOML file where lists and integers are
     # expressed as strings.
     config_file = tmp_path / "pyproject.toml"
@@ -74,7 +80,7 @@ reports = "yes"
     check_configuration_file_reader(config_file)
 
 
-def test_can_read_toml_rich_types(tmp_path):
+def test_can_read_toml_rich_types(tmp_path: PosixPath) -> None:
     # Check that we can read a TOML file where lists, integers and
     # booleans are expressed as such (and not as strings), using TOML
     # type system.
@@ -91,3 +97,31 @@ reports = true
 """
     )
     check_configuration_file_reader(config_file)
+
+
+def test_can_read_env_variable(tmp_path: PosixPath) -> None:
+    # Check that we can read the "regular" INI .pylintrc file
+    # if it has an environment variable.
+    config_file = tmp_path / "pyproject.toml"
+    config_file.write_text(
+        """
+[tool.pylint."messages control"]
+disable = "logging-not-lazy,logging-format-interpolation"
+jobs = "10"
+reports = "yes"
+"""
+    )
+    os.environ["tmp_path_env"] = str(tmp_path / "pyproject.toml")
+    options_manager_mix_in = OptionsManagerMixIn("", "${tmp_path_env}")
+    options_manager_mix_in.read_config_file("${tmp_path_env}")
+
+    def test_read_config_file() -> None:
+        with pytest.raises(OSError):
+            options_manager_mix_in.read_config_file("${tmp_path_en}")
+
+    test_read_config_file()
+    options_manager_mix_in.load_config_file()
+    section = options_manager_mix_in.cfgfile_parser.sections()[0]
+    jobs, jobs_nr = options_manager_mix_in.cfgfile_parser.items(section)[1]
+    assert jobs == "jobs"
+    assert jobs_nr == "10"

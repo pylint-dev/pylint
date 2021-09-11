@@ -1,7 +1,7 @@
 """Test for Python 3 string formatting error"""
 
-# pylint: disable=too-few-public-methods, import-error, unused-argument, line-too-long, no-absolute-import,
-# pylint: disable=useless-object-inheritance
+# pylint: disable=too-few-public-methods, import-error, unused-argument, line-too-long,
+# pylint: disable=useless-object-inheritance, consider-using-f-string
 import os
 import sys
 import logging
@@ -65,7 +65,7 @@ def print_good():
 
 def pprint_bad():
     """Test string format """
-    "{{}}".format(1) # [too-many-format-args]
+    "{{}}".format(1) # [format-string-without-interpolation]
     "{} {".format() # [bad-format-string]
     "{} }".format() # [bad-format-string]
     "{0} {}".format(1, 2) # [format-combined-specification]
@@ -98,6 +98,10 @@ def pprint_bad():
     "{[0]} {}".format([4], 5, 6) # [too-many-format-args]
     logging.debug("%s %s", 42) # [logging-too-few-args]
     logging.debug("%s", 42, 43) # [logging-too-many-args]
+    "String".format(1)  # [format-string-without-interpolation]
+    "String".format(())  # [format-string-without-interpolation]
+    "String".format([])  # [format-string-without-interpolation]
+    "String".format(None)  # [format-string-without-interpolation]
 
 
 def good_issue288(*args, **kwargs):

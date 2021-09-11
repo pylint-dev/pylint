@@ -15,20 +15,25 @@
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 bernie gray <bfgray3@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Functional full-module tests for PyLint."""
 import csv
 import os
 import sys
+from typing import Union
 
 import pytest
+from _pytest.config import Config
+from _pytest.recwarn import WarningsRecorder
 
 from pylint import testutils
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
+from pylint.testutils.functional_test_file import FunctionalTestFile
 from pylint.utils import HAS_ISORT_5
 
 # Notes:
@@ -59,7 +64,7 @@ class LintModuleOutputUpdate(testutils.LintModuleTest):
             if os.path.exists(self._test_file.expected_output):
                 os.remove(self._test_file.expected_output)
             return
-        with open(self._test_file.expected_output, "w") as f:
+        with open(self._test_file.expected_output, "w", encoding="utf-8") as f:
             writer = csv.writer(f, dialect="test")
             for line in actual_output:
                 writer.writerow(line.to_csv())
@@ -95,10 +100,14 @@ TEST_WITH_EXPECTED_DEPRECATION = [
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
-def test_functional(test_file, recwarn, pytestconfig):
+def test_functional(
+    test_file: FunctionalTestFile, recwarn: WarningsRecorder, pytestconfig: Config
+) -> None:
     __tracebackhide__ = True  # pylint: disable=unused-variable
     if UPDATE_FILE.exists():
-        lint_test = LintModuleOutputUpdate(test_file, pytestconfig)
+        lint_test: Union[
+            LintModuleOutputUpdate, testutils.LintModuleTest
+        ] = LintModuleOutputUpdate(test_file, pytestconfig)
     else:
         lint_test = testutils.LintModuleTest(test_file, pytestconfig)
     lint_test.setUp()

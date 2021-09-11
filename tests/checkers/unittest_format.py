@@ -19,16 +19,19 @@
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Check format checker helper functions"""
 
 import os
 import tempfile
 import tokenize
+from typing import Any
 
 import astroid
 
@@ -40,7 +43,7 @@ from pylint.testutils import CheckerTestCase, Message, _tokenize_str
 class TestMultiStatementLine(CheckerTestCase):
     CHECKER_CLASS = FormatChecker
 
-    def testSingleLineIfStmts(self):
+    def testSingleLineIfStmts(self) -> None:
         stmt = astroid.extract_node(
             """
         if True: pass  #@
@@ -62,7 +65,7 @@ class TestMultiStatementLine(CheckerTestCase):
         with self.assertAddsMessages(Message("multiple-statements", node=stmt.body[0])):
             self.visitFirst(stmt)
 
-    def testSingleLineClassStmts(self):
+    def testSingleLineClassStmts(self) -> None:
         stmt = astroid.extract_node(
             """
         class MyError(Exception): pass  #@
@@ -99,7 +102,7 @@ class TestMultiStatementLine(CheckerTestCase):
         with self.assertAddsMessages(Message("multiple-statements", node=stmt.body[0])):
             self.visitFirst(stmt)
 
-    def testTryExceptFinallyNoMultipleStatement(self):
+    def testTryExceptFinallyNoMultipleStatement(self) -> None:
         tree = astroid.extract_node(
             """
         try:  #@
@@ -112,11 +115,11 @@ class TestMultiStatementLine(CheckerTestCase):
         with self.assertNoMessages():
             self.visitFirst(tree)
 
-    def visitFirst(self, tree):
+    def visitFirst(self, tree: Any) -> None:
         self.checker.process_tokens([])
         self.checker.visit_default(tree.body[0])
 
-    def test_ellipsis_is_ignored(self):
+    def test_ellipsis_is_ignored(self) -> None:
         code = """
         from typing import overload
         @overload
@@ -137,7 +140,7 @@ class TestMultiStatementLine(CheckerTestCase):
 class TestSuperfluousParentheses(CheckerTestCase):
     CHECKER_CLASS = FormatChecker
 
-    def testCheckKeywordParensHandlesValidCases(self):
+    def testCheckKeywordParensHandlesValidCases(self) -> None:
         cases = [
             "if foo:",
             "if foo():",
@@ -151,21 +154,18 @@ class TestSuperfluousParentheses(CheckerTestCase):
             "for x in (x for x in x):",
             "not (foo or bar)",
             "not (foo or bar) and baz",
+            "return [x for x in (3 if 1 else [4])]",
+            "return (x for x in ((3, 4) if 2 > 1 else (5, 6)))",
         ]
         with self.assertNoMessages():
             for code in cases:
                 self.checker._check_keyword_parentheses(_tokenize_str(code), 0)
 
-    def testCheckKeywordParensHandlesUnnecessaryParens(self):
+    def testCheckKeywordParensHandlesUnnecessaryParens(self) -> None:
         cases = [
             (Message("superfluous-parens", line=1, args="if"), "if (foo):", 0),
             (Message("superfluous-parens", line=1, args="if"), "if ((foo, bar)):", 0),
             (Message("superfluous-parens", line=1, args="if"), "if (foo(bar)):", 0),
-            (
-                Message("superfluous-parens", line=1, args="return"),
-                "return ((x for x in x))",
-                0,
-            ),
             (Message("superfluous-parens", line=1, args="not"), "not (foo)", 0),
             (Message("superfluous-parens", line=1, args="not"), "if not (foo):", 1),
             (Message("superfluous-parens", line=1, args="if"), "if (not (foo)):", 0),
@@ -185,28 +185,28 @@ class TestSuperfluousParentheses(CheckerTestCase):
             with self.assertAddsMessages(msg):
                 self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
 
-    def testNoSuperfluousParensWalrusOperatorIf(self):
+    def testNoSuperfluousParensWalrusOperatorIf(self) -> None:
         """Parenthesis change the meaning of assignment in the walrus operator
-        and so are not superfluous:"""
-        code = "if (odd := is_odd(i))"
-        offset = 0
-        with self.assertNoMessages():
-            self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
+        and so are not always superfluous:"""
+        cases = [
+            ("if (odd := is_odd(i))\n"),
+            ("not (foo := 5)\n"),
+        ]
+        for code in cases:
+            with self.assertNoMessages():
+                self.checker.process_tokens(_tokenize_str(code))
 
-    def testPositiveSuperfluousParensWalrusOperatorIf(self):
-        """Test positive superfluous parens with the walrus operator"""
-        code = "if ((odd := is_odd(i))):"
-        msg = Message("superfluous-parens", line=1, args="if")
-        with self.assertAddsMessages(msg):
-            self.checker._check_keyword_parentheses(_tokenize_str(code), 0)
+    def testPositiveSuperfluousParensWalrusOperatorIf(self) -> None:
+        """Test positive superfluous parens cases with the walrus operator"""
+        cases = [
+            (Message("superfluous-parens", line=1, args="if"), "if ((x := y)):\n"),
+            (Message("superfluous-parens", line=1, args="not"), "if not ((x := y)):\n"),
+        ]
+        for msg, code in cases:
+            with self.assertAddsMessages(msg):
+                self.checker.process_tokens(_tokenize_str(code))
 
-    def testNoSuperfluousParensWalrusOperatorNot(self):
-        """Test superfluous-parens with the not operator"""
-        code = "not (foo := 5)"
-        with self.assertNoMessages():
-            self.checker._check_keyword_parentheses(_tokenize_str(code), 0)
-
-    def testCheckIfArgsAreNotUnicode(self):
+    def testCheckIfArgsAreNotUnicode(self) -> None:
         cases = [("if (foo):", 0), ("assert (1 == 1)", 0)]
 
         for code, offset in cases:
@@ -214,7 +214,7 @@ class TestSuperfluousParentheses(CheckerTestCase):
             got = self.linter.release_messages()
             assert isinstance(got[-1].args, str)
 
-    def testFuturePrintStatementWithoutParensWarning(self):
+    def testFuturePrintStatementWithoutParensWarning(self) -> None:
         code = """from __future__ import print_function
 print('Hello world!')
 """
@@ -223,7 +223,7 @@ print('Hello world!')
             self.checker.process_module(tree)
             self.checker.process_tokens(_tokenize_str(code))
 
-    def testKeywordParensFalsePositive(self):
+    def testKeywordParensFalsePositive(self) -> None:
         code = "if 'bar' in (DICT or {}):"
         with self.assertNoMessages():
             self.checker._check_keyword_parentheses(_tokenize_str(code), start=2)
@@ -232,7 +232,7 @@ print('Hello world!')
 class TestCheckSpace(CheckerTestCase):
     CHECKER_CLASS = FormatChecker
 
-    def test_encoding_token(self):
+    def test_encoding_token(self) -> None:
         """Make sure the encoding token doesn't change the checker's behavior
 
         _tokenize_str doesn't produce an encoding token, but
@@ -248,7 +248,7 @@ class TestCheckSpace(CheckerTestCase):
             self.checker.process_tokens(tokens)
 
 
-def test_disable_global_option_end_of_line():
+def test_disable_global_option_end_of_line() -> None:
     """
     Test for issue with disabling tokenizer messages
     that extend beyond the scope of the ast tokens

@@ -21,17 +21,17 @@ repos:
           - --remove-duplicate-keys
           - --remove-unused-variables
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.19.4
+    rev: v2.25.0
     hooks:
       - id: pyupgrade
         args: [--py36-plus]
         exclude: *fixtures
   - repo: https://github.com/PyCQA/isort
-    rev: 5.9.1
+    rev: 5.9.3
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
-    rev: 21.6b0
+    rev: 21.8b0
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -67,8 +67,15 @@ repos:
         language: system
         types: [text]
         files: ^(ChangeLog|doc/whatsnew/\d+\.\d+\.rst)
+  - repo: https://github.com/myint/rstcheck
+    rev: "3f92957478422df87bd730abde66f089cc1ee19b"
+    hooks:
+      - id: rstcheck
+        args: ["--ignore-roles=func,class,mod", "--report=warning"]
+        types: [text] # necessary to include ChangeLog file
+        files: ^(ChangeLog|doc/(.*/)*.*\.rst)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.902
+    rev: v0.910
     hooks:
       - id: mypy
         name: mypy
@@ -77,10 +84,11 @@ repos:
         types: [python]
         args: []
         require_serial: true
-        additional_dependencies: ["types-pkg_resources==0.1.3", "types-toml==0.1.3"]
-        exclude: tests/functional/|tests/input|tests/extensions/data|tests/regrtest_data/|tests/data/|doc/|bin/
+        additional_dependencies:
+          ["platformdirs==2.2.0", "types-pkg_resources==0.1.3", "types-toml==0.1.3"]
+        exclude: tests/functional/|tests/input|tests(/.*)*/data|tests/regrtest_data/|tests/data/|tests(/.*)+/conftest.py|doc/|bin/
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.3.1
+    rev: v2.3.2
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]

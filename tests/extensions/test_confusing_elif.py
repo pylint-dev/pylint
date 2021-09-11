@@ -1,8 +1,9 @@
 # Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Tests for the pylint checker in :mod:`pylint.extensions.confusing_elif
 """
@@ -20,7 +21,7 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
 
     CHECKER_CLASS = ConfusingConsecutiveElifChecker
 
-    def test_triggered_if_if_block_ends_with_elif(self):
+    def test_triggered_if_if_block_ends_with_elif(self) -> None:
         """
         Given an if-elif construct
         When the body of the if ends with an elif
@@ -42,7 +43,7 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
         ):
             self.checker.visit_if(if_node_to_test)
 
-    def test_triggered_if_elif_block_ends_with_elif(self):
+    def test_triggered_if_elif_block_ends_with_elif(self) -> None:
         """
         Given an if-elif-elif construct
         When the body of the first elif ends with an elif
@@ -66,7 +67,7 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
         ):
             self.checker.visit_if(if_node_to_test)
 
-    def test_triggered_if_block_ends_with_if(self):
+    def test_triggered_if_block_ends_with_if(self) -> None:
         """
         Given an if-elif construct
         When the body of the if ends with an if
@@ -86,7 +87,7 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
         ):
             self.checker.visit_if(if_node_to_test)
 
-    def test_not_triggered_if_indented_block_ends_with_else(self):
+    def test_not_triggered_if_indented_block_ends_with_else(self) -> None:
         """
         Given an if-elif construct
         When the body of the if ends with an else
@@ -106,7 +107,7 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_if(if_node_to_test)
 
-    def test_not_triggered_if_indentend_block_ends_with_call(self):
+    def test_not_triggered_if_indentend_block_ends_with_call(self) -> None:
         """
         Given an if-elif construct
         When the body of the if ends with a function call
@@ -130,7 +131,7 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_if(if_node_to_test)
 
-    def test_not_triggered_if_indented_block_ends_with_ifexp(self):
+    def test_not_triggered_if_indented_block_ends_with_ifexp(self) -> None:
         """
         Given an if-elif construct
         When the body of the if ends with an if expression
@@ -151,7 +152,7 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_if(if_node_to_test)
 
-    def test_not_triggered_if_outer_block_does_not_have_elif(self):
+    def test_not_triggered_if_outer_block_does_not_have_elif(self) -> None:
         """
         Given an if construct without an elif
         When the body of the if ends with an if
@@ -173,7 +174,7 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_if(if_node_to_test)
 
-    def test_not_triggered_if_outer_block_continues_with_if(self):
+    def test_not_triggered_if_outer_block_continues_with_if(self) -> None:
         """
         Given an if construct which continues with a new if construct
         When the body of the first if ends with an if expression

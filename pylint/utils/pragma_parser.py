@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import re
 from collections import namedtuple
@@ -27,7 +27,9 @@ PragmaRepresenter = namedtuple("PragmaRepresenter", "action messages")
 
 
 ATOMIC_KEYWORDS = frozenset(("disable-all", "skip-file"))
-MESSAGE_KEYWORDS = frozenset(("disable-msg", "enable-msg", "disable", "enable"))
+MESSAGE_KEYWORDS = frozenset(
+    ("disable-next", "disable-msg", "enable-msg", "disable", "enable")
+)
 # sorted is necessary because sets are unordered collections and ALL_KEYWORDS
 #  string should not vary between executions
 #  reverse is necessary in order to have the longest keywords first, so that, for example,
@@ -116,7 +118,7 @@ def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]
             if action:
                 yield emit_pragma_representer(action, messages)
             action = value
-            messages = list()
+            messages = []
             assignment_required = action in MESSAGE_KEYWORDS
         elif kind in ("MESSAGE_STRING", "MESSAGE_NUMBER"):
             messages.append(value)

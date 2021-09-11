@@ -5,9 +5,10 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Tests for the pylint checker in :mod:`pylint.extensions.broad_try_clause`"""
 import unittest
@@ -20,7 +21,7 @@ from pylint.reporters import BaseReporter
 
 
 class BroadTryClauseTestReporter(BaseReporter):
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: str) -> None:
         self.messages = []
 
     def _display(self, layout):
@@ -28,15 +29,16 @@ class BroadTryClauseTestReporter(BaseReporter):
 
 
 class BroadTryClauseTC(unittest.TestCase):
+    _linter = PyLinter()
+
     @classmethod
     def setUpClass(cls):
-        cls._linter = PyLinter()
         cls._linter.set_reporter(BroadTryClauseTestReporter())
         checkers.initialize(cls._linter)
         cls._linter.register_checker(BroadTryClauseChecker(cls._linter))
         cls._linter.disable("I")
 
-    def test_broad_try_clause_message(self):
+    def test_broad_try_clause_message(self) -> None:
         broad_try_clause_test = osp.join(
             osp.dirname(osp.abspath(__file__)), "data", "broad_try_clause.py"
         )

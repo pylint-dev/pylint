@@ -16,11 +16,12 @@
 # Copyright (c) 2020 wtracy <afishionado@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
+# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 
 """Check source code is ascii only or has an encoding declaration (PEP 263)"""
@@ -109,7 +110,7 @@ class EncodingChecker(BaseChecker):
         if self.config.notes_rgx:
             regex_string = fr"#\s*({notes}|{self.config.notes_rgx})\b"
         else:
-            regex_string = r"#\s*(%s)\b" % (notes)
+            regex_string = fr"#\s*({notes})\b"
 
         self._fixme_pattern = re.compile(regex_string, re.I)
 
@@ -126,10 +127,7 @@ class EncodingChecker(BaseChecker):
 
     def process_module(self, module):
         """inspect the source file to find encoding problem"""
-        if module.file_encoding:
-            encoding = module.file_encoding
-        else:
-            encoding = "ascii"
+        encoding = module.file_encoding if module.file_encoding else "ascii"
 
         with module.stream() as stream:
             for lineno, line in enumerate(stream):

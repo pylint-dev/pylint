@@ -12,7 +12,7 @@
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import tokenize
 from typing import Any
@@ -29,7 +29,7 @@ def report_raw_stats(sect, stats, old_stats):
     total_lines = stats["total_lines"]
     if not total_lines:
         raise EmptyReportError()
-    sect.description = "%s lines have been analyzed" % total_lines
+    sect.description = f"{total_lines} lines have been analyzed"
     lines = ("type", "number", "%", "previous", "difference")
     for node_type in ("code", "docstring", "comment", "empty"):
         key = node_type + "_lines"
@@ -40,7 +40,7 @@ def report_raw_stats(sect, stats, old_stats):
             diff_str = diff_string(old, total)
         else:
             old, diff_str = "NC", "NC"
-        lines += (node_type, str(total), "%.2f" % percent, str(old), diff_str)
+        lines += (node_type, str(total), f"{percent:.2f}", str(old), diff_str)
     sect.append(Table(children=lines, cols=5, rheaders=1))
 
 

@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 
 import collections
@@ -44,6 +44,7 @@ def _expand_default(self, option):
 
 @contextlib.contextmanager
 def _patch_optparse():
+    # pylint: disable = redefined-variable-type
     orig_default = optparse.HelpFormatter
     try:
         optparse.HelpFormatter.expand_default = _expand_default
@@ -239,13 +240,12 @@ class OptionsManagerMixIn:
         """Read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
         """
-        help_level = 1
-        while help_level <= self._maxlevel:
+        for help_level in range(1, self._maxlevel + 1):
             opt = "-".join(["long"] * help_level) + "-help"
             if opt in self._all_options:
                 break  # already processed
             help_function = functools.partial(self.helpfunc, level=help_level)
-            help_msg = "%s verbose help." % " ".join(["more"] * help_level)
+            help_msg = f"{' '.join(['more'] * help_level)} verbose help."
             optdict = {
                 "action": "callback",
                 "callback": help_function,
@@ -254,11 +254,11 @@ class OptionsManagerMixIn:
             provider = self.options_providers[0]
             self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
             provider.options += ((opt, optdict),)
-            help_level += 1
+
         if config_file is None:
             config_file = self.config_file
         if config_file is not None:
-            config_file = os.path.expanduser(config_file)
+            config_file = os.path.expandvars(os.path.expanduser(config_file))
             if not os.path.exists(config_file):
                 raise OSError(f"The config file {config_file} doesn't exist!")
 
@@ -267,7 +267,7 @@ class OptionsManagerMixIn:
             parser = self.cfgfile_parser
 
             if config_file.endswith(".toml"):
-                with open(config_file) as fp:
+                with open(config_file, encoding="utf-8") as fp:
                     content = toml.load(fp)
 
                 try:
@@ -332,10 +332,7 @@ class OptionsManagerMixIn:
         return additional arguments
         """
         with _patch_optparse():
-            if args is None:
-                args = sys.argv[1:]
-            else:
-                args = list(args)
+            args = sys.argv[1:] if args is None else list(args)
             (options, args) = self.cmdline_parser.parse_args(args=args)
             for provider in self._nocallback_options:
                 config = provider.config

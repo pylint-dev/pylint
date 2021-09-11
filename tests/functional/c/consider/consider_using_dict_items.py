@@ -1,5 +1,5 @@
 """Emit a message for iteration through dict keys and subscripting dict with key."""
-# pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods
+# pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,redefined-outer-name,use-dict-literal
 
 def bad():
     a_dict = {1: 1, 2: 2, 3: 3}
@@ -84,3 +84,22 @@ val = any(True for k8 in Foo.c_dict if c_dict[k8])
 
 # Should emit warning, using .keys() of Foo.c_dict
 val = any(True for k8 in Foo.c_dict.keys() if Foo.c_dict[k8])  # [consider-iterating-dictionary,consider-using-dict-items]
+
+# Test false positive described in #4630
+# (https://github.com/PyCQA/pylint/issues/4630)
+
+d = {'key': 'value'}
+
+for k in d:  # this is fine, with the reassignment of d[k], d[k] is necessary
+    d[k] += '123'
+    if '1' in d[k]:  # index lookup necessary here, do not emit error
+        print('found 1')
+
+for k in d:  # if this gets rewritten to d.items(), we are back to the above problem
+    d[k] = d[k] + 1
+    if '1' in d[k]:  # index lookup necessary here, do not emit error
+        print('found 1')
+
+for k in d:  # [consider-using-dict-items]
+    if '1' in d[k]:  # index lookup necessary here, do not emit error
+        print('found 1')

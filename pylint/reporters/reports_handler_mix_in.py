@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
 
@@ -51,7 +51,7 @@ class ReportsHandlerMixIn:
 
     def make_reports(self, stats, old_stats):
         """render registered reports"""
-        sect = Section("Report", "%s statements analysed." % (self.stats["statement"]))
+        sect = Section("Report", f"{self.stats['statement']} statements analysed.")
         for checker in self.report_order():
             for reportid, r_title, r_cb in self._reports[checker]:
                 if not self.report_is_enabled(reportid):

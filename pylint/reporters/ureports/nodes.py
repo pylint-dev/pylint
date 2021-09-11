@@ -5,9 +5,10 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Micro reports objects.
 
@@ -49,11 +50,11 @@ class VNode:
             return self.__class__.__name__.lower()
 
     def accept(self, visitor, *args, **kwargs):
-        func = getattr(visitor, "visit_%s" % self._get_visit_name())
+        func = getattr(visitor, f"visit_{self._get_visit_name()}")
         return func(self, *args, **kwargs)
 
     def leave(self, visitor, *args, **kwargs):
-        func = getattr(visitor, "leave_%s" % self._get_visit_name())
+        func = getattr(visitor, f"leave_{self._get_visit_name()}")
         return func(self, *args, **kwargs)
 
 

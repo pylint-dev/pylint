@@ -6,14 +6,18 @@
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
+# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """diagram objects
 """
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers.utils import decorated_with_property
 from pylint.pyreverse.utils import FilterMixIn, is_interface
@@ -41,6 +45,19 @@ class DiagramEntity(Figure):
         Figure.__init__(self)
         self.title = title
         self.node = node
+
+
+class PackageEntity(DiagramEntity):
+    """A diagram object representing a package"""
+
+
+class ClassEntity(DiagramEntity):
+    """A diagram object representing a class"""
+
+    def __init__(self, title, node):
+        super().__init__(title=title, node=node)
+        self.attrs = None
+        self.methods = None
 
 
 class ClassDiagram(Figure, FilterMixIn):
@@ -82,7 +99,7 @@ class ClassDiagram(Figure, FilterMixIn):
         properties = [
             (n, m)
             for n, m in node.items()
-            if isinstance(m, astroid.FunctionDef) and decorated_with_property(m)
+            if isinstance(m, nodes.FunctionDef) and decorated_with_property(m)
         ]
         for node_name, associated_nodes in (
             list(node.instance_attrs_type.items())
@@ -93,7 +110,7 @@ class ClassDiagram(Figure, FilterMixIn):
                 continue
             names = self.class_names(associated_nodes)
             if names:
-                node_name = "{} : {}".format(node_name, ", ".join(names))
+                node_name = f"{node_name} : {', '.join(names)}"
             attrs.append(node_name)
         return sorted(attrs)
 
@@ -102,7 +119,7 @@ class ClassDiagram(Figure, FilterMixIn):
         methods = [
             m
             for m in node.values()
-            if isinstance(m, astroid.FunctionDef)
+            if isinstance(m, nodes.FunctionDef)
             and not decorated_with_property(m)
             and self.show_attr(m.name)
         ]
@@ -115,14 +132,14 @@ class ClassDiagram(Figure, FilterMixIn):
         self._nodes[node] = ent
         self.objects.append(ent)
 
-    def class_names(self, nodes):
+    def class_names(self, nodes_lst):
         """return class names if needed in diagram"""
         names = []
-        for node in nodes:
+        for node in nodes_lst:
             if isinstance(node, astroid.Instance):
                 node = node._proxied
             if (
-                isinstance(node, (astroid.ClassDef, astroid.Name, astroid.Subscript))
+                isinstance(node, (nodes.ClassDef, nodes.Name, nodes.Subscript))
                 and hasattr(node, "name")
                 and not self.has_node(node)
             ):
@@ -145,7 +162,7 @@ class ClassDiagram(Figure, FilterMixIn):
 
     def classes(self):
         """return all class nodes in the diagram"""
-        return [o for o in self.objects if isinstance(o.node, astroid.ClassDef)]
+        return [o for o in self.objects if isinstance(o.node, nodes.ClassDef)]
 
     def classe(self, name):
         """return a class by its name, raise KeyError if not found"""
@@ -202,7 +219,7 @@ class PackageDiagram(ClassDiagram):
 
     def modules(self):
         """return all module nodes in the diagram"""
-        return [o for o in self.objects if isinstance(o.node, astroid.Module)]
+        return [o for o in self.objects if isinstance(o.node, nodes.Module)]
 
     def module(self, name):
         """return a module by its name, raise KeyError if not found"""
@@ -223,7 +240,7 @@ class PackageDiagram(ClassDiagram):
             package = node.root().name
             if mod_name == f"{package}.{name}":
                 return mod
-            if mod_name == "{}.{}".format(package.rsplit(".", 1)[0], name):
+            if mod_name == f"{package.rsplit('.', 1)[0]}.{name}":
                 return mod
         raise KeyError(name)
 

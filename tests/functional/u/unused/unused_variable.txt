@@ -19,4 +19,7 @@ unused-import:104:4:test_global:Unused version imported from sys as VERSION
 unused-import:105:4:test_global:Unused import this
 unused-import:106:4:test_global:Unused re imported as RE
 unused-variable:110:4:function2:Unused variable 'unused'
-unused-variable:154:4:func4:Unused variable 'error'
+unused-variable:147:8:func3:Unused variable 'error'
+unused-variable:153:4:func4:Unused variable 'error'
+unused-variable:165:4:main:Unused variable 'e'
+undefined-loop-variable:172:10:main:Using possibly undefined loop variable 'e'

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,import-error
+# pylint: disable=missing-docstring,import-error, consider-using-f-string
 
 
 def issue_957_good():

@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import csv
 import operator
@@ -53,8 +53,7 @@ class LintModuleTest:
     def setUp(self):
         if self._should_be_skipped_due_to_version():
             pytest.skip(
-                "Test cannot run with Python %s."
-                % sys.version.split(" ", maxsplit=1)[0]
+                f"Test cannot run with Python {sys.version.split(' ', maxsplit=1)[0]}."
             )
         missing = []
         for requirement in self._test_file.options["requires"]:
@@ -63,7 +62,7 @@ class LintModuleTest:
             except ImportError:
                 missing.append(requirement)
         if missing:
-            pytest.skip("Requires %s to be present." % ",".join(missing))
+            pytest.skip(f"Requires {','.join(missing)} to be present.")
         except_implementations = self._test_file.options["except_implementations"]
         if except_implementations:
             implementations = [i.strip() for i in except_implementations.split(",")]
@@ -74,7 +73,7 @@ class LintModuleTest:
         if excluded_platforms:
             platforms = [p.strip() for p in excluded_platforms.split(",")]
             if sys.platform.lower() in platforms:
-                pytest.skip("Test cannot run on platform %r" % sys.platform)
+                pytest.skip(f"Test cannot run on platform {sys.platform!r}")
 
     def runTest(self):
         self._runTest()
@@ -141,14 +140,14 @@ class LintModuleTest:
     # pylint: disable=consider-using-with
     def _open_expected_file(self):
         try:
-            return open(self._test_file.expected_output)
+            return open(self._test_file.expected_output, encoding="utf-8")
         except FileNotFoundError:
             return StringIO("")
 
     # pylint: disable=consider-using-with
     def _open_source_file(self):
         if self._test_file.base == "invalid_encoded_data":
-            return open(self._test_file.source)
+            return open(self._test_file.source, encoding="utf-8")
         if "latin1" in self._test_file.base:
             return open(self._test_file.source, encoding="latin1")
         return open(self._test_file.source, encoding="utf8")
@@ -157,7 +156,7 @@ class LintModuleTest:
         with self._open_source_file() as f:
             expected_msgs = self.get_expected_messages(f)
         if not expected_msgs:
-            return Counter(), []
+            expected_msgs = Counter()
         with self._open_expected_file() as f:
             expected_output_lines = [
                 OutputLine.from_csv(row) for row in csv.reader(f, "test")
@@ -193,16 +192,19 @@ class LintModuleTest:
     def error_msg_for_unequal_messages(
         self, actual_messages, expected_messages, actual_output: List[OutputLine]
     ):
-        msg = ['Wrong results for file "%s":' % (self._test_file.base)]
+        msg = [f'Wrong results for file "{self._test_file.base}":']
         missing, unexpected = self.multiset_difference(
             expected_messages, actual_messages
         )
         if missing:
             msg.append("\nExpected in testdata:")
-            msg.extend(" %3d: %s" % msg for msg in sorted(missing))
+            msg.extend(
+                " %3d: %s" % msg  # pylint: disable=consider-using-f-string
+                for msg in sorted(missing)
+            )
         if unexpected:
             msg.append("\nUnexpected in testdata:")
-            msg.extend(" %3d: %s" % msg for msg in sorted(unexpected))  # type: ignore
+            msg.extend(" %3d: %s" % msg for msg in sorted(unexpected))  # type: ignore #pylint: disable=consider-using-f-string
         error_msg = "\n".join(msg)
         if self._config and self._config.getoption("verbose") > 0:
             error_msg += "\n\nActual pylint output for this file:\n"

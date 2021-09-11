@@ -1,12 +1,16 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+
+from typing import Dict, ValuesView
 
 import pytest
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
+from pylint.message.message_definition import MessageDefinition
+from pylint.message.message_id_store import MessageIdStore
 
 
-def test_len_str(msgid_store, msgids):
+def test_len_str(msgid_store: MessageIdStore, msgids: Dict[str, str]) -> None:
     assert len(msgid_store) == len(msgids)
     str_result = str(msgid_store)
     assert "MessageIdStore: [" in str_result
@@ -17,7 +21,7 @@ def test_len_str(msgid_store, msgids):
     assert "]" in str_result
 
 
-def test_get_message_ids(msgid_store, msgids):
+def test_get_message_ids(msgid_store: MessageIdStore, msgids: Dict[str, str]) -> None:
     """We can get message id even with capitalization problem."""
     msgid = list(msgids.keys())[0]
     msgids_result = msgid_store.get_active_msgids(msgid.lower())
@@ -25,14 +29,17 @@ def test_get_message_ids(msgid_store, msgids):
     assert msgid == msgids_result[0]
 
 
-def test_get_message_ids_not_existing(empty_msgid_store):
+def test_get_message_ids_not_existing(empty_msgid_store: MessageIdStore) -> None:
     with pytest.raises(UnknownMessageError) as error:
         w9876 = "W9876"
         empty_msgid_store.get_active_msgids(w9876)
     assert w9876 in str(error.value)
 
 
-def test_register_message_definitions(empty_msgid_store, message_definitions):
+def test_register_message_definitions(
+    empty_msgid_store: MessageIdStore,
+    message_definitions: ValuesView[MessageDefinition],
+) -> None:
     number_of_msgid = len(message_definitions)
     for message_definition in message_definitions:
         empty_msgid_store.register_message_definition(
@@ -45,7 +52,7 @@ def test_register_message_definitions(empty_msgid_store, message_definitions):
     assert len(empty_msgid_store) == number_of_msgid
 
 
-def test_add_msgid_and_symbol(empty_msgid_store):
+def test_add_msgid_and_symbol(empty_msgid_store: MessageIdStore) -> None:
     empty_msgid_store.add_msgid_and_symbol("E1235", "new-sckiil")
     empty_msgid_store.add_legacy_msgid_and_symbol("C1235", "old-sckiil", "E1235")
     assert len(empty_msgid_store) == 2
@@ -65,7 +72,7 @@ def test_add_msgid_and_symbol(empty_msgid_store):
         empty_msgid_store.get_msgid("not-exist")
 
 
-def test_duplicate_symbol(empty_msgid_store):
+def test_duplicate_symbol(empty_msgid_store: MessageIdStore) -> None:
     empty_msgid_store.add_msgid_and_symbol("W1234", "warning-symbol")
     with pytest.raises(InvalidMessageError) as error:
         empty_msgid_store.check_msgid_and_symbol("W1234", "other-symbol")
@@ -75,7 +82,7 @@ def test_duplicate_symbol(empty_msgid_store):
     )
 
 
-def test_duplicate_msgid(msgid_store):
+def test_duplicate_msgid(msgid_store: MessageIdStore) -> None:
     msgid_store.add_msgid_and_symbol("W1234", "warning-symbol")
     with pytest.raises(InvalidMessageError) as error:
         msgid_store.check_msgid_and_symbol("W1235", "warning-symbol")

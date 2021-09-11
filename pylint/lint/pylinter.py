@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
 import contextlib
@@ -13,6 +13,7 @@ import warnings
 from io import TextIOWrapper
 
 import astroid
+from astroid import AstroidError
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
@@ -23,7 +24,11 @@ from pylint.lint.report_functions import (
     report_messages_stats,
     report_total_messages_stats,
 )
-from pylint.lint.utils import fix_import_path
+from pylint.lint.utils import (
+    fix_import_path,
+    get_fatal_error_message,
+    prepare_crash_report,
+)
 from pylint.message import MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, utils
@@ -165,6 +170,8 @@ class PyLinter(
     priority = 0
     level = 0
     msgs = MSGS
+    # Will be used like this : datetime.now().strftime(crash_file_path)
+    crash_file_path: str = "pylint-crash-%Y-%m-%d-%H.txt"
 
     @staticmethod
     def make_options():
@@ -308,8 +315,7 @@ class PyLinter(
                     "choices": [c.name for c in interfaces.CONFIDENCE_LEVELS],
                     "group": "Messages control",
                     "help": "Only show warnings with the listed confidence levels."
-                    " Leave empty to show all. Valid levels: %s."
-                    % (", ".join(c.name for c in interfaces.CONFIDENCE_LEVELS),),
+                    f" Leave empty to show all. Valid levels: {', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS)}.",
                 },
             ),
             (
@@ -463,6 +469,18 @@ class PyLinter(
                     ),
                 },
             ),
+            (
+                "py-version",
+                {
+                    "default": sys.version_info[:2],
+                    "type": "py_version",
+                    "metavar": "<py_version>",
+                    "help": (
+                        "Min Python version to use for version dependend checks. "
+                        "Will default to the version used to run pylint."
+                    ),
+                },
+            ),
         )
 
     option_groups = (
@@ -490,7 +508,11 @@ class PyLinter(
         self._external_opts = options
         self.options = options + PyLinter.make_options()
         self.option_groups = option_groups + PyLinter.option_groups
-        self._options_methods = {"enable": self.enable, "disable": self.disable}
+        self._options_methods = {
+            "enable": self.enable,
+            "disable": self.disable,
+            "disable-next": self.disable_next,
+        }
         self._bw_options_methods = {
             "disable-msg": self._options_methods["disable"],
             "enable-msg": self._options_methods["enable"],
@@ -514,7 +536,6 @@ class PyLinter(
         )
         self.register_checker(self)
         self._dynamic_plugins = set()
-        self._python3_porting_mode = False
         self._error_mode = False
         self.load_provider_defaults()
         if reporter:
@@ -571,7 +592,9 @@ class PyLinter(
                     (reporter_output,) = reporter_output
 
                     # pylint: disable=consider-using-with
-                    output_file = stack.enter_context(open(reporter_output, "w"))
+                    output_file = stack.enter_context(
+                        open(reporter_output, "w", encoding="utf-8")
+                    )
 
                     reporter.set_output(output_file)
                     output_files.append(output_file)
@@ -617,8 +640,7 @@ class PyLinter(
                 except KeyError:
                     meth = self._bw_options_methods[optname]
                     warnings.warn(
-                        "%s is deprecated, replace it by %s"
-                        % (optname, optname.split("-")[0]),
+                        f"{optname} is deprecated, replace it by {optname.split('-')[0]}",
                         DeprecationWarning,
                     )
                 value = utils._check_csv(value)
@@ -638,7 +660,7 @@ class PyLinter(
         try:
             checkers.BaseTokenChecker.set_option(self, optname, value, action, optdict)
         except config.UnsupportedAction:
-            print("option %s can't be read from config file" % optname, file=sys.stderr)
+            print(f"option {optname} can't be read from config file", file=sys.stderr)
 
     def register_reporter(self, reporter_class):
         self._reporters[reporter_class.name] = reporter_class
@@ -707,7 +729,9 @@ class PyLinter(
                         self.fail_on_symbols.append(msg.symbol)
 
     def any_fail_on_issues(self):
-        return any(x in self.fail_on_symbols for x in self.stats["by_msg"])
+        return self.stats is not None and any(
+            x in self.fail_on_symbols for x in self.stats["by_msg"]
+        )
 
     def disable_noerror_messages(self):
         for msgcat, msgids in self.msgs_store._msgs_by_category.items():
@@ -730,62 +754,28 @@ class PyLinter(
         self._error_mode = True
         self.disable_noerror_messages()
         self.disable("miscellaneous")
-        if self._python3_porting_mode:
-            self.disable("all")
-            for msg_id in self._checker_messages("python3"):
-                if msg_id.startswith("E"):
-                    self.enable(msg_id)
-            config_parser = self.cfgfile_parser
-            if config_parser.has_option("MESSAGES CONTROL", "disable"):
-                value = config_parser.get("MESSAGES CONTROL", "disable")
-                self.global_set_option("disable", value)
-        else:
-            self.disable("python3")
         self.set_option("reports", False)
         self.set_option("persistent", False)
         self.set_option("score", False)
 
-    def python3_porting_mode(self):
-        """Disable all other checkers and enable Python 3 warnings."""
-        self.disable("all")
-        # re-enable some errors, or 'print', 'raise', 'async', 'await' will mistakenly lint fine
-        self.enable("fatal")  # F0001
-        self.enable("astroid-error")  # F0002
-        self.enable("parse-error")  # F0010
-        self.enable("syntax-error")  # E0001
-        self.enable("python3")
-        if self._error_mode:
-            # The error mode was activated, using the -E flag.
-            # So we'll need to enable only the errors from the
-            # Python 3 porting checker.
-            for msg_id in self._checker_messages("python3"):
-                if msg_id.startswith("E"):
-                    self.enable(msg_id)
-                else:
-                    self.disable(msg_id)
-        config_parser = self.cfgfile_parser
-        if config_parser.has_option("MESSAGES CONTROL", "disable"):
-            value = config_parser.get("MESSAGES CONTROL", "disable")
-            self.global_set_option("disable", value)
-        self._python3_porting_mode = True
-
     def list_messages_enabled(self):
-        enabled = [
-            f"  {message.symbol} ({message.msgid})"
-            for message in self.msgs_store.messages
-            if self.is_message_enabled(message.msgid)
-        ]
-        disabled = [
-            f"  {message.symbol} ({message.msgid})"
-            for message in self.msgs_store.messages
-            if not self.is_message_enabled(message.msgid)
-        ]
+        emittable, non_emittable = self.msgs_store.find_emittable_messages()
+        enabled = []
+        disabled = []
+        for message in emittable:
+            if self.is_message_enabled(message.msgid):
+                enabled.append(f"  {message.symbol} ({message.msgid})")
+            else:
+                disabled.append(f"  {message.symbol} ({message.msgid})")
         print("Enabled messages:")
-        for msg in sorted(enabled):
+        for msg in enabled:
             print(msg)
         print("\nDisabled messages:")
-        for msg in sorted(disabled):
+        for msg in disabled:
             print(msg)
+        print("\nNon-emittable messages with current interpreter:")
+        for msg in non_emittable:
+            print(f"  {msg.symbol} ({msg.msgid})")
         print("")
 
     # block level option handling #############################################
@@ -794,7 +784,7 @@ class PyLinter(
     def process_tokens(self, tokens):
         """Process tokens from the current module to search for module/block level
         options."""
-        control_pragmas = {"disable", "enable"}
+        control_pragmas = {"disable", "disable-next", "enable"}
         prev_line = None
         saw_newline = True
         seen_newline = True
@@ -950,7 +940,6 @@ class PyLinter(
 
         files_or_modules is either a string or list of strings presenting modules to check.
         """
-
         self.initialize()
 
         if not isinstance(files_or_modules, (list, tuple)):
@@ -1004,7 +993,21 @@ class PyLinter(
         """
         with self._astroid_module_checker() as check_astroid_module:
             for name, filepath, modname in file_descrs:
-                self._check_file(get_ast, check_astroid_module, name, filepath, modname)
+                try:
+                    self._check_file(
+                        get_ast, check_astroid_module, name, filepath, modname
+                    )
+                except Exception as ex:  # pylint: disable=broad-except
+                    template_path = prepare_crash_report(
+                        ex, filepath, self.crash_file_path
+                    )
+                    msg = get_fatal_error_message(filepath, template_path)
+                    if isinstance(ex, AstroidError):
+                        symbol = "astroid-error"
+                        msg = (filepath, msg)
+                    else:
+                        symbol = "fatal"
+                    self.add_message(symbol, args=msg)
 
     def _check_file(self, get_ast, check_astroid_module, name, filepath, modname):
         """Check a file using the passed utility functions (get_ast and check_astroid_module)
@@ -1272,10 +1275,10 @@ class PyLinter(
         try:
             note = eval(evaluation, {}, self.stats)  # pylint: disable=eval-used
         except Exception as ex:  # pylint: disable=broad-except
-            msg = "An exception occurred while rating: %s" % ex
+            msg = f"An exception occurred while rating: {ex}"
         else:
             self.stats["global_note"] = note
-            msg = "Your code has been rated at %.2f/10" % note
+            msg = f"Your code has been rated at {note:.2f}/10"
             pnote = previous_stats.get("global_note")
             if pnote is not None:
                 msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"

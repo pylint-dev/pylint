@@ -1,0 +1,9 @@
+[MESSAGES CONTROL]
+enable=invalid-name
+
+[BASIC]
+attr-rgx=^x$
+class-attribute-rgx=^y$
+
+[testoptions]
+min_pyver=3.7

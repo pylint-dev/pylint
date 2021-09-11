@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 
 import re
@@ -10,7 +10,7 @@ import pytest
 from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
 
 
-def test__is_in_ignore_list_re_match():
+def test__is_in_ignore_list_re_match() -> None:
     patterns = [
         re.compile(".*enchilada.*"),
         re.compile("unittest_.*"),
@@ -21,7 +21,7 @@ def test__is_in_ignore_list_re_match():
     assert _is_in_ignore_list_re("src/tests/whatever.xml", patterns)
 
 
-def test__is_in_ignore_list_re_nomatch():
+def test__is_in_ignore_list_re_nomatch() -> None:
     patterns = [
         re.compile(".*enchilada.*"),
         re.compile("unittest_.*"),
@@ -59,6 +59,21 @@ unittest_lint = {
     "path": str(TEST_DIRECTORY / "lint/unittest_lint.py"),
 }
 
+test_utils = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.test_utils",
+    "path": str(TEST_DIRECTORY / "lint/test_utils.py"),
+}
+
+test_pylinter = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.test_pylinter",
+    "path": str(TEST_DIRECTORY / "lint/test_pylinter.py"),
+}
 
 init_of_package = {
     "basename": "lint",
@@ -75,7 +90,13 @@ init_of_package = {
         ([__file__], [this_file]),
         (
             [Path(__file__).parent],
-            [init_of_package, this_file_from_init, unittest_lint],
+            [
+                init_of_package,
+                test_pylinter,
+                test_utils,
+                this_file_from_init,
+                unittest_lint,
+            ],
         ),
     ],
 )

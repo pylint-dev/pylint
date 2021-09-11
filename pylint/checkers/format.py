@@ -36,10 +36,11 @@
 # Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 Raphael Gaschignard <raphael@rtpg.co>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Python code format's checker.
 
@@ -374,6 +375,7 @@ class FormatChecker(BaseTokenChecker):
         found_and_or = False
         contains_walrus_operator = False
         walrus_operator_depth = 0
+        contains_double_parens = 0
         depth = 0
         keyword_token = str(tokens[start].string)
         line_num = tokens[start].start[0]
@@ -393,19 +395,25 @@ class FormatChecker(BaseTokenChecker):
                 walrus_operator_depth = depth
             if token.string == "(":
                 depth += 1
+                if tokens[i + 1].string == "(":
+                    contains_double_parens = 1
             elif token.string == ")":
                 depth -= 1
                 if depth:
+                    if contains_double_parens and tokens[i + 1].string == ")":
+                        # For walrus operators in `if (not)` conditions and comprehensions
+                        if keyword_token in {"in", "if", "not"}:
+                            continue
+                        return
+                    contains_double_parens -= 1
                     continue
                 # ')' can't happen after if (foo), since it would be a syntax error.
                 if tokens[i + 1].string in (":", ")", "]", "}", "in") or tokens[
                     i + 1
                 ].type in (tokenize.NEWLINE, tokenize.ENDMARKER, tokenize.COMMENT):
-                    # The empty tuple () is always accepted.
                     if contains_walrus_operator and walrus_operator_depth - 1 == depth:
-                        # Reset variable for possible following expressions
-                        contains_walrus_operator = False
-                        continue
+                        return
+                    # The empty tuple () is always accepted.
                     if i == start + 2:
                         return
                     if keyword_token == "not":
@@ -417,7 +425,7 @@ class FormatChecker(BaseTokenChecker):
                         self.add_message(
                             "superfluous-parens", line=line_num, args=keyword_token
                         )
-                    elif not found_and_or:
+                    elif not found_and_or and keyword_token != "in":
                         self.add_message(
                             "superfluous-parens", line=line_num, args=keyword_token
                         )
@@ -439,6 +447,13 @@ class FormatChecker(BaseTokenChecker):
                 # generator expression.  The parens are necessary here, so bail
                 # without an error.
                 elif token[1] == "for":
+                    return
+                # A generator expression can have a 'else' token in it.
+                # We check the rest of the tokens to see if any problems incure after
+                # the 'else'.
+                elif token[1] == "else":
+                    if "(" in (i.string for i in tokens[i:]):
+                        self._check_keyword_parentheses(tokens[i:], 0)
                     return
 
     def _prepare_token_dispatcher(self):
@@ -567,7 +582,7 @@ class FormatChecker(BaseTokenChecker):
                 )
 
     @check_messages("multiple-statements")
-    def visit_default(self, node):
+    def visit_default(self, node: nodes.NodeNG) -> None:
         """check the node line number and check it if not yet done"""
         if not node.is_statement:
             return

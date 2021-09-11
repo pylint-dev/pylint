@@ -14,18 +14,21 @@
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import os
 import re
 import sys
+import unittest
 from pathlib import Path
 
 import astroid
 
 from pylint.checkers import variables
+from pylint.constants import IS_PYPY
 from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, Message, linter, set_config
 
@@ -36,7 +39,7 @@ class TestVariablesChecker(CheckerTestCase):
 
     CHECKER_CLASS = variables.VariablesChecker
 
-    def test_bitbucket_issue_78(self):
+    def test_bitbucket_issue_78(self) -> None:
         """Issue 78 report a false positive for unused-module"""
         module = astroid.parse(
             """
@@ -51,7 +54,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.walk(module)
 
     @set_config(ignored_modules=("argparse",))
-    def test_no_name_in_module_skipped(self):
+    def test_no_name_in_module_skipped(self) -> None:
         """Make sure that 'from ... import ...' does not emit a
         'no-name-in-module' with a module that is configured
         to be ignored.
@@ -65,7 +68,7 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_importfrom(node)
 
-    def test_all_elements_without_parent(self):
+    def test_all_elements_without_parent(self) -> None:
         node = astroid.extract_node("__all__ = []")
         node.value.elts.append(astroid.Const("test"))
         root = node.root()
@@ -73,7 +76,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.checker.visit_module(root)
             self.checker.leave_module(root)
 
-    def test_redefined_builtin_ignored(self):
+    def test_redefined_builtin_ignored(self) -> None:
         node = astroid.parse(
             """
         from future.builtins import open
@@ -83,7 +86,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.checker.visit_module(node)
 
     @set_config(redefining_builtins_modules=("os",))
-    def test_redefined_builtin_custom_modules(self):
+    def test_redefined_builtin_custom_modules(self) -> None:
         node = astroid.parse(
             """
         from os import open
@@ -93,7 +96,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.checker.visit_module(node)
 
     @set_config(redefining_builtins_modules=("os",))
-    def test_redefined_builtin_modname_not_ignored(self):
+    def test_redefined_builtin_modname_not_ignored(self) -> None:
         node = astroid.parse(
             """
         from future.builtins import open
@@ -105,7 +108,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.checker.visit_module(node)
 
     @set_config(redefining_builtins_modules=("os",))
-    def test_redefined_builtin_in_function(self):
+    def test_redefined_builtin_in_function(self) -> None:
         node = astroid.extract_node(
             """
         def test():
@@ -116,7 +119,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.checker.visit_module(node.root())
             self.checker.visit_functiondef(node)
 
-    def test_unassigned_global(self):
+    def test_unassigned_global(self) -> None:
         node = astroid.extract_node(
             """
             def func():
@@ -128,7 +131,7 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertAddsMessages(msg):
             self.checker.visit_global(node)
 
-    def test_listcomp_in_decorator(self):
+    def test_listcomp_in_decorator(self) -> None:
         """Make sure class attributes in scope for listcomp in decorator.
 
         https://github.com/PyCQA/pylint/issues/511
@@ -154,7 +157,7 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
-    def test_listcomp_in_ancestors(self):
+    def test_listcomp_in_ancestors(self) -> None:
         """Ensure list comprehensions in base classes are scoped correctly
 
         https://github.com/PyCQA/pylint/issues/3434
@@ -174,7 +177,7 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
-    def test_return_type_annotation(self):
+    def test_return_type_annotation(self) -> None:
         """Make sure class attributes in scope for return type annotations.
 
         https://github.com/PyCQA/pylint/issues/1976
@@ -191,21 +194,39 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    @unittest.skipIf(IS_PYPY, "PyPy does not parse type comments")
+    def test_attribute_in_type_comment(self):
+        """Ensure attribute lookups in type comments are accounted for.
+
+        https://github.com/PyCQA/pylint/issues/4603
+        """
+        module = astroid.parse(
+            """
+        import foo
+        from foo import Bar, Boo
+        a = ... # type: foo.Bar
+        b = ... # type: foo.Bar[Boo]
+        c = ... # type: Bar.Boo
+        """
+        )
+        with self.assertNoMessages():
+            self.walk(module)
+
 
 class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
     CHECKER_CLASS = variables.VariablesChecker
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         super().setup_method()
         self._to_consume_backup = self.checker._to_consume
         self.checker._to_consume = []
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         self.checker._to_consume = self._to_consume_backup
 
     @set_config(callbacks=("callback_", "_callback"))
-    def test_custom_callback_string(self):
+    def test_custom_callback_string(self) -> None:
         """Test the --calbacks option works."""
         node = astroid.extract_node(
             """
@@ -252,7 +273,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
             self.checker.leave_functiondef(node)
 
     @set_config(redefining_builtins_modules=("os",))
-    def test_redefined_builtin_modname_not_ignored(self):
+    def test_redefined_builtin_modname_not_ignored(self) -> None:
         node = astroid.parse(
             """
         from future.builtins import open
@@ -264,7 +285,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
             self.checker.visit_module(node)
 
     @set_config(redefining_builtins_modules=("os",))
-    def test_redefined_builtin_in_function(self):
+    def test_redefined_builtin_in_function(self) -> None:
         node = astroid.extract_node(
             """
         def test():
@@ -275,7 +296,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
             self.checker.visit_module(node.root())
             self.checker.visit_functiondef(node)
 
-    def test_import_as_underscore(self):
+    def test_import_as_underscore(self) -> None:
         node = astroid.parse(
             """
         import math as _
@@ -284,7 +305,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(node)
 
-    def test_lambda_in_classdef(self):
+    def test_lambda_in_classdef(self) -> None:
         # Make sure lambda doesn't raises
         # Undefined-method in class def
 
@@ -300,7 +321,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(node)
 
-    def test_nested_lambda(self):
+    def test_nested_lambda(self) -> None:
         """Make sure variables from parent lambdas
         aren't noted as undefined
 
@@ -315,7 +336,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
             self.walk(node)
 
     @set_config(ignored_argument_names=re.compile("arg"))
-    def test_ignored_argument_names_no_message(self):
+    def test_ignored_argument_names_no_message(self) -> None:
         """Make sure is_ignored_argument_names properly ignores
         function arguments"""
         node = astroid.parse(
@@ -328,7 +349,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
             self.walk(node)
 
     @set_config(ignored_argument_names=re.compile("args|kwargs"))
-    def test_ignored_argument_names_starred_args(self):
+    def test_ignored_argument_names_starred_args(self) -> None:
         node = astroid.parse(
             """
         def fooby(*args, **kwargs):
@@ -343,7 +364,7 @@ class TestMissingSubmodule(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
 
     @staticmethod
-    def test_package_all():
+    def test_package_all() -> None:
 
         sys.path.insert(0, REGR_DATA_DIR)
         try:

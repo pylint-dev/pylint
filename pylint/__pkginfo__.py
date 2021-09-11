@@ -1,8 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 from typing import Tuple
 
-__version__ = "2.9.0-dev1"
+__version__ = "2.10.3-dev0"
 
 
 def get_numversion_from_version(v: str) -> Tuple:

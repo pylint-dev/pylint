@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, consider-using-f-string
 
 NAME = 42
 OTHER_NAME = 24

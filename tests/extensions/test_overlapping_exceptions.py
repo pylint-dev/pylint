@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """Tests for the pylint checker in :mod:`pylint.extensions.overlapping_exceptions
 """
@@ -9,6 +9,7 @@ from os.path import dirname, join
 import pytest
 
 from pylint.extensions.overlapping_exceptions import OverlappingExceptionsChecker
+from pylint.lint.pylinter import PyLinter
 
 
 @pytest.fixture(scope="module")
@@ -21,7 +22,7 @@ def disable():
     return ["I"]
 
 
-def test_overlapping_exceptions(linter):
+def test_overlapping_exceptions(linter: PyLinter) -> None:
     test = join(dirname(__file__), "data", "overlapping_exceptions.py")
     linter.check([test])
     msgs = linter.reporter.messages
@@ -64,7 +65,7 @@ def test_overlapping_exceptions(linter):
         assert (msg.line, msg.msg) == exp
 
 
-def test_overlapping_exceptions_py33(linter):
+def test_overlapping_exceptions_py33(linter: PyLinter) -> None:
     """From Python 3.3 both IOError and socket.error are aliases for OSError."""
     test = join(dirname(__file__), "data", "overlapping_exceptions_py33.py")
     linter.check([test])

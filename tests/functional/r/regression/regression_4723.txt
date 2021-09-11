@@ -1,0 +1,1 @@
+no-method-argument:15:4:B.play:Method has no argument:HIGH
