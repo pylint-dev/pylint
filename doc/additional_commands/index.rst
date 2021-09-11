@@ -22,94 +22,9 @@ To run ``pyreverse``, use::
   pyreverse [options] <packages>
 
 <packages> can also be a single Python module.
-The following options are availabe:
+To see a full list of the available options, run::
 
-.. option:: -h, --help
-
-   show this help message and exit
-
-
-
-.. option:: -f <mode>, --filter-mode=<mode>
-
-   Default: PUB_ONLY
-
-   filter attributes and functions according to
-   <mode>. Correct modes are:
-   'PUB_ONLY': filter all non public attributes [DEFAULT], equivalent to PRIVATE+SPECIAL_A
-   'ALL': no filter
-   'SPECIAL': filter Python special functions except constructor
-   'OTHER': filter protected and private attributes
-
-.. option:: -c <class>, --class=<class>
-
-   Default: none
-
-   create a class diagram with all classes related to <class>; this uses by default the options -ASmy
-
-.. option:: -a <ancestor>, --show-ancestors=<ancestor>
-
-   show <ancestor> generations of ancestor classes not in <projects>
-
-.. option:: -A, --all-ancestors
-
-   show all ancestors off all classes in <projects>
-
-.. option:: -s <association_level>, --show-associated=<association_level>
-
-   show <association_level> levels of associated classes not in <projects>
-
-.. option:: -S, --all-associated
-
-   show recursively all associated off all associated classes
-
-.. option:: -b, --show-builtin
-
-   include builtin objects in representation of classes
-
-.. option:: -m [yn], --module-names=[yn]
-
-   include module name in representation of classes
-
-.. option:: -k, --only-classnames
-
-   don't show attributes and methods in the class boxes; this disables -f values
-
-.. option:: -o <format>, --output=<format>
-
-   Default: dot
-
-   create a .<format> output file if format available.
-
-.. option:: --colorized
-
-   Default: False
-
-   Use colored output. Classes/modules of the same package get the same color.
-
-.. option:: --max-color-depth=<depth>
-
-   Default: 2
-
-   Use separate colors up to package depth of <depth>
-
-.. option:: --ignore=<file[,file...]>
-
-   Default: CVS
-
-   Files or directories to be skipped. They should be base names, not paths.
-
-.. option:: -p <project name>, --project=<project name>
-
-   Default: none
-
-   set the project name.
-
-.. option:: -d <output_directory>, --output-directory=<output_directory>
-
-   Default: none
-
-   set the output directory path.
+   pyreverse -h
 
 
 Example Output
