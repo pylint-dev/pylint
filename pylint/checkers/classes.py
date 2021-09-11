@@ -1434,6 +1434,8 @@ a metaclass class method.",
             ):
                 self.add_message("no-self-use", node=node)
 
+    leave_asyncfunctiondef = leave_functiondef
+
     def visit_attribute(self, node: nodes.Attribute) -> None:
         """check if the getattr is an access to a class member
         if so, register it. Also check for access to protected
