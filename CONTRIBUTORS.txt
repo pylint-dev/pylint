@@ -539,3 +539,7 @@ contributors:
 * Phil A. (flying-sheep): contributor
 
 * Melvin Hazeleger (melvio): contributor
+
+* Hayden Richards (SupImDos): contributor
+  - Fixed "no-self-use" for async methods
+  - Fixed "docparams" extension for async functions and methods
