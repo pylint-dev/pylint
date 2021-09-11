@@ -19,7 +19,7 @@ refactored and can offer you details about the code's complexity.
    how_tos/index.rst
    technical_reference/index.rst
    development_guide/index.rst
-   additional_tools/index.rst
+   additional_commands/index.rst
 
    faq
    backlinks
