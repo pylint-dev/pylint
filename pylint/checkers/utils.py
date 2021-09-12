@@ -275,11 +275,9 @@ class InferredTypeError(Exception):
 
 def is_inside_lambda(node: nodes.NodeNG) -> bool:
     """Return true if given node is inside lambda"""
-    parent = node.parent
-    while parent is not None:
+    for parent in node.node_ancestors():
         if isinstance(parent, nodes.Lambda):
             return True
-        parent = parent.parent
     return False
 
 
@@ -377,11 +375,9 @@ def is_defined_before(var_node: nodes.Name) -> bool:
     (statement_defining ; statement_using).
     """
     varname = var_node.name
-    _node = var_node.parent
-    while _node:
+    for _node in var_node.node_ancestors():
         if is_defined_in_scope(var_node, varname, _node):
             return True
-        _node = _node.parent
     # possibly multiple statements on the same line using semi colon separator
     stmt = var_node.statement()
     _node = stmt.previous_sibling()
@@ -415,8 +411,7 @@ def is_default_argument(
 
 def is_func_decorator(node: nodes.NodeNG) -> bool:
     """return true if the name is used in function decorator"""
-    parent = node.parent
-    while parent is not None:
+    for parent in node.node_ancestors():
         if isinstance(parent, nodes.Decorators):
             return True
         if parent.is_statement or isinstance(
@@ -428,7 +423,6 @@ def is_func_decorator(node: nodes.NodeNG) -> bool:
             ),
         ):
             break
-        parent = parent.parent
     return False
 
 
@@ -909,9 +903,7 @@ def find_except_wrapper_node_in_scope(
     node: nodes.NodeNG,
 ) -> Optional[Union[nodes.ExceptHandler, nodes.TryExcept]]:
     """Return the ExceptHandler in which the node is, without going out of scope."""
-    current = node
-    while current.parent is not None:
-        current = current.parent
+    for current in node.node_ancestors():
         if isinstance(current, astroid.scoped_nodes.LocalsDictNodeNG):
             # If we're inside a function/class definition, we don't want to keep checking
             # higher ancestors for `except` clauses, because if these exist, it means our

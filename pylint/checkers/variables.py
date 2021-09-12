@@ -1333,8 +1333,7 @@ class VariablesChecker(BaseChecker):
     ) -> bool:
         """return True if node within a lambda/comprehension body (or similar) and thus should not have access to class attributes in frame"""
         child = node
-        parent = node.parent
-        while parent is not None:
+        for parent in node.node_ancestors():
             if parent is frame:
                 return False
             if isinstance(parent, nodes.Lambda) and child is not parent.args:
@@ -1350,7 +1349,6 @@ class VariablesChecker(BaseChecker):
                 # Furthermore, only the first generator (if multiple) in comprehension should have access.
                 return True
             child = parent
-            parent = parent.parent
         return False
 
     @staticmethod
