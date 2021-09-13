@@ -83,6 +83,10 @@ Release date: TBA
   Closes #1375
   Closes #330
 
+* Fix false positives for invalid-all-format that are lists or tuples at runtime
+
+  Closes #4711
+
 * Fix ``no-self-use`` and ``docparams extension`` for async functions and methods.
 
 * Add documentation for ``pyreverse`` and ``symilar``
