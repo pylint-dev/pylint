@@ -26,7 +26,7 @@ class RecommendationChecker(checkers.BaseChecker):
             "consider-iterating-dictionary",
             "Emitted when the keys of a dictionary are iterated through the .keys() "
             "method. It is enough to just iterate through the dictionary itself, as "
-            'in "for key in dictionary".',
+            'in "for key in dictionary" or "if key in dictionary".',
         ),
         "C0206": (
             "Consider iterating with .items()",
@@ -75,7 +75,13 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if node.func.attrname != "keys":
             return
-        if not isinstance(node.parent, (nodes.For, nodes.Comprehension)):
+        if not (
+            isinstance(node.parent, (nodes.For, nodes.Comprehension))
+            or (
+                isinstance(node.parent, nodes.Compare)
+                and isinstance(node.parent.parent, nodes.If)
+            )
+        ):
             return
 
         inferred = utils.safe_infer(node.func)
@@ -84,8 +90,7 @@ class RecommendationChecker(checkers.BaseChecker):
         ):
             return
 
-        if isinstance(node.parent, (nodes.For, nodes.Comprehension)):
-            self.add_message("consider-iterating-dictionary", node=node)
+        self.add_message("consider-iterating-dictionary", node=node)
 
     def _check_use_maxsplit_arg(self, node: nodes.Call) -> None:
         """Add message when accessing first or last elements of a str.split() or str.rsplit()."""

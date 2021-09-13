@@ -93,6 +93,10 @@ Release date: TBA
 
   Closes #4616
 
+* The ``consider-iterating-dictionary`` checker now also considers membership checks
+
+  Closes #4069
+
 
 What's New in Pylint 2.10.3?
 ============================
