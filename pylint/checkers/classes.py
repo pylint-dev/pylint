@@ -47,7 +47,7 @@
 """
 import collections
 from itertools import chain, zip_longest
-from typing import List, Pattern, cast
+from typing import List, Pattern
 
 import astroid
 from astroid import nodes
@@ -907,7 +907,6 @@ a metaclass class method.",
 
     def _check_unused_private_functions(self, node: nodes.ClassDef) -> None:
         for function_def in node.nodes_of_class(nodes.FunctionDef):
-            function_def = cast(nodes.FunctionDef, function_def)
             if not is_attr_private(function_def.name):
                 continue
             parent_scope = function_def.parent.scope()
@@ -918,7 +917,6 @@ a metaclass class method.",
                 ):
                     continue
             for attribute in node.nodes_of_class(nodes.Attribute):
-                attribute = cast(nodes.Attribute, attribute)
                 if (
                     attribute.attrname != function_def.name
                     or attribute.scope() == function_def  # We ignore recursive calls
@@ -978,7 +976,6 @@ a metaclass class method.",
 
     def _check_unused_private_attributes(self, node: nodes.ClassDef) -> None:
         for assign_attr in node.nodes_of_class(nodes.AssignAttr):
-            assign_attr = cast(nodes.AssignAttr, assign_attr)
             if not is_attr_private(assign_attr.attrname) or not isinstance(
                 assign_attr.expr, nodes.Name
             ):
@@ -999,7 +996,6 @@ a metaclass class method.",
                 )
 
             for attribute in node.nodes_of_class(nodes.Attribute):
-                attribute = cast(nodes.Attribute, attribute)
                 if attribute.attrname != assign_attr.attrname:
                     continue
 

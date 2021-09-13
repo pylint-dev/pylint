@@ -127,11 +127,9 @@ class RecommendationChecker(checkers.BaseChecker):
 
                     # Check if var is mutated within loop (Assign/AugAssign)
                     for assignment_node in loop_node.nodes_of_class(nodes.AugAssign):
-                        assignment_node = cast(nodes.AugAssign, assignment_node)
                         if node.parent.slice.name == assignment_node.target.name:
                             return
                     for assignment_node in loop_node.nodes_of_class(nodes.Assign):
-                        assignment_node = cast(nodes.Assign, assignment_node)
                         if node.parent.slice.name in [
                             n.name for n in assignment_node.targets
                         ]:
@@ -209,7 +207,6 @@ class RecommendationChecker(checkers.BaseChecker):
         # for body.
         for child in node.body:
             for subscript in child.nodes_of_class(nodes.Subscript):
-                subscript = cast(nodes.Subscript, subscript)
                 if not isinstance(subscript.value, expected_subscript_val_type):
                     continue
 
@@ -247,8 +244,6 @@ class RecommendationChecker(checkers.BaseChecker):
         # for body.
         for child in node.body:
             for subscript in child.nodes_of_class(nodes.Subscript):
-                subscript = cast(nodes.Subscript, subscript)
-
                 if not isinstance(subscript.value, (nodes.Name, nodes.Attribute)):
                     continue
 
@@ -297,8 +292,6 @@ class RecommendationChecker(checkers.BaseChecker):
 
         for child in node.parent.get_children():
             for subscript in child.nodes_of_class(nodes.Subscript):
-                subscript = cast(nodes.Subscript, subscript)
-
                 if not isinstance(subscript.value, (nodes.Name, nodes.Attribute)):
                     continue
 
