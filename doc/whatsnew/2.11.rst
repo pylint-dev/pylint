@@ -70,6 +70,10 @@ Other Changes
 
   Closes #4907
 
+* Fix false positive ``unused-private-member`` for accessing attributes in a class using ``cls``
+
+  Closes #4849
+
 * Extended ``consider-using-in`` check to work for attribute access.
 
 * Setting ``min-similarity-lines`` to 0 now makes the similarty checker stop checking for duplicate code

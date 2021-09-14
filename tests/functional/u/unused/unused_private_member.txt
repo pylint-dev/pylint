@@ -14,6 +14,6 @@ unused-private-member:212:8:Crash4755Context.__init__:Unused private member `Cra
 unused-private-member:229:4:FalsePositive4681:Unused private member `FalsePositive4681.__should_cause_error`:HIGH
 unused-private-member:239:12:FalsePositive4681.__init__:Unused private member `FalsePositive4681.__should_cause_error`:HIGH
 unused-private-member:243:12:FalsePositive4681.__init__:Unused private member `FalsePositive4681.__should_cause_error`:HIGH
-unused-private-member:255:4:FalsePositive4849.__unused_private_method:Unused private member `FalsePositive4849.__unused_private_method()`:HIGH
-unused-private-member:272:4:Pony.__init_defaults:Unused private member `Pony.__init_defaults(self)`:HIGH
-unused-private-member:277:4:Pony.__get_fur_color:Unused private member `Pony.__get_fur_color(self)`:HIGH
+unused-private-member:274:4:FalsePositive4849.__unused_private_method:Unused private member `FalsePositive4849.__unused_private_method()`:HIGH
+unused-private-member:291:4:Pony.__init_defaults:Unused private member `Pony.__init_defaults(self)`:HIGH
+unused-private-member:296:4:Pony.__get_fur_color:Unused private member `Pony.__get_fur_color(self)`:HIGH

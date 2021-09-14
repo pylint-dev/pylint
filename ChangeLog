@@ -63,6 +63,10 @@ Release date: TBA
 
   Closes #4907
 
+* Fix false positive ``unused-private-member`` for accessing attributes in a class using ``cls``
+
+  Closes #4849
+
 * Fix false positive ``unused-private-member`` for private staticmethods accessed in classmethods.
 
   Closes #4849
