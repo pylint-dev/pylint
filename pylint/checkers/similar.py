@@ -49,6 +49,7 @@ import re
 import sys
 from collections import defaultdict
 from getopt import getopt
+from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain, groupby
 from typing import (
     Any,
@@ -59,9 +60,11 @@ from typing import (
     List,
     NamedTuple,
     NewType,
+    Optional,
     Set,
     TextIO,
     Tuple,
+    Union,
 )
 
 import astroid
@@ -95,6 +98,9 @@ HashToIndex_T = Dict["LinesChunk", List[Index]]
 
 # Links index in the lineset's stripped lines to the real lines in the file
 IndexToLines_T = Dict[Index, "SuccessiveLinesLimits"]
+
+# The types the streams read by pylint can take. Originating from astroid.nodes.Module.stream() and open()
+STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
 
 
 class CplSuccessiveLinesLimits:
@@ -368,12 +374,16 @@ class Similar:
         self.ignore_signatures = ignore_signatures
         self.linesets: List["LineSet"] = []
 
-    def append_stream(self, streamid: str, stream: TextIO, encoding=None) -> None:
+    def append_stream(
+        self, streamid: str, stream: STREAM_TYPES, encoding: Optional[str] = None
+    ) -> None:
         """append a file to search for similarities"""
-        if encoding is None:
-            readlines = stream.readlines
-        else:
+        if isinstance(stream, BufferedIOBase):
+            if encoding is None:
+                raise ValueError
             readlines = decoding_stream(stream, encoding).readlines
+        else:
+            readlines = stream.readlines  # type: ignore # hint parameter is incorrectly typed as non-optional
         try:
             self.linesets.append(
                 LineSet(
@@ -390,6 +400,8 @@ class Similar:
 
     def run(self) -> None:
         """start looking for similarities and display results on stdout"""
+        if self.min_lines == 0:
+            return
         self._display_sims(self._compute_sims())
 
     def _compute_sims(self) -> List[Tuple[int, Set[LinesChunkLimits_T]]]:
@@ -656,12 +668,12 @@ class LineSet:
 
     def __init__(
         self,
-        name,
-        lines,
-        ignore_comments=False,
-        ignore_docstrings=False,
-        ignore_imports=False,
-        ignore_signatures=False,
+        name: str,
+        lines: List[str],
+        ignore_comments: bool = False,
+        ignore_docstrings: bool = False,
+        ignore_imports: bool = False,
+        ignore_signatures: bool = False,
     ) -> None:
         self.name = name
         self._real_lines = lines
@@ -818,7 +830,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             nb_duplicated_lines=0, percent_duplicated_lines=0
         )
 
-    def process_module(self, node):
+    def process_module(self, node: nodes.Module) -> None:
         """process a module
 
         the module's content is accessible via the stream object

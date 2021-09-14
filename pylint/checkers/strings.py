@@ -710,8 +710,8 @@ class StringConstantChecker(BaseTokenChecker):
         super().__init__(*args, **kwargs)
         self.string_tokens = {}  # token position -> (token value, next token)
 
-    def process_module(self, module):
-        self._unicode_literals = "unicode_literals" in module.future_imports
+    def process_module(self, node: nodes.Module) -> None:
+        self._unicode_literals = "unicode_literals" in node.future_imports
 
     def process_tokens(self, tokens):
         encoding = "ascii"

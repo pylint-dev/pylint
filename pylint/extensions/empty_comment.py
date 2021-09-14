@@ -1,3 +1,5 @@
+from astroid import nodes
+
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IRawChecker
 
@@ -43,7 +45,7 @@ class CommentChecker(BaseChecker):
     options = ()
     priority = -1  # low priority
 
-    def process_module(self, node):
+    def process_module(self, node: nodes.Module) -> None:
         with node.stream() as stream:
             for (line_num, line) in enumerate(stream):
                 line = line.rstrip()

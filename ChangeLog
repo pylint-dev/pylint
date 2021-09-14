@@ -63,7 +63,47 @@ Release date: TBA
 
   Closes #4907
 
+* Fix false positive ``unused-private-member`` for accessing attributes in a class using ``cls``
+
+  Closes #4849
+
+* Fix false positive ``unused-private-member`` for private staticmethods accessed in classmethods.
+
+  Closes #4849
+
 * Extended ``consider-using-in`` check to work for attribute access.
+
+* Setting ``min-similarity-lines`` to 0 now makes the similarty checker stop checking for duplicate code
+
+  Closes #4901
+
+* Fix a bug where pylint complained if the cache's parent directory does not exist
+
+  Closes #4900
+
+* The ``global-variable-not-assigned`` checker now catches global variables that are never reassigned in a
+  local scope and catches (reassigned) functions
+
+  Closes #1375
+  Closes #330
+
+* Fix false positives for invalid-all-format that are lists or tuples at runtime
+
+  Closes #4711
+
+* Fix ``no-self-use`` and ``docparams extension`` for async functions and methods.
+
+* Add documentation for ``pyreverse`` and ``symilar``
+
+  Closes #4616
+
+* Non symbolic messages with the wrong capitalisation now correctly trigger ``use-symbolic-message-instead``
+
+  Closes #5000
+
+* The ``consider-iterating-dictionary`` checker now also considers membership checks
+
+  Closes #4069
 
 
 What's New in Pylint 2.10.3?

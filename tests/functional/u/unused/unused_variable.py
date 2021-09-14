@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, useless-object-inheritance,import-outside-toplevel, fixme
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, no-self-use, useless-object-inheritance,import-outside-toplevel, fixme, line-too-long
 
 def test_regression_737():
     import xml # [unused-import]
@@ -94,7 +94,7 @@ def test_global():
     """ Test various assignments of global
     variables through imports.
     """
-    global PATH, OS, collections, deque  # [global-statement]
+    global PATH, OS, collections, deque  # [global-variable-not-assigned, global-variable-not-assigned]
     from os import path as PATH
     import os as OS
     import collections

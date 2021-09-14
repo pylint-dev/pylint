@@ -17,12 +17,56 @@ import re
 import sys
 import textwrap
 import tokenize
+from io import BufferedReader, BytesIO
+from typing import (
+    TYPE_CHECKING,
+    List,
+    Optional,
+    Pattern,
+    TextIO,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+)
 
-from astroid import Module, modutils
+from astroid import Module, modutils, nodes
 
 from pylint.constants import PY_EXTS
 
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
+
+if TYPE_CHECKING:
+    from pylint.checkers.base_checker import BaseChecker
+
 DEFAULT_LINE_LENGTH = 79
+
+# These are types used to overload get_global_option() and refer to the options type
+GLOBAL_OPTION_BOOL = Literal[
+    "ignore-mixin-members",
+    "suggestion-mode",
+    "analyse-fallback-blocks",
+    "allow-global-unused-variables",
+]
+GLOBAL_OPTION_INT = Literal["max-line-length", "docstring-min-length"]
+GLOBAL_OPTION_LIST = Literal["ignored-modules"]
+GLOBAL_OPTION_PATTERN = Literal[
+    "no-docstring-rgx", "dummy-variables-rgx", "ignored-argument-names"
+]
+GLOBAL_OPTION_TUPLE_INT = Literal["py-version"]
+GLOBAL_OPTION_NAMES = Union[
+    GLOBAL_OPTION_BOOL,
+    GLOBAL_OPTION_INT,
+    GLOBAL_OPTION_LIST,
+    GLOBAL_OPTION_PATTERN,
+    GLOBAL_OPTION_TUPLE_INT,
+]
+T_GlobalOptionReturnTypes = TypeVar(
+    "T_GlobalOptionReturnTypes", bool, int, List[str], Pattern, Tuple[int, ...]
+)
 
 
 def normalize_text(text, line_len=DEFAULT_LINE_LENGTH, indent=""):
@@ -101,7 +145,11 @@ def safe_decode(line, encoding, *args, **kwargs):
         return line.decode(sys.getdefaultencoding(), *args, **kwargs)
 
 
-def decoding_stream(stream, encoding, errors="strict"):
+def decoding_stream(
+    stream: Union[BufferedReader, BytesIO],
+    encoding: str,
+    errors: Literal["strict"] = "strict",
+) -> codecs.StreamReader:
     try:
         reader_cls = codecs.getreader(encoding or sys.getdefaultencoding())
     except LookupError:
@@ -109,8 +157,8 @@ def decoding_stream(stream, encoding, errors="strict"):
     return reader_cls(stream, errors)
 
 
-def tokenize_module(module):
-    with module.stream() as stream:
+def tokenize_module(node: nodes.Module) -> List[tokenize.TokenInfo]:
+    with node.stream() as stream:
         readline = stream.readline
         return list(tokenize.tokenize(readline))
 
@@ -148,7 +196,52 @@ def register_plugins(linter, directory):
                     imported[base] = 1
 
 
-def get_global_option(checker, option, default=None):
+@overload
+def get_global_option(
+    checker: "BaseChecker", option: GLOBAL_OPTION_BOOL, default: Optional[bool] = None
+) -> bool:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker", option: GLOBAL_OPTION_INT, default: Optional[int] = None
+) -> int:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker",
+    option: GLOBAL_OPTION_LIST,
+    default: Optional[List[str]] = None,
+) -> List[str]:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker",
+    option: GLOBAL_OPTION_PATTERN,
+    default: Optional[Pattern] = None,
+) -> Pattern:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker",
+    option: GLOBAL_OPTION_TUPLE_INT,
+    default: Optional[Tuple[int, ...]] = None,
+) -> Tuple[int, ...]:
+    ...
+
+
+def get_global_option(
+    checker: "BaseChecker",
+    option: GLOBAL_OPTION_NAMES,
+    default: Optional[T_GlobalOptionReturnTypes] = None,
+) -> Optional[T_GlobalOptionReturnTypes]:
     """Retrieve an option defined by the given *checker* or
     by all known option providers.
 
@@ -261,7 +354,9 @@ def _format_option_value(optdict, value):
     return value
 
 
-def format_section(stream, section, options, doc=None):
+def format_section(
+    stream: TextIO, section: str, options: List[Tuple], doc: Optional[str] = None
+) -> None:
     """format an options section using the INI format"""
     if doc:
         print(_comment(doc), file=stream)
@@ -269,7 +364,7 @@ def format_section(stream, section, options, doc=None):
     _ini_format(stream, options)
 
 
-def _ini_format(stream, options):
+def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
     """format options using the INI format"""
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)

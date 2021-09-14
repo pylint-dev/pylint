@@ -6,8 +6,8 @@ import operator
 import platform
 import sys
 from collections import Counter
-from io import StringIO
-from typing import Dict, List, Optional, Tuple
+from io import StringIO, TextIOWrapper
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 import pytest
 from _pytest.config import Config
@@ -23,6 +23,9 @@ from pylint.testutils.functional_test_file import (
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 from pylint.utils import utils
+
+if TYPE_CHECKING:
+    from typing import Counter as CounterType  # typing.Counter added in Python 3.6.1
 
 
 class LintModuleTest:
@@ -88,7 +91,7 @@ class LintModuleTest:
         return f"{self._test_file.base} ({self.__class__.__module__}.{self.__class__.__name__})"
 
     @staticmethod
-    def get_expected_messages(stream):
+    def get_expected_messages(stream: TextIOWrapper) -> "CounterType[Tuple[int, str]]":
         """Parses a file and get expected messages.
 
         :param stream: File-like input stream.
@@ -96,18 +99,18 @@ class LintModuleTest:
         :returns: A dict mapping line,msg-symbol tuples to the count on this line.
         :rtype: dict
         """
-        messages = Counter()
+        messages: "CounterType[Tuple[int, str]]" = Counter()
         for i, line in enumerate(stream):
             match = _EXPECTED_RE.search(line)
             if match is None:
                 continue
             line = match.group("line")
             if line is None:
-                line = i + 1
+                lineno = i + 1
             elif line.startswith("+") or line.startswith("-"):
-                line = i + 1 + int(line)
+                lineno = i + 1 + int(line)
             else:
-                line = int(line)
+                lineno = int(line)
 
             version = match.group("version")
             op = match.group("op")
@@ -117,13 +120,13 @@ class LintModuleTest:
                     continue
 
             for msg_id in match.group("msgs").split(","):
-                messages[line, msg_id.strip()] += 1
+                messages[lineno, msg_id.strip()] += 1
         return messages
 
     @staticmethod
     def multiset_difference(
-        expected_entries: Counter, actual_entries: Counter
-    ) -> Tuple[Counter, Dict[str, int]]:
+        expected_entries: "CounterType", actual_entries: "CounterType"
+    ) -> Tuple["CounterType", Dict[str, int]]:
         """Takes two multisets and compares them.
 
         A multiset is a dict with the cardinality of the key as the value."""

@@ -10,7 +10,8 @@ import functools
 import optparse  # pylint: disable=deprecated-module
 import os
 import sys
-from typing import List
+from types import ModuleType
+from typing import Dict, List, Optional, TextIO, Tuple
 
 import toml
 
@@ -187,11 +188,13 @@ class OptionsManagerMixIn:
         """set option on the correct option provider"""
         self._all_options[opt].set_option(opt, value)
 
-    def generate_config(self, stream=None, skipsections=()):
+    def generate_config(
+        self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
+    ) -> None:
         """write a configuration file according to the current configuration
         into the given stream or stdout
         """
-        options_by_section = {}
+        options_by_section: Dict[str, List[Tuple]] = {}
         sections = []
         for provider in self.options_providers:
             for section, options in provider.options_by_section():
@@ -220,7 +223,9 @@ class OptionsManagerMixIn:
             )
             printed = True
 
-    def generate_manpage(self, pkginfo, section=1, stream=sys.stdout):
+    def generate_manpage(
+        self, pkginfo: ModuleType, section: int = 1, stream: TextIO = sys.stdout
+    ) -> None:
         with _patch_optparse():
             formatter = _ManHelpFormatter()
             formatter.output_level = self._maxlevel
