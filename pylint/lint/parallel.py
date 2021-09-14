@@ -156,7 +156,7 @@ def check_parallel(linter, jobs, files: Iterator[Tuple[str, str, str]], argument
             linter.set_current_module(module, file_path)
             for msg in messages:
                 msg = Message(*msg)
-                linter.reporter.handle_message(msg)  # type: ignore # set_reporter() call above makes linter have a reporter attr
+                linter.reporter.handle_message(msg)  # type: ignore  # linter.set_reporter() call above makes linter have a reporter attr
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status
