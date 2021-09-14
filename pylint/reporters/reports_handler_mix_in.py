@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pylint.exceptions import EmptyReportError
 from pylint.reporters.ureports.nodes import Section
@@ -75,7 +75,7 @@ class ReportsHandlerMixIn:
         return sect
 
     def add_stats(  # type: ignore # ReportsHandlerMixIn is always mixed with PyLinter
-        self: "PyLinter", **kwargs
+        self: "PyLinter", **kwargs: Any
     ) -> CheckerStats:
         """add some stats entries to the statistic dictionary
         raise an AssertionError if there is a key conflict
