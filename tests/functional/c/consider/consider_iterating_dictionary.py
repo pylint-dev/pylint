@@ -62,6 +62,6 @@ if [1] == {}:
     pass
 if [1] == dict():
     pass
-var = 1 in {}.keys() # [consider-iterating-dictionary]
-var = 1 in {}
-var = 1 in dict()
+VAR = 1 in {}.keys() # [consider-iterating-dictionary]
+VAR = 1 in {}
+VAR = 1 in dict()
