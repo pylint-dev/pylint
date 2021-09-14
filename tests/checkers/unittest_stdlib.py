@@ -52,7 +52,7 @@ class TestStdlibChecker(CheckerTestCase):
         ) -> Iterator[
             Union[Iterator, Iterator[AssignAttr]]
         ]:  # pylint: disable=unused-argument
-            new_node = nodes.AssignAttr(parent=node, attrname="alpha")
+            new_node = nodes.AssignAttr(attrname="alpha", parent=node)
             yield new_node
 
         manager = astroid.MANAGER
