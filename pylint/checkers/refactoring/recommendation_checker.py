@@ -24,11 +24,11 @@ class RecommendationChecker(checkers.BaseChecker):
         "C0201": (
             "Consider iterating the dictionary directly instead of calling .keys()",
             "consider-iterating-dictionary",
-            "Emitted when the keys of a dictionary are iterated through the .keys() "
-            "method or when .keys() is used for a membership check. "
-            "It is enough to just iterate through the dictionary itself, as "
-            "in ``for key in dictionary``. For membership checks, "
-            "``if key in dictionary``, is faster.",
+            "Emitted when the keys of a dictionary are iterated through the ``.keys()`` "
+            "method or when ``.keys()`` is used for a membership check. "
+            "It is enough to iterate through the dictionary itself, "
+            "``for key in dictionary``. For membership checks, "
+            "``if key in dictionary`` is faster.",
         ),
         "C0206": (
             "Consider iterating with .items()",
