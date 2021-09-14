@@ -54,3 +54,12 @@ if 1 in dict().values():
     pass
 if (1, 1) in dict().items():
     pass
+if [1] == {}.keys(): # [consider-iterating-dictionary]
+    pass
+if [1] == {}:
+    pass
+if [1] == dict():
+    pass
+var = 1 in {}.keys() # [consider-iterating-dictionary]
+var = 1 in {}
+var = 1 in dict()
