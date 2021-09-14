@@ -14,8 +14,6 @@
 
 A micro report is a tree of layout and content objects.
 """
-
-
 from typing import Optional
 
 

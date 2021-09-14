@@ -1,9 +1,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""A collection of typing utilities
-"""
-
+"""A collection of typing utilities."""
 from typing import TYPE_CHECKING, Dict, List, Union
 
 if TYPE_CHECKING:
