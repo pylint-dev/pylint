@@ -41,21 +41,18 @@ class TestStdlibChecker(CheckerTestCase):
     CHECKER_CLASS = stdlib.StdlibChecker
 
     def test_deprecated_no_qname_on_unexpected_nodes(self) -> None:
-        # Test that we don't crash on nodes which don't have
-        # a qname method. While this test might seem weird since
-        # it uses a transform, it's actually testing a crash that
-        # happened in production, but there was no way to retrieve
-        # the code for which this occurred (how an AssignAttr
-        # got to be the result of a function inference
-        # beats me..)
+        """Test that we don't crash on nodes which don't have a qname method.
+
+        While this test might seem weird since it uses a transform, it's actually testing a crash
+        that happened in production, but there was no way to retrieve the code for which this
+        occurred (how an AssignAttr got to be the result of a function inference beats me..)"""
 
         def infer_func(
             node: Name, context: Optional[Any] = None
         ) -> Iterator[
             Union[Iterator, Iterator[AssignAttr]]
         ]:  # pylint: disable=unused-argument
-            new_node = nodes.AssignAttr()
-            new_node.parent = node
+            new_node = nodes.AssignAttr(parent=node, attrname="alpha")
             yield new_node
 
         manager = astroid.MANAGER
