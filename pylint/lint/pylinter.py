@@ -18,7 +18,7 @@ from astroid import AstroidError
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
-from pylint.lint.expand_modules import MODULE_DESCRIPTION_DICT, expand_modules
+from pylint.lint.expand_modules import ModuleDescriptionDict, expand_modules
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
@@ -1072,7 +1072,7 @@ class PyLinter(
             if self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield (name, filepath, descr["basename"])
 
-    def _expand_files(self, modules) -> List[MODULE_DESCRIPTION_DICT]:
+    def _expand_files(self, modules) -> List[ModuleDescriptionDict]:
         """get modules and errors from a list of modules and handle errors"""
         result, errors = expand_modules(
             modules,

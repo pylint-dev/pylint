@@ -10,7 +10,7 @@ else:
     from typing_extensions import Literal, TypedDict
 
 
-class MODULE_DESCRIPTION_DICT(TypedDict):
+class ModuleDescriptionDict(TypedDict):
     path: str
     name: str
     isarg: bool
@@ -18,7 +18,7 @@ class MODULE_DESCRIPTION_DICT(TypedDict):
     basename: str
 
 
-class ERROR_DESCRIPTION_DICT(TypedDict):
+class ErrorDescriptionTest(TypedDict):
     key: Literal["fatal"]
     mod: str
     ex: Union[ImportError, SyntaxError]
@@ -61,12 +61,12 @@ def expand_modules(
     ignore_list: List[str],
     ignore_list_re: List[Pattern],
     ignore_list_paths_re: List[Pattern],
-) -> Tuple[List[MODULE_DESCRIPTION_DICT], List[ERROR_DESCRIPTION_DICT]]:
+) -> Tuple[List[ModuleDescriptionDict], List[ErrorDescriptionTest]]:
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
     """
-    result: List[MODULE_DESCRIPTION_DICT] = []
-    errors: List[ERROR_DESCRIPTION_DICT] = []
+    result: List[ModuleDescriptionDict] = []
+    errors: List[ErrorDescriptionTest] = []
     path = sys.path.copy()
 
     for something in files_or_modules:
