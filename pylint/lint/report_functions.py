@@ -27,9 +27,9 @@ def report_messages_stats(sect, stats, _):
         if not msg_id.startswith("I")
     )
     in_order.reverse()
-    lines = ("message id", "occurrences")
+    lines = ["message id", "occurrences"]
     for value, msg_id in in_order:
-        lines += (msg_id, str(value))
+        lines += [msg_id, str(value)]
     sect.append(report_nodes.Table(children=lines, cols=2, rheaders=1))
 
 
