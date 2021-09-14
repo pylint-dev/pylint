@@ -46,7 +46,7 @@ messages nor reports. XXX not true, emit a 07 report !
 
 """
 
-from typing import List, Tuple, Union
+from typing import Iterable, List, Union
 
 from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
 from pylint.checkers.deprecated import DeprecatedMixin
@@ -58,8 +58,8 @@ from pylint.utils import diff_string, register_plugins
 def table_lines_from_stats(
     stats: CheckerStats,
     old_stats: CheckerStats,
-    columns: Tuple[str, ...],
-):
+    columns: Iterable[str],
+) -> List[str]:
     """get values listed in <columns> from <stats> and <old_stats>,
     and return a formated list of values, designed to be given to a
     ureport.Table object
