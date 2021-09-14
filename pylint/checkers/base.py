@@ -412,7 +412,7 @@ def report_by_type_stats(sect, stats, old_stats):
                 nice_stats[node_type]["percent_badname"] = f"{percent:.2f}"
             except KeyError:
                 nice_stats[node_type]["percent_badname"] = "NC"
-    lines = ("type", "number", "old number", "difference", "%documented", "%badname")
+    lines = ["type", "number", "old number", "difference", "%documented", "%badname"]
     for node_type in ("module", "class", "method", "function"):
         new = stats[node_type]
         old = old_stats.get(node_type, None)
@@ -420,14 +420,14 @@ def report_by_type_stats(sect, stats, old_stats):
             diff_str = lint_utils.diff_string(old, new)
         else:
             old, diff_str = "NC", "NC"
-        lines += (
+        lines += [
             node_type,
             str(new),
             str(old),
             diff_str,
             nice_stats[node_type].get("percent_documented", "0"),
             nice_stats[node_type].get("percent_badname", "0"),
-        )
+        ]
     sect.append(reporter_nodes.Table(children=lines, cols=6, rheaders=1))
 
 
