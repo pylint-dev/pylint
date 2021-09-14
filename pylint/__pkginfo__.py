@@ -9,7 +9,7 @@ It's updated via tbump, do not modify.
 
 from __future__ import annotations
 
-__version__ = "2.15.0-dev0"
+__version__ = "3.0.0-a5"
 
 
 def get_numversion_from_version(v: str) -> tuple[int, int, int]:
