@@ -66,7 +66,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import Any, Dict, Iterator, Optional, Pattern, Tuple, Union
+from typing import Any, Dict, Iterator, Optional, Pattern, Union
 
 import astroid
 from astroid import nodes

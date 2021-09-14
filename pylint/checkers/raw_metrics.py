@@ -15,7 +15,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import tokenize
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 from pylint.checkers import BaseTokenChecker
 from pylint.exceptions import EmptyReportError
