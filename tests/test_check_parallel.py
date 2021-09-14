@@ -11,7 +11,7 @@
 
 import collections
 import os
-from typing import List, Tuple
+from typing import List
 
 import pytest
 from astroid import nodes
@@ -24,14 +24,15 @@ from pylint.lint.parallel import _worker_check_single_file as worker_check_singl
 from pylint.lint.parallel import _worker_initialize as worker_initialize
 from pylint.lint.parallel import check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
+from pylint.typing import FileItem
 
 
-def _gen_file_data(idx: int = 0) -> Tuple[str, str, str]:
+def _gen_file_data(idx: int = 0) -> FileItem:
     """Generates a file to use as a stream"""
     filepath = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "input", "similar1")
     )
-    file_data = (
+    file_data = FileItem(
         f"--test-file_data-name-{idx}--",
         filepath,
         f"--test-file_data-modname-{idx}--",
@@ -39,7 +40,7 @@ def _gen_file_data(idx: int = 0) -> Tuple[str, str, str]:
     return file_data
 
 
-def _gen_file_datas(count: int = 1) -> List[Tuple[str, str, str]]:
+def _gen_file_datas(count: int = 1) -> List[FileItem]:
     return [_gen_file_data(idx) for idx in range(count)]
 
 

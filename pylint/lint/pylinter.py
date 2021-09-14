@@ -11,7 +11,7 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
-from typing import Iterator, List, Optional, Tuple, Union
+from typing import Iterator, List, Optional, Union
 
 import astroid
 from astroid import AstroidError, nodes
@@ -32,6 +32,7 @@ from pylint.lint.utils import (
 )
 from pylint.message import MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
+from pylint.typing import FileItem
 from pylint.utils import ASTWalker, FileState, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,
@@ -983,7 +984,7 @@ class PyLinter(
     def _check_files(
         self,
         get_ast,
-        file_descrs: Union[List[Tuple[str, str, str]], Iterator[Tuple[str, str, str]]],
+        file_descrs: Union[List[FileItem], Iterator[FileItem]],
     ):
         """Check all files from file_descrs
 
@@ -1046,7 +1047,7 @@ class PyLinter(
             self.add_message(msgid, line, None, args)
 
     @staticmethod
-    def _get_file_descr_from_stdin(filepath: str) -> Tuple[str, str, str]:
+    def _get_file_descr_from_stdin(filepath: str) -> FileItem:
         """Return file description (tuple of module name, file path, base name) from given file path
 
         This method is used for creating suitable file description for _check_files when the
@@ -1060,9 +1061,9 @@ class PyLinter(
         except ImportError:
             modname = os.path.splitext(os.path.basename(filepath))[0]
 
-        return (modname, filepath, filepath)
+        return FileItem(modname, filepath, filepath)
 
-    def _iterate_file_descrs(self, files_or_modules) -> Iterator[Tuple[str, str, str]]:
+    def _iterate_file_descrs(self, files_or_modules) -> Iterator[FileItem]:
         """Return generator yielding file descriptions (tuples of module name, file path, base name)
 
         The returned generator yield one item for each Python module that should be linted.
@@ -1070,7 +1071,7 @@ class PyLinter(
         for descr in self._expand_files(files_or_modules):
             name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
             if self.should_analyze_file(name, filepath, is_argument=is_arg):
-                yield (name, filepath, descr["basename"])
+                yield FileItem(name, filepath, descr["basename"])
 
     def _expand_files(self, modules) -> List[ModuleDescriptionDict]:
         """get modules and errors from a list of modules and handle errors"""

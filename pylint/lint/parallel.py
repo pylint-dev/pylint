@@ -8,6 +8,7 @@ from typing import Any, DefaultDict, Iterator, List, Tuple
 from pylint import reporters
 from pylint.lint.utils import _patch_sys_path
 from pylint.message import Message
+from pylint.typing import FileItem
 
 try:
     import multiprocessing
@@ -64,7 +65,7 @@ def _worker_initialize(linter, arguments=None):
 
 
 def _worker_check_single_file(
-    file_item: Tuple[str, str, str]
+    file_item: FileItem,
 ) -> Tuple[int, Any, str, Any, List[Tuple[Any, ...]], Any, Any, DefaultDict[Any, List]]:
     name, filepath, modname = file_item
 
@@ -114,7 +115,7 @@ def _merge_mapreduce_data(linter, all_mapreduce_data):
             checker.reduce_map_data(linter, collated_map_reduce_data[checker.name])
 
 
-def check_parallel(linter, jobs, files: Iterator[Tuple[str, str, str]], arguments=None):
+def check_parallel(linter, jobs, files: Iterator[FileItem], arguments=None):
     """Use the given linter to lint the files with given amount of workers (jobs)
     This splits the work filestream-by-filestream. If you need to do work across
     multiple files, as in the similarity-checker, then inherit from MapReduceMixin and
