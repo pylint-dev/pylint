@@ -65,3 +65,4 @@ if [1] == dict():
 VAR = 1 in {}.keys() # [consider-iterating-dictionary]
 VAR = 1 in {}
 VAR = 1 in dict()
+VAR = [1, 2] == {}.keys() in {False}

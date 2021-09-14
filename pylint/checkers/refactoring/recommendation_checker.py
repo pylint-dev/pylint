@@ -80,7 +80,11 @@ class RecommendationChecker(checkers.BaseChecker):
         if (
             isinstance(node.parent, (nodes.For, nodes.Comprehension))
             or isinstance(node.parent, nodes.Compare)
-            and any(op for op, _ in node.parent.ops if op == "in")
+            and any(
+                op
+                for op, comparator in node.parent.ops
+                if op == "in" and comparator is node
+            )
         ):
             inferred = utils.safe_infer(node.func)
             if not isinstance(inferred, astroid.BoundMethod) or not isinstance(
