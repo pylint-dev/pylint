@@ -93,6 +93,10 @@ Release date: TBA
 
   Closes #4616
 
+* Non symbolic messages with the wrong capitalisation now correctly trigger ``use-symbolic-message-instead``
+
+  Closes #5000
+
 * The ``consider-iterating-dictionary`` checker now also considers membership checks
 
   Closes #4069

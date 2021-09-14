@@ -4,6 +4,7 @@
 # - https://github.com/PyCQA/pylint/issues/2698
 from dataclasses import dataclass, field
 import dataclasses as dc
+from typing import cast
 
 
 @dataclass
@@ -41,3 +42,9 @@ for _ in Test2.int_prop:  # [not-an-iterable]
 
 
 Test2.int_prop["key"] = "value"  # [unsupported-assignment-operation]
+
+
+@dc.dataclass
+class TEST3:
+    """Test dataclass that puts call to field() in another function call"""
+    attribute: int = cast(int, field(default_factory=dict))
