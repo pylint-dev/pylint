@@ -56,7 +56,7 @@ if 1 in dict().values():
     pass
 if (1, 1) in dict().items():
     pass
-if [1] == {}.keys(): # [consider-iterating-dictionary]
+if [1] == {}.keys():
     pass
 if [1] == {}:
     pass

@@ -15,5 +15,4 @@ consider-iterating-dictionary:40:30::Consider iterating the dictionary directly 
 consider-iterating-dictionary:40:60::Consider iterating the dictionary directly instead of calling .keys():HIGH
 consider-iterating-dictionary:43:8::Consider iterating the dictionary directly instead of calling .keys():HIGH
 consider-iterating-dictionary:45:8::Consider iterating the dictionary directly instead of calling .keys():HIGH
-consider-iterating-dictionary:59:10::Consider iterating the dictionary directly instead of calling .keys():HIGH
 consider-iterating-dictionary:65:11::Consider iterating the dictionary directly instead of calling .keys():HIGH
