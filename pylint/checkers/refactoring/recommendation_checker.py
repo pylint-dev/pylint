@@ -27,8 +27,8 @@ class RecommendationChecker(checkers.BaseChecker):
             "Emitted when the keys of a dictionary are iterated through the .keys() "
             "method or when .keys() is used for a membership check. "
             "It is enough to just iterate through the dictionary itself, as "
-            'in "for key in dictionary". For membership checks '
-            '("if key in dictionary") this is actually faster.',
+            "in ``for key in dictionary``. For membership checks, "
+            "``if key in dictionary``, is faster.",
         ),
         "C0206": (
             "Consider iterating with .items()",
