@@ -2,11 +2,36 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """A collection of typing utilities."""
-from typing import NamedTuple
+import sys
+from typing import NamedTuple, Union
+
+if sys.version_info >= (3, 8):
+    from typing import Literal, TypedDict
+else:
+    from typing_extensions import Literal, TypedDict
 
 
-# Represents data about a file handled by pylint
 class FileItem(NamedTuple):
+    """Represents data about a file handled by pylint"""
+
     name: str
     filepath: str
     modpath: str
+
+
+class ModuleDescriptionDict(TypedDict):
+    """Represents data about a checked module"""
+
+    path: str
+    name: str
+    isarg: bool
+    basepath: str
+    basename: str
+
+
+class ErrorDescriptionDict(TypedDict):
+    """Represents data about errors collected during checking of a module"""
+
+    key: Literal["fatal"]
+    mod: str
+    ex: Union[ImportError, SyntaxError]

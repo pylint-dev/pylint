@@ -11,14 +11,14 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
-from typing import Iterator, List, Optional, Union
+from typing import Iterable, Iterator, List, Optional, Sequence
 
 import astroid
 from astroid import AstroidError, nodes
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
-from pylint.lint.expand_modules import ModuleDescriptionDict, expand_modules
+from pylint.lint.expand_modules import expand_modules
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
@@ -32,7 +32,7 @@ from pylint.lint.utils import (
 )
 from pylint.message import MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
-from pylint.typing import FileItem
+from pylint.typing import FileItem, ModuleDescriptionDict
 from pylint.utils import ASTWalker, FileState, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,
@@ -937,7 +937,7 @@ class PyLinter(
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
 
-    def check(self, files_or_modules: List[str]) -> None:
+    def check(self, files_or_modules: Sequence[str]) -> None:
         """main checking entry: check a list of files or modules from their name.
 
         files_or_modules is a list of strings presenting modules to check.
@@ -969,7 +969,7 @@ class PyLinter(
                 files_or_modules,
             )
 
-    def check_single_file(self, name: str, filepath: str, modname: str) -> None:
+    def check_single_file(self, file: FileItem) -> None:
         """Check single file
 
         The arguments are the same that are documented in _check_files
@@ -977,15 +977,13 @@ class PyLinter(
         The initialize() method should be called before calling this method
         """
         with self._astroid_module_checker() as check_astroid_module:
-            self._check_file(
-                self.get_ast, check_astroid_module, name, filepath, modname
-            )
+            self._check_file(self.get_ast, check_astroid_module, file)
 
     def _check_files(
         self,
         get_ast,
-        file_descrs: Union[List[FileItem], Iterator[FileItem]],
-    ):
+        file_descrs: Iterable[FileItem],
+    ) -> None:
         """Check all files from file_descrs
 
         The file_descrs should be iterable of tuple (name, filepath, modname)
@@ -998,7 +996,7 @@ class PyLinter(
             for name, filepath, modname in file_descrs:
                 try:
                     self._check_file(
-                        get_ast, check_astroid_module, name, filepath, modname
+                        get_ast, check_astroid_module, FileItem(name, filepath, modname)
                     )
                 except Exception as ex:  # pylint: disable=broad-except
                     template_path = prepare_crash_report(
@@ -1012,9 +1010,7 @@ class PyLinter(
                         symbol = "fatal"
                         self.add_message(symbol, args=msg)
 
-    def _check_file(
-        self, get_ast, check_astroid_module, name: str, filepath: str, modname: str
-    ):
+    def _check_file(self, get_ast, check_astroid_module, file: FileItem):
         """Check a file using the passed utility functions (get_ast and check_astroid_module)
 
         :param callable get_ast: callable returning AST from defined file taking the following arguments
@@ -1022,10 +1018,9 @@ class PyLinter(
         - name: Python module name
         :param callable check_astroid_module: callable checking an AST taking the following arguments
         - ast: AST of the module
-        :param str name: full name of the module
-        :param str filepath: path to checked file
-        :param str modname: name of the checked Python module
+        :param FileItem file: data about the file
         """
+        name, filepath, modname = file
         self.set_current_module(name, filepath)
         # get the module representation
         ast_node = get_ast(filepath, name)
