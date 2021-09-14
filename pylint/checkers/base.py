@@ -412,14 +412,7 @@ def report_by_type_stats(sect, stats, old_stats):
                 nice_stats[node_type]["percent_badname"] = f"{percent:.2f}"
             except KeyError:
                 nice_stats[node_type]["percent_badname"] = "NC"
-    lines = [
-        "type",
-        "number",
-        "old number",
-        "difference",
-        "%documented",
-        "%badname",
-    ]
+    lines = ["type", "number", "old number", "difference", "%documented", "%badname"]
     for node_type in ("module", "class", "method", "function"):
         new = stats[node_type]
         old = old_stats.get(node_type, None)
