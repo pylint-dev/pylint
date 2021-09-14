@@ -125,7 +125,7 @@ def load_results(base):
 def save_results(results, base):
     if not os.path.exists(PYLINT_HOME):
         try:
-            os.mkdir(PYLINT_HOME)
+            os.makedirs(PYLINT_HOME)
         except OSError:
             print(f"Unable to create directory {PYLINT_HOME}", file=sys.stderr)
     data_file = _get_pdata_path(base, 1)

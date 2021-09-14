@@ -28,6 +28,9 @@
 
 import re
 import tokenize
+from typing import Optional
+
+from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IRawChecker, ITokenChecker
@@ -50,11 +53,11 @@ class ByIdManagedMessagesChecker(BaseChecker):
     }
     options = ()
 
-    def process_module(self, module):
+    def process_module(self, node: nodes.Module) -> None:
         """Inspect the source file to find messages activated or deactivated by id."""
         managed_msgs = MessagesHandlerMixIn.get_by_id_managed_msgs()
         for (mod_name, msgid, symbol, lineno, is_disabled) in managed_msgs:
-            if mod_name == module.name:
+            if mod_name == node.name:
                 verb = "disable" if is_disabled else "enable"
                 txt = f"'{msgid}' is cryptic: use '# pylint: {verb}={symbol}' instead"
                 self.add_message("use-symbolic-message-instead", line=lineno, args=txt)
@@ -114,22 +117,28 @@ class EncodingChecker(BaseChecker):
 
         self._fixme_pattern = re.compile(regex_string, re.I)
 
-    def _check_encoding(self, lineno, line, file_encoding):
+    def _check_encoding(
+        self, lineno: int, line: bytes, file_encoding: str
+    ) -> Optional[str]:
         try:
             return line.decode(file_encoding)
         except UnicodeDecodeError:
             pass
         except LookupError:
-            if line.startswith("#") and "coding" in line and file_encoding in line:
+            if (
+                line.startswith(b"#")
+                and "coding" in str(line)
+                and file_encoding in str(line)
+            ):
                 msg = f"Cannot decode using encoding '{file_encoding}', bad encoding"
                 self.add_message("syntax-error", line=lineno, args=msg)
         return None
 
-    def process_module(self, module):
+    def process_module(self, node: nodes.Module) -> None:
         """inspect the source file to find encoding problem"""
-        encoding = module.file_encoding if module.file_encoding else "ascii"
+        encoding = node.file_encoding if node.file_encoding else "ascii"
 
-        with module.stream() as stream:
+        with node.stream() as stream:
             for lineno, line in enumerate(stream):
                 self._check_encoding(lineno + 1, line, encoding)
 

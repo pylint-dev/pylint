@@ -35,7 +35,7 @@ def report_raw_stats(
     if not total_lines:
         raise EmptyReportError()
     sect.description = f"{total_lines} lines have been analyzed"
-    lines: Tuple[str, ...] = ("type", "number", "%", "previous", "difference")
+    lines = ["type", "number", "%", "previous", "difference"]
     for node_type in ("code", "docstring", "comment", "empty"):
         key = node_type + "_lines"
         total: int = stats[key]  # type: ignore
@@ -45,7 +45,7 @@ def report_raw_stats(
             diff_str = diff_string(old, total)
         else:
             old, diff_str = "NC", "NC"
-        lines += (node_type, str(total), f"{percent:.2f}", str(old), diff_str)
+        lines += [node_type, str(total), f"{percent:.2f}", str(old), diff_str]
     sect.append(Table(children=lines, cols=5, rheaders=1))
 
 

@@ -24,9 +24,11 @@ class RecommendationChecker(checkers.BaseChecker):
         "C0201": (
             "Consider iterating the dictionary directly instead of calling .keys()",
             "consider-iterating-dictionary",
-            "Emitted when the keys of a dictionary are iterated through the .keys() "
-            "method. It is enough to just iterate through the dictionary itself, as "
-            'in "for key in dictionary".',
+            "Emitted when the keys of a dictionary are iterated through the ``.keys()`` "
+            "method or when ``.keys()`` is used for a membership check. "
+            "It is enough to iterate through the dictionary itself, "
+            "``for key in dictionary``. For membership checks, "
+            "``if key in dictionary`` is faster.",
         ),
         "C0206": (
             "Consider iterating with .items()",
@@ -75,16 +77,21 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if node.func.attrname != "keys":
             return
-        if not isinstance(node.parent, (nodes.For, nodes.Comprehension)):
-            return
-
-        inferred = utils.safe_infer(node.func)
-        if not isinstance(inferred, astroid.BoundMethod) or not isinstance(
-            inferred.bound, nodes.Dict
+        if (
+            isinstance(node.parent, (nodes.For, nodes.Comprehension))
+            or isinstance(node.parent, nodes.Compare)
+            and any(
+                op
+                for op, comparator in node.parent.ops
+                if op == "in" and comparator is node
+            )
         ):
-            return
+            inferred = utils.safe_infer(node.func)
+            if not isinstance(inferred, astroid.BoundMethod) or not isinstance(
+                inferred.bound, nodes.Dict
+            ):
+                return
 
-        if isinstance(node.parent, (nodes.For, nodes.Comprehension)):
             self.add_message("consider-iterating-dictionary", node=node)
 
     def _check_use_maxsplit_arg(self, node: nodes.Call) -> None:

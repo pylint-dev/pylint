@@ -14,6 +14,7 @@ class _ManHelpFormatter(optparse.HelpFormatter):
         optparse.HelpFormatter.__init__(
             self, indent_increment, max_help_position, width, short_first
         )
+        self.output_level: int
 
     def format_heading(self, heading):
         return f".SH {heading.upper()}\n"

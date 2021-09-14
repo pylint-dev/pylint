@@ -1,13 +1,14 @@
-bad-option-value:1:0::Bad option value 'T1234'
-use-symbolic-message-instead:1:0::"'C0111' is cryptic: use '# pylint: disable=missing-docstring' instead"
-use-symbolic-message-instead:1:0::"'R0903' is cryptic: use '# pylint: disable=too-few-public-methods' instead"
-use-symbolic-message-instead:2:0::"'C0111' is cryptic: use '# pylint: enable=missing-docstring' instead"
-missing-function-docstring:4:0:my_function:Missing function or method docstring
-use-symbolic-message-instead:7:0::"'C0111' is cryptic: use '# pylint: disable=missing-docstring' instead"
-use-symbolic-message-instead:8:0::"'R0903' is cryptic: use '# pylint: enable=too-few-public-methods' instead"
-use-symbolic-message-instead:9:0::"'R0903' is cryptic: use '# pylint: disable=too-few-public-methods' instead"
-use-symbolic-message-instead:12:0::"'C0102' is cryptic: use '# pylint: disable=blacklisted-name' instead"
-use-symbolic-message-instead:16:0::"'C0102' is cryptic: use '# pylint: disable=blacklisted-name' instead"
-use-symbolic-message-instead:16:0::"'R1711' is cryptic: use '# pylint: disable=useless-return' instead"
-missing-function-docstring:20:0:test_enabled_by_id_msg:Missing function or method docstring
-use-symbolic-message-instead:20:0::"'C0111' is cryptic: use '# pylint: enable=missing-docstring' instead"
+bad-option-value:1:0::Bad option value 'T1234':HIGH
+use-symbolic-message-instead:1:0::"'C0111' is cryptic: use '# pylint: disable=missing-docstring' instead":HIGH
+use-symbolic-message-instead:1:0::"'R0903' is cryptic: use '# pylint: disable=too-few-public-methods' instead":HIGH
+use-symbolic-message-instead:2:0::"'c0111' is cryptic: use '# pylint: enable=missing-docstring' instead":HIGH
+use-symbolic-message-instead:2:0::"'w0223' is cryptic: use '# pylint: enable=abstract-method' instead":HIGH
+missing-function-docstring:4:0:my_function:Missing function or method docstring:HIGH
+use-symbolic-message-instead:7:0::"'C0111' is cryptic: use '# pylint: disable=missing-docstring' instead":HIGH
+use-symbolic-message-instead:8:0::"'R0903' is cryptic: use '# pylint: enable=too-few-public-methods' instead":HIGH
+use-symbolic-message-instead:9:0::"'R0903' is cryptic: use '# pylint: disable=too-few-public-methods' instead":HIGH
+use-symbolic-message-instead:12:0::"'C0102' is cryptic: use '# pylint: disable=blacklisted-name' instead":HIGH
+use-symbolic-message-instead:16:0::"'C0102' is cryptic: use '# pylint: disable=blacklisted-name' instead":HIGH
+use-symbolic-message-instead:16:0::"'R1711' is cryptic: use '# pylint: disable=useless-return' instead":HIGH
+missing-function-docstring:20:0:test_enabled_by_id_msg:Missing function or method docstring:HIGH
+use-symbolic-message-instead:20:0::"'C0111' is cryptic: use '# pylint: enable=missing-docstring' instead":HIGH

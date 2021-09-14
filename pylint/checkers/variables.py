@@ -931,7 +931,10 @@ class VariablesChecker(BaseChecker):
             not_defined_locally_by_import = not any(
                 isinstance(local, nodes.Import) for local in locals_.get(name, ())
             )
-            if not assign_nodes and not_defined_locally_by_import:
+            if (
+                not utils.is_reassigned_after_current(node, name)
+                and not_defined_locally_by_import
+            ):
                 self.add_message("global-variable-not-assigned", args=name, node=node)
                 default_message = False
                 continue
@@ -945,6 +948,9 @@ class VariablesChecker(BaseChecker):
                     break
                 if anode.frame() is module:
                     # module level assignment
+                    break
+                if isinstance(anode, nodes.FunctionDef) and anode.parent is module:
+                    # module level function assignment
                     break
             else:
                 if not_defined_locally_by_import:
@@ -2007,15 +2013,14 @@ class VariablesChecker(BaseChecker):
             return module
         return None
 
-    def _check_all(self, node, not_consumed):
+    def _check_all(self, node: nodes.Module, not_consumed):
         assigned = next(node.igetattr("__all__"))
         if assigned is astroid.Uninferable:
             return
-
-        if not isinstance(assigned, (nodes.Tuple, nodes.List, list, tuple)):
-            self.add_message("invalid-all-format", node=assigned)
+        if not assigned.pytype() in ["builtins.list", "builtins.tuple"]:
+            line, col = assigned.tolineno, assigned.col_offset
+            self.add_message("invalid-all-format", line=line, col_offset=col, node=node)
             return
-
         for elt in getattr(assigned, "elts", ()):
             try:
                 elt_name = next(elt.infer())

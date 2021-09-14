@@ -926,9 +926,12 @@ a metaclass class method.",
                     continue
                 if isinstance(attribute.expr, nodes.Name) and attribute.expr.name in (
                     "self",
+                    "cls",
                     node.name,
                 ):
-                    # self.__attrname / node_name.__attrname
+                    # self.__attrname
+                    # cls.__attrname
+                    # node_name.__attrname
                     break
                 if isinstance(attribute.expr, nodes.Call):
                     # type(self).__attrname
@@ -1000,11 +1003,15 @@ a metaclass class method.",
                 if attribute.attrname != assign_attr.attrname:
                     continue
 
-                if assign_attr.expr.name == "cls" and attribute.expr.name in [
-                    "cls",
-                    "self",
-                ]:
-                    # If assigned to cls.attrib, can be accessed by cls/self
+                if (
+                    assign_attr.expr.name
+                    in [
+                        "cls",
+                        node.name,
+                    ]
+                    and attribute.expr.name in ["cls", "self", node.name]
+                ):
+                    # If assigned to cls or class name, can be accessed by cls/self/class name
                     break
 
                 if (
@@ -1426,6 +1433,8 @@ a metaclass class method.",
                 )
             ):
                 self.add_message("no-self-use", node=node)
+
+    leave_asyncfunctiondef = leave_functiondef
 
     def visit_attribute(self, node: nodes.Attribute) -> None:
         """check if the getattr is an access to a class member

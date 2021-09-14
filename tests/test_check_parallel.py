@@ -14,7 +14,7 @@ import os
 from typing import List, Tuple
 
 import pytest
-from astroid.nodes.scoped_nodes import Module
+from astroid import nodes
 
 import pylint.interfaces
 import pylint.lint.parallel
@@ -64,7 +64,7 @@ class SequentialTestChecker(BaseChecker):
         self.data: List[str] = []
         self.linter = linter
 
-    def process_module(self, _astroid: Module) -> None:
+    def process_module(self, _node: nodes.Module) -> None:
         """Called once per stream/file/astroid object"""
         # record the number of invocations with the data object
         record = self.test_data + str(len(self.data))
@@ -126,7 +126,7 @@ class ParallelTestChecker(BaseChecker):
             self.add_message("R9999", args=("From reduce_map_data",))
         recombined.close()
 
-    def process_module(self, _astroid: Module) -> None:
+    def process_module(self, _node: nodes.Module) -> None:
         """Called once per stream/file/astroid object"""
         # record the number of invocations with the data object
         record = self.test_data + str(len(self.data))

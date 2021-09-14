@@ -13,7 +13,7 @@ import warnings
 from io import TextIOWrapper
 
 import astroid
-from astroid import AstroidError
+from astroid import AstroidError, nodes
 
 from pylint import checkers, config, exceptions, interfaces, reporters
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
@@ -1183,10 +1183,12 @@ class PyLinter(
 
         return retval
 
-    def _check_astroid_module(self, ast_node, walker, rawcheckers, tokencheckers):
+    def _check_astroid_module(
+        self, node: nodes.Module, walker, rawcheckers, tokencheckers
+    ):
         """Check given AST node with given walker and checkers
 
-        :param astroid.nodes.Module ast_node: AST node of the module to check
+        :param astroid.nodes.Module node: AST node of the module to check
         :param pylint.utils.ast_walker.ASTWalker walker: AST walker
         :param list rawcheckers: List of token checkers to use
         :param list tokencheckers: List of raw checkers to use
@@ -1196,13 +1198,13 @@ class PyLinter(
         :rtype: bool
         """
         try:
-            tokens = utils.tokenize_module(ast_node)
+            tokens = utils.tokenize_module(node)
         except tokenize.TokenError as ex:
             self.add_message("syntax-error", line=ex.args[1][0], args=ex.args[0])
             return None
 
-        if not ast_node.pure_python:
-            self.add_message("raw-checker-failed", args=ast_node.name)
+        if not node.pure_python:
+            self.add_message("raw-checker-failed", args=node.name)
         else:
             # assert astroid.file.endswith('.py')
             # invoke ITokenChecker interface on self to fetch module/block
@@ -1211,14 +1213,14 @@ class PyLinter(
             if self._ignore_file:
                 return False
             # walk ast to collect line numbers
-            self.file_state.collect_block_lines(self.msgs_store, ast_node)
+            self.file_state.collect_block_lines(self.msgs_store, node)
             # run raw and tokens checkers
             for checker in rawcheckers:
-                checker.process_module(ast_node)
+                checker.process_module(node)
             for checker in tokencheckers:
                 checker.process_tokens(tokens)
         # generate events to astroid checkers
-        walker.walk(ast_node)
+        walker.walk(node)
         return True
 
     # IAstroidChecker interface #################################################
