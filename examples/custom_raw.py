@@ -1,3 +1,5 @@
+from astroid import nodes
+
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IRawChecker
 
@@ -22,7 +24,7 @@ class MyRawChecker(BaseChecker):
     }
     options = ()
 
-    def process_module(self, node):
+    def process_module(self, node: nodes.Module) -> None:
         """process a module
 
         the module's content is accessible via node.stream() function

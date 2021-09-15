@@ -26,7 +26,7 @@ class MessageIdStore:
 
     def get_symbol(self, msgid: str) -> str:
         try:
-            return self.__msgid_to_symbol[msgid]
+            return self.__msgid_to_symbol[msgid.upper()]
         except KeyError as e:
             msg = f"'{msgid}' is not stored in the message store."
             raise UnknownMessageError(msg) from e

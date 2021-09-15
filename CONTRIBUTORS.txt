@@ -25,7 +25,7 @@ Current team:
   Added Python 3 check for accessing deprecated methods on the 'string' module,
   various patches.
 
-* Dmitry Pribysh: committer
+* Dmitri Prybysh: committer
 
   multiple-imports, not-iterable, not-a-mapping, various patches.
 

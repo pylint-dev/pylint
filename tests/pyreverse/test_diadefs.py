@@ -26,7 +26,7 @@ from typing import Callable, Dict, List, Tuple
 
 import pytest
 from astroid import nodes
-from conftest import PyreverseConfig  # type: ignore #pylint: disable=no-name-in-module
+from tests.pyreverse.conftest import PyreverseConfig
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,

@@ -351,7 +351,7 @@ class FormatChecker(BaseTokenChecker):
             self._lines[line_num] = line.split("\n")[0]
         self.check_lines(line, line_num)
 
-    def process_module(self, _module):
+    def process_module(self, _node: nodes.Module) -> None:
         pass
 
     def _check_keyword_parentheses(

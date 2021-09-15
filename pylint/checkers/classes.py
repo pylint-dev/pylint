@@ -999,11 +999,15 @@ a metaclass class method.",
                 if attribute.attrname != assign_attr.attrname:
                     continue
 
-                if assign_attr.expr.name == "cls" and attribute.expr.name in [
-                    "cls",
-                    "self",
-                ]:
-                    # If assigned to cls.attrib, can be accessed by cls/self
+                if (
+                    assign_attr.expr.name
+                    in [
+                        "cls",
+                        node.name,
+                    ]
+                    and attribute.expr.name in ["cls", "self", node.name]
+                ):
+                    # If assigned to cls or class name, can be accessed by cls/self/class name
                     break
 
                 if (

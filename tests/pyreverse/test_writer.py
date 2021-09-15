@@ -28,7 +28,7 @@ from typing import Callable, Iterator, List
 from unittest.mock import Mock
 
 import pytest
-from conftest import PyreverseConfig  # type: ignore
+from tests.pyreverse.conftest import PyreverseConfig
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, Project

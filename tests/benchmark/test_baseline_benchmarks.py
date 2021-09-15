@@ -16,6 +16,7 @@ import time
 from unittest.mock import patch
 
 import pytest
+from astroid import nodes
 
 import pylint.interfaces
 from pylint.checkers.base_checker import BaseChecker
@@ -50,7 +51,7 @@ class SleepingChecker(BaseChecker):
     }
     sleep_duration = 0.5  # the time to pretend we're doing work for
 
-    def process_module(self, _astroid):
+    def process_module(self, _node: nodes.Module) -> None:
         """Sleeps for `sleep_duration` on each call
 
         This effectively means each file costs ~`sleep_duration`+framework overhead"""
@@ -75,7 +76,7 @@ class SleepingCheckerLong(BaseChecker):
     }
     sleep_duration = 0.5  # the time to pretend we're doing work for
 
-    def process_module(self, _astroid):
+    def process_module(self, _node: nodes.Module) -> None:
         """Sleeps for `sleep_duration` on each call
 
         This effectively means each file costs ~`sleep_duration`+framework overhead"""
@@ -96,7 +97,7 @@ class NoWorkChecker(BaseChecker):
         )
     }
 
-    def process_module(self, _astroid):
+    def process_module(self, _node: nodes.Module) -> None:
         pass
 
 
