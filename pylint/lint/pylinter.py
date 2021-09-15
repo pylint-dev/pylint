@@ -32,7 +32,7 @@ from pylint.lint.utils import (
 )
 from pylint.message import MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
-from pylint.typing import FileItem, ModuleDescriptionDict, CheckerStats
+from pylint.typing import CheckerStats, FileItem, ModuleDescriptionDict
 from pylint.utils import ASTWalker, FileState, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,

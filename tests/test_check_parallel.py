@@ -24,7 +24,7 @@ from pylint.lint.parallel import _worker_check_single_file as worker_check_singl
 from pylint.lint.parallel import _worker_initialize as worker_initialize
 from pylint.lint.parallel import check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
-from pylint.typing import FileItem, CheckerStats
+from pylint.typing import CheckerStats, FileItem
 
 
 def _gen_file_data(idx: int = 0) -> FileItem:

@@ -3,7 +3,7 @@
 
 import collections
 import functools
-from typing import Any, DefaultDict, Iterable, List, Tuple, TYPE_CHECKING, Dict, Union
+from typing import TYPE_CHECKING, Any, DefaultDict, Dict, Iterable, List, Tuple, Union
 
 from pylint import reporters
 from pylint.lint.utils import _patch_sys_path
