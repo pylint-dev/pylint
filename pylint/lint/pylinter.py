@@ -1020,16 +1020,15 @@ class PyLinter(
         - ast: AST of the module
         :param FileItem file: data about the file
         """
-        name, filepath, modname = file
-        self.set_current_module(name, filepath)
+        self.set_current_module(file.name, file.filepath)
         # get the module representation
-        ast_node = get_ast(filepath, name)
+        ast_node = get_ast(file.filepath, file.name)
         if ast_node is None:
             return
 
         self._ignore_file = False
 
-        self.file_state = FileState(modname)
+        self.file_state = FileState(file.modpath)
         # fix the current file (if the source file was not available or
         # if it's actually a c extension)
         self.current_file = ast_node.file  # pylint: disable=maybe-no-member
