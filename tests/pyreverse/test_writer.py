@@ -28,11 +28,11 @@ from typing import Callable, Iterator, List
 from unittest.mock import Mock
 
 import pytest
-from tests.pyreverse.conftest import PyreverseConfig
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.pyreverse.writer import DiagramWriter
+from pylint.testutils.pyreverse import PyreverseConfig
 
 _DEFAULTS = {
     "all_ancestors": None,

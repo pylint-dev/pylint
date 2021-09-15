@@ -26,7 +26,6 @@ from typing import Callable, Dict, List, Tuple
 
 import pytest
 from astroid import nodes
-from tests.pyreverse.conftest import PyreverseConfig
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
@@ -36,6 +35,7 @@ from pylint.pyreverse.diadefslib import (
 )
 from pylint.pyreverse.diagrams import DiagramEntity, Relationship
 from pylint.pyreverse.inspector import Linker, Project
+from pylint.testutils.pyreverse import PyreverseConfig
 
 
 def _process_classes(classes: List[DiagramEntity]) -> List[Tuple[bool, str]]:
