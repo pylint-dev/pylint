@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-from typing import Union, cast
+from typing import Union
 
 import astroid
 from astroid import nodes
@@ -121,7 +121,6 @@ class RecommendationChecker(checkers.BaseChecker):
                 # Check if loop present within the scope of the node
                 scope = node.scope()
                 for loop_node in scope.nodes_of_class((nodes.For, nodes.While)):
-                    loop_node = cast(nodes.NodeNG, loop_node)
                     if not loop_node.parent_of(node):
                         continue
 
