@@ -73,6 +73,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
+from pylint.typing import CheckerStats
 from pylint.utils import decoding_stream
 
 DEFAULT_MIN_SIMILARITY_LINE = 4
@@ -721,7 +722,11 @@ MSGS = {
 }
 
 
-def report_similarities(sect, stats, old_stats):
+def report_similarities(
+    sect,
+    stats: CheckerStats,
+    old_stats: CheckerStats,
+):
     """make a layout with some stats about duplication"""
     lines = ["", "now", "previous", "difference"]
     lines += table_lines_from_stats(
@@ -804,7 +809,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             ignore_imports=self.config.ignore_imports,
             ignore_signatures=self.config.ignore_signatures,
         )
-        self.stats = None
+        self.stats: CheckerStats = {}
 
     def set_option(self, optname, value, action=None, optdict=None):
         """method called to set an option (registered in the options list)

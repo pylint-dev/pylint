@@ -24,7 +24,7 @@ from pylint.lint.parallel import _worker_check_single_file as worker_check_singl
 from pylint.lint.parallel import _worker_initialize as worker_initialize
 from pylint.lint.parallel import check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
-from pylint.typing import FileItem
+from pylint.typing import FileItem, CheckerStats
 
 
 def _gen_file_data(idx: int = 0) -> FileItem:
@@ -102,7 +102,7 @@ class ParallelTestChecker(BaseChecker):
         super().__init__(linter)
         self.data: List[str] = []
         self.linter = linter
-        self.stats = None
+        self.stats: CheckerStats = {}
 
     def open(self) -> None:
         """init the checkers: reset statistics information"""

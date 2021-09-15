@@ -3,12 +3,15 @@
 
 import collections
 import functools
-from typing import Any, DefaultDict, Iterable, List, Tuple
+from typing import Any, DefaultDict, Iterable, List, Tuple, TYPE_CHECKING, Dict, Union
 
 from pylint import reporters
 from pylint.lint.utils import _patch_sys_path
 from pylint.message import Message
-from pylint.typing import FileItem
+from pylint.typing import CheckerStats, FileItem
+
+if TYPE_CHECKING:
+    from typing import Counter  # typing.Counter added in Python 3.6.1
 
 try:
     import multiprocessing
@@ -32,20 +35,20 @@ def _get_new_args(message):
     return (message.msg_id, message.symbol, location, message.msg, message.confidence)
 
 
-def _merge_stats(stats):
-    merged = {}
-    by_msg = collections.Counter()
+def _merge_stats(stats: List[CheckerStats]):
+    merged: CheckerStats = {}
+    by_msg: "Counter[str]" = collections.Counter()
     for stat in stats:
-        message_stats = stat.pop("by_msg", {})
+        message_stats: Union["Counter[str]", Dict] = stat.pop("by_msg", {})  # type: ignore
         by_msg.update(message_stats)
 
         for key, item in stat.items():
             if key not in merged:
                 merged[key] = item
             elif isinstance(item, dict):
-                merged[key].update(item)
+                merged[key].update(item)  # type: ignore
             else:
-                merged[key] = merged[key] + item
+                merged[key] = merged[key] + item  # type: ignore
 
     merged["by_msg"] = by_msg
     return merged

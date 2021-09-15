@@ -23,7 +23,7 @@ to be incorporated in the automatic functional test framework
 import os
 import sys
 from os.path import abspath, dirname, join
-from typing import Iterator
+from typing import Dict, Iterator
 
 import astroid
 import pytest
@@ -111,12 +111,14 @@ def modify_path() -> Iterator:
 def test_check_package___init__(finalize_linter: PyLinter) -> None:
     filename = "package.__init__"
     finalize_linter.check(filename)
-    checked = list(finalize_linter.stats["by_module"].keys())
+    by_module_stats: Dict[str, Dict[str, int]] = finalize_linter.stats["by_module"]  # type: ignore
+    checked = list(by_module_stats.keys())
     assert checked == [filename]
 
     os.chdir(join(REGR_DATA, "package"))
     finalize_linter.check("__init__")
-    checked = list(finalize_linter.stats["by_module"].keys())
+    by_module_stats: Dict[str, Dict[str, int]] = finalize_linter.stats["by_module"]  # type: ignore
+    checked = list(by_module_stats.keys())
     assert checked == ["__init__"]
 
 

@@ -3,12 +3,13 @@
 
 
 import os
-from typing import IO, Any, AnyStr, Callable, List, Mapping, Optional
+from typing import IO, Any, AnyStr, Callable, List, Optional
 
 from pylint.interfaces import IReporter
 from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.ureports.nodes import BaseLayout
+from pylint.typing import CheckerStats
 
 AnyFile = IO[AnyStr]
 PyLinter = Any
@@ -94,8 +95,8 @@ class MultiReporter:
 
     def on_close(
         self,
-        stats: Mapping[Any, Any],
-        previous_stats: Mapping[Any, Any],
+        stats: CheckerStats,
+        previous_stats: CheckerStats,
     ) -> None:
         """hook called when a module finished analyzing"""
         for rep in self._sub_reporters:

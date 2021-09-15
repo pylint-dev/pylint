@@ -66,7 +66,7 @@ import collections
 import itertools
 import re
 import sys
-from typing import Any, Iterator, Optional, Pattern
+from typing import Any, Dict, Iterator, Optional, Pattern, Union
 
 import astroid
 from astroid import nodes
@@ -81,6 +81,7 @@ from pylint.checkers.utils import (
     is_property_setter,
 )
 from pylint.reporters.ureports import nodes as reporter_nodes
+from pylint.typing import CheckerStats
 
 
 class NamingStyle:
@@ -386,48 +387,54 @@ def _has_abstract_methods(node):
     return len(utils.unimplemented_abstract_methods(node)) > 0
 
 
-def report_by_type_stats(sect, stats, old_stats):
+def report_by_type_stats(
+    sect,
+    stats: CheckerStats,
+    old_stats: CheckerStats,
+):
     """make a report of
 
     * percentage of different types documented
     * percentage of different types with a bad name
     """
     # percentage of different types documented and/or with a bad name
-    nice_stats = {}
+    nice_stats: Dict[str, Dict[str, str]] = {}
     for node_type in ("module", "class", "method", "function"):
         try:
-            total = stats[node_type]
+            total: int = stats[node_type]  # type: ignore
         except KeyError as e:
             raise exceptions.EmptyReportError() from e
         nice_stats[node_type] = {}
         if total != 0:
             try:
-                documented = total - stats["undocumented_" + node_type]
+                undocumented_node: int = stats["undocumented_" + node_type]  # type: ignore
+                documented = total - undocumented_node
                 percent = (documented * 100.0) / total
                 nice_stats[node_type]["percent_documented"] = f"{percent:.2f}"
             except KeyError:
                 nice_stats[node_type]["percent_documented"] = "NC"
             try:
-                percent = (stats["badname_" + node_type] * 100.0) / total
+                badname_node: int = stats["badname_" + node_type]  # type: ignore
+                percent = (badname_node * 100.0) / total
                 nice_stats[node_type]["percent_badname"] = f"{percent:.2f}"
             except KeyError:
                 nice_stats[node_type]["percent_badname"] = "NC"
-    lines = ("type", "number", "old number", "difference", "%documented", "%badname")
+    lines = ["type", "number", "old number", "difference", "%documented", "%badname"]
     for node_type in ("module", "class", "method", "function"):
         new = stats[node_type]
-        old = old_stats.get(node_type, None)
+        old: Optional[Union[str, int]] = old_stats.get(node_type, None)  # type: ignore
         if old is not None:
             diff_str = lint_utils.diff_string(old, new)
         else:
             old, diff_str = "NC", "NC"
-        lines += (
+        lines += [
             node_type,
             str(new),
             str(old),
             diff_str,
             nice_stats[node_type].get("percent_documented", "0"),
             nice_stats[node_type].get("percent_badname", "0"),
-        )
+        ]
     sect.append(reporter_nodes.Table(children=lines, cols=6, rheaders=1))
 
 
@@ -1082,7 +1089,7 @@ class BasicChecker(_BasicChecker):
 
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)
-        self.stats = None
+        self.stats: CheckerStats = {}
         self._tryfinallys = None
 
     def open(self):
@@ -1159,13 +1166,13 @@ class BasicChecker(_BasicChecker):
 
     def visit_module(self, _: nodes.Module) -> None:
         """check module name, docstring and required arguments"""
-        self.stats["module"] += 1
+        self.stats["module"] += 1  # type: ignore
 
     def visit_classdef(self, _: nodes.ClassDef) -> None:
         """check module name, docstring and redefinition
         increment branch counter
         """
-        self.stats["class"] += 1
+        self.stats["class"] += 1  # type: ignore
 
     @utils.check_messages(
         "pointless-statement", "pointless-string-statement", "expression-not-assigned"
@@ -1304,7 +1311,7 @@ class BasicChecker(_BasicChecker):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
-        self.stats["method" if node.is_method() else "function"] += 1
+        self.stats["method" if node.is_method() else "function"] += 1  # type: ignore
         self._check_dangerous_default(node)
 
     visit_asyncfunctiondef = visit_functiondef
@@ -2040,7 +2047,7 @@ class NameChecker(_BasicChecker):
         )
 
         self.add_message(warning, node=node, args=args, confidence=confidence)
-        self.stats["badname_" + node_type] += 1
+        self.stats["badname_" + node_type] += 1  # type: ignore
 
     def _name_allowed_by_regex(self, name: str) -> bool:
         return name in self.config.good_names or any(
