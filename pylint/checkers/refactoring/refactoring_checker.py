@@ -6,7 +6,7 @@ import copy
 import itertools
 import tokenize
 from functools import reduce
-from typing import Dict, Iterator, List, NamedTuple, Optional, Tuple, Union, cast
+from typing import Dict, Iterator, List, NamedTuple, Optional, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -1862,8 +1862,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
             for child in children:
                 for subscript in child.nodes_of_class(nodes.Subscript):
-                    subscript = cast(nodes.Subscript, subscript)
-
                     if not isinstance(subscript.value, (nodes.Name, nodes.Attribute)):
                         continue
 
