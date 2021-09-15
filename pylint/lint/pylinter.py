@@ -1095,10 +1095,10 @@ class PyLinter(
         self.reporter.on_set_current_module(modname, filepath)
         self.current_name = modname
         self.current_file = filepath or modname
-        self.stats["by_module"][modname] = {}
-        self.stats["by_module"][modname]["statement"] = 0
+        self.stats["by_module"][modname] = {}  # type: ignore # Refactor of PyLinter.stats necessary
+        self.stats["by_module"][modname]["statement"] = 0  # type: ignore
         for msg_cat in MSG_TYPES.values():
-            self.stats["by_module"][modname][msg_cat] = 0
+            self.stats["by_module"][modname][msg_cat] = 0  # type: ignore
 
     @contextlib.contextmanager
     def _astroid_module_checker(self):
