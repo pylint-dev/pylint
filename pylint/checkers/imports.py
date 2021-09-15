@@ -67,7 +67,7 @@ from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
 from pylint.lint import PyLinter
-from pylint.reporters.ureports.nodes import Paragraph, VerbatimText, VNode
+from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
 from pylint.typing import CheckerStats
 from pylint.utils import IsortDriver, get_global_option
 
@@ -186,7 +186,9 @@ def _dependencies_graph(filename: str, dep_info: Dict[str, List[str]]) -> str:
     return printer.generate(filename)
 
 
-def _make_graph(filename: str, dep_info: Dict[str, List[str]], sect: VNode, gtype: str):
+def _make_graph(
+    filename: str, dep_info: Dict[str, List[str]], sect: Section, gtype: str
+):
     """generate a dependencies graph and add some information about it in the
     report's section
     """
