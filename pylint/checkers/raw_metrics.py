@@ -15,27 +15,32 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import tokenize
-from typing import Any
+from typing import Any, Optional, Union
 
 from pylint.checkers import BaseTokenChecker
 from pylint.exceptions import EmptyReportError
 from pylint.interfaces import ITokenChecker
 from pylint.reporters.ureports.nodes import Table
+from pylint.typing import CheckerStats
 from pylint.utils import diff_string
 
 
-def report_raw_stats(sect, stats, old_stats):
+def report_raw_stats(
+    sect,
+    stats: CheckerStats,
+    old_stats: CheckerStats,
+):
     """calculate percentage of code / doc / comment / empty"""
-    total_lines = stats["total_lines"]
+    total_lines: int = stats["total_lines"]  # type: ignore
     if not total_lines:
         raise EmptyReportError()
     sect.description = f"{total_lines} lines have been analyzed"
     lines = ["type", "number", "%", "previous", "difference"]
     for node_type in ("code", "docstring", "comment", "empty"):
         key = node_type + "_lines"
-        total = stats[key]
+        total: int = stats[key]  # type: ignore
         percent = float(total * 100) / total_lines
-        old = old_stats.get(key, None)
+        old: Optional[Union[int, str]] = old_stats.get(key, None)  # type: ignore
         if old is not None:
             diff_str = diff_string(old, total)
         else:
@@ -66,7 +71,7 @@ class RawMetricsChecker(BaseTokenChecker):
 
     def __init__(self, linter):
         BaseTokenChecker.__init__(self, linter)
-        self.stats = None
+        self.stats: CheckerStats = {}
 
     def open(self):
         """init statistics"""

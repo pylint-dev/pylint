@@ -6,6 +6,7 @@ import sys
 from typing import List
 
 from pylint.message import Message
+from pylint.typing import CheckerStats
 
 
 class BaseReporter:
@@ -41,7 +42,7 @@ class BaseReporter:
     def display_reports(self, layout):
         """display results encapsulated in the layout tree"""
         self.section = 0
-        if hasattr(layout, "report_id"):
+        if layout.report_id:
             layout.children[0].children[0].data += f" ({layout.report_id})"
         self._display(layout)
 
@@ -65,5 +66,9 @@ class BaseReporter:
     def on_set_current_module(self, module, filepath):
         """Hook called when a module starts to be analysed."""
 
-    def on_close(self, stats, previous_stats):
+    def on_close(
+        self,
+        stats: CheckerStats,
+        previous_stats: CheckerStats,
+    ) -> None:
         """Hook called when a module finished analyzing."""
