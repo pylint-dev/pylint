@@ -13,6 +13,7 @@
 """Tests for the pylint checker in :mod:`pylint.extensions.broad_try_clause`"""
 import unittest
 from os import path as osp
+from typing import Optional
 
 from pylint import checkers
 from pylint.extensions.broad_try_clause import BroadTryClauseChecker
@@ -21,7 +22,7 @@ from pylint.reporters import BaseReporter
 
 
 class BroadTryClauseTestReporter(BaseReporter):
-    def on_set_current_module(self, module: str, filepath: str) -> None:
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self.messages = []
 
     def _display(self, layout):

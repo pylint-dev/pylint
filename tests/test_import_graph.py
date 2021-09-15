@@ -106,7 +106,7 @@ def test_checker_dep_graphs(linter: PyLinter) -> None:
     linter.global_set_option("int-import-graph", "int_import.dot")
     # ignore this file causing spurious MemoryError w/ some python version (>=2.3?)
     linter.global_set_option("ignore", ("func_unknown_encoding.py",))
-    linter.check("input")
+    linter.check(["input"])
     linter.generate_reports()
     assert exists("import.dot")
     assert exists("ext_import.dot")

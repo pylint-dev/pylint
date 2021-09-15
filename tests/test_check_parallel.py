@@ -178,7 +178,7 @@ class TestCheckParallelFramework:
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
         with pytest.raises(  # Objects that do not match the linter interface will fail
-            AttributeError, match="'NoneType' object has no attribute 'open'"
+            Exception, match="Worker linter not yet initialised"
         ):
             worker_check_single_file(_gen_file_data())
 
@@ -290,7 +290,9 @@ class TestCheckParallel:
 
         # Invoke the lint process in a multiprocess way, although we only specify one
         # job.
-        check_parallel(linter, jobs=1, files=single_file_container, arguments=None)
+        check_parallel(
+            linter, jobs=1, files=iter(single_file_container), arguments=None
+        )
         assert len(linter.get_checkers()) == 2, (
             "We should only have the 'master' and 'sequential-checker' "
             "checkers registered"
@@ -319,7 +321,7 @@ class TestCheckParallel:
 
         # now run the regular mode of checking files and check that, in this proc, we
         # collect the right data
-        filepath = single_file_container[0][1]  # get the filepath element
+        filepath = [single_file_container[0][1]]  # get the filepath element
         linter.check(filepath)
         assert {
             "by_module": {
@@ -357,7 +359,9 @@ class TestCheckParallel:
 
         # Invoke the lint process in a multiprocess way, although we only specify one
         # job.
-        check_parallel(linter, jobs=1, files=single_file_container, arguments=None)
+        check_parallel(
+            linter, jobs=1, files=iter(single_file_container), arguments=None
+        )
 
         assert {
             "by_module": {

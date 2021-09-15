@@ -14,6 +14,7 @@
 
 import os
 import unittest
+from typing import Optional
 
 from pylint import checkers
 from pylint.extensions.comparetozero import CompareToZeroChecker
@@ -22,7 +23,7 @@ from pylint.reporters import BaseReporter
 
 
 class CompareToZeroTestReporter(BaseReporter):
-    def on_set_current_module(self, module: str, filepath: str) -> None:
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self.messages = []
 
     def _display(self, layout):
