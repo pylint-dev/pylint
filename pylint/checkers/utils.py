@@ -375,8 +375,8 @@ def is_defined_before(var_node: nodes.Name) -> bool:
     (statement_defining ; statement_using).
     """
     varname = var_node.name
-    for _node in var_node.node_ancestors():
-        if is_defined_in_scope(var_node, varname, _node):
+    for parent in var_node.node_ancestors():
+        if is_defined_in_scope(var_node, varname, parent):
             return True
     # possibly multiple statements on the same line using semi colon separator
     stmt = var_node.statement()

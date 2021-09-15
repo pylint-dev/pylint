@@ -845,16 +845,16 @@ class BasicErrorChecker(_BasicChecker):
 
     def _check_in_loop(self, node, node_name):
         """check that a node is inside a for or while loop"""
-        for _node in node.node_ancestors():
-            if isinstance(_node, (nodes.For, nodes.While)):
-                if node not in _node.orelse:
+        for parent in node.node_ancestors():
+            if isinstance(parent, (nodes.For, nodes.While)):
+                if node not in parent.orelse:
                     return
 
-            if isinstance(_node, (nodes.ClassDef, nodes.FunctionDef)):
+            if isinstance(parent, (nodes.ClassDef, nodes.FunctionDef)):
                 break
             if (
-                isinstance(_node, nodes.TryFinally)
-                and node in _node.finalbody
+                isinstance(parent, nodes.TryFinally)
+                and node in parent.finalbody
                 and isinstance(node, nodes.Continue)
             ):
                 self.add_message("continue-in-finally", node=node)
@@ -1493,13 +1493,13 @@ class BasicChecker(_BasicChecker):
             return
         # the node could be a grand-grand...-children of the try...finally
         _node = node
-        for _parent in node.node_ancestors():
-            if isinstance(_parent, breaker_classes):
+        for parent in node.node_ancestors():
+            if isinstance(parent, breaker_classes):
                 break
-            if hasattr(_parent, "finalbody") and _node in _parent.finalbody:
+            if hasattr(parent, "finalbody") and _node in parent.finalbody:
                 self.add_message("lost-exception", node=node, args=node_name)
                 return
-            _node = _parent
+            _node = parent
 
     def _check_reversed(self, node):
         """check that the argument to `reversed` is a sequence"""
