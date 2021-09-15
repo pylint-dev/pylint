@@ -940,7 +940,7 @@ class PyLinter(
     def check(self, files_or_modules: Sequence[str]) -> None:
         """main checking entry: check a list of files or modules from their name.
 
-        files_or_modules is a list of strings presenting modules to check.
+        files_or_modules is a sequence of strings presenting modules to check.
         """
         self.initialize()
 

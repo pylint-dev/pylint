@@ -83,7 +83,7 @@ def _worker_check_single_file(
     return (
         id(multiprocessing.current_process()),
         _worker_linter.current_name,
-        file_item[1],
+        file_item.filepath,
         _worker_linter.file_state.base_name,
         msgs,
         _worker_linter.stats,
