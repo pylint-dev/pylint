@@ -21,7 +21,7 @@ from pylint.reporters.ureports.text_writer import TextWriter
 
 class VNode:
     def __init__(self) -> None:
-        self.parent: Optional[Any] = None
+        self.parent: Optional["BaseLayout"] = None
         self.children: List["VNode"] = []
         self.visitor_name: str = self.__class__.__name__.lower()
 
@@ -63,7 +63,7 @@ class BaseLayout(VNode):
         self.children.insert(index, child)
         child.parent = self
 
-    def parents(self) -> List["VNode"]:
+    def parents(self) -> List["BaseLayout"]:
         """return the ancestor nodes"""
         assert self.parent is not self
         if self.parent is None:
