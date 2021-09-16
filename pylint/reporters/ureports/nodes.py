@@ -28,16 +28,6 @@ class VNode:
     def __iter__(self):
         return iter(self.children)
 
-    def append(self, child):
-        """add a node to children"""
-        self.children.append(child)
-        child.parent = self
-
-    def insert(self, index, child):
-        """insert a child node"""
-        self.children.insert(index, child)
-        child.parent = self
-
     def accept(self, visitor, *args, **kwargs):
         func = getattr(visitor, f"visit_{self.visitor_name}")
         return func(self, *args, **kwargs)
@@ -62,10 +52,16 @@ class BaseLayout(VNode):
             else:
                 self.add_text(child)
 
-    def append(self, child):
-        """overridden to detect problems easily"""
+    def append(self, child: VNode) -> None:
+        """add a node to children"""
         assert child not in self.parents()
-        VNode.append(self, child)
+        self.children.append(child)
+        child.parent = self
+
+    def insert(self, index: int, child: VNode) -> None:
+        """insert a child node"""
+        self.children.insert(index, child)
+        child.parent = self
 
     def parents(self):
         """return the ancestor nodes"""
