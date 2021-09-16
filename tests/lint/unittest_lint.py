@@ -269,7 +269,7 @@ def test_pylint_visit_method_taken_in_account(linter: PyLinter) -> None:
     linter.open()
     out = StringIO()
     linter.set_reporter(text.TextReporter(out))
-    linter.check("abc")
+    linter.check(["abc"])
 
 
 def test_enable_message(init_linter: PyLinter) -> None:
@@ -573,7 +573,7 @@ def test_init_hooks_called_before_load_plugins() -> None:
 
 def test_analyze_explicit_script(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
-    linter.check(os.path.join(DATA_DIR, "ascript"))
+    linter.check([os.path.join(DATA_DIR, "ascript")])
     assert ["C:  2: Line too long (175/100)"] == linter.reporter.messages
 
 
@@ -826,16 +826,16 @@ def test_filename_with__init__(init_linter: PyLinter) -> None:
 def test_by_module_statement_value(init_linter: PyLinter) -> None:
     """Test "statement" for each module analized of computed correctly."""
     linter = init_linter
-    linter.check(os.path.join(os.path.dirname(__file__), "data"))
+    linter.check([os.path.join(os.path.dirname(__file__), "data")])
 
     by_module_stats: Dict[str, Dict[str, int]] = linter.stats["by_module"]  # type: ignore
     for module, module_stats in by_module_stats.items():
 
         linter2 = init_linter
         if module == "data":
-            linter2.check(os.path.join(os.path.dirname(__file__), "data/__init__.py"))
+            linter2.check([os.path.join(os.path.dirname(__file__), "data/__init__.py")])
         else:
-            linter2.check(os.path.join(os.path.dirname(__file__), module))
+            linter2.check([os.path.join(os.path.dirname(__file__), module)])
 
         # Check that the by_module "statement" is equal to the global "statement"
         # computed for that module

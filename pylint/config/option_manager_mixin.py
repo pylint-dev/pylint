@@ -332,7 +332,7 @@ class OptionsManagerMixIn:
             provider = self._all_options[opt]
             provider.set_option(opt, opt_value)
 
-    def load_command_line_configuration(self, args=None):
+    def load_command_line_configuration(self, args=None) -> List[str]:
         """Override configuration according to command line parameters
 
         return additional arguments

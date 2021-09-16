@@ -3,7 +3,7 @@
 
 import os
 import sys
-from typing import List
+from typing import List, Optional
 
 from pylint.message import Message
 from pylint.typing import CheckerStats
@@ -63,7 +63,7 @@ class BaseReporter:
 
     # Event callbacks
 
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         """Hook called when a module starts to be analysed."""
 
     def on_close(

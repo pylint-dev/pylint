@@ -3,12 +3,12 @@
 
 import collections
 import functools
-from typing import TYPE_CHECKING, Dict, List, Union
+from typing import TYPE_CHECKING, Any, DefaultDict, Dict, Iterable, List, Tuple, Union
 
 from pylint import reporters
 from pylint.lint.utils import _patch_sys_path
 from pylint.message import Message
-from pylint.typing import CheckerStats
+from pylint.typing import CheckerStats, FileItem
 
 if TYPE_CHECKING:
     from typing import Counter  # typing.Counter added in Python 3.6.1
@@ -67,11 +67,13 @@ def _worker_initialize(linter, arguments=None):
     _patch_sys_path(arguments or ())
 
 
-def _worker_check_single_file(file_item):
-    name, filepath, modname = file_item
-
+def _worker_check_single_file(
+    file_item: FileItem,
+) -> Tuple[int, Any, str, Any, List[Tuple[Any, ...]], Any, Any, DefaultDict[Any, List]]:
+    if not _worker_linter:
+        raise Exception("Worker linter not yet initialised")
     _worker_linter.open()
-    _worker_linter.check_single_file(name, filepath, modname)
+    _worker_linter.check_single_file_item(file_item)
     mapreduce_data = collections.defaultdict(list)
     for checker in _worker_linter.get_checkers():
         try:
@@ -84,7 +86,7 @@ def _worker_check_single_file(file_item):
     return (
         id(multiprocessing.current_process()),
         _worker_linter.current_name,
-        filepath,
+        file_item.filepath,
         _worker_linter.file_state.base_name,
         msgs,
         _worker_linter.stats,
@@ -114,7 +116,7 @@ def _merge_mapreduce_data(linter, all_mapreduce_data):
             checker.reduce_map_data(linter, collated_map_reduce_data[checker.name])
 
 
-def check_parallel(linter, jobs, files, arguments=None):
+def check_parallel(linter, jobs, files: Iterable[FileItem], arguments=None):
     """Use the given linter to lint the files with given amount of workers (jobs)
     This splits the work filestream-by-filestream. If you need to do work across
     multiple files, as in the similarity-checker, then inherit from MapReduceMixin and
@@ -156,7 +158,7 @@ def check_parallel(linter, jobs, files, arguments=None):
             linter.set_current_module(module, file_path)
             for msg in messages:
                 msg = Message(*msg)
-                linter.reporter.handle_message(msg)
+                linter.reporter.handle_message(msg)  # type: ignore  # linter.set_reporter() call above makes linter have a reporter attr
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status

@@ -23,7 +23,7 @@ to be incorporated in the automatic functional test framework
 import os
 import sys
 from os.path import abspath, dirname, join
-from typing import Dict, Iterator
+from typing import Iterator
 
 import astroid
 import pytest
@@ -61,15 +61,15 @@ def Equals(expected):
 @pytest.mark.parametrize(
     "file_name, check",
     [
-        ("package.__init__", Equals("")),
-        ("precedence_test", Equals("")),
-        ("import_package_subpackage_module", Equals("")),
-        ("pylint.checkers.__init__", lambda x: "__path__" not in x),
-        (join(REGR_DATA, "classdoc_usage.py"), Equals("")),
-        (join(REGR_DATA, "module_global.py"), Equals("")),
-        (join(REGR_DATA, "decimal_inference.py"), Equals("")),
-        (join(REGR_DATA, "absimp", "string.py"), Equals("")),
-        (join(REGR_DATA, "bad_package"), lambda x: "Unused import missing" in x),
+        (["package.__init__"], Equals("")),
+        (["precedence_test"], Equals("")),
+        (["import_package_subpackage_module"], Equals("")),
+        (["pylint.checkers.__init__"], lambda x: "__path__" not in x),
+        ([join(REGR_DATA, "classdoc_usage.py")], Equals("")),
+        ([join(REGR_DATA, "module_global.py")], Equals("")),
+        ([join(REGR_DATA, "decimal_inference.py")], Equals("")),
+        ([join(REGR_DATA, "absimp", "string.py")], Equals("")),
+        ([join(REGR_DATA, "bad_package")], lambda x: "Unused import missing" in x),
     ],
 )
 def test_package(finalize_linter, file_name, check):
@@ -94,7 +94,7 @@ def test_crash(finalize_linter, file_name):
     "fname", [x for x in os.listdir(REGR_DATA) if x.endswith("_crash.py")]
 )
 def test_descriptor_crash(fname: str, finalize_linter: PyLinter) -> None:
-    finalize_linter.check(join(REGR_DATA, fname))
+    finalize_linter.check([join(REGR_DATA, fname)])
     finalize_linter.reporter.finalize().strip()
 
 
@@ -109,16 +109,14 @@ def modify_path() -> Iterator:
 
 @pytest.mark.usefixtures("modify_path")
 def test_check_package___init__(finalize_linter: PyLinter) -> None:
-    filename = "package.__init__"
+    filename = ["package.__init__"]
     finalize_linter.check(filename)
-    by_module_stats: Dict[str, Dict[str, int]] = finalize_linter.stats["by_module"]  # type: ignore
-    checked = list(by_module_stats.keys())
-    assert checked == [filename]
+    checked = list(finalize_linter.stats["by_module"].keys())  # type: ignore # Refactor of PyLinter.stats necessary
+    assert checked == filename
 
     os.chdir(join(REGR_DATA, "package"))
-    finalize_linter.check("__init__")
-    by_module_stats: Dict[str, Dict[str, int]] = finalize_linter.stats["by_module"]  # type: ignore
-    checked = list(by_module_stats.keys())
+    finalize_linter.check(["__init__"])
+    checked = list(finalize_linter.stats["by_module"].keys())  # type: ignore
     assert checked == ["__init__"]
 
 

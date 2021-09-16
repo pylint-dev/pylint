@@ -25,6 +25,7 @@
 import os
 import sys
 import warnings
+from typing import Optional
 
 from pylint import utils
 from pylint.interfaces import IReporter
@@ -136,7 +137,7 @@ class TextReporter(BaseReporter):
         self._modules = set()
         self._template = self.line_format
 
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self._template = str(self.linter.config.msg_template or self._template)
 
     def write_message(self, msg):
