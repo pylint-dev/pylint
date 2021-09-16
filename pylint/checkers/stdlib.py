@@ -531,7 +531,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     or isinstance(node.func, nodes.Attribute)
                     and node.func.attrname in OPEN_FILES_ENCODING
                 ):
-                    self._check_open_encoded(node)
+                    self._check_open_encoded(node, inferred.root().name)
             elif inferred.root().name == UNITTEST_CASE:
                 self._check_redundant_assert(node, inferred)
             elif isinstance(inferred, nodes.ClassDef):
@@ -609,11 +609,18 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             ):
                 self.add_message("bad-open-mode", node=node, args=mode_arg.value)
 
-    def _check_open_encoded(self, node: nodes.Call) -> None:
+    def _check_open_encoded(self, node: nodes.Call, open_module: str) -> None:
         """Check that the encoded argument of an open call is valid."""
         mode_arg = None
         try:
-            mode_arg = utils.get_argument_from_call(node, position=1, keyword="mode")
+            if open_module == "_io":
+                mode_arg = utils.get_argument_from_call(
+                    node, position=1, keyword="mode"
+                )
+            elif open_module == "pathlib":
+                mode_arg = utils.get_argument_from_call(
+                    node, position=0, keyword="mode"
+                )
         except utils.NoSuchArgumentError:
             pass
 
