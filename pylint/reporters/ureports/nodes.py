@@ -14,7 +14,7 @@
 
 A micro report is a tree of layout and content objects.
 """
-from typing import Any, Iterator, List, Optional, Tuple, Union
+from typing import Any, Iterable, Iterator, List, Optional, Union
 
 from pylint.reporters.ureports.text_writer import TextWriter
 
@@ -44,7 +44,7 @@ class BaseLayout(VNode):
     * children : components in this table (i.e. the table's cells)
     """
 
-    def __init__(self, children: Union[List["Text"], Tuple[str, ...]] = ()) -> None:
+    def __init__(self, children: Iterable[Union["Text", str]] = ()) -> None:
         super().__init__()
         for child in children:
             if isinstance(child, VNode):
@@ -118,9 +118,9 @@ class Section(BaseLayout):
         self,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        **kwargs: Any,
+        children: Iterable[Union["Text", str]] = (),
     ) -> None:
-        super().__init__(**kwargs)
+        super().__init__(children=children)
         if description:
             self.insert(0, Paragraph([Text(description)]))
         if title:
@@ -129,12 +129,13 @@ class Section(BaseLayout):
 
 
 class EvaluationSection(Section):
-    def __init__(self, message: str, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
+    def __init__(
+        self, message: str, children: Iterable[Union["Text", str]] = ()
+    ) -> None:
+        super().__init__(children=children)
         title = Paragraph()
         title.append(Text("-" * len(message)))
         self.append(title)
-
         message_body = Paragraph()
         message_body.append(Text(message))
         self.append(message_body)
@@ -177,9 +178,9 @@ class Table(BaseLayout):
         title: Optional[str] = None,
         rheaders: int = 0,
         cheaders: int = 0,
-        **kwargs: Any,
+        children: Iterable[Union["Text", str]] = (),
     ) -> None:
-        super().__init__(**kwargs)
+        super().__init__(children=children)
         assert isinstance(cols, int)
         self.cols = cols
         self.title = title
