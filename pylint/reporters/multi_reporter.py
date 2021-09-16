@@ -43,7 +43,7 @@ class MultiReporter:
 
         self.set_output(output)
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close_output_files()
 
     @property

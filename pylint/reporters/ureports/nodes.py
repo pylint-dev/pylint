@@ -14,21 +14,23 @@
 
 A micro report is a tree of layout and content objects.
 """
-from typing import Optional
+from typing import Any, List, Optional, Tuple, Union
+
+from pylint.reporters.ureports.text_writer import TextWriter
 
 
 class VNode:
-    def __init__(self, nid=None):
+    def __init__(self, nid: Optional[Any] = None) -> None:
         self.id = nid
         # navigation
-        self.parent = None
-        self.children = []
-        self.visitor_name = self.__class__.__name__.lower()
+        self.parent: Optional[Any] = None
+        self.children: List["VNode"] = []
+        self.visitor_name: str = self.__class__.__name__.lower()
 
     def __iter__(self):
         return iter(self.children)
 
-    def accept(self, visitor, *args, **kwargs):
+    def accept(self, visitor: TextWriter, *args: Any, **kwargs: Any) -> None:
         func = getattr(visitor, f"visit_{self.visitor_name}")
         return func(self, *args, **kwargs)
 
@@ -44,7 +46,9 @@ class BaseLayout(VNode):
     * children : components in this table (i.e. the table's cells)
     """
 
-    def __init__(self, children=(), **kwargs):
+    def __init__(
+        self, children: Union[List["Text"], Tuple[str, ...]] = (), **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
         for child in children:
             if isinstance(child, VNode):
@@ -63,14 +67,14 @@ class BaseLayout(VNode):
         self.children.insert(index, child)
         child.parent = self
 
-    def parents(self):
+    def parents(self) -> List["VNode"]:
         """return the ancestor nodes"""
         assert self.parent is not self
         if self.parent is None:
             return []
         return [self.parent] + self.parent.parents()
 
-    def add_text(self, text):
+    def add_text(self, text: str) -> None:
         """shortcut to add text data"""
         self.children.append(Text(text))
 
@@ -85,7 +89,7 @@ class Text(VNode):
     * data : the text value as an encoded or unicode string
     """
 
-    def __init__(self, data, escaped=True, **kwargs):
+    def __init__(self, data: str, escaped: bool = True, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         # if isinstance(data, unicode):
         #    data = data.encode('ascii')
@@ -117,17 +121,23 @@ class Section(BaseLayout):
     as a first paragraph
     """
 
-    def __init__(self, title=None, description=None, **kwargs):
+    def __init__(
+        self,
+        title: Optional[str] = None,
+        description: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
         if description:
             self.insert(0, Paragraph([Text(description)]))
         if title:
             self.insert(0, Title(children=(title,)))
-        self.report_id: Optional[str] = None
+        # Used in ReportHandlerMixin make_reports
+        self.report_id: str = ""
 
 
 class EvaluationSection(Section):
-    def __init__(self, message, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         title = Paragraph()
         title.append(Text("-" * len(message)))
@@ -169,7 +179,14 @@ class Table(BaseLayout):
     * title : the table's optional title
     """
 
-    def __init__(self, cols, title=None, rheaders=0, cheaders=0, **kwargs):
+    def __init__(
+        self,
+        cols: int,
+        title: Optional[str] = None,
+        rheaders: int = 0,
+        cheaders: int = 0,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
         assert isinstance(cols, int)
         self.cols = cols

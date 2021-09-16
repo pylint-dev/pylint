@@ -193,7 +193,7 @@ def _make_graph(
     report's section
     """
     outputfile = _dependencies_graph(filename, dep_info)
-    sect.append(Paragraph(f"{gtype}imports graph has been written to {outputfile}"))
+    sect.append(Paragraph((f"{gtype}imports graph has been written to {outputfile}",)))
 
 
 # the import checker itself ###################################################

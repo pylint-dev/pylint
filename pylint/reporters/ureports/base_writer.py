@@ -18,7 +18,15 @@ formatted as text and html.
 import os
 import sys
 from io import StringIO
-from typing import Iterator, TextIO
+from typing import TYPE_CHECKING, Iterator, List, TextIO, Union
+
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import (
+        EvaluationSection,
+        Paragraph,
+        Section,
+        Table,
+    )
 
 
 class BaseWriter:
@@ -39,34 +47,36 @@ class BaseWriter:
         layout.accept(self)
         self.end_format()
 
-    def format_children(self, layout):
+    def format_children(
+        self, layout: Union["EvaluationSection", "Paragraph", "Section"]
+    ) -> None:
         """recurse on the layout children and call their accept method
         (see the Visitor pattern)
         """
         for child in getattr(layout, "children", ()):
             child.accept(self)
 
-    def writeln(self, string=""):
+    def writeln(self, string: str = "") -> None:
         """write a line in the output buffer"""
         self.write(string + os.linesep)
 
-    def write(self, string):
+    def write(self, string: str) -> None:
         """write a string in the output buffer"""
         self.out.write(string)
 
-    def begin_format(self):
+    def begin_format(self) -> None:
         """begin to format a layout"""
         self.section = 0
 
-    def end_format(self):
+    def end_format(self) -> None:
         """finished to format a layout"""
 
-    def get_table_content(self, table):
+    def get_table_content(self, table: "Table") -> List[List[str]]:
         """trick to get table content without actually writing it
 
         return an aligned list of lists containing table cells values as string
         """
-        result = [[]]
+        result: List[List[str]] = [[]]
         cols = table.cols
         for cell in self.compute_content(table):
             if cols == 0:
