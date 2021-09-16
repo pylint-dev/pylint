@@ -15,7 +15,12 @@ else:
 
 
 class FileItem(NamedTuple):
-    """Represents data about a file handled by pylint"""
+    """Represents data about a file handled by pylint
+
+    Each file item has:
+    - name: full name of the module
+    - filepath: path of the file
+    - modname: module name"""
 
     name: str
     filepath: str

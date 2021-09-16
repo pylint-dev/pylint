@@ -29,7 +29,6 @@ from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import ParseableTextReporter, TextReporter
-from pylint.typing import FileItem
 
 
 @pytest.fixture(scope="module")
@@ -121,7 +120,7 @@ def test_multi_format_output(tmp_path):
             linter.reporter.set_output(text)
 
         linter.open()
-        linter.check_single_file(FileItem("somemodule", source_file, "somemodule"))
+        linter.check_single_file("somemodule", source_file, "somemodule")
         linter.add_message("line-too-long", line=1, args=(1, 2))
         linter.generate_reports()
         linter.reporter.writeln("direct output")

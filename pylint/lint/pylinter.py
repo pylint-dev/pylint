@@ -11,7 +11,7 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
-from typing import Iterable, Iterator, List, Optional, Sequence
+from typing import Iterable, Iterator, List, Optional, Sequence, Union
 
 import astroid
 from astroid import AstroidError, nodes
@@ -939,7 +939,7 @@ class PyLinter(
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
 
-    def check(self, files_or_modules: Sequence[str]) -> None:
+    def check(self, files_or_modules: Union[Sequence[str], str]) -> None:
         """main checking entry: check a list of files or modules from their name.
 
         files_or_modules is a sequence of strings presenting modules to check.
@@ -947,7 +947,8 @@ class PyLinter(
         self.initialize()
         if not isinstance(files_or_modules, (list, tuple)):
             warnings.warn(
-                "In pylint 3.0, the checkers check function will only accept sequence of string"
+                "In pylint 3.0, the checkers check function will only accept sequence of string",
+                DeprecationWarning,  # TODO: Update typing of files_or_modules to Sequence[str] # pylint: disable=fixme
             )
             files_or_modules = (files_or_modules,)  # type: ignore
         if self.config.from_stdin:
@@ -975,8 +976,15 @@ class PyLinter(
                 files_or_modules,
             )
 
-    def check_single_file(self, file: FileItem) -> None:
-        """Check single file
+    def check_single_file(self, name: str, filepath: str, modname: str) -> None:
+        warnings.warn(
+            "In pylint 3.0, the checkers check_single_file function will only accept a FileItem",
+            DeprecationWarning,  # TODO: Replace check_single_file with check_single_file_item # pylint: disable=fixme
+        )
+        self.check_single_file_item(FileItem(name, filepath, modname))
+
+    def check_single_file_item(self, file: FileItem) -> None:
+        """Check single file item
 
         The arguments are the same that are documented in _check_files
 
@@ -990,28 +998,19 @@ class PyLinter(
         get_ast,
         file_descrs: Iterable[FileItem],
     ) -> None:
-        """Check all files from file_descrs
-
-        The file_descrs should be iterable of tuple (name, filepath, modname)
-        where
-        - name: full name of the module
-        - filepath: path of the file
-        - modname: module name
-        """
+        """Check all files from file_descrs"""
         with self._astroid_module_checker() as check_astroid_module:
-            for name, filepath, modname in file_descrs:
+            for file in file_descrs:
                 try:
-                    self._check_file(
-                        get_ast, check_astroid_module, FileItem(name, filepath, modname)
-                    )
+                    self._check_file(get_ast, check_astroid_module, file)
                 except Exception as ex:  # pylint: disable=broad-except
                     template_path = prepare_crash_report(
-                        ex, filepath, self.crash_file_path
+                        ex, file.filepath, self.crash_file_path
                     )
-                    msg = get_fatal_error_message(filepath, template_path)
+                    msg = get_fatal_error_message(file.filepath, template_path)
                     if isinstance(ex, AstroidError):
                         symbol = "astroid-error"
-                        self.add_message(symbol, args=(filepath, msg))
+                        self.add_message(symbol, args=(file.filepath, msg))
                     else:
                         symbol = "fatal"
                         self.add_message(symbol, args=msg)
