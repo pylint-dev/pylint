@@ -73,7 +73,7 @@ def _worker_check_single_file(
     if not _worker_linter:
         raise Exception("Worker linter not yet initialised")
     _worker_linter.open()
-    _worker_linter.check_single_file(file_item)
+    _worker_linter.check_single_file_item(file_item)
     mapreduce_data = collections.defaultdict(list)
     for checker in _worker_linter.get_checkers():
         try:
