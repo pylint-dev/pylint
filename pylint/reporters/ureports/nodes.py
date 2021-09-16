@@ -125,8 +125,7 @@ class Section(BaseLayout):
             self.insert(0, Paragraph([Text(description)]))
         if title:
             self.insert(0, Title(children=(title,)))
-        # Used in ReportHandlerMixin make_reports
-        self.report_id: str = ""
+        self.report_id: str = ""  # Used in ReportHandlerMixin.make_reports
 
 
 class EvaluationSection(Section):
