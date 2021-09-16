@@ -23,8 +23,8 @@
 # Copyright (c) 2018 Gary Tyler McLeod <mail@garytyler.com>
 # Copyright (c) 2018 Konstantin <Github@pheanex.de>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2019, 2021 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019, 2021 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Janne Rönkkö <jannero@users.noreply.github.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>

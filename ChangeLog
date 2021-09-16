@@ -3,12 +3,28 @@ Pylint's ChangeLog
 ------------------
 
 
-What's New in Pylint 2.11.0?
+
+What's New in Pylint 2.12.0?
 ============================
 Release date: TBA
 
 ..
-  Put new features here and also in 'doc/whatsnew/2.11.rst'
+  Put new features here and also in 'doc/whatsnew/2.12.rst'
+
+
+
+What's New in Pylint 2.11.1?
+============================
+Release date: TBA
+
+..
+  Put bug fixes that should not wait for a new minor version here
+
+
+
+What's New in Pylint 2.11.0?
+============================
+Release date: 2021-09-16
 
 * The python3 porting mode checker and it's ``py3k`` option were removed. You can still find it in older pylint
   versions.
@@ -104,14 +120,6 @@ Release date: TBA
 * The ``consider-iterating-dictionary`` checker now also considers membership checks
 
   Closes #4069
-
-
-What's New in Pylint 2.10.3?
-============================
-Release date: TBA
-
-..
-  Put bug fixes that should not wait for a new minor version here
 
 * The ``invalid-name`` message is now more detailed when using multiple naming style regexes.
 
