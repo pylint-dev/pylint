@@ -3,10 +3,35 @@
 ***************************
 
 :Release: 2.11
-:Date: TBA
+:Date: 2021-09-16
 
 Summary -- Release highlights
 =============================
+
+In 2.11, we added a new default checker to advise using f-string as it's
+the most efficient way of formatting strings right now. You can use
+`pyupgrade`_ to migrate your old ``%`` and ``format()`` automatically.
+
+We added a new extension ``SetMembershipChecker`` that will advise the
+use of set for membership test, as it's more performant than lists or tuples.
+The ``CodeStyleChecker`` also got some love, check it out if you're not already
+using it.
+
+We fixed some long standing bugs, false positives, or false negatives and
+we added small quality of life options like ``min-similarity-lines`` that
+disable the duplication check when set to 0.
+
+Under the hood the code for both pylint and astroid is progressively more typed,
+which could be helpful to you if you're using them as libraries. In order for
+this new typing to make more sense and stay simple, we deprecated some functions
+or type that will be removed in the next major version. This is an ongoing effort.
+
+The future ``possible-forgotten-f-prefix`` check still had too much false positives,
+and is delayed again. Check the `possible-forgotten-f-prefix`_ issue if you want
+to provide knowledge or use case :)
+
+.. _possible-forgotten-f-prefix: https://github.com/PyCQA/pylint/pull/4787
+.. _pyupgrade: https://github.com/asottile/pyupgrade
 
 
 New checkers

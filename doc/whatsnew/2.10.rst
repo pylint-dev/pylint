@@ -22,9 +22,10 @@ colored diagrams, and plantuml diagram using pyreverse. ``PYLINT_HOME`` is now `
 The performance of the similarity checker has been improved, as well as several small performance fixes.
 
 We're going to continue working on improving performance during 2.11. We're also going to finalize
-a new ``possible-forgotten-f-prefix`` check that had too much false positives at release time. Check
-https://github.com/PyCQA/pylint/pull/4787 if you want to provide knowledge or use case :)
+a new ``possible-forgotten-f-prefix`` check that had too much false positives at release time.
+Check the `possible-forgotten-f-prefix`_ issue if you want to provide knowledge or use case :)
 
+.. _possible-forgotten-f-prefix: https://github.com/PyCQA/pylint/pull/4787
 
 New checkers
 ============
