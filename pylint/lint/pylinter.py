@@ -946,9 +946,11 @@ class PyLinter(
         """
         self.initialize()
         if not isinstance(files_or_modules, (list, tuple)):
+            # pylint: disable-next=fixme
+            # TODO: Update typing and docstring for 'files_or_modules' when removing the deprecation
             warnings.warn(
                 "In pylint 3.0, the checkers check function will only accept sequence of string",
-                DeprecationWarning,  # TODO: Update typing of files_or_modules to Sequence[str] # pylint: disable=fixme
+                DeprecationWarning,
             )
             files_or_modules = (files_or_modules,)  # type: ignore
         if self.config.from_stdin:
@@ -978,8 +980,9 @@ class PyLinter(
 
     def check_single_file(self, name: str, filepath: str, modname: str) -> None:
         warnings.warn(
-            "In pylint 3.0, the checkers check_single_file function will only accept a FileItem",
-            DeprecationWarning,  # TODO: Replace check_single_file with check_single_file_item # pylint: disable=fixme
+            "In pylint 3.0, the checkers check_single_file function will be removed. "
+            "Use check_single_file_item instead.",
+            DeprecationWarning,
         )
         self.check_single_file_item(FileItem(name, filepath, modname))
 

@@ -20,7 +20,8 @@ class FileItem(NamedTuple):
     Each file item has:
     - name: full name of the module
     - filepath: path of the file
-    - modname: module name"""
+    - modname: module name
+    """
 
     name: str
     filepath: str
