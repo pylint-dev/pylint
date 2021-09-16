@@ -72,3 +72,11 @@ LOCALE_ENCODING = None
 Path(FILENAME).write_text("string")  # [unspecified-encoding]
 Path(FILENAME).write_text("string", encoding=None)  # [unspecified-encoding]
 Path(FILENAME).write_text("string", encoding=LOCALE_ENCODING)  # [unspecified-encoding]
+
+LOCALE_ENCODING = locale.getlocale()[1]
+Path(FILENAME).open("w+b")
+Path(FILENAME).open()  # [unspecified-encoding]
+Path(FILENAME).open("wt")  # [unspecified-encoding]
+Path(FILENAME).open("w+")  # [unspecified-encoding]
+Path(FILENAME).open("w", encoding=None)  # [unspecified-encoding]
+Path(FILENAME).open("w", encoding=LOCALE_ENCODING)

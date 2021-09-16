@@ -20,6 +20,9 @@ Release date: TBA
 ..
   Put bug fixes that should not wait for a new minor version here
 
+* ``unspecified-encoding`` now checks the encoding of ``pathlib.Path()`` correctly
+
+  Closes #5017
 
 
 What's New in Pylint 2.11.0?
