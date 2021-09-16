@@ -26,13 +26,16 @@
 import os
 import sys
 import warnings
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from pylint import utils
 from pylint.interfaces import IReporter
 from pylint.message import Message
 from pylint.reporters import BaseReporter
 from pylint.reporters.ureports.text_writer import TextWriter
+
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
 
 TITLE_UNDERLINES = ["", "=", "-", "."]
 
@@ -155,7 +158,7 @@ class TextReporter(BaseReporter):
                 self.writeln("************* ")
         self.write_message(msg)
 
-    def _display(self, layout):
+    def _display(self, layout: "Section") -> None:
         """launch layouts display"""
         print(file=self.out)
         TextWriter().format(layout, self.out)

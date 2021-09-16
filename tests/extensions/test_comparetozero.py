@@ -15,19 +15,22 @@
 
 import os
 import unittest
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from pylint import checkers
 from pylint.extensions.comparetozero import CompareToZeroChecker
 from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
+
 
 class CompareToZeroTestReporter(BaseReporter):
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self.messages = []
 
-    def _display(self, layout):
+    def _display(self, layout: "Section") -> None:
         pass
 
 

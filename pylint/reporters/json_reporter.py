@@ -13,9 +13,14 @@
 
 """JSON reporter"""
 import json
+from typing import TYPE_CHECKING, Optional
 
 from pylint.interfaces import IReporter
 from pylint.reporters.base_reporter import BaseReporter
+
+if TYPE_CHECKING:
+    from pylint.lint.pylinter import PyLinter
+    from pylint.reporters.ureports.nodes import Section
 
 
 class JSONReporter(BaseReporter):
@@ -25,7 +30,7 @@ class JSONReporter(BaseReporter):
     name = "json"
     extension = "json"
 
-    def display_messages(self, layout):
+    def display_messages(self, layout: Optional["Section"]) -> None:
         """Launch layouts display"""
         json_dumpable = [
             {
@@ -43,13 +48,13 @@ class JSONReporter(BaseReporter):
         ]
         print(json.dumps(json_dumpable, indent=4), file=self.out)
 
-    def display_reports(self, layout):
+    def display_reports(self, layout: "Section") -> None:
         """Don't do anything in this reporter."""
 
-    def _display(self, layout):
+    def _display(self, layout: "Section") -> None:
         """Do nothing."""
 
 
-def register(linter):
+def register(linter: "PyLinter") -> None:
     """Register the reporter classes with the linter."""
     linter.register_reporter(JSONReporter)

@@ -21,6 +21,7 @@ import warnings
 from contextlib import redirect_stdout
 from io import StringIO
 from json import dumps
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -30,6 +31,9 @@ from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import ParseableTextReporter, TextReporter
 from pylint.typing import FileItem
+
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
 
 
 @pytest.fixture(scope="module")
@@ -93,7 +97,7 @@ class NopReporter(BaseReporter):
     def writeln(self, string=""):
         pass
 
-    def _display(self, layout):
+    def _display(self, layout: "Section") -> None:
         pass
 
 
@@ -257,7 +261,7 @@ def test_multi_format_output(tmp_path):
 
 def test_display_results_is_renamed():
     class CustomReporter(TextReporter):
-        def _display(self, layout):
+        def _display(self, layout: "Section") -> None:
             return None
 
     reporter = CustomReporter()
