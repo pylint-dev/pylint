@@ -7,6 +7,7 @@ from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
+from pylint.utils.utils import get_global_option
 
 
 class RecommendationChecker(checkers.BaseChecker):
@@ -56,9 +57,14 @@ class RecommendationChecker(checkers.BaseChecker):
             "Formatting a regular string which could be a f-string",
             "consider-using-f-string",
             "Used when we detect a string that is being formatted with format() or % "
-            "which could potentially be a f-string. The use of f-strings is preferred.",
+            "which could potentially be a f-string. The use of f-strings is preferred. "
+            "Requires Python 3.6",
         ),
     }
+
+    def open(self) -> None:
+        py_version = get_global_option(self, "py-version")
+        self._py36_plus = py_version >= (3, 6)
 
     @staticmethod
     def _is_builtin(node, function):
@@ -321,10 +327,12 @@ class RecommendationChecker(checkers.BaseChecker):
 
     @utils.check_messages("consider-using-f-string")
     def visit_const(self, node: nodes.Const) -> None:
-        if node.pytype() == "builtins.str" and not isinstance(
-            node.parent, nodes.JoinedStr
-        ):
-            self._detect_replacable_format_call(node)
+        if self._py36_plus:
+            # f-strings require Python 3.6
+            if node.pytype() == "builtins.str" and not isinstance(
+                node.parent, nodes.JoinedStr
+            ):
+                self._detect_replacable_format_call(node)
 
     def _detect_replacable_format_call(self, node: nodes.Const) -> None:
         """Check whether a string is used in a call to format() or '%' and whether it
