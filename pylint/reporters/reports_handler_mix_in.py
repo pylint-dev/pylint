@@ -88,7 +88,6 @@ class ReportsHandlerMixIn:
         for key, value in kwargs.items():
             if key[-1] == "_":
                 key = key[:-1]
-            # self.stats is defined in another class (this is a mixin)
             assert key not in self.stats
             self.stats[key] = value
         return self.stats
