@@ -3,13 +3,14 @@
 
 import os
 import sys
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, TextIO
 
 from pylint.message import Message
 from pylint.reporters.ureports.nodes import Text
 from pylint.typing import CheckerStats
 
 if TYPE_CHECKING:
+    from pylint.lint.pylinter import PyLinter
     from pylint.reporters.ureports.nodes import Section
 
 
@@ -21,11 +22,10 @@ class BaseReporter:
 
     extension = ""
 
-    def __init__(self, output=None):
-        self.linter = None
+    def __init__(self, output: Optional[TextIO] = None):
+        self.linter: "PyLinter"
         self.section = 0
-        self.out = None
-        self.out_encoding = None
+        self.out: TextIO
         self.set_output(output)
         self.messages: List[Message] = []
         # Build the path prefix to strip to get relative paths
@@ -35,7 +35,7 @@ class BaseReporter:
         """Handle a new message triggered on the current file."""
         self.messages.append(msg)
 
-    def set_output(self, output=None):
+    def set_output(self, output: Optional[TextIO] = None) -> None:
         """set output stream"""
         self.out = output or sys.stdout
 
