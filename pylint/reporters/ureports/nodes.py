@@ -14,20 +14,18 @@
 
 A micro report is a tree of layout and content objects.
 """
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Iterator, List, Optional, Tuple, Union
 
 from pylint.reporters.ureports.text_writer import TextWriter
 
 
 class VNode:
-    def __init__(self, nid: Optional[Any] = None) -> None:
-        self.id = nid
-        # navigation
+    def __init__(self) -> None:
         self.parent: Optional[Any] = None
         self.children: List["VNode"] = []
         self.visitor_name: str = self.__class__.__name__.lower()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator["VNode"]:
         return iter(self.children)
 
     def accept(self, visitor: TextWriter, *args: Any, **kwargs: Any) -> None:
@@ -46,10 +44,8 @@ class BaseLayout(VNode):
     * children : components in this table (i.e. the table's cells)
     """
 
-    def __init__(
-        self, children: Union[List["Text"], Tuple[str, ...]] = (), **kwargs: Any
-    ) -> None:
-        super().__init__(**kwargs)
+    def __init__(self, children: Union[List["Text"], Tuple[str, ...]] = ()) -> None:
+        super().__init__()
         for child in children:
             if isinstance(child, VNode):
                 self.append(child)
@@ -89,11 +85,8 @@ class Text(VNode):
     * data : the text value as an encoded or unicode string
     """
 
-    def __init__(self, data: str, escaped: bool = True, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-        # if isinstance(data, unicode):
-        #    data = data.encode('ascii')
-        assert isinstance(data, str), data.__class__
+    def __init__(self, data: str, escaped: bool = True) -> None:
+        super().__init__()
         self.escaped = escaped
         self.data = data
 
