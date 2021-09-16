@@ -946,10 +946,10 @@ class PyLinter(
         """
         self.initialize()
         if not isinstance(files_or_modules, (list, tuple)):
-            warnins.warn(
+            warnings.warn(
                 "In pylint 3.0, the checkers check function will only accept sequence of string"
             )
-            files_or_modules = (files_or_modules,)
+            files_or_modules = (files_or_modules,)  # type: ignore
         if self.config.from_stdin:
             if len(files_or_modules) != 1:
                 raise exceptions.InvalidArgsError(
