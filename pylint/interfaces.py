@@ -17,6 +17,7 @@
 
 """Interfaces for Pylint objects"""
 from collections import namedtuple
+from typing import Tuple
 
 from astroid import nodes
 
@@ -40,7 +41,7 @@ class Interface:
         return implements(instance, cls)
 
 
-def implements(obj, interface):
+def implements(obj: "Interface", interface: Tuple[type, type]) -> bool:
     """Return true if the give object (maybe an instance or class) implements
     the interface.
     """
@@ -101,4 +102,4 @@ class IReporter(Interface):
         """display results encapsulated in the layout tree"""
 
 
-__all__ = ("IRawChecker", "IAstroidChecker", "ITokenChecker", "IReporter")
+__all__ = ("IRawChecker", "IAstroidChecker", "ITokenChecker", "IReporter", "IChecker")

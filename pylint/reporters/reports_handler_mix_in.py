@@ -2,9 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable, DefaultDict, Dict, List, Tuple
 
 from pylint.exceptions import EmptyReportError
+from pylint.interfaces import IChecker
 from pylint.reporters.ureports.nodes import Section
 from pylint.typing import CheckerStats
 
@@ -17,9 +18,11 @@ class ReportsHandlerMixIn:
     related methods for the main lint class
     """
 
-    def __init__(self):
-        self._reports = collections.defaultdict(list)
-        self._reports_state = {}
+    def __init__(self) -> None:
+        self._reports: DefaultDict[
+            IChecker, List[Tuple[str, str, Callable]]
+        ] = collections.defaultdict(list)
+        self._reports_state: Dict[str, bool] = {}
 
     def report_order(self):
         """Return a list of reports, sorted in the order
@@ -27,7 +30,9 @@ class ReportsHandlerMixIn:
         """
         return list(self._reports)
 
-    def register_report(self, reportid, r_title, r_cb, checker):
+    def register_report(
+        self, reportid: str, r_title: str, r_cb: Callable, checker: IChecker
+    ) -> None:
         """register a report
 
         reportid is the unique identifier for the report
@@ -38,17 +43,17 @@ class ReportsHandlerMixIn:
         reportid = reportid.upper()
         self._reports[checker].append((reportid, r_title, r_cb))
 
-    def enable_report(self, reportid):
+    def enable_report(self, reportid: str) -> None:
         """disable the report of the given id"""
         reportid = reportid.upper()
         self._reports_state[reportid] = True
 
-    def disable_report(self, reportid):
+    def disable_report(self, reportid: str) -> None:
         """disable the report of the given id"""
         reportid = reportid.upper()
         self._reports_state[reportid] = False
 
-    def report_is_enabled(self, reportid):
+    def report_is_enabled(self, reportid: str) -> bool:
         """return true if the report associated to the given identifier is
         enabled
         """
@@ -58,7 +63,7 @@ class ReportsHandlerMixIn:
         self: "PyLinter",
         stats: CheckerStats,
         old_stats: CheckerStats,
-    ):
+    ) -> Section:
         """render registered reports"""
         sect = Section("Report", f"{self.stats['statement']} statements analysed.")
         for checker in self.report_order():

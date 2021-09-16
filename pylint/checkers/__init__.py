@@ -61,7 +61,7 @@ def table_lines_from_stats(
     columns: Iterable[str],
 ) -> List[str]:
     """get values listed in <columns> from <stats> and <old_stats>,
-    and return a formated list of values, designed to be given to a
+    and return a formatted list of values, designed to be given to a
     ureport.Table object
     """
     lines: List[str] = []

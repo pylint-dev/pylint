@@ -5,7 +5,7 @@ import collections
 from typing import DefaultDict, Dict, List, Tuple, Union
 
 from pylint import checkers, exceptions
-from pylint.reporters.ureports import nodes as report_nodes
+from pylint.reporters.ureports.nodes import Table
 from pylint.typing import CheckerStats
 
 
@@ -19,7 +19,7 @@ def report_total_messages_stats(
     lines += checkers.table_lines_from_stats(
         stats, previous_stats, ("convention", "refactor", "warning", "error")
     )
-    sect.append(report_nodes.Table(children=lines, cols=4, rheaders=1))
+    sect.append(Table(children=lines, cols=4, rheaders=1))
 
 
 def report_messages_stats(
@@ -41,7 +41,7 @@ def report_messages_stats(
     lines = ["message id", "occurrences"]
     for value, msg_id in in_order:
         lines += [msg_id, str(value)]
-    sect.append(report_nodes.Table(children=lines, cols=2, rheaders=1))
+    sect.append(Table(children=lines, cols=2, rheaders=1))
 
 
 def report_messages_by_module_stats(
@@ -61,7 +61,7 @@ def report_messages_by_module_stats(
         total: int = stats[m_type]  # type: ignore
         for module in module_stats.keys():
             mod_total = module_stats[module][m_type]
-            percent = 0 if total == 0 else float((mod_total) * 100) / total
+            percent = 0 if total == 0 else float(mod_total * 100) / total
             by_mod[module][m_type] = percent
     sorted_result = []
     for module, mod_info in by_mod.items():
@@ -86,4 +86,4 @@ def report_messages_by_module_stats(
             lines.append(f"{val:.2f}")
     if len(lines) == 5:
         raise exceptions.EmptyReportError()
-    sect.append(report_nodes.Table(children=lines, cols=5, rheaders=1))
+    sect.append(Table(children=lines, cols=5, rheaders=1))

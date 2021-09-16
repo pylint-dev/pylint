@@ -14,21 +14,21 @@
 
 A micro report is a tree of layout and content objects.
 """
-from typing import Optional
+from typing import Any, Iterable, Iterator, List, Optional, Union
+
+from pylint.reporters.ureports.text_writer import TextWriter
 
 
 class VNode:
-    def __init__(self, nid=None):
-        self.id = nid
-        # navigation
-        self.parent = None
-        self.children = []
-        self.visitor_name = self.__class__.__name__.lower()
+    def __init__(self) -> None:
+        self.parent: Optional["BaseLayout"] = None
+        self.children: List["VNode"] = []
+        self.visitor_name: str = self.__class__.__name__.lower()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator["VNode"]:
         return iter(self.children)
 
-    def accept(self, visitor, *args, **kwargs):
+    def accept(self, visitor: TextWriter, *args: Any, **kwargs: Any) -> None:
         func = getattr(visitor, f"visit_{self.visitor_name}")
         return func(self, *args, **kwargs)
 
@@ -44,8 +44,8 @@ class BaseLayout(VNode):
     * children : components in this table (i.e. the table's cells)
     """
 
-    def __init__(self, children=(), **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, children: Iterable[Union["Text", str]] = ()) -> None:
+        super().__init__()
         for child in children:
             if isinstance(child, VNode):
                 self.append(child)
@@ -63,14 +63,14 @@ class BaseLayout(VNode):
         self.children.insert(index, child)
         child.parent = self
 
-    def parents(self):
+    def parents(self) -> List["BaseLayout"]:
         """return the ancestor nodes"""
         assert self.parent is not self
         if self.parent is None:
             return []
         return [self.parent] + self.parent.parents()
 
-    def add_text(self, text):
+    def add_text(self, text: str) -> None:
         """shortcut to add text data"""
         self.children.append(Text(text))
 
@@ -85,11 +85,8 @@ class Text(VNode):
     * data : the text value as an encoded or unicode string
     """
 
-    def __init__(self, data, escaped=True, **kwargs):
-        super().__init__(**kwargs)
-        # if isinstance(data, unicode):
-        #    data = data.encode('ascii')
-        assert isinstance(data, str), data.__class__
+    def __init__(self, data: str, escaped: bool = True) -> None:
+        super().__init__()
         self.escaped = escaped
         self.data = data
 
@@ -117,22 +114,28 @@ class Section(BaseLayout):
     as a first paragraph
     """
 
-    def __init__(self, title=None, description=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(
+        self,
+        title: Optional[str] = None,
+        description: Optional[str] = None,
+        children: Iterable[Union["Text", str]] = (),
+    ) -> None:
+        super().__init__(children=children)
         if description:
             self.insert(0, Paragraph([Text(description)]))
         if title:
             self.insert(0, Title(children=(title,)))
-        self.report_id: Optional[str] = None
+        self.report_id: str = ""  # Used in ReportHandlerMixin.make_reports
 
 
 class EvaluationSection(Section):
-    def __init__(self, message, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(
+        self, message: str, children: Iterable[Union["Text", str]] = ()
+    ) -> None:
+        super().__init__(children=children)
         title = Paragraph()
         title.append(Text("-" * len(message)))
         self.append(title)
-
         message_body = Paragraph()
         message_body.append(Text(message))
         self.append(message_body)
@@ -169,8 +172,15 @@ class Table(BaseLayout):
     * title : the table's optional title
     """
 
-    def __init__(self, cols, title=None, rheaders=0, cheaders=0, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(
+        self,
+        cols: int,
+        title: Optional[str] = None,
+        rheaders: int = 0,
+        cheaders: int = 0,
+        children: Iterable[Union["Text", str]] = (),
+    ) -> None:
+        super().__init__(children=children)
         assert isinstance(cols, int)
         self.cols = cols
         self.title = title

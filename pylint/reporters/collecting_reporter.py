@@ -8,11 +8,11 @@ class CollectingReporter(BaseReporter):
 
     name = "collector"
 
-    def __init__(self):
+    def __init__(self) -> None:
         BaseReporter.__init__(self)
         self.messages = []
 
-    def reset(self):
+    def reset(self) -> None:
         self.messages = []
 
     _display = None
