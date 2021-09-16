@@ -18,9 +18,12 @@
 
 """Interfaces for Pylint objects"""
 from collections import namedtuple
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
 
 from astroid import nodes
+
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
 
 Confidence = namedtuple("Confidence", ["name", "description"])
 # Warning Certainties
@@ -99,7 +102,7 @@ class IReporter(Interface):
     def handle_message(self, msg) -> None:
         """Handle the given message object."""
 
-    def display_reports(self, layout):
+    def display_reports(self, layout: "Section") -> None:
         """display results encapsulated in the layout tree"""
 
 

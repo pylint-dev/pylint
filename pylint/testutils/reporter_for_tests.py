@@ -3,11 +3,14 @@
 
 from io import StringIO
 from os import getcwd, linesep, sep
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from pylint import interfaces
 from pylint.message import Message
 from pylint.reporters import BaseReporter
+
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
 
 
 class GenericTestReporter(BaseReporter):
@@ -56,25 +59,27 @@ class GenericTestReporter(BaseReporter):
 
     # pylint: enable=unused-argument
 
-    def display_reports(self, layout):
+    def display_reports(self, layout: "Section") -> None:
         """ignore layouts"""
 
-    _display = None
+    def _display(self, layout: "Section") -> None:
+        pass
 
 
 class MinimalTestReporter(BaseReporter):
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self.messages = []
 
-    _display = None
+    def _display(self, layout: "Section") -> None:
+        pass
 
 
 class FunctionalTestReporter(BaseReporter):
     def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self.messages = []
 
-    def display_reports(self, layout):
+    def display_reports(self, layout: "Section") -> None:
         """Ignore layouts and don't call self._display()."""
 
-    def _display(self, layout):
+    def _display(self, layout: "Section") -> None:
         pass

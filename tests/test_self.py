@@ -51,7 +51,7 @@ from copy import copy
 from io import StringIO
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import Any, Generator, Iterator, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Generator, Iterator, List, Optional, Union
 from unittest import mock
 from unittest.mock import patch
 
@@ -66,8 +66,10 @@ from pylint.lint.pylinter import PyLinter
 from pylint.message import Message
 from pylint.reporters import JSONReporter
 from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextReporter
-from pylint.reporters.ureports.nodes import EvaluationSection
 from pylint.utils import utils
+
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
 
 HERE = abspath(dirname(__file__))
 CLEAN_PATH = re.escape(dirname(dirname(__file__)) + os.path.sep)
@@ -116,7 +118,7 @@ class MultiReporter(BaseReporter):
         for rep in self._reporters:
             rep.handle_message(msg)
 
-    def _display(self, layout: EvaluationSection) -> None:
+    def _display(self, layout: "Section") -> None:
         pass
 
     @property

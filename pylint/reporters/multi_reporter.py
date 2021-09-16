@@ -3,13 +3,15 @@
 
 
 import os
-from typing import IO, Any, AnyStr, Callable, List, Optional
+from typing import IO, TYPE_CHECKING, Any, AnyStr, Callable, List, Optional
 
 from pylint.interfaces import IReporter
 from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
-from pylint.reporters.ureports.nodes import BaseLayout
 from pylint.typing import CheckerStats
+
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
 
 AnyFile = IO[AnyStr]
 PyLinter = Any
@@ -78,12 +80,12 @@ class MultiReporter:
         for rep in self._sub_reporters:
             rep.writeln(string)
 
-    def display_reports(self, layout: BaseLayout) -> None:
+    def display_reports(self, layout: "Section") -> None:
         """display results encapsulated in the layout tree"""
         for rep in self._sub_reporters:
             rep.display_reports(layout)
 
-    def display_messages(self, layout: BaseLayout) -> None:
+    def display_messages(self, layout: Optional["Section"]) -> None:
         """hook for displaying the messages of the reporter"""
         for rep in self._sub_reporters:
             rep.display_messages(layout)
