@@ -12,6 +12,8 @@ from pylint.typing import CheckerStats
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
+ReportsDict = DefaultDict[IChecker, List[Tuple[str, str, Callable]]]
+
 
 class ReportsHandlerMixIn:
     """a mix-in class containing all the reports and stats manipulation
@@ -19,15 +21,11 @@ class ReportsHandlerMixIn:
     """
 
     def __init__(self) -> None:
-        self._reports: DefaultDict[
-            IChecker, List[Tuple[str, str, Callable]]
-        ] = collections.defaultdict(list)
+        self._reports: ReportsDict = collections.defaultdict(list)
         self._reports_state: Dict[str, bool] = {}
 
-    def report_order(self):
-        """Return a list of reports, sorted in the order
-        in which they must be called.
-        """
+    def report_order(self) -> List[IChecker]:
+        """Return a list of reporters"""
         return list(self._reports)
 
     def register_report(
