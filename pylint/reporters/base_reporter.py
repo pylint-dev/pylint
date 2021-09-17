@@ -22,10 +22,10 @@ class BaseReporter:
 
     extension = ""
 
-    def __init__(self, output: Optional[TextIO] = None):
+    def __init__(self, output: TextIO = sys.stdout):
         self.linter: "PyLinter"
         self.section = 0
-        self.out: TextIO
+        self.out: TextIO = output
         self.set_output(output)
         self.messages: List[Message] = []
         # Build the path prefix to strip to get relative paths
