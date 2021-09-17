@@ -26,7 +26,7 @@ class BaseReporter:
     def __init__(self, output: TextIO = sys.stdout):
         self.linter: "PyLinter"
         self.section = 0
-        self.out: TextIO = output
+        self.out: TextIO = output or sys.stdout
         self.messages: List[Message] = []
         # Build the path prefix to strip to get relative paths
         self.path_strip_prefix = os.getcwd() + os.sep
