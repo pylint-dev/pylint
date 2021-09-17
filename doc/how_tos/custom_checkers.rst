@@ -140,7 +140,7 @@ and to remove the list of return nodes when we leave the function.
 
 Finally we'll implement the check.
 We will define a ``visit_return`` function,
-which is called with a :class:`.astroid.nodes.Return` node.
+which is called with an :class:`.astroid.nodes.Return` node.
 
 .. _astroid_extract_node:
 .. TODO We can shorten/remove this bit once astroid has API docs.

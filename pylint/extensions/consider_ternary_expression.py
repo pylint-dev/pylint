@@ -15,7 +15,7 @@ class ConsiderTernaryExpressionChecker(BaseChecker):
             "Consider rewriting as a ternary expression",
             "consider-ternary-expression",
             "Multiple assign statements spread across if/else blocks can be "
-            "rewritten with a single assingment and ternary expression",
+            "rewritten with a single assignment and ternary expression",
         )
     }
 

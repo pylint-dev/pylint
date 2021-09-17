@@ -448,7 +448,7 @@ class FormatChecker(BaseTokenChecker):
                 # without an error.
                 elif token[1] == "for":
                     return
-                # A generator expression can have a 'else' token in it.
+                # A generator expression can have an 'else' token in it.
                 # We check the rest of the tokens to see if any problems incure after
                 # the 'else'.
                 elif token[1] == "else":

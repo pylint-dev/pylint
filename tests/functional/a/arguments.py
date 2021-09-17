@@ -38,7 +38,7 @@ def function_3_args(first_argument, second_argument, third_argument):
     return first_argument, second_argument, third_argument
 
 def function_default_arg(one=1, two=2):
-    """fonction with default value"""
+    """function with default value"""
     return two, one
 
 

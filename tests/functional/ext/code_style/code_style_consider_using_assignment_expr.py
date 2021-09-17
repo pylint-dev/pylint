@@ -4,7 +4,7 @@ a1 = 2
 if a1:  # [consider-using-assignment-expr]
     ...
 
-# Do not suggest assignement expressions if assignment spans multiple lines
+# Do not suggest assignment expressions if assignment spans multiple lines
 a2 = (
     1,
 )

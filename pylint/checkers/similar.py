@@ -38,7 +38,7 @@ The common hashes between both linesets are then looked for. If there are matche
 with the corresponding couples (start line number/end line number) in both files.
 This association is then postprocessed to handle the case of successive matches. For example if the minimum common lines setting is set to four, then
 the hashes are computed with four lines. If one of match indices couple (12, 34) is the successor of another one (11, 33) then it means that there are
-in fact five lines wich are common.
+in fact five lines which are common.
 Once postprocessed the values of association table are the result looked for, i.e start and end lines numbers of common lines in both files.
 """
 import copy
@@ -663,7 +663,7 @@ def stripped_lines(
 class LineSet:
     """
     Holds and indexes all the lines of a single source file.
-    Allows for correspondance between real lines of the source file and stripped ones, which
+    Allows for correspondence between real lines of the source file and stripped ones, which
     are the real ones from which undesired patterns have been removed.
     """
 

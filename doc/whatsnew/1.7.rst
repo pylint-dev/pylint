@@ -531,7 +531,7 @@ New checkers
 
 * A new refactoring check was added, ``trailing-comma-tuple``, which is emitted
   when pylint finds an one-element tuple, created by a stray comma. This can
-  suggest a potential problem in the code and it is recommended to use parantheses
+  suggest a potential problem in the code and it is recommended to use parentheses
   in order to emphasise the creation of a tuple, rather than relying on the comma
   itself.
 
@@ -541,7 +541,7 @@ New checkers
 
      a = 1,
 
-  The warning can be fixed by adding parantheses:
+  The warning can be fixed by adding parentheses:
 
   .. code-block:: python
 

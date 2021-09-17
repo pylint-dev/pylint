@@ -1474,8 +1474,8 @@ class VariablesChecker(BaseChecker):
                     and defframe.parent_of(node)
                     and stmt is defstmt
                 ):
-                    # Single statement if, with assingment expression on same
-                    # line as assigment
+                    # Single statement if, with assignment expression on same
+                    # line as assignment
                     # x = b if (b := True) else False
                     maybee0601 = False
                 elif (
