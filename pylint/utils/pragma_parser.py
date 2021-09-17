@@ -100,7 +100,7 @@ def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]
         if kind == "ASSIGN":
             if not assignment_required:
                 if action:
-                    # A keyword has been found previously but doesn't support assignement
+                    # A keyword has been found previously but doesn't support assignment
                     raise UnRecognizedOptionError(
                         "The keyword doesn't support assignment", action
                     )

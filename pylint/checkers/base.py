@@ -1145,7 +1145,7 @@ class BasicChecker(_BasicChecker):
             self.add_message("using-constant-test", node=node)
         elif isinstance(inferred, const_nodes):
             # If the constant node is a FunctionDef or Lambda then
-            # it may be a illicit function call due to missing parentheses
+            # it may be an illicit function call due to missing parentheses
             call_inferred = None
             try:
                 if isinstance(inferred, nodes.FunctionDef):

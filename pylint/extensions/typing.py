@@ -215,7 +215,7 @@ class TypingChecker(BaseChecker):
         self,
         node: Union[nodes.Name, nodes.Attribute],
     ) -> None:
-        """Check if typing alias is depecated or could be replaced.
+        """Check if typing alias is deprecated or could be replaced.
 
         Requires
         - Python 3.9

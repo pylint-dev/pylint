@@ -109,7 +109,7 @@ class NoWorkChecker(BaseChecker):
 class TestEstablishBaselineBenchmarks:
     """Naive benchmarks for the high-level pylint framework
 
-    Because this benchmarks the fundemental and common parts and changes seen here will
+    Because this benchmarks the fundamental and common parts and changes seen here will
     impact everything else"""
 
     empty_filepath = _empty_filepath()
@@ -249,7 +249,7 @@ class TestEstablishBaselineBenchmarks:
     def test_baseline_benchmark_j1_single_working_checker(self, benchmark):
         """Establish a baseline of single-worker performance for PyLinter
 
-        Here we mimick a single Checker that does some work so that we can see the
+        Here we mimic a single Checker that does some work so that we can see the
         impact of running a simple system with -j1 against the same system with -j10.
 
         We expect this benchmark to take very close to

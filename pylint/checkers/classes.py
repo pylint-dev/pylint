@@ -174,7 +174,7 @@ def _definition_equivalent_to_call(definition, call):
     )
 
 
-# Deal with parameters overridding in two methods.
+# Deal with parameters overriding in two methods.
 
 
 def _positional_parameters(method):
@@ -324,18 +324,18 @@ def _different_parameters(
 
     # Allow positional/keyword variadic in overridden to match against any
     # positional/keyword argument in original.
-    # Keep any arguments that are found seperately in overridden to satisfy
+    # Keep any arguments that are found separately in overridden to satisfy
     # later tests
     if overridden.args.vararg:
-        overidden_names = [v.name for v in overridden_parameters]
+        overridden_names = [v.name for v in overridden_parameters]
         original_parameters = [
-            v for v in original_parameters if v.name in overidden_names
+            v for v in original_parameters if v.name in overridden_names
         ]
 
     if overridden.args.kwarg:
-        overidden_names = [v.name for v in overridden.args.kwonlyargs]
+        overridden_names = [v.name for v in overridden.args.kwonlyargs]
         original_kwonlyargs = [
-            v for v in original.args.kwonlyargs if v.name in overidden_names
+            v for v in original.args.kwonlyargs if v.name in overridden_names
         ]
 
     different_positional = _has_different_parameters(
@@ -1594,7 +1594,7 @@ a metaclass class method.",
             # through the class object or through super
             callee = node.expr.as_string()
 
-            # Typing annotations in funciton definitions can include protected members
+            # Typing annotations in function definitions can include protected members
             if utils.is_node_in_type_annotation_context(node):
                 return
 

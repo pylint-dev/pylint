@@ -60,7 +60,7 @@ Other Changes
 
   Close #996
 
-* ``pylint`` used to emit a ``unused-variable`` error if unused import was found in the function. Now instead of
+* ``pylint`` used to emit an ``unused-variable`` error if unused import was found in the function. Now instead of
   ``unused-variable``, ``unused-import`` is emitted.
 
   Close #2421

@@ -8,7 +8,7 @@ class Point2D:
         self.y = y
 
 
-# Don't emit false-positive 'unused-variable' and 'undefined-varibable'
+# Don't emit false-positive 'unused-variable' and 'undefined-variable'
 var = 42
 match var:
     case [*rest1]:

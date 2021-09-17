@@ -180,7 +180,7 @@ class CodeStyleChecker(BaseChecker):
     def _check_consider_using_assignment_expr(self, node: nodes.If) -> None:
         """Check if an assignment expression (walrus operator) can be used.
 
-        For example if an assignment is directly followed by an if statment:
+        For example if an assignment is directly followed by an if statement:
         >>> x = 2
         >>> if x:
         >>>     ...

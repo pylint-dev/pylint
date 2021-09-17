@@ -24,7 +24,7 @@ DEFINED[__revision__] = OTHER = 'move this is astroid test'
 OTHER += '$'
 
 def bad_default(var, default=unknown2):  # [undefined-variable]
-    """function with defaut arg's value set to an unexistant name"""
+    """function with default arg's value set to an nonexistent name"""
     print(var, default)
     print(xxxx)  # [undefined-variable]
     augvar += 1  # [undefined-variable]
