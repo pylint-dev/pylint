@@ -121,11 +121,11 @@ class MultiReporter(BaseReporter):
         pass
 
     @property
-    def out(self) -> TextIO:  # type: ignore # Property is not the same as BaseLinter's attr
+    def out(self) -> TextIO:  # type: ignore[override]
         return self._reporters[0].out
 
-    @property  # type: ignore # Property is not the same as BaseLinter's attr
-    def linter(self) -> PyLinter:  # type: ignore
+    @property  # type: ignore[override]
+    def linter(self) -> PyLinter:  # type: ignore[override]
         return self._linter
 
     @linter.setter
