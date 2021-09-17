@@ -25,7 +25,7 @@ class ReportsHandlerMixIn:
         self._reports_state: Dict[str, bool] = {}
 
     def report_order(self) -> List[IChecker]:
-        """Return a list of reporerts"""
+        """Return a list of reporters"""
         return list(self._reports)
 
     def register_report(
