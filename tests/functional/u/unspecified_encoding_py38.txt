@@ -13,13 +13,13 @@ unspecified-encoding:39:0::Using open without explicitly specifying an encoding:
 unspecified-encoding:48:5::Using open without explicitly specifying an encoding:HIGH
 unspecified-encoding:51:5::Using open without explicitly specifying an encoding:HIGH
 unspecified-encoding:55:5::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:63:0::Using open without explicitly specifying an encoding:HIGH
 unspecified-encoding:64:0::Using open without explicitly specifying an encoding:HIGH
 unspecified-encoding:65:0::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:72:0::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:66:0::Using open without explicitly specifying an encoding:HIGH
 unspecified-encoding:73:0::Using open without explicitly specifying an encoding:HIGH
 unspecified-encoding:74:0::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:78:0::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:75:0::Using open without explicitly specifying an encoding:HIGH
 unspecified-encoding:79:0::Using open without explicitly specifying an encoding:HIGH
 unspecified-encoding:80:0::Using open without explicitly specifying an encoding:HIGH
 unspecified-encoding:81:0::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:82:0::Using open without explicitly specifying an encoding:HIGH
