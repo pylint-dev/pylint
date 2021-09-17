@@ -4,6 +4,7 @@
 import os
 import sys
 from typing import TYPE_CHECKING, List, Optional, TextIO
+from warnings import warn
 
 from pylint.message import Message
 from pylint.reporters.ureports.nodes import Text
@@ -26,7 +27,6 @@ class BaseReporter:
         self.linter: "PyLinter"
         self.section = 0
         self.out: TextIO = output
-        self.set_output(output)
         self.messages: List[Message] = []
         # Build the path prefix to strip to get relative paths
         self.path_strip_prefix = os.getcwd() + os.sep
@@ -37,6 +37,12 @@ class BaseReporter:
 
     def set_output(self, output: Optional[TextIO] = None) -> None:
         """set output stream"""
+        # pylint: disable-next=fixme
+        # TODO: Remove this method after depreciation
+        warn(
+            "'set_output' will be removed in 3.0, please use 'reporter.out = stream' instead",
+            DeprecationWarning,
+        )
         self.out = output or sys.stdout
 
     def writeln(self, string=""):
