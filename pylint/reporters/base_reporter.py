@@ -3,13 +3,15 @@
 
 import os
 import sys
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, TextIO
+from warnings import warn
 
 from pylint.message import Message
 from pylint.reporters.ureports.nodes import Text
 from pylint.typing import CheckerStats
 
 if TYPE_CHECKING:
+    from pylint.lint.pylinter import PyLinter
     from pylint.reporters.ureports.nodes import Section
 
 
@@ -21,12 +23,10 @@ class BaseReporter:
 
     extension = ""
 
-    def __init__(self, output=None):
-        self.linter = None
+    def __init__(self, output: TextIO = sys.stdout):
+        self.linter: "PyLinter"
         self.section = 0
-        self.out = None
-        self.out_encoding = None
-        self.set_output(output)
+        self.out: TextIO = output or sys.stdout
         self.messages: List[Message] = []
         # Build the path prefix to strip to get relative paths
         self.path_strip_prefix = os.getcwd() + os.sep
@@ -35,8 +35,14 @@ class BaseReporter:
         """Handle a new message triggered on the current file."""
         self.messages.append(msg)
 
-    def set_output(self, output=None):
+    def set_output(self, output: Optional[TextIO] = None) -> None:
         """set output stream"""
+        # pylint: disable-next=fixme
+        # TODO: Remove this method after depreciation
+        warn(
+            "'set_output' will be removed in 3.0, please use 'reporter.out = stream' instead",
+            DeprecationWarning,
+        )
         self.out = output or sys.stdout
 
     def writeln(self, string=""):

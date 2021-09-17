@@ -51,12 +51,11 @@ from copy import copy
 from io import StringIO
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Generator, Iterator, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Generator, Iterator, List, Optional, TextIO
 from unittest import mock
 from unittest.mock import patch
 
 import pytest
-from _pytest.capture import EncodedFile
 from py._path.local import LocalPath  # type: ignore
 
 from pylint import modify_sys_path
@@ -79,7 +78,7 @@ UNNECESSARY_LAMBDA = join(
 
 
 @contextlib.contextmanager
-def _patch_streams(out: Union[StringIO, EncodedFile]) -> Iterator:
+def _patch_streams(out: TextIO) -> Iterator:
     sys.stderr = sys.stdout = out
     try:
         yield
@@ -122,11 +121,11 @@ class MultiReporter(BaseReporter):
         pass
 
     @property
-    def out(self) -> StringIO:
+    def out(self) -> TextIO:  # type: ignore[override]
         return self._reporters[0].out
 
-    @property
-    def linter(self) -> Optional[Any]:
+    @property  # type: ignore[override]
+    def linter(self) -> PyLinter:  # type: ignore[override]
         return self._linter
 
     @linter.setter
@@ -159,9 +158,7 @@ class TestRunTC:
         assert pylint_code == code, msg
 
     @staticmethod
-    def _run_pylint(
-        args: List[str], out: Union[StringIO, EncodedFile], reporter: Any = None
-    ) -> int:
+    def _run_pylint(args: List[str], out: TextIO, reporter: Any = None) -> int:
         args = args + ["--persistent=no"]
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
