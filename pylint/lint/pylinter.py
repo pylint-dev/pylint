@@ -478,7 +478,7 @@ class PyLinter(
                     "type": "py_version",
                     "metavar": "<py_version>",
                     "help": (
-                        "Min Python version to use for version dependend checks. "
+                        "Minimum Python version to use for version dependent checks. "
                         "Will default to the version used to run pylint."
                     ),
                 },

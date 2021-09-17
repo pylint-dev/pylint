@@ -824,7 +824,7 @@ def test_filename_with__init__(init_linter: PyLinter) -> None:
 
 
 def test_by_module_statement_value(init_linter: PyLinter) -> None:
-    """Test "statement" for each module analized of computed correctly."""
+    """Test "statement" for each module analyzed of computed correctly."""
     linter = init_linter
     linter.check([os.path.join(os.path.dirname(__file__), "data")])
 

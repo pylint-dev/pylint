@@ -6,14 +6,15 @@ import operator
 import platform
 import sys
 from collections import Counter
-from io import StringIO, TextIOWrapper
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from io import StringIO
+from typing import TYPE_CHECKING, Dict, List, Optional, TextIO, Tuple
 
 import pytest
 from _pytest.config import Config
 
 from pylint import checkers
 from pylint.lint import PyLinter
+from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
 from pylint.testutils.functional_test_file import (
     FunctionalTestFile,
@@ -27,11 +28,15 @@ from pylint.utils import utils
 if TYPE_CHECKING:
     from typing import Counter as CounterType  # typing.Counter added in Python 3.6.1
 
+    MessageCounter = CounterType[Tuple[int, str]]
+
 
 class LintModuleTest:
     maxDiff = None
 
-    def __init__(self, test_file: FunctionalTestFile, config: Optional[Config] = None):
+    def __init__(
+        self, test_file: FunctionalTestFile, config: Optional[Config] = None
+    ) -> None:
         _test_reporter = FunctionalTestReporter()
         self._linter = PyLinter()
         self._linter.set_reporter(_test_reporter)
@@ -53,7 +58,7 @@ class LintModuleTest:
         self._test_file = test_file
         self._config = config
 
-    def setUp(self):
+    def setUp(self) -> None:
         if self._should_be_skipped_due_to_version():
             pytest.skip(
                 f"Test cannot run with Python {sys.version.split(' ', maxsplit=1)[0]}."
@@ -78,20 +83,20 @@ class LintModuleTest:
             if sys.platform.lower() in platforms:
                 pytest.skip(f"Test cannot run on platform {sys.platform!r}")
 
-    def runTest(self):
+    def runTest(self) -> None:
         self._runTest()
 
-    def _should_be_skipped_due_to_version(self):
+    def _should_be_skipped_due_to_version(self) -> bool:
         return (
             sys.version_info < self._test_file.options["min_pyver"]
             or sys.version_info > self._test_file.options["max_pyver"]
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self._test_file.base} ({self.__class__.__module__}.{self.__class__.__name__})"
 
     @staticmethod
-    def get_expected_messages(stream: TextIOWrapper) -> "CounterType[Tuple[int, str]]":
+    def get_expected_messages(stream: TextIO) -> "MessageCounter":
         """Parses a file and get expected messages.
 
         :param stream: File-like input stream.
@@ -99,7 +104,7 @@ class LintModuleTest:
         :returns: A dict mapping line,msg-symbol tuples to the count on this line.
         :rtype: dict
         """
-        messages: "CounterType[Tuple[int, str]]" = Counter()
+        messages: "MessageCounter" = Counter()
         for i, line in enumerate(stream):
             match = _EXPECTED_RE.search(line)
             if match is None:
@@ -125,8 +130,9 @@ class LintModuleTest:
 
     @staticmethod
     def multiset_difference(
-        expected_entries: "CounterType", actual_entries: "CounterType"
-    ) -> Tuple["CounterType", Dict[str, int]]:
+        expected_entries: "MessageCounter",
+        actual_entries: "MessageCounter",
+    ) -> Tuple["MessageCounter", Dict[Tuple[int, str], int]]:
         """Takes two multisets and compares them.
 
         A multiset is a dict with the cardinality of the key as the value."""
@@ -141,21 +147,21 @@ class LintModuleTest:
         return missing, unexpected
 
     # pylint: disable=consider-using-with
-    def _open_expected_file(self):
+    def _open_expected_file(self) -> TextIO:
         try:
             return open(self._test_file.expected_output, encoding="utf-8")
         except FileNotFoundError:
             return StringIO("")
 
     # pylint: disable=consider-using-with
-    def _open_source_file(self):
+    def _open_source_file(self) -> TextIO:
         if self._test_file.base == "invalid_encoded_data":
             return open(self._test_file.source, encoding="utf-8")
         if "latin1" in self._test_file.base:
             return open(self._test_file.source, encoding="latin1")
         return open(self._test_file.source, encoding="utf8")
 
-    def _get_expected(self):
+    def _get_expected(self) -> Tuple["MessageCounter", List[OutputLine]]:
         with self._open_source_file() as f:
             expected_msgs = self.get_expected_messages(f)
         if not expected_msgs:
@@ -166,10 +172,10 @@ class LintModuleTest:
             ]
         return expected_msgs, expected_output_lines
 
-    def _get_actual(self):
-        messages = self._linter.reporter.messages
+    def _get_actual(self) -> Tuple["MessageCounter", List[OutputLine]]:
+        messages: List[Message] = self._linter.reporter.messages
         messages.sort(key=lambda m: (m.line, m.symbol, m.msg))
-        received_msgs = Counter()
+        received_msgs: "MessageCounter" = Counter()
         received_output_lines = []
         for msg in messages:
             assert (
@@ -179,7 +185,7 @@ class LintModuleTest:
             received_output_lines.append(OutputLine.from_msg(msg))
         return received_msgs, received_output_lines
 
-    def _runTest(self):
+    def _runTest(self) -> None:
         __tracebackhide__ = True  # pylint: disable=unused-variable
         modules_to_check = [self._test_file.source]
         self._linter.check(modules_to_check)
@@ -193,28 +199,32 @@ class LintModuleTest:
         self._check_output_text(expected_messages, expected_output, actual_output)
 
     def error_msg_for_unequal_messages(
-        self, actual_messages, expected_messages, actual_output: List[OutputLine]
-    ):
+        self,
+        actual_messages: "MessageCounter",
+        expected_messages: "MessageCounter",
+        actual_output: List[OutputLine],
+    ) -> str:
         msg = [f'Wrong results for file "{self._test_file.base}":']
         missing, unexpected = self.multiset_difference(
             expected_messages, actual_messages
         )
         if missing:
             msg.append("\nExpected in testdata:")
-            msg.extend(
-                " %3d: %s" % msg  # pylint: disable=consider-using-f-string
-                for msg in sorted(missing)
-            )
+            msg.extend(f" {msg[0]:3}: {msg[1]}" for msg in sorted(missing))
         if unexpected:
             msg.append("\nUnexpected in testdata:")
-            msg.extend(" %3d: %s" % msg for msg in sorted(unexpected))  # type: ignore #pylint: disable=consider-using-f-string
+            msg.extend(f" {msg[0]:3}: {msg[1]}" for msg in sorted(unexpected))
         error_msg = "\n".join(msg)
         if self._config and self._config.getoption("verbose") > 0:
             error_msg += "\n\nActual pylint output for this file:\n"
             error_msg += "\n".join(str(o) for o in actual_output)
         return error_msg
 
-    def error_msg_for_unequal_output(self, expected_lines, received_lines) -> str:
+    def error_msg_for_unequal_output(
+        self,
+        expected_lines: List[OutputLine],
+        received_lines: List[OutputLine],
+    ) -> str:
         missing = set(expected_lines) - set(received_lines)
         unexpected = set(received_lines) - set(expected_lines)
         error_msg = (
@@ -234,7 +244,12 @@ class LintModuleTest:
                 error_msg += f"{line}\n"
         return error_msg
 
-    def _check_output_text(self, _, expected_output, actual_output):
+    def _check_output_text(
+        self,
+        _: "MessageCounter",
+        expected_output: List[OutputLine],
+        actual_output: List[OutputLine],
+    ) -> None:
         """This is a function because we want to be able to update the text in LintModuleOutputUpdate"""
         assert expected_output == actual_output, self.error_msg_for_unequal_output(
             expected_output, actual_output

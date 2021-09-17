@@ -629,9 +629,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if not mode_arg or "b" not in mode_arg.value:
             encoding_arg = None
             try:
-                encoding_arg = utils.get_argument_from_call(
-                    node, position=None, keyword="encoding"
-                )
+                if open_module == "pathlib" and node.func.attrname == "read_text":
+                    encoding_arg = utils.get_argument_from_call(
+                        node, position=0, keyword="encoding"
+                    )
+                else:
+                    encoding_arg = utils.get_argument_from_call(
+                        node, position=None, keyword="encoding"
+                    )
             except utils.NoSuchArgumentError:
                 self.add_message("unspecified-encoding", node=node)
 

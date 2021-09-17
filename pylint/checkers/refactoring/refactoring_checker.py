@@ -773,7 +773,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_using_min_max_builtin(node)
 
     def _check_consider_using_min_max_builtin(self, node: nodes.If):
-        """Check if the given if node can be refactored as an min/max python builtin."""
+        """Check if the given if node can be refactored as a min/max python builtin."""
         if self._is_actual_elif(node) or node.orelse:
             # Not interested in if statements with multiple branches.
             return
@@ -1838,7 +1838,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self, node: Union[nodes.For, nodes.Comprehension]
     ) -> None:
         """Add message when accessing dict values by index lookup."""
-        # Verify that we have a .items() call and
+        # Verify that we have an .items() call and
         # that the object which is iterated is used as a subscript in the
         # body of the for.
         # Is it a proper items call?

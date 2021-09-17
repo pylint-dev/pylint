@@ -214,7 +214,7 @@ class TestParamDocChecker(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_func_params_and_keyword_params_in_google_docstring(self) -> None:
-        """Example of a function with Google style parameter splitted
+        """Example of a function with Google style parameter split
         in Args and Keyword Args in the docstring
         """
         node = astroid.extract_node(
@@ -236,7 +236,7 @@ class TestParamDocChecker(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_func_params_and_wrong_keyword_params_in_google_docstring(self) -> None:
-        """Example of a function with Google style parameter splitted
+        """Example of a function with Google style parameter split
         in Args and Keyword Args in the docstring but with wrong keyword args
         """
         node = astroid.extract_node(

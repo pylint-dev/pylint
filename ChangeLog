@@ -25,6 +25,10 @@ Release date: TBA
 
   Closes #5019
 
+* Fix regression for ``unspecified-encoding`` with ``pathlib.Path.read_text()``
+
+  Closes #5029
+
 
 What's New in Pylint 2.11.1?
 ============================
@@ -341,7 +345,7 @@ Release date: 2021-07-21
 
   Closes #4732
 
-* Fix a crash when a AttributeInferenceError was not handled properly when
+* Fix a crash when an AttributeInferenceError was not handled properly when
   failing to infer the real name of an import in astroid.
 
   Closes #4692
@@ -2179,7 +2183,7 @@ Release date: 2018-11-25
 
    * Allow ``__module__`` to be redefined at a class level. Close #2451
 
-   * ``pylint`` used to emit a ``unused-variable`` error if unused import was found in the function. Now instead of
+   * ``pylint`` used to emit an ``unused-variable`` error if unused import was found in the function. Now instead of
      ``unused-variable``, ``unused-import`` is emitted.
 
      Close #2421

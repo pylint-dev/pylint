@@ -129,7 +129,7 @@ def function19():
     TESTLIST[0] = 0 # no error
 
 def function20():
-    """Delete with None and integer indicies"""
+    """Delete with None and integer indices"""
     del TESTLIST[None] # [invalid-sequence-index]
     del TESTLIST[0] # no error
 

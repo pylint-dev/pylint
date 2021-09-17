@@ -42,7 +42,7 @@ body:
 
         [MESSAGE CONTROL]
         enable=
-            useless-supression
+            useless-suppression
 
         # ...
       render: ini

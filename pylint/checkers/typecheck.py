@@ -420,7 +420,7 @@ MSGS = {
     "W1115": (
         "Non-string value assigned to __name__",
         "non-str-assignment-to-dunder-name",
-        "Emitted when a non-string vaue is assigned to __name__",
+        "Emitted when a non-string value is assigned to __name__",
     ),
     "W1116": (
         "Second argument of isinstance is not a type",

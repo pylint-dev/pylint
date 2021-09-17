@@ -48,7 +48,7 @@ class Concrete(Abstract): # [abstract-method]
     """Concrete class"""
 
     def aaaa(self):
-        """overidden form Abstract"""
+        """overridden form Abstract"""
 
 
 class Structure(object, metaclass=abc.ABCMeta):

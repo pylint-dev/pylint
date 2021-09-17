@@ -127,7 +127,7 @@ class TestDefaultDiadefGenerator:
     ) -> None:
         """functional test of relations extraction;
         different classes possibly in different modules"""
-        # XXX should be catching pyreverse environnement problem but doesn't
+        # XXX should be catching pyreverse environment problem but doesn't
         # pyreverse doesn't extracts the relations but this test ok
         project = get_project("data")
         handler = DiadefsHandler(default_config)

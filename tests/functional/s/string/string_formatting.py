@@ -27,7 +27,7 @@ class Getitem(object):
 
 
 class ReturnYes(object):
-    """ can't be properly infered """
+    """ can't be properly inferred """
     missing = Missing()
 
 
@@ -160,7 +160,7 @@ def issue338():
 
     class Crash(namedtuple("C", "foo bar")):
         """ Looking for attributes in __str__ will crash,
-        because EmptyNodes can't be infered.
+        because EmptyNodes can't be inferred.
         """
         def __str__(self):
             return "{0.foo}: {0.bar}".format(self)

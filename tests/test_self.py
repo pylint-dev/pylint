@@ -278,7 +278,7 @@ class TestRunTC:
         self._runtest([], code=32)
 
     def test_no_out_encoding(self) -> None:
-        """test redirection of stdout with non ascii caracters"""
+        """test redirection of stdout with non ascii characters"""
         # This test reproduces bug #48066 ; it happens when stdout is redirected
         # through '>' : the sys.stdout.encoding becomes then None, and if the
         # output contains non ascii, pylint will crash
