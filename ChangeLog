@@ -20,8 +20,8 @@ Release date: TBA
 ..
   Put bug fixes that should not wait for a new minor version here
 
-* Don't emit ``consider-using-f-string`` if ``py-version`` is set to Python < ``3.5``.
-  ``f-strings`` where added in Python ``3.6``
+* Don't emit ``consider-using-f-string`` if ``py-version`` is set to Python < ``3.6``.
+  ``f-strings`` were added in Python ``3.6``
 
   Closes #5019
 
