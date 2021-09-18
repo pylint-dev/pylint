@@ -91,8 +91,7 @@ def _get_ansi_code(msg_style: MessageStyle) -> str:
     ansi_code = []
     if msg_style.style == ():
         for effect in msg_style.style:
-            if effect:
-                ansi_code.append(ANSI_STYLES[effect])
+            ansi_code.append(ANSI_STYLES[effect])
     if msg_style.colour:
         if msg_style.colour.isdigit():
             ansi_code.extend(["38", "5"])
