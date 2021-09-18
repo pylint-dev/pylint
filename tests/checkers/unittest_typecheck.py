@@ -30,7 +30,7 @@ import pytest
 
 from pylint.checkers import typecheck
 from pylint.interfaces import UNDEFINED
-from pylint.testutils import CheckerTestCase, Message, set_config
+from pylint.testutils import CheckerTestCase, OutputMessage, set_config
 
 try:
     from coverage import tracer as _  # pylint: disable=unused-import
@@ -59,7 +59,7 @@ class TestTypeChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(
+            OutputMessage(
                 "no-member",
                 node=node,
                 args=("Module", "optparse", "THIS_does_not_EXIST", ""),
@@ -90,7 +90,7 @@ class TestTypeChecker(CheckerTestCase):
         xml.etree.Lala
         """
         )
-        message = Message(
+        message = OutputMessage(
             "no-member", node=node, args=("Module", "xml.etree", "Lala", "")
         )
         with self.assertAddsMessages(message):
@@ -127,7 +127,7 @@ class TestTypeChecker(CheckerTestCase):
         xml.etree.ElementTree.Test
         """
         )
-        message = Message(
+        message = OutputMessage(
             "no-member", node=node, args=("Module", "xml.etree.ElementTree", "Test", "")
         )
         with self.assertAddsMessages(message):
@@ -166,7 +166,7 @@ class TestTypeChecker(CheckerTestCase):
         tracer.CTracer  #@
         """
         )
-        message = Message(
+        message = OutputMessage(
             "no-member", node=node, args=("Module", "coverage.tracer", "CTracer", "")
         )
         with self.assertAddsMessages(message):
@@ -181,7 +181,7 @@ class TestTypeChecker(CheckerTestCase):
         tracer.CTracer  #@
         """
         )
-        message = Message(
+        message = OutputMessage(
             "c-extension-no-member",
             node=node,
             args=("Module", "coverage.tracer", "CTracer", ""),
@@ -238,7 +238,7 @@ class TestTypeChecker(CheckerTestCase):
             ("FirstInvalid", "int"),
         ):
             classdef = module[class_obj]
-            message = Message(
+            message = OutputMessage(
                 "invalid-metaclass", node=classdef, args=(metaclass_name,)
             )
             with self.assertAddsMessages(message):
@@ -259,7 +259,7 @@ class TestTypeChecker(CheckerTestCase):
         )
         for class_obj, metaclass_name in (("Invalid", "int"), ("InvalidSecond", "1")):
             classdef = module[class_obj]
-            message = Message(
+            message = OutputMessage(
                 "invalid-metaclass", node=classdef, args=(metaclass_name,)
             )
             with self.assertAddsMessages(message):
@@ -358,7 +358,7 @@ class TestTypeChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message("not-callable", node=call, args="get_num(10)")
+            OutputMessage("not-callable", node=call, args="get_num(10)")
         ):
             self.checker.visit_call(call)
 
@@ -400,7 +400,7 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
         )
         subscript = module.body[-1].value
         with self.assertAddsMessages(
-            Message(
+            OutputMessage(
                 "unsubscriptable-object",
                 node=subscript.value,
                 args="collections",
@@ -451,7 +451,7 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
         )
         subscript = module.body[-1].value
         with self.assertAddsMessages(
-            Message(
+            OutputMessage(
                 "unsubscriptable-object",
                 node=subscript.value,
                 args="decorated",
@@ -491,7 +491,7 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
         )
         subscript = module.body[-1].value
         with self.assertAddsMessages(
-            Message(
+            OutputMessage(
                 "unsubscriptable-object",
                 node=subscript.value,
                 args="decorated",

@@ -35,7 +35,7 @@ from typing import Dict, Type
 import astroid
 
 from pylint.checkers import BaseChecker, base
-from pylint.testutils import CheckerTestCase, Message, set_config
+from pylint.testutils import CheckerTestCase, OutputMessage, set_config
 
 
 class TestDocstring(CheckerTestCase):
@@ -43,7 +43,7 @@ class TestDocstring(CheckerTestCase):
 
     def test_missing_docstring_module(self) -> None:
         module = astroid.parse("something")
-        message = Message("missing-module-docstring", node=module)
+        message = OutputMessage("missing-module-docstring", node=module)
         with self.assertAddsMessages(message):
             self.checker.visit_module(module)
 
@@ -54,7 +54,7 @@ class TestDocstring(CheckerTestCase):
 
     def test_empty_docstring_module(self) -> None:
         module = astroid.parse("''''''")
-        message = Message("empty-docstring", node=module, args=("module",))
+        message = OutputMessage("empty-docstring", node=module, args=("module",))
         with self.assertAddsMessages(message):
             self.checker.visit_module(module)
 
@@ -64,7 +64,7 @@ class TestDocstring(CheckerTestCase):
         def func(tion):
            pass"""
         )
-        message = Message("missing-function-docstring", node=func)
+        message = OutputMessage("missing-function-docstring", node=func)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
@@ -87,7 +87,7 @@ class TestDocstring(CheckerTestCase):
             pass
            """
         )
-        message = Message("missing-function-docstring", node=func)
+        message = OutputMessage("missing-function-docstring", node=func)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
@@ -102,7 +102,7 @@ class TestDocstring(CheckerTestCase):
                 pass
            """
         )
-        message = Message("missing-function-docstring", node=func)
+        message = OutputMessage("missing-function-docstring", node=func)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
@@ -122,7 +122,7 @@ class TestDocstring(CheckerTestCase):
         class Klass(object):
            pass"""
         )
-        message = Message("missing-class-docstring", node=klass)
+        message = OutputMessage("missing-class-docstring", node=klass)
         with self.assertAddsMessages(message):
             self.checker.visit_classdef(klass)
 
@@ -182,7 +182,7 @@ class TestNameChecker(CheckerTestCase):
             self.checker.visit_functiondef(methods[2])
             self.checker.visit_functiondef(methods[3])
         with self.assertAddsMessages(
-            Message(
+            OutputMessage(
                 "invalid-name",
                 node=methods[1],
                 args=("Attribute", "bar", "'[A-Z]+' pattern"),
@@ -260,7 +260,7 @@ class TestNameChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(
+            OutputMessage(
                 msg_id="assign-to-new-keyword",
                 node=ast[0].targets[0],
                 args=("async", "3.7"),
@@ -268,7 +268,7 @@ class TestNameChecker(CheckerTestCase):
         ):
             self.checker.visit_assignname(ast[0].targets[0])
         with self.assertAddsMessages(
-            Message(
+            OutputMessage(
                 msg_id="assign-to-new-keyword",
                 node=ast[1].targets[0],
                 args=("await", "3.7"),
@@ -276,11 +276,15 @@ class TestNameChecker(CheckerTestCase):
         ):
             self.checker.visit_assignname(ast[1].targets[0])
         with self.assertAddsMessages(
-            Message(msg_id="assign-to-new-keyword", node=ast[2], args=("async", "3.7"))
+            OutputMessage(
+                msg_id="assign-to-new-keyword", node=ast[2], args=("async", "3.7")
+            )
         ):
             self.checker.visit_functiondef(ast[2])
         with self.assertAddsMessages(
-            Message(msg_id="assign-to-new-keyword", node=ast[3], args=("async", "3.7"))
+            OutputMessage(
+                msg_id="assign-to-new-keyword", node=ast[3], args=("async", "3.7")
+            )
         ):
             self.checker.visit_classdef(ast[3])
 
@@ -302,7 +306,7 @@ class TestMultiNamingStyle(CheckerTestCase):
             pass
         """
         )
-        message = Message(
+        message = OutputMessage(
             "invalid-name",
             node=classes[0],
             args=(
@@ -331,7 +335,7 @@ class TestMultiNamingStyle(CheckerTestCase):
         """
         )
         messages = [
-            Message(
+            OutputMessage(
                 "invalid-name",
                 node=classes[0],
                 args=(
@@ -340,7 +344,7 @@ class TestMultiNamingStyle(CheckerTestCase):
                     "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
                 ),
             ),
-            Message(
+            OutputMessage(
                 "invalid-name",
                 node=classes[2],
                 args=(
@@ -374,7 +378,7 @@ class TestMultiNamingStyle(CheckerTestCase):
         """,
             module_name="test",
         )
-        message = Message(
+        message = OutputMessage(
             "invalid-name",
             node=function_defs[1],
             args=(
@@ -406,7 +410,7 @@ class TestMultiNamingStyle(CheckerTestCase):
             pass
         """
         )
-        message = Message(
+        message = OutputMessage(
             "invalid-name",
             node=function_defs[3],
             args=(
@@ -428,7 +432,7 @@ class TestComparison(CheckerTestCase):
 
     def test_comparison(self) -> None:
         node = astroid.extract_node("foo == True")
-        message = Message(
+        message = OutputMessage(
             "singleton-comparison",
             node=node,
             args=(
@@ -440,7 +444,7 @@ class TestComparison(CheckerTestCase):
             self.checker.visit_compare(node)
 
         node = astroid.extract_node("foo == False")
-        message = Message(
+        message = OutputMessage(
             "singleton-comparison",
             node=node,
             args=(
@@ -452,14 +456,14 @@ class TestComparison(CheckerTestCase):
             self.checker.visit_compare(node)
 
         node = astroid.extract_node("foo == None")
-        message = Message(
+        message = OutputMessage(
             "singleton-comparison", node=node, args=("'foo == None'", "'foo is None'")
         )
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
 
         node = astroid.extract_node("foo is float('nan')")
-        message = Message(
+        message = OutputMessage(
             "nan-comparison",
             node=node,
             args=("'foo is float('nan')'", "'math.isnan(foo)'"),
@@ -473,7 +477,7 @@ class TestComparison(CheckerTestCase):
                                 foo != numpy.NaN
                                 """
         )
-        message = Message(
+        message = OutputMessage(
             "nan-comparison",
             node=node,
             args=("'foo != numpy.NaN'", "'not math.isnan(foo)'"),
@@ -487,7 +491,7 @@ class TestComparison(CheckerTestCase):
                                 foo is not nmp.NaN
                                 """
         )
-        message = Message(
+        message = OutputMessage(
             "nan-comparison",
             node=node,
             args=("'foo is not nmp.NaN'", "'not math.isnan(foo)'"),
@@ -497,8 +501,10 @@ class TestComparison(CheckerTestCase):
 
         node = astroid.extract_node("True == foo")
         messages = (
-            Message("misplaced-comparison-constant", node=node, args=("foo == True",)),
-            Message(
+            OutputMessage(
+                "misplaced-comparison-constant", node=node, args=("foo == True",)
+            ),
+            OutputMessage(
                 "singleton-comparison",
                 node=node,
                 args=(
@@ -512,8 +518,10 @@ class TestComparison(CheckerTestCase):
 
         node = astroid.extract_node("False == foo")
         messages = (
-            Message("misplaced-comparison-constant", node=node, args=("foo == False",)),
-            Message(
+            OutputMessage(
+                "misplaced-comparison-constant", node=node, args=("foo == False",)
+            ),
+            OutputMessage(
                 "singleton-comparison",
                 node=node,
                 args=(
@@ -527,8 +535,10 @@ class TestComparison(CheckerTestCase):
 
         node = astroid.extract_node("None == foo")
         messages = (
-            Message("misplaced-comparison-constant", node=node, args=("foo == None",)),
-            Message(
+            OutputMessage(
+                "misplaced-comparison-constant", node=node, args=("foo == None",)
+            ),
+            OutputMessage(
                 "singleton-comparison",
                 node=node,
                 args=("'None == foo'", "'None is foo'"),

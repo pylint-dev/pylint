@@ -23,7 +23,7 @@
 import astroid
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, Message, set_config
+from pylint.testutils import CheckerTestCase, OutputMessage, set_config
 
 
 class TestDocstringCheckerRaise(CheckerTestCase):
@@ -64,7 +64,9 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         raise_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("RuntimeError",))
+            OutputMessage(
+                msg_id="missing-raises-doc", node=node, args=("RuntimeError",)
+            )
         ):
             self.checker.visit_raise(raise_node)
 
@@ -82,7 +84,9 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         raise_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("RuntimeError",))
+            OutputMessage(
+                msg_id="missing-raises-doc", node=node, args=("RuntimeError",)
+            )
         ):
             self.checker.visit_raise(raise_node)
 
@@ -101,7 +105,9 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         raise_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("RuntimeError",))
+            OutputMessage(
+                msg_id="missing-raises-doc", node=node, args=("RuntimeError",)
+            )
         ):
             self.checker.visit_raise(raise_node)
 
@@ -152,7 +158,7 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         raise_node = node.body[1]
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("error",))
+            OutputMessage(msg_id="missing-raises-doc", node=node, args=("error",))
         ):
             self.checker.visit_raise(raise_node)
 
@@ -226,7 +232,9 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         raise_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("RuntimeError",))
+            OutputMessage(
+                msg_id="missing-raises-doc", node=node, args=("RuntimeError",)
+            )
         ):
             self.checker.visit_raise(raise_node)
 
@@ -359,7 +367,9 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         node = raise_node.frame()
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("RuntimeError",))
+            OutputMessage(
+                msg_id="missing-raises-doc", node=node, args=("RuntimeError",)
+            )
         ):
             self.checker.visit_raise(raise_node)
 
@@ -382,7 +392,9 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         node = raise_node.frame()
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("RuntimeError",))
+            OutputMessage(
+                msg_id="missing-raises-doc", node=node, args=("RuntimeError",)
+            )
         ):
             self.checker.visit_raise(raise_node)
 
@@ -407,7 +419,9 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         node = raise_node.frame()
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("RuntimeError",))
+            OutputMessage(
+                msg_id="missing-raises-doc", node=node, args=("RuntimeError",)
+            )
         ):
             self.checker.visit_raise(raise_node)
 
@@ -429,7 +443,7 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         node = raise_node.frame()
         with self.assertAddsMessages(
-            Message(
+            OutputMessage(
                 msg_id="missing-raises-doc",
                 node=node,
                 args=("RuntimeError, ValueError",),
@@ -456,7 +470,7 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         node = raise_node.frame()
         with self.assertAddsMessages(
-            Message(
+            OutputMessage(
                 msg_id="missing-raises-doc",
                 node=node,
                 args=("RuntimeError, ValueError",),
@@ -485,7 +499,7 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         node = raise_node.frame()
         with self.assertAddsMessages(
-            Message(
+            OutputMessage(
                 msg_id="missing-raises-doc",
                 node=node,
                 args=("RuntimeError, ValueError",),
@@ -607,7 +621,7 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         raise_node = node.body[1]
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("error",))
+            OutputMessage(msg_id="missing-raises-doc", node=node, args=("error",))
         ):
             self.checker.visit_raise(raise_node)
 
@@ -665,7 +679,9 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         node = raise_node.frame()
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("RuntimeError",))
+            OutputMessage(
+                msg_id="missing-raises-doc", node=node, args=("RuntimeError",)
+            )
         ):
             self.checker.visit_raise(raise_node)
 
@@ -685,7 +701,9 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         node = raise_node.frame()
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("RuntimeError",))
+            OutputMessage(
+                msg_id="missing-raises-doc", node=node, args=("RuntimeError",)
+            )
         ):
             self.checker.visit_raise(raise_node)
 
@@ -733,7 +751,7 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         raise_node = node.body[1]
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("error",))
+            OutputMessage(msg_id="missing-raises-doc", node=node, args=("error",))
         ):
             self.checker.visit_raise(raise_node)
 
@@ -808,7 +826,9 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         )
         node = raise_node.frame()
         with self.assertAddsMessages(
-            Message(msg_id="missing-raises-doc", node=node, args=("RuntimeError",))
+            OutputMessage(
+                msg_id="missing-raises-doc", node=node, args=("RuntimeError",)
+            )
         ):
             # we do NOT expect a warning about the OSError in inner_func!
             self.checker.visit_raise(raise_node)
