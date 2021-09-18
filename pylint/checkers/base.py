@@ -238,8 +238,7 @@ def _redefines_import(node):
 
 def in_loop(node):
     """return True if the node is inside a kind of for loop"""
-    parent = node.parent
-    while parent is not None:
+    for parent in node.node_ancestors():
         if isinstance(
             parent,
             (
@@ -251,7 +250,6 @@ def in_loop(node):
             ),
         ):
             return True
-        parent = parent.parent
     return False
 
 
@@ -847,22 +845,19 @@ class BasicErrorChecker(_BasicChecker):
 
     def _check_in_loop(self, node, node_name):
         """check that a node is inside a for or while loop"""
-        _node = node.parent
-        while _node:
-            if isinstance(_node, (nodes.For, nodes.While)):
-                if node not in _node.orelse:
+        for parent in node.node_ancestors():
+            if isinstance(parent, (nodes.For, nodes.While)):
+                if node not in parent.orelse:
                     return
 
-            if isinstance(_node, (nodes.ClassDef, nodes.FunctionDef)):
+            if isinstance(parent, (nodes.ClassDef, nodes.FunctionDef)):
                 break
             if (
-                isinstance(_node, nodes.TryFinally)
-                and node in _node.finalbody
+                isinstance(parent, nodes.TryFinally)
+                and node in parent.finalbody
                 and isinstance(node, nodes.Continue)
             ):
                 self.add_message("continue-in-finally", node=node)
-
-            _node = _node.parent
 
         self.add_message("not-in-loop", node=node, args=node_name)
 
