@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
     from pylint.reporters.ureports.nodes import Section
 
-ColorMappingDict = Dict[str, Tuple[Optional[str], Optional[str]]]
+ColorMappingDict = Dict[str, Tuple[Optional[str], ...]]
 
 TITLE_UNDERLINES = ["", "=", "-", "."]
 
@@ -216,7 +216,7 @@ class ColorizedTextReporter(TextReporter):
 
                 self.out = colorama.AnsiToWin32(self.out)
 
-    def _get_decoration(self, msg_id: str) -> Tuple[Optional[str], Optional[str]]:
+    def _get_decoration(self, msg_id: str) -> Tuple[Optional[str], ...]:
         """Returns the tuple color, style associated with msg_id as defined
         in self.color_mapping
         """
