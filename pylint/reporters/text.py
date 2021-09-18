@@ -26,9 +26,8 @@
 import os
 import sys
 import warnings
-from typing import TYPE_CHECKING, Dict, Optional, Set, TextIO, Tuple
+from typing import TYPE_CHECKING, Dict, NamedTuple, Optional, Set, TextIO, Tuple
 
-from pylint import utils
 from pylint.interfaces import IReporter
 from pylint.message import Message
 from pylint.reporters import BaseReporter
@@ -38,7 +37,20 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
     from pylint.reporters.ureports.nodes import Section
 
-ColorMappingDict = Dict[str, Tuple[Optional[str], ...]]
+
+class MessageStyle(NamedTuple):
+    """Styling of a message"""
+
+    colour: Optional[str]
+    """The colour name (see `ANSI_COLORS` for available values)
+    or the colour number when 256 colors are available
+    """
+    style: Tuple[str, ...]
+    """Tuple of style strings (see `ANSI_COLORS` for available values).
+    """
+
+
+ColorMappingDict = Dict[str, MessageStyle]
 
 TITLE_UNDERLINES = ["", "=", "-", "."]
 
@@ -67,59 +79,47 @@ ANSI_COLORS = {
 }
 
 
-def _get_ansi_code(color: Optional[str] = None, style: Optional[str] = None) -> str:
+def _get_ansi_code(msg_style: MessageStyle) -> str:
     """return ansi escape code corresponding to color and style
 
-    :param color:
-      the color name (see `ANSI_COLORS` for available values)
-      or the color number when 256 colors are available
-
-    :param style:
-      style string (see `ANSI_COLORS` for available values). To get
-      several style effects at the same time, use a coma as separator.
+    :param msg_style: the message style
 
     :raise KeyError: if an unexistent color or style identifier is given
 
     :return: the built escape code
     """
     ansi_code = []
-    if style:
-        style_attrs = utils._splitstrip(style)
-        for effect in style_attrs:
-            ansi_code.append(ANSI_STYLES[effect])
-    if color:
-        if color.isdigit():
+    if msg_style.style == ():
+        for effect in msg_style.style:
+            if effect:
+                ansi_code.append(ANSI_STYLES[effect])
+    if msg_style.colour:
+        if msg_style.colour.isdigit():
             ansi_code.extend(["38", "5"])
-            ansi_code.append(color)
+            ansi_code.append(msg_style.colour)
         else:
-            ansi_code.append(ANSI_COLORS[color])
+            ansi_code.append(ANSI_COLORS[msg_style.colour])
     if ansi_code:
         return ANSI_PREFIX + ";".join(ansi_code) + ANSI_END
     return ""
 
 
-def colorize_ansi(
-    msg: str, color: Optional[str] = None, style: Optional[str] = None
-) -> str:
+def colorize_ansi(msg: str, msg_style: MessageStyle) -> str:
     """colorize message by wrapping it with ansi escape codes
 
     :param msg: the message string to colorize
 
-    :param color:
-      the color identifier (see `ANSI_COLORS` for available values)
 
-    :param style:
-      style string (see `ANSI_COLORS` for available values). To get
-      several style effects at the same time, use a coma as separator.
+    :param msg_style: the message style
 
     :raise KeyError: if an unexistent color or style identifier is given
 
     :return: the ansi escaped string
     """
     # If both color and style are not defined, then leave the text as is
-    if color is None and style is None:
+    if msg_style.colour is None and msg_style.style == ():
         return msg
-    escape_code = _get_ansi_code(color, style)
+    escape_code = _get_ansi_code(msg_style)
     # If invalid (or unknown) color, don't wrap msg with ansi codes
     if escape_code:
         return f"{escape_code}{msg}{ANSI_RESET}"
@@ -192,13 +192,13 @@ class ColorizedTextReporter(TextReporter):
 
     name = "colorized"
     COLOR_MAPPING: ColorMappingDict = {
-        "I": ("green", None),
-        "C": (None, "bold"),
-        "R": ("magenta", "bold, italic"),
-        "W": ("magenta", None),
-        "E": ("red", "bold"),
-        "F": ("red", "bold, underline"),
-        "S": ("yellow", "inverse"),  # S stands for module Separator
+        "I": MessageStyle("green", ()),
+        "C": MessageStyle(None, ("bold",)),
+        "R": MessageStyle("magenta", ("bold", "italic")),
+        "W": MessageStyle("magenta", ()),
+        "E": MessageStyle("red", ("bold",)),
+        "F": MessageStyle("red", ("bold", "underline")),
+        "S": MessageStyle("yellow", ("inverse",)),  # S stands for module Separator
     }
 
     def __init__(
@@ -216,34 +216,30 @@ class ColorizedTextReporter(TextReporter):
 
                 self.out = colorama.AnsiToWin32(self.out)
 
-    def _get_decoration(self, msg_id: str) -> Tuple[Optional[str], ...]:
-        """Returns the tuple color, style associated with msg_id as defined
-        in self.color_mapping
-        """
+    def _get_decoration(self, msg_id: str) -> MessageStyle:
+        """Returns the message style as defined in self.color_mapping"""
         try:
             return self.color_mapping[msg_id[0]]
         except KeyError:
-            return None, None
+            return MessageStyle(None, ())
 
     def handle_message(self, msg: Message) -> None:
         """manage message of different types, and colorize output
         using ansi escape codes
         """
         if msg.module not in self._modules:
-            color, style = self._get_decoration("S")
+            msg_style = self._get_decoration("S")
             if msg.module:
-                modsep = colorize_ansi(
-                    f"************* Module {msg.module}", color, style
-                )
+                modsep = colorize_ansi(f"************* Module {msg.module}", msg_style)
             else:
-                modsep = colorize_ansi(f"************* {msg.module}", color, style)
+                modsep = colorize_ansi(f"************* {msg.module}", msg_style)
             self.writeln(modsep)
             self._modules.add(msg.module)
-        color, style = self._get_decoration(msg.C)
+        msg_style = self._get_decoration(msg.C)
 
         msg = msg._replace(
             **{
-                attr: colorize_ansi(getattr(msg, attr), color, style)
+                attr: colorize_ansi(getattr(msg, attr), msg_style)
                 for attr in ("msg", "symbol", "category", "C")
             }
         )
