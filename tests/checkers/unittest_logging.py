@@ -23,7 +23,7 @@ import pytest
 
 from pylint.checkers import logging
 from pylint.interfaces import UNDEFINED
-from pylint.testutils import CheckerTestCase, OutputMessage, set_config
+from pylint.testutils import CheckerTestCase, TestMessage, set_config
 
 
 class TestLoggingModuleDetection(CheckerTestCase):
@@ -39,7 +39,7 @@ class TestLoggingModuleDetection(CheckerTestCase):
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
         with self.assertAddsMessages(
-            OutputMessage("logging-not-lazy", node=stmts[1], args=("lazy %",))
+            TestMessage("logging-not-lazy", node=stmts[1], args=("lazy %",))
         ):
             self.checker.visit_call(stmts[1])
 
@@ -62,7 +62,7 @@ class TestLoggingModuleDetection(CheckerTestCase):
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
         with self.assertAddsMessages(
-            OutputMessage("logging-not-lazy", node=stmts[1], args=("lazy %",))
+            TestMessage("logging-not-lazy", node=stmts[1], args=("lazy %",))
         ):
             self.checker.visit_call(stmts[1])
 
@@ -77,7 +77,7 @@ class TestLoggingModuleDetection(CheckerTestCase):
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
         with self.assertAddsMessages(
-            OutputMessage("logging-not-lazy", node=stmts[1], args=("lazy %",))
+            TestMessage("logging-not-lazy", node=stmts[1], args=("lazy %",))
         ):
             self.checker.visit_call(stmts[1])
 
@@ -112,10 +112,10 @@ class TestLoggingModuleDetection(CheckerTestCase):
         )
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        messages = [OutputMessage(msg, node=stmts[1], args=args, confidence=UNDEFINED)]
+        messages = [TestMessage(msg, node=stmts[1], args=args, confidence=UNDEFINED)]
         if with_too_many:
             messages.append(
-                OutputMessage(
+                TestMessage(
                     "logging-too-many-args", node=stmts[1], confidence=UNDEFINED
                 )
             )

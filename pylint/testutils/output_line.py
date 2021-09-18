@@ -9,16 +9,16 @@ from pylint.constants import PY38_PLUS
 from pylint.testutils.constants import UPDATE_OPTION
 
 
-class OutputMessage(
+class TestMessage(
     collections.namedtuple(
-        "OutputMessage", ["msg_id", "line", "node", "args", "confidence"]
+        "TestMessage", ["msg_id", "line", "node", "args", "confidence"]
     )
 ):
     def __new__(cls, msg_id, line=None, node=None, args=None, confidence=None):
         return tuple.__new__(cls, (msg_id, line, node, args, confidence))
 
     def __eq__(self, other):
-        if isinstance(other, OutputMessage):
+        if isinstance(other, TestMessage):
             if self.confidence and other.confidence:
                 return super().__eq__(other)
             return self[:-1] == other[:-1]

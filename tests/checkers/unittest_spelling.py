@@ -22,7 +22,7 @@ import astroid
 import pytest
 
 from pylint.checkers import spelling
-from pylint.testutils import CheckerTestCase, OutputMessage, _tokenize_str, set_config
+from pylint.testutils import CheckerTestCase, TestMessage, _tokenize_str, set_config
 
 # try to create enchant dictionary
 try:
@@ -57,7 +57,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_coment(self):
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-comment",
                 line=1,
                 args=(
@@ -75,7 +75,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @set_config(max_spelling_suggestions=2)
     def test_check_bad_coment_custom_suggestion_count(self):
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-comment",
                 line=1,
                 args=(
@@ -93,7 +93,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     def test_check_bad_docstring(self):
         stmt = astroid.extract_node('def fff():\n   """bad coment"""\n   pass')
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=2,
                 args=(
@@ -108,7 +108,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
 
         stmt = astroid.extract_node('class Abc(object):\n   """bad coment"""\n   pass')
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=2,
                 args=(
@@ -127,7 +127,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     def test_invalid_docstring_characters(self):
         stmt = astroid.extract_node('def fff():\n   """test\\x00"""\n   pass')
         with self.assertAddsMessages(
-            OutputMessage("invalid-characters-in-docstring", line=2, args=("test\x00",))
+            TestMessage("invalid-characters-in-docstring", line=2, args=("test\x00",))
         ):
             self.checker.visit_functiondef(stmt)
 
@@ -181,7 +181,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             'class ComentAbc(object):\n   """ComentAbc with a bad coment"""\n   pass'
         )
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=2,
                 args=(
@@ -201,7 +201,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             'class ComentAbc(object):\n   """comentAbc with a bad coment"""\n   pass'
         )
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=2,
                 args=(
@@ -219,7 +219,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             'class ComentAbc(object):\n   """argumentN with a bad coment"""\n   pass'
         )
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=2,
                 args=(
@@ -274,7 +274,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             'class ComentAbc(object):\n   """This is :class:`ComentAbc` with a bad coment"""\n   pass'
         )
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=2,
                 args=(
@@ -294,7 +294,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             'class ComentAbc(object):\n   """This is :py:attr:`ComentAbc` with a bad coment"""\n   pass'
         )
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=2,
                 args=(
@@ -338,7 +338,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     ):
         full_comment = f"# {misspelled_portion_of_directive}{second_portion_of_directive} {misspelled_portion_of_directive}"
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-comment",
                 line=1,
                 args=(
@@ -356,7 +356,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     def test_skip_code_flanked_in_double_backticks(self):
         full_comment = "# The function ``.qsize()`` .qsize()"
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-comment",
                 line=1,
                 args=(
@@ -374,7 +374,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     def test_skip_code_flanked_in_single_backticks(self):
         full_comment = "# The function `.qsize()` .qsize()"
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-comment",
                 line=1,
                 args=(
@@ -395,7 +395,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     def test_skip_directives_specified_in_pylintrc(self):
         full_comment = "# newdirective: do this newdirective"
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-comment",
                 line=1,
                 args=(
@@ -419,7 +419,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
         '''
         )
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=3,
                 args=(
@@ -439,7 +439,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             'class ComentAbc(object):\n   """Check teh dummy comment teh"""\n   pass'
         )
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=2,
                 args=(
@@ -449,7 +449,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
                     self._get_msg_suggestions("teh"),
                 ),
             ),
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=2,
                 args=(
@@ -466,7 +466,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @set_config(spelling_dict=spell_dict)
     def test_more_than_one_error_in_same_line_for_same_word_on_comment(self):
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-comment",
                 line=1,
                 args=(
@@ -476,7 +476,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
                     self._get_msg_suggestions("coment"),
                 ),
             ),
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-comment",
                 line=1,
                 args=(
@@ -499,7 +499,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     """'''
         )
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=3,
                 args=(
@@ -520,7 +520,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     """# msitake"""'''
         )
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=2,
                 args=(
@@ -543,7 +543,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     """'''
         )
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=3,
                 args=(
@@ -578,7 +578,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     """'''
         )
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=3,
                 args=(
@@ -601,7 +601,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     """'''
         )
         with self.assertAddsMessages(
-            OutputMessage(
+            TestMessage(
                 "wrong-spelling-in-docstring",
                 line=3,
                 args=(

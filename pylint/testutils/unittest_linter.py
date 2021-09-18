@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 from pylint.testutils.global_test_linter import linter
-from pylint.testutils.output_line import OutputMessage
+from pylint.testutils.output_line import TestMessage
 from pylint.typing import CheckerStats
 
 
@@ -25,7 +25,7 @@ class UnittestLinter:
         self, msg_id, line=None, node=None, args=None, confidence=None, col_offset=None
     ):
         # Do not test col_offset for now since changing Message breaks everything
-        self._messages.append(OutputMessage(msg_id, line, node, args, confidence))
+        self._messages.append(TestMessage(msg_id, line, node, args, confidence))
 
     @staticmethod
     def is_message_enabled(*unused_args, **unused_kwargs):

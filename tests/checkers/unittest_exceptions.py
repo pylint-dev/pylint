@@ -18,7 +18,7 @@
 import astroid
 
 from pylint.checkers import exceptions
-from pylint.testutils import CheckerTestCase, OutputMessage
+from pylint.testutils import CheckerTestCase, TestMessage
 
 
 class TestExceptionsChecker(CheckerTestCase):
@@ -33,7 +33,7 @@ class TestExceptionsChecker(CheckerTestCase):
 
     def test_raising_bad_type_python3(self) -> None:
         node = astroid.extract_node("raise (ZeroDivisionError, None)  #@")
-        message = OutputMessage("raising-bad-type", node=node, args="tuple")
+        message = TestMessage("raising-bad-type", node=node, args="tuple")
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)
 
@@ -49,6 +49,6 @@ class TestExceptionsChecker(CheckerTestCase):
             raise Exception from exc  #@
         """
         )
-        message = OutputMessage("bad-exception-context", node=node)
+        message = TestMessage("bad-exception-context", node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)

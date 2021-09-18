@@ -25,7 +25,7 @@ import astroid
 
 from pylint.checkers import imports
 from pylint.interfaces import UNDEFINED
-from pylint.testutils import CheckerTestCase, OutputMessage, set_config
+from pylint.testutils import CheckerTestCase, TestMessage, set_config
 
 REGR_DATA = os.path.join(os.path.dirname(__file__), "..", "regrtest_data", "")
 
@@ -54,7 +54,7 @@ class TestImportsChecker(CheckerTestCase):
         ).body[0]
 
         with self.assertAddsMessages(
-            OutputMessage("import-outside-toplevel", node=node, args="pylint")
+            TestMessage("import-outside-toplevel", node=node, args="pylint")
         ):
             self.checker.visit_import(node)
 
@@ -110,7 +110,7 @@ class TestImportsChecker(CheckerTestCase):
         import foo, bar
         """
         )
-        msg = OutputMessage("multiple-imports", node=node, args="foo, bar")
+        msg = TestMessage("multiple-imports", node=node, args="foo, bar")
         with self.assertAddsMessages(msg):
             self.checker.visit_import(node)
 
@@ -128,7 +128,7 @@ class TestImportsChecker(CheckerTestCase):
         Test that duplicate imports on single line raise 'reimported'.
         """
         node = astroid.extract_node("from time import sleep, sleep, time")
-        msg = OutputMessage(msg_id="reimported", node=node, args=("sleep", 1))
+        msg = TestMessage(msg_id="reimported", node=node, args=("sleep", 1))
         with self.assertAddsMessages(msg):
             self.checker.visit_importfrom(node)
 
@@ -136,7 +136,7 @@ class TestImportsChecker(CheckerTestCase):
         module = astroid.MANAGER.ast_from_module_name("beyond_top", REGR_DATA)
         import_from = module.body[0]
 
-        msg = OutputMessage(msg_id="relative-beyond-top-level", node=import_from)
+        msg = TestMessage(msg_id="relative-beyond-top-level", node=import_from)
         with self.assertAddsMessages(msg):
             self.checker.visit_importfrom(import_from)
         with self.assertNoMessages():
@@ -155,7 +155,7 @@ class TestImportsChecker(CheckerTestCase):
         module = astroid.MANAGER.ast_from_module_name("wildcard", REGR_DATA)
         import_from = module.body[0]
 
-        msg = OutputMessage(
+        msg = TestMessage(
             msg_id="wildcard-import",
             node=import_from,
             args="empty",
