@@ -31,7 +31,7 @@ import astroid
 from pylint.checkers import variables
 from pylint.constants import IS_PYPY
 from pylint.interfaces import UNDEFINED
-from pylint.testutils import CheckerTestCase, Message, linter, set_config
+from pylint.testutils import CheckerTestCase, TestMessage, linter, set_config
 
 REGR_DATA_DIR = str(Path(__file__).parent / ".." / "regrtest_data")
 
@@ -104,7 +104,7 @@ class TestVariablesChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message("redefined-builtin", node=node.body[0], args="open")
+            TestMessage("redefined-builtin", node=node.body[0], args="open")
         ):
             self.checker.visit_module(node)
 
@@ -128,7 +128,7 @@ class TestVariablesChecker(CheckerTestCase):
                 import sys, lala
         """
         )
-        msg = Message("global-statement", node=node, confidence=UNDEFINED)
+        msg = TestMessage("global-statement", node=node, confidence=UNDEFINED)
         with self.assertAddsMessages(msg):
             self.checker.visit_global(node)
 
@@ -256,7 +256,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message("unused-argument", node=node["abc"], args="abc")
+            TestMessage("unused-argument", node=node["abc"], args="abc")
         ):
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
@@ -268,7 +268,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message("unused-argument", node=node["abc"], args="abc")
+            TestMessage("unused-argument", node=node["abc"], args="abc")
         ):
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
@@ -281,7 +281,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message("redefined-builtin", node=node.body[0], args="open")
+            TestMessage("redefined-builtin", node=node.body[0], args="open")
         ):
             self.checker.visit_module(node)
 

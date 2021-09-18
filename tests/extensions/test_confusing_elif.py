@@ -12,7 +12,7 @@
 import astroid
 
 from pylint.extensions.confusing_elif import ConfusingConsecutiveElifChecker
-from pylint.testutils import CheckerTestCase, Message
+from pylint.testutils import CheckerTestCase, TestMessage
 
 MSG_ID_CONFUSING_CONSECUTIVE_ELIF = "confusing-consecutive-elif"
 
@@ -40,7 +40,7 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
         """
         if_node_to_test, elif_node = astroid.extract_node(example_code)
         with self.assertAddsMessages(
-            Message(msg_id=MSG_ID_CONFUSING_CONSECUTIVE_ELIF, node=elif_node)
+            TestMessage(msg_id=MSG_ID_CONFUSING_CONSECUTIVE_ELIF, node=elif_node)
         ):
             self.checker.visit_if(if_node_to_test)
 
@@ -64,7 +64,7 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
         """
         if_node_to_test, elif_node = astroid.extract_node(example_code)
         with self.assertAddsMessages(
-            Message(msg_id=MSG_ID_CONFUSING_CONSECUTIVE_ELIF, node=elif_node)
+            TestMessage(msg_id=MSG_ID_CONFUSING_CONSECUTIVE_ELIF, node=elif_node)
         ):
             self.checker.visit_if(if_node_to_test)
 
@@ -84,7 +84,7 @@ class TestConfusingConsecutiveElifChecker(CheckerTestCase):
         """
         if_node_to_test, elif_node = astroid.extract_node(example_code)
         with self.assertAddsMessages(
-            Message(msg_id=MSG_ID_CONFUSING_CONSECUTIVE_ELIF, node=elif_node)
+            TestMessage(msg_id=MSG_ID_CONFUSING_CONSECUTIVE_ELIF, node=elif_node)
         ):
             self.checker.visit_if(if_node_to_test)
 
