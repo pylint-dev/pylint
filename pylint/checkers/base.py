@@ -1492,14 +1492,14 @@ class BasicChecker(_BasicChecker):
         if not self._tryfinallys:
             return
         # the node could be a grand-grand...-children of the try...finally
+        _parent = node.parent
         _node = node
-        for parent in node.node_ancestors():
-            if isinstance(parent, breaker_classes):
-                break
-            if hasattr(parent, "finalbody") and _node in parent.finalbody:
+        while _parent and not isinstance(_parent, breaker_classes):
+            if hasattr(_parent, "finalbody") and _node in _parent.finalbody:
                 self.add_message("lost-exception", node=node, args=node_name)
                 return
-            _node = parent
+            _node = _parent
+            _parent = _node.parent
 
     def _check_reversed(self, node):
         """check that the argument to `reversed` is a sequence"""

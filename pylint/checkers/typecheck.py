@@ -531,9 +531,8 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
     #   * Continue checking until scope of node is reached.
     scope: nodes.NodeNG = node.scope()
     node_origin: nodes.NodeNG = node
-    for parent in node.node_ancestors():
-        if parent == scope:
-            break
+    parent: nodes.NodeNG = node.parent
+    while parent != scope:
         if isinstance(parent, (nodes.If, nodes.IfExp)):
             inferred = safe_infer(parent.test)
             if (  # pylint: disable=too-many-boolean-expressions
@@ -547,7 +546,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
                 )
             ):
                 return False
-        node_origin = parent
+        node_origin, parent = parent, parent.parent
 
     return True
 
