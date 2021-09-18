@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
     from pylint.reporters.ureports.nodes import Section
 
-COLOR_MAPPING_DICT = Dict[str, Tuple[Optional[str], Optional[str]]]
+ColorMappingDict = Dict[str, Tuple[Optional[str], Optional[str]]]
 
 TITLE_UNDERLINES = ["", "=", "-", "."]
 
@@ -191,7 +191,7 @@ class ColorizedTextReporter(TextReporter):
     """Simple TextReporter that colorizes text output"""
 
     name = "colorized"
-    COLOR_MAPPING: COLOR_MAPPING_DICT = {
+    COLOR_MAPPING: ColorMappingDict = {
         "I": ("green", None),
         "C": (None, "bold"),
         "R": ("magenta", "bold, italic"),
@@ -204,7 +204,7 @@ class ColorizedTextReporter(TextReporter):
     def __init__(
         self,
         output: Optional[TextIO] = None,
-        color_mapping: Optional[COLOR_MAPPING_DICT] = None,
+        color_mapping: Optional[ColorMappingDict] = None,
     ) -> None:
         TextReporter.__init__(self, output)
         self.color_mapping = color_mapping or dict(ColorizedTextReporter.COLOR_MAPPING)
