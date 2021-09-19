@@ -26,7 +26,7 @@
 import os
 import sys
 import warnings
-from typing import TYPE_CHECKING, Dict, NamedTuple, Optional, Set, TextIO, Tuple
+from typing import TYPE_CHECKING, Dict, List, NamedTuple, Optional, Set, TextIO, Tuple
 
 from pylint.interfaces import IReporter
 from pylint.message import Message
@@ -41,9 +41,9 @@ if TYPE_CHECKING:
 class MessageStyle(NamedTuple):
     """Styling of a message"""
 
-    colour: Optional[str]
-    """The colour name (see `ANSI_COLORS` for available values)
-    or the colour number when 256 colors are available
+    color: Optional[str]
+    """The color name (see `ANSI_COLORS` for available values)
+    or the color number when 256 colors are available
     """
     style: Tuple[str, ...]
     """Tuple of style strings (see `ANSI_COLORS` for available values).
@@ -88,16 +88,15 @@ def _get_ansi_code(msg_style: MessageStyle) -> str:
 
     :return: the built escape code
     """
-    ansi_code = []
-    if msg_style.style == ():
-        for effect in msg_style.style:
-            ansi_code.append(ANSI_STYLES[effect])
-    if msg_style.colour:
-        if msg_style.colour.isdigit():
+    ansi_code: List[str] = []
+    for effect in msg_style.style:
+        ansi_code.append(ANSI_STYLES[effect])
+    if msg_style.color:
+        if msg_style.color.isdigit():
             ansi_code.extend(["38", "5"])
-            ansi_code.append(msg_style.colour)
+            ansi_code.append(msg_style.color)
         else:
-            ansi_code.append(ANSI_COLORS[msg_style.colour])
+            ansi_code.append(ANSI_COLORS[msg_style.color])
     if ansi_code:
         return ANSI_PREFIX + ";".join(ansi_code) + ANSI_END
     return ""
@@ -116,7 +115,7 @@ def colorize_ansi(msg: str, msg_style: MessageStyle) -> str:
     :return: the ansi escaped string
     """
     # If both color and style are not defined, then leave the text as is
-    if msg_style.colour is None and msg_style.style == ():
+    if msg_style.color is None and len(msg_style.style) == 0:
         return msg
     escape_code = _get_ansi_code(msg_style)
     # If invalid (or unknown) color, don't wrap msg with ansi codes
@@ -217,10 +216,10 @@ class ColorizedTextReporter(TextReporter):
 
     def _get_decoration(self, msg_id: str) -> MessageStyle:
         """Returns the message style as defined in self.color_mapping"""
-        try:
-            return self.color_mapping[msg_id[0]]
-        except KeyError:
-            return MessageStyle(None, ())
+        style = self.color_mapping.get(msg_id[0])
+        if style:
+            return style
+        return MessageStyle(None, ())
 
     def handle_message(self, msg: Message) -> None:
         """manage message of different types, and colorize output

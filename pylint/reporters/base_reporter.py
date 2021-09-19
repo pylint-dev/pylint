@@ -23,7 +23,7 @@ class BaseReporter:
 
     extension = ""
 
-    def __init__(self, output: Optional[TextIO] = sys.stdout):
+    def __init__(self, output: Optional[TextIO] = None):
         self.linter: "PyLinter"
         self.section = 0
         self.out: TextIO = output or sys.stdout
