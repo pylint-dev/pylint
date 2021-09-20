@@ -232,7 +232,7 @@ class MessagesHandlerMixIn:
                 return self._msgs_state.get(msgid, fallback)
             return self._msgs_state.get(msgid, True)
 
-    def add_message(  # type: ignore # MessagesHandlesMixIn is always mixed with PyLinter
+    def add_message(  # type: ignore # MessagesHandlerMixIn is always mixed with PyLinter
         self: "PyLinter",
         msgid: str,
         line: Optional[int] = None,
