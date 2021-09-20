@@ -24,7 +24,7 @@
 import astroid
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, TestMessage, set_config
+from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 
 class TestDocstringCheckerReturn(CheckerTestCase):
@@ -52,8 +52,8 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=node),
-            TestMessage(msg_id="missing-return-type-doc", node=node),
+            MessageTest(msg_id="missing-return-doc", node=node),
+            MessageTest(msg_id="missing-return-type-doc", node=node),
         ):
             self.checker.visit_return(return_node)
 
@@ -81,7 +81,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-type-doc", node=node)
+            MessageTest(msg_id="missing-return-type-doc", node=node)
         ):
             self.checker.visit_return(return_node)
 
@@ -113,7 +113,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=node)
+            MessageTest(msg_id="missing-return-doc", node=node)
         ):
             self.checker.visit_return(return_node)
 
@@ -131,8 +131,8 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=node),
-            TestMessage(msg_id="missing-return-type-doc", node=node),
+            MessageTest(msg_id="missing-return-doc", node=node),
+            MessageTest(msg_id="missing-return-type-doc", node=node),
         ):
             self.checker.visit_return(return_node)
 
@@ -150,7 +150,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-type-doc", node=node)
+            MessageTest(msg_id="missing-return-type-doc", node=node)
         ):
             self.checker.visit_return(return_node)
 
@@ -168,7 +168,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=node)
+            MessageTest(msg_id="missing-return-doc", node=node)
         ):
             self.checker.visit_return(return_node)
 
@@ -186,8 +186,8 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=node),
-            TestMessage(msg_id="missing-return-type-doc", node=node),
+            MessageTest(msg_id="missing-return-doc", node=node),
+            MessageTest(msg_id="missing-return-type-doc", node=node),
         ):
             self.checker.visit_return(return_node)
 
@@ -211,7 +211,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=node)
+            MessageTest(msg_id="missing-return-doc", node=node)
         ):
             self.checker.visit_return(return_node)
 
@@ -231,8 +231,8 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=node),
-            TestMessage(msg_id="missing-return-type-doc", node=node),
+            MessageTest(msg_id="missing-return-doc", node=node),
+            MessageTest(msg_id="missing-return-type-doc", node=node),
         ):
             self.checker.visit_return(return_node)
 
@@ -454,7 +454,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=node)
+            MessageTest(msg_id="missing-return-doc", node=node)
         ):
             self.checker.visit_return(return_node)
 
@@ -472,7 +472,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=node)
+            MessageTest(msg_id="missing-return-doc", node=node)
         ):
             self.checker.visit_return(return_node)
 
@@ -491,7 +491,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=node)
+            MessageTest(msg_id="missing-return-doc", node=node)
         ):
             self.checker.visit_return(return_node)
 
@@ -507,7 +507,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -523,7 +523,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -540,7 +540,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -557,7 +557,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -576,7 +576,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -594,7 +594,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -685,7 +685,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -704,6 +704,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
