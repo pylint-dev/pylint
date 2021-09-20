@@ -137,14 +137,6 @@ def get_rst_section(section, options, doc=None):
     return result
 
 
-def safe_decode(line, encoding, *args, **kwargs):
-    """return decoded line from encoding or decode with default encoding"""
-    try:
-        return line.decode(encoding or sys.getdefaultencoding(), *args, **kwargs)
-    except LookupError:
-        return line.decode(sys.getdefaultencoding(), *args, **kwargs)
-
-
 def decoding_stream(
     stream: Union[BufferedReader, BytesIO],
     encoding: str,
@@ -261,26 +253,6 @@ def get_global_option(
             if options[0] == option:
                 return getattr(provider.config, option.replace("-", "_"))
     return default
-
-
-def deprecated_option(
-    shortname=None, opt_type=None, help_msg=None, deprecation_msg=None
-):
-    def _warn_deprecated(option, optname, *args):  # pylint: disable=unused-argument
-        if deprecation_msg:
-            sys.stderr.write(deprecation_msg % (optname,))
-
-    option = {
-        "help": help_msg,
-        "hide": True,
-        "type": opt_type,
-        "action": "callback",
-        "callback": _warn_deprecated,
-        "deprecated": True,
-    }
-    if shortname:
-        option["shortname"] = shortname
-    return option
 
 
 def _splitstrip(string, sep=","):
