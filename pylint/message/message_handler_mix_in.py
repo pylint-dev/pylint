@@ -279,7 +279,7 @@ class MessagesHandlerMixIn:
                         f"Message {message_definition.msgid} must provide Node, got None"
                     )
 
-    def add_one_message(  # type: ignore # MessagesHandlesMixIn is always mixed with PyLinter
+    def add_one_message(  # type: ignore # MessagesHandlerMixIn is always mixed with PyLinter
         self: "PyLinter",
         message_definition: "MessageDefinition",
         line: Optional[int],
