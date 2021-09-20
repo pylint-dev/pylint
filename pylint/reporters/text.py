@@ -26,7 +26,18 @@
 import os
 import sys
 import warnings
-from typing import TYPE_CHECKING, Dict, NamedTuple, Optional, Set, TextIO, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Dict,
+    NamedTuple,
+    Optional,
+    Set,
+    TextIO,
+    Tuple,
+    Union,
+    cast,
+    overload,
+)
 
 from pylint.interfaces import IReporter
 from pylint.message import Message
@@ -101,6 +112,26 @@ def _get_ansi_code(msg_style: MessageStyle) -> str:
     return ""
 
 
+@overload
+def colorize_ansi(
+    msg: str,
+    msg_style: Optional[MessageStyle] = None,
+) -> str:
+    ...
+
+
+@overload
+def colorize_ansi(
+    msg: str,
+    msg_style: Optional[str] = None,
+    style: Optional[str] = None,
+    *,
+    color: Optional[str] = None,
+) -> str:
+    # Remove for pylint 3.0
+    ...
+
+
 def colorize_ansi(
     msg: str,
     msg_style: Union[MessageStyle, str, None] = None,
@@ -112,6 +143,7 @@ def colorize_ansi(
     :param msg: the message string to colorize
 
     :param msg_style: the message style
+        or color (for backwards compatibility): the color of the message style
 
     :param style: the message's style elements, this will be deprecated
 
@@ -214,6 +246,23 @@ class ColorizedTextReporter(TextReporter):
         "S": MessageStyle("yellow", ("inverse",)),  # S stands for module Separator
     }
 
+    @overload
+    def __init__(
+        self,
+        output: Optional[TextIO] = None,
+        color_mapping: Optional[ColorMappingDict] = None,
+    ) -> None:
+        ...
+
+    @overload
+    def __init__(
+        self,
+        output: Optional[TextIO] = None,
+        color_mapping: Optional[Dict[str, Tuple[Optional[str], Optional[str]]]] = None,
+    ) -> None:
+        # Remove for pylint 3.0
+        ...
+
     def __init__(
         self,
         output: Optional[TextIO] = None,
@@ -231,11 +280,15 @@ class ColorizedTextReporter(TextReporter):
                 "In pylint 3.0, the ColoreziedTextReporter will only accept ColorMappingDict as color_mapping parameter",
                 DeprecationWarning,
             )
+            temp_color_mapping = ColorMappingDict()
             for key, value in color_mapping.items():
                 color = value[0]
                 style_attrs = tuple(_splitstrip(value[1]))
-                color_mapping[key] = MessageStyle(color, style_attrs)  # type: ignore
-        self.color_mapping = color_mapping or dict(ColorizedTextReporter.COLOR_MAPPING)
+                temp_color_mapping[key] = MessageStyle(color, style_attrs)
+            color_mapping = temp_color_mapping
+        else:
+            color_mapping = cast(Optional[ColorMappingDict], color_mapping)
+        self.color_mapping = color_mapping or ColorizedTextReporter.COLOR_MAPPING
         ansi_terms = ["xterm-16color", "xterm-256color"]
         if os.environ.get("TERM") not in ansi_terms:
             if sys.platform == "win32":
@@ -246,10 +299,7 @@ class ColorizedTextReporter(TextReporter):
 
     def _get_decoration(self, msg_id: str) -> MessageStyle:
         """Returns the message style as defined in self.color_mapping"""
-        style = self.color_mapping.get(msg_id[0])
-        if style:
-            return style  # type: ignore
-        return MessageStyle(None, ())
+        return self.color_mapping.get(msg_id[0]) or MessageStyle(None, ())
 
     def handle_message(self, msg: Message) -> None:
         """manage message of different types, and colorize output
