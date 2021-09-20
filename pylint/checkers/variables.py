@@ -1459,7 +1459,7 @@ class VariablesChecker(BaseChecker):
                     # same line as the function definition
                     maybee0601 = False
                 elif (
-                    isinstance(
+                    isinstance(  # pylint: disable=too-many-boolean-expressions
                         defstmt,
                         (
                             nodes.Assign,
@@ -1469,7 +1469,11 @@ class VariablesChecker(BaseChecker):
                             nodes.Return,
                         ),
                     )
-                    and isinstance(defstmt.value, nodes.IfExp)
+                    and (
+                        isinstance(defstmt.value, nodes.IfExp)
+                        or isinstance(defstmt.value, nodes.Lambda)
+                        and isinstance(defstmt.value.body, nodes.IfExp)
+                    )
                     and frame is defframe
                     and defframe.parent_of(node)
                     and stmt is defstmt
