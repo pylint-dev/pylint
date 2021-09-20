@@ -280,7 +280,7 @@ class ColorizedTextReporter(TextReporter):
                 "In pylint 3.0, the ColoreziedTextReporter will only accept ColorMappingDict as color_mapping parameter",
                 DeprecationWarning,
             )
-            temp_color_mapping = ColorMappingDict()
+            temp_color_mapping: ColorMappingDict = {}
             for key, value in color_mapping.items():
                 color = value[0]
                 style_attrs = tuple(_splitstrip(value[1]))
