@@ -52,6 +52,7 @@ class Message(_MsgBase):
         msg: str,
         confidence: Optional[Confidence],
     ) -> "Message":
+        # Remove for pylint 3.0
         ...
 
     def __new__(
