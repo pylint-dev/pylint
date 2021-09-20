@@ -3,7 +3,7 @@
 
 import sys
 from io import TextIOWrapper
-from typing import TYPE_CHECKING, List, Optional, TextIO, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Optional, TextIO, Tuple, Union
 
 from astroid import nodes
 
@@ -237,7 +237,7 @@ class MessagesHandlerMixIn:
         msgid: str,
         line: Optional[int] = None,
         node: Optional[nodes.NodeNG] = None,
-        args: Union[str, Tuple[Union[str, int], ...], None] = None,
+        args: Optional[Any] = None,
         confidence: Optional[Confidence] = None,
         col_offset: Optional[int] = None,
     ) -> None:
@@ -284,7 +284,7 @@ class MessagesHandlerMixIn:
         message_definition: "MessageDefinition",
         line: Optional[int],
         node: Optional[nodes.NodeNG],
-        args: Union[str, Tuple[Union[str, int], ...], None],
+        args: Optional[Any],
         confidence: Optional[Confidence],
         col_offset: Optional[int],
     ) -> None:

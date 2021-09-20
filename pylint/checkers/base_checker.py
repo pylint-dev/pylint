@@ -18,7 +18,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 import functools
 from inspect import cleandoc
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Optional
 
 from astroid import nodes
 
@@ -115,7 +115,7 @@ class BaseChecker(OptionsProviderMixIn):
         msgid: str,
         line: Optional[int] = None,
         node: Optional[nodes.NodeNG] = None,
-        args: Union[str, Tuple[Union[str, int], ...], None] = None,
+        args: Optional[Any] = None,
         confidence: Optional[Confidence] = None,
         col_offset: Optional[int] = None,
     ) -> None:

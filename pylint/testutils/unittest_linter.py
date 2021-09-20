@@ -1,7 +1,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-from typing import Optional, Tuple, Union
+from typing import Any, Optional
 
 from astroid import nodes
 
@@ -31,7 +31,7 @@ class UnittestLinter:
         msg_id: str,
         line: Optional[int] = None,
         node: Optional[nodes.NodeNG] = None,
-        args: Union[str, Tuple[Union[str, int], ...], None] = None,
+        args: Optional[Any] = None,
         confidence: Optional[Confidence] = None,
         col_offset: Optional[int] = None,
     ) -> None:
