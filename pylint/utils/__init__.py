@@ -53,7 +53,6 @@ from pylint.utils.utils import (
     _splitstrip,
     _unquote,
     decoding_stream,
-    deprecated_option,
     diff_string,
     format_section,
     get_global_option,
@@ -62,7 +61,6 @@ from pylint.utils.utils import (
     get_rst_title,
     normalize_text,
     register_plugins,
-    safe_decode,
     tokenize_module,
 )
 
@@ -75,7 +73,6 @@ __all__ = [
     "_splitstrip",
     "_unquote",
     "decoding_stream",
-    "deprecated_option",
     "diff_string",
     "FileState",
     "format_section",
@@ -85,6 +82,5 @@ __all__ = [
     "get_rst_title",
     "normalize_text",
     "register_plugins",
-    "safe_decode",
     "tokenize_module",
 ]
