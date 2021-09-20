@@ -237,7 +237,7 @@ class MessagesHandlerMixIn:
         msgid: str,
         line: Optional[int] = None,
         node: Optional[nodes.NodeNG] = None,
-        args: Optional[Any] = None,
+        args: Any = None,
         confidence: Optional[Confidence] = None,
         col_offset: Optional[int] = None,
     ) -> None:
@@ -284,7 +284,7 @@ class MessagesHandlerMixIn:
         message_definition: "MessageDefinition",
         line: Optional[int],
         node: Optional[nodes.NodeNG],
-        args: Optional[Any],
+        args: Any,
         confidence: Optional[Confidence],
         col_offset: Optional[int],
     ) -> None:

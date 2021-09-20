@@ -115,7 +115,7 @@ class BaseChecker(OptionsProviderMixIn):
         msgid: str,
         line: Optional[int] = None,
         node: Optional[nodes.NodeNG] = None,
-        args: Optional[Any] = None,
+        args: Any = None,
         confidence: Optional[Confidence] = None,
         col_offset: Optional[int] = None,
     ) -> None:
