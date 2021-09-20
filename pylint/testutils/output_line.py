@@ -10,6 +10,9 @@ from pylint.testutils.constants import UPDATE_OPTION
 
 
 class MessageTest(
+    """Used to test messages produced by pylint. Class name cannot start with Test as pytest doesn't allow constructors in test classes.
+    """
+
     collections.namedtuple(
         "MessageTest", ["msg_id", "line", "node", "args", "confidence"]
     )
