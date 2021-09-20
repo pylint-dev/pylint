@@ -26,12 +26,13 @@
 import os
 import sys
 import warnings
-from typing import TYPE_CHECKING, Dict, List, NamedTuple, Optional, Set, TextIO, Tuple
+from typing import TYPE_CHECKING, Dict, NamedTuple, Optional, Set, TextIO, Tuple, Union
 
 from pylint.interfaces import IReporter
 from pylint.message import Message
 from pylint.reporters import BaseReporter
 from pylint.reporters.ureports.text_writer import TextWriter
+from pylint.utils import _splitstrip
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -88,9 +89,7 @@ def _get_ansi_code(msg_style: MessageStyle) -> str:
 
     :return: the built escape code
     """
-    ansi_code: List[str] = []
-    for effect in msg_style.style:
-        ansi_code.append(ANSI_STYLES[effect])
+    ansi_code = [ANSI_STYLES[effect] for effect in msg_style.style]
     if msg_style.color:
         if msg_style.color.isdigit():
             ansi_code.extend(["38", "5"])
@@ -102,18 +101,34 @@ def _get_ansi_code(msg_style: MessageStyle) -> str:
     return ""
 
 
-def colorize_ansi(msg: str, msg_style: MessageStyle) -> str:
+def colorize_ansi(
+    msg: str,
+    msg_style: Union[MessageStyle, str, None] = None,
+    style: Optional[str] = None,
+    **kwargs: Optional[str],
+) -> str:
     """colorize message by wrapping it with ansi escape codes
 
     :param msg: the message string to colorize
 
-
     :param msg_style: the message style
 
-    :raise KeyError: if an unexistent color or style identifier is given
+    :param style: the message's style elements, this will be deprecated
+
+    :param kwargs: used to accept `color` parameter while it is being deprecated
 
     :return: the ansi escaped string
     """
+    # pylint: disable-next=fixme
+    # TODO: Remove DeprecationWarning and only accept MessageStyle as parameter
+    if not isinstance(msg_style, MessageStyle):
+        warnings.warn(
+            "In pylint 3.0, the colorize_ansi function of Text reporters will only accept a MessageStyle parameter",
+            DeprecationWarning,
+        )
+        color = kwargs.get("color")
+        style_attrs = tuple(_splitstrip(style))
+        msg_style = MessageStyle(color or msg_style, style_attrs)
     # If both color and style are not defined, then leave the text as is
     if msg_style.color is None and len(msg_style.style) == 0:
         return msg
@@ -202,9 +217,24 @@ class ColorizedTextReporter(TextReporter):
     def __init__(
         self,
         output: Optional[TextIO] = None,
-        color_mapping: Optional[ColorMappingDict] = None,
+        color_mapping: Union[
+            ColorMappingDict, Dict[str, Tuple[Optional[str], Optional[str]]], None
+        ] = None,
     ) -> None:
         TextReporter.__init__(self, output)
+        # pylint: disable-next=fixme
+        # TODO: Remove DeprecationWarning and only accept ColorMappingDict as color_mapping parameter
+        if color_mapping and not isinstance(
+            list(color_mapping.values())[0], MessageStyle
+        ):
+            warnings.warn(
+                "In pylint 3.0, the ColoreziedTextReporter will only accept ColorMappingDict as color_mapping parameter",
+                DeprecationWarning,
+            )
+            for key, value in color_mapping.items():
+                color = value[0]
+                style_attrs = tuple(_splitstrip(value[1]))
+                color_mapping[key] = MessageStyle(color, style_attrs)  # type: ignore
         self.color_mapping = color_mapping or dict(ColorizedTextReporter.COLOR_MAPPING)
         ansi_terms = ["xterm-16color", "xterm-256color"]
         if os.environ.get("TERM") not in ansi_terms:
@@ -218,7 +248,7 @@ class ColorizedTextReporter(TextReporter):
         """Returns the message style as defined in self.color_mapping"""
         style = self.color_mapping.get(msg_id[0])
         if style:
-            return style
+            return style  # type: ignore
         return MessageStyle(None, ())
 
     def handle_message(self, msg: Message) -> None:
