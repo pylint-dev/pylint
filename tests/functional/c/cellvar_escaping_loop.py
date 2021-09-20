@@ -95,6 +95,7 @@ def good_case_issue3107():
 
 def good_case_issue5102():
     """Eager binding of cell variable when used as the default value of a keyword-only argument.
+    https://github.com/PyCQA/pylint/issues/5012
     """
     funs = []
     for i in range(5):
