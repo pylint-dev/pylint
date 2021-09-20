@@ -30,7 +30,7 @@ import pytest
 from astroid import nodes
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, TestMessage, set_config
+from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 
 class TestParamDocChecker(CheckerTestCase):
@@ -60,8 +60,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("y",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("y",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -84,8 +84,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("y",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("y",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -173,7 +173,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-type-doc", node=node, args=("x",))
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -255,10 +255,10 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("that",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("that",)),
-            TestMessage(msg_id="differing-param-doc", node=node, args=("these",)),
-            TestMessage(msg_id="differing-type-doc", node=node, args=("these",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("that",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("that",)),
+            MessageTest(msg_id="differing-param-doc", node=node, args=("these",)),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("these",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -284,8 +284,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("y",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("y",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -322,8 +322,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("x, y",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -373,8 +373,8 @@ class TestParamDocChecker(CheckerTestCase):
         )
         method_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=method_node, args=("y",)),
-            TestMessage(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=method_node, args=("y",)),
+            MessageTest(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
         ):
             self._visit_methods_of_class(node)
 
@@ -398,8 +398,8 @@ class TestParamDocChecker(CheckerTestCase):
         )
         method_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=method_node, args=("y",)),
-            TestMessage(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=method_node, args=("y",)),
+            MessageTest(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
         ):
             self._visit_methods_of_class(node)
 
@@ -425,8 +425,8 @@ class TestParamDocChecker(CheckerTestCase):
         )
         method_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=method_node, args=("y",)),
-            TestMessage(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=method_node, args=("y",)),
+            MessageTest(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
         ):
             self._visit_methods_of_class(node)
 
@@ -537,12 +537,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("yarg, zarg",)),
-            TestMessage(
+            MessageTest(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("yarg, zarg",)),
+            MessageTest(
                 msg_id="differing-param-doc", node=node, args=("xarg1, zarg1",)
             ),
-            TestMessage(msg_id="differing-type-doc", node=node, args=("yarg1, zarg1",)),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("yarg1, zarg1",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -560,8 +560,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="differing-param-doc", node=node, args=("yarg1",)),
-            TestMessage(msg_id="differing-type-doc", node=node, args=("yarg1",)),
+            MessageTest(msg_id="differing-param-doc", node=node, args=("yarg1",)),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("yarg1",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -584,12 +584,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("xarg, zarg",)),
-            TestMessage(
+            MessageTest(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("xarg, zarg",)),
+            MessageTest(
                 msg_id="differing-param-doc", node=node, args=("xarg1, zarg1",)
             ),
-            TestMessage(msg_id="differing-type-doc", node=node, args=("xarg1, zarg1",)),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("xarg1, zarg1",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -607,8 +607,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="differing-param-doc", node=node, args=("yarg1",)),
-            TestMessage(msg_id="differing-type-doc", node=node, args=("yarg1",)),
+            MessageTest(msg_id="differing-param-doc", node=node, args=("yarg1",)),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("yarg1",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -635,12 +635,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("xarg, zarg",)),
-            TestMessage(
+            MessageTest(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("xarg, zarg",)),
+            MessageTest(
                 msg_id="differing-param-doc", node=node, args=("xarg1, zarg1",)
             ),
-            TestMessage(msg_id="differing-type-doc", node=node, args=("xarg1, zarg1",)),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("xarg1, zarg1",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -660,8 +660,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="differing-param-doc", node=node, args=("yarg1",)),
-            TestMessage(msg_id="differing-type-doc", node=node, args=("yarg1",)),
+            MessageTest(msg_id="differing-param-doc", node=node, args=("yarg1",)),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("yarg1",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -752,8 +752,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("x",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self._visit_methods_of_class(node)
 
@@ -780,8 +780,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("x",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self._visit_methods_of_class(node)
 
@@ -810,8 +810,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("x",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self._visit_methods_of_class(node)
 
@@ -863,8 +863,8 @@ class TestParamDocChecker(CheckerTestCase):
         )
         constructor_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
-            TestMessage(
+            MessageTest(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
+            MessageTest(
                 msg_id="missing-type-doc", node=constructor_node, args=("x, y",)
             ),
         ):
@@ -893,8 +893,8 @@ class TestParamDocChecker(CheckerTestCase):
         )
         constructor_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
-            TestMessage(
+            MessageTest(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
+            MessageTest(
                 msg_id="missing-type-doc", node=constructor_node, args=("x, y",)
             ),
         ):
@@ -925,8 +925,8 @@ class TestParamDocChecker(CheckerTestCase):
         )
         constructor_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
-            TestMessage(
+            MessageTest(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
+            MessageTest(
                 msg_id="missing-type-doc", node=constructor_node, args=("x, y",)
             ),
         ):
@@ -1000,13 +1000,13 @@ class TestParamDocChecker(CheckerTestCase):
         )
         constructor_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="multiple-constructor-doc", node=node, args=(node.name,)
             ),
-            TestMessage(msg_id="missing-param-doc", node=node, args=("x",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("x, y",)),
-            TestMessage(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
-            TestMessage(
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
+            MessageTest(
                 msg_id="missing-type-doc", node=constructor_node, args=("x, y",)
             ),
         ):
@@ -1044,13 +1044,13 @@ class TestParamDocChecker(CheckerTestCase):
         )
         constructor_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="multiple-constructor-doc", node=node, args=(node.name,)
             ),
-            TestMessage(msg_id="missing-param-doc", node=node, args=("x",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("x, y",)),
-            TestMessage(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
-            TestMessage(
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
+            MessageTest(
                 msg_id="missing-type-doc", node=constructor_node, args=("x, y",)
             ),
         ):
@@ -1092,13 +1092,13 @@ class TestParamDocChecker(CheckerTestCase):
         )
         constructor_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="multiple-constructor-doc", node=node, args=(node.name,)
             ),
-            TestMessage(msg_id="missing-param-doc", node=node, args=("x",)),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("x, y",)),
-            TestMessage(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
-            TestMessage(
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
+            MessageTest(
                 msg_id="missing-type-doc", node=constructor_node, args=("x, y",)
             ),
         ):
@@ -1116,10 +1116,10 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="missing-param-doc", node=node, args=("missing_kwonly",)
             ),
-            TestMessage(msg_id="missing-type-doc", node=node, args=("missing_kwonly",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("missing_kwonly",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -1139,7 +1139,7 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("args",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("args",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -1159,7 +1159,7 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("kwargs",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("kwargs",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -1180,7 +1180,7 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("args",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("args",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -1201,7 +1201,7 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("kwargs",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("kwargs",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -1226,7 +1226,7 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("args",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("args",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -1251,7 +1251,7 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-param-doc", node=node, args=("kwargs",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("kwargs",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -1608,7 +1608,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="missing-raises-doc",
                 node=property_node,
                 args=("AttributeError",),
@@ -1642,7 +1642,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="missing-raises-doc",
                 node=property_node,
                 args=("AttributeError",),
@@ -1678,7 +1678,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="missing-raises-doc",
                 node=property_node,
                 args=("AttributeError",),
@@ -1713,7 +1713,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="missing-raises-doc", node=setter_node, args=("AttributeError",)
             )
         ):
@@ -1749,7 +1749,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="missing-raises-doc", node=setter_node, args=("AttributeError",)
             )
         ):
@@ -1789,7 +1789,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="missing-raises-doc", node=setter_node, args=("AttributeError",)
             )
         ):
@@ -1896,7 +1896,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-type-doc", node=property_node)
+            MessageTest(msg_id="missing-return-type-doc", node=property_node)
         ):
             self.checker.visit_return(node)
 
@@ -1940,7 +1940,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-type-doc", node=property_node)
+            MessageTest(msg_id="missing-return-type-doc", node=property_node)
         ):
             self.checker.visit_return(node)
 
@@ -1965,7 +1965,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-type-doc", node=property_node)
+            MessageTest(msg_id="missing-return-type-doc", node=property_node)
         ):
             self.checker.visit_return(node)
 
@@ -1985,8 +1985,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=func_node),
-            TestMessage(msg_id="missing-return-type-doc", node=func_node),
+            MessageTest(msg_id="missing-return-doc", node=func_node),
+            MessageTest(msg_id="missing-return-type-doc", node=func_node),
         ):
             self.checker.visit_return(node)
 
@@ -2008,8 +2008,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=func_node),
-            TestMessage(msg_id="missing-return-type-doc", node=func_node),
+            MessageTest(msg_id="missing-return-doc", node=func_node),
+            MessageTest(msg_id="missing-return-type-doc", node=func_node),
         ):
             self.checker.visit_return(node)
 
@@ -2033,8 +2033,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=func_node),
-            TestMessage(msg_id="missing-return-type-doc", node=func_node),
+            MessageTest(msg_id="missing-return-doc", node=func_node),
+            MessageTest(msg_id="missing-return-type-doc", node=func_node),
         ):
             self.checker.visit_return(node)
 
@@ -2058,7 +2058,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-return-doc", node=func_node)
+            MessageTest(msg_id="missing-return-doc", node=func_node)
         ):
             self.checker.visit_return(node)
 
@@ -2265,8 +2265,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="useless-type-doc", node=node, args=("_",)),
-            TestMessage(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+            MessageTest(msg_id="useless-type-doc", node=node, args=("_",)),
+            MessageTest(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -2289,8 +2289,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="useless-type-doc", node=node, args=("_",)),
-            TestMessage(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+            MessageTest(msg_id="useless-type-doc", node=node, args=("_",)),
+            MessageTest(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -2319,8 +2319,8 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="useless-type-doc", node=node, args=("_",)),
-            TestMessage(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+            MessageTest(msg_id="useless-type-doc", node=node, args=("_",)),
+            MessageTest(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
         ):
             self.checker.visit_functiondef(node)
 
