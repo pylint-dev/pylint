@@ -3,7 +3,9 @@
 
 import sys
 from io import TextIOWrapper
-from typing import List, TextIO, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, TextIO, Tuple, Union
+
+from astroid import nodes
 
 from pylint.constants import (
     _SCOPE_EXEMPT,
@@ -21,9 +23,13 @@ from pylint.exceptions import (
     NoLineSuppliedError,
     UnknownMessageError,
 )
-from pylint.interfaces import UNDEFINED
+from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
 from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
+
+if TYPE_CHECKING:
+    from pylint.lint.pylinter import PyLinter
+    from pylint.message import MessageDefinition
 
 
 class MessagesHandlerMixIn:
@@ -226,9 +232,15 @@ class MessagesHandlerMixIn:
                 return self._msgs_state.get(msgid, fallback)
             return self._msgs_state.get(msgid, True)
 
-    def add_message(
-        self, msgid, line=None, node=None, args=None, confidence=None, col_offset=None
-    ):
+    def add_message(  # type: ignore # MessagesHandlesMixIn is always mixed with PyLinter
+        self: "PyLinter",
+        msgid: str,
+        line: Optional[int] = None,
+        node: Optional[nodes.NodeNG] = None,
+        args: Union[str, Tuple[Union[str, int], ...], None] = None,
+        confidence: Optional[Confidence] = None,
+        col_offset: Optional[int] = None,
+    ) -> None:
         """Adds a message given by ID or name.
 
         If provided, the message string is expanded using args.
@@ -267,14 +279,20 @@ class MessagesHandlerMixIn:
                         f"Message {message_definition.msgid} must provide Node, got None"
                     )
 
-    def add_one_message(
-        self, message_definition, line, node, args, confidence, col_offset
-    ):
+    def add_one_message(  # type: ignore # MessagesHandlesMixIn is always mixed with PyLinter
+        self: "PyLinter",
+        message_definition: "MessageDefinition",
+        line: Optional[int],
+        node: Optional[nodes.NodeNG],
+        args: Union[str, Tuple[Union[str, int], ...], None],
+        confidence: Optional[Confidence],
+        col_offset: Optional[int],
+    ) -> None:
         self.check_message_definition(message_definition, line, node)
         if line is None and node is not None:
             line = node.fromlineno
         if col_offset is None and hasattr(node, "col_offset"):
-            col_offset = node.col_offset
+            col_offset = node.col_offset  # type: ignore
 
         # should this message be displayed
         if not self.is_message_enabled(message_definition.msgid, line, confidence):
@@ -303,13 +321,13 @@ class MessagesHandlerMixIn:
                 "by_module": {self.current_name: {msg_cat: 0}},
                 "by_msg": {},
             }
-        self.stats[msg_cat] += 1
-        self.stats["by_module"][self.current_name][msg_cat] += 1
+        self.stats[msg_cat] += 1  # type: ignore
+        self.stats["by_module"][self.current_name][msg_cat] += 1  # type: ignore
         try:
-            self.stats["by_msg"][message_definition.symbol] += 1
+            self.stats["by_msg"][message_definition.symbol] += 1  # type: ignore
         except KeyError:
-            self.stats["by_msg"][message_definition.symbol] = 1
-        # expand message ?
+            self.stats["by_msg"][message_definition.symbol] = 1  # type: ignore
+        # Interpolate arguments into message string
         msg = message_definition.msg
         if args:
             msg %= args

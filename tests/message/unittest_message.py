@@ -1,29 +1,31 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-from typing import Dict, ValuesView
+from typing import ValuesView
 
+from pylint.interfaces import HIGH
 from pylint.message import Message
 from pylint.message.message_definition import MessageDefinition
+from pylint.typing import MessageLocationTuple
 
 
 def test_new_message(message_definitions: ValuesView[MessageDefinition]) -> None:
     def build_message(
-        message_definition: MessageDefinition, location_value: Dict[str, str]
+        message_definition: MessageDefinition, location_value: MessageLocationTuple
     ) -> Message:
         return Message(
             symbol=message_definition.symbol,
             msg_id=message_definition.msgid,
-            location=[
-                location_value["abspath"],
-                location_value["path"],
-                location_value["module"],
-                location_value["obj"],
-                location_value["line"],
-                location_value["column"],
-            ],
+            location=(
+                location_value.abspath,
+                location_value.path,
+                location_value.module,
+                location_value.obj,
+                location_value.line,
+                location_value.column,
+            ),
             msg=message_definition.msg,
-            confidence="high",
+            confidence=HIGH,
         )
 
     template = "{path}:{line}:{column}: {msg_id}: {msg} ({symbol})"
@@ -32,22 +34,22 @@ def test_new_message(message_definitions: ValuesView[MessageDefinition]) -> None
             e1234_message_definition = message_definition
         if message_definition.msgid == "W1234":
             w1234_message_definition = message_definition
-    e1234_location_values = {
-        "abspath": "1",
-        "path": "2",
-        "module": "3",
-        "obj": "4",
-        "line": "5",
-        "column": "6",
-    }
-    w1234_location_values = {
-        "abspath": "7",
-        "path": "8",
-        "module": "9",
-        "obj": "10",
-        "line": "11",
-        "column": "12",
-    }
+    e1234_location_values = MessageLocationTuple(
+        abspath="1",
+        path="2",
+        module="3",
+        obj="4",
+        line=5,
+        column=6,
+    )
+    w1234_location_values = MessageLocationTuple(
+        abspath="7",
+        path="8",
+        module="9",
+        obj="10",
+        line=11,
+        column=12,
+    )
     expected = (
         "2:5:6: E1234: Duplicate keyword argument %r in %s call (duplicate-keyword-arg)"
     )

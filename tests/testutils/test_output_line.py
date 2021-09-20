@@ -19,7 +19,7 @@ def message() -> Callable:
         return Message(
             symbol="missing-docstring",
             msg_id="C0123",
-            location=[
+            location=[  # type: ignore
                 "abspath",
                 "path",
                 "module",

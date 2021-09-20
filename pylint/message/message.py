@@ -3,8 +3,12 @@
 
 
 import collections
+from typing import Optional, Tuple, Union
+from warnings import warn
 
 from pylint.constants import MSG_TYPES
+from pylint.interfaces import Confidence
+from pylint.typing import MessageLocationTuple
 
 _MsgBase = collections.namedtuple(
     "_MsgBase",
@@ -28,7 +32,19 @@ _MsgBase = collections.namedtuple(
 class Message(_MsgBase):
     """This class represent a message to be issued by the reporters"""
 
-    def __new__(cls, msg_id, symbol, location, msg, confidence):
+    def __new__(
+        cls,
+        msg_id: str,
+        symbol: str,
+        location: Union[Tuple[str, str, str, str, int, int], MessageLocationTuple],
+        msg: str,
+        confidence: Optional[Confidence],
+    ):
+        if isinstance(location, tuple):
+            warn(
+                "In pylint 3.0, Messages will only accept a MessageLocationTuple as location parameter",
+                DeprecationWarning,
+            )
         return _MsgBase.__new__(
             cls,
             msg_id,

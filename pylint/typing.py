@@ -50,3 +50,13 @@ class ErrorDescriptionDict(TypedDict):
 CheckerStats = Dict[
     str, Union[int, "Counter[str]", List, Dict[str, Union[int, str, Dict[str, int]]]]
 ]
+
+
+# Tuple with information about the location of a to-be-displayed message
+class MessageLocationTuple(NamedTuple):
+    abspath: str
+    path: str
+    module: str
+    obj: str
+    line: int
+    column: int
