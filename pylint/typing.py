@@ -52,8 +52,9 @@ CheckerStats = Dict[
 ]
 
 
-# Tuple with information about the location of a to-be-displayed message
 class MessageLocationTuple(NamedTuple):
+    """Tuple with information about the location of a to-be-displayed message"""
+
     abspath: str
     path: str
     module: str

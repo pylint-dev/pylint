@@ -16,14 +16,7 @@ def test_new_message(message_definitions: ValuesView[MessageDefinition]) -> None
         return Message(
             symbol=message_definition.symbol,
             msg_id=message_definition.msgid,
-            location=(
-                location_value.abspath,
-                location_value.path,
-                location_value.module,
-                location_value.obj,
-                location_value.line,
-                location_value.column,
-            ),
+            location=location_value,
             msg=message_definition.msg,
             confidence=HIGH,
         )
