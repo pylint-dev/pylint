@@ -29,6 +29,11 @@ Release date: TBA
 
   Closes #5029
 
+* Fixed false positive for ``cell-var-from-loop`` when variable is used as the default
+  value for a keyword-only parameter.
+
+  Closes #5012
+
 
 What's New in Pylint 2.11.1?
 ============================

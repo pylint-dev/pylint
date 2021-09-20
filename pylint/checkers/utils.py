@@ -402,7 +402,10 @@ def is_default_argument(
     if not scope:
         scope = node.scope()
     if isinstance(scope, (nodes.FunctionDef, nodes.Lambda)):
-        for default_node in scope.args.defaults:
+        all_defaults = scope.args.defaults + [
+            d for d in scope.args.kw_defaults if d is not None
+        ]
+        for default_node in all_defaults:
             for default_name_node in default_node.nodes_of_class(nodes.Name):
                 if default_name_node is node:
                     return True
