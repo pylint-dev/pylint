@@ -29,6 +29,8 @@ Release date: TBA
 
   Closes #5029
 
+* Don't emit ``consider-using-f-string`` if the variables to be interpolated include a backslash
+
 * Fixed false positive for ``cell-var-from-loop`` when variable is used as the default
   value for a keyword-only parameter.
 

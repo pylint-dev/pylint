@@ -355,6 +355,9 @@ class RecommendationChecker(checkers.BaseChecker):
                             and len(inferred.elts) > 1
                         ):
                             return
+                    # Backslashes can't be in f-string expressions
+                    if "\\" in arg.as_string():
+                        return
 
             elif node.parent.parent.keywords:
                 keyword_args = [
@@ -381,6 +384,10 @@ class RecommendationChecker(checkers.BaseChecker):
             )
 
         elif isinstance(node.parent, nodes.BinOp) and node.parent.op == "%":
+            # Backslashes can't be in f-string expressions
+            if "\\" in node.parent.right.as_string():
+                return
+
             inferred_right = utils.safe_infer(node.parent.right)
 
             # If dicts or lists of length > 1 are used
