@@ -20,7 +20,7 @@
 import astroid
 
 from pylint.checkers import classes
-from pylint.testutils import CheckerTestCase, TestMessage, set_config
+from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 
 class TestVariablesChecker(CheckerTestCase):
@@ -37,7 +37,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.first = 0  #@
         """
         )
-        message = TestMessage(
+        message = MessageTest(
             "access-member-before-definition", node=n1.target, args=("first", n2.lineno)
         )
         with self.assertAddsMessages(message):
@@ -64,7 +64,7 @@ class TestVariablesChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage("protected-access", node=node.body[-1].value, args="_teta")
+            MessageTest("protected-access", node=node.body[-1].value, args="_teta")
         ):
             self.walk(node.root())
 
@@ -117,7 +117,7 @@ class TestVariablesChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage("protected-access", node=node.value, args="_nargs")
+            MessageTest("protected-access", node=node.value, args="_nargs")
         ):
             self.checker.visit_attribute(node.value)
 
@@ -154,17 +154,17 @@ class TestVariablesChecker(CheckerTestCase):
         unused_private_attr_1 = classdef.instance_attr("__private")[0]
         unused_private_attr_2 = classdef.instance_attr("__private")[1]
         with self.assertAddsMessages(
-            TestMessage("protected-access", node=attribute_in_eq, args="_protected"),
-            TestMessage(
+            MessageTest("protected-access", node=attribute_in_eq, args="_protected"),
+            MessageTest(
                 "protected-access", node=attribute_in_fake_1, args="_protected"
             ),
-            TestMessage("protected-access", node=attribute_in_fake_2, args="__private"),
-            TestMessage(
+            MessageTest("protected-access", node=attribute_in_fake_2, args="__private"),
+            MessageTest(
                 "unused-private-member",
                 node=unused_private_attr_1,
                 args=("Protected", "__private"),
             ),
-            TestMessage(
+            MessageTest(
                 "unused-private-member",
                 node=unused_private_attr_2,
                 args=("Protected", "__private"),
@@ -203,16 +203,16 @@ class TestVariablesChecker(CheckerTestCase):
         unused_private_attr_1 = classdef.instance_attr("__private")[0]
         unused_private_attr_2 = classdef.instance_attr("__private")[1]
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 "protected-access", node=attribute_in_fake_1, args="_protected"
             ),
-            TestMessage("protected-access", node=attribute_in_fake_2, args="__private"),
-            TestMessage(
+            MessageTest("protected-access", node=attribute_in_fake_2, args="__private"),
+            MessageTest(
                 "unused-private-member",
                 node=unused_private_attr_1,
                 args=("Protected", "__private"),
             ),
-            TestMessage(
+            MessageTest(
                 "unused-private-member",
                 node=unused_private_attr_2,
                 args=("Protected", "__private"),
@@ -248,6 +248,6 @@ class TestVariablesChecker(CheckerTestCase):
             """
         )
         with self.assertAddsMessages(
-            TestMessage("method-hidden", node=node, args=("", 4))
+            MessageTest("method-hidden", node=node, args=("", 4))
         ):
             self.checker.visit_functiondef(node)

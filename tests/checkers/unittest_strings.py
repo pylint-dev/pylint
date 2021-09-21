@@ -14,7 +14,7 @@
 import astroid
 
 from pylint.checkers import strings
-from pylint.testutils import CheckerTestCase, TestMessage
+from pylint.testutils import CheckerTestCase, MessageTest
 
 TEST_TOKENS = (
     '"X"',
@@ -81,7 +81,7 @@ class TestStringChecker(CheckerTestCase):
         ):
             node = astroid.extract_node(code)
             with self.assertAddsMessages(
-                TestMessage(
+                MessageTest(
                     "bad-string-format-type", node=node, args=(arg_type, format_type)
                 )
             ):

@@ -20,7 +20,7 @@
 import astroid
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, TestMessage, set_config
+from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 
 class TestDocstringCheckerYield(CheckerTestCase):
@@ -48,8 +48,8 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-yield-doc", node=node),
-            TestMessage(msg_id="missing-yield-type-doc", node=node),
+            MessageTest(msg_id="missing-yield-doc", node=node),
+            MessageTest(msg_id="missing-yield-type-doc", node=node),
         ):
             self.checker.visit_yield(yield_node)
 
@@ -77,7 +77,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-yield-type-doc", node=node)
+            MessageTest(msg_id="missing-yield-type-doc", node=node)
         ):
             self.checker.visit_yield(yield_node)
 
@@ -94,7 +94,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-yield-doc", node=node)
+            MessageTest(msg_id="missing-yield-doc", node=node)
         ):
             self.checker.visit_yield(yield_node)
 
@@ -112,8 +112,8 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-yield-doc", node=node),
-            TestMessage(msg_id="missing-yield-type-doc", node=node),
+            MessageTest(msg_id="missing-yield-doc", node=node),
+            MessageTest(msg_id="missing-yield-type-doc", node=node),
         ):
             self.checker.visit_yield(yield_node)
 
@@ -131,7 +131,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-yield-type-doc", node=node)
+            MessageTest(msg_id="missing-yield-type-doc", node=node)
         ):
             self.checker.visit_yield(yield_node)
 
@@ -149,7 +149,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-yield-doc", node=node)
+            MessageTest(msg_id="missing-yield-doc", node=node)
         ):
             self.checker.visit_yield(yield_node)
 
@@ -167,8 +167,8 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-yield-doc", node=node),
-            TestMessage(msg_id="missing-yield-type-doc", node=node),
+            MessageTest(msg_id="missing-yield-doc", node=node),
+            MessageTest(msg_id="missing-yield-type-doc", node=node),
         ):
             self.checker.visit_yield(yield_node)
 
@@ -188,8 +188,8 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-yield-doc", node=node),
-            TestMessage(msg_id="missing-yield-type-doc", node=node),
+            MessageTest(msg_id="missing-yield-doc", node=node),
+            MessageTest(msg_id="missing-yield-type-doc", node=node),
         ):
             self.checker.visit_yield(yield_node)
 
@@ -347,7 +347,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-yield-doc", node=node)
+            MessageTest(msg_id="missing-yield-doc", node=node)
         ):
             self.checker.visit_yield(yield_node)
 
@@ -365,7 +365,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-yield-doc", node=node)
+            MessageTest(msg_id="missing-yield-doc", node=node)
         ):
             self.checker.visit_yield(yield_node)
 
@@ -384,7 +384,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            TestMessage(msg_id="missing-yield-doc", node=node)
+            MessageTest(msg_id="missing-yield-doc", node=node)
         ):
             self.checker.visit_yield(yield_node)
 
@@ -445,7 +445,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="redundant-yields-doc", node=node)
+            MessageTest(msg_id="redundant-yields-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -464,7 +464,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            TestMessage(msg_id="redundant-yields-doc", node=node)
+            MessageTest(msg_id="redundant-yields-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 

@@ -4,7 +4,7 @@ import astroid
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.interfaces import UNDEFINED, IAstroidChecker
-from pylint.testutils import CheckerTestCase, TestMessage
+from pylint.testutils import CheckerTestCase, MessageTest
 
 
 class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
@@ -66,7 +66,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-method",
                 args=("deprecated_func",),
                 node=node,
@@ -88,7 +88,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-method",
                 args=("deprecated_method",),
                 node=node,
@@ -113,7 +113,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-method",
                 args=("deprecated_method",),
                 node=node,
@@ -152,7 +152,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg1", "myfunction1"),
                 node=node,
@@ -172,7 +172,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg1", "myfunction1"),
                 node=node,
@@ -205,7 +205,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg1", "myfunction3"),
                 node=node,
@@ -226,7 +226,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg1", "mymethod1"),
                 node=node,
@@ -247,7 +247,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg1", "mymethod1"),
                 node=node,
@@ -282,7 +282,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg1", "mymethod3"),
                 node=node,
@@ -303,13 +303,13 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg1", "myfunction2"),
                 node=node,
                 confidence=UNDEFINED,
             ),
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg2", "myfunction2"),
                 node=node,
@@ -329,13 +329,13 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg1", "myfunction2"),
                 node=node,
                 confidence=UNDEFINED,
             ),
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg2", "myfunction2"),
                 node=node,
@@ -357,13 +357,13 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg1", "mymethod2"),
                 node=node,
                 confidence=UNDEFINED,
             ),
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg2", "mymethod2"),
                 node=node,
@@ -384,13 +384,13 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg1", "mymethod2"),
                 node=node,
                 confidence=UNDEFINED,
             ),
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg2", "mymethod2"),
                 node=node,
@@ -411,7 +411,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-argument",
                 args=("deprecated_arg", "MyClass"),
                 node=node,
@@ -428,7 +428,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-module",
                 args="deprecated_module",
                 node=node,
@@ -445,7 +445,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-module",
                 args="deprecated_module",
                 node=node,
@@ -462,7 +462,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-class",
                 args=("DeprecatedClass", "deprecated"),
                 node=node,
@@ -479,7 +479,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-class",
                 args=("DeprecatedClass", "deprecated"),
                 node=node,
@@ -497,7 +497,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-class",
                 args=("DeprecatedClass", "deprecated"),
                 node=node,
@@ -521,7 +521,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-decorator",
                 args=".deprecated_decorator",
                 node=node,
@@ -547,7 +547,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            TestMessage(
+            MessageTest(
                 msg_id="deprecated-decorator",
                 args=".deprecated_decorator",
                 node=node,

@@ -9,16 +9,18 @@ from pylint.constants import PY38_PLUS
 from pylint.testutils.constants import UPDATE_OPTION
 
 
-class TestMessage(
+class MessageTest(
     collections.namedtuple(
-        "TestMessage", ["msg_id", "line", "node", "args", "confidence"]
+        "MessageTest", ["msg_id", "line", "node", "args", "confidence"]
     )
 ):
+    """Used to test messages produced by pylint. Class name cannot start with Test as pytest doesn't allow constructors in test classes."""
+
     def __new__(cls, msg_id, line=None, node=None, args=None, confidence=None):
         return tuple.__new__(cls, (msg_id, line, node, args, confidence))
 
     def __eq__(self, other):
-        if isinstance(other, TestMessage):
+        if isinstance(other, MessageTest):
             if self.confidence and other.confidence:
                 return super().__eq__(other)
             return self[:-1] == other[:-1]

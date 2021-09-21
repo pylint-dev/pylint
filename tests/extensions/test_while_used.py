@@ -4,7 +4,7 @@
 import astroid
 
 from pylint.extensions.while_used import WhileChecker
-from pylint.testutils import CheckerTestCase, TestMessage
+from pylint.testutils import CheckerTestCase, MessageTest
 
 
 class TestWhileUsed(CheckerTestCase):
@@ -21,5 +21,5 @@ class TestWhileUsed(CheckerTestCase):
         """
         ).body[1]
 
-        with self.assertAddsMessages(TestMessage("while-used", node=node)):
+        with self.assertAddsMessages(MessageTest("while-used", node=node)):
             self.checker.visit_while(node)
