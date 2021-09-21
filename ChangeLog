@@ -26,6 +26,10 @@ Release date: TBA
 
   Closes #5140
 
+* Fix bug with importing namespace packages with relative imports
+
+  Closes #2967 and #5131
+
 * Improve and flatten ``unused-wildcard-import`` message
 
   Closes #3859
