@@ -18,12 +18,14 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 import functools
 from inspect import cleandoc
-from typing import Any
+from typing import Any, Optional
+
+from astroid import nodes
 
 from pylint.config import OptionsProviderMixIn
 from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
-from pylint.interfaces import UNDEFINED, IRawChecker, ITokenChecker, implements
+from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
 from pylint.typing import CheckerStats
 from pylint.utils import get_rst_section, get_rst_title
@@ -109,10 +111,14 @@ class BaseChecker(OptionsProviderMixIn):
         return result
 
     def add_message(
-        self, msgid, line=None, node=None, args=None, confidence=None, col_offset=None
-    ):
-        if not confidence:
-            confidence = UNDEFINED
+        self,
+        msgid: str,
+        line: Optional[int] = None,
+        node: Optional[nodes.NodeNG] = None,
+        args: Any = None,
+        confidence: Optional[Confidence] = None,
+        col_offset: Optional[int] = None,
+    ) -> None:
         self.linter.add_message(msgid, line, node, args, confidence, col_offset)
 
     def check_consistency(self):
