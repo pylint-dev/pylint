@@ -1,6 +1,6 @@
 """Test assignment expressions"""
 # pylint: disable=missing-docstring,unused-argument,unused-import,invalid-name
-# pylint: disable=blacklisted-name,unused-variable,pointless-statement
+# pylint: disable=blacklisted-name,unused-variable,pointless-statement,unused-variable
 import re
 
 if (a := True):
@@ -89,3 +89,8 @@ def func2():
 # https://github.com/PyCQA/pylint/issues/4828
 def func3():
     return bar if (bar := "") else ""
+
+
+# Lambda and IfExp
+def func4():
+    l = lambda x: y if (y := x) else None
