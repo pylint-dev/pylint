@@ -103,8 +103,8 @@ class OutputLine(NamedTuple):
     @classmethod
     def from_csv(cls, row: Union[Sequence[str], str]) -> "OutputLine":
         try:
-            column = cls._get_column(row[2])
             if isinstance(row, Sequence):
+                column = cls._get_column(row[2])
                 if len(row) == 6:
                     return cls(row[0], int(row[1]), column, row[3], row[4], row[5])
                 if len(row) == 5:
