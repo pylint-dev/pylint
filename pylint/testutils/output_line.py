@@ -105,10 +105,10 @@ class OutputLine(NamedTuple):
         try:
             if isinstance(row, Sequence):
                 column = cls._get_column(row[2])
-                if len(row) == 6:
-                    return cls(row[0], int(row[1]), column, row[3], row[4], row[5])
                 if len(row) == 5:
                     return cls(row[0], int(row[1]), column, row[3], row[4], HIGH.name)
+                if len(row) == 6:
+                    return cls(row[0], int(row[1]), column, row[3], row[4], row[5])
             raise IndexError
         except Exception as e:
             raise MalformedOutputLineException(row, e) from e
