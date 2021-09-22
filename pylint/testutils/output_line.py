@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
-from typing import Any, Iterable, NamedTuple, Optional, Tuple, Union
+from typing import Any, NamedTuple, Optional, Sequence, Tuple, Union
 
 from astroid import nodes
 
@@ -83,7 +83,7 @@ class OutputLine(NamedTuple):
 
     @classmethod
     def from_msg(cls, msg: Message) -> "OutputLine":
-        column = cls.get_column(msg.column)
+        column = cls._get_column(msg.column)
         return cls(
             msg.symbol,
             msg.line,
@@ -93,8 +93,8 @@ class OutputLine(NamedTuple):
             msg.confidence.name if msg.confidence != UNDEFINED else HIGH.name,
         )
 
-    @classmethod
-    def get_column(cls, column: str) -> int:
+    @staticmethod
+    def _get_column(column: str) -> int:
         if not PY38_PLUS:
             # We check the column only for the new better ast parser introduced in python 3.8
             return 0  # pragma: no cover
@@ -103,11 +103,12 @@ class OutputLine(NamedTuple):
     @classmethod
     def from_csv(cls, row: Union[Sequence[str], str]) -> "OutputLine":
         try:
-            column = cls.get_column(row[2])
-            if isinstance(row, Iterable) and len(row) == 6:
-                return cls(row[0], int(row[1]), column, row[3], row[4], row[5])
-            if isinstance(row, Iterable) and len(row) == 5:
-                return cls(row[0], int(row[1]), column, row[3], row[4], HIGH.name)
+            column = cls._get_column(row[2])
+            if isinstance(row, Sequence):
+                if len(row) == 6:
+                    return cls(row[0], int(row[1]), column, row[3], row[4], row[5])
+                if len(row) == 5:
+                    return cls(row[0], int(row[1]), column, row[3], row[4], HIGH.name)
             raise IndexError
         except Exception as e:
             raise MalformedOutputLineException(row, e) from e
