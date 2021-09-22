@@ -302,9 +302,6 @@ class MessagesHandlerMixIn:
                 ),
                 message_definition.msgid,
                 line,
-                node,
-                args,
-                confidence,
             )
             return
         # update stats
