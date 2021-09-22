@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
-from typing import Any, Iterable, List, NamedTuple, Optional, Tuple, Union
+from typing import Any, Iterable, NamedTuple, Optional, Tuple, Union
 
 from astroid import nodes
 
@@ -95,7 +95,7 @@ class OutputLine(NamedTuple):
 
     @classmethod
     def get_column(cls, column: str) -> int:
-        if not PY38_PLUS:  
+        if not PY38_PLUS:
             # We check the column only for the new better ast parser introduced in python 3.8
             return 0  # pragma: no cover
         return int(column)
