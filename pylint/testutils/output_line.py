@@ -40,7 +40,7 @@ class MessageTest(
 class MalformedOutputLineException(Exception):
     def __init__(
         self,
-        row: Union[Tuple[str, ...], List[str], str],
+        row: Union[Sequence[str], str],
         exception: Exception,
     ) -> None:
         example = "msg-symbolic-name:42:27:MyClass.my_function:The message"
@@ -95,14 +95,13 @@ class OutputLine(NamedTuple):
 
     @classmethod
     def get_column(cls, column: str) -> int:
-        if (
-            not PY38_PLUS
-        ):  # We check the column only for the new better ast parser introduced in python 3.8
+        if not PY38_PLUS:  
+            # We check the column only for the new better ast parser introduced in python 3.8
             return 0  # pragma: no cover
         return int(column)
 
     @classmethod
-    def from_csv(cls, row: Union[Tuple[str, ...], List[str], str]) -> "OutputLine":
+    def from_csv(cls, row: Union[Sequence[str], str]) -> "OutputLine":
         try:
             column = cls.get_column(row[2])
             if isinstance(row, Iterable) and len(row) == 6:
