@@ -97,7 +97,7 @@ class OutputLine(NamedTuple):
     def get_column(cls, column: str) -> int:
         if (
             not PY38_PLUS
-        ):  # This mimicks behaviour of MessagesHandlerMixIn.add_one_message()
+        ):  # We check the column only for the new better ast parser introduced in python 3.8
             return 0  # pragma: no cover
         return int(column)
 
