@@ -131,7 +131,7 @@ def get_rst_section(section, options, doc=None):
         if help_opt:
             formatted_help = normalize_text(help_opt, indent="  ")
             result += f"{formatted_help}\n"
-        if value:
+        if value and optname != "py-version":
             value = str(_format_option_value(optdict, value))
             result += f"\n  Default: ``{value.replace('`` ', '```` ``')}``\n"
     return result
@@ -311,7 +311,7 @@ def _comment(string):
 def _format_option_value(optdict, value):
     """return the user input's value from a 'compiled' value"""
     if optdict.get("type", None) == "py_version":
-        value = "current Python interpreter version (e.g., '3.8')"
+        value = ".".join(str(item) for item in value)
     elif isinstance(value, (list, tuple)):
         value = ",".join(_format_option_value(optdict, item) for item in value)
     elif isinstance(value, dict):
