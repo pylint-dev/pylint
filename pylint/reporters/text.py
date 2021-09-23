@@ -57,7 +57,7 @@ class MessageStyle(NamedTuple):
     """The color name (see `ANSI_COLORS` for available values)
     or the color number when 256 colors are available
     """
-    style: Tuple[str, ...]
+    style: Tuple[str, ...] = ()
     """Tuple of style strings (see `ANSI_COLORS` for available values).
     """
 
@@ -237,10 +237,10 @@ class ColorizedTextReporter(TextReporter):
 
     name = "colorized"
     COLOR_MAPPING: ColorMappingDict = {
-        "I": MessageStyle("green", ()),
+        "I": MessageStyle("green"),
         "C": MessageStyle(None, ("bold",)),
         "R": MessageStyle("magenta", ("bold", "italic")),
-        "W": MessageStyle("magenta", ()),
+        "W": MessageStyle("magenta"),
         "E": MessageStyle("red", ("bold",)),
         "F": MessageStyle("red", ("bold", "underline")),
         "S": MessageStyle("yellow", ("inverse",)),  # S stands for module Separator
@@ -299,7 +299,7 @@ class ColorizedTextReporter(TextReporter):
 
     def _get_decoration(self, msg_id: str) -> MessageStyle:
         """Returns the message style as defined in self.color_mapping"""
-        return self.color_mapping.get(msg_id[0]) or MessageStyle(None, ())
+        return self.color_mapping.get(msg_id[0]) or MessageStyle(None)
 
     def handle_message(self, msg: Message) -> None:
         """manage message of different types, and colorize output
