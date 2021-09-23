@@ -3,6 +3,9 @@ Pylint's ChangeLog
 ------------------
 
 
+* Require Python ``3.6.2`` to run pylint.
+
+  Closes #5065
 
 What's New in Pylint 2.12.0?
 ============================

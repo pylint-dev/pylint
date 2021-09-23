@@ -69,3 +69,7 @@ Other Changes
   and never get assigned a value
 
   Closes #5140
+
+* Require Python ``3.6.2`` to run pylint.
+
+  Closes #5065
