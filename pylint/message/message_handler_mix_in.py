@@ -266,8 +266,9 @@ class MessagesHandlerMixIn:
     ) -> None:
         """Prepares a message to be added to the ignored message storage
 
-        When earlier checks make it so add_message() is never called
-        useless-suppression will create false-positives.
+        Some checks return early in special cases and never reach add_message(),
+        even though they would normally issue a message.
+        This creates false positives for useless-suppression.
         This function avoids this by adding those message to the ignored msgs attribute
         """
         message_definitions = self.msgs_store.get_message_definitions(msgid)
@@ -279,9 +280,6 @@ class MessagesHandlerMixIn:
                 ),
                 message_definition.msgid,
                 line,
-                node,
-                None,
-                confidence,
             )
 
     @staticmethod
