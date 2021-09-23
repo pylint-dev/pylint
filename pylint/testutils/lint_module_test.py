@@ -7,7 +7,8 @@ import platform
 import sys
 from collections import Counter
 from io import StringIO
-from typing import TYPE_CHECKING, Dict, List, Optional, TextIO, Tuple
+from typing import Counter as CounterType
+from typing import Dict, List, Optional, TextIO, Tuple
 
 import pytest
 from _pytest.config import Config
@@ -25,10 +26,7 @@ from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 from pylint.utils import utils
 
-if TYPE_CHECKING:
-    from typing import Counter as CounterType  # typing.Counter added in Python 3.6.1
-
-    MessageCounter = CounterType[Tuple[int, str]]
+MessageCounter = CounterType[Tuple[int, str]]
 
 
 class LintModuleTest:
@@ -96,7 +94,7 @@ class LintModuleTest:
         return f"{self._test_file.base} ({self.__class__.__module__}.{self.__class__.__name__})"
 
     @staticmethod
-    def get_expected_messages(stream: TextIO) -> "MessageCounter":
+    def get_expected_messages(stream: TextIO) -> MessageCounter:
         """Parses a file and get expected messages.
 
         :param stream: File-like input stream.
@@ -104,7 +102,7 @@ class LintModuleTest:
         :returns: A dict mapping line,msg-symbol tuples to the count on this line.
         :rtype: dict
         """
-        messages: "MessageCounter" = Counter()
+        messages: MessageCounter = Counter()
         for i, line in enumerate(stream):
             match = _EXPECTED_RE.search(line)
             if match is None:
@@ -130,9 +128,9 @@ class LintModuleTest:
 
     @staticmethod
     def multiset_difference(
-        expected_entries: "MessageCounter",
-        actual_entries: "MessageCounter",
-    ) -> Tuple["MessageCounter", Dict[Tuple[int, str], int]]:
+        expected_entries: MessageCounter,
+        actual_entries: MessageCounter,
+    ) -> Tuple[MessageCounter, Dict[Tuple[int, str], int]]:
         """Takes two multisets and compares them.
 
         A multiset is a dict with the cardinality of the key as the value."""
@@ -161,7 +159,7 @@ class LintModuleTest:
             return open(self._test_file.source, encoding="latin1")
         return open(self._test_file.source, encoding="utf8")
 
-    def _get_expected(self) -> Tuple["MessageCounter", List[OutputLine]]:
+    def _get_expected(self) -> Tuple[MessageCounter, List[OutputLine]]:
         with self._open_source_file() as f:
             expected_msgs = self.get_expected_messages(f)
         if not expected_msgs:
@@ -172,10 +170,10 @@ class LintModuleTest:
             ]
         return expected_msgs, expected_output_lines
 
-    def _get_actual(self) -> Tuple["MessageCounter", List[OutputLine]]:
+    def _get_actual(self) -> Tuple[MessageCounter, List[OutputLine]]:
         messages: List[Message] = self._linter.reporter.messages
         messages.sort(key=lambda m: (m.line, m.symbol, m.msg))
-        received_msgs: "MessageCounter" = Counter()
+        received_msgs: MessageCounter = Counter()
         received_output_lines = []
         for msg in messages:
             assert (
@@ -200,8 +198,8 @@ class LintModuleTest:
 
     def error_msg_for_unequal_messages(
         self,
-        actual_messages: "MessageCounter",
-        expected_messages: "MessageCounter",
+        actual_messages: MessageCounter,
+        expected_messages: MessageCounter,
         actual_output: List[OutputLine],
     ) -> str:
         msg = [f'Wrong results for file "{self._test_file.base}":']
@@ -246,7 +244,7 @@ class LintModuleTest:
 
     def _check_output_text(
         self,
-        _: "MessageCounter",
+        _: MessageCounter,
         expected_output: List[OutputLine],
         actual_output: List[OutputLine],
     ) -> None:

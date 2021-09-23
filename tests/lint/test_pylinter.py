@@ -1,5 +1,4 @@
-import sys
-from typing import Any
+from typing import Any, NoReturn
 from unittest.mock import patch
 
 from _pytest.capture import CaptureFixture
@@ -8,11 +7,6 @@ from py._path.local import LocalPath  # type: ignore
 
 from pylint.lint.pylinter import PyLinter
 from pylint.utils import FileState
-
-if sys.version_info >= (3, 6, 2):
-    from typing import NoReturn
-else:
-    from typing_extensions import NoReturn
 
 
 def raise_exception(*args: Any, **kwargs: Any) -> NoReturn:
