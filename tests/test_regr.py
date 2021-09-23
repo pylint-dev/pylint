@@ -22,7 +22,9 @@ to be incorporated in the automatic functional test framework
 # pylint: disable=redefined-outer-name
 
 import os
+import signal
 import sys
+from contextlib import contextmanager
 from os.path import abspath, dirname, join
 from typing import Iterator
 
@@ -139,3 +141,29 @@ def test_pylint_config_attr() -> None:
     assert len(inferred) == 1
     assert inferred[0].root().name == "optparse"
     assert inferred[0].name == "Values"
+
+
+@contextmanager
+def timeout(timeout_s):
+    def _handle(_signum, _frame):
+        pytest.fail("timed out")
+
+    signal.signal(signal.SIGALRM, _handle)
+    signal.setitimer(signal.ITIMER_REAL, timeout_s)
+    yield
+    signal.setitimer(signal.ITIMER_REAL, 0)
+    signal.signal(signal.SIGALRM, signal.SIG_DFL)
+
+
+@pytest.mark.slow
+@pytest.mark.serial
+@pytest.mark.skipif(not hasattr(signal, "setitimer"), reason="Assumes POSIX signals")
+@pytest.mark.parametrize(
+    "fname,timeout_s",
+    [
+        (join(REGR_DATA, "hang", "pkg4972.flask"), 30.0),
+    ],
+)
+def test_hang(finalize_linter, fname, timeout_s):
+    with timeout(timeout_s):
+        finalize_linter.check(fname)
