@@ -257,6 +257,31 @@ class MessagesHandlerMixIn:
                 message_definition, line, node, args, confidence, col_offset
             )
 
+    def add_ignored_message(  # type: ignore # MessagesHandlerMixIn is always mixed with PyLinter
+        self: "PyLinter",
+        msgid: str,
+        line: int,
+        node: nodes.NodeNG,
+        confidence: Optional[Confidence] = UNDEFINED,
+    ) -> None:
+        """Prepares a message to be added to the ignored message storage
+
+        Some checks return early in special cases and never reach add_message(),
+        even though they would normally issue a message.
+        This creates false positives for useless-suppression.
+        This function avoids this by adding those message to the ignored msgs attribute
+        """
+        message_definitions = self.msgs_store.get_message_definitions(msgid)
+        for message_definition in message_definitions:
+            self.check_message_definition(message_definition, line, node)
+            self.file_state.handle_ignored_message(
+                self.get_message_state_scope(
+                    message_definition.msgid, line, confidence
+                ),
+                message_definition.msgid,
+                line,
+            )
+
     @staticmethod
     def check_message_definition(message_definition, line, node):
         if message_definition.msgid[0] not in _SCOPE_EXEMPT:

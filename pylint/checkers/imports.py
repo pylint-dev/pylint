@@ -755,8 +755,13 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             elif import_category == "THIRDPARTY":
                 third_party_imports.append(node_and_package_import)
                 external_imports.append(node_and_package_import)
-                if not nested and not ignore_for_import_order:
-                    third_party_not_ignored.append(node_and_package_import)
+                if not nested:
+                    if not ignore_for_import_order:
+                        third_party_not_ignored.append(node_and_package_import)
+                    else:
+                        self.linter.add_ignored_message(
+                            "wrong-import-order", node.fromlineno, node
+                        )
                 wrong_import = first_party_not_ignored or local_not_ignored
                 if wrong_import and not nested:
                     self.add_message(
@@ -770,8 +775,13 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             elif import_category == "FIRSTPARTY":
                 first_party_imports.append(node_and_package_import)
                 external_imports.append(node_and_package_import)
-                if not nested and not ignore_for_import_order:
-                    first_party_not_ignored.append(node_and_package_import)
+                if not nested:
+                    if not ignore_for_import_order:
+                        first_party_not_ignored.append(node_and_package_import)
+                    else:
+                        self.linter.add_ignored_message(
+                            "wrong-import-order", node.fromlineno, node
+                        )
                 wrong_import = local_not_ignored
                 if wrong_import and not nested:
                     self.add_message(
@@ -784,8 +794,13 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     )
             elif import_category == "LOCALFOLDER":
                 local_imports.append((node, package))
-                if not nested and not ignore_for_import_order:
-                    local_not_ignored.append((node, package))
+                if not nested:
+                    if not ignore_for_import_order:
+                        local_not_ignored.append((node, package))
+                    else:
+                        self.linter.add_ignored_message(
+                            "wrong-import-order", node.fromlineno, node
+                        )
         return std_imports, external_imports, local_imports
 
     def _get_imported_module(self, importnode, modname):
