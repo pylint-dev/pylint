@@ -60,7 +60,6 @@ from typing import (
     List,
     NamedTuple,
     NewType,
-    Optional,
     Set,
     TextIO,
     Tuple,
@@ -375,29 +374,22 @@ class Similar:
         self.ignore_signatures = ignore_signatures
         self.linesets: List["LineSet"] = []
 
-    def append_stream(
-        self, streamid: str, stream: STREAM_TYPES, encoding: Optional[str] = None
-    ) -> None:
+    def append_stream(self, streamid: str, stream: STREAM_TYPES) -> None:
         """append a file to search for similarities"""
         if isinstance(stream, BufferedIOBase):
-            if encoding is None:
-                raise ValueError
-            readlines = decoding_stream(stream, encoding).readlines
+            lines = decoding_stream(stream, "utf-8").readlines()
         else:
-            readlines = stream.readlines  # type: ignore # hint parameter is incorrectly typed as non-optional
-        try:
-            self.linesets.append(
-                LineSet(
-                    streamid,
-                    readlines(),
-                    self.ignore_comments,
-                    self.ignore_docstrings,
-                    self.ignore_imports,
-                    self.ignore_signatures,
-                )
+            lines = stream.readlines()
+        self.linesets.append(
+            LineSet(
+                streamid,
+                lines,
+                self.ignore_comments,
+                self.ignore_docstrings,
+                self.ignore_imports,
+                self.ignore_signatures,
             )
-        except UnicodeDecodeError:
-            pass
+        )
 
     def run(self) -> None:
         """start looking for similarities and display results on stdout"""
@@ -679,7 +671,11 @@ class LineSet:
         self.name = name
         self._real_lines = lines
         self._stripped_lines = stripped_lines(
-            lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
+            lines,
+            ignore_comments,
+            ignore_docstrings,
+            ignore_imports,
+            ignore_signatures,
         )
 
     def __str__(self):
@@ -843,7 +839,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         stream must implement the readlines method
         """
         with node.stream() as stream:
-            self.append_stream(self.linter.current_name, stream, node.file_encoding)
+            self.append_stream(self.linter.current_name, stream)
 
     def close(self):
         """compute and display similarities on closing (i.e. end of parsing)"""
