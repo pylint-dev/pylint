@@ -3,7 +3,9 @@
 
 import tokenize
 from io import StringIO
+from tokenize import TokenInfo
+from typing import List
 
 
-def _tokenize_str(code):
+def _tokenize_str(code: str) -> List[TokenInfo]:
     return list(tokenize.generate_tokens(StringIO(code).readline))
