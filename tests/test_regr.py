@@ -144,7 +144,7 @@ def test_pylint_config_attr() -> None:
 
 
 @contextmanager
-def timeout(timeout_s):
+def timeout(timeout_s: float):
     def _handle(_signum, _frame):
         pytest.fail("timed out")
 
@@ -164,6 +164,6 @@ def timeout(timeout_s):
         (join(REGR_DATA, "hang", "pkg4972.string"), 30.0),
     ],
 )
-def test_hang(finalize_linter, fname, timeout_s):
+def test_hang(finalize_linter, fname: str, timeout_s: float) -> None:
     with timeout(timeout_s):
         finalize_linter.check(fname)
