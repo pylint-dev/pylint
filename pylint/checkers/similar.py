@@ -671,11 +671,7 @@ class LineSet:
         self.name = name
         self._real_lines = lines
         self._stripped_lines = stripped_lines(
-            lines,
-            ignore_comments,
-            ignore_docstrings,
-            ignore_imports,
-            ignore_signatures
+            lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
         )
 
     def __str__(self):
