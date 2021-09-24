@@ -675,7 +675,7 @@ class LineSet:
             ignore_comments,
             ignore_docstrings,
             ignore_imports,
-            ignore_signatures,
+            ignore_signatures
         )
 
     def __str__(self):
