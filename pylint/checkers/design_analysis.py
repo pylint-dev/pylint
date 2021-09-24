@@ -267,6 +267,12 @@ def _get_parents_iter(
         if parent.qname() in ignored_parents:
             continue
         if parent not in parents:
+            # This guard might appear to be performing the same function as
+            # adding the resolved parents to a set to eliminate duplicates
+            # (legitimate due to diamond inheritance patterns), but its
+            # additional purpose is to prevent cycles (not normally possible,
+            # but potential due to inference) and thus guarantee termination
+            # of the while-loop
             yield parent
             parents.add(parent)
             to_explore.extend(parent.ancestors(recurs=False))
