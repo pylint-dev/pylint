@@ -161,7 +161,7 @@ def timeout(timeout_s):
 @pytest.mark.parametrize(
     "fname,timeout_s",
     [
-        (join(REGR_DATA, "hang", "pkg4972.flask"), 30.0),
+        (join(REGR_DATA, "hang", "pkg4972.string"), 30.0),
     ],
 )
 def test_hang(finalize_linter, fname, timeout_s):
