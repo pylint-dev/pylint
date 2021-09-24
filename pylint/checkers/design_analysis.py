@@ -28,7 +28,7 @@
 
 import re
 from collections import defaultdict
-from typing import FrozenSet, List, Set, cast
+from typing import FrozenSet, Iterator, List, Set, cast
 
 import astroid
 from astroid import nodes
@@ -242,9 +242,9 @@ def _count_methods_in_class(node):
     return all_methods
 
 
-def _get_parents(
+def _get_parents_iter(
     node: nodes.ClassDef, ignored_parents: FrozenSet[str]
-) -> Set[nodes.ClassDef]:
+) -> Iterator[nodes.ClassDef]:
     r"""Get parents of ``node``, excluding ancestors of ``ignored_parents``.
 
     If we have the following inheritance diagram:
@@ -266,9 +266,22 @@ def _get_parents(
         parent = to_explore.pop()
         if parent.qname() in ignored_parents:
             continue
-        parents.add(parent)
-        to_explore.extend(parent.ancestors(recurs=False))
-    return parents
+        if parent not in parents:
+            # This guard might appear to be performing the same function as
+            # adding the resolved parents to a set to eliminate duplicates
+            # (legitimate due to diamond inheritance patterns), but its
+            # additional purpose is to prevent cycles (not normally possible,
+            # but potential due to inference) and thus guarantee termination
+            # of the while-loop
+            yield parent
+            parents.add(parent)
+            to_explore.extend(parent.ancestors(recurs=False))
+
+
+def _get_parents(
+    node: nodes.ClassDef, ignored_parents: FrozenSet[str]
+) -> Set[nodes.ClassDef]:
+    return set(_get_parents_iter(node, ignored_parents))
 
 
 class MisdesignChecker(BaseChecker):
