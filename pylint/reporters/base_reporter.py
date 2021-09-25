@@ -23,7 +23,7 @@ class BaseReporter:
 
     extension = ""
 
-    def __init__(self, output: Optional[TextIO] = None):
+    def __init__(self, output: Optional[TextIO] = None) -> None:
         self.linter: "PyLinter"
         self.section = 0
         self.out: TextIO = output or sys.stdout
@@ -45,7 +45,7 @@ class BaseReporter:
         )
         self.out = output or sys.stdout
 
-    def writeln(self, string=""):
+    def writeln(self, string: str = "") -> None:
         """write a line in the output buffer"""
         print(string, file=self.out)
 
