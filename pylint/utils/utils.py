@@ -131,7 +131,7 @@ def get_rst_section(section, options, doc=None):
         if help_opt:
             formatted_help = normalize_text(help_opt, indent="  ")
             result += f"{formatted_help}\n"
-        if value:
+        if value and optname != "py-version":
             value = str(_format_option_value(optdict, value))
             result += f"\n  Default: ``{value.replace('`` ', '```` ``')}``\n"
     return result

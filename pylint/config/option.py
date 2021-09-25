@@ -68,7 +68,9 @@ def _py_version_validator(_, name, value):
         try:
             value = tuple(int(val) for val in value.split("."))
         except (ValueError, AttributeError):
-            raise optparse.OptionValueError(f"Invalid format for {name}") from None
+            raise optparse.OptionValueError(
+                f"Invalid format for {name}, should be version string. E.g., '3.8'"
+            ) from None
     return value
 
 
