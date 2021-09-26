@@ -20,7 +20,7 @@ class MessageDefinition:
         scope: str,
         minversion: Optional[Tuple[int, int]] = None,
         maxversion: Optional[Tuple[int, int]] = None,
-        old_names: List[Tuple[str, str]] = None,
+        old_names: Optional[List[Tuple[str, str]]] = None,
     ):
         self.checker_name = checker.name
         self.check_msgid(msgid)

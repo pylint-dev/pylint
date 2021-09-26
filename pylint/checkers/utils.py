@@ -674,7 +674,7 @@ def is_attr_private(attrname: str) -> Optional[Match[str]]:
 
 
 def get_argument_from_call(
-    call_node: nodes.Call, position: int = None, keyword: str = None
+    call_node: nodes.Call, position: Optional[int] = None, keyword: Optional[str] = None
 ) -> nodes.Name:
     """Returns the specified argument from a function call.
 

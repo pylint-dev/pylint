@@ -39,7 +39,7 @@
 
 import sys
 from collections.abc import Iterable
-from typing import Any, Dict, Set
+from typing import Any, Dict, Optional, Set
 
 import astroid
 from astroid import nodes
@@ -447,7 +447,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     }
 
     def __init__(
-        self, linter: PyLinter = None
+        self, linter: Optional[PyLinter] = None
     ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
         self._deprecated_methods: Set[Any] = set()
