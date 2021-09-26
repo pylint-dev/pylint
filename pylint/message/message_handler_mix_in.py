@@ -74,7 +74,7 @@ class MessagesHandlerMixIn:
         self,
         msgid: str,
         scope: str = "package",
-        line: Union[bool, int] = None,
+        line: Union[bool, int, None] = None,
         ignore_unknown: bool = False,
     ):
         if not line:

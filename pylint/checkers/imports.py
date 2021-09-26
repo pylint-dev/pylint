@@ -51,7 +51,7 @@ import copy
 import os
 import sys
 from distutils import sysconfig
-from typing import Any, Dict, List, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -424,7 +424,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     )
 
     def __init__(
-        self, linter: PyLinter = None
+        self, linter: Optional[PyLinter] = None
     ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
         self.stats: CheckerStats = {}
