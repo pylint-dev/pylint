@@ -219,10 +219,10 @@ class Run(ConfigurationMixIn):
                 project_name=self.config.project,
                 black_list=self.config.ignore_list,
             )
-            linker = Linker(project, tag=True)
-            handler = DiadefsHandler(self.config)
-            diadefs = handler.get_diadefs(project, linker)
-            writer.DiagramWriter(self.config).write(diadefs)
+        linker = Linker(project, tag=True)
+        handler = DiadefsHandler(self.config)
+        diadefs = handler.get_diadefs(project, linker)
+        writer.DiagramWriter(self.config).write(diadefs)
         return 0
 
 
