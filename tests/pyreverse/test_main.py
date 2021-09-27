@@ -9,8 +9,8 @@ TEST_DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "d
 PROJECT_ROOT_DIR = os.path.abspath(os.path.join(TEST_DATA_DIR, ".."))
 
 
-@pytest.fixture(params=[PROJECT_ROOT_DIR, TEST_DATA_DIR])
-def setup_path(request):
+@pytest.fixture(name="setup_path", params=[PROJECT_ROOT_DIR, TEST_DATA_DIR])
+def fixture_setup_path(request):
     current_sys_path = list(sys.path)
     sys.path[:] = []
     current_dir = os.getcwd()
