@@ -1,9 +1,9 @@
 import os
-import pytest
 import sys
 
-from pylint.lint import fix_import_path
+import pytest
 
+from pylint.lint import fix_import_path
 
 TEST_DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
 PROJECT_ROOT_DIR = os.path.abspath(os.path.join(TEST_DATA_DIR, ".."))
