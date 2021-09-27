@@ -155,8 +155,6 @@ def timeout(timeout_s: float):
     signal.signal(signal.SIGALRM, signal.SIG_DFL)
 
 
-@pytest.mark.slow
-@pytest.mark.serial
 @pytest.mark.skipif(not hasattr(signal, "setitimer"), reason="Assumes POSIX signals")
 @pytest.mark.parametrize(
     "fname,timeout_s",
