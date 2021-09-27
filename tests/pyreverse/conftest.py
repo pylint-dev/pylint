@@ -3,6 +3,7 @@ from typing import Callable, Optional
 import pytest
 from astroid.nodes.scoped_nodes import Module
 
+from pylint.lint import fix_import_path
 from pylint.pyreverse.inspector import Project, project_from_files
 from pylint.testutils.pyreverse import PyreverseConfig
 
@@ -50,6 +51,8 @@ def get_project() -> Callable:
         def _astroid_wrapper(func: Callable, modname: str) -> Module:
             return func(modname)
 
-        return project_from_files([module], _astroid_wrapper, project_name=name)
+        with fix_import_path([module]):
+            project = project_from_files([module], _astroid_wrapper, project_name=name)
+        return project
 
     return _get_project
