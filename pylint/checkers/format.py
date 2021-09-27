@@ -36,8 +36,8 @@
 # Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 Raphael Gaschignard <raphael@rtpg.co>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
-# Copyright (c) 2021 Daniel van Noord <13665637+DanielNoord@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -351,7 +351,7 @@ class FormatChecker(BaseTokenChecker):
             self._lines[line_num] = line.split("\n")[0]
         self.check_lines(line, line_num)
 
-    def process_module(self, _module):
+    def process_module(self, _node: nodes.Module) -> None:
         pass
 
     def _check_keyword_parentheses(
@@ -401,11 +401,11 @@ class FormatChecker(BaseTokenChecker):
                 depth -= 1
                 if depth:
                     if contains_double_parens and tokens[i + 1].string == ")":
-                        self.add_message(
-                            "superfluous-parens", line=line_num, args=keyword_token
-                        )
+                        # For walrus operators in `if (not)` conditions and comprehensions
+                        if keyword_token in {"in", "if", "not"}:
+                            continue
                         return
-                    contains_double_parens = 0
+                    contains_double_parens -= 1
                     continue
                 # ')' can't happen after if (foo), since it would be a syntax error.
                 if tokens[i + 1].string in (":", ")", "]", "}", "in") or tokens[
@@ -448,7 +448,7 @@ class FormatChecker(BaseTokenChecker):
                 # without an error.
                 elif token[1] == "for":
                     return
-                # A generator expression can have a 'else' token in it.
+                # A generator expression can have an 'else' token in it.
                 # We check the rest of the tokens to see if any problems incure after
                 # the 'else'.
                 elif token[1] == "else":
@@ -582,7 +582,7 @@ class FormatChecker(BaseTokenChecker):
                 )
 
     @check_messages("multiple-statements")
-    def visit_default(self, node):
+    def visit_default(self, node: nodes.NodeNG) -> None:
         """check the node line number and check it if not yet done"""
         if not node.is_statement:
             return

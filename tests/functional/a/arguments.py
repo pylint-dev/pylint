@@ -1,5 +1,5 @@
-# pylint: disable=too-few-public-methods, no-absolute-import,missing-docstring,import-error,wrong-import-position
-# pylint: disable=wrong-import-order, useless-object-inheritance,unnecessary-lambda
+# pylint: disable=too-few-public-methods, missing-docstring,import-error,wrong-import-position
+# pylint: disable=wrong-import-order, useless-object-inheritance,unnecessary-lambda, consider-using-f-string
 
 def decorator(fun):
     """Decorator"""
@@ -38,7 +38,7 @@ def function_3_args(first_argument, second_argument, third_argument):
     return first_argument, second_argument, third_argument
 
 def function_default_arg(one=1, two=2):
-    """fonction with default value"""
+    """function with default value"""
     return two, one
 
 

@@ -2,7 +2,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import sys
-from typing import List, Tuple, Union
+from io import TextIOWrapper
+from typing import TYPE_CHECKING, Any, List, Optional, TextIO, Tuple, Union
+
+from astroid import nodes
 
 from pylint.constants import (
     _SCOPE_EXEMPT,
@@ -20,9 +23,13 @@ from pylint.exceptions import (
     NoLineSuppliedError,
     UnknownMessageError,
 )
-from pylint.interfaces import UNDEFINED
+from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
 from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
+
+if TYPE_CHECKING:
+    from pylint.lint.pylinter import PyLinter
+    from pylint.message import MessageDefinition
 
 
 class MessagesHandlerMixIn:
@@ -67,7 +74,7 @@ class MessagesHandlerMixIn:
         self,
         msgid: str,
         scope: str = "package",
-        line: Union[bool, int] = None,
+        line: Union[bool, int, None] = None,
         ignore_unknown: bool = False,
     ):
         if not line:
@@ -94,9 +101,6 @@ class MessagesHandlerMixIn:
         if msgid == "all":
             for _msgid in MSG_TYPES:
                 self._set_msg_status(_msgid, enable, scope, line, ignore_unknown)
-            if enable and not self._python3_porting_mode:
-                # Don't activate the python 3 porting checker if it wasn't activated explicitly.
-                self.disable("python3")
             return
 
         # msgid is a category?
@@ -228,9 +232,15 @@ class MessagesHandlerMixIn:
                 return self._msgs_state.get(msgid, fallback)
             return self._msgs_state.get(msgid, True)
 
-    def add_message(
-        self, msgid, line=None, node=None, args=None, confidence=None, col_offset=None
-    ):
+    def add_message(  # type: ignore # MessagesHandlerMixIn is always mixed with PyLinter
+        self: "PyLinter",
+        msgid: str,
+        line: Optional[int] = None,
+        node: Optional[nodes.NodeNG] = None,
+        args: Any = None,
+        confidence: Optional[Confidence] = None,
+        col_offset: Optional[int] = None,
+    ) -> None:
         """Adds a message given by ID or name.
 
         If provided, the message string is expanded using args.
@@ -247,6 +257,31 @@ class MessagesHandlerMixIn:
                 message_definition, line, node, args, confidence, col_offset
             )
 
+    def add_ignored_message(  # type: ignore # MessagesHandlerMixIn is always mixed with PyLinter
+        self: "PyLinter",
+        msgid: str,
+        line: int,
+        node: nodes.NodeNG,
+        confidence: Optional[Confidence] = UNDEFINED,
+    ) -> None:
+        """Prepares a message to be added to the ignored message storage
+
+        Some checks return early in special cases and never reach add_message(),
+        even though they would normally issue a message.
+        This creates false positives for useless-suppression.
+        This function avoids this by adding those message to the ignored msgs attribute
+        """
+        message_definitions = self.msgs_store.get_message_definitions(msgid)
+        for message_definition in message_definitions:
+            self.check_message_definition(message_definition, line, node)
+            self.file_state.handle_ignored_message(
+                self.get_message_state_scope(
+                    message_definition.msgid, line, confidence
+                ),
+                message_definition.msgid,
+                line,
+            )
+
     @staticmethod
     def check_message_definition(message_definition, line, node):
         if message_definition.msgid[0] not in _SCOPE_EXEMPT:
@@ -255,30 +290,34 @@ class MessagesHandlerMixIn:
             if message_definition.scope == WarningScope.LINE:
                 if line is None:
                     raise InvalidMessageError(
-                        "Message %s must provide line, got None"
-                        % message_definition.msgid
+                        f"Message {message_definition.msgid} must provide line, got None"
                     )
                 if node is not None:
                     raise InvalidMessageError(
-                        "Message %s must only provide line, "
-                        "got line=%s, node=%s" % (message_definition.msgid, line, node)
+                        f"Message {message_definition.msgid} must only provide line, "
+                        f"got line={line}, node={node}"
                     )
             elif message_definition.scope == WarningScope.NODE:
                 # Node-based warnings may provide an override line.
                 if node is None:
                     raise InvalidMessageError(
-                        "Message %s must provide Node, got None"
-                        % message_definition.msgid
+                        f"Message {message_definition.msgid} must provide Node, got None"
                     )
 
-    def add_one_message(
-        self, message_definition, line, node, args, confidence, col_offset
-    ):
+    def add_one_message(  # type: ignore # MessagesHandlerMixIn is always mixed with PyLinter
+        self: "PyLinter",
+        message_definition: "MessageDefinition",
+        line: Optional[int],
+        node: Optional[nodes.NodeNG],
+        args: Any,
+        confidence: Optional[Confidence],
+        col_offset: Optional[int],
+    ) -> None:
         self.check_message_definition(message_definition, line, node)
         if line is None and node is not None:
             line = node.fromlineno
         if col_offset is None and hasattr(node, "col_offset"):
-            col_offset = node.col_offset
+            col_offset = node.col_offset  # type: ignore
 
         # should this message be displayed
         if not self.is_message_enabled(message_definition.msgid, line, confidence):
@@ -288,9 +327,6 @@ class MessagesHandlerMixIn:
                 ),
                 message_definition.msgid,
                 line,
-                node,
-                args,
-                confidence,
             )
             return
         # update stats
@@ -307,13 +343,13 @@ class MessagesHandlerMixIn:
                 "by_module": {self.current_name: {msg_cat: 0}},
                 "by_msg": {},
             }
-        self.stats[msg_cat] += 1
-        self.stats["by_module"][self.current_name][msg_cat] += 1
+        self.stats[msg_cat] += 1  # type: ignore
+        self.stats["by_module"][self.current_name][msg_cat] += 1  # type: ignore
         try:
-            self.stats["by_msg"][message_definition.symbol] += 1
+            self.stats["by_msg"][message_definition.symbol] += 1  # type: ignore
         except KeyError:
-            self.stats["by_msg"][message_definition.symbol] = 1
-        # expand message ?
+            self.stats["by_msg"][message_definition.symbol] = 1  # type: ignore
+        # Interpolate arguments into message string
         msg = message_definition.msg
         if args:
             msg %= args
@@ -372,9 +408,9 @@ Pylint provides global options and switches.
                         if section is None:
                             title = "General options"
                         else:
-                            title = "%s options" % section.capitalize()
+                            title = f"{section.capitalize()} options"
                         result += get_rst_title(title, "~")
-                        result += "%s\n" % get_rst_section(None, options)
+                        result += f"{get_rst_section(None, options)}\n"
         result += get_rst_title("Pylint checkers' options and switches", "-")
         result += """\
 
@@ -395,20 +431,13 @@ Below is a list of all checkers and their features.
             result += checker.get_full_documentation(**information)
         return result
 
-    def print_full_documentation(self, stream=None):
+    def print_full_documentation(self, stream: TextIO = sys.stdout) -> None:
         """output a full documentation in ReST format"""
-        if not stream:
-            stream = sys.stdout
         print(self.get_checkers_documentation()[:-1], file=stream)
 
     @staticmethod
-    def _print_checker_doc(information, stream=None):
-        """Helper method for print_full_documentation.
-
-        Also used by doc/exts/pylint_extensions.py.
-        """
-        if not stream:
-            stream = sys.stdout
+    def _print_checker_doc(information, stream: TextIOWrapper) -> None:
+        """Helper method used by doc/exts/pylint_extensions.py."""
         checker = information["checker"]
         del information["checker"]
         print(checker.get_full_documentation(**information)[:-1], file=stream)

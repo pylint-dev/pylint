@@ -1,6 +1,6 @@
 """ Checks that reversed() receive proper argument """
 # pylint: disable=missing-docstring, useless-object-inheritance
-# pylint: disable=too-few-public-methods,no-self-use,no-absolute-import
+# pylint: disable=too-few-public-methods,no-self-use
 from collections import deque, OrderedDict
 from enum import IntEnum
 
@@ -32,7 +32,7 @@ class ThirdBadReversed(dict):
     """ dict subclass """
 
 def uninferable(seq):
-    """ This can't be infered at this moment,
+    """ This can't be inferred at this moment,
     make sure we don't have a false positive.
     """
     return reversed(seq)

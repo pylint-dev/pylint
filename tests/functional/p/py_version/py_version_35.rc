@@ -1,0 +1,3 @@
+[MASTER]
+load-plugins=pylint.extensions.code_style
+py-version=3.5

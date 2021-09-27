@@ -26,7 +26,7 @@ class MessageIdStore:
 
     def get_symbol(self, msgid: str) -> str:
         try:
-            return self.__msgid_to_symbol[msgid]
+            return self.__msgid_to_symbol[msgid.upper()]
         except KeyError as e:
             msg = f"'{msgid}' is not stored in the message store."
             raise UnknownMessageError(msg) from e
@@ -76,9 +76,9 @@ class MessageIdStore:
         if existing_msgid is not None:
             if existing_msgid != msgid:
                 self._raise_duplicate_msgid(symbol, msgid, existing_msgid)
-        if existing_symbol != symbol:
+        if existing_symbol and existing_symbol != symbol:
             # See https://github.com/python/mypy/issues/10559
-            self._raise_duplicate_symbol(msgid, symbol, existing_symbol)  # type: ignore
+            self._raise_duplicate_symbol(msgid, symbol, existing_symbol)
 
     @staticmethod
     def _raise_duplicate_symbol(msgid: str, symbol: str, other_symbol: str):
@@ -105,11 +105,12 @@ class MessageIdStore:
         """Return msgids but the input can be a symbol."""
         # Only msgid can have a digit as second letter
         is_msgid: bool = msgid_or_symbol[1:].isdigit()
+        msgid = None
         if is_msgid:
             msgid = msgid_or_symbol.upper()
             symbol = self.__msgid_to_symbol.get(msgid)
         else:
-            msgid = self.__symbol_to_msgid.get(msgid_or_symbol)  # type: ignore
+            msgid = self.__symbol_to_msgid.get(msgid_or_symbol)
             symbol = msgid_or_symbol
         if msgid is None or symbol is None or not msgid or not symbol:
             error_msg = f"No such message id or symbol '{msgid_or_symbol}'."

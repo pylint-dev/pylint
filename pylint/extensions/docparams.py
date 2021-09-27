@@ -15,6 +15,8 @@
 # Copyright (c) 2020 Luigi <luigi.cristofolini@q-ctrl.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2021 SupImDos <62866982+SupImDos@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Logan Miller <14319179+komodo472@users.noreply.github.com>
 
@@ -27,6 +29,7 @@ import re
 from typing import Optional
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
@@ -205,7 +208,7 @@ class DocstringParameterChecker(BaseChecker):
     constructor_names = {"__init__", "__new__"}
     not_needed_param_in_docstring = {"self", "cls"}
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Called for function and method definitions (def).
 
         :param node: Node for a function or method definition in the AST
@@ -227,6 +230,8 @@ class DocstringParameterChecker(BaseChecker):
         self.check_functiondef_params(node, node_doc)
         self.check_functiondef_returns(node, node_doc)
         self.check_functiondef_yields(node, node_doc)
+
+    visit_asyncfunctiondef = visit_functiondef
 
     def check_functiondef_params(self, node, node_doc):
         node_allow_no_param = None
@@ -278,7 +283,7 @@ class DocstringParameterChecker(BaseChecker):
         ) and not node.is_generator():
             self.add_message("redundant-yields-doc", node=node)
 
-    def visit_raise(self, node):
+    def visit_raise(self, node: nodes.Raise) -> None:
         func_node = node.frame()
         if not isinstance(func_node, astroid.FunctionDef):
             return
@@ -308,7 +313,7 @@ class DocstringParameterChecker(BaseChecker):
         missing_excs = expected_excs - found_excs_class_names
         self._add_raise_message(missing_excs, func_node)
 
-    def visit_return(self, node):
+    def visit_return(self, node: nodes.Return) -> None:
         if not utils.returns_something(node):
             return
 
@@ -331,7 +336,7 @@ class DocstringParameterChecker(BaseChecker):
         if not (doc.has_rtype() or (doc.has_property_type() and is_property)):
             self.add_message("missing-return-type-doc", node=func_node)
 
-    def visit_yield(self, node):
+    def visit_yield(self, node: nodes.Yield) -> None:
         func_node = node.frame()
         if not isinstance(func_node, astroid.FunctionDef):
             return
@@ -353,7 +358,7 @@ class DocstringParameterChecker(BaseChecker):
         if not (doc_has_yields_type or func_node.returns):
             self.add_message("missing-yield-type-doc", node=func_node)
 
-    def visit_yieldfrom(self, node):
+    def visit_yieldfrom(self, node: nodes.YieldFrom) -> None:
         self.visit_yield(node)
 
     def _compare_missing_args(
@@ -612,7 +617,7 @@ class DocstringParameterChecker(BaseChecker):
         :type missing_excs: set(str)
 
         :param node: The node show the message on.
-        :type node: astroid.node_classes.NodeNG
+        :type node: nodes.NodeNG
         """
         if node.is_abstract():
             try:

@@ -1,0 +1,2 @@
+[MASTER]
+load-plugins=pylint.extensions.set_membership

@@ -10,6 +10,8 @@ import functools
 import optparse  # pylint: disable=deprecated-module
 import os
 import sys
+from types import ModuleType
+from typing import Dict, List, Optional, TextIO, Tuple
 
 import toml
 
@@ -186,11 +188,13 @@ class OptionsManagerMixIn:
         """set option on the correct option provider"""
         self._all_options[opt].set_option(opt, value)
 
-    def generate_config(self, stream=None, skipsections=()):
+    def generate_config(
+        self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
+    ) -> None:
         """write a configuration file according to the current configuration
         into the given stream or stdout
         """
-        options_by_section = {}
+        options_by_section: Dict[str, List[Tuple]] = {}
         sections = []
         for provider in self.options_providers:
             for section, options in provider.options_by_section():
@@ -219,7 +223,9 @@ class OptionsManagerMixIn:
             )
             printed = True
 
-    def generate_manpage(self, pkginfo, section=1, stream=sys.stdout):
+    def generate_manpage(
+        self, pkginfo: ModuleType, section: int = 1, stream: TextIO = sys.stdout
+    ) -> None:
         with _patch_optparse():
             formatter = _ManHelpFormatter()
             formatter.output_level = self._maxlevel
@@ -240,13 +246,12 @@ class OptionsManagerMixIn:
         """Read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
         """
-        help_level = 1
-        while help_level <= self._maxlevel:
+        for help_level in range(1, self._maxlevel + 1):
             opt = "-".join(["long"] * help_level) + "-help"
             if opt in self._all_options:
                 break  # already processed
             help_function = functools.partial(self.helpfunc, level=help_level)
-            help_msg = "%s verbose help." % " ".join(["more"] * help_level)
+            help_msg = f"{' '.join(['more'] * help_level)} verbose help."
             optdict = {
                 "action": "callback",
                 "callback": help_function,
@@ -255,7 +260,7 @@ class OptionsManagerMixIn:
             provider = self.options_providers[0]
             self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
             provider.options += ((opt, optdict),)
-            help_level += 1
+
         if config_file is None:
             config_file = self.config_file
         if config_file is not None:
@@ -327,16 +332,13 @@ class OptionsManagerMixIn:
             provider = self._all_options[opt]
             provider.set_option(opt, opt_value)
 
-    def load_command_line_configuration(self, args=None):
+    def load_command_line_configuration(self, args=None) -> List[str]:
         """Override configuration according to command line parameters
 
         return additional arguments
         """
         with _patch_optparse():
-            if args is None:
-                args = sys.argv[1:]
-            else:
-                args = list(args)
+            args = sys.argv[1:] if args is None else list(args)
             (options, args) = self.cmdline_parser.parse_args(args=args)
             for provider in self._nocallback_options:
                 config = provider.config

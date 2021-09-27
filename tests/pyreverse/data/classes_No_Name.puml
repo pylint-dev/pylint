@@ -14,6 +14,7 @@ class "DoNothing2" as data.suppliermodule_test.DoNothing2 {
 }
 class "DoSomething" as data.suppliermodule_test.DoSomething {
   my_int : Optional[int]
+  my_int_2 : Optional[int]
   my_string : str
   do_it(new_int: int) -> int
 }

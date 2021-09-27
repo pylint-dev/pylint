@@ -11,19 +11,23 @@
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019 Bruno P. Kinoshita <kinow@users.noreply.github.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 import functools
 from inspect import cleandoc
-from typing import Any
+from typing import Any, Optional
+
+from astroid import nodes
 
 from pylint.config import OptionsProviderMixIn
 from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
-from pylint.interfaces import UNDEFINED, IRawChecker, ITokenChecker, implements
+from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
+from pylint.typing import CheckerStats
 from pylint.utils import get_rst_section, get_rst_title
 
 
@@ -51,6 +55,7 @@ class BaseChecker(OptionsProviderMixIn):
             self.name = self.name.lower()
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
+        self.stats: CheckerStats = {}
 
     def __gt__(self, other):
         """Permit to sort a list of Checker by name."""
@@ -70,44 +75,50 @@ class BaseChecker(OptionsProviderMixIn):
 
     def get_full_documentation(self, msgs, options, reports, doc=None, module=None):
         result = ""
-        checker_title = "%s checker" % (self.name.replace("_", " ").title())
+        checker_title = f"{self.name.replace('_', ' ').title()} checker"
         if module:
             # Provide anchor to link against
-            result += ".. _%s:\n\n" % module
-        result += "%s\n" % get_rst_title(checker_title, "~")
+            result += f".. _{module}:\n\n"
+        result += f"{get_rst_title(checker_title, '~')}\n"
         if module:
-            result += "This checker is provided by ``%s``.\n" % module
-        result += "Verbatim name of the checker is ``%s``.\n\n" % self.name
+            result += f"This checker is provided by ``{module}``.\n"
+        result += f"Verbatim name of the checker is ``{self.name}``.\n\n"
         if doc:
             # Provide anchor to link against
             result += get_rst_title(f"{checker_title} Documentation", "^")
-            result += "%s\n\n" % cleandoc(doc)
+            result += f"{cleandoc(doc)}\n\n"
         # options might be an empty generator and not be False when casted to boolean
         options = list(options)
         if options:
             result += get_rst_title(f"{checker_title} Options", "^")
-            result += "%s\n" % get_rst_section(None, options)
+            result += f"{get_rst_section(None, options)}\n"
         if msgs:
             result += get_rst_title(f"{checker_title} Messages", "^")
             for msgid, msg in sorted(
                 msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
             ):
                 msg = self.create_message_definition_from_tuple(msgid, msg)
-                result += "%s\n" % msg.format_help(checkerref=False)
+                result += f"{msg.format_help(checkerref=False)}\n"
             result += "\n"
         if reports:
             result += get_rst_title(f"{checker_title} Reports", "^")
             for report in reports:
-                result += ":%s: %s\n" % report[:2]
+                result += (
+                    ":%s: %s\n" % report[:2]  # pylint: disable=consider-using-f-string
+                )
             result += "\n"
         result += "\n"
         return result
 
     def add_message(
-        self, msgid, line=None, node=None, args=None, confidence=None, col_offset=None
-    ):
-        if not confidence:
-            confidence = UNDEFINED
+        self,
+        msgid: str,
+        line: Optional[int] = None,
+        node: Optional[nodes.NodeNG] = None,
+        args: Any = None,
+        confidence: Optional[Confidence] = None,
+        col_offset: Optional[int] = None,
+    ) -> None:
         self.linter.add_message(msgid, line, node, args, confidence, col_offset)
 
     def check_consistency(self):

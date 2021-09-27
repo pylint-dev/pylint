@@ -1,5 +1,5 @@
 """test code similarities
-by defaut docstring are not considered
+by default docstring are not considered
 """
 __revision__ = 'id'
 A = 2

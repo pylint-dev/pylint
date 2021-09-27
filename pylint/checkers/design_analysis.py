@@ -15,6 +15,9 @@
 # Copyright (c) 2019 Michael Scott Cuthbert <cuthbert@mit.edu>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Melvin <31448155+melvio@users.noreply.github.com>
+# Copyright (c) 2021 Rebecca Turner <rbt@sent.as>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 
@@ -25,7 +28,7 @@
 
 import re
 from collections import defaultdict
-from typing import FrozenSet, List, Set, cast
+from typing import FrozenSet, Iterator, List, Set, cast
 
 import astroid
 from astroid import nodes
@@ -34,6 +37,7 @@ from pylint import utils
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
+from pylint.typing import CheckerStats
 
 MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "R0901": (
@@ -238,9 +242,9 @@ def _count_methods_in_class(node):
     return all_methods
 
 
-def _get_parents(
+def _get_parents_iter(
     node: nodes.ClassDef, ignored_parents: FrozenSet[str]
-) -> Set[nodes.ClassDef]:
+) -> Iterator[nodes.ClassDef]:
     r"""Get parents of ``node``, excluding ancestors of ``ignored_parents``.
 
     If we have the following inheritance diagram:
@@ -262,9 +266,22 @@ def _get_parents(
         parent = to_explore.pop()
         if parent.qname() in ignored_parents:
             continue
-        parents.add(parent)
-        to_explore.extend(parent.ancestors(recurs=False))  # type: ignore
-    return parents
+        if parent not in parents:
+            # This guard might appear to be performing the same function as
+            # adding the resolved parents to a set to eliminate duplicates
+            # (legitimate due to diamond inheritance patterns), but its
+            # additional purpose is to prevent cycles (not normally possible,
+            # but potential due to inference) and thus guarantee termination
+            # of the while-loop
+            yield parent
+            parents.add(parent)
+            to_explore.extend(parent.ancestors(recurs=False))
+
+
+def _get_parents(
+    node: nodes.ClassDef, ignored_parents: FrozenSet[str]
+) -> Set[nodes.ClassDef]:
+    return set(_get_parents_iter(node, ignored_parents))
 
 
 class MisdesignChecker(BaseChecker):
@@ -343,7 +360,7 @@ class MisdesignChecker(BaseChecker):
                 "default": (),
                 "type": "csv",
                 "metavar": "<comma separated list of class names>",
-                "help": "List of qualified class names to ignore when countint class parents (see R0901)",
+                "help": "List of qualified class names to ignore when counting class parents (see R0901)",
             },
         ),
         (
@@ -390,7 +407,7 @@ class MisdesignChecker(BaseChecker):
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
-        self.stats = None
+        self.stats: CheckerStats = {}
         self._returns = None
         self._branches = None
         self._stmts = None
@@ -416,7 +433,7 @@ class MisdesignChecker(BaseChecker):
         "too-few-public-methods",
         "too-many-public-methods",
     )
-    def visit_classdef(self, node: nodes.ClassDef):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         """check size of inheritance hierarchy and number of instance attributes"""
         parents = _get_parents(
             node, STDLIB_CLASSES_IGNORE_ANCESTOR.union(self.config.ignored_parents)
@@ -437,7 +454,7 @@ class MisdesignChecker(BaseChecker):
             )
 
     @check_messages("too-few-public-methods", "too-many-public-methods")
-    def leave_classdef(self, node):
+    def leave_classdef(self, node: nodes.ClassDef) -> None:
         """check number of public methods"""
         my_methods = sum(
             1 for method in node.mymethods() if not method.name.startswith("_")
@@ -481,7 +498,7 @@ class MisdesignChecker(BaseChecker):
         "too-many-statements",
         "keyword-arg-before-vararg",
     )
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
@@ -524,7 +541,7 @@ class MisdesignChecker(BaseChecker):
         "too-many-locals",
         "too-many-statements",
     )
-    def leave_functiondef(self, node):
+    def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         """most of the work is done here on close:
         checks for max returns, branch, return in __init__
         """
@@ -553,20 +570,20 @@ class MisdesignChecker(BaseChecker):
 
     leave_asyncfunctiondef = leave_functiondef
 
-    def visit_return(self, _):
+    def visit_return(self, _: nodes.Return) -> None:
         """count number of returns"""
         if not self._returns:
             return  # return outside function, reported by the base checker
         self._returns[-1] += 1
 
-    def visit_default(self, node):
+    def visit_default(self, node: nodes.NodeNG) -> None:
         """default visit method -> increments the statements counter if
         necessary
         """
         if node.is_statement:
             self._inc_all_stmts(1)
 
-    def visit_tryexcept(self, node):
+    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
         """increments the branches counter"""
         branches = len(node.handlers)
         if node.orelse:
@@ -574,13 +591,13 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch(node, branches)
         self._inc_all_stmts(branches)
 
-    def visit_tryfinally(self, node):
+    def visit_tryfinally(self, node: nodes.TryFinally) -> None:
         """increments the branches counter"""
         self._inc_branch(node, 2)
         self._inc_all_stmts(2)
 
     @check_messages("too-many-boolean-expressions")
-    def visit_if(self, node):
+    def visit_if(self, node: nodes.If) -> None:
         """increments the branches counter and checks boolean expressions"""
         self._check_boolean_expressions(node)
         branches = 1
@@ -608,7 +625,7 @@ class MisdesignChecker(BaseChecker):
                 args=(nb_bool_expr, self.config.max_bool_expr),
             )
 
-    def visit_while(self, node):
+    def visit_while(self, node: nodes.While) -> None:
         """increments the branches counter"""
         branches = 1
         if node.orelse:

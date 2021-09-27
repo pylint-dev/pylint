@@ -5,6 +5,7 @@
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -14,31 +15,36 @@
 
 import os
 import unittest
+from typing import TYPE_CHECKING, Optional
 
 from pylint import checkers
 from pylint.extensions.comparetozero import CompareToZeroChecker
 from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
+
 
 class CompareToZeroTestReporter(BaseReporter):
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self.messages = []
 
-    def _display(self, layout):
+    def _display(self, layout: "Section") -> None:
         pass
 
 
 class CompareToZeroUsedTC(unittest.TestCase):
+    _linter = PyLinter()
+
     @classmethod
-    def setUpClass(cls):
-        cls._linter = PyLinter()
+    def setUpClass(cls) -> None:
         cls._linter.set_reporter(CompareToZeroTestReporter())
         checkers.initialize(cls._linter)
         cls._linter.register_checker(CompareToZeroChecker(cls._linter))
         cls._linter.disable("I")
 
-    def test_comparetozero_message(self):
+    def test_comparetozero_message(self) -> None:
         elif_test = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "data", "compare_to_zero.py"
         )

@@ -9,6 +9,7 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 ruro <ruro.ruro@ya.ru>
 
@@ -20,6 +21,7 @@ import warnings
 from contextlib import redirect_stdout
 from io import StringIO
 from json import dumps
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -28,6 +30,10 @@ from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import ParseableTextReporter, TextReporter
+from pylint.typing import FileItem
+
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
 
 
 @pytest.fixture(scope="module")
@@ -91,7 +97,7 @@ class NopReporter(BaseReporter):
     def writeln(self, string=""):
         pass
 
-    def _display(self, layout):
+    def _display(self, layout: "Section") -> None:
         pass
 
 
@@ -119,7 +125,7 @@ def test_multi_format_output(tmp_path):
             linter.reporter.set_output(text)
 
         linter.open()
-        linter.check_single_file("somemodule", source_file, "somemodule")
+        linter.check_single_file_item(FileItem("somemodule", source_file, "somemodule"))
         linter.add_message("line-too-long", line=1, args=(1, 2))
         linter.generate_reports()
         linter.reporter.writeln("direct output")
@@ -255,7 +261,7 @@ def test_multi_format_output(tmp_path):
 
 def test_display_results_is_renamed():
     class CustomReporter(TextReporter):
-        def _display(self, layout):
+        def _display(self, layout: "Section") -> None:
             return None
 
     reporter = CustomReporter()

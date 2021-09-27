@@ -1,3 +1,7 @@
+# Copyright (c) 2021 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -13,7 +17,7 @@ import tempfile
 from pathlib import Path
 from typing import Dict, FrozenSet, List, Optional
 
-import astroid
+from astroid import nodes
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 from pylint.pyreverse.utils import check_graphviz_availability, get_annotation_label
@@ -71,10 +75,7 @@ class DotPrinter(Printer):
         color = properties.color if properties.color is not None else self.DEFAULT_COLOR
         style = "filled" if color != self.DEFAULT_COLOR else "solid"
         label = self._build_label_for_node(properties)
-        if label:
-            label_part = f', label="{label}"'
-        else:
-            label_part = ""
+        label_part = f', label="{label}"' if label else ""
         fontcolor_part = (
             f', fontcolor="{properties.fontcolor}"' if properties.fontcolor else ""
         )
@@ -102,7 +103,7 @@ class DotPrinter(Printer):
         label = "{" + label + "|" + r"\l".join(attrs) + r"\l|"
 
         # Add class methods
-        methods: List[astroid.FunctionDef] = properties.methods or []
+        methods: List[nodes.FunctionDef] = properties.methods or []
         for func in methods:
             args = self._get_method_arguments(func)
             label += fr"{func.name}({', '.join(args)})"

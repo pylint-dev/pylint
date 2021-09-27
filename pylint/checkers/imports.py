@@ -11,10 +11,10 @@
 # Copyright (c) 2015 Noam Yorav-Raphael <noamraph@gmail.com>
 # Copyright (c) 2015 James Morgensen <james.morgensen@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016, 2021 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 Jared Garst <cultofjared@gmail.com>
 # Copyright (c) 2016 Maik Röder <maikroeder@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
-# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Michka Popoff <michkapopoff@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
@@ -27,13 +27,14 @@
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Marianna Polatoglou <mpolatoglou@bloomberg.net>
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Nick Smith <clickthisnick@users.noreply.github.com>
 # Copyright (c) 2019 Paul Renvoisé <renvoisepaul@gmail.com>
 # Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Will Shanks <wsha@posteo.net>
 # Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
@@ -50,9 +51,10 @@ import copy
 import os
 import sys
 from distutils import sysconfig
-from typing import Dict, List, Set, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
@@ -65,7 +67,9 @@ from pylint.checkers.utils import (
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
-from pylint.reporters.ureports.nodes import Paragraph, VerbatimText, VNode
+from pylint.lint import PyLinter
+from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
+from pylint.typing import CheckerStats
 from pylint.utils import IsortDriver, get_global_option
 
 
@@ -92,11 +96,11 @@ def _get_first_import(node, context, name, base, level, alias):
             continue
         if first.scope() is node.scope() and first.fromlineno > node.fromlineno:
             continue
-        if isinstance(first, astroid.Import):
+        if isinstance(first, nodes.Import):
             if any(fullname == iname[0] for iname in first.names):
                 found = True
                 break
-        elif isinstance(first, astroid.ImportFrom):
+        elif isinstance(first, nodes.ImportFrom):
             if level == first.level:
                 for imported_name, imported_alias in first.names:
                     if fullname == f"{first.modname}.{imported_name}":
@@ -148,21 +152,18 @@ def _make_tree_defs(mod_files_list):
 def _repr_tree_defs(data, indent_str=None):
     """return a string which represents imports as a tree"""
     lines = []
-    nodes = data.items()
-    for i, (mod, (sub, files)) in enumerate(sorted(nodes, key=lambda x: x[0])):
-        if not files:
-            files = ""
-        else:
-            files = "(%s)" % ",".join(sorted(files))
+    nodes_items = data.items()
+    for i, (mod, (sub, files)) in enumerate(sorted(nodes_items, key=lambda x: x[0])):
+        files = "" if not files else f"({','.join(sorted(files))})"
         if indent_str is None:
             lines.append(f"{mod} {files}")
             sub_indent_str = "  "
         else:
             lines.append(fr"{indent_str}\-{mod} {files}")
-            if i == len(nodes) - 1:
-                sub_indent_str = "%s  " % indent_str
+            if i == len(nodes_items) - 1:
+                sub_indent_str = f"{indent_str}  "
             else:
-                sub_indent_str = "%s| " % indent_str
+                sub_indent_str = f"{indent_str}| "
         if sub:
             lines.append(_repr_tree_defs(sub, sub_indent_str))
     return "\n".join(lines)
@@ -186,12 +187,14 @@ def _dependencies_graph(filename: str, dep_info: Dict[str, List[str]]) -> str:
     return printer.generate(filename)
 
 
-def _make_graph(filename: str, dep_info: Dict[str, List[str]], sect: VNode, gtype: str):
+def _make_graph(
+    filename: str, dep_info: Dict[str, List[str]], sect: Section, gtype: str
+):
     """generate a dependencies graph and add some information about it in the
     report's section
     """
     outputfile = _dependencies_graph(filename, dep_info)
-    sect.append(Paragraph(f"{gtype}imports graph has been written to {outputfile}"))
+    sect.append(Paragraph((f"{gtype}imports graph has been written to {outputfile}",)))
 
 
 # the import checker itself ###################################################
@@ -420,14 +423,18 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         ),
     )
 
-    def __init__(self, linter=None):
+    def __init__(
+        self, linter: Optional[PyLinter] = None
+    ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
-        self.stats = None
-        self.import_graph = None
-        self._imports_stack = []
+        self.stats: CheckerStats = {}
+        self.import_graph: collections.defaultdict = collections.defaultdict(set)
+        self._imports_stack: List[Tuple[Any, Any]] = []
         self._first_non_import_node = None
-        self._module_pkg = {}  # mapping of modules to the pkg they belong in
-        self._allow_any_import_level = set()
+        self._module_pkg: Dict[
+            Any, Any
+        ] = {}  # mapping of modules to the pkg they belong in
+        self._allow_any_import_level: Set[Any] = set()
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
@@ -496,7 +503,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return self.config.deprecated_modules
 
     @check_messages(*MSGS)
-    def visit_import(self, node):
+    def visit_import(self, node: nodes.Import) -> None:
         """triggered when an import statement is seen"""
         self._check_reimport(node)
         self._check_import_as_rename(node)
@@ -510,10 +517,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             self.check_deprecated_module(node, name)
             self._check_preferred_module(node, name)
             imported_module = self._get_imported_module(node, name)
-            if isinstance(node.parent, astroid.Module):
+            if isinstance(node.parent, nodes.Module):
                 # Allow imports nested
                 self._check_position(node)
-            if isinstance(node.scope(), astroid.Module):
+            if isinstance(node.scope(), nodes.Module):
                 self._record_import(node, imported_module)
 
             if imported_module is None:
@@ -522,7 +529,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             self._add_imported_module(node, imported_module.name)
 
     @check_messages(*MSGS)
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """triggered when a from statement is seen"""
         basename = node.modname
         imported_module = self._get_imported_module(node, basename)
@@ -536,10 +543,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self._check_reimport(node, basename=basename, level=node.level)
         self._check_toplevel(node)
 
-        if isinstance(node.parent, astroid.Module):
+        if isinstance(node.parent, nodes.Module):
             # Allow imports nested
             self._check_position(node)
-        if isinstance(node.scope(), astroid.Module):
+        if isinstance(node.scope(), nodes.Module):
             self._record_import(node, imported_module)
         if imported_module is None:
             return
@@ -550,7 +557,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._add_imported_module(node, imported_module.name)
 
     @check_messages(*MSGS)
-    def leave_module(self, node: astroid.Module) -> None:
+    def leave_module(self, node: nodes.Module) -> None:
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
 
@@ -563,10 +570,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 "ungrouped-imports", import_node.fromlineno
             ):
                 continue
-            if isinstance(import_node, astroid.ImportFrom):
-                met = met_from
-            else:
-                met = met_import
+            met = met_from if isinstance(import_node, nodes.ImportFrom) else met_import
             package, _, _ = import_name.partition(".")
             if (
                 current_package
@@ -590,21 +594,21 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         # instruction)
         if self._first_non_import_node:
             return
-        if not isinstance(node.parent, astroid.Module):
+        if not isinstance(node.parent, nodes.Module):
             return
-        nested_allowed = [astroid.TryExcept, astroid.TryFinally]
+        nested_allowed = [nodes.TryExcept, nodes.TryFinally]
         is_nested_allowed = [
             allowed for allowed in nested_allowed if isinstance(node, allowed)
         ]
         if is_nested_allowed and any(
-            node.nodes_of_class((astroid.Import, astroid.ImportFrom))
+            node.nodes_of_class((nodes.Import, nodes.ImportFrom))
         ):
             return
-        if isinstance(node, astroid.Assign):
+        if isinstance(node, nodes.Assign):
             # Add compatibility for module level dunder names
             # https://www.python.org/dev/peps/pep-0008/#module-level-dunder-names
             valid_targets = [
-                isinstance(target, astroid.AssignName)
+                isinstance(target, nodes.AssignName)
                 and target.name.startswith("__")
                 and target.name.endswith("__")
                 for target in node.targets
@@ -623,7 +627,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         visit_ifexp
     ) = visit_comprehension = visit_expr = visit_if = compute_first_non_import_node
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if not self.linter.is_message_enabled("wrong-import-position", node.fromlineno):
             return
         # If it is the first non import instruction of the module, record it.
@@ -632,15 +636,15 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         # Check if the node belongs to an `If` or a `Try` block. If they
         # contain imports, skip recording this node.
-        if not isinstance(node.parent.scope(), astroid.Module):
+        if not isinstance(node.parent.scope(), nodes.Module):
             return
 
         root = node
-        while not isinstance(root.parent, astroid.Module):
+        while not isinstance(root.parent, nodes.Module):
             root = root.parent
 
-        if isinstance(root, (astroid.If, astroid.TryFinally, astroid.TryExcept)):
-            if any(root.nodes_of_class((astroid.Import, astroid.ImportFrom))):
+        if isinstance(root, (nodes.If, nodes.TryFinally, nodes.TryExcept)):
+            if any(root.nodes_of_class((nodes.Import, nodes.ImportFrom))):
                 return
 
         self._first_non_import_node = node
@@ -655,8 +659,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if prev:
                 # consecutive future statements are possible
                 if not (
-                    isinstance(prev, astroid.ImportFrom)
-                    and prev.modname == "__future__"
+                    isinstance(prev, nodes.ImportFrom) and prev.modname == "__future__"
                 ):
                     self.add_message("misplaced-future", node=node)
             return
@@ -681,14 +684,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _record_import(self, node, importedmodnode):
         """Record the package `node` imports from"""
-        if isinstance(node, astroid.ImportFrom):
+        if isinstance(node, nodes.ImportFrom):
             importedname = node.modname
         else:
             importedname = importedmodnode.name if importedmodnode else None
         if not importedname:
             importedname = node.names[0][0].split(".")[0]
 
-        if isinstance(node, astroid.ImportFrom) and (node.level or 0) >= 1:
+        if isinstance(node, nodes.ImportFrom) and (node.level or 0) >= 1:
             # We need the importedname with first point to detect local package
             # Example of node:
             #  'from .my_package1 import MyClass1'
@@ -725,7 +728,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 package = "." + modname.split(".")[1]
             else:
                 package = modname.split(".")[0]
-            nested = not isinstance(node.parent, astroid.Module)
+            nested = not isinstance(node.parent, nodes.Module)
             ignore_for_import_order = not self.linter.is_message_enabled(
                 "wrong-import-order", node.fromlineno
             )
@@ -745,44 +748,59 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                         "wrong-import-order",
                         node=node,
                         args=(
-                            'standard import "%s"' % node.as_string(),
-                            '"%s"' % wrong_import[0][0].as_string(),
+                            f'standard import "{node.as_string()}"',
+                            f'"{wrong_import[0][0].as_string()}"',
                         ),
                     )
             elif import_category == "THIRDPARTY":
                 third_party_imports.append(node_and_package_import)
                 external_imports.append(node_and_package_import)
-                if not nested and not ignore_for_import_order:
-                    third_party_not_ignored.append(node_and_package_import)
+                if not nested:
+                    if not ignore_for_import_order:
+                        third_party_not_ignored.append(node_and_package_import)
+                    else:
+                        self.linter.add_ignored_message(
+                            "wrong-import-order", node.fromlineno, node
+                        )
                 wrong_import = first_party_not_ignored or local_not_ignored
                 if wrong_import and not nested:
                     self.add_message(
                         "wrong-import-order",
                         node=node,
                         args=(
-                            'third party import "%s"' % node.as_string(),
-                            '"%s"' % wrong_import[0][0].as_string(),
+                            f'third party import "{node.as_string()}"',
+                            f'"{wrong_import[0][0].as_string()}"',
                         ),
                     )
             elif import_category == "FIRSTPARTY":
                 first_party_imports.append(node_and_package_import)
                 external_imports.append(node_and_package_import)
-                if not nested and not ignore_for_import_order:
-                    first_party_not_ignored.append(node_and_package_import)
+                if not nested:
+                    if not ignore_for_import_order:
+                        first_party_not_ignored.append(node_and_package_import)
+                    else:
+                        self.linter.add_ignored_message(
+                            "wrong-import-order", node.fromlineno, node
+                        )
                 wrong_import = local_not_ignored
                 if wrong_import and not nested:
                     self.add_message(
                         "wrong-import-order",
                         node=node,
                         args=(
-                            'first party import "%s"' % node.as_string(),
-                            '"%s"' % wrong_import[0][0].as_string(),
+                            f'first party import "{node.as_string()}"',
+                            f'"{wrong_import[0][0].as_string()}"',
                         ),
                     )
             elif import_category == "LOCALFOLDER":
                 local_imports.append((node, package))
-                if not nested and not ignore_for_import_order:
-                    local_not_ignored.append((node, package))
+                if not nested:
+                    if not ignore_for_import_order:
+                        local_not_ignored.append((node, package))
+                    else:
+                        self.linter.add_ignored_message(
+                            "wrong-import-order", node.fromlineno, node
+                        )
         return std_imports, external_imports, local_imports
 
     def _get_imported_module(self, importnode, modname):
@@ -793,9 +811,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 return None
             self.add_message("relative-beyond-top-level", node=importnode)
         except astroid.AstroidSyntaxError as exc:
-            message = "Cannot import {!r} due to syntax error {!r}".format(
-                modname, str(exc.error)  # pylint: disable=no-member; false positive
-            )
+            message = f"Cannot import {modname!r} due to syntax error {str(exc.error)!r}"  # pylint: disable=no-member; false positive
             self.add_message("syntax-error", line=importnode.lineno, args=message)
 
         except astroid.AstroidBuildingException:
@@ -813,7 +829,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return None
 
     def _add_imported_module(
-        self, node: Union[astroid.Import, astroid.ImportFrom], importedmodname: str
+        self, node: Union[nodes.Import, nodes.ImportFrom], importedmodname: str
     ) -> None:
         """notify an imported module, used to analyze dependencies"""
         module_file = node.root().file
@@ -828,7 +844,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             pass
 
         in_type_checking_block = (
-            isinstance(node.parent, astroid.If) and node.parent.is_typing_guard()
+            isinstance(node.parent, nodes.If) and node.parent.is_typing_guard()
         )
 
         if context_name == importedmodname:
@@ -842,9 +858,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._module_pkg[context_name] = context_name.rsplit(".", 1)[0]
 
             # handle dependencies
-            importedmodnames = self.stats["dependencies"].setdefault(
-                importedmodname, set()
-            )
+            dependencies_stat: Dict[str, Union[Set]] = self.stats["dependencies"]  # type: ignore
+            importedmodnames = dependencies_stat.setdefault(importedmodname, set())
             if context_name not in importedmodnames:
                 importedmodnames.add(context_name)
 
@@ -866,7 +881,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             )
 
     def _check_import_as_rename(
-        self, node: Union[astroid.Import, astroid.ImportFrom]
+        self, node: Union[nodes.Import, nodes.ImportFrom]
     ) -> None:
         names = node.names
         for name in names:
@@ -982,12 +997,12 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         """Check whether the import is made outside the module toplevel."""
         # If the scope of the import is a module, then obviously it is
         # not outside the module toplevel.
-        if isinstance(node.scope(), astroid.Module):
+        if isinstance(node.scope(), nodes.Module):
             return
 
         module_names = [
             f"{node.modname}.{name[0]}"
-            if isinstance(node, astroid.ImportFrom)
+            if isinstance(node, nodes.ImportFrom)
             else name[0]
             for name in node.names
         ]

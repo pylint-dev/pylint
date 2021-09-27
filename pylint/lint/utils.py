@@ -6,7 +6,6 @@ import sys
 import traceback
 from datetime import datetime
 from pathlib import Path
-from typing import Union
 
 from pylint.config import PYLINT_HOME
 from pylint.lint.expand_modules import get_python_path
@@ -16,9 +15,7 @@ class ArgumentPreprocessingError(Exception):
     """Raised if an error occurs during argument preprocessing."""
 
 
-def prepare_crash_report(
-    ex: Exception, filepath: str, crash_file_path: Union[Path, str]
-) -> Path:
+def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> Path:
     issue_template_path = (
         Path(PYLINT_HOME) / datetime.now().strftime(str(crash_file_path))
     ).resolve()
@@ -53,10 +50,13 @@ When parsing the following file:
 pylint crashed with a ``{ex.__class__.__name__}`` and with the following stacktrace:
 ```
 """
-    with open(issue_template_path, "a", encoding="utf8") as f:
-        f.write(template)
-        traceback.print_exc(file=f)
-        f.write("```\n")
+    try:
+        with open(issue_template_path, "a", encoding="utf8") as f:
+            f.write(template)
+            traceback.print_exc(file=f)
+            f.write("```\n")
+    except FileNotFoundError:
+        print(f"Can't write the issue template for the crash in {issue_template_path}.")
     return issue_template_path
 
 
@@ -78,7 +78,9 @@ def preprocess_options(args, search_for):
     i = 0
     while i < len(args):
         arg = args[i]
-        if arg.startswith("--"):
+        if not arg.startswith("--"):
+            i += 1
+        else:
             try:
                 option, val = arg[2:].split("=", 1)
             except ValueError:
@@ -91,16 +93,14 @@ def preprocess_options(args, search_for):
                 del args[i]
                 if takearg and val is None:
                     if i >= len(args) or args[i].startswith("-"):
-                        msg = "Option %s expects a value" % option
+                        msg = f"Option {option} expects a value"
                         raise ArgumentPreprocessingError(msg)
                     val = args[i]
                     del args[i]
                 elif not takearg and val is not None:
-                    msg = "Option %s doesn't expects a value" % option
+                    msg = f"Option {option} doesn't expects a value"
                     raise ArgumentPreprocessingError(msg)
                 cb(option, val)
-        else:
-            i += 1
 
 
 def _patch_sys_path(args):

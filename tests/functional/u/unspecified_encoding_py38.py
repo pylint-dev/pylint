@@ -2,6 +2,7 @@
 # pylint: disable=consider-using-with
 import io
 import locale
+from pathlib import Path
 
 FILENAME = "foo.bar"
 open(FILENAME, "w", encoding="utf-8")
@@ -53,3 +54,30 @@ with io.open(FILENAME, encoding=None) as f:  # [unspecified-encoding]
 LOCALE_ENCODING = None
 with io.open(FILENAME, encoding=LOCALE_ENCODING) as f:  # [unspecified-encoding]
     pass
+
+LOCALE_ENCODING = locale.getlocale()[1]
+Path(FILENAME).read_text(encoding=LOCALE_ENCODING)
+Path(FILENAME).read_text(encoding="utf8")
+Path(FILENAME).read_text("utf8")
+
+LOCALE_ENCODING = None
+Path(FILENAME).read_text()  # [unspecified-encoding]
+Path(FILENAME).read_text(encoding=None)  # [unspecified-encoding]
+Path(FILENAME).read_text(encoding=LOCALE_ENCODING)  # [unspecified-encoding]
+
+LOCALE_ENCODING = locale.getlocale()[1]
+Path(FILENAME).write_text("string", encoding=LOCALE_ENCODING)
+Path(FILENAME).write_text("string", encoding="utf8")
+
+LOCALE_ENCODING = None
+Path(FILENAME).write_text("string")  # [unspecified-encoding]
+Path(FILENAME).write_text("string", encoding=None)  # [unspecified-encoding]
+Path(FILENAME).write_text("string", encoding=LOCALE_ENCODING)  # [unspecified-encoding]
+
+LOCALE_ENCODING = locale.getlocale()[1]
+Path(FILENAME).open("w+b")
+Path(FILENAME).open()  # [unspecified-encoding]
+Path(FILENAME).open("wt")  # [unspecified-encoding]
+Path(FILENAME).open("w+")  # [unspecified-encoding]
+Path(FILENAME).open("w", encoding=None)  # [unspecified-encoding]
+Path(FILENAME).open("w", encoding=LOCALE_ENCODING)

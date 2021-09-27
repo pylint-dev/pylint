@@ -9,9 +9,10 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Taewon D. Kim <kimt33@mcmaster.ca>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
 # Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Maksym Humetskyi <Humetsky@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Aditya Gupta <adityagupta1089@users.noreply.github.com>
@@ -36,13 +37,15 @@ SIMILAR3 = str(INPUT / "similar3")
 SIMILAR4 = str(INPUT / "similar4")
 SIMILAR5 = str(INPUT / "similar5")
 SIMILAR6 = str(INPUT / "similar6")
+SIMILAR_CLS_A = str(INPUT / "similar_cls_a.py")
+SIMILAR_CLS_B = str(INPUT / "similar_cls_b.py")
 EMPTY_FUNCTION_1 = str(INPUT / "similar_empty_func_1.py")
 EMPTY_FUNCTION_2 = str(INPUT / "similar_empty_func_2.py")
 MULTILINE = str(INPUT / "multiline-import")
 HIDE_CODE_WITH_IMPORTS = str(INPUT / "hide_code_with_imports.py")
 
 
-def test_ignore_comments():
+def test_ignore_comments() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-comments", SIMILAR1, SIMILAR2])
@@ -50,10 +53,10 @@ def test_ignore_comments():
     assert (
         output.getvalue().strip()
         == (
-            """
+            f"""
 10 similar lines in 2 files
-==%s:[0:11]
-==%s:[0:11]
+=={SIMILAR1}:[0:11]
+=={SIMILAR2}:[0:11]
    import one
    from two import two
    three
@@ -67,12 +70,11 @@ def test_ignore_comments():
    ''' ten
 TOTAL lines=62 duplicates=10 percent=16.13
 """
-            % (SIMILAR1, SIMILAR2)
         ).strip()
     )
 
 
-def test_ignore_docstrings():
+def test_ignore_docstrings() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-docstrings", SIMILAR1, SIMILAR2])
@@ -80,10 +82,10 @@ def test_ignore_docstrings():
     assert (
         output.getvalue().strip()
         == (
-            """
+            f"""
 5 similar lines in 2 files
-==%s:[7:15]
-==%s:[7:15]
+=={SIMILAR1}:[7:15]
+=={SIMILAR2}:[7:15]
    seven
    eight
    nine
@@ -94,8 +96,8 @@ def test_ignore_docstrings():
    fourteen
 
 5 similar lines in 2 files
-==%s:[0:5]
-==%s:[0:5]
+=={SIMILAR1}:[0:5]
+=={SIMILAR2}:[0:5]
    import one
    from two import two
    three
@@ -103,12 +105,11 @@ def test_ignore_docstrings():
    five
 TOTAL lines=62 duplicates=10 percent=16.13
 """
-            % ((SIMILAR1, SIMILAR2) * 2)
         ).strip()
     )
 
 
-def test_ignore_imports():
+def test_ignore_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-imports", SIMILAR1, SIMILAR2])
@@ -121,7 +122,7 @@ TOTAL lines=62 duplicates=0 percent=0.00
     )
 
 
-def test_multiline_imports():
+def test_multiline_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([MULTILINE, MULTILINE])
@@ -129,10 +130,10 @@ def test_multiline_imports():
     assert (
         output.getvalue().strip()
         == (
-            """
+            f"""
 8 similar lines in 2 files
-==%s:[0:8]
-==%s:[0:8]
+=={MULTILINE}:[0:8]
+=={MULTILINE}:[0:8]
    from foo import (
      bar,
      baz,
@@ -143,12 +144,11 @@ def test_multiline_imports():
    )
 TOTAL lines=16 duplicates=8 percent=50.00
 """
-            % (MULTILINE, MULTILINE)
         ).strip()
     )
 
 
-def test_ignore_multiline_imports():
+def test_ignore_multiline_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-imports", MULTILINE, MULTILINE])
@@ -161,7 +161,7 @@ TOTAL lines=16 duplicates=0 percent=0.00
     )
 
 
-def test_ignore_signatures_fail():
+def test_ignore_signatures_fail() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([SIMILAR5, SIMILAR6])
@@ -169,10 +169,10 @@ def test_ignore_signatures_fail():
     assert (
         output.getvalue().strip()
         == (
-            '''
+            f'''
 9 similar lines in 2 files
-==%s:[7:17]
-==%s:[8:18]
+=={SIMILAR5}:[7:17]
+=={SIMILAR6}:[8:18]
        arg1: int = 3,
        arg2: Class1 = val1,
        arg3: Class2 = func3(val2),
@@ -185,8 +185,8 @@ def test_ignore_signatures_fail():
        """Valid function definition with docstring only."""
 
 6 similar lines in 2 files
-==%s:[0:6]
-==%s:[1:7]
+=={SIMILAR5}:[0:6]
+=={SIMILAR6}:[1:7]
    @deco1(dval1)
    @deco2(dval2)
    @deco3(
@@ -195,12 +195,11 @@ def test_ignore_signatures_fail():
    )
 TOTAL lines=35 duplicates=15 percent=42.86
 '''
-            % (SIMILAR5, SIMILAR6, SIMILAR5, SIMILAR6)
         ).strip()
     )
 
 
-def test_ignore_signatures_pass():
+def test_ignore_signatures_pass() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-signatures", SIMILAR5, SIMILAR6])
@@ -213,7 +212,66 @@ TOTAL lines=35 duplicates=0 percent=0.00
     )
 
 
-def test_ignore_signatures_empty_functions_fail():
+def test_ignore_signatures_class_methods_fail() -> None:
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        similar.Run([SIMILAR_CLS_B, SIMILAR_CLS_A])
+    assert ex.value.code == 0
+    assert (
+        output.getvalue().strip()
+        == (
+            f'''
+15 similar lines in 2 files
+=={SIMILAR_CLS_A}:[1:18]
+=={SIMILAR_CLS_B}:[1:18]
+       def parent_method(
+           self,
+           *,
+           a="",
+           b=None,
+           c=True,
+       ):
+           """Overridden method example."""
+
+           def _internal_func(
+               arg1: int = 1,
+               arg2: str = "2",
+               arg3: int = 3,
+               arg4: bool = True,
+           ):
+               pass
+
+
+7 similar lines in 2 files
+=={SIMILAR_CLS_A}:[20:27]
+=={SIMILAR_CLS_B}:[20:27]
+               self,
+               *,
+               a=None,
+               b=False,
+               c="",
+           ):
+               pass
+TOTAL lines=54 duplicates=22 percent=40.74
+'''
+        ).strip()
+    )
+
+
+def test_ignore_signatures_class_methods_pass() -> None:
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        similar.Run(["--ignore-signatures", SIMILAR_CLS_B, SIMILAR_CLS_A])
+    assert ex.value.code == 0
+    assert (
+        output.getvalue().strip()
+        == """
+TOTAL lines=54 duplicates=0 percent=0.00
+""".strip()
+    )
+
+
+def test_ignore_signatures_empty_functions_fail() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([EMPTY_FUNCTION_1, EMPTY_FUNCTION_2])
@@ -221,10 +279,10 @@ def test_ignore_signatures_empty_functions_fail():
     assert (
         output.getvalue().strip()
         == (
-            '''
+            f'''
 6 similar lines in 2 files
-==%s:[1:7]
-==%s:[1:7]
+=={EMPTY_FUNCTION_1}:[1:7]
+=={EMPTY_FUNCTION_2}:[1:7]
        arg1: int = 1,
        arg2: str = "2",
        arg3: int = 3,
@@ -233,12 +291,11 @@ def test_ignore_signatures_empty_functions_fail():
        """Valid function definition with docstring only."""
 TOTAL lines=14 duplicates=6 percent=42.86
 '''
-            % (EMPTY_FUNCTION_1, EMPTY_FUNCTION_2)
         ).strip()
     )
 
 
-def test_ignore_signatures_empty_functions_pass():
+def test_ignore_signatures_empty_functions_pass() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-signatures", EMPTY_FUNCTION_1, EMPTY_FUNCTION_2])
@@ -251,7 +308,7 @@ TOTAL lines=14 duplicates=0 percent=0.00
     )
 
 
-def test_no_hide_code_with_imports():
+def test_no_hide_code_with_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-imports"] + 2 * [HIDE_CODE_WITH_IMPORTS])
@@ -259,7 +316,7 @@ def test_no_hide_code_with_imports():
     assert "TOTAL lines=32 duplicates=16 percent=50.00" in output.getvalue()
 
 
-def test_ignore_nothing():
+def test_ignore_nothing() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([SIMILAR1, SIMILAR2])
@@ -267,10 +324,10 @@ def test_ignore_nothing():
     assert (
         output.getvalue().strip()
         == (
-            """
+            f"""
 5 similar lines in 2 files
-==%s:[0:5]
-==%s:[0:5]
+=={SIMILAR1}:[0:5]
+=={SIMILAR2}:[0:5]
    import one
    from two import two
    three
@@ -278,12 +335,11 @@ def test_ignore_nothing():
    five
 TOTAL lines=62 duplicates=5 percent=8.06
 """
-            % (SIMILAR1, SIMILAR2)
         ).strip()
     )
 
 
-def test_lines_without_meaningful_content_do_not_trigger_similarity():
+def test_lines_without_meaningful_content_do_not_trigger_similarity() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([SIMILAR3, SIMILAR4])
@@ -291,10 +347,10 @@ def test_lines_without_meaningful_content_do_not_trigger_similarity():
     assert (
         output.getvalue().strip()
         == (
-            """
+            f"""
 14 similar lines in 2 files
-==%s:[11:25]
-==%s:[11:25]
+=={SIMILAR3}:[11:25]
+=={SIMILAR4}:[11:25]
    b = (
        (
            [
@@ -311,12 +367,11 @@ def test_lines_without_meaningful_content_do_not_trigger_similarity():
    )
 TOTAL lines=50 duplicates=14 percent=28.00
 """
-            % (SIMILAR3, SIMILAR4)
         ).strip()
     )
 
 
-def test_help():
+def test_help() -> None:
     output = StringIO()
     with redirect_stdout(output):
         try:
@@ -327,7 +382,7 @@ def test_help():
             pytest.fail("not system exit")
 
 
-def test_no_args():
+def test_no_args() -> None:
     output = StringIO()
     with redirect_stdout(output):
         try:
@@ -338,7 +393,7 @@ def test_no_args():
             pytest.fail("not system exit")
 
 
-def test_get_map_data():
+def test_get_map_data() -> None:
     """Tests that a SimilarChecker respects the MapReduceMixin interface"""
     linter = PyLinter(reporter=Reporter())
 
@@ -447,3 +502,11 @@ def test_get_map_data():
         # There doesn't seem to be a faster way of doing this, yet.
         lines = (linespec.text for linespec in lineset_obj.stripped_lines)
         assert tuple(expected_lines) == tuple(lines)
+
+
+def test_set_duplicate_lines_to_zero() -> None:
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        similar.Run(["--duplicates=0", SIMILAR1, SIMILAR2])
+    assert ex.value.code == 0
+    assert output.getvalue() == ""

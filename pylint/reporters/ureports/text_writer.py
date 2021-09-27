@@ -3,6 +3,7 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 bot <bot@noreply.github.com>
 
@@ -11,7 +12,20 @@
 
 """Text formatting drivers for ureports"""
 
-from pylint.reporters.ureports import BaseWriter
+from typing import TYPE_CHECKING, List
+
+from pylint.reporters.ureports.base_writer import BaseWriter
+
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import (
+        EvaluationSection,
+        Paragraph,
+        Section,
+        Table,
+        Text,
+        Title,
+        VerbatimText,
+    )
 
 TITLE_UNDERLINES = ["", "=", "-", "`", ".", "~", "^"]
 BULLETS = ["*", "-"]
@@ -22,11 +36,11 @@ class TextWriter(BaseWriter):
     (ReStructured inspiration but not totally handled yet)
     """
 
-    def begin_format(self):
-        super().begin_format()
+    def __init__(self):
+        super().__init__()
         self.list_level = 0
 
-    def visit_section(self, layout):
+    def visit_section(self, layout: "Section") -> None:
         """display a section as text"""
         self.section += 1
         self.writeln()
@@ -34,14 +48,14 @@ class TextWriter(BaseWriter):
         self.section -= 1
         self.writeln()
 
-    def visit_evaluationsection(self, layout):
+    def visit_evaluationsection(self, layout: "EvaluationSection") -> None:
         """Display an evaluation section as a text."""
         self.section += 1
         self.format_children(layout)
         self.section -= 1
         self.writeln()
 
-    def visit_title(self, layout):
+    def visit_title(self, layout: "Title") -> None:
         title = "".join(list(self.compute_content(layout)))
         self.writeln(title)
         try:
@@ -49,12 +63,12 @@ class TextWriter(BaseWriter):
         except IndexError:
             print("FIXME TITLE TOO DEEP. TURNING TITLE INTO TEXT")
 
-    def visit_paragraph(self, layout):
+    def visit_paragraph(self, layout: "Paragraph") -> None:
         """enter a paragraph"""
         self.format_children(layout)
         self.writeln()
 
-    def visit_table(self, layout):
+    def visit_table(self, layout: "Table") -> None:
         """display a table as text"""
         table_content = self.get_table_content(layout)
         # get columns width
@@ -65,33 +79,36 @@ class TextWriter(BaseWriter):
         self.default_table(layout, table_content, cols_width)
         self.writeln()
 
-    def default_table(self, layout, table_content, cols_width):
+    def default_table(
+        self, layout: "Table", table_content: List[List[str]], cols_width: List[int]
+    ) -> None:
         """format a table"""
         cols_width = [size + 1 for size in cols_width]
         format_strings = " ".join(["%%-%ss"] * len(cols_width))
-        format_strings = format_strings % tuple(cols_width)
-        format_strings = format_strings.split(" ")
+        format_strings %= tuple(cols_width)
+
         table_linesep = "\n+" + "+".join("-" * w for w in cols_width) + "+\n"
         headsep = "\n+" + "+".join("=" * w for w in cols_width) + "+\n"
 
         self.write(table_linesep)
+        split_strings = format_strings.split(" ")
         for index, line in enumerate(table_content):
             self.write("|")
             for line_index, at_index in enumerate(line):
-                self.write(format_strings[line_index] % at_index)
+                self.write(split_strings[line_index] % at_index)
                 self.write("|")
             if index == 0 and layout.rheaders:
                 self.write(headsep)
             else:
                 self.write(table_linesep)
 
-    def visit_verbatimtext(self, layout):
+    def visit_verbatimtext(self, layout: "VerbatimText") -> None:
         """display a verbatim layout as text (so difficult ;)"""
         self.writeln("::\n")
         for line in layout.data.splitlines():
             self.writeln("    " + line)
         self.writeln()
 
-    def visit_text(self, layout):
+    def visit_text(self, layout: "Text") -> None:
         """add some text"""
-        self.write("%s" % layout.data)
+        self.write(f"{layout.data}")

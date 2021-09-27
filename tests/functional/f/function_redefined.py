@@ -1,6 +1,9 @@
 # pylint: disable=no-self-use,missing-docstring,using-constant-test, useless-object-inheritance
 # pylint: disable=unused-import,wrong-import-position,reimported, unnecessary-pass
 from __future__ import division
+
+from typing import Callable
+
 __revision__ = ''
 class AAAA(object):
     """docstring"""
@@ -118,3 +121,8 @@ def func(callback1=None, callback2=None):
         def callback2():
             return 24
     return callback1(), callback2()
+
+do_something: Callable[[], int]
+
+def do_something() -> int:
+    return 1

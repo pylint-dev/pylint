@@ -26,11 +26,11 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
 # Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
 # Copyright (c) 2021 victor <16359131+jiajunsu@users.noreply.github.com>
-# Copyright (c) 2021 Daniel van Noord <13665637+DanielNoord@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -39,14 +39,17 @@
 
 import sys
 from collections.abc import Iterable
+from typing import Any, Dict, Optional, Set
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
 from pylint.interfaces import IAstroidChecker
+from pylint.lint import PyLinter
 
 OPEN_FILES_MODE = ("open", "file")
-OPEN_FILES_ENCODING = ("open",)
+OPEN_FILES_ENCODING = ("open", "read_text", "write_text")
 UNITTEST_CASE = "unittest.case"
 THREADING_THREAD = "threading.Thread"
 COPY_COPY = "copy.copy"
@@ -54,7 +57,7 @@ OS_ENVIRON = "os._Environ"
 ENV_GETTERS = ("os.getenv",)
 SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
-OPEN_MODULE = "_io"
+OPEN_MODULE = {"_io", "pathlib"}
 DEBUG_BREAKPOINTS = ("builtins.breakpoint", "sys.breakpointhook", "pdb.set_trace")
 
 
@@ -116,7 +119,7 @@ DEPRECATED_DECORATORS = {
 }
 
 
-DEPRECATED_METHODS = {
+DEPRECATED_METHODS: Dict = {
     0: {
         "cgi.parse_qs",
         "cgi.parse_qsl",
@@ -443,9 +446,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ),
     }
 
-    def __init__(self, linter=None):
+    def __init__(
+        self, linter: Optional[PyLinter] = None
+    ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
-        self._deprecated_methods = set()
+        self._deprecated_methods: Set[Any] = set()
         self._deprecated_methods.update(DEPRECATED_METHODS[0])
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
             if since_vers <= sys.version_info:
@@ -482,9 +487,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if "check" not in kwargs:
             self.add_message("subprocess-run-check", node=node)
 
-    def _check_shallow_copy_environ(self, node):
+    def _check_shallow_copy_environ(self, node: nodes.Call) -> None:
         arg = utils.get_argument_from_call(node, position=0)
-        for inferred in arg.inferred():
+        try:
+            inferred_args = arg.inferred()
+        except astroid.InferenceError:
+            return
+        for inferred in inferred_args:
             if inferred.qname() == OS_ENVIRON:
                 self.add_message("shallow-copy-environ", node=node)
                 break
@@ -504,62 +513,59 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "unspecified-encoding",
         "forgotten-debug-statement",
     )
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         """Visit a Call node."""
-        try:
-            self.check_deprecated_class_in_call(node)
-            for inferred in node.func.infer():
-                if inferred is astroid.Uninferable:
-                    continue
-                if inferred.root().name == OPEN_MODULE:
-                    if (
-                        isinstance(node.func, astroid.Name)
-                        and node.func.name in OPEN_FILES_MODE
-                    ):
-                        self._check_open_mode(node)
-                    if (
-                        isinstance(node.func, astroid.Name)
-                        and node.func.name in OPEN_FILES_ENCODING
-                        or isinstance(node.func, astroid.Attribute)
-                        and node.func.attrname in OPEN_FILES_ENCODING
-                    ):
-                        self._check_open_encoded(node)
-                elif inferred.root().name == UNITTEST_CASE:
-                    self._check_redundant_assert(node, inferred)
-                elif isinstance(inferred, astroid.ClassDef):
-                    if inferred.qname() == THREADING_THREAD:
-                        self._check_bad_thread_instantiation(node)
-                    elif inferred.qname() == SUBPROCESS_POPEN:
-                        self._check_for_preexec_fn_in_popen(node)
-                elif isinstance(inferred, astroid.FunctionDef):
-                    name = inferred.qname()
-                    if name == COPY_COPY:
-                        self._check_shallow_copy_environ(node)
-                    elif name in ENV_GETTERS:
-                        self._check_env_function(node, inferred)
-                    elif name == SUBPROCESS_RUN:
-                        self._check_for_check_kw_in_run(node)
-                    elif name in DEBUG_BREAKPOINTS:
-                        self.add_message("forgotten-debug-statement", node=node)
-                self.check_deprecated_method(node, inferred)
-        except astroid.InferenceError:
-            return
+        self.check_deprecated_class_in_call(node)
+        for inferred in utils.infer_all(node.func):
+            if inferred is astroid.Uninferable:
+                continue
+            if inferred.root().name in OPEN_MODULE:
+                if (
+                    isinstance(node.func, nodes.Name)
+                    and node.func.name in OPEN_FILES_MODE
+                ):
+                    self._check_open_mode(node)
+                if (
+                    isinstance(node.func, nodes.Name)
+                    and node.func.name in OPEN_FILES_ENCODING
+                    or isinstance(node.func, nodes.Attribute)
+                    and node.func.attrname in OPEN_FILES_ENCODING
+                ):
+                    self._check_open_encoded(node, inferred.root().name)
+            elif inferred.root().name == UNITTEST_CASE:
+                self._check_redundant_assert(node, inferred)
+            elif isinstance(inferred, nodes.ClassDef):
+                if inferred.qname() == THREADING_THREAD:
+                    self._check_bad_thread_instantiation(node)
+                elif inferred.qname() == SUBPROCESS_POPEN:
+                    self._check_for_preexec_fn_in_popen(node)
+            elif isinstance(inferred, nodes.FunctionDef):
+                name = inferred.qname()
+                if name == COPY_COPY:
+                    self._check_shallow_copy_environ(node)
+                elif name in ENV_GETTERS:
+                    self._check_env_function(node, inferred)
+                elif name == SUBPROCESS_RUN:
+                    self._check_for_check_kw_in_run(node)
+                elif name in DEBUG_BREAKPOINTS:
+                    self.add_message("forgotten-debug-statement", node=node)
+            self.check_deprecated_method(node, inferred)
 
     @utils.check_messages("boolean-datetime")
-    def visit_unaryop(self, node):
+    def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         if node.op == "not":
             self._check_datetime(node.operand)
 
     @utils.check_messages("boolean-datetime")
-    def visit_if(self, node):
+    def visit_if(self, node: nodes.If) -> None:
         self._check_datetime(node.test)
 
     @utils.check_messages("boolean-datetime")
-    def visit_ifexp(self, node):
+    def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_datetime(node.test)
 
     @utils.check_messages("boolean-datetime")
-    def visit_boolop(self, node):
+    def visit_boolop(self, node: nodes.BoolOp) -> None:
         for value in node.values:
             self._check_datetime(value)
 
@@ -567,7 +573,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if (
             isinstance(infer, astroid.BoundMethod)
             and node.args
-            and isinstance(node.args[0], astroid.Const)
+            and isinstance(node.args[0], nodes.Const)
             and infer.name in ["assertTrue", "assertFalse"]
         ):
             self.add_message(
@@ -598,16 +604,23 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             return
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
-            if isinstance(mode_arg, astroid.Const) and not _check_mode_str(
+            if isinstance(mode_arg, nodes.Const) and not _check_mode_str(
                 mode_arg.value
             ):
                 self.add_message("bad-open-mode", node=node, args=mode_arg.value)
 
-    def _check_open_encoded(self, node: astroid.Call) -> None:
+    def _check_open_encoded(self, node: nodes.Call, open_module: str) -> None:
         """Check that the encoded argument of an open call is valid."""
         mode_arg = None
         try:
-            mode_arg = utils.get_argument_from_call(node, position=1, keyword="mode")
+            if open_module == "_io":
+                mode_arg = utils.get_argument_from_call(
+                    node, position=1, keyword="mode"
+                )
+            elif open_module == "pathlib":
+                mode_arg = utils.get_argument_from_call(
+                    node, position=0, keyword="mode"
+                )
         except utils.NoSuchArgumentError:
             pass
 
@@ -616,19 +629,21 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if not mode_arg or "b" not in mode_arg.value:
             encoding_arg = None
             try:
-                encoding_arg = utils.get_argument_from_call(
-                    node, position=None, keyword="encoding"
-                )
+                if open_module == "pathlib" and node.func.attrname == "read_text":
+                    encoding_arg = utils.get_argument_from_call(
+                        node, position=0, keyword="encoding"
+                    )
+                else:
+                    encoding_arg = utils.get_argument_from_call(
+                        node, position=None, keyword="encoding"
+                    )
             except utils.NoSuchArgumentError:
                 self.add_message("unspecified-encoding", node=node)
 
             if encoding_arg:
                 encoding_arg = utils.safe_infer(encoding_arg)
 
-                if (
-                    isinstance(encoding_arg, astroid.Const)
-                    and encoding_arg.value is None
-                ):
+                if isinstance(encoding_arg, nodes.Const) and encoding_arg.value is None:
                     self.add_message("unspecified-encoding", node=node)
 
     def _check_env_function(self, node, infer):
@@ -675,7 +690,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             return
 
         name = infer.qname()
-        if isinstance(call_arg, astroid.Const):
+        if isinstance(call_arg, nodes.Const):
             emit = False
             if call_arg.value is None:
                 emit = not allow_none

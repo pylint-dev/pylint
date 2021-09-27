@@ -40,7 +40,7 @@ def cb_list_extensions(option, optname, value, parser):
 
 def cb_list_confidence_levels(option, optname, value, parser):
     for level in interfaces.CONFIDENCE_LEVELS:
-        print("%-18s: %s" % level)
+        print(f"%-18s: {level}")
     sys.exit(0)
 
 
@@ -248,16 +248,6 @@ group are mutually exclusive.",
                     },
                 ),
                 (
-                    "py3k",
-                    {
-                        "action": "callback",
-                        "callback": self.cb_python3_porting_mode,
-                        "help": "In Python 3 porting mode, all checkers will be "
-                        "disabled and only messages emitted by the porting "
-                        "checker will be displayed.",
-                    },
-                ),
-                (
                     "verbose",
                     {
                         "action": "callback",
@@ -350,8 +340,7 @@ group are mutually exclusive.",
 
         if linter.config.jobs < 0:
             print(
-                "Jobs number (%d) should be greater than or equal to 0"
-                % linter.config.jobs,
+                f"Jobs number ({linter.config.jobs}) should be greater than or equal to 0",
                 file=sys.stderr,
             )
             sys.exit(32)
@@ -469,10 +458,6 @@ group are mutually exclusive.",
         for check in self.linter.get_checker_names():
             print(check)
         sys.exit(0)
-
-    def cb_python3_porting_mode(self, *args, **kwargs):
-        """Activate only the python3 porting checker."""
-        self.linter.python3_porting_mode()
 
     def cb_verbose_mode(self, *args, **kwargs):
         self.verbose = True

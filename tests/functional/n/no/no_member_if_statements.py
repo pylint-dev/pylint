@@ -48,9 +48,9 @@ try:
     subprocess.check_call(['ls', '-'])  # Deliberately made error in this line
 except Exception as err:
     if isinstance(err, subprocess.CalledProcessError):
-        print(f'Subprocess error occured. Return code: {err.returncode}')
+        print(f'Subprocess error occurred. Return code: {err.returncode}')
     else:
-        print(f'An error occured: {str(err)}')
+        print(f'An error occurred: {str(err)}')
     raise
 
 

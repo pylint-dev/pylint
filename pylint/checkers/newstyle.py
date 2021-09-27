@@ -14,6 +14,7 @@
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Robert Schweizer <robert_schweizer@gmx.de>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -22,6 +23,7 @@
 """check for new / old style related problems
 """
 import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, has_known_bases, node_frame_class
@@ -55,26 +57,26 @@ class NewStyleConflictChecker(BaseChecker):
     options = ()
 
     @check_messages("bad-super-call")
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """check use of super"""
         # ignore actual functions or method within a new style class
         if not node.is_method():
             return
         klass = node.parent.frame()
-        for stmt in node.nodes_of_class(astroid.Call):
+        for stmt in node.nodes_of_class(nodes.Call):
             if node_frame_class(stmt) != node_frame_class(node):
                 # Don't look down in other scopes.
                 continue
 
             expr = stmt.func
-            if not isinstance(expr, astroid.Attribute):
+            if not isinstance(expr, nodes.Attribute):
                 continue
 
             call = expr.expr
             # skip the test if using super
             if not (
-                isinstance(call, astroid.Call)
-                and isinstance(call.func, astroid.Name)
+                isinstance(call, nodes.Call)
+                and isinstance(call.func, nodes.Name)
                 and call.func.name == "super"
             ):
                 continue
@@ -89,8 +91,8 @@ class NewStyleConflictChecker(BaseChecker):
                 # in derived classes
                 arg0 = call.args[0]
                 if (
-                    isinstance(arg0, astroid.Call)
-                    and isinstance(arg0.func, astroid.Name)
+                    isinstance(arg0, nodes.Call)
+                    and isinstance(arg0.func, nodes.Name)
                     and arg0.func.name == "type"
                 ):
                     self.add_message("bad-super-call", node=call, args=("type",))
@@ -100,9 +102,9 @@ class NewStyleConflictChecker(BaseChecker):
                 # in derived classes
                 if (
                     len(call.args) >= 2
-                    and isinstance(call.args[1], astroid.Name)
+                    and isinstance(call.args[1], nodes.Name)
                     and call.args[1].name == "self"
-                    and isinstance(arg0, astroid.Attribute)
+                    and isinstance(arg0, nodes.Attribute)
                     and arg0.attrname == "__class__"
                 ):
                     self.add_message(

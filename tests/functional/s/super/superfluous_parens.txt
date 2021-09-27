@@ -1,10 +1,6 @@
-superfluous-parens:5:0::Unnecessary parens after 'if' keyword:HIGH
-superfluous-parens:7:0::Unnecessary parens after 'not' keyword:HIGH
-superfluous-parens:11:0::Unnecessary parens after 'for' keyword:HIGH
-superfluous-parens:13:0::Unnecessary parens after 'if' keyword:HIGH
-superfluous-parens:18:0::Unnecessary parens after 'del' keyword:HIGH
-superfluous-parens:21:0::Unnecessary parens after 'in' keyword:HIGH
-superfluous-parens:23:0::Unnecessary parens after 'else' keyword:HIGH
-superfluous-parens:24:0::Unnecessary parens after 'else' keyword:HIGH
-superfluous-parens:30:0::Unnecessary parens after 'assert' keyword:HIGH
-superfluous-parens:40:0::Unnecessary parens after 'in' keyword:HIGH
+superfluous-parens:6:0::Unnecessary parens after 'if' keyword:HIGH
+superfluous-parens:8:0::Unnecessary parens after 'not' keyword:HIGH
+superfluous-parens:12:0::Unnecessary parens after 'for' keyword:HIGH
+superfluous-parens:14:0::Unnecessary parens after 'if' keyword:HIGH
+superfluous-parens:19:0::Unnecessary parens after 'del' keyword:HIGH
+superfluous-parens:31:0::Unnecessary parens after 'assert' keyword:HIGH

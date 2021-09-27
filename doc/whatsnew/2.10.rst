@@ -3,11 +3,29 @@
 ***************************
 
 :Release: 2.10
-:Date: TBA
+:Date: 2021-08-20
 
 Summary -- Release highlights
 =============================
 
+In 2.10, we added several new default check, like ``unspecified-encoding``, ``forgotten-debug-statement`` or
+``use-dict-literal``. There's also a few opinionated optional one. You can now forbid while loop or
+profess your exclusive love of ternary expressions publicly. We promise you hours of arguing fun with
+your whole team if you add those to your configuration.
+
+We've also fixed some long standing bugs, false positives, or missing options like ``ignore-signature`` that
+will now work on inner function's signatures.
+
+A new option to disable the next line, ``disable-next``, has been added. It's also possible to export
+colored diagrams, and plantuml diagram using pyreverse. ``PYLINT_HOME`` is now ``XDG_CACHE_HOME`` if not set.
+
+The performance of the similarity checker has been improved, as well as several small performance fixes.
+
+We're going to continue working on improving performance during 2.11. We're also going to finalize
+a new ``possible-forgotten-f-prefix`` check that had too much false positives at release time.
+Check the `possible-forgotten-f-prefix`_ issue if you want to provide knowledge or use case :)
+
+.. _possible-forgotten-f-prefix: https://github.com/PyCQA/pylint/pull/4787
 
 New checkers
 ============
@@ -31,6 +49,14 @@ New checkers
 * Added ``use-sequence-for-iteration``: Emitted when iterating over an in-place defined ``set``.
 
 
+* Added ``format-string-without-interpolation`` checker: Emitted when formatting is applied to a string without any variables to be replaced
+
+  Closes #4042
+
+* Added ``redundant-u-string-prefix`` checker: Emitted when the u prefix is added to a string
+
+  Closes #4102
+
 Extensions
 ==========
 
@@ -40,6 +66,13 @@ Extensions
 
   * Emit ``consider-using-tuple`` even if list contains a ``starred`` expression.
 
+* Added optional extension ``consider-ternary-expression``: Emitted whenever a variable is assigned in both branches of an if/else block.
+
+  Closes # 4366
+
+* Added optional extension ``while-used``: Emitted whenever a ``while`` loop is used.
+
+  Closes # 4367
 
 Other Changes
 =============
@@ -89,14 +122,6 @@ Other Changes
 
   Closes #1682
 
-* Added ``format-string-without-interpolation`` checker: Emitted when formatting is applied to a string without any variables to be replaced
-
-  Closes #4042
-
-* Added ``redundant-u-string-prefix`` checker: Emitted when the u prefix is added to a string
-
-  Closes #4102
-
 * Fixed ``cell-var-from-loop`` checker: handle cell variables in comprehensions within functions,
   and function default argument expressions. Also handle basic variable shadowing.
 
@@ -105,3 +130,7 @@ Other Changes
 
 * Fixed bug with ``cell-var-from-loop`` checker: it no longer has false negatives when
   both ``unused-variable`` and ``used-before-assignment`` are disabled.
+
+* Class methods' signatures are now ignored the same way as functions' with similarities "ignore-signatures" option enabled
+
+  Closes #4653

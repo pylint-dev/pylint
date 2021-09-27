@@ -5,6 +5,7 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -13,31 +14,36 @@
 """Tests for the pylint checker in :mod:`pylint.extensions.broad_try_clause`"""
 import unittest
 from os import path as osp
+from typing import TYPE_CHECKING, Optional
 
 from pylint import checkers
 from pylint.extensions.broad_try_clause import BroadTryClauseChecker
 from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
+
 
 class BroadTryClauseTestReporter(BaseReporter):
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self.messages = []
 
-    def _display(self, layout):
+    def _display(self, layout: "Section") -> None:
         pass
 
 
 class BroadTryClauseTC(unittest.TestCase):
+    _linter = PyLinter()
+
     @classmethod
     def setUpClass(cls):
-        cls._linter = PyLinter()
         cls._linter.set_reporter(BroadTryClauseTestReporter())
         checkers.initialize(cls._linter)
         cls._linter.register_checker(BroadTryClauseChecker(cls._linter))
         cls._linter.disable("I")
 
-    def test_broad_try_clause_message(self):
+    def test_broad_try_clause_message(self) -> None:
         broad_try_clause_test = osp.join(
             osp.dirname(osp.abspath(__file__)), "data", "broad_try_clause.py"
         )

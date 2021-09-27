@@ -6,7 +6,7 @@ import astroid
 from pylint.checkers.refactoring import LenChecker
 
 
-def test_class_tree_detection():
+def test_class_tree_detection() -> None:
     module = astroid.parse(
         """
 class ClassWithBool(list):

@@ -17,6 +17,13 @@ class Toto(object):
         """this method isn' a real method since it doesn't need self"""
         print('hello')
 
+    async def async_regular_method(self):
+        """this async method is a real method since it accesses self"""
+        await self.async_function_method()
+
+    async def async_function_method(self): # [no-self-use]
+        """this async method isn't a real method since it doesn't need self"""
+        print('hello')
 
 class Base(object):
     """an abstract class"""

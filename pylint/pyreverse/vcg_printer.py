@@ -6,8 +6,9 @@
 # Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -227,7 +228,7 @@ class VCGPrinter(Printer):
     @staticmethod
     def _build_label_for_node(properties: NodeProperties) -> str:
         fontcolor = "\f09" if properties.fontcolor == "red" else ""
-        label = rf"\fb{fontcolor}{properties.label}\fn"
+        label = fr"\fb{fontcolor}{properties.label}\fn"
         if properties.attrs is None and properties.methods is None:
             # return a compact form which only displays the classname in a box
             return label

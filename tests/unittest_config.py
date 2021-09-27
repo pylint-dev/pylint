@@ -6,6 +6,7 @@
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -23,18 +24,18 @@ from pylint import config
 RE_PATTERN_TYPE = getattr(re, "Pattern", getattr(re, "_pattern_type", None))
 
 
-def test__regexp_validator_valid():
+def test__regexp_validator_valid() -> None:
     result = config.option._regexp_validator(None, None, "test_.*")
     assert isinstance(result, RE_PATTERN_TYPE)
     assert result.pattern == "test_.*"
 
 
-def test__regexp_validator_invalid():
+def test__regexp_validator_invalid() -> None:
     with pytest.raises(sre_constants.error):
         config.option._regexp_validator(None, None, "test_)")
 
 
-def test__csv_validator_no_spaces():
+def test__csv_validator_no_spaces() -> None:
     values = ["One", "Two", "Three"]
     result = config.option._csv_validator(None, None, ",".join(values))
     assert isinstance(result, list)
@@ -43,7 +44,7 @@ def test__csv_validator_no_spaces():
         assert result[i] == value
 
 
-def test__csv_validator_spaces():
+def test__csv_validator_spaces() -> None:
     values = ["One", "Two", "Three"]
     result = config.option._csv_validator(None, None, ", ".join(values))
     assert isinstance(result, list)
@@ -52,7 +53,7 @@ def test__csv_validator_spaces():
         assert result[i] == value
 
 
-def test__regexp_csv_validator_valid():
+def test__regexp_csv_validator_valid() -> None:
     pattern_strings = ["test_.*", "foo\\.bar", "^baz$"]
     result = config.option._regexp_csv_validator(None, None, ",".join(pattern_strings))
     for i, regex in enumerate(result):
@@ -60,7 +61,7 @@ def test__regexp_csv_validator_valid():
         assert regex.pattern == pattern_strings[i]
 
 
-def test__regexp_csv_validator_invalid():
+def test__regexp_csv_validator_invalid() -> None:
     pattern_strings = ["test_.*", "foo\\.bar", "^baz)$"]
     with pytest.raises(sre_constants.error):
         config.option._regexp_csv_validator(None, None, ",".join(pattern_strings))

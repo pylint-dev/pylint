@@ -68,7 +68,9 @@ def _py_version_validator(_, name, value):
         try:
             value = tuple(int(val) for val in value.split("."))
         except (ValueError, AttributeError):
-            raise optparse.OptionValueError(f"Invalid format for {name}") from None
+            raise optparse.OptionValueError(
+                f"Invalid format for {name}, should be version string. E.g., '3.8'"
+            ) from None
     return value
 
 
@@ -91,7 +93,7 @@ VALIDATORS = {
 
 def _call_validator(opttype, optdict, option, value):
     if opttype not in VALIDATORS:
-        raise Exception('Unsupported type "%s"' % opttype)
+        raise Exception(f'Unsupported type "{opttype}"')
     try:
         return VALIDATORS[opttype](optdict, option, value)
     except TypeError:
@@ -149,13 +151,14 @@ class Option(optparse.Option):
                 )
             if not isinstance(self.choices, (tuple, list)):
                 raise optparse.OptionError(
+                    # pylint: disable-next=consider-using-f-string
                     "choices must be a list of strings ('%s' supplied)"
                     % str(type(self.choices)).split("'")[1],
                     self,
                 )
         elif self.choices is not None:
             raise optparse.OptionError(
-                "must not supply choices for type %r" % self.type, self
+                f"must not supply choices for type {self.type!r}", self
             )
 
     # pylint: disable=unsupported-assignment-operation

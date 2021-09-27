@@ -17,7 +17,7 @@ class Orange(Fruit):
     def brew(self, orange_name: str): # [arguments-renamed]
         print(f"Brewing an orange named {orange_name}")
 
-    def eat_with_condiment(self, orange_name: str, condiment: Condiment()): #[arguments-renamed]
+    def eat_with_condiment(self, orange_name: str, condiment: Condiment): #[arguments-renamed]
         print(f"Eating a fruit named {orange_name} with {condiment}")
 
 class Banana(Fruit):

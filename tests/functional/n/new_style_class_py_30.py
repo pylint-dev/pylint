@@ -6,7 +6,7 @@ from __future__ import print_function
 __revision__ = None
 
 
-class File(file):  # pylint: disable=file-builtin,undefined-variable
+class File(file):  # pylint: disable=undefined-variable
     """ Testing new-style class inheritance from file"""
     def __init__(self, name, mode="r", buffering=-1, verbose=False):
         """Constructor"""
@@ -14,8 +14,7 @@ class File(file):  # pylint: disable=file-builtin,undefined-variable
         self.verbose = verbose
         super(File, self).__init__(name, mode, buffering)  # [super-with-arguments]
         if self.verbose:
-            print("File %s is opened.  The mode is: %s" % (self.name,
-                                                           self.mode))
+            print(f"File {self.name} is opened.  The mode is: {self.mode}")
 
     def write(self, a_string):
         """ Write a string to the file."""
@@ -30,6 +29,6 @@ class File(file):  # pylint: disable=file-builtin,undefined-variable
     def close(self):
         """Close the file."""
         if self.verbose:
-            print("Closing file %s" % self.name)
+            print(f"Closing file {self.name}")
         super(File, self).close()  # [super-with-arguments]
         self.was_modified = False

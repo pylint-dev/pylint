@@ -1,15 +1,15 @@
-# pylint: disable=no-absolute-import
-"""Test checking of log format strings
+"""
+Test checking of log format strings
 """
 
 import logging
 
-__revision__ = ''
-
 
 def pprint():
-    """Test string format in logging statements.
     """
+    Test string format in logging statements.
+    """
+
     # These should all emit lint errors:
     logging.info(0, '')  # [logging-too-many-args]
     logging.info('', '') # [logging-too-many-args]

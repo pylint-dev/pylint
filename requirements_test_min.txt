@@ -1,4 +1,5 @@
 -e .
-astroid==2.6.6  # Pinned to a specific version for tests
+# astroid dependency is also defined in setup.cfg
+astroid==2.8.0  # Pinned to a specific version for tests
 pytest~=6.2
 pytest-benchmark~=3.4

@@ -25,7 +25,7 @@ Current team:
   Added Python 3 check for accessing deprecated methods on the 'string' module,
   various patches.
 
-* Dmitry Pribysh: committer
+* Dmitri Prybysh: committer
 
   multiple-imports, not-iterable, not-a-mapping, various patches.
 
@@ -509,6 +509,7 @@ contributors:
 * Maksym Humetskyi (mhumetskyi): contributor
   - Fixed ignored empty functions by similarities checker with "ignore-signatures" option enabled
   - Ignore function decorators signatures as well by similarities checker with "ignore-signatures" option enabled
+  - Ignore class methods and nested functions signatures as well by similarities checker with "ignore-signatures" option enabled
 
 * Daniel Dorani (doranid): contributor
 
@@ -534,3 +535,14 @@ contributors:
 * Kai Mueller (kasium): contributor
 
 * Sam Vermeiren (PaaEl): contributor
+
+* Phil A. (flying-sheep): contributor
+
+* Melvin Hazeleger (melvio): contributor
+
+* Hayden Richards (SupImDos): contributor
+  - Fixed "no-self-use" for async methods
+  - Fixed "docparams" extension for async functions and methods
+
+* Jeroen Seegers (jeroenseegers): contributor
+  - Fixed `toml` dependency issue

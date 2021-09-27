@@ -2,9 +2,17 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
+from typing import TYPE_CHECKING, Any, Callable, DefaultDict, Dict, List, Tuple
 
 from pylint.exceptions import EmptyReportError
+from pylint.interfaces import IChecker
 from pylint.reporters.ureports.nodes import Section
+from pylint.typing import CheckerStats
+
+if TYPE_CHECKING:
+    from pylint.lint.pylinter import PyLinter
+
+ReportsDict = DefaultDict[IChecker, List[Tuple[str, str, Callable]]]
 
 
 class ReportsHandlerMixIn:
@@ -12,17 +20,17 @@ class ReportsHandlerMixIn:
     related methods for the main lint class
     """
 
-    def __init__(self):
-        self._reports = collections.defaultdict(list)
-        self._reports_state = {}
+    def __init__(self) -> None:
+        self._reports: ReportsDict = collections.defaultdict(list)
+        self._reports_state: Dict[str, bool] = {}
 
-    def report_order(self):
-        """Return a list of reports, sorted in the order
-        in which they must be called.
-        """
+    def report_order(self) -> List[IChecker]:
+        """Return a list of reporters"""
         return list(self._reports)
 
-    def register_report(self, reportid, r_title, r_cb, checker):
+    def register_report(
+        self, reportid: str, r_title: str, r_cb: Callable, checker: IChecker
+    ) -> None:
         """register a report
 
         reportid is the unique identifier for the report
@@ -33,25 +41,29 @@ class ReportsHandlerMixIn:
         reportid = reportid.upper()
         self._reports[checker].append((reportid, r_title, r_cb))
 
-    def enable_report(self, reportid):
+    def enable_report(self, reportid: str) -> None:
         """disable the report of the given id"""
         reportid = reportid.upper()
         self._reports_state[reportid] = True
 
-    def disable_report(self, reportid):
+    def disable_report(self, reportid: str) -> None:
         """disable the report of the given id"""
         reportid = reportid.upper()
         self._reports_state[reportid] = False
 
-    def report_is_enabled(self, reportid):
+    def report_is_enabled(self, reportid: str) -> bool:
         """return true if the report associated to the given identifier is
         enabled
         """
         return self._reports_state.get(reportid, True)
 
-    def make_reports(self, stats, old_stats):
+    def make_reports(  # type: ignore # ReportsHandlerMixIn is always mixed with PyLinter
+        self: "PyLinter",
+        stats: CheckerStats,
+        old_stats: CheckerStats,
+    ) -> Section:
         """render registered reports"""
-        sect = Section("Report", "%s statements analysed." % (self.stats["statement"]))
+        sect = Section("Report", f"{self.stats['statement']} statements analysed.")
         for checker in self.report_order():
             for reportid, r_title, r_cb in self._reports[checker]:
                 if not self.report_is_enabled(reportid):
@@ -65,7 +77,9 @@ class ReportsHandlerMixIn:
                 sect.append(report_sect)
         return sect
 
-    def add_stats(self, **kwargs):
+    def add_stats(  # type: ignore # ReportsHandlerMixIn is always mixed with PyLinter
+        self: "PyLinter", **kwargs: Any
+    ) -> CheckerStats:
         """add some stats entries to the statistic dictionary
         raise an AssertionError if there is a key conflict
         """

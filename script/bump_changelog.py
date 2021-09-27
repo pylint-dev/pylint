@@ -18,7 +18,7 @@ RELEASE_DATE_TEXT = "Release date: TBA"
 WHATS_NEW_TEXT = "What's New in Pylint"
 TODAY = datetime.now()
 FULL_WHATS_NEW_TEXT = WHATS_NEW_TEXT + " {version}?"
-NEW_RELEASE_DATE_MESSAGE = "Release date: {}".format(TODAY.strftime("%Y-%m-%d"))
+NEW_RELEASE_DATE_MESSAGE = f"Release date: {TODAY.strftime('%Y-%m-%d')}"
 
 
 def main() -> None:
@@ -75,9 +75,9 @@ def get_next_versions(version: str, version_type: VersionType) -> List[str]:
 
 
 def get_version_type(version: str) -> VersionType:
-    if version.endswith("0.0"):
+    if version.endswith(".0.0"):
         version_type = VersionType.MAJOR
-    elif version.endswith("0"):
+    elif version.endswith(".0"):
         version_type = VersionType.MINOR
     else:
         version_type = VersionType.PATCH
@@ -128,10 +128,14 @@ def transform_content(content: str, version: str) -> str:
 def do_checks(content, next_version, version, version_type):
     err = "in the changelog, fix that first!"
     NEW_VERSION_ERROR_MSG = (
-        "The text for this version '{version}' did not exists %s" % err
+        # pylint: disable-next=consider-using-f-string
+        "The text for this version '{version}' did not exists %s"
+        % err
     )
     NEXT_VERSION_ERROR_MSG = (
-        "The text for the next version '{version}' already exists %s" % err
+        # pylint: disable-next=consider-using-f-string
+        "The text for the next version '{version}' already exists %s"
+        % err
     )
     wn_next_version = get_whats_new(next_version)
     wn_this_version = get_whats_new(version)

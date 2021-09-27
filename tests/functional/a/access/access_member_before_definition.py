@@ -23,7 +23,7 @@ class Bbbb(object):
 
 
     def catchme(self, attr):
-        """no AttributeError catched"""
+        """no AttributeError caught"""
         try:
             return self._repo # [access-member-before-definition]
         except ValueError:

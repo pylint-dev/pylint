@@ -3,14 +3,189 @@ Pylint's ChangeLog
 ------------------
 
 
-What's New in Pylint 2.10.0?
+
+What's New in Pylint 2.12.0?
 ============================
 Release date: TBA
 
 ..
-  Put new features here and also in 'doc/whatsnew/2.10.rst'
+  Put new features here and also in 'doc/whatsnew/2.12.rst'
+
+
+
+What's New in Pylint 2.11.2?
+============================
+Release date: TBA
+
 ..
   Put bug fixes that should not wait for a new minor version here
+
+* Don't emit ``consider-using-f-string`` if ``py-version`` is set to Python < ``3.6``.
+  ``f-strings`` were added in Python ``3.6``
+
+  Closes #5019
+
+* Fix regression for ``unspecified-encoding`` with ``pathlib.Path.read_text()``
+
+  Closes #5029
+
+* Don't emit ``consider-using-f-string`` if the variables to be interpolated include a backslash
+
+* Fixed false positive for ``cell-var-from-loop`` when variable is used as the default
+  value for a keyword-only parameter.
+
+  Closes #5012
+
+* Fix false-positive ``undefined-variable`` with ``Lambda``, ``IfExp``, and
+  assignment expression.
+
+* Fix false-positive ``useless-suppression`` for ``wrong-import-order``
+
+  Closes #2366
+
+* Fixed ``toml`` dependency issue
+
+  Closes #5066
+
+
+What's New in Pylint 2.11.1?
+============================
+Release date: 2021-09-16
+
+* ``unspecified-encoding`` now checks the encoding of ``pathlib.Path()`` correctly
+
+  Closes #5017
+
+
+What's New in Pylint 2.11.0?
+============================
+Release date: 2021-09-16
+
+* The python3 porting mode checker and it's ``py3k`` option were removed. You can still find it in older pylint
+  versions.
+
+* ``raising-bad-type`` is now properly emitted when  raising a string
+
+* Added new extension ``SetMembershipChecker`` with ``use-set-for-membership`` check:
+  Emitted when using an in-place defined ``list`` or ``tuple`` to do a membership test. ``sets`` are better optimized for that.
+
+  Closes #4776
+
+
+* Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependant checks.
+  Will default to whatever Python version pylint is executed with.
+
+* ``CodeStyleChecker``
+
+  * Added ``consider-using-assignment-expr``: Emitted when an assignment is directly followed by an if statement
+    and both can be combined by using an assignment expression ``:=``. Requires Python 3.8
+
+    Closes #4862
+
+* Added ``consider-using-f-string``: Emitted when .format() or '%' is being used to format a string.
+
+  Closes #3592
+
+* Fix false positive for ``consider-using-with`` if a context manager is assigned to a
+  variable in different paths of control flow (e. g. if-else clause).
+
+  Closes #4751
+
+* https is now prefered in the documentation and http://pylint.pycqa.org correctly redirect to https://pylint.pycqa.org
+
+  Closes #3802
+
+* Fix false positive for ``function-redefined`` for simple type annotations
+
+  Closes #4936
+
+* Fix false positive for ``protected-access`` if a protected member is used in type hints of function definitions
+
+* Fix false positive ``dict-iter-missing-items`` for dictionaries only using tuples as keys
+
+  Closes #3282
+
+* The ``unspecified-encoding`` checker now also checks calls to ``pathlib.Path().read_text()``
+  and ``pathlib.Path().write_text()``
+
+  Closes #4945
+
+* Fix false positive ``superfluous-parens`` for tuples created with inner tuples
+
+  Closes #4907
+
+* Fix false positive ``unused-private-member`` for accessing attributes in a class using ``cls``
+
+  Closes #4849
+
+* Fix false positive ``unused-private-member`` for private staticmethods accessed in classmethods.
+
+  Closes #4849
+
+* Extended ``consider-using-in`` check to work for attribute access.
+
+* Setting ``min-similarity-lines`` to 0 now makes the similarty checker stop checking for duplicate code
+
+  Closes #4901
+
+* Fix a bug where pylint complained if the cache's parent directory does not exist
+
+  Closes #4900
+
+* The ``global-variable-not-assigned`` checker now catches global variables that are never reassigned in a
+  local scope and catches (reassigned) functions
+
+  Closes #1375
+  Closes #330
+
+* Fix false positives for invalid-all-format that are lists or tuples at runtime
+
+  Closes #4711
+
+* Fix ``no-self-use`` and ``docparams extension`` for async functions and methods.
+
+* Add documentation for ``pyreverse`` and ``symilar``
+
+  Closes #4616
+
+* Non symbolic messages with the wrong capitalisation now correctly trigger ``use-symbolic-message-instead``
+
+  Closes #5000
+
+* The ``consider-iterating-dictionary`` checker now also considers membership checks
+
+  Closes #4069
+
+* The ``invalid-name`` message is now more detailed when using multiple naming style regexes.
+
+
+What's New in Pylint 2.10.2?
+============================
+Release date: 2021-08-21
+
+* We now use platformdirs instead of appdirs since the latter is not maintained.
+
+  Closes #4886
+
+* Fix a crash in the checker raising ``shallow-copy-environ`` when failing to infer
+  on ``copy.copy``
+
+  Closes #4891
+
+
+
+What's New in Pylint 2.10.1?
+============================
+Release date: 2021-08-20
+
+* pylint does not crash when PYLINT_HOME does not exist.
+
+  Closes #4883
+
+
+What's New in Pylint 2.10.0?
+============================
+Release date: 2021-08-20
 
 * pyreverse: add option to produce colored output.
 
@@ -69,6 +244,14 @@ Release date: TBA
 
   Closes #4365
 
+* Added optional extension ``consider-ternary-expression``: Emitted whenever a variable is assigned in both branches of an if/else block.
+
+  Closes # 4366
+
+* Added optional extension ``while-used``: Emitted whenever a ``while`` loop is used.
+
+  Closes # 4367
+
 * Added ``forgotten-debug-statement``: Emitted when ``breakpoint``, ``pdb.set_trace`` or ``sys.breakpointhook`` calls are found
 
   Closes #3692
@@ -95,7 +278,6 @@ Release date: TBA
 * Added ``format-string-without-interpolation`` checker: Emitted when formatting is applied to a string without any variables to be replaced
 
   Closes #4042
-
 
 * Refactor of ``--list-msgs`` & ``--list-msgs-enabled``: both options now show whether messages are emittable with the current interpreter.
 
@@ -149,6 +331,14 @@ Release date: TBA
 
 * Allow ``true`` and ``false`` values in ``pylintrc`` for better compatibility with ``toml`` config.
 
+* Class methods' signatures are ignored the same way as functions' with similarities "ignore-signatures" option enabled
+
+  Closes #4653
+
+* Improve performance when inferring ``Call`` nodes, by utilizing caching.
+
+* Improve error message for invalid-metaclass when the node is an Instance.
+
 
 What's New in Pylint 2.9.6?
 ===========================
@@ -173,7 +363,7 @@ Release date: 2021-07-21
 
   Closes #4732
 
-* Fix a crash when a AttributeInferenceError was not handled properly when
+* Fix a crash when an AttributeInferenceError was not handled properly when
   failing to infer the real name of an import in astroid.
 
   Closes #4692
@@ -2011,7 +2201,7 @@ Release date: 2018-11-25
 
    * Allow ``__module__`` to be redefined at a class level. Close #2451
 
-   * ``pylint`` used to emit a ``unused-variable`` error if unused import was found in the function. Now instead of
+   * ``pylint`` used to emit an ``unused-variable`` error if unused import was found in the function. Now instead of
      ``unused-variable``, ``unused-import`` is emitted.
 
      Close #2421

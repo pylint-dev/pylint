@@ -24,6 +24,7 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Anthony <tanant@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Peter Kolbus <peter.kolbus@garmin.com>
 
@@ -41,10 +42,10 @@ import tokenize
 from typing import TYPE_CHECKING, Iterable
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
-from pylint.constants import BUILTINS
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
 
 if TYPE_CHECKING:
@@ -79,9 +80,9 @@ _PREFIXES = {
     "Rb",
     "RB",
 }
-SINGLE_QUOTED_REGEX = re.compile("(%s)?'''" % "|".join(_PREFIXES))
-DOUBLE_QUOTED_REGEX = re.compile('(%s)?"""' % "|".join(_PREFIXES))
-QUOTE_DELIMITER_REGEX = re.compile("(%s)?(\"|')" % "|".join(_PREFIXES), re.DOTALL)
+SINGLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?'''")
+DOUBLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?\"\"\"")
+QUOTE_DELIMITER_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?(\"|')", re.DOTALL)
 
 MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "E1300": (
@@ -213,18 +214,14 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
 }
 
 OTHER_NODES = (
-    astroid.Const,
-    astroid.List,
-    astroid.Lambda,
-    astroid.FunctionDef,
-    astroid.ListComp,
-    astroid.SetComp,
-    astroid.GeneratorExp,
+    nodes.Const,
+    nodes.List,
+    nodes.Lambda,
+    nodes.FunctionDef,
+    nodes.ListComp,
+    nodes.SetComp,
+    nodes.GeneratorExp,
 )
-
-BUILTINS_STR = BUILTINS + ".str"
-BUILTINS_FLOAT = BUILTINS + ".float"
-BUILTINS_INT = BUILTINS + ".int"
 
 
 def get_access_path(key, parts):
@@ -246,11 +243,11 @@ def arg_matches_format_type(arg_type, format_type):
         return True
     if isinstance(arg_type, astroid.Instance):
         arg_type = arg_type.pytype()
-        if arg_type == BUILTINS_STR:
+        if arg_type == "builtins.str":
             return format_type == "c"
-        if arg_type == BUILTINS_FLOAT:
+        if arg_type == "builtins.float":
             return format_type in "deEfFgGn%"
-        if arg_type == BUILTINS_INT:
+        if arg_type == "builtins.int":
             # Integers allow all types
             return True
         return False
@@ -281,13 +278,13 @@ class StringFormatChecker(BaseChecker):
         "bad-string-format-type",
         "format-string-without-interpolation",
     )
-    def visit_binop(self, node):
+    def visit_binop(self, node: nodes.BinOp) -> None:
         if node.op != "%":
             return
         left = node.left
         args = node.right
 
-        if not (isinstance(left, astroid.Const) and isinstance(left.value, str)):
+        if not (isinstance(left, nodes.Const) and isinstance(left.value, str)):
             return
         format_string = left.value
         try:
@@ -320,11 +317,11 @@ class StringFormatChecker(BaseChecker):
             # Check that the RHS of the % operator is a mapping object
             # that contains precisely the set of keys required by the
             # format string.
-            if isinstance(args, astroid.Dict):
+            if isinstance(args, nodes.Dict):
                 keys = set()
                 unknown_keys = False
                 for k, _ in args.items:
-                    if isinstance(k, astroid.Const):
+                    if isinstance(k, nodes.Const):
                         key = k.value
                         if isinstance(key, str):
                             keys.add(key)
@@ -350,13 +347,14 @@ class StringFormatChecker(BaseChecker):
                             "unused-format-string-key", node=node, args=key
                         )
                 for key, arg in args.items:
-                    if not isinstance(key, astroid.Const):
+                    if not isinstance(key, nodes.Const):
                         continue
                     format_type = required_key_types.get(key.value, None)
                     arg_type = utils.safe_infer(arg)
                     if (
                         format_type is not None
-                        and arg_type not in (None, astroid.Uninferable)
+                        and arg_type
+                        and arg_type != astroid.Uninferable
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -364,7 +362,7 @@ class StringFormatChecker(BaseChecker):
                             node=node,
                             args=(arg_type.pytype(), format_type),
                         )
-            elif isinstance(args, (OTHER_NODES, astroid.Tuple)):
+            elif isinstance(args, (OTHER_NODES, nodes.Tuple)):
                 type_name = type(args).__name__
                 self.add_message("format-needs-mapping", node=node, args=type_name)
             # else:
@@ -376,14 +374,14 @@ class StringFormatChecker(BaseChecker):
             # Check that the number of arguments passed to the RHS of
             # the % operator matches the number required by the format
             # string.
-            args_elts = ()
-            if isinstance(args, astroid.Tuple):
+            args_elts = []
+            if isinstance(args, nodes.Tuple):
                 rhs_tuple = utils.safe_infer(args)
                 num_args = None
-                if hasattr(rhs_tuple, "elts"):
+                if isinstance(rhs_tuple, nodes.BaseContainer):
                     args_elts = rhs_tuple.elts
                     num_args = len(args_elts)
-            elif isinstance(args, (OTHER_NODES, (astroid.Dict, astroid.DictComp))):
+            elif isinstance(args, (OTHER_NODES, (nodes.Dict, nodes.DictComp))):
                 args_elts = [args]
                 num_args = 1
             else:
@@ -402,10 +400,7 @@ class StringFormatChecker(BaseChecker):
                     arg_type = utils.safe_infer(arg)
                     if (
                         arg_type
-                        not in (
-                            None,
-                            astroid.Uninferable,
-                        )
+                        and arg_type != astroid.Uninferable
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -415,16 +410,16 @@ class StringFormatChecker(BaseChecker):
                         )
 
     @check_messages("f-string-without-interpolation")
-    def visit_joinedstr(self, node):
-        if isinstance(node.parent, astroid.FormattedValue):
+    def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
+        if isinstance(node.parent, nodes.FormattedValue):
             return
         for value in node.values:
-            if isinstance(value, astroid.FormattedValue):
+            if isinstance(value, nodes.FormattedValue):
                 return
         self.add_message("f-string-without-interpolation", node=node)
 
     @check_messages(*MSGS)
-    def visit_call(self, node):
+    def visit_call(self, node: nodes.Call) -> None:
         func = utils.safe_infer(node.func)
         if (
             isinstance(func, astroid.BoundMethod)
@@ -433,7 +428,7 @@ class StringFormatChecker(BaseChecker):
         ):
             if func.name in ("strip", "lstrip", "rstrip") and node.args:
                 arg = utils.safe_infer(node.args[0])
-                if not isinstance(arg, astroid.Const) or not isinstance(arg.value, str):
+                if not isinstance(arg, nodes.Const) or not isinstance(arg.value, str):
                     return
                 if len(arg.value) != len(set(arg.value)):
                     self.add_message(
@@ -446,7 +441,7 @@ class StringFormatChecker(BaseChecker):
 
     def _detect_vacuous_formatting(self, node, positional_arguments):
         counter = collections.Counter(
-            arg.name for arg in positional_arguments if isinstance(arg, astroid.Name)
+            arg.name for arg in positional_arguments if isinstance(arg, nodes.Name)
         )
         for name, count in counter.items():
             if count == 1:
@@ -466,8 +461,8 @@ class StringFormatChecker(BaseChecker):
         #
         #    fmt = 'some string {}'.format
         #    fmt('arg')
-        if isinstance(node.func, astroid.Attribute) and not isinstance(
-            node.func.expr, astroid.Const
+        if isinstance(node.func, nodes.Attribute) and not isinstance(
+            node.func.expr, nodes.Const
         ):
             return
         if node.starargs or node.kwargs:
@@ -476,7 +471,7 @@ class StringFormatChecker(BaseChecker):
             strnode = next(func.bound.infer())
         except astroid.InferenceError:
             return
-        if not (isinstance(strnode, astroid.Const) and isinstance(strnode.value, str)):
+        if not (isinstance(strnode, nodes.Const) and isinstance(strnode.value, str)):
             return
         try:
             call_site = astroid.arguments.CallSite.from_call(node)
@@ -571,7 +566,7 @@ class StringFormatChecker(BaseChecker):
                 # No need to check this key if it doesn't
                 # use attribute / item access
                 continue
-            if argument.parent and isinstance(argument.parent, astroid.Arguments):
+            if argument.parent and isinstance(argument.parent, nodes.Arguments):
                 # Ignore any object coming from an argument,
                 # because we can't infer its value properly.
                 continue
@@ -602,7 +597,7 @@ class StringFormatChecker(BaseChecker):
                     warn_error = False
                     if hasattr(previous, "getitem"):
                         try:
-                            previous = previous.getitem(astroid.Const(specifier))
+                            previous = previous.getitem(nodes.Const(specifier))
                         except (
                             astroid.AstroidIndexError,
                             astroid.AstroidTypeError,
@@ -715,8 +710,8 @@ class StringConstantChecker(BaseTokenChecker):
         super().__init__(*args, **kwargs)
         self.string_tokens = {}  # token position -> (token value, next token)
 
-    def process_module(self, module):
-        self._unicode_literals = "unicode_literals" in module.future_imports
+    def process_module(self, node: nodes.Module) -> None:
+        self._unicode_literals = "unicode_literals" in node.future_imports
 
     def process_tokens(self, tokens):
         encoding = "ascii"
@@ -747,19 +742,19 @@ class StringConstantChecker(BaseTokenChecker):
             self.check_for_consistent_string_delimiters(tokens)
 
     @check_messages("implicit-str-concat")
-    def visit_list(self, node):
+    def visit_list(self, node: nodes.List) -> None:
         self.check_for_concatenated_strings(node.elts, "list")
 
     @check_messages("implicit-str-concat")
-    def visit_set(self, node):
+    def visit_set(self, node: nodes.Set) -> None:
         self.check_for_concatenated_strings(node.elts, "set")
 
     @check_messages("implicit-str-concat")
-    def visit_tuple(self, node):
+    def visit_tuple(self, node: nodes.Tuple) -> None:
         self.check_for_concatenated_strings(node.elts, "tuple")
 
-    def visit_assign(self, node):
-        if isinstance(node.value, astroid.Const) and isinstance(node.value.value, str):
+    def visit_assign(self, node: nodes.Assign) -> None:
+        if isinstance(node.value, nodes.Const) and isinstance(node.value.value, str):
             self.check_for_concatenated_strings([node.value], "assignment")
 
     def check_for_consistent_string_delimiters(
@@ -800,7 +795,7 @@ class StringConstantChecker(BaseTokenChecker):
     def check_for_concatenated_strings(self, elements, iterable_type):
         for elt in elements:
             if not (
-                isinstance(elt, astroid.Const) and elt.pytype() in _AST_NODE_STR_TYPES
+                isinstance(elt, nodes.Const) and elt.pytype() in _AST_NODE_STR_TYPES
             ):
                 continue
             if elt.col_offset < 0:
@@ -913,13 +908,13 @@ class StringConstantChecker(BaseTokenChecker):
             index += 2
 
     @check_messages("redundant-u-string-prefix")
-    def visit_const(self, node: astroid.Const):
+    def visit_const(self, node: nodes.Const) -> None:
         if node.pytype() == "builtins.str" and not isinstance(
-            node.parent, astroid.JoinedStr
+            node.parent, nodes.JoinedStr
         ):
             self._detect_u_string_prefix(node)
 
-    def _detect_u_string_prefix(self, node: astroid.Const):
+    def _detect_u_string_prefix(self, node: nodes.Const):
         """Check whether strings include a 'u' prefix like u'String'"""
         if node.kind == "u":
             self.add_message(
@@ -992,7 +987,7 @@ def _get_quote_delimiter(string_token: str) -> str:
     """
     match = QUOTE_DELIMITER_REGEX.match(string_token)
     if not match:
-        raise ValueError("string token %s is not a well-formed string" % string_token)
+        raise ValueError(f"string token {string_token} is not a well-formed string")
     return match.group(2)
 
 

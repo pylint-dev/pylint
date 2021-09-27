@@ -1,4 +1,4 @@
-"""Test that `continue` is catched when met inside a `finally` clause."""
+"""Test that `continue` is caught when met inside a `finally` clause."""
 
 # pylint: disable=missing-docstring, lost-exception, broad-except
 

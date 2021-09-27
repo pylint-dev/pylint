@@ -1,7 +1,9 @@
+from pathlib import Path, PosixPath
+
 from pylint.lint.utils import get_fatal_error_message, prepare_crash_report
 
 
-def test_prepare_crash_report(tmp_path):
+def test_prepare_crash_report(tmp_path: PosixPath) -> None:
     exception_content = "Exmessage"
     python_file = tmp_path / "myfile.py"
     python_content = "from shadok import MagicFaucet"
@@ -11,7 +13,7 @@ def test_prepare_crash_report(tmp_path):
         raise Exception(exception_content)
     except Exception as ex:  # pylint: disable=broad-except
         template_path = prepare_crash_report(
-            ex, python_file, tmp_path / "pylint-crash-%Y.txt"
+            ex, str(python_file), str(tmp_path / "pylint-crash-%Y.txt")
         )
     assert str(tmp_path) in str(template_path)
     with open(template_path, encoding="utf8") as f:
@@ -22,10 +24,10 @@ def test_prepare_crash_report(tmp_path):
     assert "raise Exception(exception_content)" in template_content
 
 
-def test_get_fatal_error_message():
+def test_get_fatal_error_message() -> None:
     python_path = "mypath.py"
     crash_path = "crash.txt"
-    msg = get_fatal_error_message(python_path, crash_path)
+    msg = get_fatal_error_message(python_path, Path(crash_path))
     assert python_path in msg
     assert crash_path in msg
     assert "open an issue" in msg

@@ -1,0 +1,10 @@
+[MASTER]
+load-plugins=pylint.extensions.consider_ternary_expression,
+
+[MESSAGES CONTROL]
+disable=
+  invalid-name,
+  undefined-variable,
+  unused-variable,
+  missing-function-docstring,
+  missing-module-docstring,

@@ -2,7 +2,7 @@
 a class emits a warning. """
 
 # pylint: disable=no-init, import-error, invalid-name, using-constant-test, useless-object-inheritance
-# pylint: disable=missing-docstring, too-few-public-methods, no-absolute-import
+# pylint: disable=missing-docstring, too-few-public-methods
 
 from missing import Missing
 

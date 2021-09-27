@@ -3,15 +3,17 @@
 
 
 import os
-from typing import IO, Any, AnyStr, Callable, List, Mapping, Optional, Union
+from typing import IO, TYPE_CHECKING, Any, AnyStr, Callable, List, Optional
 
 from pylint.interfaces import IReporter
 from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
-from pylint.reporters.ureports.nodes import BaseLayout
+from pylint.typing import CheckerStats
+
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
 
 AnyFile = IO[AnyStr]
-AnyPath = Union[str, bytes, os.PathLike]
 PyLinter = Any
 
 
@@ -42,7 +44,7 @@ class MultiReporter:
 
         self.set_output(output)
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close_output_files()
 
     @property
@@ -78,25 +80,25 @@ class MultiReporter:
         for rep in self._sub_reporters:
             rep.writeln(string)
 
-    def display_reports(self, layout: BaseLayout) -> None:
+    def display_reports(self, layout: "Section") -> None:
         """display results encapsulated in the layout tree"""
         for rep in self._sub_reporters:
             rep.display_reports(layout)
 
-    def display_messages(self, layout: BaseLayout) -> None:
+    def display_messages(self, layout: Optional["Section"]) -> None:
         """hook for displaying the messages of the reporter"""
         for rep in self._sub_reporters:
             rep.display_messages(layout)
 
-    def on_set_current_module(self, module: str, filepath: Optional[AnyPath]) -> None:
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         """hook called when a module starts to be analysed"""
         for rep in self._sub_reporters:
             rep.on_set_current_module(module, filepath)
 
     def on_close(
         self,
-        stats: Mapping[Any, Any],
-        previous_stats: Mapping[Any, Any],
+        stats: CheckerStats,
+        previous_stats: CheckerStats,
     ) -> None:
         """hook called when a module finished analyzing"""
         for rep in self._sub_reporters:

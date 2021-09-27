@@ -16,6 +16,8 @@
 # Copyright (c) 2020 ethan-leba <ethanleba5@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 bernie gray <bfgray3@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
 # Copyright (c) 2021 David Gilman <davidgilman1@gmail.com>
@@ -33,41 +35,41 @@ from typing import Dict, Type
 import astroid
 
 from pylint.checkers import BaseChecker, base
-from pylint.testutils import CheckerTestCase, Message, set_config
+from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 
 class TestDocstring(CheckerTestCase):
     CHECKER_CLASS: Type = base.DocStringChecker
 
-    def test_missing_docstring_module(self):
+    def test_missing_docstring_module(self) -> None:
         module = astroid.parse("something")
-        message = Message("missing-module-docstring", node=module)
+        message = MessageTest("missing-module-docstring", node=module)
         with self.assertAddsMessages(message):
             self.checker.visit_module(module)
 
-    def test_missing_docstring_empty_module(self):
+    def test_missing_docstring_empty_module(self) -> None:
         module = astroid.parse("")
         with self.assertNoMessages():
             self.checker.visit_module(module)
 
-    def test_empty_docstring_module(self):
+    def test_empty_docstring_module(self) -> None:
         module = astroid.parse("''''''")
-        message = Message("empty-docstring", node=module, args=("module",))
+        message = MessageTest("empty-docstring", node=module, args=("module",))
         with self.assertAddsMessages(message):
             self.checker.visit_module(module)
 
-    def test_empty_docstring_function(self):
+    def test_empty_docstring_function(self) -> None:
         func = astroid.extract_node(
             """
         def func(tion):
            pass"""
         )
-        message = Message("missing-function-docstring", node=func)
+        message = MessageTest("missing-function-docstring", node=func)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
     @set_config(docstring_min_length=2)
-    def test_short_function_no_docstring(self):
+    def test_short_function_no_docstring(self) -> None:
         func = astroid.extract_node(
             """
         def func(tion):
@@ -77,7 +79,7 @@ class TestDocstring(CheckerTestCase):
             self.checker.visit_functiondef(func)
 
     @set_config(docstring_min_length=2)
-    def test_long_function_no_docstring(self):
+    def test_long_function_no_docstring(self) -> None:
         func = astroid.extract_node(
             """
         def func(tion):
@@ -85,12 +87,12 @@ class TestDocstring(CheckerTestCase):
             pass
            """
         )
-        message = Message("missing-function-docstring", node=func)
+        message = MessageTest("missing-function-docstring", node=func)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
     @set_config(docstring_min_length=2)
-    def test_long_function_nested_statements_no_docstring(self):
+    def test_long_function_nested_statements_no_docstring(self) -> None:
         func = astroid.extract_node(
             """
         def func(tion):
@@ -100,12 +102,12 @@ class TestDocstring(CheckerTestCase):
                 pass
            """
         )
-        message = Message("missing-function-docstring", node=func)
+        message = MessageTest("missing-function-docstring", node=func)
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
     @set_config(docstring_min_length=2)
-    def test_function_no_docstring_by_name(self):
+    def test_function_no_docstring_by_name(self) -> None:
         func = astroid.extract_node(
             """
         def __fun__(tion):
@@ -114,17 +116,17 @@ class TestDocstring(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(func)
 
-    def test_class_no_docstring(self):
+    def test_class_no_docstring(self) -> None:
         klass = astroid.extract_node(
             """
         class Klass(object):
            pass"""
         )
-        message = Message("missing-class-docstring", node=klass)
+        message = MessageTest("missing-class-docstring", node=klass)
         with self.assertAddsMessages(message):
             self.checker.visit_classdef(klass)
 
-    def test_inner_function_no_docstring(self):
+    def test_inner_function_no_docstring(self) -> None:
         func = astroid.extract_node(
             """
         def func(tion):
@@ -146,7 +148,7 @@ class TestNameChecker(CheckerTestCase):
         attr_rgx=re.compile("[A-Z]+"),
         property_classes=("abc.abstractproperty", ".custom_prop"),
     )
-    def test_property_names(self):
+    def test_property_names(self) -> None:
         # If a method is annotated with @property, its name should
         # match the attr regex. Since by default the attribute regex is the same
         # as the method regex, we override it here.
@@ -180,7 +182,7 @@ class TestNameChecker(CheckerTestCase):
             self.checker.visit_functiondef(methods[2])
             self.checker.visit_functiondef(methods[3])
         with self.assertAddsMessages(
-            Message(
+            MessageTest(
                 "invalid-name",
                 node=methods[1],
                 args=("Attribute", "bar", "'[A-Z]+' pattern"),
@@ -189,7 +191,7 @@ class TestNameChecker(CheckerTestCase):
             self.checker.visit_functiondef(methods[1])
 
     @set_config(attr_rgx=re.compile("[A-Z]+"))
-    def test_property_setters(self):
+    def test_property_setters(self) -> None:
         method = astroid.extract_node(
             """
         class FooClass(object):
@@ -204,7 +206,7 @@ class TestNameChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(method)
 
-    def test_module_level_names(self):
+    def test_module_level_names(self) -> None:
         assign = astroid.extract_node(
             """
         import collections
@@ -258,7 +260,7 @@ class TestNameChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(
+            MessageTest(
                 msg_id="assign-to-new-keyword",
                 node=ast[0].targets[0],
                 args=("async", "3.7"),
@@ -266,7 +268,7 @@ class TestNameChecker(CheckerTestCase):
         ):
             self.checker.visit_assignname(ast[0].targets[0])
         with self.assertAddsMessages(
-            Message(
+            MessageTest(
                 msg_id="assign-to-new-keyword",
                 node=ast[1].targets[0],
                 args=("await", "3.7"),
@@ -274,11 +276,15 @@ class TestNameChecker(CheckerTestCase):
         ):
             self.checker.visit_assignname(ast[1].targets[0])
         with self.assertAddsMessages(
-            Message(msg_id="assign-to-new-keyword", node=ast[2], args=("async", "3.7"))
+            MessageTest(
+                msg_id="assign-to-new-keyword", node=ast[2], args=("async", "3.7")
+            )
         ):
             self.checker.visit_functiondef(ast[2])
         with self.assertAddsMessages(
-            Message(msg_id="assign-to-new-keyword", node=ast[3], args=("async", "3.7"))
+            MessageTest(
+                msg_id="assign-to-new-keyword", node=ast[3], args=("async", "3.7")
+            )
         ):
             self.checker.visit_classdef(ast[3])
 
@@ -289,7 +295,7 @@ class TestMultiNamingStyle(CheckerTestCase):
     MULTI_STYLE_RE = re.compile("(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$")
 
     @set_config(class_rgx=MULTI_STYLE_RE)
-    def test_multi_name_detection_majority(self):
+    def test_multi_name_detection_majority(self) -> None:
         classes = astroid.extract_node(
             """
         class classb(object): #@
@@ -300,10 +306,14 @@ class TestMultiNamingStyle(CheckerTestCase):
             pass
         """
         )
-        message = Message(
+        message = MessageTest(
             "invalid-name",
             node=classes[0],
-            args=("Class", "classb", "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern"),
+            args=(
+                "Class",
+                "classb",
+                "the `UP` group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
+            ),
         )
         with self.assertAddsMessages(message):
             cls = None
@@ -313,7 +323,7 @@ class TestMultiNamingStyle(CheckerTestCase):
                 self.checker.leave_module(cls.root)
 
     @set_config(class_rgx=MULTI_STYLE_RE)
-    def test_multi_name_detection_first_invalid(self):
+    def test_multi_name_detection_first_invalid(self) -> None:
         classes = astroid.extract_node(
             """
         class class_a(object): #@
@@ -325,7 +335,7 @@ class TestMultiNamingStyle(CheckerTestCase):
         """
         )
         messages = [
-            Message(
+            MessageTest(
                 "invalid-name",
                 node=classes[0],
                 args=(
@@ -334,13 +344,13 @@ class TestMultiNamingStyle(CheckerTestCase):
                     "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
                 ),
             ),
-            Message(
+            MessageTest(
                 "invalid-name",
                 node=classes[2],
                 args=(
                     "Class",
                     "CLASSC",
-                    "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
+                    "the `down` group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
                 ),
             ),
         ]
@@ -368,10 +378,14 @@ class TestMultiNamingStyle(CheckerTestCase):
         """,
             module_name="test",
         )
-        message = Message(
+        message = MessageTest(
             "invalid-name",
             node=function_defs[1],
-            args=("Function", "FUNC", "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern"),
+            args=(
+                "Function",
+                "FUNC",
+                "the `down` group in the '(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
+            ),
         )
         with self.assertAddsMessages(message):
             func = None
@@ -383,7 +397,7 @@ class TestMultiNamingStyle(CheckerTestCase):
     @set_config(
         function_rgx=re.compile("(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$")
     )
-    def test_multi_name_detection_exempt(self):
+    def test_multi_name_detection_exempt(self) -> None:
         function_defs = astroid.extract_node(
             """
         def FOO(): #@
@@ -396,13 +410,13 @@ class TestMultiNamingStyle(CheckerTestCase):
             pass
         """
         )
-        message = Message(
+        message = MessageTest(
             "invalid-name",
             node=function_defs[3],
             args=(
                 "Function",
                 "UPPER",
-                "'(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
+                "the `down` group in the '(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
             ),
         )
         with self.assertAddsMessages(message):
@@ -416,9 +430,9 @@ class TestMultiNamingStyle(CheckerTestCase):
 class TestComparison(CheckerTestCase):
     CHECKER_CLASS = base.ComparisonChecker
 
-    def test_comparison(self):
+    def test_comparison(self) -> None:
         node = astroid.extract_node("foo == True")
-        message = Message(
+        message = MessageTest(
             "singleton-comparison",
             node=node,
             args=(
@@ -430,7 +444,7 @@ class TestComparison(CheckerTestCase):
             self.checker.visit_compare(node)
 
         node = astroid.extract_node("foo == False")
-        message = Message(
+        message = MessageTest(
             "singleton-comparison",
             node=node,
             args=(
@@ -442,14 +456,14 @@ class TestComparison(CheckerTestCase):
             self.checker.visit_compare(node)
 
         node = astroid.extract_node("foo == None")
-        message = Message(
+        message = MessageTest(
             "singleton-comparison", node=node, args=("'foo == None'", "'foo is None'")
         )
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
 
         node = astroid.extract_node("foo is float('nan')")
-        message = Message(
+        message = MessageTest(
             "nan-comparison",
             node=node,
             args=("'foo is float('nan')'", "'math.isnan(foo)'"),
@@ -463,7 +477,7 @@ class TestComparison(CheckerTestCase):
                                 foo != numpy.NaN
                                 """
         )
-        message = Message(
+        message = MessageTest(
             "nan-comparison",
             node=node,
             args=("'foo != numpy.NaN'", "'not math.isnan(foo)'"),
@@ -477,7 +491,7 @@ class TestComparison(CheckerTestCase):
                                 foo is not nmp.NaN
                                 """
         )
-        message = Message(
+        message = MessageTest(
             "nan-comparison",
             node=node,
             args=("'foo is not nmp.NaN'", "'not math.isnan(foo)'"),
@@ -487,8 +501,10 @@ class TestComparison(CheckerTestCase):
 
         node = astroid.extract_node("True == foo")
         messages = (
-            Message("misplaced-comparison-constant", node=node, args=("foo == True",)),
-            Message(
+            MessageTest(
+                "misplaced-comparison-constant", node=node, args=("foo == True",)
+            ),
+            MessageTest(
                 "singleton-comparison",
                 node=node,
                 args=(
@@ -502,8 +518,10 @@ class TestComparison(CheckerTestCase):
 
         node = astroid.extract_node("False == foo")
         messages = (
-            Message("misplaced-comparison-constant", node=node, args=("foo == False",)),
-            Message(
+            MessageTest(
+                "misplaced-comparison-constant", node=node, args=("foo == False",)
+            ),
+            MessageTest(
                 "singleton-comparison",
                 node=node,
                 args=(
@@ -517,8 +535,10 @@ class TestComparison(CheckerTestCase):
 
         node = astroid.extract_node("None == foo")
         messages = (
-            Message("misplaced-comparison-constant", node=node, args=("foo == None",)),
-            Message(
+            MessageTest(
+                "misplaced-comparison-constant", node=node, args=("foo == None",)
+            ),
+            MessageTest(
                 "singleton-comparison",
                 node=node,
                 args=("'None == foo'", "'None is foo'"),
@@ -537,15 +557,19 @@ class TestNamePresets(unittest.TestCase):
         SNAKE_CASE_NAMES | CAMEL_CASE_NAMES | UPPER_CASE_NAMES | PASCAL_CASE_NAMES
     )
 
-    def _test_name_is_correct_for_all_name_types(self, naming_style, name):
+    def _test_name_is_correct_for_all_name_types(
+        self, naming_style: Type[base.NamingStyle], name: str
+    ) -> None:
         for name_type in base.KNOWN_NAME_TYPES:
             self._test_is_correct(naming_style, name, name_type)
 
-    def _test_name_is_incorrect_for_all_name_types(self, naming_style, name):
+    def _test_name_is_incorrect_for_all_name_types(
+        self, naming_style: Type[base.NamingStyle], name: str
+    ) -> None:
         for name_type in base.KNOWN_NAME_TYPES:
             self._test_is_incorrect(naming_style, name, name_type)
 
-    def _test_should_always_pass(self, naming_style):
+    def _test_should_always_pass(self, naming_style: Type[base.NamingStyle]) -> None:
         always_pass_data = [
             ("__add__", "method"),
             ("__set_name__", "method"),
@@ -556,18 +580,22 @@ class TestNamePresets(unittest.TestCase):
             self._test_is_correct(naming_style, name, name_type)
 
     @staticmethod
-    def _test_is_correct(naming_style, name, name_type):
+    def _test_is_correct(
+        naming_style: Type[base.NamingStyle], name: str, name_type: str
+    ) -> None:
         rgx = naming_style.get_regex(name_type)
         fail = f"{name!r} does not match pattern {rgx!r} (style: {naming_style}, type: {name_type})"
         assert rgx.match(name), fail
 
     @staticmethod
-    def _test_is_incorrect(naming_style, name, name_type):
+    def _test_is_incorrect(
+        naming_style: Type[base.NamingStyle], name: str, name_type: str
+    ) -> None:
         rgx = naming_style.get_regex(name_type)
         fail = f"{name!r} not match pattern {rgx!r} (style: {naming_style}, type: {name_type})"
         assert not rgx.match(name), fail
 
-    def test_snake_case(self):
+    def test_snake_case(self) -> None:
         naming_style = base.SnakeCaseStyle
 
         for name in self.SNAKE_CASE_NAMES:
@@ -577,7 +605,7 @@ class TestNamePresets(unittest.TestCase):
 
         self._test_should_always_pass(naming_style)
 
-    def test_camel_case(self):
+    def test_camel_case(self) -> None:
         naming_style = base.CamelCaseStyle
 
         for name in self.CAMEL_CASE_NAMES:
@@ -587,7 +615,7 @@ class TestNamePresets(unittest.TestCase):
 
         self._test_should_always_pass(naming_style)
 
-    def test_upper_case(self):
+    def test_upper_case(self) -> None:
         naming_style = base.UpperCaseStyle
 
         for name in self.UPPER_CASE_NAMES:
@@ -598,7 +626,7 @@ class TestNamePresets(unittest.TestCase):
 
         self._test_should_always_pass(naming_style)
 
-    def test_pascal_case(self):
+    def test_pascal_case(self) -> None:
         naming_style = base.PascalCaseStyle
 
         for name in self.PASCAL_CASE_NAMES:
@@ -610,7 +638,7 @@ class TestNamePresets(unittest.TestCase):
 
 
 class TestBaseChecker(unittest.TestCase):
-    def test_doc(self):
+    def test_doc(self) -> None:
         class OtherBasicChecker(BaseChecker):
             name = "basic"
             msgs = {

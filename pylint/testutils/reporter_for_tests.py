@@ -3,11 +3,14 @@
 
 from io import StringIO
 from os import getcwd, linesep, sep
-from typing import Dict, List
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from pylint import interfaces
 from pylint.message import Message
 from pylint.reporters import BaseReporter
+
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
 
 
 class GenericTestReporter(BaseReporter):
@@ -15,7 +18,9 @@ class GenericTestReporter(BaseReporter):
 
     __implements__ = interfaces.IReporter
 
-    def __init__(self):  # pylint: disable=super-init-not-called
+    def __init__(
+        self,
+    ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         self.reset()
 
     def reset(self):
@@ -32,7 +37,7 @@ class GenericTestReporter(BaseReporter):
         str_message: str = msg.msg
         self.message_ids[msg_id] = 1
         if obj:
-            obj = ":%s" % obj
+            obj = f":{obj}"
         sigle = msg_id[0]
         if linesep != "\n":
             # 2to3 writes os.linesep instead of using
@@ -49,30 +54,32 @@ class GenericTestReporter(BaseReporter):
         return result
 
     # pylint: disable=unused-argument
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         pass
 
     # pylint: enable=unused-argument
 
-    def display_reports(self, layout):
+    def display_reports(self, layout: "Section") -> None:
         """ignore layouts"""
 
-    _display = None
+    def _display(self, layout: "Section") -> None:
+        pass
 
 
 class MinimalTestReporter(BaseReporter):
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self.messages = []
 
-    _display = None
+    def _display(self, layout: "Section") -> None:
+        pass
 
 
 class FunctionalTestReporter(BaseReporter):
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         self.messages = []
 
-    def display_reports(self, layout):
+    def display_reports(self, layout: "Section") -> None:
         """Ignore layouts and don't call self._display()."""
 
-    def _display(self, layout):
+    def _display(self, layout: "Section") -> None:
         pass

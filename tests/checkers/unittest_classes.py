@@ -8,6 +8,7 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019-2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 # Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
@@ -19,14 +20,14 @@
 import astroid
 
 from pylint.checkers import classes
-from pylint.testutils import CheckerTestCase, Message, set_config
+from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 
 class TestVariablesChecker(CheckerTestCase):
 
     CHECKER_CLASS = classes.ClassChecker
 
-    def test_bitbucket_issue_164(self):
+    def test_bitbucket_issue_164(self) -> None:
         """Issue 164 report a false negative for access-member-before-definition"""
         n1, n2 = astroid.extract_node(
             """
@@ -36,14 +37,14 @@ class TestVariablesChecker(CheckerTestCase):
             self.first = 0  #@
         """
         )
-        message = Message(
+        message = MessageTest(
             "access-member-before-definition", node=n1.target, args=("first", n2.lineno)
         )
         with self.assertAddsMessages(message):
             self.walk(n1.root())
 
     @set_config(exclude_protected=("_meta", "_manager"))
-    def test_exclude_protected(self):
+    def test_exclude_protected(self) -> None:
         """Test that exclude-protected can be used to
         exclude names from protected-access warning.
         """
@@ -63,11 +64,11 @@ class TestVariablesChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message("protected-access", node=node.body[-1].value, args="_teta")
+            MessageTest("protected-access", node=node.body[-1].value, args="_teta")
         ):
             self.walk(node.root())
 
-    def test_regression_non_parent_init_called_tracemalloc(self):
+    def test_regression_non_parent_init_called_tracemalloc(self) -> None:
         # This used to raise a non-parent-init-called on Pylint 1.3
         # See issue https://bitbucket.org/logilab/pylint/issue/308/
         # for reference.
@@ -82,7 +83,7 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_super_init_not_called_regression(self):
+    def test_super_init_not_called_regression(self) -> None:
         # This should not emit a super-init-not-called
         # warning. It previously did this, because
         # ``next(node.infer())`` was used in that checker's
@@ -100,7 +101,7 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_uninferable_attribute(self):
+    def test_uninferable_attribute(self) -> None:
         """Make sure protect-access doesn't raise an exception Uninferable attributes"""
 
         node = astroid.extract_node(
@@ -116,12 +117,12 @@ class TestVariablesChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message("protected-access", node=node.value, args="_nargs")
+            MessageTest("protected-access", node=node.value, args="_nargs")
         ):
             self.checker.visit_attribute(node.value)
 
     @set_config(check_protected_access_in_special_methods=True)
-    def test_check_protected_access_in_special_methods(self):
+    def test_check_protected_access_in_special_methods(self) -> None:
         """Test that check-protected-access-in-special-methods can be used to
         trigger protected-access message emission for single underscore prefixed names
         inside special methods
@@ -153,15 +154,17 @@ class TestVariablesChecker(CheckerTestCase):
         unused_private_attr_1 = classdef.instance_attr("__private")[0]
         unused_private_attr_2 = classdef.instance_attr("__private")[1]
         with self.assertAddsMessages(
-            Message("protected-access", node=attribute_in_eq, args="_protected"),
-            Message("protected-access", node=attribute_in_fake_1, args="_protected"),
-            Message("protected-access", node=attribute_in_fake_2, args="__private"),
-            Message(
+            MessageTest("protected-access", node=attribute_in_eq, args="_protected"),
+            MessageTest(
+                "protected-access", node=attribute_in_fake_1, args="_protected"
+            ),
+            MessageTest("protected-access", node=attribute_in_fake_2, args="__private"),
+            MessageTest(
                 "unused-private-member",
                 node=unused_private_attr_1,
                 args=("Protected", "__private"),
             ),
-            Message(
+            MessageTest(
                 "unused-private-member",
                 node=unused_private_attr_2,
                 args=("Protected", "__private"),
@@ -170,7 +173,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.walk(node.root())
 
     @set_config(check_protected_access_in_special_methods=False)
-    def test_check_protected_access_in_special_methods_deact(self):
+    def test_check_protected_access_in_special_methods_deact(self) -> None:
         """Test that when check-protected-access-in-special-methods is False (default)
         no protected-access message emission for single underscore prefixed names
         inside special methods occur
@@ -200,14 +203,16 @@ class TestVariablesChecker(CheckerTestCase):
         unused_private_attr_1 = classdef.instance_attr("__private")[0]
         unused_private_attr_2 = classdef.instance_attr("__private")[1]
         with self.assertAddsMessages(
-            Message("protected-access", node=attribute_in_fake_1, args="_protected"),
-            Message("protected-access", node=attribute_in_fake_2, args="__private"),
-            Message(
+            MessageTest(
+                "protected-access", node=attribute_in_fake_1, args="_protected"
+            ),
+            MessageTest("protected-access", node=attribute_in_fake_2, args="__private"),
+            MessageTest(
                 "unused-private-member",
                 node=unused_private_attr_1,
                 args=("Protected", "__private"),
             ),
-            Message(
+            MessageTest(
                 "unused-private-member",
                 node=unused_private_attr_2,
                 args=("Protected", "__private"),
@@ -215,7 +220,7 @@ class TestVariablesChecker(CheckerTestCase):
         ):
             self.walk(node.root())
 
-    def test_private_attribute_hides_method(self):
+    def test_private_attribute_hides_method(self) -> None:
         node = astroid.extract_node(
             """
             class Parent:
@@ -230,7 +235,7 @@ class TestVariablesChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_protected_attribute_hides_method(self):
+    def test_protected_attribute_hides_method(self) -> None:
         node = astroid.extract_node(
             """
             class Parent:
@@ -242,5 +247,7 @@ class TestVariablesChecker(CheckerTestCase):
                     pass
             """
         )
-        with self.assertAddsMessages(Message("method-hidden", node=node, args=("", 4))):
+        with self.assertAddsMessages(
+            MessageTest("method-hidden", node=node, args=("", 4))
+        ):
             self.checker.visit_functiondef(node)

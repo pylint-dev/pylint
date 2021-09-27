@@ -13,12 +13,13 @@
 # Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Taewon D. Kim <kimt33@mcmaster.ca>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
 # Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
-# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
-# Copyright (c) 2021 Maksym Humetskyi <Humetsky@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Maksym Humetskyi <Humetsky@gmail.com>
 # Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 Aditya Gupta <adityagupta1089@users.noreply.github.com>
 
@@ -37,7 +38,7 @@ The common hashes between both linesets are then looked for. If there are matche
 with the corresponding couples (start line number/end line number) in both files.
 This association is then postprocessed to handle the case of successive matches. For example if the minimum common lines setting is set to four, then
 the hashes are computed with four lines. If one of match indices couple (12, 34) is the successor of another one (11, 33) then it means that there are
-in fact five lines wich are common.
+in fact five lines which are common.
 Once postprocessed the values of association table are the result looked for, i.e start and end lines numbers of common lines in both files.
 """
 import copy
@@ -48,7 +49,7 @@ import re
 import sys
 from collections import defaultdict
 from getopt import getopt
-from io import TextIOWrapper
+from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain, groupby
 from typing import (
     Any,
@@ -59,15 +60,20 @@ from typing import (
     List,
     NamedTuple,
     NewType,
+    Optional,
     Set,
+    TextIO,
     Tuple,
+    Union,
 )
 
 import astroid
+from astroid import nodes
 
 from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
+from pylint.typing import CheckerStats
 from pylint.utils import decoding_stream
 
 DEFAULT_MIN_SIMILARITY_LINE = 4
@@ -93,6 +99,9 @@ HashToIndex_T = Dict["LinesChunk", List[Index]]
 
 # Links index in the lineset's stripped lines to the real lines in the file
 IndexToLines_T = Dict[Index, "SuccessiveLinesLimits"]
+
+# The types the streams read by pylint can take. Originating from astroid.nodes.Module.stream() and open()
+STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
 
 
 class CplSuccessiveLinesLimits:
@@ -367,13 +376,15 @@ class Similar:
         self.linesets: List["LineSet"] = []
 
     def append_stream(
-        self, streamid: str, stream: TextIOWrapper, encoding=None
+        self, streamid: str, stream: STREAM_TYPES, encoding: Optional[str] = None
     ) -> None:
         """append a file to search for similarities"""
-        if encoding is None:
-            readlines = stream.readlines
-        else:
+        if isinstance(stream, BufferedIOBase):
+            if encoding is None:
+                raise ValueError
             readlines = decoding_stream(stream, encoding).readlines
+        else:
+            readlines = stream.readlines  # type: ignore # hint parameter is incorrectly typed as non-optional
         try:
             self.linesets.append(
                 LineSet(
@@ -390,6 +401,8 @@ class Similar:
 
     def run(self) -> None:
         """start looking for similarities and display results on stdout"""
+        if self.min_lines == 0:
+            return
         self._display_sims(self._compute_sims())
 
     def _compute_sims(self) -> List[Tuple[int, Set[LinesChunkLimits_T]]]:
@@ -455,11 +468,7 @@ class Similar:
                     report += f"   {line.rstrip()}\n" if line.rstrip() else "\n"
             duplicated_line_number += number * (len(couples_l) - 1)
         total_line_number: int = sum(len(lineset) for lineset in self.linesets)
-        report += "TOTAL lines={} duplicates={} percent={:.2f}\n".format(
-            total_line_number,
-            duplicated_line_number,
-            duplicated_line_number * 100.0 / total_line_number,
-        )
+        report += f"TOTAL lines={total_line_number} duplicates={duplicated_line_number} percent={duplicated_line_number * 100.0 / total_line_number:.2f}\n"
         return report
 
     def _find_common(
@@ -575,7 +584,7 @@ def stripped_lines(
         tree = astroid.parse("".join(lines))
     if ignore_imports:
         node_is_import_by_lineno = (
-            (node.lineno, isinstance(node, (astroid.Import, astroid.ImportFrom)))
+            (node.lineno, isinstance(node, (nodes.Import, nodes.ImportFrom)))
             for node in tree.body
         )
         line_begins_import = {
@@ -586,11 +595,25 @@ def stripped_lines(
         }
         current_line_is_import = False
     if ignore_signatures:
-        functions = [
-            n
-            for n in tree.body
-            if isinstance(n, (astroid.FunctionDef, astroid.AsyncFunctionDef))
-        ]
+
+        def _get_functions(
+            functions: List[nodes.NodeNG], tree: nodes.NodeNG
+        ) -> List[nodes.NodeNG]:
+            """Recursively get all functions including nested in the classes from the tree."""
+
+            for node in tree.body:
+                if isinstance(node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
+                    functions.append(node)
+
+                if isinstance(
+                    node,
+                    (nodes.ClassDef, nodes.FunctionDef, nodes.AsyncFunctionDef),
+                ):
+                    _get_functions(functions, node)
+
+            return functions
+
+        functions = _get_functions([], tree)
         signature_lines = set(
             chain(
                 *(
@@ -640,18 +663,18 @@ def stripped_lines(
 class LineSet:
     """
     Holds and indexes all the lines of a single source file.
-    Allows for correspondance between real lines of the source file and stripped ones, which
+    Allows for correspondence between real lines of the source file and stripped ones, which
     are the real ones from which undesired patterns have been removed.
     """
 
     def __init__(
         self,
-        name,
-        lines,
-        ignore_comments=False,
-        ignore_docstrings=False,
-        ignore_imports=False,
-        ignore_signatures=False,
+        name: str,
+        lines: List[str],
+        ignore_comments: bool = False,
+        ignore_docstrings: bool = False,
+        ignore_imports: bool = False,
+        ignore_signatures: bool = False,
     ) -> None:
         self.name = name
         self._real_lines = lines
@@ -660,7 +683,7 @@ class LineSet:
         )
 
     def __str__(self):
-        return "<Lineset for %s>" % self.name
+        return f"<Lineset for {self.name}>"
 
     def __len__(self):
         return len(self._real_lines)
@@ -699,7 +722,11 @@ MSGS = {
 }
 
 
-def report_similarities(sect, stats, old_stats):
+def report_similarities(
+    sect,
+    stats: CheckerStats,
+    old_stats: CheckerStats,
+):
     """make a layout with some stats about duplication"""
     lines = ["", "now", "previous", "difference"]
     lines += table_lines_from_stats(
@@ -724,7 +751,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     # for available dict keys/values see the optik parser 'add_option' method
     options = (
         (
-            "min-similarity-lines",  # type: ignore
+            "min-similarity-lines",
             {
                 "default": DEFAULT_MIN_SIMILARITY_LINE,
                 "type": "int",
@@ -770,7 +797,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         ),
     )
     # reports
-    reports = (("RP0801", "Duplication", report_similarities),)  # type: ignore
+    reports = (("RP0801", "Duplication", report_similarities),)
 
     def __init__(self, linter=None) -> None:
         BaseChecker.__init__(self, linter)
@@ -782,7 +809,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             ignore_imports=self.config.ignore_imports,
             ignore_signatures=self.config.ignore_signatures,
         )
-        self.stats = None
+        self.stats: CheckerStats = {}
 
     def set_option(self, optname, value, action=None, optdict=None):
         """method called to set an option (registered in the options list)
@@ -808,7 +835,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             nb_duplicated_lines=0, percent_duplicated_lines=0
         )
 
-    def process_module(self, node):
+    def process_module(self, node: nodes.Module) -> None:
         """process a module
 
         the module's content is accessible via the stream object

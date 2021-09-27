@@ -10,6 +10,7 @@
 # Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -17,6 +18,12 @@
 
 """Interfaces for Pylint objects"""
 from collections import namedtuple
+from typing import TYPE_CHECKING, Tuple
+
+from astroid import nodes
+
+if TYPE_CHECKING:
+    from pylint.reporters.ureports.nodes import Section
 
 Confidence = namedtuple("Confidence", ["name", "description"])
 # Warning Certainties
@@ -38,7 +45,7 @@ class Interface:
         return implements(instance, cls)
 
 
-def implements(obj, interface):
+def implements(obj: "Interface", interface: Tuple[type, type]) -> bool:
     """Return true if the give object (maybe an instance or class) implements
     the interface.
     """
@@ -66,7 +73,7 @@ class IChecker(Interface):
 class IRawChecker(IChecker):
     """interface for checker which need to parse the raw file"""
 
-    def process_module(self, astroid):
+    def process_module(self, node: nodes.Module) -> None:
         """process a module
 
         the module's content is accessible via astroid.stream
@@ -95,8 +102,8 @@ class IReporter(Interface):
     def handle_message(self, msg) -> None:
         """Handle the given message object."""
 
-    def display_reports(self, layout):
+    def display_reports(self, layout: "Section") -> None:
         """display results encapsulated in the layout tree"""
 
 
-__all__ = ("IRawChecker", "IAstroidChecker", "ITokenChecker", "IReporter")
+__all__ = ("IRawChecker", "IAstroidChecker", "ITokenChecker", "IReporter", "IChecker")

@@ -1,4 +1,7 @@
-# Copyright (c) 2021 Rebecca Turner <rturner@starry.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Rebecca Turner <rbt@sent.as>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
@@ -18,7 +21,7 @@ class TestDesignChecker(CheckerTestCase):
         ignored_parents=(".Dddd",),
         max_parents=1,
     )
-    def test_too_many_ancestors_ignored_parents_are_skipped(self):
+    def test_too_many_ancestors_ignored_parents_are_skipped(self) -> None:
         """Make sure that classes listed in ``ignored-parents`` aren't counted
         by the too-many-ancestors message.
         """

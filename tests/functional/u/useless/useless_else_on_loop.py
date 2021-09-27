@@ -3,7 +3,7 @@ from __future__ import print_function
 __revision__ = 0
 
 def test_return_for():
-    """else + return is not accetable."""
+    """else + return is not acceptable."""
     for i in range(10):
         if i % 2:
             return i
