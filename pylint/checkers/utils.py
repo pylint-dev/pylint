@@ -482,7 +482,7 @@ class UnsupportedFormatCharacter(Exception):
     format characters."""
 
     def __init__(self, index):
-        Exception.__init__(self, index)
+        super().__init__(index)
         self.index = index
 
 

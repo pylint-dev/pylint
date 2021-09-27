@@ -180,7 +180,7 @@ class TextReporter(BaseReporter):
     line_format = "{path}:{line}:{column}: {msg_id}: {msg} ({symbol})"
 
     def __init__(self, output: Optional[TextIO] = None) -> None:
-        BaseReporter.__init__(self, output)
+        super().__init__(output)
         self._modules: Set[str] = set()
         self._template = self.line_format
 
@@ -222,7 +222,7 @@ class ParseableTextReporter(TextReporter):
             f"{self.name} output format is deprecated. This is equivalent to --msg-template={self.line_format}",
             DeprecationWarning,
         )
-        TextReporter.__init__(self, output)
+        super().__init__(output)
 
 
 class VSTextReporter(ParseableTextReporter):
@@ -270,7 +270,7 @@ class ColorizedTextReporter(TextReporter):
             ColorMappingDict, Dict[str, Tuple[Optional[str], Optional[str]]], None
         ] = None,
     ) -> None:
-        TextReporter.__init__(self, output)
+        super().__init__(output)
         # pylint: disable-next=fixme
         # TODO: Remove DeprecationWarning and only accept ColorMappingDict as color_mapping parameter
         if color_mapping and not isinstance(
