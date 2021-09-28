@@ -823,7 +823,7 @@ a metaclass class method.",
     )
 
     def __init__(self, linter=None):
-        BaseChecker.__init__(self, linter)
+        super().__init__(linter)
         self._accessed = ScopeAccessMap()
         self._first_attrs = []
         self._meth_could_be_func = None
@@ -2131,7 +2131,7 @@ class SpecialMethodsChecker(BaseChecker):
     priority = -2
 
     def __init__(self, linter=None):
-        BaseChecker.__init__(self, linter)
+        super().__init__(linter)
         self._protocol_map = {
             "__iter__": self._check_iter,
             "__len__": self._check_len,

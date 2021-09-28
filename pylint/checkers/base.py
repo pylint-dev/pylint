@@ -1085,7 +1085,7 @@ class BasicChecker(_BasicChecker):
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
 
     def __init__(self, linter):
-        _BasicChecker.__init__(self, linter)
+        super().__init__(linter)
         self.stats: CheckerStats = {}
         self._tryfinallys = None
 
@@ -1835,7 +1835,7 @@ class NameChecker(_BasicChecker):
     KEYWORD_ONSET = {(3, 7): {"async", "await"}}
 
     def __init__(self, linter):
-        _BasicChecker.__init__(self, linter)
+        super().__init__(linter)
         self._name_category = {}
         self._name_group = {}
         self._bad_names = {}

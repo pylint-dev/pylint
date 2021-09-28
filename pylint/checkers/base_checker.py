@@ -53,7 +53,7 @@ class BaseChecker(OptionsProviderMixIn):
         :param ILinter linter: is an object implementing ILinter."""
         if self.name is not None:
             self.name = self.name.lower()
-        OptionsProviderMixIn.__init__(self)
+        super().__init__()
         self.linter = linter
         self.stats: CheckerStats = {}
 

@@ -71,7 +71,7 @@ class RawMetricsChecker(BaseTokenChecker):
     reports = (("RP0701", "Raw metrics", report_raw_stats),)
 
     def __init__(self, linter):
-        BaseTokenChecker.__init__(self, linter)
+        super().__init__(linter)
         self.stats: CheckerStats = {}
 
     def open(self):

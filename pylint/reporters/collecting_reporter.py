@@ -14,7 +14,7 @@ class CollectingReporter(BaseReporter):
     name = "collector"
 
     def __init__(self) -> None:
-        BaseReporter.__init__(self)
+        super().__init__()
         self.messages = []
 
     def reset(self) -> None:
