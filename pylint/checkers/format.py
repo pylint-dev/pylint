@@ -673,7 +673,7 @@ class FormatChecker(BaseTokenChecker):
                 "trailing-whitespace", line=i, col_offset=len(stripped_line)
             )
 
-    def check_line_length(self, line: str, i: int) -> None:
+    def check_line_length(self, line: str, i: int, checker_off: bool) -> None:
         """
         Check that the line length is less than the authorized value
         """
@@ -681,7 +681,10 @@ class FormatChecker(BaseTokenChecker):
         ignore_long_line = self.config.ignore_long_lines
         line = line.rstrip()
         if len(line) > max_chars and not ignore_long_line.search(line):
-            self.add_message("line-too-long", line=i, args=(len(line), max_chars))
+            if checker_off:
+                self.linter.add_ignored_message("line-too-long", i)
+            else:
+                self.add_message("line-too-long", line=i, args=(len(line), max_chars))
 
     @staticmethod
     def remove_pylint_option_from_lines(options_pattern_obj) -> str:
@@ -775,16 +778,16 @@ class FormatChecker(BaseTokenChecker):
 
         # Line length check may be deactivated through `pylint: disable` comment
         mobj = OPTION_PO.search(lines)
+        checker_off = False
         if mobj:
             if not self.is_line_length_check_activated(mobj):
-                # the line length check is deactivated, we can stop here
-                return
+                checker_off = True
             # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(mobj)
 
         # here we re-run specific_splitlines since we have filtered out pylint options above
         for offset, line in enumerate(self.specific_splitlines(lines)):
-            self.check_line_length(line, lineno + offset)
+            self.check_line_length(line, lineno + offset, checker_off)
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string"""

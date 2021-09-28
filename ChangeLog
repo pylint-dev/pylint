@@ -47,6 +47,10 @@ Release date: TBA
 
   Closes #5066
 
+* Fix false-positive ``useless-suppression`` for ``line-too-long``
+
+  Closes #4212
+
 * Fixed ``invalid-name`` not checking parameters of overwritten base ``object`` methods
 
   Closes #3614
