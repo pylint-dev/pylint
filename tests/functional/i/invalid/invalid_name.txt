@@ -1,5 +1,6 @@
-invalid-name:10:0::"Constant name ""aaa"" doesn't conform to UPPER_CASE naming style"
-invalid-name:14:4::"Constant name ""time"" doesn't conform to UPPER_CASE naming style"
-invalid-name:30:0:a:"Function name ""a"" doesn't conform to snake_case naming style"
-invalid-name:44:4::"Constant name ""Foocapfor"" doesn't conform to UPPER_CASE naming style"
-invalid-name:61:0:a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad:"Function name ""a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad"" doesn't conform to snake_case naming style"
+invalid-name:12:0::"Constant name ""aaa"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:16:4::"Constant name ""time"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:32:0:a:"Function name ""a"" doesn't conform to snake_case naming style":HIGH
+invalid-name:46:4::"Constant name ""Foocapfor"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:63:0:a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad:"Function name ""a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad"" doesn't conform to snake_case naming style":HIGH
+invalid-name:75:4:FooBar.__init__:"Argument name ""fooBar"" doesn't conform to snake_case naming style":HIGH
