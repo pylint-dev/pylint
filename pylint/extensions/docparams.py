@@ -218,7 +218,7 @@ class DocstringParameterChecker(BaseChecker):
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = get_global_option(self, "no-docstring-rgx")
-        if no_docstring_rgx and re.match(no_docstring_rgx, node.name):
+        if no_docstring_rgx.pattern and re.match(no_docstring_rgx, node.name):
             return
 
         # skip functions smaller than 'docstring-min-length'
