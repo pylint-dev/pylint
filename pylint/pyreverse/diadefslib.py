@@ -187,8 +187,6 @@ class ClassDiadefGenerator(DiaDefGenerator):
     given class
     """
 
-    def __init__(self, linker, handler):
-        super().__init__(linker, handler)
 
     def class_diagram(self, project, klass):
         """return a class diagram definition for the given klass and its
