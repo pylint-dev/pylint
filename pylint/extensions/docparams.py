@@ -145,6 +145,11 @@ class DocstringParameterChecker(BaseChecker):
             "useless-type-doc",
             "Please remove the ignored parameter type documentation.",
         ),
+        "W9021": (
+            'Missing any documentation in "%s"',
+            "missing-any-param-doc",
+            "Please add parameter and/or type documentation.",
+        ),
     }
 
     options = (
@@ -541,16 +546,6 @@ class DocstringParameterChecker(BaseChecker):
         if not params_with_doc and not params_with_type and accept_no_param_doc:
             tolerate_missing_params = True
 
-        if not tolerate_missing_params:
-            self._compare_missing_args(
-                params_with_doc,
-                "missing-param-doc",
-                self.not_needed_param_in_docstring
-                | expected_but_ignored_argument_names,
-                expected_argument_names,
-                warning_node,
-            )
-
         # This is before the update of param_with_type because this must check only
         # the type documented in a docstring, not the one using pep484
         # See #4117 and #4593
@@ -568,13 +563,37 @@ class DocstringParameterChecker(BaseChecker):
                 params_with_type.add(arg_name.name)
 
         if not tolerate_missing_params:
-            self._compare_missing_args(
-                params_with_type,
-                "missing-type-doc",
-                not_needed_type_in_docstring | expected_but_ignored_argument_names,
-                expected_argument_names,
-                warning_node,
+            missing_param_doc = (expected_argument_names - params_with_doc) - (
+                self.not_needed_param_in_docstring | expected_but_ignored_argument_names
             )
+            missing_type_doc = (expected_argument_names - params_with_type) - (
+                not_needed_type_in_docstring | expected_but_ignored_argument_names
+            )
+            if (
+                missing_param_doc == expected_argument_names == missing_type_doc
+                and len(expected_argument_names) != 0
+            ):
+                self.add_message(
+                    "missing-any-param-doc",
+                    args=(warning_node.name),
+                    node=warning_node,
+                )
+            else:
+                self._compare_missing_args(
+                    params_with_doc,
+                    "missing-param-doc",
+                    self.not_needed_param_in_docstring
+                    | expected_but_ignored_argument_names,
+                    expected_argument_names,
+                    warning_node,
+                )
+                self._compare_missing_args(
+                    params_with_type,
+                    "missing-type-doc",
+                    not_needed_type_in_docstring | expected_but_ignored_argument_names,
+                    expected_argument_names,
+                    warning_node,
+                )
 
         self._compare_different_args(
             params_with_doc,

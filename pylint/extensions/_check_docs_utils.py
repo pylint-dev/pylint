@@ -645,9 +645,17 @@ class GoogleDocstring(Docstring):
             if not match:
                 continue
 
-            param_name = match.group(1)
-            param_type = match.group(2)
-            param_desc = match.group(3)
+            # check if parameter has description only
+            re_only_desc = re.search(":\n", entry)
+            if re_only_desc:
+                param_name = match.group(1)
+                param_desc = match.group(2)
+                param_type = None
+            else:
+                param_name = match.group(1)
+                param_type = match.group(2)
+                param_desc = match.group(3)
+
             if param_type:
                 params_with_type.add(param_name)
 
@@ -726,8 +734,7 @@ class NumpyDocstring(GoogleDocstring):
         \s*  (\w+)                                                          # identifier
         \s*  :
         \s*  (?:({GoogleDocstring.re_multiple_type})(?:,\s+optional)?)?     # optional type declaration
-        \n                                                                  # description starts on a new line
-        \s* (.*)                                                            # description
+        \s* (.*)                                                            # optional description
     """,
         re.X | re.S,
     )
