@@ -1,5 +1,7 @@
+"""Unittest for the main module"""
 import os
 import sys
+from typing import Iterator
 
 import pytest
 
@@ -10,7 +12,7 @@ PROJECT_ROOT_DIR = os.path.abspath(os.path.join(TEST_DATA_DIR, ".."))
 
 
 @pytest.fixture(name="setup_path", params=[PROJECT_ROOT_DIR, TEST_DATA_DIR])
-def fixture_setup_path(request):
+def fixture_setup_path(request) -> Iterator[str]:
     current_sys_path = list(sys.path)
     sys.path[:] = []
     current_dir = os.getcwd()
@@ -21,5 +23,8 @@ def fixture_setup_path(request):
 
 
 def test_project_root_in_sys_path(setup_path):
+    """Test the context manager adds the project root directory to sys.path.
+    This should happen when pyreverse is run from any directory
+    """
     with fix_import_path([setup_path]):
         assert sys.path == [PROJECT_ROOT_DIR]
