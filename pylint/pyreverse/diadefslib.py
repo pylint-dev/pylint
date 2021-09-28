@@ -187,7 +187,6 @@ class ClassDiadefGenerator(DiaDefGenerator):
     given class
     """
 
-
     def class_diagram(self, project, klass):
         """return a class diagram definition for the given klass and its
         related klasses
