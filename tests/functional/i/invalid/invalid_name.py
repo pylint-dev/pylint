@@ -1,5 +1,7 @@
 """ Tests for invalid-name checker. """
-# pylint: disable=unused-import,  wrong-import-position,import-outside-toplevel
+# pylint: disable=unused-import, wrong-import-position, import-outside-toplevel, missing-class-docstring
+# pylint: disable=too-few-public-methods
+
 
 AAA = 24
 try:
@@ -67,3 +69,8 @@ def a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad():  # Shoul
     print('LOL')
 
 a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad()
+
+
+class FooBar:
+    def __init__(self, fooBar) -> None: # [invalid-name]
+        self.foo_bar = fooBar

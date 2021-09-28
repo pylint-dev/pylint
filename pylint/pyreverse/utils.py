@@ -203,7 +203,7 @@ class LocalsVisitor(ASTWalker):
     """visit a project by traversing the locals dictionary"""
 
     def __init__(self):
-        ASTWalker.__init__(self, self)
+        super().__init__(self)
         self._visited = set()
 
     def visit(self, node):

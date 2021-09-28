@@ -706,7 +706,7 @@ class VariablesChecker(BaseChecker):
     )
 
     def __init__(self, linter=None):
-        BaseChecker.__init__(self, linter)
+        super().__init__(linter)
         self._to_consume = (
             None  # list of tuples: (to_consume:dict, consumed:dict, scope_type:str)
         )

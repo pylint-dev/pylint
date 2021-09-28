@@ -70,7 +70,7 @@ Expected '{example}' or '{other_example}' but we got '{raw}':
 {reconstructed_row}
 
 Try updating it with: 'python tests/test_functional.py {UPDATE_OPTION}'"""
-        Exception.__init__(self, msg)
+        super().__init__(msg)
 
 
 class OutputLine(NamedTuple):

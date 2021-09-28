@@ -335,7 +335,7 @@ class FormatChecker(BaseTokenChecker):
     )
 
     def __init__(self, linter=None):
-        BaseTokenChecker.__init__(self, linter)
+        super().__init__(linter)
         self._lines = None
         self._visited_lines = None
         self._bracket_stack = [None]
