@@ -65,7 +65,7 @@ GLOBAL_OPTION_NAMES = Union[
     GLOBAL_OPTION_TUPLE_INT,
 ]
 T_GlobalOptionReturnTypes = TypeVar(
-    "T_GlobalOptionReturnTypes", bool, int, List[str], Pattern, Tuple[int, ...]
+    "T_GlobalOptionReturnTypes", bool, int, List[str], Pattern[str], Tuple[int, ...]
 )
 
 
@@ -215,8 +215,8 @@ def get_global_option(
 def get_global_option(
     checker: "BaseChecker",
     option: GLOBAL_OPTION_PATTERN,
-    default: Optional[Pattern] = None,
-) -> Pattern:
+    default: Optional[Pattern[str]] = None,
+) -> Pattern[str]:
     ...
 
 
@@ -244,15 +244,23 @@ def get_global_option(
     # First, try in the given checker's config.
     # After that, look in the options providers.
 
-    try:
-        return getattr(checker.config, option.replace("-", "_"))
-    except AttributeError:
-        pass
-    for provider in checker.linter.options_providers:
-        for options in provider.options:
-            if options[0] == option:
-                return getattr(provider.config, option.replace("-", "_"))
-    return default
+    glob_option: Optional[T_GlobalOptionReturnTypes] = None
+    glob_option = getattr(checker.config, option.replace("-", "_"), None)
+    if glob_option is None:
+        for provider in checker.linter.options_providers:
+            for options in provider.options:
+                if options[0] == option:
+                    glob_option = getattr(
+                        provider.config, option.replace("-", "_"), None
+                    )
+    if glob_option is None:
+        glob_option = default
+    if option in {"no-docstring-rgx", "dummy-variables-rgx", "ignored-argument-names"}:
+        pattern_string = "" if glob_option is None else glob_option
+        if isinstance(pattern_string, (Pattern, str)):
+            return re.compile(pattern_string)  # type: ignore # No good way to tell mypy that option == GLOBAL_OPTION_PATTERN
+        raise ValueError(f"Incorrect option type for option: {option}")
+    return glob_option
 
 
 def _splitstrip(string, sep=","):
