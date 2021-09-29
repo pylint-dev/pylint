@@ -1,5 +1,5 @@
 """ Tests for invalid-name checker. """
-# pylint: disable=unused-import, wrong-import-position, import-outside-toplevel, missing-class-docstring
+# pylint: disable=unused-import, wrong-import-position, import-outside-toplevel, missing-class-docstring,missing-function-docstring
 # pylint: disable=too-few-public-methods
 
 
@@ -72,5 +72,24 @@ a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad()
 
 
 class FooBar:
-    def __init__(self, fooBar) -> None: # [invalid-name]
+    def __init__(self, fooBar) -> None:  # [invalid-name]
+        self.foo_bar = fooBar
+
+    def func1(
+        self,
+        fooBar,  # [invalid-name]
+    ):
+        self.foo_bar = fooBar
+
+    # Test disable invalid-name
+    def test_disable1(self, fooBar):  # pylint: disable=invalid-name
+        self.foo_bar = fooBar
+
+    def test_disable2(
+        self,
+        fooBar,  # pylint: disable=invalid-name
+    ):
+        self.foo_bar = fooBar
+
+    def test_disable3(self, fooBar):  # pylint: disable=invalid-name
         self.foo_bar = fooBar
