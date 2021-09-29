@@ -4,4 +4,5 @@ invalid-name:32:0:a:"Function name ""a"" doesn't conform to snake_case naming st
 invalid-name:46:4::"Constant name ""Foocapfor"" doesn't conform to UPPER_CASE naming style":HIGH
 invalid-name:63:0:a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad:"Function name ""a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad"" doesn't conform to snake_case naming style":HIGH
 invalid-name:75:23:FooBar.__init__:"Argument name ""fooBar"" doesn't conform to snake_case naming style":HIGH
-invalid-name:80:8:FooBar.func1:"Argument name ""fooBar"" doesn't conform to snake_case naming style":HIGH
+invalid-name:81:8:FooBar.func1:"Argument name ""fooBar"" doesn't conform to snake_case naming style":HIGH
+invalid-name:101:8:FooBar.test_disable_mixed:"Argument name ""fooBar2"" doesn't conform to snake_case naming style":HIGH

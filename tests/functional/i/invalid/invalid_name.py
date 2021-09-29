@@ -74,6 +74,7 @@ a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad()
 class FooBar:
     def __init__(self, fooBar) -> None:  # [invalid-name]
         self.foo_bar = fooBar
+        self.foo_bar2 = None
 
     def func1(
         self,
@@ -93,3 +94,12 @@ class FooBar:
 
     def test_disable3(self, fooBar):  # pylint: disable=invalid-name
         self.foo_bar = fooBar
+
+    def test_disable_mixed(
+        self,
+        fooBar,  # pylint: disable=invalid-name
+        fooBar2,  # [invalid-name]
+    ):
+        """Invalid-name will still be raised for other arguments."""
+        self.foo_bar = fooBar
+        self.foo_bar2 = fooBar2
