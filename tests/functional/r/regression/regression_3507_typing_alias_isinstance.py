@@ -13,6 +13,7 @@ isinstance(42, typing.Collection)
 isinstance(42, typing.Iterator)
 isinstance(42, typing.Tuple)
 isinstance(42, typing.Callable)
+isinstance(42, typing.Type)
 
 
 # For comparison - also valid calls
@@ -22,3 +23,4 @@ isinstance(42, collections.abc.Collection)
 isinstance(42, collections.abc.Iterator)
 isinstance(42, tuple)
 isinstance(42, collections.abc.Callable)
+isinstance(42, type)
