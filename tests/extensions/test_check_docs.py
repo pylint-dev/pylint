@@ -31,6 +31,7 @@ from astroid import nodes
 
 from pylint.extensions.docparams import DocstringParameterChecker
 from pylint.testutils import CheckerTestCase, MessageTest, set_config
+from pylint.testutils.decorator import set_config_directly
 
 
 class TestParamDocChecker(CheckerTestCase):
@@ -2324,7 +2325,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-    @set_config(no_docstring_rgx=r"^_(?!_).*$")
+    @set_config_directly(no_docstring_rgx=r"^_(?!_).*$")
     def test_skip_no_docstring_rgx(self) -> None:
         """Example of a function that matches the default 'no-docstring-rgx' config option
 
@@ -2342,7 +2343,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    @set_config(docstring_min_length=3)
+    @set_config_directly(docstring_min_length=3)
     def test_skip_docstring_min_length(self) -> None:
         """Example of a function that is less than 'docstring-min-length' config option
 
