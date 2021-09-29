@@ -1,3 +1,4 @@
+#pylint: disable = missing-any-param-doc
 """demonstrate FP with useless-type-doc"""
 
 
