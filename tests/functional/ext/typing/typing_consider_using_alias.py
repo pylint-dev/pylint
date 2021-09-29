@@ -11,7 +11,7 @@ import collections.abc
 import typing
 from collections.abc import Awaitable
 from dataclasses import dataclass
-from typing import Dict, List, Set, Union, TypedDict
+from typing import Dict, List, Set, Union, TypedDict, Callable, Tuple, Type
 
 var1: typing.Dict[str, int]  # [consider-using-alias]
 var2: List[int]  # [consider-using-alias]
@@ -32,6 +32,14 @@ Alias1 = Set[int]
 Alias2 = Dict[int, List[int]]
 Alias3 = Union[int, typing.List[str]]
 Alias4 = List  # [consider-using-alias]
+
+var21: Type[object]  # [consider-using-alias]
+var22: Tuple[str]  # [consider-using-alias]
+var23: Callable[..., str]  # [consider-using-alias]
+var31: type[object]
+var32: tuple[str]
+var33: collections.abc.Callable[..., str]
+
 
 def func1(arg1: List[int], /, *args: List[int], arg2: set[int], **kwargs: Dict[str, int]) -> typing.Tuple[int]:
     # -1:[consider-using-alias,consider-using-alias,consider-using-alias,consider-using-alias]
