@@ -20,6 +20,10 @@ Release date: TBA
 ..
   Put bug fixes that should not wait for a new minor version here
 
+* Properly identify parameters with no doc and add new message called ``missing-any-param-doc``
+
+  Closes #3799
+
 * Don't emit ``consider-using-f-string`` if ``py-version`` is set to Python < ``3.6``.
   ``f-strings`` were added in Python ``3.6``
 
