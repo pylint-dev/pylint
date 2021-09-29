@@ -11,20 +11,21 @@ TEST_DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "d
 PROJECT_ROOT_DIR = os.path.abspath(os.path.join(TEST_DATA_DIR, ".."))
 
 
-@pytest.fixture(name="setup_path", params=[PROJECT_ROOT_DIR, TEST_DATA_DIR])
-def fixture_setup_path(request) -> Iterator[str]:
+@pytest.fixture(params=[PROJECT_ROOT_DIR, TEST_DATA_DIR])
+def setup_path(request) -> Iterator[str]:
     current_sys_path = list(sys.path)
     sys.path[:] = []
     current_dir = os.getcwd()
     os.chdir(request.param)
-    yield request.param
+    yield
     os.chdir(current_dir)
     sys.path[:] = current_sys_path
 
 
-def test_project_root_in_sys_path(setup_path):
+@pytest.mark.usefixtures("setup_path")
+def test_project_root_in_sys_path():
     """Test the context manager adds the project root directory to sys.path.
     This should happen when pyreverse is run from any directory
     """
-    with fix_import_path([setup_path]):
+    with fix_import_path([TEST_DATA_DIR]):
         assert sys.path == [PROJECT_ROOT_DIR]
