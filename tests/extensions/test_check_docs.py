@@ -25,6 +25,8 @@ in particular the parameter documentation checker `DocstringChecker`
 
 # pylint: disable=too-many-public-methods
 
+import re
+
 import astroid
 import pytest
 from astroid import nodes
@@ -2325,7 +2327,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-    @set_config_directly(no_docstring_rgx=r"^_(?!_).*$")
+    @set_config_directly(no_docstring_rgx=re.compile(r"^_(?!_).*$"))
     def test_skip_no_docstring_rgx(self) -> None:
         """Example of a function that matches the default 'no-docstring-rgx' config option
 

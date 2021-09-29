@@ -78,7 +78,7 @@ VALIDATORS = {
     "string": utils._unquote,
     "int": int,
     "float": float,
-    "regexp": re.compile,
+    "regexp": lambda pattern: re.compile(pattern or ""),
     "regexp_csv": _regexp_csv_validator,
     "csv": _csv_validator,
     "yn": _yn_validator,
