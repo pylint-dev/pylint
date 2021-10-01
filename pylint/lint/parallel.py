@@ -10,6 +10,7 @@ from pylint.lint.utils import _patch_sys_path
 from pylint.message import Message
 from pylint.typing import FileItem
 from pylint.utils import merge_stats
+from pylint.utils.checkerstats import CheckerStats
 
 try:
     import multiprocessing
@@ -48,7 +49,9 @@ def _worker_initialize(linter, arguments=None):
 
 def _worker_check_single_file(
     file_item: FileItem,
-) -> Tuple[int, Any, str, Any, List[Tuple[Any, ...]], Any, Any, DefaultDict[Any, List]]:
+) -> Tuple[
+    int, Any, str, Any, List[Tuple[Any, ...]], CheckerStats, Any, DefaultDict[Any, List]
+]:
     if not _worker_linter:
         raise Exception("Worker linter not yet initialised")
     _worker_linter.open()

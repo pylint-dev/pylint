@@ -8,7 +8,7 @@ from warnings import warn
 
 from pylint.message import Message
 from pylint.reporters.ureports.nodes import Text
-from pylint.typing import CheckerStats
+from pylint.utils import CheckerStats
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter

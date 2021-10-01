@@ -8,7 +8,7 @@ from typing import IO, TYPE_CHECKING, Any, AnyStr, Callable, List, Optional
 from pylint.interfaces import IReporter
 from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
-from pylint.typing import CheckerStats
+from pylint.utils import CheckerStats
 
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import Section

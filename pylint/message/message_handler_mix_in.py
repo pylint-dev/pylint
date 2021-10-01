@@ -332,23 +332,13 @@ class MessagesHandlerMixIn:
         # update stats
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
-        if self.stats is None:
-            # pylint: disable=fixme
-            # TODO self.stats should make sense,
-            # class should make sense as soon as instantiated
-            # This is not true for Linter and Reporter at least
-            # pylint: enable=fixme
-            self.stats = {
-                msg_cat: 0,
-                "by_module": {self.current_name: {msg_cat: 0}},
-                "by_msg": {},
-            }
-        self.stats[msg_cat] += 1  # type: ignore
-        self.stats["by_module"][self.current_name][msg_cat] += 1  # type: ignore
+
+        self.stats.set_single_message_count(msg_cat, 1)
+        self.stats.set_single_module_message_count(self.current_name, msg_cat, 1)
         try:
-            self.stats["by_msg"][message_definition.symbol] += 1  # type: ignore
+            self.stats.by_msg[message_definition.symbol] += 1
         except KeyError:
-            self.stats["by_msg"][message_definition.symbol] = 1  # type: ignore
+            self.stats.by_msg[message_definition.symbol] = 1
         # Interpolate arguments into message string
         msg = message_definition.msg
         if args:
@@ -369,7 +359,7 @@ class MessagesHandlerMixIn:
             Message(
                 message_definition.msgid,
                 message_definition.symbol,
-                (abspath, path, module, obj, line or 1, col_offset or 0),
+                (abspath, path, module, obj, line or 1, col_offset or 0),  # type: ignore
                 msg,
                 confidence,
             )

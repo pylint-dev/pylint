@@ -27,7 +27,6 @@ from pylint.constants import _MSG_ORDER, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
 from pylint.message.message_definition import MessageDefinition
-from pylint.typing import CheckerStats
 from pylint.utils import get_rst_section, get_rst_title
 
 
@@ -55,7 +54,6 @@ class BaseChecker(OptionsProviderMixIn):
             self.name = self.name.lower()
         super().__init__()
         self.linter = linter
-        self.stats: CheckerStats = {}
 
     def __gt__(self, other):
         """Permit to sort a list of Checker by name."""

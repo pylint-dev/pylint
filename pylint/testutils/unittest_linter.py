@@ -8,7 +8,7 @@ from astroid import nodes
 from pylint.interfaces import Confidence
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import MessageTest
-from pylint.typing import CheckerStats
+from pylint.utils import CheckerStats
 
 
 class UnittestLinter:
@@ -18,7 +18,7 @@ class UnittestLinter:
 
     def __init__(self):
         self._messages = []
-        self.stats: CheckerStats = {}
+        self.stats = CheckerStats()
 
     def release_messages(self):
         try:
@@ -41,11 +41,6 @@ class UnittestLinter:
     @staticmethod
     def is_message_enabled(*unused_args, **unused_kwargs):
         return True
-
-    def add_stats(self, **kwargs):
-        for name, value in kwargs.items():
-            self.stats[name] = value
-        return self.stats
 
     @property
     def options_providers(self):
