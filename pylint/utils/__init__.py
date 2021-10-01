@@ -44,6 +44,7 @@ main pylint class
 """
 
 from pylint.utils.ast_walker import ASTWalker
+from pylint.utils.checkerstats import merge_stats
 from pylint.utils.file_state import FileState
 from pylint.utils.utils import (
     HAS_ISORT_5,
@@ -83,4 +84,5 @@ __all__ = [
     "normalize_text",
     "register_plugins",
     "tokenize_module",
+    "merge_stats",
 ]
