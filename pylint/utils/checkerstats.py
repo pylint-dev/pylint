@@ -2,12 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import sys
-from typing import Dict, List, Optional, Set, TypedDict, cast
+from typing import Dict, List, Optional, Set, cast
 
 if sys.version_info >= (3, 8):
-    from typing import Literal
+    from typing import Literal, TypedDict
 else:
-    from typing_extensions import Literal
+    from typing_extensions import Literal, TypedDict
 
 
 class BadNames(TypedDict):
