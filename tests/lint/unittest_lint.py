@@ -63,7 +63,9 @@ from pylint.constants import (
 )
 from pylint.exceptions import InvalidMessageError
 from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_options
+from pylint.message import Message
 from pylint.reporters import text
+from pylint.typing import MessageLocationTuple
 from pylint.utils import FileState, tokenize_module
 
 if os.name == "java":
@@ -487,10 +489,31 @@ def test_addmessage(linter: PyLinter) -> None:
     linter.set_current_module("0123")
     linter.add_message("C0301", line=1, args=(1, 2))
     linter.add_message("line-too-long", line=2, args=(3, 4))
-    assert [
-        "C:  1: Line too long (1/2)",
-        "C:  2: Line too long (3/4)",
-    ] == linter.reporter.messages
+    assert len(linter.reporter.messages) == 2
+    assert linter.reporter.messages[0] == Message(
+        msg_id="C0301",
+        symbol="line-too-long",
+        msg="Line too long (1/2)",
+        confidence=interfaces.Confidence(
+            name="UNDEFINED",
+            description="Warning without any associated confidence level.",
+        ),
+        location=MessageLocationTuple(
+            abspath="0123", path="0123", module="0123", obj="", line=1, column=0
+        ),
+    )
+    assert linter.reporter.messages[1] == Message(
+        msg_id="C0301",
+        symbol="line-too-long",
+        msg="Line too long (3/4)",
+        confidence=interfaces.Confidence(
+            name="UNDEFINED",
+            description="Warning without any associated confidence level.",
+        ),
+        location=MessageLocationTuple(
+            abspath="0123", path="0123", module="0123", obj="", line=2, column=0
+        ),
+    )
 
 
 def test_addmessage_invalid(linter: PyLinter) -> None:
@@ -574,7 +597,26 @@ def test_init_hooks_called_before_load_plugins() -> None:
 def test_analyze_explicit_script(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
     linter.check([os.path.join(DATA_DIR, "ascript")])
-    assert ["C:  2: Line too long (175/100)"] == linter.reporter.messages
+    assert len(linter.reporter.messages) == 1
+    assert linter.reporter.messages[0] == Message(
+        msg_id="C0301",
+        symbol="line-too-long",
+        msg="Line too long (175/100)",
+        confidence=interfaces.Confidence(
+            name="UNDEFINED",
+            description="Warning without any associated confidence level.",
+        ),
+        location=MessageLocationTuple(
+            abspath=os.path.join(abspath(dirname(__file__)), "ascript").replace(
+                f"lint{os.path.sep}ascript", f"data{os.path.sep}ascript"
+            ),
+            path=f"tests{os.path.sep}data{os.path.sep}ascript",
+            module="data.ascript",
+            obj="",
+            line=2,
+            column=0,
+        ),
+    )
 
 
 def test_full_documentation(linter: PyLinter) -> None:
@@ -774,7 +816,7 @@ def test_custom_should_analyze_file() -> None:
 
         messages = reporter.messages
         assert len(messages) == 1
-        assert "invalid syntax" in messages[0]
+        assert "invalid syntax" in messages[0].msg
 
 
 # we do the check with jobs=1 as well, so that we are sure that the duplicates
