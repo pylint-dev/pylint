@@ -8,7 +8,7 @@ from astroid import nodes
 from pylint.interfaces import Confidence
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import MessageTest
-from pylint.utils import CheckerStats
+from pylint.utils import LinterStats
 
 
 class UnittestLinter:
@@ -18,7 +18,7 @@ class UnittestLinter:
 
     def __init__(self):
         self._messages = []
-        self.stats = CheckerStats()
+        self.stats = LinterStats()
 
     def release_messages(self):
         try:

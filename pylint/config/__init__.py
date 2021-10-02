@@ -49,7 +49,7 @@ from pylint.config.option import Option
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
 from pylint.config.option_parser import OptionParser
 from pylint.config.options_provider_mixin import OptionsProviderMixIn, UnsupportedAction
-from pylint.utils import CheckerStats
+from pylint.utils import LinterStats
 
 __all__ = [
     "ConfigurationMixIn",
@@ -119,7 +119,7 @@ def load_results(base):
     try:
         with open(data_file, "rb") as stream:
             data = pickle.load(stream)
-            if not isinstance(data, CheckerStats):
+            if not isinstance(data, LinterStats):
                 raise TypeError
             return data
     except Exception:  # pylint: disable=broad-except

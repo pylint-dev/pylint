@@ -73,7 +73,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
-from pylint.utils import CheckerStats, decoding_stream
+from pylint.utils import LinterStats, decoding_stream
 
 DEFAULT_MIN_SIMILARITY_LINE = 4
 
@@ -723,8 +723,8 @@ MSGS = {
 
 def report_similarities(
     sect,
-    stats: CheckerStats,
-    old_stats: CheckerStats,
+    stats: LinterStats,
+    old_stats: Optional[LinterStats],
 ):
     """make a layout with some stats about duplication"""
     lines = ["", "now", "previous", "difference"]

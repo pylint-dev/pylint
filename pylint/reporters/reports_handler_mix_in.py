@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Callable, DefaultDict, Dict, List, Optional, T
 from pylint.exceptions import EmptyReportError
 from pylint.interfaces import IChecker
 from pylint.reporters.ureports.nodes import Section
-from pylint.utils import CheckerStats
+from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -59,8 +59,8 @@ class ReportsHandlerMixIn:
 
     def make_reports(  # type: ignore # ReportsHandlerMixIn is always mixed with PyLinter
         self: "PyLinter",
-        stats: CheckerStats,
-        old_stats: Optional[CheckerStats],
+        stats: LinterStats,
+        old_stats: Optional[LinterStats],
     ) -> Section:
         """render registered reports"""
         sect = Section("Report", f"{self.stats.statement} statements analysed.")

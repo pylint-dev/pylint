@@ -17,12 +17,12 @@
 
 import sys
 import tokenize
-from typing import Any, cast
+from typing import Any, Optional, cast
 
 from pylint.checkers import BaseTokenChecker
 from pylint.interfaces import ITokenChecker
 from pylint.reporters.ureports.nodes import Table
-from pylint.utils import CheckerStats, diff_string
+from pylint.utils import LinterStats, diff_string
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -32,8 +32,8 @@ else:
 
 def report_raw_stats(
     sect,
-    stats: CheckerStats,
-    old_stats: CheckerStats,
+    stats: LinterStats,
+    old_stats: Optional[LinterStats],
 ):
     """calculate percentage of code / doc / comment / empty"""
     total_lines = stats.code_type_count["total"]

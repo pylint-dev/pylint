@@ -25,7 +25,7 @@ from pylint.lint.parallel import _worker_initialize as worker_initialize
 from pylint.lint.parallel import check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
 from pylint.typing import FileItem
-from pylint.utils.checkerstats import CheckerStats, ModuleStats
+from pylint.utils import LinterStats, ModuleStats
 
 
 def _gen_file_data(idx: int = 0) -> FileItem:
@@ -414,7 +414,7 @@ class TestCheckParallel:
 
         # define the stats we expect to get back from the runs, these should only vary
         # with the number of files.
-        expected_stats = CheckerStats(
+        expected_stats = LinterStats(
             by_module={
                 # pylint: disable-next=consider-using-f-string
                 "--test-file_data-name-%d--"

@@ -11,6 +11,8 @@ else:
 
 
 class BadNames(TypedDict):
+    """TypedDict to store counts of node types with bad names"""
+
     argument: int
     attr: int
     klass: int
@@ -25,6 +27,8 @@ class BadNames(TypedDict):
 
 
 class CodeTypeCount(TypedDict):
+    """TypedDict to store counts of lines of code types"""
+
     code: int
     comment: int
     docstring: int
@@ -33,11 +37,15 @@ class CodeTypeCount(TypedDict):
 
 
 class DuplicatedLines(TypedDict):
+    """TypedDict to store counts of lines of duplicated code"""
+
     nb_duplicated_lines: int
     percent_duplicated_lines: float
 
 
 class NodeCount(TypedDict):
+    """TypedDict to store counts of different types of nodes"""
+
     function: int
     klass: int
     method: int
@@ -45,6 +53,8 @@ class NodeCount(TypedDict):
 
 
 class UndocumentedNodes(TypedDict):
+    """TypedDict to store counts of undocumented node types"""
+
     function: int
     klass: int
     method: int
@@ -52,6 +62,8 @@ class UndocumentedNodes(TypedDict):
 
 
 class ModuleStats(TypedDict):
+    """TypedDict to store counts of types of messages and statements"""
+
     convention: int
     error: int
     fatal: int
@@ -62,7 +74,9 @@ class ModuleStats(TypedDict):
 
 
 # pylint: disable-next=too-many-instance-attributes
-class CheckerStats:
+class LinterStats:
+    """Class used to linter stats"""
+
     def __init__(
         self,
         bad_names: Optional[BadNames] = None,
@@ -117,24 +131,23 @@ class CheckerStats:
         self.percent_duplicated_lines = 0.0
 
     def __str__(self) -> str:
-        final_string = str(self.bad_names) + "\n"
-        final_string += str(sorted(self.by_module.items())) + "\n"
-        final_string += str(sorted(self.by_msg.items())) + "\n"
-        final_string += str(self.code_type_count) + "\n"
-        final_string += str(sorted(self.dependencies.items())) + "\n"
-        final_string += str(self.duplicated_lines) + "\n"
-        final_string += str(self.undocumented) + "\n"
-        final_string += str(self.convention) + "\n"
-        final_string += str(self.error) + "\n"
-        final_string += str(self.fatal) + "\n"
-        final_string += str(self.info) + "\n"
-        final_string += str(self.refactor) + "\n"
-        final_string += str(self.statement) + "\n"
-        final_string += str(self.warning) + "\n"
-        final_string += str(self.global_note) + "\n"
-        final_string += str(self.nb_duplicated_lines) + "\n"
-        final_string += str(self.percent_duplicated_lines) + "\n"
-        return final_string
+        return f"""{self.bad_names}
+        {sorted(self.by_module.items())}
+        {sorted(self.by_msg.items())}
+        {self.code_type_count}
+        {sorted(self.dependencies.items())}
+        {self.duplicated_lines}
+        {self.undocumented}
+        {self.convention}
+        {self.error}
+        {self.fatal}
+        {self.info}
+        {self.refactor}
+        {self.statement}
+        {self.warning}
+        {self.global_note}
+        {self.nb_duplicated_lines}
+        {self.percent_duplicated_lines}"""
 
     def get_bad_names(
         self,
@@ -286,9 +299,9 @@ class CheckerStats:
         self.warning = 0
 
 
-def merge_stats(stats: List[CheckerStats]):
+def merge_stats(stats: List[LinterStats]):
     """Used to merge multiple stats objects into a new one when pylint is run in parallel mode"""
-    merged = CheckerStats()
+    merged = LinterStats()
     for stat in stats:
         merged.bad_names["argument"] += stat.bad_names["argument"]
         merged.bad_names["attr"] += stat.bad_names["attr"]

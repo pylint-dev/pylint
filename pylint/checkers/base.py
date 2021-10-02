@@ -83,7 +83,7 @@ from pylint.checkers.utils import (
     is_property_setter,
 )
 from pylint.reporters.ureports import nodes as reporter_nodes
-from pylint.utils import CheckerStats
+from pylint.utils import LinterStats
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -394,8 +394,8 @@ def _has_abstract_methods(node):
 
 def report_by_type_stats(
     sect,
-    stats: CheckerStats,
-    old_stats: Optional[CheckerStats],
+    stats: LinterStats,
+    old_stats: Optional[LinterStats],
 ):
     """make a report of
 

@@ -33,8 +33,7 @@ from pylint.lint.utils import (
 from pylint.message import MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import FileItem, ModuleDescriptionDict
-from pylint.utils import ASTWalker, CheckerStats, FileState, utils
-from pylint.utils.checkerstats import ModuleStats
+from pylint.utils import ASTWalker, FileState, LinterStats, ModuleStats, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,
     InvalidPragmaError,
@@ -505,7 +504,7 @@ class PyLinter(
         self.file_state = FileState()
         self.current_name: Optional[str] = None
         self.current_file = None
-        self.stats = CheckerStats()
+        self.stats = LinterStats()
         self.fail_on_symbols = []
         # init options
         self._external_opts = options
@@ -1229,7 +1228,7 @@ class PyLinter(
 
     def open(self):
         """initialize counters"""
-        self.stats = CheckerStats()
+        self.stats = LinterStats()
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.max_inferable_values = self.config.limit_inference_results
         MANAGER.extension_package_whitelist.update(self.config.extension_pkg_allow_list)
@@ -1263,7 +1262,7 @@ class PyLinter(
             if self.config.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
         else:
-            self.reporter.on_close(self.stats, CheckerStats())
+            self.reporter.on_close(self.stats, LinterStats())
             score_value = None
         return score_value
 

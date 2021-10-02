@@ -53,7 +53,7 @@ from typing import List, Optional, Tuple, Union
 from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
 from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.checkers.mapreduce_checker import MapReduceMixin
-from pylint.utils import CheckerStats, diff_string, register_plugins
+from pylint.utils import LinterStats, diff_string, register_plugins
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -62,8 +62,8 @@ else:
 
 
 def table_lines_from_stats(
-    stats: CheckerStats,
-    old_stats: Optional[CheckerStats],
+    stats: LinterStats,
+    old_stats: Optional[LinterStats],
     stat_type: Literal["duplicated_lines", "message_types"],
 ) -> List[str]:
     """get values listed in <columns> from <stats> and <old_stats>,
