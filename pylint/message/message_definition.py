@@ -2,17 +2,20 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import sys
-from typing import List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 from pylint.constants import MSG_TYPES
 from pylint.exceptions import InvalidMessageError
 from pylint.utils import normalize_text
 
+if TYPE_CHECKING:
+    from pylint.checkers import BaseChecker
+
 
 class MessageDefinition:
     def __init__(
         self,
-        checker,  # BaseChecker
+        checker: "BaseChecker",
         msgid: str,
         msg: str,
         description: str,
@@ -21,7 +24,7 @@ class MessageDefinition:
         minversion: Optional[Tuple[int, int]] = None,
         maxversion: Optional[Tuple[int, int]] = None,
         old_names: Optional[List[Tuple[str, str]]] = None,
-    ):
+    ) -> None:
         self.checker_name = checker.name
         self.check_msgid(msgid)
         self.msgid = msgid
@@ -46,10 +49,10 @@ class MessageDefinition:
         if msgid[0] not in MSG_TYPES:
             raise InvalidMessageError(f"Bad message type {msgid[0]} in {msgid!r}")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"MessageDefinition:{self.symbol} ({self.msgid})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{repr(self)}:\n{self.msg} {self.description}"
 
     def may_be_emitted(self) -> bool:
