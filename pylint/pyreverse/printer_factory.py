@@ -3,14 +3,14 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-from typing import Type
+from typing import Dict, Type
 
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
 from pylint.pyreverse.printer import Printer
 from pylint.pyreverse.vcg_printer import VCGPrinter
 
-filetype_to_printer = {
+filetype_to_printer: Dict[str, Type[Printer]] = {
     "vcg": VCGPrinter,
     "plantuml": PlantUmlPrinter,
     "puml": PlantUmlPrinter,

@@ -54,7 +54,7 @@ class Printer(ABC):
         title: str,
         layout: Optional[Layout] = None,
         use_automatic_namespace: Optional[bool] = None,
-    ):
+    ) -> None:
         self.title: str = title
         self.layout = layout
         self.use_automatic_namespace = use_automatic_namespace
@@ -62,11 +62,11 @@ class Printer(ABC):
         self._indent = ""
         self._open_graph()
 
-    def _inc_indent(self):
+    def _inc_indent(self) -> None:
         """increment indentation"""
         self._indent += "  "
 
-    def _dec_indent(self):
+    def _dec_indent(self) -> None:
         """decrement indentation"""
         self._indent = self._indent[:-2]
 
