@@ -117,8 +117,7 @@ class CheckerStats:
         self.percent_duplicated_lines = 0.0
 
     def __str__(self) -> str:
-        final_string = ""
-        final_string += str(self.bad_names) + "\n"
+        final_string = str(self.bad_names) + "\n"
         final_string += str(sorted(self.by_module.items())) + "\n"
         final_string += str(sorted(self.by_msg.items())) + "\n"
         final_string += str(self.code_type_count) + "\n"
@@ -158,8 +157,8 @@ class CheckerStats:
             return self.bad_names.get("klass", 0)
         return self.bad_names.get(node_name, 0)
 
-    def set_bad_name(self, node_name: str, increase: int) -> None:
-        """Set a bad names node count"""
+    def increase_bad_name(self, node_name: str, increase: int) -> None:
+        """Increase a bad names node count"""
         if node_name not in {
             "argument",
             "attr",
@@ -262,17 +261,17 @@ class CheckerStats:
         """Get a module message count"""
         return getattr(self.by_module[modname], type_name, 0)
 
-    def set_single_message_count(self, type_name: str, increase: int) -> None:
-        """Set the message type count of an individual message type"""
+    def increase_single_message_count(self, type_name: str, increase: int) -> None:
+        """Increase the message type count of an individual message type"""
         setattr(self, type_name, getattr(self, type_name) + increase)
 
-    def set_single_module_message_count(
+    def increase_single_module_message_count(
         self,
         modname: str,
         type_name: Literal["convention", "error", "fatal", "info", "refactor"],
         increase: int,
     ) -> None:
-        """Set the message type count of an individual message type of a module"""
+        """Increase the message type count of an individual message type of a module"""
         self.by_module[modname][type_name] = (
             self.by_module[modname][type_name] + increase
         )

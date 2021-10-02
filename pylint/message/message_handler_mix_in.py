@@ -333,8 +333,8 @@ class MessagesHandlerMixIn:
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
 
-        self.stats.set_single_message_count(msg_cat, 1)
-        self.stats.set_single_module_message_count(self.current_name, msg_cat, 1)
+        self.stats.increase_single_message_count(msg_cat, 1)
+        self.stats.increase_single_module_message_count(self.current_name, msg_cat, 1)
         try:
             self.stats.by_msg[message_definition.symbol] += 1
         except KeyError:

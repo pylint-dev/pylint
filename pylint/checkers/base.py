@@ -2029,7 +2029,7 @@ class NameChecker(_BasicChecker):
         )
 
         self.add_message(warning, node=node, args=args, confidence=confidence)
-        self.linter.stats.set_bad_name(node_type, 1)
+        self.linter.stats.increase_bad_name(node_type, 1)
 
     def _name_allowed_by_regex(self, name: str) -> bool:
         return name in self.config.good_names or any(
@@ -2059,7 +2059,7 @@ class NameChecker(_BasicChecker):
         if self._name_allowed_by_regex(name=name):
             return
         if self._name_disallowed_by_regex(name=name):
-            self.linter.stats.set_bad_name(node_type, 1)
+            self.linter.stats.increase_bad_name(node_type, 1)
             self.add_message("disallowed-name", node=node, args=name)
             return
         regexp = self._name_regexps[node_type]
