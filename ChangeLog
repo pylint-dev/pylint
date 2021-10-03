@@ -55,6 +55,10 @@ Release date: TBA
 
   Closes #3614
 
+* Fixed crash in ``consider-using-f-string`` if ``format`` is not called
+
+  Closes #5058
+
 
 What's New in Pylint 2.11.1?
 ============================

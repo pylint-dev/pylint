@@ -546,3 +546,5 @@ contributors:
 
 * Jeroen Seegers (jeroenseegers): contributor
   - Fixed `toml` dependency issue
+
+* Tim Martin: contributor
