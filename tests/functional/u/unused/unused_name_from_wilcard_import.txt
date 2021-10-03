@@ -1,3 +1,2 @@
-unused-wildcard-import:3:0::Unused import func from wildcard import
-unused-wildcard-import:3:0::Unused import only_raises from wildcard import
+unused-wildcard-import:3:0::Unused import(s) func and only_raises from wildcard import of unused_argument_py3:HIGH
 wildcard-import:3:0::Wildcard import unused_argument_py3
