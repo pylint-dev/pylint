@@ -2168,7 +2168,11 @@ class SpecialMethodsChecker(BaseChecker):
 
         inferred = _safe_infer_call_result(node, node)
         # Only want to check types that we are able to infer
-        if inferred and node.name in self._protocol_map:
+        if (
+            inferred
+            and node.name in self._protocol_map
+            and not self._function_body_is_ellipsis(node)
+        ):
             self._protocol_map[node.name](node, inferred)
 
         if node.name in PYMETHODS:
@@ -2297,6 +2301,17 @@ class SpecialMethodsChecker(BaseChecker):
                     return True
                 except astroid.NotFoundError:
                     pass
+        return False
+
+    @staticmethod
+    def _function_body_is_ellipsis(node: nodes.FunctionDef) -> bool:
+        if (
+            len(node.body) == 1
+            and isinstance(node.body[0], nodes.Expr)
+            and isinstance(node.body[0].value, nodes.Const)
+            and node.body[0].value.value == Ellipsis
+        ):
+            return True
         return False
 
     def _check_iter(self, node, inferred):
