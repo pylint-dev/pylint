@@ -31,6 +31,11 @@ except ImportError:
     something = None
 
 try:
+    from collections import something
+except ModuleNotFoundError:
+    something = None
+
+try:
     from collections import anything # [no-name-in-module]
 except ValueError:
     anything = None
@@ -38,6 +43,11 @@ except ValueError:
 try:
     import collections.missing
 except ImportError:
+    pass
+
+try:
+    import collections.missing
+except ModuleNotFoundError:
     pass
 
 try:
@@ -54,6 +64,12 @@ try:
     import collections.emit1
 except ImportError:
     pass
+
+try:
+    import collections.emit1
+except ModuleNotFoundError:
+    pass
+
 
 try:
     if something:

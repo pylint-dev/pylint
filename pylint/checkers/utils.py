@@ -943,7 +943,12 @@ def is_from_fallback_block(node: nodes.NodeNG) -> bool:
         for import_node in other_body
     )
     ignores_import_error = _except_handlers_ignores_exception(handlers, ImportError)
-    return ignores_import_error or has_fallback_imports
+    ignores_module_not_found_error = _except_handlers_ignores_exception(
+        handlers, ModuleNotFoundError
+    )
+    return (
+        ignores_import_error or ignores_module_not_found_error or has_fallback_imports
+    )
 
 
 def _except_handlers_ignores_exception(
