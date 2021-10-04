@@ -31,11 +31,6 @@ except ImportError:
     something = None
 
 try:
-    from collections import something
-except ModuleNotFoundError:
-    something = None
-
-try:
     from collections import anything # [no-name-in-module]
 except ValueError:
     anything = None
