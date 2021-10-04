@@ -23,3 +23,7 @@ Extensions
 
 Other Changes
 =============
+
+* Improve and flatten ``unused-wildcard-import`` message
+
+  Closes #3859
