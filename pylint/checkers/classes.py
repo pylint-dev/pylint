@@ -2305,14 +2305,12 @@ class SpecialMethodsChecker(BaseChecker):
 
     @staticmethod
     def _function_body_is_ellipsis(node: nodes.FunctionDef) -> bool:
-        if (
+        return (
             len(node.body) == 1
             and isinstance(node.body[0], nodes.Expr)
             and isinstance(node.body[0].value, nodes.Const)
             and node.body[0].value.value == Ellipsis
-        ):
-            return True
-        return False
+        )
 
     def _check_iter(self, node, inferred):
         if not self._is_iterator(inferred):
