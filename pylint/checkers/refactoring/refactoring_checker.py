@@ -857,9 +857,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 "consider-using-min-builtin", node=node, args=(reduced_to,)
             )
 
-    @utils.check_messages(
-        "simplifiable-if-expression",
-    )
+    @utils.check_messages("simplifiable-if-expression")
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_simplifiable_ifexp(node)
 
@@ -1500,9 +1498,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     self.add_message("use-list-literal", node=node)
                 elif inferred.qname() == "builtins.dict" and not node.keywords:
                     self.add_message("use-dict-literal", node=node)
-
-    def _check_list_or_dict_literal_boolean(self, node: nodes.Call) -> None:
-        """Check if"""
 
     def _check_consider_using_join(self, aug_assign):
         """
