@@ -119,7 +119,3 @@ Other Changes
 * The ``consider-iterating-dictionary`` checker now also considers membership checks
 
   Closes #4069
-
-* Properly identify parameters with no doc and add new message called ``missing-any-param-doc``
-
-  Closes #3799
