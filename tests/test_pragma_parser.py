@@ -27,12 +27,12 @@ def test_disable_checker_with_number_in_name() -> None:
 
 
 def test_simple_pragma_no_messages() -> None:
-    comment = "#pylint: skip-file"
+    comment = "#pylint: skip-file,use-implicit-booleanness"
     match = OPTION_PO.search(comment)
     assert match
     for pragma_repr in parse_pragma(match.group(2)):
         assert pragma_repr.action == "skip-file"
-        assert pragma_repr.messages == []
+        assert not pragma_repr.messages
 
 
 def test_simple_pragma_multiple_messages() -> None:

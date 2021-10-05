@@ -39,7 +39,9 @@ if enchant is not None:
         pass
 
 
-class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-methods
+class TestSpellingChecker(
+    CheckerTestCase
+):  # pylint:disable=too-many-public-methods,use-implicit-booleanness
     # This is a test case class, not sure why it would be relevant to have
     #   this pylint rule enforced for test case classes.
     CHECKER_CLASS = spelling.SpellingChecker

@@ -8,7 +8,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-# pylint: disable=protected-access,missing-function-docstring,no-self-use
+# pylint: disable=protected-access,missing-function-docstring,no-self-use,use-implicit-booleanness
 
 import os
 from typing import List
@@ -197,7 +197,7 @@ class TestCheckParallelFramework:
             _,  # mapreduce_data
         ) = worker_check_single_file(_gen_file_data())
         assert name == "--test-file_data-name-0--"
-        assert [] == msgs
+        assert not msgs
         no_errors_status = 0
         assert no_errors_status == msg_status
         assert {
@@ -241,7 +241,7 @@ class TestCheckParallelFramework:
 
         # Ensure we return the same data as the single_file_no_checkers test
         assert name == "--test-file_data-name-0--"
-        assert [] == msgs
+        assert not msgs
         no_errors_status = 0
         assert no_errors_status == msg_status
         assert {

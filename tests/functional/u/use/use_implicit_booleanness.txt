@@ -1,0 +1,4 @@
+use-implicit-booleanness:6:3::Unncessary literal comparison while evaluating implicit boolean:HIGH
+use-implicit-booleanness:9:3::Unncessary literal comparison while evaluating implicit boolean:HIGH
+use-implicit-booleanness:13:11:function_test:Unncessary literal comparison while evaluating implicit boolean:HIGH
+use-implicit-booleanness:16:11:function_test2:Unncessary literal comparison while evaluating implicit boolean:HIGH

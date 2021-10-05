@@ -436,6 +436,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when using dict() to create an empty dictionary instead of the literal {}. "
             "The literal is faster as it avoids an additional function call.",
         ),
+        "R1736": (
+            "Unncessary literal comparison while evaluating implicit boolean",
+            "use-implicit-booleanness",
+            "Emitted when using unncessary comparison while checking empty collection literal, [], (), {}"
+            "The empty collection literals evalutes as False",
+        ),
     }
     options = (
         (
@@ -851,7 +857,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 "consider-using-min-builtin", node=node, args=(reduced_to,)
             )
 
-    @utils.check_messages("simplifiable-if-expression")
+    @utils.check_messages(
+        "simplifiable-if-expression",
+    )
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_simplifiable_ifexp(node)
 
@@ -1493,6 +1501,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 elif inferred.qname() == "builtins.dict" and not node.keywords:
                     self.add_message("use-dict-literal", node=node)
 
+    def _check_list_or_dict_literal_boolean(self, node: nodes.Call) -> None:
+        """Check if"""
+
     def _check_consider_using_join(self, aug_assign):
         """
         We start with the augmented assignment and work our way upwards.
@@ -1580,7 +1591,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
         else:
             return
-        if expr_list == target_list != []:
+        if expr_list == target_list and expr_list:
             args: Optional[Tuple[str]] = None
             inferred = utils.safe_infer(node.iter)
             if isinstance(node.parent, nodes.DictComp) and isinstance(
@@ -1642,6 +1653,26 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._return_nodes[node.name] = list(
             node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
+
+    @utils.check_messages("use-implicit-booleanness")
+    def visit_compare(self, node: nodes.Compare) -> None:
+        self._check_use_implicit_booleanness(node)
+
+    def _check_use_implicit_booleanness(self, node: nodes.Compare):
+        is_left_collection_literal = (
+            utils.is_empty_list_literal(node.left)
+            or utils.is_empty_tuple_literal(node.left)
+            or utils.is_empty_dict_literal(node.left)
+        )
+
+        for operation, comparator in node.ops:
+            if (
+                utils.is_empty_list_literal(comparator)
+                or utils.is_empty_tuple_literal(comparator)
+                or utils.is_empty_dict_literal(comparator)
+            ) or is_left_collection_literal:
+                if operation in ["==", "!="]:
+                    self.add_message("use-implicit-booleanness", node=node)
 
     def _check_consistent_returns(self, node: nodes.FunctionDef) -> None:
         """Check that all return statements inside a function are consistent.
