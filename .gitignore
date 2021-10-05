@@ -1,4 +1,4 @@
-#prev Do not add entries specific to your dev environment or development
+# Do not add entries specific to your dev environment or development
 # preferences in this file. You can use the global .gitignore for that:
 # git config --global core.excludesFile '~/.gitignore'
 /log
