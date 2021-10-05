@@ -62,6 +62,8 @@ Release date: TBA
 
   Closes #5111
 
+* Improve node information for ``invalid-name`` on function argument.
+
 
 What's New in Pylint 2.11.1?
 ============================
