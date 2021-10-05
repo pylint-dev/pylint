@@ -21,7 +21,7 @@ class MyClass:
     def __bool__(self) -> bool:
         ...
 
-    def __repr__(self) -> bool:
+    def __repr__(self) -> object:
         ...
 
     def __str__(self) -> str:
