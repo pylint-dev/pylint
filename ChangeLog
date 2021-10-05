@@ -33,6 +33,12 @@ Release date: TBA
   is set to a version that does not support f-strings (< 3.6)
 
 
+* Added new checker `use-implicit-booleanness``: Emitted when using collection
+  literals for boolean comparisons
+
+  Closes #4774
+
+
 What's New in Pylint 2.11.2?
 ============================
 Release date: TBA

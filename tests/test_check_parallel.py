@@ -8,7 +8,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-# pylint: disable=protected-access,missing-function-docstring,no-self-use,use-implicit-booleanness
+# pylint: disable=protected-access,missing-function-docstring,no-self-use
 
 import os
 from typing import List

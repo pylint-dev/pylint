@@ -1665,6 +1665,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             or utils.is_empty_dict_literal(node.left)
         )
 
+        # Check both left hand side and right hand side for literals
         for operation, comparator in node.ops:
             if (
                 utils.is_empty_list_literal(comparator)
