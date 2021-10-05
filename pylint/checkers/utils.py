@@ -1566,3 +1566,13 @@ def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
         a.name == varname and a.lineno > node.lineno
         for a in node.scope().nodes_of_class((nodes.AssignName, nodes.FunctionDef))
     )
+
+
+def is_function_body_ellipsis(node: nodes.FunctionDef) -> bool:
+    """Checks whether a function body only consisst of a single Ellipsis"""
+    return (
+        len(node.body) == 1
+        and isinstance(node.body[0], nodes.Expr)
+        and isinstance(node.body[0].value, nodes.Const)
+        and node.body[0].value.value == Ellipsis
+    )

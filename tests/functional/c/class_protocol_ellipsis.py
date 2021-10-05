@@ -1,4 +1,6 @@
-""""Tests for return type checkers for protocol methods with ellipsis function body"""
+""""Tests for return type checkers for protocol methods with ellipsis function body
+The "invalid-*-returned" messages shouldn't be emitted for stub functions
+Original issue: https://github.com/PyCQA/pylint/issues/4736"""
 # pylint: disable=missing-class-docstring
 from typing import Any, Iterator
 

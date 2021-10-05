@@ -68,6 +68,7 @@ from pylint.checkers.utils import (
     is_attr_protected,
     is_builtin_object,
     is_comprehension,
+    is_function_body_ellipsis,
     is_iterable,
     is_overload_stub,
     is_property_setter,
@@ -2171,7 +2172,7 @@ class SpecialMethodsChecker(BaseChecker):
         if (
             inferred
             and node.name in self._protocol_map
-            and not self._function_body_is_ellipsis(node)
+            and not is_function_body_ellipsis(node)
         ):
             self._protocol_map[node.name](node, inferred)
 
@@ -2302,15 +2303,6 @@ class SpecialMethodsChecker(BaseChecker):
                 except astroid.NotFoundError:
                     pass
         return False
-
-    @staticmethod
-    def _function_body_is_ellipsis(node: nodes.FunctionDef) -> bool:
-        return (
-            len(node.body) == 1
-            and isinstance(node.body[0], nodes.Expr)
-            and isinstance(node.body[0].value, nodes.Const)
-            and node.body[0].value.value == Ellipsis
-        )
 
     def _check_iter(self, node, inferred):
         if not self._is_iterator(inferred):
