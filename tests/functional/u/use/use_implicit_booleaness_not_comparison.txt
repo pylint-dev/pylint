@@ -1,0 +1,13 @@
+use-implicit-booleaness-empty-literal:12:7:github_issue_4774:Do not use empty sequence literal to compare between two values:HIGH
+use-implicit-booleaness-empty-literal:20:3::Do not use empty sequence literal to compare between two values:HIGH
+use-implicit-booleaness-empty-literal:23:3::Do not use empty sequence literal to compare between two values:HIGH
+use-implicit-booleaness-empty-literal:26:3::Do not use empty sequence literal to compare between two values:HIGH
+use-implicit-booleaness-empty-literal:29:3::Do not use empty sequence literal to compare between two values:HIGH
+use-implicit-booleaness-empty-literal:32:3::Do not use empty sequence literal to compare between two values:HIGH
+use-implicit-booleaness-empty-literal:35:3::Do not use empty sequence literal to compare between two values:HIGH
+use-implicit-booleaness-empty-literal:40:11:bad_tuple_return:Do not use empty sequence literal to compare between two values:HIGH
+use-implicit-booleaness-empty-literal:44:11:bad_list_return:Do not use empty sequence literal to compare between two values:HIGH
+use-implicit-booleaness-empty-literal:48:11:bad_dict_return:Do not use empty sequence literal to compare between two values:HIGH
+use-implicit-booleaness-empty-literal:50:7::Do not use empty sequence literal to compare between two values:HIGH
+use-implicit-booleaness-empty-literal:51:7::Do not use empty sequence literal to compare between two values:HIGH
+use-implicit-booleaness-empty-literal:52:7::Do not use empty sequence literal to compare between two values:HIGH

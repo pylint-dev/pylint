@@ -436,12 +436,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when using dict() to create an empty dictionary instead of the literal {}. "
             "The literal is faster as it avoids an additional function call.",
         ),
-        "R1736": (
-            "Unncessary literal comparison while evaluating implicit boolean",
-            "use-implicit-booleanness",
-            "Emitted when using unncessary comparison while checking empty collection literal, [], (), {}"
-            "The empty collection literals evalutes as False",
-        ),
     }
     options = (
         (
@@ -1648,27 +1642,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._return_nodes[node.name] = list(
             node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
-
-    @utils.check_messages("use-implicit-booleanness")
-    def visit_compare(self, node: nodes.Compare) -> None:
-        self._check_use_implicit_booleanness(node)
-
-    def _check_use_implicit_booleanness(self, node: nodes.Compare):
-        is_left_collection_literal = (
-            utils.is_empty_list_literal(node.left)
-            or utils.is_empty_tuple_literal(node.left)
-            or utils.is_empty_dict_literal(node.left)
-        )
-
-        # Check both left hand side and right hand side for literals
-        for operation, comparator in node.ops:
-            if (
-                utils.is_empty_list_literal(comparator)
-                or utils.is_empty_tuple_literal(comparator)
-                or utils.is_empty_dict_literal(comparator)
-            ) or is_left_collection_literal:
-                if operation in ["==", "!="]:
-                    self.add_message("use-implicit-booleanness", node=node)
 
     def _check_consistent_returns(self, node: nodes.FunctionDef) -> None:
         """Check that all return statements inside a function are consistent.

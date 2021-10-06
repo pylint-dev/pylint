@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, pointless-statement, misplaced-comparison-constant, undefined-variable, literal-comparison, line-too-long, unneeded-not, too-few-public-methods
+# pylint: disable=missing-docstring, invalid-name, pointless-statement, misplaced-comparison-constant, undefined-variable, literal-comparison, line-too-long, unneeded-not, too-few-public-methods, use-implicit-booleaness-empty-literal
 
 value = value1 = 1
 value2 = 2
