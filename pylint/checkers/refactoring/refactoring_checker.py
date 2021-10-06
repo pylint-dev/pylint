@@ -463,7 +463,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     priority = 0
 
     def __init__(self, linter=None):
-        checkers.BaseTokenChecker.__init__(self, linter)
+        super().__init__(linter)
         self._return_nodes = {}
         self._consider_using_with_stack = ConsiderUsingWithStack()
         self._init()

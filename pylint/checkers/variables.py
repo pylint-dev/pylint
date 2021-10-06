@@ -60,6 +60,7 @@ import itertools
 import os
 import re
 from functools import lru_cache
+from typing import DefaultDict, List, Tuple
 
 import astroid
 from astroid import nodes
@@ -449,7 +450,7 @@ MSGS = {
         "Used when a function or method argument is not used.",
     ),
     "W0614": (
-        "Unused import %s from wildcard import",
+        "Unused import(s) %s from wildcard import of %s",
         "unused-wildcard-import",
         "Used when an imported module or variable is not used from a "
         "`'from X import *'` style import.",
@@ -706,7 +707,7 @@ class VariablesChecker(BaseChecker):
     )
 
     def __init__(self, linter=None):
-        BaseChecker.__init__(self, linter)
+        super().__init__(linter)
         self._to_consume = (
             None  # list of tuples: (to_consume:dict, consumed:dict, scope_type:str)
         )
@@ -1535,7 +1536,9 @@ class VariablesChecker(BaseChecker):
                     for definition in defstmt_parent.orelse:
                         if isinstance(definition, nodes.Assign):
                             defined_in_or_else = any(
-                                target.name == name for target in definition.targets
+                                target.name == name
+                                for target in definition.targets
+                                if isinstance(target, nodes.AssignName)
                             )
                             if defined_in_or_else:
                                 break
@@ -2079,6 +2082,9 @@ class VariablesChecker(BaseChecker):
     def _check_imports(self, not_consumed):
         local_names = _fix_dot_imports(not_consumed)
         checked = set()
+        unused_wildcard_imports: DefaultDict[
+            Tuple[str, nodes.ImportFrom], List[str]
+        ] = collections.defaultdict(list)
         for name, stmt in local_names:
             for imports in stmt.names:
                 real_name = imported_name = imports[0]
@@ -2133,7 +2139,7 @@ class VariablesChecker(BaseChecker):
                         continue
 
                     if imported_name == "*":
-                        self.add_message("unused-wildcard-import", args=name, node=stmt)
+                        unused_wildcard_imports[(stmt.modname, stmt)].append(name)
                     else:
                         if as_name is None:
                             msg = f"{imported_name} imported from {stmt.modname}"
@@ -2141,6 +2147,18 @@ class VariablesChecker(BaseChecker):
                             msg = f"{imported_name} imported from {stmt.modname} as {as_name}"
                         if not _is_type_checking_import(stmt):
                             self.add_message("unused-import", args=msg, node=stmt)
+
+        # Construct string for unused-wildcard-import message
+        for module, unused_list in unused_wildcard_imports.items():
+            if len(unused_list) == 1:
+                arg_string = unused_list[0]
+            else:
+                arg_string = (
+                    f"{', '.join(i for i in unused_list[:-1])} and {unused_list[-1]}"
+                )
+            self.add_message(
+                "unused-wildcard-import", args=(arg_string, module[0]), node=module[1]
+            )
         del self._to_consume
 
     def _check_metaclasses(self, node):

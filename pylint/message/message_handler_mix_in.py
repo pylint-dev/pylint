@@ -261,7 +261,7 @@ class MessagesHandlerMixIn:
         self: "PyLinter",
         msgid: str,
         line: int,
-        node: nodes.NodeNG,
+        node: Optional[nodes.NodeNG] = None,
         confidence: Optional[Confidence] = UNDEFINED,
     ) -> None:
         """Prepares a message to be added to the ignored message storage

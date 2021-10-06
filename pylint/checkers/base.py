@@ -1085,7 +1085,7 @@ class BasicChecker(_BasicChecker):
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
 
     def __init__(self, linter):
-        _BasicChecker.__init__(self, linter)
+        super().__init__(linter)
         self.stats: CheckerStats = {}
         self._tryfinallys = None
 
@@ -1835,7 +1835,7 @@ class NameChecker(_BasicChecker):
     KEYWORD_ONSET = {(3, 7): {"async", "await"}}
 
     def __init__(self, linter):
-        _BasicChecker.__init__(self, linter)
+        super().__init__(linter)
         self._name_category = {}
         self._name_group = {}
         self._bad_names = {}
@@ -1957,7 +1957,7 @@ class NameChecker(_BasicChecker):
         # Check argument names
         args = node.args.args
         if args is not None:
-            self._recursive_check_names(args, node)
+            self._recursive_check_names(args)
 
     visit_asyncfunctiondef = visit_functiondef
 
@@ -2008,13 +2008,13 @@ class NameChecker(_BasicChecker):
                 else:
                     self._check_name("class_attribute", node.name, node)
 
-    def _recursive_check_names(self, args, node):
+    def _recursive_check_names(self, args):
         """check names in a possibly recursive list <arg>"""
         for arg in args:
             if isinstance(arg, nodes.AssignName):
-                self._check_name("argument", arg.name, node)
+                self._check_name("argument", arg.name, arg)
             else:
-                self._recursive_check_names(arg.elts, node)
+                self._recursive_check_names(arg.elts)
 
     def _find_name_group(self, node_type):
         return self._name_group.get(node_type, node_type)

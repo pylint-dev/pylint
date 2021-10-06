@@ -2,11 +2,14 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
-from typing import Dict, List, Tuple, ValuesView
+from typing import TYPE_CHECKING, Dict, List, Tuple, ValuesView
 
 from pylint.exceptions import UnknownMessageError
 from pylint.message.message_definition import MessageDefinition
 from pylint.message.message_id_store import MessageIdStore
+
+if TYPE_CHECKING:
+    from pylint.checkers import BaseChecker
 
 
 class MessageDefinitionStore:
@@ -15,7 +18,7 @@ class MessageDefinitionStore:
     no particular state during analysis.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.message_id_store: MessageIdStore = MessageIdStore()
         # Primary registry for all active messages definitions.
         # It contains the 1:1 mapping from msgid to MessageDefinition.
@@ -29,7 +32,7 @@ class MessageDefinitionStore:
         """The list of all active messages."""
         return self._messages_definitions.values()
 
-    def register_messages_from_checker(self, checker) -> None:
+    def register_messages_from_checker(self, checker: "BaseChecker") -> None:
         """Register all messages definitions from a checker."""
         checker.check_consistency()
         for message in checker.messages:

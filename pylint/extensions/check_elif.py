@@ -34,7 +34,7 @@ class ElseifUsedChecker(BaseTokenChecker):
     }
 
     def __init__(self, linter=None):
-        BaseTokenChecker.__init__(self, linter)
+        super().__init__(linter)
         self._init()
 
     def _init(self):

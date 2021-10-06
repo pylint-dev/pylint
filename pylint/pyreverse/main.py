@@ -200,7 +200,7 @@ class Run(ConfigurationMixIn):
     options = OPTIONS
 
     def __init__(self, args: Iterable[str]):
-        ConfigurationMixIn.__init__(self, usage=__doc__)
+        super().__init__(usage=__doc__)
         insert_default_options()
         args = self.load_command_line_configuration(args)
         if self.config.output_format not in ("dot", "vcg"):
