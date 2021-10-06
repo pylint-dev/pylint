@@ -4,7 +4,9 @@
 import sys
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
-from pylint.constants import MSG_TYPES
+from astroid import nodes
+
+from pylint.constants import _SCOPE_EXEMPT, MSG_TYPES, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.utils import normalize_text
 
@@ -88,3 +90,27 @@ class MessageDefinition:
             title = title.splitlines()[0]
             return f":{message_id}: *{title.rstrip(' ')}*\n{msg_help}"
         return f":{message_id}:\n{msg_help}"
+
+    def check_message_definition(
+        self, line: Optional[int], node: Optional[nodes.NodeNG]
+    ):
+        """Check MessageDefinition for possible errors"""
+        if self.msgid[0] not in _SCOPE_EXEMPT:
+            # Fatal messages and reports are special, the node/scope distinction
+            # does not apply to them.
+            if self.scope == WarningScope.LINE:
+                if line is None:
+                    raise InvalidMessageError(
+                        f"Message {self.msgid} must provide line, got None"
+                    )
+                if node is not None:
+                    raise InvalidMessageError(
+                        f"Message {self.msgid} must only provide line, "
+                        f"got line={line}, node={node}"
+                    )
+            elif self.scope == WarningScope.NODE:
+                # Node-based warnings may provide an override line.
+                if node is None:
+                    raise InvalidMessageError(
+                        f"Message {self.msgid} must provide Node, got None"
+                    )

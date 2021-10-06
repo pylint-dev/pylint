@@ -2,14 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import sys
-from io import TextIOWrapper
 from typing import TYPE_CHECKING, Any, List, Optional, TextIO, Tuple, Union
 
 from astroid import nodes
 
 from pylint import exceptions, interfaces
 from pylint.constants import (
-    _SCOPE_EXEMPT,
     MAIN_CHECKER_NAME,
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
@@ -17,8 +15,9 @@ from pylint.constants import (
     MSG_TYPES,
     MSG_TYPES_LONG,
     MSG_TYPES_STATUS,
-    WarningScope,
 )
+from pylint.exceptions import NoLineSuppliedError, UnknownMessageError
+from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
 from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
 
@@ -270,7 +269,7 @@ class MessagesHandlerMixIn:
         """
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
-            self.check_message_definition(message_definition, line, node)
+            message_definition.check_message_definition(line, node)
             self.file_state.handle_ignored_message(
                 self.get_message_state_scope(
                     message_definition.msgid, line, confidence
@@ -278,28 +277,6 @@ class MessagesHandlerMixIn:
                 message_definition.msgid,
                 line,
             )
-
-    @staticmethod
-    def check_message_definition(message_definition, line, node):
-        if message_definition.msgid[0] not in _SCOPE_EXEMPT:
-            # Fatal messages and reports are special, the node/scope distinction
-            # does not apply to them.
-            if message_definition.scope == WarningScope.LINE:
-                if line is None:
-                    raise exceptions.InvalidMessageError(
-                        f"Message {message_definition.msgid} must provide line, got None"
-                    )
-                if node is not None:
-                    raise exceptions.InvalidMessageError(
-                        f"Message {message_definition.msgid} must only provide line, "
-                        f"got line={line}, node={node}"
-                    )
-            elif message_definition.scope == WarningScope.NODE:
-                # Node-based warnings may provide an override line.
-                if node is None:
-                    raise exceptions.InvalidMessageError(
-                        f"Message {message_definition.msgid} must provide Node, got None"
-                    )
 
     def add_one_message(  # type: ignore # MessagesHandlerMixIn is always mixed with PyLinter
         self: "PyLinter",
@@ -310,7 +287,7 @@ class MessagesHandlerMixIn:
         confidence: Optional[interfaces.Confidence],
         col_offset: Optional[int],
     ) -> None:
-        self.check_message_definition(message_definition, line, node)
+        message_definition.check_message_definition(line, node)
         if line is None and node is not None:
             line = node.fromlineno
         if col_offset is None and hasattr(node, "col_offset"):
@@ -421,10 +398,3 @@ Below is a list of all checkers and their features.
     def print_full_documentation(self, stream: TextIO = sys.stdout) -> None:
         """output a full documentation in ReST format"""
         print(self.get_checkers_documentation()[:-1], file=stream)
-
-    @staticmethod
-    def _print_checker_doc(information, stream: TextIOWrapper) -> None:
-        """Helper method used by doc/exts/pylint_extensions.py."""
-        checker = information["checker"]
-        del information["checker"]
-        print(checker.get_full_documentation(**information)[:-1], file=stream)
