@@ -1,14 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-import sys
-from typing import TYPE_CHECKING, Any, List, Optional, TextIO, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
 from astroid import nodes
 
 from pylint import exceptions, interfaces
 from pylint.constants import (
-    MAIN_CHECKER_NAME,
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
@@ -17,7 +15,7 @@ from pylint.constants import (
     MSG_TYPES_STATUS,
 )
 from pylint.message.message import Message
-from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
+from pylint.utils import get_module_and_frameid
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -336,63 +334,3 @@ class MessagesHandlerMixIn:
                 confidence,
             )
         )
-
-    def _get_checkers_infos(self):
-        by_checker = {}
-        for checker in self.get_checkers():
-            name = checker.name
-            if name != "master":
-                try:
-                    by_checker[name]["checker"] = checker
-                    by_checker[name]["options"] += checker.options_and_values()
-                    by_checker[name]["msgs"].update(checker.msgs)
-                    by_checker[name]["reports"] += checker.reports
-                except KeyError:
-                    by_checker[name] = {
-                        "checker": checker,
-                        "options": list(checker.options_and_values()),
-                        "msgs": dict(checker.msgs),
-                        "reports": list(checker.reports),
-                    }
-        return by_checker
-
-    def get_checkers_documentation(self):
-        result = get_rst_title("Pylint global options and switches", "-")
-        result += """
-Pylint provides global options and switches.
-
-"""
-        for checker in self.get_checkers():
-            name = checker.name
-            if name == MAIN_CHECKER_NAME:
-                if checker.options:
-                    for section, options in checker.options_by_section():
-                        if section is None:
-                            title = "General options"
-                        else:
-                            title = f"{section.capitalize()} options"
-                        result += get_rst_title(title, "~")
-                        result += f"{get_rst_section(None, options)}\n"
-        result += get_rst_title("Pylint checkers' options and switches", "-")
-        result += """\
-
-Pylint checkers can provide three set of features:
-
-* options that control their execution,
-* messages that they can raise,
-* reports that they can generate.
-
-Below is a list of all checkers and their features.
-
-"""
-        by_checker = self._get_checkers_infos()
-        for checker in sorted(by_checker):
-            information = by_checker[checker]
-            checker = information["checker"]
-            del information["checker"]
-            result += checker.get_full_documentation(**information)
-        return result
-
-    def print_full_documentation(self, stream: TextIO = sys.stdout) -> None:
-        """output a full documentation in ReST format"""
-        print(self.get_checkers_documentation()[:-1], file=stream)

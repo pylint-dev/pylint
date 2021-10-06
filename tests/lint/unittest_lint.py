@@ -66,7 +66,7 @@ from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_op
 from pylint.message import Message
 from pylint.reporters import text
 from pylint.typing import MessageLocationTuple
-from pylint.utils import FileState, tokenize_module
+from pylint.utils import FileState, print_full_documentation, tokenize_module
 
 if os.name == "java":
     # pylint: disable=no-member
@@ -621,7 +621,7 @@ def test_analyze_explicit_script(linter: PyLinter) -> None:
 
 def test_full_documentation(linter: PyLinter) -> None:
     out = StringIO()
-    linter.print_full_documentation(out)
+    print_full_documentation(linter, out)
     output = out.getvalue()
     # A few spot checks only
     for re_str in (

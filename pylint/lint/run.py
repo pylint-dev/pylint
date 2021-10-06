@@ -9,7 +9,7 @@ from pylint import __pkginfo__, config, extensions, interfaces
 from pylint.constants import full_version
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.utils import ArgumentPreprocessingError, preprocess_options
-from pylint.utils import utils
+from pylint.utils import print_full_documentation, utils
 
 try:
     import multiprocessing
@@ -436,7 +436,7 @@ group are mutually exclusive.",
 
     def cb_full_documentation(self, option, optname, value, parser):
         """optik callback for printing full documentation"""
-        self.linter.print_full_documentation()
+        print_full_documentation(self.linter)
         sys.exit(0)
 
     def cb_list_messages(self, option, optname, value, parser):
