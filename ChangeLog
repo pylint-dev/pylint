@@ -58,6 +58,10 @@ Release date: TBA
 
   Closes #3614
 
+* Fixed crash in ``consider-using-f-string`` if ``format`` is not called
+
+  Closes #5058
+
 * Fix crash with ``AssignAttr`` in ``if TYPE_CHECKING`` blocks.
 
   Closes #5111

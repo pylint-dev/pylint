@@ -116,3 +116,11 @@ def assignment_bad():
     h = "String %s" % (PARAM_1)  # [consider-using-f-string]
     i = "String %s %s" % (PARAM_1, PARAM_2)  # [consider-using-f-string]
     j = "String %s" % (PARAM_LIST_SINGLE)  # [consider-using-f-string]
+
+
+def regression_tests():
+    # Referencing .format in a kwarg should not be warned
+    def wrap_print(value):
+        print(value)
+
+    wrap_print(value="{}".format)

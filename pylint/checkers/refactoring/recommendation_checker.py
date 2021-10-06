@@ -341,8 +341,8 @@ class RecommendationChecker(checkers.BaseChecker):
             isinstance(node.parent, nodes.Attribute)
             and node.parent.attrname == "format"
         ):
-            # Allow assigning .format to a variable
-            if isinstance(node.parent.parent, nodes.Assign):
+            # Don't warn on referencing / assigning .format without calling it
+            if not isinstance(node.parent.parent, nodes.Call):
                 return
 
             if node.parent.parent.args:
