@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, TextIO, Tuple, Union
 
 from astroid import nodes
 
+from pylint import exceptions, interfaces
 from pylint.constants import (
     _SCOPE_EXEMPT,
     MAIN_CHECKER_NAME,
@@ -18,12 +19,6 @@ from pylint.constants import (
     MSG_TYPES_STATUS,
     WarningScope,
 )
-from pylint.exceptions import (
-    InvalidMessageError,
-    NoLineSuppliedError,
-    UnknownMessageError,
-)
-from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
 from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
 
@@ -59,7 +54,7 @@ class MessagesHandlerMixIn:
         if msgid_or_symbol[1:].isdigit():
             try:
                 symbol = self.msgs_store.message_id_store.get_symbol(msgid=msgid_or_symbol)  # type: ignore
-            except UnknownMessageError:
+            except exceptions.UnknownMessageError:
                 return
             managed = (self.current_name, msgid_or_symbol, symbol, line, is_disabled)  # type: ignore
             MessagesHandlerMixIn.__by_id_managed_msgs.append(managed)
@@ -78,7 +73,7 @@ class MessagesHandlerMixIn:
         ignore_unknown: bool = False,
     ):
         if not line:
-            raise NoLineSuppliedError
+            raise exceptions.NoLineSuppliedError
         self._set_msg_status(
             msgid,
             enable=False,
@@ -130,7 +125,7 @@ class MessagesHandlerMixIn:
         try:
             # msgid is a symbolic or numeric msgid.
             message_definitions = self.msgs_store.get_message_definitions(msgid)
-        except UnknownMessageError:
+        except exceptions.UnknownMessageError:
             if ignore_unknown:
                 return
             raise
@@ -165,10 +160,12 @@ class MessagesHandlerMixIn:
         """
         try:
             return [md.symbol for md in self.msgs_store.get_message_definitions(msgid)]
-        except UnknownMessageError:
+        except exceptions.UnknownMessageError:
             return msgid
 
-    def get_message_state_scope(self, msgid, line=None, confidence=UNDEFINED):
+    def get_message_state_scope(
+        self, msgid, line=None, confidence=interfaces.UNDEFINED
+    ):
         """Returns the scope at which a message was enabled/disabled."""
         if self.config.confidence and confidence.name not in self.config.confidence:
             return MSG_STATE_CONFIDENCE
@@ -191,7 +188,7 @@ class MessagesHandlerMixIn:
         try:
             message_definitions = self.msgs_store.get_message_definitions(msg_descr)
             msgids = [md.msgid for md in message_definitions]
-        except UnknownMessageError:
+        except exceptions.UnknownMessageError:
             # The linter checks for messages that are not registered
             # due to version mismatch, just treat them as message IDs
             # for now.
@@ -238,7 +235,7 @@ class MessagesHandlerMixIn:
         line: Optional[int] = None,
         node: Optional[nodes.NodeNG] = None,
         args: Any = None,
-        confidence: Optional[Confidence] = None,
+        confidence: Optional[interfaces.Confidence] = None,
         col_offset: Optional[int] = None,
     ) -> None:
         """Adds a message given by ID or name.
@@ -250,7 +247,7 @@ class MessagesHandlerMixIn:
         must provide the line argument.
         """
         if confidence is None:
-            confidence = UNDEFINED
+            confidence = interfaces.UNDEFINED
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             self.add_one_message(
@@ -262,7 +259,7 @@ class MessagesHandlerMixIn:
         msgid: str,
         line: int,
         node: Optional[nodes.NodeNG] = None,
-        confidence: Optional[Confidence] = UNDEFINED,
+        confidence: Optional[interfaces.Confidence] = interfaces.UNDEFINED,
     ) -> None:
         """Prepares a message to be added to the ignored message storage
 
@@ -289,18 +286,18 @@ class MessagesHandlerMixIn:
             # does not apply to them.
             if message_definition.scope == WarningScope.LINE:
                 if line is None:
-                    raise InvalidMessageError(
+                    raise exceptions.InvalidMessageError(
                         f"Message {message_definition.msgid} must provide line, got None"
                     )
                 if node is not None:
-                    raise InvalidMessageError(
+                    raise exceptions.InvalidMessageError(
                         f"Message {message_definition.msgid} must only provide line, "
                         f"got line={line}, node={node}"
                     )
             elif message_definition.scope == WarningScope.NODE:
                 # Node-based warnings may provide an override line.
                 if node is None:
-                    raise InvalidMessageError(
+                    raise exceptions.InvalidMessageError(
                         f"Message {message_definition.msgid} must provide Node, got None"
                     )
 
@@ -310,7 +307,7 @@ class MessagesHandlerMixIn:
         line: Optional[int],
         node: Optional[nodes.NodeNG],
         args: Any,
-        confidence: Optional[Confidence],
+        confidence: Optional[interfaces.Confidence],
         col_offset: Optional[int],
     ) -> None:
         self.check_message_definition(message_definition, line, node)
