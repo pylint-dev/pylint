@@ -1551,12 +1551,46 @@ def get_import_name(
     return modname
 
 
+def is_sys_guard(node: nodes.If) -> bool:
+    """Return True if IF stmt is a sys.version_info guard.
+
+    >>> import sys
+    >>> if sys.version_info > (3, 8):
+    >>>     from typing import Literal
+    >>> else:
+    >>>     from typing_extensions import Literal
+    """
+    if isinstance(node.test, nodes.Compare):
+        value = node.test.left
+        if isinstance(value, nodes.Subscript):
+            value = value.value
+        if (
+            isinstance(value, nodes.Attribute)
+            and value.as_string() == "sys.version_info"
+        ):
+            return True
+
+    return False
+
+
+def is_typing_guard(node: nodes.If) -> bool:
+    """Return True if IF stmt is a typing guard.
+
+    >>> from typing import TYPE_CHECKING
+    >>> if TYPE_CHECKING:
+    >>>     from xyz import a
+    """
+    return isinstance(
+        node.test, (nodes.Name, nodes.Attribute)
+    ) and node.test.as_string().endswith("TYPE_CHECKING")
+
+
 def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
     """Return True if node is part for guarded if block.
     I.e. `sys.version_info` or `typing.TYPE_CHECKING`
     """
     return isinstance(node.parent, nodes.If) and (
-        node.parent.is_sys_guard() or node.parent.is_typing_guard()
+        is_sys_guard(node.parent) or is_typing_guard(node.parent)
     )
 
 

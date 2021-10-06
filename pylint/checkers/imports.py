@@ -62,6 +62,7 @@ from pylint.checkers.utils import (
     get_import_name,
     is_from_fallback_block,
     is_node_in_guarded_import_block,
+    is_typing_guard,
     node_ignores_exception,
 )
 from pylint.exceptions import EmptyReportError
@@ -843,8 +844,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         except ImportError:
             pass
 
-        in_type_checking_block = (
-            isinstance(node.parent, nodes.If) and node.parent.is_typing_guard()
+        in_type_checking_block = isinstance(node.parent, nodes.If) and is_typing_guard(
+            node.parent
         )
 
         if context_name == importedmodname:
