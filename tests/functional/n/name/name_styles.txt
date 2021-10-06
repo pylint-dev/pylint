@@ -1,7 +1,7 @@
 invalid-name:11:0::"Constant name ""bad_const_name"" doesn't conform to UPPER_CASE naming style"
 invalid-name:14:0:BADFUNCTION_name:"Function name ""BADFUNCTION_name"" doesn't conform to snake_case naming style"
 invalid-name:16:4:BADFUNCTION_name:"Variable name ""BAD_LOCAL_VAR"" doesn't conform to snake_case naming style"
-invalid-name:20:0:func_bad_argname:"Argument name ""NOT_GOOD"" doesn't conform to snake_case naming style"
+invalid-name:20:21:func_bad_argname:"Argument name ""NOT_GOOD"" doesn't conform to snake_case naming style"
 invalid-name:30:0:bad_class_name:"Class name ""bad_class_name"" doesn't conform to PascalCase naming style"
 invalid-name:41:8:CorrectClassName.__init__:"Attribute name ""_Bad_AtTR_name"" doesn't conform to snake_case naming style"
 invalid-name:42:8:CorrectClassName.__init__:"Attribute name ""Bad_PUBLIC_name"" doesn't conform to snake_case naming style"

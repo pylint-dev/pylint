@@ -11,6 +11,9 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
+* Improve and flatten ``unused-wildcard-import`` message
+
+  Closes #3859
 
 
 What's New in Pylint 2.11.2?
@@ -58,6 +61,12 @@ Release date: TBA
 * Fixed crash in ``consider-using-f-string`` if ``format`` is not called
 
   Closes #5058
+
+* Fix crash with ``AssignAttr`` in ``if TYPE_CHECKING`` blocks.
+
+  Closes #5111
+
+* Improve node information for ``invalid-name`` on function argument.
 
 
 What's New in Pylint 2.11.1?
