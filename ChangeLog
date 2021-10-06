@@ -68,6 +68,10 @@ Release date: TBA
 
 * Improve node information for ``invalid-name`` on function argument.
 
+* Prevent return type checkers being called on functions with ellipses as body
+
+  Closes #4736
+
 
 What's New in Pylint 2.11.1?
 ============================
