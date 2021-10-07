@@ -48,7 +48,7 @@ POSSIBLE_DOT_FILENAMES = ["foo.dot", "foo.gv", "tests/regrtest_data/foo.dot"]
 @pytest.mark.parametrize("dest", POSSIBLE_DOT_FILENAMES, indirect=True)
 def test_dependencies_graph(dest: str) -> None:
     """DOC files are correctly generated, and the graphname is the basename"""
-    imports._dependencies_graph(dest, {"labas": ["hoho", "yep"], "hoho": ["yep"]})
+    imports._dependencies_graph(dest, {"labas": {"hoho", "yep"}, "hoho": {"yep"}})
     with open(dest, encoding="utf-8") as stream:
         assert (
             stream.read().strip()
@@ -75,7 +75,7 @@ URL="." node[shape="box"]
 def test_missing_graphviz(filename: str) -> None:
     """Raises if graphviz is not installed, and defaults to png if no extension given"""
     with pytest.raises(RuntimeError, match=r"Cannot generate `graph\.png`.*"):
-        imports._dependencies_graph(filename, {"a": ["b", "c"], "b": ["c"]})
+        imports._dependencies_graph(filename, {"a": {"b", "c"}, "b": {"c"}})
 
 
 @pytest.fixture

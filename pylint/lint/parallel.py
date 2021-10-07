@@ -3,15 +3,13 @@
 
 import collections
 import functools
-from typing import TYPE_CHECKING, Any, DefaultDict, Dict, Iterable, List, Tuple, Union
+from typing import Any, DefaultDict, Iterable, List, Tuple
 
 from pylint import reporters
 from pylint.lint.utils import _patch_sys_path
 from pylint.message import Message
-from pylint.typing import CheckerStats, FileItem
-
-if TYPE_CHECKING:
-    from typing import Counter  # typing.Counter added in Python 3.6.1
+from pylint.typing import FileItem
+from pylint.utils import LinterStats, merge_stats
 
 try:
     import multiprocessing
@@ -35,25 +33,6 @@ def _get_new_args(message):
     return (message.msg_id, message.symbol, location, message.msg, message.confidence)
 
 
-def _merge_stats(stats: List[CheckerStats]):
-    merged: CheckerStats = {}
-    by_msg: "Counter[str]" = collections.Counter()
-    for stat in stats:
-        message_stats: Union["Counter[str]", Dict] = stat.pop("by_msg", {})  # type: ignore
-        by_msg.update(message_stats)
-
-        for key, item in stat.items():
-            if key not in merged:
-                merged[key] = item
-            elif isinstance(item, dict):
-                merged[key].update(item)  # type: ignore
-            else:
-                merged[key] = merged[key] + item  # type: ignore
-
-    merged["by_msg"] = by_msg
-    return merged
-
-
 def _worker_initialize(linter, arguments=None):
     global _worker_linter  # pylint: disable=global-statement
     _worker_linter = linter
@@ -69,7 +48,9 @@ def _worker_initialize(linter, arguments=None):
 
 def _worker_check_single_file(
     file_item: FileItem,
-) -> Tuple[int, Any, str, Any, List[Tuple[Any, ...]], Any, Any, DefaultDict[Any, List]]:
+) -> Tuple[
+    int, Any, str, Any, List[Tuple[Any, ...]], LinterStats, Any, DefaultDict[Any, List]
+]:
     if not _worker_linter:
         raise Exception("Worker linter not yet initialised")
     _worker_linter.open()
@@ -167,7 +148,7 @@ def check_parallel(linter, jobs, files: Iterable[FileItem], arguments=None):
         pool.join()
 
     _merge_mapreduce_data(linter, all_mapreduce_data)
-    linter.stats = _merge_stats([linter.stats] + all_stats)
+    linter.stats = merge_stats([linter.stats] + all_stats)
 
     # Insert stats data to local checkers.
     for checker in linter.get_checkers():

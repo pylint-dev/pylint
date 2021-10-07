@@ -11,6 +11,9 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
+* Improve and flatten ``unused-wildcard-import`` message
+
+  Closes #3859
 
 
 What's New in Pylint 2.11.2?
@@ -35,6 +38,47 @@ Release date: TBA
   value for a keyword-only parameter.
 
   Closes #5012
+
+* Fix false-positive ``undefined-variable`` with ``Lambda``, ``IfExp``, and
+  assignment expression.
+
+* Fix false-positive ``useless-suppression`` for ``wrong-import-order``
+
+  Closes #2366
+
+* Fixed ``toml`` dependency issue
+
+  Closes #5066
+
+* Fix false-positive ``useless-suppression`` for ``line-too-long``
+
+  Closes #4212
+
+* Fixed ``invalid-name`` not checking parameters of overwritten base ``object`` methods
+
+  Closes #3614
+
+* Fixed crash in ``consider-using-f-string`` if ``format`` is not called
+
+  Closes #5058
+
+* Fix crash with ``AssignAttr`` in ``if TYPE_CHECKING`` blocks.
+
+  Closes #5111
+
+* Improve node information for ``invalid-name`` on function argument.
+
+* Prevent return type checkers being called on functions with ellipses as body
+
+  Closes #4736
+
+* Add ``is_sys_guard`` and ``is_typing_guard`` helper functions from astroid
+  to ``pylint.checkers.utils``.
+
+* Fix regression on ClassDef inference
+
+  Closes #5030
+  Closes #5036
 
 
 What's New in Pylint 2.11.1?

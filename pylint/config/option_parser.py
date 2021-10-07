@@ -17,7 +17,7 @@ def _level_options(group, outputlevel):
 
 class OptionParser(optparse.OptionParser):
     def __init__(self, option_class, *args, **kwargs):
-        optparse.OptionParser.__init__(self, option_class=Option, *args, **kwargs)
+        super().__init__(option_class=Option, *args, **kwargs)
 
     def format_option_help(self, formatter=None):
         if formatter is None:

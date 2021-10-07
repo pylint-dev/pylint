@@ -141,7 +141,7 @@ class TestRunTC:
         args: List[str],
         reporter: Any = None,
         out: Optional[StringIO] = None,
-        code: int = None,
+        code: Optional[int] = None,
     ) -> None:
         if out is None:
             out = StringIO()

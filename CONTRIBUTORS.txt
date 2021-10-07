@@ -543,3 +543,8 @@ contributors:
 * Hayden Richards (SupImDos): contributor
   - Fixed "no-self-use" for async methods
   - Fixed "docparams" extension for async functions and methods
+
+* Jeroen Seegers (jeroenseegers): contributor
+  - Fixed `toml` dependency issue
+
+* Tim Martin: contributor

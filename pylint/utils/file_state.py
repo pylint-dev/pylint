@@ -5,7 +5,6 @@ import collections
 import sys
 from typing import (
     TYPE_CHECKING,
-    Any,
     DefaultDict,
     Dict,
     Iterator,
@@ -18,7 +17,6 @@ from typing import (
 from astroid import nodes
 
 from pylint.constants import MSG_STATE_SCOPE_MODULE, WarningScope
-from pylint.interfaces import Confidence
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -132,20 +130,13 @@ class FileState:
             self._module_msgs_state[msg.msgid] = {line: status}
 
     def handle_ignored_message(
-        self,
-        state_scope: Optional[Literal[0, 1, 2]],
-        msgid: str,
-        line: int,
-        node: nodes.NodeNG,
-        args: Any,
-        confidence: Confidence,
+        self, state_scope: Optional[Literal[0, 1, 2]], msgid: str, line: int
     ) -> None:
-        # pylint: disable=unused-argument
         """Report an ignored message.
 
         state_scope is either MSG_STATE_SCOPE_MODULE or MSG_STATE_SCOPE_CONFIG,
         depending on whether the message was disabled locally in the module,
-        or globally. The other arguments are the same as for add_message.
+        or globally.
         """
         if state_scope == MSG_STATE_SCOPE_MODULE:
             try:

@@ -2,12 +2,12 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
-from typing import TYPE_CHECKING, Any, Callable, DefaultDict, Dict, List, Tuple
+from typing import TYPE_CHECKING, Callable, DefaultDict, Dict, List, Optional, Tuple
 
 from pylint.exceptions import EmptyReportError
 from pylint.interfaces import IChecker
 from pylint.reporters.ureports.nodes import Section
-from pylint.typing import CheckerStats
+from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -59,11 +59,11 @@ class ReportsHandlerMixIn:
 
     def make_reports(  # type: ignore # ReportsHandlerMixIn is always mixed with PyLinter
         self: "PyLinter",
-        stats: CheckerStats,
-        old_stats: CheckerStats,
+        stats: LinterStats,
+        old_stats: Optional[LinterStats],
     ) -> Section:
         """render registered reports"""
-        sect = Section("Report", f"{self.stats['statement']} statements analysed.")
+        sect = Section("Report", f"{self.stats.statement} statements analysed.")
         for checker in self.report_order():
             for reportid, r_title, r_cb in self._reports[checker]:
                 if not self.report_is_enabled(reportid):
@@ -76,16 +76,3 @@ class ReportsHandlerMixIn:
                 report_sect.report_id = reportid
                 sect.append(report_sect)
         return sect
-
-    def add_stats(  # type: ignore # ReportsHandlerMixIn is always mixed with PyLinter
-        self: "PyLinter", **kwargs: Any
-    ) -> CheckerStats:
-        """add some stats entries to the statistic dictionary
-        raise an AssertionError if there is a key conflict
-        """
-        for key, value in kwargs.items():
-            if key[-1] == "_":
-                key = key[:-1]
-            assert key not in self.stats
-            self.stats[key] = value
-        return self.stats

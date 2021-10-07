@@ -32,7 +32,7 @@ class Relationship(Figure):
     """a relation ship from an object in the diagram to another"""
 
     def __init__(self, from_object, to_object, relation_type, name=None):
-        Figure.__init__(self)
+        super().__init__()
         self.from_object = from_object
         self.to_object = to_object
         self.type = relation_type
@@ -43,7 +43,7 @@ class DiagramEntity(Figure):
     """a diagram object, i.e. a label associated to an astroid node"""
 
     def __init__(self, title="No name", node=None):
-        Figure.__init__(self)
+        super().__init__()
         self.title = title
         self.node = node
 
@@ -254,7 +254,7 @@ class PackageDiagram(ClassDiagram):
 
     def extract_relationships(self):
         """extract relation ships between nodes in the diagram"""
-        ClassDiagram.extract_relationships(self)
+        super().extract_relationships()
         for obj in self.classes():
             # ownership
             try:

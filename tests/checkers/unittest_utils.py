@@ -23,6 +23,7 @@ from typing import Dict, Union
 
 import astroid
 import pytest
+from astroid import nodes
 
 from pylint.checkers import utils
 
@@ -79,7 +80,7 @@ def testGetArgumentFromCall() -> None:
 
 
 def test_error_of_type() -> None:
-    nodes = astroid.extract_node(
+    code = astroid.extract_node(
         """
     try: pass
     except AttributeError: #@
@@ -91,14 +92,14 @@ def test_error_of_type() -> None:
          pass
     """
     )
-    assert utils.error_of_type(nodes[0], AttributeError)
-    assert utils.error_of_type(nodes[0], (AttributeError,))
-    assert not utils.error_of_type(nodes[0], Exception)
-    assert utils.error_of_type(nodes[1], Exception)
+    assert utils.error_of_type(code[0], AttributeError)
+    assert utils.error_of_type(code[0], (AttributeError,))
+    assert not utils.error_of_type(code[0], Exception)
+    assert utils.error_of_type(code[1], Exception)
 
 
 def test_node_ignores_exception() -> None:
-    nodes = astroid.extract_node(
+    code = astroid.extract_node(
         """
     try:
         1/0 #@
@@ -118,14 +119,14 @@ def test_node_ignores_exception() -> None:
         pass
     """
     )
-    assert utils.node_ignores_exception(nodes[0], ZeroDivisionError)
-    assert not utils.node_ignores_exception(nodes[1], ZeroDivisionError)
-    assert not utils.node_ignores_exception(nodes[2], ZeroDivisionError)
-    assert not utils.node_ignores_exception(nodes[3], ZeroDivisionError)
+    assert utils.node_ignores_exception(code[0], ZeroDivisionError)
+    assert not utils.node_ignores_exception(code[1], ZeroDivisionError)
+    assert not utils.node_ignores_exception(code[2], ZeroDivisionError)
+    assert not utils.node_ignores_exception(code[3], ZeroDivisionError)
 
 
 def test_is_subclass_of_node_b_derived_from_node_a() -> None:
-    nodes = astroid.extract_node(
+    code = astroid.extract_node(
         """
     class Superclass: #@
         pass
@@ -134,11 +135,11 @@ def test_is_subclass_of_node_b_derived_from_node_a() -> None:
         pass
     """
     )
-    assert utils.is_subclass_of(nodes[1], nodes[0])
+    assert utils.is_subclass_of(code[1], code[0])
 
 
 def test_is_subclass_of_node_b_not_derived_from_node_a() -> None:
-    nodes = astroid.extract_node(
+    code = astroid.extract_node(
         """
     class OneClass: #@
         pass
@@ -147,7 +148,7 @@ def test_is_subclass_of_node_b_not_derived_from_node_a() -> None:
         pass
     """
     )
-    assert not utils.is_subclass_of(nodes[1], nodes[0])
+    assert not utils.is_subclass_of(code[1], code[0])
 
 
 def test_is_subclass_of_not_classdefs() -> None:
@@ -404,3 +405,61 @@ def test_get_node_last_lineno_combined() -> None:
         """
     )
     assert utils.get_node_last_lineno(node) == 11
+
+
+def test_if_sys_guard() -> None:
+    code = astroid.extract_node(
+        """
+    import sys
+    if sys.version_info > (3, 8):  #@
+        pass
+
+    if sys.version_info[:2] > (3, 8):  #@
+        pass
+
+    if sys.some_other_function > (3, 8):  #@
+        pass
+    """
+    )
+    assert isinstance(code, list) and len(code) == 3
+
+    assert isinstance(code[0], nodes.If)
+    assert utils.is_sys_guard(code[0]) is True
+    assert isinstance(code[1], nodes.If)
+    assert utils.is_sys_guard(code[1]) is True
+
+    assert isinstance(code[2], nodes.If)
+    assert utils.is_sys_guard(code[2]) is False
+
+
+def test_if_typing_guard() -> None:
+    code = astroid.extract_node(
+        """
+    import typing
+    import typing as t
+    from typing import TYPE_CHECKING
+
+    if typing.TYPE_CHECKING:  #@
+        pass
+
+    if t.TYPE_CHECKING:  #@
+        pass
+
+    if TYPE_CHECKING:  #@
+        pass
+
+    if typing.SOME_OTHER_CONST:  #@
+        pass
+    """
+    )
+    assert isinstance(code, list) and len(code) == 4
+
+    assert isinstance(code[0], nodes.If)
+    assert utils.is_typing_guard(code[0]) is True
+    assert isinstance(code[1], nodes.If)
+    assert utils.is_typing_guard(code[1]) is True
+    assert isinstance(code[2], nodes.If)
+    assert utils.is_typing_guard(code[2]) is True
+
+    assert isinstance(code[3], nodes.If)
+    assert utils.is_typing_guard(code[3]) is False

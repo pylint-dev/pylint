@@ -5,7 +5,7 @@ import configparser
 import os
 
 import toml
-from toml.decoder import TomlDecodeError
+from toml import TomlDecodeError
 
 
 def _toml_has_config(path):

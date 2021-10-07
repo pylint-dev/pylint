@@ -65,7 +65,7 @@ GLOBAL_OPTION_NAMES = Union[
     GLOBAL_OPTION_TUPLE_INT,
 ]
 T_GlobalOptionReturnTypes = TypeVar(
-    "T_GlobalOptionReturnTypes", bool, int, List[str], Pattern, Tuple[int, ...]
+    "T_GlobalOptionReturnTypes", bool, int, List[str], Pattern[str], Tuple[int, ...]
 )
 
 
@@ -131,7 +131,7 @@ def get_rst_section(section, options, doc=None):
         if help_opt:
             formatted_help = normalize_text(help_opt, indent="  ")
             result += f"{formatted_help}\n"
-        if value:
+        if value and optname != "py-version":
             value = str(_format_option_value(optdict, value))
             result += f"\n  Default: ``{value.replace('`` ', '```` ``')}``\n"
     return result
@@ -215,8 +215,8 @@ def get_global_option(
 def get_global_option(
     checker: "BaseChecker",
     option: GLOBAL_OPTION_PATTERN,
-    default: Optional[Pattern] = None,
-) -> Pattern:
+    default: Optional[Pattern[str]] = None,
+) -> Pattern[str]:
     ...
 
 

@@ -58,7 +58,7 @@ class RecommendationChecker(checkers.BaseChecker):
             "consider-using-f-string",
             "Used when we detect a string that is being formatted with format() or % "
             "which could potentially be a f-string. The use of f-strings is preferred. "
-            "Requires Python 3.6",
+            "Requires Python 3.6 and ``py-version >= 3.6``.",
         ),
     }
 
@@ -341,8 +341,8 @@ class RecommendationChecker(checkers.BaseChecker):
             isinstance(node.parent, nodes.Attribute)
             and node.parent.attrname == "format"
         ):
-            # Allow assigning .format to a variable
-            if isinstance(node.parent.parent, nodes.Assign):
+            # Don't warn on referencing / assigning .format without calling it
+            if not isinstance(node.parent.parent, nodes.Call):
                 return
 
             if node.parent.parent.args:
