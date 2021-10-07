@@ -80,6 +80,10 @@ Release date: TBA
   Closes #5030
   Closes #5036
 
+* Fix regression on Compare node inference
+
+  Closes #5048
+
 
 What's New in Pylint 2.11.1?
 ============================
