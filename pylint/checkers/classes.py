@@ -68,6 +68,7 @@ from pylint.checkers.utils import (
     is_attr_protected,
     is_builtin_object,
     is_comprehension,
+    is_function_body_ellipsis,
     is_iterable,
     is_overload_stub,
     is_property_setter,
@@ -823,7 +824,7 @@ a metaclass class method.",
     )
 
     def __init__(self, linter=None):
-        BaseChecker.__init__(self, linter)
+        super().__init__(linter)
         self._accessed = ScopeAccessMap()
         self._first_attrs = []
         self._meth_could_be_func = None
@@ -2131,7 +2132,7 @@ class SpecialMethodsChecker(BaseChecker):
     priority = -2
 
     def __init__(self, linter=None):
-        BaseChecker.__init__(self, linter)
+        super().__init__(linter)
         self._protocol_map = {
             "__iter__": self._check_iter,
             "__len__": self._check_len,
@@ -2168,7 +2169,11 @@ class SpecialMethodsChecker(BaseChecker):
 
         inferred = _safe_infer_call_result(node, node)
         # Only want to check types that we are able to infer
-        if inferred and node.name in self._protocol_map:
+        if (
+            inferred
+            and node.name in self._protocol_map
+            and not is_function_body_ellipsis(node)
+        ):
             self._protocol_map[node.name](node, inferred)
 
         if node.name in PYMETHODS:

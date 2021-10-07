@@ -11,6 +11,9 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
+* Improve and flatten ``unused-wildcard-import`` message
+
+  Closes #3859
 
 
 What's New in Pylint 2.11.2?
@@ -20,17 +23,62 @@ Release date: TBA
 ..
   Put bug fixes that should not wait for a new minor version here
 
+* Don't emit ``consider-using-f-string`` if ``py-version`` is set to Python < ``3.6``.
+  ``f-strings`` were added in Python ``3.6``
+
+  Closes #5019
+
 * Fix regression for ``unspecified-encoding`` with ``pathlib.Path.read_text()``
 
   Closes #5029
+
+* Don't emit ``consider-using-f-string`` if the variables to be interpolated include a backslash
+
+* Fixed false positive for ``cell-var-from-loop`` when variable is used as the default
+  value for a keyword-only parameter.
+
+  Closes #5012
+
+* Fix false-positive ``undefined-variable`` with ``Lambda``, ``IfExp``, and
+  assignment expression.
+
+* Fix false-positive ``useless-suppression`` for ``wrong-import-order``
+
+  Closes #2366
+
+* Fixed ``toml`` dependency issue
+
+  Closes #5066
+
+* Fix false-positive ``useless-suppression`` for ``line-too-long``
+
+  Closes #4212
+
+* Fixed ``invalid-name`` not checking parameters of overwritten base ``object`` methods
+
+  Closes #3614
+
+* Fixed crash in ``consider-using-f-string`` if ``format`` is not called
+
+  Closes #5058
+
+* Fix crash with ``AssignAttr`` in ``if TYPE_CHECKING`` blocks.
+
+  Closes #5111
+
+* Improve node information for ``invalid-name`` on function argument.
+
+* Prevent return type checkers being called on functions with ellipses as body
+
+  Closes #4736
+
+* Add ``is_sys_guard`` and ``is_typing_guard`` helper functions from astroid
+  to ``pylint.checkers.utils``.
 
 
 What's New in Pylint 2.11.1?
 ============================
 Release date: 2021-09-16
-
-..
-  Put bug fixes that should not wait for a new minor version here
 
 * ``unspecified-encoding`` now checks the encoding of ``pathlib.Path()`` correctly
 

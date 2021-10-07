@@ -26,6 +26,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from typing import Optional
 
 
 def target_info_from_filename(filename):
@@ -82,7 +83,9 @@ class DotBackend:
 
     source = property(get_source)
 
-    def generate(self, outputfile: str = None, mapfile: str = None) -> str:
+    def generate(
+        self, outputfile: Optional[str] = None, mapfile: Optional[str] = None
+    ) -> str:
         """Generates a graph file.
 
         :param str outputfile: filename and path [defaults to graphname.png]

@@ -32,8 +32,8 @@ from pylint.lint.utils import (
 )
 from pylint.message import MessageDefinitionStore, MessagesHandlerMixIn
 from pylint.reporters.ureports import nodes as report_nodes
-from pylint.typing import CheckerStats, FileItem, ModuleDescriptionDict
-from pylint.utils import ASTWalker, FileState, utils
+from pylint.typing import FileItem, ModuleDescriptionDict
+from pylint.utils import ASTWalker, FileState, LinterStats, ModuleStats, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,
     InvalidPragmaError,
@@ -502,9 +502,9 @@ class PyLinter(
         self._ignore_file = False
         # visit variables
         self.file_state = FileState()
-        self.current_name = None
+        self.current_name: Optional[str] = None
         self.current_file = None
-        self.stats: CheckerStats = {}
+        self.stats = LinterStats()
         self.fail_on_symbols = []
         # init options
         self._external_opts = options
@@ -731,10 +731,8 @@ class PyLinter(
                         self.fail_on_symbols.append(msg.symbol)
 
     def any_fail_on_issues(self):
-        return (
-            self.stats
-            and self.stats.get("by_msg") is not None
-            and any(x in self.fail_on_symbols for x in self.stats["by_msg"])
+        return self.stats and any(
+            x in self.fail_on_symbols for x in self.stats.by_msg.keys()
         )
 
     def disable_noerror_messages(self):
@@ -1101,10 +1099,9 @@ class PyLinter(
         self.reporter.on_set_current_module(modname, filepath)
         self.current_name = modname
         self.current_file = filepath or modname
-        self.stats["by_module"][modname] = {}  # type: ignore # Refactor of PyLinter.stats necessary
-        self.stats["by_module"][modname]["statement"] = 0  # type: ignore
-        for msg_cat in MSG_TYPES.values():
-            self.stats["by_module"][modname][msg_cat] = 0  # type: ignore
+        self.stats.by_module[modname] = ModuleStats(
+            convention=0, error=0, fatal=0, info=0, refactor=0, statement=0, warning=0
+        )
 
     @contextlib.contextmanager
     def _astroid_module_checker(self):
@@ -1136,7 +1133,7 @@ class PyLinter(
         )
 
         # notify global end
-        self.stats["statement"] = walker.nbstatements
+        self.stats.statement = walker.nbstatements
         for checker in reversed(_checkers):
             checker.close()
 
@@ -1181,7 +1178,7 @@ class PyLinter(
             ast_node, walker, rawcheckers, tokencheckers
         )
 
-        self.stats["by_module"][self.current_name]["statement"] = (
+        self.stats.by_module[self.current_name]["statement"] = (
             walker.nbstatements - before_check_statements
         )
 
@@ -1231,7 +1228,7 @@ class PyLinter(
 
     def open(self):
         """initialize counters"""
-        self.stats = {"by_module": {}, "by_msg": {}}
+        self.stats = LinterStats()
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.max_inferable_values = self.config.limit_inference_results
         MANAGER.extension_package_whitelist.update(self.config.extension_pkg_allow_list)
@@ -1239,8 +1236,7 @@ class PyLinter(
             MANAGER.extension_package_whitelist.update(
                 self.config.extension_pkg_whitelist
             )
-        for msg_cat in MSG_TYPES.values():
-            self.stats[msg_cat] = 0
+        self.stats.reset_message_count()
 
     def generate_reports(self):
         """close the whole package /module, it's time to make reports !
@@ -1266,7 +1262,7 @@ class PyLinter(
             if self.config.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
         else:
-            self.reporter.on_close(self.stats, {})
+            self.reporter.on_close(self.stats, LinterStats())
             score_value = None
         return score_value
 
@@ -1276,21 +1272,29 @@ class PyLinter(
         # syntax error preventing pylint from further processing)
         note = None
         previous_stats = config.load_results(self.file_state.base_name)
-        if self.stats["statement"] == 0:
+        if self.stats.statement == 0:
             return note
 
         # get a global note for the code
         evaluation = self.config.evaluation
         try:
-            note = eval(evaluation, {}, self.stats)  # pylint: disable=eval-used
+            stats_dict = {
+                "error": self.stats.error,
+                "warning": self.stats.warning,
+                "refactor": self.stats.refactor,
+                "convention": self.stats.convention,
+                "statement": self.stats.statement,
+            }
+            note = eval(evaluation, {}, stats_dict)  # pylint: disable=eval-used
         except Exception as ex:  # pylint: disable=broad-except
             msg = f"An exception occurred while rating: {ex}"
         else:
-            self.stats["global_note"] = note
+            self.stats.global_note = note
             msg = f"Your code has been rated at {note:.2f}/10"
-            pnote = previous_stats.get("global_note")
-            if pnote is not None:
-                msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
+            if previous_stats:
+                pnote = previous_stats.global_note
+                if pnote is not None:
+                    msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
 
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)

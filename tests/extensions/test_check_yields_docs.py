@@ -20,7 +20,7 @@
 import astroid
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, Message, set_config
+from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 
 class TestDocstringCheckerYield(CheckerTestCase):
@@ -48,8 +48,8 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-yield-doc", node=node),
-            Message(msg_id="missing-yield-type-doc", node=node),
+            MessageTest(msg_id="missing-yield-doc", node=node),
+            MessageTest(msg_id="missing-yield-type-doc", node=node),
         ):
             self.checker.visit_yield(yield_node)
 
@@ -77,7 +77,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-yield-type-doc", node=node)
+            MessageTest(msg_id="missing-yield-type-doc", node=node)
         ):
             self.checker.visit_yield(yield_node)
 
@@ -93,7 +93,9 @@ class TestDocstringCheckerYield(CheckerTestCase):
         '''
         )
         yield_node = node.body[0]
-        with self.assertAddsMessages(Message(msg_id="missing-yield-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-yield-doc", node=node)
+        ):
             self.checker.visit_yield(yield_node)
 
     def test_warn_missing_sphinx_yields(self) -> None:
@@ -110,8 +112,8 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-yield-doc", node=node),
-            Message(msg_id="missing-yield-type-doc", node=node),
+            MessageTest(msg_id="missing-yield-doc", node=node),
+            MessageTest(msg_id="missing-yield-type-doc", node=node),
         ):
             self.checker.visit_yield(yield_node)
 
@@ -129,7 +131,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-yield-type-doc", node=node)
+            MessageTest(msg_id="missing-yield-type-doc", node=node)
         ):
             self.checker.visit_yield(yield_node)
 
@@ -146,7 +148,9 @@ class TestDocstringCheckerYield(CheckerTestCase):
         '''
         )
         yield_node = node.body[0]
-        with self.assertAddsMessages(Message(msg_id="missing-yield-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-yield-doc", node=node)
+        ):
             self.checker.visit_yield(yield_node)
 
     def test_warn_missing_google_yields(self) -> None:
@@ -163,8 +167,8 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-yield-doc", node=node),
-            Message(msg_id="missing-yield-type-doc", node=node),
+            MessageTest(msg_id="missing-yield-doc", node=node),
+            MessageTest(msg_id="missing-yield-type-doc", node=node),
         ):
             self.checker.visit_yield(yield_node)
 
@@ -184,8 +188,8 @@ class TestDocstringCheckerYield(CheckerTestCase):
         )
         yield_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-yield-doc", node=node),
-            Message(msg_id="missing-yield-type-doc", node=node),
+            MessageTest(msg_id="missing-yield-doc", node=node),
+            MessageTest(msg_id="missing-yield-type-doc", node=node),
         ):
             self.checker.visit_yield(yield_node)
 
@@ -342,7 +346,9 @@ class TestDocstringCheckerYield(CheckerTestCase):
         '''
         )
         yield_node = node.body[0]
-        with self.assertAddsMessages(Message(msg_id="missing-yield-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-yield-doc", node=node)
+        ):
             self.checker.visit_yield(yield_node)
 
     def test_warns_google_yield_list_of_custom_class_without_description(self) -> None:
@@ -358,7 +364,9 @@ class TestDocstringCheckerYield(CheckerTestCase):
         '''
         )
         yield_node = node.body[0]
-        with self.assertAddsMessages(Message(msg_id="missing-yield-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-yield-doc", node=node)
+        ):
             self.checker.visit_yield(yield_node)
 
     def test_warns_numpy_yield_list_of_custom_class_without_description(self) -> None:
@@ -375,7 +383,9 @@ class TestDocstringCheckerYield(CheckerTestCase):
         '''
         )
         yield_node = node.body[0]
-        with self.assertAddsMessages(Message(msg_id="missing-yield-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-yield-doc", node=node)
+        ):
             self.checker.visit_yield(yield_node)
 
     # No such thing as redundant yield documentation for sphinx because it
@@ -434,7 +444,9 @@ class TestDocstringCheckerYield(CheckerTestCase):
             return 1
         '''
         )
-        with self.assertAddsMessages(Message(msg_id="redundant-yields-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="redundant-yields-doc", node=node)
+        ):
             self.checker.visit_functiondef(node)
 
     def test_warns_numpy_redundant_yield_doc_return(self) -> None:
@@ -451,7 +463,9 @@ class TestDocstringCheckerYield(CheckerTestCase):
             return 1
         '''
         )
-        with self.assertAddsMessages(Message(msg_id="redundant-yields-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="redundant-yields-doc", node=node)
+        ):
             self.checker.visit_functiondef(node)
 
     def test_sphinx_missing_yield_type_with_annotations(self) -> None:

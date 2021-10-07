@@ -10,7 +10,6 @@
 
 # pylint: disable=protected-access,missing-function-docstring,no-self-use
 
-import collections
 import os
 from typing import List
 
@@ -25,7 +24,8 @@ from pylint.lint.parallel import _worker_check_single_file as worker_check_singl
 from pylint.lint.parallel import _worker_initialize as worker_initialize
 from pylint.lint.parallel import check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
-from pylint.typing import CheckerStats, FileItem
+from pylint.typing import FileItem
+from pylint.utils import LinterStats, ModuleStats
 
 
 def _gen_file_data(idx: int = 0) -> FileItem:
@@ -103,11 +103,10 @@ class ParallelTestChecker(BaseChecker):
         super().__init__(linter)
         self.data: List[str] = []
         self.linter = linter
-        self.stats: CheckerStats = {}
 
     def open(self) -> None:
         """init the checkers: reset statistics information"""
-        self.stats = self.linter.add_stats()
+        self.linter.stats.reset_node_count()
         self.data = []
 
     def close(self) -> None:
@@ -202,26 +201,24 @@ class TestCheckParallelFramework:
         no_errors_status = 0
         assert no_errors_status == msg_status
         assert {
-            "by_module": {
-                "--test-file_data-name-0--": {
-                    "convention": 0,
-                    "error": 0,
-                    "fatal": 0,
-                    "info": 0,
-                    "refactor": 0,
-                    "statement": 18,
-                    "warning": 0,
-                }
-            },
-            "by_msg": {},
-            "convention": 0,
-            "error": 0,
-            "fatal": 0,
-            "info": 0,
-            "refactor": 0,
-            "statement": 18,
-            "warning": 0,
-        } == stats
+            "--test-file_data-name-0--": {
+                "convention": 0,
+                "error": 0,
+                "fatal": 0,
+                "info": 0,
+                "refactor": 0,
+                "statement": 18,
+                "warning": 0,
+            }
+        } == stats.by_module
+        assert {} == stats.by_msg
+        assert stats.convention == 0
+        assert stats.error == 0
+        assert stats.fatal == 0
+        assert stats.info == 0
+        assert stats.refactor == 0
+        assert stats.statement == 18
+        assert stats.warning == 0
 
     def test_worker_check_sequential_checker(self) -> None:
         """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker"""
@@ -248,26 +245,24 @@ class TestCheckParallelFramework:
         no_errors_status = 0
         assert no_errors_status == msg_status
         assert {
-            "by_module": {
-                "--test-file_data-name-0--": {
-                    "convention": 0,
-                    "error": 0,
-                    "fatal": 0,
-                    "info": 0,
-                    "refactor": 0,
-                    "statement": 18,
-                    "warning": 0,
-                }
-            },
-            "by_msg": {},
-            "convention": 0,
-            "error": 0,
-            "fatal": 0,
-            "info": 0,
-            "refactor": 0,
-            "statement": 18,
-            "warning": 0,
-        } == stats
+            "--test-file_data-name-0--": {
+                "convention": 0,
+                "error": 0,
+                "fatal": 0,
+                "info": 0,
+                "refactor": 0,
+                "statement": 18,
+                "warning": 0,
+            }
+        } == stats.by_module
+        assert {} == stats.by_msg
+        assert stats.convention == 0
+        assert stats.error == 0
+        assert stats.fatal == 0
+        assert stats.info == 0
+        assert stats.refactor == 0
+        assert stats.statement == 18
+        assert stats.warning == 0
 
 
 class TestCheckParallel:
@@ -299,52 +294,48 @@ class TestCheckParallel:
             "checkers registered"
         )
         assert {
-            "by_module": {
-                "--test-file_data-name-0--": {
-                    "convention": 0,
-                    "error": 0,
-                    "fatal": 0,
-                    "info": 0,
-                    "refactor": 0,
-                    "statement": 18,
-                    "warning": 0,
-                }
-            },
-            "by_msg": {},
-            "convention": 0,
-            "error": 0,
-            "fatal": 0,
-            "info": 0,
-            "refactor": 0,
-            "statement": 18,
-            "warning": 0,
-        } == linter.stats
+            "--test-file_data-name-0--": {
+                "convention": 0,
+                "error": 0,
+                "fatal": 0,
+                "info": 0,
+                "refactor": 0,
+                "statement": 18,
+                "warning": 0,
+            }
+        } == linter.stats.by_module
+        assert linter.stats.by_msg == {}
+        assert linter.stats.convention == 0
+        assert linter.stats.error == 0
+        assert linter.stats.fatal == 0
+        assert linter.stats.info == 0
+        assert linter.stats.refactor == 0
+        assert linter.stats.statement == 18
+        assert linter.stats.warning == 0
 
         # now run the regular mode of checking files and check that, in this proc, we
         # collect the right data
         filepath = [single_file_container[0][1]]  # get the filepath element
         linter.check(filepath)
         assert {
-            "by_module": {
-                "input.similar1": {  # module is the only change from previous
-                    "convention": 0,
-                    "error": 0,
-                    "fatal": 0,
-                    "info": 0,
-                    "refactor": 0,
-                    "statement": 18,
-                    "warning": 0,
-                }
-            },
-            "by_msg": {},
-            "convention": 0,
-            "error": 0,
-            "fatal": 0,
-            "info": 0,
-            "refactor": 0,
-            "statement": 18,
-            "warning": 0,
-        } == linter.stats
+            "input.similar1": {  # module is the only change from previous
+                "convention": 0,
+                "error": 0,
+                "fatal": 0,
+                "info": 0,
+                "refactor": 0,
+                "statement": 18,
+                "warning": 0,
+            }
+        } == linter.stats.by_module
+        assert linter.stats.by_msg == {}
+        assert linter.stats.convention == 0
+        assert linter.stats.error == 0
+        assert linter.stats.fatal == 0
+        assert linter.stats.info == 0
+        assert linter.stats.refactor == 0
+        assert linter.stats.statement == 18
+        assert linter.stats.warning == 0
 
     def test_invoke_single_job(self) -> None:
         """Tests basic checkers functionality using just a single workderdo
@@ -365,26 +356,24 @@ class TestCheckParallel:
         )
 
         assert {
-            "by_module": {
-                "--test-file_data-name-0--": {
-                    "convention": 0,
-                    "error": 0,
-                    "fatal": 0,
-                    "info": 0,
-                    "refactor": 0,
-                    "statement": 18,
-                    "warning": 0,
-                }
-            },
-            "by_msg": collections.Counter(),
-            "convention": 0,
-            "error": 0,
-            "fatal": 0,
-            "info": 0,
-            "refactor": 0,
-            "statement": 18,
-            "warning": 0,
-        } == linter.stats
+            "--test-file_data-name-0--": {
+                "convention": 0,
+                "error": 0,
+                "fatal": 0,
+                "info": 0,
+                "refactor": 0,
+                "statement": 18,
+                "warning": 0,
+            }
+        } == linter.stats.by_module
+        assert linter.stats.by_msg == {}
+        assert linter.stats.convention == 0
+        assert linter.stats.error == 0
+        assert linter.stats.fatal == 0
+        assert linter.stats.info == 0
+        assert linter.stats.refactor == 0
+        assert linter.stats.statement == 18
+        assert linter.stats.warning == 0
         assert linter.msg_status == 0, "We expect a single-file check to exit cleanly"
 
     @pytest.mark.parametrize(
@@ -425,30 +414,30 @@ class TestCheckParallel:
 
         # define the stats we expect to get back from the runs, these should only vary
         # with the number of files.
-        expected_stats = {
-            "by_module": {
+        expected_stats = LinterStats(
+            by_module={
                 # pylint: disable-next=consider-using-f-string
                 "--test-file_data-name-%d--"
-                % idx: {
-                    "convention": 0,
-                    "error": 0,
-                    "fatal": 0,
-                    "info": 0,
-                    "refactor": 0,
-                    "statement": 18,
-                    "warning": 0,
-                }
+                % idx: ModuleStats(
+                    convention=0,
+                    error=0,
+                    fatal=0,
+                    info=0,
+                    refactor=0,
+                    statement=18,
+                    warning=0,
+                )
                 for idx in range(num_files)
-            },
-            "by_msg": {},
-            "convention": 0,
-            "error": 0,
-            "fatal": 0,
-            "info": 0,
-            "refactor": 0,
-            "statement": 18 * num_files,
-            "warning": 0,
-        }
+            }
+        )
+        expected_stats.by_msg = {}
+        expected_stats.convention = 0
+        expected_stats.error = 0
+        expected_stats.fatal = 0
+        expected_stats.info = 0
+        expected_stats.refactor = 0
+        expected_stats.statement = 18 * num_files
+        expected_stats.warning = 0
 
         file_infos = _gen_file_datas(num_files)
 
@@ -482,11 +471,11 @@ class TestCheckParallel:
                 stats_check_parallel = linter.stats
                 assert linter.msg_status == 0, "We should not fail the lint"
 
-        assert (
-            stats_single_proc == stats_check_parallel
+        assert str(stats_single_proc) == str(
+            stats_check_parallel
         ), "Single-proc and check_parallel() should return the same thing"
-        assert (
-            stats_check_parallel == expected_stats
+        assert str(stats_check_parallel) == str(
+            expected_stats
         ), "The lint is returning unexpected results, has something changed?"
 
     @pytest.mark.parametrize(
@@ -551,6 +540,6 @@ class TestCheckParallel:
                     arguments=None,
                 )
                 stats_check_parallel = linter.stats
-        assert (
-            stats_single_proc["by_msg"] == stats_check_parallel["by_msg"]
+        assert str(stats_single_proc.by_msg) == str(
+            stats_check_parallel.by_msg
         ), "Single-proc and check_parallel() should return the same thing"

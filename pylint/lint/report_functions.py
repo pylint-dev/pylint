@@ -2,37 +2,32 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
-from typing import DefaultDict, Dict, List, Tuple, Union
+from typing import DefaultDict, Dict, Union
 
 from pylint import checkers, exceptions
 from pylint.reporters.ureports.nodes import Table
-from pylint.typing import CheckerStats
+from pylint.utils import LinterStats
 
 
 def report_total_messages_stats(
     sect,
-    stats: CheckerStats,
-    previous_stats: CheckerStats,
+    stats: LinterStats,
+    previous_stats: LinterStats,
 ):
     """make total errors / warnings report"""
     lines = ["type", "number", "previous", "difference"]
-    lines += checkers.table_lines_from_stats(
-        stats, previous_stats, ("convention", "refactor", "warning", "error")
-    )
+    lines += checkers.table_lines_from_stats(stats, previous_stats, "message_types")
     sect.append(Table(children=lines, cols=4, rheaders=1))
 
 
 def report_messages_stats(
     sect,
-    stats: CheckerStats,
-    _: CheckerStats,
+    stats: LinterStats,
+    _: LinterStats,
 ):
     """make messages type report"""
-    if not stats["by_msg"]:
-        # don't print this report when we didn't detected any errors
-        raise exceptions.EmptyReportError()
-    by_msg_stats: Dict[str, int] = stats["by_msg"]  # type: ignore
-    in_order: List[Tuple[int, str]] = sorted(
+    by_msg_stats = stats.by_msg
+    in_order = sorted(
         (value, msg_id)
         for msg_id, value in by_msg_stats.items()
         if not msg_id.startswith("I")
@@ -46,11 +41,11 @@ def report_messages_stats(
 
 def report_messages_by_module_stats(
     sect,
-    stats: CheckerStats,
-    _: CheckerStats,
+    stats: LinterStats,
+    _: LinterStats,
 ):
     """make errors / warnings by modules report"""
-    module_stats: Dict[str, Dict[str, int]] = stats["by_module"]  # type: ignore
+    module_stats = stats.by_module
     if len(module_stats) == 1:
         # don't print this report when we are analysing a single module
         raise exceptions.EmptyReportError()
@@ -58,9 +53,9 @@ def report_messages_by_module_stats(
         dict
     )
     for m_type in ("fatal", "error", "warning", "refactor", "convention"):
-        total: int = stats[m_type]  # type: ignore
+        total = stats.get_global_message_count(m_type)
         for module in module_stats.keys():
-            mod_total = module_stats[module][m_type]
+            mod_total = stats.get_module_message_count(module, m_type)
             percent = 0 if total == 0 else float(mod_total * 100) / total
             by_mod[module][m_type] = percent
     sorted_result = []

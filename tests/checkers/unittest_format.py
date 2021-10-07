@@ -37,7 +37,7 @@ import astroid
 
 from pylint import lint, reporters
 from pylint.checkers.format import FormatChecker
-from pylint.testutils import CheckerTestCase, Message, _tokenize_str
+from pylint.testutils import CheckerTestCase, MessageTest, _tokenize_str
 
 
 class TestMultiStatementLine(CheckerTestCase):
@@ -50,7 +50,9 @@ class TestMultiStatementLine(CheckerTestCase):
         """
         )
         self.checker.config.single_line_if_stmt = False
-        with self.assertAddsMessages(Message("multiple-statements", node=stmt.body[0])):
+        with self.assertAddsMessages(
+            MessageTest("multiple-statements", node=stmt.body[0])
+        ):
             self.visitFirst(stmt)
         self.checker.config.single_line_if_stmt = True
         with self.assertNoMessages():
@@ -62,7 +64,9 @@ class TestMultiStatementLine(CheckerTestCase):
             pass
         """
         )
-        with self.assertAddsMessages(Message("multiple-statements", node=stmt.body[0])):
+        with self.assertAddsMessages(
+            MessageTest("multiple-statements", node=stmt.body[0])
+        ):
             self.visitFirst(stmt)
 
     def testSingleLineClassStmts(self) -> None:
@@ -72,7 +76,9 @@ class TestMultiStatementLine(CheckerTestCase):
         """
         )
         self.checker.config.single_line_class_stmt = False
-        with self.assertAddsMessages(Message("multiple-statements", node=stmt.body[0])):
+        with self.assertAddsMessages(
+            MessageTest("multiple-statements", node=stmt.body[0])
+        ):
             self.visitFirst(stmt)
         self.checker.config.single_line_class_stmt = True
         with self.assertNoMessages():
@@ -84,7 +90,9 @@ class TestMultiStatementLine(CheckerTestCase):
         """
         )
         self.checker.config.single_line_class_stmt = False
-        with self.assertAddsMessages(Message("multiple-statements", node=stmt.body[0])):
+        with self.assertAddsMessages(
+            MessageTest("multiple-statements", node=stmt.body[0])
+        ):
             self.visitFirst(stmt)
         self.checker.config.single_line_class_stmt = True
         with self.assertNoMessages():
@@ -96,10 +104,14 @@ class TestMultiStatementLine(CheckerTestCase):
         """
         )
         self.checker.config.single_line_class_stmt = False
-        with self.assertAddsMessages(Message("multiple-statements", node=stmt.body[0])):
+        with self.assertAddsMessages(
+            MessageTest("multiple-statements", node=stmt.body[0])
+        ):
             self.visitFirst(stmt)
         self.checker.config.single_line_class_stmt = True
-        with self.assertAddsMessages(Message("multiple-statements", node=stmt.body[0])):
+        with self.assertAddsMessages(
+            MessageTest("multiple-statements", node=stmt.body[0])
+        ):
             self.visitFirst(stmt)
 
     def testTryExceptFinallyNoMultipleStatement(self) -> None:
@@ -133,7 +145,9 @@ class TestMultiStatementLine(CheckerTestCase):
         def concat2(arg1: str) -> str: ...
         """
         stmt = astroid.extract_node(code)
-        with self.assertAddsMessages(Message("multiple-statements", node=stmt.body[0])):
+        with self.assertAddsMessages(
+            MessageTest("multiple-statements", node=stmt.body[0])
+        ):
             self.visitFirst(stmt)
 
 
@@ -163,20 +177,40 @@ class TestSuperfluousParentheses(CheckerTestCase):
 
     def testCheckKeywordParensHandlesUnnecessaryParens(self) -> None:
         cases = [
-            (Message("superfluous-parens", line=1, args="if"), "if (foo):", 0),
-            (Message("superfluous-parens", line=1, args="if"), "if ((foo, bar)):", 0),
-            (Message("superfluous-parens", line=1, args="if"), "if (foo(bar)):", 0),
-            (Message("superfluous-parens", line=1, args="not"), "not (foo)", 0),
-            (Message("superfluous-parens", line=1, args="not"), "if not (foo):", 1),
-            (Message("superfluous-parens", line=1, args="if"), "if (not (foo)):", 0),
-            (Message("superfluous-parens", line=1, args="not"), "if (not (foo)):", 2),
+            (MessageTest("superfluous-parens", line=1, args="if"), "if (foo):", 0),
             (
-                Message("superfluous-parens", line=1, args="for"),
+                MessageTest("superfluous-parens", line=1, args="if"),
+                "if ((foo, bar)):",
+                0,
+            ),
+            (
+                MessageTest("superfluous-parens", line=1, args="if"),
+                "if (foo(bar)):",
+                0,
+            ),
+            (MessageTest("superfluous-parens", line=1, args="not"), "not (foo)", 0),
+            (
+                MessageTest("superfluous-parens", line=1, args="not"),
+                "if not (foo):",
+                1,
+            ),
+            (
+                MessageTest("superfluous-parens", line=1, args="if"),
+                "if (not (foo)):",
+                0,
+            ),
+            (
+                MessageTest("superfluous-parens", line=1, args="not"),
+                "if (not (foo)):",
+                2,
+            ),
+            (
+                MessageTest("superfluous-parens", line=1, args="for"),
                 "for (x) in (1, 2, 3):",
                 0,
             ),
             (
-                Message("superfluous-parens", line=1, args="if"),
+                MessageTest("superfluous-parens", line=1, args="if"),
                 "if (1) in (1, 2, 3):",
                 0,
             ),
@@ -199,8 +233,14 @@ class TestSuperfluousParentheses(CheckerTestCase):
     def testPositiveSuperfluousParensWalrusOperatorIf(self) -> None:
         """Test positive superfluous parens cases with the walrus operator"""
         cases = [
-            (Message("superfluous-parens", line=1, args="if"), "if ((x := y)):\n"),
-            (Message("superfluous-parens", line=1, args="not"), "if not ((x := y)):\n"),
+            (
+                MessageTest("superfluous-parens", line=1, args="if"),
+                "if ((x := y)):\n",
+            ),
+            (
+                MessageTest("superfluous-parens", line=1, args="not"),
+                "if not ((x := y)):\n",
+            ),
         ]
         for msg, code in cases:
             with self.assertAddsMessages(msg):
@@ -253,9 +293,9 @@ def test_disable_global_option_end_of_line() -> None:
     Test for issue with disabling tokenizer messages
     that extend beyond the scope of the ast tokens
     """
-    file_ = tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with
+    file_ = tempfile.NamedTemporaryFile(
         "w", delete=False
-    )
+    )  # pylint: disable=consider-using-with
     with file_:
         file_.write(
             """

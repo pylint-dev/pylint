@@ -93,6 +93,22 @@ def good_case_issue3107():
         next(filter(lambda j, ix=i[0]: j == ix, [1, 3]))
 
 
+def good_case_issue_5012():
+    """Eager binding of cell variable when used as the default value of a keyword-only argument.
+    https://github.com/PyCQA/pylint/issues/5012
+    """
+    funs = []
+    for i in range(5):
+        def func(*, _i=i):
+            print(_i)
+        funs.append(func)
+
+        def func2(_i=i):
+            print(_i)
+        funs.append(func2)
+
+    return funs
+
 def bad_case():
     """Closing over a loop variable."""
     lst = []

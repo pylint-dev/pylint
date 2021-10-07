@@ -21,7 +21,7 @@ from astroid.nodes.node_classes import AssignAttr, Name
 
 from pylint.checkers import stdlib
 from pylint.interfaces import UNDEFINED
-from pylint.testutils import CheckerTestCase, Message
+from pylint.testutils import CheckerTestCase, MessageTest
 
 
 @contextlib.contextmanager
@@ -76,7 +76,7 @@ class TestStdlibChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="shallow-copy-environ", node=node, confidence=UNDEFINED)
+            MessageTest(msg_id="shallow-copy-environ", node=node, confidence=UNDEFINED)
         ):
             self.checker.visit_call(node)
 
@@ -91,7 +91,7 @@ class TestStdlibChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="shallow-copy-environ", node=node, confidence=UNDEFINED)
+            MessageTest(msg_id="shallow-copy-environ", node=node, confidence=UNDEFINED)
         ):
             self.checker.visit_call(node)
 

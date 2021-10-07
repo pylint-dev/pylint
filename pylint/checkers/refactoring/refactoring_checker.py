@@ -116,11 +116,11 @@ def _is_inside_context_manager(node: nodes.Call) -> bool:
 
 def _is_a_return_statement(node: nodes.Call) -> bool:
     frame = node.frame()
-    parent = node.parent
-    while parent is not frame:
+    for parent in node.node_ancestors():
+        if parent is frame:
+            break
         if isinstance(parent, nodes.Return):
             return True
-        parent = parent.parent
     return False
 
 
@@ -463,7 +463,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     priority = 0
 
     def __init__(self, linter=None):
-        checkers.BaseTokenChecker.__init__(self, linter)
+        super().__init__(linter)
         self._return_nodes = {}
         self._consider_using_with_stack = ConsiderUsingWithStack()
         self._init()

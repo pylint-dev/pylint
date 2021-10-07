@@ -275,11 +275,9 @@ class InferredTypeError(Exception):
 
 def is_inside_lambda(node: nodes.NodeNG) -> bool:
     """Return true if given node is inside lambda"""
-    parent = node.parent
-    while parent is not None:
+    for parent in node.node_ancestors():
         if isinstance(parent, nodes.Lambda):
             return True
-        parent = parent.parent
     return False
 
 
@@ -377,11 +375,9 @@ def is_defined_before(var_node: nodes.Name) -> bool:
     (statement_defining ; statement_using).
     """
     varname = var_node.name
-    _node = var_node.parent
-    while _node:
-        if is_defined_in_scope(var_node, varname, _node):
+    for parent in var_node.node_ancestors():
+        if is_defined_in_scope(var_node, varname, parent):
             return True
-        _node = _node.parent
     # possibly multiple statements on the same line using semi colon separator
     stmt = var_node.statement()
     _node = stmt.previous_sibling()
@@ -406,17 +402,21 @@ def is_default_argument(
     if not scope:
         scope = node.scope()
     if isinstance(scope, (nodes.FunctionDef, nodes.Lambda)):
-        for default_node in scope.args.defaults:
-            for default_name_node in default_node.nodes_of_class(nodes.Name):
-                if default_name_node is node:
-                    return True
+        all_defaults = itertools.chain(
+            scope.args.defaults, (d for d in scope.args.kw_defaults if d is not None)
+        )
+        return any(
+            default_name_node is node
+            for default_node in all_defaults
+            for default_name_node in default_node.nodes_of_class(nodes.Name)
+        )
+
     return False
 
 
 def is_func_decorator(node: nodes.NodeNG) -> bool:
     """return true if the name is used in function decorator"""
-    parent = node.parent
-    while parent is not None:
+    for parent in node.node_ancestors():
         if isinstance(parent, nodes.Decorators):
             return True
         if parent.is_statement or isinstance(
@@ -428,7 +428,6 @@ def is_func_decorator(node: nodes.NodeNG) -> bool:
             ),
         ):
             break
-        parent = parent.parent
     return False
 
 
@@ -457,8 +456,11 @@ def assign_parent(node: nodes.NodeNG) -> nodes.NodeNG:
 
 
 def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
-    """return True if <name> is a method overridden from an ancestor"""
+    """return True if <name> is a method overridden from an ancestor
+    which is not the base object class"""
     for ancestor in class_node.ancestors():
+        if ancestor.name == "object":
+            continue
         if name in ancestor and isinstance(ancestor[name], nodes.FunctionDef):
             return True
     return False
@@ -483,7 +485,7 @@ class UnsupportedFormatCharacter(Exception):
     format characters."""
 
     def __init__(self, index):
-        Exception.__init__(self, index)
+        super().__init__(index)
         self.index = index
 
 
@@ -675,7 +677,7 @@ def is_attr_private(attrname: str) -> Optional[Match[str]]:
 
 
 def get_argument_from_call(
-    call_node: nodes.Call, position: int = None, keyword: str = None
+    call_node: nodes.Call, position: Optional[int] = None, keyword: Optional[str] = None
 ) -> nodes.Name:
     """Returns the specified argument from a function call.
 
@@ -909,9 +911,7 @@ def find_except_wrapper_node_in_scope(
     node: nodes.NodeNG,
 ) -> Optional[Union[nodes.ExceptHandler, nodes.TryExcept]]:
     """Return the ExceptHandler in which the node is, without going out of scope."""
-    current = node
-    while current.parent is not None:
-        current = current.parent
+    for current in node.node_ancestors():
         if isinstance(current, astroid.scoped_nodes.LocalsDictNodeNG):
             # If we're inside a function/class definition, we don't want to keep checking
             # higher ancestors for `except` clauses, because if these exist, it means our
@@ -1551,12 +1551,46 @@ def get_import_name(
     return modname
 
 
+def is_sys_guard(node: nodes.If) -> bool:
+    """Return True if IF stmt is a sys.version_info guard.
+
+    >>> import sys
+    >>> if sys.version_info > (3, 8):
+    >>>     from typing import Literal
+    >>> else:
+    >>>     from typing_extensions import Literal
+    """
+    if isinstance(node.test, nodes.Compare):
+        value = node.test.left
+        if isinstance(value, nodes.Subscript):
+            value = value.value
+        if (
+            isinstance(value, nodes.Attribute)
+            and value.as_string() == "sys.version_info"
+        ):
+            return True
+
+    return False
+
+
+def is_typing_guard(node: nodes.If) -> bool:
+    """Return True if IF stmt is a typing guard.
+
+    >>> from typing import TYPE_CHECKING
+    >>> if TYPE_CHECKING:
+    >>>     from xyz import a
+    """
+    return isinstance(
+        node.test, (nodes.Name, nodes.Attribute)
+    ) and node.test.as_string().endswith("TYPE_CHECKING")
+
+
 def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
     """Return True if node is part for guarded if block.
     I.e. `sys.version_info` or `typing.TYPE_CHECKING`
     """
     return isinstance(node.parent, nodes.If) and (
-        node.parent.is_sys_guard() or node.parent.is_typing_guard()
+        is_sys_guard(node.parent) or is_typing_guard(node.parent)
     )
 
 
@@ -1565,4 +1599,14 @@ def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
     return any(
         a.name == varname and a.lineno > node.lineno
         for a in node.scope().nodes_of_class((nodes.AssignName, nodes.FunctionDef))
+    )
+
+
+def is_function_body_ellipsis(node: nodes.FunctionDef) -> bool:
+    """Checks whether a function body only consisst of a single Ellipsis"""
+    return (
+        len(node.body) == 1
+        and isinstance(node.body[0], nodes.Expr)
+        and isinstance(node.body[0].value, nodes.Const)
+        and node.body[0].value.value == Ellipsis
     )

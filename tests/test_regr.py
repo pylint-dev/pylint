@@ -22,7 +22,9 @@ to be incorporated in the automatic functional test framework
 # pylint: disable=redefined-outer-name
 
 import os
+import signal
 import sys
+from contextlib import contextmanager
 from os.path import abspath, dirname, join
 from typing import Iterator
 
@@ -112,12 +114,12 @@ def modify_path() -> Iterator:
 def test_check_package___init__(finalize_linter: PyLinter) -> None:
     filename = ["package.__init__"]
     finalize_linter.check(filename)
-    checked = list(finalize_linter.stats["by_module"].keys())  # type: ignore # Refactor of PyLinter.stats necessary
-    assert checked == filename
+    checked = list(finalize_linter.stats.by_module.keys())
+    assert sorted(checked) == sorted(filename)
 
     os.chdir(join(REGR_DATA, "package"))
     finalize_linter.check(["__init__"])
-    checked = list(finalize_linter.stats["by_module"].keys())  # type: ignore
+    checked = list(finalize_linter.stats.by_module.keys())
     assert checked == ["__init__"]
 
 
@@ -139,3 +141,27 @@ def test_pylint_config_attr() -> None:
     assert len(inferred) == 1
     assert inferred[0].root().name == "optparse"
     assert inferred[0].name == "Values"
+
+
+@contextmanager
+def timeout(timeout_s: float):
+    def _handle(_signum, _frame):
+        pytest.fail("timed out")
+
+    signal.signal(signal.SIGALRM, _handle)
+    signal.setitimer(signal.ITIMER_REAL, timeout_s)
+    yield
+    signal.setitimer(signal.ITIMER_REAL, 0)
+    signal.signal(signal.SIGALRM, signal.SIG_DFL)
+
+
+@pytest.mark.skipif(not hasattr(signal, "setitimer"), reason="Assumes POSIX signals")
+@pytest.mark.parametrize(
+    "fname,timeout_s",
+    [
+        (join(REGR_DATA, "hang", "pkg4972.string"), 30.0),
+    ],
+)
+def test_hang(finalize_linter, fname: str, timeout_s: float) -> None:
+    with timeout(timeout_s):
+        finalize_linter.check(fname)

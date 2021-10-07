@@ -53,7 +53,7 @@ class CodeStyleChecker(BaseChecker):
             "consider-using-assignment-expr",
             "Emitted when an if assignment is directly followed by an if statement and "
             "both can be combined by using an assignment expression ``:=``. "
-            "Requires Python 3.8",
+            "Requires Python 3.8 and ``py-version >= 3.8``.",
         ),
     }
     options = (

@@ -1,6 +1,6 @@
 """Test to see if a f-string would be possible and consider-using-f-string should be raised"""
 # pylint: disable=unused-variable, invalid-name, missing-function-docstring, pointless-statement
-# pylint: disable=expression-not-assigned, repeated-keyword
+# pylint: disable=expression-not-assigned, repeated-keyword, too-many-locals
 
 PARAM_1 = PARAM_2 = PARAM_3 = 1
 PARAM_LIST = [PARAM_1, PARAM_2, PARAM_3]
@@ -35,6 +35,11 @@ def print_good():
     print("%(Param_1)s %(Param_2)s" % PARAM_DICT)
     print("%(Param_1)s %(Param_2)s" % return_dict())
     print("{a[Param_1]}{a[Param_2]}".format(a=PARAM_DICT))
+    print("{}".format("\n"))
+    print("{}".format("\n".join(i for i in "string")))
+    print("%s" % "\n")
+    print("%s" % "\n".join(i for i in "string"))
+
 
 def print_bad():
     print("String %f" % PARAM_1)  # [consider-using-f-string]
@@ -63,6 +68,10 @@ def statement_good():
     "%(Param_1)s %(Param_2)s" % PARAM_DICT
     "%(Param_1)s %(Param_2)s" % return_dict()
     "{a[Param_1]}{a[Param_2]}".format(a=PARAM_DICT)
+    "{}".format("\n")
+    "{}".format("\n".join(i for i in "string"))
+    "%s" % "\n"
+    "%s" % "\n".join(i for i in "string")
 
 def statement_bad():
     "String %f" % PARAM_1  # [consider-using-f-string]
@@ -92,6 +101,8 @@ def assignment_good():
     L = "%(Param_1)s %(Param_2)s" % return_dict()
     M = "{a[Param_1]}{a[Param_2]}".format(a=PARAM_DICT)
     N = "{Param}".format
+    O = "%s" % "\n"
+    P = "%s" % "\n".join(i for i in "string")
 
 
 def assignment_bad():
@@ -105,3 +116,11 @@ def assignment_bad():
     h = "String %s" % (PARAM_1)  # [consider-using-f-string]
     i = "String %s %s" % (PARAM_1, PARAM_2)  # [consider-using-f-string]
     j = "String %s" % (PARAM_LIST_SINGLE)  # [consider-using-f-string]
+
+
+def regression_tests():
+    # Referencing .format in a kwarg should not be warned
+    def wrap_print(value):
+        print(value)
+
+    wrap_print(value="{}".format)

@@ -65,7 +65,7 @@ GLOBAL_OPTION_NAMES = Union[
     GLOBAL_OPTION_TUPLE_INT,
 ]
 T_GlobalOptionReturnTypes = TypeVar(
-    "T_GlobalOptionReturnTypes", bool, int, List[str], Pattern, Tuple[int, ...]
+    "T_GlobalOptionReturnTypes", bool, int, List[str], Pattern[str], Tuple[int, ...]
 )
 
 
@@ -131,18 +131,10 @@ def get_rst_section(section, options, doc=None):
         if help_opt:
             formatted_help = normalize_text(help_opt, indent="  ")
             result += f"{formatted_help}\n"
-        if value:
+        if value and optname != "py-version":
             value = str(_format_option_value(optdict, value))
             result += f"\n  Default: ``{value.replace('`` ', '```` ``')}``\n"
     return result
-
-
-def safe_decode(line, encoding, *args, **kwargs):
-    """return decoded line from encoding or decode with default encoding"""
-    try:
-        return line.decode(encoding or sys.getdefaultencoding(), *args, **kwargs)
-    except LookupError:
-        return line.decode(sys.getdefaultencoding(), *args, **kwargs)
 
 
 def decoding_stream(
@@ -223,8 +215,8 @@ def get_global_option(
 def get_global_option(
     checker: "BaseChecker",
     option: GLOBAL_OPTION_PATTERN,
-    default: Optional[Pattern] = None,
-) -> Pattern:
+    default: Optional[Pattern[str]] = None,
+) -> Pattern[str]:
     ...
 
 
@@ -261,26 +253,6 @@ def get_global_option(
             if options[0] == option:
                 return getattr(provider.config, option.replace("-", "_"))
     return default
-
-
-def deprecated_option(
-    shortname=None, opt_type=None, help_msg=None, deprecation_msg=None
-):
-    def _warn_deprecated(option, optname, *args):  # pylint: disable=unused-argument
-        if deprecation_msg:
-            sys.stderr.write(deprecation_msg % (optname,))
-
-    option = {
-        "help": help_msg,
-        "hide": True,
-        "type": opt_type,
-        "action": "callback",
-        "callback": _warn_deprecated,
-        "deprecated": True,
-    }
-    if shortname:
-        option["shortname"] = shortname
-    return option
 
 
 def _splitstrip(string, sep=","):

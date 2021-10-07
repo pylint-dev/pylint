@@ -28,7 +28,7 @@ SHAPES: Dict[NodeType, str] = {
     NodeType.INTERFACE: "record",
     NodeType.CLASS: "record",
 }
-ARROWS: Dict[EdgeType, Dict] = {
+ARROWS: Dict[EdgeType, Dict[str, str]] = {
     EdgeType.INHERITS: dict(arrowtail="none", arrowhead="empty"),
     EdgeType.IMPLEMENTS: dict(arrowtail="node", arrowhead="empty", style="dashed"),
     EdgeType.ASSOCIATION: dict(

@@ -24,7 +24,7 @@
 import astroid
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, Message, set_config
+from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 
 class TestDocstringCheckerReturn(CheckerTestCase):
@@ -52,8 +52,8 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-doc", node=node),
-            Message(msg_id="missing-return-type-doc", node=node),
+            MessageTest(msg_id="missing-return-doc", node=node),
+            MessageTest(msg_id="missing-return-type-doc", node=node),
         ):
             self.checker.visit_return(return_node)
 
@@ -81,7 +81,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-type-doc", node=node)
+            MessageTest(msg_id="missing-return-type-doc", node=node)
         ):
             self.checker.visit_return(return_node)
 
@@ -112,7 +112,9 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         return_node = node.body[0]
-        with self.assertAddsMessages(Message(msg_id="missing-return-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-return-doc", node=node)
+        ):
             self.checker.visit_return(return_node)
 
     def test_warn_missing_sphinx_returns(self) -> None:
@@ -129,8 +131,8 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-doc", node=node),
-            Message(msg_id="missing-return-type-doc", node=node),
+            MessageTest(msg_id="missing-return-doc", node=node),
+            MessageTest(msg_id="missing-return-type-doc", node=node),
         ):
             self.checker.visit_return(return_node)
 
@@ -148,7 +150,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-type-doc", node=node)
+            MessageTest(msg_id="missing-return-type-doc", node=node)
         ):
             self.checker.visit_return(return_node)
 
@@ -165,7 +167,9 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         return_node = node.body[0]
-        with self.assertAddsMessages(Message(msg_id="missing-return-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-return-doc", node=node)
+        ):
             self.checker.visit_return(return_node)
 
     def test_warn_missing_google_returns(self) -> None:
@@ -182,8 +186,8 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-doc", node=node),
-            Message(msg_id="missing-return-type-doc", node=node),
+            MessageTest(msg_id="missing-return-doc", node=node),
+            MessageTest(msg_id="missing-return-type-doc", node=node),
         ):
             self.checker.visit_return(return_node)
 
@@ -206,7 +210,9 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         return_node = node.body[0]
-        with self.assertAddsMessages(Message(msg_id="missing-return-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-return-doc", node=node)
+        ):
             self.checker.visit_return(return_node)
 
     def test_warn_missing_numpy_returns(self) -> None:
@@ -225,8 +231,8 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         )
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-doc", node=node),
-            Message(msg_id="missing-return-type-doc", node=node),
+            MessageTest(msg_id="missing-return-doc", node=node),
+            MessageTest(msg_id="missing-return-type-doc", node=node),
         ):
             self.checker.visit_return(return_node)
 
@@ -447,7 +453,9 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         return_node = node.body[0]
-        with self.assertAddsMessages(Message(msg_id="missing-return-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-return-doc", node=node)
+        ):
             self.checker.visit_return(return_node)
 
     def test_warns_google_return_list_of_custom_class_without_description(self) -> None:
@@ -463,7 +471,9 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         return_node = node.body[0]
-        with self.assertAddsMessages(Message(msg_id="missing-return-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-return-doc", node=node)
+        ):
             self.checker.visit_return(return_node)
 
     def test_warns_numpy_return_list_of_custom_class_without_description(self) -> None:
@@ -480,7 +490,9 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         return_node = node.body[0]
-        with self.assertAddsMessages(Message(msg_id="missing-return-doc", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-return-doc", node=node)
+        ):
             self.checker.visit_return(return_node)
 
     def test_warns_sphinx_redundant_return_doc(self) -> None:
@@ -495,7 +507,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -511,7 +523,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -528,7 +540,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -545,7 +557,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -564,7 +576,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -582,7 +594,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -673,7 +685,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)
 
@@ -692,6 +704,6 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="redundant-returns-doc", node=node)
+            MessageTest(msg_id="redundant-returns-doc", node=node)
         ):
             self.checker.visit_functiondef(node)

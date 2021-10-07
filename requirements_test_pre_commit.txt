@@ -1,6 +1,6 @@
 # Everything in this file should reflect the pre-commit configuration
 # in .pre-commit-config.yaml
-black==21.8b0;python_full_version>="3.6.2"
+black==21.9b0;python_full_version>="3.6.2"
 flake8==3.9.2
 isort==5.9.3
 mypy==0.910

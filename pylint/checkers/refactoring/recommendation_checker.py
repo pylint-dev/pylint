@@ -7,6 +7,7 @@ from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
+from pylint.utils.utils import get_global_option
 
 
 class RecommendationChecker(checkers.BaseChecker):
@@ -56,9 +57,14 @@ class RecommendationChecker(checkers.BaseChecker):
             "Formatting a regular string which could be a f-string",
             "consider-using-f-string",
             "Used when we detect a string that is being formatted with format() or % "
-            "which could potentially be a f-string. The use of f-strings is preferred.",
+            "which could potentially be a f-string. The use of f-strings is preferred. "
+            "Requires Python 3.6 and ``py-version >= 3.6``.",
         ),
     }
+
+    def open(self) -> None:
+        py_version = get_global_option(self, "py-version")
+        self._py36_plus = py_version >= (3, 6)
 
     @staticmethod
     def _is_builtin(node, function):
@@ -321,10 +327,12 @@ class RecommendationChecker(checkers.BaseChecker):
 
     @utils.check_messages("consider-using-f-string")
     def visit_const(self, node: nodes.Const) -> None:
-        if node.pytype() == "builtins.str" and not isinstance(
-            node.parent, nodes.JoinedStr
-        ):
-            self._detect_replacable_format_call(node)
+        if self._py36_plus:
+            # f-strings require Python 3.6
+            if node.pytype() == "builtins.str" and not isinstance(
+                node.parent, nodes.JoinedStr
+            ):
+                self._detect_replacable_format_call(node)
 
     def _detect_replacable_format_call(self, node: nodes.Const) -> None:
         """Check whether a string is used in a call to format() or '%' and whether it
@@ -333,8 +341,8 @@ class RecommendationChecker(checkers.BaseChecker):
             isinstance(node.parent, nodes.Attribute)
             and node.parent.attrname == "format"
         ):
-            # Allow assigning .format to a variable
-            if isinstance(node.parent.parent, nodes.Assign):
+            # Don't warn on referencing / assigning .format without calling it
+            if not isinstance(node.parent.parent, nodes.Call):
                 return
 
             if node.parent.parent.args:
@@ -347,6 +355,9 @@ class RecommendationChecker(checkers.BaseChecker):
                             and len(inferred.elts) > 1
                         ):
                             return
+                    # Backslashes can't be in f-string expressions
+                    if "\\" in arg.as_string():
+                        return
 
             elif node.parent.parent.keywords:
                 keyword_args = [
@@ -373,6 +384,10 @@ class RecommendationChecker(checkers.BaseChecker):
             )
 
         elif isinstance(node.parent, nodes.BinOp) and node.parent.op == "%":
+            # Backslashes can't be in f-string expressions
+            if "\\" in node.parent.right.as_string():
+                return
+
             inferred_right = utils.safe_infer(node.parent.right)
 
             # If dicts or lists of length > 1 are used

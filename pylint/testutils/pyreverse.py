@@ -24,10 +24,10 @@ class PyreverseConfig:  # pylint: disable=too-many-instance-attributes, too-many
         output_format: str = "dot",
         colorized: bool = False,
         max_color_depth: int = 2,
-        ignore_list: Tuple = tuple(),
+        ignore_list: Tuple[str, ...] = tuple(),
         project: str = "",
         output_directory: str = "",
-    ):
+    ) -> None:
         self.mode = mode
         if classes:
             self.classes = classes
