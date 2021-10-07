@@ -8,7 +8,7 @@ import collections.abc
 import typing
 from collections.abc import Awaitable
 from dataclasses import dataclass
-from typing import Dict, List, Set, Union, TypedDict
+from typing import Dict, List, Set, Union, TypedDict, Callable, Tuple, Type
 
 var1: typing.Dict[str, int]  # [deprecated-typing-alias]
 var2: List[int]  # [deprecated-typing-alias]
@@ -29,6 +29,14 @@ Alias1 = Set[int]  # [deprecated-typing-alias]
 Alias2 = Dict[int, List[int]]  # [deprecated-typing-alias,deprecated-typing-alias]
 Alias3 = Union[int, typing.List[str]]  # [deprecated-typing-alias]
 Alias4 = List  # [deprecated-typing-alias]
+
+var21: Type[object]  # [deprecated-typing-alias]
+var22: Tuple[str]  # [deprecated-typing-alias]
+var23: Callable[..., str]  # [deprecated-typing-alias]
+var31: type[object]
+var32: tuple[str]
+var33: collections.abc.Callable[..., str]
+
 
 def func1(arg1: List[int], /, *args: List[int], arg2: set[int], **kwargs: Dict[str, int]) -> typing.Tuple[int]:
     # -1:[deprecated-typing-alias,deprecated-typing-alias,deprecated-typing-alias,deprecated-typing-alias]
