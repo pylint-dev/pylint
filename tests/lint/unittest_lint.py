@@ -48,7 +48,7 @@ from io import StringIO
 from os import chdir, getcwd
 from os.path import abspath, basename, dirname, isdir, join, sep
 from shutil import rmtree
-from typing import Dict, Iterable, Iterator, List, Optional, Tuple
+from typing import Iterable, Iterator, List, Optional, Tuple
 
 import platformdirs
 import pytest
@@ -870,7 +870,7 @@ def test_by_module_statement_value(init_linter: PyLinter) -> None:
     linter = init_linter
     linter.check([os.path.join(os.path.dirname(__file__), "data")])
 
-    by_module_stats: Dict[str, Dict[str, int]] = linter.stats["by_module"]  # type: ignore
+    by_module_stats = linter.stats.by_module
     for module, module_stats in by_module_stats.items():
 
         linter2 = init_linter
@@ -881,4 +881,4 @@ def test_by_module_statement_value(init_linter: PyLinter) -> None:
 
         # Check that the by_module "statement" is equal to the global "statement"
         # computed for that module
-        assert module_stats["statement"] == linter2.stats["statement"]
+        assert module_stats["statement"] == linter2.stats.statement

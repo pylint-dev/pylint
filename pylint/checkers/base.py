@@ -68,12 +68,12 @@ import collections
 import itertools
 import re
 import sys
-from typing import Any, Dict, Iterator, Optional, Pattern, Union
+from typing import Any, Dict, Iterator, Optional, Pattern, cast
 
 import astroid
 from astroid import nodes
 
-from pylint import checkers, exceptions, interfaces
+from pylint import checkers, interfaces
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 from pylint.checkers.utils import (
@@ -83,7 +83,12 @@ from pylint.checkers.utils import (
     is_property_setter,
 )
 from pylint.reporters.ureports import nodes as reporter_nodes
-from pylint.typing import CheckerStats
+from pylint.utils import LinterStats
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 
 class NamingStyle:
@@ -389,8 +394,8 @@ def _has_abstract_methods(node):
 
 def report_by_type_stats(
     sect,
-    stats: CheckerStats,
-    old_stats: CheckerStats,
+    stats: LinterStats,
+    old_stats: Optional[LinterStats],
 ):
     """make a report of
 
@@ -400,38 +405,28 @@ def report_by_type_stats(
     # percentage of different types documented and/or with a bad name
     nice_stats: Dict[str, Dict[str, str]] = {}
     for node_type in ("module", "class", "method", "function"):
-        try:
-            total: int = stats[node_type]  # type: ignore
-        except KeyError as e:
-            raise exceptions.EmptyReportError() from e
+        node_type = cast(Literal["function", "class", "method", "module"], node_type)
+        total = stats.get_node_count(node_type)
         nice_stats[node_type] = {}
         if total != 0:
-            try:
-                undocumented_node: int = stats["undocumented_" + node_type]  # type: ignore
-                documented = total - undocumented_node
-                percent = (documented * 100.0) / total
-                nice_stats[node_type]["percent_documented"] = f"{percent:.2f}"
-            except KeyError:
-                nice_stats[node_type]["percent_documented"] = "NC"
-            try:
-                badname_node: int = stats["badname_" + node_type]  # type: ignore
-                percent = (badname_node * 100.0) / total
-                nice_stats[node_type]["percent_badname"] = f"{percent:.2f}"
-            except KeyError:
-                nice_stats[node_type]["percent_badname"] = "NC"
+            undocumented_node = stats.get_undocumented(node_type)
+            documented = total - undocumented_node
+            percent = (documented * 100.0) / total
+            nice_stats[node_type]["percent_documented"] = f"{percent:.2f}"
+            badname_node = stats.get_bad_names(node_type)
+            percent = (badname_node * 100.0) / total
+            nice_stats[node_type]["percent_badname"] = f"{percent:.2f}"
     lines = ["type", "number", "old number", "difference", "%documented", "%badname"]
     for node_type in ("module", "class", "method", "function"):
-        new = stats[node_type]
-        old: Optional[Union[str, int]] = old_stats.get(node_type, None)  # type: ignore
-        if old is not None:
-            diff_str = lint_utils.diff_string(old, new)
-        else:
-            old, diff_str = "NC", "NC"
+        node_type = cast(Literal["function", "class", "method", "module"], node_type)
+        new = stats.get_node_count(node_type)
+        old = old_stats.get_node_count(node_type) if old_stats else None
+        diff_str = lint_utils.diff_string(old, new) if old else None
         lines += [
             node_type,
             str(new),
-            str(old),
-            diff_str,
+            str(old) if old else "NC",
+            diff_str if diff_str else "NC",
             nice_stats[node_type].get("percent_documented", "0"),
             nice_stats[node_type].get("percent_badname", "0"),
         ]
@@ -1086,13 +1081,12 @@ class BasicChecker(_BasicChecker):
 
     def __init__(self, linter):
         super().__init__(linter)
-        self.stats: CheckerStats = {}
         self._tryfinallys = None
 
     def open(self):
         """initialize visit variables and statistics"""
         self._tryfinallys = []
-        self.stats = self.linter.add_stats(module=0, function=0, method=0, class_=0)
+        self.linter.stats.reset_node_count()
 
     @utils.check_messages("using-constant-test", "missing-parentheses-for-call-in-test")
     def visit_if(self, node: nodes.If) -> None:
@@ -1163,13 +1157,13 @@ class BasicChecker(_BasicChecker):
 
     def visit_module(self, _: nodes.Module) -> None:
         """check module name, docstring and required arguments"""
-        self.stats["module"] += 1  # type: ignore
+        self.linter.stats.node_count["module"] += 1
 
     def visit_classdef(self, _: nodes.ClassDef) -> None:
         """check module name, docstring and redefinition
         increment branch counter
         """
-        self.stats["class"] += 1  # type: ignore
+        self.linter.stats.node_count["klass"] += 1
 
     @utils.check_messages(
         "pointless-statement", "pointless-string-statement", "expression-not-assigned"
@@ -1308,7 +1302,10 @@ class BasicChecker(_BasicChecker):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
-        self.stats["method" if node.is_method() else "function"] += 1  # type: ignore
+        if node.is_method():
+            self.linter.stats.node_count["method"] += 1
+        else:
+            self.linter.stats.node_count["function"] += 1
         self._check_dangerous_default(node)
 
     visit_asyncfunctiondef = visit_functiondef
@@ -1846,19 +1843,7 @@ class NameChecker(_BasicChecker):
         self._non_ascii_rgx_compiled = re.compile("[^\u0000-\u007F]")
 
     def open(self):
-        self.stats = self.linter.add_stats(
-            badname_module=0,
-            badname_class=0,
-            badname_function=0,
-            badname_method=0,
-            badname_attr=0,
-            badname_const=0,
-            badname_variable=0,
-            badname_inlinevar=0,
-            badname_argument=0,
-            badname_class_attribute=0,
-            badname_class_const=0,
-        )
+        self.linter.stats.reset_bad_names()
         for group in self.config.name_group:
             for name_type in group.split(":"):
                 self._name_group[name_type] = f"group_{group}"
@@ -2044,7 +2029,7 @@ class NameChecker(_BasicChecker):
         )
 
         self.add_message(warning, node=node, args=args, confidence=confidence)
-        self.stats["badname_" + node_type] += 1  # type: ignore
+        self.linter.stats.increase_bad_name(node_type, 1)
 
     def _name_allowed_by_regex(self, name: str) -> bool:
         return name in self.config.good_names or any(
@@ -2074,7 +2059,7 @@ class NameChecker(_BasicChecker):
         if self._name_allowed_by_regex(name=name):
             return
         if self._name_disallowed_by_regex(name=name):
-            self.stats["badname_" + node_type] += 1
+            self.linter.stats.increase_bad_name(node_type, 1)
             self.add_message("disallowed-name", node=node, args=name)
             return
         regexp = self._name_regexps[node_type]
@@ -2168,12 +2153,7 @@ class DocStringChecker(_BasicChecker):
     )
 
     def open(self):
-        self.stats = self.linter.add_stats(
-            undocumented_module=0,
-            undocumented_function=0,
-            undocumented_method=0,
-            undocumented_class=0,
-        )
+        self.linter.stats.reset_undocumented()
 
     @utils.check_messages("missing-docstring", "empty-docstring")
     def visit_module(self, node: nodes.Module) -> None:
@@ -2210,17 +2190,21 @@ class DocStringChecker(_BasicChecker):
                         overridden = True
                         break
                 self._check_docstring(
-                    ftype, node, report_missing=not overridden, confidence=confidence
+                    ftype, node, report_missing=not overridden, confidence=confidence  # type: ignore
                 )
             elif isinstance(node.parent.frame(), nodes.Module):
-                self._check_docstring(ftype, node)
+                self._check_docstring(ftype, node)  # type: ignore
             else:
                 return
 
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_docstring(
-        self, node_type, node, report_missing=True, confidence=interfaces.HIGH
+        self,
+        node_type: Literal["class", "function", "method", "module"],
+        node,
+        report_missing=True,
+        confidence=interfaces.HIGH,
     ):
         """check the node has a non empty docstring"""
         docstring = node.doc
@@ -2240,7 +2224,10 @@ class DocStringChecker(_BasicChecker):
 
             if node_type != "module" and max_lines > -1 and lines < max_lines:
                 return
-            self.stats["undocumented_" + node_type] += 1
+            if node_type == "class":
+                self.linter.stats.undocumented["klass"] += 1
+            else:
+                self.linter.stats.undocumented[node_type] += 1
             if (
                 node.body
                 and isinstance(node.body[0], nodes.Expr)
@@ -2262,7 +2249,10 @@ class DocStringChecker(_BasicChecker):
                 message = "missing-function-docstring"
             self.add_message(message, node=node, confidence=confidence)
         elif not docstring.strip():
-            self.stats["undocumented_" + node_type] += 1
+            if node_type == "class":
+                self.linter.stats.undocumented["klass"] += 1
+            else:
+                self.linter.stats.undocumented[node_type] += 1
             self.add_message(
                 "empty-docstring", node=node, args=(node_type,), confidence=confidence
             )

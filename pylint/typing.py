@@ -3,10 +3,7 @@
 
 """A collection of typing utilities."""
 import sys
-from typing import TYPE_CHECKING, Dict, List, NamedTuple, Union
-
-if TYPE_CHECKING:
-    from typing import Counter  # typing.Counter added in Python 3.6.1
+from typing import NamedTuple, Union
 
 if sys.version_info >= (3, 8):
     from typing import Literal, TypedDict
@@ -44,12 +41,6 @@ class ErrorDescriptionDict(TypedDict):
     key: Literal["fatal"]
     mod: str
     ex: Union[ImportError, SyntaxError]
-
-
-# The base type of the "stats" attribute of a checker
-CheckerStats = Dict[
-    str, Union[int, "Counter[str]", List, Dict[str, Union[int, str, Dict[str, int]]]]
-]
 
 
 class MessageLocationTuple(NamedTuple):

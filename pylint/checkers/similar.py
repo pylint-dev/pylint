@@ -73,8 +73,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
-from pylint.typing import CheckerStats
-from pylint.utils import decoding_stream
+from pylint.utils import LinterStats, decoding_stream
 
 DEFAULT_MIN_SIMILARITY_LINE = 4
 
@@ -724,14 +723,12 @@ MSGS = {
 
 def report_similarities(
     sect,
-    stats: CheckerStats,
-    old_stats: CheckerStats,
-):
+    stats: LinterStats,
+    old_stats: Optional[LinterStats],
+) -> None:
     """make a layout with some stats about duplication"""
     lines = ["", "now", "previous", "difference"]
-    lines += table_lines_from_stats(
-        stats, old_stats, ("nb_duplicated_lines", "percent_duplicated_lines")
-    )
+    lines += table_lines_from_stats(stats, old_stats, "duplicated_lines")
     sect.append(Table(children=lines, cols=4, rheaders=1, cheaders=1))
 
 
@@ -809,7 +806,6 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
             ignore_imports=self.config.ignore_imports,
             ignore_signatures=self.config.ignore_signatures,
         )
-        self.stats: CheckerStats = {}
 
     def set_option(self, optname, value, action=None, optdict=None):
         """method called to set an option (registered in the options list)
@@ -831,9 +827,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     def open(self):
         """init the checkers: reset linesets and statistics information"""
         self.linesets = []
-        self.stats = self.linter.add_stats(
-            nb_duplicated_lines=0, percent_duplicated_lines=0
-        )
+        self.linter.stats.reset_duplicated_lines()
 
     def process_module(self, node: nodes.Module) -> None:
         """process a module
@@ -849,7 +843,7 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
         """compute and display similarities on closing (i.e. end of parsing)"""
         total = sum(len(lineset) for lineset in self.linesets)
         duplicated = 0
-        stats = self.stats
+        stats = self.linter.stats
         for num, couples in self._compute_sims():
             msg = []
             lineset = start_line = end_line = None
@@ -863,8 +857,8 @@ class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
 
             self.add_message("R0801", args=(len(couples), "\n".join(msg)))
             duplicated += num * (len(couples) - 1)
-        stats["nb_duplicated_lines"] = duplicated
-        stats["percent_duplicated_lines"] = total and duplicated * 100.0 / total
+        stats.nb_duplicated_lines += int(duplicated)
+        stats.percent_duplicated_lines += float(total and duplicated * 100.0 / total)
 
     def get_map_data(self):
         """Passthru override"""

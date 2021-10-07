@@ -37,7 +37,6 @@ from pylint import utils
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
-from pylint.typing import CheckerStats
 
 MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "R0901": (
@@ -407,14 +406,13 @@ class MisdesignChecker(BaseChecker):
 
     def __init__(self, linter=None):
         super().__init__(linter)
-        self.stats: CheckerStats = {}
         self._returns = None
         self._branches = None
         self._stmts = None
 
     def open(self):
         """initialize visit variables"""
-        self.stats = self.linter.add_stats()
+        self.linter.stats.reset_node_count()
         self._returns = []
         self._branches = defaultdict(int)
         self._stmts = []
