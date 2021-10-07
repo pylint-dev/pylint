@@ -93,7 +93,7 @@ class MessageDefinition:
 
     def check_message_definition(
         self, line: Optional[int], node: Optional[nodes.NodeNG]
-    ):
+    ) -> None:
         """Check MessageDefinition for possible errors"""
         if self.msgid[0] not in _SCOPE_EXEMPT:
             # Fatal messages and reports are special, the node/scope distinction
