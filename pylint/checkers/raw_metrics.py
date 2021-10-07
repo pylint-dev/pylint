@@ -34,7 +34,7 @@ def report_raw_stats(
     sect,
     stats: LinterStats,
     old_stats: Optional[LinterStats],
-):
+) -> None:
     """calculate percentage of code / doc / comment / empty"""
     total_lines = stats.code_type_count["total"]
     sect.description = f"{total_lines} lines have been analyzed"

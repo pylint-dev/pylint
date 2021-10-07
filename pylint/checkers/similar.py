@@ -725,7 +725,7 @@ def report_similarities(
     sect,
     stats: LinterStats,
     old_stats: Optional[LinterStats],
-):
+) -> None:
     """make a layout with some stats about duplication"""
     lines = ["", "now", "previous", "difference"]
     lines += table_lines_from_stats(stats, old_stats, "duplicated_lines")
