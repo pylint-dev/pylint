@@ -16,8 +16,6 @@ from pylint.constants import (
     MSG_TYPES_LONG,
     MSG_TYPES_STATUS,
 )
-from pylint.exceptions import NoLineSuppliedError, UnknownMessageError
-from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
 from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
 
