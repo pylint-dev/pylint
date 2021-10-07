@@ -67,9 +67,13 @@ def builder_inited(app):
             "\n    load-plugins=pylint.extensions.docparams,"
             "pylint.extensions.docstyle\n\n"
         )
+
+        # Print checker documentation to stream
         by_checker = get_plugins_info(linter, doc_files)
         for checker, information in sorted(by_checker.items()):
-            linter._print_checker_doc(information, stream=stream)
+            checker = information["checker"]
+            del information["checker"]
+            print(checker.get_full_documentation(**information)[:-1], file=stream)
 
 
 def get_plugins_info(linter, doc_files):
