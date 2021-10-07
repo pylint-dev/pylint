@@ -84,6 +84,11 @@ Release date: TBA
 
   Closes #5048
 
+* Fix false-positive ``isinstance-second-argument-not-valid-type`` with ``typing.Callable``.
+
+  Closes #3507
+  Closes #5087
+
 * ``TypingChecker``
 
   * Fix false-negative for ``deprecated-typing-alias`` and ``consider-using-alias``
