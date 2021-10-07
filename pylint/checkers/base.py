@@ -2300,7 +2300,7 @@ def _infer_dunder_doc_attribute(node):
     return docstring.value
 
 
-class ComparisonChecker(_BasicChecker):
+class ImplicitBooleanessChecker(_BasicChecker):
     """Checks for comparisons
 
     - singleton comparison: 'expr == True', 'expr == False' and 'expr == None'
@@ -2595,4 +2595,4 @@ def register(linter):
     linter.register_checker(NameChecker(linter))
     linter.register_checker(DocStringChecker(linter))
     linter.register_checker(PassChecker(linter))
-    linter.register_checker(ComparisonChecker(linter))
+    linter.register_checker(ImplicitBooleanessChecker(linter))

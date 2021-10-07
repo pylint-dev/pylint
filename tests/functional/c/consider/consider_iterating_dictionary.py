@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring, expression-not-assigned, too-few-public-methods
 # pylint: disable=no-member, import-error, no-self-use, line-too-long, useless-object-inheritance
-# pylint: disable=unnecessary-comprehension, use-dict-literal, use-implicit-booleaness-empty-literal
+ pylint: disable=unnecessary-comprehension, use-dict-literal, use-implicit-booleaness-not-comparison
 
 from unknown import Unknown
 

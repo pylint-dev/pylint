@@ -10,7 +10,9 @@ from pylint.checkers import utils
 
 
 class ImplicitBooleanessChecker(checkers.BaseChecker):
-    """Checks for incorrect usage of len() inside conditions.
+    """Checks for incorrect usage of comparisons inside conditions.
+
+    Incorrect usage of len()
     Pep8 states:
     For sequences, (strings, lists, tuples), use the fact that empty sequences are false.
 
@@ -30,6 +32,20 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     * assert len(sequence):
     * assert not len(sequence):
     * bool(len(sequence))
+
+    Incorrect usage of empty literal sequences; (), [], {},
+
+    For empty sequences, (dicts, lists, tuples), use the fact that empty sequences are false.
+
+        Yes: if variable:
+             if not variable
+
+        No: if variable == empty_literal:
+            if variable != empty_literal:
+
+    Problems detected:
+    * comparison such as variable == empty_literal:
+    * comparison such as variable != empty_literal:
     """
 
     __implements__ = (interfaces.IAstroidChecker,)
@@ -45,7 +61,18 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "Instead of coercing the length to a boolean, either "
             "rely on the fact that empty sequences are false or "
             "compare the length against a scalar.",
-            {"old_names": [("C1801", "len-as-condition")]},
+            {
+                "old_names": [
+                    ("C1801", "len-as-condition"),
+                ]
+            },
+        ),
+        "C1803": (
+            "Do not use empty sequence literal to compare between variable and collection literal",
+            "use-implicit-booleaness-not-comparison",
+            "Used when Pylint detects that empty collection literal comparison is being "
+            "used to evaluate booleaness; Instead use inherit booleaness "
+            "of a collection classes; empty collections are considered as false",
         ),
     }
 
@@ -113,6 +140,58 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             and utils.is_call_of_name(node.operand, "len")
         ):
             self.add_message("use-implicit-booleaness-not-len", node=node)
+
+    @utils.check_messages("use-implicit-booleaness-not-comparison")
+    def visit_compare(self, node: nodes.Compare) -> None:
+        """visit compare and check for empty literals"""
+        self._check_use_implicit_booleaness_not_comparison(node)
+
+    def _check_use_implicit_booleaness_not_comparison(
+        self, node: nodes.Compare
+    ) -> None:
+        """check for left side and right side for empty literals"""
+        is_left_empty_literal = (
+            utils.is_empty_list_literal(node.left)
+            or utils.is_empty_tuple_literal(node.left)
+            or utils.is_empty_dict_literal(node.left)
+        )
+
+        # Check both left hand side and right hand side for literals
+        for operator, comparator in node.ops:
+            is_right_empty_literal = (
+                utils.is_empty_list_literal(comparator)
+                or utils.is_empty_tuple_literal(comparator)
+                or utils.is_empty_dict_literal(comparator)
+            )
+            # Using Exclusive OR (XOR) to compare between two side.
+            # If two sides are both literal, it should be different error.
+            if is_right_empty_literal ^ is_left_empty_literal:
+                # set target_node to opposite side of literal
+                target_node = node.left if is_right_empty_literal else comparator
+                # Infer node to check
+                try:
+                    instance = next(target_node.infer())
+                except astroid.InferenceError:
+                    # Probably undefined-variable, continue with check
+                    continue
+                mother_classes = self.base_classes_of_node(instance)
+                is_base_comprehension_type = any(
+                    t in mother_classes for t in ("tuple", "list", "dict")
+                )
+
+                # Prevent false posiive by checking instance __bool__ implementation
+                # Also Check if it's a type of either list, set, dict
+                if (
+                    not self.instance_has_bool(instance)
+                    and not is_base_comprehension_type
+                ):
+                    continue
+
+                # No need to check for operator when visiting compare node
+                if operator in ["==", "!=", ">=", ">", "<=", "<"]:
+                    self.add_message(
+                        "use-implicit-booleaness-not-comparison", node=node
+                    )
 
     @staticmethod
     def base_classes_of_node(instance: nodes.ClassDef) -> List[nodes.Name]:

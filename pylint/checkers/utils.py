@@ -1636,3 +1636,9 @@ def is_empty_tuple_literal(node: Optional[nodes.NodeNG]) -> bool:
 
 def is_empty_dict_literal(node: Optional[nodes.NodeNG]) -> bool:
     return isinstance(node, nodes.Dict) and not node.items
+
+
+def is_empty_str_literal(node: Optional[nodes.NodeNG]) -> bool:
+    return (
+        isinstance(node, nodes.Const) and isinstance(node.value, str) and not node.value
+    )
