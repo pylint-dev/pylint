@@ -11,13 +11,20 @@ import tokenize
 import traceback
 import warnings
 from io import TextIOWrapper
-from typing import Iterable, Iterator, List, Optional, Sequence, Union
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Union
 
 import astroid
 from astroid import AstroidError, nodes
 
 from pylint import checkers, config, exceptions, interfaces, reporters
-from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES
+from pylint.constants import (
+    MAIN_CHECKER_NAME,
+    MSG_STATE_CONFIDENCE,
+    MSG_STATE_SCOPE_CONFIG,
+    MSG_STATE_SCOPE_MODULE,
+    MSG_TYPES,
+    MSG_TYPES_STATUS,
+)
 from pylint.lint.expand_modules import expand_modules
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
@@ -30,7 +37,12 @@ from pylint.lint.utils import (
     get_fatal_error_message,
     prepare_crash_report,
 )
-from pylint.message import MessageDefinitionStore, MessagesHandlerMixIn
+from pylint.message import (
+    Message,
+    MessageDefinition,
+    MessageDefinitionStore,
+    MessagesHandlerMixIn,
+)
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import FileItem, ModuleDescriptionDict
 from pylint.utils import ASTWalker, FileState, LinterStats, ModuleStats, utils
@@ -40,6 +52,11 @@ from pylint.utils.pragma_parser import (
     UnRecognizedOptionError,
     parse_pragma,
 )
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 MANAGER = astroid.MANAGER
 
@@ -519,7 +536,11 @@ class PyLinter(
             "disable-msg": self._options_methods["disable"],
             "enable-msg": self._options_methods["enable"],
         }
-        MessagesHandlerMixIn.__init__(self)
+
+        # Attributes related to message (state) handling
+        self.msg_status = 0
+        self._msgs_state: Dict[str, bool] = {}
+
         reporters.ReportsHandlerMixIn.__init__(self)
         super().__init__(
             usage=__doc__,
@@ -1300,3 +1321,196 @@ class PyLinter(
             sect = report_nodes.EvaluationSection(msg)
             self.reporter.display_reports(sect)
         return note
+
+    # Adding (ignored) messages to the Message Reporter
+
+    def _get_message_state_scope(
+        self,
+        msgid: str,
+        line: Optional[int] = None,
+        confidence: Optional[interfaces.Confidence] = None,
+    ) -> Optional[Literal[0, 1, 2]]:
+        """Returns the scope at which a message was enabled/disabled."""
+        if confidence is None:
+            confidence = interfaces.UNDEFINED
+        if self.config.confidence and confidence.name not in self.config.confidence:
+            return MSG_STATE_CONFIDENCE  # type: ignore # mypy does not infer Literal correctly
+        try:
+            if line in self.file_state._module_msgs_state[msgid]:
+                return MSG_STATE_SCOPE_MODULE  # type: ignore
+        except (KeyError, TypeError):
+            return MSG_STATE_SCOPE_CONFIG  # type: ignore
+        return None
+
+    def _is_one_message_enabled(self, msgid: str, line: Optional[int]) -> bool:
+        """Checks state of a single message"""
+        if line is None:
+            return self._msgs_state.get(msgid, True)
+        try:
+            return self.file_state._module_msgs_state[msgid][line]
+        except KeyError:
+            # Check if the message's line is after the maximum line existing in ast tree.
+            # This line won't appear in the ast tree and won't be referred in
+            # self.file_state._module_msgs_state
+            # This happens for example with a commented line at the end of a module.
+            max_line_number = self.file_state.get_effective_max_line_number()
+            if max_line_number and line > max_line_number:
+                fallback = True
+                lines = self.file_state._raw_module_msgs_state.get(msgid, {})
+
+                # Doesn't consider scopes, as a disable can be in a different scope
+                # than that of the current line.
+                closest_lines = reversed(
+                    [
+                        (message_line, enable)
+                        for message_line, enable in lines.items()
+                        if message_line <= line
+                    ]
+                )
+                _, fallback_iter = next(closest_lines, (None, None))
+                if fallback_iter is not None:
+                    fallback = fallback_iter
+
+                return self._msgs_state.get(msgid, fallback)
+            return self._msgs_state.get(msgid, True)
+
+    def is_message_enabled(
+        self,
+        msg_descr: str,
+        line: Optional[int] = None,
+        confidence: Optional[interfaces.Confidence] = None,
+    ) -> bool:
+        """return true if the message associated to the given message id is
+        enabled
+
+        msgid may be either a numeric or symbolic message id.
+        """
+        if self.config.confidence and confidence:
+            if confidence.name not in self.config.confidence:
+                return False
+        try:
+            message_definitions = self.msgs_store.get_message_definitions(msg_descr)
+            msgids = [md.msgid for md in message_definitions]
+        except exceptions.UnknownMessageError:
+            # The linter checks for messages that are not registered
+            # due to version mismatch, just treat them as message IDs
+            # for now.
+            msgids = [msg_descr]
+        for msgid in msgids:
+            if self._is_one_message_enabled(msgid, line):
+                return True
+        return False
+
+    def _add_one_message(
+        self,
+        message_definition: MessageDefinition,
+        line: Optional[int],
+        node: Optional[nodes.NodeNG],
+        args: Optional[Any],
+        confidence: Optional[interfaces.Confidence],
+        col_offset: Optional[int],
+    ) -> None:
+        """After various checks have passed a single Message is
+        passed to the reporter and added to stats"""
+        message_definition.check_message_definition(line, node)
+        if line is None and node is not None:
+            line = node.fromlineno
+        if col_offset is None and hasattr(node, "col_offset"):
+            col_offset = node.col_offset  # type: ignore
+
+        # should this message be displayed
+        if not self.is_message_enabled(message_definition.msgid, line, confidence):
+            self.file_state.handle_ignored_message(
+                self._get_message_state_scope(
+                    message_definition.msgid, line, confidence
+                ),
+                message_definition.msgid,
+                line,
+            )
+            return
+
+        # update stats
+        msg_cat = MSG_TYPES[message_definition.msgid[0]]
+        self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
+
+        self.stats.increase_single_message_count(msg_cat, 1)
+        self.stats.increase_single_module_message_count(self.current_name, msg_cat, 1)
+        try:
+            self.stats.by_msg[message_definition.symbol] += 1
+        except KeyError:
+            self.stats.by_msg[message_definition.symbol] = 1
+        # Interpolate arguments into message string
+        msg = message_definition.msg
+        if args:
+            msg %= args
+        # get module and object
+        if node is None:
+            module, obj = self.current_name, ""
+            abspath = self.current_file
+        else:
+            module, obj = utils.get_module_and_frameid(node)
+            abspath = node.root().file
+        if abspath is not None:
+            path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
+        else:
+            path = "configuration"
+        # add the message
+        self.reporter.handle_message(
+            Message(
+                message_definition.msgid,
+                message_definition.symbol,
+                (abspath, path, module, obj, line or 1, col_offset or 0),  # type: ignore
+                msg,
+                confidence,
+            )
+        )
+
+    def add_message(
+        self,
+        msgid: str,
+        line: Optional[int] = None,
+        node: Optional[nodes.NodeNG] = None,
+        args: Optional[Any] = None,
+        confidence: Optional[interfaces.Confidence] = None,
+        col_offset: Optional[int] = None,
+    ) -> None:
+        """Adds a message given by ID or name.
+
+        If provided, the message string is expanded using args.
+
+        AST checkers must provide the node argument (but may optionally
+        provide line if the line number is different), raw and token checkers
+        must provide the line argument.
+        """
+        if confidence is None:
+            confidence = interfaces.UNDEFINED
+        message_definitions = self.msgs_store.get_message_definitions(msgid)
+        for message_definition in message_definitions:
+            self._add_one_message(
+                message_definition, line, node, args, confidence, col_offset
+            )
+
+    def add_ignored_message(
+        self,
+        msgid: str,
+        line: int,
+        node: Optional[nodes.NodeNG] = None,
+        confidence: Optional[interfaces.Confidence] = interfaces.UNDEFINED,
+    ) -> None:
+        """Prepares a message to be added to the ignored message storage
+
+        Some checks return early in special cases and never reach add_message(),
+        even though they would normally issue a message.
+        This creates false positives for useless-suppression.
+        This function avoids this by adding those message to the ignored msgs attribute
+        """
+        message_definitions = self.msgs_store.get_message_definitions(msgid)
+        for message_definition in message_definitions:
+            message_definition.check_message_definition(line, node)
+            self.file_state.handle_ignored_message(
+                self._get_message_state_scope(
+                    message_definition.msgid, line, confidence
+                ),
+                message_definition.msgid,
+                line,
+            )
