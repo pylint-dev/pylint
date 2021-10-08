@@ -8,10 +8,13 @@ consider-using-alias:20:6::'typing.ContextManager' will be deprecated with PY39,
 consider-using-alias:21:6::'typing.Pattern' will be deprecated with PY39, consider using 're.Pattern' instead. Add 'from __future__ import annotations' as well
 consider-using-alias:22:7::'typing.Match' will be deprecated with PY39, consider using 're.Match' instead. Add 'from __future__ import annotations' as well
 consider-using-alias:31:9::'typing.List' will be deprecated with PY39, consider using 'list' instead
-consider-using-alias:33:74:func1:'typing.Dict' will be deprecated with PY39, consider using 'dict' instead. Add 'from __future__ import annotations' as well
-consider-using-alias:33:16:func1:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well
-consider-using-alias:33:37:func1:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well
-consider-using-alias:33:93:func1:'typing.Tuple' will be deprecated with PY39, consider using 'tuple' instead. Add 'from __future__ import annotations' as well
-consider-using-alias:49:12:CustomNamedTuple:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well
-consider-using-alias:54:12:CustomTypedDict2:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well
-consider-using-alias:58:12:CustomDataClass:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well
+consider-using-alias:33:7::'typing.Type' will be deprecated with PY39, consider using 'type' instead. Add 'from __future__ import annotations' as well
+consider-using-alias:34:7::'typing.Tuple' will be deprecated with PY39, consider using 'tuple' instead. Add 'from __future__ import annotations' as well
+consider-using-alias:35:7::'typing.Callable' will be deprecated with PY39, consider using 'collections.abc.Callable' instead. Add 'from __future__ import annotations' as well
+consider-using-alias:41:74:func1:'typing.Dict' will be deprecated with PY39, consider using 'dict' instead. Add 'from __future__ import annotations' as well
+consider-using-alias:41:16:func1:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well
+consider-using-alias:41:37:func1:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well
+consider-using-alias:41:93:func1:'typing.Tuple' will be deprecated with PY39, consider using 'tuple' instead. Add 'from __future__ import annotations' as well
+consider-using-alias:57:12:CustomNamedTuple:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well
+consider-using-alias:62:12:CustomTypedDict2:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well
+consider-using-alias:66:12:CustomDataClass:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well

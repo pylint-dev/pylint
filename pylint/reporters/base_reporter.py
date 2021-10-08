@@ -8,7 +8,7 @@ from warnings import warn
 
 from pylint.message import Message
 from pylint.reporters.ureports.nodes import Text
-from pylint.typing import CheckerStats
+from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -81,7 +81,7 @@ class BaseReporter:
 
     def on_close(
         self,
-        stats: CheckerStats,
-        previous_stats: CheckerStats,
+        stats: LinterStats,
+        previous_stats: LinterStats,
     ) -> None:
         """Hook called when a module finished analyzing."""

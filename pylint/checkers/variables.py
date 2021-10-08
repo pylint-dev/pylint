@@ -1536,7 +1536,9 @@ class VariablesChecker(BaseChecker):
                     for definition in defstmt_parent.orelse:
                         if isinstance(definition, nodes.Assign):
                             defined_in_or_else = any(
-                                target.name == name for target in definition.targets
+                                target.name == name
+                                for target in definition.targets
+                                if isinstance(target, nodes.AssignName)
                             )
                             if defined_in_or_else:
                                 break

@@ -1,31 +1,21 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-import sys
-from io import TextIOWrapper
-from typing import TYPE_CHECKING, Any, List, Optional, TextIO, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
 from astroid import nodes
 
+from pylint import exceptions, interfaces
 from pylint.constants import (
-    _SCOPE_EXEMPT,
-    MAIN_CHECKER_NAME,
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
     MSG_TYPES_LONG,
     MSG_TYPES_STATUS,
-    WarningScope,
 )
-from pylint.exceptions import (
-    InvalidMessageError,
-    NoLineSuppliedError,
-    UnknownMessageError,
-)
-from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
-from pylint.utils import get_module_and_frameid, get_rst_section, get_rst_title
+from pylint.utils import get_module_and_frameid
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -59,7 +49,7 @@ class MessagesHandlerMixIn:
         if msgid_or_symbol[1:].isdigit():
             try:
                 symbol = self.msgs_store.message_id_store.get_symbol(msgid=msgid_or_symbol)  # type: ignore
-            except UnknownMessageError:
+            except exceptions.UnknownMessageError:
                 return
             managed = (self.current_name, msgid_or_symbol, symbol, line, is_disabled)  # type: ignore
             MessagesHandlerMixIn.__by_id_managed_msgs.append(managed)
@@ -78,7 +68,7 @@ class MessagesHandlerMixIn:
         ignore_unknown: bool = False,
     ):
         if not line:
-            raise NoLineSuppliedError
+            raise exceptions.NoLineSuppliedError
         self._set_msg_status(
             msgid,
             enable=False,
@@ -130,7 +120,7 @@ class MessagesHandlerMixIn:
         try:
             # msgid is a symbolic or numeric msgid.
             message_definitions = self.msgs_store.get_message_definitions(msgid)
-        except UnknownMessageError:
+        except exceptions.UnknownMessageError:
             if ignore_unknown:
                 return
             raise
@@ -165,10 +155,12 @@ class MessagesHandlerMixIn:
         """
         try:
             return [md.symbol for md in self.msgs_store.get_message_definitions(msgid)]
-        except UnknownMessageError:
+        except exceptions.UnknownMessageError:
             return msgid
 
-    def get_message_state_scope(self, msgid, line=None, confidence=UNDEFINED):
+    def get_message_state_scope(
+        self, msgid, line=None, confidence=interfaces.UNDEFINED
+    ):
         """Returns the scope at which a message was enabled/disabled."""
         if self.config.confidence and confidence.name not in self.config.confidence:
             return MSG_STATE_CONFIDENCE
@@ -191,7 +183,7 @@ class MessagesHandlerMixIn:
         try:
             message_definitions = self.msgs_store.get_message_definitions(msg_descr)
             msgids = [md.msgid for md in message_definitions]
-        except UnknownMessageError:
+        except exceptions.UnknownMessageError:
             # The linter checks for messages that are not registered
             # due to version mismatch, just treat them as message IDs
             # for now.
@@ -238,7 +230,7 @@ class MessagesHandlerMixIn:
         line: Optional[int] = None,
         node: Optional[nodes.NodeNG] = None,
         args: Any = None,
-        confidence: Optional[Confidence] = None,
+        confidence: Optional[interfaces.Confidence] = None,
         col_offset: Optional[int] = None,
     ) -> None:
         """Adds a message given by ID or name.
@@ -250,7 +242,7 @@ class MessagesHandlerMixIn:
         must provide the line argument.
         """
         if confidence is None:
-            confidence = UNDEFINED
+            confidence = interfaces.UNDEFINED
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             self.add_one_message(
@@ -262,7 +254,7 @@ class MessagesHandlerMixIn:
         msgid: str,
         line: int,
         node: Optional[nodes.NodeNG] = None,
-        confidence: Optional[Confidence] = UNDEFINED,
+        confidence: Optional[interfaces.Confidence] = interfaces.UNDEFINED,
     ) -> None:
         """Prepares a message to be added to the ignored message storage
 
@@ -273,7 +265,7 @@ class MessagesHandlerMixIn:
         """
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
-            self.check_message_definition(message_definition, line, node)
+            message_definition.check_message_definition(line, node)
             self.file_state.handle_ignored_message(
                 self.get_message_state_scope(
                     message_definition.msgid, line, confidence
@@ -282,38 +274,16 @@ class MessagesHandlerMixIn:
                 line,
             )
 
-    @staticmethod
-    def check_message_definition(message_definition, line, node):
-        if message_definition.msgid[0] not in _SCOPE_EXEMPT:
-            # Fatal messages and reports are special, the node/scope distinction
-            # does not apply to them.
-            if message_definition.scope == WarningScope.LINE:
-                if line is None:
-                    raise InvalidMessageError(
-                        f"Message {message_definition.msgid} must provide line, got None"
-                    )
-                if node is not None:
-                    raise InvalidMessageError(
-                        f"Message {message_definition.msgid} must only provide line, "
-                        f"got line={line}, node={node}"
-                    )
-            elif message_definition.scope == WarningScope.NODE:
-                # Node-based warnings may provide an override line.
-                if node is None:
-                    raise InvalidMessageError(
-                        f"Message {message_definition.msgid} must provide Node, got None"
-                    )
-
     def add_one_message(  # type: ignore # MessagesHandlerMixIn is always mixed with PyLinter
         self: "PyLinter",
         message_definition: "MessageDefinition",
         line: Optional[int],
         node: Optional[nodes.NodeNG],
         args: Any,
-        confidence: Optional[Confidence],
+        confidence: Optional[interfaces.Confidence],
         col_offset: Optional[int],
     ) -> None:
-        self.check_message_definition(message_definition, line, node)
+        message_definition.check_message_definition(line, node)
         if line is None and node is not None:
             line = node.fromlineno
         if col_offset is None and hasattr(node, "col_offset"):
@@ -332,23 +302,13 @@ class MessagesHandlerMixIn:
         # update stats
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
-        if self.stats is None:
-            # pylint: disable=fixme
-            # TODO self.stats should make sense,
-            # class should make sense as soon as instantiated
-            # This is not true for Linter and Reporter at least
-            # pylint: enable=fixme
-            self.stats = {
-                msg_cat: 0,
-                "by_module": {self.current_name: {msg_cat: 0}},
-                "by_msg": {},
-            }
-        self.stats[msg_cat] += 1  # type: ignore
-        self.stats["by_module"][self.current_name][msg_cat] += 1  # type: ignore
+
+        self.stats.increase_single_message_count(msg_cat, 1)
+        self.stats.increase_single_module_message_count(self.current_name, msg_cat, 1)
         try:
-            self.stats["by_msg"][message_definition.symbol] += 1  # type: ignore
+            self.stats.by_msg[message_definition.symbol] += 1
         except KeyError:
-            self.stats["by_msg"][message_definition.symbol] = 1  # type: ignore
+            self.stats.by_msg[message_definition.symbol] = 1
         # Interpolate arguments into message string
         msg = message_definition.msg
         if args:
@@ -369,75 +329,8 @@ class MessagesHandlerMixIn:
             Message(
                 message_definition.msgid,
                 message_definition.symbol,
-                (abspath, path, module, obj, line or 1, col_offset or 0),
+                (abspath, path, module, obj, line or 1, col_offset or 0),  # type: ignore
                 msg,
                 confidence,
             )
         )
-
-    def _get_checkers_infos(self):
-        by_checker = {}
-        for checker in self.get_checkers():
-            name = checker.name
-            if name != "master":
-                try:
-                    by_checker[name]["checker"] = checker
-                    by_checker[name]["options"] += checker.options_and_values()
-                    by_checker[name]["msgs"].update(checker.msgs)
-                    by_checker[name]["reports"] += checker.reports
-                except KeyError:
-                    by_checker[name] = {
-                        "checker": checker,
-                        "options": list(checker.options_and_values()),
-                        "msgs": dict(checker.msgs),
-                        "reports": list(checker.reports),
-                    }
-        return by_checker
-
-    def get_checkers_documentation(self):
-        result = get_rst_title("Pylint global options and switches", "-")
-        result += """
-Pylint provides global options and switches.
-
-"""
-        for checker in self.get_checkers():
-            name = checker.name
-            if name == MAIN_CHECKER_NAME:
-                if checker.options:
-                    for section, options in checker.options_by_section():
-                        if section is None:
-                            title = "General options"
-                        else:
-                            title = f"{section.capitalize()} options"
-                        result += get_rst_title(title, "~")
-                        result += f"{get_rst_section(None, options)}\n"
-        result += get_rst_title("Pylint checkers' options and switches", "-")
-        result += """\
-
-Pylint checkers can provide three set of features:
-
-* options that control their execution,
-* messages that they can raise,
-* reports that they can generate.
-
-Below is a list of all checkers and their features.
-
-"""
-        by_checker = self._get_checkers_infos()
-        for checker in sorted(by_checker):
-            information = by_checker[checker]
-            checker = information["checker"]
-            del information["checker"]
-            result += checker.get_full_documentation(**information)
-        return result
-
-    def print_full_documentation(self, stream: TextIO = sys.stdout) -> None:
-        """output a full documentation in ReST format"""
-        print(self.get_checkers_documentation()[:-1], file=stream)
-
-    @staticmethod
-    def _print_checker_doc(information, stream: TextIOWrapper) -> None:
-        """Helper method used by doc/exts/pylint_extensions.py."""
-        checker = information["checker"]
-        del information["checker"]
-        print(checker.get_full_documentation(**information)[:-1], file=stream)
