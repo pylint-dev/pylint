@@ -33,9 +33,9 @@ Release date: TBA
   is set to a version that does not support f-strings (< 3.6)
 
 
-* Added new checker ``use-implicit-booleaness-not-comparison``: Emitted when
-  using collection literals to evaluate booleaness
-
+* In length checker, ``len-as-condition`` has been renamed as
+  ``use-implicit-booleaness-not-len`` in order to be consistent with
+  ``use-implicit-booleaness-not-comparison``.
   Closes #4774
 
 

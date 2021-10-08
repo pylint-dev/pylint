@@ -57,3 +57,37 @@ assert () == ()
 
 if a in {}:
     pass
+
+class NoBool:
+    def __init__(self):
+        self.a = 2
+
+class YesBool:
+    def __init__(self):
+        self.a = True
+
+    def __bool__(self):
+        return self.a
+
+
+# Shouldn't be triggered
+a = NoBool()
+if [] == NoBool():
+    pass
+
+a = YesBool()
+if [] == YesBool: # [use-implicit-booleaness-not-comparison]
+    pass
+
+# compound test cases
+
+a = []
+b = {}
+
+if a == [] and b == {}: # [use-implicit-booleaness-not-comparison, use-implicit-booleaness-not-comparison]
+    pass
+
+a, b, c = 1, None, [1,2,3]
+
+def test(a):
+    print(a == {})
