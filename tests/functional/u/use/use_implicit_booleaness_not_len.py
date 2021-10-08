@@ -1,17 +1,17 @@
 # pylint: disable=too-few-public-methods,import-error, missing-docstring, misplaced-comparison-constant
 # pylint: disable=useless-super-delegation,wrong-import-position,invalid-name, wrong-import-order, condition-evals-to-constant
 
-if len('TEST'):  # [len-as-condition]
+if len('TEST'):  # [use-implicit-booleaness-not-len]
     pass
 
-if not len('TEST'):  # [len-as-condition]
+if not len('TEST'):  # [use-implicit-booleaness-not-len]
     pass
 
 z = []
-if z and len(['T', 'E', 'S', 'T']):  # [len-as-condition]
+if z and len(['T', 'E', 'S', 'T']):  # [use-implicit-booleaness-not-len]
     pass
 
-if True or len('TEST'):  # [len-as-condition]
+if True or len('TEST'):  # [use-implicit-booleaness-not-len]
     pass
 
 if len('TEST') == 0:  # Should be fine
@@ -52,24 +52,24 @@ if z or 10 > len('TEST') != 0:  # Should be fine
 
 if z:
     pass
-elif len('TEST'):  # [len-as-condition]
+elif len('TEST'):  # [use-implicit-booleaness-not-len]
     pass
 
 if z:
     pass
-elif not len('TEST'):  # [len-as-condition]
+elif not len('TEST'):  # [use-implicit-booleaness-not-len]
     pass
 
-while len('TEST'):  # [len-as-condition]
+while len('TEST'):  # [use-implicit-booleaness-not-len]
     pass
 
-while not len('TEST'):  # [len-as-condition]
+while not len('TEST'):  # [use-implicit-booleaness-not-len]
     pass
 
-while z and len('TEST'):  # [len-as-condition]
+while z and len('TEST'):  # [use-implicit-booleaness-not-len]
     pass
 
-while not len('TEST') and z:  # [len-as-condition]
+while not len('TEST') and z:  # [use-implicit-booleaness-not-len]
     pass
 
 assert len('TEST') > 0  # Should be fine
@@ -92,17 +92,16 @@ def github_issue_1331(*args):
     assert False, len(args)  # Should be fine
 
 def github_issue_1331_v2(*args):
-    assert len(args), args  # [len-as-condition]
+    assert len(args), args  # [use-implicit-booleaness-not-len]
 
 def github_issue_1331_v3(*args):
-    assert len(args) or z, args  # [len-as-condition]
+    assert len(args) or z, args  # [use-implicit-booleaness-not-len]
 
 def github_issue_1331_v4(*args):
-    assert z and len(args), args  # [len-as-condition]
+    assert z and len(args), args  # [use-implicit-booleaness-not-len]
 
-b = bool(len(z)) # [len-as-condition]
-c = bool(len('TEST') or 42) # [len-as-condition]
-
+b = bool(len(z)) # [use-implicit-booleaness-not-len]
+c = bool(len('TEST') or 42) # [use-implicit-booleaness-not-len]
 
 def github_issue_1879():
 
@@ -121,13 +120,13 @@ def github_issue_1879():
 
     assert len(ClassWithBool())
     assert len(ChildClassWithBool())
-    assert len(ClassWithoutBool())  # [len-as-condition]
-    assert len(ChildClassWithoutBool())  # [len-as-condition]
-    assert len(range(0))  # [len-as-condition]
-    assert len([t + 1 for t in []])  # [len-as-condition]
-    assert len(u + 1 for u in [])  # [len-as-condition]
-    assert len({"1":(v + 1) for v in {}})  # [len-as-condition]
-    assert len(set((w + 1) for w in set()))  # [len-as-condition]
+    assert len(ClassWithoutBool())  # [use-implicit-booleaness-not-len]
+    assert len(ChildClassWithoutBool())  # [use-implicit-booleaness-not-len]
+    assert len(range(0))  # [use-implicit-booleaness-not-len]
+    assert len([t + 1 for t in []])  # [use-implicit-booleaness-not-len]
+    assert len(u + 1 for u in [])  # [use-implicit-booleaness-not-len]
+    assert len({"1":(v + 1) for v in {}})  # [use-implicit-booleaness-not-len]
+    assert len(set((w + 1) for w in set()))  # [use-implicit-booleaness-not-len]
 
     # pylint: disable=import-outside-toplevel
     import numpy
@@ -168,9 +167,9 @@ def github_issue_1879():
     # def function_returning_function(r):
     #     return function_returning_generator(r)
 
-    assert len(function_returning_list(z))  # [len-as-condition]
+    assert len(function_returning_list(z))  # [use-implicit-booleaness-not-len]
     assert len(function_returning_int(z))
-    # This should raise a len-as-conditions once astroid can infer it
+    # This should raise a use-implicit-booleaness-not-lens once astroid can infer it
     # See https://github.com/PyCQA/pylint/pull/3821#issuecomment-743771514
     # assert len(function_returning_generator(z))
     # assert len(function_returning_comprehension(z))
@@ -184,3 +183,8 @@ def github_issue_4215():
         pass
     if len(undefined_var2[0]):  # [undefined-variable]
         pass
+
+# pylint: disable=len-as-condition
+
+if len('TEST'):
+    pass

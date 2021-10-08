@@ -37,12 +37,19 @@
 """Looks for code which can be refactored."""
 
 
-from pylint.checkers.refactoring.len_checker import LenChecker
+from pylint.checkers.refactoring.implicit_booleaness_checker import (
+    ImplicitBooleanessChecker,
+)
 from pylint.checkers.refactoring.not_checker import NotChecker
 from pylint.checkers.refactoring.recommendation_checker import RecommendationChecker
 from pylint.checkers.refactoring.refactoring_checker import RefactoringChecker
 
-__all__ = ["LenChecker", "NotChecker", "RecommendationChecker", "RefactoringChecker"]
+__all__ = [
+    "ImplicitBooleanessChecker",
+    "NotChecker",
+    "RecommendationChecker",
+    "RefactoringChecker",
+]
 
 
 def register(linter):
@@ -50,4 +57,4 @@ def register(linter):
     linter.register_checker(RefactoringChecker(linter))
     linter.register_checker(NotChecker(linter))
     linter.register_checker(RecommendationChecker(linter))
-    linter.register_checker(LenChecker(linter))
+    linter.register_checker(ImplicitBooleanessChecker(linter))

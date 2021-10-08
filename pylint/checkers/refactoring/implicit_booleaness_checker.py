@@ -9,7 +9,7 @@ from pylint import checkers, interfaces
 from pylint.checkers import utils
 
 
-class LenChecker(checkers.BaseChecker):
+class ImplicitBooleanessChecker(checkers.BaseChecker):
     """Checks for incorrect usage of len() inside conditions.
     Pep8 states:
     For sequences, (strings, lists, tuples), use the fact that empty sequences are false.
@@ -37,21 +37,26 @@ class LenChecker(checkers.BaseChecker):
     # configuration section name
     name = "refactoring"
     msgs = {
-        "C1801": (
+        "C1802": (
             "Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty",
-            "len-as-condition",
+            "use-implicit-booleaness-not-len",
             "Used when Pylint detects that len(sequence) is being used "
             "without explicit comparison inside a condition to determine if a sequence is empty. "
             "Instead of coercing the length to a boolean, either "
             "rely on the fact that empty sequences are false or "
             "compare the length against a scalar.",
-        )
+            {
+                "old_names": [
+                    ("C1801", "len-as-condition"),
+                ]
+            },
+        ),
     }
 
     priority = -2
     options = ()
 
-    @utils.check_messages("len-as-condition")
+    @utils.check_messages("use-implicit-booleaness-not-len")
     def visit_call(self, node: nodes.Call) -> None:
         # a len(S) call is used inside a test condition
         # could be if, while, assert or if expression statement
@@ -76,7 +81,7 @@ class LenChecker(checkers.BaseChecker):
         )
         if isinstance(len_arg, generator_or_comprehension):
             # The node is a generator or comprehension as in len([x for x in ...])
-            self.add_message("len-as-condition", node=node)
+            self.add_message("use-implicit-booleaness-not-len", node=node)
             return
         try:
             instance = next(len_arg.infer())
@@ -90,7 +95,7 @@ class LenChecker(checkers.BaseChecker):
         if "range" in mother_classes or (
             affected_by_pep8 and not self.instance_has_bool(instance)
         ):
-            self.add_message("len-as-condition", node=node)
+            self.add_message("use-implicit-booleaness-not-len", node=node)
 
     @staticmethod
     def instance_has_bool(class_def: nodes.ClassDef) -> bool:
@@ -101,7 +106,7 @@ class LenChecker(checkers.BaseChecker):
             ...
         return False
 
-    @utils.check_messages("len-as-condition")
+    @utils.check_messages("use-implicit-booleaness-not-len")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """`not len(S)` must become `not S` regardless if the parent block
         is a test condition or something else (boolean expression)
@@ -111,7 +116,7 @@ class LenChecker(checkers.BaseChecker):
             and node.op == "not"
             and utils.is_call_of_name(node.operand, "len")
         ):
-            self.add_message("len-as-condition", node=node)
+            self.add_message("use-implicit-booleaness-not-len", node=node)
 
     @staticmethod
     def base_classes_of_node(instance: nodes.ClassDef) -> List[nodes.Name]:

@@ -27,3 +27,7 @@ Other Changes
 * Improve and flatten ``unused-wildcard-import`` message
 
   Closes #3859
+
+* Rename ``len-as-condition`` to ``use-implicit-booleaness-not-len``
+
+  Closes #4774
