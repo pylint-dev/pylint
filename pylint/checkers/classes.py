@@ -889,7 +889,7 @@ a metaclass class method.",
     def _check_proper_bases(self, node):
         """
         Detect that a class inherits something which is not
-        a class or a type
+        a class or a type.
         """
         for base in node.bases:
             ancestor = safe_infer(base)
