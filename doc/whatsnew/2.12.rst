@@ -12,6 +12,12 @@ Summary -- Release highlights
 New checkers
 ============
 
+* Checkers for ``typing.final``
+  * Added ``overridden-final-method``: Emitted when a method which is annotated with ``typing.final`` is overridden
+  * Added ``subclassed-final-class``: Emitted when a class which is annotated with ``typing.final`` is subclassed
+
+  Closes #3197
+
 
 Removed checkers
 ================
