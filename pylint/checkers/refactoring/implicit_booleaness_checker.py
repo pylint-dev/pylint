@@ -45,11 +45,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "Instead of coercing the length to a boolean, either "
             "rely on the fact that empty sequences are false or "
             "compare the length against a scalar.",
-            {
-                "old_names": [
-                    ("C1801", "len-as-condition"),
-                ]
-            },
+            {"old_names": [("C1801", "len-as-condition")]},
         ),
     }
 

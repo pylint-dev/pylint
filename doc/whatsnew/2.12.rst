@@ -28,6 +28,6 @@ Other Changes
 
   Closes #3859
 
-* Rename ``len-as-condition`` to ``use-implicit-booleaness-not-len``
-
-  Closes #4774
+* In length checker, ``len-as-condition`` has been renamed as
+  ``use-implicit-booleaness-not-len`` in order to be consistent with
+  ``use-implicit-booleaness-not-comparison``.
