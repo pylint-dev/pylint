@@ -1,10 +1,15 @@
 """ Test that import errors are detected. """
-# pylint: disable=invalid-name, unused-import,  bare-except, broad-except, wrong-import-order, wrong-import-position
+# pylint: disable=invalid-name, unused-import, bare-except, broad-except, wrong-import-order, wrong-import-position
 import totally_missing # [import-error]
 
 try:
     import maybe_missing
 except ImportError:
+    maybe_missing = None
+
+try:
+    import maybe_missing
+except ModuleNotFoundError:
     maybe_missing = None
 
 try:

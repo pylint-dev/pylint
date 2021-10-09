@@ -60,7 +60,18 @@ import numbers
 import re
 import string
 from functools import lru_cache, partial
-from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, Union
+from typing import (
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Match,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    Union,
+)
 
 import _string
 import astroid
@@ -942,14 +953,17 @@ def is_from_fallback_block(node: nodes.NodeNG) -> bool:
         isinstance(import_node, (nodes.ImportFrom, nodes.Import))
         for import_node in other_body
     )
-    ignores_import_error = _except_handlers_ignores_exception(handlers, ImportError)
+    ignores_import_error = _except_handlers_ignores_exceptions(
+        handlers, (ImportError, ModuleNotFoundError)
+    )
     return ignores_import_error or has_fallback_imports
 
 
-def _except_handlers_ignores_exception(
-    handlers: nodes.ExceptHandler, exception
+def _except_handlers_ignores_exceptions(
+    handlers: nodes.ExceptHandler,
+    exceptions: Tuple[Type[ImportError], Type[ModuleNotFoundError]],
 ) -> bool:
-    func = partial(error_of_type, error_type=(exception,))
+    func = partial(error_of_type, error_type=exceptions)
     return any(func(handler) for handler in handlers)
 
 

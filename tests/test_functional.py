@@ -45,8 +45,7 @@ from pylint.utils import HAS_ISORT_5
 
 # 'Wet finger' number of files that are reasonable to display by an IDE
 # 'Wet finger' as in 'in my settings there are precisely this many'.
-# TODO revert back to 48 after reorganizing r/regression  # pylint: disable=fixme
-REASONABLY_DISPLAYABLE_VERTICALLY = 60
+REASONABLY_DISPLAYABLE_VERTICALLY = 48
 
 
 class LintModuleOutputUpdate(testutils.LintModuleTest):

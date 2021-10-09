@@ -550,3 +550,5 @@ contributors:
 * Tim Martin: contributor
 
 * Jaehoon Hwang (jaehoonhwang): contributor
+
+* Samuel Forestier: contributor
