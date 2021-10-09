@@ -871,6 +871,7 @@ a metaclass class method.",
                 self.add_message("no-init", args=node, node=node)
         self._check_slots(node)
         self._check_proper_bases(node)
+        self._check_typing_final(node)
         self._check_consistent_mro(node)
 
     def _check_consistent_mro(self, node):
@@ -885,11 +886,10 @@ a metaclass class method.",
             # Old style class, there's no mro so don't do anything.
             pass
 
-    def _check_proper_bases(self, node: nodes.ClassDef) -> None:
+    def _check_proper_bases(self, node):
         """
-        Detect that a class:
-          - inherits something which is not a class or a type
-          - does not subclass a class decorated with typing.final
+        Detect that a class inherits something which is not
+        a class or a type
         """
         for base in node.bases:
             ancestor = safe_infer(base)
@@ -909,7 +909,18 @@ a metaclass class method.",
                 self.add_message(
                     "useless-object-inheritance", args=node.name, node=node
                 )
-            if decorated_with(ancestor, ("typing.final",)) and PY38_PLUS:
+
+    def _check_typing_final(self, node: nodes.ClassDef) -> None:
+        """Detect that a class does not subclass a class decorated with `typing.final`"""
+        for base in node.bases:
+            ancestor = safe_infer(base)
+            if not ancestor:
+                continue
+            if (
+                isinstance(ancestor, nodes.ClassDef)
+                and decorated_with(ancestor, ["typing.final"])
+                and PY38_PLUS
+            ):
                 self.add_message(
                     "subclassed-final-class",
                     args=(node.name, ancestor.name),
@@ -1365,7 +1376,7 @@ a metaclass class method.",
                 args=(function_node.name, "non-async", "async"),
                 node=function_node,
             )
-        if decorated_with(parent_function_node, ("typing.final",)) and PY38_PLUS:
+        if decorated_with(parent_function_node, ["typing.final"]) and PY38_PLUS:
             self.add_message(
                 "overridden-final-method",
                 args=(function_node.name, parent_function_node.parent.name),
