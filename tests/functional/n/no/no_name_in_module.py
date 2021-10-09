@@ -41,6 +41,11 @@ except ImportError:
     pass
 
 try:
+    import collections.missing
+except ModuleNotFoundError:
+    pass
+
+try:
     import collections.indeed_missing # [no-name-in-module]
 except ValueError:
     pass
@@ -54,6 +59,12 @@ try:
     import collections.emit1
 except ImportError:
     pass
+
+try:
+    import collections.emit1
+except ModuleNotFoundError:
+    pass
+
 
 try:
     if something:

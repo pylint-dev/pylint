@@ -11,6 +11,9 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
+* Added support for ``ModuleNotFoundError`` (``import-error`` and ``no-name-in-module``).
+  ``ModuleNotFoundError`` inherits from ``ImportError`` and was added in Python ``3.6``
+
 * Improve and flatten ``unused-wildcard-import`` message
 
   Closes #3859
