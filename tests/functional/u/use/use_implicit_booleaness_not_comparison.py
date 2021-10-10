@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring, missing-module-docstring, invalid-name
+# pylint: disable=too-few-public-methods, line-too-long
 # https://github.com/PyCQA/pylint/issues/4774
 
 def github_issue_4774():
@@ -9,7 +10,7 @@ def github_issue_4774():
         pass
 
     bad_list = []
-    if bad_list == []: # [use-implicit-booleaness-empty-literal]
+    if bad_list == []: # [use-implicit-booleaness-not-comparison]
         pass
 
 # Testing for empty literals
@@ -17,45 +18,47 @@ empty_tuple = ()
 empty_list = []
 empty_dict = {}
 
-if empty_tuple == (): # [use-implicit-booleaness-empty-literal]
+if empty_tuple == (): # [use-implicit-booleaness-not-comparison]
     pass
 
-if empty_list == []: # [use-implicit-booleaness-empty-literal]
+if empty_list == []: # [use-implicit-booleaness-not-comparison]
     pass
 
-if empty_dict == {}: # [use-implicit-booleaness-empty-literal]
+if empty_dict == {}: # [use-implicit-booleaness-not-comparison]
     pass
 
-if () == empty_tuple: # [use-implicit-booleaness-empty-literal]
+if () == empty_tuple: # [use-implicit-booleaness-not-comparison]
     pass
 
-if [] == empty_list: # [use-implicit-booleaness-empty-literal]
+if [] == empty_list: # [use-implicit-booleaness-not-comparison]
     pass
 
-if {} == empty_dict: # [use-implicit-booleaness-empty-literal]
+if {} == empty_dict: # [use-implicit-booleaness-not-comparison]
     pass
 
 def bad_tuple_return():
-    a = (1, )
-    return a == () # [use-implicit-booleaness-empty-literal]
+    t = (1, )
+    return t == () # [use-implicit-booleaness-not-comparison]
 
 def bad_list_return():
-    a = [1]
-    return a == [] # [use-implicit-booleaness-empty-literal]
+    b = [1]
+    return b == [] # [use-implicit-booleaness-not-comparison]
 
 def bad_dict_return():
-    a = {1: 1}
-    return a == {} # [use-implicit-booleaness-empty-literal]
+    c = {1: 1}
+    return c == {} # [use-implicit-booleaness-not-comparison]
 
-assert () == empty_tuple # [use-implicit-booleaness-empty-literal]
-assert [] == empty_list # [use-implicit-booleaness-empty-literal]
-assert {} == empty_dict # [use-implicit-booleaness-empty-literal]
+assert () == empty_tuple # [use-implicit-booleaness-not-comparison]
+assert [] == empty_list # [use-implicit-booleaness-not-comparison]
+assert {} == empty_dict # [use-implicit-booleaness-not-comparison]
 
 assert [] == []
 assert {} != {}
 assert () == ()
 
-if a in {}:
+d = {}
+
+if d in {}:
     pass
 
 class NoBool:
@@ -81,13 +84,18 @@ if [] == YesBool: # [use-implicit-booleaness-not-comparison]
 
 # compound test cases
 
-a = []
-b = {}
+e = []
+f = {}
 
-if a == [] and b == {}: # [use-implicit-booleaness-not-comparison, use-implicit-booleaness-not-comparison]
+if e == [] and f == {}: # [use-implicit-booleaness-not-comparison, use-implicit-booleaness-not-comparison]
     pass
 
-a, b, c = 1, None, [1,2,3]
+# this should work, but it doesn't since, input parameter only get the latest one, not all when inferred()
+# h, i, j = 1, None, [1,2,3]
 
-def test(a):
-    print(a == {})
+# def test(k):
+    # print(k == {})
+
+# test(h)
+# test(i)
+# test(j)
