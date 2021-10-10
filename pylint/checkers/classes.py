@@ -133,7 +133,6 @@ def _signature_from_arguments(arguments):
     args = [
         arg.name
         for arg in chain(arguments.posonlyargs, arguments.args)
-        if arg.name != "self"
     ]
     kwonlyargs = [arg.name for arg in arguments.kwonlyargs]
     return _ParameterSignature(args, kwonlyargs, vararg, kwarg)
@@ -1257,18 +1256,22 @@ a metaclass class method.",
         call = statement.value
         if (
             not isinstance(call, nodes.Call)
-            # Not a super() attribute access.
+            # Not a super()/ancestor attribute access.
             or not isinstance(call.func, nodes.Attribute)
         ):
             return
 
-        # Should be a super call.
+        # Should be a super call or invoke the immediate ancestor class by name.
         try:
-            super_call = next(call.func.expr.infer())
+            func_call = next(call.func.expr.infer())
         except astroid.InferenceError:
             return
         else:
-            if not isinstance(super_call, astroid.objects.Super):
+            is_super_call = isinstance(func_call, astroid.objects.Super)
+            is_ancestor_call = (isinstance(func_call, nodes.ClassDef)
+                                and func_call.name == function.parent.scope().ancestors().__next__().name)
+
+            if not (is_super_call or is_ancestor_call):
                 return
 
         # The name should be the same.
@@ -1278,12 +1281,13 @@ a metaclass class method.",
         # Should be a super call with the MRO pointer being the
         # current class and the type being the current instance.
         current_scope = function.parent.scope()
-        if (
-            super_call.mro_pointer != current_scope
-            or not isinstance(super_call.type, astroid.Instance)
-            or super_call.type.name != current_scope.name
-        ):
-            return
+        if is_super_call:
+            if (
+                func_call.mro_pointer != current_scope
+                or not isinstance(func_call.type, astroid.Instance)
+                or func_call.type.name != current_scope.name
+            ):
+                return
 
         # Check values of default args
         klass = function.parent.frame()

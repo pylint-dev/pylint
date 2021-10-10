@@ -260,3 +260,8 @@ class NotUselessSuperDecorators(Base):
     @trigger_something('value1')
     def method_decorated(self):
         super(NotUselessSuperDecorators, self).method_decorated()
+
+
+class ClassNameUselessSuperDecorators(Base):
+    def __init__(self): # [useless-super-delegation]
+        Base.__init__(self)
