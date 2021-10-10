@@ -12,9 +12,10 @@ Summary -- Release highlights
 New checkers
 ============
 
-* Added ``missing-any-param-doc`` triggered when a function has neither parameter nor parameter type documentation.
-  A warning might appear if ``missing-param-doc`` and ``missing-type-doc`` are disabled since, in that case,
-  ``missing-any-param-doc`` will be emitted. Also, undocumented parameters are now being properly identified.
+* Added ``missing-any-param-doc`` triggered when a function has neither parameter nor parameter type
+ documentation. Undocumented parameters are now being properly identified. A warning might start to 
+ appear unexpectedly if ``missing-param-doc`` and ``missing-type-doc`` were disabled, as a new message 
+ ``missing-any-param-doc`` will be emitted instead.
 
   Closes #3799
 
