@@ -13,6 +13,7 @@ Release date: TBA
 
 * Properly identify parameters with no documentation and add new message called ``missing-any-param-doc``
 
+  Closes #3799
 * Add checkers ``overridden-final-method`` & ``subclassed-final-class``
 
   Closes #3197
@@ -27,8 +28,6 @@ Release date: TBA
 * In length checker, ``len-as-condition`` has been renamed as
   ``use-implicit-booleaness-not-len`` in order to be consistent with
   ``use-implicit-booleaness-not-comparison``.
-
-  Closes #3799
 
 
 What's New in Pylint 2.11.2?
