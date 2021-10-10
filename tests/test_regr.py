@@ -114,12 +114,12 @@ def modify_path() -> Iterator:
 def test_check_package___init__(finalize_linter: PyLinter) -> None:
     filename = ["package.__init__"]
     finalize_linter.check(filename)
-    checked = list(finalize_linter.stats["by_module"].keys())  # type: ignore # Refactor of PyLinter.stats necessary
-    assert checked == filename
+    checked = list(finalize_linter.stats.by_module.keys())
+    assert sorted(checked) == sorted(filename)
 
     os.chdir(join(REGR_DATA, "package"))
     finalize_linter.check(["__init__"])
-    checked = list(finalize_linter.stats["by_module"].keys())  # type: ignore
+    checked = list(finalize_linter.stats.by_module.keys())
     assert checked == ["__init__"]
 
 

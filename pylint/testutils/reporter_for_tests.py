@@ -2,8 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 from io import StringIO
-from os import getcwd, linesep, sep
-from typing import TYPE_CHECKING, Dict, List, Optional
+from os import getcwd, sep
+from typing import TYPE_CHECKING, List, Optional
 
 from pylint import interfaces
 from pylint.message import Message
@@ -17,38 +17,35 @@ class GenericTestReporter(BaseReporter):
     """reporter storing plain text messages"""
 
     __implements__ = interfaces.IReporter
+    out: StringIO
 
-    def __init__(
+    def __init__(  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         self,
-    ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
+    ) -> None:
+        self.path_strip_prefix: str = getcwd() + sep
         self.reset()
 
-    def reset(self):
-        self.message_ids: Dict = {}
+    def reset(self) -> None:
         self.out = StringIO()
-        self.path_strip_prefix: str = getcwd() + sep
-        self.messages: List[str] = []
+        self.messages: List[Message] = []
 
     def handle_message(self, msg: Message) -> None:
-        """manage message of different type and in the context of path"""
-        obj = msg.obj
-        line = msg.line
-        msg_id = msg.msg_id
-        str_message: str = msg.msg
-        self.message_ids[msg_id] = 1
-        if obj:
-            obj = f":{obj}"
-        sigle = msg_id[0]
-        if linesep != "\n":
-            # 2to3 writes os.linesep instead of using
-            # the previously used line separators
-            str_message = str_message.replace("\r\n", "\n")
-        self.messages.append(f"{sigle}:{line:>3}{obj}: {str_message}")
+        """Append messages to the list of messages of the reporter"""
+        self.messages.append(msg)
 
-    def finalize(self):
-        self.messages.sort()
+    def finalize(self) -> str:
+        """Format and print messages in the context of the path"""
+        messages: List[str] = []
         for msg in self.messages:
-            print(msg, file=self.out)
+            obj = ""
+            if msg.obj:
+                obj = f":{msg.obj}"
+            messages.append(f"{msg.msg_id[0]}:{msg.line:>3}{obj}: {msg.msg}")
+
+        messages.sort()
+        for message in messages:
+            print(message, file=self.out)
+
         result = self.out.getvalue()
         self.reset()
         return result

@@ -47,35 +47,84 @@ messages nor reports. XXX not true, emit a 07 report !
 
 """
 
-from typing import Iterable, List, Union
+import sys
+from typing import List, Optional, Tuple, Union
 
 from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
 from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.checkers.mapreduce_checker import MapReduceMixin
-from pylint.typing import CheckerStats
-from pylint.utils import diff_string, register_plugins
+from pylint.utils import LinterStats, diff_string, register_plugins
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 
 def table_lines_from_stats(
-    stats: CheckerStats,
-    old_stats: CheckerStats,
-    columns: Iterable[str],
+    stats: LinterStats,
+    old_stats: Optional[LinterStats],
+    stat_type: Literal["duplicated_lines", "message_types"],
 ) -> List[str]:
     """get values listed in <columns> from <stats> and <old_stats>,
     and return a formatted list of values, designed to be given to a
     ureport.Table object
     """
     lines: List[str] = []
-    for m_type in columns:
-        new: Union[int, str] = stats[m_type]  # type: ignore
-        old: Union[int, str, None] = old_stats.get(m_type)  # type: ignore
-        if old is not None:
-            diff_str = diff_string(old, new)
+    if stat_type == "duplicated_lines":
+        new: List[Tuple[str, Union[str, int, float]]] = [
+            ("nb_duplicated_lines", stats.duplicated_lines["nb_duplicated_lines"]),
+            (
+                "percent_duplicated_lines",
+                stats.duplicated_lines["percent_duplicated_lines"],
+            ),
+        ]
+        if old_stats:
+            old: List[Tuple[str, Union[str, int, float]]] = [
+                (
+                    "nb_duplicated_lines",
+                    old_stats.duplicated_lines["nb_duplicated_lines"],
+                ),
+                (
+                    "percent_duplicated_lines",
+                    old_stats.duplicated_lines["percent_duplicated_lines"],
+                ),
+            ]
         else:
-            old, diff_str = "NC", "NC"
-        new = f"{new:.3f}" if isinstance(new, float) else str(new)
-        old = f"{old:.3f}" if isinstance(old, float) else str(old)
-        lines.extend((m_type.replace("_", " "), new, old, diff_str))
+            old = [("nb_duplicated_lines", "NC"), ("percent_duplicated_lines", "NC")]
+    elif stat_type == "message_types":
+        new = [
+            ("convention", stats.convention),
+            ("refactor", stats.refactor),
+            ("warning", stats.warning),
+            ("error", stats.error),
+        ]
+        if old_stats:
+            old = [
+                ("convention", old_stats.convention),
+                ("refactor", old_stats.refactor),
+                ("warning", old_stats.warning),
+                ("error", old_stats.error),
+            ]
+        else:
+            old = [
+                ("convention", "NC"),
+                ("refactor", "NC"),
+                ("warning", "NC"),
+                ("error", "NC"),
+            ]
+
+    for index, _ in enumerate(new):
+        new_value = new[index][1]
+        old_value = old[index][1]
+        diff_str = (
+            diff_string(old_value, new_value)
+            if isinstance(old_value, float)
+            else old_value
+        )
+        new_str = f"{new_value:.3f}" if isinstance(new_value, float) else str(new_value)
+        old_str = f"{old_value:.3f}" if isinstance(old_value, float) else str(old_value)
+        lines.extend((new[index][0].replace("_", " "), new_str, old_str, diff_str))
     return lines
 
 

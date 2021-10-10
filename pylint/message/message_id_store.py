@@ -1,23 +1,29 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+import sys
 from typing import Dict, List, Optional, Tuple
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
+
+if sys.version_info >= (3, 6, 2):
+    from typing import NoReturn
+else:
+    from typing_extensions import NoReturn
 
 
 class MessageIdStore:
 
     """The MessageIdStore store MessageId and make sure that there is a 1-1 relation between msgid and symbol."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.__msgid_to_symbol: Dict[str, str] = {}
         self.__symbol_to_msgid: Dict[str, str] = {}
         self.__old_names: Dict[str, List[str]] = {}
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.__msgid_to_symbol)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         result = "MessageIdStore: [\n"
         for msgid, symbol in self.__msgid_to_symbol.items():
             result += f"  - {msgid} ({symbol})\n"
@@ -40,7 +46,7 @@ class MessageIdStore:
 
     def register_message_definition(
         self, msgid: str, symbol: str, old_names: List[Tuple[str, str]]
-    ):
+    ) -> None:
         self.check_msgid_and_symbol(msgid, symbol)
         self.add_msgid_and_symbol(msgid, symbol)
         for old_msgid, old_symbol in old_names:
@@ -81,7 +87,7 @@ class MessageIdStore:
             self._raise_duplicate_symbol(msgid, symbol, existing_symbol)
 
     @staticmethod
-    def _raise_duplicate_symbol(msgid: str, symbol: str, other_symbol: str):
+    def _raise_duplicate_symbol(msgid: str, symbol: str, other_symbol: str) -> NoReturn:
         """Raise an error when a symbol is duplicated."""
         symbols = [symbol, other_symbol]
         symbols.sort()
@@ -90,7 +96,7 @@ class MessageIdStore:
         raise InvalidMessageError(error_message)
 
     @staticmethod
-    def _raise_duplicate_msgid(symbol: str, msgid: str, other_msgid: str) -> None:
+    def _raise_duplicate_msgid(symbol: str, msgid: str, other_msgid: str) -> NoReturn:
         """Raise an error when a msgid is duplicated."""
         msgids = [msgid, other_msgid]
         msgids.sort()

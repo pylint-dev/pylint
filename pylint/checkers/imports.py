@@ -62,6 +62,7 @@ from pylint.checkers.utils import (
     get_import_name,
     is_from_fallback_block,
     is_node_in_guarded_import_block,
+    is_typing_guard,
     node_ignores_exception,
 )
 from pylint.exceptions import EmptyReportError
@@ -69,7 +70,6 @@ from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import IAstroidChecker
 from pylint.lint import PyLinter
 from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
-from pylint.typing import CheckerStats
 from pylint.utils import IsortDriver, get_global_option
 
 
@@ -169,26 +169,27 @@ def _repr_tree_defs(data, indent_str=None):
     return "\n".join(lines)
 
 
-def _dependencies_graph(filename: str, dep_info: Dict[str, List[str]]) -> str:
+def _dependencies_graph(filename: str, dep_info: Dict[str, Set[str]]) -> str:
     """write dependencies as a dot (graphviz) file"""
     done = {}
     printer = DotBackend(os.path.splitext(os.path.basename(filename))[0], rankdir="LR")
     printer.emit('URL="." node[shape="box"]')
     for modname, dependencies in sorted(dep_info.items()):
+        sorted_dependencies = sorted(dependencies)
         done[modname] = 1
         printer.emit_node(modname)
-        for depmodname in dependencies:
+        for depmodname in sorted_dependencies:
             if depmodname not in done:
                 done[depmodname] = 1
                 printer.emit_node(depmodname)
     for depmodname, dependencies in sorted(dep_info.items()):
-        for modname in dependencies:
+        for modname in sorted(dependencies):
             printer.emit_edge(modname, depmodname)
     return printer.generate(filename)
 
 
 def _make_graph(
-    filename: str, dep_info: Dict[str, List[str]], sect: Section, gtype: str
+    filename: str, dep_info: Dict[str, Set[str]], sect: Section, gtype: str
 ):
     """generate a dependencies graph and add some information about it in the
     report's section
@@ -427,7 +428,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self, linter: Optional[PyLinter] = None
     ):  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
         BaseChecker.__init__(self, linter)
-        self.stats: CheckerStats = {}
         self.import_graph: collections.defaultdict = collections.defaultdict(set)
         self._imports_stack: List[Tuple[Any, Any]] = []
         self._first_non_import_node = None
@@ -469,9 +469,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def open(self):
         """called before visiting project (i.e set of modules)"""
-        self.linter.add_stats(dependencies={})
-        self.linter.add_stats(cycles=[])
-        self.stats = self.linter.stats
+        self.linter.stats.dependencies = {}
+        self.linter.stats = self.linter.stats
         self.import_graph = collections.defaultdict(set)
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
         self._excluded_edges = collections.defaultdict(set)
@@ -843,8 +842,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         except ImportError:
             pass
 
-        in_type_checking_block = (
-            isinstance(node.parent, nodes.If) and node.parent.is_typing_guard()
+        in_type_checking_block = isinstance(node.parent, nodes.If) and is_typing_guard(
+            node.parent
         )
 
         if context_name == importedmodname:
@@ -858,7 +857,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._module_pkg[context_name] = context_name.rsplit(".", 1)[0]
 
             # handle dependencies
-            dependencies_stat: Dict[str, Union[Set]] = self.stats["dependencies"]  # type: ignore
+            dependencies_stat: Dict[str, Union[Set]] = self.linter.stats.dependencies
             importedmodnames = dependencies_stat.setdefault(importedmodname, set())
             if context_name not in importedmodnames:
                 importedmodnames.add(context_name)
@@ -934,7 +933,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _report_dependencies_graph(self, sect, _, _dummy):
         """write dependencies as a dot (graphviz) file"""
-        dep_info = self.stats["dependencies"]
+        dep_info = self.linter.stats.dependencies
         if not dep_info or not (
             self.config.import_graph
             or self.config.ext_import_graph
@@ -954,7 +953,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     def _filter_dependencies_graph(self, internal):
         """build the internal or the external dependency graph"""
         graph = collections.defaultdict(set)
-        for importee, importers in self.stats["dependencies"].items():
+        for importee, importers in self.linter.stats.dependencies.items():
             for importer in importers:
                 package = self._module_pkg.get(importer, importer)
                 is_inside = importee.startswith(package)

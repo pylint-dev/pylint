@@ -3,7 +3,7 @@
 
 import astroid
 
-from pylint.checkers.refactoring import LenChecker
+from pylint.checkers.refactoring import ImplicitBooleanessChecker
 
 
 def test_class_tree_detection() -> None:
@@ -24,23 +24,23 @@ class ChildClassWithoutBool(ClassWithoutBool):
 """
     )
     with_bool, without_bool, child_with_bool, child_without_bool = module.body
-    assert LenChecker().base_classes_of_node(with_bool) == [
+    assert ImplicitBooleanessChecker().base_classes_of_node(with_bool) == [
         "ClassWithBool",
         "list",
         "object",
     ]
-    assert LenChecker().base_classes_of_node(without_bool) == [
+    assert ImplicitBooleanessChecker().base_classes_of_node(without_bool) == [
         "ClassWithoutBool",
         "dict",
         "object",
     ]
-    assert LenChecker().base_classes_of_node(child_with_bool) == [
+    assert ImplicitBooleanessChecker().base_classes_of_node(child_with_bool) == [
         "ChildClassWithBool",
         "ClassWithBool",
         "list",
         "object",
     ]
-    assert LenChecker().base_classes_of_node(child_without_bool) == [
+    assert ImplicitBooleanessChecker().base_classes_of_node(child_without_bool) == [
         "ChildClassWithoutBool",
         "ClassWithoutBool",
         "dict",

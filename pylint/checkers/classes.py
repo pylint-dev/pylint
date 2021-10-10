@@ -68,6 +68,7 @@ from pylint.checkers.utils import (
     is_attr_protected,
     is_builtin_object,
     is_comprehension,
+    is_function_body_ellipsis,
     is_iterable,
     is_overload_stub,
     is_property_setter,
@@ -78,6 +79,7 @@ from pylint.checkers.utils import (
     safe_infer,
     unimplemented_abstract_methods,
 )
+from pylint.constants import PY38_PLUS
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import get_global_option
 
@@ -648,6 +650,16 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "unused-private-member",
         "Emitted when a private member of a class is defined but not used.",
     ),
+    "W0239": (
+        "Method %r overrides a method decorated with typing.final which is defined in class %r",
+        "overridden-final-method",
+        "Used when a method decorated with typing.final has been overridden.",
+    ),
+    "W0240": (
+        "Class %r is a subclass of a class decorated with typing.final: %r",
+        "subclassed-final-class",
+        "Used when a class decorated with typing.final has been subclassed.",
+    ),
     "E0236": (
         "Invalid object %r in __slots__, must contain only non empty strings",
         "invalid-slots-object",
@@ -859,6 +871,7 @@ a metaclass class method.",
                 self.add_message("no-init", args=node, node=node)
         self._check_slots(node)
         self._check_proper_bases(node)
+        self._check_typing_final(node)
         self._check_consistent_mro(node)
 
     def _check_consistent_mro(self, node):
@@ -895,6 +908,23 @@ a metaclass class method.",
             if ancestor.name == object.__name__:
                 self.add_message(
                     "useless-object-inheritance", args=node.name, node=node
+                )
+
+    def _check_typing_final(self, node: nodes.ClassDef) -> None:
+        """Detect that a class does not subclass a class decorated with `typing.final`"""
+        if not PY38_PLUS:
+            return
+        for base in node.bases:
+            ancestor = safe_infer(base)
+            if not ancestor:
+                continue
+            if isinstance(ancestor, nodes.ClassDef) and decorated_with(
+                ancestor, ["typing.final"]
+            ):
+                self.add_message(
+                    "subclassed-final-class",
+                    args=(node.name, ancestor.name),
+                    node=node,
                 )
 
     @check_messages("unused-private-member", "attribute-defined-outside-init")
@@ -1344,6 +1374,12 @@ a metaclass class method.",
             self.add_message(
                 "invalid-overridden-method",
                 args=(function_node.name, "non-async", "async"),
+                node=function_node,
+            )
+        if decorated_with(parent_function_node, ["typing.final"]) and PY38_PLUS:
+            self.add_message(
+                "overridden-final-method",
+                args=(function_node.name, parent_function_node.parent.name),
                 node=function_node,
             )
 
@@ -2168,7 +2204,11 @@ class SpecialMethodsChecker(BaseChecker):
 
         inferred = _safe_infer_call_result(node, node)
         # Only want to check types that we are able to infer
-        if inferred and node.name in self._protocol_map:
+        if (
+            inferred
+            and node.name in self._protocol_map
+            and not is_function_body_ellipsis(node)
+        ):
             self._protocol_map[node.name](node, inferred)
 
         if node.name in PYMETHODS:
