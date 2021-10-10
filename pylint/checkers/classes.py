@@ -912,14 +912,14 @@ a metaclass class method.",
 
     def _check_typing_final(self, node: nodes.ClassDef) -> None:
         """Detect that a class does not subclass a class decorated with `typing.final`"""
+        if not PY38_PLUS:
+            return
         for base in node.bases:
             ancestor = safe_infer(base)
             if not ancestor:
                 continue
-            if (
-                isinstance(ancestor, nodes.ClassDef)
-                and decorated_with(ancestor, ["typing.final"])
-                and PY38_PLUS
+            if isinstance(ancestor, nodes.ClassDef) and decorated_with(
+                ancestor, ["typing.final"]
             ):
                 self.add_message(
                     "subclassed-final-class",
