@@ -130,7 +130,7 @@ def _signature_from_call(call):
 def _signature_from_arguments(arguments):
     kwarg = arguments.kwarg
     vararg = arguments.vararg
-    args = [arg.name for arg in chain(arguments.posonlyargs, arguments.args)]
+    args = [arg.name for arg in chain(arguments.posonlyargs, arguments.args) if arg.name != "self"]
     kwonlyargs = [arg.name for arg in arguments.kwonlyargs]
     return _ParameterSignature(args, kwonlyargs, vararg, kwarg)
 
