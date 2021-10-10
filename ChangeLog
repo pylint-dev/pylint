@@ -11,6 +11,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
+* Add checkers ``overridden-final-method`` & ``subclassed-final-class``
+
+  Closes #3197
+
 * Added support for ``ModuleNotFoundError`` (``import-error`` and ``no-name-in-module``).
   ``ModuleNotFoundError`` inherits from ``ImportError`` and was added in Python ``3.6``
 
