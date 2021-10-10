@@ -428,7 +428,7 @@ class TestMultiNamingStyle(CheckerTestCase):
 
 
 class TestComparison(CheckerTestCase):
-    CHECKER_CLASS = base.ImplicitBooleanessChecker
+    CHECKER_CLASS = base.ComparisonChecker
 
     def test_comparison(self) -> None:
         node = astroid.extract_node("foo == True")
