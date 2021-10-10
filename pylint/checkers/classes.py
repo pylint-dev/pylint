@@ -130,10 +130,7 @@ def _signature_from_call(call):
 def _signature_from_arguments(arguments):
     kwarg = arguments.kwarg
     vararg = arguments.vararg
-    args = [
-        arg.name
-        for arg in chain(arguments.posonlyargs, arguments.args)
-    ]
+    args = [arg.name for arg in chain(arguments.posonlyargs, arguments.args)]
     kwonlyargs = [arg.name for arg in arguments.kwonlyargs]
     return _ParameterSignature(args, kwonlyargs, vararg, kwarg)
 
@@ -1268,8 +1265,11 @@ a metaclass class method.",
             return
         else:
             is_super_call = isinstance(func_call, astroid.objects.Super)
-            is_ancestor_call = (isinstance(func_call, nodes.ClassDef)
-                                and func_call.name == function.parent.scope().ancestors().__next__().name)
+            is_ancestor_call = (
+                isinstance(func_call, nodes.ClassDef)
+                and func_call.name
+                == function.parent.scope().ancestors().__next__().name
+            )
 
             if not (is_super_call or is_ancestor_call):
                 return
