@@ -1,0 +1,25 @@
+use-implicit-booleaness-not-len:4:3::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:7:3::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:11:9::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:14:11::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:55:5::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:60:5::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:63:6::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:66:6::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:69:12::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:72:6::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:95:11:github_issue_1331_v2:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:98:11:github_issue_1331_v3:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:101:17:github_issue_1331_v4:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:103:9::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:104:9::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:123:11:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:124:11:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:125:11:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:126:11:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:127:11:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:128:11:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:129:11:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+use-implicit-booleaness-not-len:170:11:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
+undefined-variable:182:11:github_issue_4215:Undefined variable 'undefined_var':HIGH
+undefined-variable:184:11:github_issue_4215:Undefined variable 'undefined_var2':HIGH
