@@ -47,6 +47,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker, IRawChecker, ITokenChecker
+from pylint.utils import get_global_option
 
 if TYPE_CHECKING:
     from typing import Counter  # typing.Counter added in Python 3.6.1
@@ -210,6 +211,12 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "format-string-without-interpolation",
         "Used when we detect a string that does not have any interpolation variables, "
         "in which case it can be either a normal string without formatting or a bug in the code.",
+    ),
+    "W1311": (
+        "F-strings are not supported by all versions included in the py-version setting",
+        "using-f-string-in-unsupported-version",
+        "Used when the py-version set by the user is lower than 3.8 and pylint encounters "
+        "a f-string.",
     ),
 }
 
@@ -410,13 +417,22 @@ class StringFormatChecker(BaseChecker):
                         )
 
     @check_messages("f-string-without-interpolation")
+    @check_messages("using-f-string-in-unsupported-version")
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
+        self._check_interpolation(node)
+        self._check_unsupported_version(node)
+
+    def _check_interpolation(self, node: nodes.JoinedStr) -> None:
         if isinstance(node.parent, nodes.FormattedValue):
             return
         for value in node.values:
             if isinstance(value, nodes.FormattedValue):
                 return
         self.add_message("f-string-without-interpolation", node=node)
+
+    def _check_unsupported_version(self, node: nodes.JoinedStr) -> None:
+        if get_global_option(self, "py-version") < (3, 6):
+            self.add_message("using-f-string-in-unsupported-version", node=node)
 
     @check_messages(*MSGS)
     def visit_call(self, node: nodes.Call) -> None:
