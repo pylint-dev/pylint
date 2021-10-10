@@ -50,7 +50,11 @@ def bad_dict_return():
 
 assert () == empty_tuple # [use-implicit-booleaness-not-comparison]
 assert [] == empty_list # [use-implicit-booleaness-not-comparison]
-assert {} == empty_dict # [use-implicit-booleaness-not-comparison]
+assert {} != empty_dict # [use-implicit-booleaness-not-comparison]
+assert () < empty_tuple # [use-implicit-booleaness-not-comparison]
+assert [] <= empty_list # [use-implicit-booleaness-not-comparison]
+assert () > empty_tuple # [use-implicit-booleaness-not-comparison]
+assert [] >= empty_list # [use-implicit-booleaness-not-comparison]
 
 assert [] == []
 assert {} != {}
@@ -75,11 +79,11 @@ class YesBool:
 
 # Shouldn't be triggered
 a = NoBool()
-if [] == NoBool():
+if [] == a:
     pass
 
 a = YesBool()
-if [] == YesBool: # [use-implicit-booleaness-not-comparison]
+if a == []: # [use-implicit-booleaness-not-comparison]
     pass
 
 # compound test cases
@@ -89,6 +93,8 @@ f = {}
 
 if e == [] and f == {}: # [use-implicit-booleaness-not-comparison, use-implicit-booleaness-not-comparison]
     pass
+
+
 
 # this should work, but it doesn't since, input parameter only get the latest one, not all when inferred()
 # h, i, j = 1, None, [1,2,3]
