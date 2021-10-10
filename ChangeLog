@@ -11,6 +11,9 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
+* Properly identify parameters with no documentation and add new message called ``missing-any-param-doc``
+
+  Closes #3799
 * Add checkers ``overridden-final-method`` & ``subclassed-final-class``
 
   Closes #3197

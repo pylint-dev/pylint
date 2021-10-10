@@ -16,7 +16,7 @@ def _private_func3(param1):  # [missing-raises-doc]
     raise Exception('Example')
 
 
-def public_func1(param1):  # [missing-param-doc, missing-type-doc]
+def public_func1(param1):  # [missing-any-param-doc]
     """This is a test docstring without params"""
     print(param1)
 
@@ -36,6 +36,6 @@ async def _async_private_func3(param1):  # [missing-raises-doc]
     raise Exception('Example')
 
 
-async def async_public_func1(param1):  # [missing-param-doc, missing-type-doc]
+async def async_public_func1(param1):  # [missing-any-param-doc]
     """This is a test docstring without params"""
     print(param1)

@@ -325,8 +325,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            MessageTest(msg_id="missing-param-doc", node=node, args=("x, y",)),
-            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-any-param-doc", node=node, args=(node.name)),
         ):
             self.checker.visit_functiondef(node)
 
