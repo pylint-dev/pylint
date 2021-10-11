@@ -33,6 +33,9 @@ New checkers
   * Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
     is set to a version that does not support f-strings (< 3.6)
 
+* Added ``using-final-in-unsupported-version`` checker. Issued when ``py-version``
+  is set to a version that does not support typing.final (< 3.8)
+
 
 Removed checkers
 ================

@@ -47,6 +47,9 @@ Release date: TBA
 * Use ``py-version`` setting for alternative union syntax check (PEP 604),
   instead of the Python interpreter version.
 
+* Added ``using-final-in-unsupported-version`` checker. Issued when ``py-version``
+  is set to a version that does not support ``typing.final`` (< 3.8)
+
 
 What's New in Pylint 2.11.2?
 ============================

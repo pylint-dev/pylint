@@ -10,7 +10,7 @@ indicated by the py-version setting.
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import check_messages, is_uninferable_decorator
 from pylint.interfaces import IAstroidChecker
 from pylint.lint import PyLinter
 from pylint.utils import get_global_option
@@ -30,18 +30,30 @@ class UnsupportedVersionChecker(BaseChecker):
             "Used when the py-version set by the user is lower than 3.6 and pylint encounters "
             "a f-string.",
         ),
+        "W1602": (
+            "typing.final is not supported by all versions included in the py-version setting",
+            "using-final-in-unsupported-version",
+            "Used when the py-version set by the user is lower than 3.8 and pylint encounters "
+            "a typing.final decorator.",
+        ),
     }
 
     def open(self) -> None:
         """Initialize visit variables and statistics."""
         py_version = get_global_option(self, "py-version")
         self._py36_plus = py_version >= (3, 6)
+        self._py38_plus = py_version >= (3, 8)
 
     @check_messages("using-f-string-in-unsupported-version")
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
         """Check f-strings"""
         if not self._py36_plus:
             self.add_message("using-f-string-in-unsupported-version", node=node)
+
+    def visit_decorators(self, node: nodes.Decorators) -> None:
+        """Check typing.final decorators"""
+        if not self._py38_plus and is_uninferable_decorator(node, "final"):
+            self.add_message("using-final-in-unsupported-version", node=node)
 
 
 def register(linter: PyLinter) -> None:

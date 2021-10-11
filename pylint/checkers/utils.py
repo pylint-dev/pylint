@@ -823,7 +823,9 @@ def _is_property_decorator(decorator: nodes.Name) -> bool:
 
 
 def decorated_with(
-    func: Union[nodes.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod],
+    func: Union[
+        nodes.ClassDef, nodes.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod
+    ],
     qnames: Iterable[str],
 ) -> bool:
     """Determine if the `func` node has a decorator with the qualified name `qname`."""
@@ -842,6 +844,16 @@ def decorated_with(
         except astroid.InferenceError:
             continue
     return False
+
+
+def is_uninferable_decorator(node: nodes.Decorators, qname: str) -> bool:
+    """Return True if a `node` contains an uninferable decorator named `qname`"""
+    return any(
+        isinstance(decorator, nodes.Name)
+        and safe_infer(decorator) is astroid.Uninferable
+        and decorator.name == qname
+        for decorator in node.nodes
+    )
 
 
 @lru_cache(maxsize=1024)
