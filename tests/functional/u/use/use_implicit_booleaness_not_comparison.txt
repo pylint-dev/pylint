@@ -11,6 +11,10 @@ use-implicit-booleaness-not-comparison:49:11:bad_dict_return:Do not use empty se
 use-implicit-booleaness-not-comparison:51:7::Do not use empty sequence literal to compare between variable and collection literal:HIGH
 use-implicit-booleaness-not-comparison:52:7::Do not use empty sequence literal to compare between variable and collection literal:HIGH
 use-implicit-booleaness-not-comparison:53:7::Do not use empty sequence literal to compare between variable and collection literal:HIGH
-use-implicit-booleaness-not-comparison:82:3::Do not use empty sequence literal to compare between variable and collection literal:HIGH
-use-implicit-booleaness-not-comparison:90:3::Do not use empty sequence literal to compare between variable and collection literal:HIGH
-use-implicit-booleaness-not-comparison:90:15::Do not use empty sequence literal to compare between variable and collection literal:HIGH
+use-implicit-booleaness-not-comparison:54:7::Do not use empty sequence literal to compare between variable and collection literal:HIGH
+use-implicit-booleaness-not-comparison:55:7::Do not use empty sequence literal to compare between variable and collection literal:HIGH
+use-implicit-booleaness-not-comparison:56:7::Do not use empty sequence literal to compare between variable and collection literal:HIGH
+use-implicit-booleaness-not-comparison:57:7::Do not use empty sequence literal to compare between variable and collection literal:HIGH
+use-implicit-booleaness-not-comparison:86:3::Do not use empty sequence literal to compare between variable and collection literal:HIGH
+use-implicit-booleaness-not-comparison:94:3::Do not use empty sequence literal to compare between variable and collection literal:HIGH
+use-implicit-booleaness-not-comparison:94:15::Do not use empty sequence literal to compare between variable and collection literal:HIGH
