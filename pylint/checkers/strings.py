@@ -215,7 +215,7 @@ MSGS = {  # pylint: disable=consider-using-namedtuple-or-dataclass
     "W1311": (
         "F-strings are not supported by all versions included in the py-version setting",
         "using-f-string-in-unsupported-version",
-        "Used when the py-version set by the user is lower than 3.8 and pylint encounters "
+        "Used when the py-version set by the user is lower than 3.6 and pylint encounters "
         "a f-string.",
     ),
 }
