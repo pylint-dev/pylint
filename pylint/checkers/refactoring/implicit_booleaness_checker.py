@@ -10,7 +10,7 @@ from pylint.checkers import utils
 
 
 class ImplicitBooleanessChecker(checkers.BaseChecker):
-    """Checks for incorrect usage of comparisons inside conditions.
+    """Checks for incorrect usage of comparisons or len() inside conditions.
 
     Incorrect usage of len()
     Pep8 states:
@@ -61,17 +61,13 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "Instead of coercing the length to a boolean, either "
             "rely on the fact that empty sequences are false or "
             "compare the length against a scalar.",
-            {
-                "old_names": [
-                    ("C1801", "len-as-condition"),
-                ]
-            },
+            {"old_names": [("C1801", "len-as-condition")]},
         ),
         "C1803": (
             "Do not use empty sequence literal to compare between variable and collection literal",
             "use-implicit-booleaness-not-comparison",
-            "Used when Pylint detects that empty collection literal comparison is being "
-            "used to evaluate booleaness; Instead use inherit booleaness "
+            "Used when Pylint detects that collection literal comparison is being "
+            "used to check for emptiness; Use implicit booleaness instead"
             "of a collection classes; empty collections are considered as false",
         ),
     }
