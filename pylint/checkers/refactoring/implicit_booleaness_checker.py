@@ -64,7 +64,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             {"old_names": [("C1801", "len-as-condition")]},
         ),
         "C1803": (
-            "Do not use empty sequence literal to compare between variable and collection literal",
+            "'%s' can be simplified to '%s' as an empty sequence is falsey",
             "use-implicit-booleaness-not-comparison",
             "Used when Pylint detects that collection literal comparison is being "
             "used to check for emptiness; Use implicit booleaness instead"
@@ -139,13 +139,12 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
 
     @utils.check_messages("use-implicit-booleaness-not-comparison")
     def visit_compare(self, node: nodes.Compare) -> None:
-        """visit compare and check for empty literals"""
         self._check_use_implicit_booleaness_not_comparison(node)
 
     def _check_use_implicit_booleaness_not_comparison(
         self, node: nodes.Compare
     ) -> None:
-        """check for left side and right side for empty literals"""
+        """Check for left side and right side of the node for empty literals"""
         is_left_empty_literal = (
             utils.is_empty_list_literal(node.left)
             or utils.is_empty_tuple_literal(node.left)

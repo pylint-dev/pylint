@@ -33,7 +33,7 @@ Release date: TBA
   is set to a version that does not support f-strings (< 3.6)
 
 * Added new checker ``use-implicit-booleaness-not-comparison``: Emitted when
-  using collection literals to evaluate booleaness
+  collection literal comparison is being used to check for emptiness.
 
   Closes #4774
 
