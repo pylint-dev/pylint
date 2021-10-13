@@ -29,8 +29,11 @@ Release date: TBA
   ``use-implicit-booleaness-not-len`` in order to be consistent with
   ``use-implicit-booleaness-not-comparison``.
 
-* Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
-  is set to a version that does not support f-strings (< 3.6)
+* Created new ``UnsupportedVersionChecker`` checker class that includes checks for features
+  not supported by all versions indicated by a ``py-version``.
+
+  * Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
+    is set to a version that does not support f-strings (< 3.6)
 
 
 What's New in Pylint 2.11.2?
