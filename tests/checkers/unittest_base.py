@@ -58,6 +58,21 @@ class TestDocstring(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_module(module)
 
+    @set_config(no_docstring_rgx=re.compile("^(?!__init__$)_"))
+    def test_empty_docstring_on_init(self) -> None:
+        node = astroid.extract_node(
+            """
+        #pylint disable=missing-module-docstring, too-few-public-methods,
+        class MyClass:
+            def __init__(self, my_param: int) -> None:
+                '''
+                '''
+        """
+        )
+        message = MessageTest("empty-docstring", node=node.body[0], args=("method",))
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node.body[0])
+
     def test_empty_docstring_function(self) -> None:
         func = astroid.extract_node(
             """
@@ -115,6 +130,20 @@ class TestDocstring(CheckerTestCase):
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(func)
+
+    @set_config(no_docstring_rgx=re.compile("^(?!__init__$)_"))
+    def test_missing_docstring_on_init(self) -> None:
+        node = astroid.extract_node(
+            """
+        #pylint disable=missing-module-docstring, too-few-public-methods,
+        class MyClass:
+            def __init__(self, my_param: int) -> None:
+                pass
+        """
+        )
+        message = MessageTest("missing-function-docstring", node=node.body[0])
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node.body[0])
 
     def test_class_no_docstring(self) -> None:
         klass = astroid.extract_node(
