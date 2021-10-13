@@ -42,6 +42,7 @@ from datetime import datetime
 
 import platformdirs
 
+from pylint.config.argument_types import Argument, StoreArgument
 from pylint.config.configuration_mixin import ConfigurationMixIn
 from pylint.config.find_default_config_files import find_default_config_files
 from pylint.config.man_help_formatter import _ManHelpFormatter
@@ -60,6 +61,8 @@ __all__ = [
     "OptionParser",
     "OptionsProviderMixIn",
     "UnsupportedAction",
+    "StoreArgument",
+    "Argument",
 ]
 
 USER_HOME = os.path.expanduser("~")

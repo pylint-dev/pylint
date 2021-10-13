@@ -9,6 +9,7 @@ from pylint.checkers.utils import (
     is_node_in_type_annotation_context,
     safe_infer,
 )
+from pylint.config import StoreArgument
 from pylint.interfaces import IAstroidChecker
 from pylint.lint import PyLinter
 from pylint.utils.utils import get_global_option
@@ -119,6 +120,24 @@ class TypingChecker(BaseChecker):
                     "Applies to Python versions 3.7 - 3.9"
                 ),
             },
+        ),
+    )
+    arguments = (
+        StoreArgument(
+            ("runtime-typing",),
+            "store",
+            1,
+            None,
+            True,
+            "yn",
+            "Set to ``no`` if the app / library does **NOT** need to "
+            "support runtime introspection of type annotations. "
+            "If you use type annotations **exclusively** for type checking "
+            "of an application, you're probably fine. For libraries, "
+            "evaluate if some users what to access the type hints "
+            "at runtime first, e.g., through ``typing.get_type_hints``. "
+            "Applies to Python versions 3.7 - 3.9",
+            "<y_or_n>",
         ),
     )
 
