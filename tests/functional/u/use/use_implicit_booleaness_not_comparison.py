@@ -95,6 +95,12 @@ if e == [] and f == {}: # [use-implicit-booleaness-not-comparison, use-implicit-
     pass
 
 
+named_fields = [0, "", "42", "forty two"]
+empty = any(field == "" for field in named_fields)
+
+something_else = NoBool()
+empty_literals = [[], {}, ()]
+is_empty = any(field == something_else for field in empty_literals)
 
 # this should work, but it doesn't since, input parameter only get the latest one, not all when inferred()
 # h, i, j = 1, None, [1,2,3]
