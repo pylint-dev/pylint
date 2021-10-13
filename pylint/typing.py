@@ -58,7 +58,7 @@ class ManagedMessage(NamedTuple):
     """Tuple with information ahout a managed message of the linter"""
 
     name: Optional[str]
-    msgid_or_symbol: str
+    msgid: str
     symbol: str
     line: Optional[int]
     is_disabled: bool
