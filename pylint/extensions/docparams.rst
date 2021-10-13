@@ -90,8 +90,8 @@ You'll be notified of **missing parameter documentation** but also of
 **naming inconsistencies** between the signature and the documentation which
 often arise when parameters are renamed automatically in the code, but not in
 the documentation.
-**Note:** by default docstrings of private and magic methods are not checked. 
-To change this behaviour (for example, to also check ``__init__``) add 
+**Note:** by default docstrings of private and magic methods are not checked.
+To change this behaviour (for example, to also check ``__init__``) add
 ``no-docstring-rgx=^(?!__init__$)_`` to the ``BASIC`` section of your ``.pylintrc``.
 
 Constructor parameters can be documented in either the class docstring or
