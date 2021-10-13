@@ -40,7 +40,12 @@ from pylint.lint.utils import (
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
 from pylint.reporters.ureports import nodes as report_nodes
-from pylint.typing import FileItem, ManagedMessage, MessageLocationTuple, ModuleDescriptionDict
+from pylint.typing import (
+    FileItem,
+    ManagedMessage,
+    MessageLocationTuple,
+    ModuleDescriptionDict,
+)
 from pylint.utils import ASTWalker, FileState, LinterStats, ModuleStats, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,
