@@ -145,7 +145,7 @@ class TestDocstring(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(node.body[0])
 
-    @set_config(no_docstring_rgx=re.compile(""))
+    @set_config(no_docstring_rgx=re.compile("^(?!__eq__$)_"))
     def test_missing_docstring_on_inherited_magic(self) -> None:
         module = astroid.parse(
             """
@@ -158,7 +158,8 @@ class TestDocstring(CheckerTestCase):
                 return True
         """
         )
-        with self.assertNoMessages():
+        message = MessageTest("missing-function-docstring", node=module.body[1].body[0])
+        with self.assertAddsMessages(message):
             self.checker.visit_functiondef(module.body[1].body[0])
 
     def test_class_no_docstring(self) -> None:
