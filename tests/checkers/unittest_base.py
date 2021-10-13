@@ -145,6 +145,22 @@ class TestDocstring(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_functiondef(node.body[0])
 
+    @set_config(no_docstring_rgx=re.compile(""))
+    def test_missing_docstring_on_inherited_magic(self) -> None:
+        module = astroid.parse(
+            """
+        #pylint disable=missing-module-docstring, too-few-public-methods,
+        class MyClass:
+            pass
+
+        class Child(MyClass):
+            def __eq__(self, other):
+                return True
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(module.body[1].body[0])
+
     def test_class_no_docstring(self) -> None:
         klass = astroid.extract_node(
             """
