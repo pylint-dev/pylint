@@ -3,7 +3,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Checker for functions used that are not supported by all python versions
+"""Checker for features used that are not supported by all python versions
 indicated by the py-version setting.
 """
 
@@ -16,7 +16,7 @@ from pylint.utils import get_global_option
 
 
 class UnsupportedVersionChecker(BaseChecker):
-    """Checker for functions that are not supported by all python versions
+    """Checker for features that are not supported by all python versions
     indicated by the py-version setting.
     """
 
@@ -31,8 +31,8 @@ class UnsupportedVersionChecker(BaseChecker):
         ),
     }
 
-    def open(self):
-        """initialize visit variables and statistics"""
+    def open(self) -> None:
+        """Initialize visit variables and statistics."""
         py_version = get_global_option(self, "py-version")
         self._py35_plus = py_version >= (3, 5)
         self._py36_plus = py_version >= (3, 6)
@@ -52,6 +52,6 @@ class UnsupportedVersionChecker(BaseChecker):
             self.add_message("using-f-string-in-unsupported-version", node=node)
 
 
-def register(linter):
+def register(linter: PyLinter) -> None:
     """required method to auto register this checker"""
     linter.register_checker(UnsupportedVersionChecker(linter))
