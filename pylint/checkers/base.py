@@ -2184,10 +2184,10 @@ class DocStringChecker(_BasicChecker):
                 )
                 # check if node is from a method overridden by its ancestor
                 for ancestor in node.parent.frame().ancestors():
-                    if (
-                        node.name != "__init__"
-                        and node.name in ancestor
-                        and isinstance(ancestor[node.name], nodes.FunctionDef)
+                    if ancestor.qname() == "builtins.object":
+                        continue
+                    if node.name in ancestor and isinstance(
+                        ancestor[node.name], nodes.FunctionDef
                     ):
                         overridden = True
                         break
