@@ -16,7 +16,6 @@
 A way to create simple reports using python objects, primarily designed to be
 formatted as text and html.
 """
-import os
 import sys
 from io import StringIO
 from typing import TYPE_CHECKING, Iterator, List, TextIO, Union
@@ -59,7 +58,7 @@ class BaseWriter:
 
     def writeln(self, string: str = "") -> None:
         """write a line in the output buffer"""
-        self.write(string + os.linesep)
+        self.write(string + "\n")
 
     def write(self, string: str) -> None:
         """write a string in the output buffer"""

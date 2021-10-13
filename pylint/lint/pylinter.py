@@ -40,7 +40,7 @@ from pylint.lint.utils import (
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
 from pylint.reporters.ureports import nodes as report_nodes
-from pylint.typing import FileItem, ManagedMessage, ModuleDescriptionDict
+from pylint.typing import FileItem, ManagedMessage, MessageLocationTuple, ModuleDescriptionDict
 from pylint.utils import ASTWalker, FileState, LinterStats, ModuleStats, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,
@@ -1455,7 +1455,9 @@ class PyLinter(
             Message(
                 message_definition.msgid,
                 message_definition.symbol,
-                (abspath, path, module, obj, line or 1, col_offset or 0),  # type: ignore
+                MessageLocationTuple(
+                    abspath, path, module or "", obj, line or 1, col_offset or 0
+                ),
                 msg,
                 confidence,
             )

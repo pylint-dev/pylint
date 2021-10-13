@@ -411,6 +411,9 @@ class StringFormatChecker(BaseChecker):
 
     @check_messages("f-string-without-interpolation")
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
+        self._check_interpolation(node)
+
+    def _check_interpolation(self, node: nodes.JoinedStr) -> None:
         if isinstance(node.parent, nodes.FormattedValue):
             return
         for value in node.values:

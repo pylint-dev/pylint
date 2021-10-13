@@ -302,10 +302,11 @@ def _check_csv(value):
     return _splitstrip(value)
 
 
-def _comment(string):
+def _comment(string: str) -> str:
     """return string as a comment"""
     lines = [line.strip() for line in string.splitlines()]
-    return "# " + f"{os.linesep}# ".join(lines)
+    sep = "\n"
+    return "# " + f"{sep}# ".join(lines)
 
 
 def _format_option_value(optdict, value):

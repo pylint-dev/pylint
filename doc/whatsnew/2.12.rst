@@ -27,6 +27,12 @@ New checkers
 
   Closes #3197
 
+* Created new ``UnsupportedVersionChecker`` checker class that includes checks for features
+  not supported by all versions indicated by a ``py-version``.
+
+  * Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
+    is set to a version that does not support f-strings (< 3.6)
+
 
 Removed checkers
 ================
