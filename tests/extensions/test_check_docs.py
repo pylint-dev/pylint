@@ -2344,7 +2344,6 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    @set_config_directly(no_docstring_rgx=re.compile("^$"))
     def test_all_docstring_rgx(self) -> None:
         """Function that matches "check all functions" 'no-docstring-rgx' config option
         No error message is emitted.
@@ -2363,7 +2362,6 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node.body[0])
 
-    @set_config_directly(no_docstring_rgx=re.compile("^$"))
     def test_fail_empty_docstring_rgx(self) -> None:
         """Function that matches "check all functions" 'no-docstring-rgx' config option
         An error message is emitted.
@@ -2410,7 +2408,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node.body[0])
 
-    @set_config_directly(no_docstring_rgx=re.compile("^$"))
+    @set_config_directly(no_docstring_rgx=re.compile(""))
     def test_no_docstring_rgx(self) -> None:
         """Function that matches "check no functions" 'no-docstring-rgx' config option
         No error message is emitted.
