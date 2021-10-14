@@ -42,7 +42,7 @@ class TestParamDocChecker(CheckerTestCase):
     CHECKER_CLASS = DocstringParameterChecker
     CONFIG = {
         "accept_no_param_doc": False,
-        "no_docstring_rgx": "",
+        "no_docstring_rgx": re.compile("^$"),
         "docstring_min_length": -1,
     }
 
@@ -2343,6 +2343,88 @@ class TestParamDocChecker(CheckerTestCase):
         )
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
+
+    def test_all_docstring_rgx(self) -> None:
+        """Function that matches "check all functions" 'no-docstring-rgx' config option
+        No error message is emitted.
+        """
+        node = astroid.extract_node(
+            """
+        #pylint disable=missing-module-docstring, too-few-public-methods,
+        class MyClass:
+            def __init__(self, my_param: int) -> None:
+                '''
+                My init docstring
+                :param my_param: My first param
+                '''
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node.body[0])
+
+    def test_fail_empty_docstring_rgx(self) -> None:
+        """Function that matches "check all functions" 'no-docstring-rgx' config option
+        An error message is emitted.
+        """
+        node = astroid.extract_node(
+            """
+        #pylint disable=missing-module-docstring, too-few-public-methods,
+        class MyClass:
+            def __init__(self, my_param: int) -> None:
+                '''
+                My init docstring
+                '''
+        """
+        )
+        with self.assertAddsMessages(
+            MessageTest(
+                msg_id="missing-param-doc", node=node.body[0], args=("my_param",)
+            ),
+        ):
+            self.checker.visit_functiondef(node.body[0])
+
+    @set_config_directly(no_docstring_rgx=re.compile("^(?!__init__$)_"))
+    def test_fail_docparams_check_init(self) -> None:
+        """Check that __init__ is checked correctly, but other private methods aren't"""
+        node = astroid.extract_node(
+            """
+        #pylint disable=missing-module-docstring, too-few-public-methods,
+        class MyClass:
+            def __init__(self, my_param: int) -> None:
+                '''
+                My init docstring
+                '''
+
+            def _private_method(self, my_param: int) -> None:
+                '''
+                My private method
+                '''
+        """
+        )
+        with self.assertAddsMessages(
+            MessageTest(
+                msg_id="missing-param-doc", node=node.body[0], args=("my_param",)
+            )
+        ):
+            self.checker.visit_functiondef(node.body[0])
+
+    @set_config_directly(no_docstring_rgx=re.compile(""))
+    def test_no_docstring_rgx(self) -> None:
+        """Function that matches "check no functions" 'no-docstring-rgx' config option
+        No error message is emitted.
+        """
+        node = astroid.extract_node(
+            """
+        #pylint disable=missing-module-docstring, too-few-public-methods,
+        class MyClass:
+            def __init__(self, my_param: int) -> None:
+                '''
+                My init docstring
+                '''
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node.body[0])
 
     @set_config_directly(docstring_min_length=3)
     def test_skip_docstring_min_length(self) -> None:
