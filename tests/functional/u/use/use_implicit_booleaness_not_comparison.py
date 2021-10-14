@@ -3,7 +3,7 @@
 # https://github.com/PyCQA/pylint/issues/4774
 
 def github_issue_4774():
-    # Test litearls
+    # Test literals
     # https://github.com/PyCQA/pylint/issues/4774
     good_list = []
     if not good_list:
@@ -103,11 +103,30 @@ empty_literals = [[], {}, ()]
 is_empty = any(field == something_else for field in empty_literals)
 
 # this should work, but it doesn't since, input parameter only get the latest one, not all when inferred()
-# h, i, j = 1, None, [1,2,3]
+h, i, j = 1, None, [1,2,3]
 
-# def test(k):
-    # print(k == {})
+def test(k):
+    print(k == {}) #[use-implicit-booleaness-not-comparison]
 
-# test(h)
-# test(i)
-# test(j)
+test(h)
+test(i)
+test(j)
+
+# pylint: disable=import-outside-toplevel, wrong-import-position, import-error
+import numpy
+numpy_array = numpy.array([0])
+if len(numpy_array) > 0:
+    print('numpy_array')
+if len(numpy_array):
+    print('numpy_array')
+if numpy_array:
+    print('b')
+
+import pandas as pd
+pandas_df = pd.DataFrame()
+if len(pandas_df):
+    print("this works, but pylint tells me not to use len() without comparison")
+if len(pandas_df) > 0:
+    print("this works and pylint likes it, but it's not the solution intended by PEP-8")
+if pandas_df:
+    print("this does not work (truth value of dataframe is ambiguous)")

@@ -163,6 +163,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             if is_right_empty_literal ^ is_left_empty_literal:
                 # set target_node to opposite side of literal
                 target_node = node.left if is_right_empty_literal else comparator
+                literal_node = comparator if is_right_empty_literal else node.left
                 # Infer node to check
                 try:
                     instance = next(target_node.infer())
@@ -184,8 +185,27 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
 
                 # No need to check for operator when visiting compare node
                 if operator in ["==", "!=", ">=", ">", "<=", "<"]:
+                    collection_literal = "{}"
+                    if isinstance(literal_node, nodes.List):
+                        collection_literal = "[]"
+                    if isinstance(literal_node, nodes.Tuple):
+                        collection_literal = "()"
+                    variable_name = target_node.name
+                    original_comparison = (
+                        f"{variable_name} {operator} {collection_literal}"
+                    )
+                    suggestion = (
+                        f"not {variable_name}"
+                        if operator == "!="
+                        else f"{variable_name}"
+                    )
                     self.add_message(
-                        "use-implicit-booleaness-not-comparison", node=node
+                        "use-implicit-booleaness-not-comparison",
+                        args=(
+                            original_comparison,
+                            suggestion,
+                        ),
+                        node=node,
                     )
 
     @staticmethod
