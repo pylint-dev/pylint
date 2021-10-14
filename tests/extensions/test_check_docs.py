@@ -42,7 +42,7 @@ class TestParamDocChecker(CheckerTestCase):
     CHECKER_CLASS = DocstringParameterChecker
     CONFIG = {
         "accept_no_param_doc": False,
-        "no_docstring_rgx": re.compile(""),
+        "no_docstring_rgx": re.compile("^$"),
         "docstring_min_length": -1,
     }
 
@@ -2344,9 +2344,9 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    @set_config_directly(no_docstring_rgx=re.compile(""))
-    def test_skip_empty_docstring_rgx(self) -> None:
-        """Example of a function that matches an empty 'no-docstring-rgx' config option
+    @set_config_directly(no_docstring_rgx=re.compile("^$"))
+    def test_all_docstring_rgx(self) -> None:
+        """Function that matches "check all functions" 'no-docstring-rgx' config option
         No error message is emitted.
         """
         node = astroid.extract_node(
@@ -2363,9 +2363,9 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node.body[0])
 
-    @set_config_directly(no_docstring_rgx=re.compile(""))
+    @set_config_directly(no_docstring_rgx=re.compile("^$"))
     def test_fail_empty_docstring_rgx(self) -> None:
-        """Example of a function that matches an empty 'no-docstring-rgx' config option
+        """Function that matches "check all functions" 'no-docstring-rgx' config option
         An error message is emitted.
         """
         node = astroid.extract_node(
@@ -2408,6 +2408,24 @@ class TestParamDocChecker(CheckerTestCase):
                 msg_id="missing-param-doc", node=node.body[0], args=("my_param",)
             )
         ):
+            self.checker.visit_functiondef(node.body[0])
+
+    @set_config_directly(no_docstring_rgx=re.compile("^$"))
+    def test_no_docstring_rgx(self) -> None:
+        """Function that matches "check no functions" 'no-docstring-rgx' config option
+        No error message is emitted.
+        """
+        node = astroid.extract_node(
+            """
+        #pylint disable=missing-module-docstring, too-few-public-methods,
+        class MyClass:
+            def __init__(self, my_param: int) -> None:
+                '''
+                My init docstring
+                '''
+        """
+        )
+        with self.assertNoMessages():
             self.checker.visit_functiondef(node.body[0])
 
     @set_config_directly(docstring_min_length=3)
