@@ -64,7 +64,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             {"old_names": [("C1801", "len-as-condition")]},
         ),
         "C1803": (
-            "'%s' can be simplified to '%s' as an empty sequence is falsey",
+            "'%s' can be simplified to '%s' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation",
             "use-implicit-booleaness-not-comparison",
             "Used when Pylint detects that collection literal comparison is being "
             "used to check for emptiness; Use implicit booleaness instead"

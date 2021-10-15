@@ -115,18 +115,18 @@ test(j)
 # pylint: disable=import-outside-toplevel, wrong-import-position, import-error
 import numpy
 numpy_array = numpy.array([0])
-if len(numpy_array) > 0:
+if numpy_array == []:
     print('numpy_array')
-if len(numpy_array):
+if numpy_array != []:
     print('numpy_array')
-if numpy_array:
+if numpy_array >= ():
     print('b')
 
 import pandas as pd
 pandas_df = pd.DataFrame()
-if len(pandas_df):
+if pandas_df == []: #[use-implicit-booleaness-not-comparison]
     print("this works, but pylint tells me not to use len() without comparison")
-if len(pandas_df) > 0:
+if pandas_df != (): #[use-implicit-booleaness-not-comparison]
     print("this works and pylint likes it, but it's not the solution intended by PEP-8")
-if pandas_df:
+if pandas_df <= []: #[use-implicit-booleaness-not-comparison]
     print("this does not work (truth value of dataframe is ambiguous)")
