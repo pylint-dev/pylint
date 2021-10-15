@@ -95,7 +95,6 @@ from pylint.checkers.utils import (
     supports_membership_test,
     supports_setitem,
 )
-from pylint.constants import PY310_PLUS
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
@@ -896,6 +895,10 @@ accessed. Python regular expressions are accepted.",
         ),
     )
 
+    def open(self) -> None:
+        py_version = get_global_option(self, "py-version")
+        self._py310_plus = py_version >= (3, 10)
+
     @astroid.decorators.cachedproperty
     def _suggestion_mode(self):
         return get_global_option(self, "suggestion-mode", default=True)
@@ -1694,7 +1697,7 @@ accessed. Python regular expressions are accepted.",
 
     def _detect_unsupported_alternative_union_syntax(self, node: nodes.BinOp) -> None:
         """Detect if unsupported alternative Union syntax (PEP 604) was used."""
-        if PY310_PLUS:  # 310+ supports the new syntax
+        if self._py310_plus:  # 310+ supports the new syntax
             return
 
         if isinstance(
