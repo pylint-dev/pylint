@@ -1564,8 +1564,7 @@ class VariablesChecker(BaseChecker):
                     and ref_node.parent.value
                 ):
                     return False
-            return True
-        return False
+        return True
 
     def _ignore_class_scope(self, node):
         """
