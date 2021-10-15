@@ -21,6 +21,11 @@ Release date: TBA
 * Added support for ``ModuleNotFoundError`` (``import-error`` and ``no-name-in-module``).
   ``ModuleNotFoundError`` inherits from ``ImportError`` and was added in Python ``3.6``
 
+* ``undefined-variable`` now correctly flags variables which only receive a type annotations
+  and never get assigned a value
+
+  Closes #5140
+
 * Improve and flatten ``unused-wildcard-import`` message
 
   Closes #3859
@@ -29,8 +34,14 @@ Release date: TBA
   ``use-implicit-booleaness-not-len`` in order to be consistent with
   ``use-implicit-booleaness-not-comparison``.
 
-* Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
-  is set to a version that does not support f-strings (< 3.6)
+* Created new ``UnsupportedVersionChecker`` checker class that includes checks for features
+  not supported by all versions indicated by a ``py-version``.
+
+  * Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
+    is set to a version that does not support f-strings (< 3.6)
+
+* Use ``py-version`` setting for alternative union syntax check (PEP 604),
+  instead of the Python interpreter version.
 
 * Added new checker ``use-implicit-booleaness-not-comparison``: Emitted when
   collection literal comparison is being used to check for emptiness.

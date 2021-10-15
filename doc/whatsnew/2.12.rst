@@ -27,8 +27,11 @@ New checkers
 
   Closes #3197
 
-* Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
-  is set to a version that does not support f-strings (< 3.6)
+* Created new ``UnsupportedVersionChecker`` checker class that includes checks for features
+  not supported by all versions indicated by a ``py-version``.
+
+  * Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
+    is set to a version that does not support f-strings (< 3.6)
 
 * Added new checker `use-implicit-booleanness``: Emitted when using collection
   literals for boolean comparisons
@@ -61,3 +64,8 @@ Other Changes
 * Update ``literal-comparison``` checker to ignore tuple literals
 
   Closes #3031
+
+* ``undefined-variable`` now correctly flags variables which only receive a type annotations
+  and never get assigned a value
+
+  Closes #5140

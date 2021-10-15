@@ -1,32 +1,34 @@
-undefined-variable:11:19::Undefined variable 'unknown'
-undefined-variable:17:10:in_method:Undefined variable 'nomoreknown'
-undefined-variable:20:19::Undefined variable '__revision__'
-undefined-variable:22:8::Undefined variable '__revision__'
-undefined-variable:26:29:bad_default:Undefined variable 'unknown2'
-undefined-variable:29:10:bad_default:Undefined variable 'xxxx'
-undefined-variable:30:4:bad_default:Undefined variable 'augvar'
-undefined-variable:31:8:bad_default:Undefined variable 'vardel'
-undefined-variable:33:19:<lambda>:Undefined variable 'doesnotexist'
-undefined-variable:34:23:<lambda>:Undefined variable 'z'
-used-before-assignment:42:4::Using variable 'POUETT' before assignment
-used-before-assignment:55:4::Using variable 'PLOUF' before assignment
-used-before-assignment:64:11:if_branch_test:Using variable 'xxx' before assignment
-used-before-assignment:90:23:test_arguments:Using variable 'TestClass' before assignment
-used-before-assignment:94:16:TestClass:Using variable 'Ancestor' before assignment
-used-before-assignment:97:26:TestClass.MissingAncestor:Using variable 'Ancestor1' before assignment
-used-before-assignment:104:36:TestClass.test1.UsingBeforeDefinition:Using variable 'Empty' before assignment
-undefined-variable:118:10:Self:Undefined variable 'Self'
-undefined-variable:134:7::Undefined variable 'BAT'
-used-before-assignment:145:31:KeywordArgument.test1:Using variable 'enabled' before assignment
-undefined-variable:148:32:KeywordArgument.test2:Undefined variable 'disabled'
-undefined-variable:153:22:KeywordArgument.<lambda>:Undefined variable 'arg'
-undefined-variable:165:4::Undefined variable 'unicode_2'
-undefined-variable:170:4::Undefined variable 'unicode_3'
-undefined-variable:225:25:LambdaClass4.<lambda>:Undefined variable 'LambdaClass4'
-undefined-variable:233:25:LambdaClass5.<lambda>:Undefined variable 'LambdaClass5'
-used-before-assignment:254:26:func_should_fail:Using variable 'datetime' before assignment
-undefined-variable:281:18:not_using_loop_variable_accordingly:Undefined variable 'iteree'
-undefined-variable:292:27:undefined_annotation:Undefined variable 'x'
-used-before-assignment:293:7:undefined_annotation:Using variable 'x' before assignment
-undefined-variable:323:11:decorated3:Undefined variable 'x'
-undefined-variable:328:19:decorated4:Undefined variable 'y'
+undefined-variable:11:19::Undefined variable 'unknown':HIGH
+undefined-variable:17:10:in_method:Undefined variable 'nomoreknown':HIGH
+undefined-variable:20:19::Undefined variable '__revision__':HIGH
+undefined-variable:22:8::Undefined variable '__revision__':HIGH
+undefined-variable:26:29:bad_default:Undefined variable 'unknown2':HIGH
+undefined-variable:29:10:bad_default:Undefined variable 'xxxx':HIGH
+undefined-variable:30:4:bad_default:Undefined variable 'augvar':HIGH
+undefined-variable:31:8:bad_default:Undefined variable 'vardel':HIGH
+undefined-variable:33:19:<lambda>:Undefined variable 'doesnotexist':HIGH
+undefined-variable:34:23:<lambda>:Undefined variable 'z':HIGH
+used-before-assignment:42:4::Using variable 'POUETT' before assignment:HIGH
+used-before-assignment:55:4::Using variable 'PLOUF' before assignment:HIGH
+used-before-assignment:64:11:if_branch_test:Using variable 'xxx' before assignment:HIGH
+used-before-assignment:90:23:test_arguments:Using variable 'TestClass' before assignment:HIGH
+used-before-assignment:94:16:TestClass:Using variable 'Ancestor' before assignment:HIGH
+used-before-assignment:97:26:TestClass.MissingAncestor:Using variable 'Ancestor1' before assignment:HIGH
+used-before-assignment:104:36:TestClass.test1.UsingBeforeDefinition:Using variable 'Empty' before assignment:HIGH
+undefined-variable:118:10:Self:Undefined variable 'Self':HIGH
+undefined-variable:134:7::Undefined variable 'BAT':HIGH
+used-before-assignment:145:31:KeywordArgument.test1:Using variable 'enabled' before assignment:HIGH
+undefined-variable:148:32:KeywordArgument.test2:Undefined variable 'disabled':HIGH
+undefined-variable:153:22:KeywordArgument.<lambda>:Undefined variable 'arg':HIGH
+undefined-variable:165:4::Undefined variable 'unicode_2':HIGH
+undefined-variable:170:4::Undefined variable 'unicode_3':HIGH
+undefined-variable:225:25:LambdaClass4.<lambda>:Undefined variable 'LambdaClass4':HIGH
+undefined-variable:233:25:LambdaClass5.<lambda>:Undefined variable 'LambdaClass5':HIGH
+used-before-assignment:254:26:func_should_fail:Using variable 'datetime' before assignment:HIGH
+undefined-variable:281:18:not_using_loop_variable_accordingly:Undefined variable 'iteree':HIGH
+undefined-variable:292:27:undefined_annotation:Undefined variable 'x':HIGH
+used-before-assignment:293:7:undefined_annotation:Using variable 'x' before assignment:HIGH
+undefined-variable:323:11:decorated3:Undefined variable 'x':HIGH
+undefined-variable:328:19:decorated4:Undefined variable 'y':HIGH
+undefined-variable:353:10:only_type_assignment:Undefined variable 'variable':HIGH
+undefined-variable:366:10:value_assignment_after_access:Undefined variable 'variable':HIGH
