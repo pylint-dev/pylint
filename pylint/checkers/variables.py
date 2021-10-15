@@ -1555,16 +1555,16 @@ class VariablesChecker(BaseChecker):
         node: nodes.Name, name: str, defstmt: nodes.Statement
     ) -> bool:
         """Check if variable only gets assigned a type and never a value"""
-        if isinstance(defstmt, nodes.AnnAssign):
-            if not defstmt.value:
-                for ref_node in node.scope().locals[name][1:]:
-                    if ref_node.lineno < node.lineno:
-                        if not (
-                            isinstance(ref_node.parent, nodes.AnnAssign)
-                            and ref_node.parent.value
-                        ):
-                            return False
-                return True
+        if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
+            return False
+        for ref_node in node.scope().locals[name][1:]:
+            if ref_node.lineno < node.lineno:
+                if not (
+                    isinstance(ref_node.parent, nodes.AnnAssign)
+                    and ref_node.parent.value
+                ):
+                    return False
+            return True
         return False
 
     def _ignore_class_scope(self, node):
