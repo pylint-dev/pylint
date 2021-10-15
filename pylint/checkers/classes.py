@@ -241,18 +241,18 @@ def _has_different_parameters_default_value(original, overridden):
             nodes.Tuple: lambda a, b: a.elts == b.elts,
             nodes.List: lambda a, b: a.elts == b.elts,
             nodes.Dict: lambda a, b: a.items == b.items,
-            nodes.Name: lambda a, b: set(a.infer()) == set(b.infer())
+            nodes.Name: lambda a, b: set(a.infer()) == set(b.infer()),
         }
-        handled_types = tuple(
-            astroid_type for astroid_type in astroid_type_comparators
-        )
+        handled_types = tuple(astroid_type for astroid_type in astroid_type_comparators)
         original_type = _get_node_type(original_default, handled_types)
         if original_type:
             # We handle only astroid types that are inside the dict astroid_type_compared_attr
             if not isinstance(overridden_default, original_type):
                 # Two args with same name but different types
                 return True
-            if not astroid_type_comparators[original_type](original_default, overridden_default):
+            if not astroid_type_comparators[original_type](
+                original_default, overridden_default
+            ):
                 # Two args with same type but different values
                 return True
     return False
