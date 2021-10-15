@@ -35,6 +35,8 @@ Release date: TBA
   * Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
     is set to a version that does not support f-strings (< 3.6)
 
+* Fix ``useless-super-delegation`` false positive when default keyword argument is a variable.
+
 
 What's New in Pylint 2.11.2?
 ============================
