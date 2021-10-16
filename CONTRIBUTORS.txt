@@ -554,3 +554,5 @@ contributors:
 * Samuel Forestier: contributor
 
 * James DesLauriers: contributor
+
+* Youngsoo Sung: contributor
