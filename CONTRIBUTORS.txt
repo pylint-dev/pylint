@@ -552,3 +552,5 @@ contributors:
 * Jaehoon Hwang (jaehoonhwang): contributor
 
 * Samuel Forestier: contributor
+
+* James DesLauriers: contributor

@@ -1452,9 +1452,13 @@ class BasicChecker(_BasicChecker):
         for k, _ in node.items:
             if isinstance(k, nodes.Const):
                 key = k.value
-                if key in keys:
-                    self.add_message("duplicate-key", node=node, args=key)
-                keys.add(key)
+            elif isinstance(k, nodes.Attribute):
+                key = k.as_string()
+            else:
+                continue
+            if key in keys:
+                self.add_message("duplicate-key", node=node, args=key)
+            keys.add(key)
 
     def visit_tryfinally(self, node: nodes.TryFinally) -> None:
         """update try...finally flag"""
