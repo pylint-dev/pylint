@@ -84,6 +84,7 @@ from pylint.checkers.utils import (
 )
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
+from pylint.utils.utils import get_global_option
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -1085,6 +1086,8 @@ class BasicChecker(_BasicChecker):
 
     def open(self):
         """initialize visit variables and statistics"""
+        py_version = get_global_option(self, "py-version")
+        self._py38_plus = py_version >= (3, 8)
         self._tryfinallys = []
         self.linter.stats.reset_node_count()
 
@@ -1528,15 +1531,16 @@ class BasicChecker(_BasicChecker):
             if isinstance(argument, (nodes.List, nodes.Tuple)):
                 return
 
-            if isinstance(argument, astroid.Instance):
+            # dicts are reversible, but only from Python 3.8 onwards. Prior to
+            # that, any class based on dict must explicitly provide a
+            # __reversed__ method
+            if not self._py38_plus and isinstance(argument, astroid.Instance):
                 if any(
                     ancestor.name == "dict" and utils.is_builtin_object(ancestor)
                     for ancestor in itertools.chain(
                         (argument._proxied,), argument._proxied.ancestors()
                     )
                 ):
-                    # Mappings aren't accepted by reversed(), unless
-                    # they provide explicitly a __reversed__ method.
                     try:
                         argument.locals[REVERSED_PROTOCOL_METHOD]
                     except KeyError:
