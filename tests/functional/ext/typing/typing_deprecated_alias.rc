@@ -1,8 +1,8 @@
 [master]
+py-version=3.9
 load-plugins=pylint.extensions.typing
 
 [testoptions]
-min_pyver=3.8
+min_pyver=3.9
 
 [typing]
-py-version=3.9

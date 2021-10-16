@@ -52,3 +52,8 @@ Other Changes
 * In length checker, ``len-as-condition`` has been renamed as
   ``use-implicit-booleaness-not-len`` in order to be consistent with
   ``use-implicit-booleaness-not-comparison``.
+
+* ``undefined-variable`` now correctly flags variables which only receive a type annotations
+  and never get assigned a value
+
+  Closes #5140

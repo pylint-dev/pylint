@@ -338,3 +338,37 @@ if TYPE_CHECKING:
 else:
     from types import GenericAlias
     object().__class_getitem__ = classmethod(GenericAlias)
+
+# Tests for annotation of variables and potentially undefinition
+
+def value_and_type_assignment():
+    """The variable assigned a value and type"""
+    variable: int = 2
+    print(variable)
+
+
+def only_type_assignment():
+    """The variable never gets assigned a value"""
+    variable: int
+    print(variable)  # [undefined-variable]
+
+
+def both_type_and_value_assignment():
+    """The variable first gets a type and subsequently a value"""
+    variable: int
+    variable = 1
+    print(variable)
+
+
+def value_assignment_after_access():
+    """The variable gets a value after it has been accessed"""
+    variable: int
+    print(variable)  # [undefined-variable]
+    variable = 1
+
+
+def value_assignment_from_iterator():
+    """The variables gets a value from an iterator"""
+    variable: int
+    for variable in (1, 2):
+        print(variable)

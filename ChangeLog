@@ -21,6 +21,11 @@ Release date: TBA
 * Added support for ``ModuleNotFoundError`` (``import-error`` and ``no-name-in-module``).
   ``ModuleNotFoundError`` inherits from ``ImportError`` and was added in Python ``3.6``
 
+* ``undefined-variable`` now correctly flags variables which only receive a type annotations
+  and never get assigned a value
+
+  Closes #5140
+
 * Improve and flatten ``unused-wildcard-import`` message
 
   Closes #3859
@@ -38,6 +43,9 @@ Release date: TBA
 * Properly emit ``duplicate-key`` when Enum members are duplicate dictionary keys
 
   Closes #5150
+
+* Use ``py-version`` setting for alternative union syntax check (PEP 604),
+  instead of the Python interpreter version.
 
 
 What's New in Pylint 2.11.2?
