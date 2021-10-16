@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, multiple-statements, useless-object-inheritance,import-outside-toplevel
-# pylint: disable=too-few-public-methods, no-init, no-self-use,bare-except,broad-except, import-error
+# pylint: disable=too-few-public-methods, no-init, no-self-use,bare-except,broad-except, import-error, global-variable-not-assigned
 from __future__ import print_function
 
 # pylint: disable=wrong-import-position
@@ -372,3 +372,11 @@ def value_assignment_from_iterator():
     variable: int
     for variable in (1, 2):
         print(variable)
+
+
+GLOBAL_VAR: int
+
+def only_type_assignment_global_var():
+    """The global variable never gets assigned a value"""
+    global GLOBAL_VAR
+    print(GLOBAL_VAR) # [undefined-variable]
