@@ -69,3 +69,8 @@ Other Changes
   and never get assigned a value
 
   Closes #5140
+
+* ``mising-param-doc`` now correctly parses asterisks for variable length and
+  keyword parameters
+
+  Closes #3733
