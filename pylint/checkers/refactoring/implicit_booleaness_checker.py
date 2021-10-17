@@ -64,7 +64,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             {"old_names": [("C1801", "len-as-condition")]},
         ),
         "C1803": (
-            "'%s' can be simplified to '%s' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation",
+            "'%s' can be simplified to '%s' as an empty sequence is falsey",
             "use-implicit-booleaness-not-comparison",
             "Used when Pylint detects that collection literal comparison is being "
             "used to check for emptiness; Use implicit booleaness instead"
@@ -166,20 +166,19 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                 literal_node = comparator if is_right_empty_literal else node.left
                 # Infer node to check
                 try:
-                    instance = next(target_node.infer())
+                    target_instance = next(target_node.infer())
                 except astroid.InferenceError:
                     # Probably undefined-variable, continue with check
                     continue
-                mother_classes = self.base_classes_of_node(instance)
+                mother_classes = self.base_classes_of_node(target_instance)
                 is_base_comprehension_type = any(
                     t in mother_classes for t in ("tuple", "list", "dict")
                 )
 
-                # Prevent false posiive by checking instance __bool__ implementation
-                # Also Check if it's a type of either list, set, dict
-                if (
-                    not self.instance_has_bool(instance)
-                    and not is_base_comprehension_type
+                # Only time we bypass check is when target_node is not inherited by
+                # collection literals and have its own __bool__ implementation.
+                if not is_base_comprehension_type and self.instance_has_bool(
+                    target_instance
                 ):
                     continue
 

@@ -1,24 +1,24 @@
-use-implicit-booleaness-not-comparison:13:7:github_issue_4774:'bad_list == []' can be simplified to 'bad_list' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:21:3::'empty_tuple == ()' can be simplified to 'empty_tuple' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:24:3::'empty_list == []' can be simplified to 'empty_list' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:27:3::'empty_dict == {}' can be simplified to 'empty_dict' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:30:3::'empty_tuple == ()' can be simplified to 'empty_tuple' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:33:3::'empty_list == []' can be simplified to 'empty_list' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:36:3::'empty_dict == {}' can be simplified to 'empty_dict' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:41:11:bad_tuple_return:'t == ()' can be simplified to 't' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:45:11:bad_list_return:'b == []' can be simplified to 'b' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:49:11:bad_dict_return:'c == {}' can be simplified to 'c' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:51:7::'empty_tuple == ()' can be simplified to 'empty_tuple' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:52:7::'empty_list == []' can be simplified to 'empty_list' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:53:7::'empty_dict != {}' can be simplified to 'not empty_dict' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:54:7::'empty_tuple < ()' can be simplified to 'empty_tuple' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:55:7::'empty_list <= []' can be simplified to 'empty_list' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:56:7::'empty_tuple > ()' can be simplified to 'empty_tuple' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:57:7::'empty_list >= []' can be simplified to 'empty_list' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:86:3::'a == []' can be simplified to 'a' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:94:3::'e == []' can be simplified to 'e' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:94:15::'f == {}' can be simplified to 'f' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:109:10:test:'k == {}' can be simplified to 'k' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:127:3::'pandas_df == []' can be simplified to 'pandas_df' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:129:3::'pandas_df != ()' can be simplified to 'not pandas_df' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
-use-implicit-booleaness-not-comparison:131:3::'pandas_df <= []' can be simplified to 'pandas_df' as an empty sequence is falsey; for 3rd party libarires, follow their recommendation:HIGH
+use-implicit-booleaness-not-comparison:13:7:github_issue_4774:'bad_list == []' can be simplified to 'bad_list' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:21:3::'empty_tuple == ()' can be simplified to 'empty_tuple' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:24:3::'empty_list == []' can be simplified to 'empty_list' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:27:3::'empty_dict == {}' can be simplified to 'empty_dict' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:30:3::'empty_tuple == ()' can be simplified to 'empty_tuple' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:33:3::'empty_list == []' can be simplified to 'empty_list' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:36:3::'empty_dict == {}' can be simplified to 'empty_dict' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:41:11:bad_tuple_return:'t == ()' can be simplified to 't' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:45:11:bad_list_return:'b == []' can be simplified to 'b' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:49:11:bad_dict_return:'c == {}' can be simplified to 'c' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:51:7::'empty_tuple == ()' can be simplified to 'empty_tuple' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:52:7::'empty_list == []' can be simplified to 'empty_list' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:53:7::'empty_dict != {}' can be simplified to 'not empty_dict' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:54:7::'empty_tuple < ()' can be simplified to 'empty_tuple' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:55:7::'empty_list <= []' can be simplified to 'empty_list' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:56:7::'empty_tuple > ()' can be simplified to 'empty_tuple' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:57:7::'empty_list >= []' can be simplified to 'empty_list' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:82:3::'a == []' can be simplified to 'a' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:94:3::'e == []' can be simplified to 'e' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:94:15::'f == {}' can be simplified to 'f' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:112:10:test_with_default:'k == {}' can be simplified to 'k' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:126:3::'numpy_array == []' can be simplified to 'numpy_array' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:128:3::'numpy_array != []' can be simplified to 'not numpy_array' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:130:3::'numpy_array >= ()' can be simplified to 'numpy_array' as an empty sequence is falsey:HIGH

@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, missing-module-docstring, invalid-name
-# pylint: disable=too-few-public-methods, line-too-long
+# pylint: disable=too-few-public-methods, line-too-long, dangerous-default-value
 # https://github.com/PyCQA/pylint/issues/4774
 
 def github_issue_4774():
@@ -79,11 +79,11 @@ class YesBool:
 
 # Shouldn't be triggered
 a = NoBool()
-if [] == a:
+if [] == a: # [use-implicit-booleaness-not-comparison]
     pass
 
 a = YesBool()
-if a == []: # [use-implicit-booleaness-not-comparison]
+if a == []:
     pass
 
 # compound test cases
@@ -106,27 +106,37 @@ is_empty = any(field == something_else for field in empty_literals)
 h, i, j = 1, None, [1,2,3]
 
 def test(k):
-    print(k == {}) #[use-implicit-booleaness-not-comparison]
+    print(k == {})
+
+def test_with_default(k={}):
+    print(k == {}) # [use-implicit-booleaness-not-comparison]
+    print(k == 1)
 
 test(h)
 test(i)
 test(j)
 
+test_with_default(h)
+test_with_default(i)
+test_with_default(j)
+
 # pylint: disable=import-outside-toplevel, wrong-import-position, import-error
+# Numpy has its own implementation of __bool__, but base class has list, that's why the comparison check is happening
 import numpy
 numpy_array = numpy.array([0])
-if numpy_array == []:
+if numpy_array == []: # [use-implicit-booleaness-not-comparison]
     print('numpy_array')
-if numpy_array != []:
+if numpy_array != []: # [use-implicit-booleaness-not-comparison]
     print('numpy_array')
-if numpy_array >= ():
+if numpy_array >= (): # [use-implicit-booleaness-not-comparison]
     print('b')
 
+# pandas has its own implementations of __bool__ and is not subclass of list, dict, or tuple; that's why comparison check is not happening
 import pandas as pd
 pandas_df = pd.DataFrame()
-if pandas_df == []: #[use-implicit-booleaness-not-comparison]
+if pandas_df == []:
     print("this works, but pylint tells me not to use len() without comparison")
-if pandas_df != (): #[use-implicit-booleaness-not-comparison]
+if pandas_df != ():
     print("this works and pylint likes it, but it's not the solution intended by PEP-8")
-if pandas_df <= []: #[use-implicit-booleaness-not-comparison]
+if pandas_df <= []:
     print("this does not work (truth value of dataframe is ambiguous)")
