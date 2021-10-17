@@ -23,6 +23,7 @@ from pylint.constants import (
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
+    MSG_TYPES_LONG,
     MSG_TYPES_STATUS,
 )
 from pylint.lint.expand_modules import expand_modules
@@ -37,14 +38,14 @@ from pylint.lint.utils import (
     get_fatal_error_message,
     prepare_crash_report,
 )
-from pylint.message import (
-    Message,
-    MessageDefinition,
-    MessageDefinitionStore,
-    MessagesHandlerMixIn,
-)
+from pylint.message import Message, MessageDefinition, MessageDefinitionStore
 from pylint.reporters.ureports import nodes as report_nodes
-from pylint.typing import FileItem, MessageLocationTuple, ModuleDescriptionDict
+from pylint.typing import (
+    FileItem,
+    ManagedMessage,
+    MessageLocationTuple,
+    ModuleDescriptionDict,
+)
 from pylint.utils import ASTWalker, FileState, LinterStats, ModuleStats, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,
@@ -163,7 +164,6 @@ MSGS = {
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
     config.OptionsManagerMixIn,
-    MessagesHandlerMixIn,
     reporters.ReportsHandlerMixIn,
     checkers.BaseTokenChecker,
 ):
@@ -540,6 +540,7 @@ class PyLinter(
         # Attributes related to message (state) handling
         self.msg_status = 0
         self._msgs_state: Dict[str, bool] = {}
+        self._by_id_managed_msgs: List[ManagedMessage] = []
 
         reporters.ReportsHandlerMixIn.__init__(self)
         super().__init__(
@@ -1516,3 +1517,152 @@ class PyLinter(
                 message_definition.msgid,
                 line,
             )
+
+    # Setting the state (disabled/enabled) of messages and registering them
+
+    def _message_symbol(self, msgid: str) -> List[str]:
+        """Get the message symbol of the given message id
+
+        Return the original message id if the message does not
+        exist.
+        """
+        try:
+            return [md.symbol for md in self.msgs_store.get_message_definitions(msgid)]
+        except exceptions.UnknownMessageError:
+            return [msgid]
+
+    def _set_one_msg_status(
+        self, scope: str, msg: MessageDefinition, line: Optional[int], enable: bool
+    ) -> None:
+        """Set the status of an individual message"""
+        if scope == "module":
+            self.file_state.set_msg_status(msg, line, enable)
+            if not enable and msg.symbol != "locally-disabled":
+                self.add_message(
+                    "locally-disabled", line=line, args=(msg.symbol, msg.msgid)
+                )
+        else:
+            msgs = self._msgs_state
+            msgs[msg.msgid] = enable
+            # sync configuration object
+            self.config.enable = [
+                self._message_symbol(mid) for mid, val in sorted(msgs.items()) if val
+            ]
+            self.config.disable = [
+                self._message_symbol(mid)
+                for mid, val in sorted(msgs.items())
+                if not val
+            ]
+
+    def _set_msg_status(
+        self,
+        msgid: str,
+        enable: bool,
+        scope: str = "package",
+        line: Optional[int] = None,
+        ignore_unknown: bool = False,
+    ) -> None:
+        """Do some tests and then iterate over message defintions to set state"""
+        assert scope in ("package", "module")
+        if msgid == "all":
+            for _msgid in MSG_TYPES:
+                self._set_msg_status(_msgid, enable, scope, line, ignore_unknown)
+            return
+
+        # msgid is a category?
+        category_id = msgid.upper()
+        if category_id not in MSG_TYPES:
+            category_id_formatted = MSG_TYPES_LONG.get(category_id)
+        else:
+            category_id_formatted = category_id
+        if category_id_formatted is not None:
+            for _msgid in self.msgs_store._msgs_by_category.get(category_id_formatted):
+                self._set_msg_status(_msgid, enable, scope, line)
+            return
+
+        # msgid is a checker name?
+        if msgid.lower() in self._checkers:
+            for checker in self._checkers[msgid.lower()]:
+                for _msgid in checker.msgs:
+                    self._set_msg_status(_msgid, enable, scope, line)
+            return
+
+        # msgid is report id?
+        if msgid.lower().startswith("rp"):
+            if enable:
+                self.enable_report(msgid)
+            else:
+                self.disable_report(msgid)
+            return
+
+        try:
+            # msgid is a symbolic or numeric msgid.
+            message_definitions = self.msgs_store.get_message_definitions(msgid)
+        except exceptions.UnknownMessageError:
+            if ignore_unknown:
+                return
+            raise
+        for message_definition in message_definitions:
+            self._set_one_msg_status(scope, message_definition, line, enable)
+
+    def _register_by_id_managed_msg(
+        self, msgid_or_symbol: str, line: Optional[int], is_disabled: bool = True
+    ) -> None:
+        """If the msgid is a numeric one, then register it to inform the user
+        it could furnish instead a symbolic msgid."""
+        if msgid_or_symbol[1:].isdigit():
+            try:
+                symbol = self.msgs_store.message_id_store.get_symbol(
+                    msgid=msgid_or_symbol
+                )
+            except exceptions.UnknownMessageError:
+                return
+            managed = ManagedMessage(
+                self.current_name, msgid_or_symbol, symbol, line, is_disabled
+            )
+            self._by_id_managed_msgs.append(managed)
+
+    def disable(
+        self,
+        msgid: str,
+        scope: str = "package",
+        line: Optional[int] = None,
+        ignore_unknown: bool = False,
+    ) -> None:
+        """Disable a message for a scope"""
+        self._set_msg_status(
+            msgid, enable=False, scope=scope, line=line, ignore_unknown=ignore_unknown
+        )
+        self._register_by_id_managed_msg(msgid, line)
+
+    def disable_next(
+        self,
+        msgid: str,
+        scope: str = "package",
+        line: Optional[int] = None,
+        ignore_unknown: bool = False,
+    ) -> None:
+        """Disable a message for the next line"""
+        if not line:
+            raise exceptions.NoLineSuppliedError
+        self._set_msg_status(
+            msgid,
+            enable=False,
+            scope=scope,
+            line=line + 1,
+            ignore_unknown=ignore_unknown,
+        )
+        self._register_by_id_managed_msg(msgid, line + 1)
+
+    def enable(
+        self,
+        msgid: str,
+        scope: str = "package",
+        line: Optional[int] = None,
+        ignore_unknown: bool = False,
+    ) -> None:
+        """Enable a message for a scope"""
+        self._set_msg_status(
+            msgid, enable=True, scope=scope, line=line, ignore_unknown=ignore_unknown
+        )
+        self._register_by_id_managed_msg(msgid, line, is_disabled=False)

@@ -1580,7 +1580,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
         else:
             return
-        if expr_list == target_list != []:
+        if expr_list == target_list and expr_list:
             args: Optional[Tuple[str]] = None
             inferred = utils.safe_infer(node.iter)
             if isinstance(node.parent, nodes.DictComp) and isinstance(

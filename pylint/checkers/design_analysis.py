@@ -178,7 +178,7 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
         "typing.ItemsView",
         "typing.ValuesView",
         "typing.ContextManager",
-        "typing.AsyncContextManger",
+        "typing.AsyncContextManager",
         "typing.Hashable",
         "typing.Sized",
     )

@@ -20,10 +20,6 @@ from pylint import checkers, interfaces
 from pylint.checkers import utils
 
 
-def _is_constant_empty_str(node):
-    return isinstance(node, nodes.Const) and node.value == ""
-
-
 class CompareToEmptyStringChecker(checkers.BaseChecker):
     """Checks for comparisons to empty string.
     Most of the times you should use the fact that empty strings are false.
@@ -65,10 +61,10 @@ class CompareToEmptyStringChecker(checkers.BaseChecker):
             error_detected = False
 
             # x ?? ""
-            if _is_constant_empty_str(op_1) and op_2 in _operators:
+            if utils.is_empty_str_literal(op_1) and op_2 in _operators:
                 error_detected = True
             # '' ?? X
-            elif op_2 in _operators and _is_constant_empty_str(op_3):
+            elif op_2 in _operators and utils.is_empty_str_literal(op_3):
                 error_detected = True
 
             if error_detected:

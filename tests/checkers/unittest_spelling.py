@@ -135,30 +135,30 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @set_config(spelling_dict=spell_dict)
     def test_skip_shebangs(self):
         self.checker.process_tokens(_tokenize_str("#!/usr/bin/env python"))
-        assert self.linter.release_messages() == []
+        assert not self.linter.release_messages()
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_python_coding_comments(self):
         self.checker.process_tokens(_tokenize_str("# -*- coding: utf-8 -*-"))
-        assert self.linter.release_messages() == []
+        assert not self.linter.release_messages()
         self.checker.process_tokens(_tokenize_str("# coding=utf-8"))
-        assert self.linter.release_messages() == []
+        assert not self.linter.release_messages()
         self.checker.process_tokens(_tokenize_str("# vim: set fileencoding=utf-8 :"))
-        assert self.linter.release_messages() == []
+        assert not self.linter.release_messages()
         # Now with a shebang first
         self.checker.process_tokens(
             _tokenize_str("#!/usr/bin/env python\n# -*- coding: utf-8 -*-")
         )
-        assert self.linter.release_messages() == []
+        assert not self.linter.release_messages()
         self.checker.process_tokens(
             _tokenize_str("#!/usr/bin/env python\n# coding=utf-8")
         )
-        assert self.linter.release_messages() == []
+        assert not self.linter.release_messages()
         self.checker.process_tokens(
             _tokenize_str("#!/usr/bin/env python\n# vim: set fileencoding=utf-8 :")
         )
-        assert self.linter.release_messages() == []
+        assert not self.linter.release_messages()
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
@@ -166,13 +166,13 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
         self.checker.process_tokens(
             _tokenize_str("# Line 1\n Line 2\n# pylint: disable=ungrouped-imports")
         )
-        assert self.linter.release_messages() == []
+        assert not self.linter.release_messages()
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_words_with_numbers(self):
         self.checker.process_tokens(_tokenize_str("\n# 0ne\n# Thr33\n# Sh3ll"))
-        assert self.linter.release_messages() == []
+        assert not self.linter.release_messages()
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
@@ -244,7 +244,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
                 f'class TestClass(object):\n   """{ccn} comment"""\n   pass'
             )
             self.checker.visit_classdef(stmt)
-            assert self.linter.release_messages() == []
+            assert not self.linter.release_messages()
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
@@ -253,19 +253,19 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             'def fff(param_name):\n   """test param_name"""\n   pass'
         )
         self.checker.visit_functiondef(stmt)
-        assert self.linter.release_messages() == []
+        assert not self.linter.release_messages()
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_email_address(self):
         self.checker.process_tokens(_tokenize_str("# uname@domain.tld"))
-        assert self.linter.release_messages() == []
+        assert not self.linter.release_messages()
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_urls(self):
         self.checker.process_tokens(_tokenize_str("# https://github.com/rfk/pyenchant"))
-        assert self.linter.release_messages() == []
+        assert not self.linter.release_messages()
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
