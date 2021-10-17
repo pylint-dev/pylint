@@ -26,6 +26,10 @@ Release date: TBA
 
   Closes #5140
 
+* Fix bug with importing namespace packages with relative imports
+
+  Closes #2967 and #5131
+
 * Improve and flatten ``unused-wildcard-import`` message
 
   Closes #3859
@@ -47,6 +51,23 @@ Release date: TBA
 * Use ``py-version`` setting for alternative union syntax check (PEP 604),
   instead of the Python interpreter version.
 
+* Subclasses of ``dict`` are regarded as reversible by the ``bad-reversed-sequence`` checker
+  (Python 3.8 onwards).
+
+  Closes #4981
+
+* Added new checker ``use-implicit-booleaness-not-comparison``: Emitted when
+  collection literal comparison is being used to check for emptiness.
+
+  Closes #4774
+
+* Update ``literal-comparison``` checker to ignore tuple literals
+
+  Closes #3031
+
+* Fix ``missing-function-docstring`` not being able to check ``__init__`` and other
+  magic methods even if the ``no-docstring-rgx`` setting was set to do so
+
 * Added ``using-final-in-unsupported-version`` checker. Issued when ``py-version``
   is set to a version that does not support ``typing.final`` (< 3.8)
 
@@ -57,6 +78,10 @@ Release date: TBA
 
 ..
   Put bug fixes that should not wait for a new minor version here
+
+* Pyreverse - Add the project root directory to sys.path
+
+  Closes #2479
 
 * Don't emit ``consider-using-f-string`` if ``py-version`` is set to Python < ``3.6``.
   ``f-strings`` were added in Python ``3.6``

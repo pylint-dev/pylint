@@ -513,7 +513,7 @@ class StringFormatChecker(BaseChecker):
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
             if positional_arguments or num_args:
-                empty = any(True for field in named_fields if field == "")
+                empty = any(field == "" for field in named_fields)
                 if named_arguments or empty:
                     # Verify the required number of positional arguments
                     # only if the .format got at least one keyword argument.

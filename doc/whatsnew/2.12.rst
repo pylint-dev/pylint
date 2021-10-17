@@ -33,6 +33,14 @@ New checkers
   * Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
     is set to a version that does not support f-strings (< 3.6)
 
+* Added new checker `use-implicit-booleanness``: Emitted when using collection
+  literals for boolean comparisons
+
+* Added new checker ``use-implicit-booleaness-not-comparison``: Emitted when
+  collection literal comparison is being used to check for emptiness.
+
+  Closes #4774
+
 * Added ``using-final-in-unsupported-version`` checker. Issued when ``py-version``
   is set to a version that does not support typing.final (< 3.8)
 
@@ -55,6 +63,10 @@ Other Changes
 * In length checker, ``len-as-condition`` has been renamed as
   ``use-implicit-booleaness-not-len`` in order to be consistent with
   ``use-implicit-booleaness-not-comparison``.
+
+* Update ``literal-comparison``` checker to ignore tuple literals
+
+  Closes #3031
 
 * ``undefined-variable`` now correctly flags variables which only receive a type annotations
   and never get assigned a value

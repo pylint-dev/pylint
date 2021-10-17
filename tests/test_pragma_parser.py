@@ -32,7 +32,7 @@ def test_simple_pragma_no_messages() -> None:
     assert match
     for pragma_repr in parse_pragma(match.group(2)):
         assert pragma_repr.action == "skip-file"
-        assert pragma_repr.messages == []
+        assert not pragma_repr.messages
 
 
 def test_simple_pragma_multiple_messages() -> None:

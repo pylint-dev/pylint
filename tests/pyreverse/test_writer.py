@@ -51,6 +51,14 @@ _DEFAULTS = {
     "output_directory": "",
 }
 
+TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
+
+DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
+COLORIZED_DOT_FILES = ["packages_colorized.dot", "classes_colorized.dot"]
+VCG_FILES = ["packages_No_Name.vcg", "classes_No_Name.vcg"]
+PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
+COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
+
 
 class Config:
     """config object for tests"""
@@ -74,17 +82,10 @@ def _file_lines(path: str) -> List[str]:
     return [line for line in lines if line]
 
 
-DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
-COLORIZED_DOT_FILES = ["packages_colorized.dot", "classes_colorized.dot"]
-VCG_FILES = ["packages_No_Name.vcg", "classes_No_Name.vcg"]
-PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
-COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
-
-
 @pytest.fixture()
 def setup_dot(default_config: PyreverseConfig, get_project: Callable) -> Iterator:
     writer = DiagramWriter(default_config)
-    project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
+    project = get_project(TEST_DATA_DIR)
     yield from _setup(project, default_config, writer)
 
 
@@ -93,23 +94,21 @@ def setup_colorized_dot(
     colorized_dot_config: PyreverseConfig, get_project: Callable
 ) -> Iterator:
     writer = DiagramWriter(colorized_dot_config)
-    project = get_project(
-        os.path.join(os.path.dirname(__file__), "..", "data"), name="colorized"
-    )
+    project = get_project(TEST_DATA_DIR, name="colorized")
     yield from _setup(project, colorized_dot_config, writer)
 
 
 @pytest.fixture()
 def setup_vcg(vcg_config: PyreverseConfig, get_project: Callable) -> Iterator:
     writer = DiagramWriter(vcg_config)
-    project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
+    project = get_project(TEST_DATA_DIR)
     yield from _setup(project, vcg_config, writer)
 
 
 @pytest.fixture()
 def setup_puml(puml_config: PyreverseConfig, get_project: Callable) -> Iterator:
     writer = DiagramWriter(puml_config)
-    project = get_project(os.path.join(os.path.dirname(__file__), "..", "data"))
+    project = get_project(TEST_DATA_DIR)
     yield from _setup(project, puml_config, writer)
 
 
@@ -118,9 +117,7 @@ def setup_colorized_puml(
     colorized_puml_config: PyreverseConfig, get_project: Callable
 ) -> Iterator:
     writer = DiagramWriter(colorized_puml_config)
-    project = get_project(
-        os.path.join(os.path.dirname(__file__), "..", "data"), name="colorized"
-    )
+    project = get_project(TEST_DATA_DIR, name="colorized")
     yield from _setup(project, colorized_puml_config, writer)
 
 

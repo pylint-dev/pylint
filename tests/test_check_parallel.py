@@ -197,7 +197,7 @@ class TestCheckParallelFramework:
             _,  # mapreduce_data
         ) = worker_check_single_file(_gen_file_data())
         assert name == "--test-file_data-name-0--"
-        assert [] == msgs
+        assert not msgs
         no_errors_status = 0
         assert no_errors_status == msg_status
         assert {
@@ -211,7 +211,7 @@ class TestCheckParallelFramework:
                 "warning": 0,
             }
         } == stats.by_module
-        assert {} == stats.by_msg
+        assert not stats.by_msg
         assert stats.convention == 0
         assert stats.error == 0
         assert stats.fatal == 0
@@ -241,7 +241,7 @@ class TestCheckParallelFramework:
 
         # Ensure we return the same data as the single_file_no_checkers test
         assert name == "--test-file_data-name-0--"
-        assert [] == msgs
+        assert not msgs
         no_errors_status = 0
         assert no_errors_status == msg_status
         assert {
@@ -255,7 +255,7 @@ class TestCheckParallelFramework:
                 "warning": 0,
             }
         } == stats.by_module
-        assert {} == stats.by_msg
+        assert not stats.by_msg
         assert stats.convention == 0
         assert stats.error == 0
         assert stats.fatal == 0
@@ -304,7 +304,7 @@ class TestCheckParallel:
                 "warning": 0,
             }
         } == linter.stats.by_module
-        assert linter.stats.by_msg == {}
+        assert not linter.stats.by_msg
         assert linter.stats.convention == 0
         assert linter.stats.error == 0
         assert linter.stats.fatal == 0
@@ -328,7 +328,7 @@ class TestCheckParallel:
                 "warning": 0,
             }
         } == linter.stats.by_module
-        assert linter.stats.by_msg == {}
+        assert not linter.stats.by_msg
         assert linter.stats.convention == 0
         assert linter.stats.error == 0
         assert linter.stats.fatal == 0
@@ -366,7 +366,7 @@ class TestCheckParallel:
                 "warning": 0,
             }
         } == linter.stats.by_module
-        assert linter.stats.by_msg == {}
+        assert not linter.stats.by_msg
         assert linter.stats.convention == 0
         assert linter.stats.error == 0
         assert linter.stats.fatal == 0
