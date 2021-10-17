@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 class PylintIncompatiblePythonError(Exception):
-    def __init__(self, version_info: sys._version_info) -> None:
+    def __init__(self, version_info: "sys._version_info") -> None:
         super().__init__(
             "The last version compatible with Python <= 3.6.2 is pylint '2.9.3'. "
             f"You're using {'.'.join(map(str, version_info[:3]))}. "
