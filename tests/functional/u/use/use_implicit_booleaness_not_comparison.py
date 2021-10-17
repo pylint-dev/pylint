@@ -77,7 +77,7 @@ class YesBool:
         return self.a
 
 
-# Shouldn't be triggered
+# Should be triggered
 a = NoBool()
 if [] == a: # [use-implicit-booleaness-not-comparison]
     pass
@@ -135,8 +135,8 @@ if numpy_array >= (): # [use-implicit-booleaness-not-comparison]
 import pandas as pd
 pandas_df = pd.DataFrame()
 if pandas_df == []:
-    print("this works, but pylint tells me not to use len() without comparison")
+    pass
 if pandas_df != ():
-    print("this works and pylint likes it, but it's not the solution intended by PEP-8")
+    pass
 if pandas_df <= []:
-    print("this does not work (truth value of dataframe is ambiguous)")
+    print("truth value of a dataframe is ambiguous") 
