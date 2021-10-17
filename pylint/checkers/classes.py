@@ -243,7 +243,9 @@ def _has_different_parameters_default_value(original, overridden):
             nodes.Dict: lambda a, b: a.items == b.items,
             nodes.Name: lambda a, b: set(a.infer()) == set(b.infer()),
         }
-        original_type = _get_node_type(original_default, astroid_type_comparators.keys())
+        original_type = _get_node_type(
+            original_default, astroid_type_comparators.keys()
+        )
         if original_type:
             # We handle only astroid types that are inside the dict astroid_type_compared_attr
             if not isinstance(overridden_default, original_type):
