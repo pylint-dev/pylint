@@ -28,9 +28,6 @@ class SecondBadReversed(object):
     def __getitem__(self, index):
         return index
 
-class ThirdBadReversed(dict):
-    """ dict subclass """
-
 def uninferable(seq):
     """ This can't be inferred at this moment,
     make sure we don't have a false positive.
@@ -50,7 +47,6 @@ def test(path):
     seq = reversed(BadReversed()) # [bad-reversed-sequence]
     seq = reversed(SecondBadReversed()) # [bad-reversed-sequence]
     seq = reversed(range(100))
-    seq = reversed(ThirdBadReversed()) # [bad-reversed-sequence]
     seq = reversed(lambda: None) # [bad-reversed-sequence]
     seq = reversed(deque([]))
     seq = reversed("123")
