@@ -129,7 +129,6 @@ def test_pylint_config_attr() -> None:
     expect = [
         "OptionsManagerMixIn",
         "object",
-        "MessagesHandlerMixIn",
         "ReportsHandlerMixIn",
         "BaseTokenChecker",
         "BaseChecker",

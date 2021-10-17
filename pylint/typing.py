@@ -3,7 +3,7 @@
 
 """A collection of typing utilities."""
 import sys
-from typing import NamedTuple, Union
+from typing import NamedTuple, Optional, Union
 
 if sys.version_info >= (3, 8):
     from typing import Literal, TypedDict
@@ -52,3 +52,13 @@ class MessageLocationTuple(NamedTuple):
     obj: str
     line: int
     column: int
+
+
+class ManagedMessage(NamedTuple):
+    """Tuple with information ahout a managed message of the linter"""
+
+    name: Optional[str]
+    msgid: str
+    symbol: str
+    line: Optional[int]
+    is_disabled: bool

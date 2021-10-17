@@ -29,13 +29,13 @@
 
 import re
 import tokenize
-from typing import Optional
+from typing import List, Optional
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IRawChecker, ITokenChecker
-from pylint.message import MessagesHandlerMixIn
+from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 
@@ -54,15 +54,21 @@ class ByIdManagedMessagesChecker(BaseChecker):
     }
     options = ()
 
+    def _clear_by_id_managed_msgs(self) -> None:
+        self.linter._by_id_managed_msgs.clear()
+
+    def _get_by_id_managed_msgs(self) -> List[ManagedMessage]:
+        return self.linter._by_id_managed_msgs
+
     def process_module(self, node: nodes.Module) -> None:
         """Inspect the source file to find messages activated or deactivated by id."""
-        managed_msgs = MessagesHandlerMixIn.get_by_id_managed_msgs()
+        managed_msgs = self._get_by_id_managed_msgs()
         for (mod_name, msgid, symbol, lineno, is_disabled) in managed_msgs:
             if mod_name == node.name:
                 verb = "disable" if is_disabled else "enable"
                 txt = f"'{msgid}' is cryptic: use '# pylint: {verb}={symbol}' instead"
                 self.add_message("use-symbolic-message-instead", line=lineno, args=txt)
-        MessagesHandlerMixIn.clear_by_id_managed_msgs()
+        self._clear_by_id_managed_msgs()
 
 
 class EncodingChecker(BaseChecker):
