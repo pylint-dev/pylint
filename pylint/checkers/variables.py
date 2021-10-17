@@ -1186,8 +1186,8 @@ class VariablesChecker(BaseChecker):
                                 )
                         elif current_consumer.scope_type == "lambda":
                             self.add_message("undefined-variable", node=node, args=name)
-                elif self._is_only_type_assignment(node, name, defstmt):
-                    self.add_message("undefined-variable", node=node, args=name)
+                elif self._is_only_type_assignment(node, defstmt):
+                    self.add_message("undefined-variable", node=node, args=node.name)
 
             current_consumer.mark_as_consumed(name, found_nodes)
             # check it's not a loop variable used outside the loop
@@ -1551,16 +1551,14 @@ class VariablesChecker(BaseChecker):
         return maybee0601, annotation_return, use_outer_definition
 
     @staticmethod
-    def _is_only_type_assignment(
-        node: nodes.Name, name: str, defstmt: nodes.Statement
-    ) -> bool:
+    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
         """Check if variable only gets assigned a type and never a value"""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
 
         parent = node
         while parent is not None:
-            local_refs = parent.scope().locals.get(name, [])
+            local_refs = parent.scope().locals.get(node.name, [])
             if local_refs:
                 for ref_node in local_refs:
                     if ref_node.lineno < node.lineno:
