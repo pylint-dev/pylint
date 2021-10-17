@@ -139,4 +139,4 @@ if pandas_df == []:
 if pandas_df != ():
     pass
 if pandas_df <= []:
-    print("truth value of a dataframe is ambiguous") 
+    print("truth value of a dataframe is ambiguous")
