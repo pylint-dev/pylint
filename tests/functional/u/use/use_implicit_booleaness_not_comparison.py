@@ -120,6 +120,25 @@ test_with_default(h)
 test_with_default(i)
 test_with_default(j)
 
+class A:
+    lst = []
+
+    @staticmethod
+    def test():
+        return []
+
+if A.lst == []: # [use-implicit-booleaness-not-comparison]
+    pass
+
+if A.test() == []: # [use-implicit-booleaness-not-comparison]
+    pass
+
+def test_function():
+    return []
+
+if test_function() == []: # [use-implicit-booleaness-not-comparison]
+    pass
+
 # pylint: disable=import-outside-toplevel, wrong-import-position, import-error
 # Numpy has its own implementation of __bool__, but base class has list, that's why the comparison check is happening
 import numpy

@@ -189,14 +189,28 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                         collection_literal = "[]"
                     if isinstance(literal_node, nodes.Tuple):
                         collection_literal = "()"
-                    variable_name = target_node.name
+
+                    instance_name = "<instance>"
+                    if isinstance(target_node, nodes.Call):
+                        if target_node.func:
+                            target_node = target_node.func
+                    elif isinstance(target_node, nodes.Attribute):
+                        instance_name = (
+                            target_node.attrname
+                            if target_node.attrname
+                            else instance_name
+                        )
+
+                    if isinstance(target_node, nodes.Name):
+                        instance_name = target_node.name
+
                     original_comparison = (
-                        f"{variable_name} {operator} {collection_literal}"
+                        f"{instance_name} {operator} {collection_literal}"
                     )
                     suggestion = (
-                        f"not {variable_name}"
+                        f"not {instance_name}"
                         if operator == "!="
-                        else f"{variable_name}"
+                        else f"{instance_name}"
                     )
                     self.add_message(
                         "use-implicit-booleaness-not-comparison",

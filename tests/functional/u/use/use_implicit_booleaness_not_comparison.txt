@@ -19,6 +19,9 @@ use-implicit-booleaness-not-comparison:82:3::'a == []' can be simplified to 'a' 
 use-implicit-booleaness-not-comparison:94:3::'e == []' can be simplified to 'e' as an empty sequence is falsey:HIGH
 use-implicit-booleaness-not-comparison:94:15::'f == {}' can be simplified to 'f' as an empty sequence is falsey:HIGH
 use-implicit-booleaness-not-comparison:112:10:test_with_default:'k == {}' can be simplified to 'k' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:127:3::'numpy_array == []' can be simplified to 'numpy_array' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:129:3::'numpy_array != []' can be simplified to 'not numpy_array' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:131:3::'numpy_array >= ()' can be simplified to 'numpy_array' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:130:3::'lst == []' can be simplified to 'lst' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:133:3::'<instance> == []' can be simplified to '<instance>' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:139:3::'test_function == []' can be simplified to 'test_function' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:146:3::'numpy_array == []' can be simplified to 'numpy_array' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:148:3::'numpy_array != []' can be simplified to 'not numpy_array' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:150:3::'numpy_array >= ()' can be simplified to 'numpy_array' as an empty sequence is falsey:HIGH
