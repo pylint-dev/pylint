@@ -52,6 +52,15 @@ Release date: TBA
 
   Closes #4981
 
+* Added new checker ``use-implicit-booleaness-not-comparison``: Emitted when
+  collection literal comparison is being used to check for emptiness.
+
+  Closes #4774
+
+* Update ``literal-comparison``` checker to ignore tuple literals
+
+  Closes #3031
+
 
 What's New in Pylint 2.11.2?
 ============================
