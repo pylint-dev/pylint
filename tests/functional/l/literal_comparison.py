@@ -10,7 +10,7 @@ if "a" is b"a": # [literal-comparison]
 if 2.0 is 3.0: # [literal-comparison]
     pass
 
-if () is (1, 2, 3): # [literal-comparison]
+if () is (1, 2, 3):
     pass
 
 if () is {1:2, 2:3}: # [literal-comparison]
@@ -48,3 +48,10 @@ if CONST is 42: # [literal-comparison]
 # object might be used as a sentinel.
 if () is CONST:
     pass
+
+def github_issue_3031(arg=()):
+    if arg is ():
+        pass
+
+    if arg is not ():
+        pass

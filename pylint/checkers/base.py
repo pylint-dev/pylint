@@ -2462,11 +2462,9 @@ class ComparisonChecker(_BasicChecker):
             args=(f"'{root_node.as_string()}'", suggestion),
         )
 
-    def _check_literal_comparison(self, literal, node):
+    def _check_literal_comparison(self, literal, node: nodes.Compare):
         """Check if we compare to a literal, which is usually what we do not want to do."""
-        is_other_literal = isinstance(
-            literal, (nodes.List, nodes.Tuple, nodes.Dict, nodes.Set)
-        )
+        is_other_literal = isinstance(literal, (nodes.List, nodes.Dict, nodes.Set))
         is_const = False
         if isinstance(literal, nodes.Const):
             if isinstance(literal.value, bool) or literal.value is None:

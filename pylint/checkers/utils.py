@@ -1624,3 +1624,21 @@ def is_function_body_ellipsis(node: nodes.FunctionDef) -> bool:
         and isinstance(node.body[0].value, nodes.Const)
         and node.body[0].value.value == Ellipsis
     )
+
+
+def is_empty_list_literal(node: Optional[nodes.NodeNG]) -> bool:
+    return isinstance(node, nodes.List) and not node.elts
+
+
+def is_empty_tuple_literal(node: Optional[nodes.NodeNG]) -> bool:
+    return isinstance(node, nodes.Tuple) and not node.elts
+
+
+def is_empty_dict_literal(node: Optional[nodes.NodeNG]) -> bool:
+    return isinstance(node, nodes.Dict) and not node.items
+
+
+def is_empty_str_literal(node: Optional[nodes.NodeNG]) -> bool:
+    return (
+        isinstance(node, nodes.Const) and isinstance(node.value, str) and not node.value
+    )
