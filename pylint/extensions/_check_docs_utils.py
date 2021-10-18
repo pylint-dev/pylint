@@ -279,7 +279,7 @@ class SphinxDocstring(Docstring):
         \s+
         )?
 
-        (\w+)                   # Parameter name
+        (\*{{0,2}}\w+)          # Parameter name with potential asterisks
         \s*                     # whitespace
         :                       # final colon
         """
@@ -472,7 +472,7 @@ class GoogleDocstring(Docstring):
 
     re_param_line = re.compile(
         fr"""
-        \s*  \*{{0,2}}(\w+)             # identifier potentially with asterisks
+        \s*  (\*{{0,2}}\w+)             # identifier potentially with asterisks
         \s*  ( [(]
             {re_multiple_type}
             (?:,\s+optional)?
@@ -731,7 +731,7 @@ class NumpyDocstring(GoogleDocstring):
 
     re_param_line = re.compile(
         fr"""
-        \s*  (\w+)                                                          # identifier
+        \s*  (\*{{0,2}}\w+)                                                 # identifier with potential asterisks
         \s*  :
         \s*  (?:({GoogleDocstring.re_multiple_type})(?:,\s+optional)?)?     # optional type declaration
         \s* (.*)                                                            # optional description

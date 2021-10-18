@@ -74,3 +74,8 @@ Other Changes
   used in metaclass declarations
 
   Closes #4031
+
+* ``mising-param-doc`` now correctly parses asterisks for variable length and
+  keyword parameters
+
+  Closes #3733

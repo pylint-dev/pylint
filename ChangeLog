@@ -66,6 +66,11 @@ Release date: TBA
 
   Closes #4774
 
+* ``mising-param-doc`` now correctly parses asterisks for variable length and
+  keyword parameters
+
+  Closes #3733
+
 * Update ``literal-comparison``` checker to ignore tuple literals
 
   Closes #3031
