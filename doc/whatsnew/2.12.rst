@@ -74,3 +74,8 @@ Other Changes
   used in metaclass declarations
 
   Closes #4031
+
+* ``used-before-assignment`` now correctly considers references to classes as type annotation
+  or default values in first-level methods
+
+  Closes #3771

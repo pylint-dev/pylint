@@ -31,6 +31,11 @@ Release date: TBA
 
   Closes #4031
 
+* ``used-before-assignment`` now correctly considers references to classes as type annotation
+  or default values in first-level methods
+
+  Closes #3771
+
 * Fix bug with importing namespace packages with relative imports
 
   Closes #2967 and #5131

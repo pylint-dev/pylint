@@ -1,2 +1,4 @@
-used-before-assignment:5:19::Using variable 'MSG' before assignment
-used-before-assignment:8:8::Using variable 'MSG2' before assignment
+used-before-assignment:5:19::Using variable 'MSG' before assignment:HIGH
+used-before-assignment:8:8::Using variable 'MSG2' before assignment:HIGH
+used-before-assignment:13:38:MyClass.incorrect_method:Using variable 'MyClass' before assignment:HIGH
+used-before-assignment:16:46:MyClass.second_incorrect_method:Using variable 'MyClass' before assignment:HIGH

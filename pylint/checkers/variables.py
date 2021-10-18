@@ -1195,6 +1195,11 @@ class VariablesChecker(BaseChecker):
                             )
                 elif self._is_only_type_assignment(node, defstmt):
                     self.add_message("undefined-variable", node=node, args=node.name)
+                elif self._is_first_level_self_referring_annotation(node, defstmt):
+                    self.add_message(
+                        "used-before-assignment", node=node, args=node.name
+                    )
+                    break
 
             current_consumer.mark_as_consumed(node.name, found_nodes)
             # check it's not a loop variable used outside the loop
@@ -1568,6 +1573,31 @@ class VariablesChecker(BaseChecker):
                 ):
                     return False
         return True
+
+    @staticmethod
+    def _is_first_level_self_referring_annotation(
+        node: nodes.Name, defstmt: nodes.Statement
+    ) -> bool:
+        """Check if a method annotation refers to its own class on the first level.
+        This schould be done with quotes:
+            def MyClass():
+                def method(parameter: "MyClass"):
+                    pass
+                def other_method(self) -> bool:
+                    def inner_method(self, other: MyClass) -> bool:
+                        pass
+                    pass
+        """
+        if isinstance(defstmt, nodes.ClassDef) and node.frame().parent == defstmt:
+            # Check if used as type annotation
+            if isinstance(node.parent, nodes.Arguments):
+                return True
+            # Check if used as default value by calling the class
+            if isinstance(node.parent, nodes.Call) and isinstance(
+                node.parent.parent, nodes.Arguments
+            ):
+                return True
+        return False
 
     def _ignore_class_scope(self, node):
         """
