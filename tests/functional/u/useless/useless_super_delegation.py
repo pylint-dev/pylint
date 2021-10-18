@@ -62,6 +62,9 @@ class Base(SuperBase):
     def with_default_arg_quad(self, first, default_arg="has_been_changed"):
         super().with_default_arg_quad(first, default_arg)
 
+    def with_default_unhandled(self, first, default_arg=lambda: True):
+        super().with_default_arg_quad(first, default_arg)
+
 class NotUselessSuper(Base):
 
     def multiple_statements(self):
@@ -200,6 +203,10 @@ class NotUselessSuper(Base):
         # Not useless because the default value is the same as in the base but the
         # call is different from the signature
         super(NotUselessSuper, self).with_default_arg_quad(first, default_arg + "_and_modified")
+
+    def with_default_unhandled(self, first, default_arg=lambda: True):
+        # Not useless because the default value type is not explictely handled (Lambda), so assume they are different
+        super(NotUselessSuper, self).with_default_unhandled(first, default_arg)
 
 
 class UselessSuper(Base):
