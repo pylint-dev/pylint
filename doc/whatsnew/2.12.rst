@@ -69,3 +69,8 @@ Other Changes
   and never get assigned a value
 
   Closes #5140
+
+* ``undefined-variable`` now correctly considers the line numbering and order of classes
+  used in metaclass declarations
+
+  Closes #4031
