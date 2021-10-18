@@ -79,3 +79,8 @@ Other Changes
   or default values in first-level methods
 
   Closes #3771
+
+* ``mising-param-doc`` now correctly parses asterisks for variable length and
+  keyword parameters
+
+  Closes #3733
