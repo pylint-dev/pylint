@@ -120,23 +120,33 @@ test_with_default(h)
 test_with_default(i)
 test_with_default(j)
 
+
 class A:
     lst = []
 
     @staticmethod
-    def test():
+    def test(b=1):
+        print(b)
         return []
 
-if A.lst == []: # [use-implicit-booleaness-not-comparison]
+
+if A.lst == []:  # [use-implicit-booleaness-not-comparison]
     pass
 
-if A.test() == []: # [use-implicit-booleaness-not-comparison]
+
+if [] == A.lst:  # [use-implicit-booleaness-not-comparison]
     pass
+
+
+if A.test("b") == []:  # [use-implicit-booleaness-not-comparison]
+    pass
+
 
 def test_function():
     return []
 
-if test_function() == []: # [use-implicit-booleaness-not-comparison]
+
+if test_function() == []:  # [use-implicit-booleaness-not-comparison]
     pass
 
 # pylint: disable=import-outside-toplevel, wrong-import-position, import-error

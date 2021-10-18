@@ -190,18 +190,19 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     if isinstance(literal_node, nodes.Tuple):
                         collection_literal = "()"
 
-                    instance_name = "<instance>"
-                    if isinstance(target_node, nodes.Call):
-                        if target_node.func:
-                            target_node = target_node.func
+                    instance_name = "x"
+                    if isinstance(target_node, nodes.Call) and target_node.func:
+                        if isinstance(target_node.func, nodes.Attribute):
+                            instance_name = f"{target_node.func.attrname}(...)"
+                        elif isinstance(target_node.func, nodes.Name):
+                            instance_name = f"{target_node.func.name}(...)"
                     elif isinstance(target_node, nodes.Attribute):
                         instance_name = (
                             target_node.attrname
                             if target_node.attrname
                             else instance_name
                         )
-
-                    if isinstance(target_node, nodes.Name):
+                    elif isinstance(target_node, nodes.Name):
                         instance_name = target_node.name
 
                     original_comparison = (
