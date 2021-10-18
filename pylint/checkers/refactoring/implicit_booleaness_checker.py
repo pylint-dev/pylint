@@ -222,7 +222,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     )
 
     @staticmethod
-    def base_classes_of_node(instance: nodes.ClassDef) -> List[nodes.Name]:
+    def base_classes_of_node(instance: nodes.ClassDef) -> List[str]:
         """Return all the classes names that a ClassDef inherit from including 'object'."""
         try:
             return [instance.name] + [x.name for x in instance.ancestors()]
