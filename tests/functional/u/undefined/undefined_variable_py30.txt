@@ -7,3 +7,4 @@ undefined-variable:57:31:FalsePositive342.test_bad2:Undefined variable 'trop2':H
 undefined-variable:63:0:Bad:Undefined variable 'ABCMet':HIGH
 undefined-variable:66:0:SecondBad:Undefined variable 'ab':HIGH
 undefined-variable:97:53:InheritingClass:Undefined variable 'variable':HIGH
+undefined-variable:103:0:Inheritor:Undefined variable 'DefinedTooLate':HIGH

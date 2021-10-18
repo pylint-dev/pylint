@@ -96,3 +96,13 @@ class MetaClass(type):
 
 class InheritingClass(metaclass=MetaClass, parameter=variable):  # [undefined-variable]
     pass
+
+
+# Test for #4031
+# https://github.com/PyCQA/pylint/issues/4031
+class Inheritor(metaclass=DefinedTooLate ): # [undefined-variable]
+    pass
+
+
+class DefinedTooLate():
+    pass

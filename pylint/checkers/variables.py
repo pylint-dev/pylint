@@ -2213,23 +2213,30 @@ class VariablesChecker(BaseChecker):
         elif metaclass:
             name = metaclass.root().name
 
-        found = None
+        found = False
         name = METACLASS_NAME_TRANSFORMS.get(name, name)
         if name:
             # check enclosing scopes starting from most local
             for scope_locals, _, _ in self._to_consume[::-1]:
-                found = scope_locals.get(name)
-                if found:
-                    consumed.append((scope_locals, name))
+                found_nodes = scope_locals.get(name, [])
+                for found_node in found_nodes:
+                    if found_node.lineno <= klass.lineno:
+                        consumed.append((scope_locals, name))
+                        found = True
+                        break
+            # Check parent scope
+            nodes_in_parent_scope = parent_node.locals.get(name, [])
+            for found_node_parent in nodes_in_parent_scope:
+                if found_node_parent.lineno <= klass.lineno:
+                    found = True
                     break
         if (
-            found is None
+            not found
             and not metaclass
             and not (
                 name in nodes.Module.scope_attrs
                 or utils.is_builtin(name)
                 or name in self.config.additional_builtins
-                or name in parent_node.locals
             )
         ):
             self.add_message("undefined-variable", node=klass, args=(name,))
