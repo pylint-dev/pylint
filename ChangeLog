@@ -26,6 +26,11 @@ Release date: TBA
 
   Closes #5140
 
+* ``undefined-variable`` now correctly considers the line numbering and order of classes
+  used in metaclass declarations
+
+  Closes #4031
+
 * Fix bug with importing namespace packages with relative imports
 
   Closes #2967 and #5131
