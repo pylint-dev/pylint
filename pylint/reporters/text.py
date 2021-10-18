@@ -147,7 +147,7 @@ def colorize_ansi(
 
     :param style: the message's style elements, this will be deprecated
 
-    :param kwargs: used to accept `color` parameter while it is being deprecated
+    :param **kwargs: used to accept `color` parameter while it is being deprecated
 
     :return: the ansi escaped string
     """

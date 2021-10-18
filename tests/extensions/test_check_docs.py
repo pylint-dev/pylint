@@ -1141,7 +1141,7 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            MessageTest(msg_id="missing-param-doc", node=node, args=("args",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("*args",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -1161,7 +1161,7 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            MessageTest(msg_id="missing-param-doc", node=node, args=("kwargs",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("**kwargs",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -1182,7 +1182,7 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            MessageTest(msg_id="missing-param-doc", node=node, args=("args",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("*args",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -1203,7 +1203,7 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            MessageTest(msg_id="missing-param-doc", node=node, args=("kwargs",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("**kwargs",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -1228,7 +1228,7 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            MessageTest(msg_id="missing-param-doc", node=node, args=("args",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("*args",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -1253,7 +1253,7 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            MessageTest(msg_id="missing-param-doc", node=node, args=("kwargs",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("**kwargs",))
         ):
             self.checker.visit_functiondef(node)
 
@@ -1265,7 +1265,7 @@ class TestParamDocChecker(CheckerTestCase):
 
             :param named_arg: Returned
             :type named_arg: object
-            :param args: Optional arguments
+            :param *args: Optional arguments
             :returns: Maybe named_arg
             :rtype: object or None
             """
@@ -1284,7 +1284,7 @@ class TestParamDocChecker(CheckerTestCase):
 
             :param named_arg: Returned
             :type named_arg: object
-            :param kwargs: Keyword arguments
+            :param **kwargs: Keyword arguments
             :returns: Maybe named_arg
             :rtype: object or None
             """
@@ -1345,7 +1345,7 @@ class TestParamDocChecker(CheckerTestCase):
             ----
             named_arg : object
                 Returned
-            args :
+            *args :
                 Optional Arguments
 
             Returns
@@ -1390,7 +1390,7 @@ class TestParamDocChecker(CheckerTestCase):
             ----
             named_arg : `example.value`
                 Returned
-            args :
+            *args :
                 Optional Arguments
 
             Returns
@@ -1415,7 +1415,7 @@ class TestParamDocChecker(CheckerTestCase):
             ----
             named_arg : object
                 Returned
-            kwargs :
+            **kwargs :
                 Keyword arguments
 
             Returns

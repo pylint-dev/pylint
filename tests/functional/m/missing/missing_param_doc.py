@@ -104,3 +104,39 @@ def foobar12(arg1, arg2, arg3): #[missing-param-doc, missing-type-doc]
     arg3
     """
     print(arg1, arg2, arg3)
+
+def foobar13(arg1, *args, arg3=";"):
+    """Description of the function
+
+    Parameters
+    ----------
+    arg1 : str
+        Path to the input.
+    *args :
+        Relevant parameters.
+    arg3 : str, optional
+        File separator.
+    """
+    print(arg1, args, arg3)
+
+def foobar14(arg1, *args):
+    """Description of the function
+
+    Parameters
+    ----------
+    arg1 : str
+        Path to the input.
+    *args :
+        Relevant parameters.
+    """
+    print(arg1, args)
+
+def foobar15(*args):
+    """Description of the function
+
+    Parameters
+    ----------
+    *args :
+        Relevant parameters.
+    """
+    print(args)
