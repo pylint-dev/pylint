@@ -84,3 +84,15 @@ class FifthGood(metaclass=abc.Metaclass):
 # The following used to raise used-before-assignment
 # pylint: disable=missing-docstring, multiple-statements
 def used_before_assignment(*, arg): return arg + 1
+
+
+# Test for #4021
+# https://github.com/PyCQA/pylint/issues/4021
+class MetaClass(type):
+    def __new__(cls, *args, parameter=None, **kwargs):
+        print(parameter)
+        return super().__new__(cls, *args, **kwargs)
+
+
+class InheritingClass(metaclass=MetaClass, parameter=variable):  # [undefined-variable]
+    pass
