@@ -1562,16 +1562,20 @@ class VariablesChecker(BaseChecker):
             return False
 
         parent = node
-        while parent is not None:
+        while parent is not defstmt.frame().parent:
             local_refs = parent.scope().locals.get(node.name, [])
             if local_refs:
                 for ref_node in local_refs:
-                    if ref_node.lineno < node.lineno:
-                        if (
-                            not isinstance(ref_node.parent, nodes.AnnAssign)
-                            or ref_node.parent.value
-                        ):
-                            return False
+                    if (
+                        defstmt.frame() == node.frame()
+                        and not ref_node.lineno < node.lineno
+                    ):
+                        break
+                    if (
+                        not isinstance(ref_node.parent, nodes.AnnAssign)
+                        or ref_node.parent.value
+                    ):
+                        return False
             parent = parent.scope().parent
         return True
 

@@ -375,8 +375,13 @@ def value_assignment_from_iterator():
 
 
 GLOBAL_VAR: int
+GLOBAL_VAR_TWO: int
 
-def only_type_assignment_global_var():
-    """The global variable never gets assigned a value"""
+def global_var_mixed_assignment():
+    """One global variable never gets assigned a value"""
     global GLOBAL_VAR
     print(GLOBAL_VAR) # [undefined-variable]
+    global GLOBAL_VAR_TWO
+    print(GLOBAL_VAR_TWO)
+
+GLOBAL_VAR_TWO = 2

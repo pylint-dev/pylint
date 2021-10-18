@@ -32,4 +32,4 @@ undefined-variable:323:11:decorated3:Undefined variable 'x':HIGH
 undefined-variable:328:19:decorated4:Undefined variable 'y':HIGH
 undefined-variable:353:10:only_type_assignment:Undefined variable 'variable':HIGH
 undefined-variable:366:10:value_assignment_after_access:Undefined variable 'variable':HIGH
-undefined-variable:382:10:only_type_assignment_global_var:Undefined variable 'GLOBAL_VAR':HIGH
+undefined-variable:383:10:global_var_mixed_assignment:Undefined variable 'GLOBAL_VAR':HIGH
