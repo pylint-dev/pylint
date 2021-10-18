@@ -1,8 +1,9 @@
-undefined-variable:8:20:Undefined.test:Undefined variable 'Undefined'
-undefined-variable:33:34:Undefined1.InnerScope.test_undefined:Undefined variable 'Undef'
-undefined-variable:36:25:Undefined1.InnerScope.test1:Undefined variable 'ABC'
-undefined-variable:51:28:FalsePositive342.test_bad:Undefined variable 'trop'
-undefined-variable:54:31:FalsePositive342.test_bad1:Undefined variable 'trop1'
-undefined-variable:57:31:FalsePositive342.test_bad2:Undefined variable 'trop2'
-undefined-variable:63:0:Bad:Undefined variable 'ABCMet'
-undefined-variable:66:0:SecondBad:Undefined variable 'ab'
+undefined-variable:8:20:Undefined.test:Undefined variable 'Undefined':HIGH
+undefined-variable:33:34:Undefined1.InnerScope.test_undefined:Undefined variable 'Undef':HIGH
+undefined-variable:36:25:Undefined1.InnerScope.test1:Undefined variable 'ABC':HIGH
+undefined-variable:51:28:FalsePositive342.test_bad:Undefined variable 'trop':HIGH
+undefined-variable:54:31:FalsePositive342.test_bad1:Undefined variable 'trop1':HIGH
+undefined-variable:57:31:FalsePositive342.test_bad2:Undefined variable 'trop2':HIGH
+undefined-variable:63:0:Bad:Undefined variable 'ABCMet':HIGH
+undefined-variable:66:0:SecondBad:Undefined variable 'ab':HIGH
+undefined-variable:97:53:InheritingClass:Undefined variable 'variable':HIGH
