@@ -1,0 +1,1 @@
+used-before-assignment:13:20:MyClass.second_incorrect_method:Using variable 'MyClass' before assignment:HIGH

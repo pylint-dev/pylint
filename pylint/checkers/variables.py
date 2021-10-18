@@ -1195,7 +1195,13 @@ class VariablesChecker(BaseChecker):
                             )
                 elif self._is_only_type_assignment(node, defstmt):
                     self.add_message("undefined-variable", node=node, args=node.name)
-                elif self._is_first_level_self_reference(node, defstmt):
+                elif self._is_first_level_type_annotation_reference(node, defstmt):
+                    if not utils.is_postponed_evaluation_enabled(node):
+                        self.add_message(
+                            "used-before-assignment", node=node, args=node.name
+                        )
+                    break
+                elif self._is_first_level_default_reference(node, defstmt):
                     self.add_message(
                         "used-before-assignment", node=node, args=node.name
                     )
@@ -1575,18 +1581,26 @@ class VariablesChecker(BaseChecker):
         return True
 
     @staticmethod
-    def _is_first_level_self_reference(
+    def _is_first_level_type_annotation_reference(
         node: nodes.Name, defstmt: nodes.Statement
     ) -> bool:
-        """Check if a first level method's annotation or default values
-        refers to its own class. See tests/functional/u/use/used_before_assignement.py
-        for additional examples.
+        """Check if a first level method's annotation refers to its own class.
+        See tests/functional/u/use/used_before_assignement.py for additional examples.
         """
         if isinstance(defstmt, nodes.ClassDef) and node.frame().parent == defstmt:
             # Check if used as type annotation
             if isinstance(node.parent, nodes.Arguments):
                 return True
-            # Check if used as default value by calling the class
+        return False
+
+    @staticmethod
+    def _is_first_level_default_reference(
+        node: nodes.Name, defstmt: nodes.Statement
+    ) -> bool:
+        """Check if a first level method's default value refers to its own class.
+        See tests/functional/u/use/used_before_assignement.py for additional examples.
+        """
+        if isinstance(defstmt, nodes.ClassDef) and node.frame().parent == defstmt:
             if isinstance(node.parent, nodes.Call) and isinstance(
                 node.parent.parent, nodes.Arguments
             ):
