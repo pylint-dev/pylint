@@ -75,6 +75,10 @@ Release date: TBA
 
   Closes #3031
 
+* Fix double emitting of ``not-callable`` on inferrable ``properties``
+
+  Closes #4426
+
 * Fix ``missing-function-docstring`` not being able to check ``__init__`` and other
   magic methods even if the ``no-docstring-rgx`` setting was set to do so
 

@@ -75,6 +75,10 @@ Other Changes
 
   Closes #4031
 
+* Fix double emitting of ``not-callable`` on inferrable ``properties``
+
+  Closes #4426
+
 * ``mising-param-doc`` now correctly parses asterisks for variable length and
   keyword parameters
 

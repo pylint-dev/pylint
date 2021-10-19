@@ -1296,8 +1296,9 @@ accessed. Python regular expressions are accepted.",
                 pass
             else:
                 self.add_message("not-callable", node=node, args=node.func.as_string())
+        else:
+            self._check_uninferable_call(node)
 
-        self._check_uninferable_call(node)
         try:
             called, implicit_args, callable_name = _determine_callable(called)
         except ValueError:
