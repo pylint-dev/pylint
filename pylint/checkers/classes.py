@@ -186,38 +186,6 @@ def _positional_parameters(method):
     return positional
 
 
-def _get_node_type(node, potential_types):
-    """
-    Return the type of the node if it exists in potential_types.
-
-    Args:
-        node (astroid.node): node to get the type of.
-        potential_types (tuple): potential types of the node.
-
-    Returns:
-        type: type of the node or None.
-    """
-    for potential_type in potential_types:
-        if isinstance(node, potential_type):
-            return potential_type
-    return None
-
-
-def _check_arg_equality(node_a, node_b, attr_name):
-    """
-    Check equality of nodes based on the comparison of their attributes named attr_name.
-
-    Args:
-        node_a (astroid.node): first node to compare.
-        node_b (astroid.node): second node to compare.
-        attr_name (str): name of the nodes attribute to use for comparison.
-
-    Returns:
-        bool: True if node_a.attr_name == node_b.attr_name, False otherwise.
-    """
-    return getattr(node_a, attr_name) == getattr(node_b, attr_name)
-
-
 def _has_different_parameters_default_value(original, overridden):
     """
     Check if original and overridden methods arguments have different default values
@@ -244,34 +212,34 @@ def _has_different_parameters_default_value(original, overridden):
             overridden_default = default_missing
 
         default_list = [
-            arg == default_missing for arg in (original_default, overridden_default)
+            arg != default_missing for arg in (original_default, overridden_default)
         ]
-        if any(default_list) and not all(default_list):
-            # Only one arg has no default value
-            return True
-
-        astroid_type_compared_attr = {
-            nodes.Const: "value",
-            nodes.ClassDef: "name",
-            nodes.Tuple: "elts",
-            nodes.List: "elts",
-            nodes.Dict: "items",
-        }
-        handled_types = tuple(
-            astroid_type for astroid_type in astroid_type_compared_attr
-        )
-        original_type = _get_node_type(original_default, handled_types)
-        if original_type:
-            # We handle only astroid types that are inside the dict astroid_type_compared_attr
-            if not isinstance(overridden_default, original_type):
-                # Two args with same name but different types
+        if any(default_list):
+            if not all(default_list):
+                # Only one arg has no default value
                 return True
-            if not _check_arg_equality(
-                original_default,
-                overridden_default,
-                astroid_type_compared_attr[original_type],
-            ):
-                # Two args with same type but different values
+            # Both args have a default value. Compare them
+            astroid_type_comparators = {
+                nodes.Const: lambda a, b: a.value == b.value,
+                nodes.ClassDef: lambda a, b: a.name == b.name,
+                nodes.Tuple: lambda a, b: a.elts == b.elts,
+                nodes.List: lambda a, b: a.elts == b.elts,
+                nodes.Dict: lambda a, b: a.items == b.items,
+                nodes.Name: lambda a, b: set(a.infer()) == set(b.infer()),
+            }
+            original_type = type(original_default)
+            if original_type in astroid_type_comparators:
+                # We handle only astroid types that are inside the dict astroid_type_compared_attr
+                if not isinstance(overridden_default, original_type):
+                    # Two args with same name but different types
+                    return True
+                if not astroid_type_comparators[original_type](
+                    original_default, overridden_default
+                ):
+                    # Two args with same type but different values
+                    return True
+            else:
+                # If the default value comparison is unhandled, assume the value is different
                 return True
     return False
 

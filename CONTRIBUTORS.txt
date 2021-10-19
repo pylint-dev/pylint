@@ -553,6 +553,8 @@ contributors:
 
 * Samuel Forestier: contributor
 
+* Nick Pesce: contributor
+
 * James DesLauriers: contributor
 
 * Youngsoo Sung: contributor

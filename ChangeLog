@@ -49,6 +49,8 @@ Release date: TBA
   * Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
     is set to a version that does not support f-strings (< 3.6)
 
+* Fix ``useless-super-delegation`` false positive when default keyword argument is a variable.
+
 * Properly emit ``duplicate-key`` when Enum members are duplicate dictionary keys
 
   Closes #5150
