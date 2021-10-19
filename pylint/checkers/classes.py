@@ -186,23 +186,6 @@ def _positional_parameters(method):
     return positional
 
 
-def _get_node_type(node, potential_types):
-    """
-    Return the type of the node if it exists in potential_types.
-
-    Args:
-        node (astroid.node): node to get the type of.
-        potential_types (tuple): potential types of the node.
-
-    Returns:
-        type: type of the node or None.
-    """
-    for potential_type in potential_types:
-        if isinstance(node, potential_type):
-            return potential_type
-    return None
-
-
 def _has_different_parameters_default_value(original, overridden):
     """
     Check if original and overridden methods arguments have different default values
@@ -244,10 +227,8 @@ def _has_different_parameters_default_value(original, overridden):
                 nodes.Dict: lambda a, b: a.items == b.items,
                 nodes.Name: lambda a, b: set(a.infer()) == set(b.infer()),
             }
-            original_type = _get_node_type(
-                original_default, tuple(handled for handled in astroid_type_comparators)
-            )
-            if original_type:
+            original_type = type(original_default)
+            if original_type in astroid_type_comparators:
                 # We handle only astroid types that are inside the dict astroid_type_compared_attr
                 if not isinstance(overridden_default, original_type):
                     # Two args with same name but different types
