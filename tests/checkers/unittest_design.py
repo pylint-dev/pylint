@@ -60,3 +60,21 @@ class TestDesignChecker(CheckerTestCase):
         )
         with self.assertAddsMessages(message):
             self.checker.leave_classdef(node)
+
+    @set_config(exclude_too_few_public_methods=("toml.*"))
+    @set_config(min_public_methods=20)  # to combat inherited methods
+    def test_exclude_too_few_methods(self) -> None:
+        """Tests config setting ``exclude-too-few-public-methods`` with a
+        comma-separated regular expression suppresses the message for
+        `too-few-public-methods` on classes that match the regular expression.
+        """
+        node = astroid.extract_node(
+            """
+            from toml import TomlEncoder
+
+            class MyTomlEncoder(TomlEncoder):
+                ...
+            """
+        )
+        with self.assertNoMessages():
+            self.checker.leave_classdef(node)
