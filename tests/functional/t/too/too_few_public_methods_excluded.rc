@@ -1,0 +1,4 @@
+[testoptions]
+min-public-methods=20  # to combat inherited methods
+
+exclude-too-few-public-methods=toml.*,yaml.YAMLObject
