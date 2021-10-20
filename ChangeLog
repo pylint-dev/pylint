@@ -107,6 +107,11 @@ Release date: TBA
 * Fix ``missing-function-docstring`` not being able to check ``__init__`` and other
   magic methods even if the ``no-docstring-rgx`` setting was set to do so
 
+* Added configuration option ``exclude-too-few-public-methods`` to allow excluding
+  classes from the ``min-public-methods`` checker.
+
+  Closes #3370
+
 
 What's New in Pylint 2.11.2?
 ============================

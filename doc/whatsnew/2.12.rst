@@ -43,6 +43,11 @@ New checkers
 
   Closes #4774
 
+* Added configuration option ``exclude-too-few-public-methods`` to allow excluding
+  classes from the ``min-public-methods`` checker.
+
+  Closes #3370
+
 
 Removed checkers
 ================
