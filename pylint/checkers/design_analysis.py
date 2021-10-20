@@ -406,9 +406,10 @@ class MisdesignChecker(BaseChecker):
             "exclude-too-few-public-methods",
             {
                 "default": (),
-                "type": "csv",
-                "metavar": "<comma separated list of class names>",
-                "help": "List of qualified class names to ignore when counting public methods (see R0903)",
+                "type": "regexp_csv",
+                "metavar": "<comma separated list of regular expressions>",
+                "help": "List of regular expressions to module/class names"
+                "to ignore when counting public methods (see R0903)",
             },
         ),
     )
@@ -483,12 +484,10 @@ class MisdesignChecker(BaseChecker):
 
         # Stop here if the class is excluded via configuration.
         if node.type == "class" and self.config.exclude_too_few_public_methods:
-            # Convert the ignored patterns to a compiled regex, split by "or"
-            config_exclude = "|".join(self.config.exclude_too_few_public_methods)
-            excluded_modules_rgx = re.compile(config_exclude)
             for ancestor in node.ancestors():
-                if excluded_modules_rgx.search(ancestor.qname()):
-                    return
+                for pattern in self.config.exclude_too_few_public_methods:
+                    if pattern.search(ancestor.qname()):
+                        return
 
         # Stop here for exception, metaclass, interface classes and other
         # classes for which we don't need to count the methods.
