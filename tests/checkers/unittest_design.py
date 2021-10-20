@@ -10,7 +10,7 @@
 import astroid
 
 from pylint.checkers import design_analysis
-from pylint.testutils import CheckerTestCase, set_config
+from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 
 class TestDesignChecker(CheckerTestCase):
@@ -42,3 +42,21 @@ class TestDesignChecker(CheckerTestCase):
         )
         with self.assertNoMessages():
             self.checker.visit_classdef(node)
+
+    def test_too_few_public_methods(self) -> None:
+        """Tests the default ``min-public-methods`` config value of 2
+        triggers too-few-public-methods"""
+        node = astroid.extract_node(
+            """
+            class SomeModel:
+                def dummy(self):
+                    pass
+            """
+        )
+        message = MessageTest(
+            "too-few-public-methods",
+            node=node,
+            args=(1, 2),
+        )
+        with self.assertAddsMessages(message):
+            self.checker.leave_classdef(node)
