@@ -180,7 +180,6 @@ def _positional_parameters(method):
 
 class _DefaultMissing:
     """Sentinel value for missing arg default, use _DEFAULT_MISSING."""
-    pass
 
 
 _DEFAULT_MISSING = _DefaultMissing()
