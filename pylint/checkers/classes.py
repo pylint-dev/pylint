@@ -219,9 +219,8 @@ def _has_different_parameters_default_value(original, overridden):
             if original_default is _DEFAULT_MISSING:
                 # Both have a default, no difference
                 continue
-            else:
-                # Only the override has a default.
-                return True
+            # Only the override has a default.
+            return True
 
         original_type = type(original_default)
         if not isinstance(overridden_default, original_type):
