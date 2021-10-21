@@ -86,6 +86,14 @@ from pylint.utils import get_global_option
 NEXT_METHOD = "__next__"
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
+ASTROID_TYPE_COMPARATORS = {
+    nodes.Const: lambda a, b: a.value == b.value,
+    nodes.ClassDef: lambda a, b: a.qname == b.qname,
+    nodes.Tuple: lambda a, b: a.elts == b.elts,
+    nodes.List: lambda a, b: a.elts == b.elts,
+    nodes.Dict: lambda a, b: a.items == b.items,
+    nodes.Name: lambda a, b: set(a.infer()) == set(b.infer()),
+}
 
 # Dealing with useless override detection, with regard
 # to parameters vs arguments
@@ -219,21 +227,13 @@ def _has_different_parameters_default_value(original, overridden):
                 # Only one arg has no default value
                 return True
             # Both args have a default value. Compare them
-            astroid_type_comparators = {
-                nodes.Const: lambda a, b: a.value == b.value,
-                nodes.ClassDef: lambda a, b: a.name == b.name,
-                nodes.Tuple: lambda a, b: a.elts == b.elts,
-                nodes.List: lambda a, b: a.elts == b.elts,
-                nodes.Dict: lambda a, b: a.items == b.items,
-                nodes.Name: lambda a, b: set(a.infer()) == set(b.infer()),
-            }
             original_type = type(original_default)
-            if original_type in astroid_type_comparators:
+            if original_type in ASTROID_TYPE_COMPARATORS:
                 # We handle only astroid types that are inside the dict astroid_type_compared_attr
                 if not isinstance(overridden_default, original_type):
                     # Two args with same name but different types
                     return True
-                if not astroid_type_comparators[original_type](
+                if not ASTROID_TYPE_COMPARATORS[original_type](
                     original_default, overridden_default
                 ):
                     # Two args with same type but different values
