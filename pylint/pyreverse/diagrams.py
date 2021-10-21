@@ -121,6 +121,7 @@ class ClassDiagram(Figure, FilterMixIn):
             m
             for m in node.values()
             if isinstance(m, nodes.FunctionDef)
+            and not isinstance(m, astroid.objects.Property)
             and not decorated_with_property(m)
             and self.show_attr(m.name)
         ]

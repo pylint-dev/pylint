@@ -564,3 +564,5 @@ contributors:
 * Arianna Yang: contributor
 
 * Mike Fiedler (miketheman): contributor
+
+* Takahide Nojima: contributor

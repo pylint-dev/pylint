@@ -64,6 +64,8 @@ Extensions
 Other Changes
 =============
 
+* Fix exception when pyreverse parses ``property function`` of a class.
+
 * Improve and flatten ``unused-wildcard-import`` message
 
   Closes #3859
