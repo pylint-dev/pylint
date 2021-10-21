@@ -11,6 +11,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
+* Add extension checker ``for-any-all`` to check for for loops that could be any/all statements
+
+  Closes #5008
+
 * Properly identify parameters with no documentation and add new message called ``missing-any-param-doc``
 
   Closes #3799

@@ -558,3 +558,5 @@ contributors:
 * James DesLauriers: contributor
 
 * Youngsoo Sung: contributor
+
+* Arianna Yang: contributor
