@@ -27,7 +27,7 @@ def set_config(**kwargs):
                     self.checker.set_option(
                         key.replace("_", "-"),
                         value,
-                        optdict=dict(PyLinter.make_options()),
+                        optdict=dict(PyLinter.make_options())[key.replace("_", "-")],
                     )
             if isinstance(self, CheckerTestCase):
                 # reopen checker in case, it may be interested in configuration change
