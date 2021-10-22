@@ -103,14 +103,13 @@ something_else = NoBool()
 empty_literals = [[], {}, ()]
 is_empty = any(field == something_else for field in empty_literals)
 
-# this should work, but it doesn't since, input parameter only get the latest one, not all when inferred()
 h, i, j = 1, None, [1,2,3]
 
 def test(k):
     print(k == {})
 
 def test_with_default(k={}):
-    print(k == {}) # [use-implicit-booleaness-not-comparison]
+    print(k == {})
     print(k == 1)
 
 test(h)
@@ -171,7 +170,6 @@ if pandas_df != ():
 if pandas_df <= []:
     print("truth value of a dataframe is ambiguous")
 
-# from random import random
 from typing import Union
 from random import random
 
@@ -179,7 +177,7 @@ var: Union[dict, bool, None] = {}
 if random() > 0.5:
     var = True
 
-if var == {}: # [use-implicit-booleaness-not-comparison]
+if var == {}:
     pass
 
 data = {}
@@ -190,6 +188,5 @@ if data == {}: # [use-implicit-booleaness-not-comparison]
 if not data:
     print("This will also be printed")
 
-# ---
 if data:
     print("This however won't be")

@@ -162,9 +162,11 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                 literal_node = comparator if is_right_empty_literal else node.left
                 # Infer node to check
                 try:
-                    target_instance = next(target_node.infer())
+                    target_instance = utils.safe_infer(target_node)
                 except astroid.InferenceError:
                     # Probably undefined-variable, continue with check
+                    continue
+                if not target_instance:
                     continue
                 mother_classes = self.base_classes_of_node(target_instance)
                 is_base_comprehension_type = any(
