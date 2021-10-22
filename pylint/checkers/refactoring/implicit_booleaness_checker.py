@@ -145,19 +145,15 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         self, node: nodes.Compare
     ) -> None:
         """Check for left side and right side of the node for empty literals"""
-        is_left_empty_literal = (
-            utils.is_empty_list_literal(node.left)
-            or utils.is_empty_tuple_literal(node.left)
-            or utils.is_empty_dict_literal(node.left)
-        )
+        is_left_empty_literal = utils.is_base_container(
+            node.left
+        ) or utils.is_empty_dict_literal(node.left)
 
         # Check both left hand side and right hand side for literals
         for operator, comparator in node.ops:
-            is_right_empty_literal = (
-                utils.is_empty_list_literal(comparator)
-                or utils.is_empty_tuple_literal(comparator)
-                or utils.is_empty_dict_literal(comparator)
-            )
+            is_right_empty_literal = utils.is_base_container(
+                comparator
+            ) or utils.is_empty_dict_literal(comparator)
             # Using Exclusive OR (XOR) to compare between two side.
             # If two sides are both literal, it should be different error.
             if is_right_empty_literal ^ is_left_empty_literal:
@@ -172,7 +168,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     continue
                 mother_classes = self.base_classes_of_node(target_instance)
                 is_base_comprehension_type = any(
-                    t in mother_classes for t in ("tuple", "list", "dict")
+                    t in mother_classes for t in ("tuple", "list", "dict", "set")
                 )
 
                 # Only time we bypass check is when target_node is not inherited by
@@ -192,18 +188,9 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
 
                     instance_name = "x"
                     if isinstance(target_node, nodes.Call) and target_node.func:
-                        if isinstance(target_node.func, nodes.Attribute):
-                            instance_name = f"{target_node.func.attrname}(...)"
-                        elif isinstance(target_node.func, nodes.Name):
-                            instance_name = f"{target_node.func.name}(...)"
-                    elif isinstance(target_node, nodes.Attribute):
-                        instance_name = (
-                            target_node.attrname
-                            if target_node.attrname
-                            else instance_name
-                        )
-                    elif isinstance(target_node, nodes.Name):
-                        instance_name = target_node.name
+                        instance_name = f"{target_node.func.as_string()}(...)"
+                    elif isinstance(target_node, (nodes.Attribute, nodes.Name)):
+                        instance_name = target_node.as_string()
 
                     original_comparison = (
                         f"{instance_name} {operator} {collection_literal}"

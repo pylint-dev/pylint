@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring, missing-module-docstring, invalid-name
 # pylint: disable=too-few-public-methods, line-too-long, dangerous-default-value
+# pylint: disable=wrong-import-order
 # https://github.com/PyCQA/pylint/issues/4774
 
 def github_issue_4774():
@@ -169,3 +170,26 @@ if pandas_df != ():
     pass
 if pandas_df <= []:
     print("truth value of a dataframe is ambiguous")
+
+# from random import random
+from typing import Union
+from random import random
+
+var: Union[dict, bool, None] = {}
+if random() > 0.5:
+    var = True
+
+if var == {}: # [use-implicit-booleaness-not-comparison]
+    pass
+
+data = {}
+bool(data)  # False
+
+if data == {}: # [use-implicit-booleaness-not-comparison]
+    print("This will be printed")
+if not data:
+    print("This will also be printed")
+
+# ---
+if data:
+    print("This however won't be")
