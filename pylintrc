@@ -23,6 +23,7 @@ load-plugins=
     pylint.extensions.overlapping_exceptions,
     pylint.extensions.typing,
     pylint.extensions.redefined_variable_type,
+    pylint.extensions.for_any_all,
 
 # Use multiple processes to speed up Pylint.
 jobs=1

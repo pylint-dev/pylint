@@ -11,7 +11,7 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
-* Add extension checker ``for-any-all`` to check for for loops that could be any/all statements
+* Add extension checker ``consider-using-any-all`` to check for for loops that could be any/all statements
 
   Closes #5008
 

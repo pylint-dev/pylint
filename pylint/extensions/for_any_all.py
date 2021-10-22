@@ -9,32 +9,31 @@ from pylint.interfaces import IAstroidChecker
 class ForAnyAllChecker(BaseChecker):
 
     __implements__ = (IAstroidChecker,)
-    name = "for-any-all"
+    name = "consider-using-any-all"
     msgs = {
-        "W0151": (
+        "W2101": (
             "`for` loop could be any/all",
-            "for-any-all",
-            "For loops that just check for a condition can be replaced with any/all.",
+            "consider-using-any-all",
+            "For loops that check for a condition and return a bool can be replaced with any/all.",
         )
     }
 
-    @check_messages("for-any-all")
+    @check_messages("consider-using-any-all")
     def visit_for(self, node: nodes.For) -> None:
-        if not node.body or len(node.body) != 1:  # Only If node with no Else
+        if len(node.body) != 1:  # Only If node with no Else
             return
         if not isinstance(node.body[0], nodes.If):
             return
 
         if_children = list(node.body[0].get_children())
-        if len(if_children) == 2:  # The If node has only a comparison and return
-            if not self._node_returns_bool(if_children[1]):
-                return
-        else:
+        if not len(if_children) == 2:  # The If node has only a comparison and return
+            return
+        if not self._node_returns_bool(if_children[1]):
             return
 
         # Check for terminating boolean return right after the loop
         if self._node_returns_bool(node.next_sibling()):
-            self.add_message("for-any-all", node=node)
+            self.add_message("consider-using-any-all", node=node)
 
     @staticmethod
     def _node_returns_bool(node):

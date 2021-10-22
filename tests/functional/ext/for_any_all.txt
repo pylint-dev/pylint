@@ -1,3 +1,3 @@
-for-any-all:5:4:any_even:`for` loop could be any/all
-for-any-all:12:4:is_from_string:`for` loop could be any/all
-for-any-all:21:8:nested_check:`for` loop could be any/all
+consider-using-any-all:5:4:any_even:`for` loop could be any/all
+consider-using-any-all:12:4:is_from_string:`for` loop could be any/all
+consider-using-any-all:21:8:nested_check:`for` loop could be any/all
