@@ -59,6 +59,7 @@ import copy
 import itertools
 import os
 import re
+import sys
 from functools import lru_cache
 from typing import DefaultDict, List, Tuple
 
@@ -70,6 +71,11 @@ from pylint.checkers.utils import is_postponed_evaluation_enabled
 from pylint.constants import PY39_PLUS
 from pylint.interfaces import HIGH, INFERENCE, INFERENCE_FAILURE, IAstroidChecker
 from pylint.utils import get_global_option
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"
@@ -1195,17 +1201,14 @@ class VariablesChecker(BaseChecker):
                             )
                 elif self._is_only_type_assignment(node, defstmt):
                     self.add_message("undefined-variable", node=node, args=node.name)
-                elif self._is_first_level_type_annotation_reference(node, defstmt):
-                    if not utils.is_postponed_evaluation_enabled(node):
+                elif isinstance(defstmt, nodes.ClassDef):
+                    is_first_level = self._is_first_level_self_reference(node, defstmt)
+                    if is_first_level == 1:
                         self.add_message(
                             "used-before-assignment", node=node, args=node.name
                         )
-                    break
-                elif self._is_first_level_default_reference(node, defstmt):
-                    self.add_message(
-                        "used-before-assignment", node=node, args=node.name
-                    )
-                    break
+                    if is_first_level:
+                        break
 
             current_consumer.mark_as_consumed(node.name, found_nodes)
             # check it's not a loop variable used outside the loop
@@ -1581,31 +1584,29 @@ class VariablesChecker(BaseChecker):
         return True
 
     @staticmethod
-    def _is_first_level_type_annotation_reference(
-        node: nodes.Name, defstmt: nodes.Statement
-    ) -> bool:
-        """Check if a first level method's annotation refers to its own class.
-        See tests/functional/u/use/used_before_assignement.py for additional examples.
-        """
-        if isinstance(defstmt, nodes.ClassDef) and node.frame().parent == defstmt:
-            # Check if used as type annotation
-            if isinstance(node.parent, nodes.Arguments):
-                return True
-        return False
+    def _is_first_level_self_reference(
+        node: nodes.Name, defstmt: nodes.ClassDef
+    ) -> Literal[0, 1, 2]:
+        """Check if a first level method's annotation or default values
+        refers to its own class.
 
-    @staticmethod
-    def _is_first_level_default_reference(
-        node: nodes.Name, defstmt: nodes.Statement
-    ) -> bool:
-        """Check if a first level method's default value refers to its own class.
-        See tests/functional/u/use/used_before_assignement.py for additional examples.
+        Return values correspond to:
+            0 = Continue
+            1 = Emit message
+            2 = Break
         """
-        if isinstance(defstmt, nodes.ClassDef) and node.frame().parent == defstmt:
+        if node.frame().parent == defstmt:
+            # Check if used as type annotation
+            if utils.is_node_in_type_annotation_context(node):
+                if not utils.is_postponed_evaluation_enabled(node):
+                    return 1
+                return 2
+            # Check if used as default value by calling the class
             if isinstance(node.parent, nodes.Call) and isinstance(
                 node.parent.parent, nodes.Arguments
             ):
-                return True
-        return False
+                return 1
+        return 0
 
     def _ignore_class_scope(self, node):
         """
