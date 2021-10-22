@@ -4,7 +4,7 @@
 from __future__ import print_function
 
 # pylint: disable=wrong-import-position
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 DEFINED = 1
 
@@ -394,11 +394,11 @@ GLOBAL_VAR_TWO: int
 
 def assignment_in_comprehension():
     """A previously typed variables gets assigned in the comprehension within a function"""
-    number_list: list[int]
+    number_list: List[int]
     number_list = [number for number in range(10)]
     print(number_list)
-    number_list_two: list[int]
-    number_list_three: list[int]
+    number_list_two: List[int]
+    number_list_three: List[int]
     number_list_two, number_list_three = zip(range(2), range(2))
     print(number_list_two)
     print(number_list_three)
