@@ -33,4 +33,4 @@ undefined-variable:329:19:decorated4:Undefined variable 'y':HIGH
 undefined-variable:354:10:only_type_assignment:Undefined variable 'variable':HIGH
 undefined-variable:367:10:value_assignment_after_access:Undefined variable 'variable':HIGH
 undefined-variable:384:10:global_var_mixed_assignment:Undefined variable 'GLOBAL_VAR':HIGH
-undefined-variable:420:14:decorator_returning_incorrect_function.wrapper_with_type_and_no_value:Undefined variable 'var':HIGH
+undefined-variable:415:14:decorator_returning_incorrect_function.wrapper_with_type_and_no_value:Undefined variable 'var':HIGH

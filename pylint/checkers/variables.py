@@ -60,7 +60,7 @@ import itertools
 import os
 import re
 from functools import lru_cache
-from typing import DefaultDict, List, Tuple
+from typing import DefaultDict, List, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -1556,7 +1556,9 @@ class VariablesChecker(BaseChecker):
         return maybee0601, annotation_return, use_outer_definition
 
     @staticmethod
-    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
+    def _is_only_type_assignment(
+        node: nodes.Name, defstmt: Union[nodes.Module, nodes.Statement]
+    ) -> bool:
         """Check if variable only gets assigned a type and never a value"""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
