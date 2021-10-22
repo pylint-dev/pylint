@@ -1572,14 +1572,15 @@ class VariablesChecker(BaseChecker):
                 # If local ref is in the same frame as our node, but on a later lineno
                 # we don't actually care about this local ref. Since local refs are ordered
                 # we break.
-                # i.e. print(var)
-                #      var = 1 <- irrelevant
+                #     print(var)
+                #     var = 1  # <- irrelevant
                 if defstmt_frame == node_frame and not ref_node.lineno < node.lineno:
                     break
 
                 # If the parent of the local refence is anything but a AnnAssign
                 # Or if the AnnAssign adds a value the variable will now have a value
-                # i.e. var = 1 or var: int = 1
+                #     var = 1  # OR
+                #     var: int = 1
                 if (
                     not isinstance(ref_node.parent, nodes.AnnAssign)
                     or ref_node.parent.value

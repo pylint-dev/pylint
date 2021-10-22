@@ -393,15 +393,10 @@ GLOBAL_VAR_TWO: int
 
 
 def assignment_in_comprehension():
-    """A previously typed variables gets assigned in the comprehension within a function"""
-    number_list: List[int]
-    number_list = [number for number in range(10)]
-    print(number_list)
-    number_list_two: List[int]
-    number_list_three: List[int]
-    number_list_two, number_list_three = zip(range(2), range(2))
-    print(number_list_two)
-    print(number_list_three)
+    """A previously typed variables gets used in a comprehension. Don't crash!"""
+    some_list: List[int]
+    some_list = [1, 2, 3]
+    some_list = [i * 2 for i in some_list]
 
 
 def decorator_returning_function():
