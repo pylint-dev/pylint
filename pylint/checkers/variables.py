@@ -1202,7 +1202,9 @@ class VariablesChecker(BaseChecker):
                 elif self._is_only_type_assignment(node, defstmt):
                     self.add_message("undefined-variable", node=node, args=node.name)
                 elif isinstance(defstmt, nodes.ClassDef):
-                    is_first_level_ref = self._is_first_level_self_reference(node, defstmt)
+                    is_first_level_ref = self._is_first_level_self_reference(
+                        node, defstmt
+                    )
                     if is_first_level_ref == 1:
                         self.add_message(
                             "used-before-assignment", node=node, args=node.name
