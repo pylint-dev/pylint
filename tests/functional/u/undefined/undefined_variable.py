@@ -421,3 +421,12 @@ def decorator_returning_incorrect_function():
 
     var: int
     return wrapper_with_type_and_no_value
+
+
+def typing_and_value_assignment_with_tuple_assignment():
+    """The typed variables get assigned with a tuple assignment"""
+    var_one: int
+    var_two: int
+    var_one, var_two = 1, 1
+    print(var_one)
+    print(var_two)
