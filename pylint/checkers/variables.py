@@ -1205,7 +1205,7 @@ class VariablesChecker(BaseChecker):
                     is_first_level_ref = self._is_first_level_self_reference(
                         node, defstmt
                     )
-                    if is_first_level_ref == 1:
+                    if is_first_level_ref == 2:
                         self.add_message(
                             "used-before-assignment", node=node, args=node.name
                         )
@@ -1594,21 +1594,21 @@ class VariablesChecker(BaseChecker):
 
         Return values correspond to:
             0 = Continue
-            1 = <span class="x x-first x-last">Break</span>
-            2 = Break<span class="x x-first x-last"> + emit message</span>
+            1 = Break
+            2 = Break + emit message
         """
         if node.frame().parent == defstmt:
             # Check if used as type annotation
             # Break but don't emit message if postponed evaluation is enabled
             if utils.is_node_in_type_annotation_context(node):
                 if not utils.is_postponed_evaluation_enabled(node):
-                    return 1
-                return 2
+                    return 2
+                return 1
             # Check if used as default value by calling the class
             if isinstance(node.parent, nodes.Call) and isinstance(
                 node.parent.parent, nodes.Arguments
             ):
-                return 1
+                return 2
         return 0
 
     def _ignore_class_scope(self, node):
