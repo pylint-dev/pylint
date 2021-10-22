@@ -1202,12 +1202,12 @@ class VariablesChecker(BaseChecker):
                 elif self._is_only_type_assignment(node, defstmt):
                     self.add_message("undefined-variable", node=node, args=node.name)
                 elif isinstance(defstmt, nodes.ClassDef):
-                    is_first_level = self._is_first_level_self_reference(node, defstmt)
-                    if is_first_level == 1:
+                    is_first_level_ref = self._is_first_level_self_reference(node, defstmt)
+                    if is_first_level_ref == 1:
                         self.add_message(
                             "used-before-assignment", node=node, args=node.name
                         )
-                    if is_first_level:
+                    if is_first_level_ref:
                         break
 
             current_consumer.mark_as_consumed(node.name, found_nodes)
@@ -1592,11 +1592,12 @@ class VariablesChecker(BaseChecker):
 
         Return values correspond to:
             0 = Continue
-            1 = Emit message
-            2 = Break
+            1 = <span class="x x-first x-last">Break</span>
+            2 = Break<span class="x x-first x-last"> + emit message</span>
         """
         if node.frame().parent == defstmt:
             # Check if used as type annotation
+            # Break but don't emit message if postponed evaluation is enabled
             if utils.is_node_in_type_annotation_context(node):
                 if not utils.is_postponed_evaluation_enabled(node):
                     return 1
