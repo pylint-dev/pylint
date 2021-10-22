@@ -198,9 +198,9 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                         f"{instance_name} {operator} {collection_literal}"
                     )
                     suggestion = (
-                        f"not {instance_name}"
+                        f"{instance_name}"
                         if operator == "!="
-                        else f"{instance_name}"
+                        else f"not {instance_name}"
                     )
                     self.add_message(
                         "use-implicit-booleaness-not-comparison",
