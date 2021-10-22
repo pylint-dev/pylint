@@ -1,5 +1,6 @@
-# pylint: disable=missing-docstring, multiple-statements, useless-object-inheritance,import-outside-toplevel
-# pylint: disable=too-few-public-methods, no-init, no-self-use,bare-except,broad-except, import-error, global-variable-not-assigned
+# pylint: disable=missing-docstring, multiple-statements, useless-object-inheritance, import-outside-toplevel
+# pylint: disable=too-few-public-methods, no-init, no-self-use, bare-except, broad-except
+# pylint: disable=using-constant-test, import-error, global-variable-not-assigned, unnecessary-comprehension
 from __future__ import print_function
 
 # pylint: disable=wrong-import-position
@@ -385,3 +386,65 @@ def global_var_mixed_assignment():
     print(GLOBAL_VAR_TWO)
 
 GLOBAL_VAR_TWO = 2
+
+
+GLOBAL_VAR: int
+GLOBAL_VAR_TWO: int
+
+
+def assignment_in_comprehension():
+    """A previously typed variables gets assigned in the comprehension within a function"""
+    number_list: list[int]
+    number_list = [number for number in range(10)]
+    print(number_list)
+    number_list_two: list[int]
+    number_list_three: list[int]
+    number_list_two, number_list_three = zip(range(2), range(2))
+    print(number_list_two)
+    print(number_list_three)
+
+
+def decorator_returning_function():
+    """A decorator that returns a wrapper function with decoupled typing"""
+    def wrapper_with_decoupled_typing():
+        print(var)
+
+    var: int
+    var = 2
+    return wrapper_with_decoupled_typing
+
+
+def decorator_returning_incorrect_function():
+    """A decorator that returns a wrapper function with decoupled typing"""
+    def wrapper_with_type_and_no_value():
+        print(var) # [undefined-variable]
+
+    var: int
+    return wrapper_with_type_and_no_value
+
+
+def typing_and_assignment_expression():
+    """The variable gets assigned in an assignment expression"""
+    var: int
+    if (var := 1 ** 2):
+        print(var)
+
+
+def typing_and_self_referncing_assignment_expression():
+    """The variable gets assigned in an assignment expression that references itself"""
+    var: int
+    if (var := var ** 2): # [undefined-variable]
+        print(var)
+
+
+# pylint: disable-next=fixme
+# TODO: With better control-flow inference related NamedExpr we should see that the
+# NamedExpr is never called here and the second call to `var` is thus undefined
+def typing_and_incorrect_assignment_expression():
+    """The variable gets assigned in an assignment expression which is never called"""
+    var: int
+    if False:
+        if (var := 1 ** 2):
+            print(var)
+    else:
+        print(var)

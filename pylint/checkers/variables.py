@@ -1561,22 +1561,30 @@ class VariablesChecker(BaseChecker):
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
 
+        defstmt_frame = defstmt.frame()
+        node_frame = node.frame()
+
         parent = node
-        while parent is not defstmt.frame().parent:
-            local_refs = parent.scope().locals.get(node.name, [])
-            if local_refs:
-                for ref_node in local_refs:
-                    if (
-                        defstmt.frame() == node.frame()
-                        and not ref_node.lineno < node.lineno
-                    ):
-                        break
-                    if (
-                        not isinstance(ref_node.parent, nodes.AnnAssign)
-                        or ref_node.parent.value
-                    ):
-                        return False
-            parent = parent.scope().parent
+        while parent is not defstmt_frame.parent:
+            parent_scope = parent.scope()
+            local_refs = parent_scope.locals.get(node.name, [])
+            for ref_node in local_refs:
+                # If local ref is in the same frame as our node, but on a later lineno
+                # we don't actually care about this local ref
+                # i.e. print(var)
+                #      var = 1 <- irrelevant
+                if defstmt_frame == node_frame and not ref_node.lineno < node.lineno:
+                    break
+
+                # If the parent of the local refence is anything but a AnnAssign
+                # Or if the AnnAssign adds a value the variable will now have a value
+                # i.e. var = 1 or var: int = 1
+                if (
+                    not isinstance(ref_node.parent, nodes.AnnAssign)
+                    or ref_node.parent.value
+                ):
+                    return False
+            parent = parent_scope.parent
         return True
 
     def _ignore_class_scope(self, node):
