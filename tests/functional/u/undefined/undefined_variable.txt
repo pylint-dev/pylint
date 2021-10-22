@@ -34,4 +34,3 @@ undefined-variable:354:10:only_type_assignment:Undefined variable 'variable':HIG
 undefined-variable:367:10:value_assignment_after_access:Undefined variable 'variable':HIGH
 undefined-variable:384:10:global_var_mixed_assignment:Undefined variable 'GLOBAL_VAR':HIGH
 undefined-variable:420:14:decorator_returning_incorrect_function.wrapper_with_type_and_no_value:Undefined variable 'var':HIGH
-undefined-variable:436:15:typing_and_self_referncing_assignment_expression:Undefined variable 'var':HIGH
