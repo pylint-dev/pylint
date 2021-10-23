@@ -6,6 +6,9 @@ package "data" as data {
 package "data.clientmodule_test" as data.clientmodule_test {
 
 }
+package "data.property_pattern" as data.property_pattern {
+
+}
 package "data.suppliermodule_test" as data.suppliermodule_test {
 
 }
