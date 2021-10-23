@@ -77,6 +77,11 @@ Release date: TBA
 
   Closes #3031
 
+* Normalize the input to the ``ignore-paths`` option to allow both Posix and
+  Windows paths
+
+  Closes #5194
+
 * Fix double emitting of ``not-callable`` on inferrable ``properties``
 
   Closes #4426
