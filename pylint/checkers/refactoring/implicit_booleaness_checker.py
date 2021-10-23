@@ -145,19 +145,15 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         self, node: nodes.Compare
     ) -> None:
         """Check for left side and right side of the node for empty literals"""
-        is_left_empty_literal = (
-            utils.is_empty_list_literal(node.left)
-            or utils.is_empty_tuple_literal(node.left)
-            or utils.is_empty_dict_literal(node.left)
-        )
+        is_left_empty_literal = utils.is_base_container(
+            node.left
+        ) or utils.is_empty_dict_literal(node.left)
 
         # Check both left hand side and right hand side for literals
         for operator, comparator in node.ops:
-            is_right_empty_literal = (
-                utils.is_empty_list_literal(comparator)
-                or utils.is_empty_tuple_literal(comparator)
-                or utils.is_empty_dict_literal(comparator)
-            )
+            is_right_empty_literal = utils.is_base_container(
+                comparator
+            ) or utils.is_empty_dict_literal(comparator)
             # Using Exclusive OR (XOR) to compare between two side.
             # If two sides are both literal, it should be different error.
             if is_right_empty_literal ^ is_left_empty_literal:
@@ -165,14 +161,12 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                 target_node = node.left if is_right_empty_literal else comparator
                 literal_node = comparator if is_right_empty_literal else node.left
                 # Infer node to check
-                try:
-                    target_instance = next(target_node.infer())
-                except astroid.InferenceError:
-                    # Probably undefined-variable, continue with check
+                target_instance = utils.safe_infer(target_node)
+                if target_instance is None:
                     continue
                 mother_classes = self.base_classes_of_node(target_instance)
                 is_base_comprehension_type = any(
-                    t in mother_classes for t in ("tuple", "list", "dict")
+                    t in mother_classes for t in ("tuple", "list", "dict", "set")
                 )
 
                 # Only time we bypass check is when target_node is not inherited by
@@ -183,20 +177,26 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     continue
 
                 # No need to check for operator when visiting compare node
-                if operator in ["==", "!=", ">=", ">", "<=", "<"]:
+                if operator in ("==", "!=", ">=", ">", "<=", "<"):
                     collection_literal = "{}"
                     if isinstance(literal_node, nodes.List):
                         collection_literal = "[]"
                     if isinstance(literal_node, nodes.Tuple):
                         collection_literal = "()"
-                    variable_name = target_node.name
+
+                    instance_name = "x"
+                    if isinstance(target_node, nodes.Call) and target_node.func:
+                        instance_name = f"{target_node.func.as_string()}(...)"
+                    elif isinstance(target_node, (nodes.Attribute, nodes.Name)):
+                        instance_name = target_node.as_string()
+
                     original_comparison = (
-                        f"{variable_name} {operator} {collection_literal}"
+                        f"{instance_name} {operator} {collection_literal}"
                     )
                     suggestion = (
-                        f"not {variable_name}"
+                        f"{instance_name}"
                         if operator == "!="
-                        else f"{variable_name}"
+                        else f"not {instance_name}"
                     )
                     self.add_message(
                         "use-implicit-booleaness-not-comparison",
@@ -208,7 +208,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     )
 
     @staticmethod
-    def base_classes_of_node(instance: nodes.ClassDef) -> List[nodes.Name]:
+    def base_classes_of_node(instance: nodes.ClassDef) -> List[str]:
         """Return all the classes names that a ClassDef inherit from including 'object'."""
         try:
             return [instance.name] + [x.name for x in instance.ancestors()]

@@ -1626,12 +1626,8 @@ def is_function_body_ellipsis(node: nodes.FunctionDef) -> bool:
     )
 
 
-def is_empty_list_literal(node: Optional[nodes.NodeNG]) -> bool:
-    return isinstance(node, nodes.List) and not node.elts
-
-
-def is_empty_tuple_literal(node: Optional[nodes.NodeNG]) -> bool:
-    return isinstance(node, nodes.Tuple) and not node.elts
+def is_base_container(node: Optional[nodes.NodeNG]) -> bool:
+    return isinstance(node, nodes.BaseContainer) and not node.elts
 
 
 def is_empty_dict_literal(node: Optional[nodes.NodeNG]) -> bool:
