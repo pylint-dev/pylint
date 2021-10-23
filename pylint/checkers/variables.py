@@ -1571,18 +1571,42 @@ class VariablesChecker(BaseChecker):
 
         return maybee0601, annotation_return, use_outer_definition
 
+    # pylint: disable-next=fixme
+    # TODO: The typing of `NodeNG.statement()` in astroid is non-specific
+    # After this has been updated the typing of `defstmt` should reflect this
+    # See: https://github.com/PyCQA/astroid/pull/1217
     @staticmethod
-    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
+    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.NodeNG) -> bool:
         """Check if variable only gets assigned a type and never a value"""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
-        for ref_node in node.scope().locals[node.name][1:]:
-            if ref_node.lineno < node.lineno:
-                if not (
-                    isinstance(ref_node.parent, nodes.AnnAssign)
-                    and ref_node.parent.value
+
+        defstmt_frame = defstmt.frame()
+        node_frame = node.frame()
+
+        parent = node
+        while parent is not defstmt_frame.parent:
+            parent_scope = parent.scope()
+            local_refs = parent_scope.locals.get(node.name, [])
+            for ref_node in local_refs:
+                # If local ref is in the same frame as our node, but on a later lineno
+                # we don't actually care about this local ref.
+                # Local refs are ordered, so we break.
+                #     print(var)
+                #     var = 1  # <- irrelevant
+                if defstmt_frame == node_frame and not ref_node.lineno < node.lineno:
+                    break
+
+                # If the parent of the local refence is anything but a AnnAssign
+                # Or if the AnnAssign adds a value the variable will now have a value
+                #     var = 1  # OR
+                #     var: int = 1
+                if (
+                    not isinstance(ref_node.parent, nodes.AnnAssign)
+                    or ref_node.parent.value
                 ):
                     return False
+            parent = parent_scope.parent
         return True
 
     @staticmethod
