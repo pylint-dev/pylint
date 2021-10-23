@@ -23,7 +23,79 @@ class TestForAnyAll(CheckerTestCase):
         """
         ).body[0]
 
-        with self.assertAddsMessages(MessageTest("consider-using-any-all", node=node)):
+        with self.assertAddsMessages(
+            MessageTest(
+                "consider-using-any-all",
+                node=node,
+                args="any(isinstance(parent, Decorators) for parent in node.node_ancestors())",
+            )
+        ):
+            self.checker.visit_for(node)
+
+    def test_basic_emit_all_for_any_all(self) -> None:
+        """Simple case where we expect the message to be emitted with an all suggestion."""
+        node = astroid.extract_node(
+            """
+        def is_from_decorator(node):
+            for parent in node.node_ancestors():
+                if isinstance(parent, Decorators):
+                    return False
+            return True
+        """
+        ).body[0]
+
+        with self.assertAddsMessages(
+            MessageTest(
+                "consider-using-any-all",
+                node=node,
+                args="all(not isinstance(parent, Decorators) for parent in node.node_ancestors())",
+            )
+        ):
+            self.checker.visit_for(node)
+
+    def test_emit_all_boolop_for_any_all(self) -> None:
+        """Case where we expect a boolean condition to be wrapped in parens and negated for an all suggestion."""
+        node = astroid.extract_node(
+            """
+        def is_from_decorator(items):
+            for item in items:
+                if item % 2 == 0 and (item % 3 == 0 or item > 15):
+                    return False
+            return True
+        """
+        ).body[0]
+
+        with self.assertAddsMessages(
+            MessageTest(
+                "consider-using-any-all",
+                node=node,
+                args="all(not (item % 2 == 0 and (item % 3 == 0 or item > 15)) for item in items)",
+            )
+        ):
+            self.checker.visit_for(node)
+
+    def test_basic_emit_generic_for_any_all(self) -> None:
+        """Simple case where we expect a generic message to be emitted."""
+        node = astroid.extract_node(
+            """
+        def is_from_decorator(node):
+            for ancestor in itertools.chain([node], ancestors):
+                if (
+                    ancestor.name in ("Exception", "BaseException")
+                    and ancestor.root().name == EXCEPTIONS_MODULE
+                ):
+                    return True
+            return False
+        """
+        ).body[0]
+
+        with self.assertAddsMessages(
+            MessageTest(
+                "consider-using-any-all",
+                node=node,
+                args="any/all statement with a generator",
+            )
+        ):
             self.checker.visit_for(node)
 
     def test_non_conditional_for(self) -> None:

@@ -50,8 +50,9 @@ Removed checkers
 
 Extensions
 ==========
-* Added optional extension ``consider-using-any-all``: Emitted when a ``for`` loop only iterates
-  over a list to produce a boolean and could be replaced by any/all called on a list comprehension
+* Added optional extension ``consider-using-any-all``: Emitted when a ``for`` loop only
+  produces a boolean that could be replaced by any/all called on a generator comprehension.
+  Also suggests a suitable any/all statement if it is concise.
 
   Closes #5008
 
