@@ -407,7 +407,7 @@ class MisdesignChecker(BaseChecker):
             {
                 "default": (),
                 "type": "regexp_csv",
-                "metavar": "<comma separated list of regular expressions>",
+                "metavar": "<pattern>[,<pattern>...]",
                 "help": "List of regular expressions to module/class names"
                 "to ignore when counting public methods (see R0903)",
             },
@@ -426,6 +426,9 @@ class MisdesignChecker(BaseChecker):
         self._returns = []
         self._branches = defaultdict(int)
         self._stmts = []
+        self._exclude_too_few_public_methods = utils.get_global_option(
+            self, "exclude-too-few-public-methods", default=None
+        )
 
     def _inc_all_stmts(self, amount):
         for i, _ in enumerate(self._stmts):
@@ -483,9 +486,9 @@ class MisdesignChecker(BaseChecker):
             )
 
         # Stop here if the class is excluded via configuration.
-        if node.type == "class" and self.config.exclude_too_few_public_methods:
+        if node.type == "class" and self._exclude_too_few_public_methods:
             for ancestor in node.ancestors():
-                for pattern in self.config.exclude_too_few_public_methods:
+                for pattern in self._exclude_too_few_public_methods:
                     if pattern.search(ancestor.qname()):
                         return
 
