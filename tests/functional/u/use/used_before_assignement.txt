@@ -1,2 +1,0 @@
-used-before-assignment:5:19::Using variable 'MSG' before assignment
-used-before-assignment:8:8::Using variable 'MSG2' before assignment

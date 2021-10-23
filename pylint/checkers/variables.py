@@ -59,6 +59,7 @@ import copy
 import itertools
 import os
 import re
+import sys
 from functools import lru_cache
 from typing import DefaultDict, List, Tuple
 
@@ -70,6 +71,11 @@ from pylint.checkers.utils import is_postponed_evaluation_enabled
 from pylint.constants import PY39_PLUS
 from pylint.interfaces import HIGH, INFERENCE, INFERENCE_FAILURE, IAstroidChecker
 from pylint.utils import get_global_option
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"
@@ -1195,6 +1201,16 @@ class VariablesChecker(BaseChecker):
                             )
                 elif self._is_only_type_assignment(node, defstmt):
                     self.add_message("undefined-variable", node=node, args=node.name)
+                elif isinstance(defstmt, nodes.ClassDef):
+                    is_first_level_ref = self._is_first_level_self_reference(
+                        node, defstmt
+                    )
+                    if is_first_level_ref == 2:
+                        self.add_message(
+                            "used-before-assignment", node=node, args=node.name
+                        )
+                    if is_first_level_ref:
+                        break
 
             current_consumer.mark_as_consumed(node.name, found_nodes)
             # check it's not a loop variable used outside the loop
@@ -1568,6 +1584,32 @@ class VariablesChecker(BaseChecker):
                 ):
                     return False
         return True
+
+    @staticmethod
+    def _is_first_level_self_reference(
+        node: nodes.Name, defstmt: nodes.ClassDef
+    ) -> Literal[0, 1, 2]:
+        """Check if a first level method's annotation or default values
+        refers to its own class.
+
+        Return values correspond to:
+            0 = Continue
+            1 = Break
+            2 = Break + emit message
+        """
+        if node.frame().parent == defstmt:
+            # Check if used as type annotation
+            # Break but don't emit message if postponed evaluation is enabled
+            if utils.is_node_in_type_annotation_context(node):
+                if not utils.is_postponed_evaluation_enabled(node):
+                    return 2
+                return 1
+            # Check if used as default value by calling the class
+            if isinstance(node.parent, nodes.Call) and isinstance(
+                node.parent.parent, nodes.Arguments
+            ):
+                return 2
+        return 0
 
     def _ignore_class_scope(self, node):
         """

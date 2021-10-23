@@ -77,6 +77,11 @@ Other Changes
 
   Closes #4031
 
+* ``used-before-assignment`` now correctly considers references to classes as type annotation
+  or default values in first-level methods
+
+  Closes #3771
+
 * Fix double emitting of ``not-callable`` on inferrable ``properties``
 
   Closes #4426
