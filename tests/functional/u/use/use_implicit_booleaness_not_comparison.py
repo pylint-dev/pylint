@@ -168,7 +168,7 @@ if pandas_df == []:
 if pandas_df != ():
     pass
 if pandas_df <= []:
-    print("truth value of a dataframe is ambiguous")
+    print("don't emit warning if variable can't safely be inferred")
 
 from typing import Union
 from random import random
@@ -181,12 +181,16 @@ if var == {}:
     pass
 
 data = {}
-bool(data)  # False
 
 if data == {}: # [use-implicit-booleaness-not-comparison]
     print("This will be printed")
-if not data:
+if data != {}: # [use-implicit-booleaness-not-comparison]
     print("This will also be printed")
 
-if data:
+if data or not data:
     print("This however won't be")
+
+# literal string check
+long_test = {}
+if long_test == {        }: # [use-implicit-booleaness-not-comparison]
+    pass

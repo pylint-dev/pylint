@@ -25,4 +25,6 @@ use-implicit-booleaness-not-comparison:149:3::'test_function(...) == []' can be 
 use-implicit-booleaness-not-comparison:156:3::'numpy_array == []' can be simplified to 'not numpy_array' as an empty sequence is falsey:HIGH
 use-implicit-booleaness-not-comparison:158:3::'numpy_array != []' can be simplified to 'numpy_array' as an empty sequence is falsey:HIGH
 use-implicit-booleaness-not-comparison:160:3::'numpy_array >= ()' can be simplified to 'not numpy_array' as an empty sequence is falsey:HIGH
-use-implicit-booleaness-not-comparison:186:3::'data == {}' can be simplified to 'not data' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:185:3::'data == {}' can be simplified to 'not data' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:187:3::'data != {}' can be simplified to 'data' as an empty sequence is falsey:HIGH
+use-implicit-booleaness-not-comparison:195:3::'long_test == {}' can be simplified to 'not long_test' as an empty sequence is falsey:HIGH
