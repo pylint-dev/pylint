@@ -60,7 +60,7 @@ import itertools
 import os
 import re
 from functools import lru_cache
-from typing import DefaultDict, List, Tuple, Union
+from typing import DefaultDict, List, Tuple
 
 import astroid
 from astroid import nodes
@@ -1555,10 +1555,12 @@ class VariablesChecker(BaseChecker):
 
         return maybee0601, annotation_return, use_outer_definition
 
+    # pylint: disable-next=fixme
+    # TODO: The typing of `NodeNG.statement()` in astroid is non-specific
+    # After this has been updated the typing of `defstmt` should reflect this
+    # See: https://github.com/PyCQA/astroid/pull/1217
     @staticmethod
-    def _is_only_type_assignment(
-        node: nodes.Name, defstmt: Union[nodes.Module, nodes.Statement]
-    ) -> bool:
+    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.NodeNG) -> bool:
         """Check if variable only gets assigned a type and never a value"""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
