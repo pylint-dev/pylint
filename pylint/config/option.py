@@ -31,9 +31,12 @@ def _regexp_paths_csv_validator(_, name: str, value: str) -> List[Pattern[str]]:
     patterns = []
     for val in _csv_validator(_, name, value):
         patterns.append(
-            re.compile(str(pathlib.PureWindowsPath(val)).replace("\\", "\\\\"))
+            re.compile(
+                str(pathlib.PureWindowsPath(val)).replace("\\", "\\\\")
+                + '|' 
+                + pathlib.PureWindowsPath(val).as_posix()
+            )
         )
-        patterns.append(re.compile(pathlib.PureWindowsPath(val).as_posix()))
     return patterns
 
 
