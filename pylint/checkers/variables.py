@@ -1572,8 +1572,8 @@ class VariablesChecker(BaseChecker):
             local_refs = parent_scope.locals.get(node.name, [])
             for ref_node in local_refs:
                 # If local ref is in the same frame as our node, but on a later lineno
-                # we don't actually care about this local ref. Since local refs are ordered
-                # we break.
+                # we don't actually care about this local ref.
+                # Local refs are ordered, so we break.
                 #     print(var)
                 #     var = 1  # <- irrelevant
                 if defstmt_frame == node_frame and not ref_node.lineno < node.lineno:
