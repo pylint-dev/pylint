@@ -6,7 +6,7 @@ import sys
 import warnings
 
 from pylint import __pkginfo__, extensions, interfaces
-from pylint.constants import DEFAULT_PYLINT_HOME, full_version
+from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME, full_version
 from pylint.lint.pylinter import PyLinter
 from pylint.lint.utils import ArgumentPreprocessingError, preprocess_options
 from pylint.utils import print_full_documentation, utils
@@ -275,7 +275,8 @@ group are mutually exclusive.",
 The following environment variables are used:
     * PYLINTHOME
     Path to the directory where persistent data for the run will be stored. If
-not found, it defaults to '{DEFAULT_PYLINT_HOME}'.
+not found, it defaults to '{DEFAULT_PYLINT_HOME}' or '{OLD_DEFAULT_PYLINT_HOME}'
+(in the current working directory).
     * PYLINTRC
     Path to the configuration file. See the documentation for the method used
 to search for configuration file.
