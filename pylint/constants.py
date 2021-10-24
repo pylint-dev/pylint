@@ -4,6 +4,7 @@ import platform
 import sys
 
 import astroid
+import platformdirs
 
 from pylint.__pkginfo__ import __version__
 
@@ -38,6 +39,8 @@ MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 # This would affect rcfile generation and retro-compatibility
 # on all project using [MASTER] in their rcfile.
 MAIN_CHECKER_NAME = "master"
+
+DEFAULT_PYLINT_HOME = platformdirs.user_cache_dir("pylint")
 
 
 class WarningScope:
