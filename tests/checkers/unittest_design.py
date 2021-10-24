@@ -10,7 +10,7 @@
 import astroid
 
 from pylint.checkers import design_analysis
-from pylint.testutils import CheckerTestCase, MessageTest, set_config
+from pylint.testutils import CheckerTestCase, set_config
 from pylint.utils.utils import get_global_option
 
 
@@ -43,42 +43,6 @@ class TestDesignChecker(CheckerTestCase):
         )
         with self.assertNoMessages():
             self.checker.visit_classdef(node)
-
-    def test_too_few_public_methods(self) -> None:
-        """Tests the default ``min-public-methods`` config value of 2
-        triggers too-few-public-methods"""
-        node = astroid.extract_node(
-            """
-            class SomeModel:
-                def dummy(self):
-                    pass
-            """
-        )
-        message = MessageTest(
-            "too-few-public-methods",
-            node=node,
-            args=(1, 2),
-        )
-        with self.assertAddsMessages(message):
-            self.checker.leave_classdef(node)
-
-    @set_config(exclude_too_few_public_methods=("toml.*"))
-    @set_config(min_public_methods=20)  # to combat inherited methods
-    def test_exclude_too_few_methods(self) -> None:
-        """Tests config setting ``exclude-too-few-public-methods`` with a
-        comma-separated regular expression suppresses the message for
-        `too-few-public-methods` on classes that match the regular expression.
-        """
-        node = astroid.extract_node(
-            """
-            from toml import TomlEncoder
-
-            class MyTomlEncoder(TomlEncoder):
-                ...
-            """
-        )
-        with self.assertNoMessages():
-            self.checker.leave_classdef(node)
 
     @set_config(exclude_too_few_public_methods="toml.*")
     def test_exclude_too_few_methods_with_value(self) -> None:
