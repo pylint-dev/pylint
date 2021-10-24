@@ -427,7 +427,7 @@ class MisdesignChecker(BaseChecker):
         self._branches = defaultdict(int)
         self._stmts = []
         self._exclude_too_few_public_methods = utils.get_global_option(
-            self, "exclude-too-few-public-methods", default=None
+            self, "exclude-too-few-public-methods", default=[]
         )
 
     def _inc_all_stmts(self, amount):
