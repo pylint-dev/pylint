@@ -239,7 +239,7 @@ methods is doing nothing but raising NotImplementedError.
 
 To do so you have to set the ignore-mixin-members option to
 "yes" (this is the default value) and to name your mixin class with
-a name which ends with "mixin" (whatever case).
+a name which ends with "Mixin" (mixin-class-rgx default).
 
 
 6. Troubleshooting

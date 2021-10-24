@@ -351,6 +351,8 @@ Release date: 2021-08-20
   Close #4120
   Close #4118
 
+* Support configuring mixin class pattern via ``mixin-class-rgx`` when ``ignore-mixin-members`` is enabled.
+
 * Don't emit ``no-member`` error if guarded behind if statement.
 
   Ref #1162
@@ -463,7 +465,6 @@ Release date: 2021-08-20
 * Improve performance when inferring ``Call`` nodes, by utilizing caching.
 
 * Improve error message for invalid-metaclass when the node is an Instance.
-
 
 What's New in Pylint 2.9.6?
 ===========================
