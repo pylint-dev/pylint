@@ -40,8 +40,6 @@ import pickle
 import sys
 from datetime import datetime
 
-import platformdirs
-
 from pylint.config.configuration_mixin import ConfigurationMixIn
 from pylint.config.find_default_config_files import find_default_config_files
 from pylint.config.man_help_formatter import _ManHelpFormatter
@@ -49,6 +47,7 @@ from pylint.config.option import Option
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
 from pylint.config.option_parser import OptionParser
 from pylint.config.options_provider_mixin import OptionsProviderMixIn, UnsupportedAction
+from pylint.constants import DEFAULT_PYLINT_HOME
 from pylint.utils import LinterStats
 
 __all__ = [
@@ -70,7 +69,7 @@ if "PYLINTHOME" in os.environ:
 elif USER_HOME == "~":
     PYLINT_HOME = ".pylint.d"
 else:
-    PYLINT_HOME = platformdirs.user_cache_dir("pylint")
+    PYLINT_HOME = DEFAULT_PYLINT_HOME
     # The spam prevention is due to pylint being used in parallel by
     # pre-commit, and the message being spammy in this context
     # Also if you work with old version of pylint that recreate the
