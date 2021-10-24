@@ -93,7 +93,9 @@ class TestForAnyAll(CheckerTestCase):
             MessageTest(
                 "consider-using-any-or-all",
                 node=node,
-                args="any(ancestor.name in ('Exception', 'BaseException') and ancestor.root().name == EXCEPTIONS_MODULE for ancestor in itertools.chain([node], ancestors))",
+                args="any(ancestor.name in ('Exception', 'BaseException') "
+                "and ancestor.root().name == EXCEPTIONS_MODULE "
+                "for ancestor in itertools.chain([node], ancestors))",
             )
         ):
             self.checker.visit_for(node)
@@ -138,7 +140,9 @@ class TestForAnyAll(CheckerTestCase):
             MessageTest(
                 "consider-using-any-or-all",
                 node=node,
-                args="not all(ancestor.name in ('Exception', 'BaseException') and ancestor.root().name == EXCEPTIONS_MODULE for ancestor in itertools.chain([node], ancestors))",
+                args="not all(ancestor.name in ('Exception', 'BaseException') "
+                "and ancestor.root().name == EXCEPTIONS_MODULE "
+                "for ancestor in itertools.chain([node], ancestors))",
             )
         ):
             self.checker.visit_for(node)
