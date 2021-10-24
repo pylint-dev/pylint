@@ -1642,3 +1642,12 @@ def is_empty_str_literal(node: Optional[nodes.NodeNG]) -> bool:
     return (
         isinstance(node, nodes.Const) and isinstance(node.value, str) and not node.value
     )
+
+
+def returns_bool(node: nodes.NodeNG) -> bool:
+    """Returns true if a node is a return that returns a constant boolean"""
+    return (
+        isinstance(node, nodes.Return)
+        and isinstance(node.value, nodes.Const)
+        and node.value.value in (True, False)
+    )

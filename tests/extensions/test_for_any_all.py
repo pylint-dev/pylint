@@ -48,13 +48,13 @@ class TestForAnyAll(CheckerTestCase):
             MessageTest(
                 "consider-using-any-all",
                 node=node,
-                args="all(not isinstance(parent, Decorators) for parent in node.node_ancestors())",
+                args="not any(isinstance(parent, Decorators) for parent in node.node_ancestors())",
             )
         ):
             self.checker.visit_for(node)
 
     def test_emit_all_boolop_for_any_all(self) -> None:
-        """Case where we expect a boolean condition to be wrapped in parens and negated for an all suggestion."""
+        """Case where we expect an all statement with a more complicated condition"""
         node = astroid.extract_node(
             """
         def is_from_decorator(items):
@@ -69,13 +69,13 @@ class TestForAnyAll(CheckerTestCase):
             MessageTest(
                 "consider-using-any-all",
                 node=node,
-                args="all(not (item % 2 == 0 and (item % 3 == 0 or item > 15)) for item in items)",
+                args="not any(item % 2 == 0 and (item % 3 == 0 or item > 15) for item in items)",
             )
         ):
             self.checker.visit_for(node)
 
     def test_basic_emit_generic_for_any_all(self) -> None:
-        """Simple case where we expect a generic message to be emitted."""
+        """Simple case where we expect a particularly long message to be emitted."""
         node = astroid.extract_node(
             """
         def is_from_decorator(node):
@@ -93,7 +93,7 @@ class TestForAnyAll(CheckerTestCase):
             MessageTest(
                 "consider-using-any-all",
                 node=node,
-                args="any/all statement with a generator",
+                args="any(ancestor.name in ('Exception', 'BaseException') and ancestor.root().name == EXCEPTIONS_MODULE for ancestor in itertools.chain([node], ancestors))",
             )
         ):
             self.checker.visit_for(node)

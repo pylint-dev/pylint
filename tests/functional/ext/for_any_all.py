@@ -24,18 +24,3 @@ def nested_check(items):
         return True
     print(items)
     return items[3] > 5
-
-def suppress_long_suggestion(items):
-    """Tests that we get generic message if the suggestion would be long"""
-    if items and len(items) > 5:
-        print(items)
-        for item in items: # [consider-using-any-all]
-            if (item in (1, 2, 3)
-                or item.get_next_prime() > item + 150
-                or item.get_next_passing_without_skipping_nulls()
-                or item * 300 > 15000
-                and str(item) not in ("120000000", "150000000")):
-                return False
-        return True
-    print(items)
-    return items[3] > 5

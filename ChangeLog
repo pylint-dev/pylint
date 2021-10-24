@@ -11,7 +11,9 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
-* Add extension checker ``consider-using-any-all`` to check for for loops that could be any/all statements
+* Add extension checker ``consider-using-any-all`` to check for ``for`` loops
+  which only produce a boolean that could be replaced by any/all called on a generator comprehension.
+  Also suggests a suitable any/all statement if it is concise.
 
   Closes #5008
 

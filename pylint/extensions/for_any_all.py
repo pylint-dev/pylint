@@ -2,7 +2,7 @@
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import check_messages, returns_bool
 from pylint.interfaces import IAstroidChecker
 
 
@@ -11,7 +11,7 @@ class ForAnyAllChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = "consider-using-any-all"
     msgs = {
-        "W2101": (
+        "C0501": (
             "`for` loop could be %s",
             "consider-using-any-all",
             "For loops that check for a condition and return a bool can be replaced with any/all.",
@@ -28,25 +28,16 @@ class ForAnyAllChecker(BaseChecker):
         if_children = list(node.body[0].get_children())
         if not len(if_children) == 2:  # The If node has only a comparison and return
             return
-        if not self._node_returns_bool(if_children[1]):
+        if not returns_bool(if_children[1]):
             return
 
         # Check for terminating boolean return right after the loop
         node_after_loop = node.next_sibling()
-        if self._node_returns_bool(node_after_loop):
+        if returns_bool(node_after_loop):
             suggest_any = node_after_loop.value.value is False
             suggested_string = self._build_suggested_string(node, suggest_any)
 
             self.add_message("consider-using-any-all", node=node, args=suggested_string)
-
-    @staticmethod
-    def _node_returns_bool(node):
-        """Checks whether a node is a return that returns a constant boolean"""
-        return (
-            isinstance(node, nodes.Return)
-            and isinstance(node.value, nodes.Const)
-            and node.value.value in (True, False)
-        )
 
     @staticmethod
     def _build_suggested_string(node, suggest_any):
@@ -61,17 +52,11 @@ class ForAnyAllChecker(BaseChecker):
         if suggest_any:
             suggested_function = "any"
         else:
-            suggested_function = "all"
-            # If the original test has is a compound boolean, wrap in parens
-            if isinstance(test_node, nodes.BoolOp):
-                test = f"not ({test})"
-            else:
-                test = f"not {test}"
+            # We could suggest an all statement with the condition negated, but negated any is easier
+            suggested_function = "not any"
         suggested_string = (
             suggested_function + f"({test} for {loop_var} in {loop_iter})"
         )
-        if len(suggested_string) > 100:
-            suggested_string = "any/all statement with a generator"
         return suggested_string
 
 

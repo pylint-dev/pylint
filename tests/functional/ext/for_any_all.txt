@@ -1,4 +1,3 @@
 consider-using-any-all:5:4:any_even:`for` loop could be any(item % 2 == 0 for item in items)
 consider-using-any-all:12:4:is_from_string:`for` loop could be any(isinstance(parent, str) for parent in item.parents())
-consider-using-any-all:21:8:nested_check:`for` loop could be all(not item in (1, 2, 3) for item in items)
-consider-using-any-all:32:8:suppress_long_suggestion:`for` loop could be any/all statement with a generator
+consider-using-any-all:21:8:nested_check:`for` loop could be not any(item in (1, 2, 3) for item in items)
