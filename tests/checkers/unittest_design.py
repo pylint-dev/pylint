@@ -51,7 +51,7 @@ class TestDesignChecker(CheckerTestCase):
 
         assert any(i.match("toml") for i in options)
         assert any(i.match("toml.*") for i in options)
-        assert any(i.match("toml\\.TomlEncoder") for i in options)
+        assert any(i.match("toml.TomlEncoder") for i in options)
 
     def test_ignore_paths_with_no_value(self) -> None:
         """Test exclude-too-few-public-methods option with no value.
