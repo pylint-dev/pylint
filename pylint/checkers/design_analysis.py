@@ -408,7 +408,7 @@ class MisdesignChecker(BaseChecker):
                 "default": [],
                 "type": "regexp_csv",
                 "metavar": "<pattern>[,<pattern>...]",
-                "help": "List of regular expressions of module/class names"
+                "help": "List of regular expressions of class ancestor names "
                 "to ignore when counting public methods (see R0903)",
             },
         ),
