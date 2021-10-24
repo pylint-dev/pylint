@@ -270,9 +270,12 @@ property-classes=abc.abstractproperty
 
 [TYPECHECK]
 
-# Tells whether missing members accessed in mixin class should be ignored. A
-# mixin class is detected if its name ends with "mixin" (case insensitive).
+# Tells whether missing members accessed in mixin class should be ignored.
+# A class is considered mixin if its name matches the mixin-class-rgx option.
 ignore-mixin-members=yes
+
+# Regex pattern to define which classes are considered mixins.
+mixin-class-rgx=.*MixIn
 
 # List of module names for which member attributes should not be checked
 # (useful for modules/projects where namespaces are manipulated during runtime

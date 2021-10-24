@@ -54,7 +54,10 @@ GLOBAL_OPTION_BOOL = Literal[
 GLOBAL_OPTION_INT = Literal["max-line-length", "docstring-min-length"]
 GLOBAL_OPTION_LIST = Literal["ignored-modules"]
 GLOBAL_OPTION_PATTERN = Literal[
-    "no-docstring-rgx", "dummy-variables-rgx", "ignored-argument-names"
+    "no-docstring-rgx",
+    "dummy-variables-rgx",
+    "ignored-argument-names",
+    "mixin-class-rgx",
 ]
 GLOBAL_OPTION_TUPLE_INT = Literal["py-version"]
 GLOBAL_OPTION_NAMES = Union[

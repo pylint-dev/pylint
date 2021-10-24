@@ -82,10 +82,11 @@ class AsyncChecker(checkers.BaseChecker):
                         # just skip it.
                         if not checker_utils.has_known_bases(inferred):
                             continue
-                        # Just ignore mixin classes.
-                        if self._ignore_mixin_members:
-                            if self._mixin_class_rgx.match(inferred.name.lower()):
-                                continue
+                        # Ignore mixin classes if they match the rgx option.
+                        if self._ignore_mixin_members and self._mixin_class_rgx.match(
+                            inferred.name
+                        ):
+                            continue
                 else:
                     continue
             self.add_message(
