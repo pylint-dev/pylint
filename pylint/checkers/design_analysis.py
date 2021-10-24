@@ -488,7 +488,10 @@ class MisdesignChecker(BaseChecker):
         # Stop here if the class is excluded via configuration.
         if node.type == "class" and self._exclude_too_few_public_methods:
             for ancestor in node.ancestors():
-                if any(pattern.match(ancestor.qname()) in self._exclude_too_few_public_methods):
+                if any(
+                    pattern.match(ancestor.qname())
+                    in self._exclude_too_few_public_methods
+                ):
                     return
 
         # Stop here for exception, metaclass, interface classes and other
