@@ -42,7 +42,7 @@ class MultiReporter:
         self._path_strip_prefix = os.getcwd() + os.sep
         self._linter: Optional[PyLinter] = None
 
-        self.set_output(output)
+        self.out = output
 
     def __del__(self) -> None:
         self.close_output_files()

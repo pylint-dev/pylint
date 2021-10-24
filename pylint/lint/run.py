@@ -377,7 +377,7 @@ to search for configuration file.
         if self._output:
             try:
                 with open(self._output, "w", encoding="utf-8") as output:
-                    linter.reporter.set_output(output)
+                    linter.reporter.out = output
                     linter.check(args)
                     score_value = linter.generate_reports()
             except OSError as ex:

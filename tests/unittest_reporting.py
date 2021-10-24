@@ -48,7 +48,7 @@ def disable():
 
 def test_template_option(linter):
     output = StringIO()
-    linter.reporter.set_output(output)
+    linter.reporter.out = output
     linter.set_option("msg-template", "{msg_id}:{line:03d}")
     linter.open()
     linter.set_current_module("0123")
@@ -73,7 +73,7 @@ def test_parseable_output_regression():
 
     checkers.initialize(linter)
     linter.config.persistent = 0
-    linter.reporter.set_output(output)
+    linter.reporter.out = output
     linter.set_option("output-format", "parseable")
     linter.open()
     linter.set_current_module("0123")
