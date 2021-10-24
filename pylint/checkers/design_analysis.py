@@ -490,7 +490,7 @@ class MisdesignChecker(BaseChecker):
             for ancestor in node.ancestors():
                 if any(
                     pattern.match(ancestor.qname())
-                    in self._exclude_too_few_public_methods
+                    for pattern in self._exclude_too_few_public_methods
                 ):
                     return
 
