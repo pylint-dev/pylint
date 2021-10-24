@@ -32,8 +32,8 @@ class TestForAnyAll(CheckerTestCase):
         ):
             self.checker.visit_for(node)
 
-    def test_basic_emit_all_for_any_all(self) -> None:
-        """Simple case where we expect the message to be emitted with an all suggestion."""
+    def test_emit_not_any_for_any_all(self) -> None:
+        """Case where we expect the message to be emitted with a not any suggestion."""
         node = astroid.extract_node(
             """
         def is_from_decorator(node):
@@ -53,8 +53,8 @@ class TestForAnyAll(CheckerTestCase):
         ):
             self.checker.visit_for(node)
 
-    def test_emit_all_boolop_for_any_all(self) -> None:
-        """Case where we expect an all statement with a more complicated condition"""
+    def test_emit_not_any_boolop_for_any_all(self) -> None:
+        """Case where we expect not any statement with a more complicated condition"""
         node = astroid.extract_node(
             """
         def is_from_decorator(items):
@@ -74,8 +74,8 @@ class TestForAnyAll(CheckerTestCase):
         ):
             self.checker.visit_for(node)
 
-    def test_basic_emit_generic_for_any_all(self) -> None:
-        """Simple case where we expect a particularly long message to be emitted."""
+    def test_emit_long_message_for_any_all(self) -> None:
+        """Case where we expect a particularly long message to be emitted."""
         node = astroid.extract_node(
             """
         def is_from_decorator(node):
@@ -94,6 +94,51 @@ class TestForAnyAll(CheckerTestCase):
                 "consider-using-any-all",
                 node=node,
                 args="any(ancestor.name in ('Exception', 'BaseException') and ancestor.root().name == EXCEPTIONS_MODULE for ancestor in itertools.chain([node], ancestors))",
+            )
+        ):
+            self.checker.visit_for(node)
+
+    def test_emit_all_for_any_all(self) -> None:
+        """Case where we expect an all statement because of negation in the condition"""
+        node = astroid.extract_node(
+            """
+        def is_from_decorator(items):
+            for item in items:
+                if not(item % 2 == 0 and (item % 3 == 0 or item > 15)):
+                    return False
+            return True
+        """
+        ).body[0]
+
+        with self.assertAddsMessages(
+            MessageTest(
+                "consider-using-any-all",
+                node=node,
+                args="all(item % 2 == 0 and (item % 3 == 0 or item > 15) for item in items)",
+            )
+        ):
+            self.checker.visit_for(node)
+
+    def test_emit_not_all_for_any_all(self) -> None:
+        """Case where we expect a not all statement because of negation in the condition"""
+        node = astroid.extract_node(
+            """
+        def is_from_decorator(node):
+            for ancestor in itertools.chain([node], ancestors):
+                if not (
+                    ancestor.name in ("Exception", "BaseException")
+                    and ancestor.root().name == EXCEPTIONS_MODULE
+                ):
+                    return True
+            return False
+        """
+        ).body[0]
+
+        with self.assertAddsMessages(
+            MessageTest(
+                "consider-using-any-all",
+                node=node,
+                args="not all(ancestor.name in ('Exception', 'BaseException') and ancestor.root().name == EXCEPTIONS_MODULE for ancestor in itertools.chain([node], ancestors))",
             )
         ):
             self.checker.visit_for(node)
