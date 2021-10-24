@@ -59,16 +59,24 @@ GLOBAL_OPTION_PATTERN = Literal[
     "ignored-argument-names",
     "mixin-class-rgx",
 ]
+GLOBAL_OPTION_PATTERN_LIST = Literal["ignore-paths"]
 GLOBAL_OPTION_TUPLE_INT = Literal["py-version"]
 GLOBAL_OPTION_NAMES = Union[
     GLOBAL_OPTION_BOOL,
     GLOBAL_OPTION_INT,
     GLOBAL_OPTION_LIST,
     GLOBAL_OPTION_PATTERN,
+    GLOBAL_OPTION_PATTERN_LIST,
     GLOBAL_OPTION_TUPLE_INT,
 ]
 T_GlobalOptionReturnTypes = TypeVar(
-    "T_GlobalOptionReturnTypes", bool, int, List[str], Pattern[str], Tuple[int, ...]
+    "T_GlobalOptionReturnTypes",
+    bool,
+    int,
+    List[str],
+    Pattern[str],
+    List[Pattern[str]],
+    Tuple[int, ...],
 )
 
 
@@ -220,6 +228,15 @@ def get_global_option(
     option: GLOBAL_OPTION_PATTERN,
     default: Optional[Pattern[str]] = None,
 ) -> Pattern[str]:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker",
+    option: GLOBAL_OPTION_PATTERN_LIST,
+    default: Optional[List[Pattern[str]]] = None,
+) -> List[Pattern[str]]:
     ...
 
 

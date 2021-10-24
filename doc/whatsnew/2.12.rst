@@ -88,6 +88,11 @@ Other Changes
 
 * Support configuring mixin class pattern via ``mixin-class-rgx``
 
+* Normalize the input to the ``ignore-paths`` option to allow both Posix and
+  Windows paths
+
+  Closes #5194
+
 * ``mising-param-doc`` now correctly parses asterisks for variable length and
   keyword parameters
 

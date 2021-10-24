@@ -4,10 +4,14 @@
 
 import re
 from pathlib import Path
+from typing import Dict, Tuple, Type
 
 import pytest
 
+from pylint.checkers import BaseChecker
 from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
+from pylint.testutils import CheckerTestCase, set_config
+from pylint.utils.utils import get_global_option
 
 
 def test__is_in_ignore_list_re_match() -> None:
@@ -19,17 +23,6 @@ def test__is_in_ignore_list_re_match() -> None:
     assert _is_in_ignore_list_re("unittest_utils.py", patterns)
     assert _is_in_ignore_list_re("cheese_enchiladas.xml", patterns)
     assert _is_in_ignore_list_re("src/tests/whatever.xml", patterns)
-
-
-def test__is_in_ignore_list_re_nomatch() -> None:
-    patterns = [
-        re.compile(".*enchilada.*"),
-        re.compile("unittest_.*"),
-        re.compile(".*tests/.*"),
-    ]
-    assert not _is_in_ignore_list_re("test_utils.py", patterns)
-    assert not _is_in_ignore_list_re("enchilad.py", patterns)
-    assert not _is_in_ignore_list_re("src/tests.py", patterns)
 
 
 TEST_DIRECTORY = Path(__file__).parent.parent
@@ -84,27 +77,70 @@ init_of_package = {
 }
 
 
-@pytest.mark.parametrize(
-    "files_or_modules,expected",
-    [
-        ([__file__], [this_file]),
-        (
-            [Path(__file__).parent],
-            [
-                init_of_package,
-                test_pylinter,
-                test_utils,
-                this_file_from_init,
-                unittest_lint,
-            ],
-        ),
-    ],
-)
-def test_expand_modules(files_or_modules, expected):
-    ignore_list, ignore_list_re, ignore_list_paths_re = [], [], []
-    modules, errors = expand_modules(
-        files_or_modules, ignore_list, ignore_list_re, ignore_list_paths_re
+class TestExpandModules(CheckerTestCase):
+    """Test the expand_modules function while allowing options to be set"""
+
+    class Checker(BaseChecker):
+        """This dummy checker is needed to allow options to be set"""
+
+        name = "checker"
+        msgs: Dict[str, Tuple[str, ...]] = {}
+        options = (("An option", {"An option": "dict"}),)
+
+    CHECKER_CLASS: Type = Checker
+
+    @pytest.mark.parametrize(
+        "files_or_modules,expected",
+        [
+            ([__file__], [this_file]),
+            (
+                [str(Path(__file__).parent)],
+                [
+                    init_of_package,
+                    test_pylinter,
+                    test_utils,
+                    this_file_from_init,
+                    unittest_lint,
+                ],
+            ),
+        ],
     )
-    modules.sort(key=lambda d: d["name"])
-    assert modules == expected
-    assert not errors
+    @set_config(ignore_paths="")
+    def test_expand_modules(self, files_or_modules, expected):
+        """Test expand_modules with the default value of ignore-paths"""
+        ignore_list, ignore_list_re = [], []
+        modules, errors = expand_modules(
+            files_or_modules,
+            ignore_list,
+            ignore_list_re,
+            get_global_option(self, "ignore-paths"),
+        )
+        modules.sort(key=lambda d: d["name"])
+        assert modules == expected
+        assert not errors
+
+    @pytest.mark.parametrize(
+        "files_or_modules,expected",
+        [
+            ([__file__], []),
+            (
+                [str(Path(__file__).parent)],
+                [
+                    init_of_package,
+                ],
+            ),
+        ],
+    )
+    @set_config(ignore_paths=".*/lint/.*")
+    def test_expand_modules_with_ignore(self, files_or_modules, expected):
+        """Test expand_modules with a non-default value of ignore-paths"""
+        ignore_list, ignore_list_re = [], []
+        modules, errors = expand_modules(
+            files_or_modules,
+            ignore_list,
+            ignore_list_re,
+            get_global_option(self.checker, "ignore-paths"),
+        )
+        modules.sort(key=lambda d: d["name"])
+        assert modules == expected
+        assert not errors

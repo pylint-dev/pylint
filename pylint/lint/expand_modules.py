@@ -43,7 +43,7 @@ def expand_modules(
     files_or_modules: List[str],
     ignore_list: List[str],
     ignore_list_re: List[Pattern],
-    ignore_list_paths_re: List[Pattern],
+    ignore_list_paths_re: List[Pattern[str]],
 ) -> Tuple[List[ModuleDescriptionDict], List[ErrorDescriptionDict]]:
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
