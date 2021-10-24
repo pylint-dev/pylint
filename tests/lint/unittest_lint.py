@@ -60,6 +60,7 @@ from pylint.constants import (
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
+    OLD_DEFAULT_PYLINT_HOME,
 )
 from pylint.exceptions import InvalidMessageError
 from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_options
@@ -668,13 +669,13 @@ def pop_pylintrc() -> None:
 def test_pylint_home() -> None:
     uhome = os.path.expanduser("~")
     if uhome == "~":
-        expected = ".pylint.d"
+        expected = OLD_DEFAULT_PYLINT_HOME
     else:
         expected = platformdirs.user_cache_dir("pylint")
     assert config.PYLINT_HOME == expected
 
     try:
-        pylintd = join(tempfile.gettempdir(), ".pylint.d")
+        pylintd = join(tempfile.gettempdir(), OLD_DEFAULT_PYLINT_HOME)
         os.environ["PYLINTHOME"] = pylintd
         try:
             reload(config)

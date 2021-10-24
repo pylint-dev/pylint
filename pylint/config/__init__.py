@@ -47,7 +47,7 @@ from pylint.config.option import Option
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
 from pylint.config.option_parser import OptionParser
 from pylint.config.options_provider_mixin import OptionsProviderMixIn, UnsupportedAction
-from pylint.constants import DEFAULT_PYLINT_HOME
+from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME
 from pylint.utils import LinterStats
 
 __all__ = [
@@ -67,7 +67,7 @@ if "PYLINTHOME" in os.environ:
     if USER_HOME == "~":
         USER_HOME = os.path.dirname(PYLINT_HOME)
 elif USER_HOME == "~":
-    PYLINT_HOME = ".pylint.d"
+    PYLINT_HOME = OLD_DEFAULT_PYLINT_HOME
 else:
     PYLINT_HOME = DEFAULT_PYLINT_HOME
     # The spam prevention is due to pylint being used in parallel by
@@ -79,7 +79,7 @@ else:
         PYLINT_HOME,
         datetime.now().strftime(prefix_spam_prevention + "_%Y-%m-%d.temp"),
     )
-    old_home = os.path.join(USER_HOME, ".pylint.d")
+    old_home = os.path.join(USER_HOME, OLD_DEFAULT_PYLINT_HOME)
     if os.path.exists(old_home) and not os.path.exists(spam_prevention_file):
         print(
             f"PYLINTHOME is now '{PYLINT_HOME}' but obsolescent '{old_home}' is found; "
