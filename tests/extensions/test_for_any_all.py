@@ -3,13 +3,13 @@
 
 import astroid
 
-from pylint.extensions.for_any_all import ForAnyAllChecker
+from pylint.extensions.for_any_all import ConsiderUsingAnyOrAllChecker
 from pylint.testutils import CheckerTestCase, MessageTest
 
 
 class TestForAnyAll(CheckerTestCase):
 
-    CHECKER_CLASS = ForAnyAllChecker
+    CHECKER_CLASS = ConsiderUsingAnyOrAllChecker
 
     def test_basic_emit_for_any_all(self) -> None:
         """Simple case where we expect the message to be emitted."""
@@ -25,7 +25,7 @@ class TestForAnyAll(CheckerTestCase):
 
         with self.assertAddsMessages(
             MessageTest(
-                "consider-using-any-all",
+                "consider-using-any-or-all",
                 node=node,
                 args="any(isinstance(parent, Decorators) for parent in node.node_ancestors())",
             )
@@ -46,7 +46,7 @@ class TestForAnyAll(CheckerTestCase):
 
         with self.assertAddsMessages(
             MessageTest(
-                "consider-using-any-all",
+                "consider-using-any-or-all",
                 node=node,
                 args="not any(isinstance(parent, Decorators) for parent in node.node_ancestors())",
             )
@@ -67,7 +67,7 @@ class TestForAnyAll(CheckerTestCase):
 
         with self.assertAddsMessages(
             MessageTest(
-                "consider-using-any-all",
+                "consider-using-any-or-all",
                 node=node,
                 args="not any(item % 2 == 0 and (item % 3 == 0 or item > 15) for item in items)",
             )
@@ -91,7 +91,7 @@ class TestForAnyAll(CheckerTestCase):
 
         with self.assertAddsMessages(
             MessageTest(
-                "consider-using-any-all",
+                "consider-using-any-or-all",
                 node=node,
                 args="any(ancestor.name in ('Exception', 'BaseException') and ancestor.root().name == EXCEPTIONS_MODULE for ancestor in itertools.chain([node], ancestors))",
             )
@@ -112,7 +112,7 @@ class TestForAnyAll(CheckerTestCase):
 
         with self.assertAddsMessages(
             MessageTest(
-                "consider-using-any-all",
+                "consider-using-any-or-all",
                 node=node,
                 args="all(item % 2 == 0 and (item % 3 == 0 or item > 15) for item in items)",
             )
@@ -136,11 +136,40 @@ class TestForAnyAll(CheckerTestCase):
 
         with self.assertAddsMessages(
             MessageTest(
-                "consider-using-any-all",
+                "consider-using-any-or-all",
                 node=node,
                 args="not all(ancestor.name in ('Exception', 'BaseException') and ancestor.root().name == EXCEPTIONS_MODULE for ancestor in itertools.chain([node], ancestors))",
             )
         ):
+            self.checker.visit_for(node)
+
+    def test_no_pattern(self) -> None:
+        """Do not emit if the for loop does not have the pattern we are looking for"""
+        node = astroid.extract_node(
+            """
+        def no_suggestion_if_not_if():
+            for x in range(1):
+                var = x
+                return var
+        """
+        ).body[0]
+
+        with self.assertNoMessages():
+            self.checker.visit_for(node)
+
+    def test_other_return(self) -> None:
+        """Do not emit if the if-statement does not return a bool"""
+        node = astroid.extract_node(
+            """
+        def no_suggestion_if_not_bool(item):
+            for parent in item.parents():
+                if isinstance(parent, str):
+                    return "True"
+            return "False"
+        """
+        ).body[0]
+
+        with self.assertNoMessages():
             self.checker.visit_for(node)
 
     def test_non_conditional_for(self) -> None:

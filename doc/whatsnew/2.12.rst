@@ -50,7 +50,7 @@ Removed checkers
 
 Extensions
 ==========
-* Added optional extension ``consider-using-any-all``: Emitted when a ``for`` loop only
+* Added optional extension ``consider-using-any-or-all``: Emitted when a ``for`` loop only
   produces a boolean that could be replaced by any/all called on a generator comprehension.
   Also suggests a suitable any/all statement if it is concise.
 

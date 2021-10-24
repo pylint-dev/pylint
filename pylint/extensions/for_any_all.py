@@ -11,19 +11,19 @@ if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
 
-class ForAnyAllChecker(BaseChecker):
+class ConsiderUsingAnyOrAllChecker(BaseChecker):
 
     __implements__ = (IAstroidChecker,)
-    name = "consider-using-any-all"
+    name = "consider-using-any-or-all"
     msgs = {
         "C0501": (
-            "`for` loop could be %s",
-            "consider-using-any-all",
-            "For loops that check for a condition and return a bool can be replaced with any/all.",
+            "`for` loop could be '%s'",
+            "consider-using-any-or-all",
+            "A for loop that checks for a condition and return a bool can be replaced with any or all.",
         )
     }
 
-    @check_messages("consider-using-any-all")
+    @check_messages("consider-using-any-or-all")
     def visit_for(self, node: nodes.For) -> None:
         if len(node.body) != 1:  # Only If node with no Else
             return
@@ -42,7 +42,9 @@ class ForAnyAllChecker(BaseChecker):
             final_return_bool = node_after_loop.value.value
             suggested_string = self._build_suggested_string(node, final_return_bool)
 
-            self.add_message("consider-using-any-all", node=node, args=suggested_string)
+            self.add_message(
+                "consider-using-any-or-all", node=node, args=suggested_string
+            )
 
     @staticmethod
     def _build_suggested_string(node: nodes.For, final_return_bool: bool) -> str:
@@ -56,21 +58,12 @@ class ForAnyAllChecker(BaseChecker):
         if isinstance(test_node, nodes.UnaryOp) and test_node.op == "not":
             # The condition is negated. Advance the node to the operand and modify the suggestion
             test_node = test_node.operand
-            if final_return_bool is True:
-                suggested_function = "all"  # If ever not condition, return False
-            else:
-                suggested_function = "not all"  # If ever not condition, return True
-        else:  # pylint: disable=else-if-used
-            if final_return_bool is True:
-                suggested_function = "not any"  # If ever condition, return False
-            else:
-                suggested_function = "any"  # If ever condition, return True
+            suggested_function = "all" if final_return_bool else "not all"
+        else:
+            suggested_function = "not any" if final_return_bool else "any"
 
         test = test_node.as_string()
-        suggested_string = (
-            suggested_function + f"({test} for {loop_var} in {loop_iter})"
-        )
-        return suggested_string
+        return suggested_function + f"({test} for {loop_var} in {loop_iter})"
 
 
 def register(linter: "PyLinter") -> None:
@@ -78,4 +71,4 @@ def register(linter: "PyLinter") -> None:
 
     :param linter: Main interface object for Pylint plugins
     """
-    linter.register_checker(ForAnyAllChecker(linter))
+    linter.register_checker(ConsiderUsingAnyOrAllChecker(linter))
