@@ -52,3 +52,10 @@ def nested_check(items):
         return True
     print(items)
     return items[3] > 5
+
+def words_contains_word(words):
+    """Return whether words contains 'word'"""
+    for word in words: # [consider-using-any-or-all]
+        if word == "word":
+            return True
+    return False
