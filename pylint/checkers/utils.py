@@ -285,7 +285,7 @@ class InferredTypeError(Exception):
 
 
 def is_inside_lambda(node: nodes.NodeNG) -> bool:
-    """Return true if given node is inside lambda"""
+    """Return whether given node is inside lambda"""
     return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
 
 
@@ -440,7 +440,7 @@ def is_func_decorator(node: nodes.NodeNG) -> bool:
 
 
 def is_ancestor_name(frame: nodes.ClassDef, node: nodes.NodeNG) -> bool:
-    """return True if `frame` is an astroid.Class node with `node` in the
+    """return whether `frame` is an astroid.Class node with `node` in the
     subtree of its bases attribute
     """
     if not isinstance(frame, nodes.ClassDef):
@@ -713,7 +713,7 @@ def get_argument_from_call(
 
 def inherit_from_std_ex(node: nodes.NodeNG) -> bool:
     """
-    Return true if the given class node is subclass of
+    Return whether the given class node is subclass of
     exceptions.Exception.
     """
     ancestors = node.ancestors() if hasattr(node, "ancestors") else []

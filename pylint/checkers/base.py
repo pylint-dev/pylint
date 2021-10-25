@@ -243,7 +243,7 @@ def _redefines_import(node):
 
 
 def in_loop(node):
-    """return True if the node is inside a kind of for loop"""
+    """Return whether the node is inside a kind of for loop"""
     return any(
         isinstance(
             parent,

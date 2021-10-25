@@ -1953,7 +1953,7 @@ class VariablesChecker(BaseChecker):
 
     def _has_homonym_in_upper_function_scope(self, node, index):
         """
-        Return True if there is a node with the same name in the to_consume dict of an upper scope
+        Return whether there is a node with the same name in the to_consume dict of an upper scope
         and if that scope is a function
 
         :param node: node to check for
