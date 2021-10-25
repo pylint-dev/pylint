@@ -5,4 +5,4 @@ consider-using-any-or-all:26:4:all_uneven:`for` loop could be `not any(item % 2 
 consider-using-any-or-all:33:4:is_from_string:`for` loop could be `any(isinstance(parent, str) for parent in item.parents())`
 consider-using-any-or-all:40:4:is_not_from_string:`for` loop could be `not all(isinstance(parent, str) for parent in item.parents())`
 consider-using-any-or-all:49:8:nested_check:`for` loop could be `not any(item in (1, 2, 3) for item in items)`
-consider-using-any-or-all:58:4:words_contains_word:`for` loop could be `any(word == 'word' for word in words)` (consider-using-any-or-all)
+consider-using-any-or-all:58:4:words_contains_word:`for` loop could be `any(word == 'word' for word in words)`
