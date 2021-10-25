@@ -72,7 +72,7 @@ def _annotated_unpack_infer(stmt, context=None):
 
 
 def _is_raising(body: List) -> bool:
-    """Return whether the given statement node raise an exception"""
+    """Return whether the given statement node raises an exception"""
     return any(isinstance(node, nodes.Raise) for node in body)
 
 

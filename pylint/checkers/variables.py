@@ -1951,7 +1951,7 @@ class VariablesChecker(BaseChecker):
     def _allowed_redefined_builtin(self, name):
         return name in self.config.allowed_redefined_builtins
 
-    def _has_homonym_in_upper_function_scope(self, node, index):
+    def _has_homonym_in_upper_function_scope(self, node: nodes.Name, index: int) -> bool:
         """
         Return whether there is a node with the same name in the to_consume dict of an upper scope
         and if that scope is a function

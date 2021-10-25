@@ -251,7 +251,7 @@ LOOPLIKE_NODES = (
 )
 
 
-def in_loop(node):
+def in_loop(node: nodes.NodeNG) -> bool:
     """Return whether the node is inside a kind of for loop"""
     return any(isinstance(parent, LOOPLIKE_NODES) for parent in node.node_ancestors())
 

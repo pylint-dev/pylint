@@ -285,7 +285,7 @@ class InferredTypeError(Exception):
 
 
 def is_inside_lambda(node: nodes.NodeNG) -> bool:
-    """Return whether given node is inside lambda"""
+    """Return whether the given node is inside a lambda"""
     return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
 
 
