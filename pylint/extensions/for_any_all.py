@@ -41,7 +41,6 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
         if returns_bool(node_after_loop):
             final_return_bool = node_after_loop.value.value
             suggested_string = self._build_suggested_string(node, final_return_bool)
-
             self.add_message(
                 "consider-using-any-or-all", node=node, args=suggested_string
             )
@@ -63,7 +62,7 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
             suggested_function = "not any" if final_return_bool else "any"
 
         test = test_node.as_string()
-        return suggested_function + f"({test} for {loop_var} in {loop_iter})"
+        return f"{suggested_function}({test} for {loop_var} in {loop_iter})"
 
 
 def register(linter: "PyLinter") -> None:
