@@ -14,8 +14,3 @@ class PropertyPatterns:
     def __init__(self):
         self._prop1=1
         self._prop2=2
-
-if __name__ == "__main__":
-    prop=PropertyPatterns()
-    assert(prop.prop1==2)
-    assert(prop.prop2==4)
