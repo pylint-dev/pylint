@@ -1964,10 +1964,10 @@ class VariablesChecker(BaseChecker):
                  and if that scope is a function
         :rtype: bool
         """
-        for _consumer in self._to_consume[index - 1 :: -1]:
-            if _consumer.scope_type == "function" and node.name in _consumer.to_consume:
-                return True
-        return False
+        return any(
+            _consumer.scope_type == "function" and node.name in _consumer.to_consume
+            for _consumer in self._to_consume[index - 1 :: -1]
+        )
 
     def _store_type_annotation_node(self, type_annotation):
         """Given a type annotation, store all the name nodes it refers to"""

@@ -387,10 +387,7 @@ def is_complex_format_str(node):
     except ValueError:
         # This format string is invalid
         return False
-    for _, _, format_spec, _ in parsed:
-        if format_spec:
-            return True
-    return False
+    return any(format_spec for (_, _, format_spec, _) in parsed)
 
 
 def _count_supplied_tokens(args):

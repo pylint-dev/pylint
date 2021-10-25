@@ -49,10 +49,7 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
 
 
 def _if_statement_is_always_returning(if_node, returning_node_class) -> bool:
-    for node in if_node.body:
-        if isinstance(node, returning_node_class):
-            return True
-    return False
+    return any(isinstance(node, returning_node_class) for node in if_node.body)
 
 
 def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
@@ -97,10 +94,10 @@ def _is_trailing_comma(tokens: List[tokenize.TokenInfo], index: int) -> bool:
 
     curline_start = get_curline_index_start()
     expected_tokens = {"return", "yield"}
-    for prevtoken in tokens[curline_start:index]:
-        if "=" in prevtoken.string or prevtoken.string in expected_tokens:
-            return True
-    return False
+    return any(
+        "=" in prevtoken.string or prevtoken.string in expected_tokens
+        for prevtoken in tokens[curline_start:index]
+    )
 
 
 def _is_inside_context_manager(node: nodes.Call) -> bool:

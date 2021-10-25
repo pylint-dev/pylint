@@ -73,10 +73,7 @@ def _annotated_unpack_infer(stmt, context=None):
 
 def _is_raising(body: List) -> bool:
     """Return true if the given statement node raise an exception"""
-    for node in body:
-        if isinstance(node, nodes.Raise):
-            return True
-    return False
+    return any(isinstance(node, nodes.Raise) for node in body)
 
 
 OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")

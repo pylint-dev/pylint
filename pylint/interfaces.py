@@ -52,10 +52,10 @@ def implements(obj: "Interface", interface: Tuple[type, type]) -> bool:
     kimplements = getattr(obj, "__implements__", ())
     if not isinstance(kimplements, (list, tuple)):
         kimplements = (kimplements,)
-    for implementedinterface in kimplements:
-        if issubclass(implementedinterface, interface):
-            return True
-    return False
+    return any(
+        issubclass(implementedinterface, interface)
+        for implementedinterface in kimplements
+    )
 
 
 class IChecker(Interface):

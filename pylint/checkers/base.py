@@ -244,8 +244,8 @@ def _redefines_import(node):
 
 def in_loop(node):
     """return True if the node is inside a kind of for loop"""
-    for parent in node.node_ancestors():
-        if isinstance(
+    return any(
+        isinstance(
             parent,
             (
                 nodes.For,
@@ -254,9 +254,9 @@ def in_loop(node):
                 nodes.DictComp,
                 nodes.GeneratorExp,
             ),
-        ):
-            return True
-    return False
+        )
+        for parent in node.node_ancestors()
+    )
 
 
 def in_nested_list(nested_list, obj):

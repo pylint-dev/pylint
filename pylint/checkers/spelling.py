@@ -91,10 +91,7 @@ class WordsWithDigitsFilter(Filter):
     """Skips words with digits."""
 
     def _skip(self, word):
-        for char in word:
-            if char.isdigit():
-                return True
-        return False
+        return any(char.isdigit() for char in word)
 
 
 class WordsWithUnderscores(Filter):

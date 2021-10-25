@@ -286,10 +286,7 @@ class InferredTypeError(Exception):
 
 def is_inside_lambda(node: nodes.NodeNG) -> bool:
     """Return true if given node is inside lambda"""
-    for parent in node.node_ancestors():
-        if isinstance(parent, nodes.Lambda):
-            return True
-    return False
+    return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
 
 
 def get_all_elements(
@@ -448,10 +445,7 @@ def is_ancestor_name(frame: nodes.ClassDef, node: nodes.NodeNG) -> bool:
     """
     if not isinstance(frame, nodes.ClassDef):
         return False
-    for base in frame.bases:
-        if node in base.nodes_of_class(nodes.Name):
-            return True
-    return False
+    return any(node in base.nodes_of_class(nodes.Name) for base in frame.bases)
 
 
 def is_being_called(node: nodes.NodeNG) -> bool:
@@ -723,13 +717,11 @@ def inherit_from_std_ex(node: nodes.NodeNG) -> bool:
     exceptions.Exception.
     """
     ancestors = node.ancestors() if hasattr(node, "ancestors") else []
-    for ancestor in itertools.chain([node], ancestors):
-        if (
-            ancestor.name in ("Exception", "BaseException")
-            and ancestor.root().name == EXCEPTIONS_MODULE
-        ):
-            return True
-    return False
+    return any(
+        ancestor.name in ("Exception", "BaseException")
+        and ancestor.root().name == EXCEPTIONS_MODULE
+        for ancestor in itertools.chain([node], ancestors)
+    )
 
 
 def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
@@ -1444,10 +1436,9 @@ def is_classdef_type(node: nodes.ClassDef) -> bool:
     """Test if ClassDef node is Type."""
     if node.name == "type":
         return True
-    for base in node.bases:
-        if isinstance(base, nodes.Name) and base.name == "type":
-            return True
-    return False
+    return any(
+        isinstance(base, nodes.Name) and base.name == "type" for base in node.bases
+    )
 
 
 def is_attribute_typed_annotation(
