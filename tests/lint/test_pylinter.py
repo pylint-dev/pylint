@@ -1,16 +1,31 @@
 from typing import Any, NoReturn
 from unittest.mock import patch
 
-from astroid import AstroidBuildingError
+from astroid import AstroidBuildingError, extract_node, nodes
 from py._path.local import LocalPath  # type: ignore[import]
 from pytest import CaptureFixture
 
+from pylint.checkers.utils import safe_infer
 from pylint.lint.pylinter import PyLinter
 from pylint.utils import FileState
 
 
 def raise_exception(*args: Any, **kwargs: Any) -> NoReturn:
     raise AstroidBuildingError(modname="spam")
+
+
+def test_safe_infer_on_bz2_compress_return():
+    """Regression tests for https://github.com/PyCQA/astroid/pull/1207"""
+    src_node = extract_node('import bz2\nunused = bz2.compress(b"")')
+    assignment = next(src_node.nodes_of_class(nodes.Assign))
+    inferred = safe_infer(assignment.value.func)
+    assert isinstance(inferred, nodes.FunctionDef), str(inferred)
+    try:
+        value = next(inferred.nodes_of_class(nodes.Return))
+        assert isinstance(value, nodes.Return)
+        assert value.parent.name == "compress"
+    except StopIteration:
+        assert False, f"No return found in body of:\n{str(inferred)}."
 
 
 @patch.object(FileState, "iter_spurious_suppression_messages", raise_exception)
