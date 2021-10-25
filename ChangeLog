@@ -11,6 +11,12 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
+* Add an optional extension ``consider-using-any-or-all`` : Emitted when a ``for`` loop only
+  produces a boolean and could be replaced by ``any`` or ``all`` using a generator. Also suggests
+  a suitable any or all statement.
+
+  Closes #5008
+
 * Properly identify parameters with no documentation and add new message called ``missing-any-param-doc``
 
   Closes #3799
