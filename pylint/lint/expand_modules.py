@@ -33,10 +33,7 @@ def get_python_path(filepath: str) -> str:
 
 def _is_in_ignore_list_re(element: str, ignore_list_re: List[Pattern]) -> bool:
     """determines if the element is matched in a regex ignore-list"""
-    for file_pattern in ignore_list_re:
-        if file_pattern.match(element):
-            return True
-    return False
+    return any(file_pattern.match(element) for file_pattern in ignore_list_re)
 
 
 def expand_modules(

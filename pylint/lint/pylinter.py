@@ -1389,7 +1389,7 @@ class PyLinter(
         line: Optional[int] = None,
         confidence: Optional[interfaces.Confidence] = None,
     ) -> bool:
-        """return true if the message associated to the given message id is
+        """return whether the message associated to the given message id is
         enabled
 
         msgid may be either a numeric or symbolic message id.
@@ -1405,10 +1405,7 @@ class PyLinter(
             # due to version mismatch, just treat them as message IDs
             # for now.
             msgids = [msg_descr]
-        for msgid in msgids:
-            if self._is_one_message_enabled(msgid, line):
-                return True
-        return False
+        return any(self._is_one_message_enabled(msgid, line) for msgid in msgids)
 
     def _add_one_message(
         self,
