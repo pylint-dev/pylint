@@ -46,7 +46,7 @@ class Interface:
 
 
 def implements(obj: "Interface", interface: Tuple[type, type]) -> bool:
-    """Return whether the give object (maybe an instance or class) implements
+    """Return whether the given object (maybe an instance or class) implements
     the interface.
     """
     kimplements = getattr(obj, "__implements__", ())
