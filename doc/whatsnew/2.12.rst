@@ -90,6 +90,8 @@ Other Changes
 
   Closes #4426
 
+* Support configuring mixin class pattern via ``mixin-class-rgx``
+
 * Normalize the input to the ``ignore-paths`` option to allow both Posix and
   Windows paths
 

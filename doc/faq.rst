@@ -238,8 +238,9 @@ methods is doing nothing but raising NotImplementedError.
 -------------------------------------------------------------------------------
 
 To do so you have to set the ignore-mixin-members option to
-"yes" (this is the default value) and to name your mixin class with
-a name which ends with "mixin" (whatever case).
+"yes" (this is the default value) and name your mixin class with
+a name which ends with "Mixin" or "mixin" (default) or change the
+default value by changing the mixin-class-rgx option.
 
 
 6. Troubleshooting
