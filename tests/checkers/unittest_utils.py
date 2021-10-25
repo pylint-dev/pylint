@@ -467,14 +467,14 @@ def test_if_typing_guard() -> None:
 
 def test_is_empty_literal() -> None:
     list_node = astroid.extract_node("a = []")
-    assert utils.is_empty_list_literal(list_node.value)
+    assert utils.is_base_container(list_node.value)
     not_empty_list_node = astroid.extract_node("a = [1,2,3]")
-    assert not utils.is_empty_list_literal(not_empty_list_node.value)
+    assert not utils.is_base_container(not_empty_list_node.value)
 
     tuple_node = astroid.extract_node("a = ()")
-    assert utils.is_empty_tuple_literal(tuple_node.value)
+    assert utils.is_base_container(tuple_node.value)
     not_empty_tuple_node = astroid.extract_node("a = (1,2)")
-    assert not utils.is_empty_tuple_literal(not_empty_tuple_node.value)
+    assert not utils.is_base_container(not_empty_tuple_node.value)
 
     dict_node = astroid.extract_node("a = {}")
     assert utils.is_empty_dict_literal(dict_node.value)

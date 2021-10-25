@@ -50,7 +50,11 @@ Removed checkers
 
 Extensions
 ==========
+* Added an optional extension ``consider-using-any-or-all``: Emitted when a ``for`` loop only
+  produces a boolean and could be replaced by ``any`` or ``all`` using a generator. Also suggests
+  a suitable any/all statement if it is concise.
 
+  Closes #5008
 
 Other Changes
 =============
@@ -77,9 +81,21 @@ Other Changes
 
   Closes #4031
 
+* ``used-before-assignment`` now correctly considers references to classes as type annotation
+  or default values in first-level methods
+
+  Closes #3771
+
 * Fix double emitting of ``not-callable`` on inferrable ``properties``
 
   Closes #4426
+
+* Support configuring mixin class pattern via ``mixin-class-rgx``
+
+* Normalize the input to the ``ignore-paths`` option to allow both Posix and
+  Windows paths
+
+  Closes #5194
 
 * ``mising-param-doc`` now correctly parses asterisks for variable length and
   keyword parameters

@@ -44,6 +44,7 @@ class AsyncChecker(checkers.BaseChecker):
         self._ignore_mixin_members = utils.get_global_option(
             self, "ignore-mixin-members"
         )
+        self._mixin_class_rgx = utils.get_global_option(self, "mixin-class-rgx")
         self._async_generators = ["contextlib.asynccontextmanager"]
 
     @checker_utils.check_messages("yield-inside-async-function")
@@ -81,10 +82,11 @@ class AsyncChecker(checkers.BaseChecker):
                         # just skip it.
                         if not checker_utils.has_known_bases(inferred):
                             continue
-                        # Just ignore mixin classes.
-                        if self._ignore_mixin_members:
-                            if inferred.name[-5:].lower() == "mixin":
-                                continue
+                        # Ignore mixin classes if they match the rgx option.
+                        if self._ignore_mixin_members and self._mixin_class_rgx.match(
+                            inferred.name
+                        ):
+                            continue
                 else:
                     continue
             self.add_message(

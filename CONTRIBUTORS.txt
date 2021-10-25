@@ -390,6 +390,8 @@ contributors:
 
 * Ram Rachum (cool-RR)
 
+* D. Alphus (Alphadelta14): contributor
+
 * Pieter Engelbrecht
 
 * Ethan Leba: contributor
@@ -558,5 +560,7 @@ contributors:
 * James DesLauriers: contributor
 
 * Youngsoo Sung: contributor
+
+* Arianna Yang: contributor
 
 * Samuel Freilich (sfreilich): contributor

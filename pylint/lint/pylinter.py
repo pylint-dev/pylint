@@ -46,7 +46,14 @@ from pylint.typing import (
     MessageLocationTuple,
     ModuleDescriptionDict,
 )
-from pylint.utils import ASTWalker, FileState, LinterStats, ModuleStats, utils
+from pylint.utils import (
+    ASTWalker,
+    FileState,
+    LinterStats,
+    ModuleStats,
+    get_global_option,
+    utils,
+)
 from pylint.utils.pragma_parser import (
     OPTION_PO,
     InvalidPragmaError,
@@ -220,12 +227,12 @@ class PyLinter(
             (
                 "ignore-paths",
                 {
-                    "type": "regexp_csv",
+                    "type": "regexp_paths_csv",
                     "metavar": "<pattern>[,<pattern>...]",
-                    "dest": "ignore_list_paths_re",
-                    "default": (),
-                    "help": "Add files or directories matching the regex patterns to the"
-                    " ignore-list. The regex matches against paths.",
+                    "default": [],
+                    "help": "Add files or directories matching the regex patterns to the "
+                    "ignore-list. The regex matches against paths and can be in "
+                    "Posix or Windows format.",
                 },
             ),
             (
@@ -1101,7 +1108,7 @@ class PyLinter(
             modules,
             self.config.black_list,
             self.config.black_list_re,
-            self.config.ignore_list_paths_re,
+            self._ignore_paths,
         )
         for error in errors:
             message = modname = error["mod"]
@@ -1259,6 +1266,7 @@ class PyLinter(
                 self.config.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
+        self._ignore_paths = get_global_option(self, "ignore-paths")
 
     def generate_reports(self):
         """close the whole package /module, it's time to make reports !
@@ -1381,7 +1389,7 @@ class PyLinter(
         line: Optional[int] = None,
         confidence: Optional[interfaces.Confidence] = None,
     ) -> bool:
-        """return true if the message associated to the given message id is
+        """return whether the message associated to the given message id is
         enabled
 
         msgid may be either a numeric or symbolic message id.
@@ -1397,10 +1405,7 @@ class PyLinter(
             # due to version mismatch, just treat them as message IDs
             # for now.
             msgids = [msg_descr]
-        for msgid in msgids:
-            if self._is_one_message_enabled(msgid, line):
-                return True
-        return False
+        return any(self._is_one_message_enabled(msgid, line) for msgid in msgids)
 
     def _add_one_message(
         self,

@@ -442,7 +442,14 @@ SEQUENCE_TYPES = {
 }
 
 
-def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=True):
+def _emit_no_member(
+    node,
+    owner,
+    owner_name,
+    mixin_class_rgx: Pattern[str],
+    ignored_mixins=True,
+    ignored_none=True,
+):
     """Try to see if no-member should be emitted for the given owner.
 
     The following cases are ignored:
@@ -462,7 +469,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         return False
     if is_super(owner) or getattr(owner, "type", None) == "metaclass":
         return False
-    if owner_name and ignored_mixins and owner_name[-5:].lower() == "mixin":
+    if owner_name and ignored_mixins and mixin_class_rgx.match(owner_name):
         return False
     if isinstance(owner, nodes.FunctionDef) and (
         owner.decorators or owner.is_abstract()
@@ -781,14 +788,24 @@ class TypeChecker(BaseChecker):
             },
         ),
         (
+            "mixin-class-rgx",
+            {
+                "default": ".*[Mm]ixin",
+                "type": "regexp",
+                "metavar": "<regexp>",
+                "help": "Regex pattern to define which classes are considered mixins "
+                "ignore-mixin-members is set to 'yes'",
+            },
+        ),
+        (
             "ignore-mixin-members",
             {
                 "default": True,
                 "type": "yn",
                 "metavar": "<y_or_n>",
-                "help": 'Tells whether missing members accessed in mixin \
-class should be ignored. A mixin class is detected if its name ends with \
-"mixin" (case insensitive).',
+                "help": "Tells whether missing members accessed in mixin "
+                "class should be ignored. A class is considered mixin if its name matches "
+                "the mixin-class-rgx option.",
             },
         ),
         (
@@ -898,6 +915,7 @@ accessed. Python regular expressions are accepted.",
     def open(self) -> None:
         py_version = get_global_option(self, "py-version")
         self._py310_plus = py_version >= (3, 10)
+        self._mixin_class_rgx = get_global_option(self, "mixin-class-rgx")
 
     @astroid.decorators.cachedproperty
     def _suggestion_mode(self):
@@ -1040,6 +1058,7 @@ accessed. Python regular expressions are accepted.",
                     node,
                     owner,
                     name,
+                    self._mixin_class_rgx,
                     ignored_mixins=self.config.ignore_mixin_members,
                     ignored_none=self.config.ignore_none,
                 ):

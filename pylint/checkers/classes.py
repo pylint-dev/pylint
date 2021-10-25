@@ -86,6 +86,14 @@ from pylint.utils import get_global_option
 NEXT_METHOD = "__next__"
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
+ASTROID_TYPE_COMPARATORS = {
+    nodes.Const: lambda a, b: a.value == b.value,
+    nodes.ClassDef: lambda a, b: a.qname == b.qname,
+    nodes.Tuple: lambda a, b: a.elts == b.elts,
+    nodes.List: lambda a, b: a.elts == b.elts,
+    nodes.Dict: lambda a, b: a.items == b.items,
+    nodes.Name: lambda a, b: set(a.infer()) == set(b.infer()),
+}
 
 # Dealing with useless override detection, with regard
 # to parameters vs arguments
@@ -157,8 +165,8 @@ def _definition_equivalent_to_call(definition, call):
     if definition.args != call.args:
         return False
 
-    for keyword in call.kws:
-        if keyword not in call.args and keyword not in definition.kwonlyargs:
+    for kw in call.kws:
+        if kw not in call.args and kw not in definition.kwonlyargs:
             # Maybe this argument goes into **kwargs,
             # or it is an extraneous argument.
             # In any case, the signature is different than
@@ -183,14 +191,6 @@ class _DefaultMissing:
 
 
 _DEFAULT_MISSING = _DefaultMissing()
-_DEFAULT_COMPARATORS = {
-    nodes.Const: lambda a, b: a.value == b.value,
-    nodes.ClassDef: lambda a, b: a.name == b.name,
-    nodes.Tuple: lambda a, b: a.elts == b.elts,
-    nodes.List: lambda a, b: a.elts == b.elts,
-    nodes.Dict: lambda a, b: a.items == b.items,
-    nodes.Name: lambda a, b: set(a.infer()) == set(b.infer()),
-}
 
 
 def _has_different_parameters_default_value(original, overridden):
@@ -226,7 +226,7 @@ def _has_different_parameters_default_value(original, overridden):
         if not isinstance(overridden_default, original_type):
             # Two args with same name but different types
             return True
-        is_same_fn = _DEFAULT_COMPARATORS.get(original_type)
+        is_same_fn = ASTROID_TYPE_COMPARATORS.get(original_type)
         if is_same_fn is None:
             # If the default value comparison is unhandled, assume the value is different
             return True
@@ -800,6 +800,9 @@ a metaclass class method.",
         self._first_attrs = []
         self._meth_could_be_func = None
 
+    def open(self) -> None:
+        self._mixin_class_rgx = get_global_option(self, "mixin-class-rgx")
+
     @astroid.decorators.cachedproperty
     def _dummy_rgx(self):
         return get_global_option(self, "dummy-variables-rgx", default=None)
@@ -1021,7 +1024,7 @@ a metaclass class method.",
 
     def _check_attribute_defined_outside_init(self, cnode: nodes.ClassDef) -> None:
         # check access to existent members on non metaclass classes
-        if self._ignore_mixin and cnode.name[-5:].lower() == "mixin":
+        if self._ignore_mixin and self._mixin_class_rgx.match(cnode.name):
             # We are in a mixin class. No need to try to figure out if
             # something is missing, since it is most likely that it will
             # miss.

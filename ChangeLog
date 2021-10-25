@@ -11,6 +11,12 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
+* Add an optional extension ``consider-using-any-or-all`` : Emitted when a ``for`` loop only
+  produces a boolean and could be replaced by ``any`` or ``all`` using a generator. Also suggests
+  a suitable any or all statement.
+
+  Closes #5008
+
 * Properly identify parameters with no documentation and add new message called ``missing-any-param-doc``
 
   Closes #3799
@@ -30,6 +36,11 @@ Release date: TBA
   used in metaclass declarations
 
   Closes #4031
+
+* ``used-before-assignment`` now correctly considers references to classes as type annotation
+  or default values in first-level methods
+
+  Closes #3771
 
 * Fix bug with importing namespace packages with relative imports
 
@@ -63,6 +74,8 @@ Release date: TBA
 
   Closes #4981
 
+* Support configuring mixin class pattern via ``mixin-class-rgx``
+
 * Added new checker ``use-implicit-booleaness-not-comparison``: Emitted when
   collection literal comparison is being used to check for emptiness.
 
@@ -76,6 +89,11 @@ Release date: TBA
 * Update ``literal-comparison``` checker to ignore tuple literals
 
   Closes #3031
+
+* Normalize the input to the ``ignore-paths`` option to allow both Posix and
+  Windows paths
+
+  Closes #5194
 
 * Fix double emitting of ``not-callable`` on inferrable ``properties``
 

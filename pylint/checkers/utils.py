@@ -285,11 +285,8 @@ class InferredTypeError(Exception):
 
 
 def is_inside_lambda(node: nodes.NodeNG) -> bool:
-    """Return true if given node is inside lambda"""
-    for parent in node.node_ancestors():
-        if isinstance(parent, nodes.Lambda):
-            return True
-    return False
+    """Return whether the given node is inside a lambda"""
+    return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
 
 
 def get_all_elements(
@@ -443,15 +440,12 @@ def is_func_decorator(node: nodes.NodeNG) -> bool:
 
 
 def is_ancestor_name(frame: nodes.ClassDef, node: nodes.NodeNG) -> bool:
-    """return True if `frame` is an astroid.Class node with `node` in the
+    """return whether `frame` is an astroid.Class node with `node` in the
     subtree of its bases attribute
     """
     if not isinstance(frame, nodes.ClassDef):
         return False
-    for base in frame.bases:
-        if node in base.nodes_of_class(nodes.Name):
-            return True
-    return False
+    return any(node in base.nodes_of_class(nodes.Name) for base in frame.bases)
 
 
 def is_being_called(node: nodes.NodeNG) -> bool:
@@ -719,17 +713,15 @@ def get_argument_from_call(
 
 def inherit_from_std_ex(node: nodes.NodeNG) -> bool:
     """
-    Return true if the given class node is subclass of
+    Return whether the given class node is subclass of
     exceptions.Exception.
     """
     ancestors = node.ancestors() if hasattr(node, "ancestors") else []
-    for ancestor in itertools.chain([node], ancestors):
-        if (
-            ancestor.name in ("Exception", "BaseException")
-            and ancestor.root().name == EXCEPTIONS_MODULE
-        ):
-            return True
-    return False
+    return any(
+        ancestor.name in ("Exception", "BaseException")
+        and ancestor.root().name == EXCEPTIONS_MODULE
+        for ancestor in itertools.chain([node], ancestors)
+    )
 
 
 def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
@@ -1444,10 +1436,7 @@ def is_classdef_type(node: nodes.ClassDef) -> bool:
     """Test if ClassDef node is Type."""
     if node.name == "type":
         return True
-    for base in node.bases:
-        if isinstance(base, nodes.Name) and base.name == "type":
-            return True
-    return False
+    return any(isinstance(b, nodes.Name) and b.name == "type" for b in node.bases)
 
 
 def is_attribute_typed_annotation(
@@ -1626,12 +1615,8 @@ def is_function_body_ellipsis(node: nodes.FunctionDef) -> bool:
     )
 
 
-def is_empty_list_literal(node: Optional[nodes.NodeNG]) -> bool:
-    return isinstance(node, nodes.List) and not node.elts
-
-
-def is_empty_tuple_literal(node: Optional[nodes.NodeNG]) -> bool:
-    return isinstance(node, nodes.Tuple) and not node.elts
+def is_base_container(node: Optional[nodes.NodeNG]) -> bool:
+    return isinstance(node, nodes.BaseContainer) and not node.elts
 
 
 def is_empty_dict_literal(node: Optional[nodes.NodeNG]) -> bool:
@@ -1641,4 +1626,13 @@ def is_empty_dict_literal(node: Optional[nodes.NodeNG]) -> bool:
 def is_empty_str_literal(node: Optional[nodes.NodeNG]) -> bool:
     return (
         isinstance(node, nodes.Const) and isinstance(node.value, str) and not node.value
+    )
+
+
+def returns_bool(node: nodes.NodeNG) -> bool:
+    """Returns true if a node is a return that returns a constant boolean"""
+    return (
+        isinstance(node, nodes.Return)
+        and isinstance(node.value, nodes.Const)
+        and node.value.value in (True, False)
     )
