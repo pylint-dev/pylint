@@ -369,14 +369,8 @@ class LoggingChecker(checkers.BaseChecker):
             self.add_message("logging-too-few-args", node=node)
 
 
-def is_complex_format_str(node):
-    """Checks if node represents a string with complex formatting specs.
-
-    Args:
-        node (nodes.NodeNG): AST node to check
-    Returns:
-        bool: True if inferred string uses complex formatting, False otherwise
-    """
+def is_complex_format_str(node: nodes.NodeNG) -> bool:
+    """Return whether node represents a string with complex formatting specs."""
     inferred = utils.safe_infer(node)
     if inferred is None or not (
         isinstance(inferred, nodes.Const) and isinstance(inferred.value, str)

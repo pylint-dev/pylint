@@ -1955,16 +1955,15 @@ class VariablesChecker(BaseChecker):
         self, node: nodes.Name, index: int
     ) -> bool:
         """
-        Return whether there is a node with the same name in the to_consume dict of an upper scope
-        and if that scope is a function
+        Return whether there is a node with the same name in the
+        to_consume dict of an upper scope and if that scope is a
+        function
 
         :param node: node to check for
-        :type node: astroid.Node
         :param index: index of the current consumer inside self._to_consume
-        :type index: int
-        :return: True if there is a node with the same name in the to_consume dict of an upper scope
-                 and if that scope is a function
-        :rtype: bool
+        :return: True if there is a node with the same name in the
+                 to_consume dict of an upper scope and if that scope
+                 is a function, False otherwise
         """
         return any(
             _consumer.scope_type == "function" and node.name in _consumer.to_consume
