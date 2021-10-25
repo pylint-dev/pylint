@@ -1,14 +1,14 @@
 # pylint: disable=missing-docstring
-from toml import TomlEncoder
-from yaml import YAMLObject
+from json import JSONEncoder
 
 class Control: # [too-few-public-methods]
     ...
 
 
-class MyTomlEncoder(TomlEncoder):
+class MyJsonEncoder(JSONEncoder):
     ...
 
-
-class MyYAMLObject(YAMLObject):
+class InheritedInModule(Control):
+    """This class inherits from a class that doesn't have enough mehods,
+    and its parent is excluded via config, so it doesn't raise."""
     ...
