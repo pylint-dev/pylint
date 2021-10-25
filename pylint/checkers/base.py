@@ -242,21 +242,18 @@ def _redefines_import(node):
     return False
 
 
+LOOPLIKE_NODES = (
+    nodes.For,
+    nodes.ListComp,
+    nodes.SetComp,
+    nodes.DictComp,
+    nodes.GeneratorExp,
+)
+
+
 def in_loop(node):
     """Return whether the node is inside a kind of for loop"""
-    return any(
-        isinstance(
-            parent,
-            (
-                nodes.For,
-                nodes.ListComp,
-                nodes.SetComp,
-                nodes.DictComp,
-                nodes.GeneratorExp,
-            ),
-        )
-        for parent in node.node_ancestors()
-    )
+    return any(isinstance(parent, LOOPLIKE_NODES) for parent in node.node_ancestors())
 
 
 def in_nested_list(nested_list, obj):
