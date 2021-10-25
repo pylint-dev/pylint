@@ -41,7 +41,10 @@ import sys
 from datetime import datetime
 
 from pylint.config.configuration_mixin import ConfigurationMixIn
-from pylint.config.find_default_config_files import find_default_config_files
+from pylint.config.find_default_config_files import (
+    find_default_config_files,
+    find_pylintrc,
+)
 from pylint.config.man_help_formatter import _ManHelpFormatter
 from pylint.config.option import Option
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
@@ -137,15 +140,6 @@ def save_results(results, base):
             pickle.dump(results, stream)
     except OSError as ex:
         print(f"Unable to create file {data_file}: {ex}", file=sys.stderr)
-
-
-def find_pylintrc():
-    """search the pylint rc file and return its path if it find it, else None"""
-    for config_file in find_default_config_files():
-        if config_file.endswith("pylintrc"):
-            return config_file
-
-    return None
 
 
 PYLINTRC = find_pylintrc()
