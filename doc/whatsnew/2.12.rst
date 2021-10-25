@@ -86,6 +86,11 @@ Other Changes
 
   Closes #3771
 
+* ``undefined-variable`` and ``unused-variable`` now correctly trigger for assignment expressions
+  in functions defaults
+
+  Fixes part of #3688
+
 * Fix double emitting of ``not-callable`` on inferrable ``properties``
 
   Closes #4426

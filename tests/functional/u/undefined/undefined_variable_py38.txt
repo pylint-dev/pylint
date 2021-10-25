@@ -1,1 +1,3 @@
-undefined-variable:16:15:typing_and_self_referncing_assignment_expression:Undefined variable 'var':HIGH
+undefined-variable:17:15:typing_and_self_referncing_assignment_expression:Undefined variable 'var':HIGH
+undefined-variable:42:6::Undefined variable 'no_default':HIGH
+undefined-variable:50:6::Undefined variable 'again_no_default':HIGH
