@@ -165,8 +165,7 @@ def _definition_equivalent_to_call(definition, call):
         return False
 
     # No extra kwargs in call.
-    return all(kw in call.args or kw in definition.kwonlyargs
-               for kw in call.kws)
+    return all(kw in call.args or kw in definition.kwonlyargs for kw in call.kws)
 
 
 # Deal with parameters overriding in two methods.
