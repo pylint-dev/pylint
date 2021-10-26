@@ -566,4 +566,3 @@ contributors:
 * Samuel Freilich (sfreilich): contributor
 
 * Mike Fiedler (miketheman): contributor
-
