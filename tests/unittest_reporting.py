@@ -132,7 +132,7 @@ def test_multi_format_output(tmp_path):
 
         assert linter.reporter.linter is linter
         with pytest.raises(NotImplementedError):
-            linter.reporter.set_output(text)
+            linter.reporter.out = text
 
         linter.open()
         linter.check_single_file_item(FileItem("somemodule", source_file, "somemodule"))
