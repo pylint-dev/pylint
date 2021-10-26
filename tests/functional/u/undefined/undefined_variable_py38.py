@@ -1,5 +1,5 @@
 """Tests for undefined variable with assignment expressions"""
-# pylint: disable=using-constant-test
+# pylint: disable=using-constant-test, expression-not-assigned
 
 # Tests for annotation of variables and potentially undefinition
 
@@ -48,3 +48,52 @@ def no_parameters_in_function_default() -> None:
 
 
 print(again_no_default) # [undefined-variable]
+
+# Tests for assignment expressions in if ... else comprehensions
+
+
+[i for i in range(10) if (if_assign_1 := i)]
+
+print(if_assign_1)
+
+IF_TWO = [i for i in range(10) if (if_assign_2 := i)]
+
+print(if_assign_2)
+
+IF_THREE = next(i for i in range(10) if (if_assign_3 := i))
+
+print(if_assign_3)
+
+IF_FOUR = {i: i for i in range(10) if (if_assign_4 := i)}
+
+print(if_assign_4)
+
+IF_FIVE = {i: i if (if_assign_5 := i) else 0 for i in range(10)}
+print(if_assign_5)
+
+{i: i if True else (else_assign_1 := i) for i in range(10)}
+
+print(else_assign_1) # [undefined-variable]
+
+
+# Tests for assignment expressions in the assignment of comprehensions
+
+[(assign_assign_1 := i) for i in range(10)]
+
+print(assign_assign_1)
+
+COMPREHENSION_TWO =[(assign_assign_2 := i) for i in range(10)]
+
+print(assign_assign_2)
+
+COMPREHENSION_THREE = next((assign_assign_3 := i) for i in range(10))
+
+print(assign_assign_3)
+
+COMPREHENSION_FOUR = {i: (assign_assign_4 := i) for i in range(10)}
+
+print(assign_assign_4)
+
+COMPREHENSION_FIVE = {i: (else_assign_2 := i) if False else 0 for i in range(10)}
+
+print(else_assign_2)  # [undefined-variable]
