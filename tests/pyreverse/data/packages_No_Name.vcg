@@ -10,6 +10,9 @@ graph:{
   node: {title:"data.clientmodule_test"  label:"\fbdata.clientmodule_test\fn"
   shape:box
 }
+  node: {title:"data.property_pattern"  label:"\fbdata.property_pattern\fn"
+  shape:box
+}
   node: {title:"data.suppliermodule_test"  label:"\fbdata.suppliermodule_test\fn"
   shape:box
 }
