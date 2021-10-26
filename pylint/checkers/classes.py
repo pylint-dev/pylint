@@ -159,21 +159,14 @@ def _definition_equivalent_to_call(definition, call):
             return False
     elif call.starred_args:
         return False
-    for kw in definition.kwonlyargs:
-        if kw not in call.kws:
-            return False
+    if any(kw not in call.kws for kw in definition.kwonlyargs):
+        return False
     if definition.args != call.args:
         return False
 
-    for kw in call.kws:
-        if kw not in call.args and kw not in definition.kwonlyargs:
-            # Maybe this argument goes into **kwargs,
-            # or it is an extraneous argument.
-            # In any case, the signature is different than
-            # the call site, which stops our search.
-            return False
-
-    return True
+    # No extra kwargs in call.
+    return all(kw in call.args or kw in definition.kwonlyargs
+               for kw in call.kws)
 
 
 # Deal with parameters overriding in two methods.
