@@ -43,6 +43,11 @@ New checkers
 
   Closes #4774
 
+* Added configuration option ``exclude-too-few-public-methods`` to allow excluding
+  classes from the ``min-public-methods`` checker.
+
+  Closes #3370
+
 
 Removed checkers
 ================
@@ -85,6 +90,11 @@ Other Changes
   or default values in first-level methods
 
   Closes #3771
+
+* ``undefined-variable`` and ``unused-variable`` now correctly trigger for assignment expressions
+  in functions defaults
+
+  Fixes part of #3688
 
 * Fix double emitting of ``not-callable`` on inferrable ``properties``
 
