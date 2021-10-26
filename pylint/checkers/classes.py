@@ -150,38 +150,22 @@ def _signature_from_arguments(arguments):
 def _definition_equivalent_to_call(definition, call):
     """Check if a definition signature is equivalent to a call."""
     if definition.kwargs:
-        same_kw_variadics = definition.kwargs in call.starred_kws
-    else:
-        same_kw_variadics = not call.starred_kws
+        if definition.kwargs not in call.starred_kws:
+            return False
+    elif call.starred_kws:
+        return False
     if definition.varargs:
-        same_args_variadics = definition.varargs in call.starred_args
-    else:
-        same_args_variadics = not call.starred_args
-    same_kwonlyargs = all(kw in call.kws for kw in definition.kwonlyargs)
-    same_args = definition.args == call.args
+        if definition.varargs not in call.starred_args:
+            return False
+    elif call.starred_args:
+        return False
+    if any(kw not in call.kws for kw in definition.kwonlyargs):
+        return False
+    if definition.args != call.args:
+        return False
 
-    no_additional_kwarg_arguments = True
-    if call.kws:
-        for keyword in call.kws:
-            is_arg = keyword in call.args
-            is_kwonly = keyword in definition.kwonlyargs
-            if not is_arg and not is_kwonly:
-                # Maybe this argument goes into **kwargs,
-                # or it is an extraneous argument.
-                # In any case, the signature is different than
-                # the call site, which stops our search.
-                no_additional_kwarg_arguments = False
-                break
-
-    return all(
-        (
-            same_args,
-            same_kwonlyargs,
-            same_args_variadics,
-            same_kw_variadics,
-            no_additional_kwarg_arguments,
-        )
-    )
+    # No extra kwargs in call.
+    return all(kw in call.args or kw in definition.kwonlyargs for kw in call.kws)
 
 
 # Deal with parameters overriding in two methods.
@@ -192,6 +176,13 @@ def _positional_parameters(method):
     if method.type in ("classmethod", "method"):
         positional = positional[1:]
     return positional
+
+
+class _DefaultMissing:
+    """Sentinel value for missing arg default, use _DEFAULT_MISSING."""
+
+
+_DEFAULT_MISSING = _DefaultMissing()
 
 
 def _has_different_parameters_default_value(original, overridden):
@@ -206,41 +197,34 @@ def _has_different_parameters_default_value(original, overridden):
     if original.args is None or overridden.args is None:
         return False
 
-    all_args = chain(original.args, original.kwonlyargs)
-    original_param_names = [param.name for param in all_args]
-    default_missing = object()
-    for param_name in original_param_names:
+    for param in chain(original.args, original.kwonlyargs):
         try:
-            original_default = original.default_value(param_name)
+            original_default = original.default_value(param.name)
         except astroid.exceptions.NoDefault:
-            original_default = default_missing
+            original_default = _DEFAULT_MISSING
         try:
-            overridden_default = overridden.default_value(param_name)
+            overridden_default = overridden.default_value(param.name)
+            if original_default is _DEFAULT_MISSING:
+                # Only the original has a default.
+                return True
         except astroid.exceptions.NoDefault:
-            overridden_default = default_missing
+            if original_default is _DEFAULT_MISSING:
+                # Both have a default, no difference
+                continue
+            # Only the override has a default.
+            return True
 
-        default_list = [
-            arg != default_missing for arg in (original_default, overridden_default)
-        ]
-        if any(default_list):
-            if not all(default_list):
-                # Only one arg has no default value
-                return True
-            # Both args have a default value. Compare them
-            original_type = type(original_default)
-            if original_type in ASTROID_TYPE_COMPARATORS:
-                # We handle only astroid types that are inside the dict astroid_type_compared_attr
-                if not isinstance(overridden_default, original_type):
-                    # Two args with same name but different types
-                    return True
-                if not ASTROID_TYPE_COMPARATORS[original_type](
-                    original_default, overridden_default
-                ):
-                    # Two args with same type but different values
-                    return True
-            else:
-                # If the default value comparison is unhandled, assume the value is different
-                return True
+        original_type = type(original_default)
+        if not isinstance(overridden_default, original_type):
+            # Two args with same name but different types
+            return True
+        is_same_fn = ASTROID_TYPE_COMPARATORS.get(original_type)
+        if is_same_fn is None:
+            # If the default value comparison is unhandled, assume the value is different
+            return True
+        if not is_same_fn(original_default, overridden_default):
+            # Two args with same type but different values
+            return True
     return False
 
 

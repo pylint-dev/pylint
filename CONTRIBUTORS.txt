@@ -563,6 +563,8 @@ contributors:
 
 * Arianna Yang: contributor
 
+* Samuel Freilich (sfreilich): contributor
+
 * Mike Fiedler (miketheman): contributor
 
 * Takahide Nojima: contributor
