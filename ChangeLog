@@ -47,6 +47,12 @@ Release date: TBA
 
   Fixes part of #3688
 
+* ``undefined-variable`` now correctly triggers for assignment expressions in if ... else statements
+  This includes a basic form of control flow inference for if ... else statements using
+  constant boolean values
+
+  Closes #3688
+
 * Fix bug with importing namespace packages with relative imports
 
   Closes #2967 and #5131

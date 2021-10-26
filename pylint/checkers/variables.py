@@ -1211,6 +1211,12 @@ class VariablesChecker(BaseChecker):
                         )
                     if is_first_level_ref:
                         break
+                elif isinstance(defnode, nodes.NamedExpr):
+                    if isinstance(defnode.parent, nodes.IfExp):
+                        if self._is_never_evaluated(defnode, defnode.parent):
+                            self.add_message(
+                                "undefined-variable", node=node, args=node.name
+                            )
 
             current_consumer.mark_as_consumed(node.name, found_nodes)
             # check it's not a loop variable used outside the loop
@@ -1634,6 +1640,21 @@ class VariablesChecker(BaseChecker):
             ):
                 return 2
         return 0
+
+    @staticmethod
+    def _is_never_evaluated(
+        defnode: nodes.NamedExpr, defnode_parent: nodes.IfExp
+    ) -> bool:
+        """Check if a NamedExpr is inside a side of if ... else that never
+        gets evaluated
+        """
+        inferred_test = utils.safe_infer(defnode_parent.test)
+        if isinstance(inferred_test, nodes.Const):
+            if inferred_test.value is True and defnode == defnode_parent.orelse:
+                return True
+            if inferred_test.value is False and defnode == defnode_parent.body:
+                return True
+        return False
 
     def _ignore_class_scope(self, node):
         """
