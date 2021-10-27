@@ -3,45 +3,45 @@
 
 """Unittest for the BaseChecker class."""
 
-import unittest
 
 from pylint.checkers import BaseChecker
 
 
-class TestBaseChecker(unittest.TestCase):
-    def test_doc(self) -> None:
-        class OtherBasicChecker(BaseChecker):
-            name = "basic"
-            msgs = {
-                "W0001": (
-                    "Basic checker has an example.",
-                    "basic-checker-example",
-                    "Used nowhere and serves no purpose.",
-                )
-            }
+class OtherBasicChecker(BaseChecker):
+    name = "basic"
+    msgs = {
+        "W0001": (
+            "Basic checker has an example.",
+            "basic-checker-example",
+            "Used nowhere and serves no purpose.",
+        )
+    }
 
-        class LessBasicChecker(OtherBasicChecker):
-            options = (
-                (
-                    "example-args",
-                    {
-                        "default": 42,
-                        "type": "int",
-                        "metavar": "<int>",
-                        "help": "Example of integer argument for the checker.",
-                    },
-                ),
-            )
 
-        basic = OtherBasicChecker()
-        expected_beginning = """\
+class LessBasicChecker(OtherBasicChecker):
+    options = (
+        (
+            "example-args",
+            {
+                "default": 42,
+                "type": "int",
+                "metavar": "<int>",
+                "help": "Example of integer argument for the checker.",
+            },
+        ),
+    )
+
+
+def test_base_checker_doc() -> None:
+    basic = OtherBasicChecker()
+    expected_beginning = """\
 Basic checker
 ~~~~~~~~~~~~~
 
 Verbatim name of the checker is ``basic``.
 
 """
-        expected_middle = """\
+    expected_middle = """\
 Basic checker Options
 ^^^^^^^^^^^^^^^^^^^^^
 :example-args:
@@ -50,7 +50,7 @@ Basic checker Options
   Default: ``42``
 
 """
-        expected_end = """\
+    expected_end = """\
 Basic checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^
 :basic-checker-example (W0001): *Basic checker has an example.*
@@ -58,11 +58,9 @@ Basic checker Messages
 
 
 """
-        self.assertEqual(str(basic), expected_beginning + expected_end)
-        self.assertEqual(repr(basic), "Checker 'basic' (responsible for 'W0001')")
-        less_basic = LessBasicChecker()
+    assert str(basic) == expected_beginning + expected_end
+    assert repr(basic) == "Checker 'basic' (responsible for 'W0001')"
+    less_basic = LessBasicChecker()
 
-        self.assertEqual(
-            str(less_basic), expected_beginning + expected_middle + expected_end
-        )
-        self.assertEqual(repr(less_basic), repr(basic))
+    assert str(less_basic) == expected_beginning + expected_middle + expected_end
+    assert repr(less_basic) == repr(basic)
