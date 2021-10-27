@@ -35,3 +35,9 @@ def test_crash_in_file(
     with open(files[0], encoding="utf8") as f:
         content = f.read()
     assert "Failed to import module spam." in content
+
+
+def test_check_deprecation(linter: PyLinter, recwarn):
+    linter.check("myfile.py")
+    msg = recwarn.pop()
+    assert "check function will only accept sequence" in str(msg)
