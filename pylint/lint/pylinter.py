@@ -618,16 +618,13 @@ class PyLinter(
 
                 reporter = self._load_reporter_by_name(reporter_name)
                 sub_reporters.append(reporter)
-
                 if reporter_output:
                     (reporter_output,) = reporter_output
-
                     # pylint: disable=consider-using-with
                     output_file = stack.enter_context(
                         open(reporter_output, "w", encoding="utf-8")
                     )
-
-                    reporter.set_output(output_file)
+                    reporter.out = output_file
                     output_files.append(output_file)
 
             # Extend the lifetime of all opened output files
