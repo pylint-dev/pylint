@@ -292,6 +292,35 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
+    @set_config(default_docstring_type="numpy")
+    def test_no_type_func_params_in_numpy_docstring(self) -> None:
+        """Example of a function with NumPy style parameter without type annotation
+        documentation in the docstring
+        """
+        node = astroid.extract_node(
+            """
+        def func(arg1: bool, arg2: bool):
+            '''Return args.
+
+            Parameters
+            ----------
+            arg1 : bool
+                arg1
+
+            arg2
+                arg2
+
+            Returns
+            ----------
+            bool
+            bool
+            '''
+            return arg1, arg2
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
     @set_config(accept_no_param_doc=True)
     def test_tolerate_no_param_documentation_at_all(self) -> None:
         """Example of a function with no parameter documentation at all
