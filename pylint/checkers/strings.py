@@ -681,7 +681,7 @@ class StringConstantChecker(BaseTokenChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "This flag controls whether the "
                 "implicit-str-concat should generate a warning "
                 "on implicit string concatenation in sequences defined over "
@@ -693,7 +693,7 @@ class StringConstantChecker(BaseTokenChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "This flag controls whether inconsistent-quotes generates a "
                 "warning when the character used as a quote delimiter is used "
                 "inconsistently within a module.",

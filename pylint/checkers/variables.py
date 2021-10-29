@@ -629,7 +629,7 @@ class VariablesChecker(BaseChecker):
             {
                 "default": 0,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Tells whether we should check for unused import in "
                 "__init__ files.",
             },
@@ -697,7 +697,7 @@ class VariablesChecker(BaseChecker):
             {
                 "default": True,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Tells whether unused global variables should be treated as a violation.",
             },
         ),

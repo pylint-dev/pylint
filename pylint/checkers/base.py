@@ -1816,7 +1816,7 @@ class NameChecker(_BasicChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Include a hint for the correct naming format with invalid-name.",
             },
         ),

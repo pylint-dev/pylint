@@ -240,7 +240,7 @@ class PyLinter(
                 {
                     "default": True,
                     "type": "yn",
-                    "metavar": "<y_or_n>",
+                    "metavar": "<y or n>",
                     "level": 1,
                     "help": "Pickle collected data for later comparisons.",
                 },
@@ -276,7 +276,7 @@ class PyLinter(
                 {
                     "default": False,
                     "type": "yn",
-                    "metavar": "<y_or_n>",
+                    "metavar": "<y or n>",
                     "short": "r",
                     "group": "Reports",
                     "help": "Tells whether to display a full report or only the "
@@ -306,7 +306,7 @@ class PyLinter(
                 {
                     "default": True,
                     "type": "yn",
-                    "metavar": "<y_or_n>",
+                    "metavar": "<y or n>",
                     "short": "s",
                     "group": "Reports",
                     "help": "Activate the evaluation score.",
@@ -409,7 +409,7 @@ class PyLinter(
                 "unsafe-load-any-extension",
                 {
                     "type": "yn",
-                    "metavar": "<yn>",
+                    "metavar": "<y or n>",
                     "default": False,
                     "hide": True,
                     "help": (
@@ -465,7 +465,7 @@ class PyLinter(
                 "suggestion-mode",
                 {
                     "type": "yn",
-                    "metavar": "<yn>",
+                    "metavar": "<y or n>",
                     "default": True,
                     "help": (
                         "When enabled, pylint would attempt to guess common "
