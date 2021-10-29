@@ -3,11 +3,11 @@
 coveralls~=3.2
 coverage~=5.5
 pre-commit~=2.15;python_full_version>="3.6.2"
-tbump~=6.4.1
+tbump~=6.5.0
 pyenchant~=3.2
 pytest-cov~=3.0
 pytest-profiling~=1.7
 pytest-xdist~=2.4
 # Type packages for mypy
 types-pkg_resources==0.1.3
-types-toml==0.10.0
+types-toml==0.10.1

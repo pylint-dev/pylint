@@ -16,7 +16,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # pylint: disable=redefined-outer-name
-
+import sys
 import warnings
 from contextlib import redirect_stdout
 from io import StringIO
@@ -48,13 +48,23 @@ def disable():
 
 def test_template_option(linter):
     output = StringIO()
-    linter.reporter.set_output(output)
+    linter.reporter.out = output
     linter.set_option("msg-template", "{msg_id}:{line:03d}")
     linter.open()
     linter.set_current_module("0123")
     linter.add_message("C0301", line=1, args=(1, 2))
     linter.add_message("line-too-long", line=2, args=(3, 4))
     assert output.getvalue() == "************* Module 0123\nC0301:001\nC0301:002\n"
+
+
+def test_deprecation_set_output(recwarn):
+    """TODO remove in 3.0"""  # pylint: disable=fixme
+    reporter = BaseReporter()
+    # noinspection PyDeprecation
+    reporter.set_output(sys.stdout)
+    warning = recwarn.pop()
+    assert "set_output' will be removed in 3.0" in str(warning)
+    assert reporter.out == sys.stdout
 
 
 def test_parseable_output_deprecated():
@@ -73,7 +83,7 @@ def test_parseable_output_regression():
 
     checkers.initialize(linter)
     linter.config.persistent = 0
-    linter.reporter.set_output(output)
+    linter.reporter.out = output
     linter.set_option("output-format", "parseable")
     linter.open()
     linter.set_current_module("0123")
@@ -122,7 +132,7 @@ def test_multi_format_output(tmp_path):
 
         assert linter.reporter.linter is linter
         with pytest.raises(NotImplementedError):
-            linter.reporter.set_output(text)
+            linter.reporter.out = text
 
         linter.open()
         linter.check_single_file_item(FileItem("somemodule", source_file, "somemodule"))

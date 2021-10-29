@@ -24,11 +24,24 @@ def set_config(**kwargs):
             except optparse.OptionError:
                 # Check if option is one of the base options of the PyLinter class
                 for key, value in kwargs.items():
-                    self.checker.set_option(
-                        key.replace("_", "-"),
-                        value,
-                        optdict=dict(PyLinter.make_options()),
-                    )
+                    try:
+                        self.checker.set_option(
+                            key.replace("_", "-"),
+                            value,
+                            optdict=dict(PyLinter.make_options())[
+                                key.replace("_", "-")
+                            ],
+                        )
+                    except KeyError:
+                        # pylint: disable-next=fixme
+                        # TODO: Find good way to double load checkers in unittests
+                        # When options are used by multiple checkers we need to load both of them
+                        # to be able to get an optdict
+                        self.checker.set_option(
+                            key.replace("_", "-"),
+                            value,
+                            optdict={},
+                        )
             if isinstance(self, CheckerTestCase):
                 # reopen checker in case, it may be interested in configuration change
                 self.checker.open()

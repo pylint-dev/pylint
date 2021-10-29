@@ -390,6 +390,8 @@ contributors:
 
 * Ram Rachum (cool-RR)
 
+* D. Alphus (Alphadelta14): contributor
+
 * Pieter Engelbrecht
 
 * Ethan Leba: contributor
@@ -553,4 +555,18 @@ contributors:
 
 * Samuel Forestier: contributor
 
+* Nick Pesce: contributor
+
 * James DesLauriers: contributor
+
+* Youngsoo Sung: contributor
+
+* Arianna Yang: contributor
+
+* Samuel Freilich (sfreilich): contributor
+
+* Mike Fiedler (miketheman): contributor
+
+* Takahide Nojima: contributor
+
+* Tushar Sadhwani (tusharsadhwani): contributor

@@ -178,7 +178,7 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
         "typing.ItemsView",
         "typing.ValuesView",
         "typing.ContextManager",
-        "typing.AsyncContextManger",
+        "typing.AsyncContextManager",
         "typing.Hashable",
         "typing.Sized",
     )
@@ -402,6 +402,16 @@ class MisdesignChecker(BaseChecker):
                 "statement (see R0916).",
             },
         ),
+        (
+            "exclude-too-few-public-methods",
+            {
+                "default": [],
+                "type": "regexp_csv",
+                "metavar": "<pattern>[,<pattern>...]",
+                "help": "List of regular expressions of class ancestor names "
+                "to ignore when counting public methods (see R0903)",
+            },
+        ),
     )
 
     def __init__(self, linter=None):
@@ -416,6 +426,9 @@ class MisdesignChecker(BaseChecker):
         self._returns = []
         self._branches = defaultdict(int)
         self._stmts = []
+        self._exclude_too_few_public_methods = utils.get_global_option(
+            self, "exclude-too-few-public-methods", default=[]
+        )
 
     def _inc_all_stmts(self, amount):
         for i, _ in enumerate(self._stmts):
@@ -471,6 +484,15 @@ class MisdesignChecker(BaseChecker):
                 node=node,
                 args=(my_methods, self.config.max_public_methods),
             )
+
+        # Stop here if the class is excluded via configuration.
+        if node.type == "class" and self._exclude_too_few_public_methods:
+            for ancestor in node.ancestors():
+                if any(
+                    pattern.match(ancestor.qname())
+                    for pattern in self._exclude_too_few_public_methods
+                ):
+                    return
 
         # Stop here for exception, metaclass, interface classes and other
         # classes for which we don't need to count the methods.

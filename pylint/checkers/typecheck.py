@@ -442,7 +442,14 @@ SEQUENCE_TYPES = {
 }
 
 
-def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=True):
+def _emit_no_member(
+    node,
+    owner,
+    owner_name,
+    mixin_class_rgx: Pattern[str],
+    ignored_mixins=True,
+    ignored_none=True,
+):
     """Try to see if no-member should be emitted for the given owner.
 
     The following cases are ignored:
@@ -462,7 +469,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
         return False
     if is_super(owner) or getattr(owner, "type", None) == "metaclass":
         return False
-    if owner_name and ignored_mixins and owner_name[-5:].lower() == "mixin":
+    if owner_name and ignored_mixins and mixin_class_rgx.match(owner_name):
         return False
     if isinstance(owner, nodes.FunctionDef) and (
         owner.decorators or owner.is_abstract()
@@ -770,7 +777,7 @@ class TypeChecker(BaseChecker):
             {
                 "default": True,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "This flag controls whether pylint should warn about "
                 "no-member and similar checks whenever an opaque object "
                 "is returned when inferring. The inference can return "
@@ -781,14 +788,24 @@ class TypeChecker(BaseChecker):
             },
         ),
         (
+            "mixin-class-rgx",
+            {
+                "default": ".*[Mm]ixin",
+                "type": "regexp",
+                "metavar": "<regexp>",
+                "help": "Regex pattern to define which classes are considered mixins "
+                "ignore-mixin-members is set to 'yes'",
+            },
+        ),
+        (
             "ignore-mixin-members",
             {
                 "default": True,
                 "type": "yn",
-                "metavar": "<y_or_n>",
-                "help": 'Tells whether missing members accessed in mixin \
-class should be ignored. A mixin class is detected if its name ends with \
-"mixin" (case insensitive).',
+                "metavar": "<y or n>",
+                "help": "Tells whether missing members accessed in mixin "
+                "class should be ignored. A class is considered mixin if its name matches "
+                "the mixin-class-rgx option.",
             },
         ),
         (
@@ -796,7 +813,7 @@ class should be ignored. A mixin class is detected if its name ends with \
             {
                 "default": True,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Tells whether to warn about missing members when the owner "
                 "of the attribute is inferred to be None.",
             },
@@ -898,6 +915,7 @@ accessed. Python regular expressions are accepted.",
     def open(self) -> None:
         py_version = get_global_option(self, "py-version")
         self._py310_plus = py_version >= (3, 10)
+        self._mixin_class_rgx = get_global_option(self, "mixin-class-rgx")
 
     @astroid.decorators.cachedproperty
     def _suggestion_mode(self):
@@ -1040,6 +1058,7 @@ accessed. Python regular expressions are accepted.",
                     node,
                     owner,
                     name,
+                    self._mixin_class_rgx,
                     ignored_mixins=self.config.ignore_mixin_members,
                     ignored_none=self.config.ignore_none,
                 ):
@@ -1296,8 +1315,9 @@ accessed. Python regular expressions are accepted.",
                 pass
             else:
                 self.add_message("not-callable", node=node, args=node.func.as_string())
+        else:
+            self._check_uninferable_call(node)
 
-        self._check_uninferable_call(node)
         try:
             called, implicit_args, callable_name = _determine_callable(called)
         except ValueError:

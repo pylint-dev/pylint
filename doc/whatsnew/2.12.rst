@@ -33,6 +33,8 @@ New checkers
   * Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
     is set to a version that does not support f-strings (< 3.6)
 
+* Fix ``useless-super-delegation`` false positive when default keyword argument is a variable.
+
 * Added new checker `use-implicit-booleanness``: Emitted when using collection
   literals for boolean comparisons
 
@@ -44,6 +46,11 @@ New checkers
 * Added ``using-final-in-unsupported-version`` checker. Issued when ``py-version``
   is set to a version that does not support typing.final (< 3.8)
 
+* Added configuration option ``exclude-too-few-public-methods`` to allow excluding
+  classes from the ``min-public-methods`` checker.
+
+  Closes #3370
+
 
 Removed checkers
 ================
@@ -51,10 +58,20 @@ Removed checkers
 
 Extensions
 ==========
+* Added an optional extension ``consider-using-any-or-all``: Emitted when a ``for`` loop only
+  produces a boolean and could be replaced by ``any`` or ``all`` using a generator. Also suggests
+  a suitable any/all statement if it is concise.
 
+  Closes #5008
 
 Other Changes
 =============
+
+* Fix ``simplify-boolean-expression`` when condition can be inferred as False.
+
+  Closes #5200
+
+* Fix exception when pyreverse parses ``property function`` of a class.
 
 * Improve and flatten ``unused-wildcard-import`` message
 
@@ -72,3 +89,40 @@ Other Changes
   and never get assigned a value
 
   Closes #5140
+
+* ``undefined-variable`` now correctly considers the line numbering and order of classes
+  used in metaclass declarations
+
+  Closes #4031
+
+* ``used-before-assignment`` now correctly considers references to classes as type annotation
+  or default values in first-level methods
+
+  Closes #3771
+
+* ``undefined-variable`` and ``unused-variable`` now correctly trigger for assignment expressions
+  in functions defaults
+
+  Fixes part of #3688
+
+* ``undefined-variable`` now correctly triggers for assignment expressions in if ... else statements
+  This includes a basic form of control flow inference for if ... else statements using
+  constant boolean values
+
+  Closes #3688
+
+* Fix double emitting of ``not-callable`` on inferrable ``properties``
+
+  Closes #4426
+
+* Support configuring mixin class pattern via ``mixin-class-rgx``
+
+* Normalize the input to the ``ignore-paths`` option to allow both Posix and
+  Windows paths
+
+  Closes #5194
+
+* ``mising-param-doc`` now correctly parses asterisks for variable length and
+  keyword parameters
+
+  Closes #3733

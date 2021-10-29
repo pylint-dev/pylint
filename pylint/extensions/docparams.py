@@ -536,11 +536,11 @@ class DocstringParameterChecker(BaseChecker):
             }
 
         if arguments_node.vararg is not None:
-            expected_argument_names.add(arguments_node.vararg)
-            not_needed_type_in_docstring.add(arguments_node.vararg)
+            expected_argument_names.add(f"*{arguments_node.vararg}")
+            not_needed_type_in_docstring.add(f"*{arguments_node.vararg}")
         if arguments_node.kwarg is not None:
-            expected_argument_names.add(arguments_node.kwarg)
-            not_needed_type_in_docstring.add(arguments_node.kwarg)
+            expected_argument_names.add(f"**{arguments_node.kwarg}")
+            not_needed_type_in_docstring.add(f"**{arguments_node.kwarg}")
         params_with_doc, params_with_type = doc.match_param_docs()
         # Tolerate no parameter documentation at all.
         if not params_with_doc and not params_with_type and accept_no_param_doc:

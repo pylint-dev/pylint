@@ -26,7 +26,7 @@ import signal
 import sys
 from contextlib import contextmanager
 from os.path import abspath, dirname, join
-from typing import Iterator
+from typing import Callable, Iterator, List
 
 import astroid
 import pytest
@@ -62,7 +62,7 @@ def Equals(expected):
 
 
 @pytest.mark.parametrize(
-    "file_name, check",
+    "file_names, check",
     [
         (["package.__init__"], Equals("")),
         (["precedence_test"], Equals("")),
@@ -75,22 +75,24 @@ def Equals(expected):
         ([join(REGR_DATA, "bad_package")], lambda x: "Unused import missing" in x),
     ],
 )
-def test_package(finalize_linter, file_name, check):
-    finalize_linter.check(file_name)
+def test_package(
+    finalize_linter: PyLinter, file_names: List[str], check: Callable
+) -> None:
+    finalize_linter.check(file_names)
     got = finalize_linter.reporter.finalize().strip()
     assert check(got)
 
 
 @pytest.mark.parametrize(
-    "file_name",
+    "file_names",
     [
-        join(REGR_DATA, "import_assign.py"),
-        join(REGR_DATA, "special_attr_scope_lookup_crash.py"),
-        join(REGR_DATA, "try_finally_disable_msg_crash"),
+        [join(REGR_DATA, "import_assign.py")],
+        [join(REGR_DATA, "special_attr_scope_lookup_crash.py")],
+        [join(REGR_DATA, "try_finally_disable_msg_crash")],
     ],
 )
-def test_crash(finalize_linter, file_name):
-    finalize_linter.check(file_name)
+def test_crash(finalize_linter: PyLinter, file_names: List[str]) -> None:
+    finalize_linter.check(file_names)
 
 
 @pytest.mark.parametrize(
@@ -156,11 +158,13 @@ def timeout(timeout_s: float):
 
 @pytest.mark.skipif(not hasattr(signal, "setitimer"), reason="Assumes POSIX signals")
 @pytest.mark.parametrize(
-    "fname,timeout_s",
+    "file_names,timeout_s",
     [
-        (join(REGR_DATA, "hang", "pkg4972.string"), 30.0),
+        ([join(REGR_DATA, "hang", "pkg4972.string")], 30.0),
     ],
 )
-def test_hang(finalize_linter, fname: str, timeout_s: float) -> None:
+def test_hang(
+    finalize_linter: PyLinter, file_names: List[str], timeout_s: float
+) -> None:
     with timeout(timeout_s):
-        finalize_linter.check(fname)
+        finalize_linter.check(file_names)

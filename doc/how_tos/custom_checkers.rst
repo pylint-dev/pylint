@@ -58,7 +58,7 @@ Firstly we will need to fill in some required boilerplate:
           (
               'ignore-ints',
               {
-                  'default': False, 'type': 'yn', 'metavar' : '<y_or_n>',
+                  'default': False, 'type': 'yn', 'metavar' : '<y or n>',
                   'help': 'Allow returning non-unique integers',
               }
           ),

@@ -132,5 +132,10 @@ def test_from_directory(project: Project) -> None:
 
 
 def test_project_node(project: Project) -> None:
-    expected = ["data", "data.clientmodule_test", "data.suppliermodule_test"]
+    expected = [
+        "data",
+        "data.clientmodule_test",
+        "data.property_pattern",
+        "data.suppliermodule_test",
+    ]
     assert sorted(project.keys()) == expected

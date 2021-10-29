@@ -108,7 +108,7 @@ class TypingChecker(BaseChecker):
             {
                 "default": True,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": (
                     "Set to ``no`` if the app / library does **NOT** need to "
                     "support runtime introspection of type annotations. "

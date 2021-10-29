@@ -7,6 +7,7 @@ charset="utf-8"
 "data.suppliermodule_test.DoNothing2" [color="aliceblue", fontcolor="black", label="{DoNothing2|\l|}", shape="record", style="filled"];
 "data.suppliermodule_test.DoSomething" [color="aliceblue", fontcolor="black", label="{DoSomething|my_int : Optional[int]\lmy_int_2 : Optional[int]\lmy_string : str\l|do_it(new_int: int): int\l}", shape="record", style="filled"];
 "data.suppliermodule_test.Interface" [color="aliceblue", fontcolor="black", label="{Interface|\l|get_value()\lset_value(value)\l}", shape="record", style="filled"];
+"data.property_pattern.PropertyPatterns" [color="aliceblue", fontcolor="black", label="{PropertyPatterns|prop1\lprop2\l|}", shape="record", style="filled"];
 "data.clientmodule_test.Specialization" [color="aliceblue", fontcolor="black", label="{Specialization|TYPE : str\lrelation\lrelation2\ltop : str\l|}", shape="record", style="filled"];
 "data.clientmodule_test.Specialization" -> "data.clientmodule_test.Ancestor" [arrowhead="empty", arrowtail="none"];
 "data.clientmodule_test.Ancestor" -> "data.suppliermodule_test.Interface" [arrowhead="empty", arrowtail="node", style="dashed"];

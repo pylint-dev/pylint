@@ -6,6 +6,9 @@ package "data" as data #aliceblue {
 package "data.clientmodule_test" as data.clientmodule_test #aliceblue {
 
 }
+package "data.property_pattern" as data.property_pattern #aliceblue {
+
+}
 package "data.suppliermodule_test" as data.suppliermodule_test #aliceblue {
 
 }

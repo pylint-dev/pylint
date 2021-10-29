@@ -46,7 +46,14 @@ from pylint.typing import (
     MessageLocationTuple,
     ModuleDescriptionDict,
 )
-from pylint.utils import ASTWalker, FileState, LinterStats, ModuleStats, utils
+from pylint.utils import (
+    ASTWalker,
+    FileState,
+    LinterStats,
+    ModuleStats,
+    get_global_option,
+    utils,
+)
 from pylint.utils.pragma_parser import (
     OPTION_PO,
     InvalidPragmaError,
@@ -220,12 +227,12 @@ class PyLinter(
             (
                 "ignore-paths",
                 {
-                    "type": "regexp_csv",
+                    "type": "regexp_paths_csv",
                     "metavar": "<pattern>[,<pattern>...]",
-                    "dest": "ignore_list_paths_re",
-                    "default": (),
-                    "help": "Add files or directories matching the regex patterns to the"
-                    " ignore-list. The regex matches against paths.",
+                    "default": [],
+                    "help": "Add files or directories matching the regex patterns to the "
+                    "ignore-list. The regex matches against paths and can be in "
+                    "Posix or Windows format.",
                 },
             ),
             (
@@ -233,7 +240,7 @@ class PyLinter(
                 {
                     "default": True,
                     "type": "yn",
-                    "metavar": "<y_or_n>",
+                    "metavar": "<y or n>",
                     "level": 1,
                     "help": "Pickle collected data for later comparisons.",
                 },
@@ -269,7 +276,7 @@ class PyLinter(
                 {
                     "default": False,
                     "type": "yn",
-                    "metavar": "<y_or_n>",
+                    "metavar": "<y or n>",
                     "short": "r",
                     "group": "Reports",
                     "help": "Tells whether to display a full report or only the "
@@ -299,7 +306,7 @@ class PyLinter(
                 {
                     "default": True,
                     "type": "yn",
-                    "metavar": "<y_or_n>",
+                    "metavar": "<y or n>",
                     "short": "s",
                     "group": "Reports",
                     "help": "Activate the evaluation score.",
@@ -402,7 +409,7 @@ class PyLinter(
                 "unsafe-load-any-extension",
                 {
                     "type": "yn",
-                    "metavar": "<yn>",
+                    "metavar": "<y or n>",
                     "default": False,
                     "hide": True,
                     "help": (
@@ -458,7 +465,7 @@ class PyLinter(
                 "suggestion-mode",
                 {
                     "type": "yn",
-                    "metavar": "<yn>",
+                    "metavar": "<y or n>",
                     "default": True,
                     "help": (
                         "When enabled, pylint would attempt to guess common "
@@ -611,16 +618,13 @@ class PyLinter(
 
                 reporter = self._load_reporter_by_name(reporter_name)
                 sub_reporters.append(reporter)
-
                 if reporter_output:
                     (reporter_output,) = reporter_output
-
                     # pylint: disable=consider-using-with
                     output_file = stack.enter_context(
                         open(reporter_output, "w", encoding="utf-8")
                     )
-
-                    reporter.set_output(output_file)
+                    reporter.out = output_file
                     output_files.append(output_file)
 
             # Extend the lifetime of all opened output files
@@ -1101,7 +1105,7 @@ class PyLinter(
             modules,
             self.config.black_list,
             self.config.black_list_re,
-            self.config.ignore_list_paths_re,
+            self._ignore_paths,
         )
         for error in errors:
             message = modname = error["mod"]
@@ -1259,6 +1263,7 @@ class PyLinter(
                 self.config.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
+        self._ignore_paths = get_global_option(self, "ignore-paths")
 
     def generate_reports(self):
         """close the whole package /module, it's time to make reports !
@@ -1381,7 +1386,7 @@ class PyLinter(
         line: Optional[int] = None,
         confidence: Optional[interfaces.Confidence] = None,
     ) -> bool:
-        """return true if the message associated to the given message id is
+        """return whether the message associated to the given message id is
         enabled
 
         msgid may be either a numeric or symbolic message id.
@@ -1397,10 +1402,7 @@ class PyLinter(
             # due to version mismatch, just treat them as message IDs
             # for now.
             msgids = [msg_descr]
-        for msgid in msgids:
-            if self._is_one_message_enabled(msgid, line):
-                return True
-        return False
+        return any(self._is_one_message_enabled(msgid, line) for msgid in msgids)
 
     def _add_one_message(
         self,

@@ -38,11 +38,24 @@ class MultiReporter:
     ):
         self._sub_reporters = sub_reporters
         self.close_output_files = close_output_files
-
         self._path_strip_prefix = os.getcwd() + os.sep
         self._linter: Optional[PyLinter] = None
+        self.out = output
 
-        self.set_output(output)
+    @property
+    def out(self):
+        return self.__out
+
+    @out.setter
+    def out(self, output: Optional[AnyFile] = None):
+        """
+        MultiReporter doesn't have it's own output. This method is only
+        provided for API parity with BaseReporter and should not be called
+        with non-None values for 'output'.
+        """
+        self.__out = None
+        if output is not None:
+            raise NotImplementedError("MultiReporter does not support direct output.")
 
     def __del__(self) -> None:
         self.close_output_files()
@@ -65,15 +78,6 @@ class MultiReporter:
         """Handle a new message triggered on the current file."""
         for rep in self._sub_reporters:
             rep.handle_message(msg)
-
-    # pylint: disable=no-self-use
-    def set_output(self, output: Optional[AnyFile] = None) -> None:
-        """set output stream"""
-        # MultiReporter doesn't have it's own output. This method is only
-        # provided for API parity with BaseReporter and should not be called
-        # with non-None values for 'output'.
-        if output is not None:
-            raise NotImplementedError("MultiReporter does not support direct output.")
 
     def writeln(self, string: str = "") -> None:
         """write a line in the output buffer"""
