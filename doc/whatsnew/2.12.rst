@@ -64,8 +64,7 @@ Extensions
 Other Changes
 =============
 
-* Fix proposing ``consider-using-ternary`` incorrectly over ``simplify-boolean-expression``
-  when the condition can be inferred as False
+* Fix ``simplify-boolean-expression`` when condition can be inferred as False.
 
   Closes #5200
 
