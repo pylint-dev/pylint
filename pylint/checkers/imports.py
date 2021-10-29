@@ -405,7 +405,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Analyse import fallback blocks. This can be used to "
                 "support both Python 2 and 3 compatible code, which "
                 "means that the block might have code that exists "
@@ -418,7 +418,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Allow wildcard imports from modules that define __all__.",
             },
         ),

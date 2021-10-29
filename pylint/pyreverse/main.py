@@ -116,7 +116,7 @@ OPTIONS = (
             short="m",
             default=None,
             type="yn",
-            metavar="[yn]",
+            metavar="<y or n>",
             help="include module name in representation of classes",
         ),
     ),

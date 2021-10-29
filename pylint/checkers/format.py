@@ -270,7 +270,7 @@ class FormatChecker(BaseTokenChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": (
                     "Allow the body of an if to be on the same "
                     "line as the test if there is no else."
@@ -282,7 +282,7 @@ class FormatChecker(BaseTokenChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": (
                     "Allow the body of a class to be on the same "
                     "line as the declaration if body contains "
