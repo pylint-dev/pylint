@@ -1,0 +1,2 @@
+************* Module {abspath}
+{relpath}:1:0: E0014: Incorrect setting encountered in top level configuration-section 'disable' : 'logging-not-lazy,logging-format-interpolation' (bad-configuration-option-value)

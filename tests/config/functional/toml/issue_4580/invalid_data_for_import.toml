@@ -1,0 +1,7 @@
+# Both disable and load-plugins do not belong in the imports section
+[tool.pylint."imports"]
+disable = [
+    "logging-not-lazy",
+    "logging-format-interpolation",
+]
+preferred-modules = { "a"="b" }

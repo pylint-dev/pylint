@@ -153,6 +153,14 @@ Release date: TBA
 
   Closes #5261
 
+* Crashes when a list is encountered in a toml configuration do not happen anymore. A new
+  ``bad-configuration-option-value`` checker was added that will emit for these problems.
+  Some bad configurations might still silently not be taken into account which is tracked in
+  a follow-up issue.
+
+  Closes #4580
+  Follow-up in #5259
+
 * Added new checker ``useless-with-lock`` to find incorrect usage of with statement and threading module locks.
   Emitted when ``with threading.Lock():`` is used instead of ``with lock_instance:``.
 

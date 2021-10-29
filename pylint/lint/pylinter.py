@@ -158,6 +158,12 @@ MSGS = {
         "bad-plugin-value",
         "Used when a bad value is used in 'load-plugins'.",
     ),
+    "E0014": (
+        "Incorrect setting encountered in top level configuration-section '%s' : '%s'",
+        "bad-configuration-option-value",
+        "Used when a top section value can't be parsed because it does not belong to the top section "
+        "or has an incorrect value type.",
+    ),
 }
 
 
