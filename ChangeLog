@@ -11,6 +11,10 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
+* Fix ``simplify-boolean-expression`` when condition can be inferred as False.
+
+  Closes #5200
+
 * Fix exception when pyreverse parses ``property function`` of a class.
 
 * Add an optional extension ``consider-using-any-or-all`` : Emitted when a ``for`` loop only
