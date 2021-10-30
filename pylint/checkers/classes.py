@@ -1620,11 +1620,6 @@ a metaclass class method.",
                 # Move up one level within the nested classes
                 outer_klass = get_outer_class(outer_klass)
 
-                # If there is no outer class but there are more callees, break
-                if not outer_klass and callee != parents_callee[-1]:
-                    inside_klass = False
-                    break
-
             # We are in a class, one remaining valid cases, Klass._attr inside
             # Klass
             if not (inside_klass or callee in klass.basenames):
