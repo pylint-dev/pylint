@@ -23,7 +23,7 @@
 """Utility methods for docstring checking."""
 
 import re
-from typing import List
+from typing import List, Set, Tuple
 
 import astroid
 from astroid import nodes
@@ -731,9 +731,8 @@ class NumpyDocstring(GoogleDocstring):
 
     re_param_line = re.compile(
         fr"""
-        \s*  (\*{{0,2}}\w+)                                                 # identifier with potential asterisks
-        \s*  :
-        \s*  (?:({GoogleDocstring.re_multiple_type})(?:,\s+optional)?)?     # optional type declaration
+        \s*  (\*{{0,2}}\w+)(\s?(:|\n))                                      # identifier with potential asterisks
+        \s*  (?:({GoogleDocstring.re_multiple_type})(?:,\s+optional)?\n)?   # optional type declaration
         \s* (.*)                                                            # optional description
     """,
         re.X | re.S,
@@ -771,6 +770,38 @@ class NumpyDocstring(GoogleDocstring):
     re_yields_line = re_returns_line
 
     supports_yields = True
+
+    def match_param_docs(self) -> Tuple[Set[str], Set[str]]:
+        """Matches parameter documentation section to parameter documentation rules"""
+        params_with_doc = set()
+        params_with_type = set()
+
+        entries = self._parse_section(self.re_param_section)
+        print(entries)
+        entries.extend(self._parse_section(self.re_keyword_param_section))
+        for entry in entries:
+            match = self.re_param_line.match(entry)
+            if not match:
+                continue
+
+            # check if parameter has description only
+            re_only_desc = re.match(r"\s*  (\*{0,2}\w+)\s*:?\n", entry)
+            if re_only_desc:
+                param_name = match.group(1)
+                param_desc = match.group(2)
+                param_type = None
+            else:
+                param_name = match.group(1)
+                param_type = match.group(3)
+                param_desc = match.group(4)
+
+            if param_type:
+                params_with_type.add(param_name)
+
+            if param_desc:
+                params_with_doc.add(param_name)
+
+        return params_with_doc, params_with_type
 
     @staticmethod
     def min_section_indent(section_match):

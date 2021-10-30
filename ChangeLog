@@ -103,6 +103,11 @@ Release date: TBA
 
   Closes #3733
 
+* ``mising-param-doc`` now correctly handles Numpy parameter documentation without
+  explicit typing
+
+  Closes #5222
+
 * Update ``literal-comparison``` checker to ignore tuple literals
 
   Closes #3031
