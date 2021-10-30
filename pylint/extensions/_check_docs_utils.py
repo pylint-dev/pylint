@@ -785,7 +785,7 @@ class NumpyDocstring(GoogleDocstring):
                 continue
 
             # check if parameter has description only
-            re_only_desc = re.match(r"\\s*  (\\*{0,2}\\w+)\\s*:?\n", entry)
+            re_only_desc = re.match(r"\s*  (\*{0,2}\w+)\s*:?\n", entry)
             if re_only_desc:
                 param_name = match.group(1)
                 param_desc = match.group(2)
