@@ -215,7 +215,7 @@ class Issue1159Subclass(Issue1159):
 
 class Issue3066:
     """Test for GitHub issue 3066
-    Accessing of atrributes/methods of inner and outer classes
+    Accessing of attributes/methods of inner and outer classes
     https://github.com/PyCQA/pylint/issues/3066"""
 
     attr = 0
