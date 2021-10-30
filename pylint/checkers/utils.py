@@ -674,7 +674,7 @@ def node_frame_class(node: nodes.NodeNG) -> Optional[nodes.ClassDef]:
 
 
 def get_outer_class(class_node: astroid.ClassDef) -> Optional[astroid.ClassDef]:
-    """Return the class that is outer class of given class_node"""
+    """Return the class that is the outer class of given (nested) class_node"""
     parent_klass = class_node.parent.frame()
 
     return parent_klass if isinstance(parent_klass, astroid.ClassDef) else None

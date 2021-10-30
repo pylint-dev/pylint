@@ -78,6 +78,10 @@ Other Changes
   ``use-implicit-booleaness-not-len`` in order to be consistent with
   ``use-implicit-booleaness-not-comparison``.
 
+* Fixed ``protected-access`` for accessing of attributes and methods of inner classes
+
+  Closes #3066
+
 * Update ``literal-comparison``` checker to ignore tuple literals
 
   Closes #3031

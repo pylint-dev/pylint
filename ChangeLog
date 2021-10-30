@@ -30,6 +30,10 @@ Release date: TBA
 
   Closes #3197
 
+* Fixed ``protected-access`` for accessing of attributes and methods of inner classes
+
+  Closes #3066
+
 * Added support for ``ModuleNotFoundError`` (``import-error`` and ``no-name-in-module``).
   ``ModuleNotFoundError`` inherits from ``ImportError`` and was added in Python ``3.6``
 

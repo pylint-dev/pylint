@@ -1607,17 +1607,21 @@ a metaclass class method.",
             if self._is_type_self_call(node.expr):
                 return
 
-            # Check if we are inside class or inner class
+            # Check if we are inside the scope of a class or nested inner class
             inside_klass = True
-            curr_klass = klass
+            outer_klass = klass
             parents_callee = callee.split(".")
             parents_callee.reverse()
-            for c in parents_callee:
-                if c != curr_klass.name:
+            for callee in parents_callee:
+                if callee != outer_klass.name:
                     inside_klass = False
                     break
-                curr_klass = get_outer_class(curr_klass)
-                if not curr_klass and c != parents_callee[-1]:
+
+                # Move up one level within the nested classes
+                outer_klass = get_outer_class(outer_klass)
+
+                # If there is no outer class but there are more callees, break
+                if not outer_klass and callee != parents_callee[-1]:
                     inside_klass = False
                     break
 
