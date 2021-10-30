@@ -203,7 +203,7 @@ class Run(ConfigurationMixIn):
         super().__init__(usage=__doc__)
         insert_default_options()
         args = self.load_command_line_configuration(args)
-        if self.config.output_format not in ("dot", "vcg"):
+        if self.config.output_format not in ("dot", "vcg", "puml", "plantuml"):
             check_graphviz_availability()
 
         sys.exit(self.run(args))
