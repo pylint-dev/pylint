@@ -108,7 +108,6 @@ def preprocess_options(args, search_for):
 
 
 def _patch_sys_path(args):
-    original = list(sys.path)
     changes = []
     seen = set()
     for arg in args:
@@ -118,19 +117,25 @@ def _patch_sys_path(args):
             seen.add(path)
 
     sys.path[:] = changes + sys.path
-    return original
 
 
 @contextlib.contextmanager
-def fix_import_path(args):
+def fix_import_path(args, disable_path_patching: bool = False):
     """Prepare 'sys.path' for running the linter checks.
+
+    'disable_path_patching' if True will make this context manager a no-op.
+    The reason for disabling path patching is to allow running the linter
+    using default path which can be safer then patching the path for implicit
+    namespace packages.
 
     Within this context, each of the given arguments is importable.
     Paths are added to 'sys.path' in corresponding order to the arguments.
     We avoid adding duplicate directories to sys.path.
     `sys.path` is reset to its original value upon exiting this context.
     """
-    original = _patch_sys_path(args)
+    original = list(sys.path)
+    if not disable_path_patching:
+        _patch_sys_path(args)
     try:
         yield
     finally:

@@ -42,6 +42,12 @@ Extensions
 Other Changes
 =============
 
+* Add an option ``disable-path-patching`` to better support namespace packages.
+  This option is disabled by default as it has a trade off with being able
+  to lint uninstalled packages.
+
+  Closes #5266
+
 * Only raise ``not-callable`` when all the inferred values of a property are not callable.
 
   Closes #5931

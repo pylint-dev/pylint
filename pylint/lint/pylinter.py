@@ -536,6 +536,21 @@ class PyLinter(
                     ),
                 },
             ),
+            (
+                "disable-path-patching",
+                {
+                    "type": "yn",
+                    "metavar": "<y or n>",
+                    "default": False,
+                    "help": (
+                        "Disable the patching of sys.path when searching for "
+                        "modules. This is useful for implicit namespace packages where "
+                        "inferring base path of package is ambiguous. The downside is without "
+                        "patching, the files being linted must be importable from the location "
+                        "the script is run in interpreter."
+                    ),
+                },
+            ),
         )
 
     base_option_groups = (
@@ -1058,13 +1073,13 @@ class PyLinter(
                 )
 
             filepath = files_or_modules[0]
-            with fix_import_path(files_or_modules):
+            with fix_import_path(files_or_modules, self.config.disable_path_patching):
                 self._check_files(
                     functools.partial(self.get_ast, data=_read_stdin()),
                     [self._get_file_descr_from_stdin(filepath)],
                 )
         elif self.config.jobs == 1:
-            with fix_import_path(files_or_modules):
+            with fix_import_path(files_or_modules, self.config.disable_path_patching):
                 self._check_files(
                     self.get_ast, self._iterate_file_descrs(files_or_modules)
                 )

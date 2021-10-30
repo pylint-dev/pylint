@@ -785,6 +785,12 @@ Release date: 2021-11-24
   longer relies on counting if statements anymore and uses known if statements locations instead.
   It should not crash on badly parsed if statements anymore.
 
+* Add an option ``disable-path-patching`` to better support namespace packages.
+  This option is disabled by default as it has a trade off with being able
+  to lint uninstalled packages.
+
+  Closes #5266
+
 * Fix ``simplify-boolean-expression`` when condition can be inferred as False.
 
   Closes #5200

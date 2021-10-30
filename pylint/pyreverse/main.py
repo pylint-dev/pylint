@@ -191,6 +191,21 @@ OPTIONS = (
             help="set the output directory path.",
         ),
     ),
+    (
+        "disable-path-patching",
+        dict(
+            type="yn",
+            metavar="<y or n>",
+            default=False,
+            help=(
+                "Disable the patching of sys.path when searching for "
+                "modules. This is useful for implicit namespace packages where "
+                "inferring base path of package is ambiguous. The downside is without "
+                "patching, the files being linted must be importable from the location "
+                "the script is run in interpreter."
+            ),
+        ),
+    ),
 )
 
 
@@ -217,7 +232,7 @@ class Run(ConfigurationMixIn):
         if not args:
             print(self.help())
             return 1
-        with fix_import_path(args):
+        with fix_import_path(args, self.config.disable_path_patching):
             project = project_from_files(
                 args,
                 project_name=self.config.project,

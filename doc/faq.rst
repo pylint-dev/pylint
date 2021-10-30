@@ -280,12 +280,24 @@ behavior. Likewise, since negative values are still technically supported,
 ``evaluation`` can be set to a version of the above expression that does not
 enforce a floor of zero.
 
-6.2 I think I found a bug in Pylint. What should I do?
+6.2 I have import errors working with a namespace package. How can I fix it?
+------------------------------------------------------------------------------
+
+If you have an implicit namespace package (i.e. a package without ``__init__.py``)
+then pylint may not be able to determine base of the package. Normally when you run
+pylint it adjusts PYTHONPATH to include the parent directory of the package you are
+working in. For namespace packages you can disable path inference with
+``--disable-path-patching`` setting. For this to work you must have the namespace package
+installed in your environment or run pylint from the directory containing the package.
+
+
+
+6.3 I think I found a bug in Pylint. What should I do?
 -------------------------------------------------------
 
 Read :ref:`Bug reports, feedback`
 
-6.3 I have a question about Pylint that isn't answered here.
+6.4 I have a question about Pylint that isn't answered here.
 ------------------------------------------------------------
 
 Read :ref:`Mailing lists`

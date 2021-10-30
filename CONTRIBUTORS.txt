@@ -391,6 +391,7 @@ contributors:
 - Michael Hudson-Doyle <michael.hudson@canonical.com>
 - Michael Giuffrida <mgiuffrida@users.noreply.github.com>
 - Melvin Hazeleger <31448155+melvio@users.noreply.github.com> (melvio)
+- Mehdi Drissi: Added an option to disable sys path patching
 - Matěj Grabovský <mgrabovs@redhat.com>
 - Matthijs Blom <19817960+MatthijsBlom@users.noreply.github.com>
 - Matej Marušák <marusak.matej@gmail.com>
