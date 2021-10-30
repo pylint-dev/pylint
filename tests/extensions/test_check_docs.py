@@ -292,35 +292,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-    @set_config(default_docstring_type="numpy")
-    def test_no_type_func_params_in_numpy_docstring(self) -> None:
-        """Example of a function with NumPy style parameter without type annotation
-        documentation in the docstring
-        """
-        node = astroid.extract_node(
-            """
-        def func(arg1: bool, arg2: bool):
-            '''Return args.
-
-            Parameters
-            ----------
-            arg1 : bool
-                arg1
-
-            arg2
-                arg2
-
-            Returns
-            ----------
-            bool
-            bool
-            '''
-            return arg1, arg2
-        """
-        )
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-
     @set_config(accept_no_param_doc=True)
     def test_tolerate_no_param_documentation_at_all(self) -> None:
         """Example of a function with no parameter documentation at all
@@ -1367,13 +1338,17 @@ class TestParamDocChecker(CheckerTestCase):
     def test_finds_args_without_type_numpy(self) -> None:
         node = astroid.extract_node(
             '''
-        def my_func(named_arg, *args):
+        def my_func(named_arg, typed_arg: bool, untyped_arg, *args):
             """The docstring
 
             Args
             ----
             named_arg : object
                 Returned
+            typed_arg
+                Other argument without numpy type annotation
+            untyped_arg
+                Other argument without any type annotation
             *args :
                 Optional Arguments
 
@@ -1386,7 +1361,9 @@ class TestParamDocChecker(CheckerTestCase):
                 return named_arg
         '''
         )
-        with self.assertNoMessages():
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-type-doc", node=node, args=("untyped_arg",))
+        ):
             self.checker.visit_functiondef(node)
 
     def test_finds_args_with_xref_type_google(self) -> None:
