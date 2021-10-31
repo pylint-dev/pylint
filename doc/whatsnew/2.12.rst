@@ -64,6 +64,8 @@ Extensions
 Other Changes
 =============
 
+* Fix ``install graphiz`` message which isn't needed for puml output format.
+
 * Fix ``simplify-boolean-expression`` when condition can be inferred as False.
 
   Closes #5200
