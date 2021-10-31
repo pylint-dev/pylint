@@ -74,12 +74,12 @@ from pylint.checkers.utils import (
     is_property_setter,
     is_property_setter_or_deleter,
     is_protocol_class,
-    is_uninferable_decorator,
     node_frame_class,
     overrides_a_method,
     safe_infer,
     unimplemented_abstract_methods,
 )
+from pylint.constants import PY38_PLUS
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import get_global_option
 
@@ -867,12 +867,14 @@ a metaclass class method.",
 
     def _check_typing_final(self, node: nodes.ClassDef) -> None:
         """Detect that a class does not subclass a class decorated with `typing.final`"""
+        if not PY38_PLUS:
+            return
         for base in node.bases:
             ancestor = safe_infer(base)
-            if not ancestor or not getattr(ancestor, "decorators", None):
+            if not ancestor:
                 continue
-            if decorated_with(ancestor, ["typing.final"]) or is_uninferable_decorator(
-                ancestor.decorators, "final"
+            if isinstance(ancestor, nodes.ClassDef) and decorated_with(
+                ancestor, ["typing.final"]
             ):
                 self.add_message(
                     "subclassed-final-class",
@@ -1329,15 +1331,12 @@ a metaclass class method.",
                 args=(function_node.name, "non-async", "async"),
                 node=function_node,
             )
-        if parent_function_node.decorators:
-            if decorated_with(
-                parent_function_node, ["typing.final"]
-            ) or is_uninferable_decorator(parent_function_node.decorators, "final"):
-                self.add_message(
-                    "overridden-final-method",
-                    args=(function_node.name, parent_function_node.parent.name),
-                    node=function_node,
-                )
+        if decorated_with(parent_function_node, ["typing.final"]) and PY38_PLUS:
+            self.add_message(
+                "overridden-final-method",
+                args=(function_node.name, parent_function_node.parent.name),
+                node=function_node,
+            )
 
     def _check_slots(self, node):
         if "__slots__" not in node.locals:

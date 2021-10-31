@@ -1,4 +1,2 @@
-using-final-in-unsupported-version:7:0:Base:typing.final is not supported by all versions included in the py-version setting:HIGH
-using-final-in-unsupported-version:9:0:Base.my_method:typing.final is not supported by all versions included in the py-version setting:HIGH
-subclassed-final-class:14:0:Subclass:"Class 'Subclass' is a subclass of a class decorated with typing.final: 'Base'":HIGH
-overridden-final-method:15:0:Subclass.my_method:Method 'my_method' overrides a method decorated with typing.final which is defined in class 'Base':HIGH
+using-final-in-unsupported-version:7:0:MyClass:typing.final is not supported by all versions included in the py-version setting:HIGH
+using-final-in-unsupported-version:9:0:MyClass.my_method:typing.final is not supported by all versions included in the py-version setting:HIGH

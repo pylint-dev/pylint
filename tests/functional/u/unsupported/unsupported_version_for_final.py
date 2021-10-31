@@ -5,12 +5,7 @@ from typing import final
 
 
 @final # [using-final-in-unsupported-version]
-class Base:
+class MyClass:
     @final # [using-final-in-unsupported-version]
     def my_method(self):
-        pass
-
-
-class Subclass(Base): # [subclassed-final-class]
-    def my_method(self): # [overridden-final-method]
         pass
