@@ -777,7 +777,6 @@ class NumpyDocstring(GoogleDocstring):
         params_with_type = set()
 
         entries = self._parse_section(self.re_param_section)
-        print(entries)
         entries.extend(self._parse_section(self.re_keyword_param_section))
         for entry in entries:
             match = self.re_param_line.match(entry)
