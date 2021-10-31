@@ -572,3 +572,5 @@ contributors:
 * Tushar Sadhwani (tusharsadhwani): contributor
 
 * Ikraduya Edian: contributor
+
+* Antonio Quarta (sgheppy): contributor
