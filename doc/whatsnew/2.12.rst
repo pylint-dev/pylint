@@ -43,7 +43,7 @@ New checkers
 
   Closes #4774
 
-* Added ``using-final-in-unsupported-version`` checker. Issued when ``py-version``
+* Added ``using-final-decorator-in-unsupported-version`` checker. Issued when ``py-version``
   is set to a version that does not support typing.final (< 3.8)
 
 * Added configuration option ``exclude-too-few-public-methods`` to allow excluding
