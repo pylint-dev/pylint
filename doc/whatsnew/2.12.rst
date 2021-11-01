@@ -135,7 +135,7 @@ Other Changes
 
   Closes #5222
 
-* The ``--jobs`` parameter now fallbacks to 1 if the host operating system does not
+* The ``--jobs`` parameter now falls back to 1 if the host operating system does not
   have functioning shared semaphore implementation.
 
   Closes #5216
