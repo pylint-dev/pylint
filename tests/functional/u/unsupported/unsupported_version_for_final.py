@@ -4,8 +4,8 @@
 from typing import final
 
 
-@final # [using-final-in-unsupported-version]
+@final # [using-final-decorator-in-unsupported-version]
 class MyClass:
-    @final # [using-final-in-unsupported-version]
+    @final # [using-final-decorator-in-unsupported-version]
     def my_method(self):
         pass

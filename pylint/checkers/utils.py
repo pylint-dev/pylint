@@ -838,13 +838,12 @@ def decorated_with(
     return False
 
 
-def is_uninferable_decorator(node: nodes.Decorators, qname: str) -> bool:
-    """Return True if a `node` contains an uninferable decorator named `qname`"""
-    return any(
-        isinstance(decorator, nodes.Name)
-        and safe_infer(decorator) is astroid.Uninferable
-        and decorator.name == qname
-        for decorator in node.nodes
+def is_uninferable_decorator(node: nodes.Name, qname: str) -> bool:
+    """Return True if `node` is an uninferable decorator named `qname`"""
+    return (
+        isinstance(node, nodes.Name)
+        and node.name == qname
+        and safe_infer(node) is astroid.Uninferable
     )
 
 

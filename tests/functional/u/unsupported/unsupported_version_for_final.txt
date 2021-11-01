@@ -1,2 +1,2 @@
-using-final-in-unsupported-version:7:0:MyClass:typing.final is not supported by all versions included in the py-version setting:HIGH
-using-final-in-unsupported-version:9:0:MyClass.my_method:typing.final is not supported by all versions included in the py-version setting:HIGH
+using-final-decorator-in-unsupported-version:7:1:MyClass:typing.final is not supported by all versions included in the py-version setting:HIGH
+using-final-decorator-in-unsupported-version:9:5:MyClass.my_method:typing.final is not supported by all versions included in the py-version setting:HIGH
