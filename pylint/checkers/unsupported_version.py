@@ -7,10 +7,15 @@
 indicated by the py-version setting.
 """
 
+
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, is_uninferable_decorator, safe_infer
+from pylint.checkers.utils import (
+    check_messages,
+    safe_infer,
+    uninferable_final_decorators,
+)
 from pylint.interfaces import IAstroidChecker
 from pylint.lint import PyLinter
 from pylint.utils import get_global_option
@@ -52,19 +57,25 @@ class UnsupportedVersionChecker(BaseChecker):
 
     @check_messages("using-final-decorator-in-unsupported-version")
     def visit_decorators(self, node: nodes.Decorators) -> None:
-        """Check typing.final decorators"""
+        """Check decorators"""
         self._check_typing_final(node)
 
     def _check_typing_final(self, node: nodes.Decorators) -> None:
+        """Add a message when the `typing.final` decorator is used and the
+        py-version is lower than 3.8"""
+        if self._py38_plus:
+            return
+
+        decorators = []
         for decorator in node.get_children():
             inferred = safe_infer(decorator)
-            if not self._py38_plus and (
-                (inferred and inferred.qname() == "typing.final")
-                or is_uninferable_decorator(decorator, "final")
-            ):
-                self.add_message(
-                    "using-final-decorator-in-unsupported-version", node=decorator
-                )
+            if inferred and inferred.qname() == "typing.final":
+                decorators.append(decorator)
+
+        for decorator in decorators or uninferable_final_decorators(node):
+            self.add_message(
+                "using-final-decorator-in-unsupported-version", node=decorator
+            )
 
 
 def register(linter: PyLinter) -> None:
