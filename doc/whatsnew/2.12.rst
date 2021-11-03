@@ -48,6 +48,10 @@ New checkers
 
   Closes #3370
 
+* Added new checker ``useless-with-lock`` to find incorrect usage of with statement and threading module locks.
+  Emitted when ``with threading.Lock():`` is used instead of ``with lock_instance:``.
+
+  Closes #5208
 
 Removed checkers
 ================
