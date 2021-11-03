@@ -1033,7 +1033,10 @@ class VariablesChecker(BaseChecker):
                 continue
             if action == VariableVisitConsumerAction.CONSUME:
                 current_consumer.mark_as_consumed(node.name, found_nodes)
-            if action in {VariableVisitConsumerAction.RETURN, VariableVisitConsumerAction.CONSUME}:
+            if action in {
+                VariableVisitConsumerAction.RETURN,
+                VariableVisitConsumerAction.CONSUME,
+            }:
                 return
 
         # we have not found the name, if it isn't a builtin, that's an
