@@ -135,6 +135,11 @@ Release date: TBA
 
   Closes #3370
 
+* The ``--jobs`` parameter now fallbacks to 1 if the host operating system does not
+  have functioning shared semaphore implementation.
+
+  Closes #5216
+
 
 What's New in Pylint 2.11.2?
 ============================
