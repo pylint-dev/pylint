@@ -1,4 +1,5 @@
-self-cls-assignment:11:8:Foo.self_foo:Invalid assignment to bar_ in method
-self-cls-assignment:16:8:Foo.self_foofoo:Invalid assignment to self in method
-self-cls-assignment:21:8:Foo.cls_foo:Invalid assignment to cls in method
-self-cls-assignment:44:12:TestNonLocal.function._set_param:Invalid assignment to self in method
+self-cls-assignment:14:8:Foo.self_foo:Invalid assignment to bar_ in method:HIGH
+self-cls-assignment:19:8:Foo.self_foofoo:Invalid assignment to self in method:HIGH
+self-cls-assignment:20:8:Foo.self_foofoo:Invalid assignment to self in method:HIGH
+self-cls-assignment:26:8:Foo.cls_foo:Invalid assignment to cls in method:HIGH
+self-cls-assignment:49:12:TestNonLocal.function._set_param:Invalid assignment to self in method:HIGH

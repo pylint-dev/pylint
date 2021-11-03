@@ -1,5 +1,8 @@
 """Warning about assigning self/cls variable."""
 from __future__ import print_function
+
+from typing import cast
+
 # pylint: disable=too-few-public-methods, useless-object-inheritance
 
 class Foo(object):
@@ -14,6 +17,8 @@ class Foo(object):
     def self_foofoo(self, lala):
         """Instance method, should warn for self"""
         self = lala  # [self-cls-assignment]
+        self, var = lala, 1  # [self-cls-assignment]
+        print(var)
 
     @classmethod
     def cls_foo(cls):
@@ -45,3 +50,14 @@ class TestNonLocal:
 
         _set_param(param)
         return self
+
+
+class TestTypingCast:
+    """Test class for use of typing.cast"""
+
+    def function(self):
+        """This function uses typing.cast to reassign self"""
+
+        self = cast(TestTypingCast, self)
+        self, var = cast(TestTypingCast, self), 1
+        print(var)
