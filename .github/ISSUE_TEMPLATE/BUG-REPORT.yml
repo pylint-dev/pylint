@@ -23,7 +23,6 @@ body:
         # Please disable message unrelated to the bug
         # pylint: disable=missing-docstring,
         <a> = b + 1
-      render: python
     validations:
       required: true
   - type: textarea
