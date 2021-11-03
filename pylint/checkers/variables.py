@@ -60,6 +60,7 @@ import itertools
 import os
 import re
 import sys
+from enum import Enum
 from functools import lru_cache
 from typing import Any, DefaultDict, List, Optional, Tuple
 
@@ -145,6 +146,18 @@ TYPING_NAMES = frozenset(
         "BinaryIO",
     }
 )
+
+
+class VariableVisitConsumerAction(Enum):
+    """Used after _visit_consumer to determine the action to be taken
+
+    Continue -> continue loop to next consumer
+    Return -> return and thereby break the loop
+    Consume -> consume the found nodes (second return value) and return"""
+
+    CONTINUE = 0
+    RETURN = 1
+    CONSUME = 2
 
 
 def _is_from_future_import(stmt, name):
@@ -1016,11 +1029,11 @@ class VariablesChecker(BaseChecker):
                 node, stmt, frame, current_consumer, i, base_scope_type
             )
 
-            if not action:
+            if not action.value:
                 continue
-            if action == 2:
+            if action.value == 2:
                 current_consumer.mark_as_consumed(node.name, found_nodes)
-            if action:
+            if action.value:
                 return
 
         # we have not found the name, if it isn't a builtin, that's an
@@ -1047,13 +1060,8 @@ class VariablesChecker(BaseChecker):
         current_consumer: NamesConsumer,
         consumer_level: int,
         base_scope_type: Any,
-    ) -> Tuple[int, Optional[Any]]:
-        """Checks a consumer for conditions that should trigger messages
-
-        0: Continue
-        1: Return
-        2: Return and consume second return value
-        """
+    ) -> Tuple[VariableVisitConsumerAction, Optional[Any]]:
+        """Checks a consumer for conditions that should trigger messages"""
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
         # Avoid the case where there are homonyms inside function scope and
@@ -1065,14 +1073,14 @@ class VariablesChecker(BaseChecker):
             ):
                 self._check_late_binding_closure(node)
                 self._loopvar_name(node)
-                return (1, None)
+                return (VariableVisitConsumerAction.RETURN, None)
 
         found_nodes = current_consumer.get_next_to_consume(node)
         if found_nodes is None:
-            return (0, None)
+            return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
             self.add_message("used-before-assignment", args=node.name, node=node)
-            return (2, found_nodes)
+            return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         self._check_late_binding_closure(node)
 
@@ -1080,7 +1088,7 @@ class VariablesChecker(BaseChecker):
             self._undefined_variable_is_enabled
             or self._used_before_assignment_is_enabled
         ):
-            return (2, found_nodes)
+            return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
         defnode = utils.assign_parent(found_nodes[0])
         defstmt = defnode.statement()
@@ -1119,7 +1127,7 @@ class VariablesChecker(BaseChecker):
             # Also do not consume class name
             # (since consuming blocks subsequent checks)
             # -- quit
-            return (1, None)
+            return (VariableVisitConsumerAction.RETURN, None)
 
         (
             maybe_before_assign,
@@ -1137,7 +1145,7 @@ class VariablesChecker(BaseChecker):
         )
 
         if use_outer_definition:
-            return (0, None)
+            return (VariableVisitConsumerAction.CONTINUE, None)
 
         if (
             maybe_before_assign
@@ -1173,7 +1181,7 @@ class VariablesChecker(BaseChecker):
                         self.add_message(
                             "undefined-variable", args=node.name, node=node
                         )
-                        return (2, found_nodes)
+                        return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
             if base_scope_type != "lambda":
                 # E0601 may *not* occurs in lambda scope.
@@ -1186,7 +1194,7 @@ class VariablesChecker(BaseChecker):
                     self.add_message(
                         "used-before-assignment", args=node.name, node=node
                     )
-                    return (2, found_nodes)
+                    return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
             if base_scope_type == "lambda":
                 # E0601 can occur in class-level scope in lambdas, as in
@@ -1210,29 +1218,29 @@ class VariablesChecker(BaseChecker):
                         self.add_message(
                             "undefined-variable", args=node.name, node=node
                         )
-                        return (2, found_nodes)
+                        return (VariableVisitConsumerAction.CONSUME, found_nodes)
                 elif current_consumer.scope_type == "lambda":
                     self.add_message("undefined-varibale", args=node.name, node=node)
-                    return (2, found_nodes)
+                    return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
         elif self._is_only_type_assignment(node, defstmt):
             self.add_message("undefined-variable", args=node.name, node=node)
-            return (2, found_nodes)
+            return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
         elif isinstance(defstmt, nodes.ClassDef):
             is_first_level_ref = self._is_first_level_self_reference(node, defstmt)
             if is_first_level_ref == 2:
                 self.add_message("used-before-assignment", node=node, args=node.name)
             if is_first_level_ref:
-                return (1, None)
+                return (VariableVisitConsumerAction.RETURN, None)
 
         elif isinstance(defnode, nodes.NamedExpr):
             if isinstance(defnode.parent, nodes.IfExp):
                 if self._is_never_evaluated(defnode, defnode.parent):
                     self.add_message("undefined-variable", args=node.name, node=node)
-                    return (2, found_nodes)
+                    return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
-        return (2, found_nodes)
+        return (VariableVisitConsumerAction.CONSUME, found_nodes)
 
     @utils.check_messages("no-name-in-module")
     def visit_import(self, node: nodes.Import) -> None:
