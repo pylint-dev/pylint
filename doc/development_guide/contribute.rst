@@ -194,6 +194,9 @@ Tips for Getting Started with Pylint Development
   message to find where the warning is raised,
   and therefore where the logic for that code exists.
 
+* When adding a new checker class you can use the :file:`get_unused_message_id_category.py`
+  script in :file:`./scripts` to get a message id that is not used by
+  any of the other checkers.
 
 Building the documentation
 ----------------------------
