@@ -48,6 +48,10 @@ New checkers
 
   Closes #3370
 
+* Added new checker ``useless-with-lock`` to find incorrect usage of with statement and threading module locks.
+  Emitted when ``with threading.Lock():`` is used instead of ``with lock_instance:``.
+
+  Closes #5208
 
 Removed checkers
 ================
@@ -134,3 +138,8 @@ Other Changes
   explicit typing
 
   Closes #5222
+
+* The ``--jobs`` parameter now falls back to 1 if the host operating system does not
+  have functioning shared semaphore implementation.
+
+  Closes #5216

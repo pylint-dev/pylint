@@ -154,6 +154,7 @@ contributors:
 
 * Martin Bašti: contributor
   Added new check for shallow copy of os.environ
+  Added new check for useless `with threading.Lock():` statement
 
 * Jacques Kvam: contributor
 
@@ -574,3 +575,5 @@ contributors:
 * Ikraduya Edian: contributor
 
 * Antonio Quarta (sgheppy): contributor
+
+* Harshil (harshil21): contributor

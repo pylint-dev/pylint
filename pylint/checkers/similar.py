@@ -93,7 +93,7 @@ class LineSpecifs(NamedTuple):
 
 
 # Links LinesChunk object to the starting indices (in lineset's stripped lines)
-# of the different chunk of lines that are used to compute the hash
+# of the different chunk of lines that are used to compute the hash
 HashToIndex_T = Dict["LinesChunk", List[Index]]
 
 # Links index in the lineset's stripped lines to the real lines in the file

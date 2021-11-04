@@ -9,12 +9,12 @@ from typing import Generator, List, Optional
 # so that an option can be continued with the reasons
 # why it is active or disabled.
 OPTION_RGX = r"""
-    \s*                # Any number of whithespace
-    \#?                # One or zero hash
-    .*                 # Anything (as much as possible)
+    \s*                # Any number of whithespace
+    \#?                # One or zero hash
+    .*                 # Anything (as much as possible)
     (\s*               # Beginning of first matched group and any number of whitespaces
-    \#                 # Beginning of comment
-    .*?                # Anything (as little as possible)
+    \#                 # Beginning of comment
+    .*?                # Anything (as little as possible)
     \bpylint:          # pylint word and column
     \s*                # Any number of whitespaces
     ([^;#\n]+))        # Anything except semicolon or hash or newline (it is the second matched group)
@@ -31,9 +31,9 @@ MESSAGE_KEYWORDS = frozenset(
     ("disable-next", "disable-msg", "enable-msg", "disable", "enable")
 )
 # sorted is necessary because sets are unordered collections and ALL_KEYWORDS
-#  string should not vary between executions
-#  reverse is necessary in order to have the longest keywords first, so that, for example,
-# 'disable' string should not be matched instead of 'disable-all'
+# string should not vary between executions
+# reverse is necessary in order to have the longest keywords first, so that, for example,
+# 'disable' string should not be matched instead of 'disable-all'
 ALL_KEYWORDS = "|".join(
     sorted(ATOMIC_KEYWORDS | MESSAGE_KEYWORDS, key=len, reverse=True)
 )
@@ -41,8 +41,8 @@ ALL_KEYWORDS = "|".join(
 
 TOKEN_SPECIFICATION = [
     ("KEYWORD", fr"\b({ALL_KEYWORDS:s})\b"),
-    ("MESSAGE_STRING", r"[0-9A-Za-z\-\_]{2,}"),  #  Identifiers
-    ("ASSIGN", r"="),  #  Assignment operator
+    ("MESSAGE_STRING", r"[0-9A-Za-z\-\_]{2,}"),  # Identifiers
+    ("ASSIGN", r"="),  # Assignment operator
     ("MESSAGE_NUMBER", r"[CREIWF]{1}\d*"),
 ]
 
@@ -105,7 +105,7 @@ def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]
                         "The keyword doesn't support assignment", action
                     )
                 if previous_token:
-                    #  Something found previously but not a known keyword
+                    # Something found previously but not a known keyword
                     raise UnRecognizedOptionError(
                         "The keyword is unknown", previous_token
                     )
