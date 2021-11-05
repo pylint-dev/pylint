@@ -118,6 +118,10 @@ Other Changes
 
   Closes #3688
 
+* Fix crash for ``unused-private-member`` when checking private members on ``__class__``
+
+  Closes #5261
+
 * Fix double emitting of ``not-callable`` on inferrable ``properties``
 
   Closes #4426
