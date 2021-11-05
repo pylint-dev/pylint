@@ -945,6 +945,7 @@ a metaclass class method.",
                 )
 
     def _check_unused_private_variables(self, node: nodes.ClassDef) -> None:
+        """Check if private variables are never used within a class"""
         for assign_name in node.nodes_of_class(nodes.AssignName):
             if isinstance(assign_name.parent, nodes.Arguments):
                 continue  # Ignore function arguments
@@ -953,12 +954,15 @@ a metaclass class method.",
             for child in node.nodes_of_class((nodes.Name, nodes.Attribute)):
                 if isinstance(child, nodes.Name) and child.name == assign_name.name:
                     break
-                if (
-                    isinstance(child, nodes.Attribute)
-                    and child.attrname == assign_name.name
-                    and child.expr.name in ("self", "cls", node.name)
-                ):
-                    break
+                if isinstance(child, nodes.Attribute):
+                    if not isinstance(child.expr, nodes.Name):
+                        break
+                    if child.attrname == assign_name.name and child.expr.name in (
+                        "self",
+                        "cls",
+                        node.name,
+                    ):
+                        break
             else:
                 args = (node.name, assign_name.name)
                 self.add_message("unused-private-member", node=assign_name, args=args)

@@ -140,6 +140,10 @@ Release date: TBA
 
   Closes #5216
 
+* Fix crash for ``unused-private-member`` when checking private members on ``__class__``
+
+  Closes #5261
+
 * Added new checker ``useless-with-lock`` to find incorrect usage of with statement and threading module locks.
   Emitted when ``with threading.Lock():`` is used instead of ``with lock_instance:``.
 
