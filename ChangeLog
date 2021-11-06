@@ -114,6 +114,10 @@ Release date: TBA
 
   Closes #5222
 
+* ``pylint`` no longer crashes when checking assignment expressions within if-statements
+
+  Closes #5178
+
 * Update ``literal-comparison``` checker to ignore tuple literals
 
   Closes #3031

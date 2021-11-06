@@ -70,6 +70,10 @@ Other Changes
 
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
+* ``pylint`` no longer crashes when checking assignment expressions within if-statements
+
+  Closes #5178
+
 * Fix ``simplify-boolean-expression`` when condition can be inferred as False.
 
   Closes #5200
