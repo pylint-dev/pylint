@@ -100,8 +100,6 @@ reports = true
 
 
 def test_can_read_env_variable(tmp_path: PosixPath) -> None:
-    # Check that we can read the "regular" INI .pylintrc file
-    # if it has an environment variable.
     config_file = tmp_path / "pyproject.toml"
     config_file.write_text(
         """
