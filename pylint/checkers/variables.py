@@ -2024,16 +2024,17 @@ class VariablesChecker(BaseChecker):
 
     def _check_self_cls_assign(self, node):
         """Check that self/cls don't get assigned"""
-        assign_names = {
-            target.name
-            for target in node.targets
-            if isinstance(target, nodes.AssignName)
-        }
+        assign_names = []
+        for target in node.targets:
+            if isinstance(target, nodes.AssignName):
+                assign_names.append(target.name)
+            elif isinstance(target, nodes.Tuple):
+                assign_names.extend(
+                    elt.name for elt in target.elts if isinstance(elt, nodes.AssignName)
+                )
         scope = node.scope()
         nonlocals_with_same_name = any(
-            child
-            for child in scope.body
-            if isinstance(child, nodes.Nonlocal) and assign_names & set(child.names)
+            child for child in scope.body if isinstance(child, nodes.Nonlocal)
         )
         if nonlocals_with_same_name:
             scope = node.scope().parent.scope()
@@ -2048,12 +2049,7 @@ class VariablesChecker(BaseChecker):
         if not argument_names:
             return
         self_cls_name = argument_names[0]
-        target_assign_names = (
-            target.name
-            for target in node.targets
-            if isinstance(target, nodes.AssignName)
-        )
-        if self_cls_name in target_assign_names:
+        if self_cls_name in assign_names:
             self.add_message("self-cls-assignment", node=node, args=(self_cls_name,))
 
     def _check_unpacking(self, inferred, node, targets):

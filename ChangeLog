@@ -127,6 +127,8 @@ Release date: TBA
 
   Closes #4426
 
+* ``self-cls-assignment`` now also considers tuple assignment
+
 * Fix ``missing-function-docstring`` not being able to check ``__init__`` and other
   magic methods even if the ``no-docstring-rgx`` setting was set to do so
 
