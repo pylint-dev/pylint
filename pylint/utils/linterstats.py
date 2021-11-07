@@ -286,7 +286,9 @@ class LinterStats:
     def increase_single_module_message_count(
         self,
         modname: str,
-        type_name: Literal["convention", "error", "fatal", "info", "refactor"],
+        type_name: Literal[
+            "convention", "error", "fatal", "info", "refactor", "statement", "warning"
+        ],
         increase: int,
     ) -> None:
         """Increase the message type count of an individual message type of a module"""
