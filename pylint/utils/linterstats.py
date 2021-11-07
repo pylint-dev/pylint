@@ -149,6 +149,12 @@ class LinterStats:
         {self.nb_duplicated_lines}
         {self.percent_duplicated_lines}"""
 
+    def init_single_module(self, module_name: str) -> None:
+        """Initialize module statistics if required."""
+        self.by_module[module_name] = ModuleStats(
+            convention=0, error=0, fatal=0, info=0, refactor=0, statement=0, warning=0
+        )
+
     def get_bad_names(
         self,
         node_name: Literal[
@@ -285,9 +291,7 @@ class LinterStats:
         increase: int,
     ) -> None:
         """Increase the message type count of an individual message type of a module"""
-        self.by_module[modname][type_name] = (
-            self.by_module[modname][type_name] + increase
-        )
+        self.by_module[modname][type_name] += increase
 
     def reset_message_count(self) -> None:
         """Resets the message type count of the stats object"""

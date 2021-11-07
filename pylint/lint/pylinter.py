@@ -46,14 +46,7 @@ from pylint.typing import (
     MessageLocationTuple,
     ModuleDescriptionDict,
 )
-from pylint.utils import (
-    ASTWalker,
-    FileState,
-    LinterStats,
-    ModuleStats,
-    get_global_option,
-    utils,
-)
+from pylint.utils import ASTWalker, FileState, LinterStats, get_global_option, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,
     InvalidPragmaError,
@@ -1125,9 +1118,7 @@ class PyLinter(
         self.reporter.on_set_current_module(modname, filepath)
         self.current_name = modname
         self.current_file = filepath or modname
-        self.stats.by_module[modname] = ModuleStats(
-            convention=0, error=0, fatal=0, info=0, refactor=0, statement=0, warning=0
-        )
+        self.stats.init_single_module(modname)
 
     @contextlib.contextmanager
     def _astroid_module_checker(self):
@@ -1435,7 +1426,6 @@ class PyLinter(
         # update stats
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
-
         self.stats.increase_single_message_count(msg_cat, 1)
         self.stats.increase_single_module_message_count(self.current_name, msg_cat, 1)
         try:
