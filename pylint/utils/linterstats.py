@@ -73,6 +73,10 @@ class ModuleStats(TypedDict):
     warning: int
 
 
+ModuleStatsAttribute = Literal[
+    "convention", "error", "fatal", "info", "refactor", "statement", "warning"
+]
+
 # pylint: disable-next=too-many-instance-attributes
 class LinterStats:
     """Class used to linter stats"""
@@ -284,12 +288,7 @@ class LinterStats:
         setattr(self, type_name, getattr(self, type_name) + increase)
 
     def increase_single_module_message_count(
-        self,
-        modname: str,
-        type_name: Literal[
-            "convention", "error", "fatal", "info", "refactor", "statement", "warning"
-        ],
-        increase: int,
+        self, modname: str, type_name: ModuleStatsAttribute, increase: int
     ) -> None:
         """Increase the message type count of an individual message type of a module"""
         self.by_module[modname][type_name] += increase
