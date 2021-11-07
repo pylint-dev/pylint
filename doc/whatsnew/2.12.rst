@@ -112,6 +112,8 @@ Other Changes
 
   Fixes part of #3688
 
+* ``self-cls-assignment`` now also considers tuple assignment
+
 * ``undefined-variable`` now correctly triggers for assignment expressions in if ... else statements
   This includes a basic form of control flow inference for if ... else statements using
   constant boolean values

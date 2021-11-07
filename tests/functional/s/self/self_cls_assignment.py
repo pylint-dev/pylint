@@ -14,6 +14,8 @@ class Foo(object):
     def self_foofoo(self, lala):
         """Instance method, should warn for self"""
         self = lala  # [self-cls-assignment]
+        self, var = lala, 1  # [self-cls-assignment]
+        print(var)
 
     @classmethod
     def cls_foo(cls):

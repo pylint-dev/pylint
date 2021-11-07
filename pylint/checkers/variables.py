@@ -61,7 +61,7 @@ import os
 import re
 import sys
 from functools import lru_cache
-from typing import DefaultDict, List, Tuple
+from typing import DefaultDict, List, Optional, Set, Tuple
 
 import astroid
 from astroid import nodes
@@ -2022,18 +2022,19 @@ class VariablesChecker(BaseChecker):
             return
         self._store_type_annotation_node(node.type_annotation)
 
-    def _check_self_cls_assign(self, node):
+    def _check_self_cls_assign(self, node: nodes.Assign) -> None:
         """Check that self/cls don't get assigned"""
-        assign_names = {
-            target.name
-            for target in node.targets
-            if isinstance(target, nodes.AssignName)
-        }
+        assign_names: Set[Optional[str]] = set()
+        for target in node.targets:
+            if isinstance(target, nodes.AssignName):
+                assign_names.add(target.name)
+            elif isinstance(target, nodes.Tuple):
+                assign_names.update(
+                    elt.name for elt in target.elts if isinstance(elt, nodes.AssignName)
+                )
         scope = node.scope()
         nonlocals_with_same_name = any(
-            child
-            for child in scope.body
-            if isinstance(child, nodes.Nonlocal) and assign_names & set(child.names)
+            child for child in scope.body if isinstance(child, nodes.Nonlocal)
         )
         if nonlocals_with_same_name:
             scope = node.scope().parent.scope()
@@ -2048,12 +2049,7 @@ class VariablesChecker(BaseChecker):
         if not argument_names:
             return
         self_cls_name = argument_names[0]
-        target_assign_names = (
-            target.name
-            for target in node.targets
-            if isinstance(target, nodes.AssignName)
-        )
-        if self_cls_name in target_assign_names:
+        if self_cls_name in assign_names:
             self.add_message("self-cls-assignment", node=node, args=(self_cls_name,))
 
     def _check_unpacking(self, inferred, node, targets):
