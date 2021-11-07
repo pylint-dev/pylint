@@ -61,7 +61,7 @@ import os
 import re
 import sys
 from functools import lru_cache
-from typing import DefaultDict, List, Tuple
+from typing import DefaultDict, List, Optional, Set, Tuple
 
 import astroid
 from astroid import nodes
@@ -2024,7 +2024,7 @@ class VariablesChecker(BaseChecker):
 
     def _check_self_cls_assign(self, node: nodes.Assign) -> None:
         """Check that self/cls don't get assigned"""
-        assign_names: Set[Union[str, None]] = set()
+        assign_names: Set[Optional[str]] = set()
         for target in node.targets:
             if isinstance(target, nodes.AssignName):
                 assign_names.add(target.name)
