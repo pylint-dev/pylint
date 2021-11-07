@@ -77,6 +77,7 @@ ModuleStatsAttribute = Literal[
     "convention", "error", "fatal", "info", "refactor", "statement", "warning"
 ]
 
+
 # pylint: disable-next=too-many-instance-attributes
 class LinterStats:
     """Class used to linter stats"""
@@ -154,6 +155,7 @@ class LinterStats:
         {self.percent_duplicated_lines}"""
 
     def init_single_module(self, module_name: str) -> None:
+        """Use through Pylinter.set_current_module so Pyliner.current_name is consistent."""
         self.by_module[module_name] = ModuleStats(
             convention=0, error=0, fatal=0, info=0, refactor=0, statement=0, warning=0
         )
