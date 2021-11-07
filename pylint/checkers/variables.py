@@ -2022,14 +2022,14 @@ class VariablesChecker(BaseChecker):
             return
         self._store_type_annotation_node(node.type_annotation)
 
-    def _check_self_cls_assign(self, node):
+    def _check_self_cls_assign(self, node: nodes.Assign) -> None:
         """Check that self/cls don't get assigned"""
-        assign_names = []
+        assign_names: Set[Union[str, None]] = set()
         for target in node.targets:
             if isinstance(target, nodes.AssignName):
-                assign_names.append(target.name)
+                assign_names.add(target.name)
             elif isinstance(target, nodes.Tuple):
-                assign_names.extend(
+                assign_names.update(
                     elt.name for elt in target.elts if isinstance(elt, nodes.AssignName)
                 )
         scope = node.scope()
