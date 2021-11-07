@@ -20,7 +20,7 @@ class MermaidJSPrinter(Printer):
     NODES: Dict[NodeType, str] = {
         NodeType.CLASS: "class",
         NodeType.INTERFACE: "class",
-        NodeType.PACKAGE: "package",
+        NodeType.PACKAGE: "class",
     }
     ARROWS: Dict[EdgeType, str] = {
         EdgeType.INHERITS: "--|>",
