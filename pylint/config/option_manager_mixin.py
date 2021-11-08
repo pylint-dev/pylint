@@ -302,19 +302,18 @@ class OptionsManagerMixIn:
         try:
             sections_values = content["tool"]["pylint"]
         except KeyError:
-            pass
-        else:
-            for section, values in sections_values.items():
-                # TOML has rich types, convert values to
-                # strings as ConfigParser expects.
-                for option, value in values.items():
-                    if isinstance(value, bool):
-                        values[option] = "yes" if value else "no"
-                    elif isinstance(value, (int, float)):
-                        values[option] = str(value)
-                    elif isinstance(value, list):
-                        values[option] = ",".join(value)
-                parser._sections[section.upper()] = values  # type: ignore
+            return
+        for section, values in sections_values.items():
+            # TOML has rich types, convert values to
+            # strings as ConfigParser expects.
+            for option, value in values.items():
+                if isinstance(value, bool):
+                    values[option] = "yes" if value else "no"
+                elif isinstance(value, (int, float)):
+                    values[option] = str(value)
+                elif isinstance(value, list):
+                    values[option] = ",".join(value)
+            parser._sections[section.upper()] = values  # type: ignore
 
     def load_config_file(self):
         """Dispatch values previously read from a configuration file to each
