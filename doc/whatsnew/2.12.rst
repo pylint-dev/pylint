@@ -149,3 +149,17 @@ Other Changes
   have functioning shared semaphore implementation.
 
   Closes #5216
+
+* ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
+
+  .. code-block:: python
+
+    def my_function()
+      """My function.
+
+      Raises:
+        Exception: if something fails
+      """
+      raise ValueError
+
+  Closes #4955

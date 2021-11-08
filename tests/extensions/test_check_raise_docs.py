@@ -105,6 +105,63 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         ):
             self.checker.visit_raise(raise_node)
 
+    def test_ignores_exception_inheritance_builtin(self) -> None:
+        node = astroid.extract_node(
+            '''
+        def my_func(self):
+            """This is a docstring.
+
+            Raises:
+                Exception: Never
+            """
+            raise ValueError('hi')
+        '''
+        )
+        raise_node = node.body[0]
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+    def test_ignores_exception_inheritance_custom(self) -> None:
+        node = astroid.extract_node(
+            '''
+        class CustomError(NameError):
+            pass
+
+        def my_func(self):
+            """This is a docstring.
+
+            Raises:
+                NameError: Never
+            """
+            raise CustomError('hi')
+        '''
+        )
+        raise_node = node.body[0]
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+    def test_ignores_exception_inheritance_custom_nested(self) -> None:
+        node = astroid.extract_node(
+            '''
+        class CustomError(NameError):
+            pass
+
+        class CustomChildError(CustomError):
+            pass
+
+        def my_func(self):
+            """This is a docstring.
+
+            Raises:
+                NameError: Never
+            """
+            raise CustomChildError('hi')
+        '''
+        )
+        raise_node = node.body[0]
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
     def test_find_google_attr_raises_exact_exc(self) -> None:
         raise_node = astroid.extract_node(
             '''

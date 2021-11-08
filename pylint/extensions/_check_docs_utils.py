@@ -131,13 +131,13 @@ def possible_exc_types(node):
     :type node: nodes.NodeNG
 
     :returns: A list of exception types possibly raised by :param:`node`.
-    :rtype: set(str)
+    :rtype: set(node.ClassDef)
     """
     excs = []
     if isinstance(node.exc, nodes.Name):
         inferred = utils.safe_infer(node.exc)
         if inferred:
-            excs = [inferred.name]
+            excs = [inferred]
     elif node.exc is None:
         handler = node.parent
         while handler and not isinstance(handler, nodes.ExceptHandler):
@@ -145,11 +145,11 @@ def possible_exc_types(node):
 
         if handler and handler.type:
             inferred_excs = astroid.unpack_infer(handler.type)
-            excs = (exc.name for exc in inferred_excs if exc is not astroid.Uninferable)
+            excs = (exc for exc in inferred_excs if exc is not astroid.Uninferable)
     else:
         target = _get_raise_target(node)
         if isinstance(target, nodes.ClassDef):
-            excs = [target.name]
+            excs = [target]
         elif isinstance(target, nodes.FunctionDef):
             for ret in target.nodes_of_class(nodes.Return):
                 if ret.frame() != target:
@@ -162,10 +162,17 @@ def possible_exc_types(node):
                     and isinstance(val, (astroid.Instance, nodes.ClassDef))
                     and utils.inherit_from_std_ex(val)
                 ):
-                    excs.append(val.name)
+                    excs.append(val)
 
     try:
-        return {exc for exc in excs if not utils.node_ignores_exception(node, exc)}
+        final_exceptions = set()
+        for exc in excs:
+            if utils.node_ignores_exception(node, exc.name):
+                continue
+            if not isinstance(exc, nodes.ClassDef):
+                exc = exc.getattr("__class__")[0]
+            final_exceptions.add(exc)
+        return final_exceptions
     except astroid.InferenceError:
         return set()
 

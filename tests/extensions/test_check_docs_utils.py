@@ -147,5 +147,7 @@ def test_space_indentation(string: str, count: int) -> None:
     ],
 )
 def test_exception(raise_node, expected):
-    found = utils.possible_exc_types(raise_node)
-    assert found == expected
+    founded = utils.possible_exc_types(raise_node)
+    for node in founded:
+        assert isinstance(node, astroid.nodes.ClassDef)
+    assert {found.name for found in founded} == expected
