@@ -99,7 +99,8 @@ reports = true
     check_configuration_file_reader(config_file)
 
 
-def test_can_read_env_variable(tmp_path: PosixPath) -> None:
+def test_can_read_toml_env_variable(tmp_path: PosixPath) -> None:
+    """We can read and open a properly formatted toml file."""
     config_file = tmp_path / "pyproject.toml"
     config_file.write_text(
         """
