@@ -1,16 +1,14 @@
 # pylint: disable=missing-module-docstring, missing-function-docstring, protected-access
 import os
 import unittest.mock
-from pathlib import PosixPath
-
-import pytest
+from pathlib import Path, PosixPath
+from typing import Union
 
 import pylint.lint
-from pylint.config import OptionsManagerMixIn
 from pylint.lint.run import Run
 
 
-def check_configuration_file_reader(config_file: PosixPath) -> Run:
+def check_configuration_file_reader(config_file: Union[str, Path]) -> Run:
     """Initialize pylint with the given configuration file and check that
     what we initialized the linter with what was expected.
     """
@@ -110,17 +108,6 @@ jobs = "10"
 reports = "yes"
 """
     )
-    os.environ["tmp_path_env"] = str(tmp_path / "pyproject.toml")
-    options_manager_mix_in = OptionsManagerMixIn("", "${tmp_path_env}")
-    options_manager_mix_in.read_config_file("${tmp_path_env}")
-
-    def test_read_config_file() -> None:
-        with pytest.raises(OSError):
-            options_manager_mix_in.read_config_file("${tmp_path_en}")
-
-    test_read_config_file()
-    options_manager_mix_in.load_config_file()
-    section = options_manager_mix_in.cfgfile_parser.sections()[0]
-    jobs, jobs_nr = options_manager_mix_in.cfgfile_parser.items(section)[1]
-    assert jobs == "jobs"
-    assert jobs_nr == "10"
+    env_var = "tmp_path_env"
+    os.environ[env_var] = str(config_file)
+    check_configuration_file_reader(f"${env_var}")
