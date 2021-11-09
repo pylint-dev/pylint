@@ -7,11 +7,16 @@ from typing import Optional, Set, Union
 import pylint.lint
 from pylint.lint.run import Run
 
+# We use an external file and not __file__ or pylint warning in this file
+# makes the tests fails because the exit code changes
+FILE_TO_LINT = str(Path(__file__).parent / "file_to_lint.py")
+
+
 def get_runner_from_config_file(
     config_file: Union[str, Path], expected_exit_code: int = 0
 ) -> Run:
     """Initialize pylint with the given configuration file and return the Run"""
-    args = ["--rcfile", str(config_file), __file__]
+    args = ["--rcfile", str(config_file), FILE_TO_LINT]
     # If we used `pytest.raises(SystemExit)`, the `runner` variable
     # would not be accessible outside the `with` block.
     with unittest.mock.patch("sys.exit") as mocked_exit:
