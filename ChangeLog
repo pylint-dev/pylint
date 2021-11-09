@@ -132,6 +132,9 @@ Release date: TBA
 * Fix ``missing-function-docstring`` not being able to check ``__init__`` and other
   magic methods even if the ``no-docstring-rgx`` setting was set to do so
 
+* Added ``using-final-decorator-in-unsupported-version`` checker. Issued when ``py-version``
+  is set to a version that does not support ``typing.final`` (< 3.8)
+
 * Added configuration option ``exclude-too-few-public-methods`` to allow excluding
   classes from the ``min-public-methods`` checker.
 
