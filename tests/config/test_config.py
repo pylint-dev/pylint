@@ -1,7 +1,7 @@
 # pylint: disable=missing-module-docstring, missing-function-docstring, protected-access
 import os
 import unittest.mock
-from pathlib import Path, PosixPath
+from pathlib import Path
 from typing import Union
 
 import pylint.lint
@@ -34,7 +34,7 @@ def check_configuration_file_reader(config_file: Union[str, Path]) -> Run:
     return runner
 
 
-def test_can_read_ini(tmp_path: PosixPath) -> None:
+def test_can_read_ini(tmp_path: Path) -> None:
     # Check that we can read the "regular" INI .pylintrc file
     config_file = tmp_path / ".pylintrc"
     config_file.write_text(
@@ -48,7 +48,7 @@ reports = yes
     check_configuration_file_reader(config_file)
 
 
-def test_can_read_setup_cfg(tmp_path: PosixPath) -> None:
+def test_can_read_setup_cfg(tmp_path: Path) -> None:
     # Check that we can read a setup.cfg (which is an INI file where
     # section names are prefixed with "pylint."
     config_file = tmp_path / "setup.cfg"
@@ -63,7 +63,7 @@ reports = yes
     check_configuration_file_reader(config_file)
 
 
-def test_can_read_toml(tmp_path: PosixPath) -> None:
+def test_can_read_toml(tmp_path: Path) -> None:
     # Check that we can read a TOML file where lists and integers are
     # expressed as strings.
     config_file = tmp_path / "pyproject.toml"
@@ -78,7 +78,7 @@ reports = "yes"
     check_configuration_file_reader(config_file)
 
 
-def test_can_read_toml_rich_types(tmp_path: PosixPath) -> None:
+def test_can_read_toml_rich_types(tmp_path: Path) -> None:
     # Check that we can read a TOML file where lists, integers and
     # booleans are expressed as such (and not as strings), using TOML
     # type system.
@@ -97,7 +97,7 @@ reports = true
     check_configuration_file_reader(config_file)
 
 
-def test_can_read_toml_env_variable(tmp_path: PosixPath) -> None:
+def test_can_read_toml_env_variable(tmp_path: Path) -> None:
     """We can read and open a properly formatted toml file."""
     config_file = tmp_path / "pyproject.toml"
     config_file.write_text(
