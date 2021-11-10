@@ -4,6 +4,7 @@
 """Utility function for configuration testing."""
 import copy
 import json
+import logging
 import unittest
 from pathlib import Path
 from typing import Any, Dict, Tuple, Union
@@ -24,6 +25,9 @@ def get_expected_or_default(pyproject_toml_path: str, suffix: str, default: Any)
     if expected_result_path.exists():
         with open(expected_result_path, encoding="utf8") as f:
             expected = f.read()
+        logging.info("%s exists.", expected_result_path)
+    else:
+        logging.info("%s not found, using '%s'.", expected_result_path, default)
     return expected
 
 
@@ -65,7 +69,14 @@ def get_expected_output(configuration_path: str) -> Tuple[int, str]:
         return path.replace(USER_SPECIFIC, "")[1:]
 
     output = get_expected_or_default(configuration_path, suffix="out", default="")
-    exit_code = 2 if output else 0
+    if output:
+        logging.info(
+            "Output exists for %s so the expected exit code is 2", configuration_path
+        )
+        exit_code = 2
+    else:
+        logging.info(".out file does not exists, so the expected exit code is 0")
+        exit_code = 0
     return exit_code, output.format(
         abspath=configuration_path, relpath=get_relative_path(configuration_path)
     )
