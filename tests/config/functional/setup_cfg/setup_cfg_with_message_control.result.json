@@ -1,0 +1,7 @@
+{
+  "functional_append": {
+    "disable": [["logging-not-lazy"], ["logging-format-interpolation"]]
+  },
+  "jobs": 10,
+  "reports": true
+}

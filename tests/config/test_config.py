@@ -46,53 +46,6 @@ def check_configuration_file_reader(
     assert bool(runner.linter.config.reports) == expected_reports_truthey
 
 
-def test_can_read_ini(tmp_path: Path) -> None:
-    # Check that we can read the "regular" INI .pylintrc file
-    config_file = tmp_path / ".pylintrc"
-    config_file.write_text(
-        """
-[messages control]
-disable = logging-not-lazy,logging-format-interpolation
-jobs = 10
-reports = yes
-"""
-    )
-    run = get_runner_from_config_file(config_file)
-    check_configuration_file_reader(run)
-
-
-def test_can_read_setup_cfg(tmp_path: Path) -> None:
-    # Check that we can read a setup.cfg (which is an INI file where
-    # section names are prefixed with "pylint."
-    config_file = tmp_path / "setup.cfg"
-    config_file.write_text(
-        """
-[pylint.messages control]
-disable = logging-not-lazy,logging-format-interpolation
-jobs = 10
-reports = yes
-"""
-    )
-    run = get_runner_from_config_file(config_file)
-    check_configuration_file_reader(run)
-
-
-def test_can_read_toml(tmp_path: Path) -> None:
-    # Check that we can read a TOML file where lists and integers are
-    # expressed as strings.
-    config_file = tmp_path / "pyproject.toml"
-    config_file.write_text(
-        """
-[tool.pylint."messages control"]
-disable = "logging-not-lazy,logging-format-interpolation"
-jobs = "10"
-reports = "yes"
-"""
-    )
-    run = get_runner_from_config_file(config_file)
-    check_configuration_file_reader(run)
-
-
 def test_can_read_toml_rich_types(tmp_path: Path) -> None:
     # Check that we can read a TOML file where lists, integers and
     # booleans are expressed as such (and not as strings), using TOML
