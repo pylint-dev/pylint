@@ -18,12 +18,13 @@ and ``"functional_remove":``. Check the existing code for example.
 """
 
 # pylint: disable=redefined-outer-name
-
+import logging
 from pathlib import Path
 from typing import Any, Dict
 
 import pytest
 from _pytest.capture import CaptureFixture
+from _pytest.logging import LogCaptureFixture
 
 from pylint.testutils.configuration_test import (
     get_expected_configuration,
@@ -60,8 +61,10 @@ def test_functional_config_loading(
     configuration_path: str,
     default_configuration: Dict[str, Any],
     capsys: CaptureFixture,
+    caplog: LogCaptureFixture,
 ):
     """Functional tests for configurations."""
+    caplog.set_level(logging.INFO)
     configuration_path = str(FUNCTIONAL_DIR / configuration_path)
     msg = f"Wrong result with configuration {configuration_path}"
     expected_code, expected_output = get_expected_output(configuration_path)
@@ -75,5 +78,16 @@ def test_functional_config_loading(
     out, err = capsys.readouterr()
     # rstrip() applied so we can have a final newline in the expected test file
     assert expected_output.rstrip() == out.rstrip(), msg
-    assert expected_loaded_configuration == runner.linter.config.__dict__
+    assert sorted(expected_loaded_configuration.keys()) == sorted(
+        runner.linter.config.__dict__.keys()
+    ), msg
+    for key in expected_loaded_configuration:
+        key_msg = f"{msg} for key '{key}':"
+        expected_value = expected_loaded_configuration[key]
+        if isinstance(expected_value, list):
+            assert sorted(expected_value) == sorted(
+                runner.linter.config.__dict__[key]
+            ), key_msg
+        else:
+            assert expected_value == runner.linter.config.__dict__[key], key_msg
     assert not err, msg

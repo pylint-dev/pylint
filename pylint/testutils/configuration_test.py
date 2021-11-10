@@ -7,6 +7,7 @@ import json
 import unittest
 from pathlib import Path
 from typing import Any, Dict, Tuple, Union
+from unittest.mock import Mock
 
 from pylint.lint import Run
 
@@ -48,7 +49,11 @@ def get_expected_configuration(
             result[key] += value
     if EXPECTED_CONF_REMOVE_KEY in to_override:
         for key, value in to_override[EXPECTED_CONF_REMOVE_KEY].items():
-            result[key] -= value
+            new_value = []
+            for old_value in result[key]:
+                if old_value not in value:
+                    new_value.append(old_value)
+            result[key] = new_value
     return result
 
 
@@ -68,7 +73,7 @@ def get_expected_output(configuration_path: str) -> Tuple[int, str]:
 
 def run_using_a_configuration_file(
     configuration_path: Union[Path, str], file_to_lint: str = __file__
-) -> Tuple[unittest.mock.Mock, unittest.mock.Mock, Run]:
+) -> Tuple[Mock, Mock, Run]:
     """Simulate a run with a configuration without really launching the checks."""
     configuration_path = str(configuration_path)
     args = ["--rcfile", configuration_path, file_to_lint]
