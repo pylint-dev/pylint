@@ -14,7 +14,7 @@ if this file exists.
 You must also define a ``regression_list_crash.result.json`` if you want to check the parsed configuration.
 This file will be loaded as a dict and will override the default value of the default pylint
 configuration. If you need to append or remove a value use the special key ``"functional_append"``
-and ``"functional_remove":``. Check the existing code for example.
+and ``"functional_remove":``. Check the existing code for examples.
 """
 
 # pylint: disable=redefined-outer-name
@@ -34,9 +34,9 @@ from pylint.testutils.configuration_test import (
 
 HERE = Path(__file__).parent
 FUNCTIONAL_DIR = HERE / "functional"
-# We use string then recast to path so we can use -k in pytest otherwise
-# we get 'configuration_path0' as a test name. Relative to the functional
-# directory because otherwise the string is very lengthy
+# We use string then recast to path so we can use -k in pytest.
+# Otherwise we get 'configuration_path0' as a test name. The path is relative to the functional
+# directory because otherwise the string would be very lengthy.
 CONFIGURATION_PATHS = [
     str(path.relative_to(FUNCTIONAL_DIR))
     for ext in ("toml", "ini", "cfg")

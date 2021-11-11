@@ -1,7 +1,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Utility function for configuration testing."""
+"""Utility functions for configuration testing."""
 import copy
 import json
 import logging
@@ -65,7 +65,7 @@ def get_expected_output(configuration_path: str) -> Tuple[int, str]:
     """Get the expected output of a functional test."""
 
     def get_relative_path(path: str) -> str:
-        """Get the relative path we want without user specific information"""
+        """Get the relative path we want without the user specific path"""
         return path.replace(USER_SPECIFIC, "")[1:]
 
     output = get_expected_or_default(configuration_path, suffix="out", default="")
@@ -88,10 +88,10 @@ def run_using_a_configuration_file(
     """Simulate a run with a configuration without really launching the checks."""
     configuration_path = str(configuration_path)
     args = ["--rcfile", configuration_path, file_to_lint]
-    # If we used `pytest.raises(SystemExit)`, the `runner` variable
+    # We do not capture the `SystemExit` as then the `runner` variable
     # would not be accessible outside the `with` block.
     with unittest.mock.patch("sys.exit") as mocked_exit:
-        # Do not actually run checks, that could be slow. Do not mock
+        # Do not actually run checks, that could be slow. We don't mock
         # `Pylinter.check`: it calls `Pylinter.initialize` which is
         # needed to properly set up messages inclusion/exclusion
         # in `_msg_states`, used by `is_message_enabled`.
