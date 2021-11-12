@@ -1,0 +1,8 @@
+# The pylint_websockets plugin does not exist and therefore this toml is invalid
+[tool.poe.tasks]
+docs = {cmd = "sphinx-build docs build", help = "Build documentation"}
+
+[tool.pylint.MASTER]
+load-plugins = 'pylint_websockets'
+
+format = ["black", "isort"]

@@ -271,6 +271,9 @@ class OptionsManagerMixIn:
 
         use_config_file = config_file and os.path.exists(config_file)
         if use_config_file:
+            mod_name = config_file
+            self.current_name = mod_name
+            self.set_current_module(mod_name)
             parser = self.cfgfile_parser
             if config_file.endswith(".toml"):
                 self._parse_toml(config_file, parser)

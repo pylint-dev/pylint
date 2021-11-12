@@ -76,8 +76,8 @@ def get_expected_output(configuration_path: str) -> Tuple[int, str]:
 
     def get_relative_path(path: str) -> str:
         """Get the relative path we want without the user specific path"""
-        # Second [1:] is to remove the closing '/'
-        return "".join(path.split(USER_SPECIFIC_PATH)[1:][1:])
+        # [1:] is to remove the opening '/'
+        return path.split(USER_SPECIFIC_PATH)[1][1:]
 
     output = get_expected_or_default(configuration_path, suffix="out", default="")
     if output:
@@ -91,9 +91,8 @@ def get_expected_output(configuration_path: str) -> Tuple[int, str]:
     else:
         logging.info(".out file does not exists, so the expected exit code is 0")
         exit_code = 0
-    return exit_code, output.format(
-        abspath=configuration_path, relpath=get_relative_path(configuration_path)
-    )
+    relpath = get_relative_path(configuration_path)
+    return exit_code, output.format(abspath=configuration_path, relpath=relpath)
 
 
 def run_using_a_configuration_file(
