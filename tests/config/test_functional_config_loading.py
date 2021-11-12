@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 """
-This launch the configuration functional tests. This permit to test configuration
+This launches the configuration functional tests. This permits to test configuration
 files by providing a file with the appropriate extension in the ``tests/config/functional``
 directory.
 

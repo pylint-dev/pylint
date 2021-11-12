@@ -13,7 +13,7 @@ from unittest.mock import Mock
 from pylint.lint import Run
 
 USER_SPECIFIC_PATH = str(Path(__file__).parent.parent.parent)
-# We use Any in this typing because the configuration contain real object
+# We use Any in this typing because the configuration contains real objects and constants
 # that could be a lot of things.
 ConfigurationValue = Any
 PylintConfiguration = Dict[str, ConfigurationValue]
@@ -33,7 +33,7 @@ def get_expected_or_default(
     if expected_result_path.exists():
         with open(expected_result_path, encoding="utf8") as f:
             expected = f.read()
-        # logging is helpful to to realize your file is not taken into
+        # logging is helpful to realize your file is not taken into
         # account after a misspell of the file name. The output of the
         # program is checked during the test so printing messes with the result.
         logging.info("%s exists.", expected_result_path)
