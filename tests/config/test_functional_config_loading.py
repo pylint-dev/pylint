@@ -20,13 +20,13 @@ and ``"functional_remove":``. Check the existing code for examples.
 # pylint: disable=redefined-outer-name
 import logging
 from pathlib import Path
-from typing import Any, Dict
 
 import pytest
 from _pytest.capture import CaptureFixture
 from _pytest.logging import LogCaptureFixture
 
 from pylint.testutils.configuration_test import (
+    PylintConfiguration,
     get_expected_configuration,
     get_expected_output,
     run_using_a_configuration_file,
@@ -45,7 +45,9 @@ CONFIGURATION_PATHS = [
 
 
 @pytest.fixture()
-def default_configuration(tmp_path: Path, file_to_lint_path: str) -> Dict[str, Any]:
+def default_configuration(
+    tmp_path: Path, file_to_lint_path: str
+) -> PylintConfiguration:
     empty_pylintrc = tmp_path / "pylintrc"
     empty_pylintrc.write_text("")
     mock_exit, _, runner = run_using_a_configuration_file(
@@ -58,7 +60,7 @@ def default_configuration(tmp_path: Path, file_to_lint_path: str) -> Dict[str, A
 @pytest.mark.parametrize("configuration_path", CONFIGURATION_PATHS)
 def test_functional_config_loading(
     configuration_path: str,
-    default_configuration: Dict[str, Any],
+    default_configuration: PylintConfiguration,
     file_to_lint_path: str,
     capsys: CaptureFixture,
     caplog: LogCaptureFixture,

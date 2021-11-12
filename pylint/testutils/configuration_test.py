@@ -13,9 +13,15 @@ from unittest.mock import Mock
 from pylint.lint import Run
 
 USER_SPECIFIC_PATH = str(Path(__file__).parent.parent.parent)
+# We use Any in this typing because the configuration contain real object
+# that could be a lot of things.
+ConfigurationValue = Any
+PylintConfiguration = Dict[str, ConfigurationValue]
 
 
-def get_expected_or_default(pyproject_toml_path: str, suffix: str, default: Any) -> str:
+def get_expected_or_default(
+    pyproject_toml_path: str, suffix: str, default: ConfigurationValue
+) -> str:
     def get_path_according_to_suffix() -> Path:
         path = Path(pyproject_toml_path)
         return path.parent / f"{path.stem}.{suffix}"
@@ -37,7 +43,7 @@ EXPECTED_CONF_SPECIAL_KEYS = [EXPECTED_CONF_APPEND_KEY, EXPECTED_CONF_REMOVE_KEY
 
 
 def get_expected_configuration(
-    configuration_path: str, default_configuration: Dict[str, Any]
+    configuration_path: str, default_configuration: PylintConfiguration
 ) -> Dict[str, Any]:
     """Get the expected parsed configuration of a configuration functional test"""
     result = copy.deepcopy(default_configuration)
