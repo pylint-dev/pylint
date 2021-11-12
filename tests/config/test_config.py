@@ -46,26 +46,6 @@ def check_configuration_file_reader(
     assert bool(runner.linter.config.reports) == expected_reports_truthey
 
 
-def test_can_read_toml_rich_types(tmp_path: Path) -> None:
-    # Check that we can read a TOML file where lists, integers and
-    # booleans are expressed as such (and not as strings), using TOML
-    # type system.
-    config_file = tmp_path / "pyproject.toml"
-    config_file.write_text(
-        """
-[tool.pylint."messages control"]
-disable = [
-    "logging-not-lazy",
-    "logging-format-interpolation",
-]
-jobs = 10
-reports = true
-"""
-    )
-    run = get_runner_from_config_file(config_file)
-    check_configuration_file_reader(run)
-
-
 def test_can_read_toml_env_variable(tmp_path: Path) -> None:
     """We can read and open a properly formatted toml file."""
     config_file = tmp_path / "pyproject.toml"
