@@ -86,9 +86,8 @@ def test_functional_config_loading(
     assert sorted(expected_loaded_configuration.keys()) == sorted(
         runner.linter.config.__dict__.keys()
     ), msg
-    for key in expected_loaded_configuration:
+    for key, expected_value in expected_loaded_configuration.items():
         key_msg = f"{msg} for key '{key}':"
-        expected_value = expected_loaded_configuration[key]
         if isinstance(expected_value, list):
             assert sorted(expected_value) == sorted(
                 runner.linter.config.__dict__[key]
