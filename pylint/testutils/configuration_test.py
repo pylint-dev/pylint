@@ -12,7 +12,7 @@ from unittest.mock import Mock
 
 from pylint.lint import Run
 
-USER_SPECIFIC = str(Path(__file__).parent.parent.parent)
+USER_SPECIFIC_PATH = str(Path(__file__).parent.parent.parent)
 
 
 def get_expected_or_default(pyproject_toml_path: str, suffix: str, default: Any) -> str:
@@ -66,7 +66,8 @@ def get_expected_output(configuration_path: str) -> Tuple[int, str]:
 
     def get_relative_path(path: str) -> str:
         """Get the relative path we want without the user specific path"""
-        return path.replace(USER_SPECIFIC, "")[1:]
+        # Second [1:] is to remove the closing '/'
+        return "".join(path.split(USER_SPECIFIC_PATH)[1:][1:])
 
     output = get_expected_or_default(configuration_path, suffix="out", default="")
     if output:
