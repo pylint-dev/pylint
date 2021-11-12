@@ -39,7 +39,6 @@ def get_expected_or_default(
 
 EXPECTED_CONF_APPEND_KEY = "functional_append"
 EXPECTED_CONF_REMOVE_KEY = "functional_remove"
-EXPECTED_CONF_SPECIAL_KEYS = [EXPECTED_CONF_APPEND_KEY, EXPECTED_CONF_REMOVE_KEY]
 
 
 def get_expected_configuration(
@@ -52,18 +51,18 @@ def get_expected_configuration(
     )
     to_override = json.loads(config_as_json)
     for key, value in to_override.items():
-        if key not in EXPECTED_CONF_SPECIAL_KEYS:
+        if key == EXPECTED_CONF_APPEND_KEY:
+            for fkey, fvalue in value.items():
+                result[fkey] += fvalue
+        elif key == EXPECTED_CONF_REMOVE_KEY:
+            for fkey, fvalue in value.items():
+                new_value = []
+                for old_value in result[fkey]:
+                    if old_value not in fvalue:
+                        new_value.append(old_value)
+                result[fkey] = new_value
+        else:
             result[key] = value
-    if EXPECTED_CONF_APPEND_KEY in to_override:
-        for key, value in to_override[EXPECTED_CONF_APPEND_KEY].items():
-            result[key] += value
-    if EXPECTED_CONF_REMOVE_KEY in to_override:
-        for key, value in to_override[EXPECTED_CONF_REMOVE_KEY].items():
-            new_value = []
-            for old_value in result[key]:
-                if old_value not in value:
-                    new_value.append(old_value)
-            result[key] = new_value
     return result
 
 
