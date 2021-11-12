@@ -22,6 +22,8 @@ PylintConfiguration = Dict[str, ConfigurationValue]
 def get_expected_or_default(
     pyproject_toml_path: str, suffix: str, default: ConfigurationValue
 ) -> str:
+    """Return the expected value from the file if it exists, or the given default."""
+
     def get_path_according_to_suffix() -> Path:
         path = Path(pyproject_toml_path)
         return path.parent / f"{path.stem}.{suffix}"
