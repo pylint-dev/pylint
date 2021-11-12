@@ -42,15 +42,14 @@ CONFIGURATION_PATHS = [
     for ext in ("toml", "ini", "cfg")
     for path in FUNCTIONAL_DIR.rglob(f"*.{ext}")
 ]
-FILE_TO_LINT = str(HERE / "file_to_lint.py")
 
 
 @pytest.fixture()
-def default_configuration(tmp_path: Path) -> Dict[str, Any]:
+def default_configuration(tmp_path: Path, file_to_lint_path: str) -> Dict[str, Any]:
     empty_pylintrc = tmp_path / "pylintrc"
     empty_pylintrc.write_text("")
     mock_exit, _, runner = run_using_a_configuration_file(
-        str(empty_pylintrc), FILE_TO_LINT
+        str(empty_pylintrc), file_to_lint_path
     )
     mock_exit.assert_called_once_with(0)
     return runner.linter.config.__dict__
@@ -60,6 +59,7 @@ def default_configuration(tmp_path: Path) -> Dict[str, Any]:
 def test_functional_config_loading(
     configuration_path: str,
     default_configuration: Dict[str, Any],
+    file_to_lint_path: str,
     capsys: CaptureFixture,
     caplog: LogCaptureFixture,
 ):
@@ -72,7 +72,7 @@ def test_functional_config_loading(
         configuration_path, default_configuration
     )
     mock_exit, _, runner = run_using_a_configuration_file(
-        configuration_path, FILE_TO_LINT
+        configuration_path, file_to_lint_path
     )
     mock_exit.assert_called_once_with(expected_code)
     out, err = capsys.readouterr()

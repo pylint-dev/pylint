@@ -1,33 +1,9 @@
-# pylint: disable=missing-module-docstring, missing-function-docstring, protected-access
 import os
-import unittest.mock
 from pathlib import Path
-from typing import Optional, Set, Union
+from typing import Optional, Set
 
-import pylint.lint
 from pylint.lint.run import Run
-
-# We use an external file and not __file__ or pylint warning in this file
-# makes the tests fails because the exit code changes
-FILE_TO_LINT = str(Path(__file__).parent / "file_to_lint.py")
-
-
-def get_runner_from_config_file(
-    config_file: Union[str, Path], expected_exit_code: int = 0
-) -> Run:
-    """Initialize pylint with the given configuration file and return the Run"""
-    args = ["--rcfile", str(config_file), FILE_TO_LINT]
-    # If we used `pytest.raises(SystemExit)`, the `runner` variable
-    # would not be accessible outside the `with` block.
-    with unittest.mock.patch("sys.exit") as mocked_exit:
-        # Do not actually run checks, that could be slow. Do not mock
-        # `Pylinter.check`: it calls `Pylinter.initialize` which is
-        # needed to properly set up messages inclusion/exclusion
-        # in `_msg_states`, used by `is_message_enabled`.
-        with unittest.mock.patch("pylint.lint.pylinter.check_parallel"):
-            runner = pylint.lint.Run(args)
-    mocked_exit.assert_called_once_with(expected_exit_code)
-    return runner
+from pylint.testutils.configuration_test import run_using_a_configuration_file
 
 
 def check_configuration_file_reader(
@@ -46,7 +22,7 @@ def check_configuration_file_reader(
     assert bool(runner.linter.config.reports) == expected_reports_truthey
 
 
-def test_can_read_toml_env_variable(tmp_path: Path) -> None:
+def test_can_read_toml_env_variable(tmp_path: Path, file_to_lint_path: str) -> None:
     """We can read and open a properly formatted toml file."""
     config_file = tmp_path / "pyproject.toml"
     config_file.write_text(
@@ -59,5 +35,8 @@ reports = "yes"
     )
     env_var = "tmp_path_env"
     os.environ[env_var] = str(config_file)
-    run = get_runner_from_config_file(f"${env_var}")
-    check_configuration_file_reader(run)
+    mock_exit, _, runner = run_using_a_configuration_file(
+        f"${env_var}", file_to_lint_path
+    )
+    mock_exit.assert_called_once_with(0)
+    check_configuration_file_reader(runner)
