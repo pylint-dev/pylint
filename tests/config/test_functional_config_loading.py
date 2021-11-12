@@ -22,8 +22,7 @@ import logging
 from pathlib import Path
 
 import pytest
-from _pytest.capture import CaptureFixture
-from _pytest.logging import LogCaptureFixture
+from pytest import CaptureFixture, LogCaptureFixture
 
 from pylint.testutils.configuration_test import (
     PylintConfiguration,

@@ -52,7 +52,7 @@ from typing import Iterable, Iterator, List, Optional, Tuple
 
 import platformdirs
 import pytest
-from _pytest.capture import CaptureFixture
+from pytest import CaptureFixture
 
 from pylint import checkers, config, exceptions, interfaces, lint, testutils
 from pylint.checkers.utils import check_messages
