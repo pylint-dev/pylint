@@ -48,7 +48,7 @@ EXPECTED_CONF_REMOVE_KEY = "functional_remove"
 
 def get_expected_configuration(
     configuration_path: str, default_configuration: PylintConfiguration
-) -> Dict[str, Any]:
+) -> PylintConfiguration:
     """Get the expected parsed configuration of a configuration functional test"""
     result = copy.deepcopy(default_configuration)
     config_as_json = get_expected_or_default(
