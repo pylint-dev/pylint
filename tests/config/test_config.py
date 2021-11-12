@@ -1,20 +1,22 @@
 # pylint: disable=missing-module-docstring, missing-function-docstring, protected-access
 import os
 import unittest.mock
-from pathlib import PosixPath
-
-import pytest
+from pathlib import Path
+from typing import Optional, Set, Union
 
 import pylint.lint
-from pylint.config import OptionsManagerMixIn
 from pylint.lint.run import Run
 
+# We use an external file and not __file__ or pylint warning in this file
+# makes the tests fails because the exit code changes
+FILE_TO_LINT = str(Path(__file__).parent / "file_to_lint.py")
 
-def check_configuration_file_reader(config_file: PosixPath) -> Run:
-    """Initialize pylint with the given configuration file and check that
-    what we initialized the linter with what was expected.
-    """
-    args = ["--rcfile", str(config_file), __file__]
+
+def get_runner_from_config_file(
+    config_file: Union[str, Path], expected_exit_code: int = 0
+) -> Run:
+    """Initialize pylint with the given configuration file and return the Run"""
+    args = ["--rcfile", str(config_file), FILE_TO_LINT]
     # If we used `pytest.raises(SystemExit)`, the `runner` variable
     # would not be accessible outside the `with` block.
     with unittest.mock.patch("sys.exit") as mocked_exit:
@@ -24,19 +26,27 @@ def check_configuration_file_reader(config_file: PosixPath) -> Run:
         # in `_msg_states`, used by `is_message_enabled`.
         with unittest.mock.patch("pylint.lint.pylinter.check_parallel"):
             runner = pylint.lint.Run(args)
-
-    # "logging-not-lazy" and "logging-format-interpolation"
-    expected_disabled = {"W1201", "W1202"}
-    for msgid in expected_disabled:
-        assert not runner.linter.is_message_enabled(msgid)
-    assert runner.linter.config.jobs == 10
-    assert runner.linter.config.reports
-
-    mocked_exit.assert_called_once_with(0)
+    mocked_exit.assert_called_once_with(expected_exit_code)
     return runner
 
 
-def test_can_read_ini(tmp_path: PosixPath) -> None:
+def check_configuration_file_reader(
+    runner: Run,
+    expected_disabled: Optional[Set[str]] = None,
+    expected_jobs: int = 10,
+    expected_reports_truthey: bool = True,
+) -> None:
+    """Check that what we initialized the linter with what was expected."""
+    if expected_disabled is None:
+        # "logging-not-lazy" and "logging-format-interpolation"
+        expected_disabled = {"W1201", "W1202"}
+    for msgid in expected_disabled:
+        assert not runner.linter.is_message_enabled(msgid)
+    assert runner.linter.config.jobs == expected_jobs
+    assert bool(runner.linter.config.reports) == expected_reports_truthey
+
+
+def test_can_read_ini(tmp_path: Path) -> None:
     # Check that we can read the "regular" INI .pylintrc file
     config_file = tmp_path / ".pylintrc"
     config_file.write_text(
@@ -47,10 +57,11 @@ jobs = 10
 reports = yes
 """
     )
-    check_configuration_file_reader(config_file)
+    run = get_runner_from_config_file(config_file)
+    check_configuration_file_reader(run)
 
 
-def test_can_read_setup_cfg(tmp_path: PosixPath) -> None:
+def test_can_read_setup_cfg(tmp_path: Path) -> None:
     # Check that we can read a setup.cfg (which is an INI file where
     # section names are prefixed with "pylint."
     config_file = tmp_path / "setup.cfg"
@@ -62,10 +73,11 @@ jobs = 10
 reports = yes
 """
     )
-    check_configuration_file_reader(config_file)
+    run = get_runner_from_config_file(config_file)
+    check_configuration_file_reader(run)
 
 
-def test_can_read_toml(tmp_path: PosixPath) -> None:
+def test_can_read_toml(tmp_path: Path) -> None:
     # Check that we can read a TOML file where lists and integers are
     # expressed as strings.
     config_file = tmp_path / "pyproject.toml"
@@ -77,10 +89,11 @@ jobs = "10"
 reports = "yes"
 """
     )
-    check_configuration_file_reader(config_file)
+    run = get_runner_from_config_file(config_file)
+    check_configuration_file_reader(run)
 
 
-def test_can_read_toml_rich_types(tmp_path: PosixPath) -> None:
+def test_can_read_toml_rich_types(tmp_path: Path) -> None:
     # Check that we can read a TOML file where lists, integers and
     # booleans are expressed as such (and not as strings), using TOML
     # type system.
@@ -96,12 +109,12 @@ jobs = 10
 reports = true
 """
     )
-    check_configuration_file_reader(config_file)
+    run = get_runner_from_config_file(config_file)
+    check_configuration_file_reader(run)
 
 
-def test_can_read_env_variable(tmp_path: PosixPath) -> None:
-    # Check that we can read the "regular" INI .pylintrc file
-    # if it has an environment variable.
+def test_can_read_toml_env_variable(tmp_path: Path) -> None:
+    """We can read and open a properly formatted toml file."""
     config_file = tmp_path / "pyproject.toml"
     config_file.write_text(
         """
@@ -111,17 +124,7 @@ jobs = "10"
 reports = "yes"
 """
     )
-    os.environ["tmp_path_env"] = str(tmp_path / "pyproject.toml")
-    options_manager_mix_in = OptionsManagerMixIn("", "${tmp_path_env}")
-    options_manager_mix_in.read_config_file("${tmp_path_env}")
-
-    def test_read_config_file() -> None:
-        with pytest.raises(OSError):
-            options_manager_mix_in.read_config_file("${tmp_path_en}")
-
-    test_read_config_file()
-    options_manager_mix_in.load_config_file()
-    section = options_manager_mix_in.cfgfile_parser.sections()[0]
-    jobs, jobs_nr = options_manager_mix_in.cfgfile_parser.items(section)[1]
-    assert jobs == "jobs"
-    assert jobs_nr == "10"
+    env_var = "tmp_path_env"
+    os.environ[env_var] = str(config_file)
+    run = get_runner_from_config_file(f"${env_var}")
+    check_configuration_file_reader(run)

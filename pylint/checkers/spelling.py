@@ -259,7 +259,7 @@ class SpellingChecker(BaseTokenChecker):
             {
                 "default": "n",
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Tells whether to store unknown words to the "
                 "private dictionary (see the "
                 "--spelling-private-dict-file option) instead of "

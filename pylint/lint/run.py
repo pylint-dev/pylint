@@ -13,6 +13,7 @@ from pylint.utils import print_full_documentation, utils
 
 try:
     import multiprocessing
+    from multiprocessing import synchronize  # noqa pylint: disable=unused-import
 except ImportError:
     multiprocessing = None  # type: ignore
 

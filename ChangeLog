@@ -11,6 +11,12 @@ Release date: TBA
 ..
   Put new features here and also in 'doc/whatsnew/2.12.rst'
 
+* Fix ``install graphiz`` message which isn't needed for puml output format.
+
+* Fix ``simplify-boolean-expression`` when condition can be inferred as False.
+
+  Closes #5200
+
 * Fix exception when pyreverse parses ``property function`` of a class.
 
 * Add an optional extension ``consider-using-any-or-all`` : Emitted when a ``for`` loop only
@@ -25,6 +31,10 @@ Release date: TBA
 * Add checkers ``overridden-final-method`` & ``subclassed-final-class``
 
   Closes #3197
+
+* Fixed ``protected-access`` for accessing of attributes and methods of inner classes
+
+  Closes #3066
 
 * Added support for ``ModuleNotFoundError`` (``import-error`` and ``no-name-in-module``).
   ``ModuleNotFoundError`` inherits from ``ImportError`` and was added in Python ``3.6``
@@ -99,6 +109,15 @@ Release date: TBA
 
   Closes #3733
 
+* ``mising-param-doc`` now correctly handles Numpy parameter documentation without
+  explicit typing
+
+  Closes #5222
+
+* ``pylint`` no longer crashes when checking assignment expressions within if-statements
+
+  Closes #5178
+
 * Update ``literal-comparison``` checker to ignore tuple literals
 
   Closes #3031
@@ -112,13 +131,32 @@ Release date: TBA
 
   Closes #4426
 
+* ``self-cls-assignment`` now also considers tuple assignment
+
 * Fix ``missing-function-docstring`` not being able to check ``__init__`` and other
   magic methods even if the ``no-docstring-rgx`` setting was set to do so
+
+* Added ``using-final-decorator-in-unsupported-version`` checker. Issued when ``py-version``
+  is set to a version that does not support ``typing.final`` (< 3.8)
 
 * Added configuration option ``exclude-too-few-public-methods`` to allow excluding
   classes from the ``min-public-methods`` checker.
 
   Closes #3370
+
+* The ``--jobs`` parameter now fallbacks to 1 if the host operating system does not
+  have functioning shared semaphore implementation.
+
+  Closes #5216
+
+* Fix crash for ``unused-private-member`` when checking private members on ``__class__``
+
+  Closes #5261
+
+* Added new checker ``useless-with-lock`` to find incorrect usage of with statement and threading module locks.
+  Emitted when ``with threading.Lock():`` is used instead of ``with lock_instance:``.
+
+  Closes #5208
 
 
 What's New in Pylint 2.11.2?

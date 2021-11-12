@@ -777,7 +777,7 @@ class TypeChecker(BaseChecker):
             {
                 "default": True,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "This flag controls whether pylint should warn about "
                 "no-member and similar checks whenever an opaque object "
                 "is returned when inferring. The inference can return "
@@ -802,7 +802,7 @@ class TypeChecker(BaseChecker):
             {
                 "default": True,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Tells whether missing members accessed in mixin "
                 "class should be ignored. A class is considered mixin if its name matches "
                 "the mixin-class-rgx option.",
@@ -813,7 +813,7 @@ class TypeChecker(BaseChecker):
             {
                 "default": True,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Tells whether to warn about missing members when the owner "
                 "of the attribute is inferred to be None.",
             },

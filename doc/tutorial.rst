@@ -1,3 +1,4 @@
+.. _tutorial:
 
 ========
 Tutorial
@@ -62,7 +63,7 @@ A couple of the options that we'll focus on here are: ::
   Messages control:
     --disable=<msg-ids>
   Reports:
-    --reports=<y_or_n>
+    --reports=<y or n>
     --output-format=<format>
 
 If you need more detail, you can also ask for an even longer help message,

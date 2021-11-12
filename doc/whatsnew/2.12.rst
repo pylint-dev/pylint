@@ -43,11 +43,18 @@ New checkers
 
   Closes #4774
 
+* Added ``using-final-decorator-in-unsupported-version`` checker. Issued when ``py-version``
+  is set to a version that does not support typing.final (< 3.8)
+
 * Added configuration option ``exclude-too-few-public-methods`` to allow excluding
   classes from the ``min-public-methods`` checker.
 
   Closes #3370
 
+* Added new checker ``useless-with-lock`` to find incorrect usage of with statement and threading module locks.
+  Emitted when ``with threading.Lock():`` is used instead of ``with lock_instance:``.
+
+  Closes #5208
 
 Removed checkers
 ================
@@ -64,6 +71,16 @@ Extensions
 Other Changes
 =============
 
+* Fix ``install graphiz`` message which isn't needed for puml output format.
+
+* ``pylint`` no longer crashes when checking assignment expressions within if-statements
+
+  Closes #5178
+
+* Fix ``simplify-boolean-expression`` when condition can be inferred as False.
+
+  Closes #5200
+
 * Fix exception when pyreverse parses ``property function`` of a class.
 
 * Improve and flatten ``unused-wildcard-import`` message
@@ -73,6 +90,10 @@ Other Changes
 * In length checker, ``len-as-condition`` has been renamed as
   ``use-implicit-booleaness-not-len`` in order to be consistent with
   ``use-implicit-booleaness-not-comparison``.
+
+* Fixed ``protected-access`` for accessing of attributes and methods of inner classes
+
+  Closes #3066
 
 * Update ``literal-comparison``` checker to ignore tuple literals
 
@@ -98,11 +119,17 @@ Other Changes
 
   Fixes part of #3688
 
+* ``self-cls-assignment`` now also considers tuple assignment
+
 * ``undefined-variable`` now correctly triggers for assignment expressions in if ... else statements
   This includes a basic form of control flow inference for if ... else statements using
   constant boolean values
 
   Closes #3688
+
+* Fix crash for ``unused-private-member`` when checking private members on ``__class__``
+
+  Closes #5261
 
 * Fix double emitting of ``not-callable`` on inferrable ``properties``
 
@@ -119,3 +146,13 @@ Other Changes
   keyword parameters
 
   Closes #3733
+
+* ``mising-param-doc`` now correctly handles Numpy parameter documentation without
+  explicit typing
+
+  Closes #5222
+
+* The ``--jobs`` parameter now falls back to 1 if the host operating system does not
+  have functioning shared semaphore implementation.
+
+  Closes #5216

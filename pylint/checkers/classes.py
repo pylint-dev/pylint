@@ -63,6 +63,7 @@ from pylint.checkers.utils import (
     class_is_abstract,
     decorated_with,
     decorated_with_property,
+    get_outer_class,
     has_known_bases,
     is_attr_private,
     is_attr_protected,
@@ -78,8 +79,8 @@ from pylint.checkers.utils import (
     overrides_a_method,
     safe_infer,
     unimplemented_abstract_methods,
+    uninferable_final_decorators,
 )
-from pylint.constants import PY38_PLUS
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import get_global_option
 
@@ -794,6 +795,8 @@ a metaclass class method.",
 
     def open(self) -> None:
         self._mixin_class_rgx = get_global_option(self, "mixin-class-rgx")
+        py_version = get_global_option(self, "py-version")
+        self._py38_plus = py_version >= (3, 8)
 
     @astroid.decorators.cachedproperty
     def _dummy_rgx(self):
@@ -867,14 +870,16 @@ a metaclass class method.",
 
     def _check_typing_final(self, node: nodes.ClassDef) -> None:
         """Detect that a class does not subclass a class decorated with `typing.final`"""
-        if not PY38_PLUS:
+        if not self._py38_plus:
             return
         for base in node.bases:
             ancestor = safe_infer(base)
             if not ancestor:
                 continue
-            if isinstance(ancestor, nodes.ClassDef) and decorated_with(
-                ancestor, ["typing.final"]
+
+            if isinstance(ancestor, nodes.ClassDef) and (
+                decorated_with(ancestor, ["typing.final"])
+                or (uninferable_final_decorators(ancestor.decorators))
             ):
                 self.add_message(
                     "subclassed-final-class",
@@ -944,6 +949,7 @@ a metaclass class method.",
                 )
 
     def _check_unused_private_variables(self, node: nodes.ClassDef) -> None:
+        """Check if private variables are never used within a class"""
         for assign_name in node.nodes_of_class(nodes.AssignName):
             if isinstance(assign_name.parent, nodes.Arguments):
                 continue  # Ignore function arguments
@@ -952,12 +958,15 @@ a metaclass class method.",
             for child in node.nodes_of_class((nodes.Name, nodes.Attribute)):
                 if isinstance(child, nodes.Name) and child.name == assign_name.name:
                     break
-                if (
-                    isinstance(child, nodes.Attribute)
-                    and child.attrname == assign_name.name
-                    and child.expr.name in ("self", "cls", node.name)
-                ):
-                    break
+                if isinstance(child, nodes.Attribute):
+                    if not isinstance(child.expr, nodes.Name):
+                        break
+                    if child.attrname == assign_name.name and child.expr.name in (
+                        "self",
+                        "cls",
+                        node.name,
+                    ):
+                        break
             else:
                 args = (node.name, assign_name.name)
                 self.add_message("unused-private-member", node=assign_name, args=args)
@@ -1331,7 +1340,10 @@ a metaclass class method.",
                 args=(function_node.name, "non-async", "async"),
                 node=function_node,
             )
-        if decorated_with(parent_function_node, ["typing.final"]) and PY38_PLUS:
+        if (
+            decorated_with(parent_function_node, ["typing.final"])
+            or uninferable_final_decorators(parent_function_node.decorators)
+        ) and self._py38_plus:
             self.add_message(
                 "overridden-final-method",
                 args=(function_node.name, parent_function_node.parent.name),
@@ -1606,9 +1618,22 @@ a metaclass class method.",
             if self._is_type_self_call(node.expr):
                 return
 
+            # Check if we are inside the scope of a class or nested inner class
+            inside_klass = True
+            outer_klass = klass
+            parents_callee = callee.split(".")
+            parents_callee.reverse()
+            for callee in parents_callee:
+                if callee != outer_klass.name:
+                    inside_klass = False
+                    break
+
+                # Move up one level within the nested classes
+                outer_klass = get_outer_class(outer_klass)
+
             # We are in a class, one remaining valid cases, Klass._attr inside
             # Klass
-            if not (callee == klass.name or callee in klass.basenames):
+            if not (inside_klass or callee in klass.basenames):
                 # Detect property assignments in the body of the class.
                 # This is acceptable:
                 #
