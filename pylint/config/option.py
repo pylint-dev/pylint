@@ -50,6 +50,8 @@ def _choice_validator(choices, name, value):
 def _yn_validator(opt, _, value):
     if isinstance(value, int):
         return bool(value)
+    if isinstance(value, str):
+        value = value.lower()
     if value in ("y", "yes", "true"):
         return True
     if value in ("n", "no", "false"):

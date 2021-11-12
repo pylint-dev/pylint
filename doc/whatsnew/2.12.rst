@@ -156,3 +156,5 @@ Other Changes
   have functioning shared semaphore implementation.
 
   Closes #5216
+
+* Make yn validator case insensitive, to allow for ``True`` and ``False`` in config files.
