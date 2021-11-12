@@ -77,6 +77,11 @@ Other Changes
 
   Closes #5178
 
+* Fix ``accept-no-yields-doc`` and ``accept-no-return-doc`` not allowing missing ``yield`` or
+  ``return`` documentation when a docstring is partially correct
+
+  Closes #5223
+
 * Fix ``simplify-boolean-expression`` when condition can be inferred as False.
 
   Closes #5200

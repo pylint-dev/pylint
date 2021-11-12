@@ -1886,6 +1886,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_return(node)
 
+    @set_config(accept_no_return_doc="no")
     def test_finds_missing_property_return_type_sphinx(self) -> None:
         """Example of a property having missing return documentation in
         a Sphinx style docstring
@@ -1929,6 +1930,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_return(node)
 
+    @set_config(accept_no_return_doc="no")
     def test_finds_missing_property_return_type_google(self) -> None:
         """Example of a property having return documentation in
         a Google style docstring
@@ -1952,6 +1954,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_return(node)
 
+    @set_config(accept_no_return_doc="no")
     def test_finds_missing_property_return_type_numpy(self) -> None:
         """Example of a property having return documentation in
         a numpy style docstring
@@ -1977,6 +1980,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_return(node)
 
+    @set_config(accept_no_return_doc="no")
     def test_ignores_non_property_return_type_sphinx(self) -> None:
         """Example of a class function trying to use `type` as return
         documentation in a Sphinx style docstring
@@ -1998,6 +2002,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_return(node)
 
+    @set_config(accept_no_return_doc="no")
     def test_ignores_non_property_return_type_google(self) -> None:
         """Example of a class function trying to use `type` as return
         documentation in a Google style docstring
@@ -2021,6 +2026,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_return(node)
 
+    @set_config(accept_no_return_doc="no")
     def test_ignores_non_property_return_type_numpy(self) -> None:
         """Example of a class function trying to use `type` as return
         documentation in a numpy style docstring
@@ -2046,6 +2052,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_return(node)
 
+    @set_config(accept_no_return_doc="no")
     def test_non_property_annotation_return_type_numpy(self) -> None:
         """Example of a class function trying to use `type` as return
         documentation in a numpy style docstring

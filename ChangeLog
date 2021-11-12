@@ -19,6 +19,11 @@ Release date: TBA
 
 * Fix exception when pyreverse parses ``property function`` of a class.
 
+* Fix ``accept-no-yields-doc`` and ``accept-no-return-doc`` not allowing missing ``yield`` or
+  ``return`` documentation when a docstring is partially correct
+
+  Closes #5223
+
 * Add an optional extension ``consider-using-any-or-all`` : Emitted when a ``for`` loop only
   produces a boolean and could be replaced by ``any`` or ``all`` using a generator. Also suggests
   a suitable any or all statement.

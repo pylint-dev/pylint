@@ -68,6 +68,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_return(return_node)
 
+    @set_config(accept_no_return_doc="no")
     def test_warn_partial_sphinx_returns(self) -> None:
         node = astroid.extract_node(
             '''
@@ -100,6 +101,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_return(return_node)
 
+    @set_config(accept_no_return_doc="no")
     def test_warn_partial_sphinx_returns_type(self) -> None:
         node = astroid.extract_node(
             '''
@@ -117,6 +119,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         ):
             self.checker.visit_return(return_node)
 
+    @set_config(accept_no_return_doc="no")
     def test_warn_missing_sphinx_returns(self) -> None:
         node = astroid.extract_node(
             '''
@@ -136,6 +139,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         ):
             self.checker.visit_return(return_node)
 
+    @set_config(accept_no_return_doc="no")
     def test_warn_partial_google_returns(self) -> None:
         node = astroid.extract_node(
             '''
@@ -154,6 +158,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         ):
             self.checker.visit_return(return_node)
 
+    @set_config(accept_no_return_doc="no")
     def test_warn_partial_google_returns_type(self) -> None:
         node = astroid.extract_node(
             '''
@@ -172,6 +177,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         ):
             self.checker.visit_return(return_node)
 
+    @set_config(accept_no_return_doc="no")
     def test_warn_missing_google_returns(self) -> None:
         node = astroid.extract_node(
             '''
@@ -191,6 +197,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         ):
             self.checker.visit_return(return_node)
 
+    @set_config(accept_no_return_doc="no")
     def test_warn_partial_numpy_returns_type(self) -> None:
         node = astroid.extract_node(
             '''
@@ -215,6 +222,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         ):
             self.checker.visit_return(return_node)
 
+    @set_config(accept_no_return_doc="no")
     def test_warn_missing_numpy_returns(self) -> None:
         node = astroid.extract_node(
             '''
@@ -441,6 +449,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_return(return_node)
 
+    @set_config(accept_no_return_doc="no")
     def test_warns_sphinx_return_list_of_custom_class_without_description(self) -> None:
         node = astroid.extract_node(
             '''
@@ -458,6 +467,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         ):
             self.checker.visit_return(return_node)
 
+    @set_config(accept_no_return_doc="no")
     def test_warns_google_return_list_of_custom_class_without_description(self) -> None:
         node = astroid.extract_node(
             '''
@@ -476,6 +486,7 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         ):
             self.checker.visit_return(return_node)
 
+    @set_config(accept_no_return_doc="no")
     def test_warns_numpy_return_list_of_custom_class_without_description(self) -> None:
         node = astroid.extract_node(
             '''
