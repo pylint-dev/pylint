@@ -31,6 +31,9 @@ def get_expected_or_default(
     if expected_result_path.exists():
         with open(expected_result_path, encoding="utf8") as f:
             expected = f.read()
+        # logging is helpful to to realize your file is not taken into
+        # account after a misspell of the file name. The output of the
+        # program is checked during the test so printing messes with the result.
         logging.info("%s exists.", expected_result_path)
     else:
         logging.info("%s not found, using '%s'.", expected_result_path, default)
@@ -76,6 +79,9 @@ def get_expected_output(configuration_path: str) -> Tuple[int, str]:
 
     output = get_expected_or_default(configuration_path, suffix="out", default="")
     if output:
+        # logging is helpful to see what the expected exit code is and why.
+        # The output of the program is checked during the test so printing
+        # messes with the result.
         logging.info(
             "Output exists for %s so the expected exit code is 2", configuration_path
         )

@@ -67,6 +67,8 @@ def test_functional_config_loading(
     caplog: LogCaptureFixture,
 ):
     """Functional tests for configurations."""
+    # logging is helpful to see what's expected and why. The output of the
+    # program is checked during the test so printing messes with the result.
     caplog.set_level(logging.INFO)
     configuration_path = str(FUNCTIONAL_DIR / configuration_path)
     msg = f"Wrong result with configuration {configuration_path}"
