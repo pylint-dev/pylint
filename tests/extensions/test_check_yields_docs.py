@@ -64,6 +64,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
+    @set_config(accept_no_yields_doc="no")
     def test_warn_partial_sphinx_yields(self) -> None:
         node = astroid.extract_node(
             '''
@@ -81,6 +82,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
+    @set_config(accept_no_yields_doc="no")
     def test_warn_partial_sphinx_yields_type(self) -> None:
         node = astroid.extract_node(
             '''
@@ -98,6 +100,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
+    @set_config(accept_no_yields_doc="no")
     def test_warn_missing_sphinx_yields(self) -> None:
         node = astroid.extract_node(
             '''
@@ -117,6 +120,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
+    @set_config(accept_no_yields_doc="no")
     def test_warn_partial_google_yields(self) -> None:
         node = astroid.extract_node(
             '''
@@ -135,6 +139,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
+    @set_config(accept_no_yields_doc="no")
     def test_warn_partial_google_yields_type(self) -> None:
         node = astroid.extract_node(
             '''
@@ -153,6 +158,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
+    @set_config(accept_no_yields_doc="no")
     def test_warn_missing_google_yields(self) -> None:
         node = astroid.extract_node(
             '''
@@ -172,6 +178,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
+    @set_config(accept_no_yields_doc="no")
     def test_warn_missing_numpy_yields(self) -> None:
         node = astroid.extract_node(
             '''
@@ -334,6 +341,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yield(yield_node)
 
+    @set_config(accept_no_yields_doc="no")
     def test_warns_sphinx_yield_list_of_custom_class_without_description(self) -> None:
         node = astroid.extract_node(
             '''
@@ -351,6 +359,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
+    @set_config(accept_no_yields_doc="no")
     def test_warns_google_yield_list_of_custom_class_without_description(self) -> None:
         node = astroid.extract_node(
             '''
@@ -369,6 +378,7 @@ class TestDocstringCheckerYield(CheckerTestCase):
         ):
             self.checker.visit_yield(yield_node)
 
+    @set_config(accept_no_yields_doc="no")
     def test_warns_numpy_yield_list_of_custom_class_without_description(self) -> None:
         node = astroid.extract_node(
             '''
