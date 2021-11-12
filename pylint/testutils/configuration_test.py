@@ -12,7 +12,7 @@ from unittest.mock import Mock
 
 from pylint.lint import Run
 
-USER_SPECIFIC_PATH = str(Path(__file__).parent.parent.parent)
+USER_SPECIFIC_PATH = Path(__file__).parent.parent.parent
 # We use Any in this typing because the configuration contains real objects and constants
 # that could be a lot of things.
 ConfigurationValue = Any
@@ -73,12 +73,6 @@ def get_expected_configuration(
 
 def get_expected_output(configuration_path: str) -> Tuple[int, str]:
     """Get the expected output of a functional test."""
-
-    def get_relative_path(path: str) -> str:
-        """Get the relative path we want without the user specific path"""
-        # [1:] is to remove the opening '/'
-        return path.split(USER_SPECIFIC_PATH)[1][1:]
-
     output = get_expected_or_default(configuration_path, suffix="out", default="")
     if output:
         # logging is helpful to see what the expected exit code is and why.
@@ -91,8 +85,10 @@ def get_expected_output(configuration_path: str) -> Tuple[int, str]:
     else:
         logging.info(".out file does not exists, so the expected exit code is 0")
         exit_code = 0
-    relpath = get_relative_path(configuration_path)
-    return exit_code, output.format(abspath=configuration_path, relpath=relpath)
+    return exit_code, output.format(
+        abspath=configuration_path,
+        relpath=Path(configuration_path).relative_to(USER_SPECIFIC_PATH),
+    )
 
 
 def run_using_a_configuration_file(
