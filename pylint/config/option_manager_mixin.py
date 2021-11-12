@@ -308,7 +308,7 @@ class OptionsManagerMixIn:
             # TOML has rich types, convert values to
             # strings as ConfigParser expects.
             if not isinstance(values, dict):
-                # This class is a mixin the add_message come from the pylinter
+                # This class is a mixin: add_message comes from the `PyLinter` class
                 self.add_message(  # type: ignore
                     "bad-configuration-option-value", line=0, args=(section, values)
                 )
@@ -332,8 +332,7 @@ class OptionsManagerMixIn:
         options provider)"""
         parser = self.cfgfile_parser
         for section in parser.sections():
-            items = parser.items(section)
-            for option, value in items:
+            for option, value in parser.items(section):
                 try:
                     self.global_set_option(option, value)
                 except (KeyError, optparse.OptionError):
