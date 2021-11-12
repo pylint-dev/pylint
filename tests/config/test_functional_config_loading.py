@@ -37,9 +37,10 @@ FUNCTIONAL_DIR = HERE / "functional"
 # We use string then recast to path so we can use -k in pytest.
 # Otherwise we get 'configuration_path0' as a test name. The path is relative to the functional
 # directory because otherwise the string would be very lengthy.
+ACCEPTED_CONFIGURATION_EXTENSIONS = ("toml", "ini", "cfg")
 CONFIGURATION_PATHS = [
     str(path.relative_to(FUNCTIONAL_DIR))
-    for ext in ("toml", "ini", "cfg")
+    for ext in ACCEPTED_CONFIGURATION_EXTENSIONS
     for path in FUNCTIONAL_DIR.rglob(f"*.{ext}")
 ]
 
