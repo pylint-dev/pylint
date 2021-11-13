@@ -1,4 +1,4 @@
-﻿Contributors
+Contributors
 ------------
 
 Current team:
@@ -580,3 +580,5 @@ contributors:
 * Antonio Quarta (sgheppy): contributor
 
 * Harshil (harshil21): contributor
+
+* Felix von Drigalski (felixvd): contributor
