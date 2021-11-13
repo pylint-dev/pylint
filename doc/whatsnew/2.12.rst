@@ -61,6 +61,8 @@ New checkers
   in the wrong section will still silently not be taken into account, which is tracked in a
   follow-up issue.
 
+  Follow-up in #5259
+
 Removed checkers
 ================
 
