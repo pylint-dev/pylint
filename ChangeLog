@@ -157,7 +157,7 @@ Release date: TBA
 
   Closes #4580
 
-* A new ``bad-configuration-option-value`` checker was added that will emit for misplaced option
+* A new ``bad-configuration-section`` checker was added that will emit for misplaced option
   in pylint's top level namespace for toml configuration. Top-level dictionaries or option defined
   in the wrong section will still silently not be taken into account, which is tracked in a
   follow-up issue.

@@ -310,7 +310,7 @@ class OptionsManagerMixIn:
             if not isinstance(values, dict):
                 # This class is a mixin: add_message comes from the `PyLinter` class
                 self.add_message(  # type: ignore
-                    "bad-configuration-option-value", line=0, args=(section, values)
+                    "bad-configuration-section", line=0, args=(section, values)
                 )
                 continue
             for option, value in values.items():

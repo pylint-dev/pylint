@@ -160,8 +160,8 @@ MSGS = {
     ),
     "E0014": (
         "Out-of-place setting encountered in top level configuration-section '%s' : '%s'",
-        "bad-configuration-option-value",
-        "Used when we detect a setting in the top level of a toml configuration that shouldn't be there.
+        "bad-configuration-section",
+        "Used when we detect a setting in the top level of a toml configuration that shouldn't be there.",
     ),
 }
 
