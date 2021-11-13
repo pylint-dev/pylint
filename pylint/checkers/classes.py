@@ -879,7 +879,7 @@ a metaclass class method.",
 
             if isinstance(ancestor, nodes.ClassDef) and (
                 decorated_with(ancestor, ["typing.final"])
-                or (uninferable_final_decorators(ancestor.decorators))
+                or uninferable_final_decorators(ancestor.decorators)
             ):
                 self.add_message(
                     "subclassed-final-class",
