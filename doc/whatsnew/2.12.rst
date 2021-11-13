@@ -174,3 +174,12 @@ Other Changes
   Closes #4580
 
 * Make yn validator case insensitive, to allow for ``True`` and ``False`` in config files.
+
+* The last version compatible with python '3.6.0' and '3.6.1' is pylint '2.9.3'. We did not
+  realize that when adding incompatible typing at the time, and all versions since are broken
+  for this interpreter. 2.12.0 meta-information will permit to download pylint on those
+  interpreters but the installation will fail and tell you to install '2.9.3' instead.
+  pylint 2.12.1 will require python >= 3.6.2.
+
+  Closes #5171
+  Follow-up in #5065
