@@ -214,7 +214,7 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
         )
     },
 )
-REVERSED_COMPS = {"<": ">", "<=": ">=", ">": "<", ">=": "<="}
+
 COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
 # List of methods which can be redefined
 REDEFINABLE_METHODS = frozenset(("__module__",))
@@ -2323,13 +2323,6 @@ class ComparisonChecker(_BasicChecker):
             "Used when an expression is compared to singleton "
             "values like True, False or None.",
         ),
-        "C0122": (
-            "Comparison should be %s",
-            "misplaced-comparison-constant",
-            "Used when the constant is placed on the left side "
-            "of a comparison. It is usually clearer in intent to "
-            "place it in the right hand side of the comparison.",
-        ),
         "C0123": (
             "Use isinstance() rather than type() for a typecheck.",
             "unidiomatic-typecheck",
@@ -2478,13 +2471,6 @@ class ComparisonChecker(_BasicChecker):
         if is_const or is_other_literal:
             self.add_message("literal-comparison", node=node)
 
-    def _check_misplaced_constant(self, node, left, right, operator):
-        if isinstance(right, nodes.Const):
-            return
-        operator = REVERSED_COMPS.get(operator, operator)
-        suggestion = f"{right.as_string()} {operator} {left.value!r}"
-        self.add_message("misplaced-comparison-constant", node=node, args=(suggestion,))
-
     def _check_logical_tautology(self, node: nodes.Compare):
         """Check if identifier is compared against itself.
         :param node: Compare node
@@ -2532,7 +2518,6 @@ class ComparisonChecker(_BasicChecker):
 
     @utils.check_messages(
         "singleton-comparison",
-        "misplaced-comparison-constant",
         "unidiomatic-typecheck",
         "literal-comparison",
         "comparison-with-itself",
@@ -2549,8 +2534,6 @@ class ComparisonChecker(_BasicChecker):
 
         left = node.left
         operator, right = node.ops[0]
-        if operator in COMPARISON_OPERATORS and isinstance(left, nodes.Const):
-            self._check_misplaced_constant(node, left, right, operator)
 
         if operator in ("==", "!="):
             self._check_singleton_comparison(
