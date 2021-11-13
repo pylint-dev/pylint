@@ -1,0 +1,3 @@
+************* Module {abspath}
+{relpath}:1:0: E0014: Out-of-place setting encountered in top level configuration-section 'load-plugins' : '[]' (bad-configuration-section)
+{relpath}:1:0: E0014: Out-of-place setting encountered in top level configuration-section 'disable' : 'logging-not-lazy,logging-format-interpolation' (bad-configuration-section)

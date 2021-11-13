@@ -529,6 +529,9 @@ contributors:
 
 * Marcin Kurczewski (rr-): contributor
 
+* Tanvi Moharir: contributor
+  - Fix for invalid toml config
+
 * Eisuke Kawashima (e-kwsm): contributor
 
 * Daniel van Noord (DanielNoord): contributor

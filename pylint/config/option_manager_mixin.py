@@ -293,9 +293,8 @@ class OptionsManagerMixIn:
             msg = "No config file found, using default configuration"
         print(msg, file=sys.stderr)
 
-    @staticmethod
     def _parse_toml(
-        config_file: Union[Path, str], parser: configparser.ConfigParser
+        self, config_file: Union[Path, str], parser: configparser.ConfigParser
     ) -> None:
         """Parse and handle errors of a toml configuration file."""
         with open(config_file, encoding="utf-8") as fp:
@@ -305,16 +304,28 @@ class OptionsManagerMixIn:
         except KeyError:
             return
         for section, values in sections_values.items():
+            section_name = section.upper()
             # TOML has rich types, convert values to
             # strings as ConfigParser expects.
+            if not isinstance(values, dict):
+                # This class is a mixin: add_message comes from the `PyLinter` class
+                self.add_message(  # type: ignore
+                    "bad-configuration-section", line=0, args=(section, values)
+                )
+                continue
             for option, value in values.items():
                 if isinstance(value, bool):
                     values[option] = "yes" if value else "no"
-                elif isinstance(value, (int, float)):
-                    values[option] = str(value)
                 elif isinstance(value, list):
                     values[option] = ",".join(value)
-            parser._sections[section.upper()] = values  # type: ignore
+                else:
+                    values[option] = str(value)
+            for option, value in values.items():
+                try:
+                    parser.set(section_name, option, value=value)
+                except configparser.NoSectionError:
+                    parser.add_section(section_name)
+                    parser.set(section_name, option, value=value)
 
     def load_config_file(self):
         """Dispatch values previously read from a configuration file to each

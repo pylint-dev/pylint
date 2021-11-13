@@ -158,6 +158,11 @@ MSGS = {
         "bad-plugin-value",
         "Used when a bad value is used in 'load-plugins'.",
     ),
+    "E0014": (
+        "Out-of-place setting encountered in top level configuration-section '%s' : '%s'",
+        "bad-configuration-section",
+        "Used when we detect a setting in the top level of a toml configuration that shouldn't be there.",
+    ),
 }
 
 

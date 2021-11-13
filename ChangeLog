@@ -158,6 +158,17 @@ Release date: TBA
 
   Closes #5261
 
+* Crashes when a list is encountered in a toml configuration do not happen anymore.
+
+  Closes #4580
+
+* A new ``bad-configuration-section`` checker was added that will emit for misplaced option
+  in pylint's top level namespace for toml configuration. Top-level dictionaries or option defined
+  in the wrong section will still silently not be taken into account, which is tracked in a
+  follow-up issue.
+
+  Follow-up in #5259
+
 * Added new checker ``useless-with-lock`` to find incorrect usage of with statement and threading module locks.
   Emitted when ``with threading.Lock():`` is used instead of ``with lock_instance:``.
 
