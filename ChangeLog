@@ -175,6 +175,8 @@ Release date: TBA
 
   Follow-up in #5259
 
+* Fix crash for ``protected-access`` on (outer)class traversal
+
 * Added new checker ``useless-with-lock`` to find incorrect usage of with statement and threading module locks.
   Emitted when ``with threading.Lock():`` is used instead of ``with lock_instance:``.
 
