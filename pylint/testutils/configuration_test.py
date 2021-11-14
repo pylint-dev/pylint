@@ -12,7 +12,6 @@ from unittest.mock import Mock
 
 from pylint.lint import Run
 
-USER_SPECIFIC_PATH = Path(__file__).parent.parent.parent
 # We use Any in this typing because the configuration contains real objects and constants
 # that could be a lot of things.
 ConfigurationValue = Any
@@ -71,7 +70,9 @@ def get_expected_configuration(
     return result
 
 
-def get_expected_output(configuration_path: str) -> Tuple[int, str]:
+def get_expected_output(
+    configuration_path: str, user_specific_path: Path
+) -> Tuple[int, str]:
     """Get the expected output of a functional test."""
     output = get_expected_or_default(configuration_path, suffix="out", default="")
     if output:
@@ -87,7 +88,7 @@ def get_expected_output(configuration_path: str) -> Tuple[int, str]:
         exit_code = 0
     return exit_code, output.format(
         abspath=configuration_path,
-        relpath=Path(configuration_path).relative_to(USER_SPECIFIC_PATH),
+        relpath=Path(configuration_path).relative_to(user_specific_path),
     )
 
 

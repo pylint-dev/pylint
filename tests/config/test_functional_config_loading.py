@@ -32,6 +32,7 @@ from pylint.testutils.configuration_test import (
 )
 
 HERE = Path(__file__).parent
+USER_SPECIFIC_PATH = HERE.parent.parent
 FUNCTIONAL_DIR = HERE / "functional"
 # We use string then recast to path so we can use -k in pytest.
 # Otherwise we get 'configuration_path0' as a test name. The path is relative to the functional
@@ -71,7 +72,9 @@ def test_functional_config_loading(
     caplog.set_level(logging.INFO)
     configuration_path = str(FUNCTIONAL_DIR / configuration_path)
     msg = f"Wrong result with configuration {configuration_path}"
-    expected_code, expected_output = get_expected_output(configuration_path)
+    expected_code, expected_output = get_expected_output(
+        configuration_path, USER_SPECIFIC_PATH
+    )
     expected_loaded_configuration = get_expected_configuration(
         configuration_path, default_configuration
     )
