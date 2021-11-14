@@ -56,7 +56,7 @@ confidence=
 # multiple time. See also the "--disable" option for examples.
 enable=
     use-symbolic-message-instead,
-    useless-supression,
+    useless-suppression,
     fixme
 
 # Disable the message, report, category or checker with the given id(s). You
