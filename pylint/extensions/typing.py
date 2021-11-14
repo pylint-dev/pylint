@@ -302,10 +302,14 @@ class TypingChecker(BaseChecker):
     def _check_broken_noreturn(self, node: Union[nodes.Name, nodes.Attribute]) -> None:
         """Check for 'NoReturn' inside compound types."""
         for inferred in node.infer():
-            if (
+            if (  # pylint: disable=too-many-boolean-expressions
                 isinstance(inferred, (nodes.FunctionDef, nodes.ClassDef))
                 and inferred.qname() in TYPING_NORETURN
                 and isinstance(node.parent, nodes.BaseContainer)
+                # In Python < 3.9, 'NoReturn' is alias of '_SpecialForm'
+                or isinstance(inferred, astroid.bases.BaseInstance)
+                and isinstance(inferred._proxied, nodes.ClassDef)
+                and inferred._proxied.qname() == "typing._SpecialForm"
             ):
                 self.add_message("broken-noreturn", node=node)
                 break
