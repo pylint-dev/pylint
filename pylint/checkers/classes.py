@@ -16,6 +16,7 @@
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2017, 2019-2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2018, 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2018-2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018-2019 Ashley Whetter <ashley@awhetter.co.uk>
@@ -23,7 +24,6 @@
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Ben Green <benhgreen@icloud.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 mattlbeck <17108752+mattlbeck@users.noreply.github.com>
 # Copyright (c) 2019-2020 craig-sh <craig-sh@users.noreply.github.com>
@@ -34,10 +34,14 @@
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
 # Copyright (c) 2020 GergelyKalmar <gergely.kalmar@logikal.jp>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
+# Copyright (c) 2021 Samuel Freilich <sfreilich@google.com>
+# Copyright (c) 2021 Nick Pesce <nickpesce22@gmail.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 # Copyright (c) 2021 SupImDos <62866982+SupImDos@users.noreply.github.com>
 # Copyright (c) 2021 Kayran Schmidt <59456929+yumasheta@users.noreply.github.com>
-# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Yu Shao, Pang <p.yushao2@gmail.com>
 # Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
 # Copyright (c) 2021 James Sinclair <james@nurfherder.com>

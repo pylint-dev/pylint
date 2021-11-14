@@ -25,7 +25,7 @@
 # Copyright (c) 2017 Jacques Kvam <jwkvam@gmail.com>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
 # Copyright (c) 2018-2019, 2021 Nick Drozd <nicholasdrozd@gmail.com>
-# Copyright (c) 2018-2019 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2018-2019, 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Sergei Lebedev <185856+superbobry@users.noreply.github.com>
 # Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
@@ -53,7 +53,12 @@
 # Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Tushar Sadhwani <tushar.sadhwani000@gmail.com>
+# Copyright (c) 2021 Tim Martin <tim@asymptotic.co.uk>
+# Copyright (c) 2021 Jaehoon Hwang <jaehoonhwang@users.noreply.github.com>
+# Copyright (c) 2021 jaydesl <35102795+jaydesl@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 Yilei "Dolee" Yang <yileiyang@google.com>
 # Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 David Liu <david@cs.toronto.edu>
