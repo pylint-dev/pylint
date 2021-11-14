@@ -1,7 +1,10 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
-"""Checks the placement of comparisons"""
+"""
+Checks for yoda comparisons (variable before constant)
+See https://en.wikipedia.org/wiki/Yoda_conditions
+"""
 
 
 from astroid import nodes
@@ -13,7 +16,7 @@ REVERSED_COMPS = {"<": ">", "<=": ">=", ">": "<", ">=": "<="}
 COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
 
 
-class ComparisonPlacementChecker(BaseChecker):
+class MisplacedComparisonConstantChecker(BaseChecker):
     """Checks the placement of constants in comparisons"""
 
     __implements__ = (IAstroidChecker,)
