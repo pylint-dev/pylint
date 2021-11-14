@@ -40,6 +40,8 @@ def double_comparison():
     for i in range(10):
         if i == 1 == 2:
             pass
+        if 2 <= i <= 8:
+            print("Between 2 and 8 inclusive")
 
 def const_comparison():
     """Check that we return early for comparison of two constants"""
