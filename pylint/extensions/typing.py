@@ -305,12 +305,11 @@ class TypingChecker(BaseChecker):
             if (  # pylint: disable=too-many-boolean-expressions
                 isinstance(inferred, (nodes.FunctionDef, nodes.ClassDef))
                 and inferred.qname() in TYPING_NORETURN
-                and isinstance(node.parent, nodes.BaseContainer)
                 # In Python < 3.9, 'NoReturn' is alias of '_SpecialForm'
                 or isinstance(inferred, astroid.bases.BaseInstance)
                 and isinstance(inferred._proxied, nodes.ClassDef)
                 and inferred._proxied.qname() == "typing._SpecialForm"
-            ):
+            ) and isinstance(node.parent, nodes.BaseContainer):
                 self.add_message("broken-noreturn", node=node)
                 break
 
