@@ -1,3 +1,5 @@
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Takahide Nojima <nozzy123nozzy@gmail.com>
 #
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

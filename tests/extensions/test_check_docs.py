@@ -13,6 +13,8 @@
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 Luigi <luigi.cristofolini@q-ctrl.com>
 # Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
+# Copyright (c) 2021 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Logan Miller <14319179+komodo472@users.noreply.github.com>
 
