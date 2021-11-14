@@ -64,4 +64,4 @@ class MisplacedComparisonConstantChecker(BaseChecker):
 
 def register(linter):
     """Required method to auto register this checker."""
-    linter.register_checker(ComparisonPlacementChecker(linter))
+    linter.register_checker(MisplacedComparisonConstantChecker(linter))
