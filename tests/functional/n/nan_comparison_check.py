@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, misplaced-comparison-constant
+# pylint: disable=missing-docstring, invalid-name
 # pylint: disable=literal-comparison,comparison-with-itself, import-error
 """Test detection of NaN value comparison."""
 import numpy

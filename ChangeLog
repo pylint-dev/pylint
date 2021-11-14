@@ -162,6 +162,12 @@ Release date: TBA
 
   Closes #4580
 
+* Moved ``misplaced-comparison-constant`` to its own extension ``comparison_placement``.
+  This checker was opinionated and now no longer a default. It can be reactived by adding
+  ``pylint.extensions.comparison_placement`` to ``load-plugins`` in your config.
+
+  Closes #1064
+
 * A new ``bad-configuration-section`` checker was added that will emit for misplaced option
   in pylint's top level namespace for toml configuration. Top-level dictionaries or option defined
   in the wrong section will still silently not be taken into account, which is tracked in a

@@ -75,6 +75,12 @@ Extensions
 
   Closes #5008
 
+* Moved ``misplaced-comparison-constant`` to its own extension ``comparison_placement``.
+  This checker was opinionated and now no longer a default. It can be reactived by adding
+  ``pylint.extensions.comparison_placement`` to ``load-plugins`` in your config.
+
+  Closes #1064
+
 Other Changes
 =============
 
