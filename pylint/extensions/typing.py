@@ -66,6 +66,12 @@ DEPRECATED_TYPING_ALIASES: Dict[str, TypingAlias] = {
 
 ALIAS_NAMES = frozenset(key.split(".")[1] for key in DEPRECATED_TYPING_ALIASES)
 UNION_NAMES = ("Optional", "Union")
+TYPING_NORETURN = frozenset(
+    (
+        "typing.NoReturn",
+        "typing_extensions.NoReturn",
+    )
+)
 
 
 class DeprecatedTypingAliasMsg(NamedTuple):
@@ -100,6 +106,14 @@ class TypingChecker(BaseChecker):
             "consider-alternative-union-syntax",
             "Emitted when 'typing.Union' or 'typing.Optional' is used "
             "instead of the alternative Union syntax 'int | None'.",
+        ),
+        "E6004": (
+            "'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1",
+            "broken-noreturn",
+            "``typing.NoReturn`` inside compound types is broken in "
+            "Python 3.7.0 and 3.7.1. If not dependend on runtime introspection, "
+            "use string annotation instead. E.g. "
+            "``Callable[..., 'NoReturn']``. https://bugs.python.org/issue34921",
         ),
     }
     options = (
@@ -151,6 +165,8 @@ class TypingChecker(BaseChecker):
             self._py37_plus and self.config.runtime_typing is False
         )
 
+        self._should_check_noreturn = py_version < (3, 7, 2)
+
     def _msg_postponed_eval_hint(self, node) -> str:
         """Message hint if postponed evaluation isn't enabled."""
         if self._py310_plus or "annotations" in node.root().future_imports:
@@ -161,23 +177,29 @@ class TypingChecker(BaseChecker):
         "deprecated-typing-alias",
         "consider-using-alias",
         "consider-alternative-union-syntax",
+        "broken-noreturn",
     )
     def visit_name(self, node: nodes.Name) -> None:
         if self._should_check_typing_alias and node.name in ALIAS_NAMES:
             self._check_for_typing_alias(node)
         if self._should_check_alternative_union_syntax and node.name in UNION_NAMES:
             self._check_for_alternative_union_syntax(node, node.name)
+        if self._should_check_noreturn and node.name == "NoReturn":
+            self._check_broken_noreturn(node)
 
     @check_messages(
         "deprecated-typing-alias",
         "consider-using-alias",
         "consider-alternative-union-syntax",
+        "broken-noreturn",
     )
     def visit_attribute(self, node: nodes.Attribute) -> None:
         if self._should_check_typing_alias and node.attrname in ALIAS_NAMES:
             self._check_for_typing_alias(node)
         if self._should_check_alternative_union_syntax and node.attrname in UNION_NAMES:
             self._check_for_alternative_union_syntax(node, node.attrname)
+        if self._should_check_noreturn and node.attrname == "NoReturn":
+            self._check_broken_noreturn(node)
 
     def _check_for_alternative_union_syntax(
         self,
@@ -276,6 +298,17 @@ class TypingChecker(BaseChecker):
         # Clear all module cache variables
         self._alias_name_collisions.clear()
         self._consider_using_alias_msgs.clear()
+
+    def _check_broken_noreturn(self, node: Union[nodes.Name, nodes.Attribute]) -> None:
+        """Check for 'NoReturn' inside compound types."""
+        for inferred in node.infer():
+            if (
+                isinstance(inferred, (nodes.FunctionDef, nodes.ClassDef))
+                and inferred.qname() in TYPING_NORETURN
+                and isinstance(node.parent, nodes.BaseContainer)
+            ):
+                self.add_message("broken-noreturn", node=node)
+                break
 
 
 def register(linter: PyLinter) -> None:

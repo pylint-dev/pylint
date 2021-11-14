@@ -1,0 +1,4 @@
+broken-noreturn:23:27:func2:'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1
+broken-noreturn:29:27:func4:'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1
+broken-noreturn:32:27:func5:'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1
+broken-noreturn:37:23::'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1

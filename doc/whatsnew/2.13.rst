@@ -19,6 +19,12 @@ Extensions
 
 * Pyreverse - add output in mermaid-js format and html which is an mermaid js diagram with html boilerplate
 
+* ``TypingChecker``
+
+  * Added new check ``broken-noreturn`` to detect broken uses of ``typing.NoReturn``
+    if ``py-version`` is set to Python ``3.7.1`` or below.
+    https://bugs.python.org/issue34921
+
 Other Changes
 =============
 
