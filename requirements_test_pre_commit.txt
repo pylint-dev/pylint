@@ -2,5 +2,5 @@
 # in .pre-commit-config.yaml
 black==21.10b0;python_full_version>="3.6.2"
 flake8==4.0.1
-isort==5.10.0
+isort==5.10.1
 mypy==0.910
