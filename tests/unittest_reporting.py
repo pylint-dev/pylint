@@ -58,7 +58,7 @@ def test_template_option(linter):
 
 
 def test_deprecation_set_output(recwarn):
-    """TODO remove in 3.0"""  # pylint: disable=fixme
+    """TODO remove in 3.0"""
     reporter = BaseReporter()
     # noinspection PyDeprecation
     reporter.set_output(sys.stdout)

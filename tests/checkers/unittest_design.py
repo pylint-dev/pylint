@@ -58,5 +58,4 @@ class TestDesignChecker(CheckerTestCase):
         Compare against actual list to see if validator works."""
         options = get_global_option(self.checker, "exclude-too-few-public-methods")
 
-        # pylint: disable-next=use-implicit-booleaness-not-comparison
         assert options == []
