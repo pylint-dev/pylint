@@ -1307,6 +1307,7 @@ class PyLinter(
                 "refactor": self.stats.refactor,
                 "convention": self.stats.convention,
                 "statement": self.stats.statement,
+                "info": self.stats.info,
             }
             note = eval(evaluation, {}, stats_dict)  # pylint: disable=eval-used
         except Exception as ex:  # pylint: disable=broad-except
