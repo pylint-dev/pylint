@@ -191,3 +191,6 @@ Other Changes
 
   Closes #5171
   Follow-up in #5065
+
+* Added the ``--enable-all-extensions`` command line option. It will load all available extensions
+  which can be listed by running ``--list-extensions``
