@@ -1,0 +1,3 @@
+# The pylint_websockets plugin does not exist and therefore this toml is invalid
+[tool.pylint.MASTER]
+load-plugins = 'pylint_websockets'

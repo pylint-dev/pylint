@@ -1,0 +1,3 @@
+[MASTER]
+load-plugins=
+    pylint.extensions.comparison_placement,

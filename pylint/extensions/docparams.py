@@ -332,13 +332,14 @@ class DocstringParameterChecker(BaseChecker):
         if not utils.returns_something(node):
             return
 
+        if self.config.accept_no_return_doc:
+            return
+
         func_node = node.frame()
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
         doc = utils.docstringify(func_node.doc, self.config.default_docstring_type)
-        if not doc.is_valid() and self.config.accept_no_return_doc:
-            return
 
         is_property = checker_utils.decorated_with_property(func_node)
 
@@ -352,13 +353,14 @@ class DocstringParameterChecker(BaseChecker):
             self.add_message("missing-return-type-doc", node=func_node)
 
     def visit_yield(self, node: nodes.Yield) -> None:
+        if self.config.accept_no_yields_doc:
+            return
+
         func_node = node.frame()
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
         doc = utils.docstringify(func_node.doc, self.config.default_docstring_type)
-        if not doc.is_valid() and self.config.accept_no_yields_doc:
-            return
 
         if doc.supports_yields:
             doc_has_yields = doc.has_yields()

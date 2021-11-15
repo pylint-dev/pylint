@@ -19,6 +19,11 @@ Release date: TBA
 
 * Fix exception when pyreverse parses ``property function`` of a class.
 
+* Fix ``accept-no-yields-doc`` and ``accept-no-return-doc`` not allowing missing ``yield`` or
+  ``return`` documentation when a docstring is partially correct
+
+  Closes #5223
+
 * Add an optional extension ``consider-using-any-or-all`` : Emitted when a ``for`` loop only
   produces a boolean and could be replaced by ``any`` or ``all`` using a generator. Also suggests
   a suitable any or all statement.
@@ -114,6 +119,10 @@ Release date: TBA
 
   Closes #5222
 
+* ``pylint`` no longer crashes when checking assignment expressions within if-statements
+
+  Closes #5178
+
 * Update ``literal-comparison``` checker to ignore tuple literals
 
   Closes #3031
@@ -132,6 +141,9 @@ Release date: TBA
 * Fix ``missing-function-docstring`` not being able to check ``__init__`` and other
   magic methods even if the ``no-docstring-rgx`` setting was set to do so
 
+* Added ``using-final-decorator-in-unsupported-version`` checker. Issued when ``py-version``
+  is set to a version that does not support ``typing.final`` (< 3.8)
+
 * Added configuration option ``exclude-too-few-public-methods`` to allow excluding
   classes from the ``min-public-methods`` checker.
 
@@ -146,6 +158,25 @@ Release date: TBA
 
   Closes #5261
 
+* Crashes when a list is encountered in a toml configuration do not happen anymore.
+
+  Closes #4580
+
+* Moved ``misplaced-comparison-constant`` to its own extension ``comparison_placement``.
+  This checker was opinionated and now no longer a default. It can be reactived by adding
+  ``pylint.extensions.comparison_placement`` to ``load-plugins`` in your config.
+
+  Closes #1064
+
+* A new ``bad-configuration-section`` checker was added that will emit for misplaced option
+  in pylint's top level namespace for toml configuration. Top-level dictionaries or option defined
+  in the wrong section will still silently not be taken into account, which is tracked in a
+  follow-up issue.
+
+  Follow-up in #5259
+
+* Fix crash for ``protected-access`` on (outer) class traversal
+
 * Added new checker ``useless-with-lock`` to find incorrect usage of with statement and threading module locks.
   Emitted when ``with threading.Lock():`` is used instead of ``with lock_instance:``.
 
@@ -154,6 +185,8 @@ Release date: TBA
 * ``missing-raises-doc`` will now check the class hierarchy of the raised exceptions
 
   Closes #4955
+
+* Make yn validator case insensitive, to allow for ``True`` and ``False`` in config files.
 
 
 What's New in Pylint 2.11.2?
