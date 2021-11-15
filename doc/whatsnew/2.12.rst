@@ -179,6 +179,8 @@ Other Changes
 
   Closes #4580
 
+* Fix crash for ``protected-access`` on (outer) class traversal
+
 * Make yn validator case insensitive, to allow for ``True`` and ``False`` in config files.
 
 * The last version compatible with python '3.6.0' and '3.6.1' is pylint '2.9.3'. We did not

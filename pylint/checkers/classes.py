@@ -1624,7 +1624,7 @@ a metaclass class method.",
             parents_callee = callee.split(".")
             parents_callee.reverse()
             for callee in parents_callee:
-                if callee != outer_klass.name:
+                if not outer_klass or callee != outer_klass.name:
                     inside_klass = False
                     break
 
