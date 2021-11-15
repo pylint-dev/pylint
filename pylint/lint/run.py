@@ -93,6 +93,7 @@ group are mutually exclusive.",
                     "init-hook": (cb_init_hook, True),
                     "rcfile": (self.cb_set_rcfile, True),
                     "load-plugins": (self.cb_add_plugins, True),
+                    "enable-all-extensions": (self.cb_enable_all_extensions, False),
                     "verbose": (self.cb_verbose_mode, False),
                     "output": (self.cb_set_output, True),
                 },
@@ -256,6 +257,15 @@ group are mutually exclusive.",
                         "short": "v",
                         "help": "In verbose mode, extra non-checker-related info "
                         "will be displayed.",
+                    },
+                ),
+                (
+                    "enable-all-extensions",
+                    {
+                        "action": "callback",
+                        "callback": self.cb_enable_all_extensions,
+                        "help": "Load and enable all available extensions. "
+                        "Use --list-extensions to see a list all available extensions.",
                     },
                 ),
             ),
@@ -475,3 +485,11 @@ to search for configuration file.
 
     def cb_verbose_mode(self, *args, **kwargs):
         self.verbose = True
+
+    def cb_enable_all_extensions(self, option_name: str, value: None) -> None:
+        """Callback to load and enable all available extensions"""
+        for filename in os.listdir(os.path.dirname(extensions.__file__)):
+            if filename.endswith(".py") and not filename.startswith("_"):
+                extension_name = f"pylint.extensions.{filename[:-3]}"
+                if extension_name not in self._plugins:
+                    self._plugins.append(extension_name)

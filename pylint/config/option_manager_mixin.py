@@ -137,7 +137,10 @@ class OptionsManagerMixIn:
 
     def add_optik_option(self, provider, optikcontainer, opt, optdict):
         args, optdict = self.optik_option(provider, opt, optdict)
-        option = optikcontainer.add_option(*args, **optdict)
+        try:
+            option = optikcontainer.add_option(*args, **optdict)
+        except optparse.OptionConflictError:
+            return
         self._all_options[opt] = provider
         self._maxlevel = max(self._maxlevel, option.level or 0)
 

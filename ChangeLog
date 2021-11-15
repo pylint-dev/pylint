@@ -70,6 +70,9 @@ Release date: TBA
 
   Closes #3688
 
+* Added the ``--enable-all-extensions`` command line option. It will load all available extensions
+  which can be listed by running ``--list-extensions``
+
 * Fix bug with importing namespace packages with relative imports
 
   Closes #2967 and #5131
