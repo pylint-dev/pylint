@@ -321,11 +321,7 @@ class DocstringParameterChecker(BaseChecker):
             for found_exc in found_excs_class_names:
                 if found_exc == expected.name:
                     break
-                if any(
-                    ancestor
-                    for ancestor in expected.ancestors()
-                    if found_exc == ancestor.name
-                ):
+                if any(found_exc == ancestor.name for ancestor in expected.ancestors()):
                     break
             else:
                 missing_excs.add(expected.name)
