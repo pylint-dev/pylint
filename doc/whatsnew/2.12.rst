@@ -179,7 +179,7 @@ Other Changes
 
   Closes #4580
 
-* Fix crash for ``protected-access`` on (outer)class traversal
+* Fix crash for ``protected-access`` on (outer) class traversal
 
 * Make yn validator case insensitive, to allow for ``True`` and ``False`` in config files.
 
