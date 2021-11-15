@@ -21,7 +21,7 @@ except ImportError:
 def _cpu_count() -> int:
     """Use sched_affinity if available for virtualized or containerized environments."""
     sched_getaffinity = getattr(os, "sched_getaffinity", None)
-    # pylint: disable=not-callable,using-constant-test
+    # pylint: disable=not-callable
     if sched_getaffinity:
         return len(sched_getaffinity(0))
     if multiprocessing:
@@ -402,8 +402,13 @@ to search for configuration file.
                 # We need to make sure we return a failing exit code in this case.
                 # So we use self.linter.msg_status if that is non-zero, otherwise we just return 1.
                 sys.exit(self.linter.msg_status or 1)
-            elif score_value is not None and score_value >= linter.config.fail_under:
-                sys.exit(0)
+            elif score_value is not None:
+                if score_value >= linter.config.fail_under:
+                    sys.exit(0)
+                else:
+                    # We need to make sure we return a failing exit code in this case.
+                    # So we use self.linter.msg_status if that is non-zero, otherwise we just return 1.
+                    sys.exit(self.linter.msg_status or 1)
             else:
                 sys.exit(self.linter.msg_status)
 

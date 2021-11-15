@@ -57,6 +57,9 @@ repos:
             "-rn",
             "-sn",
             "--rcfile=pylintrc",
+            "--fail-under=10",
+            "--evaluation='10.0 - ((float(5 * error + warning + refactor + convention +
+            info) / statement) * 10)'",
             "--load-plugins=pylint.extensions.docparams",
           ]
         # disabled plugins: pylint.extensions.mccabe

@@ -618,7 +618,6 @@ class PyLinter(
                 sub_reporters.append(reporter)
                 if reporter_output:
                     (reporter_output,) = reporter_output
-                    # pylint: disable=consider-using-with
                     output_file = stack.enter_context(
                         open(reporter_output, "w", encoding="utf-8")
                     )
@@ -1061,7 +1060,7 @@ class PyLinter(
         self.file_state = FileState(file.modpath)
         # fix the current file (if the source file was not available or
         # if it's actually a c extension)
-        self.current_file = ast_node.file  # pylint: disable=maybe-no-member
+        self.current_file = ast_node.file
         check_astroid_module(ast_node)
         # warn about spurious inline messages handling
         spurious_messages = self.file_state.iter_spurious_suppression_messages(
@@ -1307,6 +1306,7 @@ class PyLinter(
                 "refactor": self.stats.refactor,
                 "convention": self.stats.convention,
                 "statement": self.stats.statement,
+                "info": self.stats.info,
             }
             note = eval(evaluation, {}, stats_dict)  # pylint: disable=eval-used
         except Exception as ex:  # pylint: disable=broad-except
