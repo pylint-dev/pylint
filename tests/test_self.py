@@ -1259,3 +1259,10 @@ class TestRunTC:
             exit=False,
         )
         assert sorted(plugins) == sorted(runner.linter._dynamic_plugins)
+
+    @staticmethod
+    def test_load_text_repoter_if_not_provided() -> None:
+        """Test if PyLinter.reporter is a TextRepoter is no reporter is provided"""
+        linter = PyLinter()
+
+        assert isinstance(linter.reporter, TextReporter)

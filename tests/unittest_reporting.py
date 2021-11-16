@@ -124,11 +124,11 @@ def test_multi_format_output(tmp_path):
 
     with redirect_stdout(text):
         linter = PyLinter()
+        linter.load_default_plugins()
         linter.set_option("persistent", False)
         linter.set_option("output-format", formats)
         linter.set_option("reports", True)
         linter.set_option("score", True)
-        linter.load_default_plugins()
 
         assert linter.reporter.linter is linter
         with pytest.raises(NotImplementedError):
