@@ -1262,7 +1262,7 @@ class TestRunTC:
 
     @staticmethod
     def test_load_text_repoter_if_not_provided() -> None:
-        """Test if PyLinter.reporter is a TextRepoter is no reporter is provided"""
+        """Test if PyLinter.reporter is a TextReporter if no reporter is provided"""
         linter = PyLinter()
 
         assert isinstance(linter.reporter, TextReporter)
