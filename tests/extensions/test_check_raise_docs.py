@@ -105,6 +105,27 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         ):
             self.checker.visit_raise(raise_node)
 
+    def test_find_exception_inheritance_swapped(self) -> None:
+        node = astroid.extract_node(
+            '''
+        class CustomError(NameError):
+            pass
+
+        def my_func(self):
+            """This is a docstring.
+
+            Raises:
+                CustomError: Never
+            """
+            raise NameError('hi')
+        '''
+        )
+        raise_node = node.body[0]
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-raises-doc", node=node, args=("NameError",))
+        ):
+            self.checker.visit_raise(raise_node)
+
     def test_ignores_exception_inheritance_builtin(self) -> None:
         node = astroid.extract_node(
             '''
