@@ -83,21 +83,23 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if node.func.attrname != "keys":
             return
-        if (
-            isinstance(node.parent, (nodes.For, nodes.Comprehension))
-            or isinstance(node.parent, nodes.Compare)
-            and any(
-                op
-                for op, comparator in node.parent.ops
-                if op == "in" and comparator is node
-            )
+        inferred = utils.safe_infer(node.func)
+        if not isinstance(inferred, astroid.BoundMethod) or not isinstance(
+            inferred.bound, nodes.Dict
         ):
-            inferred = utils.safe_infer(node.func)
-            if not isinstance(inferred, astroid.BoundMethod) or not isinstance(
-                inferred.bound, nodes.Dict
-            ):
-                return
+            return
 
+        if isinstance(node.parent, (nodes.For, nodes.Comprehension)):
+            self.add_message("consider-iterating-dictionary", node=node)
+
+        while not isinstance(node.parent, (nodes.Compare, nodes.Module)):
+            node = node.parent
+
+        if isinstance(node.parent, nodes.Compare) and any(
+            op
+            for op, comparator in node.parent.ops
+            if op in ["in", "not in"] and comparator is node
+        ):
             self.add_message("consider-iterating-dictionary", node=node)
 
     def _check_use_maxsplit_arg(self, node: nodes.Call) -> None:

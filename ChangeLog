@@ -57,6 +57,10 @@ Release date: 2021-11-24
 
   Closes #4412 #5287
 
+* Fix false negative ``consider-iterating-dictionary`` during membership checks
+
+  Closes #5323
+
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
 * ``MessageTest`` of the unittest ``testutil`` now requires the ``confidence`` attribute

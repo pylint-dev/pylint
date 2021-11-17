@@ -66,3 +66,15 @@ VAR = 1 in {}.keys() # [consider-iterating-dictionary]
 VAR = 1 in {}
 VAR = 1 in dict()
 VAR = [1, 2] == {}.keys() in {False}
+
+# Additional membership checks
+# Issue #5323
+metadata = {}
+if "a" not in list(metadata.keys()): # [consider-iterating-dictionary]
+    print(1)
+if "a" not in metadata.keys(): # [consider-iterating-dictionary]
+    print(1)
+if "a" in list(metadata.keys()): # [consider-iterating-dictionary]
+    print(1)
+if "a" in metadata.keys(): # [consider-iterating-dictionary]
+    print(1)
