@@ -52,20 +52,20 @@ try:
 except ImportError:
     enchant = None
 
-    class EmailFilter:  # type: ignore
+    class EmailFilter:  # type: ignore[no-redef]
         ...
 
-    class URLFilter:  # type: ignore
+    class URLFilter:  # type: ignore[no-redef]
         ...
 
-    class WikiWordFilter:  # type: ignore
+    class WikiWordFilter:  # type: ignore[no-redef]
         ...
 
-    class Filter:  # type: ignore
+    class Filter:  # type: ignore[no-redef]
         def _skip(self, word):
             raise NotImplementedError
 
-    class Chunker:  # type: ignore
+    class Chunker:  # type: ignore[no-redef]
         pass
 
     def get_tokenizer(

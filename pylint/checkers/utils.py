@@ -312,7 +312,7 @@ def is_error(node: nodes.FunctionDef) -> bool:
     return len(node.body) == 1 and isinstance(node.body[0], nodes.Raise)
 
 
-builtins = builtins.__dict__.copy()  # type: ignore
+builtins = builtins.__dict__.copy()  # type: ignore[assignment]
 SPECIAL_BUILTINS = ("__builtins__",)  # '__path__', '__file__')
 
 
@@ -323,7 +323,7 @@ def is_builtin_object(node: nodes.NodeNG) -> bool:
 
 def is_builtin(name: str) -> bool:
     """return true if <name> could be considered as a builtin defined by python"""
-    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore
+    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[operator]
 
 
 def is_defined_in_scope(
