@@ -1,8 +1,10 @@
 """Warnings for using open() without specifying an encoding"""
 # pylint: disable=consider-using-with
+import dataclasses
 import io
 import locale
 from pathlib import Path
+from typing import Optional
 
 FILENAME = "foo.bar"
 open(FILENAME, "w", encoding="utf-8")
@@ -81,3 +83,20 @@ Path(FILENAME).open("wt")  # [unspecified-encoding]
 Path(FILENAME).open("w+")  # [unspecified-encoding]
 Path(FILENAME).open("w", encoding=None)  # [unspecified-encoding]
 Path(FILENAME).open("w", encoding=LOCALE_ENCODING)
+
+
+# Tests for storing data about the open call in a dataclass
+
+
+@dataclasses.dataclass
+class IOArgs:
+    """Dataclass storing information about how to open a file"""
+
+    encoding: Optional[str]
+    mode: str
+
+
+args_good_one = IOArgs(encoding=None, mode="wb")
+
+# Test for crash reported in https://github.com/PyCQA/pylint/issues/5321
+open(FILENAME, args_good_one.mode, encoding=args_good_one.encoding)
