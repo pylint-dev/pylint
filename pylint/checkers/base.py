@@ -2197,10 +2197,10 @@ class DocStringChecker(_BasicChecker):
                         overridden = True
                         break
                 self._check_docstring(
-                    ftype, node, report_missing=not overridden, confidence=confidence  # type: ignore
+                    ftype, node, report_missing=not overridden, confidence=confidence  # type: ignore[arg-type]
                 )
             elif isinstance(node.parent.frame(), nodes.Module):
-                self._check_docstring(ftype, node)  # type: ignore
+                self._check_docstring(ftype, node)  # type: ignore[arg-type]
             else:
                 return
 

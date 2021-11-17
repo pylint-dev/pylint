@@ -3,7 +3,7 @@ from typing import Any
 from unittest.mock import patch
 
 from astroid import AstroidBuildingError
-from py._path.local import LocalPath  # type: ignore
+from py._path.local import LocalPath  # type: ignore[import]
 from pytest import CaptureFixture
 
 from pylint.lint.pylinter import PyLinter

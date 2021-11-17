@@ -15,7 +15,7 @@ try:
     import multiprocessing
     from multiprocessing import synchronize  # noqa pylint: disable=unused-import
 except ImportError:
-    multiprocessing = None  # type: ignore
+    multiprocessing = None  # type: ignore[assignment]
 
 
 def _cpu_count() -> int:
