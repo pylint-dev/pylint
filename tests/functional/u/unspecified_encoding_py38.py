@@ -102,7 +102,7 @@ def return_mode_function():
     return "wb"
 
 
-open(FILENAME, mode=return_mode_function)
+open(FILENAME, mode=return_mode_function())
 
 # Classes
 
