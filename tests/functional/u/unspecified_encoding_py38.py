@@ -99,7 +99,6 @@ def return_mode_function():
     """Return a mode for open call"""
     return "wb"
 
-
 open(FILENAME, mode=return_mode_function())
 
 
