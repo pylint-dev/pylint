@@ -16,7 +16,11 @@ consider-iterating-dictionary:40:60:None:None::Consider iterating the dictionary
 consider-iterating-dictionary:43:8:None:None::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
 consider-iterating-dictionary:45:8:None:None::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
 consider-iterating-dictionary:65:11:None:None::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
-consider-iterating-dictionary:73:14:None:None::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
+consider-iterating-dictionary:73:19:None:None::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
 consider-iterating-dictionary:75:14:None:None::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
-consider-iterating-dictionary:77:10:None:None::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
+consider-iterating-dictionary:77:15:None:None::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
 consider-iterating-dictionary:79:10:None:None::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
+consider-iterating-dictionary:89:42:None:None:AClass.a_function.InnerClass.another_function.inner_function:Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
+consider-iterating-dictionary:90:37:None:None:AClass.a_function.InnerClass.another_function.inner_function:Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
+consider-iterating-dictionary:91:38:None:None:AClass.a_function.InnerClass.another_function.inner_function:Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
+consider-iterating-dictionary:92:33:None:None:AClass.a_function.InnerClass.another_function.inner_function:Consider iterating the dictionary directly instead of calling .keys():UNDEFINED

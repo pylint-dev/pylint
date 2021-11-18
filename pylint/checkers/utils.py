@@ -75,6 +75,7 @@ from typing import (
     Set,
     Tuple,
     Type,
+    TypeVar,
     Union,
 )
 
@@ -1690,3 +1691,16 @@ def returns_bool(node: nodes.NodeNG) -> bool:
         and isinstance(node.value, nodes.Const)
         and node.value.value in {True, False}
     )
+
+
+T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
+
+
+def get_node_first_ancestor_of_type(
+    node: nodes.NodeNG, ancestor_type: Tuple[Type[T_Node]]
+) -> Optional[T_Node]:
+    """Return the first parent node that is any of the provided types (or None)"""
+    for ancestor in node.node_ancestors():
+        if isinstance(ancestor, ancestor_type):
+            return ancestor
+    return None

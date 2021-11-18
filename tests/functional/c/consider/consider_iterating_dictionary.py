@@ -85,10 +85,10 @@ class AClass:
         class InnerClass:
             def another_function(self):
                 def inner_function():
-                    metadata = {}
-                    print("a" not in list(metadata.keys())) # [consider-iterating-dictionary]
-                    print("a" not in metadata.keys()) # [consider-iterating-dictionary]
-                    print("a" in list(metadata.keys())) # [consider-iterating-dictionary]
-                    print("a" in metadata.keys()) # [consider-iterating-dictionary]
+                    another_metadata = {}
+                    print("a" not in list(another_metadata.keys())) # [consider-iterating-dictionary]
+                    print("a" not in another_metadata.keys()) # [consider-iterating-dictionary]
+                    print("a" in list(another_metadata.keys())) # [consider-iterating-dictionary]
+                    print("a" in another_metadata.keys()) # [consider-iterating-dictionary]
                 return  inner_function()
         return InnerClass().another_function()
