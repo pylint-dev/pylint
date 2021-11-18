@@ -195,6 +195,6 @@ Other Changes
 * Added the ``--enable-all-extensions`` command line option. It will load all available extensions
   which can be listed by running ``--list-extensions``
 
-* Fix crash on ``open()`` calls when the ``mode`` argument is not a simple string
+* Fix crash on ``open()`` calls when the ``mode`` argument is not a simple string.
 
   Partially closes #5321

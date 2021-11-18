@@ -187,7 +187,7 @@ Release date: TBA
 
 * Make yn validator case insensitive, to allow for ``True`` and ``False`` in config files.
 
-* Fix crash on ``open()`` calls when the ``mode`` argument is not a simple string
+* Fix crash on ``open()`` calls when the ``mode`` argument is not a simple string.
 
   Partially closes #5321
 
