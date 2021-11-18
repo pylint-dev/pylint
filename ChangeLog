@@ -57,7 +57,8 @@ Release date: 2021-11-24
 
   Closes #4412 #5287
 
-* Fix false negative ``consider-iterating-dictionary`` during membership checks
+* Fix false negative for ``consider-iterating-dictionary`` during membership checks encapsulated in iterables
+  or ``not in`` checks
 
   Closes #5323
 
