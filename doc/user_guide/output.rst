@@ -8,11 +8,11 @@ Output by default is written to stdout. The simplest way to output to a file is
 with the ``--output=<filename>`` option.
 
 The default format for the output is raw text. You can change this by passing
-pylint the ``--output-format=<value>`` option. Possible values are: text, json,
-parseable, colorized and msvs (for Visual Studio).
+pylint the ``--output-format=<value>`` option. Possible values are: ``text``, ``json``,
+``parseable``, ``colorized`` and ``msvs`` (for Visual Studio).
 
 Multiple output formats can be used at the same time by passing
-``--output-format`` a comma-separated list of formats.  
+`a comma-separated list of formats to `--output-format``.
 This output can be redirected to a file by giving a filename after a colon. 
 
 For example, to save a json report to ``somefile.json`` and print 
@@ -21,7 +21,7 @@ a colorized report to stdout at the same time:
 
   --output-format=json:somefile.json,colorized
 
-Finally, it is possible to invoke pylint programatically with
+Finally, it is possible to invoke pylint programatically with a
 reporter initialized with a custom stream:
 
 ::
@@ -30,6 +30,15 @@ reporter initialized with a custom stream:
   reporter = text.TextReporter(pylint_output)
   Run(["test_file.py"], reporter=reporter, do_exit=False)
   print(pylint_output.getvalue()) # Retrieve and print the text report
+
+The reporter can accept any stream object as as parameter. In this example,
+the stream outputs to a file:
+
+::
+
+  with open("report.out", "w") as f:
+    reporter = text.TextReporter(f)
+    Run(["test_file.py"], reporter=reporter, do_exit=False)
 
 This would be useful to capture pylint output in an open stream which
 can be passed onto another program.
