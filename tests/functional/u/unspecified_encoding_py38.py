@@ -1,5 +1,5 @@
 """Warnings for using open() without specifying an encoding"""
-# pylint: disable=consider-using-with
+# pylint: disable=consider-using-with, too-few-public-methods
 import dataclasses
 import io
 import locale
@@ -85,7 +85,55 @@ Path(FILENAME).open("w", encoding=None)  # [unspecified-encoding]
 Path(FILENAME).open("w", encoding=LOCALE_ENCODING)
 
 
-# Tests for storing data about the open call in a dataclass
+# Tests for storing data about open calls.
+# Most of these are regression tests for a crash
+# reported in https://github.com/PyCQA/pylint/issues/5321
+
+# Constants
+
+MODE = "wb"
+open(FILENAME, mode=MODE)
+
+# Functions
+
+
+def return_mode_function():
+    """Return a mode for open call"""
+    return "wb"
+
+
+open(FILENAME, mode=return_mode_function)
+
+# Classes
+
+
+class IOData:
+    """Class that returns mode strings"""
+
+    mode = "wb"
+
+    def __init__(self):
+        self.my_mode = "wb"
+
+    @staticmethod
+    def my_mode_method():
+        """Returns a pre-defined mode"""
+        return "wb"
+
+    @staticmethod
+    def my_mode_method_returner(mode: str) -> str:
+        """Returns the supplied mode"""
+        return mode
+
+
+open(FILENAME, mode=IOData.mode)
+open(FILENAME, mode=IOData().my_mode)
+open(FILENAME, mode=IOData().my_mode_method())
+open(FILENAME, mode=IOData().my_mode_method_returner("wb"))
+# Invalid value but shouldn't crash, reported in https://github.com/PyCQA/pylint/issues/5321
+open(FILENAME, mode=IOData)
+
+# Dataclasses
 
 
 @dataclasses.dataclass
