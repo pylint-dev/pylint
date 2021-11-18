@@ -12,10 +12,10 @@ pylint the ``--output-format=<value>`` option. Possible values are: ``text``, ``
 ``parseable``, ``colorized`` and ``msvs`` (for Visual Studio).
 
 Multiple output formats can be used at the same time by passing
-`a comma-separated list of formats to `--output-format``.
-This output can be redirected to a file by giving a filename after a colon. 
+a comma-separated list of formats to ``--output-format``.
+This output can be redirected to a file by giving a filename after a colon.
 
-For example, to save a json report to ``somefile.json`` and print 
+For example, to save a json report to ``somefile.json`` and print
 a colorized report to stdout at the same time:
 ::
 
