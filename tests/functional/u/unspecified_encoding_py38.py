@@ -89,14 +89,12 @@ Path(FILENAME).open("w", encoding=LOCALE_ENCODING)
 # Most of these are regression tests for a crash
 # reported in https://github.com/PyCQA/pylint/issues/5321
 
-# Constants
-
+# -- Constants
 MODE = "wb"
 open(FILENAME, mode=MODE)
 
-# Functions
 
-
+# -- Functions
 def return_mode_function():
     """Return a mode for open call"""
     return "wb"
@@ -104,9 +102,8 @@ def return_mode_function():
 
 open(FILENAME, mode=return_mode_function())
 
-# Classes
 
-
+# -- Classes
 class IOData:
     """Class that returns mode strings"""
 
@@ -133,9 +130,8 @@ open(FILENAME, mode=IOData().my_mode_method_returner("wb"))
 # Invalid value but shouldn't crash, reported in https://github.com/PyCQA/pylint/issues/5321
 open(FILENAME, mode=IOData)
 
-# Dataclasses
 
-
+# -- Dataclasses
 @dataclasses.dataclass
 class IOArgs:
     """Dataclass storing information about how to open a file"""
