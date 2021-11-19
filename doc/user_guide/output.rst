@@ -21,7 +21,7 @@ a colorized report to stdout at the same time:
 
   --output-format=json:somefile.json,colorized
 
-Finally, it is possible to invoke pylint programatically with a
+Finally, it is possible to invoke pylint programmatically with a
 reporter initialized with a custom stream:
 
 ::
