@@ -284,7 +284,6 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
 T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
 
 
-
 class NoSuchArgumentError(Exception):
     pass
 
