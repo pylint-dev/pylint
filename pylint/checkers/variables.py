@@ -2086,7 +2086,16 @@ class VariablesChecker(BaseChecker):
                     ),
                 )
         # attempt to check unpacking may be possible (ie RHS is iterable)
-        elif not utils.is_iterable(inferred):
+        elif not (
+            utils.is_iterable(inferred)
+            or (
+                isinstance(inferred, astroid.Instance)
+                and any(
+                    ancestor.qname() == "typing.NamedTuple"
+                    for ancestor in inferred.ancestors()
+                )
+            )
+        ):
             self.add_message(
                 "unpacking-non-sequence",
                 node=node,
