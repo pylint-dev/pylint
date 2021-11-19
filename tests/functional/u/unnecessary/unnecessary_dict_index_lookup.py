@@ -94,3 +94,9 @@ for key, val in d.items():
 for item in d.items():
     del d[item[0]]
     break
+
+outer_dict = {"inner_dict": {}}
+for key, val in outer_dict.items():
+    for key_two, val_two in val.items():
+        del outer_dict[key][key_two]  # [unnecessary-dict-index-lookup]
+        break
