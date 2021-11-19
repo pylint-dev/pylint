@@ -52,6 +52,8 @@ class MessageLocationTuple(NamedTuple):
     obj: str
     line: int
     column: int
+    end_lineno: Optional[int] = None
+    end_col_offset: Optional[int] = None
 
 
 class ManagedMessage(NamedTuple):

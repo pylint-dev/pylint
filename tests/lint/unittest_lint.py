@@ -500,7 +500,14 @@ def test_addmessage(linter: PyLinter) -> None:
             description="Warning without any associated confidence level.",
         ),
         location=MessageLocationTuple(
-            abspath="0123", path="0123", module="0123", obj="", line=1, column=0
+            abspath="0123",
+            path="0123",
+            module="0123",
+            obj="",
+            line=1,
+            column=0,
+            end_lineno=None,
+            end_col_offset=None,
         ),
     )
     assert linter.reporter.messages[1] == Message(
@@ -512,7 +519,14 @@ def test_addmessage(linter: PyLinter) -> None:
             description="Warning without any associated confidence level.",
         ),
         location=MessageLocationTuple(
-            abspath="0123", path="0123", module="0123", obj="", line=2, column=0
+            abspath="0123",
+            path="0123",
+            module="0123",
+            obj="",
+            line=2,
+            column=0,
+            end_lineno=None,
+            end_col_offset=None,
         ),
     )
 
@@ -616,6 +630,8 @@ def test_analyze_explicit_script(linter: PyLinter) -> None:
             obj="",
             line=2,
             column=0,
+            end_lineno=None,
+            end_col_offset=None,
         ),
     )
 
