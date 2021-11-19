@@ -281,6 +281,9 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
     )
 )
 
+T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
+
+
 
 class NoSuchArgumentError(Exception):
     pass
@@ -1691,9 +1694,6 @@ def returns_bool(node: nodes.NodeNG) -> bool:
         and isinstance(node.value, nodes.Const)
         and node.value.value in {True, False}
     )
-
-
-T_Node = TypeVar("T_Node", bound=nodes.NodeNG)
 
 
 def get_node_first_ancestor_of_type(
