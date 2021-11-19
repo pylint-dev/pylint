@@ -97,6 +97,11 @@ Extensions
 Other Changes
 =============
 
+* Fix ``unused-private-member`` false positive using private methods within the class without
+  using it as a dot.method.
+
+  Closes #4756
+
 * Fix ``install graphiz`` message which isn't needed for puml output format.
 
 * ``pylint`` no longer crashes when checking assignment expressions within if-statements
