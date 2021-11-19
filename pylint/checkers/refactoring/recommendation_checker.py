@@ -90,7 +90,7 @@ class RecommendationChecker(checkers.BaseChecker):
             and any(
                 op
                 for op, comparator in comp_ancestor.ops
-                if op in ["in", "not in"]
+                if op in {"in", "not in"}
                 and (comparator in node.node_ancestors() or comparator is node)
             )
         ):
