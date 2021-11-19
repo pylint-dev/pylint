@@ -82,3 +82,15 @@ for k, _ in d.items():
     if 'V' in d[k]:  # [unnecessary-dict-index-lookup]
         d[k] = "value"
         print(d[k])  # This is fine
+
+# Test false positive described in #4716
+# Should not be emitted for del
+# (https://github.com/PyCQA/pylint/issues/4716)
+d = {}
+for key, val in d.items():
+    del d[key]
+    break
+
+for item in d.items():
+    del d[item[0]]
+    break
