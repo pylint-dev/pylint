@@ -51,6 +51,14 @@ def mmd_config() -> PyreverseConfig:
     )
 
 
+@pytest.fixture()
+def html_config() -> PyreverseConfig:
+    return PyreverseConfig(
+        output_format="html",
+        colorized=False,
+    )
+
+
 @pytest.fixture(scope="session")
 def get_project() -> Callable:
     def _get_project(module: str, name: Optional[str] = "No Name") -> Project:
