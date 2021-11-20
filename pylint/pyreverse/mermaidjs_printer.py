@@ -81,3 +81,27 @@ class MermaidJSPrinter(Printer):
     def _close_graph(self) -> None:
         """Emit the lines needed to properly close the graph."""
         self._dec_indent()
+
+
+class HTMLMermaidJSPrinter(MermaidJSPrinter):
+    """Printer for MermaidJS diagrams wrapped in an html boilerplate"""
+
+    HTML_OPEN_BOILERPLATE = """
+    <html>
+        <body>
+            <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+        <div class="mermaid">
+    """
+
+    HTML_CLOSE_BOILERPLATE = """
+            </div>
+        </body>
+    </html>
+"""
+
+    def _open_graph(self) -> None:
+        self.emit(self.HTML_OPEN_BOILERPLATE)
+        super()._open_graph()
+
+    def _close_graph(self) -> None:
+        self.emit(self.HTML_CLOSE_BOILERPLATE)

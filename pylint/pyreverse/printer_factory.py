@@ -11,13 +11,14 @@ from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
 from pylint.pyreverse.printer import Printer
 from pylint.pyreverse.vcg_printer import VCGPrinter
-from pylint.pyreverse.mermaidjs_printer import MermaidJSPrinter
+from pylint.pyreverse.mermaidjs_printer import MermaidJSPrinter, HTMLMermaidJSPrinter
 
 filetype_to_printer: Dict[str, Type[Printer]] = {
     "vcg": VCGPrinter,
     "plantuml": PlantUmlPrinter,
     "puml": PlantUmlPrinter,
     "mmd": MermaidJSPrinter,
+    "html": HTMLMermaidJSPrinter,
     "dot": DotPrinter,
 }
 
