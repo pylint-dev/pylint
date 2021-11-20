@@ -1,5 +1,7 @@
 """ Tests for invalid-name checker. """
-# pylint: disable=unused-import, no-absolute-import, wrong-import-position,import-outside-toplevel
+# pylint: disable=unused-import, wrong-import-position, import-outside-toplevel, missing-class-docstring,missing-function-docstring
+# pylint: disable=too-few-public-methods
+
 
 AAA = 24
 try:
@@ -67,3 +69,37 @@ def a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad():  # Shoul
     print('LOL')
 
 a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad()
+
+
+class FooBar:
+    def __init__(self, fooBar) -> None:  # [invalid-name]
+        self.foo_bar = fooBar
+        self.foo_bar2 = None
+
+    def func1(
+        self,
+        fooBar,  # [invalid-name]
+    ):
+        self.foo_bar = fooBar
+
+    # Test disable invalid-name
+    def test_disable1(self, fooBar):  # pylint: disable=invalid-name
+        self.foo_bar = fooBar
+
+    def test_disable2(
+        self,
+        fooBar,  # pylint: disable=invalid-name
+    ):
+        self.foo_bar = fooBar
+
+    def test_disable3(self, fooBar):  # pylint: disable=invalid-name
+        self.foo_bar = fooBar
+
+    def test_disable_mixed(
+        self,
+        fooBar,  # pylint: disable=invalid-name
+        fooBar2,  # [invalid-name]
+    ):
+        """Invalid-name will still be raised for other arguments."""
+        self.foo_bar = fooBar
+        self.foo_bar2 = fooBar2

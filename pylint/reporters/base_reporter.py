@@ -3,9 +3,16 @@
 
 import os
 import sys
-from typing import List
+from typing import TYPE_CHECKING, List, Optional, TextIO
+from warnings import warn
 
 from pylint.message import Message
+from pylint.reporters.ureports.nodes import Text
+from pylint.utils import LinterStats
+
+if TYPE_CHECKING:
+    from pylint.lint.pylinter import PyLinter
+    from pylint.reporters.ureports.nodes import Section
 
 
 class BaseReporter:
@@ -16,12 +23,10 @@ class BaseReporter:
 
     extension = ""
 
-    def __init__(self, output=None):
-        self.linter = None
+    def __init__(self, output: Optional[TextIO] = None) -> None:
+        self.linter: "PyLinter"
         self.section = 0
-        self.out = None
-        self.out_encoding = None
-        self.set_output(output)
+        self.out: TextIO = output or sys.stdout
         self.messages: List[Message] = []
         # Build the path prefix to strip to get relative paths
         self.path_strip_prefix = os.getcwd() + os.sep
@@ -30,26 +35,35 @@ class BaseReporter:
         """Handle a new message triggered on the current file."""
         self.messages.append(msg)
 
-    def set_output(self, output=None):
+    def set_output(self, output: Optional[TextIO] = None) -> None:
         """set output stream"""
+        # pylint: disable-next=fixme
+        # TODO: Remove this method after depreciation
+        warn(
+            "'set_output' will be removed in 3.0, please use 'reporter.out = stream' instead",
+            DeprecationWarning,
+        )
         self.out = output or sys.stdout
 
-    def writeln(self, string=""):
+    def writeln(self, string: str = "") -> None:
         """write a line in the output buffer"""
         print(string, file=self.out)
 
-    def display_reports(self, layout):
+    def display_reports(self, layout: "Section") -> None:
         """display results encapsulated in the layout tree"""
         self.section = 0
-        if hasattr(layout, "report_id"):
-            layout.children[0].children[0].data += " (%s)" % layout.report_id
+        if layout.report_id:
+            if isinstance(layout.children[0].children[0], Text):
+                layout.children[0].children[0].data += f" ({layout.report_id})"
+            else:
+                raise ValueError(f"Incorrect child for {layout.children[0].children}")
         self._display(layout)
 
-    def _display(self, layout):
+    def _display(self, layout: "Section") -> None:
         """display the layout"""
         raise NotImplementedError()
 
-    def display_messages(self, layout):
+    def display_messages(self, layout: Optional["Section"]) -> None:
         """Hook for displaying the messages of the reporter
 
         This will be called whenever the underlying messages
@@ -62,8 +76,12 @@ class BaseReporter:
 
     # Event callbacks
 
-    def on_set_current_module(self, module, filepath):
+    def on_set_current_module(self, module: str, filepath: Optional[str]) -> None:
         """Hook called when a module starts to be analysed."""
 
-    def on_close(self, stats, previous_stats):
+    def on_close(
+        self,
+        stats: LinterStats,
+        previous_stats: LinterStats,
+    ) -> None:
         """Hook called when a module finished analyzing."""

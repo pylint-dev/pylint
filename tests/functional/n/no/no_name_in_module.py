@@ -1,4 +1,4 @@
-# pylint: disable=wildcard-import,unused-import,no-absolute-import,invalid-name,import-error,
+# pylint: disable=wildcard-import,unused-import,invalid-name,import-error
 # pylint: disable=bare-except,broad-except,wrong-import-order,ungrouped-imports,wrong-import-position
 """check nonexistent names imported are reported"""
 from __future__ import print_function
@@ -41,6 +41,11 @@ except ImportError:
     pass
 
 try:
+    import collections.missing
+except ModuleNotFoundError:
+    pass
+
+try:
     import collections.indeed_missing # [no-name-in-module]
 except ValueError:
     pass
@@ -54,6 +59,12 @@ try:
     import collections.emit1
 except ImportError:
     pass
+
+try:
+    import collections.emit1
+except ModuleNotFoundError:
+    pass
+
 
 try:
     if something:

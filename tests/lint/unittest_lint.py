@@ -28,6 +28,9 @@
 # Copyright (c) 2020 Martin Vielsmaier <martin@vielsmaier.net>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Michal Vasilek <michal@vasilek.cz>
+# Copyright (c) 2021 Eisuke Kawashima <e-kwsm@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
@@ -45,8 +48,11 @@ from io import StringIO
 from os import chdir, getcwd
 from os.path import abspath, basename, dirname, isdir, join, sep
 from shutil import rmtree
+from typing import Iterable, Iterator, List, Optional, Tuple
 
+import platformdirs
 import pytest
+from pytest import CaptureFixture
 
 from pylint import checkers, config, exceptions, interfaces, lint, testutils
 from pylint.checkers.utils import check_messages
@@ -54,11 +60,14 @@ from pylint.constants import (
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
+    OLD_DEFAULT_PYLINT_HOME,
 )
 from pylint.exceptions import InvalidMessageError
 from pylint.lint import ArgumentPreprocessingError, PyLinter, Run, preprocess_options
+from pylint.message import Message
 from pylint.reporters import text
-from pylint.utils import FileState, tokenize_module
+from pylint.typing import MessageLocationTuple
+from pylint.utils import FileState, print_full_documentation, tokenize_module
 
 if os.name == "java":
     # pylint: disable=no-member
@@ -74,7 +83,7 @@ else:
 
 
 @contextmanager
-def fake_home():
+def fake_home() -> Iterator:
     folder = tempfile.mkdtemp("fake-home")
     old_home = os.environ.get(HOME)
     try:
@@ -103,7 +112,7 @@ DATA_DIR = join(HERE, "..", "data")
 
 
 @contextmanager
-def tempdir():
+def tempdir() -> Iterator[str]:
     """Create a temp directory and change the current location to it.
 
     This is supposed to be used with a *with* statement.
@@ -122,7 +131,7 @@ def tempdir():
         rmtree(abs_tmp)
 
 
-def create_files(paths, chroot="."):
+def create_files(paths: List[str], chroot: str = ".") -> None:
     """Creates directories and files found in <path>.
 
     :param list paths: list of relative paths to files or directories
@@ -156,20 +165,20 @@ def create_files(paths, chroot="."):
         if not isdir(dirpath):
             os.makedirs(dirpath)
     for filepath in files:
-        with open(filepath, "w"):
+        with open(filepath, "w", encoding="utf-8"):
             pass
 
 
 @pytest.fixture
-def fake_path():
+def fake_path() -> Iterator[Iterable[str]]:
     orig = list(sys.path)
-    fake = [1, 2, 3]
+    fake: Iterable[str] = ["1", "2", "3"]
     sys.path[:] = fake
     yield fake
     sys.path[:] = orig
 
 
-def test_no_args(fake_path):
+def test_no_args(fake_path: List[int]) -> None:
     with lint.fix_import_path([]):
         assert sys.path == fake_path
     assert sys.path == fake_path
@@ -178,7 +187,7 @@ def test_no_args(fake_path):
 @pytest.mark.parametrize(
     "case", [["a/b/"], ["a/b"], ["a/b/__init__.py"], ["a/"], ["a"]]
 )
-def test_one_arg(fake_path, case):
+def test_one_arg(fake_path: List[str], case: List[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py"])
         expected = [join(chroot, "a")] + fake_path
@@ -242,14 +251,14 @@ def reporter():
 
 
 @pytest.fixture
-def init_linter(linter):
+def init_linter(linter: PyLinter) -> PyLinter:
     linter.open()
     linter.set_current_module("toto")
     linter.file_state = FileState("toto")
     return linter
 
 
-def test_pylint_visit_method_taken_in_account(linter):
+def test_pylint_visit_method_taken_in_account(linter: PyLinter) -> None:
     class CustomChecker(checkers.BaseChecker):
         __implements__ = interfaces.IAstroidChecker
         name = "custom"
@@ -263,10 +272,10 @@ def test_pylint_visit_method_taken_in_account(linter):
     linter.open()
     out = StringIO()
     linter.set_reporter(text.TextReporter(out))
-    linter.check("abc")
+    linter.check(["abc"])
 
 
-def test_enable_message(init_linter):
+def test_enable_message(init_linter: PyLinter) -> None:
     linter = init_linter
     assert linter.is_message_enabled("W0101")
     assert linter.is_message_enabled("W0102")
@@ -283,7 +292,7 @@ def test_enable_message(init_linter):
     assert linter.is_message_enabled("W0102", 1)
 
 
-def test_enable_message_category(init_linter):
+def test_enable_message_category(init_linter: PyLinter) -> None:
     linter = init_linter
     assert linter.is_message_enabled("W0101")
     assert linter.is_message_enabled("C0202")
@@ -302,25 +311,25 @@ def test_enable_message_category(init_linter):
     assert linter.is_message_enabled("C0202", line=1)
 
 
-def test_message_state_scope(init_linter):
+def test_message_state_scope(init_linter: PyLinter) -> None:
     class FakeConfig:
         confidence = ["HIGH"]
 
     linter = init_linter
     linter.disable("C0202")
-    assert MSG_STATE_SCOPE_CONFIG == linter.get_message_state_scope("C0202")
+    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope("C0202")
     linter.disable("W0101", scope="module", line=3)
-    assert MSG_STATE_SCOPE_CONFIG == linter.get_message_state_scope("C0202")
-    assert MSG_STATE_SCOPE_MODULE == linter.get_message_state_scope("W0101", 3)
+    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope("C0202")
+    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0101", 3)
     linter.enable("W0102", scope="module", line=3)
-    assert MSG_STATE_SCOPE_MODULE == linter.get_message_state_scope("W0102", 3)
+    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0102", 3)
     linter.config = FakeConfig()
-    assert MSG_STATE_CONFIDENCE == linter.get_message_state_scope(
+    assert MSG_STATE_CONFIDENCE == linter._get_message_state_scope(
         "this-is-bad", confidence=interfaces.INFERENCE
     )
 
 
-def test_enable_message_block(init_linter):
+def test_enable_message_block(init_linter: PyLinter) -> None:
     linter = init_linter
     linter.open()
     filepath = join(REGRTEST_DATA_DIR, "func_block_disable_msg.py")
@@ -378,7 +387,7 @@ def test_enable_message_block(init_linter):
     assert fs._suppression_mapping["E1101", 110] == 109
 
 
-def test_enable_by_symbol(init_linter):
+def test_enable_by_symbol(init_linter: PyLinter) -> None:
     """messages can be controlled by symbolic names.
 
     The state is consistent across symbols and numbers.
@@ -407,7 +416,7 @@ def test_enable_by_symbol(init_linter):
     assert linter.is_message_enabled("dangerous-default-value", 1)
 
 
-def test_enable_report(linter):
+def test_enable_report(linter: PyLinter) -> None:
     assert linter.report_is_enabled("RP0001")
     linter.disable("RP0001")
     assert not linter.report_is_enabled("RP0001")
@@ -415,19 +424,19 @@ def test_enable_report(linter):
     assert linter.report_is_enabled("RP0001")
 
 
-def test_report_output_format_aliased(linter):
+def test_report_output_format_aliased(linter: PyLinter) -> None:
     text.register(linter)
     linter.set_option("output-format", "text")
     assert linter.reporter.__class__.__name__ == "TextReporter"
 
 
-def test_set_unsupported_reporter(linter):
+def test_set_unsupported_reporter(linter: PyLinter) -> None:
     text.register(linter)
     with pytest.raises(exceptions.InvalidReporterError):
         linter.set_option("output-format", "missing.module.Class")
 
 
-def test_set_option_1(linter):
+def test_set_option_1(linter: PyLinter) -> None:
     linter.set_option("disable", "C0111,W0234")
     assert not linter.is_message_enabled("C0111")
     assert not linter.is_message_enabled("W0234")
@@ -436,7 +445,7 @@ def test_set_option_1(linter):
     assert not linter.is_message_enabled("non-iterator-returned")
 
 
-def test_set_option_2(linter):
+def test_set_option_2(linter: PyLinter) -> None:
     linter.set_option("disable", ("C0111", "W0234"))
     assert not linter.is_message_enabled("C0111")
     assert not linter.is_message_enabled("W0234")
@@ -445,14 +454,14 @@ def test_set_option_2(linter):
     assert not linter.is_message_enabled("non-iterator-returned")
 
 
-def test_enable_checkers(linter):
+def test_enable_checkers(linter: PyLinter) -> None:
     linter.disable("design")
     assert not ("design" in [c.name for c in linter.prepare_checkers()])
     linter.enable("design")
     assert "design" in [c.name for c in linter.prepare_checkers()]
 
 
-def test_errors_only(linter):
+def test_errors_only(linter: PyLinter) -> None:
     linter.error_mode()
     checkers = linter.prepare_checkers()
     checker_names = {c.name for c in checkers}
@@ -460,13 +469,13 @@ def test_errors_only(linter):
     assert set() == should_not & checker_names
 
 
-def test_disable_similar(linter):
+def test_disable_similar(linter: PyLinter) -> None:
     linter.set_option("disable", "RP0801")
     linter.set_option("disable", "R0801")
     assert not ("similarities" in [c.name for c in linter.prepare_checkers()])
 
 
-def test_disable_alot(linter):
+def test_disable_alot(linter: PyLinter) -> None:
     """check that we disabled a lot of checkers"""
     linter.set_option("reports", False)
     linter.set_option("disable", "R,C,W")
@@ -475,19 +484,40 @@ def test_disable_alot(linter):
         assert not (cname in checker_names), cname
 
 
-def test_addmessage(linter):
+def test_addmessage(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
     linter.open()
     linter.set_current_module("0123")
     linter.add_message("C0301", line=1, args=(1, 2))
     linter.add_message("line-too-long", line=2, args=(3, 4))
-    assert [
-        "C:  1: Line too long (1/2)",
-        "C:  2: Line too long (3/4)",
-    ] == linter.reporter.messages
+    assert len(linter.reporter.messages) == 2
+    assert linter.reporter.messages[0] == Message(
+        msg_id="C0301",
+        symbol="line-too-long",
+        msg="Line too long (1/2)",
+        confidence=interfaces.Confidence(
+            name="UNDEFINED",
+            description="Warning without any associated confidence level.",
+        ),
+        location=MessageLocationTuple(
+            abspath="0123", path="0123", module="0123", obj="", line=1, column=0
+        ),
+    )
+    assert linter.reporter.messages[1] == Message(
+        msg_id="C0301",
+        symbol="line-too-long",
+        msg="Line too long (3/4)",
+        confidence=interfaces.Confidence(
+            name="UNDEFINED",
+            description="Warning without any associated confidence level.",
+        ),
+        location=MessageLocationTuple(
+            abspath="0123", path="0123", module="0123", obj="", line=2, column=0
+        ),
+    )
 
 
-def test_addmessage_invalid(linter):
+def test_addmessage_invalid(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
     linter.open()
     linter.set_current_module("0123")
@@ -508,7 +538,7 @@ def test_addmessage_invalid(linter):
     assert str(cm.value) == "Message C0321 must provide Node, got None"
 
 
-def test_load_plugin_command_line():
+def test_load_plugin_command_line() -> None:
     dummy_plugin_path = join(REGRTEST_DATA_DIR, "dummy_plugin")
     sys.path.append(dummy_plugin_path)
 
@@ -524,7 +554,7 @@ def test_load_plugin_command_line():
     sys.path.remove(dummy_plugin_path)
 
 
-def test_load_plugin_config_file():
+def test_load_plugin_config_file() -> None:
     dummy_plugin_path = join(REGRTEST_DATA_DIR, "dummy_plugin")
     sys.path.append(dummy_plugin_path)
     config_path = join(REGRTEST_DATA_DIR, "dummy_plugin.rc")
@@ -541,7 +571,7 @@ def test_load_plugin_config_file():
     sys.path.remove(dummy_plugin_path)
 
 
-def test_load_plugin_configuration():
+def test_load_plugin_configuration() -> None:
     dummy_plugin_path = join(REGRTEST_DATA_DIR, "dummy_plugin")
     sys.path.append(dummy_plugin_path)
 
@@ -558,39 +588,49 @@ def test_load_plugin_configuration():
     assert run.linter.config.black_list == ["foo", "bar", "bin"]
 
 
-def test_init_hooks_called_before_load_plugins():
+def test_init_hooks_called_before_load_plugins() -> None:
     with pytest.raises(RuntimeError):
         Run(["--load-plugins", "unexistant", "--init-hook", "raise RuntimeError"])
     with pytest.raises(RuntimeError):
         Run(["--init-hook", "raise RuntimeError", "--load-plugins", "unexistant"])
 
 
-def test_analyze_explicit_script(linter):
+def test_analyze_explicit_script(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
-    linter.check(os.path.join(DATA_DIR, "ascript"))
-    assert ["C:  2: Line too long (175/100)"] == linter.reporter.messages
+    linter.check([os.path.join(DATA_DIR, "ascript")])
+    assert len(linter.reporter.messages) == 1
+    assert linter.reporter.messages[0] == Message(
+        msg_id="C0301",
+        symbol="line-too-long",
+        msg="Line too long (175/100)",
+        confidence=interfaces.Confidence(
+            name="UNDEFINED",
+            description="Warning without any associated confidence level.",
+        ),
+        location=MessageLocationTuple(
+            abspath=os.path.join(abspath(dirname(__file__)), "ascript").replace(
+                f"lint{os.path.sep}ascript", f"data{os.path.sep}ascript"
+            ),
+            path=f"tests{os.path.sep}data{os.path.sep}ascript",
+            module="data.ascript",
+            obj="",
+            line=2,
+            column=0,
+        ),
+    )
 
 
-def test_python3_checker_disabled(linter):
-    checker_names = [c.name for c in linter.prepare_checkers()]
-    assert "python3" not in checker_names
-
-    linter.set_option("enable", "python3")
-    checker_names = [c.name for c in linter.prepare_checkers()]
-    assert "python3" in checker_names
-
-
-def test_full_documentation(linter):
+def test_full_documentation(linter: PyLinter) -> None:
     out = StringIO()
-    linter.print_full_documentation(out)
+    print_full_documentation(linter, out)
     output = out.getvalue()
     # A few spot checks only
     for re_str in (
         # autogenerated text
         "^Pylint global options and switches$",
-        "Verbatim name of the checker is ``python3``",
+        "Verbatim name of the checker is ``variables``",
         # messages
-        "^:old-octal-literal \\(E1608\\):",
+        "^:undefined-loop-variable \\(W0631\\): *",
         # options
         "^:dummy-variables-rgx:",
     ):
@@ -598,7 +638,7 @@ def test_full_documentation(linter):
         assert re.search(regexp, output)
 
 
-def test_list_msgs_enabled(init_linter, capsys):
+def test_list_msgs_enabled(init_linter: PyLinter, capsys: CaptureFixture) -> None:
     linter = init_linter
     linter.enable("W0101", scope="package")
     linter.disable("W0102", scope="package")
@@ -621,28 +661,28 @@ def test_list_msgs_enabled(init_linter, capsys):
 
 
 @pytest.fixture
-def pop_pylintrc():
+def pop_pylintrc() -> None:
     os.environ.pop("PYLINTRC", None)
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
-def test_pylint_home():
+def test_pylint_home() -> None:
     uhome = os.path.expanduser("~")
     if uhome == "~":
-        expected = ".pylint.d"
+        expected = OLD_DEFAULT_PYLINT_HOME
     else:
-        expected = os.path.join(uhome, ".pylint.d")
+        expected = platformdirs.user_cache_dir("pylint")
     assert config.PYLINT_HOME == expected
 
     try:
-        pylintd = join(tempfile.gettempdir(), ".pylint.d")
+        pylintd = join(tempfile.gettempdir(), OLD_DEFAULT_PYLINT_HOME)
         os.environ["PYLINTHOME"] = pylintd
         try:
             reload(config)
             assert config.PYLINT_HOME == pylintd
         finally:
             try:
-                os.remove(pylintd)
+                rmtree(pylintd)
             except FileNotFoundError:
                 pass
     finally:
@@ -650,7 +690,7 @@ def test_pylint_home():
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc():
+def test_pylintrc() -> None:
     with fake_home():
         current_dir = getcwd()
         chdir(os.path.dirname(os.path.abspath(sys.executable)))
@@ -666,7 +706,7 @@ def test_pylintrc():
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc_parentdir():
+def test_pylintrc_parentdir() -> None:
     with tempdir() as chroot:
 
         create_files(
@@ -694,7 +734,7 @@ def test_pylintrc_parentdir():
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc_parentdir_no_package():
+def test_pylintrc_parentdir_no_package() -> None:
     with tempdir() as chroot:
         with fake_home():
             create_files(["a/pylintrc", "a/b/pylintrc", "a/b/c/d/__init__.py"])
@@ -711,31 +751,31 @@ def test_pylintrc_parentdir_no_package():
 
 
 class TestPreprocessOptions:
-    def _callback(self, name, value):
+    def _callback(self, name: str, value: Optional[str]) -> None:
         self.args.append((name, value))
 
-    def test_value_equal(self):
-        self.args = []
+    def test_value_equal(self) -> None:
+        self.args: List[Tuple[str, Optional[str]]] = []
         preprocess_options(
             ["--foo", "--bar=baz", "--qu=ux"],
             {"foo": (self._callback, False), "qu": (self._callback, True)},
         )
         assert [("foo", None), ("qu", "ux")] == self.args
 
-    def test_value_space(self):
+    def test_value_space(self) -> None:
         self.args = []
         preprocess_options(["--qu", "ux"], {"qu": (self._callback, True)})
         assert [("qu", "ux")] == self.args
 
     @staticmethod
-    def test_error_missing_expected_value():
+    def test_error_missing_expected_value() -> None:
         with pytest.raises(ArgumentPreprocessingError):
             preprocess_options(["--foo", "--bar", "--qu=ux"], {"bar": (None, True)})
         with pytest.raises(ArgumentPreprocessingError):
             preprocess_options(["--foo", "--bar"], {"bar": (None, True)})
 
     @staticmethod
-    def test_error_unexpected_value():
+    def test_error_unexpected_value() -> None:
         with pytest.raises(ArgumentPreprocessingError):
             preprocess_options(
                 ["--foo", "--bar=spam", "--qu=ux"], {"bar": (None, False)}
@@ -744,14 +784,17 @@ class TestPreprocessOptions:
 
 class _CustomPyLinter(PyLinter):
     # pylint: disable=too-many-ancestors
-    def should_analyze_file(self, modname, path, is_argument=False):
+    @staticmethod
+    def should_analyze_file(modname: str, path: str, is_argument: bool = False) -> bool:
         if os.path.basename(path) == "wrong.py":
             return False
 
-        return super().should_analyze_file(modname, path, is_argument=is_argument)
+        return super(_CustomPyLinter, _CustomPyLinter).should_analyze_file(
+            modname, path, is_argument=is_argument
+        )
 
 
-def test_custom_should_analyze_file():
+def test_custom_should_analyze_file() -> None:
     """Check that we can write custom should_analyze_file that work
     even for arguments.
     """
@@ -774,13 +817,13 @@ def test_custom_should_analyze_file():
 
         messages = reporter.messages
         assert len(messages) == 1
-        assert "invalid syntax" in messages[0]
+        assert "invalid syntax" in messages[0].msg
 
 
 # we do the check with jobs=1 as well, so that we are sure that the duplicates
 # are created by the multiprocessing problem.
 @pytest.mark.parametrize("jobs", [1, 2])
-def test_multiprocessing(jobs):
+def test_multiprocessing(jobs: int) -> None:
     """Check that multiprocessing does not create duplicates."""
     # For the bug (#3584) to show up we need more than one file with issues
     # per process
@@ -809,7 +852,7 @@ def test_multiprocessing(jobs):
     assert len(messages) == len(set(messages))
 
 
-def test_filename_with__init__(init_linter):
+def test_filename_with__init__(init_linter: PyLinter) -> None:
     # This tracks a regression where a file whose name ends in __init__.py,
     # such as flycheck__init__.py, would accidentally lead to linting the
     # entire containing directory.
@@ -823,19 +866,20 @@ def test_filename_with__init__(init_linter):
     assert len(messages) == 0
 
 
-def test_by_module_statement_value(init_linter):
-    """Test "statement" for each module analized of computed correctly."""
+def test_by_module_statement_value(init_linter: PyLinter) -> None:
+    """Test "statement" for each module analyzed of computed correctly."""
     linter = init_linter
-    linter.check(os.path.join(os.path.dirname(__file__), "data"))
+    linter.check([os.path.join(os.path.dirname(__file__), "data")])
 
-    for module, module_stats in linter.stats["by_module"].items():
+    by_module_stats = linter.stats.by_module
+    for module, module_stats in by_module_stats.items():
 
         linter2 = init_linter
         if module == "data":
-            linter2.check(os.path.join(os.path.dirname(__file__), "data/__init__.py"))
+            linter2.check([os.path.join(os.path.dirname(__file__), "data/__init__.py")])
         else:
-            linter2.check(os.path.join(os.path.dirname(__file__), module))
+            linter2.check([os.path.join(os.path.dirname(__file__), module)])
 
         # Check that the by_module "statement" is equal to the global "statement"
         # computed for that module
-        assert module_stats["statement"] == linter2.stats["statement"]
+        assert module_stats["statement"] == linter2.stats.statement

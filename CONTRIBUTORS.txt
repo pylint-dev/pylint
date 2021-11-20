@@ -1,4 +1,4 @@
-﻿Contributors
+Contributors
 ------------
 
 Current team:
@@ -25,7 +25,7 @@ Current team:
   Added Python 3 check for accessing deprecated methods on the 'string' module,
   various patches.
 
-* Dmitry Pribysh: committer
+* Dmitri Prybysh: committer
 
   multiple-imports, not-iterable, not-a-mapping, various patches.
 
@@ -154,6 +154,7 @@ contributors:
 
 * Martin Bašti: contributor
   Added new check for shallow copy of os.environ
+  Added new check for useless `with threading.Lock():` statement
 
 * Jacques Kvam: contributor
 
@@ -390,6 +391,8 @@ contributors:
 
 * Ram Rachum (cool-RR)
 
+* D. Alphus (Alphadelta14): contributor
+
 * Pieter Engelbrecht
 
 * Ethan Leba: contributor
@@ -508,6 +511,8 @@ contributors:
 
 * Maksym Humetskyi (mhumetskyi): contributor
   - Fixed ignored empty functions by similarities checker with "ignore-signatures" option enabled
+  - Ignore function decorators signatures as well by similarities checker with "ignore-signatures" option enabled
+  - Ignore class methods and nested functions signatures as well by similarities checker with "ignore-signatures" option enabled
 
 * Daniel Dorani (doranid): contributor
 
@@ -518,6 +523,62 @@ contributors:
 * Marco Gorelli: contributor
   - Documented Jupyter integration
 
+* Rebecca Turner (9999years): contributor
+
 * Yilei Yang: contributor
 
 * Marcin Kurczewski (rr-): contributor
+
+* Tanvi Moharir: contributor
+  - Fix for invalid toml config
+
+* Eisuke Kawashima (e-kwsm): contributor
+
+* Daniel van Noord (DanielNoord): contributor
+
+* Michal Vasilek: contributor
+
+* Kai Mueller (kasium): contributor
+
+* Sam Vermeiren (PaaEl): contributor
+
+* Phil A. (flying-sheep): contributor
+
+* Melvin Hazeleger (melvio): contributor
+
+* Hayden Richards (SupImDos): contributor
+  - Fixed "no-self-use" for async methods
+  - Fixed "docparams" extension for async functions and methods
+
+* Jeroen Seegers (jeroenseegers): contributor
+  - Fixed `toml` dependency issue
+
+* Tim Martin: contributor
+
+* Jaehoon Hwang (jaehoonhwang): contributor
+
+* Samuel Forestier: contributor
+
+* Nick Pesce: contributor
+
+* James DesLauriers: contributor
+
+* Youngsoo Sung: contributor
+
+* Arianna Yang: contributor
+
+* Samuel Freilich (sfreilich): contributor
+
+* Mike Fiedler (miketheman): contributor
+
+* Takahide Nojima: contributor
+
+* Tushar Sadhwani (tusharsadhwani): contributor
+
+* Ikraduya Edian: contributor
+
+* Antonio Quarta (sgheppy): contributor
+
+* Harshil (harshil21): contributor
+
+* Felix von Drigalski (felixvd): contributor

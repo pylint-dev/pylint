@@ -36,6 +36,7 @@
 # Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 Raphael Gaschignard <raphael@rtpg.co>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -269,7 +270,7 @@ class FormatChecker(BaseTokenChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": (
                     "Allow the body of an if to be on the same "
                     "line as the test if there is no else."
@@ -281,7 +282,7 @@ class FormatChecker(BaseTokenChecker):
             {
                 "default": False,
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": (
                     "Allow the body of a class to be on the same "
                     "line as the declaration if body contains "
@@ -334,7 +335,7 @@ class FormatChecker(BaseTokenChecker):
     )
 
     def __init__(self, linter=None):
-        BaseTokenChecker.__init__(self, linter)
+        super().__init__(linter)
         self._lines = None
         self._visited_lines = None
         self._bracket_stack = [None]
@@ -350,7 +351,7 @@ class FormatChecker(BaseTokenChecker):
             self._lines[line_num] = line.split("\n")[0]
         self.check_lines(line, line_num)
 
-    def process_module(self, _module):
+    def process_module(self, _node: nodes.Module) -> None:
         pass
 
     def _check_keyword_parentheses(
@@ -374,6 +375,7 @@ class FormatChecker(BaseTokenChecker):
         found_and_or = False
         contains_walrus_operator = False
         walrus_operator_depth = 0
+        contains_double_parens = 0
         depth = 0
         keyword_token = str(tokens[start].string)
         line_num = tokens[start].start[0]
@@ -393,19 +395,25 @@ class FormatChecker(BaseTokenChecker):
                 walrus_operator_depth = depth
             if token.string == "(":
                 depth += 1
+                if tokens[i + 1].string == "(":
+                    contains_double_parens = 1
             elif token.string == ")":
                 depth -= 1
                 if depth:
+                    if contains_double_parens and tokens[i + 1].string == ")":
+                        # For walrus operators in `if (not)` conditions and comprehensions
+                        if keyword_token in {"in", "if", "not"}:
+                            continue
+                        return
+                    contains_double_parens -= 1
                     continue
                 # ')' can't happen after if (foo), since it would be a syntax error.
                 if tokens[i + 1].string in (":", ")", "]", "}", "in") or tokens[
                     i + 1
                 ].type in (tokenize.NEWLINE, tokenize.ENDMARKER, tokenize.COMMENT):
-                    # The empty tuple () is always accepted.
                     if contains_walrus_operator and walrus_operator_depth - 1 == depth:
-                        # Reset variable for possible following expressions
-                        contains_walrus_operator = False
-                        continue
+                        return
+                    # The empty tuple () is always accepted.
                     if i == start + 2:
                         return
                     if keyword_token == "not":
@@ -417,7 +425,7 @@ class FormatChecker(BaseTokenChecker):
                         self.add_message(
                             "superfluous-parens", line=line_num, args=keyword_token
                         )
-                    elif not found_and_or:
+                    elif not found_and_or and keyword_token != "in":
                         self.add_message(
                             "superfluous-parens", line=line_num, args=keyword_token
                         )
@@ -439,6 +447,13 @@ class FormatChecker(BaseTokenChecker):
                 # generator expression.  The parens are necessary here, so bail
                 # without an error.
                 elif token[1] == "for":
+                    return
+                # A generator expression can have an 'else' token in it.
+                # We check the rest of the tokens to see if any problems incure after
+                # the 'else'.
+                elif token[1] == "else":
+                    if "(" in (i.string for i in tokens[i:]):
+                        self._check_keyword_parentheses(tokens[i:], 0)
                     return
 
     def _prepare_token_dispatcher(self):
@@ -567,7 +582,7 @@ class FormatChecker(BaseTokenChecker):
                 )
 
     @check_messages("multiple-statements")
-    def visit_default(self, node):
+    def visit_default(self, node: nodes.NodeNG) -> None:
         """check the node line number and check it if not yet done"""
         if not node.is_statement:
             return
@@ -658,7 +673,7 @@ class FormatChecker(BaseTokenChecker):
                 "trailing-whitespace", line=i, col_offset=len(stripped_line)
             )
 
-    def check_line_length(self, line: str, i: int) -> None:
+    def check_line_length(self, line: str, i: int, checker_off: bool) -> None:
         """
         Check that the line length is less than the authorized value
         """
@@ -666,7 +681,10 @@ class FormatChecker(BaseTokenChecker):
         ignore_long_line = self.config.ignore_long_lines
         line = line.rstrip()
         if len(line) > max_chars and not ignore_long_line.search(line):
-            self.add_message("line-too-long", line=i, args=(len(line), max_chars))
+            if checker_off:
+                self.linter.add_ignored_message("line-too-long", i)
+            else:
+                self.add_message("line-too-long", line=i, args=(len(line), max_chars))
 
     @staticmethod
     def remove_pylint_option_from_lines(options_pattern_obj) -> str:
@@ -760,16 +778,16 @@ class FormatChecker(BaseTokenChecker):
 
         # Line length check may be deactivated through `pylint: disable` comment
         mobj = OPTION_PO.search(lines)
+        checker_off = False
         if mobj:
             if not self.is_line_length_check_activated(mobj):
-                # the line length check is deactivated, we can stop here
-                return
+                checker_off = True
             # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(mobj)
 
         # here we re-run specific_splitlines since we have filtered out pylint options above
         for offset, line in enumerate(self.specific_splitlines(lines)):
-            self.check_line_length(line, lineno + offset)
+            self.check_line_length(line, lineno + offset, checker_off)
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string"""

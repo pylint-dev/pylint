@@ -3,18 +3,18 @@
 
 import re
 from collections import namedtuple
-from typing import Generator, List
+from typing import Generator, List, Optional
 
 # Allow stopping after the first semicolon/hash encountered,
 # so that an option can be continued with the reasons
 # why it is active or disabled.
 OPTION_RGX = r"""
-    \s*                # Any number of whithespace
-    \#?                # One or zero hash
-    .*                 # Anything (as much as possible)
+    \s*                # Any number of whithespace
+    \#?                # One or zero hash
+    .*                 # Anything (as much as possible)
     (\s*               # Beginning of first matched group and any number of whitespaces
-    \#                 # Beginning of comment
-    .*?                # Anything (as little as possible)
+    \#                 # Beginning of comment
+    .*?                # Anything (as little as possible)
     \bpylint:          # pylint word and column
     \s*                # Any number of whitespaces
     ([^;#\n]+))        # Anything except semicolon or hash or newline (it is the second matched group)
@@ -27,11 +27,13 @@ PragmaRepresenter = namedtuple("PragmaRepresenter", "action messages")
 
 
 ATOMIC_KEYWORDS = frozenset(("disable-all", "skip-file"))
-MESSAGE_KEYWORDS = frozenset(("disable-msg", "enable-msg", "disable", "enable"))
+MESSAGE_KEYWORDS = frozenset(
+    ("disable-next", "disable-msg", "enable-msg", "disable", "enable")
+)
 # sorted is necessary because sets are unordered collections and ALL_KEYWORDS
-#  string should not vary between executions
-#  reverse is necessary in order to have the longest keywords first, so that, for example,
-# 'disable' string should not be matched instead of 'disable-all'
+# string should not vary between executions
+# reverse is necessary in order to have the longest keywords first, so that, for example,
+# 'disable' string should not be matched instead of 'disable-all'
 ALL_KEYWORDS = "|".join(
     sorted(ATOMIC_KEYWORDS | MESSAGE_KEYWORDS, key=len, reverse=True)
 )
@@ -39,8 +41,8 @@ ALL_KEYWORDS = "|".join(
 
 TOKEN_SPECIFICATION = [
     ("KEYWORD", fr"\b({ALL_KEYWORDS:s})\b"),
-    ("MESSAGE_STRING", r"[0-9A-Za-z\-\_]{2,}"),  #  Identifiers
-    ("ASSIGN", r"="),  #  Assignment operator
+    ("MESSAGE_STRING", r"[0-9A-Za-z\-\_]{2,}"),  # Identifiers
+    ("ASSIGN", r"="),  # Assignment operator
     ("MESSAGE_NUMBER", r"[CREIWF]{1}\d*"),
 ]
 
@@ -50,7 +52,7 @@ TOK_REGEX = "|".join(
 )
 
 
-def emit_pragma_representer(action, messages):
+def emit_pragma_representer(action: str, messages: List[str]) -> PragmaRepresenter:
     if not messages and action in MESSAGE_KEYWORDS:
         raise InvalidPragmaError(
             "The keyword is not followed by message identifier", action
@@ -63,7 +65,7 @@ class PragmaParserError(Exception):
     A class for exceptions thrown by pragma_parser module
     """
 
-    def __init__(self, message, token):
+    def __init__(self, message: str, token: str) -> None:
         """
         :args message: explain the reason why the exception has been thrown
         :args token: token concerned by the exception
@@ -86,7 +88,7 @@ class InvalidPragmaError(PragmaParserError):
 
 
 def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]:
-    action = None
+    action: Optional[str] = None
     messages: List[str] = []
     assignment_required = False
     previous_token = ""
@@ -98,12 +100,12 @@ def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]
         if kind == "ASSIGN":
             if not assignment_required:
                 if action:
-                    # A keyword has been found previously but doesn't support assignement
+                    # A keyword has been found previously but doesn't support assignment
                     raise UnRecognizedOptionError(
                         "The keyword doesn't support assignment", action
                     )
                 if previous_token:
-                    #  Something found previously but not a known keyword
+                    # Something found previously but not a known keyword
                     raise UnRecognizedOptionError(
                         "The keyword is unknown", previous_token
                     )
@@ -111,12 +113,14 @@ def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]
                 raise InvalidPragmaError("Missing keyword before assignment", "")
             assignment_required = False
         elif assignment_required:
-            raise InvalidPragmaError("The = sign is missing after the keyword", action)
+            raise InvalidPragmaError(
+                "The = sign is missing after the keyword", action or ""
+            )
         elif kind == "KEYWORD":
             if action:
                 yield emit_pragma_representer(action, messages)
             action = value
-            messages = list()
+            messages = []
             assignment_required = action in MESSAGE_KEYWORDS
         elif kind in ("MESSAGE_STRING", "MESSAGE_NUMBER"):
             messages.append(value)

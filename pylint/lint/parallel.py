@@ -3,15 +3,18 @@
 
 import collections
 import functools
+from typing import Any, DefaultDict, Iterable, List, Tuple
 
 from pylint import reporters
 from pylint.lint.utils import _patch_sys_path
 from pylint.message import Message
+from pylint.typing import FileItem
+from pylint.utils import LinterStats, merge_stats
 
 try:
     import multiprocessing
 except ImportError:
-    multiprocessing = None  # type: ignore
+    multiprocessing = None  # type: ignore[assignment]
 
 # PyLinter object used by worker processes when checking files using multiprocessing
 # should only be used by the worker processes
@@ -30,25 +33,6 @@ def _get_new_args(message):
     return (message.msg_id, message.symbol, location, message.msg, message.confidence)
 
 
-def _merge_stats(stats):
-    merged = {}
-    by_msg = collections.Counter()
-    for stat in stats:
-        message_stats = stat.pop("by_msg", {})
-        by_msg.update(message_stats)
-
-        for key, item in stat.items():
-            if key not in merged:
-                merged[key] = item
-            elif isinstance(item, dict):
-                merged[key].update(item)
-            else:
-                merged[key] = merged[key] + item
-
-    merged["by_msg"] = by_msg
-    return merged
-
-
 def _worker_initialize(linter, arguments=None):
     global _worker_linter  # pylint: disable=global-statement
     _worker_linter = linter
@@ -62,11 +46,15 @@ def _worker_initialize(linter, arguments=None):
     _patch_sys_path(arguments or ())
 
 
-def _worker_check_single_file(file_item):
-    name, filepath, modname = file_item
-
+def _worker_check_single_file(
+    file_item: FileItem,
+) -> Tuple[
+    int, Any, str, Any, List[Tuple[Any, ...]], LinterStats, Any, DefaultDict[Any, List]
+]:
+    if not _worker_linter:
+        raise Exception("Worker linter not yet initialised")
     _worker_linter.open()
-    _worker_linter.check_single_file(name, filepath, modname)
+    _worker_linter.check_single_file_item(file_item)
     mapreduce_data = collections.defaultdict(list)
     for checker in _worker_linter.get_checkers():
         try:
@@ -79,7 +67,7 @@ def _worker_check_single_file(file_item):
     return (
         id(multiprocessing.current_process()),
         _worker_linter.current_name,
-        filepath,
+        file_item.filepath,
         _worker_linter.file_state.base_name,
         msgs,
         _worker_linter.stats,
@@ -109,7 +97,7 @@ def _merge_mapreduce_data(linter, all_mapreduce_data):
             checker.reduce_map_data(linter, collated_map_reduce_data[checker.name])
 
 
-def check_parallel(linter, jobs, files, arguments=None):
+def check_parallel(linter, jobs, files: Iterable[FileItem], arguments=None):
     """Use the given linter to lint the files with given amount of workers (jobs)
     This splits the work filestream-by-filestream. If you need to do work across
     multiple files, as in the similarity-checker, then inherit from MapReduceMixin and
@@ -151,7 +139,7 @@ def check_parallel(linter, jobs, files, arguments=None):
             linter.set_current_module(module, file_path)
             for msg in messages:
                 msg = Message(*msg)
-                linter.reporter.handle_message(msg)
+                linter.reporter.handle_message(msg)  # type: ignore[attr-defined]  # linter.set_reporter() call above makes linter have a reporter attr
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status
@@ -160,7 +148,7 @@ def check_parallel(linter, jobs, files, arguments=None):
         pool.join()
 
     _merge_mapreduce_data(linter, all_mapreduce_data)
-    linter.stats = _merge_stats(all_stats)
+    linter.stats = merge_stats([linter.stats] + all_stats)
 
     # Insert stats data to local checkers.
     for checker in linter.get_checkers():

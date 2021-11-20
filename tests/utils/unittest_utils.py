@@ -13,6 +13,7 @@
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -23,7 +24,7 @@ import io
 from pylint.utils import utils
 
 
-def test_decoding_stream_unknown_encoding():
+def test_decoding_stream_unknown_encoding() -> None:
     """decoding_stream should fall back to *some* decoding when given an
     unknown encoding.
     """
@@ -34,7 +35,7 @@ def test_decoding_stream_unknown_encoding():
     assert ret == ["foo\n", "bar"]
 
 
-def test_decoding_stream_known_encoding():
+def test_decoding_stream_known_encoding() -> None:
     binary_io = io.BytesIO("€".encode("cp1252"))
     stream = utils.decoding_stream(binary_io, "cp1252")
     assert stream.read() == "€"

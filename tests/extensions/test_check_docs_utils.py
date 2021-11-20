@@ -6,6 +6,7 @@
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -24,7 +25,7 @@ from pylint.extensions import _check_docs_utils as utils
     "string,count",
     [("abc", 0), ("", 0), ("  abc", 2), ("\n  abc", 0), ("   \n  abc", 3)],
 )
-def test_space_indentation(string, count):
+def test_space_indentation(string: str, count: int) -> None:
     """Test for pylint_plugin.ParamDocChecker"""
     assert utils.space_indentation(string) == count
 

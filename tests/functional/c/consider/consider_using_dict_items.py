@@ -1,5 +1,5 @@
 """Emit a message for iteration through dict keys and subscripting dict with key."""
-# pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,redefined-outer-name
+# pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,redefined-outer-name,use-dict-literal
 
 def bad():
     a_dict = {1: 1, 2: 2, 3: 3}

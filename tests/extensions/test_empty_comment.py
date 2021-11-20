@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from pylint.extensions import empty_comment
+from pylint.lint.pylinter import PyLinter
 
 
 @pytest.fixture(scope="module")
@@ -20,7 +21,7 @@ def disable():
     return ["all"]
 
 
-def test_comment_base_case(linter):
+def test_comment_base_case(linter: PyLinter) -> None:
     comment_test = str(Path(__file__).parent.joinpath("data", "empty_comment.py"))
     linter.check([comment_test])
     msgs = linter.reporter.messages

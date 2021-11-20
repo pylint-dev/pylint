@@ -12,6 +12,7 @@
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -22,6 +23,7 @@
 import re
 import sys
 from os.path import abspath, dirname, join
+from typing import List, Optional, Tuple
 
 import pytest
 
@@ -35,31 +37,32 @@ FILTER_RGX = None
 INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
 
 
-def exception_str(self, ex):  # pylint: disable=unused-argument
-    """function used to replace default __str__ method of exception instances"""
-    return "in {}\n:: {}".format(ex.file, ", ".join(ex.args))
+def exception_str(self, ex) -> str:  # pylint: disable=unused-argument
+    """function used to replace default __str__ method of exception instances
+    This function is not typed because it is legacy code"""
+    return f"in {ex.file}\n:: {', '.join(ex.args)}"
 
 
 class LintTestUsingModule:
-    INPUT_DIR = None
+    INPUT_DIR: Optional[str] = None
     DEFAULT_PACKAGE = "input"
     package = DEFAULT_PACKAGE
     linter = linter
-    module = None
-    depends = None
-    output = None
+    module: Optional[str] = None
+    depends: Optional[List[Tuple[str, str]]] = None
+    output: Optional[str] = None
 
-    def _test_functionality(self):
-        tocheck = [self.package + "." + self.module]
+    def _test_functionality(self) -> None:
+        if self.module:
+            tocheck = [self.package + "." + self.module]
         # pylint: disable=not-an-iterable; can't handle boolean checks for now
         if self.depends:
             tocheck += [
-                self.package + ".%s" % name.replace(".py", "")
-                for name, _ in self.depends
+                self.package + f".{name.replace('.py', '')}" for name, _ in self.depends
             ]
         self._test(tocheck)
 
-    def _check_result(self, got):
+    def _check_result(self, got: str) -> None:
         error_msg = (
             f"Wrong output for '{self.output}':\n"
             "You can update the expected output automatically with: '"
@@ -67,28 +70,29 @@ class LintTestUsingModule:
         )
         assert self._get_expected() == got, error_msg
 
-    def _test(self, tocheck):
-        if INFO_TEST_RGX.match(self.module):
+    def _test(self, tocheck: List[str]) -> None:
+        if self.module and INFO_TEST_RGX.match(self.module):
             self.linter.enable("I")
         else:
             self.linter.disable("I")
         try:
             self.linter.check(tocheck)
         except Exception as ex:
-            # need finalization to restore a correct state
-            self.linter.reporter.finalize()
-            ex.file = tocheck
+            print(f"Exception: {ex} in {tocheck}:: {'‚ '.join(ex.args)}")
+            ex.file = tocheck  # type: ignore[attr-defined] # This is legacy code we're trying to remove, not worth it to type correctly
             print(ex)
-            ex.__str__ = exception_str
+            ex.__str__ = exception_str  # type: ignore[assignment] # This is legacy code we're trying to remove, impossible to type correctly
             raise
         self._check_result(self.linter.reporter.finalize())
 
-    def _has_output(self):
-        return not self.module.startswith("func_noerror_")
+    def _has_output(self) -> bool:
+        return isinstance(self.module, str) and not self.module.startswith(
+            "func_noerror_"
+        )
 
-    def _get_expected(self):
+    def _get_expected(self) -> str:
         if self._has_output() and self.output:
-            with open(self.output) as fobj:
+            with open(self.output, encoding="utf-8") as fobj:
                 return fobj.read().strip() + "\n"
         else:
             return ""
@@ -103,7 +107,7 @@ class LintTestUpdate(LintTestUsingModule):
         except OSError:
             expected = ""
         if got != expected:
-            with open(self.output, "w") as f:
+            with open(self.output, "w", encoding="utf-8") as f:
                 f.write(got)
 
 
@@ -150,7 +154,9 @@ def test_functionality(module_file, messages_file, dependencies, recwarn):
             assert "invalid escape sequence" in str(warning.message)
 
 
-def __test_functionality(module_file, messages_file, dependencies):
+def __test_functionality(
+    module_file: str, messages_file: str, dependencies: List[Tuple[str, str]]
+) -> None:
     lint_test = LintTestUpdate() if UPDATE_FILE.exists() else LintTestUsingModule()
     lint_test.module = module_file.replace(".py", "")
     lint_test.output = messages_file

@@ -9,6 +9,8 @@
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 
@@ -20,15 +22,15 @@
 
   create UML diagrams for classes and modules in <packages>
 """
-import os
-import subprocess
 import sys
+from typing import Iterable
 
 from pylint.config import ConfigurationMixIn
+from pylint.lint.utils import fix_import_path
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
-from pylint.pyreverse.utils import insert_default_options
+from pylint.pyreverse.utils import check_graphviz_availability, insert_default_options
 
 OPTIONS = (
     (
@@ -114,7 +116,7 @@ OPTIONS = (
             short="m",
             default=None,
             type="yn",
-            metavar="[yn]",
+            metavar="<y or n>",
             help="include module name in representation of classes",
         ),
     ),
@@ -124,8 +126,7 @@ OPTIONS = (
             short="k",
             action="store_true",
             default=False,
-            help="don't show attributes and methods in the class boxes; \
-this disables -f values",
+            help="don't show attributes and methods in the class boxes; this disables -f values",
         ),
     ),
     (
@@ -140,64 +141,70 @@ this disables -f values",
         ),
     ),
     (
+        "colorized",
+        dict(
+            dest="colorized",
+            action="store_true",
+            default=False,
+            help="Use colored output. Classes/modules of the same package get the same color.",
+        ),
+    ),
+    (
+        "max-color-depth",
+        dict(
+            dest="max_color_depth",
+            action="store",
+            default=2,
+            metavar="<depth>",
+            type="int",
+            help="Use separate colors up to package depth of <depth>",
+        ),
+    ),
+    (
         "ignore",
-        {
-            "type": "csv",
-            "metavar": "<file[,file...]>",
-            "dest": "ignore_list",
-            "default": ("CVS",),
-            "help": "Files or directories to be skipped. They "
-            "should be base names, not paths.",
-        },
+        dict(
+            type="csv",
+            metavar="<file[,file...]>",
+            dest="ignore_list",
+            default=("CVS",),
+            help="Files or directories to be skipped. They should be base names, not paths.",
+        ),
     ),
     (
         "project",
-        {
-            "default": "",
-            "type": "string",
-            "short": "p",
-            "metavar": "<project name>",
-            "help": "set the project name.",
-        },
+        dict(
+            default="",
+            type="string",
+            short="p",
+            metavar="<project name>",
+            help="set the project name.",
+        ),
     ),
     (
         "output-directory",
-        {
-            "default": "",
-            "type": "string",
-            "short": "d",
-            "action": "store",
-            "metavar": "<output_directory>",
-            "help": "set the output directory path.",
-        },
+        dict(
+            default="",
+            type="string",
+            short="d",
+            action="store",
+            metavar="<output_directory>",
+            help="set the output directory path.",
+        ),
     ),
 )
-
-
-def _check_graphviz_available(output_format):
-    """check if we need graphviz for different output format"""
-    try:
-        subprocess.call(["dot", "-V"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except OSError:
-        print(
-            "The output format '%s' is currently not available.\n"
-            "Please install 'Graphviz' to have other output formats "
-            "than 'dot' or 'vcg'." % output_format
-        )
-        sys.exit(32)
 
 
 class Run(ConfigurationMixIn):
     """base class providing common behaviour for pyreverse commands"""
 
-    options = OPTIONS  # type: ignore
+    options = OPTIONS
 
-    def __init__(self, args):
-        ConfigurationMixIn.__init__(self, usage=__doc__)
+    def __init__(self, args: Iterable[str]):
+        super().__init__(usage=__doc__)
         insert_default_options()
-        args = self.load_command_line_configuration()
-        if self.config.output_format not in ("dot", "vcg"):
-            _check_graphviz_available(self.config.output_format)
+        args = self.load_command_line_configuration(args)
+        if self.config.output_format not in ("dot", "vcg", "puml", "plantuml"):
+            check_graphviz_availability()
 
         sys.exit(self.run(args))
 
@@ -206,25 +213,16 @@ class Run(ConfigurationMixIn):
         if not args:
             print(self.help())
             return 1
-        # insert current working directory to the python path to recognize
-        # dependencies to local modules even if cwd is not in the PYTHONPATH
-        sys.path.insert(0, os.getcwd())
-        try:
+        with fix_import_path(args):
             project = project_from_files(
                 args,
                 project_name=self.config.project,
                 black_list=self.config.ignore_list,
             )
-            linker = Linker(project, tag=True)
-            handler = DiadefsHandler(self.config)
-            diadefs = handler.get_diadefs(project, linker)
-        finally:
-            sys.path.pop(0)
-
-        if self.config.output_format == "vcg":
-            writer.VCGWriter(self.config).write(diadefs)
-        else:
-            writer.DotWriter(self.config).write(diadefs)
+        linker = Linker(project, tag=True)
+        handler = DiadefsHandler(self.config)
+        diadefs = handler.get_diadefs(project, linker)
+        writer.DiagramWriter(self.config).write(diadefs)
         return 0
 
 

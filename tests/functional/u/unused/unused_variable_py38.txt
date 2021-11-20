@@ -1,0 +1,6 @@
+unused-variable:4:0:typed_assignment_in_function_default:Unused variable 'typed_assignment_in_function_default':HIGH
+unused-variable:5:18::Unused variable 'typed_default':HIGH
+unused-variable:11:0:assignment_in_function_default:Unused variable 'assignment_in_function_default':HIGH
+unused-variable:12:11::Unused variable 'default':HIGH
+unused-variable:18:0:assignment_used_in_function_scope:Unused variable 'assignment_used_in_function_scope':HIGH
+unused-variable:26:0:assignment_used_in_global_scope:Unused variable 'assignment_used_in_global_scope':HIGH

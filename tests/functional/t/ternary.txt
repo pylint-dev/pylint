@@ -5,3 +5,4 @@ consider-using-ternary:19:0::Consider using ternary ('greater' if SOME_VALUE1 > 
 consider-using-ternary:20:0::Consider using ternary ('both' if SOME_VALUE2 > 4 and SOME_VALUE3 else 'not')
 simplify-boolean-expression:23:0::Boolean expression may be simplified to SOME_VALUE2
 consider-using-ternary:33:4:func4:Consider using ternary (truth_value if condition else false_value)
+simplify-boolean-expression:39:4:func5:Boolean expression may be simplified to false_value

@@ -12,6 +12,7 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -20,10 +21,13 @@
 """handle diagram generation options for class diagram or default diagrams
 """
 
-import astroid
+from typing import Any, Optional
 
-from pylint.constants import BUILTINS
+import astroid
+from astroid import nodes
+
 from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
+from pylint.pyreverse.inspector import Project
 from pylint.pyreverse.utils import LocalsVisitor
 
 # diagram generators ##########################################################
@@ -78,7 +82,7 @@ class DiaDefGenerator:
         """true if builtins and not show_builtins"""
         if self.config.show_builtin:
             return True
-        return node.root().name != BUILTINS
+        return node.root().name != "builtins"
 
     def add_class(self, node):
         """visit one class and add it to diagram"""
@@ -104,7 +108,7 @@ class DiaDefGenerator:
             for node in association_nodes:
                 if isinstance(node, astroid.Instance):
                     node = node._proxied
-                if not (isinstance(node, astroid.ClassDef) and self.show_node(node)):
+                if not (isinstance(node, nodes.ClassDef) and self.show_node(node)):
                     continue
                 yield node
 
@@ -132,19 +136,21 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         DiaDefGenerator.__init__(self, linker, handler)
         LocalsVisitor.__init__(self)
 
-    def visit_project(self, node):
+    def visit_project(self, node: Project) -> None:
         """visit a pyreverse.utils.Project node
 
         create a diagram definition for packages
         """
         mode = self.config.mode
         if len(node.modules) > 1:
-            self.pkgdiagram = PackageDiagram("packages %s" % node.name, mode)
+            self.pkgdiagram: Optional[PackageDiagram] = PackageDiagram(
+                f"packages {node.name}", mode
+            )
         else:
             self.pkgdiagram = None
-        self.classdiagram = ClassDiagram("classes %s" % node.name, mode)
+        self.classdiagram = ClassDiagram(f"classes {node.name}", mode)
 
-    def leave_project(self, node):  # pylint: disable=unused-argument
+    def leave_project(self, _: Project) -> Any:
         """leave the pyreverse.utils.Project node
 
         return the generated diagram definition
@@ -153,7 +159,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
             return self.pkgdiagram, self.classdiagram
         return (self.classdiagram,)
 
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         """visit an astroid.Module node
 
         add this class to the package diagram definition
@@ -162,7 +168,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
             self.linker.visit(node)
             self.pkgdiagram.add_object(node.name, node)
 
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         """visit an astroid.Class node
 
         add this class to the class diagram definition
@@ -170,7 +176,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         anc_level, association_level = self._get_levels()
         self.extract_classes(node, anc_level, association_level)
 
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """visit astroid.ImportFrom  and catch modules for package diagram"""
         if self.pkgdiagram:
             self.pkgdiagram.add_from_depend(node, node.modname)
@@ -180,9 +186,6 @@ class ClassDiadefGenerator(DiaDefGenerator):
     """generate a class diagram definition including all classes related to a
     given class
     """
-
-    def __init__(self, linker, handler):
-        DiaDefGenerator.__init__(self, linker, handler)
 
     def class_diagram(self, project, klass):
         """return a class diagram definition for the given klass and its

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, pointless-statement, misplaced-comparison-constant, undefined-variable, literal-comparison, line-too-long, unneeded-not
+# pylint: disable=missing-docstring, invalid-name, pointless-statement, undefined-variable, literal-comparison, line-too-long, unneeded-not, too-few-public-methods, use-implicit-booleaness-not-comparison
 
 value = value1 = 1
 value2 = 2
@@ -44,3 +44,10 @@ def oops():
 
 
 some_value = value == 4 or value == 5 or value == oops() # We only look for names and constants
+
+
+# With attribute nodes
+class A:
+    value = 2
+
+A.value == 1 or A.value == 2  # [consider-using-in]

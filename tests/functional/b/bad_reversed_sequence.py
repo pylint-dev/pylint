@@ -1,6 +1,6 @@
 """ Checks that reversed() receive proper argument """
 # pylint: disable=missing-docstring, useless-object-inheritance
-# pylint: disable=too-few-public-methods,no-self-use,no-absolute-import
+# pylint: disable=too-few-public-methods,no-self-use
 from collections import deque, OrderedDict
 from enum import IntEnum
 
@@ -28,11 +28,8 @@ class SecondBadReversed(object):
     def __getitem__(self, index):
         return index
 
-class ThirdBadReversed(dict):
-    """ dict subclass """
-
 def uninferable(seq):
-    """ This can't be infered at this moment,
+    """ This can't be inferred at this moment,
     make sure we don't have a false positive.
     """
     return reversed(seq)
@@ -50,7 +47,6 @@ def test(path):
     seq = reversed(BadReversed()) # [bad-reversed-sequence]
     seq = reversed(SecondBadReversed()) # [bad-reversed-sequence]
     seq = reversed(range(100))
-    seq = reversed(ThirdBadReversed()) # [bad-reversed-sequence]
     seq = reversed(lambda: None) # [bad-reversed-sequence]
     seq = reversed(deque([]))
     seq = reversed("123")

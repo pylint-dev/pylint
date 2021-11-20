@@ -11,6 +11,7 @@
 # Copyright (c) 2019 Nathan Marrow <nmarrow@google.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -18,8 +19,11 @@
 
 """Tests for the pylint.checkers.utils module."""
 
+from typing import Dict, Union
+
 import astroid
 import pytest
+from astroid import nodes
 
 from pylint.checkers import utils
 
@@ -43,7 +47,9 @@ def testIsBuiltin(name, expected):
     "fn,kw",
     [("foo(3)", {"keyword": "bar"}), ("foo(one=a, two=b, three=c)", {"position": 1})],
 )
-def testGetArgumentFromCallError(fn, kw):
+def testGetArgumentFromCallError(
+    fn: str, kw: Union[Dict[str, int], Dict[str, str]]
+) -> None:
     with pytest.raises(utils.NoSuchArgumentError):
         node = astroid.extract_node(fn)
         utils.get_argument_from_call(node, **kw)
@@ -52,12 +58,14 @@ def testGetArgumentFromCallError(fn, kw):
 @pytest.mark.parametrize(
     "fn,kw", [("foo(bar=3)", {"keyword": "bar"}), ("foo(a, b, c)", {"position": 1})]
 )
-def testGetArgumentFromCallExists(fn, kw):
+def testGetArgumentFromCallExists(
+    fn: str, kw: Union[Dict[str, int], Dict[str, str]]
+) -> None:
     node = astroid.extract_node(fn)
     assert utils.get_argument_from_call(node, **kw) is not None
 
 
-def testGetArgumentFromCall():
+def testGetArgumentFromCall() -> None:
     node = astroid.extract_node("foo(a, not_this_one=1, this_one=2)")
     arg = utils.get_argument_from_call(node, position=2, keyword="this_one")
     assert arg.value == 2
@@ -71,8 +79,8 @@ def testGetArgumentFromCall():
     assert name.name == "a"
 
 
-def test_error_of_type():
-    nodes = astroid.extract_node(
+def test_error_of_type() -> None:
+    code = astroid.extract_node(
         """
     try: pass
     except AttributeError: #@
@@ -84,14 +92,14 @@ def test_error_of_type():
          pass
     """
     )
-    assert utils.error_of_type(nodes[0], AttributeError)
-    assert utils.error_of_type(nodes[0], (AttributeError,))
-    assert not utils.error_of_type(nodes[0], Exception)
-    assert utils.error_of_type(nodes[1], Exception)
+    assert utils.error_of_type(code[0], AttributeError)
+    assert utils.error_of_type(code[0], (AttributeError,))
+    assert not utils.error_of_type(code[0], Exception)
+    assert utils.error_of_type(code[1], Exception)
 
 
-def test_node_ignores_exception():
-    nodes = astroid.extract_node(
+def test_node_ignores_exception() -> None:
+    code = astroid.extract_node(
         """
     try:
         1/0 #@
@@ -111,14 +119,14 @@ def test_node_ignores_exception():
         pass
     """
     )
-    assert utils.node_ignores_exception(nodes[0], ZeroDivisionError)
-    assert not utils.node_ignores_exception(nodes[1], ZeroDivisionError)
-    assert not utils.node_ignores_exception(nodes[2], ZeroDivisionError)
-    assert not utils.node_ignores_exception(nodes[3], ZeroDivisionError)
+    assert utils.node_ignores_exception(code[0], ZeroDivisionError)
+    assert not utils.node_ignores_exception(code[1], ZeroDivisionError)
+    assert not utils.node_ignores_exception(code[2], ZeroDivisionError)
+    assert not utils.node_ignores_exception(code[3], ZeroDivisionError)
 
 
-def test_is_subclass_of_node_b_derived_from_node_a():
-    nodes = astroid.extract_node(
+def test_is_subclass_of_node_b_derived_from_node_a() -> None:
+    code = astroid.extract_node(
         """
     class Superclass: #@
         pass
@@ -127,11 +135,11 @@ def test_is_subclass_of_node_b_derived_from_node_a():
         pass
     """
     )
-    assert utils.is_subclass_of(nodes[1], nodes[0])
+    assert utils.is_subclass_of(code[1], code[0])
 
 
-def test_is_subclass_of_node_b_not_derived_from_node_a():
-    nodes = astroid.extract_node(
+def test_is_subclass_of_node_b_not_derived_from_node_a() -> None:
+    code = astroid.extract_node(
         """
     class OneClass: #@
         pass
@@ -140,10 +148,10 @@ def test_is_subclass_of_node_b_not_derived_from_node_a():
         pass
     """
     )
-    assert not utils.is_subclass_of(nodes[1], nodes[0])
+    assert not utils.is_subclass_of(code[1], code[0])
 
 
-def test_is_subclass_of_not_classdefs():
+def test_is_subclass_of_not_classdefs() -> None:
     node = astroid.extract_node(
         """
     class OneClass: #@
@@ -155,7 +163,7 @@ def test_is_subclass_of_not_classdefs():
     assert not utils.is_subclass_of(None, None)
 
 
-def test_parse_format_method_string():
+def test_parse_format_method_string() -> None:
     samples = [
         ("{}", 1),
         ("{}:{}", 2),
@@ -178,7 +186,7 @@ def test_parse_format_method_string():
         assert keyword_args + num_args + pos_args == count
 
 
-def test_inherit_from_std_ex_recursive_definition():
+def test_inherit_from_std_ex_recursive_definition() -> None:
     node = astroid.extract_node(
         """
       import datetime
@@ -193,7 +201,7 @@ def test_inherit_from_std_ex_recursive_definition():
     assert not utils.inherit_from_std_ex(node)
 
 
-def test_get_node_last_lineno_simple():
+def test_get_node_last_lineno_simple() -> None:
     node = astroid.extract_node(
         """
         pass
@@ -202,7 +210,7 @@ def test_get_node_last_lineno_simple():
     assert utils.get_node_last_lineno(node) == 2
 
 
-def test_get_node_last_lineno_if_simple():
+def test_get_node_last_lineno_if_simple() -> None:
     node = astroid.extract_node(
         """
         if True:
@@ -213,7 +221,7 @@ def test_get_node_last_lineno_if_simple():
     assert utils.get_node_last_lineno(node) == 4
 
 
-def test_get_node_last_lineno_if_elseif_else():
+def test_get_node_last_lineno_if_elseif_else() -> None:
     node = astroid.extract_node(
         """
         if True:
@@ -227,7 +235,7 @@ def test_get_node_last_lineno_if_elseif_else():
     assert utils.get_node_last_lineno(node) == 7
 
 
-def test_get_node_last_lineno_while():
+def test_get_node_last_lineno_while() -> None:
     node = astroid.extract_node(
         """
         while True:
@@ -237,7 +245,7 @@ def test_get_node_last_lineno_while():
     assert utils.get_node_last_lineno(node) == 3
 
 
-def test_get_node_last_lineno_while_else():
+def test_get_node_last_lineno_while_else() -> None:
     node = astroid.extract_node(
         """
         while True:
@@ -249,7 +257,7 @@ def test_get_node_last_lineno_while_else():
     assert utils.get_node_last_lineno(node) == 5
 
 
-def test_get_node_last_lineno_for():
+def test_get_node_last_lineno_for() -> None:
     node = astroid.extract_node(
         """
         for x in range(0, 5):
@@ -259,7 +267,7 @@ def test_get_node_last_lineno_for():
     assert utils.get_node_last_lineno(node) == 3
 
 
-def test_get_node_last_lineno_for_else():
+def test_get_node_last_lineno_for_else() -> None:
     node = astroid.extract_node(
         """
         for x in range(0, 5):
@@ -271,7 +279,7 @@ def test_get_node_last_lineno_for_else():
     assert utils.get_node_last_lineno(node) == 5
 
 
-def test_get_node_last_lineno_try():
+def test_get_node_last_lineno_try() -> None:
     node = astroid.extract_node(
         """
         try:
@@ -285,7 +293,7 @@ def test_get_node_last_lineno_try():
     assert utils.get_node_last_lineno(node) == 7
 
 
-def test_get_node_last_lineno_try_except_else():
+def test_get_node_last_lineno_try_except_else() -> None:
     node = astroid.extract_node(
         """
         try:
@@ -300,7 +308,7 @@ def test_get_node_last_lineno_try_except_else():
     assert utils.get_node_last_lineno(node) == 8
 
 
-def test_get_node_last_lineno_try_except_finally():
+def test_get_node_last_lineno_try_except_finally() -> None:
     node = astroid.extract_node(
         """
         try:
@@ -314,7 +322,7 @@ def test_get_node_last_lineno_try_except_finally():
     assert utils.get_node_last_lineno(node) == 7
 
 
-def test_get_node_last_lineno_try_except_else_finally():
+def test_get_node_last_lineno_try_except_else_finally() -> None:
     node = astroid.extract_node(
         """
         try:
@@ -330,7 +338,7 @@ def test_get_node_last_lineno_try_except_else_finally():
     assert utils.get_node_last_lineno(node) == 9
 
 
-def test_get_node_last_lineno_with():
+def test_get_node_last_lineno_with() -> None:
     node = astroid.extract_node(
         """
         with x as y:
@@ -341,7 +349,7 @@ def test_get_node_last_lineno_with():
     assert utils.get_node_last_lineno(node) == 4
 
 
-def test_get_node_last_lineno_method():
+def test_get_node_last_lineno_method() -> None:
     node = astroid.extract_node(
         """
         def x(a, b):
@@ -352,7 +360,7 @@ def test_get_node_last_lineno_method():
     assert utils.get_node_last_lineno(node) == 4
 
 
-def test_get_node_last_lineno_decorator():
+def test_get_node_last_lineno_decorator() -> None:
     node = astroid.extract_node(
         """
         @decor()
@@ -364,7 +372,7 @@ def test_get_node_last_lineno_decorator():
     assert utils.get_node_last_lineno(node) == 5
 
 
-def test_get_node_last_lineno_class():
+def test_get_node_last_lineno_class() -> None:
     node = astroid.extract_node(
         """
         class C(object):
@@ -381,7 +389,7 @@ def test_get_node_last_lineno_class():
     assert utils.get_node_last_lineno(node) == 10
 
 
-def test_get_node_last_lineno_combined():
+def test_get_node_last_lineno_combined() -> None:
     node = astroid.extract_node(
         """
         class C(object):
@@ -397,3 +405,83 @@ def test_get_node_last_lineno_combined():
         """
     )
     assert utils.get_node_last_lineno(node) == 11
+
+
+def test_if_sys_guard() -> None:
+    code = astroid.extract_node(
+        """
+    import sys
+    if sys.version_info > (3, 8):  #@
+        pass
+
+    if sys.version_info[:2] > (3, 8):  #@
+        pass
+
+    if sys.some_other_function > (3, 8):  #@
+        pass
+    """
+    )
+    assert isinstance(code, list) and len(code) == 3
+
+    assert isinstance(code[0], nodes.If)
+    assert utils.is_sys_guard(code[0]) is True
+    assert isinstance(code[1], nodes.If)
+    assert utils.is_sys_guard(code[1]) is True
+
+    assert isinstance(code[2], nodes.If)
+    assert utils.is_sys_guard(code[2]) is False
+
+
+def test_if_typing_guard() -> None:
+    code = astroid.extract_node(
+        """
+    import typing
+    import typing as t
+    from typing import TYPE_CHECKING
+
+    if typing.TYPE_CHECKING:  #@
+        pass
+
+    if t.TYPE_CHECKING:  #@
+        pass
+
+    if TYPE_CHECKING:  #@
+        pass
+
+    if typing.SOME_OTHER_CONST:  #@
+        pass
+    """
+    )
+    assert isinstance(code, list) and len(code) == 4
+
+    assert isinstance(code[0], nodes.If)
+    assert utils.is_typing_guard(code[0]) is True
+    assert isinstance(code[1], nodes.If)
+    assert utils.is_typing_guard(code[1]) is True
+    assert isinstance(code[2], nodes.If)
+    assert utils.is_typing_guard(code[2]) is True
+
+    assert isinstance(code[3], nodes.If)
+    assert utils.is_typing_guard(code[3]) is False
+
+
+def test_is_empty_literal() -> None:
+    list_node = astroid.extract_node("a = []")
+    assert utils.is_base_container(list_node.value)
+    not_empty_list_node = astroid.extract_node("a = [1,2,3]")
+    assert not utils.is_base_container(not_empty_list_node.value)
+
+    tuple_node = astroid.extract_node("a = ()")
+    assert utils.is_base_container(tuple_node.value)
+    not_empty_tuple_node = astroid.extract_node("a = (1,2)")
+    assert not utils.is_base_container(not_empty_tuple_node.value)
+
+    dict_node = astroid.extract_node("a = {}")
+    assert utils.is_empty_dict_literal(dict_node.value)
+    not_empty_dict_node = astroid.extract_node("a = {1:1}")
+    assert not utils.is_empty_dict_literal(not_empty_dict_node.value)
+
+    string_node = astroid.extract_node("a = ''")
+    assert utils.is_empty_str_literal(string_node.value)
+    not_empty_string_node = astroid.extract_node("a = 'hello'")
+    assert not utils.is_empty_str_literal(not_empty_string_node.value)

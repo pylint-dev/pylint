@@ -1,4 +1,6 @@
-# pylint: disable=missing-docstring, expression-not-assigned, too-few-public-methods, no-member, import-error, no-self-use, line-too-long, useless-object-inheritance, unnecessary-comprehension
+# pylint: disable=missing-docstring, expression-not-assigned, too-few-public-methods
+# pylint: disable=no-member, import-error, no-self-use, line-too-long, useless-object-inheritance
+# pylint: disable=unnecessary-comprehension, use-dict-literal, use-implicit-booleaness-not-comparison
 
 from unknown import Unknown
 
@@ -36,3 +38,31 @@ DICT = {'a': 1, 'b': 2}
 COMP1 = [k * 2 for k in DICT.keys()] + [k * 3 for k in DICT.keys()]  # [consider-iterating-dictionary,consider-iterating-dictionary]
 COMP2, COMP3 = [k * 2 for k in DICT.keys()], [k * 3 for k in DICT.keys()]  # [consider-iterating-dictionary,consider-iterating-dictionary]
 SOME_TUPLE = ([k * 2 for k in DICT.keys()], [k * 3 for k in DICT.keys()])  # [consider-iterating-dictionary,consider-iterating-dictionary]
+
+# Checks for membership checks
+if 1 in dict().keys(): # [consider-iterating-dictionary]
+    pass
+if 1 in {}.keys(): # [consider-iterating-dictionary]
+    pass
+if 1 in Unknown().keys():
+    pass
+if 1 in Unknown.keys():
+    pass
+if 1 in CustomClass().keys():
+    pass
+if 1 in dict():
+    pass
+if 1 in dict().values():
+    pass
+if (1, 1) in dict().items():
+    pass
+if [1] == {}.keys():
+    pass
+if [1] == {}:
+    pass
+if [1] == dict():
+    pass
+VAR = 1 in {}.keys() # [consider-iterating-dictionary]
+VAR = 1 in {}
+VAR = 1 in dict()
+VAR = [1, 2] == {}.keys() in {False}

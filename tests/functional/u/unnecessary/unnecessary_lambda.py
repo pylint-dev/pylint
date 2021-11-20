@@ -1,4 +1,4 @@
-# pylint: disable=undefined-variable
+# pylint: disable=undefined-variable, use-list-literal
 """test suspicious lambda expressions
 """
 

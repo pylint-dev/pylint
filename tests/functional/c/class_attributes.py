@@ -1,6 +1,6 @@
 """Test that valid class attribute doesn't trigger errors"""
 __revision__ = 'sponge bob'
-# pylint: disable=useless-object-inheritance
+# pylint: disable=useless-object-inheritance,missing-docstring,too-few-public-methods
 
 class Clazz(object):
     "dummy class"
@@ -16,3 +16,17 @@ class Clazz(object):
     def do_nothing(self):
         "I do nothing useful"
         return self.topic + 56
+
+
+class Base:
+    _class_prop: int
+
+
+class Child(Base):
+    _class_prop = 42
+
+    def method(self):
+        print(self._class_prop)
+
+
+Child().method()

@@ -11,12 +11,11 @@ class _ManHelpFormatter(optparse.HelpFormatter):
     def __init__(
         self, indent_increment=0, max_help_position=24, width=79, short_first=0
     ):
-        optparse.HelpFormatter.__init__(
-            self, indent_increment, max_help_position, width, short_first
-        )
+        super().__init__(indent_increment, max_help_position, width, short_first)
+        self.output_level: int
 
     def format_heading(self, heading):
-        return ".SH %s\n" % heading.upper()
+        return f".SH {heading.upper()}\n"
 
     def format_description(self, description):
         return description
@@ -54,7 +53,10 @@ class _ManHelpFormatter(optparse.HelpFormatter):
 
     @staticmethod
     def format_title(pgm, section):
-        date = "%d-%02d-%02d" % time.localtime()[:3]
+        date = (
+            "%d-%02d-%02d"  # pylint: disable=consider-using-f-string
+            % time.localtime()[:3]
+        )
         return f'.TH {pgm} {section} "{date}" {pgm}'
 
     @staticmethod

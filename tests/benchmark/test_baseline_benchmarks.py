@@ -3,6 +3,7 @@
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -16,11 +17,13 @@ import time
 from unittest.mock import patch
 
 import pytest
+from astroid import nodes
 
 import pylint.interfaces
 from pylint.checkers.base_checker import BaseChecker
 from pylint.lint import PyLinter, Run, check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
+from pylint.typing import FileItem
 from pylint.utils import register_plugins
 
 
@@ -50,7 +53,7 @@ class SleepingChecker(BaseChecker):
     }
     sleep_duration = 0.5  # the time to pretend we're doing work for
 
-    def process_module(self, _astroid):
+    def process_module(self, _node: nodes.Module) -> None:
         """Sleeps for `sleep_duration` on each call
 
         This effectively means each file costs ~`sleep_duration`+framework overhead"""
@@ -75,7 +78,7 @@ class SleepingCheckerLong(BaseChecker):
     }
     sleep_duration = 0.5  # the time to pretend we're doing work for
 
-    def process_module(self, _astroid):
+    def process_module(self, _node: nodes.Module) -> None:
         """Sleeps for `sleep_duration` on each call
 
         This effectively means each file costs ~`sleep_duration`+framework overhead"""
@@ -96,7 +99,7 @@ class NoWorkChecker(BaseChecker):
         )
     }
 
-    def process_module(self, _astroid):
+    def process_module(self, _node: nodes.Module) -> None:
         pass
 
 
@@ -106,11 +109,11 @@ class NoWorkChecker(BaseChecker):
 class TestEstablishBaselineBenchmarks:
     """Naive benchmarks for the high-level pylint framework
 
-    Because this benchmarks the fundemental and common parts and changes seen here will
+    Because this benchmarks the fundamental and common parts and changes seen here will
     impact everything else"""
 
     empty_filepath = _empty_filepath()
-    empty_file_info = (
+    empty_file_info = FileItem(
         "name-emptyfile-file",
         _empty_filepath(),
         "modname-emptyfile-mod",
@@ -131,9 +134,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_benchmark_j10(self, benchmark):
         """Establish a baseline of pylint performance with no work across threads
@@ -155,9 +156,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_benchmark_check_parallel_j10(self, benchmark):
         """Should demonstrate times very close to `test_baseline_benchmark_j10`"""
@@ -170,9 +169,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(check_parallel, linter, jobs=10, files=fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_lots_of_files_j1(self, benchmark):
         """Establish a baseline with only 'master' checker being run in -j1
@@ -190,9 +187,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_lots_of_files_j10(self, benchmark):
         """Establish a baseline with only 'master' checker being run in -j10
@@ -211,9 +206,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_lots_of_files_j1_empty_checker(self, benchmark):
         """Baselines pylint for a single extra checker being run in -j1, for N-files
@@ -232,9 +225,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_lots_of_files_j10_empty_checker(self, benchmark):
         """Baselines pylint for a single extra checker being run in -j10, for N-files
@@ -253,14 +244,12 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_benchmark_j1_single_working_checker(self, benchmark):
         """Establish a baseline of single-worker performance for PyLinter
 
-        Here we mimick a single Checker that does some work so that we can see the
+        Here we mimic a single Checker that does some work so that we can see the
         impact of running a simple system with -j1 against the same system with -j10.
 
         We expect this benchmark to take very close to
@@ -280,9 +269,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_benchmark_j10_single_working_checker(self, benchmark):
         """Establishes baseline of multi-worker performance for PyLinter/check_parallel
@@ -308,9 +295,7 @@ class TestEstablishBaselineBenchmarks:
         benchmark(linter.check, fileinfos)
         assert (
             linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(linter.reporter.messages)}"
 
     def test_baseline_benchmark_j1_all_checks_single_file(self, benchmark):
         """Runs a single file, with -j1, against all plug-ins
@@ -327,9 +312,7 @@ class TestEstablishBaselineBenchmarks:
 
         assert (
             runner.linter.msg_status == 0
-        ), "Expected no errors to be thrown: %s" % pprint.pformat(
-            runner.linter.reporter.messages
-        )
+        ), f"Expected no errors to be thrown: {pprint.pformat(runner.linter.reporter.messages)}"
 
     def test_baseline_benchmark_j1_all_checks_lots_of_files(self, benchmark):
         """Runs lots of files, with -j1, against all plug-ins

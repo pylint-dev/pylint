@@ -1,4 +1,4 @@
-# pylint: disable=C0302,bare-except,print-statement, useless-object-inheritance
+# pylint: disable=C0302,bare-except, useless-object-inheritance
 """pylint option block-disable"""
 from __future__ import print_function
 

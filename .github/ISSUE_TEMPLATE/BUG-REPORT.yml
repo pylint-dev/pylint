@@ -23,7 +23,6 @@ body:
         # Please disable message unrelated to the bug
         # pylint: disable=missing-docstring,
         <a> = b + 1
-      render: python
     validations:
       required: true
   - type: textarea
@@ -42,7 +41,7 @@ body:
 
         [MESSAGE CONTROL]
         enable=
-            useless-supression
+            useless-suppression
 
         # ...
       render: ini
@@ -101,5 +100,6 @@ body:
       label: Additional dependencies
       description: If applicable ie, if we can't reproduce without it
       placeholder: |
+        Please copy and paste the result of `pip freeze`. For example:
         pandas==0.23.2
         marshmallow==3.10.0

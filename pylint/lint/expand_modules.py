@@ -4,6 +4,8 @@ from typing import List, Pattern, Tuple
 
 from astroid import modutils
 
+from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
+
 
 def _modpath_from_file(filename, is_namespace, path=None):
     def _is_package_cb(path, parts):
@@ -31,23 +33,20 @@ def get_python_path(filepath: str) -> str:
 
 def _is_in_ignore_list_re(element: str, ignore_list_re: List[Pattern]) -> bool:
     """determines if the element is matched in a regex ignore-list"""
-    for file_pattern in ignore_list_re:
-        if file_pattern.match(element):
-            return True
-    return False
+    return any(file_pattern.match(element) for file_pattern in ignore_list_re)
 
 
 def expand_modules(
     files_or_modules: List[str],
     ignore_list: List[str],
     ignore_list_re: List[Pattern],
-    ignore_list_paths_re: List[Pattern],
-) -> Tuple[List[dict], List[dict]]:
+    ignore_list_paths_re: List[Pattern[str]],
+) -> Tuple[List[ModuleDescriptionDict], List[ErrorDescriptionDict]]:
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
     """
-    result = []
-    errors = []
+    result: List[ModuleDescriptionDict] = []
+    errors: List[ErrorDescriptionDict] = []
     path = sys.path.copy()
 
     for something in files_or_modules:

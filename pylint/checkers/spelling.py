@@ -17,6 +17,7 @@
 # Copyright (c) 2020 Ganden Schaffner <gschaffner@pm.me>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 bot <bot@noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
@@ -31,6 +32,8 @@ import os
 import re
 import tokenize
 from typing import Pattern
+
+from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
@@ -49,20 +52,20 @@ try:
 except ImportError:
     enchant = None
 
-    class EmailFilter:  # type: ignore
+    class EmailFilter:  # type: ignore[no-redef]
         ...
 
-    class URLFilter:  # type: ignore
+    class URLFilter:  # type: ignore[no-redef]
         ...
 
-    class WikiWordFilter:  # type: ignore
+    class WikiWordFilter:  # type: ignore[no-redef]
         ...
 
-    class Filter:  # type: ignore
+    class Filter:  # type: ignore[no-redef]
         def _skip(self, word):
             raise NotImplementedError
 
-    class Chunker:  # type: ignore
+    class Chunker:  # type: ignore[no-redef]
         pass
 
     def get_tokenizer(
@@ -88,10 +91,7 @@ class WordsWithDigitsFilter(Filter):
     """Skips words with digits."""
 
     def _skip(self, word):
-        for char in word:
-            if char.isdigit():
-                return True
-        return False
+        return any(char.isdigit() for char in word)
 
 
 class WordsWithUnderscores(Filter):
@@ -232,7 +232,7 @@ class SpellingChecker(BaseTokenChecker):
                 "metavar": "<dict name>",
                 "choices": dict_choices,
                 "help": "Spelling dictionary name. "
-                "Available dictionaries: %s.%s" % (dicts, instr),
+                f"Available dictionaries: {dicts}.{instr}",
             },
         ),
         (
@@ -259,7 +259,7 @@ class SpellingChecker(BaseTokenChecker):
             {
                 "default": "n",
                 "type": "yn",
-                "metavar": "<y_or_n>",
+                "metavar": "<y or n>",
                 "help": "Tells whether to store unknown words to the "
                 "private dictionary (see the "
                 "--spelling-private-dict-file option) instead of "
@@ -318,7 +318,7 @@ class SpellingChecker(BaseTokenChecker):
                 dict_name, self.config.spelling_private_dict_file
             )
             self.private_dict_file = open(  # pylint: disable=consider-using-with
-                self.config.spelling_private_dict_file, "a"
+                self.config.spelling_private_dict_file, "a", encoding="utf-8"
             )
         else:
             self.spelling_dict = enchant.Dict(dict_name)
@@ -399,14 +399,14 @@ class SpellingChecker(BaseTokenChecker):
             # Store word to private dict or raise a message.
             if self.config.spelling_store_unknown_words:
                 if lower_cased_word not in self.unknown_words:
-                    self.private_dict_file.write("%s\n" % lower_cased_word)
+                    self.private_dict_file.write(f"{lower_cased_word}\n")
                     self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to N suggestions.
                 suggestions = self.spelling_dict.suggest(word)
                 del suggestions[self.config.max_spelling_suggestions :]
                 line_segment = line[word_start_at:]
-                match = re.search(r"(\W|^)(%s)(\W|$)" % word, line_segment)
+                match = re.search(fr"(\W|^)({word})(\W|$)", line_segment)
                 if match:
                     # Start position of second group in regex.
                     col = match.regs[2][0]
@@ -436,19 +436,19 @@ class SpellingChecker(BaseTokenChecker):
                 self._check_spelling("wrong-spelling-in-comment", token, start_row)
 
     @check_messages("wrong-spelling-in-docstring")
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
     @check_messages("wrong-spelling-in-docstring")
-    def visit_classdef(self, node):
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)
 
     @check_messages("wrong-spelling-in-docstring")
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if not self.initialized:
             return
         self._check_docstring(node)

@@ -2,26 +2,31 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import sys
-from typing import List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
-from pylint.constants import MSG_TYPES
+from astroid import nodes
+
+from pylint.constants import _SCOPE_EXEMPT, MSG_TYPES, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.utils import normalize_text
+
+if TYPE_CHECKING:
+    from pylint.checkers import BaseChecker
 
 
 class MessageDefinition:
     def __init__(
         self,
-        checker,  # BaseChecker
+        checker: "BaseChecker",
         msgid: str,
         msg: str,
         description: str,
         symbol: str,
         scope: str,
-        minversion: Optional[Tuple[int, int, int, str, int]] = None,
-        maxversion: Optional[Tuple[int, int, int, str, int]] = None,
-        old_names: List[Tuple[str, str]] = None,
-    ):
+        minversion: Optional[Tuple[int, int]] = None,
+        maxversion: Optional[Tuple[int, int]] = None,
+        old_names: Optional[List[Tuple[str, str]]] = None,
+    ) -> None:
         self.checker_name = checker.name
         self.check_msgid(msgid)
         self.msgid = msgid
@@ -46,10 +51,10 @@ class MessageDefinition:
         if msgid[0] not in MSG_TYPES:
             raise InvalidMessageError(f"Bad message type {msgid[0]} in {msgid!r}")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"MessageDefinition:{self.symbol} ({self.msgid})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{repr(self)}:\n{self.msg} {self.description}"
 
     def may_be_emitted(self) -> bool:
@@ -64,24 +69,48 @@ class MessageDefinition:
         """return the help string for the given message id"""
         desc = self.description
         if checkerref:
-            desc += " This message belongs to the %s checker." % self.checker_name
+            desc += f" This message belongs to the {self.checker_name} checker."
         title = self.msg
         if self.minversion or self.maxversion:
             restr = []
             if self.minversion:
-                restr.append("< %s" % ".".join(str(n) for n in self.minversion))
+                restr.append(f"< {'.'.join(str(n) for n in self.minversion)}")
             if self.maxversion:
-                restr.append(">= %s" % ".".join(str(n) for n in self.maxversion))
+                restr.append(f">= {'.'.join(str(n) for n in self.maxversion)}")
             restriction = " or ".join(restr)
             if checkerref:
-                desc += " It can't be emitted when using Python %s." % restriction
+                desc += f" It can't be emitted when using Python {restriction}."
             else:
                 desc += (
-                    " This message can't be emitted when using Python %s." % restriction
+                    f" This message can't be emitted when using Python {restriction}."
                 )
         msg_help = normalize_text(" ".join(desc.split()), indent="  ")
         message_id = f"{self.symbol} ({self.msgid})"
         if title != "%s":
             title = title.splitlines()[0]
-            return ":{}: *{}*\n{}".format(message_id, title.rstrip(" "), msg_help)
+            return f":{message_id}: *{title.rstrip(' ')}*\n{msg_help}"
         return f":{message_id}:\n{msg_help}"
+
+    def check_message_definition(
+        self, line: Optional[int], node: Optional[nodes.NodeNG]
+    ) -> None:
+        """Check MessageDefinition for possible errors"""
+        if self.msgid[0] not in _SCOPE_EXEMPT:
+            # Fatal messages and reports are special, the node/scope distinction
+            # does not apply to them.
+            if self.scope == WarningScope.LINE:
+                if line is None:
+                    raise InvalidMessageError(
+                        f"Message {self.msgid} must provide line, got None"
+                    )
+                if node is not None:
+                    raise InvalidMessageError(
+                        f"Message {self.msgid} must only provide line, "
+                        f"got line={line}, node={node}"
+                    )
+            elif self.scope == WarningScope.NODE:
+                # Node-based warnings may provide an override line.
+                if node is None:
+                    raise InvalidMessageError(
+                        f"Message {self.msgid} must provide Node, got None"
+                    )

@@ -12,3 +12,4 @@ User Guide
    message-control
    options
    ide-integration
+   pre-commit-integration

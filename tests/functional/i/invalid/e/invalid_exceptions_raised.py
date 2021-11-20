@@ -103,3 +103,8 @@ def reusing_same_name_picks_the_latest_raised_value():
         exc = Error(exc)
         if exc:
             raise exc
+
+
+def bad_case10():
+    """raise string"""
+    raise "string"  # [raising-bad-type]

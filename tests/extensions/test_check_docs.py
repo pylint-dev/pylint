@@ -12,6 +12,7 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 Luigi <luigi.cristofolini@q-ctrl.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Logan Miller <14319179+komodo472@users.noreply.github.com>
 
@@ -24,11 +25,15 @@ in particular the parameter documentation checker `DocstringChecker`
 
 # pylint: disable=too-many-public-methods
 
+import re
+
 import astroid
 import pytest
+from astroid import nodes
 
 from pylint.extensions.docparams import DocstringParameterChecker
-from pylint.testutils import CheckerTestCase, Message, set_config
+from pylint.testutils import CheckerTestCase, MessageTest, set_config
+from pylint.testutils.decorator import set_config_directly
 
 
 class TestParamDocChecker(CheckerTestCase):
@@ -37,11 +42,11 @@ class TestParamDocChecker(CheckerTestCase):
     CHECKER_CLASS = DocstringParameterChecker
     CONFIG = {
         "accept_no_param_doc": False,
-        "no_docstring_rgx": "",
+        "no_docstring_rgx": re.compile("^$"),
         "docstring_min_length": -1,
     }
 
-    def test_missing_func_params_in_sphinx_docstring(self):
+    def test_missing_func_params_in_sphinx_docstring(self) -> None:
         """Example of a function with missing Sphinx parameter documentation in
         the docstring
         """
@@ -58,12 +63,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("y",)),
-            Message(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("y",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self.checker.visit_functiondef(node)
 
-    def test_missing_func_params_in_google_docstring(self):
+    def test_missing_func_params_in_google_docstring(self) -> None:
         """Example of a function with missing Google style parameter
         documentation in the docstring
         """
@@ -82,12 +87,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("y",)),
-            Message(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("y",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self.checker.visit_functiondef(node)
 
-    def test_missing_type_doc_google_docstring_exempt_kwonly_args(self):
+    def test_missing_type_doc_google_docstring_exempt_kwonly_args(self) -> None:
         node = astroid.extract_node(
             """
         def identifier_kwarg_method(arg1: int, arg2: int, *, value1: str, value2: str):
@@ -105,7 +110,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_missing_func_params_with_annotations_in_google_docstring(self):
+    def test_missing_func_params_with_annotations_in_google_docstring(self) -> None:
         """Example of a function with missing Google style parameter
         documentation in the docstring.
         """
@@ -127,7 +132,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_default_arg_with_annotations_in_google_docstring(self):
+    def test_default_arg_with_annotations_in_google_docstring(self) -> None:
         """Example of a function with missing Google style parameter
         documentation in the docstring.
         """
@@ -149,7 +154,9 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_missing_func_params_with_partial_annotations_in_google_docstring(self):
+    def test_missing_func_params_with_partial_annotations_in_google_docstring(
+        self,
+    ) -> None:
         """Example of a function with missing Google style parameter
         documentation in the docstring.
         """
@@ -169,11 +176,11 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-type-doc", node=node, args=("x",))
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x",))
         ):
             self.checker.visit_functiondef(node)
 
-    def test_non_builtin_annotations_in_google_docstring(self):
+    def test_non_builtin_annotations_in_google_docstring(self) -> None:
         """Example of a function with missing Google style parameter
         documentation in the docstring.
         """
@@ -191,7 +198,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_non_builtin_annotations_for_returntype_in_google_docstring(self):
+    def test_non_builtin_annotations_for_returntype_in_google_docstring(self) -> None:
         """Example of a function with missing Google style parameter
         documentation in the docstring.
         """
@@ -209,8 +216,8 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_func_params_and_keyword_params_in_google_docstring(self):
-        """Example of a function with Google style parameter splitted
+    def test_func_params_and_keyword_params_in_google_docstring(self) -> None:
+        """Example of a function with Google style parameter split
         in Args and Keyword Args in the docstring
         """
         node = astroid.extract_node(
@@ -231,8 +238,8 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_func_params_and_wrong_keyword_params_in_google_docstring(self):
-        """Example of a function with Google style parameter splitted
+    def test_func_params_and_wrong_keyword_params_in_google_docstring(self) -> None:
+        """Example of a function with Google style parameter split
         in Args and Keyword Args in the docstring but with wrong keyword args
         """
         node = astroid.extract_node(
@@ -251,14 +258,14 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("that",)),
-            Message(msg_id="missing-type-doc", node=node, args=("that",)),
-            Message(msg_id="differing-param-doc", node=node, args=("these",)),
-            Message(msg_id="differing-type-doc", node=node, args=("these",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("that",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("that",)),
+            MessageTest(msg_id="differing-param-doc", node=node, args=("these",)),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("these",)),
         ):
             self.checker.visit_functiondef(node)
 
-    def test_missing_func_params_in_numpy_docstring(self):
+    def test_missing_func_params_in_numpy_docstring(self) -> None:
         """Example of a function with missing NumPy style parameter
         documentation in the docstring
         """
@@ -280,13 +287,13 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("y",)),
-            Message(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("y",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self.checker.visit_functiondef(node)
 
     @set_config(accept_no_param_doc=True)
-    def test_tolerate_no_param_documentation_at_all(self):
+    def test_tolerate_no_param_documentation_at_all(self) -> None:
         """Example of a function with no parameter documentation at all
 
         No error message is emitted.
@@ -303,7 +310,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_don_t_tolerate_no_param_documentation_at_all(self):
+    def test_don_t_tolerate_no_param_documentation_at_all(self) -> None:
         """Example of a function with no parameter documentation at all
 
         Missing documentation error message is emitted.
@@ -318,12 +325,11 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("x, y",)),
-            Message(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-any-param-doc", node=node, args=(node.name)),
         ):
             self.checker.visit_functiondef(node)
 
-    def test_see_tolerate_no_param_documentation_at_all(self):
+    def test_see_tolerate_no_param_documentation_at_all(self) -> None:
         """Example for the usage of "For the parameters, see"
         to suppress missing-param warnings.
         """
@@ -340,19 +346,17 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def _visit_methods_of_class(self, node):
+    def _visit_methods_of_class(self, node: nodes.ClassDef) -> None:
         """Visit all methods of a class node
 
         :param node: class node
-        :type node: :class:`astroid.scoped_nodes.Class`
+        :type node: :class:`nodes.Class`
         """
         for body_item in node.body:
-            if isinstance(body_item, astroid.FunctionDef) and hasattr(
-                body_item, "name"
-            ):
+            if isinstance(body_item, nodes.FunctionDef) and hasattr(body_item, "name"):
                 self.checker.visit_functiondef(body_item)
 
-    def test_missing_method_params_in_sphinx_docstring(self):
+    def test_missing_method_params_in_sphinx_docstring(self) -> None:
         """Example of a class method with missing parameter documentation in
         the Sphinx style docstring
         """
@@ -371,12 +375,12 @@ class TestParamDocChecker(CheckerTestCase):
         )
         method_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=method_node, args=("y",)),
-            Message(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=method_node, args=("y",)),
+            MessageTest(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
         ):
             self._visit_methods_of_class(node)
 
-    def test_missing_method_params_in_google_docstring(self):
+    def test_missing_method_params_in_google_docstring(self) -> None:
         """Example of a class method with missing parameter documentation in
         the Google style docstring
         """
@@ -396,12 +400,12 @@ class TestParamDocChecker(CheckerTestCase):
         )
         method_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=method_node, args=("y",)),
-            Message(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=method_node, args=("y",)),
+            MessageTest(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
         ):
             self._visit_methods_of_class(node)
 
-    def test_missing_method_params_in_numpy_docstring(self):
+    def test_missing_method_params_in_numpy_docstring(self) -> None:
         """Example of a class method with missing parameter documentation in
         the Numpy style docstring
         """
@@ -423,12 +427,12 @@ class TestParamDocChecker(CheckerTestCase):
         )
         method_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=method_node, args=("y",)),
-            Message(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=method_node, args=("y",)),
+            MessageTest(msg_id="missing-type-doc", node=method_node, args=("x, y",)),
         ):
             self._visit_methods_of_class(node)
 
-    def test_existing_func_params_in_sphinx_docstring(self):
+    def test_existing_func_params_in_sphinx_docstring(self) -> None:
         """Example of a function with correctly documented parameters and
         return values (Sphinx style)
         """
@@ -456,7 +460,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_existing_func_params_in_google_docstring(self):
+    def test_existing_func_params_in_google_docstring(self) -> None:
         """Example of a function with correctly documented parameters and
         return values (Google style)
         """
@@ -482,7 +486,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_existing_func_params_in_numpy_docstring(self):
+    def test_existing_func_params_in_numpy_docstring(self) -> None:
         """Example of a function with correctly documented parameters and
         return values (Numpy style)
         """
@@ -514,7 +518,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_wrong_name_of_func_params_in_sphinx_docstring(self):
+    def test_wrong_name_of_func_params_in_sphinx_docstring(self) -> None:
         """Example of functions with inconsistent parameter names in the
         signature and in the Sphinx style documentation
         """
@@ -535,10 +539,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
-            Message(msg_id="missing-type-doc", node=node, args=("yarg, zarg",)),
-            Message(msg_id="differing-param-doc", node=node, args=("xarg1, zarg1",)),
-            Message(msg_id="differing-type-doc", node=node, args=("yarg1, zarg1",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("yarg, zarg",)),
+            MessageTest(
+                msg_id="differing-param-doc", node=node, args=("xarg1, zarg1",)
+            ),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("yarg1, zarg1",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -556,12 +562,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="differing-param-doc", node=node, args=("yarg1",)),
-            Message(msg_id="differing-type-doc", node=node, args=("yarg1",)),
+            MessageTest(msg_id="differing-param-doc", node=node, args=("yarg1",)),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("yarg1",)),
         ):
             self.checker.visit_functiondef(node)
 
-    def test_wrong_name_of_func_params_in_google_docstring(self):
+    def test_wrong_name_of_func_params_in_google_docstring(self) -> None:
         """Example of functions with inconsistent parameter names in the
         signature and in the Google style documentation
         """
@@ -580,10 +586,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
-            Message(msg_id="missing-type-doc", node=node, args=("xarg, zarg",)),
-            Message(msg_id="differing-param-doc", node=node, args=("xarg1, zarg1",)),
-            Message(msg_id="differing-type-doc", node=node, args=("xarg1, zarg1",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("xarg, zarg",)),
+            MessageTest(
+                msg_id="differing-param-doc", node=node, args=("xarg1, zarg1",)
+            ),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("xarg1, zarg1",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -601,12 +609,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="differing-param-doc", node=node, args=("yarg1",)),
-            Message(msg_id="differing-type-doc", node=node, args=("yarg1",)),
+            MessageTest(msg_id="differing-param-doc", node=node, args=("yarg1",)),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("yarg1",)),
         ):
             self.checker.visit_functiondef(node)
 
-    def test_wrong_name_of_func_params_in_numpy_docstring(self):
+    def test_wrong_name_of_func_params_in_numpy_docstring(self) -> None:
         """Example of functions with inconsistent parameter names in the
         signature and in the Numpy style documentation
         """
@@ -629,10 +637,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
-            Message(msg_id="missing-type-doc", node=node, args=("xarg, zarg",)),
-            Message(msg_id="differing-param-doc", node=node, args=("xarg1, zarg1",)),
-            Message(msg_id="differing-type-doc", node=node, args=("xarg1, zarg1",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("xarg, zarg",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("xarg, zarg",)),
+            MessageTest(
+                msg_id="differing-param-doc", node=node, args=("xarg1, zarg1",)
+            ),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("xarg1, zarg1",)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -652,12 +662,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="differing-param-doc", node=node, args=("yarg1",)),
-            Message(msg_id="differing-type-doc", node=node, args=("yarg1",)),
+            MessageTest(msg_id="differing-param-doc", node=node, args=("yarg1",)),
+            MessageTest(msg_id="differing-type-doc", node=node, args=("yarg1",)),
         ):
             self.checker.visit_functiondef(node)
 
-    def test_see_sentence_for_func_params_in_sphinx_docstring(self):
+    def test_see_sentence_for_func_params_in_sphinx_docstring(self) -> None:
         """Example for the usage of "For the other parameters, see" to avoid
         too many repetitions, e.g. in functions or methods adhering to a
         given interface (Sphinx style)
@@ -678,7 +688,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_see_sentence_for_func_params_in_google_docstring(self):
+    def test_see_sentence_for_func_params_in_google_docstring(self) -> None:
         """Example for the usage of "For the other parameters, see" to avoid
         too many repetitions, e.g. in functions or methods adhering to a
         given interface (Google style)
@@ -699,7 +709,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_see_sentence_for_func_params_in_numpy_docstring(self):
+    def test_see_sentence_for_func_params_in_numpy_docstring(self) -> None:
         """Example for the usage of "For the other parameters, see" to avoid
         too many repetitions, e.g. in functions or methods adhering to a
         given interface (Numpy style)
@@ -722,7 +732,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_constr_params_in_class_sphinx(self):
+    def test_constr_params_in_class_sphinx(self) -> None:
         """Example of a class with missing constructor parameter documentation
         (Sphinx style)
 
@@ -744,12 +754,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("x",)),
-            Message(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self._visit_methods_of_class(node)
 
-    def test_constr_params_in_class_google(self):
+    def test_constr_params_in_class_google(self) -> None:
         """Example of a class with missing constructor parameter documentation
         (Google style)
 
@@ -772,12 +782,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("x",)),
-            Message(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self._visit_methods_of_class(node)
 
-    def test_constr_params_in_class_numpy(self):
+    def test_constr_params_in_class_numpy(self) -> None:
         """Example of a class with missing constructor parameter documentation
         (Numpy style)
 
@@ -802,12 +812,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("x",)),
-            Message(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
         ):
             self._visit_methods_of_class(node)
 
-    def test_constr_params_and_attributes_in_class_numpy(self):
+    def test_constr_params_and_attributes_in_class_numpy(self) -> None:
         """Example of a class with correct constructor parameter documentation
         and an attributes section (Numpy style)
         """
@@ -832,7 +842,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self._visit_methods_of_class(node)
 
-    def test_constr_params_in_init_sphinx(self):
+    def test_constr_params_in_init_sphinx(self) -> None:
         """Example of a class with missing constructor parameter documentation
         (Sphinx style)
 
@@ -855,12 +865,14 @@ class TestParamDocChecker(CheckerTestCase):
         )
         constructor_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
-            Message(msg_id="missing-type-doc", node=constructor_node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
+            MessageTest(
+                msg_id="missing-type-doc", node=constructor_node, args=("x, y",)
+            ),
         ):
             self._visit_methods_of_class(node)
 
-    def test_constr_params_in_init_google(self):
+    def test_constr_params_in_init_google(self) -> None:
         """Example of a class with missing constructor parameter documentation
         (Google style)
 
@@ -883,12 +895,14 @@ class TestParamDocChecker(CheckerTestCase):
         )
         constructor_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
-            Message(msg_id="missing-type-doc", node=constructor_node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
+            MessageTest(
+                msg_id="missing-type-doc", node=constructor_node, args=("x, y",)
+            ),
         ):
             self._visit_methods_of_class(node)
 
-    def test_constr_params_in_init_numpy(self):
+    def test_constr_params_in_init_numpy(self) -> None:
         """Example of a class with missing constructor parameter documentation
         (Numpy style)
 
@@ -913,12 +927,14 @@ class TestParamDocChecker(CheckerTestCase):
         )
         constructor_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
-            Message(msg_id="missing-type-doc", node=constructor_node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
+            MessageTest(
+                msg_id="missing-type-doc", node=constructor_node, args=("x, y",)
+            ),
         ):
             self._visit_methods_of_class(node)
 
-    def test_see_sentence_for_constr_params_in_class(self):
+    def test_see_sentence_for_constr_params_in_class(self) -> None:
         """Example usage of "For the parameters, see" in class docstring"""
         node = astroid.extract_node(
             """
@@ -937,7 +953,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self._visit_methods_of_class(node)
 
-    def test_see_sentence_for_constr_params_in_init(self):
+    def test_see_sentence_for_constr_params_in_init(self) -> None:
         """Example usage of "For the parameters, see" in init docstring"""
         node = astroid.extract_node(
             """
@@ -956,7 +972,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self._visit_methods_of_class(node)
 
-    def test_constr_params_in_class_and_init_sphinx(self):
+    def test_constr_params_in_class_and_init_sphinx(self) -> None:
         """Example of a class with missing constructor parameter documentation
         in both the init docstring and the class docstring
         (Sphinx style)
@@ -986,15 +1002,19 @@ class TestParamDocChecker(CheckerTestCase):
         )
         constructor_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="multiple-constructor-doc", node=node, args=(node.name,)),
-            Message(msg_id="missing-param-doc", node=node, args=("x",)),
-            Message(msg_id="missing-type-doc", node=node, args=("x, y",)),
-            Message(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
-            Message(msg_id="missing-type-doc", node=constructor_node, args=("x, y",)),
+            MessageTest(
+                msg_id="multiple-constructor-doc", node=node, args=(node.name,)
+            ),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
+            MessageTest(
+                msg_id="missing-type-doc", node=constructor_node, args=("x, y",)
+            ),
         ):
             self._visit_methods_of_class(node)
 
-    def test_constr_params_in_class_and_init_google(self):
+    def test_constr_params_in_class_and_init_google(self) -> None:
         """Example of a class with missing constructor parameter documentation
         in both the init docstring and the class docstring
         (Google style)
@@ -1026,15 +1046,19 @@ class TestParamDocChecker(CheckerTestCase):
         )
         constructor_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="multiple-constructor-doc", node=node, args=(node.name,)),
-            Message(msg_id="missing-param-doc", node=node, args=("x",)),
-            Message(msg_id="missing-type-doc", node=node, args=("x, y",)),
-            Message(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
-            Message(msg_id="missing-type-doc", node=constructor_node, args=("x, y",)),
+            MessageTest(
+                msg_id="multiple-constructor-doc", node=node, args=(node.name,)
+            ),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
+            MessageTest(
+                msg_id="missing-type-doc", node=constructor_node, args=("x, y",)
+            ),
         ):
             self._visit_methods_of_class(node)
 
-    def test_constr_params_in_class_and_init_numpy(self):
+    def test_constr_params_in_class_and_init_numpy(self) -> None:
         """Example of a class with missing constructor parameter documentation
         in both the init docstring and the class docstring
         (Numpy style)
@@ -1070,15 +1094,19 @@ class TestParamDocChecker(CheckerTestCase):
         )
         constructor_node = node.body[0]
         with self.assertAddsMessages(
-            Message(msg_id="multiple-constructor-doc", node=node, args=(node.name,)),
-            Message(msg_id="missing-param-doc", node=node, args=("x",)),
-            Message(msg_id="missing-type-doc", node=node, args=("x, y",)),
-            Message(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
-            Message(msg_id="missing-type-doc", node=constructor_node, args=("x, y",)),
+            MessageTest(
+                msg_id="multiple-constructor-doc", node=node, args=(node.name,)
+            ),
+            MessageTest(msg_id="missing-param-doc", node=node, args=("x",)),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("x, y",)),
+            MessageTest(msg_id="missing-param-doc", node=constructor_node, args=("x",)),
+            MessageTest(
+                msg_id="missing-type-doc", node=constructor_node, args=("x, y",)
+            ),
         ):
             self._visit_methods_of_class(node)
 
-    def test_kwonlyargs_are_taken_in_account(self):
+    def test_kwonlyargs_are_taken_in_account(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(arg, *, kwonly, missing_kwonly):
@@ -1090,12 +1118,14 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("missing_kwonly",)),
-            Message(msg_id="missing-type-doc", node=node, args=("missing_kwonly",)),
+            MessageTest(
+                msg_id="missing-param-doc", node=node, args=("missing_kwonly",)
+            ),
+            MessageTest(msg_id="missing-type-doc", node=node, args=("missing_kwonly",)),
         ):
             self.checker.visit_functiondef(node)
 
-    def test_warns_missing_args_sphinx(self):
+    def test_warns_missing_args_sphinx(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, *args):
@@ -1111,11 +1141,11 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("args",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("*args",))
         ):
             self.checker.visit_functiondef(node)
 
-    def test_warns_missing_kwargs_sphinx(self):
+    def test_warns_missing_kwargs_sphinx(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, **kwargs):
@@ -1131,11 +1161,11 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("kwargs",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("**kwargs",))
         ):
             self.checker.visit_functiondef(node)
 
-    def test_warns_missing_args_google(self):
+    def test_warns_missing_args_google(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, *args):
@@ -1152,11 +1182,11 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("args",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("*args",))
         ):
             self.checker.visit_functiondef(node)
 
-    def test_warns_missing_kwargs_google(self):
+    def test_warns_missing_kwargs_google(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, **kwargs):
@@ -1173,11 +1203,11 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("kwargs",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("**kwargs",))
         ):
             self.checker.visit_functiondef(node)
 
-    def test_warns_missing_args_numpy(self):
+    def test_warns_missing_args_numpy(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, *args):
@@ -1198,11 +1228,11 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("args",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("*args",))
         ):
             self.checker.visit_functiondef(node)
 
-    def test_warns_missing_kwargs_numpy(self):
+    def test_warns_missing_kwargs_numpy(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, **kwargs):
@@ -1223,11 +1253,11 @@ class TestParamDocChecker(CheckerTestCase):
         '''
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-param-doc", node=node, args=("kwargs",))
+            MessageTest(msg_id="missing-param-doc", node=node, args=("**kwargs",))
         ):
             self.checker.visit_functiondef(node)
 
-    def test_finds_args_without_type_sphinx(self):
+    def test_finds_args_without_type_sphinx(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, *args):
@@ -1235,7 +1265,7 @@ class TestParamDocChecker(CheckerTestCase):
 
             :param named_arg: Returned
             :type named_arg: object
-            :param args: Optional arguments
+            :param *args: Optional arguments
             :returns: Maybe named_arg
             :rtype: object or None
             """
@@ -1246,7 +1276,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_finds_kwargs_without_type_sphinx(self):
+    def test_finds_kwargs_without_type_sphinx(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, **kwargs):
@@ -1254,7 +1284,7 @@ class TestParamDocChecker(CheckerTestCase):
 
             :param named_arg: Returned
             :type named_arg: object
-            :param kwargs: Keyword arguments
+            :param **kwargs: Keyword arguments
             :returns: Maybe named_arg
             :rtype: object or None
             """
@@ -1265,7 +1295,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_finds_args_without_type_google(self):
+    def test_finds_args_without_type_google(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, *args):
@@ -1285,7 +1315,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_finds_kwargs_without_type_google(self):
+    def test_finds_kwargs_without_type_google(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, **kwargs):
@@ -1305,17 +1335,21 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_finds_args_without_type_numpy(self):
+    def test_finds_args_without_type_numpy(self) -> None:
         node = astroid.extract_node(
             '''
-        def my_func(named_arg, *args):
+        def my_func(named_arg, typed_arg: bool, untyped_arg, *args):
             """The docstring
 
             Args
             ----
             named_arg : object
                 Returned
-            args :
+            typed_arg
+                Other argument without numpy type annotation
+            untyped_arg
+                Other argument without any type annotation
+            *args :
                 Optional Arguments
 
             Returns
@@ -1327,10 +1361,12 @@ class TestParamDocChecker(CheckerTestCase):
                 return named_arg
         '''
         )
-        with self.assertNoMessages():
+        with self.assertAddsMessages(
+            MessageTest(msg_id="missing-type-doc", node=node, args=("untyped_arg",))
+        ):
             self.checker.visit_functiondef(node)
 
-    def test_finds_args_with_xref_type_google(self):
+    def test_finds_args_with_xref_type_google(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, **kwargs):
@@ -1350,7 +1386,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_finds_args_with_xref_type_numpy(self):
+    def test_finds_args_with_xref_type_numpy(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, *args):
@@ -1360,7 +1396,7 @@ class TestParamDocChecker(CheckerTestCase):
             ----
             named_arg : `example.value`
                 Returned
-            args :
+            *args :
                 Optional Arguments
 
             Returns
@@ -1375,7 +1411,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_finds_kwargs_without_type_numpy(self):
+    def test_finds_kwargs_without_type_numpy(self) -> None:
         node = astroid.extract_node(
             '''
         def my_func(named_arg, **kwargs):
@@ -1385,7 +1421,7 @@ class TestParamDocChecker(CheckerTestCase):
             ----
             named_arg : object
                 Returned
-            kwargs :
+            **kwargs :
                 Keyword arguments
 
             Returns
@@ -1495,7 +1531,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_optional_specifier_google(self):
+    def test_ignores_optional_specifier_google(self) -> None:
         node = astroid.extract_node(
             '''
         def do_something(param1, param2, param3=(), param4=[], param5=[], param6=True):
@@ -1518,7 +1554,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_optional_specifier_numpy(self):
+    def test_ignores_optional_specifier_numpy(self) -> None:
         node = astroid.extract_node(
             '''
         def do_something(param, param2='all'):
@@ -1542,7 +1578,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_finds_short_name_exception(self):
+    def test_finds_short_name_exception(self) -> None:
         node = astroid.extract_node(
             '''
         from fake_package import BadError
@@ -1559,7 +1595,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_finds_missing_raises_from_setter_sphinx(self):
+    def test_finds_missing_raises_from_setter_sphinx(self) -> None:
         """Example of a setter having missing raises documentation in
         the Sphinx style docstring of the property
         """
@@ -1580,7 +1616,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(
+            MessageTest(
                 msg_id="missing-raises-doc",
                 node=property_node,
                 args=("AttributeError",),
@@ -1588,7 +1624,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_raise(node)
 
-    def test_finds_missing_raises_from_setter_google(self):
+    def test_finds_missing_raises_from_setter_google(self) -> None:
         """Example of a setter having missing raises documentation in
         the Google style docstring of the property
         """
@@ -1614,7 +1650,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(
+            MessageTest(
                 msg_id="missing-raises-doc",
                 node=property_node,
                 args=("AttributeError",),
@@ -1622,7 +1658,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_raise(node)
 
-    def test_finds_missing_raises_from_setter_numpy(self):
+    def test_finds_missing_raises_from_setter_numpy(self) -> None:
         """Example of a setter having missing raises documentation in
         the Numpy style docstring of the property
         """
@@ -1650,7 +1686,7 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(
+            MessageTest(
                 msg_id="missing-raises-doc",
                 node=property_node,
                 args=("AttributeError",),
@@ -1658,7 +1694,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_raise(node)
 
-    def test_finds_missing_raises_in_setter_sphinx(self):
+    def test_finds_missing_raises_in_setter_sphinx(self) -> None:
         """Example of a setter having missing raises documentation in
         its own Sphinx style docstring
         """
@@ -1685,13 +1721,13 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(
+            MessageTest(
                 msg_id="missing-raises-doc", node=setter_node, args=("AttributeError",)
             )
         ):
             self.checker.visit_raise(node)
 
-    def test_finds_missing_raises_from_setter_google_2(self):
+    def test_finds_missing_raises_from_setter_google_2(self) -> None:
         """Example of a setter having missing raises documentation in
         its own Google style docstring of the property
         """
@@ -1721,13 +1757,13 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(
+            MessageTest(
                 msg_id="missing-raises-doc", node=setter_node, args=("AttributeError",)
             )
         ):
             self.checker.visit_raise(node)
 
-    def test_finds_missing_raises_from_setter_numpy_2(self):
+    def test_finds_missing_raises_from_setter_numpy_2(self) -> None:
         """Example of a setter having missing raises documentation in
         its own Numpy style docstring of the property
         """
@@ -1761,13 +1797,13 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(
+            MessageTest(
                 msg_id="missing-raises-doc", node=setter_node, args=("AttributeError",)
             )
         ):
             self.checker.visit_raise(node)
 
-    def test_finds_property_return_type_sphinx(self):
+    def test_finds_property_return_type_sphinx(self) -> None:
         """Example of a property having return documentation in
         a Sphinx style docstring
         """
@@ -1786,7 +1822,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_finds_property_return_type_google(self):
+    def test_finds_property_return_type_google(self) -> None:
         """Example of a property having return documentation in
         a Google style docstring
         """
@@ -1807,7 +1843,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_finds_property_return_type_numpy(self):
+    def test_finds_property_return_type_numpy(self) -> None:
         """Example of a property having return documentation in
         a numpy style docstring
         """
@@ -1830,7 +1866,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_finds_annotation_property_return_type_sphinx(self):
+    def test_finds_annotation_property_return_type_sphinx(self) -> None:
         """Example of a property having missing return documentation in
         a Sphinx style docstring
         """
@@ -1850,7 +1886,8 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_return(node)
 
-    def test_finds_missing_property_return_type_sphinx(self):
+    @set_config(accept_no_return_doc="no")
+    def test_finds_missing_property_return_type_sphinx(self) -> None:
         """Example of a property having missing return documentation in
         a Sphinx style docstring
         """
@@ -1868,11 +1905,11 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-type-doc", node=property_node)
+            MessageTest(msg_id="missing-return-type-doc", node=property_node)
         ):
             self.checker.visit_return(node)
 
-    def test_finds_annotation_property_return_type_google(self):
+    def test_finds_annotation_property_return_type_google(self) -> None:
         """Example of a property having return documentation in
         a Google style docstring
         """
@@ -1893,7 +1930,8 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_return(node)
 
-    def test_finds_missing_property_return_type_google(self):
+    @set_config(accept_no_return_doc="no")
+    def test_finds_missing_property_return_type_google(self) -> None:
         """Example of a property having return documentation in
         a Google style docstring
         """
@@ -1912,11 +1950,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-type-doc", node=property_node)
+            MessageTest(msg_id="missing-return-type-doc", node=property_node)
         ):
             self.checker.visit_return(node)
 
-    def test_finds_missing_property_return_type_numpy(self):
+    @set_config(accept_no_return_doc="no")
+    def test_finds_missing_property_return_type_numpy(self) -> None:
         """Example of a property having return documentation in
         a numpy style docstring
         """
@@ -1937,11 +1976,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-type-doc", node=property_node)
+            MessageTest(msg_id="missing-return-type-doc", node=property_node)
         ):
             self.checker.visit_return(node)
 
-    def test_ignores_non_property_return_type_sphinx(self):
+    @set_config(accept_no_return_doc="no")
+    def test_ignores_non_property_return_type_sphinx(self) -> None:
         """Example of a class function trying to use `type` as return
         documentation in a Sphinx style docstring
         """
@@ -1957,12 +1997,13 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-doc", node=func_node),
-            Message(msg_id="missing-return-type-doc", node=func_node),
+            MessageTest(msg_id="missing-return-doc", node=func_node),
+            MessageTest(msg_id="missing-return-type-doc", node=func_node),
         ):
             self.checker.visit_return(node)
 
-    def test_ignores_non_property_return_type_google(self):
+    @set_config(accept_no_return_doc="no")
+    def test_ignores_non_property_return_type_google(self) -> None:
         """Example of a class function trying to use `type` as return
         documentation in a Google style docstring
         """
@@ -1980,12 +2021,13 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-doc", node=func_node),
-            Message(msg_id="missing-return-type-doc", node=func_node),
+            MessageTest(msg_id="missing-return-doc", node=func_node),
+            MessageTest(msg_id="missing-return-type-doc", node=func_node),
         ):
             self.checker.visit_return(node)
 
-    def test_ignores_non_property_return_type_numpy(self):
+    @set_config(accept_no_return_doc="no")
+    def test_ignores_non_property_return_type_numpy(self) -> None:
         """Example of a class function trying to use `type` as return
         documentation in a numpy style docstring
         """
@@ -2005,12 +2047,13 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-doc", node=func_node),
-            Message(msg_id="missing-return-type-doc", node=func_node),
+            MessageTest(msg_id="missing-return-doc", node=func_node),
+            MessageTest(msg_id="missing-return-type-doc", node=func_node),
         ):
             self.checker.visit_return(node)
 
-    def test_non_property_annotation_return_type_numpy(self):
+    @set_config(accept_no_return_doc="no")
+    def test_non_property_annotation_return_type_numpy(self) -> None:
         """Example of a class function trying to use `type` as return
         documentation in a numpy style docstring
         """
@@ -2030,11 +2073,11 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="missing-return-doc", node=func_node)
+            MessageTest(msg_id="missing-return-doc", node=func_node)
         ):
             self.checker.visit_return(node)
 
-    def test_ignores_return_in_abstract_method_sphinx(self):
+    def test_ignores_return_in_abstract_method_sphinx(self) -> None:
         """Example of an abstract method documenting the return type that an
         implementation should return.
         """
@@ -2055,7 +2098,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_return_in_abstract_method_google(self):
+    def test_ignores_return_in_abstract_method_google(self) -> None:
         """Example of an abstract method documenting the return type that an
         implementation should return.
         """
@@ -2076,7 +2119,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_return_in_abstract_method_numpy(self):
+    def test_ignores_return_in_abstract_method_numpy(self) -> None:
         """Example of an abstract method documenting the return type that an
         implementation should return.
         """
@@ -2099,7 +2142,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_raise_notimplementederror_sphinx(self):
+    def test_ignores_raise_notimplementederror_sphinx(self) -> None:
         """Example of an abstract"""
         node = astroid.extract_node(
             """
@@ -2116,7 +2159,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_return_in_abstract_method_google_2(self):
+    def test_ignores_return_in_abstract_method_google_2(self) -> None:
         """Example of a method documenting the return type that an
         implementation should return.
         """
@@ -2135,7 +2178,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_return_in_abstract_method_numpy_2(self):
+    def test_ignores_return_in_abstract_method_numpy_2(self) -> None:
         """Example of a method documenting the return type that an
         implementation should return.
         """
@@ -2156,7 +2199,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_ignored_argument_names_sphinx(self):
+    def test_ignores_ignored_argument_names_sphinx(self) -> None:
         """Example of a method documenting the return type that an
         implementation should return.
         """
@@ -2175,7 +2218,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_ignored_argument_names_google(self):
+    def test_ignores_ignored_argument_names_google(self) -> None:
         """Example of a method documenting the return type that an
         implementation should return.
         """
@@ -2194,7 +2237,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_ignores_ignored_argument_names_numpy(self):
+    def test_ignores_ignored_argument_names_numpy(self) -> None:
         """Example of a method documenting the return type that an
         implementation should return.
         """
@@ -2215,7 +2258,7 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    def test_useless_docs_ignored_argument_names_sphinx(self):
+    def test_useless_docs_ignored_argument_names_sphinx(self) -> None:
         """Example of a method documenting the return type that an
         implementation should return.
         """
@@ -2237,12 +2280,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="useless-type-doc", node=node, args=("_",)),
-            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+            MessageTest(msg_id="useless-type-doc", node=node, args=("_",)),
+            MessageTest(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
         ):
             self.checker.visit_functiondef(node)
 
-    def test_useless_docs_ignored_argument_names_google(self):
+    def test_useless_docs_ignored_argument_names_google(self) -> None:
         """Example of a method documenting the return type that an
         implementation should return.
         """
@@ -2261,12 +2304,12 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="useless-type-doc", node=node, args=("_",)),
-            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+            MessageTest(msg_id="useless-type-doc", node=node, args=("_",)),
+            MessageTest(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
         ):
             self.checker.visit_functiondef(node)
 
-    def test_useless_docs_ignored_argument_names_numpy(self):
+    def test_useless_docs_ignored_argument_names_numpy(self) -> None:
         """Example of a method documenting the return type that an
         implementation should return.
         """
@@ -2291,13 +2334,13 @@ class TestParamDocChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-            Message(msg_id="useless-type-doc", node=node, args=("_",)),
-            Message(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
+            MessageTest(msg_id="useless-type-doc", node=node, args=("_",)),
+            MessageTest(msg_id="useless-param-doc", node=node, args=("_, _ignored",)),
         ):
             self.checker.visit_functiondef(node)
 
-    @set_config(no_docstring_rgx=r"^_(?!_).*$")
-    def test_skip_no_docstring_rgx(self):
+    @set_config_directly(no_docstring_rgx=re.compile(r"^_(?!_).*$"))
+    def test_skip_no_docstring_rgx(self) -> None:
         """Example of a function that matches the default 'no-docstring-rgx' config option
 
         No error message is emitted.
@@ -2314,8 +2357,90 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    @set_config(docstring_min_length=3)
-    def test_skip_docstring_min_length(self):
+    def test_all_docstring_rgx(self) -> None:
+        """Function that matches "check all functions" 'no-docstring-rgx' config option
+        No error message is emitted.
+        """
+        node = astroid.extract_node(
+            """
+        #pylint disable=missing-module-docstring, too-few-public-methods,
+        class MyClass:
+            def __init__(self, my_param: int) -> None:
+                '''
+                My init docstring
+                :param my_param: My first param
+                '''
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node.body[0])
+
+    def test_fail_empty_docstring_rgx(self) -> None:
+        """Function that matches "check all functions" 'no-docstring-rgx' config option
+        An error message is emitted.
+        """
+        node = astroid.extract_node(
+            """
+        #pylint disable=missing-module-docstring, too-few-public-methods,
+        class MyClass:
+            def __init__(self, my_param: int) -> None:
+                '''
+                My init docstring
+                '''
+        """
+        )
+        with self.assertAddsMessages(
+            MessageTest(
+                msg_id="missing-param-doc", node=node.body[0], args=("my_param",)
+            ),
+        ):
+            self.checker.visit_functiondef(node.body[0])
+
+    @set_config_directly(no_docstring_rgx=re.compile("^(?!__init__$)_"))
+    def test_fail_docparams_check_init(self) -> None:
+        """Check that __init__ is checked correctly, but other private methods aren't"""
+        node = astroid.extract_node(
+            """
+        #pylint disable=missing-module-docstring, too-few-public-methods,
+        class MyClass:
+            def __init__(self, my_param: int) -> None:
+                '''
+                My init docstring
+                '''
+
+            def _private_method(self, my_param: int) -> None:
+                '''
+                My private method
+                '''
+        """
+        )
+        with self.assertAddsMessages(
+            MessageTest(
+                msg_id="missing-param-doc", node=node.body[0], args=("my_param",)
+            )
+        ):
+            self.checker.visit_functiondef(node.body[0])
+
+    @set_config_directly(no_docstring_rgx=re.compile(""))
+    def test_no_docstring_rgx(self) -> None:
+        """Function that matches "check no functions" 'no-docstring-rgx' config option
+        No error message is emitted.
+        """
+        node = astroid.extract_node(
+            """
+        #pylint disable=missing-module-docstring, too-few-public-methods,
+        class MyClass:
+            def __init__(self, my_param: int) -> None:
+                '''
+                My init docstring
+                '''
+        """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node.body[0])
+
+    @set_config_directly(docstring_min_length=3)
+    def test_skip_docstring_min_length(self) -> None:
         """Example of a function that is less than 'docstring-min-length' config option
 
         No error message is emitted.

@@ -1,0 +1,20 @@
+"""Test if disable-next only disables messages for the next line"""
+# pylint: disable=missing-function-docstring
+# pylint: disable-next=unused-argument, invalid-name
+def function_A(arg1, arg2):
+    return arg1
+
+
+# pylint: disable-next=unused-argument,invalid-name
+def function_B(arg1, arg2):
+    return arg1
+
+
+# pylint: disable-next=invalid-name, f-string-without-interpolation
+def function_C():
+    x = "string"  # [unused-variable, invalid-name]
+    return f"This should be a normal string"  # [f-string-without-interpolation]
+
+
+def function_D(arg1, arg2):  # [unused-argument, invalid-name]
+    return arg1

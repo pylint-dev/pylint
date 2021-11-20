@@ -2,6 +2,7 @@
 # Copyright (c) 2019-2020 Tyler Thieding <tyler@thieding.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
@@ -10,7 +11,7 @@
 
 """Looks for try/except statements with too much code in the try clause."""
 
-from astroid.node_classes import For, If, While, With
+from astroid import nodes
 
 from pylint import checkers, interfaces
 
@@ -53,22 +54,20 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         statement_count = len(try_node.body)
 
         for body_node in try_node.body:
-            if isinstance(body_node, (For, If, While, With)):
+            if isinstance(body_node, (nodes.For, nodes.If, nodes.While, nodes.With)):
                 statement_count += self._count_statements(body_node)
 
         return statement_count
 
-    def visit_tryexcept(self, node):
+    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
         try_clause_statements = self._count_statements(node)
         if try_clause_statements > self.config.max_try_statements:
-            msg = "try clause contains {} statements, expected at most {}".format(
-                try_clause_statements, self.config.max_try_statements
-            )
+            msg = f"try clause contains {try_clause_statements} statements, expected at most {self.config.max_try_statements}"
             self.add_message(
                 "too-many-try-statements", node.lineno, node=node, args=msg
             )
 
-    def visit_tryfinally(self, node):
+    def visit_tryfinally(self, node: nodes.TryFinally) -> None:
         self.visit_tryexcept(node)
 
 

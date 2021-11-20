@@ -4,6 +4,7 @@
 # Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -11,6 +12,7 @@
 
 """Module to add McCabe checker class for pylint. """
 
+from astroid import nodes
 from mccabe import PathGraph as Mccabe_PathGraph
 from mccabe import PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
 
@@ -50,7 +52,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
             pathnode = self._append_node(node)
             self.tail = pathnode
             self.dispatch_list(node.body)
-            bottom = "%s" % self._bottom_counter
+            bottom = f"{self._bottom_counter}"
             self._bottom_counter += 1
             self.graph.connect(self.tail, bottom)
             self.graph.connect(node, bottom)
@@ -135,7 +137,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         else:
             loose_ends.append(node)
         if node:
-            bottom = "%s" % self._bottom_counter
+            bottom = f"{self._bottom_counter}"
             self._bottom_counter += 1
             for end in loose_ends:
                 self.graph.connect(end, bottom)
@@ -171,9 +173,9 @@ class McCabeMethodChecker(checkers.BaseChecker):
     )
 
     @check_messages("too-complex")
-    def visit_module(self, node):
+    def visit_module(self, node: nodes.Module) -> None:
         """visit an astroid.Module node to check too complex rating and
-        add message if is greather than max_complexity stored from options"""
+        add message if is greater than max_complexity stored from options"""
         visitor = PathGraphingAstVisitor()
         for child in node.body:
             visitor.preorder(child, visitor)
@@ -181,9 +183,9 @@ class McCabeMethodChecker(checkers.BaseChecker):
             complexity = graph.complexity()
             node = graph.root
             if hasattr(node, "name"):
-                node_name = "'%s'" % node.name
+                node_name = f"'{node.name}'"
             else:
-                node_name = "This '%s'" % node.__class__.__name__.lower()
+                node_name = f"This '{node.__class__.__name__.lower()}'"
             if complexity <= self.config.max_complexity:
                 continue
             self.add_message(

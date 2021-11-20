@@ -2,7 +2,7 @@
 """
 #2479
 
-R0201 (formely W0212), Method could be a function shouldn't be emitted in case
+R0201 (formerly W0212), Method could be a function shouldn't be emitted in case
 like factory method pattern
 """
 __revision__ = 1

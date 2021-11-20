@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,no-self-use,too-few-public-methods,wrong-import-position, useless-object-inheritance
+# pylint: disable=missing-docstring,no-self-use,too-few-public-methods,wrong-import-position,useless-object-inheritance,use-dict-literal
 
 REVISION = None
 
@@ -123,3 +123,13 @@ class UnknownBaseCallable(missing.Blah):
     pass
 
 UnknownBaseCallable()()
+
+# Regression test for #4426
+# If property is inferrable we shouldn't double emit the message
+# See: https://github.com/PyCQA/pylint/issues/4426
+class ClassWithProperty:
+    @property
+    def value(self):
+        return 42
+
+CLASS_WITH_PROP = ClassWithProperty().value()  # [not-callable]

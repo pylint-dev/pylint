@@ -10,6 +10,9 @@ import functools
 import optparse  # pylint: disable=deprecated-module
 import os
 import sys
+from pathlib import Path
+from types import ModuleType
+from typing import Dict, List, Optional, TextIO, Tuple, Union
 
 import toml
 
@@ -44,6 +47,7 @@ def _expand_default(self, option):
 
 @contextlib.contextmanager
 def _patch_optparse():
+    # pylint: disable = redefined-variable-type
     orig_default = optparse.HelpFormatter
     try:
         optparse.HelpFormatter.expand_default = _expand_default
@@ -185,11 +189,13 @@ class OptionsManagerMixIn:
         """set option on the correct option provider"""
         self._all_options[opt].set_option(opt, value)
 
-    def generate_config(self, stream=None, skipsections=()):
+    def generate_config(
+        self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
+    ) -> None:
         """write a configuration file according to the current configuration
         into the given stream or stdout
         """
-        options_by_section = {}
+        options_by_section: Dict[str, List[Tuple]] = {}
         sections = []
         for provider in self.options_providers:
             for section, options in provider.options_by_section():
@@ -218,7 +224,9 @@ class OptionsManagerMixIn:
             )
             printed = True
 
-    def generate_manpage(self, pkginfo, section=1, stream=sys.stdout):
+    def generate_manpage(
+        self, pkginfo: ModuleType, section: int = 1, stream: TextIO = sys.stdout
+    ) -> None:
         with _patch_optparse():
             formatter = _ManHelpFormatter()
             formatter.output_level = self._maxlevel
@@ -239,13 +247,12 @@ class OptionsManagerMixIn:
         """Read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
         """
-        help_level = 1
-        while help_level <= self._maxlevel:
+        for help_level in range(1, self._maxlevel + 1):
             opt = "-".join(["long"] * help_level) + "-help"
             if opt in self._all_options:
                 break  # already processed
             help_function = functools.partial(self.helpfunc, level=help_level)
-            help_msg = "%s verbose help." % " ".join(["more"] * help_level)
+            help_msg = f"{' '.join(['more'] * help_level)} verbose help."
             optdict = {
                 "action": "callback",
                 "callback": help_function,
@@ -254,43 +261,24 @@ class OptionsManagerMixIn:
             provider = self.options_providers[0]
             self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
             provider.options += ((opt, optdict),)
-            help_level += 1
+
         if config_file is None:
             config_file = self.config_file
         if config_file is not None:
-            config_file = os.path.expanduser(config_file)
+            config_file = os.path.expandvars(os.path.expanduser(config_file))
             if not os.path.exists(config_file):
                 raise OSError(f"The config file {config_file} doesn't exist!")
 
         use_config_file = config_file and os.path.exists(config_file)
-        if use_config_file:  # pylint: disable=too-many-nested-blocks
+        if use_config_file:
+            self.set_current_module(config_file)
             parser = self.cfgfile_parser
-
             if config_file.endswith(".toml"):
-                with open(config_file) as fp:
-                    content = toml.load(fp)
-
-                try:
-                    sections_values = content["tool"]["pylint"]
-                except KeyError:
-                    pass
-                else:
-                    for section, values in sections_values.items():
-                        # TOML has rich types, convert values to
-                        # strings as ConfigParser expects.
-                        for option, value in values.items():
-                            if isinstance(value, bool):
-                                values[option] = "yes" if value else "no"
-                            elif isinstance(value, (int, float)):
-                                values[option] = str(value)
-                            elif isinstance(value, list):
-                                values[option] = ",".join(value)
-                        parser._sections[section.upper()] = values
+                self._parse_toml(config_file, parser)
             else:
                 # Use this encoding in order to strip the BOM marker, if any.
                 with open(config_file, encoding="utf_8_sig") as fp:
                     parser.read_file(fp)
-
                 # normalize sections'title
                 for sect, values in list(parser._sections.items()):
                     if sect.startswith("pylint."):
@@ -304,6 +292,40 @@ class OptionsManagerMixIn:
         else:
             msg = "No config file found, using default configuration"
         print(msg, file=sys.stderr)
+
+    def _parse_toml(
+        self, config_file: Union[Path, str], parser: configparser.ConfigParser
+    ) -> None:
+        """Parse and handle errors of a toml configuration file."""
+        with open(config_file, encoding="utf-8") as fp:
+            content = toml.load(fp)
+        try:
+            sections_values = content["tool"]["pylint"]
+        except KeyError:
+            return
+        for section, values in sections_values.items():
+            section_name = section.upper()
+            # TOML has rich types, convert values to
+            # strings as ConfigParser expects.
+            if not isinstance(values, dict):
+                # This class is a mixin: add_message comes from the `PyLinter` class
+                self.add_message(  # type: ignore[attr-defined]
+                    "bad-configuration-section", line=0, args=(section, values)
+                )
+                continue
+            for option, value in values.items():
+                if isinstance(value, bool):
+                    values[option] = "yes" if value else "no"
+                elif isinstance(value, list):
+                    values[option] = ",".join(value)
+                else:
+                    values[option] = str(value)
+            for option, value in values.items():
+                try:
+                    parser.set(section_name, option, value=value)
+                except configparser.NoSectionError:
+                    parser.add_section(section_name)
+                    parser.set(section_name, option, value=value)
 
     def load_config_file(self):
         """Dispatch values previously read from a configuration file to each
@@ -326,16 +348,13 @@ class OptionsManagerMixIn:
             provider = self._all_options[opt]
             provider.set_option(opt, opt_value)
 
-    def load_command_line_configuration(self, args=None):
+    def load_command_line_configuration(self, args=None) -> List[str]:
         """Override configuration according to command line parameters
 
         return additional arguments
         """
         with _patch_optparse():
-            if args is None:
-                args = sys.argv[1:]
-            else:
-                args = list(args)
+            args = sys.argv[1:] if args is None else list(args)
             (options, args) = self.cmdline_parser.parse_args(args=args)
             for provider in self._nocallback_options:
                 config = provider.config

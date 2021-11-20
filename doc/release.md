@@ -8,7 +8,7 @@ So, you want to release the `X.Y.Z` version of pylint ?
    pinned to the latest version.
 2. Install the release dependencies `pip3 install pre-commit tbump`
 3. Bump the version by using `tbump X.Y.Z --no-tag --no-push`
-4. Check the result
+4. Check the result (Do `git diff vX.Y.Z-1 ChangeLog doc/whatsnew/` in particular).
 5. Move back to a dev version for pylint with `tbump`:
 
 ```bash
@@ -46,7 +46,7 @@ issue labelled as blocker.
 - Close milestone `X.Y.Z`
 - Create the milestones for `X.Y.Z+1`, (or `X.Y+1.0`, and `X+1.0.0` if applicable)
 
-#### Whatsnew
+#### What's new
 
-If it's a minor release, create a new `What's new in Pylint X.Y+1` document. Take a look
-at the examples from `doc/whatsnew`.
+If it's a minor release, create a new `What's new in Pylint X.Y+1` document. Add it to
+`doc/index.rst`. Take a look at the examples from `doc/whatsnew`.

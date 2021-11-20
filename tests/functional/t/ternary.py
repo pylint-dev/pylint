@@ -31,3 +31,9 @@ def func4():
     """"Using a Name as a condition but still emits"""
     truth_value = 42
     return condition and truth_value or false_value # [consider-using-ternary]
+
+
+def func5():
+    """"Using a Name that infers to False as a condition does not emit"""
+    falsy_value = False
+    return condition and falsy_value or false_value # [simplify-boolean-expression]

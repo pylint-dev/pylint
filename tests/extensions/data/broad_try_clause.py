@@ -12,7 +12,7 @@ except KeyError:
 try:  # [max-try-statements]
     value = MY_DICTIONARY["key_one"]
     value += 1
-    print("This one has an finally clause only.")
+    print("This one has a finally clause only.")
 finally:
     pass
 

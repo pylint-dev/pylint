@@ -8,6 +8,7 @@
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 谭九鼎 <109224573@qq.com>
 # Copyright (c) 2020 Benjamin Graham <benwilliamgraham@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 Andrew Howe <howeaj@users.noreply.github.com>
@@ -25,6 +26,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from typing import Optional
 
 
 def target_info_from_filename(filename):
@@ -54,18 +56,20 @@ class DotBackend:
         self.renderer = renderer
         self.lines = []
         self._source = None
-        self.emit("digraph %s {" % normalize_node_id(graphname))
+        self.emit(f"digraph {normalize_node_id(graphname)} {{")
         if rankdir:
-            self.emit("rankdir=%s" % rankdir)
+            self.emit(f"rankdir={rankdir}")
         if ratio:
-            self.emit("ratio=%s" % ratio)
+            self.emit(f"ratio={ratio}")
         if size:
-            self.emit('size="%s"' % size)
+            self.emit(f'size="{size}"')
         if charset:
-            assert charset.lower() in ("utf-8", "iso-8859-1", "latin1"), (
-                "unsupported charset %s" % charset
-            )
-            self.emit('charset="%s"' % charset)
+            assert charset.lower() in (
+                "utf-8",
+                "iso-8859-1",
+                "latin1",
+            ), f"unsupported charset {charset}"
+            self.emit(f'charset="{charset}"')
         for param in additional_param.items():
             self.emit("=".join(param))
 
@@ -79,7 +83,9 @@ class DotBackend:
 
     source = property(get_source)
 
-    def generate(self, outputfile: str = None, mapfile: str = None) -> str:
+    def generate(
+        self, outputfile: Optional[str] = None, mapfile: Optional[str] = None
+    ) -> str:
         """Generates a graph file.
 
         :param str outputfile: filename and path [defaults to graphname.png]
@@ -107,8 +113,8 @@ class DotBackend:
                 os.close(pdot)
             else:
                 dot_sourcepath = outputfile
-        with codecs.open(dot_sourcepath, "w", encoding="utf8") as pdot:  # type: ignore
-            pdot.write(self.source)  # type: ignore
+        with codecs.open(dot_sourcepath, "w", encoding="utf8") as file:
+            file.write(self.source)
         if target not in graphviz_extensions:
             if shutil.which(self.renderer) is None:
                 raise RuntimeError(
@@ -150,19 +156,19 @@ class DotBackend:
         """
         attrs = [f'{prop}="{value}"' for prop, value in props.items()]
         n_from, n_to = normalize_node_id(name1), normalize_node_id(name2)
-        self.emit("{} -> {} [{}];".format(n_from, n_to, ", ".join(sorted(attrs))))
+        self.emit(f"{n_from} -> {n_to} [{', '.join(sorted(attrs))}];")
 
     def emit_node(self, name, **props):
         """emit a node with given properties.
         node properties: see https://www.graphviz.org/doc/info/attrs.html
         """
         attrs = [f'{prop}="{value}"' for prop, value in props.items()]
-        self.emit("{} [{}];".format(normalize_node_id(name), ", ".join(sorted(attrs))))
+        self.emit(f"{normalize_node_id(name)} [{', '.join(sorted(attrs))}];")
 
 
 def normalize_node_id(nid):
     """Returns a suitable DOT node id for `nid`."""
-    return '"%s"' % nid
+    return f'"{nid}"'
 
 
 def get_cycles(graph_dict, vertices=None):

@@ -42,7 +42,7 @@ thanks to the ``Run()`` function in the ``pylint.lint`` module
 .. sourcecode:: python
 
   import pylint.lint
-  pylint_opts = ['--version']
+  pylint_opts = ['--disable=line-too-long', 'myfile.py']
   pylint.lint.Run(pylint_opts)
 
 To silently run Pylint on a ``module_name.py`` module,

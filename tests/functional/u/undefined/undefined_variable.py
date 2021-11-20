@@ -1,9 +1,10 @@
-# pylint: disable=missing-docstring, multiple-statements, useless-object-inheritance,import-outside-toplevel
-# pylint: disable=too-few-public-methods, no-init, no-self-use,bare-except,broad-except, import-error
+# pylint: disable=missing-docstring, multiple-statements, useless-object-inheritance, import-outside-toplevel
+# pylint: disable=too-few-public-methods, no-init, no-self-use, bare-except, broad-except
+# pylint: disable=using-constant-test, import-error, global-variable-not-assigned, unnecessary-comprehension
 from __future__ import print_function
 
 # pylint: disable=wrong-import-position
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 DEFINED = 1
 
@@ -24,7 +25,7 @@ DEFINED[__revision__] = OTHER = 'move this is astroid test'
 OTHER += '$'
 
 def bad_default(var, default=unknown2):  # [undefined-variable]
-    """function with defaut arg's value set to an unexistant name"""
+    """function with default arg's value set to an nonexistent name"""
     print(var, default)
     print(xxxx)  # [undefined-variable]
     augvar += 1  # [undefined-variable]
@@ -328,3 +329,99 @@ def decorated3(x):
 @decorator(x * x * y for x in range(3))  # [undefined-variable]
 def decorated4(x):
     print(x)
+
+
+# https://github.com/PyCQA/pylint/issues/5111
+# AssignAttr in orelse block of 'TYPE_CHECKING' shouldn't crash
+# Name being assigned must be imported in orelse block
+if TYPE_CHECKING:
+    pass
+else:
+    from types import GenericAlias
+    object().__class_getitem__ = classmethod(GenericAlias)
+
+# Tests for annotation of variables and potentially undefinition
+
+def value_and_type_assignment():
+    """The variable assigned a value and type"""
+    variable: int = 2
+    print(variable)
+
+
+def only_type_assignment():
+    """The variable never gets assigned a value"""
+    variable: int
+    print(variable)  # [undefined-variable]
+
+
+def both_type_and_value_assignment():
+    """The variable first gets a type and subsequently a value"""
+    variable: int
+    variable = 1
+    print(variable)
+
+
+def value_assignment_after_access():
+    """The variable gets a value after it has been accessed"""
+    variable: int
+    print(variable)  # [undefined-variable]
+    variable = 1
+
+
+def value_assignment_from_iterator():
+    """The variables gets a value from an iterator"""
+    variable: int
+    for variable in (1, 2):
+        print(variable)
+
+
+GLOBAL_VAR: int
+GLOBAL_VAR_TWO: int
+
+def global_var_mixed_assignment():
+    """One global variable never gets assigned a value"""
+    global GLOBAL_VAR
+    print(GLOBAL_VAR) # [undefined-variable]
+    global GLOBAL_VAR_TWO
+    print(GLOBAL_VAR_TWO)
+
+GLOBAL_VAR_TWO = 2
+
+
+GLOBAL_VAR: int
+GLOBAL_VAR_TWO: int
+
+
+def assignment_in_comprehension():
+    """A previously typed variables gets used in a comprehension. Don't crash!"""
+    some_list: List[int]
+    some_list = [1, 2, 3]
+    some_list = [i * 2 for i in some_list]
+
+
+def decorator_returning_function():
+    """A decorator that returns a wrapper function with decoupled typing"""
+    def wrapper_with_decoupled_typing():
+        print(var)
+
+    var: int
+    var = 2
+    return wrapper_with_decoupled_typing
+
+
+def decorator_returning_incorrect_function():
+    """A decorator that returns a wrapper function with decoupled typing"""
+    def wrapper_with_type_and_no_value():
+        print(var) # [undefined-variable]
+
+    var: int
+    return wrapper_with_type_and_no_value
+
+
+def typing_and_value_assignment_with_tuple_assignment():
+    """The typed variables get assigned with a tuple assignment"""
+    var_one: int
+    var_two: int
+    var_one, var_two = 1, 1
+    print(var_one)
+    print(var_two)

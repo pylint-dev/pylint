@@ -3,13 +3,14 @@
 
 import configparser
 import os
+from typing import Iterator, Optional
 
 import toml
-from toml.decoder import TomlDecodeError
+from toml import TomlDecodeError
 
 
 def _toml_has_config(path):
-    with open(path) as toml_handle:
+    with open(path, encoding="utf-8") as toml_handle:
         try:
             content = toml.load(toml_handle)
         except TomlDecodeError as error:
@@ -30,7 +31,7 @@ def _cfg_has_config(path):
     return any(section.startswith("pylint.") for section in parser.sections())
 
 
-def find_default_config_files():
+def find_default_config_files() -> Iterator[str]:
     """Find all possible config files."""
     rc_names = ("pylintrc", ".pylintrc")
     config_names = rc_names + ("pyproject.toml", "setup.cfg")
@@ -67,3 +68,11 @@ def find_default_config_files():
 
     if os.path.isfile("/etc/pylintrc"):
         yield "/etc/pylintrc"
+
+
+def find_pylintrc() -> Optional[str]:
+    """search the pylint rc file and return its path if it find it, else None"""
+    for config_file in find_default_config_files():
+        if config_file.endswith("pylintrc"):
+            return config_file
+    return None

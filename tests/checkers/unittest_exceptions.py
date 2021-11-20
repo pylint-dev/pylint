@@ -8,6 +8,7 @@
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -17,7 +18,7 @@
 import astroid
 
 from pylint.checkers import exceptions
-from pylint.testutils import CheckerTestCase, Message
+from pylint.testutils import CheckerTestCase, MessageTest
 
 
 class TestExceptionsChecker(CheckerTestCase):
@@ -30,13 +31,13 @@ class TestExceptionsChecker(CheckerTestCase):
     # and `raise (Error, ...)` will be converted to
     # `raise Error(...)`, so it beats the purpose of the test.
 
-    def test_raising_bad_type_python3(self):
+    def test_raising_bad_type_python3(self) -> None:
         node = astroid.extract_node("raise (ZeroDivisionError, None)  #@")
-        message = Message("raising-bad-type", node=node, args="tuple")
+        message = MessageTest("raising-bad-type", node=node, args="tuple")
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)
 
-    def test_bad_exception_context_function(self):
+    def test_bad_exception_context_function(self) -> None:
         node = astroid.extract_node(
             """
         def function():
@@ -48,6 +49,6 @@ class TestExceptionsChecker(CheckerTestCase):
             raise Exception from exc  #@
         """
         )
-        message = Message("bad-exception-context", node=node)
+        message = MessageTest("bad-exception-context", node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)

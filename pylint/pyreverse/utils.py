@@ -10,6 +10,7 @@
 # Copyright (c) 2020 yeting li <liyt@ios.ac.cn>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 bernie gray <bfgray3@users.noreply.github.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
@@ -20,10 +21,12 @@
 """Generic classes/functions for pyreverse core/extensions. """
 import os
 import re
+import shutil
 import sys
 from typing import Optional, Union
 
 import astroid
+from astroid import nodes
 
 RCFILE = ".pyreverserc"
 
@@ -35,7 +38,7 @@ def get_default_options():
     if home:
         rcfile = os.path.join(home, RCFILE)
         try:
-            with open(rcfile) as file_handle:
+            with open(rcfile, encoding="utf-8") as file_handle:
                 options = file_handle.read().split()
         except OSError:
             pass  # ignore if no config file found
@@ -128,7 +131,7 @@ class FilterMixIn:
             try:
                 __mode += MODES[nummod]
             except KeyError as ex:
-                print("Unknown filter mode %s" % ex, file=sys.stderr)
+                print(f"Unknown filter mode {ex}", file=sys.stderr)
         self.__mode = __mode
 
     def show_attr(self, node):
@@ -173,10 +176,10 @@ class ASTWalker:
             handler = self.handler
             kid = klass.__name__.lower()
             e_method = getattr(
-                handler, "visit_%s" % kid, getattr(handler, "visit_default", None)
+                handler, f"visit_{kid}", getattr(handler, "visit_default", None)
             )
             l_method = getattr(
-                handler, "leave_%s" % kid, getattr(handler, "leave_default", None)
+                handler, f"leave_{kid}", getattr(handler, "leave_default", None)
             )
             self._cache[klass] = (e_method, l_method)
         else:
@@ -200,7 +203,7 @@ class LocalsVisitor(ASTWalker):
     """visit a project by traversing the locals dictionary"""
 
     def __init__(self):
-        ASTWalker.__init__(self, self)
+        super().__init__(self)
         self._visited = set()
 
     def visit(self, node):
@@ -220,23 +223,23 @@ class LocalsVisitor(ASTWalker):
         return None
 
 
-def get_annotation_label(ann: Union[astroid.Name, astroid.Subscript]) -> str:
+def get_annotation_label(ann: Union[nodes.Name, nodes.Subscript]) -> str:
     label = ""
-    if isinstance(ann, astroid.Subscript):
+    if isinstance(ann, nodes.Subscript):
         label = ann.as_string()
-    elif isinstance(ann, astroid.Name):
+    elif isinstance(ann, nodes.Name):
         label = ann.name
     return label
 
 
 def get_annotation(
-    node: Union[astroid.AssignAttr, astroid.AssignName]
-) -> Optional[Union[astroid.Name, astroid.Subscript]]:
+    node: Union[nodes.AssignAttr, nodes.AssignName]
+) -> Optional[Union[nodes.Name, nodes.Subscript]]:
     """return the annotation for `node`"""
     ann = None
-    if isinstance(node.parent, astroid.AnnAssign):
+    if isinstance(node.parent, nodes.AnnAssign):
         ann = node.parent.annotation
-    elif isinstance(node, astroid.AssignAttr):
+    elif isinstance(node, nodes.AssignAttr):
         init_method = node.parent.parent
         try:
             annotations = dict(zip(init_method.locals, init_method.args.annotations))
@@ -254,7 +257,7 @@ def get_annotation(
     label = get_annotation_label(ann)
     if ann:
         label = (
-            rf"Optional[{label}]"
+            fr"Optional[{label}]"
             if getattr(default, "value", "value") is None
             and not label.startswith("Optional")
             else label
@@ -264,14 +267,29 @@ def get_annotation(
     return ann
 
 
-def infer_node(node: Union[astroid.AssignAttr, astroid.AssignName]) -> set:
+def infer_node(node: Union[nodes.AssignAttr, nodes.AssignName]) -> set:
     """Return a set containing the node annotation if it exists
     otherwise return a set of the inferred types using the NodeNG.infer method"""
 
     ann = get_annotation(node)
-    if ann:
-        return {ann}
     try:
+        if ann:
+            if isinstance(ann, nodes.Subscript):
+                return {ann}
+            return set(ann.infer())
         return set(node.infer())
     except astroid.InferenceError:
-        return set()
+        return {ann} if ann else set()
+
+
+def check_graphviz_availability():
+    """Check if the ``dot`` command is available on the machine.
+    This is needed if image output is desired and ``dot`` is used to convert
+    from *.dot or *.gv into the final output format."""
+    if shutil.which("dot") is None:
+        print(
+            "The requested output format is currently not available.\n"
+            "Please install 'Graphviz' to have other output formats "
+            "than 'dot' or 'vcg'."
+        )
+        sys.exit(32)

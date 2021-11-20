@@ -1,6 +1,6 @@
 """Test assignment expressions"""
 # pylint: disable=missing-docstring,unused-argument,unused-import,invalid-name
-# pylint: disable=blacklisted-name,unused-variable,pointless-statement
+# pylint: disable=blacklisted-name,unused-variable,pointless-statement,unused-variable
 import re
 
 if (a := True):
@@ -84,3 +84,30 @@ l3 += (
 def func2():
     return f'The number {(count := 4)} ' \
            f'is equal to {count}'
+
+
+# https://github.com/PyCQA/pylint/issues/4828
+def func3():
+    return bar if (bar := "") else ""
+
+
+# Lambda and IfExp
+def func4():
+    l = lambda x: y if (y := x) else None
+
+
+# Crash related to assignment expression in nested if statements
+# See https://github.com/PyCQA/pylint/issues/5178
+def func5(val):
+    variable = None
+
+    if val == 1:
+        variable = "value"
+        if variable := "value":
+            pass
+
+    elif val == 2:
+        variable = "value_two"
+        variable = "value_two"
+
+    return variable

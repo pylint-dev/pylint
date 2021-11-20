@@ -1,3 +1,4 @@
+.. _tutorial:
 
 ========
 Tutorial
@@ -62,7 +63,7 @@ A couple of the options that we'll focus on here are: ::
   Messages control:
     --disable=<msg-ids>
   Reports:
-    --reports=<y_or_n>
+    --reports=<y or n>
     --output-format=<format>
 
 If you need more detail, you can also ask for an even longer help message,
@@ -153,7 +154,8 @@ needed a bit more info.  We can see the second line is: ::
 
   "simplecaesar.py:1:0: C0114: Missing module docstring (missing-module-docstring)"
 
-This basically means that line 1 violates a convention ``C0114``.  It's telling me I really should have a docstring.  I agree, but what if I didn't fully understand what rule I violated.  Knowing only that I violated a convention
+This basically means that line 1 violates a convention ``C0114``.  It's telling me I really should have a docstring.
+I agree, but what if I didn't fully understand what rule I violated.  Knowing only that I violated a convention
 isn't much help if I'm a newbie. Another piece of information there is the
 message symbol between parens, ``missing-module-docstring`` here.
 

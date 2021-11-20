@@ -1,23 +1,29 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+import sys
 from typing import Dict, List, Optional, Tuple
 
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
+
+if sys.version_info >= (3, 6, 2):
+    from typing import NoReturn
+else:
+    from typing_extensions import NoReturn
 
 
 class MessageIdStore:
 
     """The MessageIdStore store MessageId and make sure that there is a 1-1 relation between msgid and symbol."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.__msgid_to_symbol: Dict[str, str] = {}
         self.__symbol_to_msgid: Dict[str, str] = {}
         self.__old_names: Dict[str, List[str]] = {}
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.__msgid_to_symbol)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         result = "MessageIdStore: [\n"
         for msgid, symbol in self.__msgid_to_symbol.items():
             result += f"  - {msgid} ({symbol})\n"
@@ -26,7 +32,7 @@ class MessageIdStore:
 
     def get_symbol(self, msgid: str) -> str:
         try:
-            return self.__msgid_to_symbol[msgid]
+            return self.__msgid_to_symbol[msgid.upper()]
         except KeyError as e:
             msg = f"'{msgid}' is not stored in the message store."
             raise UnknownMessageError(msg) from e
@@ -40,7 +46,7 @@ class MessageIdStore:
 
     def register_message_definition(
         self, msgid: str, symbol: str, old_names: List[Tuple[str, str]]
-    ):
+    ) -> None:
         self.check_msgid_and_symbol(msgid, symbol)
         self.add_msgid_and_symbol(msgid, symbol)
         for old_msgid, old_symbol in old_names:
@@ -76,12 +82,12 @@ class MessageIdStore:
         if existing_msgid is not None:
             if existing_msgid != msgid:
                 self._raise_duplicate_msgid(symbol, msgid, existing_msgid)
-        if existing_symbol != symbol:
+        if existing_symbol and existing_symbol != symbol:
             # See https://github.com/python/mypy/issues/10559
-            self._raise_duplicate_symbol(msgid, symbol, existing_symbol)  # type: ignore
+            self._raise_duplicate_symbol(msgid, symbol, existing_symbol)
 
     @staticmethod
-    def _raise_duplicate_symbol(msgid: str, symbol: str, other_symbol: str):
+    def _raise_duplicate_symbol(msgid: str, symbol: str, other_symbol: str) -> NoReturn:
         """Raise an error when a symbol is duplicated."""
         symbols = [symbol, other_symbol]
         symbols.sort()
@@ -90,7 +96,7 @@ class MessageIdStore:
         raise InvalidMessageError(error_message)
 
     @staticmethod
-    def _raise_duplicate_msgid(symbol: str, msgid: str, other_msgid: str) -> None:
+    def _raise_duplicate_msgid(symbol: str, msgid: str, other_msgid: str) -> NoReturn:
         """Raise an error when a msgid is duplicated."""
         msgids = [msgid, other_msgid]
         msgids.sort()
@@ -105,11 +111,12 @@ class MessageIdStore:
         """Return msgids but the input can be a symbol."""
         # Only msgid can have a digit as second letter
         is_msgid: bool = msgid_or_symbol[1:].isdigit()
+        msgid = None
         if is_msgid:
             msgid = msgid_or_symbol.upper()
             symbol = self.__msgid_to_symbol.get(msgid)
         else:
-            msgid = self.__symbol_to_msgid.get(msgid_or_symbol)  # type: ignore
+            msgid = self.__symbol_to_msgid.get(msgid_or_symbol)
             symbol = msgid_or_symbol
         if msgid is None or symbol is None or not msgid or not symbol:
             error_msg = f"No such message id or symbol '{msgid_or_symbol}'."

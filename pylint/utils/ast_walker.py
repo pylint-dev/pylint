@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 
 import collections
+import traceback
 
 from astroid import nodes
 
@@ -18,10 +19,7 @@ class ASTWalker:
     def _is_method_enabled(self, method):
         if not hasattr(method, "checks_msgs"):
             return True
-        for msg_desc in method.checks_msgs:
-            if self.linter.is_message_enabled(msg_desc):
-                return True
-        return False
+        return any(self.linter.is_message_enabled(m) for m in method.checks_msgs)
 
     def add_checker(self, checker):
         """walk to the checker's dir and collect visit and leave methods"""
@@ -81,5 +79,6 @@ class ASTWalker:
             if self.exception_msg is False:
                 file = getattr(astroid.root(), "file", None)
                 print(f"Exception on node {repr(astroid)} in file '{file}'")
+                traceback.print_exc()
                 self.exception_msg = True
             raise

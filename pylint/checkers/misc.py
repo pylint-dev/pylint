@@ -16,6 +16,8 @@
 # Copyright (c) 2020 wtracy <afishionado@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
 
@@ -27,10 +29,13 @@
 
 import re
 import tokenize
+from typing import List, Optional
+
+from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IRawChecker, ITokenChecker
-from pylint.message import MessagesHandlerMixIn
+from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 
@@ -49,15 +54,21 @@ class ByIdManagedMessagesChecker(BaseChecker):
     }
     options = ()
 
-    def process_module(self, module):
+    def _clear_by_id_managed_msgs(self) -> None:
+        self.linter._by_id_managed_msgs.clear()
+
+    def _get_by_id_managed_msgs(self) -> List[ManagedMessage]:
+        return self.linter._by_id_managed_msgs
+
+    def process_module(self, node: nodes.Module) -> None:
         """Inspect the source file to find messages activated or deactivated by id."""
-        managed_msgs = MessagesHandlerMixIn.get_by_id_managed_msgs()
+        managed_msgs = self._get_by_id_managed_msgs()
         for (mod_name, msgid, symbol, lineno, is_disabled) in managed_msgs:
-            if mod_name == module.name:
+            if mod_name == node.name:
                 verb = "disable" if is_disabled else "enable"
                 txt = f"'{msgid}' is cryptic: use '# pylint: {verb}={symbol}' instead"
                 self.add_message("use-symbolic-message-instead", line=lineno, args=txt)
-        MessagesHandlerMixIn.clear_by_id_managed_msgs()
+        self._clear_by_id_managed_msgs()
 
 
 class EncodingChecker(BaseChecker):
@@ -109,29 +120,32 @@ class EncodingChecker(BaseChecker):
         if self.config.notes_rgx:
             regex_string = fr"#\s*({notes}|{self.config.notes_rgx})\b"
         else:
-            regex_string = r"#\s*(%s)\b" % (notes)
+            regex_string = fr"#\s*({notes})\b"
 
         self._fixme_pattern = re.compile(regex_string, re.I)
 
-    def _check_encoding(self, lineno, line, file_encoding):
+    def _check_encoding(
+        self, lineno: int, line: bytes, file_encoding: str
+    ) -> Optional[str]:
         try:
             return line.decode(file_encoding)
         except UnicodeDecodeError:
             pass
         except LookupError:
-            if line.startswith("#") and "coding" in line and file_encoding in line:
+            if (
+                line.startswith(b"#")
+                and "coding" in str(line)
+                and file_encoding in str(line)
+            ):
                 msg = f"Cannot decode using encoding '{file_encoding}', bad encoding"
                 self.add_message("syntax-error", line=lineno, args=msg)
         return None
 
-    def process_module(self, module):
+    def process_module(self, node: nodes.Module) -> None:
         """inspect the source file to find encoding problem"""
-        if module.file_encoding:
-            encoding = module.file_encoding
-        else:
-            encoding = "ascii"
+        encoding = node.file_encoding if node.file_encoding else "ascii"
 
-        with module.stream() as stream:
+        with node.stream() as stream:
             for lineno, line in enumerate(stream):
                 self._check_encoding(lineno + 1, line, encoding)
 

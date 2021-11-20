@@ -12,6 +12,7 @@
 # Copyright (c) 2019 Bruno P. Kinoshita <kinow@users.noreply.github.com>
 # Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
 
@@ -46,28 +47,84 @@ messages nor reports. XXX not true, emit a 07 report !
 
 """
 
+import sys
+from typing import List, Optional, Tuple, Union
+
 from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
 from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.checkers.mapreduce_checker import MapReduceMixin
-from pylint.utils import diff_string, register_plugins
+from pylint.utils import LinterStats, diff_string, register_plugins
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 
-def table_lines_from_stats(stats, old_stats, columns):
+def table_lines_from_stats(
+    stats: LinterStats,
+    old_stats: Optional[LinterStats],
+    stat_type: Literal["duplicated_lines", "message_types"],
+) -> List[str]:
     """get values listed in <columns> from <stats> and <old_stats>,
-    and return a formated list of values, designed to be given to a
+    and return a formatted list of values, designed to be given to a
     ureport.Table object
     """
-    lines = []
-    for m_type in columns:
-        new = stats[m_type]
-        old = old_stats.get(m_type)
-        if old is not None:
-            diff_str = diff_string(old, new)
+    lines: List[str] = []
+    if stat_type == "duplicated_lines":
+        new: List[Tuple[str, Union[str, int, float]]] = [
+            ("nb_duplicated_lines", stats.duplicated_lines["nb_duplicated_lines"]),
+            (
+                "percent_duplicated_lines",
+                stats.duplicated_lines["percent_duplicated_lines"],
+            ),
+        ]
+        if old_stats:
+            old: List[Tuple[str, Union[str, int, float]]] = [
+                (
+                    "nb_duplicated_lines",
+                    old_stats.duplicated_lines["nb_duplicated_lines"],
+                ),
+                (
+                    "percent_duplicated_lines",
+                    old_stats.duplicated_lines["percent_duplicated_lines"],
+                ),
+            ]
         else:
-            old, diff_str = "NC", "NC"
-        new = "%.3f" % new if isinstance(new, float) else str(new)
-        old = "%.3f" % old if isinstance(old, float) else str(old)
-        lines += (m_type.replace("_", " "), new, old, diff_str)
+            old = [("nb_duplicated_lines", "NC"), ("percent_duplicated_lines", "NC")]
+    elif stat_type == "message_types":
+        new = [
+            ("convention", stats.convention),
+            ("refactor", stats.refactor),
+            ("warning", stats.warning),
+            ("error", stats.error),
+        ]
+        if old_stats:
+            old = [
+                ("convention", old_stats.convention),
+                ("refactor", old_stats.refactor),
+                ("warning", old_stats.warning),
+                ("error", old_stats.error),
+            ]
+        else:
+            old = [
+                ("convention", "NC"),
+                ("refactor", "NC"),
+                ("warning", "NC"),
+                ("error", "NC"),
+            ]
+
+    for index, _ in enumerate(new):
+        new_value = new[index][1]
+        old_value = old[index][1]
+        diff_str = (
+            diff_string(old_value, new_value)
+            if isinstance(old_value, float)
+            else old_value
+        )
+        new_str = f"{new_value:.3f}" if isinstance(new_value, float) else str(new_value)
+        old_str = f"{old_value:.3f}" if isinstance(old_value, float) else str(old_value)
+        lines.extend((new[index][0].replace("_", " "), new_str, old_str, diff_str))
     return lines
 
 
