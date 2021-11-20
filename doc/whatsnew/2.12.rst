@@ -43,11 +43,25 @@ New checkers
 
   Closes #4774
 
+* Added ``using-final-decorator-in-unsupported-version`` checker. Issued when ``py-version``
+  is set to a version that does not support typing.final (< 3.8)
+
 * Added configuration option ``exclude-too-few-public-methods`` to allow excluding
   classes from the ``min-public-methods`` checker.
 
   Closes #3370
 
+* Added new checker ``useless-with-lock`` to find incorrect usage of with statement and threading module locks.
+  Emitted when ``with threading.Lock():`` is used instead of ``with lock_instance:``.
+
+  Closes #5208
+
+* A new ``bad-configuration-section`` checker was added that will emit for misplaced option
+  in pylint's top level namespace for toml configuration. Top-level dictionaries or option defined
+  in the wrong section will still silently not be taken into account, which is tracked in a
+  follow-up issue.
+
+  Follow-up in #5259
 
 Removed checkers
 ================
@@ -61,10 +75,25 @@ Extensions
 
   Closes #5008
 
+* Moved ``misplaced-comparison-constant`` to its own extension ``comparison_placement``.
+  This checker was opinionated and now no longer a default. It can be reactived by adding
+  ``pylint.extensions.comparison_placement`` to ``load-plugins`` in your config.
+
+  Closes #1064
+
 Other Changes
 =============
 
 * Fix ``install graphiz`` message which isn't needed for puml output format.
+
+* ``pylint`` no longer crashes when checking assignment expressions within if-statements
+
+  Closes #5178
+
+* Fix ``accept-no-yields-doc`` and ``accept-no-return-doc`` not allowing missing ``yield`` or
+  ``return`` documentation when a docstring is partially correct
+
+  Closes #5223
 
 * Fix ``simplify-boolean-expression`` when condition can be inferred as False.
 
@@ -108,11 +137,17 @@ Other Changes
 
   Fixes part of #3688
 
+* ``self-cls-assignment`` now also considers tuple assignment
+
 * ``undefined-variable`` now correctly triggers for assignment expressions in if ... else statements
   This includes a basic form of control flow inference for if ... else statements using
   constant boolean values
 
   Closes #3688
+
+* Fix crash for ``unused-private-member`` when checking private members on ``__class__``
+
+  Closes #5261
 
 * Fix double emitting of ``not-callable`` on inferrable ``properties``
 
@@ -134,3 +169,28 @@ Other Changes
   explicit typing
 
   Closes #5222
+
+* The ``--jobs`` parameter now falls back to 1 if the host operating system does not
+  have functioning shared semaphore implementation.
+
+  Closes #5216
+
+* Crashes when a list is encountered in a toml configuration do not happen anymore.
+
+  Closes #4580
+
+* Fix crash for ``protected-access`` on (outer) class traversal
+
+* Make yn validator case insensitive, to allow for ``True`` and ``False`` in config files.
+
+* The last version compatible with python '3.6.0' and '3.6.1' is pylint '2.9.3'. We did not
+  realize that when adding incompatible typing at the time, and all versions since are broken
+  for this interpreter. 2.12.0 meta-information will permit to download pylint on those
+  interpreters but the installation will fail and tell you to install '2.9.3' instead.
+  pylint 2.12.1 will require python >= 3.6.2.
+
+  Closes #5171
+  Follow-up in #5065
+
+* Added the ``--enable-all-extensions`` command line option. It will load all available extensions
+  which can be listed by running ``--list-extensions``

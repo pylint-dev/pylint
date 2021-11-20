@@ -27,11 +27,11 @@ repos:
         args: [--py36-plus]
         exclude: *fixtures
   - repo: https://github.com/PyCQA/isort
-    rev: 5.9.3
+    rev: 5.10.1
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
-    rev: 21.9b0
+    rev: 21.10b0
     hooks:
       - id: black
         args: [--safe, --quiet]

@@ -1,0 +1,9 @@
+using-final-decorator-in-unsupported-version:10:1:MyClass1:typing.final is not supported by all versions included in the py-version setting:HIGH
+using-final-decorator-in-unsupported-version:12:5:MyClass1.my_method:typing.final is not supported by all versions included in the py-version setting:HIGH
+using-final-decorator-in-unsupported-version:13:5:MyClass1.my_method:typing.final is not supported by all versions included in the py-version setting:HIGH
+using-final-decorator-in-unsupported-version:18:1:MyClass2:typing.final is not supported by all versions included in the py-version setting:HIGH
+using-final-decorator-in-unsupported-version:20:5:MyClass2.my_method:typing.final is not supported by all versions included in the py-version setting:HIGH
+using-final-decorator-in-unsupported-version:25:1:MyClass3:typing.final is not supported by all versions included in the py-version setting:HIGH
+using-final-decorator-in-unsupported-version:27:5:MyClass3.my_method:typing.final is not supported by all versions included in the py-version setting:HIGH
+using-final-decorator-in-unsupported-version:32:1:MyClass4:typing.final is not supported by all versions included in the py-version setting:HIGH
+using-final-decorator-in-unsupported-version:34:5:MyClass4.my_method:typing.final is not supported by all versions included in the py-version setting:HIGH

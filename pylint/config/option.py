@@ -50,6 +50,8 @@ def _choice_validator(choices, name, value):
 def _yn_validator(opt, _, value):
     if isinstance(value, int):
         return bool(value)
+    if isinstance(value, str):
+        value = value.lower()
     if value in ("y", "yes", "true"):
         return True
     if value in ("n", "no", "false"):
@@ -180,7 +182,7 @@ class Option(optparse.Option):
             )
 
     # pylint: disable=unsupported-assignment-operation
-    optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore
+    optparse.Option.CHECK_METHODS[2] = _check_choice  # type: ignore[index]
 
     def process(self, opt, value, values, parser):
         # First, convert the value(s) to the right type.  Howl if any

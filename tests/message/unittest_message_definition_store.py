@@ -5,7 +5,7 @@ from contextlib import redirect_stdout
 from io import StringIO
 
 import pytest
-from _pytest.capture import CaptureFixture
+from pytest import CaptureFixture
 
 from pylint.checkers import BaseChecker
 from pylint.exceptions import InvalidMessageError, UnknownMessageError

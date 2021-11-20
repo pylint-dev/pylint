@@ -312,7 +312,7 @@ def is_error(node: nodes.FunctionDef) -> bool:
     return len(node.body) == 1 and isinstance(node.body[0], nodes.Raise)
 
 
-builtins = builtins.__dict__.copy()  # type: ignore
+builtins = builtins.__dict__.copy()  # type: ignore[assignment]
 SPECIAL_BUILTINS = ("__builtins__",)  # '__path__', '__file__')
 
 
@@ -323,7 +323,7 @@ def is_builtin_object(node: nodes.NodeNG) -> bool:
 
 def is_builtin(name: str) -> bool:
     """return true if <name> could be considered as a builtin defined by python"""
-    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore
+    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[operator]
 
 
 def is_defined_in_scope(
@@ -822,7 +822,9 @@ def _is_property_decorator(decorator: nodes.Name) -> bool:
 
 
 def decorated_with(
-    func: Union[nodes.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod],
+    func: Union[
+        nodes.ClassDef, nodes.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod
+    ],
     qnames: Iterable[str],
 ) -> bool:
     """Determine if the `func` node has a decorator with the qualified name `qname`."""
@@ -841,6 +843,47 @@ def decorated_with(
         except astroid.InferenceError:
             continue
     return False
+
+
+def uninferable_final_decorators(
+    node: nodes.Decorators,
+) -> List[Optional[Union[nodes.Attribute, nodes.Name]]]:
+    """Return a list of uninferable `typing.final` decorators in `node`.
+
+    This function is used to determine if the `typing.final` decorator is used
+    with an unsupported Python version; the decorator cannot be inferred when
+    using a Python version lower than 3.8.
+    """
+    decorators = []
+    for decorator in getattr(node, "nodes", []):
+        if isinstance(decorator, nodes.Attribute):
+            try:
+                import_node = decorator.expr.lookup(decorator.expr.name)[1][0]
+            except AttributeError:
+                continue
+        elif isinstance(decorator, nodes.Name):
+            import_node = decorator.lookup(decorator.name)[1][0]
+        else:
+            continue
+
+        if not isinstance(import_node, (astroid.Import, astroid.ImportFrom)):
+            continue
+
+        import_names = dict(import_node.names)
+
+        # from typing import final
+        is_from_import = ("final" in import_names) and import_node.modname == "typing"
+        # import typing
+        is_import = ("typing" in import_names) and getattr(
+            decorator, "attrname", None
+        ) == "final"
+
+        if (is_from_import or is_import) and safe_infer(decorator) in [
+            astroid.Uninferable,
+            None,
+        ]:
+            decorators.append(decorator)
+    return decorators
 
 
 @lru_cache(maxsize=1024)

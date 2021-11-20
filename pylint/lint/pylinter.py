@@ -46,14 +46,7 @@ from pylint.typing import (
     MessageLocationTuple,
     ModuleDescriptionDict,
 )
-from pylint.utils import (
-    ASTWalker,
-    FileState,
-    LinterStats,
-    ModuleStats,
-    get_global_option,
-    utils,
-)
+from pylint.utils import ASTWalker, FileState, LinterStats, get_global_option, utils
 from pylint.utils.pragma_parser import (
     OPTION_PO,
     InvalidPragmaError,
@@ -164,6 +157,11 @@ MSGS = {
         "Plugin '%s' is impossible to load, is it installed ? ('%s')",
         "bad-plugin-value",
         "Used when a bad value is used in 'load-plugins'.",
+    ),
+    "E0014": (
+        "Out-of-place setting encountered in top level configuration-section '%s' : '%s'",
+        "bad-configuration-section",
+        "Used when we detect a setting in the top level of a toml configuration that shouldn't be there.",
     ),
 }
 
@@ -976,7 +974,7 @@ class PyLinter(
                 "In pylint 3.0, the checkers check function will only accept sequence of string",
                 DeprecationWarning,
             )
-            files_or_modules = (files_or_modules,)  # type: ignore
+            files_or_modules = (files_or_modules,)  # type: ignore[assignment]
         if self.config.from_stdin:
             if len(files_or_modules) != 1:
                 raise exceptions.InvalidArgsError(
@@ -1125,9 +1123,7 @@ class PyLinter(
         self.reporter.on_set_current_module(modname, filepath)
         self.current_name = modname
         self.current_file = filepath or modname
-        self.stats.by_module[modname] = ModuleStats(
-            convention=0, error=0, fatal=0, info=0, refactor=0, statement=0, warning=0
-        )
+        self.stats.init_single_module(modname)
 
     @contextlib.contextmanager
     def _astroid_module_checker(self):
@@ -1340,12 +1336,12 @@ class PyLinter(
         if confidence is None:
             confidence = interfaces.UNDEFINED
         if self.config.confidence and confidence.name not in self.config.confidence:
-            return MSG_STATE_CONFIDENCE  # type: ignore # mypy does not infer Literal correctly
+            return MSG_STATE_CONFIDENCE  # type: ignore[return-value] # mypy does not infer Literal correctly
         try:
             if line in self.file_state._module_msgs_state[msgid]:
-                return MSG_STATE_SCOPE_MODULE  # type: ignore
+                return MSG_STATE_SCOPE_MODULE  # type: ignore[return-value]
         except (KeyError, TypeError):
-            return MSG_STATE_SCOPE_CONFIG  # type: ignore
+            return MSG_STATE_SCOPE_CONFIG  # type: ignore[return-value]
         return None
 
     def _is_one_message_enabled(self, msgid: str, line: Optional[int]) -> bool:
@@ -1419,7 +1415,7 @@ class PyLinter(
         if line is None and node is not None:
             line = node.fromlineno
         if col_offset is None and hasattr(node, "col_offset"):
-            col_offset = node.col_offset  # type: ignore
+            col_offset = node.col_offset  # type: ignore[union-attr]
 
         # should this message be displayed
         if not self.is_message_enabled(message_definition.msgid, line, confidence):
@@ -1435,7 +1431,6 @@ class PyLinter(
         # update stats
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
-
         self.stats.increase_single_message_count(msg_cat, 1)
         self.stats.increase_single_module_message_count(self.current_name, msg_cat, 1)
         try:

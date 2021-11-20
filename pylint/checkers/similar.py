@@ -93,7 +93,7 @@ class LineSpecifs(NamedTuple):
 
 
 # Links LinesChunk object to the starting indices (in lineset's stripped lines)
-# of the different chunk of lines that are used to compute the hash
+# of the different chunk of lines that are used to compute the hash
 HashToIndex_T = Dict["LinesChunk", List[Index]]
 
 # Links index in the lineset's stripped lines to the real lines in the file
@@ -383,7 +383,7 @@ class Similar:
                 raise ValueError
             readlines = decoding_stream(stream, encoding).readlines
         else:
-            readlines = stream.readlines  # type: ignore # hint parameter is incorrectly typed as non-optional
+            readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
         try:
             self.linesets.append(
                 LineSet(

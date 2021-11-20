@@ -24,8 +24,7 @@ class OptionParser(optparse.OptionParser):
             formatter = self.formatter
         outputlevel = getattr(formatter, "output_level", 0)
         formatter.store_option_strings(self)
-        result = []
-        result.append(formatter.format_heading("Options"))
+        result = [formatter.format_heading("Options")]
         formatter.indent()
         if self.option_list:
             result.append(optparse.OptionContainer.format_option_help(self, formatter))

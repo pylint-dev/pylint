@@ -548,9 +548,6 @@ class TestComparison(CheckerTestCase):
         node = astroid.extract_node("True == foo")
         messages = (
             MessageTest(
-                "misplaced-comparison-constant", node=node, args=("foo == True",)
-            ),
-            MessageTest(
                 "singleton-comparison",
                 node=node,
                 args=(
@@ -565,9 +562,6 @@ class TestComparison(CheckerTestCase):
         node = astroid.extract_node("False == foo")
         messages = (
             MessageTest(
-                "misplaced-comparison-constant", node=node, args=("foo == False",)
-            ),
-            MessageTest(
                 "singleton-comparison",
                 node=node,
                 args=(
@@ -581,9 +575,6 @@ class TestComparison(CheckerTestCase):
 
         node = astroid.extract_node("None == foo")
         messages = (
-            MessageTest(
-                "misplaced-comparison-constant", node=node, args=("foo == None",)
-            ),
             MessageTest(
                 "singleton-comparison",
                 node=node,

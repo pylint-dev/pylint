@@ -14,7 +14,7 @@ from pylint.utils import LinterStats, merge_stats
 try:
     import multiprocessing
 except ImportError:
-    multiprocessing = None  # type: ignore
+    multiprocessing = None  # type: ignore[assignment]
 
 # PyLinter object used by worker processes when checking files using multiprocessing
 # should only be used by the worker processes
@@ -139,7 +139,7 @@ def check_parallel(linter, jobs, files: Iterable[FileItem], arguments=None):
             linter.set_current_module(module, file_path)
             for msg in messages:
                 msg = Message(*msg)
-                linter.reporter.handle_message(msg)  # type: ignore  # linter.set_reporter() call above makes linter have a reporter attr
+                linter.reporter.handle_message(msg)  # type: ignore[attr-defined]  # linter.set_reporter() call above makes linter have a reporter attr
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status
