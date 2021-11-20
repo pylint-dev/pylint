@@ -187,7 +187,7 @@ Release date: TBA
 
 * Make yn validator case insensitive, to allow for ``True`` and ``False`` in config files.
 
-* Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``
+* False positive - Allow unpacking of ``self`` in a subclass of ``typing.NamedTuple``
 
   Closes #5312
 

@@ -140,7 +140,7 @@ def flow_control_unpacking(var=None):
     return None
 
 
-class V2(NamedTuple):
+class MyClass(NamedTuple):
     x: float
     y: float
 

@@ -1,8 +1,9 @@
 """Check possible unbalanced tuple unpacking """
 from __future__ import absolute_import
+from typing import NamedTuple
 from functional.u.unpacking import unpack
 
-# pylint: disable=using-constant-test, useless-object-inheritance,import-outside-toplevel
+# pylint: disable=missing-class-docstring, missing-function-docstring, using-constant-test, useless-object-inheritance,import-outside-toplevel
 
 def do_stuff():
     """This is not right."""
@@ -106,3 +107,12 @@ def test_issue_559():
     from ctypes import c_int
     root_x, root_y, win_x, win_y = [c_int()] * 4
     return root_x, root_y, win_x, win_y
+
+
+class MyClass(NamedTuple):
+    first: float
+    second: float
+
+    def sum_3d(self):
+        first, second, third = self # [unbalanced-tuple-unpacking]
+        return first + second + third
