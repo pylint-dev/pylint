@@ -1029,11 +1029,14 @@ class VariablesChecker(BaseChecker):
                 node, stmt, frame, current_consumer, i, base_scope_type
             )
 
-            if not action.value:
+            if action == VariableVisitConsumerAction.CONTINUE:
                 continue
-            if action.value == 2:
+            if action == VariableVisitConsumerAction.CONSUME:
                 current_consumer.mark_as_consumed(node.name, found_nodes)
-            if action.value:
+            if action in {
+                VariableVisitConsumerAction.RETURN,
+                VariableVisitConsumerAction.CONSUME,
+            }:
                 return
 
         # we have not found the name, if it isn't a builtin, that's an
