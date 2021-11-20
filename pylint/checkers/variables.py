@@ -2071,7 +2071,7 @@ class VariablesChecker(BaseChecker):
             return
 
         # attempt to check unpacking is properly balanced
-        values = []
+        values: Optional[List] = None
         if isinstance(inferred, (nodes.Tuple, nodes.List)):
             values = inferred.itered()
         elif isinstance(inferred, astroid.Instance) and any(
