@@ -58,8 +58,8 @@ COLORIZED_DOT_FILES = ["packages_colorized.dot", "classes_colorized.dot"]
 VCG_FILES = ["packages_No_Name.vcg", "classes_No_Name.vcg"]
 PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
 COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
-MMD_FILES = ["packages.mmd", "classes.mmd"]
-HTML_FILES = ["packages.html", "classes.html"]
+MMD_FILES = ["packages_No_Name.mmd", "classes_No_Name.mmd"]
+HTML_FILES = ["packages_No_Name.html", "classes_No_Name.html"]
 
 
 class Config:
