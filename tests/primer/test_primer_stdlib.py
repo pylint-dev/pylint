@@ -7,15 +7,16 @@ import os
 import sys
 
 import pytest
+from pytest import CaptureFixture
 
 import pylint.lint
 
 
-def is_module(filename):
+def is_module(filename: str) -> bool:
     return filename.endswith(".py")
 
 
-def is_package(filename, location):
+def is_package(filename: str, location: str) -> bool:
     return os.path.exists(os.path.join(location, filename, "__init__.py"))
 
 
@@ -42,13 +43,25 @@ MODULES_NAMES = [m[1] for m in MODULES_TO_CHECK]
 @pytest.mark.parametrize(
     ("test_module_location", "test_module_name"), MODULES_TO_CHECK, ids=MODULES_NAMES
 )
-def test_libmodule(test_module_location, test_module_name):
+def test_lib_module_no_crash(
+    test_module_location: str, test_module_name: str, capsys: CaptureFixture
+) -> None:
+    """Test that pylint does not produces any crashes or fatal errors on stdlib modules"""
     os.chdir(test_module_location)
     with _patch_stdout(io.StringIO()):
         try:
-            pylint.lint.Run([test_module_name, "--enable=all", "--ignore=test"])
+            pylint.lint.Run(
+                [
+                    test_module_name,
+                    "--enable=all",
+                    "--enable-all-extensions",
+                    "--ignore=test",
+                ]
+            )
         except SystemExit as ex:
-            assert ex.code != 32
-            return
-
-        assert False, "shouldn't get there"
+            out, err = capsys.readouterr()
+            assert not err, err
+            assert not out
+            msg = f"Encountered {{}} during primer stlib test for {test_module_name}"
+            assert ex.code != 32, msg.format("a crash")
+            assert ex.code % 2 == 0, msg.format("a message of category 'fatal'")
