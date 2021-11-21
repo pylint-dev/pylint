@@ -195,6 +195,8 @@ Release date: TBA
 
   Partially closes #5321
 
+* Inheriting from a class that implements ``__class_getitem__`` no longer raises ``inherit-non-class``.
+
 
 What's New in Pylint 2.11.2?
 ============================
