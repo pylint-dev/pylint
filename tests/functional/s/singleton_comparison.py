@@ -18,3 +18,10 @@ assert x != False  # [singleton-comparison]
 if x == True:  # [singleton-comparison]
     pass
 z = bool(x == True)  # [singleton-comparison]
+
+from enum import Enum  # pylint: disable=wrong-import-position
+class MyEnum(Enum):
+    CANARY = 1
+thing = MyEnum.CANARY
+e1 = thing == MyEnum.CANARY  # [singleton-comparison]
+e2 = thing is not MyEnum.CANARY

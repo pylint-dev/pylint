@@ -10,3 +10,4 @@ singleton-comparison:16:7::Comparison 'x == True' should be 'x is True' if check
 singleton-comparison:17:7::Comparison 'x != False' should be 'x is not False' if checking for the singleton value False, or 'x' if testing for truthiness
 singleton-comparison:18:3::Comparison 'x == True' should be 'x is True' if checking for the singleton value True, or 'x' if testing for truthiness
 singleton-comparison:20:9::Comparison 'x == True' should be 'x is True' if checking for the singleton value True, or 'x' if testing for truthiness
+singleton-comparison:26:5::Comparison 'thing == MyEnum.CANARY' should be 'thing is MyEnum.CANARY'
