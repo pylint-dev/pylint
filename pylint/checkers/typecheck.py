@@ -1584,9 +1584,9 @@ accessed. Python regular expressions are accepted.",
         # index to check if the object being sliced can support them
         return self._check_invalid_sequence_index(node.parent)
 
-    def _check_invalid_slice_index(self, node):
+    def _check_invalid_slice_index(self, node: nodes.Slice) -> None:
         # Check the type of each part of the slice
-        invalid_slices = 0
+        invalid_slices_nodes: List[nodes.NodeNG] = []
         for index in (node.lower, node.upper, node.step):
             if index is None:
                 continue
@@ -1610,9 +1610,9 @@ accessed. Python regular expressions are accepted.",
                     return
                 except astroid.NotFoundError:
                     pass
-            invalid_slices += 1
+            invalid_slices_nodes.append(index)
 
-        if not invalid_slices:
+        if not invalid_slices_nodes:
             return
 
         # Anything else is an error, unless the object that is indexed
@@ -1635,8 +1635,8 @@ accessed. Python regular expressions are accepted.",
             if not isinstance(inferred, known_objects):
                 # Might be an instance that knows how to handle this slice object
                 return
-        for _ in range(invalid_slices):
-            self.add_message("invalid-slice-index", node=node)
+        for snode in invalid_slices_nodes:
+            self.add_message("invalid-slice-index", node=snode)
 
     @check_messages("not-context-manager")
     def visit_with(self, node: nodes.With) -> None:

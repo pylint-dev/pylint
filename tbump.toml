@@ -36,10 +36,6 @@ cmd = "pip3 install copyrite;copyrite --contribution-threshold 1 --change-thresh
 name = "Apply pre-commit"
 cmd = "pre-commit run --all-files||echo 'Hack so this command does not fail'"
 
-[[before_commit]]
-name = "Acceptance tests"
-cmd = "pytest -m acceptance"
-
 # Or run some commands after the git tag and the branch
 # have been pushed:
 #  [[after_push]]
