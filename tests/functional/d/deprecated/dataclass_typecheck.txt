@@ -1,5 +1,5 @@
 invalid-sequence-index:32:6::Sequence index is not an int, slice, or instance with __index__:HIGH
-invalid-slice-index:36:0::Slice index is not an int, None, or instance with __index__:HIGH
+invalid-slice-index:36:10::Slice index is not an int, None, or instance with __index__:HIGH
 not-callable:39:0::obj.attr1 is not callable:HIGH
 invalid-unary-operand-type:44:6::"bad operand type for unary -: str":HIGH
 unsupported-membership-test:51:11::Value 'obj.attr1' doesn't support membership test:HIGH
